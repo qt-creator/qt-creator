@@ -20,7 +20,7 @@ namespace PrintableEnums {
 Q_NAMESPACE
 
 // TODO: Is it possible to check for synchronous invocation of subsequent events, so that
-//       we may be sure that the control didn't went back to the main event loop between 2 events?
+//       we may be sure that the control didn't go back to the main event loop between 2 events?
 //       In theory: yes! We can add a signal / handler to the task tree sent before / after
 //       receiving done signal from each task!
 // TODO: Check if the TaskTree's main guard isn't locked when receiving done signal from each task.
@@ -2631,7 +2631,42 @@ void tst_Tasking::testTree_data()
                                                                  DoneWith::Success};
     }
 
-    // This test check if storage shadowing works OK.
+    {
+        // Test if the task tree started from the setup handler may use the same storage.
+
+        const auto groupSetup = [storage] {
+            storage->m_log.append({0, Handler::GroupSetup});
+
+            const auto nestedGroupSetup = [storage] {
+                storage->m_log.append({2, Handler::GroupSetup});
+            };
+            const auto nestedGroupDone = [storage](DoneWith result) {
+                storage->m_log.append({2, resultToGroupHandler(result)});
+            };
+            TaskTree subTree({storage,
+                              onGroupSetup(nestedGroupSetup),
+                              onGroupDone(nestedGroupDone)});
+            subTree.start();
+            storage->m_log.append({1, Handler::GroupSetup}); // Ensure the storage is still active.
+        };
+        const auto groupDone = [storage](DoneWith result) {
+            storage->m_log.append({0, resultToGroupHandler(result)});
+        };
+
+        const Group root {
+            storage,
+            onGroupSetup(groupSetup),
+            onGroupDone(groupDone)
+        };
+        const Log log {
+            {0, Handler::GroupSetup},
+            {1, Handler::GroupSetup},
+            {0, Handler::GroupSuccess}
+        };
+        QTest::newRow("CommonStorage") << TestData{storage, root, log, 0, DoneWith::Success};
+    }
+
+    // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
 

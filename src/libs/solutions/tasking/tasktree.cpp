@@ -1219,13 +1219,27 @@ class StorageThreadData
 
 public:
     StorageThreadData() = default;
-    void activateStorage(StoragePtr storagePtr);
-
-    StoragePtr activeStoragePtr() const;
-    bool hasActiveStorage() const { return m_activeStorage; }
+    void pushStorage(StoragePtr storagePtr)
+    {
+        m_activeStorageStack.push_back(storagePtr);
+    }
+    void popStorage()
+    {
+        QT_ASSERT(m_activeStorageStack.size(), return);
+        m_activeStorageStack.pop_back();
+    }
+    StoragePtr activeStorage() const
+    {
+        QT_ASSERT(m_activeStorageStack.size(), qWarning(
+            "The referenced storage is not reachable in the running tree. "
+            "A nullptr will be returned which might lead to a crash in the calling code. "
+            "It is possible that no storage was added to the tree, "
+            "or the storage is not reachable from where it is referenced."); return nullptr);
+        return m_activeStorageStack.last();
+    }
 
 private:
-    StoragePtr m_activeStorage = nullptr;
+    QList<StoragePtr> m_activeStorageStack;
 };
 
 class StorageData
@@ -1244,35 +1258,13 @@ public:
     std::map<QThread *, StorageThreadData> m_threadDataMap = {};
 };
 
-// passing 0 deactivates currently active storage
-void StorageThreadData::activateStorage(StoragePtr storagePtr)
-{
-    if (storagePtr == nullptr) {
-        QT_ASSERT(m_activeStorage, return);
-        m_activeStorage = nullptr;
-        return;
-    }
-    QT_ASSERT(m_activeStorage == nullptr, return);
-    m_activeStorage = storagePtr;
-}
-
-StoragePtr StorageThreadData::activeStoragePtr() const
-{
-    QT_ASSERT(m_activeStorage, qWarning(
-        "The referenced storage is not reachable in the running tree. "
-        "A nullptr will be returned which might lead to a crash in the calling code. "
-        "It is possible that no storage was added to the tree, "
-        "or the storage is not reachable from where it is referenced."); return nullptr);
-    return m_activeStorage;
-}
-
 StorageBase::StorageBase(StorageConstructor ctor, StorageDestructor dtor)
     : m_storageData(new StorageData{ctor, dtor})
 {}
 
 void *StorageBase::activeStorageVoid() const
 {
-    return m_storageData->threadData().activeStoragePtr();
+    return m_storageData->threadData().activeStorage();
 }
 
 void GroupItem::addChildren(const QList<GroupItem> &children)
@@ -1362,7 +1354,7 @@ public:
     ExecutionContextActivator(TaskRuntimeContainer *container) { activateContext(container); }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeStorages[i].m_storageData->threadData().activateStorage(nullptr);
+            m_activeStorages[i].m_storageData->threadData().popStorage();
     }
 
 private:
@@ -1557,11 +1549,10 @@ void ExecutionContextActivator::activateContext(TaskRuntimeContainer *container)
     const TaskContainer &taskContainer = container->m_taskContainer;
     for (int i = 0; i < taskContainer.m_storageList.size(); ++i) {
         const StorageBase &storage = taskContainer.m_storageList[i];
-        auto &threadData = storage.m_storageData->threadData();
-        if (threadData.hasActiveStorage())
+        if (m_activeStorages.contains(storage))
             continue; // Storage shadowing: The storage is already active, skipping it...
         m_activeStorages.append(storage);
-        threadData.activateStorage(container->m_storages.value(i));
+        storage.m_storageData->threadData().pushStorage(container->m_storages.value(i));
     }
     // Go to the parent after activating this storages so that storage shadowing works
     // in the direction from child to parent root.
