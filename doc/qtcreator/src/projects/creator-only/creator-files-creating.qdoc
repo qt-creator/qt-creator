@@ -38,8 +38,7 @@
     \row
         \li \uicontrol {Modeling}
         \li State Chart XML (SCXML) files, Universal Modeling Language (UML)
-            style \l {Modeling}{models}, and scratch models that use a temporary
-            file.
+            style models, and scratch models that use a temporary file.
     \row
         \li \uicontrol {Qt}
         \li Source and header files for item, table,
@@ -77,7 +76,8 @@
 
     \sa {Create compiler explorer sessions}, {Create C++ classes},
     {Create OpenGL fragment and vertex shaders}, {Create resource files},
-    {Create vcpkg manifest files}, {Use project wizards}
+    {Create UML-style models}, {Create vcpkg manifest files},
+    {Use project wizards}
 */
 
 /*!

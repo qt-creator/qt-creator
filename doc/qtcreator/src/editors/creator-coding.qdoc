@@ -84,12 +84,6 @@
             \QC uses the MIME type of a file to determine which mode and editor
             to use for opening the file. If your files do not match the
             predefined MIME types, you can edit the MIME types.
-
-        \li \l{Modeling}
-
-            You can use the model editor to create Universal Modeling Language
-            (UML) style models with structured and behavioral diagrams that
-            show your system in many ways and store them in XML format.
     \endlist
     \endif
 */

@@ -41,6 +41,10 @@
 
     \generatelist creator-how-to-run
 
+    \section1 Create Models and Diagrams
+
+    \generatelist creator-how-to-models
+
     \section1 Debug
 
     \generatelist creator-how-to-debug
