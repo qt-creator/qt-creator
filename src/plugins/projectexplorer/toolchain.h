@@ -241,6 +241,20 @@ public:
     const Utils::FilePaths searchPaths; // If empty use device path and/or magic.
 };
 
+class PROJECTEXPLORER_EXPORT AsyncToolchainDetector
+{
+public:
+    AsyncToolchainDetector(
+        const ToolchainDetector &detector,
+        const std::function<Toolchains(const ToolchainDetector &)> &func,
+        const std::function<bool(const Toolchain *, const Toolchains &)> &alreadyRegistered);
+    void run();
+private:
+    ToolchainDetector m_detector;
+    std::function<Toolchains(const ToolchainDetector &)> m_func;
+    std::function<bool(Toolchain *, const Toolchains &)> m_alreadyRegistered;
+};
+
 class PROJECTEXPLORER_EXPORT ToolchainFactory
 {
     ToolchainFactory(const ToolchainFactory &) = delete;
@@ -255,6 +269,8 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolchainType() const;
 
+    virtual std::optional<AsyncToolchainDetector> asyncAutoDetector(
+        const ToolchainDetector &detector) const;
     virtual Toolchains autoDetect(const ToolchainDetector &detector) const;
     virtual Toolchains detectForImport(const ToolchainDescription &tcd) const;
 

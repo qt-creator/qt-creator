@@ -9,6 +9,7 @@
 #include "toolchainmanager.h"
 #include "task.h"
 
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 
 #include <QUuid>
@@ -656,6 +657,12 @@ Id ToolchainFactory::supportedToolchainType() const
     return m_supportedToolchainType;
 }
 
+std::optional<AsyncToolchainDetector> ToolchainFactory::asyncAutoDetector(
+    const ToolchainDetector &) const
+{
+    return {};
+}
+
 void ToolchainFactory::setSupportedToolchainType(const Id &supportedToolchainType)
 {
     m_supportedToolchainType = supportedToolchainType;
@@ -750,6 +757,37 @@ BadToolchains BadToolchains::fromVariant(const QVariant &v)
 {
     return Utils::transform<QList<BadToolchain>>(v.toList(),
             [](const QVariant &e) { return BadToolchain::fromMap(storeFromVariant(e)); });
+}
+
+AsyncToolchainDetector::AsyncToolchainDetector(
+    const ToolchainDetector &detector,
+    const std::function<Toolchains(const ToolchainDetector &)> &func,
+    const std::function<bool(const Toolchain *, const Toolchains &)> &alreadyRegistered)
+    : m_detector(detector)
+    , m_func(func)
+    , m_alreadyRegistered(alreadyRegistered)
+{
+}
+
+void AsyncToolchainDetector::run()
+{
+    auto watcher = new QFutureWatcher<Toolchains>();
+    QObject::connect(watcher,
+                     &QFutureWatcher<Toolchains>::finished,
+                     [watcher,
+                      alreadyRegistered = m_alreadyRegistered]() {
+                         Toolchains existingTcs = ToolchainManager::toolchains();
+                         for (Toolchain *tc : watcher->result()) {
+                             if (tc->isValid() && !alreadyRegistered(tc, existingTcs)) {
+                                 ToolchainManager::registerToolchain(tc);
+                                 existingTcs << tc;
+                             } else {
+                                 delete tc;
+                             }
+                         }
+                         watcher->deleteLater();
+                     });
+    watcher->setFuture(Utils::asyncRun(m_func, m_detector));
 }
 
 } // namespace ProjectExplorer

@@ -54,16 +54,27 @@ struct ToolChainOperations
     Toolchains toDelete;
 };
 
-static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
+static Toolchains autoDetectToolchains(const ToolchainDetector &detector)
 {
     Toolchains result;
     for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
         NANOTRACE_SCOPE_ARGS("ProjectExplorer",
-                             "ToolChainSettingsAccessor::autoDetectToolChains",
+                             "ToolchainSettingsAccessor::autoDetectToolchains",
                              {"factory", f->displayName().toStdString()});
         QElapsedTimer et;
         et.start();
-        result.append(f->autoDetect(detector));
+        if (std::optional<AsyncToolchainDetector> asyncDetector = f->asyncAutoDetector(detector)) {
+            Toolchains known = Utils::filtered(detector.alreadyKnown,
+                                               [supportedType = f->supportedToolchainType()](
+                                                   const Toolchain *tc) {
+                                                   return tc->typeId() == supportedType
+                                                          && tc->isValid();
+                                               });
+            result.append(known);
+            asyncDetector->run();
+        } else {
+            result.append(f->autoDetect(detector));
+        }
         qCDebug(Log) << f->displayName() << "auto detection took: " << et.elapsed() << "ms";
     }
 
@@ -201,7 +212,7 @@ Toolchains ToolchainSettingsAccessor::restoreToolChains(QWidget *parent) const
     // Autodect from system paths on the desktop device.
     // The restriction is intentional to keep startup and automatic validation a limited effort
     ToolchainDetector detector(autodetectedUserFileTcs, DeviceManager::defaultDesktopDevice(), {});
-    const Toolchains autodetectedTcs = autoDetectToolChains(detector);
+    const Toolchains autodetectedTcs = autoDetectToolchains(detector);
 
     // merge tool chains and register those that we need to keep:
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);
