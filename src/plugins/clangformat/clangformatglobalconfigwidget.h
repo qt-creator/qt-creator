@@ -7,8 +7,6 @@
 
 #include <utils/guard.h>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
@@ -36,16 +34,17 @@ public:
 private:
     void initCheckBoxes();
     void initIndentationOrFormattingCombobox();
-    void initOverrideCheckBox();
+    void initCustomSettingsCheckBox();
     void initUseGlobalSettingsCheckBox();
     void initFileSizeThresholdSpinBox();
+    void initCurrentProjectLabel();
 
     bool projectClangFormatFileExists();
 
     ProjectExplorer::Project *m_project;
     TextEditor::ICodeStylePreferences *m_codeStyle;
     Utils::Guard m_ignoreChanges;
-    bool m_overrideDefaultFile;
+    bool m_useCustomSettings;
 
     QLabel *m_projectHasClangFormat;
     QLabel *m_formattingModeLabel;
@@ -54,8 +53,9 @@ private:
     QComboBox *m_indentingOrFormatting;
     QCheckBox *m_formatWhileTyping;
     QCheckBox *m_formatOnSave;
-    QCheckBox *m_overrideDefault;
+    QCheckBox *m_useCustomSettingsCheckBox;
     QCheckBox *m_useGlobalSettings;
+    QLabel *m_currentProjectLabel;
 };
 
 } // namespace ClangFormat

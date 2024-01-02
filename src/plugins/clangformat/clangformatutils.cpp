@@ -287,24 +287,25 @@ bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project)
     return projectUseGlobalSettings.isValid() ? projectUseGlobalSettings.toBool() : true;
 }
 
-bool getProjectOverriddenSettings(const ProjectExplorer::Project *project)
+bool getProjectCustomSettings(const ProjectExplorer::Project *project)
 {
-    const QVariant projectOverride = project ? project->namedSettings(Constants::OVERRIDE_FILE_ID)
-                                             : QVariant();
+    const QVariant projectCustomSettings = project ? project->namedSettings(
+                                               Constants::USE_CUSTOM_SETTINGS_ID)
+                                                   : QVariant();
 
-    return projectOverride.isValid()
-               ? projectOverride.toBool()
-               : ClangFormatSettings::instance().overrideDefaultFile();
+    return projectCustomSettings.isValid()
+               ? projectCustomSettings.toBool()
+               : ClangFormatSettings::instance().useCustomSettings();
 }
 
-bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
+bool getCurrentCustomSettings(const Utils::FilePath &filePath)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
     return getProjectUseGlobalSettings(project)
-               ? ClangFormatSettings::instance().overrideDefaultFile()
-               : getProjectOverriddenSettings(project);
+               ? ClangFormatSettings::instance().useCustomSettings()
+               : getProjectCustomSettings(project);
 }
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
@@ -348,7 +349,7 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
 
 Utils::FilePath configForFile(const Utils::FilePath &fileName)
 {
-    if (!getCurrentOverriddenSettings(fileName))
+    if (!getCurrentCustomSettings(fileName))
         return findConfig(fileName);
 
     const ProjectExplorer::Project *projectForFile

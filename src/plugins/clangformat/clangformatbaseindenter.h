@@ -87,7 +87,7 @@ private:
 
     mutable CachedStyle m_cachedStyle;
 
-    clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName) const;
+    clang::format::FormatStyle customSettingsStyle(const Utils::FilePath &fileName) const;
     TextEditor::ICodeStylePreferences *m_overriddenPreferences = nullptr;
 };
 

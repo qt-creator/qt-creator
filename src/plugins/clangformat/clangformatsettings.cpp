@@ -22,7 +22,8 @@ ClangFormatSettings::ClangFormatSettings()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::SETTINGS_ID);
-    m_overrideDefaultFile = settings->value(Constants::OVERRIDE_FILE_ID, false).toBool();
+    m_useCustomSettings
+        = settings->value(Constants::USE_CUSTOM_SETTINGS_ID, false).toBool();
     m_formatWhileTyping = settings->value(Constants::FORMAT_WHILE_TYPING_ID, false).toBool();
     m_formatOnSave = settings->value(Constants::FORMAT_CODE_ON_SAVE_ID, false).toBool();
     m_fileSizeThreshold = settings->value(Constants::FILE_SIZE_THREDSHOLD,
@@ -47,7 +48,7 @@ void ClangFormatSettings::write() const
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::SETTINGS_ID);
-    settings->setValue(Constants::OVERRIDE_FILE_ID, m_overrideDefaultFile);
+    settings->setValue(Constants::USE_CUSTOM_SETTINGS_ID, m_useCustomSettings);
     settings->setValue(Constants::FORMAT_WHILE_TYPING_ID, m_formatWhileTyping);
     settings->setValue(Constants::FORMAT_CODE_ON_SAVE_ID, m_formatOnSave);
     settings->setValue(Constants::MODE_ID, static_cast<int>(m_mode));
@@ -55,14 +56,14 @@ void ClangFormatSettings::write() const
     settings->endGroup();
 }
 
-void ClangFormatSettings::setOverrideDefaultFile(bool enable)
+void ClangFormatSettings::setUseCustomSettings(bool enable)
 {
-    m_overrideDefaultFile = enable;
+    m_useCustomSettings = enable;
 }
 
-bool ClangFormatSettings::overrideDefaultFile() const
+bool ClangFormatSettings::useCustomSettings() const
 {
-    return m_overrideDefaultFile;
+    return m_useCustomSettings;
 }
 
 void ClangFormatSettings::setFormatWhileTyping(bool enable)

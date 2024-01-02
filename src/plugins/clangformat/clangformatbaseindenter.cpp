@@ -772,7 +772,7 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
     }
 }
 
-clang::format::FormatStyle ClangFormatBaseIndenter::overrideStyle(
+clang::format::FormatStyle ClangFormatBaseIndenter::customSettingsStyle(
     const Utils::FilePath &fileName) const
 {
     const ProjectExplorer::Project *projectForFile
@@ -820,8 +820,8 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
     if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))
         return m_cachedStyle.style;
 
-    if (getCurrentOverriddenSettings(m_fileName)) {
-        clang::format::FormatStyle style = overrideStyle(m_fileName);
+    if (getCurrentCustomSettings(m_fileName)) {
+        clang::format::FormatStyle style = customSettingsStyle(m_fileName);
         m_cachedStyle.setCache(style, cacheTimeout);
         return m_cachedStyle.style;
     }
