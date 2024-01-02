@@ -13,8 +13,6 @@
 #include <QSet>
 #include <QTimer>
 
-#include <atomic>
-
 using namespace std::chrono;
 
 namespace Tasking {
@@ -1244,14 +1242,14 @@ class LoopData
 {
 public:
     LoopThreadData &threadData() {
-        const std::lock_guard lock(m_threadDataMutex);
+        QMutexLocker lock(&m_threadDataMutex);
         return m_threadDataMap.try_emplace(QThread::currentThread()).first->second;
     }
 
     const std::optional<int> m_loopCount = {};
     const Loop::ValueGetter m_valueGetter = {};
     const Loop::Condition m_condition = {};
-    std::mutex m_threadDataMutex = {};
+    QMutex m_threadDataMutex = {};
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
     std::map<QThread *, LoopThreadData> m_threadDataMap = {};
