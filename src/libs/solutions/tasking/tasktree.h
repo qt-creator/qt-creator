@@ -121,7 +121,7 @@ private:
     template <typename StorageStruct> friend class Storage;
     friend class ExecutionContextActivator;
     friend class StorageData;
-    friend class TaskRuntimeContainer;
+    friend class RuntimeContainer;
     friend class TaskTree;
     friend class TaskTreePrivate;
 };
@@ -224,7 +224,7 @@ protected:
     }
 
 private:
-    friend class TaskContainer;
+    friend class ContainerNode;
     friend class TaskNode;
     friend class TaskTreePrivate;
     Type m_type = Type::Group;
