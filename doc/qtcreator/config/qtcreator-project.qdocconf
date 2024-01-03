@@ -14,7 +14,7 @@ ignorewords += \
 
 headerdirs =
 sourcedirs = ../src \
-    $$DOC_BUILD_DIR
+    $$GENERATED_ATTRIBUTIONS_DIR
 
 imagedirs = ../images
 

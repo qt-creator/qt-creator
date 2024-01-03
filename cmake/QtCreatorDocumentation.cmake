@@ -77,7 +77,6 @@ function(_setup_qdoc_targets _qdocconf_file _retval)
     endif()
     list(APPEND _env "${_export}=${${_export}}")
   endforeach()
-  list(APPEND _env "DOC_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 
   get_target_property(_full_qdoc_command Qt::qdoc IMPORTED_LOCATION)
   if (_env)
@@ -226,7 +225,7 @@ endfunction()
 
 function(add_qtc_documentation qdocconf_file)
   cmake_parse_arguments(_arg "" ""
-    "INCLUDE_DIRECTORIES;FRAMEWORK_PATHS" ${ARGN})
+    "INCLUDE_DIRECTORIES;FRAMEWORK_PATHS;ENVIRONMENT_EXPORTS" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_documentation has unknown arguments: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -263,6 +262,7 @@ function(add_qtc_documentation qdocconf_file)
     QTC_DOCS_DIR QTC_VERSION QTC_VERSION_TAG
     QTCREATOR_COPYRIGHT_YEAR
     QT_INSTALL_DOCS QDOC_INDEX_DIR
+    ${_arg_ENVIRONMENT_EXPORTS}
   )
 
   qdoc_build_qdocconf_file(${qdocconf_file} ${_qch_params} ${_qdoc_params}
@@ -272,12 +272,16 @@ function(add_qtc_documentation qdocconf_file)
 endfunction()
 
 function(add_qtc_doc_attribution target attribution_file output_file qdocconf_file)
+  get_filename_component(doc_target "${qdocconf_file}" NAME_WE)
   set(html_target "html_docs_${doc_target}")
   if (NOT TARGET ${html_target})
       # probably qdoc is missing, so other documentation targets are not there
       return()
   endif()
-  get_filename_component(doc_target "${qdocconf_file}" NAME_WE)
+  # make sure output directory exists
+  get_filename_component(output_dir "${output_file}" DIRECTORY)
+  file(MAKE_DIRECTORY ${output_dir})
+  # add target
   add_custom_target(${target}
       Qt6::qtattributionsscanner -o "${output_file}" ${attribution_file}
     COMMENT "Create attributions ${output_file} from ${attribution_file}"

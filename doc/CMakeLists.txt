@@ -34,10 +34,13 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
 endfunction()
 
 function(_add_doc _doc_file _dev_doc_file)
-  add_qtc_documentation(${_doc_file})
+  set(GENERATED_ATTRIBUTIONS_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_attributions)
+  add_qtc_documentation(${_doc_file}
+    ENVIRONMENT_EXPORTS GENERATED_ATTRIBUTIONS_DIR
+  )
   add_qtc_doc_attribution(doc_attributions
     "${CMAKE_CURRENT_SOURCE_DIR}/../qt_attributions.json"
-    "${CMAKE_CURRENT_BINARY_DIR}/creator-attributions.qdoc"
+    "${GENERATED_ATTRIBUTIONS_DIR}/creator-attributions.qdoc"
     ${_doc_file}
   )
   if (BUILD_DEVELOPER_DOCS)
