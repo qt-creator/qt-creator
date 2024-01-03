@@ -1446,8 +1446,8 @@ public:
     // Container related methods
 
     SetupResult start(RuntimeContainer *container);
-    SetupResult continueStart(RuntimeContainer *container, SetupResult startAction, int nextChild);
-    SetupResult startChildren(RuntimeContainer *container, int nextChild);
+    SetupResult continueStart(RuntimeContainer *container, SetupResult startAction);
+    SetupResult startChildren(RuntimeContainer *container);
     SetupResult childDone(RuntimeContainer *container, bool success);
     void stop(RuntimeContainer *container);
     bool invokeDoneHandler(RuntimeContainer *container, DoneWith doneWith);
@@ -1512,6 +1512,7 @@ public:
 
     static QList<StoragePtr> createStorages(const ContainerNode &container);
     bool isStarting() const { return m_startGuard.isLocked(); }
+    int continueIndex() const;
     int currentLimit() const;
     RuntimeContainer *parentContainer() const;
     bool updateSuccessBit(bool success);
@@ -1649,6 +1650,12 @@ QList<StoragePtr> RuntimeContainer::createStorages(const ContainerNode &containe
     return storages;
 }
 
+int RuntimeContainer::continueIndex() const
+{
+    return m_doneCount ? qMin(m_doneCount + m_containerNode.m_parallelLimit - 1,
+                              int(m_containerNode.m_children.size())) : 0;
+}
+
 int RuntimeContainer::currentLimit() const
 {
     // TODO: Handle children well
@@ -1705,12 +1712,12 @@ SetupResult TaskTreePrivate::start(RuntimeContainer *container)
     } else { // TODO: Check if repeater exists, call its handler.
 
     }
-    return continueStart(container, startAction, 0);
+    return continueStart(container, startAction);
 }
 
-SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupResult startAction, int nextChild)
+SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupResult startAction)
 {
-    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(container, nextChild)
+    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(container)
                                                                          : startAction;
     if (groupAction != SetupResult::Continue) {
         const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
@@ -1731,10 +1738,13 @@ SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupRes
     return groupAction;
 }
 
-SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container, int nextChild)
+SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
 {
+    if (container->m_containerNode.m_parallelLimit == 0 && container->m_doneCount > 0)
+        return SetupResult::Continue;
+
     GuardLocker locker(container->m_startGuard);
-    for (int i = nextChild; i < int(container->m_containerNode.m_children.size()); ++i) {
+    for (int i = container->continueIndex(); i < int(container->m_containerNode.m_children.size()); ++i) {
         const int limit = container->currentLimit();
         if (i >= limit)
             break;
@@ -1763,7 +1773,6 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container, int next
 
 SetupResult TaskTreePrivate::childDone(RuntimeContainer *container, bool success)
 {
-    const int limit = container->currentLimit(); // Read before bumping m_doneCount and stop()
     const WorkflowPolicy &workflowPolicy = container->m_containerNode.m_workflowPolicy;
     const bool shouldStop = workflowPolicy == WorkflowPolicy::StopOnSuccessOrError
                         || (workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
@@ -1779,7 +1788,7 @@ SetupResult TaskTreePrivate::childDone(RuntimeContainer *container, bool success
 
     if (container->isStarting())
         return startAction;
-    return continueStart(container, startAction, limit);
+    return continueStart(container, startAction);
 }
 
 void TaskTreePrivate::stop(RuntimeContainer *container)
