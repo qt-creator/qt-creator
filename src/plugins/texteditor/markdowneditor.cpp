@@ -20,6 +20,7 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
+#include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QScrollBar>
 #include <QTextBrowser>
@@ -70,9 +71,22 @@ public:
 
         // preview
         m_previewWidget = new QTextBrowser();
-        m_previewWidget->setOpenExternalLinks(true);
+        m_previewWidget->setOpenLinks(false); // we want to open files in QtC, not the browser
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         new Utils::MarkdownHighlighter(m_previewWidget->document());
+        connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
+            if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
+                // local anchor
+                m_previewWidget->scrollToAnchor(link.fragment(QUrl::FullyEncoded));
+            } else if (link.isLocalFile() || link.scheme().isEmpty()) {
+                // absolute path or relative (to the document)
+                // open in Qt Creator
+                EditorManager::openEditor(
+                    document()->filePath().parentDir().resolvePath(link.path()));
+            } else {
+                QDesktopServices::openUrl(link);
+            }
+        });
 
         // editor
         m_textEditorWidget = new TextEditorWidget;
