@@ -49,6 +49,8 @@ public:
 
     const clang::format::FormatStyle &styleForFile() const;
 
+    void setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences);
+
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }
     virtual bool formatWhileTyping() const { return false; }
@@ -84,6 +86,9 @@ private:
     };
 
     mutable CachedStyle m_cachedStyle;
+
+    clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName) const;
+    TextEditor::ICodeStylePreferences *m_overriddenPreferences = nullptr;
 };
 
 } // namespace ClangFormat

@@ -772,7 +772,8 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
     }
 }
 
-clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
+clang::format::FormatStyle ClangFormatBaseIndenter::overrideStyle(
+    const Utils::FilePath &fileName) const
 {
     const ProjectExplorer::Project *projectForFile
         = ProjectExplorer::ProjectManager::projectForFile(fileName);
@@ -781,6 +782,9 @@ clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
         = projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+
+    if (m_overriddenPreferences)
+        preferences = m_overriddenPreferences->currentPreferences();
 
     Utils::FilePath filePath = filePathToCurrentSettings(preferences);
 
@@ -842,6 +846,11 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
 
     m_cachedStyle.setCache(qtcStyle(), 0ms);
     return m_cachedStyle.style;
+}
+
+void ClangFormatBaseIndenter::setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences)
+{
+    m_overriddenPreferences = preferences;
 }
 
 } // namespace ClangFormat
