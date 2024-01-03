@@ -1706,12 +1706,8 @@ SetupResult TaskTreePrivate::start(RuntimeContainer *container)
             container->m_successBit = startAction == SetupResult::StopWithSuccess;
         }
     }
-    if (startAction == SetupResult::Continue) {
-        if (container->m_containerNode.m_children.empty())
-            startAction = toSetupResult(container->m_successBit);
-    } else { // TODO: Check if repeater exists, call its handler.
-
-    }
+    if (startAction == SetupResult::Continue && container->m_containerNode.m_children.empty())
+        startAction = toSetupResult(container->m_successBit);
     return continueStart(container, startAction);
 }
 
