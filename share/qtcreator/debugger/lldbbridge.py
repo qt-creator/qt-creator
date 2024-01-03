@@ -1997,7 +1997,7 @@ class Dumper(DumperBase):
 
 # Used in dumper auto test.
 class Tester(Dumper):
-    def __init__(self, binary, args):
+    def __init__(self, binary, frameLevel, args):
         Dumper.__init__(self)
         lldb.theDumper = self
         self.loadDumpers({'token': 1})
@@ -2008,11 +2008,11 @@ class Tester(Dumper):
             self.warn('ERROR: %s' % error)
             return
 
-        s = threading.Thread(target=self.testLoop, args=(args,))
+        s = threading.Thread(target=self.testLoop, args=[args, frameLevel])
         s.start()
         s.join(30)
 
-    def testLoop(self, args):
+    def testLoop(self, args, frameLevel):
         # Disable intermediate reporting.
         savedReport = self.report
         self.report = lambda stuff: 0
@@ -2050,10 +2050,11 @@ class Tester(Dumper):
                     if stoppedThread:
                         # This seems highly fragile and depending on the 'No-ops' in the
                         # event handling above.
-                        frame = stoppedThread.GetFrameAtIndex(0)
+                        frame = stoppedThread.GetFrameAtIndex(frameLevel)
                         line = frame.line_entry.line
                         if line != 0:
                             self.report = savedReport
+                            stoppedThread.SetSelectedFrame(frameLevel)
                             self.process.SetSelectedThread(stoppedThread)
                             self.fakeAddress_ = frame.GetPC()
                             self.fakeLAddress_ = frame.GetPCAddress()
