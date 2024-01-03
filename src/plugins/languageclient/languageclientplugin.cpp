@@ -12,6 +12,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QAction>
 #include <QMenu>
@@ -26,6 +27,7 @@ class LanguageClientPlugin final : public ExtensionSystem::IPlugin
 public:
     LanguageClientPlugin()
     {
+        setObjectName("LanguageClient");
         qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
     }
 
@@ -33,6 +35,24 @@ private:
     void initialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
+
+    Q_SLOT void openDocument(Core::IDocument *document)
+    {
+        LanguageClientManager::openDocument(document);
+    }
+
+    Q_SLOT void closeDocument(Core::IDocument *document)
+    {
+        LanguageClientManager::closeDocument(document);
+    }
+
+    Q_SLOT void openEditor(Core::IEditor *editor) { LanguageClientManager::openEditor(editor); }
+
+    Q_SLOT void closeClientForDocument(TextEditor::TextDocument *document)
+    {
+        if (auto client = LanguageClientManager::clientForDocument(document))
+            client->closeDocument(document);
+    }
 
     LanguageClientOutlineWidgetFactory m_outlineFactory;
 };
@@ -57,6 +77,8 @@ void LanguageClientPlugin::initialize()
     inspectAction.setText(Tr::tr("Inspect Language Clients..."));
     inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
     inspectAction.addOnTriggered(this, &LanguageClientManager::showInspector);
+
+    ExtensionSystem::PluginManager::addObject(this);
 }
 
 void LanguageClientPlugin::extensionsInitialized()
@@ -66,6 +88,7 @@ void LanguageClientPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
 {
+    ExtensionSystem::PluginManager::removeObject(this);
     LanguageClientManager::shutdown();
     if (LanguageClientManager::isShutdownFinished())
         return ExtensionSystem::IPlugin::SynchronousShutdown;

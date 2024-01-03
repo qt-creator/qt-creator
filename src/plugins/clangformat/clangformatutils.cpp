@@ -417,13 +417,18 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-bool parseConfigurationFile(const Utils::FilePath &filePath, clang::format::FormatStyle &style)
+bool parseConfigurationContent(const std::string &fileContent, clang::format::FormatStyle &style)
 {
     style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error
-        = parseConfiguration(filePath.fileContents().value_or(QByteArray()).toStdString(), &style);
+    const std::error_code error = parseConfiguration(fileContent, &style);
 
     return error.value() == static_cast<int>(ParseError::Success);
+}
+
+bool parseConfigurationFile(const Utils::FilePath &filePath, clang::format::FormatStyle &style)
+{
+    return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),
+                                     style);
 }
 
 } // namespace ClangFormat

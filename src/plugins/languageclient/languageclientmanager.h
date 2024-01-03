@@ -76,6 +76,9 @@ public:
                                   const LanguageServerProtocol::JsonRpcMessage &message);
 
     static void showInspector();
+    static void openDocument(Core::IDocument *document);
+    static void closeDocument(Core::IDocument *document);
+    static void openEditor(Core::IEditor *editor);
 
 signals:
     void clientAdded(Client *client);

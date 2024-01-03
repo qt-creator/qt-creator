@@ -241,6 +241,8 @@ void ICodeStylePreferences::fromMap(const Store &map)
 void ICodeStylePreferences::codeStyleRemoved(ICodeStylePreferences *preferences)
 {
     if (currentDelegate() == preferences) {
+        emit aboutToBeRemoved(preferences);
+
         CodeStylePool *pool = delegatingPool();
         QList<ICodeStylePreferences *> codeStyles = pool->codeStyles();
         const int idx = codeStyles.indexOf(preferences);

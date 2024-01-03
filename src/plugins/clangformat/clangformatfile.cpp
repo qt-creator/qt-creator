@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatfile.h"
-#include "clangformatsettings.h"
 #include "clangformatutils.h"
 
 #include <cppeditor/cppcodestylepreferences.h>
@@ -15,41 +14,32 @@
 
 #include <utils/qtcassert.h>
 
-#include <sstream>
-
 using namespace ClangFormat;
 
 ClangFormatFile::ClangFormatFile(const TextEditor::ICodeStylePreferences *preferences)
     : m_filePath(filePathToCurrentSettings(preferences))
 {
-    if (!m_filePath.exists()) {
-        // create file and folder
-        m_filePath.parentDir().createDir();
-        std::fstream newStyleFile(m_filePath.path().toStdString(), std::fstream::out);
-        if (newStyleFile.is_open()) {
-            newStyleFile.close();
-        }
-        resetStyleToQtC(preferences);
+    if (m_filePath.exists())
+        return;
+
+    // create file and folder
+    m_filePath.parentDir().createDir();
+    std::fstream newStyleFile(m_filePath.path().toStdString(), std::fstream::out);
+    if (newStyleFile.is_open())
+        newStyleFile.close();
+
+    if (preferences->displayName() == "GNU") { // For build-in GNU style
+        m_style = clang::format::getGNUStyle();
+        saveStyleToFile(m_style, m_filePath);
         return;
     }
 
-    if (!parseConfigurationFile(m_filePath, m_style))
-        resetStyleToQtC(preferences);
-}
-
-clang::format::FormatStyle ClangFormatFile::style() {
-    return m_style;
+    resetStyleToQtC(preferences);
 }
 
 Utils::FilePath ClangFormatFile::filePath()
 {
     return m_filePath;
-}
-
-void ClangFormatFile::setStyle(clang::format::FormatStyle style)
-{
-    m_style = style;
-    saveNewFormat();
 }
 
 bool ClangFormatFile::isReadOnly() const
@@ -68,56 +58,6 @@ void ClangFormatFile::resetStyleToQtC(const TextEditor::ICodeStylePreferences *p
     saveStyleToFile(m_style, m_filePath);
 }
 
-void ClangFormatFile::setBasedOnStyle(QString styleName)
-{
-    changeField({"BasedOnStyle", styleName});
-    saveNewFormat();
-}
-
-QString ClangFormatFile::setStyle(QString style)
-{
-    const std::error_code error = clang::format::parseConfiguration(style.toStdString(), &m_style);
-    if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
-        return QString::fromStdString(error.message());
-    }
-
-    saveNewFormat(style.toUtf8());
-    return "";
-}
-
-QString ClangFormatFile::changeField(Field field)
-{
-    return changeFields({field});
-}
-
-QString ClangFormatFile::changeFields(QList<Field> fields)
-{
-    std::stringstream content;
-    content << "---" << "\n";
-
-    for (const auto &field : fields) {
-        content << field.first.toStdString() << ": " << field.second.toStdString() << "\n";
-    }
-
-    return setStyle(QString::fromStdString(content.str()));
-}
-
-void ClangFormatFile::saveNewFormat()
-{
-    if (m_isReadOnly)
-        return;
-
-    saveStyleToFile(m_style, m_filePath);
-}
-
-void ClangFormatFile::saveNewFormat(QByteArray style)
-{
-    if (m_isReadOnly)
-        return;
-
-    m_filePath.writeFileContents(style);
-}
-
 void ClangFormatFile::saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
 {
     std::string styleStr = clang::format::configurationAsText(style);
@@ -127,5 +67,27 @@ void ClangFormatFile::saveStyleToFile(clang::format::FormatStyle style, Utils::F
     if (pos != int(std::string::npos))
         styleStr.erase(pos, 2);
     styleStr.append("\n");
+    styleStr
+        .insert(0,
+                "# yaml-language-server: $schema=https://json.schemastore.org/clang-format.json\n");
     filePath.writeFileContents(QByteArray::fromStdString(styleStr));
+}
+
+void ClangFormatFile::removeClangFormatFileForStylePreferences(
+    const TextEditor::ICodeStylePreferences *preferences)
+{
+    filePathToCurrentSettings(preferences).parentDir().removeRecursively();
+}
+
+void ClangFormatFile::copyClangFormatFileBasedOnStylePreferences(
+    const TextEditor::ICodeStylePreferences *current,
+    const TextEditor::ICodeStylePreferences *target)
+{
+    Utils::FilePath currentFP = filePathToCurrentSettings(current);
+    if (!currentFP.exists())
+        return;
+
+    Utils::FilePath targetFP = filePathToCurrentSettings(target);
+    targetFP.parentDir().createDir();
+    currentFP.copyFile(targetFP);
 }

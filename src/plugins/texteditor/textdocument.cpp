@@ -292,6 +292,8 @@ TextDocument *TextDocument::currentTextDocument()
 
 TextDocument *TextDocument::textDocumentForFilePath(const Utils::FilePath &filePath)
 {
+    if (filePath.isEmpty())
+        return nullptr;
     return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(filePath));
 }
 

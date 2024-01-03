@@ -165,6 +165,7 @@ void CodeStyleSelectorWidget::slotCopyClicked()
     ICodeStylePreferences *copy = codeStylePool->cloneCodeStyle(currentPreferences);
     if (copy) {
         copy->setDisplayName(newName);
+        emit m_codeStyle->aboutToBeCopied(currentPreferences, copy);
         m_codeStyle->setCurrentDelegate(copy);
     }
 }

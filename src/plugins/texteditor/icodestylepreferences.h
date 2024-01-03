@@ -80,6 +80,9 @@ signals:
     void currentDelegateChanged(TextEditor::ICodeStylePreferences *currentDelegate);
     void currentPreferencesChanged(TextEditor::ICodeStylePreferences *currentPreferences);
     void displayNameChanged(const QString &newName);
+    void aboutToBeRemoved(TextEditor::ICodeStylePreferences *preferences);
+    void aboutToBeCopied(TextEditor::ICodeStylePreferences *current,
+                         TextEditor::ICodeStylePreferences *target);
 
 private:
     void codeStyleRemoved(ICodeStylePreferences *preferences);

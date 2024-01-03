@@ -4,7 +4,6 @@ add_qtc_plugin(ClangFormat
   PLUGIN_DEPENDS Core TextEditor CppEditor ProjectExplorer
   SOURCES
     clangformatbaseindenter.cpp clangformatbaseindenter.h
-    clangformatchecks.cpp clangformatchecks.h
     clangformatconfigwidget.cpp clangformatconfigwidget.h
     clangformatglobalconfigwidget.cpp clangformatglobalconfigwidget.h
     clangformatconstants.h

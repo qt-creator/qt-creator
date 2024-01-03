@@ -49,6 +49,7 @@ public:
     const clang::format::FormatStyle &styleForFile() const;
 
     void setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences);
+    void setOverriddenStyle(const clang::format::FormatStyle &style);
 
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }

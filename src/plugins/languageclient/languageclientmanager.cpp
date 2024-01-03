@@ -537,6 +537,21 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
     }
 }
 
+void LanguageClientManager::openEditor(Core::IEditor *editor)
+{
+    instance()->editorOpened(editor);
+}
+
+void LanguageClientManager::openDocument(Core::IDocument *document)
+{
+    instance()->documentOpened(document);
+}
+
+void LanguageClientManager::closeDocument(Core::IDocument *document)
+{
+    instance()->documentClosed(document);
+}
+
 static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document)
 {
     const QList<BaseSettings *> prefilteredSettings

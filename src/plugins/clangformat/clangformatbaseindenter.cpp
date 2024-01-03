@@ -539,6 +539,7 @@ public:
 
     clang::format::FormatStyle customSettingsStyle(const FilePath &fileName) const;
     ICodeStylePreferences *m_overriddenPreferences = nullptr;
+    clang::format::FormatStyle m_overriddenStyle = clang::format::getNoStyle();
 };
 
 ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
@@ -870,6 +871,9 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 {
     static const milliseconds cacheTimeout = getCacheTimeout();
 
+    if (!(m_overriddenStyle == clang::format::getNoStyle()))
+        return m_overriddenStyle;
+
     QDateTime time = QDateTime::currentDateTime();
     if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))
         return m_cachedStyle.style;
@@ -905,6 +909,11 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 void ClangFormatBaseIndenter::setOverriddenPreferences(ICodeStylePreferences *preferences)
 {
     d->m_overriddenPreferences = preferences;
+}
+
+void ClangFormatBaseIndenter::setOverriddenStyle(const clang::format::FormatStyle &style)
+{
+    d->m_overriddenStyle = style;
 }
 
 } // namespace ClangFormat
