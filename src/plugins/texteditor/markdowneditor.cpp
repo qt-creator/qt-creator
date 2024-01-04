@@ -570,10 +570,12 @@ void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
 {
     static const QStringView CAPTURE_GROUP_LINK   = u"link";
     static const QStringView CAPTURE_GROUP_ANCHOR = u"anchor";
+    static const QStringView CAPTURE_GROUP_RAWURL = u"rawurl";
 
     static const QRegularExpression markdownLink{
         R"(\[[^[\]]*\]\((?<link>.+?)\))"
         R"(|(?<anchor>\[\^[^\]]+\])(?:[^:]|$))"
+        R"(|(?<rawurl>(?:https?|ftp)\://[^">)\s]+))"
     };
 
     QTC_ASSERT(markdownLink.isValid(), return);
@@ -597,11 +599,13 @@ void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
                     return textDocument()->filePath().parentDir().resolvePath(url.path());
                 else if (url.isLocalFile())
                     return FilePath::fromString(url.toLocalFile());
+                else if (!url.scheme().isEmpty())
+                    return FilePath::fromString(url.toString());
                 else
                     return FilePath{};
             }();
 
-            if (!linkedPath.isFile())
+            if (!linkedPath.isFile() && url.scheme().isEmpty())
                 continue;
 
             Link result = linkedPath;
@@ -626,6 +630,15 @@ void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
             Link result{textDocument()->filePath(), line, column};
             result.linkTextStart = match.capturedStart(CAPTURE_GROUP_ANCHOR) + blockOffset;
             result.linkTextEnd = match.capturedEnd(CAPTURE_GROUP_ANCHOR) + blockOffset;
+            processLinkCallback(result);
+            break;
+        } else if (const QStringView rawurl = match.capturedView(CAPTURE_GROUP_RAWURL);
+                   !rawurl.isEmpty()) {
+            // Process raw links starting with "http://", "https://", or "ftp://".
+
+            Link result{FilePath::fromString(rawurl.toString())};
+            result.linkTextStart = match.capturedStart() + blockOffset;
+            result.linkTextEnd = match.capturedEnd() + blockOffset;
             processLinkCallback(result);
             break;
         } else {
