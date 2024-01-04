@@ -37,7 +37,7 @@
     \list
         \li For CMake version 3.5 or later, generate a
             \l{CMake: CMAKE_EXPORT_COMPILE_COMMANDS}{compilation database} and
-            open that in \QC, as described in \l{Using Compilation Databases}.
+            open that in \QC, as described in \l{Use compilation databases}.
         \li Create an ad-hoc project file for a qmake build using
             \c{qmake -project} and \l{Open projects}{open} that in \QC.
             Typically, you cannot compile such projects without manual changes.
@@ -49,7 +49,8 @@
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
     {Configure projects for building}, {Configure projects for running},
-    {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects}
+    {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects},
+    {Use compilation databases}
 */
 
 /*!

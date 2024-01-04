@@ -34,7 +34,7 @@
 
     You can use the icons in the tooltip popup to copy the error or
     warning message to the clipboard, to hide messages of a particular type,
-    or to \l{Configuring clangd}{change the diagnostics settings}. Select
+    or to \l{Clangd}{change the diagnostics settings}. Select
     the \uicontrol {Annotation Settings} link to specify the position
     of the line annotations.
 

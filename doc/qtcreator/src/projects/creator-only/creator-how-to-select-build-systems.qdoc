@@ -44,8 +44,7 @@
     generators. Their availability depends on the version of the build tool,
     host platform, and properties of the host system.
     Also, a JSON compilation database generator is available if the
-    \l{Parsing C++ Files with the Clang Code Model}{Clang Code Model plugin}
-    is enabled (default).
+    \l{Clang Code Model}{Clang Code Model plugin} is enabled (default).
 
     \section1 Set preferences for building and running
 

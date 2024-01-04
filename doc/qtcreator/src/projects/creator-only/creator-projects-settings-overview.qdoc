@@ -79,7 +79,7 @@
     the project:
 
             \list
-                \li \l{Parsing C++ Files with the Clang Code Model}{Clangd}
+                \li \l{Specify clangd settings}{Clangd}
                 \li \l{Using Clang Tools}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}

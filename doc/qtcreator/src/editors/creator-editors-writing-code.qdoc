@@ -89,13 +89,6 @@
 
             You can use a diff editor to compare two versions of a file and
             view the differences side-by-side in the \uicontrol Edit mode.
-
-        \li \l{Parsing C++ Files with the Clang Code Model}
-
-            The Clang code model offers some of the same services as the
-            built-in C/C++ code model, such as code
-            completion, syntactic and semantic highlighting, diagnostics,
-            tooltips, outline of symbols, and renaming of local symbols.
         \endif
 
     \endlist

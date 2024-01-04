@@ -153,13 +153,11 @@
     \section1 Summary of Refactoring Actions
 
     \if defined(qtcreator)
-    If you use the \l{Parsing C++ Files with the Clang Code Model}
-    {Clang code model} to parse the C++ files, the
-    \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints}
-    that have been integrated into \QC are also available to you. In addition to
-    the standard ways of activating refactoring actions, you can select the
-    actions that are applicable on a line in the context menu in the left margin
-    of the code editor.
+    If you use the \l{Clang Code Model}{Clang code model} to parse the C++ files,
+    you will get \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints}
+    that have been integrated into \QC. Use the standard ways of activating
+    refactoring actions or select the actions that are applicable on a line in
+    the context menu in the left margin of the code editor.
 
    \section2 Refactoring C++ Code
 
