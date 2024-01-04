@@ -28,7 +28,7 @@ public:
 
 } // namespace Internal
 
-void QTCREATOR_UTILS_EXPORT attachWheelBlocker(QWidget *widget)
+void QTCREATOR_UTILS_EXPORT setWheelScrollingWithoutFocusBlocked(QWidget *widget)
 {
     static Internal::WheelEventFilter instance;
     widget->installEventFilter(&instance);

@@ -2343,7 +2343,7 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
-    attachWheelBlocker(d->m_spinBox);
+    setWheelScrollingWithoutFocusBlocked(d->m_spinBox);
     addLabeledItem(parent, d->m_spinBox);
     connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
             this, &IntegerAspect::handleGuiChanged);
@@ -2443,7 +2443,7 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
-    attachWheelBlocker(d->m_spinBox);
+    setWheelScrollingWithoutFocusBlocked(d->m_spinBox);
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
     connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,

@@ -9,6 +9,6 @@ class QWidget;
 
 namespace Utils {
 
-void QTCREATOR_UTILS_EXPORT attachWheelBlocker(QWidget *widget);
+void QTCREATOR_UTILS_EXPORT setWheelScrollingWithoutFocusBlocked(QWidget *widget);
 
 } // namespace Utils

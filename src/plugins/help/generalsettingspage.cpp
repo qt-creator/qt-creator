@@ -106,7 +106,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     zoomSpinBox->setSingleStep(10);
     zoomSpinBox->setValue(100);
     zoomSpinBox->setSuffix(Tr::tr("%"));
-    attachWheelBlocker(zoomSpinBox);
+    setWheelScrollingWithoutFocusBlocked(zoomSpinBox);
     antialiasCheckBox = new QCheckBox(Tr::tr("Antialias"));
 
     auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
