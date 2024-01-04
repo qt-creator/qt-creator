@@ -90,6 +90,7 @@ Item {
                     realTo: 9e9
                     realStepSize: 1.0
                     decimals: 6
+                    trailingZeroes: false
                 }
             }
         }
