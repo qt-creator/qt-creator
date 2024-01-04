@@ -848,13 +848,13 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
 
             QJsonObject jsonBreakpoint;
             QString key;
-            for (const QString &bpKey : map.keys()) {
-                QJsonObject breakpoint = map.value(bpKey);
+            for (auto it = map.cbegin(); it != map.cend(); ++it) {
+                const QJsonObject breakpoint = *it;
                 if (path == bp->requestedParameters().fileName.toString()
                     && abs(breakpoint.value("line").toInt() - line)
                            < abs(jsonBreakpoint.value("line").toInt() - line)) {
                     jsonBreakpoint = breakpoint;
-                    key = bpKey;
+                    key = it.key();
                 }
             }
 
