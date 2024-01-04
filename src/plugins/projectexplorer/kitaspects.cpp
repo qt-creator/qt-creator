@@ -249,12 +249,11 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
 
         const GuardLocker locker(m_ignoreChanges);
-        // TODO: Get rid of keys, iterate directly on hash.
-        const QList<Id> keys = m_languageComboboxMap.keys();
-        for (const Id l : keys) {
+        for (auto it = m_languageComboboxMap.cbegin(); it != m_languageComboboxMap.cend(); ++it) {
+            const Id l = it.key();
             const Toolchains ltcList = ToolchainManager::toolchains(equal(&Toolchain::language, l));
 
-            QComboBox *cb = m_languageComboboxMap.value(l);
+            QComboBox *cb = *it;
             cb->clear();
             cb->addItem(Tr::tr("<No compiler>"), QByteArray());
 
@@ -283,10 +282,8 @@ private:
     void makeReadOnly() override
     {
         m_isReadOnly = true;
-        const QList<Id> keys = m_languageComboboxMap.keys();
-        for (const Id l : keys) {
-            m_languageComboboxMap.value(l)->setEnabled(false);
-        }
+        for (QComboBox *cb : std::as_const(m_languageComboboxMap))
+            cb->setEnabled(false);
     }
 
     void currentToolChainChanged(Id language, int idx)
