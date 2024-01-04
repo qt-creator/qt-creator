@@ -22,6 +22,7 @@
 
 #include <QDesktopServices>
 #include <QHBoxLayout>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QTimer>
@@ -184,6 +185,26 @@ public:
             m_previewRestoreScrollPosition.reset();
 
             m_previewWidget->setMarkdown(m_document->plainText());
+            // Add anchors to headings. This should actually be done by Qt QTBUG-120518
+            for (QTextBlock block = m_previewWidget->document()->begin(); block.isValid();
+                 block = block.next()) {
+                QTextBlockFormat fmt = block.blockFormat();
+                if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
+                    QTextCharFormat cFormat = block.charFormat();
+                    QString anchor;
+                    const QString text = block.text();
+                    for (const QChar &c : text) {
+                        if (c == ' ')
+                            anchor.append('-');
+                        else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
+                            anchor.append(c.toLower());
+                    }
+                    cFormat.setAnchor(true);
+                    cFormat.setAnchorNames({anchor});
+                    QTextCursor cursor(block);
+                    cursor.setBlockCharFormat(cFormat);
+                }
+            }
 
             m_previewWidget->horizontalScrollBar()->setValue(positions.x());
             m_previewWidget->verticalScrollBar()->setValue(positions.y());
