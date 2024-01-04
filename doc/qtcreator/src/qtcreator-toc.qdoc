@@ -128,7 +128,6 @@
                     \li \l{Profiling Function Execution}
                     \li \l{Running Valgrind Tools on External Applications}
                 \endlist
-                \li \l{Using Clang Tools}
                 \li \l{Detecting Memory Leaks with Heob}
                 \li \l{Analyzing CPU Usage}
                 \li \l{Analyzing Code with Cppcheck}
@@ -190,6 +189,8 @@
                     \li Preferences
                         \generatelist creator-reference-preferences
                         \list
+                            \li Analyzer
+                                \generatelist creator-reference-preferences-analyzer
                             \li C++
                                 \generatelist creator-reference-preferences-cpp
                             \li Text editor

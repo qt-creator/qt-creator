@@ -80,7 +80,7 @@
 
             \list
                 \li \l{Specify clangd settings}{Clangd}
-                \li \l{Using Clang Tools}{Clang Tools}
+                \li \l{Speficy Clang tools settings}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Specify dependencies}{Dependencies}

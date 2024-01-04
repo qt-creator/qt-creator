@@ -35,6 +35,10 @@
 
     \annotatedlist creator-reference-preferences
 
+    \section2 Analyzer
+
+    \annotatedlist creator-reference-preferences-analyzer
+
     \section2 C++
 
     \annotatedlist creator-reference-preferences-cpp
