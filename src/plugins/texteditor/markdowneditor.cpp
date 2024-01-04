@@ -54,11 +54,23 @@ const char TOGGLEEDITOR_ACTION[] = "Markdown.ToggleEditor";
 const char TOGGLEPREVIEW_ACTION[] = "Markdown.TogglePreview";
 const char SWAPVIEWS_ACTION[] = "Markdown.SwapViews";
 
+class MarkdownEditorWidget : public TextEditorWidget
+{
+    Q_OBJECT
+public:
+    using TextEditorWidget::TextEditorWidget;
+
+    void findLinkAt(const QTextCursor &cursor,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+};
+
 class MarkdownEditor : public IEditor
 {
     Q_OBJECT
 public:
-    MarkdownEditor()
+    MarkdownEditor(const TextEditor::TextEditorActionHandler *actionHandler)
         : m_document(new TextDocument(MARKDOWNVIEWER_ID))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
@@ -92,7 +104,8 @@ public:
         });
 
         // editor
-        m_textEditorWidget = new TextEditorWidget;
+        m_textEditorWidget = new MarkdownEditorWidget;
+        m_textEditorWidget->setOptionalActions(actionHandler->optionalActions());
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
@@ -485,7 +498,7 @@ private:
 MarkdownEditorFactory::MarkdownEditorFactory()
     : m_actionHandler(MARKDOWNVIEWER_ID,
                       MARKDOWNVIEWER_TEXT_CONTEXT,
-                      TextEditor::TextEditorActionHandler::None,
+                      TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor,
                       [](IEditor *editor) {
                           return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
                       })
@@ -493,7 +506,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setId(MARKDOWNVIEWER_ID);
     setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
-    setEditorCreator([] { return new MarkdownEditor; });
+    setEditorCreator([this] { return new MarkdownEditor{&m_actionHandler}; });
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
     const auto context = Context(MARKDOWNVIEWER_ID);
@@ -548,6 +561,54 @@ MarkdownEditorFactory::MarkdownEditorFactory()
         if (editor)
             editor->swapViews();
     });
+}
+
+void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                      const LinkHandler &processLinkCallback,
+                                      bool /*resolveTarget*/,
+                                      bool /*inNextSplit*/)
+{
+    static const QStringView CAPTURE_GROUP_LINK = u"link";
+    static const QRegularExpression markdownLink{R"(\[[^[\]]*\]\((?<link>.+?)\))"};
+
+    QTC_ASSERT(markdownLink.isValid(), return);
+
+    const int blockOffset = cursor.block().position();
+    const QString &currentBlock = cursor.block().text();
+
+    for (const QRegularExpressionMatch &match : markdownLink.globalMatch(currentBlock)) {
+        // Ignore matches outside of the current cursor position.
+        if (cursor.positionInBlock() < match.capturedStart())
+            break;
+        if (cursor.positionInBlock() >= match.capturedEnd())
+            continue;
+
+        if (const QStringView link = match.capturedView(CAPTURE_GROUP_LINK); !link.isEmpty()) {
+            // Process regular Markdown links of the form `[description](link)`.
+
+            const QUrl url = link.toString();
+            const auto linkedPath = [this, url] {
+                if (url.isRelative())
+                    return textDocument()->filePath().parentDir().resolvePath(url.path());
+                else if (url.isLocalFile())
+                    return FilePath::fromString(url.toLocalFile());
+                else
+                    return FilePath{};
+            }();
+
+            if (!linkedPath.isFile())
+                continue;
+
+            Link result = linkedPath;
+            result.linkTextStart = match.capturedStart() + blockOffset;
+            result.linkTextEnd = match.capturedEnd() + blockOffset;
+            processLinkCallback(result);
+            break;
+        } else {
+            QTC_ASSERT_STRING("This line should not be reached unless 'markdownLink' is wrong");
+            return;
+        }
+    }
 }
 
 } // namespace TextEditor::Internal
