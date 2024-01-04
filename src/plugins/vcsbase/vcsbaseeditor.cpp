@@ -1100,7 +1100,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (BaseSyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
+    if (SyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
         ah->rehighlight();
     } else {
         BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();

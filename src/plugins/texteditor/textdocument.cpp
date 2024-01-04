@@ -101,7 +101,7 @@ public:
     TextMarks m_marksCache; // Marks not owned
     Utils::Guard m_modificationChangedGuard;
 
-    BaseSyntaxHighlighterRunner *m_highlighterRunner = nullptr;
+    SyntaxHighlighterRunner *m_highlighterRunner = nullptr;
 };
 
 MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
@@ -635,7 +635,7 @@ QTextDocument *TextDocument::document() const
     return &d->m_document;
 }
 
-BaseSyntaxHighlighterRunner *TextDocument::syntaxHighlighterRunner() const
+SyntaxHighlighterRunner *TextDocument::syntaxHighlighterRunner() const
 {
     return d->m_highlighterRunner;
 }
@@ -917,14 +917,11 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
     if (d->m_highlighterRunner)
         delete d->m_highlighterRunner;
 
-    static const QString value
-        = qtcEnvironmentVariable("QTC_USE_THREADED_HIGHLIGHTER", "TRUE").toUpper();
-    if (threaded && value == QLatin1String("TRUE")) {
-        d->m_highlighterRunner = new ThreadedSyntaxHighlighterRunner(creator, document());
-        return;
-    }
+    static const bool envValue
+        = qtcEnvironmentVariable("QTC_USE_THREADED_HIGHLIGHTER", "TRUE").toUpper()
+          == QLatin1String("TRUE");
 
-    d->m_highlighterRunner = new BaseSyntaxHighlighterRunner(creator, document());
+    d->m_highlighterRunner = new SyntaxHighlighterRunner(creator, document(), threaded && envValue);
 }
 
 void TextDocument::cleanWhitespace(const QTextCursor &cursor)

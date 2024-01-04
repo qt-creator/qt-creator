@@ -34,7 +34,7 @@ class FontSettings;
 class IAssistProvider;
 class StorageSettings;
 class SyntaxHighlighter;
-class BaseSyntaxHighlighterRunner;
+class SyntaxHighlighterRunner;
 class TabSettings;
 class TextDocumentPrivate;
 class TextMark;
@@ -128,7 +128,7 @@ public:
 
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator, bool threaded = true);
-    BaseSyntaxHighlighterRunner *syntaxHighlighterRunner() const;
+    SyntaxHighlighterRunner *syntaxHighlighterRunner() const;
 
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);

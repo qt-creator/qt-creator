@@ -8,6 +8,7 @@
 #include "texteditorsettings.h"
 #include "highlighter.h"
 
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 
 #include <QMetaObject>
@@ -21,19 +22,20 @@ class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
+    SyntaxHighlighterRunnerPrivate(SyntaxHighlighterRunner::SyntaxHighlighterCreator creator,
                                    QTextDocument *document,
+                                   bool async,
                                    FontSettings fontSettings)
-        : m_document(document)
-        , m_fontSettings(fontSettings)
     {
-        if (!m_document) {
+        if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
+        } else {
+            m_document = document;
         }
 
         m_highlighter.reset(creator());
-        m_highlighter->setFontSettings(m_fontSettings);
+        m_highlighter->setFontSettings(fontSettings);
         m_highlighter->setDocument(m_document);
         m_highlighter->setParent(m_document);
 
@@ -46,7 +48,7 @@ public:
     void changeDocument(int from,
                         int charsRemoved,
                         const QString textAdded,
-                        const QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> &blocksPreedit)
+                        const QMap<int, SyntaxHighlighterRunner::BlockPreeditData> &blocksPreedit)
     {
         QTextCursor cursor(m_document);
         cursor.setPosition(qMin(m_document->characterCount() - 1, from + charsRemoved));
@@ -95,48 +97,69 @@ public:
 
     std::unique_ptr<SyntaxHighlighter> m_highlighter;
     QTextDocument *m_document = nullptr;
-    FontSettings m_fontSettings;
 
 signals:
     void resultsReady(const QList<SyntaxHighlighter::Result> &result);
 
 };
 
-// ----------------------------- BaseSyntaxHighlighterRunner --------------------------------------
-
-BaseSyntaxHighlighterRunner::BaseSyntaxHighlighterRunner(
-    BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
-    QTextDocument *document,
-    const TextEditor::FontSettings &fontSettings)
-    : d(new SyntaxHighlighterRunnerPrivate(creator, document, fontSettings))
+SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
+                                                 QTextDocument *document,
+                                                 bool async,
+                                                 const TextEditor::FontSettings &fontSettings)
+    : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, fontSettings))
     , m_document(document)
 {
     m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter.get());
 
-    if (document == nullptr)
-        return;
+    if (async) {
+        m_thread.emplace();
+        d->moveToThread(&*m_thread);
+        connect(&*m_thread, &QThread::finished, d, &QObject::deleteLater);
+        m_thread->start();
 
-    connect(d.get(),
-            &SyntaxHighlighterRunnerPrivate::resultsReady,
-            this,
-            [this](const QList<SyntaxHighlighter::Result> &result) {
-                auto done = std::find_if(result.cbegin(),
-                                         result.cend(),
-                                         [](const SyntaxHighlighter::Result &res) {
-                                             return res.m_state == SyntaxHighlighter::State::Done;
-                                         });
-                if (done != result.cend()) {
-                    m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
-                    emit highlightingFinished();
-                    return;
-                }
-                m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
-            });
+        connect(d,
+                &SyntaxHighlighterRunnerPrivate::resultsReady,
+                this,
+                &SyntaxHighlighterRunner::applyFormatRanges);
+
+        changeDocument(0, 0, document->characterCount());
+        connect(document,
+                &QTextDocument::contentsChange,
+                this,
+                &SyntaxHighlighterRunner::changeDocument);
+    } else {
+        connect(d,
+                &SyntaxHighlighterRunnerPrivate::resultsReady,
+                this,
+                [this](const QList<SyntaxHighlighter::Result> &result) {
+                    auto done = std::find_if(result.cbegin(),
+                                             result.cend(),
+                                             [](const SyntaxHighlighter::Result &res) {
+                                                 return res.m_state == SyntaxHighlighter::State::Done;
+                                             });
+                    if (done != result.cend()) {
+                        m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
+                        emit highlightingFinished();
+                        return;
+                    }
+                    m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
+                });
+    }
 }
 
-BaseSyntaxHighlighterRunner::~BaseSyntaxHighlighterRunner() = default;
+SyntaxHighlighterRunner::~SyntaxHighlighterRunner()
+{
+    if (m_thread) {
+        m_thread->requestInterruption();
+        m_thread->quit();
+        m_thread->wait();
+    } else {
+        delete d;
+    }
+}
 
-void BaseSyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::Result> &results)
+void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::Result> &results)
 {
     if (m_document == nullptr)
         return;
@@ -164,11 +187,11 @@ void BaseSyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighte
     }
 }
 
-void BaseSyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int charsAdded)
+void SyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int charsAdded)
 {
     QTC_ASSERT(m_document, return);
     m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
-    QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
+    QMap<int, SyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
     QTextBlock block = m_document->findBlock(from);
     const QTextBlock endBlock = m_document->findBlock(from + charsAdded);
     while (block.isValid() && block != endBlock) {
@@ -179,97 +202,64 @@ void BaseSyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int
         block = block.next();
     }
     const QString text = Utils::Text::textAt(QTextCursor(m_document), from, charsAdded);
-    QMetaObject::invokeMethod(d.get(), [this, from, charsRemoved, text, blocksPreedit] {
+    QMetaObject::invokeMethod(d, [this, from, charsRemoved, text, blocksPreedit] {
         d->changeDocument(from, charsRemoved, text, blocksPreedit);
     });
 }
 
-bool BaseSyntaxHighlighterRunner::useGenericHighlighter() const
+bool SyntaxHighlighterRunner::useGenericHighlighter() const
 {
     return m_useGenericHighlighter;
 }
 
-void BaseSyntaxHighlighterRunner::setExtraFormats(
+void SyntaxHighlighterRunner::setExtraFormats(
     const QMap<int, QList<QTextLayout::FormatRange>> &formatMap)
 {
-    QMetaObject::invokeMethod(d.get(), [this, formatMap] { d->setExtraFormats(formatMap); });
+    QMetaObject::invokeMethod(d, [this, formatMap] { d->setExtraFormats(formatMap); });
 }
 
-void BaseSyntaxHighlighterRunner::clearExtraFormats(const QList<int> &blockNumbers)
+void SyntaxHighlighterRunner::clearExtraFormats(const QList<int> &blockNumbers)
 {
-    QMetaObject::invokeMethod(d.get(), [this, blockNumbers] { d->clearExtraFormats(blockNumbers); });
+    QMetaObject::invokeMethod(d, [this, blockNumbers] { d->clearExtraFormats(blockNumbers); });
 }
 
-void BaseSyntaxHighlighterRunner::clearAllExtraFormats()
+void SyntaxHighlighterRunner::clearAllExtraFormats()
 {
-    QMetaObject::invokeMethod(d.get(), [this] { d->clearAllExtraFormats(); });
+    QMetaObject::invokeMethod(d, [this] { d->clearAllExtraFormats(); });
 }
 
-void BaseSyntaxHighlighterRunner::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void SyntaxHighlighterRunner::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    QMetaObject::invokeMethod(d.get(), [this, fontSettings] { d->setFontSettings(fontSettings); });
+    QMetaObject::invokeMethod(d, [this, fontSettings] { d->setFontSettings(fontSettings); });
 }
 
-void BaseSyntaxHighlighterRunner::setLanguageFeaturesFlags(unsigned int flags)
+void SyntaxHighlighterRunner::setLanguageFeaturesFlags(unsigned int flags)
 {
-    QMetaObject::invokeMethod(d.get(), [this, flags] { d->setLanguageFeaturesFlags(flags); });
+    QMetaObject::invokeMethod(d, [this, flags] { d->setLanguageFeaturesFlags(flags); });
 }
 
-void BaseSyntaxHighlighterRunner::setEnabled(bool enabled)
+void SyntaxHighlighterRunner::setEnabled(bool enabled)
 {
-    QMetaObject::invokeMethod(d.get(), [this, enabled] { d->setEnabled(enabled); });
+    QMetaObject::invokeMethod(d, [this, enabled] { d->setEnabled(enabled); });
 }
 
-void BaseSyntaxHighlighterRunner::rehighlight()
+void SyntaxHighlighterRunner::rehighlight()
 {
-    QMetaObject::invokeMethod(d.get(), [this] { d->rehighlight(); });
+    QMetaObject::invokeMethod(d, [this] { d->rehighlight(); });
 }
 
-QString BaseSyntaxHighlighterRunner::definitionName()
+QString SyntaxHighlighterRunner::definitionName()
 {
     return m_definitionName;
 }
 
-void BaseSyntaxHighlighterRunner::setDefinitionName(const QString &name)
+void SyntaxHighlighterRunner::setDefinitionName(const QString &name)
 {
     if (name.isEmpty())
         return;
 
     m_definitionName = name;
-    QMetaObject::invokeMethod(d.get(), [this, name] { d->setDefinitionName(name); });
-}
-
-// --------------------------- ThreadedSyntaxHighlighterRunner ------------------------------------
-
-ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLighterCreator creator,
-                                                                 QTextDocument *document)
-    : BaseSyntaxHighlighterRunner(creator, nullptr)
-{
-    QTC_ASSERT(document, return);
-
-    d->moveToThread(&m_thread);
-    connect(&m_thread, &QThread::finished, d.get(), &QObject::deleteLater);
-    m_thread.start();
-
-    m_document = document;
-    connect(d.get(),
-            &SyntaxHighlighterRunnerPrivate::resultsReady,
-            this,
-            &ThreadedSyntaxHighlighterRunner::applyFormatRanges);
-
-    changeDocument(0, 0, document->characterCount());
-    connect(document,
-            &QTextDocument::contentsChange,
-            this,
-            &ThreadedSyntaxHighlighterRunner::changeDocument);
-}
-
-ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()
-{
-    m_thread.requestInterruption();
-    m_thread.quit();
-    m_thread.wait();
-    d.release();
+    QMetaObject::invokeMethod(d, [this, name] { d->setDefinitionName(name); });
 }
 
 } // namespace TextEditor

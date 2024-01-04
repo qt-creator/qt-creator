@@ -32,7 +32,7 @@ private slots:
 
 private:
     QTextDocument *doc = nullptr;
-    BaseSyntaxHighlighterRunner *highlighterRunner = nullptr;
+    SyntaxHighlighterRunner *highlighterRunner = nullptr;
     FontSettings fontsettings;
     QHash<int, QTextCharFormat> formatHash;
     QTextCharFormat whitespaceFormat;
@@ -59,8 +59,8 @@ Last)";
     doc = new QTextDocument();
     doc->setPlainText(text);
 
-    highlighterRunner = new BaseSyntaxHighlighterRunner(
-        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, fontsettings);
+    highlighterRunner = new SyntaxHighlighterRunner(
+        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, false, fontsettings);
 }
 
 static const HighlightingResults &highlightingResults()

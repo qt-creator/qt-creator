@@ -1936,7 +1936,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             QStringList commentMarker;
             QStringList docMarker;
             HighlighterHelper::Definition def;
-            if (BaseSyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
+            if (SyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
                 def = HighlighterHelper::definitionForName(highlighter->definitionName());
 
             if (def.isValid()) {
@@ -3743,7 +3743,7 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
-    if (BaseSyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
+    if (SyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
         return HighlighterHelper::definitionForName(highlighter->definitionName());
     return {};
 }
@@ -8132,7 +8132,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
     if (optionFlags != currentOptionFlags) {
-        if (BaseSyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
+        if (SyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
             highlighter->rehighlight();
         QTextOption option = document()->defaultTextOption();
         option.setFlags(optionFlags);

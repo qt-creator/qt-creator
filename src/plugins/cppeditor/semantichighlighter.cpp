@@ -112,7 +112,7 @@ void SemanticHighlighter::handleHighlighterResults()
     QElapsedTimer t;
     t.start();
 
-    BaseSyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
+    SyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
     QTC_ASSERT(highlighter, return);
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap);
 
@@ -200,7 +200,7 @@ void SemanticHighlighter::onHighlighterFinished()
     t.start();
 
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
-        BaseSyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
+        SyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
         if (QTC_GUARD(highlighter)) {
             qCDebug(log) << "onHighlighterFinished() - clearing formats";
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());

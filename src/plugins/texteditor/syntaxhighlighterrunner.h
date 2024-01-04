@@ -20,21 +20,22 @@ namespace TextEditor {
 
 class SyntaxHighlighterRunnerPrivate;
 
-class TEXTEDITOR_EXPORT BaseSyntaxHighlighterRunner : public QObject
+class TEXTEDITOR_EXPORT SyntaxHighlighterRunner : public QObject
 {
     Q_OBJECT
 public:
-    using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
+    using SyntaxHighlighterCreator = std::function<SyntaxHighlighter *()>;
     struct BlockPreeditData {
         int position;
         QString text;
     };
 
-    BaseSyntaxHighlighterRunner(SyntaxHighLighterCreator creator,
-                                QTextDocument *document,
-                                const TextEditor::FontSettings &fontSettings
-                                = TextEditorSettings::fontSettings());
-    virtual ~BaseSyntaxHighlighterRunner();
+    SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
+                            QTextDocument *document,
+                            bool async,
+                            const TextEditor::FontSettings &fontSettings
+                            = TextEditorSettings::fontSettings());
+    virtual ~SyntaxHighlighterRunner();
 
     void setExtraFormats(const QMap<int, QList<QTextLayout::FormatRange>> &formats);
     void clearExtraFormats(const QList<int> &blockNumbers);
@@ -55,28 +56,16 @@ public:
 signals:
     void highlightingFinished();
 
-protected:
-    std::unique_ptr<SyntaxHighlighterRunnerPrivate> d;
-    QPointer<QTextDocument> m_document = nullptr;
+private:
     void applyFormatRanges(const QList<SyntaxHighlighter::Result> &results);
     void changeDocument(int from, int charsRemoved, int charsAdded);
 
+    SyntaxHighlighterRunnerPrivate *d;
+    QPointer<QTextDocument> m_document = nullptr;
     SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
-
-private:
     bool m_useGenericHighlighter = false;
     QString m_definitionName;
-};
-
-class TEXTEDITOR_EXPORT ThreadedSyntaxHighlighterRunner : public BaseSyntaxHighlighterRunner
-{
-public:
-    ThreadedSyntaxHighlighterRunner(SyntaxHighLighterCreator SyntaxHighLighterCreator,
-                                    QTextDocument *document);
-    ~ThreadedSyntaxHighlighterRunner();
-
-private:
-    QThread m_thread;
+    std::optional<QThread> m_thread;
 };
 
 } // namespace TextEditor
