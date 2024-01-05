@@ -604,6 +604,14 @@ jobs:
             endif()
         endif()
 
+        find_program(llvm_link_exe llvm-link PATHS "${{ steps.libclang.outputs.libclang_dir }}/bin")
+        set(WITH_LLVM_LINK --add-config=-DCMAKE_LINKER=${llvm_link_exe})
+
+        # Not for MSVC
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+            unset(WITH_LLVM_LINK)
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -618,6 +626,7 @@ jobs:
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}
             ${NO_DMG}
+            ${WITH_LLVM_LINK}
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
             --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
