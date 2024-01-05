@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -182,6 +182,16 @@
 
     To hide the output, select the \inlineimage icons/rightsidebaricon.png
     (\uicontrol {Hide/Show Right Sidebar}) button or press \key {Alt+Shift+0}.
+
+    \section1 CLICOLOR_FORCE Environment Variable
+
+    \QC sets the environment variable \c CLICOLOR_FORCE to \e 1 to show
+    ANSI-colored output for CMake. This might affect the process output.
+
+    If the output looks incorrect or different from earlier \QC versions, try
+    setting \c CLICOLOR_FORCE to \e 0 in \uicontrol {Use Build Environment}.
+
+    \image qtcreator-build-configuration-set-clicolor-force.webp {Build Environment with CLICOLOR_FORCE set}
 
     \section1 CMake Build Steps
 
