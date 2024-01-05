@@ -270,9 +270,6 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
     NodeListProperty parentProperty = targetNode.nodeListProperty(defaultPropertyName);
     QList<ModelNode> pastedNodeList;
 
-    const double scatterRange = 20.;
-    int offset = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
-
     std::optional<QmlVisualNode> firstVisualNode;
     QVector3D translationVect;
     for (const ModelNode &node : std::as_const(movingNodes)) {
@@ -288,7 +285,6 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
                     : QVector3D();
         }
         visualNode.translate(translationVect);
-        visualNode.scatter(targetNode, offset);
     }
 
     view.setSelectedModelNodes(pastedNodeList);

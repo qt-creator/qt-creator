@@ -49,6 +49,7 @@ public:
     bool renderWindow() override;
 
     static QQuickItem *parentEffectItem(QQuickItem *item);
+    static bool hasEffect(QQuickItem *item);
 
 protected:
     void initializeView() override;

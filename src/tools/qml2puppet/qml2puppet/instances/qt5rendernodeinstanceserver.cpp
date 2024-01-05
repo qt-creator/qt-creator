@@ -57,6 +57,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
             bool windowDirty = false;
             bool hasView3D = false;
+            QList<ServerNodeInstance> effectItems;
             for (QQuickItem *item : allItems()) {
                 if (item) {
                     if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
@@ -73,6 +74,8 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                                 }
                                 m_dirtyInstanceSet.insert(instanceForObject(item));
                             }
+                            if (hasEffect(item))
+                                effectItems.append(instanceForObject(item));
                             if (QQuickItem *effectParent = parentEffectItem(item)) {
                                 if ((QQuickDesignerSupport::isDirty(
                                         item,
@@ -107,6 +110,12 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             } else {
                 if (!m_dirtyInstanceSet.isEmpty()) {
                     auto renderList = QtHelpers::toList(m_dirtyInstanceSet);
+                    for (auto &effectItem : std::as_const(effectItems)) {
+                        // Ensure effect items are rendered last
+                        if (m_dirtyInstanceSet.contains(effectItem))
+                            renderList.removeOne(effectItem);
+                        renderList.append(effectItem);
+                    }
 
                     // If there is a View3D to be rendered, add all other View3Ds to be rendered
                     // as well, in case they share materials.

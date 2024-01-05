@@ -351,8 +351,15 @@ CollectionDetails::DataType CollectionDetails::typeAt(int row, int column) const
 
 DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column) const
 {
-    if (typeAt(column) != typeAt(row, column) && !d->elements.at(row).isEmpty())
+    const QString &propertyName = d->properties.at(column).name;
+    const QJsonObject &element = d->elements.at(row);
+
+    if (element.isEmpty())
+        return DataTypeWarning::Warning::None;
+
+    if (element.contains(propertyName) && typeAt(column) != typeAt(row, column))
         return DataTypeWarning::Warning::CellDataTypeMismatch;
+
     return DataTypeWarning::Warning::None;
 }
 

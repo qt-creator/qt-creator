@@ -646,20 +646,28 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
     if (collectionList == nullptr)
         return;
 
-    connect(collectionList, &CollectionListModel::selectedIndexChanged, this,
-        [this, collectionList](int idx) {
-            onSelectedCollectionChanged(collectionList, idx);
-        }, Qt::UniqueConnection);
+    if (!collectionList->property("_is_registered_in_sourceModel").toBool()) {
+        collectionList->setProperty("_is_registered_in_sourceModel", true);
 
-    connect(collectionList, &CollectionListModel::collectionNameChanged, this,
-        [this, collectionList](const QString &oldName, const QString &newName) {
-            onCollectionNameChanged(collectionList, oldName, newName);
-        }, Qt::UniqueConnection);
+        connect(collectionList,
+                &CollectionListModel::selectedIndexChanged,
+                this,
+                [this, collectionList](int idx) { onSelectedCollectionChanged(collectionList, idx); });
 
-    connect(collectionList, &CollectionListModel::collectionsRemoved, this,
-        [this, collectionList](const QStringList &removedCollections) {
-            onCollectionsRemoved(collectionList, removedCollections);
-        }, Qt::UniqueConnection);
+        connect(collectionList,
+                &CollectionListModel::collectionNameChanged,
+                this,
+                [this, collectionList](const QString &oldName, const QString &newName) {
+                    onCollectionNameChanged(collectionList, oldName, newName);
+                });
+
+        connect(collectionList,
+                &CollectionListModel::collectionsRemoved,
+                this,
+                [this, collectionList](const QStringList &removedCollections) {
+                    onCollectionsRemoved(collectionList, removedCollections);
+                });
+    }
 
     if (collectionList->sourceNode().isValid())
         emit collectionNamesInitialized(collection->stringList());
