@@ -339,8 +339,9 @@ bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue
                                                            newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
-        emit dataChanged(index(0, column), index(rowCount() - 1, column),
-                         {Qt::DisplayRole, DataTypeRole, DataTypeWarningRole});
+        emit dataChanged(index(0, column),
+                         index(rowCount() - 1, column),
+                         {Qt::DisplayRole, DataTypeRole, DataTypeWarningRole, ColumnDataTypeRole});
     }
 
     return changed;

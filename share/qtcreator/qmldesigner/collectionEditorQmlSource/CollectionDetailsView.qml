@@ -114,9 +114,12 @@ Rectangle {
                     color: StudioTheme.Values.themeControlBackgroundInteraction
 
                     MouseArea {
+                        id: topHeaderMouseArea
+
                         anchors.fill: parent
                         anchors.margins: 5
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        hoverEnabled: true
                         onClicked: (mouse) => {
                             tableView.model.selectColumn(index)
 
@@ -130,9 +133,17 @@ Rectangle {
                         }
                     }
 
-                    HelperWidgets.ToolTipArea {
-                        anchors.fill: parent
-                        text: root.model.propertyType(index)
+                    ToolTip {
+                        id: topHeaderToolTip
+
+                        property bool expectedToBeShown: topHeaderMouseArea.containsMouse
+                        visible: expectedToBeShown && text !== ""
+                        delay: 1000
+
+                        onExpectedToBeShownChanged: {
+                            if (expectedToBeShown)
+                                text = root.model.propertyType(index)
+                        }
                     }
                 }
 
