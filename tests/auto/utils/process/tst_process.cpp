@@ -255,12 +255,8 @@ void tst_Process::multiRead_data()
 
 static QByteArray readData(Process *process, QProcess::ProcessChannel processChannel)
 {
-    QByteArray buffer = processChannel == QProcess::StandardOutput
-        ? process->readAllRawStandardOutput() : process->readAllRawStandardError();
-    buffer.replace("\r\n", "\n"); // Needed for Windows only
-    if (buffer.endsWith('\n'))
-        buffer.chop(1); // TODO: otherwise it's flaky on linux / mac, investigate why?
-    return buffer;
+    return processChannel == QProcess::StandardOutput ? process->readAllRawStandardOutput()
+                                                      : process->readAllRawStandardError();
 }
 
 void tst_Process::multiRead()

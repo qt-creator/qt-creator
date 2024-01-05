@@ -125,9 +125,9 @@ int ProcessTestApp::ChannelEchoer::main()
         if (input == "exit")
             return 0;
         if (processChannel == QProcess::StandardOutput)
-            std::cout << input << std::endl;
+            std::cout << input << std::flush;
         else
-            std::cerr << input << std::endl;
+            std::cerr << input << std::flush;
     }
     return 0;
 }
