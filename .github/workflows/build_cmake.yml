@@ -49,7 +49,8 @@ jobs:
           }
         - {
             name: "macOS Latest Clang", artifact: "macos-universal",
-            os: macos-latest,
+            # TODO: move back to macos-latest when macos-latest is 13 or higher
+            os: macos-13,
             cc: "clang", cxx: "clang++"
           }
 
