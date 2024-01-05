@@ -996,10 +996,16 @@ QString StdIOSettingsWidget::arguments() const
     return m_arguments->text();
 }
 
-bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeType) const
+bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeTypeName) const
 {
-    if (mimeTypes.contains(mimeType))
-        return true;
+    if (!mimeTypes.isEmpty()) {
+        const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
+        if (Utils::anyOf(mimeTypes, [mimeType](const QString &supported) {
+                return mimeType.inherits(supported);
+            })) {
+            return true;
+        }
+    }
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
     const QRegularExpression::PatternOptions options

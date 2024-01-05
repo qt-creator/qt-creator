@@ -470,11 +470,14 @@ private:
     QTimer m_killTimer;
 };
 
+constexpr QLatin1StringView YAML_MIME_TYPE{"application/x-yaml"};
+constexpr QLatin1StringView JSON_MIME_TYPE{"application/json"};
+
 void autoSetupLanguageServer(TextDocument *document)
 {
-    const QString mimeType = document->mimeType();
-    if (mimeType == "application/x-yaml" || mimeType == "application/json") {
-        const bool isYaml = mimeType == "application/x-yaml";
+    const auto mimeType = Utils::mimeTypeForName(document->mimeType());
+    const bool isYaml = mimeType.inherits(YAML_MIME_TYPE);
+    if (isYaml || mimeType.inherits(JSON_MIME_TYPE)) {
         // check whether the user suppressed the info bar
         const Id infoBarId = isYaml ? installYamlLsInfoBarId : installJsonLsInfoBarId;
 
@@ -531,7 +534,7 @@ void autoSetupLanguageServer(TextDocument *document)
                 settings->m_executable = executable;
                 settings->m_arguments = "--stdio";
                 settings->m_name = Tr::tr("%1 Language Server").arg(language);
-                settings->m_languageFilter.mimeTypes = {mimeType};
+                settings->m_languageFilter.mimeTypes = {isYaml ? YAML_MIME_TYPE : JSON_MIME_TYPE};
 
                 LanguageClientSettings::addSettings(settings);
                 LanguageClientManager::applySettings();
