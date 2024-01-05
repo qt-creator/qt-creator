@@ -759,7 +759,8 @@ WelcomeMode::WelcomeMode()
         m_dataModelDownloader->setForceDownload(true);
 
     connect(m_dataModelDownloader, &DataModelDownloader::progressChanged, this, [this](){
-        m_quickWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
+        if (m_quickWidget->rootObject())
+            m_quickWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
     });
 
     connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this, welcomePagePath]() {
