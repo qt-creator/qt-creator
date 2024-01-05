@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -11,7 +11,9 @@
 
     \note Enable the Todo plugin to use it.
 
-    \brief Lists the BUG, FIXME, NOTE, TODO, and WARNING keywords from the
+    \brief Lists to-do keywords from project files.
+
+    Lists the BUG, FIXME, NOTE, TODO, and WARNING keywords from the
     current file, from all project files, or from a subproject.
 
     Click the icons on the toolbar to show only the selected
@@ -23,11 +25,29 @@
     analysis tools in \l Issues. For more information, see
     \l{Show task list files in Issues}.
 
-    \section1 To-Do Preferences
+    To add keywords, go to \preferences > \uicontrol {To-Do}.
 
-    To add keywords, select \preferences >
-    \uicontrol {To-Do} > \uicontrol Add. Set an icon and a line background color
-    for the keyword.
+    To exclude files from scanning for keywords, go to \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol {To-Do}.
+
+    \sa {Enable and disable plugins}, {Exclude files from to-do lists},
+    {Show task list files in Issues}, {To-Do}
+*/
+
+/*!
+    \page creator-reference-preferences-to-do.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title To-Do
+
+    \brief Add keywords for listing to-do entries.
+
+    To add keywords for listing to-do entries, go to \preferences >
+    \uicontrol {To-Do} and select \uicontrol Add.
+
+    Set an icon and a line background color for the keyword.
 
     \image qtcreator-todo-options.png {To-Do preferences}
 
@@ -47,14 +67,23 @@
 
     \endlist
 
-    \section1 Excluding Files from Scanning
+    \sa {Exclude files from to-do lists}, {To-Do Entries}
+*/
 
-    To exclude files from scanning, select \uicontrol {Project Settings} >
-    \uicontrol {To-Do} in the \uicontrol Projects mode.
+/*!
+    \page creator-how-to-excludes-files-from-to-do-lists.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+
+    \title Exclude files from to-do lists
+
+    To exclude files from scanning for to-do keywords, go to \uicontrol Projects
+    > \uicontrol {Project Settings} > \uicontrol {To-Do}.
 
     \image qtcreator-todo-excluded-files.png {Excluded Files in To-Do preferences}
 
-    Select \uicontrol Add and double-click the placeholder text in
+    Select \uicontrol Add, and double-click the placeholder text in
     \uicontrol {Exclude Files} to enter a regular expression that
     matches the path to files to exclude. Use a forward slash (/)
     as a separator in the path also on Windows.
@@ -62,5 +91,5 @@
     Select the link in \uicontrol {Use global settings} to open global
     To-Do preferences.
 
-    \sa {Enable and disable plugins}
+    \sa {To-Do}, {To-Do Entries}
 */

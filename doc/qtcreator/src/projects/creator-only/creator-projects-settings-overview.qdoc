@@ -88,7 +88,7 @@
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specify the environment for projects}{Environment}
                 \li \l{Applying Refactoring Actions}{Quick Fixes}
-                \li \l{To-Do Entries}{To-Do} (experimental)
+                \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
     If you have multiple projects open in \QC, select the project to configure
