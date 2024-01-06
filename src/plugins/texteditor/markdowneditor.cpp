@@ -15,6 +15,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
+#include <utils/ranges.h>
 #include <utils/qtcsettings.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
@@ -26,6 +27,7 @@
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 
 #include <optional>
@@ -98,7 +100,6 @@ public:
         context->setWidget(m_textEditorWidget);
         context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
         ICore::addContextObject(context);
-        m_lineColumnButton = new LineColumnButton(m_textEditorWidget);
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
@@ -131,7 +132,6 @@ public:
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
-        m_lineColumnButton->setVisible(showEditor);
 
         auto button = new CommandButton(EMPHASIS_ACTION);
         button->setText("i");
@@ -157,21 +157,16 @@ public:
                 button->setVisible(false);
         }
 
+        for (auto button : m_markDownButtons | Utils::views::reverse)
+            m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, button);
+
         m_swapViews = new CommandButton(SWAPVIEWS_ACTION);
         m_swapViews->setText(m_swapViews->toolTipBase());
         m_swapViews->setEnabled(showEditor && showPreview);
 
-        m_toolbarLayout = new QHBoxLayout(&m_toolbar);
-        m_toolbarLayout->setSpacing(0);
-        m_toolbarLayout->setContentsMargins(0, 0, 0, 0);
-        for (auto button : m_markDownButtons)
-            m_toolbarLayout->addWidget(button);
-        m_toolbarLayout->addStretch();
-        m_toolbarLayout->addWidget(m_lineColumnButton);
-        m_toolbarLayout->addWidget(m_togglePreviewVisible);
-        m_toolbarLayout->addWidget(m_toggleEditorVisible);
-        m_toolbarLayout->addWidget(m_swapViews);
-
+        m_swapViewsAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_swapViews);
+        m_toggleEditorVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_toggleEditorVisible);
+        m_togglePreviewVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_togglePreviewVisible);
         setWidgetOrder(textEditorRight);
 
         connect(m_document.data(),
@@ -248,7 +243,6 @@ public:
                                 m_togglePreviewVisible);
                     for (auto button : m_markDownButtons)
                         button->setVisible(visible);
-                    m_lineColumnButton->setVisible(visible);
                     saveViewSettings();
                 });
         connect(m_togglePreviewVisible,
@@ -351,14 +345,13 @@ public:
         m_splitter->insertWidget(0, left);
         m_splitter->insertWidget(1, right);
         // buttons
-        QWidget *leftButton = textEditorRight ? m_togglePreviewVisible : m_toggleEditorVisible;
-        QWidget *rightButton = textEditorRight ? m_toggleEditorVisible : m_togglePreviewVisible;
-        const int rightIndex = m_toolbarLayout->count() - 2;
-        m_toolbarLayout->insertWidget(rightIndex, leftButton);
-        m_toolbarLayout->insertWidget(rightIndex, rightButton);
+        const auto leftAction = textEditorRight ? m_togglePreviewVisibleAction : m_toggleEditorVisibleAction;
+        const auto rightAction = textEditorRight ? m_toggleEditorVisibleAction : m_togglePreviewVisibleAction;
+        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, leftAction);
+        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, rightAction);
     }
 
-    QWidget *toolBar() override { return &m_toolbar; }
+    QWidget *toolBar() override { return m_textEditorWidget->toolBarWidget(); }
 
     IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
@@ -479,13 +472,13 @@ private:
     QTextBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
-    QWidget m_toolbar;
-    QHBoxLayout *m_toolbarLayout;
     QList<QToolButton *> m_markDownButtons;
-    LineColumnButton *m_lineColumnButton;
     CommandButton *m_toggleEditorVisible;
     CommandButton *m_togglePreviewVisible;
     CommandButton *m_swapViews;
+    QAction *m_toggleEditorVisibleAction;
+    QAction *m_togglePreviewVisibleAction;
+    QAction *m_swapViewsAction;
     std::optional<QPoint> m_previewRestoreScrollPosition;
 };
 
