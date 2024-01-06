@@ -1582,6 +1582,7 @@ void TaskTreePrivate::stop()
     if (!m_runtimeRoot)
         return;
     stop(m_runtimeRoot.get());
+    m_runtimeRoot.reset();
     emitDone(DoneWith::Cancel);
 }
 
@@ -1789,10 +1790,8 @@ SetupResult TaskTreePrivate::childDone(RuntimeContainer *container, bool success
 
 void TaskTreePrivate::stop(RuntimeContainer *container)
 {
-    for (auto &child : container->m_children) {
-        if (child)
-            stop(child.get());
-    }
+    for (auto &child : container->m_children)
+        stop(child.get());
 
     int skippedTaskCount = 0;
     for (int i = container->currentLimit(); i < int(container->m_containerNode.m_children.size()); ++i)

@@ -100,6 +100,7 @@ private slots:
     void storageIO();
     void storageOperators();
     void storageDestructor();
+    void restart();
 };
 
 void tst_Tasking::validConstructs()
@@ -2868,6 +2869,17 @@ void tst_Tasking::storageDestructor()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QVERIFY(setupCalled);
     QVERIFY(!doneCalled);
+}
+
+void tst_Tasking::restart()
+{
+    TaskTree taskTree({TestTask([](TaskObject &taskObject) { taskObject = 1000ms; })});
+    taskTree.start();
+    QVERIFY(taskTree.isRunning());
+    taskTree.stop();
+    QVERIFY(!taskTree.isRunning());
+    taskTree.start();
+    QVERIFY(taskTree.isRunning());
 }
 
 QTEST_GUILESS_MAIN(tst_Tasking)
