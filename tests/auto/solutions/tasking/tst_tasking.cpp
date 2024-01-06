@@ -2667,6 +2667,31 @@ void tst_Tasking::testTree_data()
         QTest::newRow("CommonStorage") << TestData{storage, root, log, 0, DoneWith::Success};
     }
 
+    {
+        const Group root {
+            storage,
+            Group {
+                parallel,
+                createSuccessTask(1, 100ms),
+                Group {
+                    createFailingTask(2, 10ms),
+                    createSuccessTask(3, 10ms)
+                },
+                createSuccessTask(4, 10ms)
+            },
+            createSuccessTask(5, 10ms)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {4, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Canceled},
+            {4, Handler::Canceled}
+        };
+        QTest::newRow("NestedCancel") << TestData{storage, root, log, 5, DoneWith::Error};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
