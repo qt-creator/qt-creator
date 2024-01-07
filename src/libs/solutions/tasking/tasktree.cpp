@@ -1490,19 +1490,27 @@ static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
     return false;
 }
 
+static bool isProgressive(RuntimeContainer *container);
+
 class RuntimeIteration
 {
     Q_DISABLE_COPY(RuntimeIteration)
 
 public:
+    RuntimeIteration(int index, RuntimeContainer *container)
+        : m_iterationIndex(index)
+        , m_isProgressive(index ? false : isProgressive(container))
+        , m_container(container)
+    {}
     int continueIndex() const;
     int currentLimit() const;
     void deleteChild(RuntimeTask *node);
 
     const int m_iterationIndex = 0;
+    const bool m_isProgressive = true;
     RuntimeContainer *m_container = nullptr;
-    std::vector<std::unique_ptr<RuntimeTask>> m_children = {}; // Owning.
     int m_doneCount = 0;
+    std::vector<std::unique_ptr<RuntimeTask>> m_children = {}; // Owning.
 };
 
 class RuntimeContainer
@@ -1554,6 +1562,12 @@ public:
     std::optional<RuntimeContainer> m_container = {}; // Owning.
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
 };
+
+bool isProgressive(RuntimeContainer *container)
+{
+    RuntimeIteration *iteration = container->m_parentTask->m_parentIteration;
+    return iteration ? iteration->m_isProgressive : true;
+}
 
 void ExecutionContextActivator::activateContext(RuntimeIteration *iteration)
 {
@@ -1717,8 +1731,8 @@ SetupResult TaskTreePrivate::start(RuntimeContainer *container)
     if (container->m_containerNode.m_groupHandler.m_setupHandler) {
         startAction = invokeHandler(container, container->m_containerNode.m_groupHandler.m_setupHandler);
         if (startAction != SetupResult::Continue) {
-            // TODO: Handle progress well.
-            advanceProgress(container->m_containerNode.m_taskCount);
+            if (isProgressive(container))
+                advanceProgress(container->m_containerNode.m_taskCount);
             // Non-Continue SetupResult takes precedence over the workflow policy.
             container->m_successBit = startAction == SetupResult::StopWithSuccess;
         }
@@ -1756,10 +1770,8 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
     if (container->m_containerNode.m_parallelLimit == 0 && !container->m_iterations.empty())
         return SetupResult::Continue;
 
-    if (container->m_iterations.empty()) {
-        RuntimeIteration *iteration = new RuntimeIteration{0, container};
-        container->m_iterations.emplace_back(iteration);
-    }
+    if (container->m_iterations.empty())
+        container->m_iterations.emplace_back(std::make_unique<RuntimeIteration>(0, container));
 
     GuardLocker locker(container->m_startGuard);
     for (auto &iteration : container->m_iterations) {
@@ -1781,12 +1793,13 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
             if (finalizeAction == SetupResult::Continue)
                 continue;
 
-            int skippedTaskCount = 0;
-            // Skip scheduled but not run yet. The current (i) was already notified.
-            for (int j = i + 1; j < limit; ++j)
-                skippedTaskCount += container->m_containerNode.m_children.at(j).taskCount();
-            // TODO: Handle progress well
-            advanceProgress(skippedTaskCount);
+            if (iteration->m_isProgressive) {
+                int skippedTaskCount = 0;
+                // Skip scheduled but not run yet. The current (i) was already notified.
+                for (int j = i + 1; j < limit; ++j)
+                    skippedTaskCount += container->m_containerNode.m_children.at(j).taskCount();
+                advanceProgress(skippedTaskCount);
+            }
             return finalizeAction;
         }
     }
@@ -1816,18 +1829,19 @@ SetupResult TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success
 
 void TaskTreePrivate::stop(RuntimeContainer *container)
 {
-    int skippedTaskCount = 0;
     for (auto &iteration : container->m_iterations) {
         for (auto &child : iteration->m_children)
             stop(child.get());
-        // TODO: Do it only for 0-index iteration (up to root).
-        for (int i = iteration->currentLimit(); i < int(container->m_containerNode.m_children.size()); ++i)
-            skippedTaskCount += container->m_containerNode.m_children.at(i).taskCount();
-    }
 
-    // TODO: Handle progress well
-    // How to advance skipped tasks inside nested iterations?
-    advanceProgress(skippedTaskCount);
+        if (iteration->m_isProgressive) {
+            int skippedTaskCount = 0;
+            for (int i = iteration->currentLimit();
+                 i < int(container->m_containerNode.m_children.size()); ++i) {
+                skippedTaskCount += container->m_containerNode.m_children.at(i).taskCount();
+            }
+            advanceProgress(skippedTaskCount);
+        }
+    }
 }
 
 static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
@@ -1861,8 +1875,8 @@ SetupResult TaskTreePrivate::start(RuntimeTask *node)
         ? invokeHandler(node->m_parentIteration, handler.m_setupHandler, *node->m_task.get())
         : SetupResult::Continue;
     if (startAction != SetupResult::Continue) {
-        // TODO: Handle progress well
-        advanceProgress(1);
+        if (node->m_parentIteration->m_isProgressive)
+            advanceProgress(1);
         node->m_task.reset();
         return startAction;
     }
@@ -1908,8 +1922,8 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
         result = invokeHandler(node->m_parentIteration,
                                handler.m_doneHandler, *node->m_task.get(), doneWith);
     }
-    // TODO: Handle progress well
-    advanceProgress(1);
+    if (node->m_parentIteration->m_isProgressive)
+        advanceProgress(1);
     return result == DoneResult::Success;
 }
 
