@@ -28,7 +28,7 @@ void SdkManagerOutputParserTest::testParseMarkers_data()
     QTest::addColumn<QString>("output");
     QTest::addColumn<SdkManagerOutputParser::MarkerTag>("markerTag");
 
-    QMap<SdkManagerOutputParser::MarkerTag, QString> testData
+    const QMap<SdkManagerOutputParser::MarkerTag, QString> testData
         = {{SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker, "Installed packages:"},
            {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers, "Available Packages:"},
            {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker, "Available Updates:"},
@@ -44,8 +44,8 @@ void SdkManagerOutputParserTest::testParseMarkers_data()
            {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker, "cmdline-tools"},
            {SdkManagerOutputParser::MarkerTag::GenericToolMarker, "sources;android-32"}};
 
-    for (const SdkManagerOutputParser::MarkerTag data : testData.keys())
-        QTest::newRow(testData.value(data).toLatin1().constData()) << testData.value(data) << data;
+    for (auto it = testData.begin(); it != testData.end(); ++it)
+        QTest::newRow(it->toLatin1().constData()) << *it << it.key();
 
     QTest::newRow("Installed packages")
         << "Installed packages:" << SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker;
