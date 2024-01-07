@@ -161,6 +161,11 @@ void IOutputPane::visibilityChanged(bool /*visible*/)
 {
 }
 
+bool IOutputPane::hasFilterContext() const
+{
+    return false;
+}
+
 void IOutputPane::setFont(const QFont &font)
 {
     emit fontChanged(font);
@@ -188,6 +193,32 @@ void IOutputPane::setupFilterUi(const Key &historyKey)
     invertFilterAction.setCheckable(true);
     invertFilterAction.addOnToggled(this, [this, action=invertFilterAction.contextAction()] {
         m_invertFilter = action->isChecked();
+        updateFilter();
+    });
+
+    ActionBuilder filterBeforeAction(this, filterBeforeActionId());
+    //: The placeholder "{}" is replaced by a spin box for selecting a number.
+    filterBeforeAction.setText(Tr::tr("Show {} &preceding lines"));
+    QAction *action = filterBeforeAction.contextAction();
+    NumericOption::set(action, NumericOption{0, 0, 9});
+    NumericOption::set(filterBeforeAction.commandAction(), NumericOption{0, 0, 9});
+    connect(action, &QAction::changed, this, [this, action] {
+        const std::optional<NumericOption> option = NumericOption::get(action);
+        QTC_ASSERT(option, return);
+        m_beforeContext = option->currentValue;
+        updateFilter();
+    });
+
+    ActionBuilder filterAfterAction(this, filterAfterActionId());
+    //: The placeholder "{}" is replaced by a spin box for selecting a number.
+    filterAfterAction.setText(Tr::tr("Show {} &subsequent lines"));
+    action = filterAfterAction.contextAction();
+    NumericOption::set(action, NumericOption{0, 0, 9});
+    NumericOption::set(filterAfterAction.commandAction(), NumericOption{0, 0, 9});
+    connect(action, &QAction::changed, this, [this, action] {
+        const std::optional<NumericOption> option = NumericOption::get(action);
+        QTC_ASSERT(option, return);
+        m_afterContext = option->currentValue;
         updateFilter();
     });
 
@@ -252,8 +283,16 @@ void IOutputPane::updateFilter()
 
 void IOutputPane::filterOutputButtonClicked()
 {
-    auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,
-    {filterRegexpActionId(), filterCaseSensitivityActionId(), filterInvertedActionId()});
+    QVector<Utils::Id> commands = {filterRegexpActionId(),
+                                   filterCaseSensitivityActionId(),
+                                   filterInvertedActionId()};
+
+    if (hasFilterContext()) {
+        commands.emplaceBack(filterBeforeActionId());
+        commands.emplaceBack(filterAfterActionId());
+    }
+
+    auto popup = new Core::OptionsPopup(m_filterOutputLineEdit, commands);
     popup->show();
 }
 
@@ -276,6 +315,16 @@ Id IOutputPane::filterCaseSensitivityActionId() const
 Id IOutputPane::filterInvertedActionId() const
 {
     return Id("OutputFilter.Invert").withSuffix(metaObject()->className());
+}
+
+Id IOutputPane::filterBeforeActionId() const
+{
+    return Id("OutputFilter.BeforeContext").withSuffix(metaObject()->className());
+}
+
+Id IOutputPane::filterAfterActionId() const
+{
+    return Id("OutputFilter.AfterContext").withSuffix(metaObject()->className());
 }
 
 void IOutputPane::setCaseSensitive(bool caseSensitive)

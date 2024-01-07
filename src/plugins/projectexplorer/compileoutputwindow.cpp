@@ -203,6 +203,11 @@ bool CompileOutputWindow::canNavigate() const
     return false;
 }
 
+bool CompileOutputWindow::hasFilterContext() const
+{
+    return true;
+}
+
 void CompileOutputWindow::registerPositionOf(const Task &task, int linkedOutputLines, int skipLines,
                                              int offset)
 {
@@ -227,7 +232,8 @@ Utils::OutputFormatter *CompileOutputWindow::outputFormatter() const
 void CompileOutputWindow::updateFilter()
 {
     m_outputWindow->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                           filterUsesRegexp(), filterIsInverted());
+                                           filterUsesRegexp(), filterIsInverted(),
+                                           beforeContext(), afterContext());
 }
 
 // CompileOutputSettings

@@ -339,7 +339,8 @@ void AppOutputPane::updateFilter()
 {
     if (RunControlTab * const tab = currentTab()) {
         tab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                            filterUsesRegexp(), filterIsInverted());
+                                            filterUsesRegexp(), filterIsInverted(),
+                                            beforeContext(), afterContext());
     }
 }
 
@@ -730,7 +731,8 @@ void AppOutputPane::tabChanged(int i)
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
     if (i != -1 && controlTab) {
         controlTab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                                   filterUsesRegexp(), filterIsInverted());
+                                                   filterUsesRegexp(), filterIsInverted(),
+                                                   beforeContext(), afterContext());
         enableButtons(controlTab->runControl);
     } else {
         enableDefaultButtons();
@@ -808,6 +810,11 @@ void AppOutputPane::goToPrev()
 bool AppOutputPane::canNavigate() const
 {
     return false;
+}
+
+bool AppOutputPane::hasFilterContext() const
+{
+    return true;
 }
 
 class AppOutputSettingsWidget : public Core::IOptionsPageWidget

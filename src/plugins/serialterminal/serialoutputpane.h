@@ -62,6 +62,8 @@ public:
     void goToPrev() final;
     bool canNavigate() const final;
 
+    bool hasFilterContext() const final;
+
     void createNewOutputWindow(SerialControl *rc);
 
     bool closeTabs(CloseTabMode mode);

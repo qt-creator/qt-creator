@@ -206,7 +206,9 @@ void BuildSystemOutputWindow::updateFilter()
                            m_filterActionCaseSensitive.isChecked() ? Qt::CaseSensitive
                                                                     : Qt::CaseInsensitive,
                            m_filterActionRegexp.isChecked(),
-                           m_invertFilterAction.isChecked());
+                           m_invertFilterAction.isChecked(),
+                           0 /* before context */,
+                           0 /* after context */);
 }
 
 class VanishedTargetPanelItem : public TreeItem

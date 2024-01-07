@@ -70,6 +70,8 @@ public:
     int lastFilteredBlockNumber = -1;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
+    int beforeContext = 0;
+    int afterContext = 0;
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
@@ -337,14 +339,19 @@ void OutputWindow::updateFilterProperties(
         const QString &filterText,
         Qt::CaseSensitivity caseSensitivity,
         bool isRegexp,
-        bool isInverted
+        bool isInverted,
+        int beforeContext,
+        int afterContext
         )
 {
     FilterModeFlags flags;
     flags.setFlag(FilterModeFlag::CaseSensitive, caseSensitivity == Qt::CaseSensitive)
             .setFlag(FilterModeFlag::RegExp, isRegexp)
             .setFlag(FilterModeFlag::Inverted, isInverted);
-    if (d->filterMode == flags && d->filterText == filterText)
+    if (d->filterMode == flags
+        && d->filterText == filterText
+        && d->beforeContext == beforeContext
+        && d->afterContext == afterContext)
         return;
     d->lastFilteredBlockNumber = -1;
     if (d->filterText != filterText) {
@@ -371,6 +378,8 @@ void OutputWindow::updateFilterProperties(
         }
     }
     d->filterMode = flags;
+    d->beforeContext = beforeContext;
+    d->afterContext = afterContext;
     filterNewContent();
 }
 
@@ -409,13 +418,33 @@ void OutputWindow::filterNewContent()
     QTC_ASSERT(findNextMatch, return);
     const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted)
                         && !d->filterText.isEmpty();
+    const int requiredBacklog = std::max(d->beforeContext, d->afterContext);
+    const int firstBlockIndex = d->lastFilteredBlockNumber - requiredBacklog;
 
-    QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
+    std::vector<int> matchedBlocks;
+    QTextBlock lastBlock = document()->findBlockByNumber(firstBlockIndex);
     if (!lastBlock.isValid())
         lastBlock = document()->begin();
 
-    for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-        lastBlock.setVisible(findNextMatch(lastBlock.text()) != invert);
+    // Find matching text blocks for the current filter.
+    for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
+        const bool isMatch = findNextMatch(lastBlock.text()) != invert;
+
+        if (isMatch)
+            matchedBlocks.emplace_back(lastBlock.blockNumber());
+
+        lastBlock.setVisible(isMatch);
+    }
+
+    // Reveal the context lines before and after the match.
+    if (!d->filterText.isEmpty()) {
+        for (int blockNumber : matchedBlocks) {
+            for (auto i = 1; i <= d->beforeContext; ++i)
+                document()->findBlockByNumber(blockNumber - i).setVisible(true);
+            for (auto i = 1; i <= d->afterContext; ++i)
+                document()->findBlockByNumber(blockNumber + i).setVisible(true);
+        }
+    }
 
     d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
 

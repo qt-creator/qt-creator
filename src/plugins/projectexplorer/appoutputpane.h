@@ -57,6 +57,8 @@ public:
     void goToPrev() override;
     bool canNavigate() const override;
 
+    bool hasFilterContext() const override;
+
     void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);
     void setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode);

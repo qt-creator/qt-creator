@@ -33,6 +33,8 @@ public:
     void goToPrev() override;
     bool canNavigate() const override;
 
+    bool hasFilterContext() const override;
+
 private:
     void updateFilter() override;
 

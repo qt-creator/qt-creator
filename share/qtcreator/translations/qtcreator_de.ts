@@ -19386,6 +19386,16 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
         <translation>Öffne Datei &quot;%1&quot; mit:</translation>
     </message>
     <message>
+        <source>Show {} &amp;preceding lines</source>
+        <extracomment>The optional placeholder &quot;{}&quot; is replaced by a spin box for selecting a number.</extracomment>
+        <translation>Zeige {} &amp;vorausgehende Zeilen</translation>
+    </message>
+    <message>
+        <source>Show {} &amp;subsequent lines</source>
+        <extracomment>The optional placeholder &quot;{}&quot; is replaced by a spin box for selecting a number.</extracomment>
+        <translation>Zeige {} &amp;nachfolgende Zeilen</translation>
+    </message>
+    <message>
         <source>Maximize</source>
         <translation>Maximieren</translation>
     </message>
@@ -21806,6 +21816,14 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Show Non-matching Lines</source>
         <translation>Zeige nicht übereinstimmende Zeilen</translation>
+    </message>
+    <message>
+        <source>Show {# lines} &amp;before</source>
+        <translation>{# Zeilen} &amp;vorab zeigen</translation>
+    </message>
+    <message>
+        <source>Show {# lines} &amp;after</source>
+        <translation>{# Zeilen} &amp;nachfolgend zeigen</translation>
     </message>
     <message>
         <source>Filter output...</source>
