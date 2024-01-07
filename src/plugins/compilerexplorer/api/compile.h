@@ -136,9 +136,8 @@ struct CompileParameters
         Options &libraries(const QMap<QString, QString> &libraries)
         {
             Libraries result;
-            for (const auto &key : libraries.keys()) {
-                result.add(key, libraries[key]);
-            }
+            for (auto it = libraries.begin(); it != libraries.end(); ++it)
+                result.add(it.key(), *it);
             obj["libraries"] = result.array;
             return *this;
         }

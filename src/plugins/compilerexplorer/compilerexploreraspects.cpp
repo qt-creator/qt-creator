@@ -62,9 +62,8 @@ bool LibrarySelectionAspect::guiToBuffer()
 QVariantMap toVariantMap(const QMap<QString, QString> &map)
 {
     QVariantMap variant;
-    for (const auto &key : map.keys())
-        variant.insert(key, map[key]);
-
+    for (auto it = map.begin(); it != map.end(); ++it)
+        variant.insert(it.key(), *it);
     return variant;
 }
 
@@ -86,10 +85,9 @@ QVariant LibrarySelectionAspect::defaultVariantValue() const
 void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     QMap<QString, QString> map;
-    Store store = storeFromVariant(value);
-    for (const auto &key : store.keys())
-        map[stringFromKey(key)] = store[key].toString();
-
+    const Store store = storeFromVariant(value);
+    for (auto it = store.begin(); it != store.end(); ++it)
+        map[stringFromKey(it.key())] = it->toString();
     setValue(map, howToAnnounce);
 }
 

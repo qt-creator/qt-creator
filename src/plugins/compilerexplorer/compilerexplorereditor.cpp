@@ -616,21 +616,21 @@ CompilerWidget *EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> 
 
 QVariantMap EditorWidget::windowStateCallback()
 {
-    auto settings = saveSettings();
+    const auto settings = saveSettings();
     QVariantMap result;
 
-    for (const Key &key : settings.keys()) {
+    for (auto it = settings.begin(); it != settings.end(); ++it) {
         // QTBUG-116339
-        if (stringFromKey(key) != "State") {
-            result.insert(stringFromKey(key), settings.value(key));
+        const QString keyString = stringFromKey(it.key());
+        if (keyString != "State") {
+            result.insert(keyString, *it);
         } else {
             QVariantMap m;
             m["type"] = "Base64";
-            m["value"] = settings.value(key).toByteArray().toBase64();
-            result.insert(stringFromKey(key), m);
+            m["value"] = it->toByteArray().toBase64();
+            result.insert(keyString, m);
         }
     }
-
     return result;
 }
 
@@ -730,28 +730,24 @@ void EditorWidget::recreateEditors()
     m_document->settings()->m_sources.forEachItem<SourceSettings>(
         [this](const auto &sourceSettings) { addSourceEditor(sourceSettings); });
 
-    Store windowState = m_document->settings()->windowState.value();
+    const Store windowState = m_document->settings()->windowState.value();
 
-    if (!windowState.isEmpty()) {
-        Store hashMap;
-        for (const auto &key : windowState.keys()) {
-            if (key.view() != "State")
-                hashMap.insert(key, windowState.value(key));
-            else {
-                QVariant v = windowState.value(key);
-                if (v.userType() == QMetaType::QByteArray) {
-                    hashMap.insert(key, v);
-                } else if (v.userType() == QMetaType::QVariantMap) {
-                    QVariantMap m = v.toMap();
-                    if (m.value("type") == "Base64") {
-                        hashMap.insert(key, QByteArray::fromBase64(m.value("value").toByteArray()));
-                    }
-                }
-            }
+    if (windowState.isEmpty())
+        return;
+
+    Store hashMap;
+    for (auto it = windowState.begin(); it != windowState.end(); ++it) {
+        const Key key = it.key();
+        const QVariant v = *it;
+        if (key.view() != "State" || v.userType() == QMetaType::QByteArray) {
+            hashMap.insert(key, v);
+        } else if (v.userType() == QMetaType::QVariantMap) {
+            const QVariantMap m = v.toMap();
+            if (m.value("type") == "Base64")
+                hashMap.insert(key, QByteArray::fromBase64(m.value("value").toByteArray()));
         }
-
-        restoreSettings(hashMap);
     }
+    restoreSettings(hashMap);
 }
 
 void EditorWidget::setupHelpWidget()
