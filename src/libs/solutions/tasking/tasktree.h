@@ -76,6 +76,7 @@ Q_ENUM_NS(CallDoneIf);
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
+class LoopData;
 class StorageData;
 class TaskTreePrivate;
 
@@ -94,6 +95,32 @@ private:
 protected:
 #endif
     virtual void start() = 0;
+};
+
+class TASKING_EXPORT Loop
+{
+public:
+    using Condition = std::function<bool(int)>; // Takes iteration, called prior to each iteration.
+
+    Loop(const Condition &condition);
+    int iteration() const;
+
+private:
+    friend class ExecutionContextActivator;
+    friend class TaskTreePrivate;
+    QSharedPointer<LoopData> m_loopData;
+};
+
+class TASKING_EXPORT Forever final : public Loop
+{
+public:
+    Forever() : Loop([](int) { return true; }) {}
+};
+
+class TASKING_EXPORT Repeat final : public Loop
+{
+public:
+    Repeat(int count) : Loop([count](int index) { return index < count; }) {}
 };
 
 class TASKING_EXPORT StorageBase
@@ -157,6 +184,8 @@ public:
         : m_type(Type::Storage)
         , m_storageList{storage} {}
 
+    GroupItem(const Loop &loop) : GroupItem(GroupData{{}, {}, {}, loop}) {}
+
     // TODO: Add tests.
     GroupItem(const QList<GroupItem> &children) : m_type(Type::List) { addChildren(children); }
     GroupItem(std::initializer_list<GroupItem> children) : m_type(Type::List) { addChildren(children); }
@@ -186,6 +215,7 @@ protected:
         GroupHandler m_groupHandler = {};
         std::optional<int> m_parallelLimit = {};
         std::optional<WorkflowPolicy> m_workflowPolicy = {};
+        std::optional<Loop> m_loop = {};
     };
 
     enum class Type {
