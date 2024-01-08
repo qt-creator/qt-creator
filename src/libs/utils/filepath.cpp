@@ -657,7 +657,7 @@ FileStreamHandle FilePath::asyncWrite(const QByteArray &data, QObject *context,
 
 bool FilePath::needsDevice() const
 {
-    return m_schemeLen != 0;
+    return m_schemeLen > 0 && scheme() != u"file";
 }
 
 bool FilePath::isSameDevice(const FilePath &other) const
