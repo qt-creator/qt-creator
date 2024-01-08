@@ -163,8 +163,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::qtVersionsLoaded");
         emit QtVersionManager::instance()->qtVersionsLoaded();
     }
-    emit QtVersionManager::instance()->qtVersionsChanged(
-        m_versions.keys(), QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
 
     const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
@@ -478,7 +477,7 @@ void QtVersionManager::addVersion(QtVersion *version)
     int uniqueId = version->uniqueId();
     m_versions.insert(uniqueId, version);
 
-    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged({uniqueId});
     qtVersionManagerImpl().saveQtVersions();
 }
 
@@ -486,7 +485,7 @@ void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version, return);
     m_versions.remove(version->uniqueId());
-    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged({}, {version->uniqueId()});
     qtVersionManagerImpl().saveQtVersions();
     delete version;
 }
