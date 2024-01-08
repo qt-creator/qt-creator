@@ -141,6 +141,15 @@ function(qtc_handle_compiler_cache_support)
   endif()
 endfunction()
 
+function(qtc_handle_llvm_linker)
+  if (QTC_USE_LLVM_LINKER)
+    find_program(LLVM_LINK_PROGRAM llvm-link)
+    if(LLVM_LINK_PROGRAM)
+      set(CMAKE_LINKER "${LLVM_LINK_PROGRAM}" CACHE STRING "LLVM linker" FORCE)
+    endif()
+  endif()
+endfunction()
+
 function(qtc_link_with_qt)
   # When building with Qt Creator 4.15+ do the "Link with Qt..." automatically
   if (BUILD_LINK_WITH_QT AND DEFINED CMAKE_PROJECT_INCLUDE_BEFORE)
