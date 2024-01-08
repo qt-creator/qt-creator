@@ -179,7 +179,8 @@ public:
     using QPlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
     void setCursorPosition(int pos);
-    QToolBar *toolBar();
+    QWidget *toolBarWidget() const;
+    QToolBar *toolBar() const;
 
     void print(QPrinter *);
 

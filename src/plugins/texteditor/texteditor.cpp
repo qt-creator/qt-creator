@@ -8762,7 +8762,7 @@ IDocument *BaseTextEditor::document() const
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return editorWidget()->d->m_toolBarWidget;
+    return editorWidget()->toolBarWidget();
 }
 
 QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
@@ -8923,7 +8923,12 @@ void TextEditorWidget::setCursorPosition(int pos)
     setTextCursor(tc);
 }
 
-QToolBar *TextEditorWidget::toolBar()
+QWidget *TextEditorWidget::toolBarWidget() const
+{
+    return d->m_toolBarWidget;
+}
+
+QToolBar *TextEditorWidget::toolBar() const
 {
     return d->m_toolBar;
 }
