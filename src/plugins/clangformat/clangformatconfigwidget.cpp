@@ -305,10 +305,8 @@ std::string ClangFormatConfigWidget::readFile(const QString &path)
     file.close();
 
     clang::format::FormatStyle style;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(content, &style);
-    QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
-               return defaultStyle);
+    bool success = parseConfigurationFile(FilePath::fromString(path), style);
+    QTC_ASSERT(success, return defaultStyle);
 
     addQtcStatementMacros(style);
     std::string settings = clang::format::configurationAsText(style);

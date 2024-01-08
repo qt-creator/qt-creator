@@ -33,14 +33,8 @@ ClangFormatFile::ClangFormatFile(const TextEditor::ICodeStylePreferences *prefer
         return;
     }
 
-    m_style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(m_filePath.fileContents()
-                                                                        .value_or(QByteArray())
-                                                                        .toStdString(),
-                                                                    &m_style);
-    if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
+    if (!parseConfigurationFile(m_filePath, m_style))
         resetStyleToQtC(preferences);
-    }
 }
 
 clang::format::FormatStyle ClangFormatFile::style() {
@@ -143,10 +137,8 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     auto settings = CppEditor::CppCodeStyleSettings::getProjectCodeStyle(project);
 
     FormatStyle style;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error
-        = parseConfiguration(m_filePath.fileContents().value_or(QByteArray()).toStdString(), &style);
-    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return settings);
+    bool success = parseConfigurationFile(m_filePath, style);
+    QTC_ASSERT(success, return settings);
 
     // Modifier offset should be opposite to indent width in order indentAccessSpecifiers
     // to be false
@@ -197,10 +189,8 @@ TextEditor::TabSettings ClangFormatFile::toTabSettings(ProjectExplorer::Project 
     auto settings = CppEditor::CppCodeStyleSettings::getProjectTabSettings(project);
 
     FormatStyle style;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error
-        = parseConfiguration(m_filePath.fileContents().value_or(QByteArray()).toStdString(), &style);
-    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return settings);
+    bool success = parseConfigurationFile(m_filePath, style);
+    QTC_ASSERT(success, return settings);
 
     settings.m_indentSize = style.IndentWidth;
     settings.m_tabSize = style.TabWidth;

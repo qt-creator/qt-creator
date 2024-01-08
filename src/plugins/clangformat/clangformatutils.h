@@ -47,4 +47,7 @@ clang::format::FormatStyle qtcStyle();
 clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreferences *codeStyle);
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
-}
+
+bool parseConfigurationFile(const Utils::FilePath &filePath, clang::format::FormatStyle &style);
+
+} // ClangFormat

@@ -792,13 +792,8 @@ clang::format::FormatStyle ClangFormatBaseIndenter::customSettingsStyle(
         return currentQtStyle(preferences);
 
     clang::format::FormatStyle currentSettingsStyle;
-    currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
-                                                                        .value_or(QByteArray())
-                                                                        .toStdString(),
-                                                                    &currentSettingsStyle);
-    QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
-               return currentQtStyle(preferences));
+    bool success = parseConfigurationFile(filePath, currentSettingsStyle);
+    QTC_ASSERT(success, return currentQtStyle(preferences));
 
     return currentSettingsStyle;
 }
