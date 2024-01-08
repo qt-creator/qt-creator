@@ -155,8 +155,8 @@ protected:
     {
         QTC_CHECK(!m_creator);
         m_stepId = id;
-        m_creator = [id, this](BuildStepFactory *bsf, BuildStepList *bsl) {
-            auto bs = new BuildStepType(bsl, id);
+        m_creator = [](BuildStepFactory *bsf, BuildStepList *bsl) {
+            auto bs = new BuildStepType(bsl, bsf->m_stepId);
             if (bsf->m_extraInit)
                 bsf->m_extraInit(bs);
             return bs;
