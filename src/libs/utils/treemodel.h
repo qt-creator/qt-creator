@@ -39,6 +39,7 @@ public:
 
     void removeChildAt(int pos);
     void removeChildren(bool emitSignals = true);
+    void removeChildrenSilently();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
     void updateAll();

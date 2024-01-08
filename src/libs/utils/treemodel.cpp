@@ -604,7 +604,7 @@ TreeItem::~TreeItem()
 {
     QTC_CHECK(m_parent == nullptr);
     QTC_CHECK(m_model == nullptr);
-    removeChildren(false);
+    removeChildrenSilently();
 }
 
 TreeItem *TreeItem::childAt(int pos) const
@@ -714,6 +714,13 @@ void TreeItem::removeChildren(bool emitSignals)
     } else {
         clear();
     }
+}
+
+void TreeItem::removeChildrenSilently()
+{
+    if (childCount() == 0)
+        return;
+    clear();
 }
 
 void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp)
@@ -1081,7 +1088,7 @@ void BaseTreeModel::setRootItemInternal(TreeItem *item)
         QTC_CHECK(m_root->m_model == this);
         // needs to be done explicitly before setting the model to 0, otherwise it might lead to a
         // crash inside a view or proxy model, especially if there are selected items
-        m_root->removeChildren(false);
+        m_root->removeChildrenSilently();
         m_root->m_model = nullptr;
         delete m_root;
     }

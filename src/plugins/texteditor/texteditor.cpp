@@ -8782,7 +8782,7 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
                                         findLeftMostAction);
         return d->m_toolBar->insertWidget(before, widget);
     } else {
-        return d->m_toolBar->insertWidget(d->m_fileEncodingLabelAction, widget);
+        return d->m_toolBar->insertWidget(d->m_fileLineEndingAction, widget);
     }
 }
 
