@@ -1,12 +1,11 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "extensionmanagertr.h"
+#include "extensionmanagerwidget.h"
 
 #include "extensionmanagerconstants.h"
-#include "extensionmanagerwidget.h"
+#include "extensionmanagertr.h"
 #include "extensionsbrowser.h"
-#include "utils/algorithm.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
@@ -17,6 +16,7 @@
 
 #include <extensionsystem/pluginspec.h>
 
+#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stylehelper.h>
@@ -292,7 +292,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
                 <div style="%1">%2</div>
                 <p>%3</p>
             )").arg(h6Css)
-           .arg(Tr::tr("Exentsions in pack"))
+           .arg(Tr::tr("Extensions in pack"))
            .arg(extensions.join("<br/>")));
         }
 
