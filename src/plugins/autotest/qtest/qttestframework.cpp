@@ -44,7 +44,8 @@ QtTestFramework::QtTestFramework()
                 title(Tr::tr("Benchmark Metrics")),
                 Column { metrics }
             }, br,
-            quickCheckForDerivedTests, br
+            quickCheckForDerivedTests, br,
+            parseMessages, br
         }, st };
     });
 
@@ -100,6 +101,15 @@ QtTestFramework::QtTestFramework()
         Tr::tr("Search for Qt Quick tests that are derived from TestCase.\nWarning: Enabling this "
                "feature significantly increases scan time."));
 
+    parseMessages.setSettingsKey("ParseMessages");
+    parseMessages.setDefaultValue(false);
+    parseMessages.setLabelText(Tr::tr("Find user-defined locations"));
+    parseMessages.setToolTip(
+        Tr::tr("Parse messages for the pattern \"file://filepath:line\", where \":line\" is "
+               "optional, and use this as location information.\n"
+               "Warning: If the patterns are used in code, the location information for debug "
+               "messages and other messages might improve,\n"
+               "at the risk of some incorrect locations and lower performance."));
     readSettings();
 
     maxWarnings.setEnabler(&limitWarnings);
