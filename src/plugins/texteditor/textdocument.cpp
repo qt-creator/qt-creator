@@ -62,6 +62,12 @@ public:
     {
     }
 
+    ~TextDocumentPrivate()
+    {
+        if (m_highlighterRunner)
+            m_highlighterRunner->deleteLater();
+    }
+
     MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettings &tabSettings);
     void resetRevisions();
     void updateRevisions();

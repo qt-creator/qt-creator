@@ -9,8 +9,9 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QTextDocument>
 #include <QPointer>
+#include <QTextDocument>
+#include <QThread>
 
 #include <cmath>
 
@@ -197,6 +198,9 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     QList<SyntaxHighlighter::Result> vecRes;
 
     while (block.isValid() && (block.position() < endPosition || forceHighlightOfNextBlock)) {
+        if (QThread::currentThread()->isInterruptionRequested())
+            break;
+
         const int stateBeforeHighlight = block.userState();
 
         reformatBlock(block, from, charsRemoved, charsAdded);

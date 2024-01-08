@@ -266,6 +266,7 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
 
 ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()
 {
+    m_thread.requestInterruption();
     m_thread.quit();
     m_thread.wait();
 }
