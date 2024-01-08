@@ -351,9 +351,9 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     if (hasMatch(result)) {
         processResultOutput(match.captured(1).toLower().trimmed(), match.captured(2));
     } else if (hasMatch(locationUnix)) {
-        processLocationOutput(match.captured(1));
+        processLocationOutput(match.captured("file"), match.captured("line"));
     } else if (hasMatch(locationWin)) {
-        processLocationOutput(match.captured(1));
+        processLocationOutput(match.captured("file"), match.captured("line"));
     } else if (hasMatch(benchDetails)) {
         m_description = match.captured(1);
     } else if (hasMatch(config)) {
@@ -412,15 +412,11 @@ void QtTestOutputReader::processResultOutput(const QString &result, const QStrin
     m_formerTestCase = m_testCase;
 }
 
-void QtTestOutputReader::processLocationOutput(const QString &fileWithLine)
+void QtTestOutputReader::processLocationOutput(const QStringView file, const QStringView line)
 {
-    QTC_ASSERT(fileWithLine.endsWith(')'), return);
-    int openBrace = fileWithLine.lastIndexOf('(');
-    QTC_ASSERT(openBrace != -1, return);
-    m_file = constructSourceFilePath(m_buildDir, fileWithLine.left(openBrace));
-    QString numberStr = fileWithLine.mid(openBrace + 1);
-    numberStr.chop(1);
-    m_lineNumber = numberStr.toInt();
+    QTC_ASSERT(!file.isEmpty(), return);
+    m_file = constructSourceFilePath(m_buildDir, file.toString());
+    m_lineNumber = line.toInt();
 }
 
 void QtTestOutputReader::processSummaryFinishOutput()

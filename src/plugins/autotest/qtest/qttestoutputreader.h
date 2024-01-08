@@ -33,7 +33,7 @@ private:
     void processXMLOutput(const QByteArray &outputLine);
     void processPlainTextOutput(const QByteArray &outputLine);
     void processResultOutput(const QString &result, const QString &message);
-    void processLocationOutput(const QString &fileWithLine);
+    void processLocationOutput(const QStringView file, const QStringView line);
     void processSummaryFinishOutput();
     // helper functions
     void sendCompleteInformation();
