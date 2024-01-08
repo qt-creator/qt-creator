@@ -562,9 +562,9 @@ void DapEngine::updateItem(const QString &iname)
 void DapEngine::reexpandItems(const QSet<QString> &inames)
 {
     QSet<QString> expandedInames = inames;
-    const QList<QString> &watcherNames = watchHandler()->watcherNames().keys();
-    for (const QString &inames : watcherNames)
-        expandedInames.insert(watchHandler()->watcherName(inames));
+    const auto &watcherNames = watchHandler()->watcherNames();
+    for (auto it = watcherNames.begin(); it != watcherNames.end(); ++it)
+        expandedInames.insert(watchHandler()->watcherName(it.key()));
 
     QList<QString> inamesVector = expandedInames.values();
     inamesVector.sort();
