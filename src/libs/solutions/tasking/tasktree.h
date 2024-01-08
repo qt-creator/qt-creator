@@ -103,7 +103,7 @@ private:
     using StorageDestructor = std::function<void(void *)>;
     using StorageHandler = std::function<void(void *)>;
 
-    StorageBase(StorageConstructor ctor, StorageDestructor dtor);
+    StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor);
 
     void *activeStorageVoid() const;
 

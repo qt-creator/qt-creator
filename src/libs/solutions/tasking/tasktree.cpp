@@ -1258,7 +1258,7 @@ public:
     std::map<QThread *, StorageThreadData> m_threadDataMap = {};
 };
 
-StorageBase::StorageBase(StorageConstructor ctor, StorageDestructor dtor)
+StorageBase::StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor)
     : m_storageData(new StorageData{ctor, dtor})
 {}
 
