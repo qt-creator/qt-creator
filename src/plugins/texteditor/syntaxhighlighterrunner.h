@@ -58,7 +58,7 @@ signals:
 protected:
     std::unique_ptr<SyntaxHighlighterRunnerPrivate> d;
     QPointer<QTextDocument> m_document = nullptr;
-    void applyFormatRanges(const SyntaxHighlighter::Result &result);
+    void applyFormatRanges(const QList<SyntaxHighlighter::Result> &results);
     void changeDocument(int from, int charsRemoved, int charsAdded);
 
     SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;

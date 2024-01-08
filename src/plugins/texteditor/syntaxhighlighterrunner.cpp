@@ -136,26 +136,31 @@ BaseSyntaxHighlighterRunner::BaseSyntaxHighlighterRunner(
 
 BaseSyntaxHighlighterRunner::~BaseSyntaxHighlighterRunner() = default;
 
-void BaseSyntaxHighlighterRunner::applyFormatRanges(const SyntaxHighlighter::Result &result)
+void BaseSyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::Result> &results)
 {
-    m_syntaxInfoUpdated = result.m_state;
-    if (m_syntaxInfoUpdated == SyntaxHighlighter::State::Done) {
-        emit highlightingFinished();
-        return;
-    }
-
-    QTextBlock docBlock = m_document->findBlock(result.m_blockNumber);
-    if (!docBlock.isValid())
+    if (m_document == nullptr)
         return;
 
-    result.copyToBlock(docBlock);
+    for (const SyntaxHighlighter::Result &result : results) {
+        m_syntaxInfoUpdated = result.m_state;
+        if (m_syntaxInfoUpdated == SyntaxHighlighter::State::Done) {
+            emit highlightingFinished();
+            return;
+        }
 
-    if (!result.m_formatRanges.empty()) {
-        TextDocumentLayout::FoldValidator foldValidator;
-        foldValidator.setup(qobject_cast<TextDocumentLayout *>(m_document->documentLayout()));
-        docBlock.layout()->setFormats(result.m_formatRanges);
-        m_document->markContentsDirty(docBlock.position(), docBlock.length());
-        foldValidator.process(docBlock);
+        QTextBlock docBlock = m_document->findBlock(result.m_blockNumber);
+        if (!docBlock.isValid())
+            return;
+
+        result.copyToBlock(docBlock);
+
+        if (!result.m_formatRanges.empty()) {
+            TextDocumentLayout::FoldValidator foldValidator;
+            foldValidator.setup(qobject_cast<TextDocumentLayout *>(m_document->documentLayout()));
+            docBlock.layout()->setFormats(result.m_formatRanges);
+            m_document->markContentsDirty(docBlock.position(), docBlock.length());
+            foldValidator.process(docBlock);
+        }
     }
 }
 
@@ -249,11 +254,8 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
     m_document = document;
     connect(d.get(),
             &SyntaxHighlighterRunnerPrivate::resultsReady,
-            document,
-            [this](const QList<SyntaxHighlighter::Result> &result) {
-                for (const SyntaxHighlighter::Result &res : result)
-                    applyFormatRanges(res);
-            });
+            this,
+            &ThreadedSyntaxHighlighterRunner::applyFormatRanges);
 
     changeDocument(0, 0, document->characterCount());
     connect(document,
