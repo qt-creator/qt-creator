@@ -1094,9 +1094,9 @@ void DocumentManager::checkForReload()
         }
         currentStates.insert(fileKey, state);
         changeTypes.insert(fileKey, type);
-        QList<IDocument *> documents = d->m_states.value(fileKey).lastUpdatedState.keys();
-        for (IDocument *document : documents)
-            changedIDocuments.insert(document);
+        const auto docs = d->m_states.value(fileKey).lastUpdatedState;
+        for (auto it = docs.begin(); it != docs.end(); ++it)
+            changedIDocuments.insert(it.key());
     }
 
     // clean up. do this before we may enter the main loop, otherwise we would
