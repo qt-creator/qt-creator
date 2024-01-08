@@ -117,7 +117,6 @@ CMakeManager::CMakeManager()
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
         .setText(Tr::tr("CMake Profiler"))
         .bindContextAction(&m_cmakeProfilerAction)
-        .setCommandDescription(m_cmakeProfilerAction->text())
         .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,
                         Debugger::Constants::G_ANALYZER_TOOLS,
                         false)
@@ -136,7 +135,6 @@ CMakeManager::CMakeManager()
         .setText(Tr::tr("Start CMake Debugging"))
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
         .bindContextAction(&m_cmakeDebuggerAction)
-        .setCommandDescription(m_cmakeDebuggerAction->text())
         .addToContainer(PEC::M_DEBUG_STARTDEBUGGING, Constants::CMAKE_DEBUGGING_GROUP)
         .addOnTriggered(this, [] {
             ProjectExplorerPlugin::runStartupProject(PEC::DAP_CMAKE_DEBUG_RUN_MODE,
