@@ -83,8 +83,8 @@ public:
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();
-            for (const QString &app : s.mappedAuts.keys())
-                aut.addItem(app);
+            for (auto it = s.mappedAuts.cbegin(); it != s.mappedAuts.cend(); ++it)
+                aut.addItem(it.key());
         });
     }
 
@@ -358,10 +358,9 @@ void SquishFileHandler::closeAllInternal()
     // TODO remove file watcher
     for (auto suiteConfFilePath : m_suites)
         closeOpenedEditorsFor(suiteConfFilePath.parentDir(), true);
-    const QStringList &suiteNames = m_suites.keys();
     m_suites.clear();
-    for (const QString &suiteName : suiteNames)
-        emit suiteTreeItemRemoved(suiteName);
+    for (auto it = m_suites.cbegin(); it != m_suites.cend(); ++it)
+        emit suiteTreeItemRemoved(it.key());
 }
 
 void SquishFileHandler::runTestCase(const QString &suiteName, const QString &testCaseName)
