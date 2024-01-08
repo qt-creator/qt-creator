@@ -163,18 +163,12 @@ bool RemoteModel::refresh(const FilePath &workingDirectory, QString *errorMessag
     m_workingDirectory = workingDirectory;
 
     // get list of remotes.
-    QMap<QString,QString> remotesList
-            = gitClient().synchronousRemotesList(workingDirectory, errorMessage);
-
+    const QMap<QString, QString> remotesList = gitClient().synchronousRemotesList(workingDirectory,
+                                                                                  errorMessage);
     beginResetModel();
     m_remotes.clear();
-    const QList<QString> remotes = remotesList.keys();
-    for (const QString &remoteName : remotes) {
-        Remote newRemote;
-        newRemote.name = remoteName;
-        newRemote.url = remotesList.value(remoteName);
-        m_remotes.push_back(newRemote);
-    }
+    for (auto it = remotesList.begin(); it != remotesList.end(); ++it)
+        m_remotes.push_back({it.key(), it.value()});
     endResetModel();
     emit refreshed();
     return true;
