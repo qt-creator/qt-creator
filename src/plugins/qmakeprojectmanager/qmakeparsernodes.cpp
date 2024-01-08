@@ -572,18 +572,15 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
 
 bool QmakePriFile::removeFiles(const FilePaths &filePaths, FilePaths *notRemoved)
 {
-    FilePaths failedFiles;
-    using TypeFileMap = QMap<QString, FilePaths>;
     // Split into lists by file type and bulk-add them.
-    TypeFileMap typeFileMap;
+    QMap<QString, FilePaths> typeFileMap;
     for (const FilePath &file : filePaths) {
         const MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
-    const QStringList types = typeFileMap.keys();
-    for (const QString &type : types) {
-        const FilePaths typeFiles = typeFileMap.value(type);
-        changeFiles(type, typeFiles, &failedFiles, RemoveFromProFile);
+    FilePaths failedFiles;
+    for (auto it = typeFileMap.cbegin(); it != typeFileMap.cend(); ++it) {
+        changeFiles(it.key(), *it, &failedFiles, RemoveFromProFile);
         if (notRemoved)
             *notRemoved = failedFiles;
     }
