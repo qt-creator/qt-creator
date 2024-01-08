@@ -207,6 +207,9 @@ void LineColumnButton::update()
 
 bool LineColumnButton::event(QEvent *event)
 {
+    if (event->type() == QEvent::Leave)
+        ToolTip::hideImmediately();
+
     if (event->type() != QEvent::ToolTip)
         return QToolButton::event(event);
 
