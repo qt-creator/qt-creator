@@ -1,12 +1,17 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-editor-refactoring.html
     \previouspage creator-jump-to-the-code.html
-    \nextpage creator-editor-quick-fixes.html
+    \nextpage creator-editor-options.html
 
     \title Refactoring
+
+    \e {Code refactoring} is the process of improving and simplifying code
+    without modifying the existing functionality of an application. You
+    can easily find and rename symbols and apply predefined actions to
+    refactor code.
 
     Refactor code to:
 
@@ -17,9 +22,8 @@
         \li Simplify code structure
     \endlist
 
-    \QC allows you to quickly and conveniently apply actions to refactor your
-    code by selecting them in a context menu. For more information, see
-    \l{Applying Refactoring Actions}.
+    To quickly and conveniently apply actions to refactor your
+    code, \l{Apply quick fixes}{select quick fixes in a context menu}.
 
     By default, the refactored files are saved automatically. To disable
     this feature, deselect \preferences > \uicontrol Environment >
@@ -33,13 +37,13 @@
     \uicontrol {C++} > \uicontrol {Find References to Symbol Under Cursor} or
     press \key {Ctrl+Shift+U}.
 
-    \image qtcreator-find-references-to-symbol-under-cursor.png "Search results for finding references to symbols"
+    \image qtcreator-find-references-to-symbol-under-cursor.png {Search results for finding references to symbols}
 
     To view the same results color-coded according to the access type, such as
     read, write, or declaration, select \uicontrol Tools > \uicontrol {C++} >
     \uicontrol {Find References with Access Type}.
 
-    \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
+    \note Select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
     classes, functions, enums, and declarations (including type aliases) either
     from files listed as part of the project or from all files that are used by
@@ -76,7 +80,7 @@
     \image qml-find-usages.png
     \endif
 
-    You can browse the search results in the following ways:
+    Browse the search results in the following ways:
 
     \list
         \li To go directly to an instance, double-click the instance in
@@ -138,7 +142,12 @@
     box to also change the filenames that match the class name.
 
     \note Renaming local symbols does not open \uicontrol {Search Results}.
-    The instances of the symbol are highlighted in code and you can edit
+    The instances of the symbol are highlighted in code, and you can edit
     the symbol. All instances of the local symbol are changed as you type.
+
+    \sa {Specify settings for quick fixes}, {Quick Fixes}, {C++ Quick Fixes}
+
     \endif
-   */
+
+    \sa {Apply quick fixes}, {QML Quick Fixes}
+*/

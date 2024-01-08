@@ -87,7 +87,7 @@
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specify the environment for projects}{Environment}
-                \li \l{Applying Refactoring Actions}{Quick Fixes}
+                \li \l{Specify settings for quick fixes}{Quick Fixes}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
