@@ -6,16 +6,15 @@
 #include "classviewnavigationwidget.h"
 #include "classviewtr.h"
 
+#include <coreplugin/inavigationwidgetfactory.h>
+
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/store.h>
 
 using namespace Utils;
 
-namespace ClassView {
-namespace Internal {
-
-///////////////////////////////// NavigationWidgetFactory //////////////////////////////////
+namespace ClassView::Internal {
 
 /*!
     \class NavigationWidgetFactory
@@ -25,6 +24,16 @@ namespace Internal {
     Supports the \c setState public slot for adding the widget factory to or
     removing it from \c ExtensionSystem::PluginManager.
 */
+
+class NavigationWidgetFactory final : public Core::INavigationWidgetFactory
+{
+public:
+    NavigationWidgetFactory();
+
+    Core::NavigationView createWidget() final;
+    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) final;
+    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) final;
+};
 
 NavigationWidgetFactory::NavigationWidgetFactory()
 {
@@ -70,5 +79,9 @@ void NavigationWidgetFactory::restoreSettings(QtcSettings *settings, int positio
     pw->setFlatMode(settings->value(settingsGroup, false).toBool());
 }
 
-} // namespace Internal
-} // namespace ClassView
+void setupClassViewNavigationWidgetFactory()
+{
+    static NavigationWidgetFactory theNavigationWidgetFactory;
+}
+
+} // ClassView::Internal

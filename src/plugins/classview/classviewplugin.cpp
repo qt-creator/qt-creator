@@ -22,7 +22,6 @@ namespace Internal {
 class ClassViewPluginPrivate
 {
 public:
-    NavigationWidgetFactory navigationWidgetFactory;
     Manager manager;
 };
 
@@ -36,6 +35,7 @@ ClassViewPlugin::~ClassViewPlugin()
 
 void ClassViewPlugin::initialize()
 {
+    setupClassViewNavigationWidgetFactory();
     dd = new ClassViewPluginPrivate;
 }
 
