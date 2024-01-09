@@ -12,6 +12,7 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPointer>
 #include <QPushButton>
 #include <QStyle>
 #include <QTextEdit>
@@ -122,25 +123,38 @@ static void show(QWidget *parent,
     if (decider.shouldAskAgain && !decider.shouldAskAgain()) {
         if (callback) {
             QMetaObject::invokeMethod(
-                guard, [callback, acceptButton] { callback(acceptButton); }, Qt::QueuedConnection);
+                guard ? guard : qApp,
+                [callback, acceptButton] { callback(acceptButton); },
+                Qt::QueuedConnection);
         }
+
         return;
     }
 
     QMessageBox *msgBox = new QMessageBox(parent);
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, *msgBox);
 
-    QObject::connect(msgBox, &QMessageBox::finished, guard, [msgBox, callback, decider, acceptButton] {
-        QMessageBox::StandardButton clickedBtn = msgBox->standardButton(msgBox->clickedButton());
+    std::optional<QPointer<QObject>> guardPtr;
+    if (guard)
+        guardPtr = guard;
 
-        if (decider.doNotAskAgain && msgBox->checkBox()->isChecked()
-            && (acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
-            decider.doNotAskAgain();
-        if (callback)
-            callback(clickedBtn);
+    QObject::connect(msgBox,
+                     &QMessageBox::finished,
+                     [guardPtr, msgBox, callback, decider, acceptButton] {
+                         QMessageBox::StandardButton clickedBtn = msgBox->standardButton(
+                             msgBox->clickedButton());
 
-        msgBox->deleteLater();
-    });
+                         if (decider.doNotAskAgain && msgBox->checkBox()->isChecked()
+                             && (acceptButton == QMessageBox::NoButton
+                                 || clickedBtn == acceptButton)) {
+                             decider.doNotAskAgain();
+                         }
+
+                         if (callback && (!guardPtr || *guardPtr))
+                             callback(clickedBtn);
+
+                         msgBox->deleteLater();
+                     });
 
     msgBox->show();
 }

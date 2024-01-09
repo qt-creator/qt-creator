@@ -60,7 +60,7 @@ public:
         const QString &text,
         const CheckableDecider &decider,
         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMessageBox::StandardButton defaultButton = QMessageBox::Ok,
         QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
         const QString &msg = {});
 
@@ -71,8 +71,8 @@ public:
         const CheckableDecider &decider,
         QObject *guard = nullptr,
         std::function<void(QMessageBox::StandardButton choosenBtn)> callback = nullptr,
-         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::Ok,
         QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
         const QString &msg = {});
 
