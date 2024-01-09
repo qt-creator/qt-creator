@@ -2249,10 +2249,10 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
                  "symbols for the debugger.")
                   .arg(qtName);
 
-        CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                         Tr::tr("Missing Qt Debug Information"),
-                                         message,
-                                         Key("CdbQtSdkPdbHint"));
+        CheckableMessageBox::information_async(Core::ICore::dialogParent(),
+                                               Tr::tr("Missing Qt Debug Information"),
+                                               message,
+                                               Key("CdbQtSdkPdbHint"));
 
         showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
     };
