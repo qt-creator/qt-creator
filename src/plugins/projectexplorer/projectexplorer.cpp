@@ -697,7 +697,6 @@ public:
     SshSettingsPage m_sshSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;
 
-    ProjectTreeWidgetFactory m_projectTreeFactory;
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
 
     IDocumentFactory m_documentFactory;
@@ -815,6 +814,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupGccToolchains();
     setupMsvcToolchain();
     setupClangClToolchain();
+
+    setupProjectTreeWidgetFactory();
 
     dd = new ProjectExplorerPluginPrivate;
 

@@ -3,14 +3,15 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
 #include <utils/filepath.h>
 
-#include <QWidget>
 #include <QModelIndex>
+#include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QTreeView)
+QT_BEGIN_NAMESPACE
+class QToolButton;
+class QTreeView;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
@@ -20,12 +21,12 @@ namespace Internal {
 
 class FlatModel;
 
-class ProjectTreeWidget : public QWidget
+class ProjectTreeWidget final : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ProjectTreeWidget(QWidget *parent = nullptr);
-    ~ProjectTreeWidget() override;
+    ProjectTreeWidget();
+    ~ProjectTreeWidget() final;
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync);
@@ -85,16 +86,7 @@ private:
     friend class ProjectTreeWidgetFactory;
 };
 
-class ProjectTreeWidgetFactory : public Core::INavigationWidgetFactory
-{
-    Q_OBJECT
-public:
-    ProjectTreeWidgetFactory();
-
-    Core::NavigationView createWidget() override;
-    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-};
+void setupProjectTreeWidgetFactory();
 
 } // namespace Internal
 } // namespace ProjectExplorer
