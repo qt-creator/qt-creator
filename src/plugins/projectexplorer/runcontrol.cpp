@@ -1272,11 +1272,15 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
-        connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-            this, [this](qint64 pid, const QString &message) {
-            if (privateApplicationPID() == pid)
-                q->appendMessage(message, DebugFormat);
-        });
+        connect(WinDebugInterface::instance(),
+                &WinDebugInterface::debugOutput,
+                this,
+                [this](qint64 pid, const QList<QString> &messages) {
+                    if (privateApplicationPID() != pid)
+                        return;
+                    for (const QString &message : messages)
+                        q->appendMessage(message, DebugFormat);
+                });
     }
 }
 
