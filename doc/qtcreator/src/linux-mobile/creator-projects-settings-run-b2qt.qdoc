@@ -11,7 +11,7 @@
 
     \brief Settings for running applications on Boot2Qt devices.
 
-    Specify settings for running applications on the \l {Kits}{Run device} that
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
@@ -25,6 +25,6 @@
     The run settings display the path to the executable file on the development
     host and on the device.
 
-    \sa {Activate kits for a project}, {Configure projects for running}, {Kits},
+    \sa {Activate kits for a project}, {Configure projects for running}, {kits-tab}{Kits},
     {Deploying to Boot2Qt}
 */

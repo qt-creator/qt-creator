@@ -183,7 +183,7 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {CMake}, {Add kits}, {Kits}
+    \sa {CMake}, {Add kits}, {kits-tab}{Kits}
 */
 
 /*!

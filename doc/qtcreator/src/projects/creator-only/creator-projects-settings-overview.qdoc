@@ -63,7 +63,7 @@
     \section1 Specifying Run Settings
 
     The run settings to specify depend on the type of the project and on the
-    \l{Kits}{Run device} that you select for the kit.
+    \l{kits-tab}{Run device} that you select for the kit.
 
     \QC automatically creates deploy and run configurations for your project.
 
@@ -147,5 +147,5 @@
     To import an existing build for the project, select
     \uicontrol {Import Existing Build}.
 
-    \sa {Add kits}, {Configuring Projects}, {Kits}
+    \sa {Add kits}, {Configuring Projects}, {kits-tab}{Kits}
 */

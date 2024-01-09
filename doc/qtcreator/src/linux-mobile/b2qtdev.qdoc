@@ -18,7 +18,7 @@
 
     To be able to run and debug applications on Boot2Qt devices,
     you must add devices and select them in the \QC
-    \l{Kits}{kit}.
+    \l{kits-tab}{kit}.
 
     \section1 Enabling the Boot2Qt Plugin
 

@@ -45,6 +45,10 @@
 
     \annotatedlist creator-reference-preferences-cpp
 
+    \section2 Kits
+
+    \annotatedlist creator-reference-preferences-kits
+
     \section2 Text Editor
 
     Configure the text editor to suit your needs.

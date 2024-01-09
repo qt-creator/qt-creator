@@ -37,6 +37,6 @@
     Select the \uicontrol {Forward to local display} check box to show a remotely
     running X11 client on a local display.
 
-    \sa {Activate kits for a project}, {Configure projects for running}, {Kits},
+    \sa {Activate kits for a project}, {Configure projects for running}, {kits-tab}{Kits},
     {Connecting Remote Linux Devices}
 */

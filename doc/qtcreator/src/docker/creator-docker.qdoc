@@ -18,7 +18,7 @@
 
     To build, run, and debug applications on Docker devices, you must install and
     configure \c docker-cli on the development host. \QC automatically detects
-    \l{Kits}{build and run kit} items, such \l{Add debuggers}
+    \l{kits-tab}{build and run kit} items, such \l{Add debuggers}
     {debuggers} and \l{Add Qt versions}{Qt versions}, in the Docker container
     and creates kits for the devices.
 

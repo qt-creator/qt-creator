@@ -189,6 +189,8 @@
                                 \generatelist creator-reference-preferences-analyzer
                             \li C++
                                 \generatelist creator-reference-preferences-cpp
+                            \li Kits
+                                \generatelist creator-reference-preferences-kits
                             \li Text editor
                                 \generatelist creator-reference-preferences-text-editor
                         \endlist
