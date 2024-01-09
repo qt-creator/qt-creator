@@ -101,7 +101,6 @@ public:
 
     TextEditorSettings settings;
     LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
-    OutlineFactory outlineFactory;
 
     FindInFiles findInFilesFilter;
     FindInCurrentFile findInCurrentFileFilter;
@@ -284,6 +283,8 @@ TextEditorPlugin *TextEditorPlugin::instance()
 
 void TextEditorPlugin::initialize()
 {
+    setupOutlineFactory();
+
     d = new TextEditorPluginPrivate;
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);

@@ -3,24 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
 namespace TextEditor::Internal {
 
-class OutlineFactory : public Core::INavigationWidgetFactory
-{
-    Q_OBJECT
-
-public:
-    OutlineFactory();
-
-    // from INavigationWidgetFactory
-    Core::NavigationView createWidget() override;
-    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-
-signals:
-    void updateOutline();
-};
+void setupOutlineFactory();
 
 } // TextEditor::Internal
