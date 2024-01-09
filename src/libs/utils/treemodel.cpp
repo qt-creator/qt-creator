@@ -700,17 +700,15 @@ void TreeItem::removeChildAt(int pos)
     }
 }
 
-void TreeItem::removeChildren(bool emitSignals)
+void TreeItem::removeChildren()
 {
     if (childCount() == 0)
         return;
     if (m_model) {
         QModelIndex idx = index();
-        if (emitSignals)
-            m_model->beginRemoveRows(idx, 0, childCount() - 1);
+        m_model->beginRemoveRows(idx, 0, childCount() - 1);
         clear();
-        if (emitSignals)
-            m_model->endRemoveRows();
+        m_model->endRemoveRows();
     } else {
         clear();
     }
