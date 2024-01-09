@@ -124,6 +124,7 @@ namespace Internal {
 
         m_expandCollapseButton = new QToolButton(m_widget);
         m_expandCollapseButton->setDefaultAction(m_expandCollapseAction);
+        Utils::StyleHelper::setPanelWidget(m_expandCollapseButton);
 
         m_filterButton = new QToolButton(m_widget);
         m_filterButton->setText(Tr::tr("Filter Results"));
