@@ -704,7 +704,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {2, Handler::TweakSetupToSuccess}
         };
-        QTest::newRow("TweekTaskSuccess") << TestData{storage, root, log, 2, DoneWith::Success};
+        QTest::newRow("TweakTaskSuccess") << TestData{storage, root, log, 2, DoneWith::Success};
     }
 
     {
@@ -717,7 +717,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::TweakSetupToError}
         };
-        QTest::newRow("TweekTaskError") << TestData{storage, root, log, 2, DoneWith::Error};
+        QTest::newRow("TweakTaskError") << TestData{storage, root, log, 2, DoneWith::Error};
     }
 
     {
@@ -738,7 +738,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup},
             {3, Handler::TweakSetupToError}
         };
-        QTest::newRow("TweekMixed") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakMixed") << TestData{storage, root, log, 4, DoneWith::Error};
     }
 
     {
@@ -760,7 +760,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("TweekParallel") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakParallel") << TestData{storage, root, log, 4, DoneWith::Error};
     }
 
     {
@@ -784,7 +784,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("TweekParallelGroup") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakParallelGroup") << TestData{storage, root, log, 4, DoneWith::Error};
     }
 
     {
@@ -809,7 +809,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("TweekParallelGroupSetup")
+        QTest::newRow("TweakParallelGroupSetup")
             << TestData{storage, root, log, 4, DoneWith::Error};
     }
 
