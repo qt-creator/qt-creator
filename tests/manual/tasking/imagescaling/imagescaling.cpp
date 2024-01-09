@@ -56,6 +56,10 @@ void Images::process()
     const auto urls = downloadDialog->getUrls();
     initLayout(urls.size());
 
+    const Storage<QList<QUrl>> urlStorage;
+    const Repeat repeater(urls.size());
+    const Storage<QByteArray> internalStorage;
+
     const auto onRootSetup = [this] {
         statusBar->showMessage(tr("Downloading and Scaling..."));
         cancelButton->setEnabled(true);
@@ -64,48 +68,48 @@ void Images::process()
         statusBar->showMessage(tr("Finished."));
         cancelButton->setEnabled(false);
     };
-    QList<GroupItem> tasks {
+
+    const auto onDownloadSetup = [this, urlStorage, repeater](NetworkQuery &query) {
+        query.setNetworkAccessManager(&qnam);
+        query.setRequest(QNetworkRequest(urlStorage->at(repeater.iteration())));
+    };
+    const auto onDownloadDone = [this, internalStorage, repeater](const NetworkQuery &query,
+                                                                  DoneWith result) {
+        const int it = repeater.iteration();
+        if (result == DoneWith::Success)
+            *internalStorage = query.reply()->readAll();
+        else
+            labels[it]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
+    };
+
+    const auto onScalingSetup = [internalStorage](ConcurrentCall<QImage> &data) {
+        data.setConcurrentCallData(&scale, *internalStorage);
+    };
+    const auto onScalingDone = [this, repeater](const ConcurrentCall<QImage> &data,
+                                                DoneWith result) {
+        const int it = repeater.iteration();
+        if (result == DoneWith::Success)
+            labels[it]->setPixmap(QPixmap::fromImage(data.result()));
+        else
+            labels[it]->setText(tr("Image\nData\nError."));
+    };
+
+    const QList<GroupItem> tasks {
+        urlStorage,
         finishAllAndSuccess,
         parallel,
+        repeater,
         onGroupSetup(onRootSetup),
+        Group {
+            internalStorage,
+            NetworkQueryTask(onDownloadSetup, onDownloadDone),
+            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
+        },
         onGroupDone(onRootDone, CallDoneIf::Success)
     };
 
-    int i = 0;
-    for (const QUrl &url : urls) {
-        Storage<QByteArray> storage;
-
-        const auto onDownloadSetup = [this, url](NetworkQuery &query) {
-            query.setNetworkAccessManager(&qnam);
-            query.setRequest(QNetworkRequest(url));
-        };
-        const auto onDownloadDone = [this, storage, i](const NetworkQuery &query, DoneWith result) {
-            if (result == DoneWith::Success)
-                *storage = query.reply()->readAll();
-            else
-                labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
-        };
-
-        const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
-            data.setConcurrentCallData(&scale, *storage);
-        };
-        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data, DoneWith result) {
-            if (result == DoneWith::Success)
-                labels[i]->setPixmap(QPixmap::fromImage(data.result()));
-            else
-                labels[i]->setText(tr("Image\nData\nError."));
-        };
-
-        const Group group {
-            storage,
-            NetworkQueryTask(onDownloadSetup, onDownloadDone),
-            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
-        };
-        tasks.append(group);
-        ++i;
-    }
-
     taskTree.reset(new TaskTree(tasks));
+    taskTree->onStorageSetup(urlStorage, [urls](QList<QUrl> &urlList) { urlList = urls; });
     connect(taskTree.get(), &TaskTree::done, this, [this] { taskTree.release()->deleteLater(); });
     taskTree->start();
 }
