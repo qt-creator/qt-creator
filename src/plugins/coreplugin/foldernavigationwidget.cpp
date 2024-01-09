@@ -926,28 +926,31 @@ void FolderNavigationWidgetFactory::removeRootPath(Utils::Id id)
 
 void FolderNavigationWidgetFactory::registerActions()
 {
-    Core::Context context(C_FOLDERNAVIGATIONWIDGET);
+    const Context context(C_FOLDERNAVIGATIONWIDGET);
 
-    auto add = new QAction(Tr::tr("Add New..."), this);
-    Core::ActionManager::registerAction(add, ADDNEWFILE, context);
-    connect(add, &QAction::triggered, Core::ICore::instance(), [] {
-        if (auto navWidget = currentFolderNavigationWidget())
-            navWidget->addNewItem();
-    });
+    ActionBuilder(this, ADDNEWFILE)
+        .setText(Tr::tr("Add New..."))
+        .setContext(context)
+        .addOnTriggered([] {
+            if (auto navWidget = currentFolderNavigationWidget())
+                navWidget->addNewItem();
+        });
 
-    auto rename = new QAction(Tr::tr("Rename..."), this);
-    Core::ActionManager::registerAction(rename, RENAMEFILE, context);
-    connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
-        if (auto navWidget = currentFolderNavigationWidget())
-            navWidget->editCurrentItem();
-    });
+    ActionBuilder(this, RENAMEFILE)
+        .setText(Tr::tr("Rename..."))
+        .setContext(context)
+        .addOnTriggered([] {
+            if (auto navWidget = currentFolderNavigationWidget())
+                navWidget->editCurrentItem();
+        });
 
-    auto remove = new QAction(Tr::tr("Remove..."), this);
-    Core::ActionManager::registerAction(remove, REMOVEFILE, context);
-    connect(remove, &QAction::triggered, Core::ICore::instance(), [] {
-        if (auto navWidget = currentFolderNavigationWidget())
-            navWidget->removeCurrentItem();
-    });
+    ActionBuilder(this, REMOVEFILE)
+        .setText(Tr::tr("Remove..."))
+        .setContext(context)
+        .addOnTriggered([] {
+            if (auto navWidget = currentFolderNavigationWidget())
+                navWidget->removeCurrentItem();
+        });
 }
 
 int DelayedFileCrumbLabel::immediateHeightForWidth(int w) const
