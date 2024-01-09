@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 
@@ -413,7 +414,7 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
 
 bool CollectionDetailsModel::saveCurrentCollection()
 {
-    return saveCollection({}, &m_currentCollection);
+    return saveCollection({});
 }
 
 bool CollectionDetailsModel::exportCollection(const QString &filePath)
@@ -599,43 +600,42 @@ bool CollectionDetailsModel::saveCollection(const QString &filePath, CollectionD
 {
     bool saved = false;
 
-    auto saveSingleCollection = [&](CollectionDetails &singleCollection) {
+    const ModelNode node = m_currentCollection.reference().node;
+    QString path = CollectionEditor::getSourceCollectionPath(node);
+    QString saveFormat = CollectionEditor::getSourceCollectionType(node);
 
-        const ModelNode node = singleCollection.reference().node;
-        QString path = CollectionEditor::getSourceCollectionPath(node);
-        QString saveFormat = CollectionEditor::getSourceCollectionType(node);
+    QFile sourceFile(path);
 
-        if (!filePath.isEmpty()) {
-            QUrl url(filePath);
-            path = url.isLocalFile() ? QFileInfo(url.toLocalFile()).absoluteFilePath() : url.toString();
-            saveFormat = url.isLocalFile() ? QFileInfo(url.toLocalFile()).suffix().toLower() : saveFormat;
+    if (!filePath.isEmpty()) {
+        QUrl url(filePath);
+        path = url.isLocalFile() ? QFileInfo(url.toLocalFile()).absoluteFilePath() : url.toString();
+        saveFormat = url.isLocalFile() ? QFileInfo(url.toLocalFile()).suffix().toLower() : saveFormat;
+        QString content = saveFormat == "json" ? collection->getCollectionAsJsonString()
+                        : saveFormat == "csv" ? collection->getCollectionAsCsvString() : QString();
+
+        sourceFile.setFileName(path);
+
+        if (sourceFile.open(QFile::WriteOnly))
+            saved = sourceFile.write(content.toUtf8());
+    } else if (filePath.isEmpty() && sourceFile.open(QFile::ReadWrite)) {
+        QJsonParseError jpe;
+        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
+
+        if (jpe.error == QJsonParseError::NoError) {
+            QJsonObject obj = document.object();
+
+            for (const CollectionDetails &openedCollection : std::as_const(m_openedCollections))
+                obj[openedCollection.reference().name] = openedCollection.getCollectionAsJsonArray();
+
+            document.setObject(obj);
+            saved = sourceFile.write(document.toJson());
+
+            if (saved)
+                collection->markSaved();
         }
-
-        saved = saveCollectionFromString(path, (saveFormat == "json") ? singleCollection.getCollectionAsJsonString() :
-                                                   (saveFormat == "csv")  ? singleCollection.getCollectionAsCsvString() : QString());
-
-        if (saved && filePath.isEmpty())
-            singleCollection.markSaved();
-    };
-
-    if (!collection) {
-        for (CollectionDetails &openedCollection : m_openedCollections)
-            saveSingleCollection(openedCollection);
-    } else {
-        saveSingleCollection(*collection);
     }
 
     return saved;
-}
-
-bool CollectionDetailsModel::saveCollectionFromString(const QString &path, const QString &content)
-{
-    QFile file(path);
-
-    if (file.open(QFile::WriteOnly) && file.write(content.toUtf8()))
-        return true;
-
-    return false;
 }
 
 QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const

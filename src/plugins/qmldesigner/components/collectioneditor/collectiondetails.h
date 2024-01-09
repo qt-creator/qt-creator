@@ -106,6 +106,8 @@ public:
     QString getCollectionAsJsonString() const;
     QString getCollectionAsCsvString() const;
 
+    QJsonArray getCollectionAsJsonArray() const;
+
     static void registerDeclarativeType();
 
     CollectionDetails &operator=(const CollectionDetails &other);

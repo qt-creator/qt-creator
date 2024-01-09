@@ -238,6 +238,7 @@ bool CollectionDetails::setPropertyValue(int row, int column, const QVariant &va
         return false;
 
     element.insert(d->properties.at(column).name, QJsonValue::fromVariant(value));
+    markChanged();
     return true;
 }
 
@@ -458,16 +459,19 @@ void CollectionDetails::resetPropertyTypes()
         resetPropertyType(property);
 }
 
-QString CollectionDetails::getCollectionAsJsonString() const
+QJsonArray CollectionDetails::getCollectionAsJsonArray() const
 {
     QJsonArray collectionArray;
 
     for (const QJsonObject &element : std::as_const(d->elements))
         collectionArray.push_back(element);
 
-    QString collectionString = QString::fromUtf8(QJsonDocument(collectionArray).toJson());
+    return collectionArray;
+}
 
-    return collectionString;
+QString CollectionDetails::getCollectionAsJsonString() const
+{
+    return QString::fromUtf8(QJsonDocument(getCollectionAsJsonArray()).toJson());
 }
 
 QString CollectionDetails::getCollectionAsCsvString() const
