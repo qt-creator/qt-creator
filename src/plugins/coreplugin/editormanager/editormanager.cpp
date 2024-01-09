@@ -384,9 +384,6 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
 
 EditorManagerPrivate::~EditorManagerPrivate()
 {
-    if (ICore::instance())
-        delete m_openEditorsFactory;
-
     // close all extra windows
     for (int i = 0; i < m_editorAreas.size(); ++i) {
         EditorArea *area = m_editorAreas.at(i);
@@ -705,7 +702,7 @@ void EditorManagerPrivate::init()
     connect(m_autoSaveTimer, &QTimer::timeout, this, &EditorManagerPrivate::autoSave);
     updateAutoSave();
 
-    m_openEditorsFactory = new OpenEditorsViewFactory();
+    createOpenEditorsViewFactory();
 
     globalMacroExpander()->registerFileVariables(kCurrentDocumentPrefix, ::Core::Tr::tr("Current document"),
         [] {

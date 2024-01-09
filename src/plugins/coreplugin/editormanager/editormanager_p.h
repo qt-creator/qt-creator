@@ -37,7 +37,6 @@ namespace Internal {
 
 class EditorWindow;
 class MainWindow;
-class OpenEditorsViewFactory;
 class OpenEditorsWindow;
 
 enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Failed };
@@ -242,7 +241,6 @@ private:
     OpenEditorsWindow *m_windowPopup = nullptr;
 
     QMap<QString, QVariant> m_editorStates;
-    OpenEditorsViewFactory *m_openEditorsFactory = nullptr;
 
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
     EditorManager::WindowTitleHandler m_sessionTitleHandler;
