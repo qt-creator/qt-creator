@@ -398,16 +398,12 @@ void OutputWindow::filterNewContent()
             lastBlock.setVisible(d->filterText.isEmpty()
                                  || regExp.match(lastBlock.text()).hasMatch() != invert);
     } else {
-        if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)) {
-            for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-                lastBlock.setVisible(d->filterText.isEmpty()
-                                     || lastBlock.text().contains(d->filterText) != invert);
-        } else {
-            for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
-                lastBlock.setVisible(d->filterText.isEmpty() || lastBlock.text().toLower()
-                                     .contains(d->filterText.toLower()) != invert);
-            }
-        }
+        const auto cs = d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)
+                            ? Qt::CaseSensitive : Qt::CaseInsensitive;
+
+        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
+            lastBlock.setVisible(d->filterText.isEmpty()
+                                 || lastBlock.text().contains(d->filterText, cs) != invert);
     }
 
     d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
