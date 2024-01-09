@@ -541,10 +541,11 @@ QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 */
 bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
 {
-    return Utils::anyOf(d->dependencySpecs.keys(), [this, &plugins](const PluginDependency &dep) {
-        return dep.type == PluginDependency::Required
-               && plugins.contains(d->dependencySpecs.value(dep));
-    });
+    for (auto it = d->dependencySpecs.cbegin(); it != d->dependencySpecs.cend(); ++it) {
+        if (it.key().type == PluginDependency::Required && plugins.contains(*it))
+            return true;
+    }
+    return false;
 }
 
 /*!
