@@ -216,7 +216,8 @@ void CMakeBuildSystem::requestDebugging()
 
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    if (dynamic_cast<CMakeTargetNode *>(context))
+    const auto cmakeTarget = dynamic_cast<CMakeTargetNode *>(context);
+    if (cmakeTarget && cmakeTarget->productType() != ProductType::Other)
         return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
                || action == ProjectAction::AddExistingDirectory || action == ProjectAction::Rename
                || action == ProjectAction::RemoveFile;
