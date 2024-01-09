@@ -43,7 +43,11 @@ public:
     const_iterator end() const { return m_jsonObject.end(); }
 
 protected:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     using Key = QLatin1StringView;
+#else
+    using Key = QLatin1String;
+#endif
     iterator insert(const Key key, const JsonObject &value);
     iterator insert(const Key key, const QJsonValue &value);
 
