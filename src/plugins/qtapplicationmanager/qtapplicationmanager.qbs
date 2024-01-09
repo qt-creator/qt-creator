@@ -45,6 +45,7 @@ QtcPlugin {
         "appmanagerstringaspect.h",
         "appmanagertargetinformation.cpp",
         "appmanagertargetinformation.h",
+        "appmanagertr.h",
         "appmanagerutilities.cpp",
         "appmanagerutilities.h",
     ]

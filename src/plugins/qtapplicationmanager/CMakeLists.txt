@@ -18,5 +18,6 @@ add_qtc_plugin(QtApplicationManagerIntegration
     appmanagerruncontrol.cpp appmanagerruncontrol.h
     appmanagerstringaspect.cpp appmanagerstringaspect.h
     appmanagertargetinformation.cpp appmanagertargetinformation.h
+    appmanagertr.h
     appmanagerutilities.cpp appmanagerutilities.h
 )
