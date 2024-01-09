@@ -34,19 +34,16 @@ namespace Utils {
 
 static QtcSettings *theSettings;
 
-static QMessageBox::StandardButton exec(
-    QWidget *parent,
-    QMessageBox::Icon icon,
-    const QString &title,
-    const QString &text,
-    const CheckableDecider &decider,
-    QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton,
-    QMessageBox::StandardButton acceptButton,
-    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
-    const QString &msg)
+static void prepare(QMessageBox::Icon icon,
+                    const QString &title,
+                    const QString &text,
+                    const CheckableDecider &decider,
+                    QMessageBox::StandardButtons buttons,
+                    QMessageBox::StandardButton defaultButton,
+                    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+                    const QString &msg,
+                    QMessageBox &msgBox)
 {
-    QMessageBox msgBox(parent);
     msgBox.setWindowTitle(title);
     msgBox.setIcon(icon);
     msgBox.setText(text);
@@ -60,7 +57,7 @@ static QMessageBox::StandardButton exec(
         if (text.contains("<a "))
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
 
-        // Workaround for QTBUG-118241, fixed in Qt 6.6.1
+            // Workaround for QTBUG-118241, fixed in Qt 6.6.1
 #if QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
         if (!buttonTextOverrides.isEmpty())
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
@@ -69,9 +66,6 @@ static QMessageBox::StandardButton exec(
 #endif
 
     if (decider.shouldAskAgain) {
-        if (!decider.shouldAskAgain())
-            return acceptButton;
-
         msgBox.setCheckBox(new QCheckBox);
         msgBox.checkBox()->setChecked(false);
         msgBox.checkBox()->setText(msg);
@@ -81,6 +75,27 @@ static QMessageBox::StandardButton exec(
     msgBox.setDefaultButton(defaultButton);
     for (auto it = buttonTextOverrides.constBegin(); it != buttonTextOverrides.constEnd(); ++it)
         msgBox.button(it.key())->setText(it.value());
+}
+
+static QMessageBox::StandardButton exec(
+    QWidget *parent,
+    QMessageBox::Icon icon,
+    const QString &title,
+    const QString &text,
+    const CheckableDecider &decider,
+    QMessageBox::StandardButtons buttons,
+    QMessageBox::StandardButton defaultButton,
+    QMessageBox::StandardButton acceptButton,
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
+{
+    if (decider.shouldAskAgain) {
+        if (!decider.shouldAskAgain())
+            return acceptButton;
+    }
+
+    QMessageBox msgBox(parent);
+    prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, msgBox);
     msgBox.exec();
 
     QMessageBox::StandardButton clickedBtn = msgBox.standardButton(msgBox.clickedButton());
@@ -89,6 +104,45 @@ static QMessageBox::StandardButton exec(
         && (acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
         decider.doNotAskAgain();
     return clickedBtn;
+}
+
+static void show(QWidget *parent,
+                 QMessageBox::Icon icon,
+                 const QString &title,
+                 const QString &text,
+                 CheckableDecider decider,
+                 QMessageBox::StandardButtons buttons,
+                 QMessageBox::StandardButton defaultButton,
+                 QMessageBox::StandardButton acceptButton,
+                 QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+                 const QString &msg,
+                 QObject *guard,
+                 const std::function<void(QMessageBox::StandardButton choosenBtn)> &callback)
+{
+    if (decider.shouldAskAgain && !decider.shouldAskAgain()) {
+        if (callback) {
+            QMetaObject::invokeMethod(
+                guard, [callback, acceptButton] { callback(acceptButton); }, Qt::QueuedConnection);
+        }
+        return;
+    }
+
+    QMessageBox *msgBox = new QMessageBox(parent);
+    prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, *msgBox);
+
+    QObject::connect(msgBox, &QMessageBox::finished, guard, [msgBox, callback, decider, acceptButton] {
+        QMessageBox::StandardButton clickedBtn = msgBox->standardButton(msgBox->clickedButton());
+
+        if (decider.doNotAskAgain && msgBox->checkBox()->isChecked()
+            && (acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
+            decider.doNotAskAgain();
+        if (callback)
+            callback(clickedBtn);
+
+        msgBox->deleteLater();
+    });
+
+    msgBox->show();
 }
 
 CheckableDecider::CheckableDecider(const Key &settingsSubKey)
@@ -100,7 +154,7 @@ CheckableDecider::CheckableDecider(const Key &settingsSubKey)
         theSettings->endGroup();
         return !shouldNotAsk;
     };
-    doNotAskAgain =  [settingsSubKey] {
+    doNotAskAgain = [settingsSubKey] {
         theSettings->beginGroup(kDoNotAskAgainKey);
         theSettings->setValue(settingsSubKey, true);
         theSettings->endGroup();
@@ -136,6 +190,33 @@ QMessageBox::StandardButton CheckableMessageBox::question(
                 msg.isEmpty() ? msgDoNotAskAgain() : msg);
 }
 
+void CheckableMessageBox::question_async(
+    QWidget *parent,
+    const QString &title,
+    const QString &question,
+    const CheckableDecider &decider,
+    QObject *guard,
+    std::function<void(QMessageBox::StandardButton choosenBtn)> callback,
+    QMessageBox::StandardButtons buttons,
+    QMessageBox::StandardButton defaultButton,
+    QMessageBox::StandardButton acceptButton,
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
+{
+    show(parent,
+         QMessageBox::Question,
+         title,
+         question,
+         decider,
+         buttons,
+         defaultButton,
+         acceptButton,
+         buttonTextOverrides,
+         msg.isEmpty() ? msgDoNotAskAgain() : msg,
+         guard,
+         callback);
+}
+
 QMessageBox::StandardButton CheckableMessageBox::information(
     QWidget *parent,
     const QString &title,
@@ -153,9 +234,35 @@ QMessageBox::StandardButton CheckableMessageBox::information(
                 decider,
                 buttons,
                 defaultButton,
-                QMessageBox::NoButton,
+                defaultButton,
                 buttonTextOverrides,
                 msg.isEmpty() ? msgDoNotShowAgain() : msg);
+}
+
+void CheckableMessageBox::information_async(
+    QWidget *parent,
+    const QString &title,
+    const QString &text,
+    const CheckableDecider &decider,
+    QObject *guard,
+    std::function<void(QMessageBox::StandardButton choosenBtn)> callback,
+    QMessageBox::StandardButtons buttons,
+    QMessageBox::StandardButton defaultButton,
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
+{
+    show(parent,
+         QMessageBox::Information,
+         title,
+         text,
+         decider,
+         buttons,
+         defaultButton,
+         defaultButton,
+         buttonTextOverrides,
+         msg.isEmpty() ? msgDoNotShowAgain() : msg,
+         guard,
+         callback);
 }
 
 /*!

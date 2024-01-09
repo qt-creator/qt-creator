@@ -41,12 +41,37 @@ public:
         QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
         const QString &msg = {});
 
+    static void question_async(
+        QWidget *parent,
+        const QString &title,
+        const QString &question,
+        const CheckableDecider &decider,
+        QObject *guard = nullptr,
+        std::function<void(QMessageBox::StandardButton choosenBtn)> callback = nullptr,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::No,
+        QMessageBox::StandardButton acceptButton = QMessageBox::Yes,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &msg = {});
+
     static QMessageBox::StandardButton information(
         QWidget *parent,
         const QString &title,
         const QString &text,
         const CheckableDecider &decider,
         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &msg = {});
+
+    static void information_async(
+        QWidget *parent,
+        const QString &title,
+        const QString &text,
+        const CheckableDecider &decider,
+        QObject *guard = nullptr,
+        std::function<void(QMessageBox::StandardButton choosenBtn)> callback = nullptr,
+         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
         QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
         QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
         const QString &msg = {});
