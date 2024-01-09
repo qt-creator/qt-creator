@@ -4,7 +4,6 @@
 #pragma once
 
 #include "languageclientoutline.h"
-#include "callhierarchy.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -28,7 +27,6 @@ private:
 
 private:
     LanguageClientOutlineWidgetFactory m_outlineFactory;
-    CallHierarchyFactory m_callHierarchyFactory;
 
 #ifdef WITH_TESTS
 private slots:

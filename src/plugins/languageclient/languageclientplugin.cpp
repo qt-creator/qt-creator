@@ -3,7 +3,7 @@
 
 #include "languageclientplugin.h"
 
-#include "client.h"
+#include "callhierarchy.h"
 #include "languageclientmanager.h"
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
@@ -38,6 +38,7 @@ void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
+    setupCallHierarchyFactory();
     setupLanguageClientProjectPanel();
 
     LanguageClientManager::init();

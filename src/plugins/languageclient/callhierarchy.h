@@ -3,22 +3,13 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
 namespace Core { class IDocument; }
 
 namespace LanguageClient {
 
 class Client;
 
-class CallHierarchyFactory : public Core::INavigationWidgetFactory
-{
-public:
-    CallHierarchyFactory();
-
-    static bool supportsCallHierarchy(Client *client, const Core::IDocument *document);
-
-    Core::NavigationView createWidget()  override;
-};
+void setupCallHierarchyFactory();
+bool supportsCallHierarchy(Client *client, const Core::IDocument *document);
 
 } // namespace LanguageClient

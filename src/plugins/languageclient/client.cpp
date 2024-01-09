@@ -977,7 +977,7 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor;
         if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
             optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
-        if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
+        if (supportsCallHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
     }
