@@ -1073,7 +1073,7 @@ void TerminalView::mousePressEvent(QMouseEvent *event)
     }
 
     if (event->button() == Qt::LeftButton) {
-        if (std::chrono::system_clock::now() - d->m_lastDoubleClick < 500ms) {
+        if (d->m_selection && std::chrono::system_clock::now() - d->m_lastDoubleClick < 500ms) {
             d->m_selectLineMode = true;
             const Selection newSelection{d->m_surface->gridToPos(
                                              {0,
