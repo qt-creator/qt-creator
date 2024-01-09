@@ -19,24 +19,12 @@ namespace Internal {
     projects in the sidebar.
 */
 
-class ClassViewPluginPrivate
-{
-public:
-    Manager manager;
-};
-
-static ClassViewPluginPrivate *dd = nullptr;
-
-ClassViewPlugin::~ClassViewPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
+ClassViewPlugin::~ClassViewPlugin() = default;
 
 void ClassViewPlugin::initialize()
 {
     setupClassViewNavigationWidgetFactory();
-    dd = new ClassViewPluginPrivate;
+    setupClassViewManager(this);
 }
 
 } // namespace Internal

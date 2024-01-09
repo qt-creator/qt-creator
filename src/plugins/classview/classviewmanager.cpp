@@ -404,4 +404,9 @@ void Manager::setFlatMode(bool flat)
     }, Qt::QueuedConnection);
 }
 
+void setupClassViewManager(QObject *guard)
+{
+    (void) new Manager(guard);
+}
+
 } // ClassView::Internal

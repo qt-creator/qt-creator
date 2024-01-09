@@ -13,12 +13,13 @@ namespace ClassView::Internal {
 
 class ManagerPrivate;
 
-class Manager : public QObject
+class Manager final : public QObject
 {
     Q_OBJECT
 public:
-    explicit Manager(QObject *parent = nullptr);
-    ~Manager() override;
+    explicit Manager(QObject *parent);
+    ~Manager() final;
+
     static Manager *instance();
 
     bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
@@ -41,5 +42,7 @@ private:
 
     ManagerPrivate *d;
 };
+
+void setupClassViewManager(QObject *guard);
 
 } // ClassView::Internal
