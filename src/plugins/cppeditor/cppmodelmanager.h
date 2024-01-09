@@ -22,6 +22,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace Core {
 class IDocument;
@@ -244,8 +245,6 @@ public:
 
     static QSet<QString> internalTargets(const Utils::FilePath &filePath);
 
-    static void renameIncludes(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
-
     // for VcsBaseSubmitEditor
     Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;
 
@@ -299,6 +298,9 @@ private:
 
     static void dumpModelManagerConfiguration(const QString &logFileId);
     static void initCppTools();
+
+    static void renameIncludes(const QList<std::pair<Utils::FilePath,
+                                                     Utils::FilePath>> &oldAndNewPaths);
 };
 
 } // CppEditor

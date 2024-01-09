@@ -2466,6 +2466,18 @@ void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
     dd->showOutputPaneForRunControl(runControl);
 }
 
+QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
+    const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths)
+{
+    QList<std::pair<FilePath, FilePath>> renamedFiles;
+    for (const auto &[node, newFilePath] : nodesAndNewFilePaths) {
+        if (const auto res = renameFile(node, newFilePath.toString()))
+            renamedFiles << *res;
+    }
+    emit instance()->filesRenamed(renamedFiles);
+    return renamedFiles;
+}
+
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
     m_outputPane.createNewOutputWindow(runControl);
@@ -3859,17 +3871,18 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
     }
 }
 
-void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
+std::optional<std::pair<FilePath, FilePath>>
+ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 {
     const FilePath oldFilePath = node->filePath().absoluteFilePath();
     FolderNode *folderNode = node->parentFolderNode();
-    QTC_ASSERT(folderNode, return);
+    QTC_ASSERT(folderNode, return {});
     const QString projectFileName = folderNode->managingProject()->filePath().fileName();
 
     const FilePath newFilePath = FilePath::fromString(newFileName);
 
     if (oldFilePath == newFilePath)
-        return;
+        return {};
 
     const HandleIncludeGuards handleGuards = canTryToRenameIncludeGuards(node);
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
@@ -3886,11 +3899,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                 QTC_CHECK(Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards));
             }
         });
-        return;
+        return {};
     }
 
     if (Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards)) {
         // Tell the project plugin about rename
+        // TODO: We might want to separate this into an extra step to make bulk renamings safer;
+        //       see CppModelManager::renameIncludes().
         if (!folderNode->renameFile(oldFilePath, newFilePath)) {
             const QString renameFileError = Tr::tr("The file %1 was renamed to %2, but the project "
                                                "file %3 could not be automatically changed.")
@@ -3904,15 +3919,17 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                                      renameFileError);
             });
         }
-    } else {
-        const QString renameFileError = Tr::tr("The file %1 could not be renamed %2.")
-                                            .arg(oldFilePath.toUserOutput())
-                                            .arg(newFilePath.toUserOutput());
-
-        QTimer::singleShot(0, m_instance, [renameFileError] {
-            QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Rename File"), renameFileError);
-        });
+        return std::make_pair(oldFilePath, newFilePath);
     }
+
+    const QString renameFileError = Tr::tr("The file %1 could not be renamed %2.")
+                                        .arg(oldFilePath.toUserOutput())
+                                        .arg(newFilePath.toUserOutput());
+
+    QTimer::singleShot(0, m_instance, [renameFileError] {
+        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Rename File"), renameFileError);
+    });
+    return {};
 }
 
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
@@ -4048,7 +4065,7 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
         const QString &newSymbolName, const FilePaths &files, bool preferLowerCaseFileNames)
 {
     static const auto isAllLowerCase = [](const QString &text) { return text.toLower() == text; };
-
+    QList<std::pair<FilePath, FilePath>> renamedFiles;
     for (const FilePath &file : files) {
         Node * const node = ProjectTree::nodeForFile(file);
         if (!node)
@@ -4079,8 +4096,10 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
 
         const QString newFilePath = file.absolutePath().toString() + '/' + newBaseName + '.'
                 + file.completeSuffix();
-        renameFile(node, newFilePath);
+        if (const auto res = renameFile(node, newFilePath))
+            renamedFiles << *res;
     }
+    emit instance()->filesRenamed(renamedFiles);
 }
 
 void ProjectManager::registerProjectCreator(const QString &mimeType,

@@ -1017,7 +1017,7 @@ CppModelManager::CppModelManager()
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &CppModelManager::onCurrentEditorChanged);
 
-    connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::filesRenamed,
             this, &CppModelManager::renameIncludes);
 
     connect(ICore::instance(), &ICore::coreAboutToClose,
@@ -1860,59 +1860,70 @@ QSet<QString> CppModelManager::internalTargets(const FilePath &filePath)
     return targets;
 }
 
-void CppModelManager::renameIncludes(const FilePath &oldFilePath, const FilePath &newFilePath)
+// Note: This function assumes that neither the project tree nor the code model are aware of
+//       the renamings yet, i.e. they still refer to the old file paths.
+void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> &oldAndNewPaths)
 {
-    if (oldFilePath.isEmpty() || newFilePath.isEmpty())
-        return;
-
-    // We just want to handle renamings so return when the file was actually moved.
-    if (oldFilePath.absolutePath() != newFilePath.absolutePath())
-        return;
-
-    const TextEditor::PlainRefactoringFileFactory changes;
-
-    QString oldFileName = oldFilePath.fileName();
-    QString newFileName = newFilePath.fileName();
-    const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
-    if (isUiFile) {
-        oldFileName = "ui_" + oldFilePath.baseName() + ".h";
-        newFileName = "ui_" + newFilePath.baseName() + ".h";
-    }
-    static const auto getProductNode = [](const FilePath &filePath) -> const Node * {
-        const Node * const fileNode = ProjectTree::nodeForFile(filePath);
-        if (!fileNode)
-            return nullptr;
-        const ProjectNode *productNode = fileNode->parentProjectNode();
-        while (productNode && !productNode->isProduct())
-            productNode = productNode->parentProjectNode();
-        if (!productNode)
-            productNode = fileNode->getProject()->rootProjectNode();
-        return productNode;
-    };
-    const Node * const productNodeForUiFile = isUiFile ? getProductNode(oldFilePath) : nullptr;
-    if (isUiFile && !productNodeForUiFile)
-        return;
-
-    const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
-        isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
-    for (const Snapshot::IncludeLocation &loc : locations) {
-        const FilePath filePath = loc.first->filePath();
-
-        // Larger projects can easily have more than one ui file with the same name.
-        // Replace only if ui file and including source file belong to the same product.
-        if (isUiFile && getProductNode(filePath) != productNodeForUiFile)
+    for (const auto &[oldFilePath, newFilePath] : oldAndNewPaths) {
+        if (oldFilePath.isEmpty() || newFilePath.isEmpty())
             continue;
 
-        TextEditor::RefactoringFilePtr file = changes.file(filePath);
-        const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-        const int replaceStart = block.text().indexOf(oldFileName);
-        if (replaceStart > -1) {
-            ChangeSet changeSet;
-            changeSet.replace(block.position() + replaceStart,
-                              block.position() + replaceStart + oldFileName.length(),
-                              newFileName);
-            file->setChangeSet(changeSet);
-            file->apply();
+        // We just want to handle renamings so return when the file was actually moved.
+        if (oldFilePath.absolutePath() != newFilePath.absolutePath())
+            continue;
+
+        const TextEditor::PlainRefactoringFileFactory changes;
+
+        QString oldFileName = oldFilePath.fileName();
+        QString newFileName = newFilePath.fileName();
+        const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+        if (isUiFile) {
+            oldFileName = "ui_" + oldFilePath.baseName() + ".h";
+            newFileName = "ui_" + newFilePath.baseName() + ".h";
+        }
+        static const auto getProductNode = [](const FilePath &filePath) -> const Node * {
+            const Node * const fileNode = ProjectTree::nodeForFile(filePath);
+            if (!fileNode)
+                return nullptr;
+            const ProjectNode *productNode = fileNode->parentProjectNode();
+            while (productNode && !productNode->isProduct())
+                productNode = productNode->parentProjectNode();
+            if (!productNode)
+                productNode = fileNode->getProject()->rootProjectNode();
+            return productNode;
+        };
+        const Node * const productNodeForUiFile = isUiFile ? getProductNode(oldFilePath) : nullptr;
+        if (isUiFile && !productNodeForUiFile)
+            continue;
+
+        const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
+            isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
+        for (const Snapshot::IncludeLocation &loc : locations) {
+            const FilePath includingFileOld = loc.first->filePath();
+            FilePath includingFileNew = includingFileOld;
+            for (const auto &pathPair : oldAndNewPaths) {
+                if (includingFileNew == pathPair.first) {
+                    includingFileNew = pathPair.second;
+                    break;
+                }
+            }
+
+            // Larger projects can easily have more than one ui file with the same name.
+            // Replace only if ui file and including source file belong to the same product.
+            if (isUiFile && getProductNode(includingFileOld) != productNodeForUiFile)
+                continue;
+
+            TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
+            const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
+            const int replaceStart = block.text().indexOf(oldFileName);
+            if (replaceStart > -1) {
+                ChangeSet changeSet;
+                changeSet.replace(block.position() + replaceStart,
+                                  block.position() + replaceStart + oldFileName.length(),
+                                  newFileName);
+                file->setChangeSet(changeSet);
+                file->apply();
+            }
         }
     }
 }

@@ -13,6 +13,8 @@
 
 #include <QPair>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QPoint;
 class QThreadPool;
@@ -123,8 +125,9 @@ public:
     static void startRunControl(RunControl *runControl);
     static void showOutputPaneForRunControl(RunControl *runControl);
 
-    // internal public for FlatModel
-    static void renameFile(Node *node, const QString &newFilePath);
+    static QList<std::pair<Utils::FilePath, Utils::FilePath>>
+    renameFiles(const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
+
     static QStringList projectFilePatterns();
     static bool isProjectFile(const Utils::FilePath &filePath);
     static RecentProjectsEntries recentProjects();
@@ -175,9 +178,13 @@ signals:
 
     void runActionsUpdated();
 
+    void filesRenamed(const QList<std::pair<Utils::FilePath, Utils::FilePath>> &oldAndNewPaths);
+
 private:
     static bool coreAboutToClose();
     void handleCommandLineArguments(const QStringList &arguments);
+    static std::optional<std::pair<Utils::FilePath, Utils::FilePath>>
+    renameFile(Node *node, const QString &newFilePath);
 
 #ifdef WITH_TESTS
 private slots:

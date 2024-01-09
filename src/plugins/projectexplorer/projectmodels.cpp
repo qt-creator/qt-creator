@@ -324,10 +324,13 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
         }
     }
 
-    for (const auto &f : toRename) {
-        ProjectExplorerPlugin::renameFile(std::get<0>(f), std::get<2>(f).toString());
-        emit renamed(std::get<1>(f), std::get<2>(f));
-    }
+    QList<std::pair<Node *, FilePath>> renameList;
+    for (const auto &f : toRename)
+        renameList << std::make_pair(std::get<0>(f), std::get<2>(f));
+    const QList<std::pair<FilePath, FilePath>> renamedList
+        = ProjectExplorerPlugin::renameFiles(renameList);
+    for (const auto &[oldFilePath, newFilePath] : renamedList)
+        emit renamed(oldFilePath, newFilePath);
     return true;
 }
 
