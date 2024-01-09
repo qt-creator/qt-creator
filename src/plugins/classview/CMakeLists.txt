@@ -7,7 +7,7 @@ add_qtc_plugin(ClassView
     classviewnavigationwidgetfactory.cpp classviewnavigationwidgetfactory.h
     classviewparser.cpp classviewparser.h
     classviewparsertreeitem.cpp classviewparsertreeitem.h
-    classviewplugin.cpp classviewplugin.h
+    classviewplugin.cpp
     classviewsymbolinformation.cpp classviewsymbolinformation.h
     classviewsymbollocation.cpp classviewsymbollocation.h
     classviewtr.h

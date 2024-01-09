@@ -25,7 +25,6 @@ QtcPlugin {
         "classviewparsertreeitem.cpp",
         "classviewparsertreeitem.h",
         "classviewplugin.cpp",
-        "classviewplugin.h",
         "classviewsymbolinformation.cpp",
         "classviewsymbolinformation.h",
         "classviewsymbollocation.cpp",

@@ -1,13 +1,12 @@
 // Copyright (C) 2016 Denis Mingulov
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "classviewplugin.h"
-
 #include "classviewmanager.h"
 #include "classviewnavigationwidgetfactory.h"
 
-namespace ClassView {
-namespace Internal {
+#include <extensionsystem/iplugin.h>
+
+namespace ClassView::Internal {
 
 ///////////////////////////////// Plugin //////////////////////////////////
 
@@ -19,13 +18,18 @@ namespace Internal {
     projects in the sidebar.
 */
 
-ClassViewPlugin::~ClassViewPlugin() = default;
-
-void ClassViewPlugin::initialize()
+class ClassViewPlugin final : public ExtensionSystem::IPlugin
 {
-    setupClassViewNavigationWidgetFactory();
-    setupClassViewManager(this);
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClassView.json")
 
-} // namespace Internal
-} // namespace ClassView
+    void initialize() final
+    {
+        setupClassViewNavigationWidgetFactory();
+        setupClassViewManager(this);
+    }
+};
+
+} // ClassView::Internal
+
+#include "classviewplugin.moc"
