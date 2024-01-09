@@ -11,14 +11,10 @@
 #include <QIcon>
 #include <QWidget>
 
-namespace Core {
-class IContext;
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace Utils {
 class NavigationTreeView;
-class FileCrumbLabel;
 class QtcSettings;
 }
 
@@ -33,9 +29,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-namespace Internal {
-class DelayedFileCrumbLabel;
-} // namespace Internal
+namespace Internal { class DelayedFileCrumbLabel; }
 
 class CORE_EXPORT FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
@@ -80,9 +74,6 @@ private:
     static int rootIndex(const QString &id);
     void updateProjectsDirectoryRoot();
     void registerActions();
-
-    static QVector<RootDirectory> m_rootDirectories;
-    static Utils::FilePath m_fallbackSyncFilePath;
 };
 
 class CORE_EXPORT FolderNavigationWidget : public QWidget
