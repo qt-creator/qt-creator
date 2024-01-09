@@ -39,7 +39,6 @@ public:
 
     bool initializeGlobalScripts();
 
-    SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane m_outputPane;
     SquishTools m_squishTools;
@@ -109,6 +108,7 @@ private:
         d.reset(new SquishPluginPrivate);
 
         setupSquishWizardPages();
+        setupSquishNavigationWidgetFactory();
 
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     }

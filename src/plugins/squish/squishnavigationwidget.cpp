@@ -15,6 +15,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -30,12 +31,12 @@ namespace Squish::Internal {
 
 const int defaultSectionSize = 17;
 
-class SquishNavigationWidget : public QWidget
+class SquishNavigationWidget final : public QWidget
 {
 public:
-    explicit SquishNavigationWidget(QWidget *parent = nullptr);
-    ~SquishNavigationWidget() override;
-    void contextMenuEvent(QContextMenuEvent *event) override;
+    SquishNavigationWidget();
+
+    void contextMenuEvent(QContextMenuEvent *event) final;
     static QList<QToolButton *> createToolButtons();
 
 private:
@@ -54,9 +55,7 @@ private:
     SquishTestTreeSortModel *m_sortModel;
 };
 
-
-SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
-    : QWidget(parent)
+SquishNavigationWidget::SquishNavigationWidget()
 {
     setWindowTitle(Tr::tr("Squish"));
     m_view = new SquishTestTreeView(this);
@@ -104,8 +103,6 @@ SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
             onExpanded(suitesIndex);
     });
 }
-
-SquishNavigationWidget::~SquishNavigationWidget() {}
 
 void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -356,20 +353,29 @@ void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
     m_view->edit(m_sortModel->mapFromSource(added));
 }
 
-SquishNavigationWidgetFactory::SquishNavigationWidgetFactory()
+class SquishNavigationWidgetFactory final : public Core::INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Squish"));
-    setId(Squish::Constants::SQUISH_ID);
-    setPriority(777);
-}
+public:
+    SquishNavigationWidgetFactory()
+    {
+        setDisplayName(Tr::tr("Squish"));
+        setId(Squish::Constants::SQUISH_ID);
+        setPriority(777);
+    }
 
-Core::NavigationView SquishNavigationWidgetFactory::createWidget()
+    Core::NavigationView createWidget() final
+    {
+        SquishNavigationWidget *squishNavigationWidget = new SquishNavigationWidget;
+        Core::NavigationView view;
+        view.widget = squishNavigationWidget;
+        view.dockToolBarWidgets = squishNavigationWidget->createToolButtons();
+        return view;
+    }
+};
+
+void setupSquishNavigationWidgetFactory()
 {
-    SquishNavigationWidget *squishNavigationWidget = new SquishNavigationWidget;
-    Core::NavigationView view;
-    view.widget = squishNavigationWidget;
-    view.dockToolBarWidgets = squishNavigationWidget->createToolButtons();
-    return view;
+    static SquishNavigationWidgetFactory squishNavigationWidgetFactory;
 }
 
 } // Squish::Internal
