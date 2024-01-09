@@ -134,6 +134,8 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
 
 public:
     UseLibraryPathsAspect(Utils::AspectContainer *container = nullptr);
+
+    bool operator()() const { return isEnabled() && Utils::BoolAspect::operator()(); }
 };
 
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
