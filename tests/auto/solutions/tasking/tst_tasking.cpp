@@ -2692,6 +2692,162 @@ void tst_Tasking::testTree_data()
         QTest::newRow("NestedCancel") << TestData{storage, root, log, 5, DoneWith::Error};
     }
 
+    {
+        const QList<GroupItem> items {
+            storage,
+            Repeat(2),
+            createSuccessTask(1),
+            createSuccessTask(2)
+        };
+
+        const Group rootSequential {
+            sequential,
+            items
+        };
+        const Log logSequential {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Success}
+        };
+
+        const Group rootParallel {
+            parallel,
+            items
+        };
+        const Log logParallel {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Success},
+            {1, Handler::Success},
+            {2, Handler::Success}
+        };
+
+        const Group rootParallelLimit {
+            parallelLimit(2),
+            items
+        };
+        const Log logParallelLimit {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {1, Handler::Setup},
+            {2, Handler::Success},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Success}
+        };
+
+        QTest::newRow("RepeatSequential")
+            << TestData{storage, rootSequential, logSequential, 2, DoneWith::Success};
+        QTest::newRow("RepeatParallel")
+            << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
+        QTest::newRow("RepeatParallelLimit")
+            << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+    }
+
+    {
+        Loop loop([](int index) { return index < 3; });
+
+        const auto onSetupContinue = [storage, loop](int taskId) {
+            return [storage, loop, taskId](TaskObject &) {
+                storage->m_log.append({loop.iteration() * 10 + taskId, Handler::Setup});
+            };
+        };
+
+        const auto onSetupStop = [storage, loop](int taskId) {
+            return [storage, loop, taskId](TaskObject &) {
+                storage->m_log.append({loop.iteration() * 10 + taskId, Handler::Setup});
+                if (loop.iteration() == 2)
+                    return SetupResult::StopWithSuccess;
+                return SetupResult::Continue;
+            };
+        };
+
+        const auto onDone = [storage, loop](int taskId) {
+            return [storage, loop, taskId](DoneWith doneWith) {
+                const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
+                    : doneWith == DoneWith::Success ? Handler::Success : Handler::Error;
+                storage->m_log.append({loop.iteration() * 10 + taskId, handler});
+            };
+        };
+
+        const QList<GroupItem> items {
+            storage,
+            loop,
+            TestTask(onSetupContinue(1), onDone(1)),
+            TestTask(onSetupStop(2), onDone(2))
+        };
+
+        const Group rootSequential {
+            sequential,
+            items
+        };
+        const Log logSequential {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {11, Handler::Setup},
+            {11, Handler::Success},
+            {12, Handler::Setup},
+            {12, Handler::Success},
+            {21, Handler::Setup},
+            {21, Handler::Success},
+            {22, Handler::Setup}
+        };
+
+        const Group rootParallel {
+            parallel,
+            items
+        };
+        const Log logParallel {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {11, Handler::Setup},
+            {12, Handler::Setup},
+            {21, Handler::Setup},
+            {22, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Success},
+            {11, Handler::Success},
+            {12, Handler::Success},
+            {21, Handler::Success}
+        };
+
+        const Group rootParallelLimit {
+            parallelLimit(2),
+            items
+        };
+        const Log logParallelLimit {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {11, Handler::Setup},
+            {2, Handler::Success},
+            {12, Handler::Setup},
+            {11, Handler::Success},
+            {21, Handler::Setup},
+            {12, Handler::Success},
+            {22, Handler::Setup},
+            {21, Handler::Success}
+        };
+
+        QTest::newRow("LoopSequential")
+            << TestData{storage, rootSequential, logSequential, 2, DoneWith::Success};
+        QTest::newRow("LoopParallel")
+            << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
+        QTest::newRow("LoopParallelLimit")
+            << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
