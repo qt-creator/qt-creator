@@ -19,6 +19,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -42,12 +43,12 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-class TestNavigationWidget : public QWidget
+class TestNavigationWidget final : public QWidget
 {
 public:
     TestNavigationWidget();
 
-    void contextMenuEvent(QContextMenuEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) final;
     QList<QToolButton *> createToolButtons();
 
     void updateExpandedStateCache();
@@ -364,17 +365,26 @@ void TestNavigationWidget::reapplyCachedExpandedState()
 
 // TestNavigationWidgetFactory
 
-TestNavigationWidgetFactory::TestNavigationWidgetFactory()
+class TestNavigationWidgetFactory final : public INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Tests"));
-    setId(Autotest::Constants::AUTOTEST_ID);
-    setPriority(666);
-}
+public:
+    TestNavigationWidgetFactory()
+    {
+        setDisplayName(Tr::tr("Tests"));
+        setId(Autotest::Constants::AUTOTEST_ID);
+        setPriority(666);
+    }
 
-NavigationView TestNavigationWidgetFactory::createWidget()
+    NavigationView createWidget() final
+    {
+        TestNavigationWidget *treeViewWidget = new TestNavigationWidget;
+        return {treeViewWidget, treeViewWidget->createToolButtons()};
+    }
+};
+
+void setupTestNavigationWidgetFactory()
 {
-    TestNavigationWidget *treeViewWidget = new TestNavigationWidget;
-    return {treeViewWidget, treeViewWidget->createToolButtons()};
+    static TestNavigationWidgetFactory theTestNavigationWidgetFactory;
 }
 
 } // Autotest::Internal

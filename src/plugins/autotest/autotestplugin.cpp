@@ -76,14 +76,13 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-class AutotestPluginPrivate : public QObject
+class AutotestPluginPrivate final : public QObject
 {
     Q_OBJECT
 public:
     AutotestPluginPrivate();
-    ~AutotestPluginPrivate() override;
+    ~AutotestPluginPrivate() final;
 
-    TestNavigationWidgetFactory m_navigationWidgetFactory;
     TestResultsPane *m_resultsPane = nullptr;
     QMap<QString, ChoicePair> m_runconfigCache;
 
@@ -117,6 +116,8 @@ AutotestPlugin::AutotestPlugin()
     qRegisterMetaType<TestCodeLocationAndType>();
     // warm up meta type system to be able to read Qt::CheckState with persistent settings
     qRegisterMetaType<Qt::CheckState>();
+
+    setupTestNavigationWidgetFactory();
 }
 
 AutotestPlugin::~AutotestPlugin()

@@ -3,17 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
 namespace Autotest::Internal {
 
-class TestNavigationWidgetFactory : public Core::INavigationWidgetFactory
-{
-public:
-    TestNavigationWidgetFactory();
-
-private:
-    Core::NavigationView createWidget() override;
-};
+void setupTestNavigationWidgetFactory();
 
 } // Autotest::Internal
