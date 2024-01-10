@@ -75,7 +75,6 @@ public:
     void updateInfo(const QString &devId);
     void deviceInfo(Ios::IosToolHandler *gatherer, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
-    void infoGathererFinished(Ios::IosToolHandler *gatherer);
     void monitorAvailableDevices();
 
 private:
