@@ -19,6 +19,12 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <diffeditor/diffeditorconstants.h>
+
+#include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <utils/async.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -40,11 +46,6 @@
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
-
-#include <diffeditor/diffeditorconstants.h>
-
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -77,10 +78,99 @@ const char showFormatC[] =
 using namespace Core;
 using namespace DiffEditor;
 using namespace Tasking;
+using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
 
 namespace Git::Internal {
+
+static const QRegularExpression s_commitPattern("commit ([a-f0-9]{7,40})(.*)");
+static const QRegularExpression s_authorPattern("(?:Author|Committer): (.*>), (.*)");
+static const QRegularExpression s_branchesPattern("(?:Branches|Precedes|Follows): (.*)");
+static const QRegularExpression s_keywordPattern("^[\\w-]+:");
+static const QRegularExpression s_changeNumberPattern("\\b[a-f0-9]{7,40}\\b");
+
+static QColor colorForStyle(TextStyle style)
+{
+    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
+    const QColor color = scheme.formatFor(style).foreground();
+    if (color.isValid())
+        return color;
+    return scheme.formatFor(C_TEXT).foreground();
+}
+
+class GitDescriptionHighlighter : public SyntaxHighlighter
+{
+public:
+    void highlightBlock(const QString &text) final
+    {
+        const QRegularExpressionMatch commitMatch = s_commitPattern.match(text);
+        if (commitMatch.hasMatch()) {
+            m_state = Commit;
+            setStyle(commitMatch.capturedStart(1), commitMatch.capturedLength(1), C_LOG_COMMIT_HASH);
+            setStyle(commitMatch.capturedStart(2), commitMatch.capturedLength(2), C_LOG_DECORATION);
+            return;
+        }
+
+        const QRegularExpressionMatch authorMatch = s_authorPattern.match(text);
+        if (authorMatch.hasMatch()) {
+            m_state = Author;
+            setStyle(authorMatch.capturedStart(1), authorMatch.capturedLength(1), C_LOG_AUTHOR_NAME);
+            setStyle(authorMatch.capturedStart(2), authorMatch.capturedLength(2), C_LOG_COMMIT_DATE);
+            return;
+        }
+
+        const QRegularExpressionMatch branchesMatch = s_branchesPattern.match(text);
+        if (branchesMatch.hasMatch()) {
+            m_state = Branches;
+            setStyle(branchesMatch.capturedStart(1), branchesMatch.capturedLength(1), C_LOG_DECORATION);
+            return;
+        }
+
+        if (m_state == Branches) {
+            if (text.isEmpty())
+                m_state = Subject;
+            else
+                setStyle(0, text.length(), C_LOG_DECORATION);
+            return;
+        }
+
+        if ((m_state == Subject) && !text.isEmpty()) {
+            setStyle(0, text.length(), C_LOG_COMMIT_SUBJECT);
+            m_state = Body;
+            return;
+        }
+
+        setStyle(0, text.length(), C_TEXT);
+
+        const QRegularExpressionMatch keywordMatch = s_keywordPattern.match(text);
+        if (keywordMatch.hasMatch() && keywordMatch.capturedStart() == 0) {
+            QTextCharFormat charFormat = format(0);
+            charFormat.setFontItalic(true);
+            setFormat(0, keywordMatch.capturedLength(), charFormat);
+        }
+
+        QRegularExpressionMatchIterator it = s_changeNumberPattern.globalMatch(text);
+        while (it.hasNext()) {
+            const QRegularExpressionMatch match = it.next();
+            setStyle(match.capturedStart(), match.capturedLength(), C_LOG_COMMIT_HASH);
+        }
+    }
+
+private:
+    void setStyle(int start, int size, TextStyle style)
+    {
+        setFormat(start, size, colorForStyle(style));
+    }
+
+    enum State {
+        Commit,
+        Author,
+        Branches,
+        Subject,
+        Body
+    } m_state = Commit;
+};
 
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
 {
@@ -258,6 +348,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
     : VcsBaseDiffEditorController(document)
 {
+    setDescriptionSyntaxHighlighterCreator([] { return new GitDescriptionHighlighter; });
     setDisplayName("Git Diff");
 }
 
@@ -635,14 +726,8 @@ static bool gitHasRgbColors()
 
 static QString logColorName(TextEditor::TextStyle style)
 {
-    using namespace TextEditor;
-
-    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
-    QColor color = scheme.formatFor(style).foreground();
-    if (!color.isValid())
-        color = scheme.formatFor(C_TEXT).foreground();
-    return color.name();
-};
+    return colorForStyle(style).name();
+}
 
 class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
 {
