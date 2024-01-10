@@ -34,6 +34,7 @@ static int sizeForIndex(int index) { return (index + 1) * s_sizeInterval; }
 Group recipe(const Storage<ExternalData> &externalStorage)
 {
     Storage<InternalData> internalStorage;
+    Repeat repeater(s_imageCount);
 
     const auto onDownloadSetup = [externalStorage](NetworkQuery &query) {
         query.setNetworkAccessManager(externalStorage->inputNam);
@@ -60,27 +61,24 @@ Group recipe(const Storage<ExternalData> &externalStorage)
             externalStorage->outputError = "Image Data Error.";
     };
 
-    QList<GroupItem> parallelTasks;
-    parallelTasks.reserve(s_imageCount + 1); // +1 for parallelLimit
-    parallelTasks.append(parallelLimit(QThread::idealThreadCount() - 1));
-
-    for (int i = 0; i < s_imageCount; ++i) {
-        const int s = sizeForIndex(i);
-        const auto onScaleSetup = [internalStorage, s](ConcurrentCall<QImage> &data) {
-            data.setConcurrentCallData(&scaleImage, internalStorage->imageSource, QSize(s, s));
-        };
-        const auto onScaleDone = [externalStorage, s](const ConcurrentCall<QImage> &data) {
-            externalStorage->outputImages.insert(s, data.result());
-        };
-        parallelTasks.append(ConcurrentCallTask<QImage>(onScaleSetup, onScaleDone));
-    }
+    const auto onScaleSetup = [internalStorage, repeater](ConcurrentCall<QImage> &data) {
+        const int s = sizeForIndex(repeater.iteration());
+        data.setConcurrentCallData(&scaleImage, internalStorage->imageSource, QSize(s, s));
+    };
+    const auto onScaleDone = [externalStorage, repeater](const ConcurrentCall<QImage> &data) {
+        externalStorage->outputImages.insert(repeater.iteration(), data.result());
+    };
 
     const QList<GroupItem> recipe {
         externalStorage,
         internalStorage,
         NetworkQueryTask(onDownloadSetup, onDownloadDone),
         ConcurrentCallTask<QImage>(onReadSetup, onReadDone),
-        Group { parallelTasks }
+        Group {
+            repeater,
+            parallelLimit(QThread::idealThreadCount() - 1),
+            ConcurrentCallTask<QImage>(onScaleSetup, onScaleDone)
+        }
     };
     return recipe;
 }

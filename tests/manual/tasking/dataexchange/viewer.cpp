@@ -16,9 +16,7 @@ Viewer::Viewer(QWidget *parent)
     setWindowTitle(tr("Data Exchange"));
 
     QLabel *urlLabel = new QLabel(tr("Url:"));
-    m_lineEdit = new QLineEdit("https://media.licdn.com/dms/image/D4D22AQFj3ksh5rmnrg/"
-                               "feedshare-shrink_800/0/1697023188446?e=1701302400&v=beta"
-                               "&t=6dy5dmhzgONaLu139A6XmFSGqDohiezq1fH-q2mmu3w");
+    m_lineEdit = new QLineEdit("https://qt-wiki-uploads.s3.amazonaws.com/images/f/fd/TaskTree.jpg");
     QPushButton *startButton = new QPushButton(tr("Start"));
     QPushButton *stopButton = new QPushButton(tr("Stop"));
     QPushButton *resetButton = new QPushButton(tr("Reset"));
