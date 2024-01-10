@@ -435,17 +435,16 @@ void DebuggerMainWindow::restorePersistentSettings()
 
     const QHash<QString, QVariant> states2 = settings->value(STATE_KEY2).toHash();
     d->m_lastTypePerspectiveStates.clear();
-    QSet<QString> keys = Utils::toSet(states2.keys());
-    for (const QString &type : keys) {
+    for (auto it = states2.begin(); it != states2.end(); ++it) {
         PerspectiveState state;
-        if (states2.value(type).canConvert<QVariantMap>()) {
-            state = PerspectiveState::fromSettings(storeFromMap(states2.value(type).toMap()));
+        if (it->canConvert<QVariantMap>()) {
+            state = PerspectiveState::fromSettings(storeFromMap(it->toMap()));
         } else {
             // legacy for up to QtC 12
-            state = states2.value(type).value<PerspectiveState>();
+            state = it->value<PerspectiveState>();
         }
         QTC_ASSERT(state.hasWindowState(), continue);
-        d->m_lastTypePerspectiveStates.insert(type, state);
+        d->m_lastTypePerspectiveStates.insert(it.key(), state);
     }
 
     showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
