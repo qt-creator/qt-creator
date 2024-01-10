@@ -34,7 +34,7 @@ static int sizeForIndex(int index) { return (index + 1) * s_sizeInterval; }
 Group recipe(const Storage<ExternalData> &externalStorage)
 {
     Storage<InternalData> internalStorage;
-    Repeat repeater(s_imageCount);
+    LoopRepeat repeater(s_imageCount);
 
     const auto onDownloadSetup = [externalStorage](NetworkQuery &query) {
         query.setNetworkAccessManager(externalStorage->inputNam);

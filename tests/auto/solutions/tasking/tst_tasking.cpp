@@ -2695,7 +2695,7 @@ void tst_Tasking::testTree_data()
     {
         const QList<GroupItem> items {
             storage,
-            Repeat(2),
+            LoopRepeat(2),
             createSuccessTask(1),
             createSuccessTask(2)
         };

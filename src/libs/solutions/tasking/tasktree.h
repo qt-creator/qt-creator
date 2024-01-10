@@ -111,16 +111,16 @@ private:
     QSharedPointer<LoopData> m_loopData;
 };
 
-class TASKING_EXPORT Forever final : public Loop
+class TASKING_EXPORT LoopForever final : public Loop
 {
 public:
-    Forever() : Loop([](int) { return true; }) {}
+    LoopForever() : Loop([](int) { return true; }) {}
 };
 
-class TASKING_EXPORT Repeat final : public Loop
+class TASKING_EXPORT LoopRepeat final : public Loop
 {
 public:
-    Repeat(int count) : Loop([count](int index) { return index < count; }) {}
+    LoopRepeat(int count) : Loop([count](int index) { return index < count; }) {}
 };
 
 class TASKING_EXPORT StorageBase
@@ -264,7 +264,7 @@ private:
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group final : public GroupItem
+class TASKING_EXPORT Group : public GroupItem
 {
 public:
     Group(const QList<GroupItem> &children) { addChildren(children); }
@@ -354,6 +354,13 @@ TASKING_EXPORT extern const GroupItem continueOnSuccess;
 TASKING_EXPORT extern const GroupItem stopOnSuccessOrError;
 TASKING_EXPORT extern const GroupItem finishAllAndSuccess;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
+
+class TASKING_EXPORT Forever final : public Group
+{
+public:
+    Forever(const QList<GroupItem> &children) : Group({LoopForever(), children}) {}
+    Forever(std::initializer_list<GroupItem> children) : Group({LoopForever(), children}) {}
+};
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
 class TASKING_EXPORT Sync final : public GroupItem

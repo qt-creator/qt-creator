@@ -57,7 +57,7 @@ void Images::process()
     initLayout(urls.size());
 
     const Storage<QList<QUrl>> urlStorage;
-    const Repeat repeater(urls.size());
+    const LoopRepeat repeater(urls.size());
     const Storage<QByteArray> internalStorage;
 
     const auto onRootSetup = [this] {
