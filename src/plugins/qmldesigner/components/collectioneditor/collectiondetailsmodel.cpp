@@ -366,8 +366,8 @@ bool CollectionDetailsModel::selectRow(int row)
 
     const int rows = rowCount();
 
-    if (m_selectedRow >= rows)
-        return false;
+    if (row >= rows)
+        row = rows - 1;
 
     selectColumn(-1);
 

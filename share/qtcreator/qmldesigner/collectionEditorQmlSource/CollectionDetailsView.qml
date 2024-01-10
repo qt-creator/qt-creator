@@ -6,8 +6,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import CollectionDetails 1.0 as CollectionDetails
 import HelperWidgets 2.0 as HelperWidgets
-import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: root
@@ -233,6 +233,17 @@ Rectangle {
                         acceptedButtons: Qt.NoButton
                     }
 
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: (mouse) => {
+                            let row = index % tableView.model.rowCount()
+
+                            tableView.model.selectRow(row)
+                            cellContextMenu.popup()
+                        }
+                    }
+
                     Loader {
                         id: cellContentLoader
 
@@ -301,6 +312,69 @@ Rectangle {
                             }
                         }
                     ]
+
+                    StudioControls.Menu {
+                        id: cellContextMenu
+
+                        width: 140
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Add row above")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
+                            }
+
+                            onTriggered: root.model.insertRow(root.model.selectedRow)
+                        }
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Add row below")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
+                            }
+
+                            onTriggered: root.model.insertRow(root.model.selectedRow + 1)
+                        }
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Delete this row")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
+                            }
+
+                            onTriggered: root.model.removeRows(root.model.selectedRow, 1)
+                        }
+                    }
                 }
             }
 
