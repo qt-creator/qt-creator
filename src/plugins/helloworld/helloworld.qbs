@@ -8,7 +8,6 @@ QtcPlugin {
 
     files: [
         "helloworldplugin.cpp",
-        "helloworldplugin.h",
         "helloworldwindow.cpp",
         "helloworldwindow.h",
         "helloworldtr.h"
