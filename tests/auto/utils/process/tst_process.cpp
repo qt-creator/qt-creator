@@ -163,6 +163,8 @@ private slots:
     void quitBlockingProcess();
     void tarPipe();
     void stdinToShell();
+    void eventLoopMode_data();
+    void eventLoopMode();
 
     void cleanupTestCase();
 
@@ -1566,6 +1568,44 @@ void tst_Process::stdinToShell()
 
     QString result = proc.readAllStandardOutput().trimmed();
     QCOMPARE(result, "hallo");
+}
+
+void tst_Process::eventLoopMode_data()
+{
+    QTest::addColumn<ProcessImpl>("processImpl");
+    QTest::addColumn<EventLoopMode>("eventLoopMode");
+
+    QTest::newRow("QProcess, blocking with event loop")
+        << ProcessImpl::QProcess << EventLoopMode::On;
+    QTest::newRow("QProcess, blocking without event loop")
+        << ProcessImpl::QProcess << EventLoopMode::Off;
+    QTest::newRow("ProcessLauncher, blocking with event loop")
+        << ProcessImpl::ProcessLauncher << EventLoopMode::On;
+    QTest::newRow("ProcessLauncher, blocking without event loop")
+        << ProcessImpl::ProcessLauncher << EventLoopMode::Off;
+}
+
+void tst_Process::eventLoopMode()
+{
+    QFETCH(ProcessImpl, processImpl);
+    QFETCH(EventLoopMode, eventLoopMode);
+
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    Process process;
+    subConfig.setupSubProcess(&process);
+    process.setProcessImpl(processImpl);
+    process.runBlocking(eventLoopMode);
+    const ProcessResult actualResult = process.result();
+
+    // FIXME: On Windows, Process::runBlocking(EventLoopMode::On) and ProcessImpl::QProcess fails
+    // with ProcessResult::StartFailed. Details: QTCREATORBUG-30066
+    const bool isFailingCombination = HostOsInfo::isWindowsHost()
+                                      && processImpl == ProcessImpl::QProcess
+                                      && eventLoopMode == EventLoopMode::On;
+    const ProcessResult expectedResult = isFailingCombination ? ProcessResult::StartFailed
+                                                              : ProcessResult::FinishedWithSuccess;
+
+    QCOMPARE(actualResult, expectedResult);
 }
 
 QTEST_GUILESS_MAIN(tst_Process)
