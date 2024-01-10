@@ -8,6 +8,7 @@
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
