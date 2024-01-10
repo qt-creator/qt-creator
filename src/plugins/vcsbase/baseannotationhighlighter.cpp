@@ -90,6 +90,11 @@ BaseAnnotationHighlighter::BaseAnnotationHighlighter(const Annotation &annotatio
 
 BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 {
+    // The destructor of the base class indirectly triggers a QTextDocument::contentsChang signal
+    // which is still connected to setChangeNumbersForAnnotation. The connection is guarded by
+    // 'this', but since it was not fully destructed it still calls the function. Explicitly set
+    // a null document here to disconnect that connection and correctly reset all highlights.
+    setDocument(nullptr);
     delete d;
 }
 
