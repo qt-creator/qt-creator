@@ -31,7 +31,10 @@ if (WIN32)
 
   if (NOT BUILD_WITH_PCH)
     list(APPEND DEFAULT_DEFINES
-      WIN32_LEAN_AND_MEAN)
+      WIN32_LEAN_AND_MEAN
+      WINVER=0x0A00
+      _WIN32_WINNT=0x0A00
+    )
   endif()
 endif()
 
