@@ -5,7 +5,6 @@
 
 #include "appmanagerplugin.h"
 
-#include "appmanagerconstants.h"
 #include "appmanagercreatepackagestep.h"
 #include "appmanagerdeployconfigurationautoswitcher.h"
 #include "appmanagerdeployconfigurationfactory.h"
@@ -74,13 +73,6 @@ void cloneAutodetectedBoot2QtKits()
 class AppManagerPluginPrivate
 {
 public:
-    AppManagerCMakePackageStepFactory cmakePackageStepFactory;
-    AppManagerMakeInstallStepFactory makeInstallStepFactory;
-    AppManagerCreatePackageStepFactory createPackageStepFactory;
-    AppManagerDeployPackageStepFactory deployPackageStepFactory;
-    AppManagerInstallPackageStepFactory installPackageStepFactory;
-    AppManagerRemoteInstallPackageStepFactory remoteInstallPackageStepFactory;
-
     AppManagerDeployConfigurationAutoSwitcher deployConfigurationAutoSwitcher;
     AppManagerDeployConfigurationFactory deployConfigFactory;
 
@@ -96,6 +88,13 @@ AppManagerPlugin::~AppManagerPlugin()
 
 void AppManagerPlugin::initialize()
 {
+    setupAppManagerCMakePackageStep();
+    setupAppManagerMakeInstallStep();
+    setupAppManagerCreatePackageStep();
+    setupAppManagerDeployPackageStep();
+    setupAppManagerInstallPackageStep();
+    setupAppManagerRemoteInstallPackageStep();
+
     d = new AppManagerPluginPrivate;
     d->deployConfigurationAutoSwitcher.initialize();
 

@@ -5,14 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace AppManager::Internal {
 
-class AppManagerRemoteInstallPackageStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AppManagerRemoteInstallPackageStepFactory();
-};
+void setupAppManagerRemoteInstallPackageStep();
 
 } // namespace AppManager::Internal

@@ -8,9 +8,11 @@
 #include "appmanagerstringaspect.h"
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -46,26 +48,26 @@ private:
 AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    setDisplayName(tr("Install Application Manager package"));
+    setDisplayName(Tr::tr("Install Application Manager package"));
 
     executable.setSettingsKey(SETTINGSPREFIX "Executable");
     executable.setHistoryCompleter(SETTINGSPREFIX "Executable.History");
-    executable.setLabelText(tr("Executable:"));
+    executable.setLabelText(Tr::tr("Executable:"));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setHistoryCompleter(SETTINGSPREFIX "Arguments.History");
     arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments.setLabelText(tr("Arguments:"));
+    arguments.setLabelText(Tr::tr("Arguments:"));
 
     packageFileName.setSettingsKey(SETTINGSPREFIX "FileName");
     packageFileName.setHistoryCompleter(SETTINGSPREFIX "FileName.History");
     packageFileName.setDisplayStyle(StringAspect::LineEditDisplay);
-    packageFileName.setLabelText(tr("File name:"));
+    packageFileName.setLabelText(Tr::tr("File name:"));
 
     packageDirectory.setSettingsKey(SETTINGSPREFIX "Directory");
     packageDirectory.setHistoryCompleter(SETTINGSPREFIX "Directory.History");
     packageDirectory.setExpectedKind(PathChooser::Directory);
-    packageDirectory.setLabelText(tr("Directory:"));
+    packageDirectory.setLabelText(Tr::tr("Directory:"));
 
     const auto updateAspects = [this]  {
         const TargetInformation targetInformation(target());
@@ -77,8 +79,8 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         arguments.setPlaceHolderText(ArgumentsDefault);
         packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
         auto device = DeviceKitAspect::device(target()->kit());
-        auto remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-        auto packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
+        bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
         packageDirectory.setPlaceHolderPath(packageDirectoryPath.absolutePath());
         packageDirectory.setButtonsVisible(!targetInformation.remote);
 
@@ -106,8 +108,8 @@ bool AppManagerInstallPackageStep::init()
     const QString controllerArguments = arguments.valueOrDefault(ArgumentsDefault);
     const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
     auto device = DeviceKitAspect::device(target()->kit());
-    auto remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    auto packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
+    bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
     const FilePath packageDir = packageDirectory.valueOrDefault(packageDirectoryPath.absolutePath());
 
     CommandLine cmd(targetInformation.device->filePath(controller.path()));
@@ -121,11 +123,20 @@ bool AppManagerInstallPackageStep::init()
 
 // Factory
 
-AppManagerInstallPackageStepFactory::AppManagerInstallPackageStepFactory()
+class AppManagerInstallPackageStepFactory final : public BuildStepFactory
 {
-    registerStep<AppManagerInstallPackageStep>(Constants::INSTALL_PACKAGE_STEP_ID);
-    setDisplayName(AppManagerInstallPackageStep::tr("Install Application Manager package"));
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    AppManagerInstallPackageStepFactory()
+    {
+        registerStep<AppManagerInstallPackageStep>(Constants::INSTALL_PACKAGE_STEP_ID);
+        setDisplayName(Tr::tr("Install Application Manager package"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupAppManagerInstallPackageStep()
+{
+    static AppManagerInstallPackageStepFactory theAppManagerInstallPackageStepFactory;
 }
 
 } // namespace AppManager::Internal

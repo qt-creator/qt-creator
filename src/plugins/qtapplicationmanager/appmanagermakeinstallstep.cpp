@@ -8,6 +8,7 @@
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
 
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -15,15 +16,12 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
-class AppManagerMakeInstallStep final : public ProjectExplorer::MakeStep
+class AppManagerMakeInstallStep final : public MakeStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AppManager::Internal::AppManagerMakeInstallStep)
-
 public:
-    AppManagerMakeInstallStep(BuildStepList *bsl, Utils::Id id)
+    AppManagerMakeInstallStep(BuildStepList *bsl, Id id)
         : MakeStep(bsl, id)
     {
         setSelectedBuildTarget("install");
@@ -34,16 +32,16 @@ public:
         if (!MakeStep::init())
             return false;
 
-        const auto targetInformation = TargetInformation(target());
+        const TargetInformation targetInformation(target());
         if (!targetInformation.isValid())
             return false;
 
-        const auto buildDirectoryPath = targetInformation.buildDirectory.absolutePath();
+        const QString buildDirectoryPath = targetInformation.buildDirectory.absolutePath();
         if (buildDirectoryPath.isEmpty())
             return false;
 
-        const auto buildDirectoryPathQuoted = ProcessArgs::quoteArg(QDir::toNativeSeparators(buildDirectoryPath));
-        const auto installRoot = QString("INSTALL_ROOT=%1").arg(buildDirectoryPathQuoted);
+        const QString buildDirectoryPathQuoted = ProcessArgs::quoteArg(QDir::toNativeSeparators(buildDirectoryPath));
+        const QString installRoot = QString("INSTALL_ROOT=%1").arg(buildDirectoryPathQuoted);
 
         processParameters()->setWorkingDirectory(FilePath::fromString(buildDirectoryPath));
 
@@ -55,14 +53,20 @@ public:
     }
 };
 
-// Factory
-
-AppManagerMakeInstallStepFactory::AppManagerMakeInstallStepFactory()
+class AppManagerMakeInstallStepFactory final : public BuildStepFactory
 {
-    registerStep<AppManagerMakeInstallStep>(Constants::MAKE_INSTALL_STEP_ID);
-    setDisplayName(AppManagerMakeInstallStep::tr("Make install"));
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    AppManagerMakeInstallStepFactory()
+    {
+        registerStep<AppManagerMakeInstallStep>(Constants::MAKE_INSTALL_STEP_ID);
+        setDisplayName(AppManagerMakeInstallStep::tr("Make install"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupAppManagerMakeInstallStep()
+{
+    static AppManagerMakeInstallStepFactory theAppManagerMakeInstallStepFactory;
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

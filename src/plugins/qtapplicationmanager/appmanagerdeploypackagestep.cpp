@@ -8,7 +8,9 @@
 #include "appmanagerconstants.h"
 #include "appmanagerstringaspect.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -30,27 +32,25 @@ namespace AppManager::Internal {
 
 class AppManagerDeployPackageStep : public BuildStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AppManager::Internal::AppManagerDeployPackageStep)
-
 public:
     AppManagerDeployPackageStep(BuildStepList *bsl, Id id)
         : BuildStep(bsl, id)
     {
-        setDisplayName(tr("Deploy Application Manager package"));
+        setDisplayName(Tr::tr("Deploy Application Manager package"));
 
         packageFilePath.setSettingsKey(SETTINGSPREFIX "FilePath");
         packageFilePath.setHistoryCompleter(SETTINGSPREFIX "FilePath.History");
         packageFilePath.setExpectedKind(PathChooser::File);
-        packageFilePath.setLabelText(tr("Package file path:"));
+        packageFilePath.setLabelText(Tr::tr("Package file path:"));
 
         targetDirectory.setSettingsKey(SETTINGSPREFIX "TargetDirectory");
         targetDirectory.setHistoryCompleter(SETTINGSPREFIX "TargetDirectory.History");
         targetDirectory.setExpectedKind(PathChooser::Directory);
-        targetDirectory.setLabelText(tr("Target directory:"));
+        targetDirectory.setLabelText(Tr::tr("Target directory:"));
         targetDirectory.setButtonsVisible(false);
 
         const auto updateAspects = [this] {
-            const auto targetInformation = TargetInformation(target());
+            const TargetInformation targetInformation(target());
 
             packageFilePath.setPlaceHolderPath(targetInformation.packageFile.absoluteFilePath());
             targetDirectory.setPlaceHolderPath(targetInformation.runDirectory.absolutePath());
@@ -68,8 +68,13 @@ public:
     }
 
 private:
-    bool init() final { return TargetInformation(target()).isValid(); }
-    GroupItem runRecipe() final {
+    bool init() final
+    {
+        return TargetInformation(target()).isValid();
+    }
+
+    GroupItem runRecipe() final
+    {
         const auto onSetup = [this](FileStreamer &streamer) {
             const TargetInformation targetInformation(target());
             const FilePath source = packageFilePath.valueOrDefault(
@@ -84,9 +89,9 @@ private:
         };
         const auto onDone = [this](DoneWith result) {
             if (result == DoneWith::Success)
-                emit addOutput(tr("Uploading finished"), OutputFormat::NormalMessage);
+                emit addOutput(Tr::tr("Uploading finished"), OutputFormat::NormalMessage);
             else
-                emit addOutput(tr("Uploading failed"), OutputFormat::ErrorMessage);
+                emit addOutput(Tr::tr("Uploading failed"), OutputFormat::ErrorMessage);
         };
         return FileStreamerTask(onSetup, onDone);
     }
@@ -97,11 +102,20 @@ private:
 
 // Factory
 
-AppManagerDeployPackageStepFactory::AppManagerDeployPackageStepFactory()
+class AppManagerDeployPackageStepFactory final : public BuildStepFactory
 {
-    registerStep<AppManagerDeployPackageStep>(Constants::DEPLOY_PACKAGE_STEP_ID);
-    setDisplayName(AppManagerDeployPackageStep::tr("Deploy Application Manager package"));
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    AppManagerDeployPackageStepFactory()
+    {
+        registerStep<AppManagerDeployPackageStep>(Constants::DEPLOY_PACKAGE_STEP_ID);
+        setDisplayName(Tr::tr("Deploy Application Manager package"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupAppManagerDeployPackageStep()
+{
+   static AppManagerDeployPackageStepFactory theAppManagerDeployPackageStepFactory;
 }
 
 } // namespace AppManager::Internal

@@ -5,16 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
+namespace AppManager::Internal {
 
-namespace AppManager {
-namespace Internal {
+void setupAppManagerCreatePackageStep();
 
-class AppManagerCreatePackageStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AppManagerCreatePackageStepFactory();
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

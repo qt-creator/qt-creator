@@ -8,9 +8,11 @@
 #include "appmanagerconstants.h"
 #include "appmanagerstringaspect.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
@@ -21,8 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
 #define SETTINGSPREFIX "ApplicationManagerPlugin.Deploy.CreatePackageStep."
 
@@ -31,9 +32,80 @@ const char ArgumentsDefault[] = "create-package --verbose --json";
 class AppManagerCreatePackageStep final : public AbstractProcessStep
 {
 public:
-    AppManagerCreatePackageStep(BuildStepList *bsl, Id id);
+    AppManagerCreatePackageStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        setDisplayName(Tr::tr("Create Application Manager package"));
 
-    bool init() final;
+        executable.setSettingsKey(SETTINGSPREFIX "Executable");
+        executable.setHistoryCompleter(SETTINGSPREFIX "Executable.History");
+        executable.setExpectedKind(PathChooser::ExistingCommand);
+        executable.setLabelText(Tr::tr("Executable:"));
+        executable.setPromptDialogFilter(getToolNameByDevice(Constants::APPMAN_PACKAGER));
+
+        arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
+        arguments.setHistoryCompleter(SETTINGSPREFIX "Arguments.History");
+        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+        arguments.setLabelText(Tr::tr("Arguments:"));
+
+        sourceDirectory.setSettingsKey(SETTINGSPREFIX "SourceDirectory");
+        sourceDirectory.setHistoryCompleter(SETTINGSPREFIX "SourceDirectory.History");
+        sourceDirectory.setExpectedKind(PathChooser::Directory);
+        sourceDirectory.setLabelText(Tr::tr("Source directory:"));
+
+        buildDirectory.setSettingsKey(SETTINGSPREFIX "BuildDirectory");
+        buildDirectory.setHistoryCompleter(SETTINGSPREFIX "BuildDirectory.History");
+        buildDirectory.setExpectedKind(PathChooser::Directory);
+        buildDirectory.setLabelText(Tr::tr("Build directory:"));
+
+        packageFileName.setSettingsKey(SETTINGSPREFIX "FileName");
+        packageFileName.setHistoryCompleter(SETTINGSPREFIX "FileName.History");
+        packageFileName.setDisplayStyle(StringAspect::LineEditDisplay);
+        packageFileName.setLabelText(Tr::tr("Package file name:"));
+
+        const auto updateAspects = [this] {
+            const auto targetInformation = TargetInformation(target());
+
+            executable.setPlaceHolderPath(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
+            arguments.setPlaceHolderText(ArgumentsDefault);
+            sourceDirectory.setPlaceHolderPath(targetInformation.packageSourcesDirectory.absolutePath());
+            buildDirectory.setPlaceHolderPath(targetInformation.buildDirectory.absolutePath());
+            packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
+
+            setEnabled(!targetInformation.isBuiltin);
+        };
+
+        connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
+        connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
+        connect(target(), &Target::parsingFinished, this, updateAspects);
+        connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
+        connect(project(), &Project::displayNameChanged, this, updateAspects);
+        updateAspects();
+    }
+
+    bool init() final
+    {
+        if (!AbstractProcessStep::init())
+            return false;
+
+        const auto targetInformation = TargetInformation(target());
+        if (!targetInformation.isValid())
+            return false;
+
+        const FilePath packager = executable.valueOrDefault(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
+        const QString packagerArguments = arguments.valueOrDefault(ArgumentsDefault);
+        const FilePath packageSourcesDirectory = sourceDirectory.valueOrDefault(targetInformation.packageSourcesDirectory.absolutePath());
+        const FilePath packageDirectory = buildDirectory.valueOrDefault(targetInformation.buildDirectory.absolutePath());
+        const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
+
+        CommandLine cmd(packager);
+        cmd.addArgs(packagerArguments, CommandLine::Raw);
+        cmd.addArgs({packageFile, packageSourcesDirectory.path()});
+        processParameters()->setWorkingDirectory(packageDirectory);
+        processParameters()->setCommandLine(cmd);
+
+        return true;
+    }
 
 private:
     AppManagerFilePathAspect executable{this};
@@ -43,89 +115,22 @@ private:
     AppManagerStringAspect packageFileName{this};
 };
 
-AppManagerCreatePackageStep::AppManagerCreatePackageStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
-{
-    setDisplayName(tr("Create Application Manager package"));
-
-    executable.setSettingsKey(SETTINGSPREFIX "Executable");
-    executable.setHistoryCompleter(SETTINGSPREFIX "Executable.History");
-    executable.setExpectedKind(PathChooser::ExistingCommand);
-    executable.setLabelText(tr("Executable:"));
-    executable.setPromptDialogFilter(getToolNameByDevice(Constants::APPMAN_PACKAGER));
-
-    arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
-    arguments.setHistoryCompleter(SETTINGSPREFIX "Arguments.History");
-    arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments.setLabelText(tr("Arguments:"));
-
-    sourceDirectory.setSettingsKey(SETTINGSPREFIX "SourceDirectory");
-    sourceDirectory.setHistoryCompleter(SETTINGSPREFIX "SourceDirectory.History");
-    sourceDirectory.setExpectedKind(PathChooser::Directory);
-    sourceDirectory.setLabelText(tr("Source directory:"));
-
-    buildDirectory.setSettingsKey(SETTINGSPREFIX "BuildDirectory");
-    buildDirectory.setHistoryCompleter(SETTINGSPREFIX "BuildDirectory.History");
-    buildDirectory.setExpectedKind(PathChooser::Directory);
-    buildDirectory.setLabelText(tr("Build directory:"));
-
-    packageFileName.setSettingsKey(SETTINGSPREFIX "FileName");
-    packageFileName.setHistoryCompleter(SETTINGSPREFIX "FileName.History");
-    packageFileName.setDisplayStyle(StringAspect::LineEditDisplay);
-    packageFileName.setLabelText(tr("Package file name:"));
-
-    const auto updateAspects = [this] {
-        const auto targetInformation = TargetInformation(target());
-
-        executable.setPlaceHolderPath(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
-        arguments.setPlaceHolderText(ArgumentsDefault);
-        sourceDirectory.setPlaceHolderPath(targetInformation.packageSourcesDirectory.absolutePath());
-        buildDirectory.setPlaceHolderPath(targetInformation.buildDirectory.absolutePath());
-        packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
-
-        setEnabled(!targetInformation.isBuiltin);
-    };
-
-    connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::parsingFinished, this, updateAspects);
-    connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
-    connect(project(), &Project::displayNameChanged, this, updateAspects);
-    updateAspects();
-}
-
-bool AppManagerCreatePackageStep::init()
-{
-    if (!AbstractProcessStep::init())
-        return false;
-
-    const auto targetInformation = TargetInformation(target());
-    if (!targetInformation.isValid())
-        return false;
-
-    const FilePath packager = executable.valueOrDefault(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
-    const QString packagerArguments = arguments.valueOrDefault(ArgumentsDefault);
-    const FilePath packageSourcesDirectory = sourceDirectory.valueOrDefault(targetInformation.packageSourcesDirectory.absolutePath());
-    const FilePath packageDirectory = buildDirectory.valueOrDefault(targetInformation.buildDirectory.absolutePath());
-    const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
-
-    CommandLine cmd(packager);
-    cmd.addArgs(packagerArguments, CommandLine::Raw);
-    cmd.addArgs({packageFile, packageSourcesDirectory.path()});
-    processParameters()->setWorkingDirectory(packageDirectory);
-    processParameters()->setCommandLine(cmd);
-
-    return true;
-}
-
 // Factory
 
-AppManagerCreatePackageStepFactory::AppManagerCreatePackageStepFactory()
+class AppManagerCreatePackageStepFactory final : public BuildStepFactory
 {
-    registerStep<AppManagerCreatePackageStep>(Constants::CREATE_PACKAGE_STEP_ID);
-    setDisplayName(AppManagerCreatePackageStep::tr("Create Application Manager package"));
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    AppManagerCreatePackageStepFactory()
+    {
+        registerStep<AppManagerCreatePackageStep>(Constants::CREATE_PACKAGE_STEP_ID);
+        setDisplayName(Tr::tr("Create Application Manager package"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupAppManagerCreatePackageStep()
+{
+    static AppManagerCreatePackageStepFactory theAppManagerCreatePackageStepFactory;
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

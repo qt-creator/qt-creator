@@ -8,16 +8,19 @@
 #include "appmanagerstringaspect.h"
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
+
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/kitaspects.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/process.h>
 
 using namespace ProjectExplorer;
@@ -83,8 +86,8 @@ AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStep
         arguments.setPlaceHolderText(ArgumentsDefault);
         packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
         auto device = DeviceKitAspect::device(target()->kit());
-        auto remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-        auto packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
+        bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
         packageDirectory.setPlaceHolderPath(packageDirectoryPath.absolutePath());
         packageDirectory.setButtonsVisible(!targetInformation.remote);
 
@@ -107,8 +110,8 @@ GroupItem AppManagerRemoteInstallPackageStep::deployRecipe()
     const QString controllerArguments = arguments.valueOrDefault(ArgumentsDefault);
     const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
     auto device = DeviceKitAspect::device(target()->kit());
-    auto remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    auto packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
+    bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
     const FilePath packageDir = packageDirectory.valueOrDefault(packageDirectoryPath.absolutePath());
 
     const auto setupHandler = [=](Process &process) {
@@ -120,7 +123,7 @@ GroupItem AppManagerRemoteInstallPackageStep::deployRecipe()
         cmd.addArg("-c");
         cmd.addCommandLineAsSingleArg(remoteCmd);
 
-        addProgressMessage(tr("Starting remote command \"%1\"...").arg(cmd.toUserOutput()));
+        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(cmd.toUserOutput()));
         process.setCommand(cmd);
         Process *proc = &process;
         connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
@@ -136,9 +139,9 @@ GroupItem AppManagerRemoteInstallPackageStep::deployRecipe()
         } else {
             if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {
-                addErrorMessage(tr("Remote process failed: %1").arg(process.errorString()));
+                addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
             } else if (process.exitCode() != 0) {
-                addErrorMessage(tr("Remote process finished with exit code %1.")
+                addErrorMessage(Tr::tr("Remote process finished with exit code %1.")
                                     .arg(process.exitCode()));
             }
         }
@@ -149,11 +152,20 @@ GroupItem AppManagerRemoteInstallPackageStep::deployRecipe()
 
 // Factory
 
-AppManagerRemoteInstallPackageStepFactory::AppManagerRemoteInstallPackageStepFactory()
+class AppManagerRemoteInstallPackageStepFactory final : public BuildStepFactory
 {
-    registerStep<AppManagerRemoteInstallPackageStep>(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID);
-    setDisplayName(AppManagerRemoteInstallPackageStep::tr("Remote Install Application Manager package"));
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    AppManagerRemoteInstallPackageStepFactory()
+    {
+        registerStep<AppManagerRemoteInstallPackageStep>(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID);
+        setDisplayName(Tr::tr("Remote Install Application Manager package"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupAppManagerRemoteInstallPackageStep()
+{
+    static AppManagerRemoteInstallPackageStepFactory theAppManagerRemoteInstallPackageStepFactory;
 }
 
 } // namespace AppManager::Internal

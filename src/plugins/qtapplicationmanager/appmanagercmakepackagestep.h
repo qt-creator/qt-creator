@@ -5,20 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
+namespace AppManager::Internal {
 
-#include <QCoreApplication>
+void setupAppManagerCMakePackageStep();
 
-namespace AppManager {
-namespace Internal {
-
-class AppManagerCMakePackageStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-    Q_DECLARE_TR_FUNCTIONS(Qtc::AppManager)
-
-public:
-    AppManagerCMakePackageStepFactory();
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal
