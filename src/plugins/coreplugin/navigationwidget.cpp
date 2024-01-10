@@ -451,10 +451,9 @@ void NavigationWidget::saveSettings(QtcSettings *settings)
     settings->setValue(settingsKey("Width"), d->m_width);
 
     const Key activationKey = "ActivationPosition.";
-    const auto keys = s_activationsMap.keys();
-    for (const auto &factoryId : keys) {
-        const auto &info = s_activationsMap[factoryId];
-        const Utils::Key key = settingsKey(activationKey + factoryId.name());
+    for (auto it = s_activationsMap.cbegin(); it != s_activationsMap.cend(); ++it) {
+        const auto &info = *it;
+        const Utils::Key key = settingsKey(activationKey + it.key().name());
         if (info.side == d->m_side)
             settings->setValue(key, info.position);
         else
