@@ -41,7 +41,8 @@ public:
     bool selectExampleSet(int index);
     QStringList exampleSources(QString *examplesInstallPath,
                                QString *demosInstallPath,
-                               QVersionNumber *qtVersion);
+                               QVersionNumber *qtVersion,
+                               bool isExamples);
     bool selectedQtSupports(const Utils::Id &target) const;
 
 signals:

@@ -32,10 +32,11 @@ macro(qtc_auto_setup_compiler_standard toolchainFile)
     endforeach()
   endforeach()
 
-  foreach(osx_var CMAKE_SYSROOT CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES)
-    if (${osx_var})
+  # Forward important CMake variables to the package manager in the toolchain file
+  foreach(fwd_var CMAKE_MSVC_RUNTIME_LIBRARY CMAKE_SYSROOT CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES)
+    if (${fwd_var})
       file(APPEND "${toolchainFile}"
-          "set(${osx_var} ${${osx_var}})\n")
+          "set(${fwd_var} ${${fwd_var}})\n")
     endif()
   endforeach()
 endmacro()
