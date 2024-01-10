@@ -4408,6 +4408,13 @@ void GdbEngine::setupInferior()
     if (rp.breakOnMain)
         runCommand({"tbreak " + mainFunction()});
 
+    if (!rp.solibSearchPath.isEmpty()) {
+        DebuggerCommand cmd("appendSolibSearchPath");
+        cmd.arg("path", transform(rp.solibSearchPath, &FilePath::path));
+        cmd.arg("separator", HostOsInfo::pathListSeparator());
+        runCommand(cmd);
+    }
+
     if (rp.startMode == AttachToRemoteProcess) {
 
         handleInferiorPrepared();
@@ -4430,13 +4437,6 @@ void GdbEngine::setupInferior()
 
     //    if (!remoteArch.isEmpty())
     //        postCommand("set architecture " + remoteArch);
-        if (!rp.solibSearchPath.isEmpty()) {
-            DebuggerCommand cmd("appendSolibSearchPath");
-            for (const FilePath &filePath : rp.solibSearchPath)
-                cmd.arg("path", filePath.path());
-            cmd.arg("separator", HostOsInfo::pathListSeparator());
-            runCommand(cmd);
-        }
 
         if (!args.isEmpty())
             runCommand({"-exec-arguments " + args});

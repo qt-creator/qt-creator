@@ -391,10 +391,13 @@ QString TerminalView::textFromSelection() const
     if (!d->m_selection)
         return {};
 
+    if (d->m_selection->start == d->m_selection->end)
+        return {};
+
     CellIterator it = d->m_surface->iteratorAt(d->m_selection->start);
     CellIterator end = d->m_surface->iteratorAt(d->m_selection->end);
 
-    if (it.position() >= end.position()) {
+    if (it.position() > end.position()) {
         qCWarning(selectionLog) << "Invalid selection: start >= end";
         return {};
     }
@@ -1075,7 +1078,7 @@ void TerminalView::mousePressEvent(QMouseEvent *event)
     }
 
     if (event->button() == Qt::LeftButton) {
-        if (std::chrono::system_clock::now() - d->m_lastDoubleClick < 500ms) {
+        if (d->m_selection && std::chrono::system_clock::now() - d->m_lastDoubleClick < 500ms) {
             d->m_selectLineMode = true;
             const Selection newSelection{d->m_surface->gridToPos(
                                              {0,
