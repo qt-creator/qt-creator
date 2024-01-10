@@ -325,12 +325,10 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     }
     int depth = 0;
     if (!depths.isEmpty()) {
-        const QList<int> keys = Utils::sorted(depths.keys());
-        for (int d : keys) {
-            DepthProperties properties = depths.value(d);
-            if (properties.m_elementType == elementType
-                    && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole,
-                                        styledVisualPrimaryRole, styledVisualSecondaryRole)) {
+        for (auto it = depths.cbegin(); it != depths.cend(); ++it) {
+            if (it->m_elementType == elementType
+                && areStackingRoles(it->m_visualPrimaryRole, it->m_visualSecondaryRole,
+                                    styledVisualPrimaryRole, styledVisualSecondaryRole)) {
                 ++depth;
             } else {
                 depth = 0;
