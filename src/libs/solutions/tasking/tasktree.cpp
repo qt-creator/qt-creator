@@ -1631,7 +1631,7 @@ public:
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
 };
 
-bool isProgressive(RuntimeContainer *container)
+static bool isProgressive(RuntimeContainer *container)
 {
     RuntimeIteration *iteration = container->m_parentTask->m_parentIteration;
     return iteration ? iteration->m_isProgressive : true;
