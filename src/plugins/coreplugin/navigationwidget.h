@@ -80,7 +80,6 @@ public:
     bool isShown() const;
     void setShown(bool b);
 
-    static NavigationWidget *instance(Side side);
     static QWidget *activateSubWidget(Utils::Id factoryId, Side fallbackSide);
 
     int storedWidth();
