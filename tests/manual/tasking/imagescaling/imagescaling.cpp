@@ -56,9 +56,8 @@ void Images::process()
     const auto urls = downloadDialog->getUrls();
     initLayout(urls.size());
 
-    const Storage<QList<QUrl>> urlStorage;
     const LoopRepeat repeater(urls.size());
-    const Storage<QByteArray> internalStorage;
+    const Storage<QByteArray> storage;
 
     const auto onRootSetup = [this] {
         statusBar->showMessage(tr("Downloading and Scaling..."));
@@ -69,21 +68,21 @@ void Images::process()
         cancelButton->setEnabled(false);
     };
 
-    const auto onDownloadSetup = [this, urlStorage, repeater](NetworkQuery &query) {
+    const auto onDownloadSetup = [this, urls, repeater](NetworkQuery &query) {
         query.setNetworkAccessManager(&qnam);
-        query.setRequest(QNetworkRequest(urlStorage->at(repeater.iteration())));
+        query.setRequest(QNetworkRequest(urls.at(repeater.iteration())));
     };
-    const auto onDownloadDone = [this, internalStorage, repeater](const NetworkQuery &query,
+    const auto onDownloadDone = [this, storage, repeater](const NetworkQuery &query,
                                                                   DoneWith result) {
         const int it = repeater.iteration();
         if (result == DoneWith::Success)
-            *internalStorage = query.reply()->readAll();
+            *storage = query.reply()->readAll();
         else
             labels[it]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
     };
 
-    const auto onScalingSetup = [internalStorage](ConcurrentCall<QImage> &data) {
-        data.setConcurrentCallData(&scale, *internalStorage);
+    const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
+        data.setConcurrentCallData(&scale, *storage);
     };
     const auto onScalingDone = [this, repeater](const ConcurrentCall<QImage> &data,
                                                 DoneWith result) {
@@ -95,13 +94,12 @@ void Images::process()
     };
 
     const QList<GroupItem> tasks {
-        urlStorage,
         finishAllAndSuccess,
         parallel,
         repeater,
         onGroupSetup(onRootSetup),
         Group {
-            internalStorage,
+            storage,
             NetworkQueryTask(onDownloadSetup, onDownloadDone),
             ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
         },
@@ -109,7 +107,6 @@ void Images::process()
     };
 
     taskTree.reset(new TaskTree(tasks));
-    taskTree->onStorageSetup(urlStorage, [urls](QList<QUrl> &urlList) { urlList = urls; });
     connect(taskTree.get(), &TaskTree::done, this, [this] { taskTree.release()->deleteLater(); });
     taskTree->start();
 }
