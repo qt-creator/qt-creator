@@ -444,9 +444,8 @@ void LocatorSettingsWidget::saveFilterStates()
 
 void LocatorSettingsWidget::restoreFilterStates()
 {
-    const QList<ILocatorFilter *> filterStatesKeys = m_filterStates.keys();
-    for (ILocatorFilter *filter : filterStatesKeys)
-        filter->restoreState(m_filterStates.value(filter));
+    for (auto it = m_filterStates.cbegin(); it != m_filterStates.cend(); ++it)
+        it.key()->restoreState(*it);
 }
 
 void LocatorSettingsWidget::initializeModel()
