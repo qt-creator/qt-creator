@@ -55,7 +55,7 @@
                 command line until the first editor is closed.
 
        \row
-            \li -nocrashcheck
+            \li -no-crashcheck
             \li Disable the startup check for a previously crashed \QC instance.
 
        \row
