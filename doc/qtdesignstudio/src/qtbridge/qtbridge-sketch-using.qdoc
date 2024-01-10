@@ -278,6 +278,14 @@
     \note The factor is independent of the asset scale settings, that is, 2x assets shall
     have a size of 5x when a scale factor of 2.5 is selected.
 
+    \section1 Organizing
+
+    Select the \uicontrol {Organize output in pages} to organize the generated UI inside
+    the directory named after the parent page of the respective component. The default behavior
+    is to generate UI inside the directory selected during import in \QDS.
+    \note Using invalid characters or reservered file names for the page name will result into
+    imports errors as page name is used for the directory name to organize the UI files in \QDS .
+
     \section1 Exporting Library Symbols
 
     \QBSK can handle symbols used from a local library. Before you use \QBSK to export a document
