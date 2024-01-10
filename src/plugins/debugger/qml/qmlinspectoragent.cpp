@@ -136,7 +136,7 @@ void QmlInspectorAgent::watchDataSelected(int id)
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << id << ')';
 
     if (id != WatchItem::InvalidId) {
-        QTC_ASSERT(m_debugIdLocations.keys().contains(id), return);
+        QTC_ASSERT(m_debugIdLocations.contains(id), return);
         jumpToObjectDefinitionInEditor(m_debugIdLocations.value(id));
         m_toolsClient->selectObjects({id});
     }
