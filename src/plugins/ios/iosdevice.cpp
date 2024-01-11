@@ -15,15 +15,14 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitaspects.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/process.h>
 
 #include <solutions/tasking/tasktree.h>
 
-#include <QFormLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QLabel>
 #include <QMessageBox>
 
 #ifdef Q_OS_MAC
@@ -610,14 +609,16 @@ IosDeviceInfoWidget::IosDeviceInfoWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device)
 {
     const auto iosDevice = qSharedPointerCast<IosDevice>(device);
-    const auto formLayout = new QFormLayout(this);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    setLayout(formLayout);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(Tr::tr("Device name:"), new QLabel(iosDevice->deviceName()));
-    formLayout->addRow(Tr::tr("Identifier:"), new QLabel(iosDevice->uniqueInternalDeviceId()));
-    formLayout->addRow(Tr::tr("OS Version:"), new QLabel(iosDevice->osVersion()));
-    formLayout->addRow(Tr::tr("CPU Architecture:"), new QLabel(iosDevice->cpuArchitecture()));
+    using namespace Layouting;
+    // clang-format off
+    Form {
+        Tr::tr("Device name:"), iosDevice->deviceName(), br,
+        Tr::tr("Identifier:"), iosDevice->uniqueInternalDeviceId(), br,
+        Tr::tr("OS Version:"), iosDevice->osVersion(), br,
+        Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(),
+        noMargin
+    }.attachTo(this);
+    // clang-format on
 }
 
 } // Ios::Internal
