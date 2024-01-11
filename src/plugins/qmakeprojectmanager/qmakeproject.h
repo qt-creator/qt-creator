@@ -56,9 +56,7 @@ private:
     mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
 };
 
-// FIXME: This export here is only there to appease the current version
-// of the appman plugin. This _will_ go away, one way or the other.
-class QMAKEPROJECTMANAGER_EXPORT QmakeBuildSystem : public ProjectExplorer::BuildSystem
+class QmakeBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
