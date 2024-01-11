@@ -1541,6 +1541,11 @@ void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
     d->m_workingDirectory = workingDirectory;
 }
 
+void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
+{
+    d->m_process.setProcessMode(processMode);
+}
+
 void SimpleTargetRunner::forceRunOnHost()
 {
     const FilePath executable = d->m_command.executable();

@@ -10,6 +10,7 @@
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
 #include <utils/processhandle.h>
+#include <utils/processenums.h>
 #include <utils/qtcassert.h>
 
 #include <QHash>
@@ -265,6 +266,7 @@ protected:
 
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void setProcessMode(Utils::ProcessMode processMode);
 
     void forceRunOnHost();
 
