@@ -31,6 +31,7 @@
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
@@ -357,28 +358,37 @@ std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
 
 //  GlslEditorFactory
 
-GlslEditorFactory::GlslEditorFactory()
+class GlslEditorFactory final : public TextEditor::TextEditorFactory
 {
-    setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
-    addMimeType(Utils::Constants::GLSL_MIMETYPE);
-    addMimeType(Utils::Constants::GLSL_VERT_MIMETYPE);
-    addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);
-    addMimeType(Utils::Constants::GLSL_ES_VERT_MIMETYPE);
-    addMimeType(Utils::Constants::GLSL_ES_FRAG_MIMETYPE);
+public:
+    GlslEditorFactory()
+    {
+        setId(Constants::C_GLSLEDITOR_ID);
+        setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
+        addMimeType(Utils::Constants::GLSL_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_VERT_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_ES_VERT_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_ES_FRAG_MIMETYPE);
 
-    setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
-    setEditorWidgetCreator([]() { return new GlslEditorWidget; });
-    setIndenterCreator(&createGlslIndenter);
-    setSyntaxHighlighterCreator(&createGlslHighlighter);
-    setCommentDefinition(Utils::CommentDefinition::CppStyle);
-    setCompletionAssistProvider(new GlslCompletionAssistProvider);
-    setParenthesesMatchingEnabled(true);
-    setCodeFoldingSupported(true);
+        setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
+        setEditorWidgetCreator([]() { return new GlslEditorWidget; });
+        setIndenterCreator(&createGlslIndenter);
+        setSyntaxHighlighterCreator(&createGlslHighlighter);
+        setCommentDefinition(Utils::CommentDefinition::CppStyle);
+        setCompletionAssistProvider(new GlslCompletionAssistProvider);
+        setParenthesesMatchingEnabled(true);
+        setCodeFoldingSupported(true);
 
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                          | TextEditorActionHandler::UnCommentSelection
-                          | TextEditorActionHandler::UnCollapseAll);
+        setEditorActionHandlers(TextEditorActionHandler::Format
+                                | TextEditorActionHandler::UnCommentSelection
+                                | TextEditorActionHandler::UnCollapseAll);
+    }
+};
+
+void setupGlslEditorFactory()
+{
+    static GlslEditorFactory theGlslEditorFactory;
 }
 
 } // GlslEditor::Internal

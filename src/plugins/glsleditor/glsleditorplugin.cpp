@@ -45,7 +45,6 @@ public:
     InitFile m_glsl_es_100_vert{"glsl_es_100.vert"};
     InitFile m_glsl_es_100_common{"glsl_es_100_common.glsl"};
 
-    GlslEditorFactory editorFactory;
     GlslCompletionAssistProvider completionAssistProvider;
 };
 
@@ -131,6 +130,8 @@ public:
     void initialize() final
     {
         dd = new GlslEditorPluginPrivate;
+
+        setupGlslEditorFactory();
 
         ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
         ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
