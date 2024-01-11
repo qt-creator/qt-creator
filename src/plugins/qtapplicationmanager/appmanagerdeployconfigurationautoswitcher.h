@@ -5,32 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/runconfiguration.h>
+namespace AppManager::Internal {
 
-namespace AppManager {
-namespace Internal {
+void setupAppManagerDeployConfigurationAutoSwitcher();
 
-class AppManagerDeployConfigurationAutoSwitcherPrivate;
-
-class AppManagerDeployConfigurationAutoSwitcher : public QObject
-{
-    Q_OBJECT
-
-    QScopedPointer<AppManagerDeployConfigurationAutoSwitcherPrivate> d;
-
-public:
-    AppManagerDeployConfigurationAutoSwitcher(QObject *parent = nullptr);
-    ~AppManagerDeployConfigurationAutoSwitcher() override;
-
-    void initialize();
-
-private:
-    void onActiveDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
-    void onActiveRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
-    void onActiveTargetChanged(ProjectExplorer::Target *target);
-    void onStartupProjectChanged(ProjectExplorer::Project *project);
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

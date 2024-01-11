@@ -13,36 +13,47 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
-class AppManagerDeployConfigurationAutoSwitcherPrivate
+class AppManagerDeployConfigurationAutoSwitcher final : public QObject
 {
 public:
-    Project *project = nullptr;
-    Target *target = nullptr;
-    RunConfiguration *runConfiguration = nullptr;
-    DeployConfiguration *deployConfiguration = nullptr;
-    QHash<RunConfiguration*,DeployConfiguration*> deployConfigurationsUsageHistory;
+    AppManagerDeployConfigurationAutoSwitcher();
+
+private:
+    void onActiveDeployConfigurationChanged(DeployConfiguration *dc);
+    void onActiveRunConfigurationChanged(RunConfiguration *rc);
+    void onActiveTargetChanged(Target *target);
+    void onStartupProjectChanged(Project *project);
+
+    Project *m_project = nullptr;
+    Target *m_target = nullptr;
+    RunConfiguration *m_runConfiguration = nullptr;
+    DeployConfiguration *m_deployConfiguration = nullptr;
+    QHash<RunConfiguration *, DeployConfiguration *> m_deployConfigurationsUsageHistory;
 };
 
-AppManagerDeployConfigurationAutoSwitcher::AppManagerDeployConfigurationAutoSwitcher(QObject *parent)
-    : QObject(parent)
-    , d(new AppManagerDeployConfigurationAutoSwitcherPrivate())
+AppManagerDeployConfigurationAutoSwitcher::AppManagerDeployConfigurationAutoSwitcher()
 {
-}
+    ProjectManager *projectManager = ProjectManager::instance();
+    QTC_ASSERT(projectManager, return);
 
-AppManagerDeployConfigurationAutoSwitcher::~AppManagerDeployConfigurationAutoSwitcher() = default;
+    connect(projectManager, &ProjectManager::startupProjectChanged,
+            this, &AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged, Qt::UniqueConnection);
+    onStartupProjectChanged(projectManager->startupProject());
+}
 
 void AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChanged(DeployConfiguration *deployConfiguration)
 {
-    if (d->deployConfiguration != deployConfiguration) {
-        d->deployConfiguration = deployConfiguration;
+    if (m_deployConfiguration != deployConfiguration) {
+        m_deployConfiguration = deployConfiguration;
         if (deployConfiguration && deployConfiguration->target()) {
             if (auto runConfiguration = deployConfiguration->target()->activeRunConfiguration()) {
-                d->deployConfigurationsUsageHistory.insert(runConfiguration, deployConfiguration);
+                m_deployConfigurationsUsageHistory.insert(runConfiguration, deployConfiguration);
             }
         }
     }
@@ -60,14 +71,14 @@ static bool isApplicationManagerDeployConfiguration(const DeployConfiguration *d
 
 void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(RunConfiguration *runConfiguration)
 {
-    if (d->runConfiguration != runConfiguration) {
-        d->runConfiguration = runConfiguration;
+    if (m_runConfiguration != runConfiguration) {
+        m_runConfiguration = runConfiguration;
         if (runConfiguration) {
             if (auto target = runConfiguration->target()) {
-                const auto stored = d->deployConfigurationsUsageHistory.contains(runConfiguration);
+                const auto stored = m_deployConfigurationsUsageHistory.contains(runConfiguration);
                 if (stored) {
                     // deploy selection stored -> restore
-                    auto deployConfiguration = d->deployConfigurationsUsageHistory.value(runConfiguration, nullptr);
+                    auto deployConfiguration = m_deployConfigurationsUsageHistory.value(runConfiguration, nullptr);
                     target->setActiveDeployConfiguration(deployConfiguration, SetActive::NoCascade);
                 } else if (auto activeDeployConfiguration = target->activeDeployConfiguration()) {
                     // active deploy configuration exists
@@ -106,11 +117,11 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged(
 
 void AppManagerDeployConfigurationAutoSwitcher::onActiveTargetChanged(Target *target)
 {
-    if (d->target != target) {
-        if (d->target) {
-            disconnect(d->target, nullptr, this, nullptr);
+    if (m_target != target) {
+        if (m_target) {
+            disconnect(m_target, nullptr, this, nullptr);
         }
-        d->target = target;
+        m_target = target;
         if (target) {
             connect(target, &Target::activeRunConfigurationChanged,
                     this, &AppManagerDeployConfigurationAutoSwitcher::onActiveRunConfigurationChanged);
@@ -124,11 +135,11 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveTargetChanged(Target *ta
 
 void AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged(Project *project)
 {
-    if (d->project != project) {
-        if (d->project) {
-            disconnect(d->project, nullptr, this, nullptr);
+    if (m_project != project) {
+        if (m_project) {
+            disconnect(m_project, nullptr, this, nullptr);
         }
-        d->project = project;
+        m_project = project;
         if (project) {
             connect(project, &Project::activeTargetChanged,
                     this, &AppManagerDeployConfigurationAutoSwitcher::onActiveTargetChanged);
@@ -137,14 +148,9 @@ void AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged(Project 
     }
 }
 
-void AppManagerDeployConfigurationAutoSwitcher::initialize()
+void setupAppManagerDeployConfigurationAutoSwitcher()
 {
-    if (auto projectManager = ProjectManager::instance()) {
-        connect(projectManager, &ProjectManager::startupProjectChanged,
-                this, &AppManagerDeployConfigurationAutoSwitcher::onStartupProjectChanged, Qt::UniqueConnection);
-        onStartupProjectChanged(projectManager->startupProject());
-    }
+    static AppManagerDeployConfigurationAutoSwitcher theAppManagerDeployConfigurationAutoSwitcher;
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal
