@@ -110,7 +110,7 @@ QString CppCodeStylePreferencesFactory::previewText() const
     return QLatin1String(defaultPreviewText);
 }
 
-std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
+std::pair<TextEditor::CodeStyleEditorWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
     TextEditor::ICodeStylePreferences *codeStyle,
     ProjectExplorer::Project *project,
     QWidget *parent) const

@@ -15,11 +15,14 @@ class QSpinBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class ICodeStylePreferences; }
+namespace TextEditor {
+class ICodeStylePreferences;
+class CodeStyleEditorWidget;
+} // namespace TextEditor
 
 namespace ClangFormat {
 
-class ClangFormatGlobalConfigWidget : public CppEditor::CppCodeStyleWidget
+class ClangFormatGlobalConfigWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 

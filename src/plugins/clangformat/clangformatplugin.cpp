@@ -44,7 +44,7 @@ public:
         return new ClangFormatForwardingIndenter(doc);
     }
 
-    std::pair<CppCodeStyleWidget *, QString> additionalTab(
+    std::pair<TextEditor::CodeStyleEditorWidget *, QString> additionalTab(
         ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) const override
     {
         return {createClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};

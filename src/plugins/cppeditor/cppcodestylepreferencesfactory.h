@@ -9,9 +9,8 @@
 
 namespace CppEditor {
 
-class CppCodeStyleWidget;
-
-class CPPEDITOR_EXPORT CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
+class CPPEDITOR_EXPORT CppCodeStylePreferencesFactory
+    : public TextEditor::ICodeStylePreferencesFactory
 {
 public:
     CppCodeStylePreferencesFactory();
@@ -25,7 +24,7 @@ public:
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
     QString snippetProviderGroupId() const override;
     QString previewText() const override;
-    virtual std::pair<CppCodeStyleWidget *, QString> additionalTab(
+    virtual std::pair<TextEditor::CodeStyleEditorWidget *, QString> additionalTab(
         TextEditor::ICodeStylePreferences *codeStyle,
         ProjectExplorer::Project *project,
         QWidget *parent) const;

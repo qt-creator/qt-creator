@@ -49,7 +49,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatConfigWidget final : public CppEditor::CppCodeStyleWidget
+class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
 {
 public:
     ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
@@ -57,9 +57,6 @@ public:
                             QWidget *parent);
     void apply() final;
     void finish() final;
-    void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings) final;
-    void setTabSettings(const TextEditor::TabSettings &settings) final;
-    void synchronize() final;
 
 private:
     bool eventFilter(QObject *object, QEvent *event) final;
@@ -103,7 +100,7 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
                                                  Project *project,
                                                  QWidget *parent)
-    : CppCodeStyleWidget(parent)
+    : CodeStyleEditorWidget(parent)
 {
     m_project = project;
     m_config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
@@ -115,7 +112,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     m_checksScrollArea->setWidget(m_checksWidget);
     m_checksScrollArea->setWidgetResizable(true);
     m_checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
-                                && !codeStyle->isAdditionalTabDisabled());
+                                && codeStyle->isAdditionalTabVisible());
 
 
     static const int expectedMajorVersion = 17;
@@ -189,7 +186,7 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
     m_style = m_config->style();
 
     m_checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
-                                && !codeStyle->isAdditionalTabDisabled());
+                                && codeStyle->isAdditionalTabVisible());
 
     fillTable();
     updatePreview();
@@ -479,29 +476,6 @@ void ClangFormatConfigWidget::saveChanges(QObject *sender)
 
     fillTable();
     updatePreview();
-    synchronize();
-}
-
-void ClangFormatConfigWidget::setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings)
-{
-    m_config->fromCppCodeStyleSettings(settings);
-
-    fillTable();
-    updatePreview();
-}
-
-void ClangFormatConfigWidget::setTabSettings(const TextEditor::TabSettings &settings)
-{
-    m_config->fromTabSettings(settings);
-
-    fillTable();
-    updatePreview();
-}
-
-void ClangFormatConfigWidget::synchronize()
-{
-    emit codeStyleSettingsChanged(m_config->toCppCodeStyleSettings(m_project));
-    emit tabSettingsChanged(m_config->toTabSettings(m_project));
 }
 
 void ClangFormatConfigWidget::apply()
@@ -520,7 +494,7 @@ void ClangFormatConfigWidget::finish()
     m_config->setStyle(m_style);
 }
 
-CppEditor::CppCodeStyleWidget *createClangFormatConfigWidget(
+TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
     TextEditor::ICodeStylePreferences *codeStyle,
     Project *project,
     QWidget *parent)

@@ -22,23 +22,6 @@ namespace TextEditor {
 namespace CppEditor {
 class CppCodeStylePreferences;
 
-class CPPEDITOR_EXPORT CppCodeStyleWidget : public TextEditor::CodeStyleEditorWidget
-{
-    Q_OBJECT
-public:
-    CppCodeStyleWidget(QWidget *parent = nullptr)
-        : CodeStyleEditorWidget(parent)
-    {}
-
-    virtual void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &) {}
-    virtual void setTabSettings(const TextEditor::TabSettings &) {}
-    virtual void synchronize() {}
-
-signals:
-    void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
-    void tabSettingsChanged(const TextEditor::TabSettings &);
-};
-
 namespace Internal {
 
 class CppCodeStylePreferencesWidgetPrivate;
@@ -51,7 +34,7 @@ public:
     ~CppCodeStylePreferencesWidget() override;
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
-    void addTab(CppCodeStyleWidget *page, QString tabName);
+    void addTab(TextEditor::CodeStyleEditorWidget *page, QString tabName);
     void apply() override;
     void finish() override;
 

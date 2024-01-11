@@ -27,7 +27,7 @@ namespace ClangFormat {
 
 ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     TextEditor::ICodeStylePreferences *codeStyle, ProjectExplorer::Project *project, QWidget *parent)
-    : CppCodeStyleWidget(parent)
+    : TextEditor::CodeStyleEditorWidget(parent)
     , m_project(project)
     , m_codeStyle(codeStyle)
 {
@@ -122,7 +122,7 @@ void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Formatting),
                                         Tr::tr("Full formatting"));
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
-                                        Tr::tr("Disable"));
+                                        Tr::tr("Use built-in indenter"));
 
     m_indentingOrFormatting->setCurrentIndex(
         static_cast<int>(getProjectIndentationOrFormattingSettings(m_project)));
@@ -226,8 +226,10 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
         if (m_ignoreChanges.isLocked())
             return;
         Utils::GuardLocker locker(m_ignoreChanges);
-        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_useCustomSettingsCheckBox->isChecked());
-        m_codeStyle->currentPreferences()->setIsAdditionalTabDisabled(!m_useCustomSettingsCheckBox->isEnabled());
+        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
+            !m_useCustomSettingsCheckBox->isChecked());
+        m_codeStyle->currentPreferences()->setIsAdditionalTabVisible(
+            m_useCustomSettingsCheckBox->isEnabled());
         ClangFormatSettings::instance().write();
         emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
     };

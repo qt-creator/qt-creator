@@ -32,10 +32,6 @@ public:
     using Field = std::pair<QString, QString>;
     QString changeFields(QList<Field> fields);
     QString changeField(Field field);
-    CppEditor::CppCodeStyleSettings toCppCodeStyleSettings(ProjectExplorer::Project *project) const;
-    TextEditor::TabSettings toTabSettings(ProjectExplorer::Project *project) const;
-    void fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings);
-    void fromTabSettings(const TextEditor::TabSettings &settings);
     bool isReadOnly() const;
     void setIsReadOnly(bool isReadOnly);
 

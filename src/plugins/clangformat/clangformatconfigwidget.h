@@ -9,13 +9,16 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace CppEditor { class CppCodeStyleWidget; }
-namespace TextEditor { class ICodeStylePreferences; }
+namespace TextEditor {
+class ICodeStylePreferences;
+class CodeStyleEditorWidget;
+} // namespace TextEditor
+
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
 
-CppEditor::CppCodeStyleWidget *createClangFormatConfigWidget(
+TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
     TextEditor::ICodeStylePreferences *codeStyle,
     ProjectExplorer::Project *project,
     QWidget *parent);
