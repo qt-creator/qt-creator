@@ -1248,6 +1248,7 @@ public:
         return m_threadDataMap.try_emplace(QThread::currentThread()).first->second;
     }
 
+    const std::optional<int> m_loopCount = {};
     const Loop::Condition m_condition = {};
     std::mutex m_threadDataMutex = {};
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
@@ -1255,8 +1256,16 @@ public:
     std::map<QThread *, LoopThreadData> m_threadDataMap = {};
 };
 
+Loop::Loop()
+    : m_loopData(new LoopData)
+{}
+
+Loop::Loop(int count)
+    : m_loopData(new LoopData{count})
+{}
+
 Loop::Loop(const Condition &condition)
-    : m_loopData(new LoopData{condition})
+    : m_loopData(new LoopData{{}, condition})
 {}
 
 int Loop::iteration() const
@@ -1968,9 +1977,13 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith do
 bool TaskTreePrivate::invokeLoopHandler(RuntimeContainer *container)
 {
     if (container->m_shouldIterate) {
-        container->m_shouldIterate = invokeHandler(container,
-                                     container->m_containerNode.m_loop->m_loopData->m_condition,
-                                     container->m_iterationCount);
+        const LoopData *loopData = container->m_containerNode.m_loop->m_loopData.get();
+        if (loopData->m_loopCount) {
+            container->m_shouldIterate = container->m_iterationCount < loopData->m_loopCount;
+        } else if (loopData->m_condition) {
+            container->m_shouldIterate = invokeHandler(container, loopData->m_condition,
+                                                       container->m_iterationCount);
+        }
     }
     return container->m_shouldIterate;
 }

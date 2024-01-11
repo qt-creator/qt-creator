@@ -105,7 +105,9 @@ public:
     int iteration() const;
 
 protected:
-    Loop(const Condition &condition);
+    Loop(); // LoopForever
+    Loop(int count); // LoopRepeat
+    Loop(const Condition &condition); // LoopUntil
 
 private:
     friend class ExecutionContextActivator;
@@ -116,13 +118,13 @@ private:
 class TASKING_EXPORT LoopForever final : public Loop
 {
 public:
-    LoopForever() : Loop([](int) { return true; }) {}
+    LoopForever() : Loop() {}
 };
 
 class TASKING_EXPORT LoopRepeat final : public Loop
 {
 public:
-    LoopRepeat(int count) : Loop([count](int index) { return index < count; }) {}
+    LoopRepeat(int count) : Loop(count) {}
 };
 
 class TASKING_EXPORT LoopUntil final : public Loop
