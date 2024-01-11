@@ -460,9 +460,7 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    const QList<Utils::Id> languages = m_languageMap.keys();
-    for (const Utils::Id &l : languages) {
-        const QPair<StaticTreeItem *, StaticTreeItem *> autoAndManual = m_languageMap.value(l);
+    for (const QPair<StaticTreeItem *, StaticTreeItem *> &autoAndManual : m_languageMap) {
         for (StaticTreeItem *parent : {autoAndManual.first, autoAndManual.second}) {
             for (TreeItem *item : *parent) {
                 auto tcItem = static_cast<ToolChainTreeItem *>(item);
