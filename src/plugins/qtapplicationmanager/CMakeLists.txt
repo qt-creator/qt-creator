@@ -2,7 +2,7 @@ find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
 add_qtc_plugin(QtApplicationManagerIntegration
   PLUGIN_DEPENDS
-    Core Debugger ProjectExplorer QmakeProjectManager
+    Core Debugger ProjectExplorer
     QtSupport RemoteLinux
   DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp
   SOURCES

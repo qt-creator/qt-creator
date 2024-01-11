@@ -8,7 +8,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <qmakeprojectmanager/qmakeparsernodes.h>
 #include <cmakeprojectmanager/cmakebuildsystem.h>
 
 namespace AppManager {
@@ -33,8 +32,6 @@ public:
 
     Manifest() = default;
     Manifest(const Manifest &other) = default;
-    Manifest(const QString &fileName);
-    Manifest(const QmakeProjectManager::InstallsList &installsList);
 };
 
 class TargetInformation final
