@@ -1,16 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "glsleditorplugin.h"
-
 #include "glslcompletionassist.h"
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditortr.h"
-
-#include <glsl/glslengine.h>
-#include <glsl/glslparser.h>
-#include <glsl/glsllexer.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -40,89 +34,6 @@ public:
 };
 
 static GlslEditorPluginPrivate *dd = nullptr;
-
-InitFile::InitFile(const QString &fileName)
-    : m_fileName(fileName)
-{}
-
-InitFile::~InitFile()
-{
-    delete m_engine;
-}
-
-void InitFile::initialize() const
-{
-    // Parse the builtins for any language variant so we can use all keywords.
-    const int variant = GLSL::Lexer::Variant_All;
-
-    QByteArray code;
-    QFile file(ICore::resourcePath("glsl").pathAppended(m_fileName).toString());
-    if (file.open(QFile::ReadOnly))
-        code = file.readAll();
-
-    m_engine = new GLSL::Engine();
-    GLSL::Parser parser(m_engine, code.constData(), code.size(), variant);
-    m_ast = parser.parse();
-}
-
-GLSL::TranslationUnitAST *InitFile::ast() const
-{
-    if (!m_ast)
-        initialize();
-    return m_ast;
-}
-
-GLSL::Engine *InitFile::engine() const
-{
-    if (!m_engine)
-        initialize();
-    return m_engine;
-}
-
-const InitFile *fragmentShaderInit(int variant)
-{
-    static InitFile glsl_es_100_frag{"glsl_es_100.frag"};
-    static InitFile glsl_120_frag{"glsl_120.frag"};
-    static InitFile glsl_330_frag{"glsl_330.frag"};
-
-    if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &glsl_330_frag;
-
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return  &glsl_120_frag;
-
-    return &glsl_es_100_frag;
-}
-
-const InitFile *vertexShaderInit(int variant)
-{
-    static InitFile glsl_es_100_vert{"glsl_es_100.vert"};
-    static InitFile glsl_120_vert{"glsl_120.vert"};
-    static InitFile glsl_330_vert{"glsl_330.vert"};
-
-    if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &glsl_330_vert;
-
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return &glsl_120_vert;
-
-    return &glsl_es_100_vert;
-}
-
-const InitFile *shaderInit(int variant)
-{
-    static InitFile glsl_es_100_common{"glsl_es_100_common.glsl"};
-    static InitFile glsl_120_common{"glsl_120_common.glsl"};
-    static InitFile glsl_330_common{"glsl_330_common.glsl"};
-
-    if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &glsl_330_common;
-
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return &glsl_120_common;
-
-    return &glsl_es_100_common;
-}
 
 class GlslEditorPlugin final : public ExtensionSystem::IPlugin
 {

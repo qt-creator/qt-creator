@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glslcompletionassist.h"
-#include "glsleditorconstants.h"
-#include "glsleditorplugin.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glsllexer.h>
