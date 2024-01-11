@@ -557,11 +557,6 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     return client;
 }
 
-BaseClientInterface *BaseSettings::createInterface(ProjectExplorer::Project *) const
-{
-    return nullptr;
-}
-
 Client *BaseSettings::createClient(BaseClientInterface *interface) const
 {
     return new Client(interface);
