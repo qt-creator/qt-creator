@@ -3,46 +3,31 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QString>
+
 #include <glsl/glsl.h>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
-class GlslEditorPlugin final : public ExtensionSystem::IPlugin
+class InitFile
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
-
 public:
-    GlslEditorPlugin() = default;
-    ~GlslEditorPlugin() final;
+    explicit InitFile(const QString &m_fileName);
+    ~InitFile();
 
-    class InitFile
-    {
-    public:
-        explicit InitFile(const QString &m_fileName);
-        ~InitFile();
-
-        GLSL::Engine *engine() const;
-        GLSL::TranslationUnitAST *ast() const;
-
-    private:
-        void initialize() const;
-
-        QString m_fileName;
-        mutable GLSL::Engine *m_engine = nullptr;
-        mutable GLSL::TranslationUnitAST *m_ast = nullptr;
-    };
-
-    static const InitFile *fragmentShaderInit(int variant);
-    static const InitFile *vertexShaderInit(int variant);
-    static const InitFile *shaderInit(int variant);
+    GLSL::Engine *engine() const;
+    GLSL::TranslationUnitAST *ast() const;
 
 private:
-    void initialize() final;
-    void extensionsInitialized() final;
+    void initialize() const;
+
+    QString m_fileName;
+    mutable GLSL::Engine *m_engine = nullptr;
+    mutable GLSL::TranslationUnitAST *m_ast = nullptr;
 };
 
-} // namespace Internal
-} // namespace GlslEditor
+const InitFile *fragmentShaderInit(int variant);
+const InitFile *vertexShaderInit(int variant);
+const InitFile *shaderInit(int variant);
+
+} // GlslEditor

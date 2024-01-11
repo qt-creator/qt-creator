@@ -240,14 +240,14 @@ void GlslEditorWidget::updateDocumentNow()
         Semantic sem;
         Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;
-        const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
+        const InitFile *file = shaderInit(variant);
         sem.translationUnit(file->ast(), globalScope, file->engine());
         if (variant & Lexer::Variant_VertexShader) {
-            file = GlslEditorPlugin::vertexShaderInit(variant);
+            file = vertexShaderInit(variant);
             sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         if (variant & Lexer::Variant_FragmentShader) {
-            file = GlslEditorPlugin::fragmentShaderInit(variant);
+            file = fragmentShaderInit(variant);
             sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         sem.translationUnit(ast, globalScope, doc->_engine);

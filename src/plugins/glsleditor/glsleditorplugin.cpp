@@ -20,6 +20,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 
@@ -28,21 +30,20 @@
 using namespace Core;
 using namespace Utils;
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 class GlslEditorPluginPrivate
 {
 public:
-    GlslEditorPlugin::InitFile m_glsl_330_frag{"glsl_330.frag"};
-    GlslEditorPlugin::InitFile m_glsl_330_vert{"glsl_330.vert"};
-    GlslEditorPlugin::InitFile m_glsl_330_common{"glsl_330_common.glsl"};
-    GlslEditorPlugin::InitFile m_glsl_120_frag{"glsl_120.frag"};
-    GlslEditorPlugin::InitFile m_glsl_120_vert{"glsl_120.vert"};
-    GlslEditorPlugin::InitFile m_glsl_120_common{"glsl_120_common.glsl"};
-    GlslEditorPlugin::InitFile m_glsl_es_100_frag{"glsl_es_100.frag"};
-    GlslEditorPlugin::InitFile m_glsl_es_100_vert{"glsl_es_100.vert"};
-    GlslEditorPlugin::InitFile m_glsl_es_100_common{"glsl_es_100_common.glsl"};
+    InitFile m_glsl_330_frag{"glsl_330.frag"};
+    InitFile m_glsl_330_vert{"glsl_330.vert"};
+    InitFile m_glsl_330_common{"glsl_330_common.glsl"};
+    InitFile m_glsl_120_frag{"glsl_120.frag"};
+    InitFile m_glsl_120_vert{"glsl_120.vert"};
+    InitFile m_glsl_120_common{"glsl_120_common.glsl"};
+    InitFile m_glsl_es_100_frag{"glsl_es_100.frag"};
+    InitFile m_glsl_es_100_vert{"glsl_es_100.vert"};
+    InitFile m_glsl_es_100_common{"glsl_es_100_common.glsl"};
 
     GlslEditorFactory editorFactory;
     GlslCompletionAssistProvider completionAssistProvider;
@@ -50,17 +51,16 @@ public:
 
 static GlslEditorPluginPrivate *dd = nullptr;
 
-GlslEditorPlugin::InitFile::InitFile(const QString &fileName)
+InitFile::InitFile(const QString &fileName)
     : m_fileName(fileName)
 {}
 
-
-GlslEditorPlugin::InitFile::~InitFile()
+InitFile::~InitFile()
 {
     delete m_engine;
 }
 
-void GlslEditorPlugin::InitFile::initialize() const
+void InitFile::initialize() const
 {
     // Parse the builtins for any language variant so we can use all keywords.
     const int variant = GLSL::Lexer::Variant_All;
@@ -75,63 +75,21 @@ void GlslEditorPlugin::InitFile::initialize() const
     m_ast = parser.parse();
 }
 
-GLSL::TranslationUnitAST *GlslEditorPlugin::InitFile::ast() const
+GLSL::TranslationUnitAST *InitFile::ast() const
 {
     if (!m_ast)
         initialize();
     return m_ast;
 }
 
-GLSL::Engine *GlslEditorPlugin::InitFile::engine() const
+GLSL::Engine *InitFile::engine() const
 {
     if (!m_engine)
         initialize();
     return m_engine;
 }
 
-GlslEditorPlugin::~GlslEditorPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void GlslEditorPlugin::initialize()
-{
-    dd = new GlslEditorPluginPrivate;
-
-    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
-    ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
-    glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
-    QMenu *menu = glslToolsMenu->menu();
-    //: GLSL sub-menu in the Tools menu
-    menu->setTitle(Tr::tr("GLSL"));
-    ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
-
-    // Insert marker for "Refactoring" menu:
-    Command *sep = contextMenu->addSeparator();
-    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
-    contextMenu->addSeparator();
-
-    Command *cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
-    contextMenu->addAction(cmd);
-}
-
-void GlslEditorPlugin::extensionsInitialized()
-{
-    using namespace Utils::Constants;
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
-                                                     GLSL_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
-                                                     GLSL_VERT_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
-                                                     GLSL_FRAG_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
-                                                     GLSL_ES_VERT_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
-                                                     GLSL_ES_FRAG_MIMETYPE);
-}
-
-const GlslEditorPlugin::InitFile *GlslEditorPlugin::fragmentShaderInit(int variant)
+const InitFile *fragmentShaderInit(int variant)
 {
     if (variant & GLSL::Lexer::Variant_GLSL_400)
         return &dd->m_glsl_330_frag;
@@ -140,7 +98,7 @@ const GlslEditorPlugin::InitFile *GlslEditorPlugin::fragmentShaderInit(int varia
             : &dd->m_glsl_es_100_frag;
 }
 
-const GlslEditorPlugin::InitFile *GlslEditorPlugin::vertexShaderInit(int variant)
+const InitFile *vertexShaderInit(int variant)
 {
     if (variant & GLSL::Lexer::Variant_GLSL_400)
         return &dd->m_glsl_330_vert;
@@ -149,7 +107,7 @@ const GlslEditorPlugin::InitFile *GlslEditorPlugin::vertexShaderInit(int variant
             : &dd->m_glsl_es_100_vert;
 }
 
-const GlslEditorPlugin::InitFile *GlslEditorPlugin::shaderInit(int variant)
+const InitFile *shaderInit(int variant)
 {
     if (variant & GLSL::Lexer::Variant_GLSL_400)
         return &dd->m_glsl_330_common;
@@ -158,5 +116,55 @@ const GlslEditorPlugin::InitFile *GlslEditorPlugin::shaderInit(int variant)
             : &dd->m_glsl_es_100_common;
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+class GlslEditorPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
+
+public:
+    ~GlslEditorPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new GlslEditorPluginPrivate;
+
+        ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+        ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
+        glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
+        QMenu *menu = glslToolsMenu->menu();
+        //: GLSL sub-menu in the Tools menu
+        menu->setTitle(Tr::tr("GLSL"));
+        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
+
+        // Insert marker for "Refactoring" menu:
+        Command *sep = contextMenu->addSeparator();
+        sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+        contextMenu->addSeparator();
+
+        Command *cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
+        contextMenu->addAction(cmd);
+    }
+
+    void extensionsInitialized() final
+    {
+        using namespace Utils::Constants;
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_VERT_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_FRAG_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_ES_VERT_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_ES_FRAG_MIMETYPE);
+    }
+};
+
+} // GlslEditor::Internal
+
+#include "glsleditorplugin.moc"
