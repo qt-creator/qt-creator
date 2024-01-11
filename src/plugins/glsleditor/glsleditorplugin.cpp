@@ -7,7 +7,6 @@
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditortr.h"
-#include "glslhighlighter.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glslparser.h>
@@ -22,6 +21,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <texteditor/texteditorconstants.h>
+
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 
@@ -35,16 +36,6 @@ namespace GlslEditor::Internal {
 class GlslEditorPluginPrivate
 {
 public:
-    InitFile m_glsl_330_frag{"glsl_330.frag"};
-    InitFile m_glsl_330_vert{"glsl_330.vert"};
-    InitFile m_glsl_330_common{"glsl_330_common.glsl"};
-    InitFile m_glsl_120_frag{"glsl_120.frag"};
-    InitFile m_glsl_120_vert{"glsl_120.vert"};
-    InitFile m_glsl_120_common{"glsl_120_common.glsl"};
-    InitFile m_glsl_es_100_frag{"glsl_es_100.frag"};
-    InitFile m_glsl_es_100_vert{"glsl_es_100.vert"};
-    InitFile m_glsl_es_100_common{"glsl_es_100_common.glsl"};
-
     GlslCompletionAssistProvider completionAssistProvider;
 };
 
@@ -90,29 +81,47 @@ GLSL::Engine *InitFile::engine() const
 
 const InitFile *fragmentShaderInit(int variant)
 {
+    static InitFile glsl_es_100_frag{"glsl_es_100.frag"};
+    static InitFile glsl_120_frag{"glsl_120.frag"};
+    static InitFile glsl_330_frag{"glsl_330.frag"};
+
     if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &dd->m_glsl_330_frag;
-    return (variant & GLSL::Lexer::Variant_GLSL_120)
-            ? &dd->m_glsl_120_frag
-            : &dd->m_glsl_es_100_frag;
+        return &glsl_330_frag;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return  &glsl_120_frag;
+
+    return &glsl_es_100_frag;
 }
 
 const InitFile *vertexShaderInit(int variant)
 {
+    static InitFile glsl_es_100_vert{"glsl_es_100.vert"};
+    static InitFile glsl_120_vert{"glsl_120.vert"};
+    static InitFile glsl_330_vert{"glsl_330.vert"};
+
     if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &dd->m_glsl_330_vert;
-    return (variant & GLSL::Lexer::Variant_GLSL_120)
-            ? &dd->m_glsl_120_vert
-            : &dd->m_glsl_es_100_vert;
+        return &glsl_330_vert;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &glsl_120_vert;
+
+    return &glsl_es_100_vert;
 }
 
 const InitFile *shaderInit(int variant)
 {
+    static InitFile glsl_es_100_common{"glsl_es_100_common.glsl"};
+    static InitFile glsl_120_common{"glsl_120_common.glsl"};
+    static InitFile glsl_330_common{"glsl_330_common.glsl"};
+
     if (variant & GLSL::Lexer::Variant_GLSL_400)
-        return &dd->m_glsl_330_common;
-    return (variant & GLSL::Lexer::Variant_GLSL_120)
-            ? &dd->m_glsl_120_common
-            : &dd->m_glsl_es_100_common;
+        return &glsl_330_common;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &glsl_120_common;
+
+    return &glsl_es_100_common;
 }
 
 class GlslEditorPlugin final : public ExtensionSystem::IPlugin
