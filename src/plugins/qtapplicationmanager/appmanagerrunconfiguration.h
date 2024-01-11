@@ -5,36 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfigurationaspects.h>
+namespace AppManager::Internal {
 
-using namespace ProjectExplorer;
+void setupAppManagerRunConfiguration();
 
-namespace AppManager {
-namespace Internal {
-
-class AppManagerRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    AppManagerRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-    QString disabledReason() const override;
-};
-
-class AppManagerRunConfigurationFactoryPrivate;
-
-class AppManagerRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-    QScopedPointer<AppManagerRunConfigurationFactoryPrivate> d;
-
-public:
-    AppManagerRunConfigurationFactory();
-    ~AppManagerRunConfigurationFactory() override;
-
-protected:
-    QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

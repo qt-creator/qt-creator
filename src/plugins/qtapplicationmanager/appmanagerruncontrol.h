@@ -5,28 +5,10 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
+namespace AppManager::Internal {
 
-namespace AppManager {
-namespace Internal {
+void setupAppManagerRunWorker();
+void setupAppManagerDebugWorker();
+void setupAppManagerQmlToolingWorker();
 
-class AppManagerRunWorkerFactory : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AppManagerRunWorkerFactory();
-};
-
-class AppManagerDebugWorkerFactory : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AppManagerDebugWorkerFactory();
-};
-
-class AppManagerQmlToolingWorkerFactory : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AppManagerQmlToolingWorkerFactory();
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

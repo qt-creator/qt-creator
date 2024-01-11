@@ -7,6 +7,7 @@
 
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
 #include <debugger/debuggerengine.h>
@@ -19,7 +20,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -38,7 +39,7 @@ namespace AppManager::Internal {
 
 // AppManagerRunner
 
-class AppManagerRunner : public SimpleTargetRunner
+class AppManagerRunner final : public SimpleTargetRunner
 {
 public:
     AppManagerRunner(RunControl *runControl)
@@ -46,7 +47,7 @@ public:
     {
         setId("ApplicationManagerPlugin.Run.TargetRunner");
         connect(this, &RunWorker::stopped, this, [this, runControl] {
-            appendMessage(tr("%1 exited").arg(runControl->runnable().command.toUserOutput()),
+            appendMessage(Tr::tr("%1 exited").arg(runControl->runnable().command.toUserOutput()),
                           OutputFormat::NormalMessageFormat);
         });
 
@@ -143,8 +144,8 @@ public:
             setCommandLine(cmd);
             setWorkingDirectory(targetInformation.workingDirectory());
 
-            appendMessage(tr("Starting AppMan Debugging..."), NormalMessageFormat);
-            appendMessage(tr("Using: %1").arg(cmd.toUserOutput()), NormalMessageFormat);
+            appendMessage(Tr::tr("Starting AppMan Debugging..."), NormalMessageFormat);
+            appendMessage(Tr::tr("Using: %1").arg(cmd.toUserOutput()), NormalMessageFormat);
         });
     }
 
@@ -164,7 +165,7 @@ private:
 
 // AppManagerDebugSupport
 
-class AppManagerDebugSupport : public Debugger::DebuggerRunTool
+class AppManagerDebugSupport final : public Debugger::DebuggerRunTool
 {
 private:
     QString m_symbolFile;
@@ -202,7 +203,7 @@ public:
                                return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;
                            }).targetFilePath.toString();
         } else {
-            reportFailure(tr("Cannot debug: Only QML and native applications are supported."));
+            reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
         }
     }
 
@@ -249,60 +250,82 @@ private:
 class AppManagerQmlToolingSupport final : public RunWorker
 {
 public:
-    explicit AppManagerQmlToolingSupport(RunControl *runControl);
+    explicit AppManagerQmlToolingSupport(RunControl *runControl)
+        : RunWorker(runControl)
+    {
+        setId("AppManagerQmlToolingSupport");
+
+        QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
+        m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
+        addStartDependency(m_runner);
+        addStopDependency(m_runner);
+
+        m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+        m_worker->addStartDependency(this);
+        addStopDependency(m_worker);
+    }
 
 private:
-    void start() override;
+    void start() final
+    {
+        m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
+        reportStarted();
+    }
 
     AppManInferiorRunner *m_runner = nullptr;
     RunWorker *m_worker = nullptr;
 };
 
-AppManagerQmlToolingSupport::AppManagerQmlToolingSupport(RunControl *runControl)
-    : RunWorker(runControl)
-{
-    setId("AppManagerQmlToolingSupport");
-
-    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
-    m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
-    addStartDependency(m_runner);
-    addStopDependency(m_runner);
-
-    m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-    m_worker->addStartDependency(this);
-    addStopDependency(m_worker);
-}
-
-void AppManagerQmlToolingSupport::start()
-{
-    m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
-    reportStarted();
-}
-
 
 // Factories
 
-AppManagerRunWorkerFactory::AppManagerRunWorkerFactory()
+class AppManagerRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AppManagerRunner>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+public:
+    AppManagerRunWorkerFactory()
+    {
+        setProduct<AppManagerRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+    }
+};
+
+class AppManagerDebugWorkerFactory final : public RunWorkerFactory
+{
+public:
+    AppManagerDebugWorkerFactory()
+    {
+        setProduct<AppManagerDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+    }
+};
+
+class AppManagerQmlToolingWorkerFactory final : public RunWorkerFactory
+{
+public:
+    AppManagerQmlToolingWorkerFactory()
+    {
+        setProduct<AppManagerQmlToolingSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+    }
+};
+
+void setupAppManagerRunWorker()
+{
+    static AppManagerRunWorkerFactory theAppManagerRunWorkerFactory;
 }
 
-AppManagerDebugWorkerFactory::AppManagerDebugWorkerFactory()
+void setupAppManagerDebugWorker()
 {
-    setProduct<AppManagerDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
-
+    static AppManagerDebugWorkerFactory theAppManagerDebugWorkerFactory;
 }
 
-AppManagerQmlToolingWorkerFactory::AppManagerQmlToolingWorkerFactory()
+void setupAppManagerQmlToolingWorker()
 {
-    setProduct<AppManagerQmlToolingSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-    addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+    static AppManagerQmlToolingWorkerFactory theAppManagerQmlToolingWorkerFactory;
 }
 
 } // AppManager::Internal

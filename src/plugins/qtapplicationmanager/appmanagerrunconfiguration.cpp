@@ -7,9 +7,8 @@
 
 #include "appmanagerconstants.h"
 #include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 
-#include <projectexplorer/buildsystem.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -18,72 +17,76 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
-AppManagerRunConfiguration::AppManagerRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
-{
-    setDefaultDisplayName(tr("Run on AM Device"));
-}
-
-QString AppManagerRunConfiguration::disabledReason() const
-{
-    if (activeBuildSystem()->isParsing())
-        return tr("The project file \"%1\" is currently being parsed.").arg(project()->projectFilePath().toString());
-    return QString();
-}
-
-class AppManagerRunConfigurationFactoryPrivate
+class AppManagerRunConfiguration final : public RunConfiguration
 {
 public:
-    FileSystemWatcher fileSystemWatcher;
+    AppManagerRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        setDefaultDisplayName(Tr::tr("Run on AM Device"));
+    }
+
+    QString disabledReason() const override
+    {
+        if (activeBuildSystem()->isParsing()) {
+            return Tr::tr("The project file \"%1\" is currently being parsed.")
+                .arg(project()->projectFilePath().toString());
+        }
+        return QString();
+    }
 };
 
-AppManagerRunConfigurationFactory::AppManagerRunConfigurationFactory()
-    : RunConfigurationFactory()
-    , d(new AppManagerRunConfigurationFactoryPrivate())
+class AppManagerRunConfigurationFactory final : public RunConfigurationFactory
 {
-    registerRunConfiguration<AppManagerRunConfiguration>(Constants::RUNCONFIGURATION_ID);
-    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+public:
+    AppManagerRunConfigurationFactory()
+    {
+        registerRunConfiguration<AppManagerRunConfiguration>(Constants::RUNCONFIGURATION_ID);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+
+    QList<RunConfigurationCreationInfo> availableCreators(Target *target) const final
+    {
+        QObject::connect(&m_fileSystemWatcher, &FileSystemWatcher::fileChanged,
+                         target->project(), &Project::displayNameChanged,
+                         Qt::UniqueConnection);
+
+        const auto buildTargets = TargetInformation::readFromProject(target);
+        auto result = Utils::transform(buildTargets, [this, target](const TargetInformation &ti) {
+
+            QVariantMap settings;
+            // ti.buildKey is currently our app id
+            settings.insert("id", ti.buildKey);
+            target->setNamedSettings("runConfigurationSettings", settings);
+
+            RunConfigurationCreationInfo rci;
+            rci.factory = this;
+            rci.buildKey = ti.buildKey;
+            rci.displayName = ti.displayName;
+            rci.displayNameUniquifier = ti.displayNameUniquifier;
+            rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
+            rci.useTerminal = false;
+            if (!m_fileSystemWatcher.files().contains(ti.manifest.fileName)) {
+                m_fileSystemWatcher.addFile(ti.manifest.fileName, FileSystemWatcher::WatchAllChanges);
+            }
+            return rci;
+        });
+
+        return result;
+    }
+
+    mutable FileSystemWatcher m_fileSystemWatcher;
+};
+
+void setupAppManagerRunConfiguration()
+{
+    static AppManagerRunConfigurationFactory theAppManagerRunConfigurationFactory;
 }
 
-AppManagerRunConfigurationFactory::~AppManagerRunConfigurationFactory() = default;
-
-QList<RunConfigurationCreationInfo> AppManagerRunConfigurationFactory::availableCreators(Target *target) const
-{
-    QObject::connect(&d->fileSystemWatcher, &FileSystemWatcher::fileChanged, target->project(), &Project::displayNameChanged, Qt::UniqueConnection);
-
-    const auto buildTargets = TargetInformation::readFromProject(target);
-    auto result = Utils::transform(buildTargets, [this, target](const TargetInformation &ti) {
-
-        QVariantMap settings;
-        // ti.buildKey is currently our app id
-        settings.insert("id", ti.buildKey);
-        target->setNamedSettings("runConfigurationSettings", settings);
-
-        RunConfigurationCreationInfo rci;
-        rci.factory = this;
-        rci.buildKey = ti.buildKey;
-        rci.displayName = ti.displayName;
-        rci.displayNameUniquifier = ti.displayNameUniquifier;
-        rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
-        rci.useTerminal = false;
-        if (!this->d->fileSystemWatcher.files().contains(ti.manifest.fileName)) {
-            this->d->fileSystemWatcher.addFile(ti.manifest.fileName, Utils::FileSystemWatcher::WatchAllChanges);
-        }
-        return rci;
-    });
-
-    return result;
-}
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal

@@ -18,19 +18,7 @@
 
 namespace AppManager::Internal {
 
-class AppManagerPluginPrivate
-{
-public:
-    AppManagerRunConfigurationFactory runConfigFactory;
-    AppManagerRunWorkerFactory runWorkerFactory;
-    AppManagerDebugWorkerFactory debugWorkerFactory;
-    AppManagerQmlToolingWorkerFactory toolingWorkerFactory;
-};
-
-AppManagerPlugin::~AppManagerPlugin()
-{
-    delete d;
-}
+AppManagerPlugin::~AppManagerPlugin() = default;
 
 void AppManagerPlugin::initialize()
 {
@@ -44,7 +32,11 @@ void AppManagerPlugin::initialize()
     setupAppManagerDeployConfiguration();
     setupAppManagerDeployConfigurationAutoSwitcher();
 
-    d = new AppManagerPluginPrivate;
+    setupAppManagerRunConfiguration();
+
+    setupAppManagerRunWorker();
+    setupAppManagerDebugWorker();
+    setupAppManagerQmlToolingWorker();
 }
 
 } // AppManager::Internal
