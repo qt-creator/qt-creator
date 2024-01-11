@@ -57,7 +57,7 @@
     \title Call Hierarchy
 
     \brief Shows information about incoming and outgoing function calls from a
-    \l{Using Language Servers}{language server}.
+    \l{Language Servers}{language server}.
 
     Place the cursor on a function definition in the code editor to see lists
     of functions that call it and the functions it calls. This works recursively,

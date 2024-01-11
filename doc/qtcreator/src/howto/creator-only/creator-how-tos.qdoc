@@ -53,6 +53,10 @@
 
     \generatelist creator-how-to-edit
 
+    \section2 Manage Language Servers
+
+    \generatelist creator-how-to-lsp
+
     \section1 Manage Kits
 
     \generatelist creator-how-to-manage-kits

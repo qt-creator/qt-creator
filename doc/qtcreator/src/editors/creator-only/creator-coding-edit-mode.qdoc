@@ -113,12 +113,14 @@
     \section2 Managing Language Servers
 
     Select the \inlineimage icons/languageclient.png
-    icon on the editor toolbar (7) to view the \l{Using Language Servers}
+    icon on the editor toolbar (7) to view the \l{Language Servers}
     {language server} for the current project. You can restart the language
     server or select another one in the menu. Also, you can
-    \l{Inspecting Language Clients}{inspect the communication} between \QC
+    \l{Inspect language clients}{inspect the communication} between \QC
     and language servers and view server capabilities, as well as
-    \l{Specifying Settings for Language Clients}{set language server preferences}.
+    set language server preferences.
+
+    \sa {Manage Language Servers}{How To: Manage Language Servers}
 
     \section1 Editing Selected Lines
 

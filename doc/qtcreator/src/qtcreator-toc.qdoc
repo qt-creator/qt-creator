@@ -48,7 +48,6 @@
             \list
                 \li \l{Using FakeVim Mode}
             \endlist
-            \li \l{Using Language Servers}
             \li \l{Using GitHub Copilot}
             \li \l{Editing MIME Types}
             \li \l{Modeling}
@@ -150,6 +149,10 @@
                 \generatelist creator-how-to-design
             \li Edit Code
                 \generatelist creator-how-to-edit
+                \list
+                    \li Manage Language Servers
+                        \generatelist creator-how-to-lsp
+                \endlist
             \li Manage Kits
                 \generatelist creator-how-to-manage-kits
             \li Manage Projects
@@ -180,6 +183,8 @@
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
                         \endlist
+                    \li Editors
+                        \generatelist creator-reference-editors
                     \li Platforms
                         \generatelist creator-reference-platforms
                     \li Preferences

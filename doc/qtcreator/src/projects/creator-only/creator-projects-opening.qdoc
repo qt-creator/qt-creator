@@ -78,7 +78,7 @@
     select the \uicontrol Preferences link, or select \preferences >
     \uicontrol Kits.
 
-    Qt for Python projects rely on the \l{Using Language Servers}
+    Qt for Python projects rely on the \l{Language Servers}
     {language server client} for code completion, highlighting, and
     other useful features.
 

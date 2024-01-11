@@ -22,7 +22,7 @@
         \li \l{Select the Python interpreter}
         \li \l{Create a virtual environment}
         \li \l{Use Python interactive shell}
-        \li \l{Python Language Server}
+        \li \l{Configure Python language servers}
         \li \l{Run Python applications}
         \li \l{Python Run Settings}
         \li \l{PDB}
@@ -40,7 +40,7 @@
 
     \image qtcreator-python-install.webp {Prompts to install PySide6 and Python language server}
 
-    Further, \QC prompts you to install the \l {Python Language Server}
+    Further, \QC prompts you to install the \l {Configure Python language servers}
     {Python language server} that offers services such as code completion
     and annotations. Select \uicontrol Install to install PySide6 and the
     language server.

@@ -27,6 +27,10 @@
 
     \annotatedlist creator-reference-run-configurations
 
+    \section1 Editors
+
+    \annotatedlist creator-reference-editors
+
     \section1 Platforms
 
     \annotatedlist creator-reference-platforms

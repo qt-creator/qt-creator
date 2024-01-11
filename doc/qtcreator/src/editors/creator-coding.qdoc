@@ -73,17 +73,6 @@
 
     \list
 
-        \li \l{Edit Markdown files}
-
-            Edit and preview Markdown (.md) files.
-
-        \li \l{Using Language Servers}
-
-            The language client offers code completion, highlighting of the
-            symbol under cursor, and jumping to the symbol definition for other
-            programming languages besides C++. In addition, it integrates
-            diagnostics from the language server.
-
         \li \l {Using GitHub Copilot}
 
             The Copilot plugin (disabled by default) integrates

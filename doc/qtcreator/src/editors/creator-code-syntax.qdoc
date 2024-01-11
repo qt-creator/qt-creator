@@ -713,7 +713,7 @@
     enable messages just for non-Qt Quick UI files.
 
     \if defined(qtcreator)
-    \sa {QML Language Server}
+    \sa {Turn on QML language server}
     \endif
 
     \section1 Resetting the Code Model
