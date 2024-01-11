@@ -6,57 +6,45 @@
 
 #include "appmanagerconstants.h"
 
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/osspecificaspects.h>
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
-static QString getToolPathByQtVersion(const QtVersion *qtVersion,
-                                      const QString &toolname = QString(Constants::APPMAN_PACKAGER))
+static FilePath getToolPathByQtVersion(const QtVersion *qtVersion,
+                                       const QString &toolname = QString(Constants::APPMAN_PACKAGER))
 {
     if (qtVersion) {
-        const auto toolExistsInDir = [&](const QDir &dir) {
-            const FilePath toolFilePath = FilePath::fromString(dir.absolutePath())
-                                              .pathAppended(getToolNameByDevice(toolname));
-            return toolFilePath.isFile();
+        const auto toolExistsInDir = [&toolname](const FilePath &dir) {
+            return dir.pathAppended(getToolNameByDevice(toolname)).isFile();
         };
-        const QDir qtHostBinsDir(qtVersion->hostBinPath().toString());
+
+        const FilePath qtHostBinsDir = qtVersion->hostBinPath();
         if (toolExistsInDir(qtHostBinsDir))
             return qtHostBinsDir.absolutePath();
-        const QDir qtBinDir(qtVersion->binPath().toString());
+
+        const FilePath qtBinDir = qtVersion->binPath();
         if (toolExistsInDir(qtBinDir))
             return qtBinDir.absolutePath();
     }
-    return QString();
+    return {};
 }
 
 QString getToolFilePath(const QString &toolname, const Kit *kit, const IDevice::ConstPtr &device)
 {
     const bool local = !device || device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    const auto path = local ?
-                getToolPathByQtVersion(QtKitAspect::qtVersion(kit)) :
-                QString(Constants::REMOTE_DEFAULT_BIN_PATH);
-    const auto name = getToolNameByDevice(toolname, device);
-    return !path.isEmpty() ?
-                QDir(path).absoluteFilePath(name) :
-                name;
+    const FilePath path = local ? getToolPathByQtVersion(QtKitAspect::qtVersion(kit))
+                                : FilePath(Constants::REMOTE_DEFAULT_BIN_PATH);
+    const QString name = getToolNameByDevice(toolname, device);
+    return !path.isEmpty() ? path.pathAppended(name).toString() : name;
 }
 
 QString getToolNameByDevice(const QString &baseName, const QSharedPointer<const IDevice> &device)
@@ -64,5 +52,4 @@ QString getToolNameByDevice(const QString &baseName, const QSharedPointer<const 
     return OsSpecificAspects::withExecutableSuffix(device ? device->osType() : HostOsInfo::hostOs(), baseName);
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal
