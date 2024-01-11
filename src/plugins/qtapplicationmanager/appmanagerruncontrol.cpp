@@ -28,6 +28,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -65,18 +66,36 @@ public:
 };
 
 
-// AppManDebugLauncher
+// AppManInferiorRunner
 
-class AppManDebugLauncher : public SimpleTargetRunner
+class AppManInferiorRunner : public SimpleTargetRunner
 {
 public:
-    AppManDebugLauncher(RunControl *runControl, Debugger::DebugServerPortsGatherer *portsGatherer)
-        : SimpleTargetRunner(runControl)
+    AppManInferiorRunner(RunControl *runControl,
+                         bool usePerf, bool useGdbServer, bool useQmlServer,
+                         QmlDebug::QmlDebugServicesPreset qmlServices)
+        : SimpleTargetRunner(runControl),
+        m_usePerf(usePerf), m_useGdbServer(useGdbServer), m_useQmlServer(useQmlServer),
+        m_qmlServices(qmlServices)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
-        QTC_ASSERT(portsGatherer, return);
 
-        setStartModifier([this, runControl, portsGatherer] {
+        connect(&m_launcher, &Process::started, this, &RunWorker::reportStarted);
+        connect(&m_launcher, &Process::done, this, &RunWorker::reportStopped);
+
+        connect(&m_launcher, &Process::readyReadStandardOutput, this, [this] {
+            appendMessage(m_launcher.readAllStandardOutput(), StdOutFormat);
+        });
+        connect(&m_launcher, &Process::readyReadStandardError, this, [this] {
+            appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
+        });
+
+        m_portsGatherer = new Debugger::DebugServerPortsGatherer(runControl);
+        m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
+        m_portsGatherer->setUseQmlServer(useQmlServer);
+        addStartDependency(m_portsGatherer);
+
+        setStartModifier([this, runControl] {
 
             const auto targetInformation = TargetInformation(runControl->target());
             if (!targetInformation.isValid()) {
@@ -84,21 +103,36 @@ public:
                 return;
             }
 
+//            const int perfPort = m_portsGatherer->gdbServer().port();
+            const int gdbServerPort = m_portsGatherer->gdbServer().port();
+            const int qmlServerPort = m_portsGatherer->qmlServer().port();
+
             CommandLine cmd{FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER,
                                                                  runControl->kit(),
                                                                  targetInformation.device))};
             cmd.addArg("debug-application");
 
-            if (portsGatherer->useGdbServer() || portsGatherer->useQmlServer()) {
+            if (m_useGdbServer || m_useQmlServer) {
                 QStringList debugArgs;
-                if (portsGatherer->useGdbServer()) {
-                    debugArgs.append(QString("gdbserver :%1").arg(portsGatherer->gdbServer().port()));
+                if (m_useGdbServer) {
+                    debugArgs.append(QString("gdbserver :%1").arg(gdbServerPort));
                 }
-                if (portsGatherer->useQmlServer()) {
-                    debugArgs.append(QString("%program% -qmljsdebugger=port:%1,block %arguments%")
-                                         .arg(portsGatherer->qmlServer().port()));
+                if (m_useQmlServer) {
+                    debugArgs.append(QString("%program% %1 %arguments%")
+                                         .arg(qmlDebugCommandLineArguments(m_qmlServices,
+                                                                            QString("port:%1").arg(qmlServerPort),
+                                                                            true)));
                 }
                 cmd.addArg(debugArgs.join(' '));
+            }
+            //FIXME UNTESTED CODE
+            if (m_usePerf) {
+                Store settingsData = runControl->settingsData("Analyzer.Perf.Settings");
+                QVariant perfRecordArgs = settingsData.value("Analyzer.Perf.RecordArguments");
+                QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
+                                   return arg.replace(',', ",,");
+                               }).join(',');
+                cmd.addArg(QString("perf record %1 -o - --").arg(args));
             }
 
             cmd.addArg("-eio");
@@ -113,6 +147,18 @@ public:
             appendMessage(tr("Using: %1").arg(cmd.toUserOutput()), NormalMessageFormat);
         });
     }
+
+    QUrl perfServer() const { return m_portsGatherer->gdbServer(); }
+    QUrl gdbServer() const { return m_portsGatherer->gdbServer(); }
+    QUrl qmlServer() const { return m_portsGatherer->qmlServer(); }
+
+private:
+    Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
+    bool m_usePerf;
+    bool m_useGdbServer;
+    bool m_useQmlServer;
+    QmlDebug::QmlDebugServicesPreset m_qmlServices;
+    Process m_launcher;
 };
 
 
@@ -120,18 +166,25 @@ public:
 
 class AppManagerDebugSupport : public Debugger::DebuggerRunTool
 {
+private:
+    QString m_symbolFile;
+    AppManInferiorRunner *m_debuggee = nullptr;
+
 public:
     AppManagerDebugSupport(RunControl *runControl)
         : DebuggerRunTool(runControl)
     {
         setId("ApplicationManagerPlugin.Debug.Support");
 
-        setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+        //setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
-        auto apmDebugLauncher = new Internal::AppManDebugLauncher(runControl, portsGatherer());
-        apmDebugLauncher->addStartDependency(portsGatherer());
+        m_debuggee = new AppManInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
+                                              QmlDebug::QmlDebuggerServices);
 
-        addStartDependency(apmDebugLauncher);
+        addStartDependency(m_debuggee);
+        addStopDependency(m_debuggee);
+
+        m_debuggee->addStopDependency(this);
 
         Target *target = runControl->target();
 
@@ -154,67 +207,101 @@ public:
     }
 
 private:
-    void start() override;
+    void start() override
+    {
+        if (m_symbolFile.isEmpty()) {
+            reportFailure(tr("Cannot debug: Local executable is not set."));
+            return;
+        }
 
-    QString m_symbolFile;
+        setStartMode(Debugger::AttachToRemoteServer);
+        setCloseMode(Debugger::KillAndExitMonitorAtClose);
+
+        if (isQmlDebugging())
+            setQmlServer(m_debuggee->qmlServer());
+
+        if (isCppDebugging()) {
+            setUseExtendedRemote(false);
+            setUseContinueInsteadOfRun(true);
+            setContinueAfterAttach(true);
+            setRemoteChannel(m_debuggee->gdbServer());
+            setSymbolFile(FilePath::fromString(m_symbolFile));
+
+            QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
+            if (version) {
+                setSolibSearchPath(version->qtSoPaths());
+                addSearchDirectory(version->qmlPath());
+            }
+
+            auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
+            if (sysroot.isEmpty())
+                setSysRoot("/");
+            else
+                setSysRoot(sysroot);
+        }
+
+        DebuggerRunTool::start();
+    }
 };
 
-void AppManagerDebugSupport::start()
+// AppManagerQmlToolingSupport
+
+class AppManagerQmlToolingSupport final : public RunWorker
 {
-    if (m_symbolFile.isEmpty()) {
-        reportFailure(tr("Cannot debug: Local executable is not set."));
-        return;
-    }
+public:
+    explicit AppManagerQmlToolingSupport(RunControl *runControl);
 
-    setStartMode(Debugger::AttachToRemoteServer);
-    setCloseMode(Debugger::KillAndExitMonitorAtClose);
+private:
+    void start() override;
 
-    ProcessRunData inferior = runControl()->runnable();
+    AppManInferiorRunner *m_runner = nullptr;
+    RunWorker *m_worker = nullptr;
+};
 
-    if (isQmlDebugging())
-        setQmlServer(portsGatherer()->qmlServer());
+AppManagerQmlToolingSupport::AppManagerQmlToolingSupport(RunControl *runControl)
+    : RunWorker(runControl)
+{
+    setId("AppManagerQmlToolingSupport");
 
-    if (isCppDebugging()) {
-        setUseExtendedRemote(false);
-        setUseContinueInsteadOfRun(true);
-        inferior.command.setArguments({});
-        if (isQmlDebugging()) {
-            inferior.command.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                                   portsGatherer()->qmlServer()));
-        }
-        setRemoteChannel(portsGatherer()->gdbServer());
-        setSymbolFile(FilePath::fromString(m_symbolFile));
+    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
+    m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
+    addStartDependency(m_runner);
+    addStopDependency(m_runner);
 
-        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
-        if (version) {
-            setSolibSearchPath(version->qtSoPaths());
-            addSearchDirectory(version->qmlPath());
-        }
-
-        auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
-        if (sysroot.isEmpty())
-            setSysRoot("/");
-        else
-            setSysRoot(sysroot);
-    }
-    setInferior(inferior);
-
-    DebuggerRunTool::start();
+    m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+    m_worker->addStartDependency(this);
+    addStopDependency(m_worker);
 }
 
+void AppManagerQmlToolingSupport::start()
+{
+    m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
+    reportStarted();
+}
+
+
 // Factories
+
+AppManagerRunWorkerFactory::AppManagerRunWorkerFactory()
+{
+    setProduct<AppManagerRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+}
 
 AppManagerDebugWorkerFactory::AppManagerDebugWorkerFactory()
 {
     setProduct<AppManagerDebugSupport>();
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+
 }
 
-AppManagerRunWorkerFactory::AppManagerRunWorkerFactory()
+AppManagerQmlToolingWorkerFactory::AppManagerQmlToolingWorkerFactory()
 {
-    setProduct<AppManagerRunner>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    setProduct<AppManagerQmlToolingSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
 }
 

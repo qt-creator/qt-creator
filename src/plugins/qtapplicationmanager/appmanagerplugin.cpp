@@ -27,6 +27,7 @@ public:
     AppManagerRunConfigurationFactory runConfigFactory;
     AppManagerRunWorkerFactory runWorkerFactory;
     AppManagerDebugWorkerFactory debugWorkerFactory;
+    AppManagerQmlToolingWorkerFactory toolingWorkerFactory;
 };
 
 AppManagerPlugin::~AppManagerPlugin()

@@ -22,5 +22,11 @@ public:
     AppManagerDebugWorkerFactory();
 };
 
+class AppManagerQmlToolingWorkerFactory : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    AppManagerQmlToolingWorkerFactory();
+};
+
 } // namespace Internal
 } // namespace AppManager
