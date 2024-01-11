@@ -55,10 +55,9 @@ void cloneAutodetectedBoot2QtKits()
                 }
             }
         }
-        for (auto qtVersion : boot2QtKits.keys()) {
-            if (!genericLinuxDeviceKits.contains(qtVersion)) {
-                const auto boot2QtKit = boot2QtKits.value(qtVersion);
-                const auto copyIntoKit = [boot2QtKit](Kit *k) {
+        for (auto it = boot2QtKits.cbegin(); it != boot2QtKits.cend(); ++it) {
+            if (!genericLinuxDeviceKits.contains(it.key())) {
+                const auto copyIntoKit = [boot2QtKit = *it](Kit *k) {
                     k->copyFrom(boot2QtKit);
                     k->setAutoDetected(false);
                     k->setUnexpandedDisplayName(QString("%1 for Generic Linux Devices").arg(boot2QtKit->unexpandedDisplayName()));
