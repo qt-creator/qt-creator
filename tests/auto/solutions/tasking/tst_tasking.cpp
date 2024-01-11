@@ -2754,7 +2754,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        Loop loop([](int index) { return index < 3; });
+        LoopUntil loop([](int index) { return index < 3; });
 
         const auto onSetupContinue = [storage, loop](int taskId) {
             return [storage, loop, taskId](TaskObject &) {

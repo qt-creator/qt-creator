@@ -102,8 +102,10 @@ class TASKING_EXPORT Loop
 public:
     using Condition = std::function<bool(int)>; // Takes iteration, called prior to each iteration.
 
-    Loop(const Condition &condition);
     int iteration() const;
+
+protected:
+    Loop(const Condition &condition);
 
 private:
     friend class ExecutionContextActivator;
@@ -121,6 +123,12 @@ class TASKING_EXPORT LoopRepeat final : public Loop
 {
 public:
     LoopRepeat(int count) : Loop([count](int index) { return index < count; }) {}
+};
+
+class TASKING_EXPORT LoopUntil final : public Loop
+{
+public:
+    LoopUntil(const Condition &condition) : Loop(condition) {}
 };
 
 class TASKING_EXPORT StorageBase
