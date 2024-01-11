@@ -45,7 +45,8 @@
 #include "environmentaspect.h"
 #include "filesinallprojectsfind.h"
 #include "jsonwizard/jsonwizardfactory.h"
-#include "jsonwizard/jsonwizardgeneratorfactory.h"
+#include "jsonwizard/jsonwizardfilegenerator.h"
+#include "jsonwizard/jsonwizardscannergenerator.h"
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "kitfeatureprovider.h"
 #include "kitaspects.h"
@@ -721,8 +722,6 @@ public:
     KitsPageFactory kitsPageFactory;
     ProjectPageFactory projectPageFactory;
     SummaryPageFactory summaryPageFactory;
-    FileGeneratorFactory fileGeneratorFactory;
-    ScannerGeneratorFactory scannerGeneratorFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -818,6 +817,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupProjectTreeWidgetFactory();
 
     dd = new ProjectExplorerPluginPrivate;
+
+    setupJsonWizardFileGenerator();
+    setupJsonWizardScannerGenerator();
 
     dd->extendFolderNavigationWidgetFactory();
 

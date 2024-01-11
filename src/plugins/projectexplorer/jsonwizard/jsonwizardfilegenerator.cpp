@@ -3,6 +3,8 @@
 
 #include "jsonwizardfilegenerator.h"
 
+#include "jsonwizardgeneratorfactory.h"
+
 #include "../projectexplorertr.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
@@ -15,13 +17,58 @@
 #include <utils/templateengine.h>
 #include <utils/algorithm.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QDirIterator>
 #include <QVariant>
 
-namespace ProjectExplorer {
-namespace Internal {
+using namespace Utils;
+
+namespace ProjectExplorer::Internal {
+
+class JsonWizardFileGenerator final : public JsonWizardGenerator
+{
+public:
+    bool setup(const QVariant &data, QString *errorMessage);
+
+    Core::GeneratedFiles fileList(MacroExpander *expander,
+                                  const FilePath &wizardDir,
+                                  const FilePath &projectDir,
+                                  QString *errorMessage) final;
+
+    bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) final;
+
+private:
+    class File {
+    public:
+        bool keepExisting = false;
+        FilePath source;
+        FilePath target;
+        QVariant condition = true;
+        QVariant isBinary = false;
+        QVariant overwrite = false;
+        QVariant openInEditor = false;
+        QVariant openAsProject = false;
+        QVariant isTemporary = false;
+
+        QList<JsonWizard::OptionDefinition> options;
+    };
+
+    Core::GeneratedFile generateFile(const File &file, MacroExpander *expander,
+                                     QString *errorMessage);
+
+    QList<File> m_fileList;
+
+    friend QDebug &operator<<(QDebug &debug, const File &file)
+    {
+        debug << "WizardFile{"
+              << "source:" << file.source
+              << "; target:" << file.target
+              << "; condition:" << file.condition
+              << "; options:" << file.options
+              << "}";
+        return debug;
+    }
+};
 
 bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 {
@@ -40,8 +87,8 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         File f;
 
         const QVariantMap tmp = d.toMap();
-        f.source = Utils::FilePath::fromSettings(tmp.value(QLatin1String("source")));
-        f.target = Utils::FilePath::fromSettings(tmp.value(QLatin1String("target")));
+        f.source = FilePath::fromSettings(tmp.value(QLatin1String("source")));
+        f.target = FilePath::fromSettings(tmp.value(QLatin1String("target")));
         f.condition = tmp.value(QLatin1String("condition"), true);
         f.isBinary = tmp.value(QLatin1String("isBinary"), false);
         f.overwrite = tmp.value(QLatin1String("overwrite"), false);
@@ -68,13 +115,13 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 }
 
 Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
-    Utils::MacroExpander *expander, QString *errorMessage)
+    MacroExpander *expander, QString *errorMessage)
 {
     // Read contents of source file
     const QFile::OpenMode openMode = file.isBinary.toBool() ?
         QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
 
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(file.source, openMode, errorMessage))
         return Core::GeneratedFile();
 
@@ -89,7 +136,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
         } else {
             // TODO: Document that input files are UTF8 encoded!
             gf.setBinary(false);
-            Utils::MacroExpander nested;
+            MacroExpander nested;
 
             // evaluate file options once:
             QHash<QString, QString> options;
@@ -108,7 +155,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
                 return expander->resolveMacro(n, ret);
             });
 
-            gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
+            gf.setContents(TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
                                                               errorMessage));
             if (!errorMessage->isEmpty()) {
                 *errorMessage = Tr::tr("When processing \"%1\":<br>%2")
@@ -135,8 +182,8 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
     return gf;
 }
 
-Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *expander,
-                                                       const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
+Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
+                                                       const FilePath &wizardDir, const FilePath &projectDir,
                                                        QString *errorMessage)
 {
     errorMessage->clear();
@@ -167,16 +214,16 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
     std::tie(fileList, dirList)
             = Utils::partition(concreteFiles, [](const File &f) { return !f.source.isDir(); });
 
-    const QSet<Utils::FilePath> knownFiles = Utils::transform<QSet>(fileList, &File::target);
+    const QSet<FilePath> knownFiles = Utils::transform<QSet>(fileList, &File::target);
 
     for (const File &dir : std::as_const(dirList)) {
-        Utils::FilePath sourceDir(dir.source);
-        const Utils::FilePaths entries =
+        FilePath sourceDir(dir.source);
+        const FilePaths entries =
                 sourceDir.dirEntries(QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden);
 
-        for (const Utils::FilePath &entry : entries) {
+        for (const FilePath &entry : entries) {
             const QString relativeFilePath = entry.relativeChildPath(sourceDir).path();
-            const Utils::FilePath targetPath = dir.target / relativeFilePath;
+            const FilePath targetPath = dir.target / relativeFilePath;
 
             if (knownFiles.contains(targetPath))
                 continue;
@@ -213,5 +260,51 @@ bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::Generate
     return true;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+// Factory
+
+class FileGeneratorFactory final : public JsonWizardGeneratorFactory
+{
+public:
+    FileGeneratorFactory()
+    {
+        setTypeIdsSuffix(QLatin1String("File"));
+    }
+
+    JsonWizardGenerator *create(Id typeId, const QVariant &data,
+                                const QString &path, Id platform,
+                                const QVariantMap &variables) final
+    {
+        Q_UNUSED(path)
+        Q_UNUSED(platform)
+        Q_UNUSED(variables)
+
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+
+        auto gen = new JsonWizardFileGenerator;
+        QString errorMessage;
+        gen->setup(data, &errorMessage);
+
+        if (!errorMessage.isEmpty()) {
+            qWarning() << "FileGeneratorFactory setup error:" << errorMessage;
+            delete gen;
+            return nullptr;
+        }
+
+        return gen;
+    }
+
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        QTC_ASSERT(canCreate(typeId), return false);
+
+        QScopedPointer<JsonWizardFileGenerator> gen(new JsonWizardFileGenerator);
+        return gen->setup(data, errorMessage);
+    }
+};
+
+void setupJsonWizardFileGenerator()
+{
+    static FileGeneratorFactory theFileGeneratorFactory;
+}
+
+} // ProjectExplorer

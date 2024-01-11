@@ -3,6 +3,7 @@
 
 #include "jsonwizardscannergenerator.h"
 
+#include "jsonwizardgeneratorfactory.h"
 #include "../projectmanager.h"
 #include "../projectexplorertr.h"
 
@@ -14,13 +15,31 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
+#include <QRegularExpression>
 #include <QVariant>
 
 #include <limits>
 
-namespace ProjectExplorer {
-namespace Internal {
+using namespace Utils;
+
+namespace ProjectExplorer::Internal {
+
+class JsonWizardScannerGenerator final : public JsonWizardGenerator
+{
+public:
+    bool setup(const QVariant &data, QString *errorMessage);
+
+    Core::GeneratedFiles fileList(MacroExpander *expander,
+                                  const FilePath &wizardDir,
+                                  const FilePath &projectDir,
+                                  QString *errorMessage) final;
+private:
+    Core::GeneratedFiles scan(const FilePath &dir, const FilePath &base);
+    bool matchesSubdirectoryPattern(const FilePath &path);
+
+    QString m_binaryPattern;
+    QList<QRegularExpression> m_subDirectoryExpressions;
+};
 
 bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessage)
 {
@@ -130,5 +149,51 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const Utils::FilePath &dir
     return result;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+// JsonWizardScannerGeneratorFactory
+
+class JsonWizardScannerGeneratorFactory final : public JsonWizardGeneratorFactory
+{
+public:
+    JsonWizardScannerGeneratorFactory()
+    {
+        setTypeIdsSuffix(QLatin1String("Scanner"));
+    }
+
+    JsonWizardGenerator *create(Id typeId, const QVariant &data,
+                                const QString &path, Id platform,
+                                const QVariantMap &variables) final
+    {
+        Q_UNUSED(path)
+        Q_UNUSED(platform)
+        Q_UNUSED(variables)
+
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+
+        auto gen = new JsonWizardScannerGenerator;
+        QString errorMessage;
+        gen->setup(data, &errorMessage);
+
+        if (!errorMessage.isEmpty()) {
+            qWarning() << "JsonWizardScannerGeneratorFactory setup error:" << errorMessage;
+            delete gen;
+            return nullptr;
+        }
+
+        return gen;
+    }
+
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        QTC_ASSERT(canCreate(typeId), return false);
+
+        QScopedPointer<JsonWizardScannerGenerator> gen(new JsonWizardScannerGenerator);
+        return gen->setup(data, errorMessage);
+    }
+};
+
+void setupJsonWizardScannerGenerator()
+{
+    static JsonWizardScannerGeneratorFactory theScannerGeneratorFactory;
+}
+
+} // ProjectExplorer::Internal
