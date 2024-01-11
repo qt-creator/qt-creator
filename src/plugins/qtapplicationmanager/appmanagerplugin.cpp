@@ -3,8 +3,6 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "appmanagerplugin.h"
-
 #include "appmanagercreatepackagestep.h"
 #include "appmanagerdeployconfigurationautoswitcher.h"
 #include "appmanagerdeployconfigurationfactory.h"
@@ -16,27 +14,35 @@
 #include "appmanagerrunconfiguration.h"
 #include "appmanagerruncontrol.h"
 
+#include <extensionsystem/iplugin.h>
+
 namespace AppManager::Internal {
 
-AppManagerPlugin::~AppManagerPlugin() = default;
-
-void AppManagerPlugin::initialize()
+class AppManagerPlugin final : public ExtensionSystem::IPlugin
 {
-    setupAppManagerCMakePackageStep();
-    setupAppManagerMakeInstallStep();
-    setupAppManagerCreatePackageStep();
-    setupAppManagerDeployPackageStep();
-    setupAppManagerInstallPackageStep();
-    setupAppManagerRemoteInstallPackageStep();
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QtApplicationManagerIntegration.json")
 
-    setupAppManagerDeployConfiguration();
-    setupAppManagerDeployConfigurationAutoSwitcher();
+    void initialize() final
+    {
+        setupAppManagerCMakePackageStep();
+        setupAppManagerMakeInstallStep();
+        setupAppManagerCreatePackageStep();
+        setupAppManagerDeployPackageStep();
+        setupAppManagerInstallPackageStep();
+        setupAppManagerRemoteInstallPackageStep();
 
-    setupAppManagerRunConfiguration();
+        setupAppManagerDeployConfiguration();
+        setupAppManagerDeployConfigurationAutoSwitcher();
 
-    setupAppManagerRunWorker();
-    setupAppManagerDebugWorker();
-    setupAppManagerQmlToolingWorker();
-}
+        setupAppManagerRunConfiguration();
+
+        setupAppManagerRunWorker();
+        setupAppManagerDebugWorker();
+        setupAppManagerQmlToolingWorker();
+    }
+};
 
 } // AppManager::Internal
+
+#include "appmanagerplugin.moc"

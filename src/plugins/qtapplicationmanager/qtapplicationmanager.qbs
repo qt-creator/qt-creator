@@ -39,7 +39,6 @@ QtcPlugin {
         "appmanagermakeinstallstep.cpp",
         "appmanagermakeinstallstep.h",
         "appmanagerplugin.cpp",
-        "appmanagerplugin.h",
         "appmanagerremoteinstallpackagestep.cpp",
         "appmanagerremoteinstallpackagestep.h",
         "appmanagerrunconfiguration.cpp",
