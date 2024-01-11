@@ -31,7 +31,7 @@
 
 #ifdef QT_GUI_LIB
 // qmlpuppet does not use that.
-#include <QApplication>
+#include <QGuiApplication>
 #include <QMessageBox>
 #endif
 
@@ -51,6 +51,12 @@ namespace Internal {
 const char QTC_PROCESS_BLOCKING_TYPE[] = "__BLOCKING_TYPE__";
 const char QTC_PROCESS_NUMBER[] = "__NUMBER__";
 const char QTC_PROCESS_STARTTIME[] = "__STARTTIME__";
+
+static bool isGuiEnabled()
+{
+    static bool isGuiApp = qobject_cast<QGuiApplication *>(qApp);
+    return isGuiApp && isMainThread();
+}
 
 class MeasureAndRun
 {
@@ -1412,7 +1418,7 @@ void Process::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 static bool askToKill(const CommandLine &command)
 {
 #ifdef QT_GUI_LIB
-    if (!isMainThread())
+    if (!isGuiEnabled())
         return true;
     const QString title = Tr::tr("Process Not Responding");
     QString msg = command.isEmpty() ? Tr::tr("The process is not responding.")
@@ -1421,12 +1427,12 @@ static bool askToKill(const CommandLine &command)
     msg += ' ';
     msg += Tr::tr("Terminate the process?");
     // Restore the cursor that is set to wait while running.
-    const bool hasOverrideCursor = QApplication::overrideCursor() != nullptr;
+    const bool hasOverrideCursor = QGuiApplication::overrideCursor() != nullptr;
     if (hasOverrideCursor)
-        QApplication::restoreOverrideCursor();
+        QGuiApplication::restoreOverrideCursor();
     QMessageBox::StandardButton answer = QMessageBox::question(nullptr, title, msg, QMessageBox::Yes|QMessageBox::No);
     if (hasOverrideCursor)
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     return answer == QMessageBox::Yes;
 #else
     Q_UNUSED(command)
@@ -1881,8 +1887,8 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             timer.setInterval(1000);
             timer.start();
 #ifdef QT_GUI_LIB
-            if (isMainThread())
-                QApplication::setOverrideCursor(Qt::WaitCursor);
+            if (isGuiEnabled())
+                QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
             QEventLoop eventLoop(this);
             QTC_ASSERT(!d->m_eventLoop, return);
@@ -1891,8 +1897,8 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             d->m_eventLoop = nullptr;
             timer.stop();
 #ifdef QT_GUI_LIB
-            if (isMainThread())
-                QApplication::restoreOverrideCursor();
+            if (isGuiEnabled())
+                QGuiApplication::restoreOverrideCursor();
 #endif
         }
     } else {
