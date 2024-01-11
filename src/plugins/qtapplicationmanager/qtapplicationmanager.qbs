@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "yaml-cpp" }
 
     //Properties {
     //    condition: Boot2Qt.present
@@ -23,6 +24,8 @@ QtcPlugin {
 
     files: [
         "appmanagerconstants.h",
+        "appmanagercmakepackagestep.cpp",
+        "appmanagercmakepackagestep.h",
         "appmanagercreatepackagestep.cpp",
         "appmanagercreatepackagestep.h",
         "appmanagerdeployconfigurationautoswitcher.cpp",
@@ -37,6 +40,8 @@ QtcPlugin {
         "appmanagermakeinstallstep.h",
         "appmanagerplugin.cpp",
         "appmanagerplugin.h",
+        "appmanagerremoteinstallpackagestep.cpp",
+        "appmanagerremoteinstallpackagestep.h",
         "appmanagerrunconfiguration.cpp",
         "appmanagerrunconfiguration.h",
         "appmanagerruncontrol.cpp",
