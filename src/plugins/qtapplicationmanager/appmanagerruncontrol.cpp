@@ -54,6 +54,8 @@ public:
             if (!targetInformation.isValid())
                 return;
 
+            // Prevent the write channel to be closed, otherwise the appman-controller will exit
+            setProcessMode(ProcessMode::Writer);
             setWorkingDirectory(targetInformation.workingDirectory());
             setCommandLine({FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, runControl->kit(),
                                                                  targetInformation.device)),
@@ -102,6 +104,8 @@ public:
             cmd.addArg("-eio");
             cmd.addArg(targetInformation.manifest.id);
 
+            // Prevent the write channel to be closed, otherwise the appman-controller will exit
+            setProcessMode(ProcessMode::Writer);
             setCommandLine(cmd);
             setWorkingDirectory(targetInformation.workingDirectory());
 
@@ -139,7 +143,7 @@ public:
             const Utils::FilePath dir = SysRootKitAspect::sysRoot(target->kit());
             // TODO: get real aspect from deploy configuration
             QString amfolder = Constants::REMOTE_DEFAULT_BIN_PATH;
-            m_symbolFile = dir.toString() + amfolder + Constants::APPMAN_LAUNCHER_QML;
+            m_symbolFile = dir.toString() + amfolder + QDir::separator() + Constants::APPMAN_LAUNCHER_QML;
         } else if (targetInformation.manifest.isNativeRuntime()) {
             m_symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(), [&](const BuildTargetInfo &ti) {
                                return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;

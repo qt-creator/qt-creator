@@ -53,6 +53,7 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
         auto createTargetInformation = [buildKey, manifestFilePath, cmakeTarget, packageFilePath, isBuiltinPackage, &result](const YAML::Node &document) {
             const QString id = QString::fromStdString(document["id"].as<std::string>());
             const QString runtime = QString::fromStdString(document["runtime"].as<std::string>());
+            const QString code = QString::fromStdString(document["code"].as<std::string>());
 
             if (!buildKey.isEmpty() && buildKey != id)
                 return;
@@ -64,6 +65,7 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
             ati.manifest.fileName = manifestFilePath.path();
             ati.manifest.id = id;
             ati.manifest.runtime = runtime;
+            ati.manifest.code = code;
             ati.isBuiltin = isBuiltinPackage;
             ati.cmakeBuildTarget = cmakeTarget;
             ati.packageFile = QFileInfo(packageFilePath.path());
