@@ -1536,6 +1536,11 @@ public:
         return std::invoke(std::forward<Handler>(handler), std::forward<Args>(args)...);
     }
 
+    static int effectiveLoopCount(const std::optional<Loop> &loop)
+    {
+        return loop && loop->m_loopData->m_loopCount ? *loop->m_loopData->m_loopCount : 1;
+    }
+
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
@@ -1569,11 +1574,7 @@ class RuntimeIteration
     Q_DISABLE_COPY(RuntimeIteration)
 
 public:
-    RuntimeIteration(int index, RuntimeContainer *container)
-        : m_iterationIndex(index)
-        , m_isProgressive(index ? false : isProgressive(container))
-        , m_container(container)
-    {}
+    RuntimeIteration(int index, RuntimeContainer *container);
     std::optional<Loop> loop() const;
     void deleteChild(RuntimeTask *node);
 
@@ -1613,6 +1614,10 @@ public:
     RuntimeIteration *parentIteration() const;
     bool updateSuccessBit(bool success);
     void deleteFinishedIterations();
+    int progressiveLoopCount() const
+    {
+        return m_containerNode.m_taskTreePrivate->effectiveLoopCount(m_containerNode.m_loop);
+    }
 
     const ContainerNode &m_containerNode; // Not owning.
     RuntimeTask *m_parentTask = nullptr; // Not owning.
@@ -1727,6 +1732,12 @@ void TaskTreePrivate::emitDone(DoneWith result)
     emit q->done(result);
 }
 
+RuntimeIteration::RuntimeIteration(int index, RuntimeContainer *container)
+    : m_iterationIndex(index)
+    , m_isProgressive(index < container->progressiveLoopCount() && isProgressive(container))
+    , m_container(container)
+{}
+
 std::optional<Loop> RuntimeIteration::loop() const
 {
     return m_container->m_containerNode.m_loop;
@@ -1760,7 +1771,8 @@ ContainerNode::ContainerNode(TaskTreePrivate *taskTreePrivate, const GroupItem &
     , m_storageList(task.m_storageList)
     , m_children(createChildren(taskTreePrivate, task.m_children))
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
-                                  [](int r, const TaskNode &n) { return r + n.taskCount(); }))
+                                  [](int r, const TaskNode &n) { return r + n.taskCount(); })
+                  * taskTreePrivate->effectiveLoopCount(m_loop))
 {
     for (const StorageBase &storage : m_storageList)
         m_taskTreePrivate->m_storages << storage;
@@ -1898,21 +1910,8 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
 
         const SetupResult finalizeAction = childDone(iteration,
                                                      startAction == SetupResult::StopWithSuccess);
-        if (finalizeAction == SetupResult::Continue)
-            continue;
-
-        if (iteration->m_isProgressive) {
-            int skippedTaskCount = 0;
-            // Skip scheduled but not run yet.
-            // The current m_nextToStart was already notified -> thus -1.
-            const int limit = containerNode.m_parallelLimit
-                ? qMin(iteration->m_doneCount + containerNode.m_parallelLimit - 1, childCount)
-                : childCount;
-            for (int i = container->m_nextToStart; i < limit; ++i)
-                skippedTaskCount += containerNode.m_children.at(i).taskCount();
-            advanceProgress(skippedTaskCount);
-        }
-        return finalizeAction;
+        if (finalizeAction != SetupResult::Continue)
+            return finalizeAction;
     }
     return SetupResult::Continue;
 }
@@ -1924,11 +1923,11 @@ SetupResult TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success
     const bool shouldStop = workflowPolicy == WorkflowPolicy::StopOnSuccessOrError
                         || (workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
                         || (workflowPolicy == WorkflowPolicy::StopOnError && !success);
+    ++iteration->m_doneCount;
+    --container->m_runningChildren;
     if (shouldStop)
         stop(container);
 
-    ++iteration->m_doneCount;
-    --container->m_runningChildren;
     const bool updatedSuccess = container->updateSuccessBit(success);
     const SetupResult startAction = shouldStop ? toSetupResult(updatedSuccess)
                                                : SetupResult::Continue;
@@ -1942,17 +1941,22 @@ void TaskTreePrivate::stop(RuntimeContainer *container)
 {
     const ContainerNode &containerNode = container->m_containerNode;
     for (auto &iteration : container->m_iterations) {
-        for (auto &child : iteration->m_children)
+        for (auto &child : iteration->m_children) {
+            ++iteration->m_doneCount;
             stop(child.get());
+        }
 
-        if (iteration->m_isProgressive && containerNode.m_parallelLimit > 0) {
+        if (iteration->m_isProgressive) {
             int skippedTaskCount = 0;
-            for (int i = iteration->m_doneCount + containerNode.m_parallelLimit;
-                 i < int(containerNode.m_children.size()); ++i) {
+            for (int i = iteration->m_doneCount; i < int(containerNode.m_children.size()); ++i)
                 skippedTaskCount += containerNode.m_children.at(i).taskCount();
-            }
             advanceProgress(skippedTaskCount);
         }
+    }
+    const int skippedIterations = container->progressiveLoopCount() - container->m_iterationCount;
+    if (skippedIterations > 0) {
+        advanceProgress(container->m_containerNode.m_taskCount / container->progressiveLoopCount()
+                        * skippedIterations);
     }
 }
 
@@ -2003,7 +2007,7 @@ SetupResult TaskTreePrivate::start(RuntimeTask *node)
     if (startAction != SetupResult::Continue) {
         if (node->m_parentIteration->m_isProgressive)
             advanceProgress(1);
-        node->m_task.reset();
+        node->m_parentIteration->deleteChild(node);
         return startAction;
     }
     const std::shared_ptr<SetupResult> unwindAction

@@ -2693,18 +2693,18 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const QList<GroupItem> items {
+        const QList<GroupItem> successItems {
             storage,
             LoopRepeat(2),
             createSuccessTask(1),
             createSuccessTask(2)
         };
 
-        const Group rootSequential {
+        const Group rootSequentialSuccess {
             sequential,
-            items
+            successItems
         };
-        const Log logSequential {
+        const Log logSequentialSuccess {
             {1, Handler::Setup},
             {1, Handler::Success},
             {2, Handler::Setup},
@@ -2715,11 +2715,11 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const Group rootParallel {
+        const Group rootParallelSuccess {
             parallel,
-            items
+            successItems
         };
-        const Log logParallel {
+        const Log logParallelSuccess {
             {1, Handler::Setup},
             {2, Handler::Setup},
             {1, Handler::Setup},
@@ -2730,11 +2730,11 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const Group rootParallelLimit {
+        const Group rootParallelLimitSuccess {
             parallelLimit(2),
-            items
+            successItems
         };
-        const Log logParallelLimit {
+        const Log logParallelLimitSuccess {
             {1, Handler::Setup},
             {2, Handler::Setup},
             {1, Handler::Success},
@@ -2745,12 +2745,64 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        QTest::newRow("RepeatSequential")
-            << TestData{storage, rootSequential, logSequential, 2, DoneWith::Success};
-        QTest::newRow("RepeatParallel")
-            << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
-        QTest::newRow("RepeatParallelLimit")
-            << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+        const QList<GroupItem> errorItems {
+            storage,
+            LoopRepeat(2),
+            createSuccessTask(1),
+            createFailingTask(2)
+        };
+
+        const Group rootSequentialError {
+            sequential,
+            errorItems
+        };
+        const Log logSequentialError {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Error}
+        };
+
+        const Group rootParallelError {
+            parallel,
+            errorItems
+        };
+        const Log logParallelError {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Error},
+            {1, Handler::Canceled},
+            {2, Handler::Canceled}
+        };
+
+        const Group rootParallelLimitError {
+            parallelLimit(2),
+            errorItems
+        };
+        const Log logParallelLimitError {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Success},
+            {1, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Canceled}
+        };
+
+        QTest::newRow("RepeatSequentialSuccess")
+            << TestData{storage, rootSequentialSuccess, logSequentialSuccess, 4, DoneWith::Success};
+        QTest::newRow("RepeatParallelSuccess")
+            << TestData{storage, rootParallelSuccess, logParallelSuccess, 4, DoneWith::Success};
+        QTest::newRow("RepeatParallelLimitSuccess")
+            << TestData{storage, rootParallelLimitSuccess, logParallelLimitSuccess, 4, DoneWith::Success};
+        QTest::newRow("RepeatSequentialError")
+            << TestData{storage, rootSequentialError, logSequentialError, 4, DoneWith::Error};
+        QTest::newRow("RepeatParallelError")
+            << TestData{storage, rootParallelError, logParallelError, 4, DoneWith::Error};
+        QTest::newRow("RepeatParallelLimitError")
+            << TestData{storage, rootParallelLimitError, logParallelLimitError, 4, DoneWith::Error};
     }
 
     {
