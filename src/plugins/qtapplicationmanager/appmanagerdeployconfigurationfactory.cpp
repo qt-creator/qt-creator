@@ -6,8 +6,9 @@
 #include "appmanagerdeployconfigurationfactory.h"
 
 #include "appmanagerconstants.h"
-#include "appmanagertargetinformation.h"
+#include "appmanagertr.h"
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
@@ -17,8 +18,7 @@
 
 using namespace ProjectExplorer;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
 static bool isNecessaryToDeploy(const Target *target)
 {
@@ -26,21 +26,29 @@ static bool isNecessaryToDeploy(const Target *target)
     return device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
-AppManagerDeployConfigurationFactory::AppManagerDeployConfigurationFactory()
+class AppManagerDeployConfigurationFactory final : public DeployConfigurationFactory
 {
-    setConfigBaseId(Constants::DEPLOYCONFIGURATION_ID);
-    setDefaultDisplayName(QCoreApplication::translate("AppManager", "Deploy Application Manager Package"));
-    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+public:
+    AppManagerDeployConfigurationFactory()
+    {
+        setConfigBaseId(Constants::DEPLOYCONFIGURATION_ID);
+        setDefaultDisplayName(Tr::tr("AppManager", "Deploy Application Manager Package"));
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 
-    addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
-    addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID, [](Target *target) {
-        return !isNecessaryToDeploy(target);
-    });
-    addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);
-    addInitialStep(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID, isNecessaryToDeploy);
+        addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
+        addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID, [](Target *target) {
+            return !isNecessaryToDeploy(target);
+        });
+        addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);
+        addInitialStep(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID, isNecessaryToDeploy);
+    }
+};
+
+void setupAppManagerDeployConfiguration()
+{
+    static AppManagerDeployConfigurationFactory theAppManagerDeployConfigurationFactory;
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal
 

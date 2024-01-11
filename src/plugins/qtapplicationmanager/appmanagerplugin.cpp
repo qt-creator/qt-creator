@@ -21,8 +21,6 @@ namespace AppManager::Internal {
 class AppManagerPluginPrivate
 {
 public:
-    AppManagerDeployConfigurationFactory deployConfigFactory;
-
     AppManagerRunConfigurationFactory runConfigFactory;
     AppManagerRunWorkerFactory runWorkerFactory;
     AppManagerDebugWorkerFactory debugWorkerFactory;
@@ -43,6 +41,7 @@ void AppManagerPlugin::initialize()
     setupAppManagerInstallPackageStep();
     setupAppManagerRemoteInstallPackageStep();
 
+    setupAppManagerDeployConfiguration();
     setupAppManagerDeployConfigurationAutoSwitcher();
 
     d = new AppManagerPluginPrivate;

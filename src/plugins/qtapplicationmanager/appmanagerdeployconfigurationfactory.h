@@ -5,16 +5,8 @@
 
 #pragma once
 
-#include <projectexplorer/deployconfiguration.h>
+namespace AppManager::Internal {
 
-namespace AppManager {
-namespace Internal {
+void setupAppManagerDeployConfiguration();
 
-class AppManagerDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
-{
-public:
-    AppManagerDeployConfigurationFactory();
-};
-
-} // namespace Internal
-} // namespace AppManager
+} // AppManager::Internal
