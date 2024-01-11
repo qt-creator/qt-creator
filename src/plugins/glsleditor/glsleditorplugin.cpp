@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "glslcompletionassist.h"
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditortr.h"
@@ -27,30 +26,14 @@ using namespace Utils;
 
 namespace GlslEditor::Internal {
 
-class GlslEditorPluginPrivate
-{
-public:
-    GlslCompletionAssistProvider completionAssistProvider;
-};
-
-static GlslEditorPluginPrivate *dd = nullptr;
-
 class GlslEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
 
 public:
-    ~GlslEditorPlugin() final
-    {
-        delete dd;
-        dd = nullptr;
-    }
-
     void initialize() final
     {
-        dd = new GlslEditorPluginPrivate;
-
         setupGlslEditorFactory();
 
         ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
