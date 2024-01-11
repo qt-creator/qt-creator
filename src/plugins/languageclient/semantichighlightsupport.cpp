@@ -190,8 +190,8 @@ void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
 
 void SemanticTokenSupport::rehighlight()
 {
-    for (const Utils::FilePath &filePath : m_tokens.keys())
-        highlight(filePath, true);
+    for (auto it = m_tokens.cbegin(); it != m_tokens.cend(); ++it)
+        highlight(it.key(), true);
 }
 
 void addModifiers(int key,
