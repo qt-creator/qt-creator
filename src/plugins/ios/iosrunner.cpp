@@ -13,7 +13,6 @@
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitaspect.h>
-#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/kitaspects.h>

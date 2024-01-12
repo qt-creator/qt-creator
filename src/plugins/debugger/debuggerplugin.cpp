@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "debuggerplugin.h"
-
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
@@ -25,7 +23,6 @@
 #include "sourceutils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
-#include "commonoptionspage.h"
 
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
@@ -48,6 +45,7 @@
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -112,11 +110,9 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
-#include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTextBlock>
 #include <QToolButton>
-#include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QVariant>
 
@@ -352,6 +348,8 @@ using namespace Utils;
 namespace CC = Core::Constants;
 namespace PE = ProjectExplorer::Constants;
 
+Q_DECLARE_METATYPE(QString *)
+
 namespace Debugger {
 namespace Internal {
 
@@ -556,6 +554,7 @@ static Kit *findUniversalCdbKit()
 //
 ///////////////////////////////////////////////////////////////////////
 
+class DebuggerPlugin;
 static DebuggerPlugin *m_instance = nullptr;
 static DebuggerPluginPrivate *dd = nullptr;
 
@@ -582,7 +581,6 @@ public:
     ~DebuggerPluginPrivate() override;
 
     void extensionsInitialized();
-    void aboutToShutdown();
 
     RunControl *attachToRunningProcess(Kit *kit, const ProcessInfo &process, bool contAfterAttach);
 
@@ -1802,76 +1800,6 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     return debugger->runControl();
 }
 
-void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
-{
-    ProcessInfo processInfo;
-    processInfo.processId = processId;
-    processInfo.executable = executable.toString();
-
-    auto kitChooser = new KitChooser;
-    kitChooser->setShowIcons(true);
-    kitChooser->populate();
-    Kit *kit = kitChooser->currentKit();
-
-    dd->attachToRunningProcess(kit, processInfo, false);
-}
-
-void DebuggerPlugin::attachExternalApplication(RunControl *rc)
-{
-    ProcessHandle pid = rc->applicationProcessHandle();
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setTarget(rc->target());
-    runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
-    auto debugger = new DebuggerRunTool(runControl);
-    debugger->setInferiorExecutable(rc->targetFilePath());
-    debugger->setAttachPid(pid);
-    debugger->setStartMode(AttachToLocalProcess);
-    debugger->setCloseMode(DetachAtClose);
-    debugger->startRunControl();
-}
-
-void DebuggerPlugin::getEnginesState(QByteArray *json) const
-{
-    QTC_ASSERT(json, return);
-    QVariantMap result {
-        {"version", 1}
-    };
-    QVariantMap states;
-
-    int i = 0;
-    DebuggerEngine *currentEngine = EngineManager::currentEngine();
-    for (DebuggerEngine *engine : EngineManager::engines()) {
-        states[QString::number(i)] = QVariantMap({
-                   {"current", engine == currentEngine},
-                   {"pid", engine->inferiorPid()},
-                   {"state", engine->state()}
-        });
-        ++i;
-    }
-
-    if (!states.isEmpty())
-        result["states"] = states;
-
-    *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
-}
-
-void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
-                                                  const QString &detectionSource,
-                                                  QString *logMessage)
-{
-    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
-}
-
-void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
-}
-
-void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
-}
-
 void DebuggerPluginPrivate::attachToQmlPort()
 {
     AttachToQmlPortDialog dlg(ICore::dialogParent());
@@ -2106,30 +2034,6 @@ void DebuggerPluginPrivate::dumpLog()
     saver.finalize(ICore::dialogParent());
 }
 
-void DebuggerPluginPrivate::aboutToShutdown()
-{
-    disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, nullptr);
-
-    m_shutdownTimer.setInterval(0);
-    m_shutdownTimer.setSingleShot(true);
-
-    connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
-        DebuggerMainWindow::doShutdown();
-
-        m_shutdownTimer.stop();
-
-        delete m_mode;
-        m_mode = nullptr;
-        emit m_instance->asynchronousShutdownFinished();
-    });
-
-    if (EngineManager::shutDown()) {
-        // If any engine is aborting we give them extra three seconds.
-        m_shutdownTimer.setInterval(3000);
-    }
-    m_shutdownTimer.start();
-}
-
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
 {
     if (options.isEmpty())
@@ -2210,14 +2114,39 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
 //
 ///////////////////////////////////////////////////////////////////////
 
-/*!
-    \class Debugger::DebuggerPlugin
+class DebuggerPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Debugger.json")
 
-    This is the "external" interface of the debugger plugin that's visible
-    from Qt Creator core. The internal interface to global debugger
-    functionality that is used by debugger views and debugger engines
-    is DebuggerCore, implemented in DebuggerPluginPrivate.
-*/
+public:
+    DebuggerPlugin();
+    ~DebuggerPlugin() final;
+
+private:
+    // IPlugin implementation.
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    QObject *remoteCommand(const QStringList &options,
+                           const QString &workingDirectory,
+                           const QStringList &arguments) final;
+    ShutdownFlag aboutToShutdown() final;
+    void extensionsInitialized() final;
+
+    // Called from AppOutputPane::attachToRunControl().
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+
+    // Called from GammaRayIntegration
+    Q_SLOT void getEnginesState(QByteArray *json) const;
+
+    // Called from DockerDevice
+    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
+                                             const QString &detectionId,
+                                             QString *logMessage);
+    Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
+    Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
+
+    Q_SLOT void attachToProcess(const qint64 processId, const Utils::FilePath &executable);
+};
 
 DebuggerPlugin::DebuggerPlugin()
 {
@@ -2237,7 +2166,28 @@ DebuggerPlugin::~DebuggerPlugin()
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(this);
-    dd->aboutToShutdown();
+
+    disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, dd, nullptr);
+
+    dd->m_shutdownTimer.setInterval(0);
+    dd->m_shutdownTimer.setSingleShot(true);
+
+    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, [this] {
+        DebuggerMainWindow::doShutdown();
+
+        dd->m_shutdownTimer.stop();
+
+        delete dd->m_mode;
+        dd->m_mode = nullptr;
+        emit asynchronousShutdownFinished();
+    });
+
+    if (EngineManager::shutDown()) {
+        // If any engine is aborting we give them extra three seconds.
+        dd->m_shutdownTimer.setInterval(3000);
+    }
+    dd->m_shutdownTimer.start();
+
     return AsynchronousShutdown;
 }
 
@@ -2605,6 +2555,76 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 #endif
 
     return true;
+}
+
+void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
+{
+    ProcessInfo processInfo;
+    processInfo.processId = processId;
+    processInfo.executable = executable.toString();
+
+    auto kitChooser = new KitChooser;
+    kitChooser->setShowIcons(true);
+    kitChooser->populate();
+    Kit *kit = kitChooser->currentKit();
+
+    dd->attachToRunningProcess(kit, processInfo, false);
+}
+
+void DebuggerPlugin::attachExternalApplication(RunControl *rc)
+{
+    ProcessHandle pid = rc->applicationProcessHandle();
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setTarget(rc->target());
+    runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
+    auto debugger = new DebuggerRunTool(runControl);
+    debugger->setInferiorExecutable(rc->targetFilePath());
+    debugger->setAttachPid(pid);
+    debugger->setStartMode(AttachToLocalProcess);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->startRunControl();
+}
+
+void DebuggerPlugin::getEnginesState(QByteArray *json) const
+{
+    QTC_ASSERT(json, return);
+    QVariantMap result {
+        {"version", 1}
+    };
+    QVariantMap states;
+
+    int i = 0;
+    DebuggerEngine *currentEngine = EngineManager::currentEngine();
+    for (DebuggerEngine *engine : EngineManager::engines()) {
+        states[QString::number(i)] = QVariantMap({
+                   {"current", engine == currentEngine},
+                   {"pid", engine->inferiorPid()},
+                   {"state", engine->state()}
+        });
+        ++i;
+    }
+
+    if (!states.isEmpty())
+        result["states"] = states;
+
+    *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
+}
+
+void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
+                                                  const QString &detectionSource,
+                                                  QString *logMessage)
+{
+    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
+}
+
+void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
+}
+
+void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
 }
 
 } // Internal

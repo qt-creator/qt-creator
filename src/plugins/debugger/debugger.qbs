@@ -42,7 +42,7 @@ QtcPlugin {
             "debuggeritemmanager.cpp", "debuggeritemmanager.h",
             "debuggerkitaspect.cpp", "debuggerkitaspect.h",
             "debuggermainwindow.cpp", "debuggermainwindow.h",
-            "debuggerplugin.cpp", "debuggerplugin.h",
+            "debuggerplugin.cpp",
             "debuggerprotocol.cpp", "debuggerprotocol.h",
             "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",
             "debuggerruncontrol.cpp", "debuggerruncontrol.h",
