@@ -53,7 +53,7 @@ struct AnalyzeOutputData
 using AnalyzeSetupHandler = std::function<bool(const AnalyzeUnit &)>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-Tasking::GroupItem clangToolTask(const AnalyzeUnit &unit,
+Tasking::GroupItem clangToolTask(const AnalyzeUnits &units,
                                  const AnalyzeInputData &input,
                                  const AnalyzeSetupHandler &setupHandler,
                                  const AnalyzeOutputHandler &outputHandler);

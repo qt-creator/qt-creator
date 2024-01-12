@@ -760,14 +760,12 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         qCDebug(LOG) << "Files to process:" << unitsToProcess;
         qCDebug(LOG) << "Environment:" << environment;
 
-        QList<GroupItem> tasks{parallelLimit(qMax(1, runSettings.parallelJobs()))};
-        for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
-            const auto setupHandler = [this, tool](const AnalyzeUnit &unit) {
-                const QString filePath = unit.file.toUserOutput();
-                m_runControl->postMessage(Tr::tr("Analyzing \"%1\" [%2].")
-                                              .arg(filePath, clangToolName(tool)), StdOutFormat);
-                return true;
-            };
+        const auto setupHandler = [this, tool](const AnalyzeUnit &unit) {
+            const QString filePath = unit.file.toUserOutput();
+            m_runControl->postMessage(Tr::tr("Analyzing \"%1\" [%2].")
+                                          .arg(filePath, clangToolName(tool)), StdOutFormat);
+            return true;
+        };
             const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
                 if (!output.success) {
                     qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
@@ -799,9 +797,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
             };
             const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
                                          environment};
-            tasks.append(clangToolTask(unit, input, setupHandler, outputHandler));
-        }
-        taskTree.setRecipe(tasks);
+
+        taskTree.setRecipe({clangToolTask(unitsToProcess, input, setupHandler, outputHandler)});
         return SetupResult::Continue;
     };
 

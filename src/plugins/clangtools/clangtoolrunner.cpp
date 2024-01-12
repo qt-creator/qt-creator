@@ -110,7 +110,7 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     return {};
 }
 
-GroupItem clangToolTask(const AnalyzeUnit &unit,
+GroupItem clangToolTask(const AnalyzeUnits &units,
                         const AnalyzeInputData &input,
                         const AnalyzeSetupHandler &setupHandler,
                         const AnalyzeOutputHandler &outputHandler)
@@ -121,17 +121,19 @@ GroupItem clangToolTask(const AnalyzeUnit &unit,
         FilePath outputFilePath;
     };
     const Storage<ClangToolStorage> storage;
+    const LoopRepeat repeater(units.size());
 
-    const auto mainToolArguments = [unit, input](const ClangToolStorage &data) {
+    const auto mainToolArguments = [units, input, repeater](const ClangToolStorage &data) {
         QStringList result;
         result << "-export-fixes=" + data.outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
-        result << unit.file.nativePath();
+        result << units[repeater.iteration()].file.nativePath();
         return result;
     };
 
-    const auto onSetup = [storage, unit, input, setupHandler] {
+    const auto onSetup = [storage, units, input, setupHandler, repeater] {
+        const AnalyzeUnit &unit = units[repeater.iteration()];
         if (setupHandler && !setupHandler(unit))
             return SetupResult::StopWithError;
 
@@ -151,7 +153,8 @@ GroupItem clangToolTask(const AnalyzeUnit &unit,
 
         return SetupResult::Continue;
     };
-    const auto onProcessSetup = [storage, unit, input, mainToolArguments](Process &process) {
+    const auto onProcessSetup = [storage, units, input, mainToolArguments, repeater](Process &process) {
+        const AnalyzeUnit &unit = units[repeater.iteration()];
         process.setEnvironment(input.environment);
         process.setUseCtrlCStub(true);
         process.setLowPriority();
@@ -168,11 +171,13 @@ GroupItem clangToolTask(const AnalyzeUnit &unit,
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [storage, unit, input, outputHandler](const Process &process, DoneWith result) {
+    const auto onProcessDone = [storage, units, input, outputHandler, repeater](
+                                   const Process &process, DoneWith result) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
 
         if (!outputHandler)
             return;
+        const AnalyzeUnit &unit = units[repeater.iteration()];
         if (result == DoneWith::Success) {
             const QString stdErr = process.cleanedStdErr();
             if (stdErr.isEmpty())
@@ -203,7 +208,7 @@ GroupItem clangToolTask(const AnalyzeUnit &unit,
                                    input.diagnosticsFilter);
         data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
-    const auto onReadDone = [storage, unit, input, outputHandler](
+    const auto onReadDone = [storage, units, input, outputHandler, repeater](
                                 const Async<expected_str<Diagnostics>> &data, DoneWith result) {
         if (!outputHandler)
             return;
@@ -216,24 +221,25 @@ GroupItem clangToolTask(const AnalyzeUnit &unit,
         else
             error = diagnosticsResult.error();
         outputHandler({ok,
-                       unit.file,
+                       units[repeater.iteration()].file,
                        storage->outputFilePath,
                        diagnostics,
                        input.tool,
                        error});
     };
 
-    const Group group {
+    return Group {
+        parallelLimit(qMax(1, input.runSettings.parallelJobs())),
         finishAllAndSuccess,
-        storage,
-        onGroupSetup(onSetup),
+        repeater,
         Group {
+            storage,
+            onGroupSetup(onSetup),
             sequential,
             ProcessTask(onProcessSetup, onProcessDone),
             AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone)
         }
     };
-    return group;
 }
 
 } // namespace Internal
