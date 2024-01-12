@@ -26,6 +26,10 @@ public:
                   const TabSettings &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
+    void autoIndent(const QTextCursor &cursor,
+                    const TabSettings &tabSettings,
+                    int cursorPositionInEditor = -1) override;
+
     IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                              const TabSettings &tabSettings,
                                              int cursorPositionInEditor = -1) override;
