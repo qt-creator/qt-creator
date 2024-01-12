@@ -214,7 +214,7 @@ void RefactoringFile::setOpenEditor(bool activate, int pos)
 bool RefactoringFile::apply()
 {
     // test file permissions
-    if (!m_filePath.toFileInfo().isWritable()) {
+    if (!m_filePath.isWritableFile()) {
         ReadOnlyFilesDialog roDialog(m_filePath, ICore::dialogParent());
         roDialog.setShowFailWarning(true, Tr::tr("Refactoring cannot be applied."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
