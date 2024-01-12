@@ -17,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -98,35 +99,13 @@ AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIss
     });
 }
 
-AxivionPlugin::~AxivionPlugin()
-{
-    AxivionProjectSettings::destroyProjectSettings();
-    delete dd;
-    dd = nullptr;
-}
-
-void AxivionPlugin::initialize()
-{
-    dd = new AxivionPluginPrivate;
-
-    AxivionProjectSettings::setupProjectPanel();
-
-    connect(ProjectExplorer::ProjectManager::instance(),
-            &ProjectExplorer::ProjectManager::startupProjectChanged,
-            dd, &AxivionPluginPrivate::onStartupProjectChanged);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
-            dd, &AxivionPluginPrivate::onDocumentOpened);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
-            dd, &AxivionPluginPrivate::onDocumentClosed);
-}
-
-void AxivionPlugin::fetchProjectInfo(const QString &projectName)
+void fetchProjectInfo(const QString &projectName)
 {
     QTC_ASSERT(dd, return);
     dd->fetchProjectInfo(projectName);
 }
 
-std::shared_ptr<const DashboardClient::ProjectInfo> AxivionPlugin::projectInfo()
+std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
@@ -134,7 +113,7 @@ std::shared_ptr<const DashboardClient::ProjectInfo> AxivionPlugin::projectInfo()
 
 // FIXME: extend to give some details?
 // FIXME: move when curl is no more in use?
-bool AxivionPlugin::handleCertificateIssue()
+bool handleCertificateIssue()
 {
     QTC_ASSERT(dd, return false);
     const QString serverHost = QUrl(settings().server.dashboard).host();
@@ -170,7 +149,7 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
     };
     if (Utils::allOf(errors,
                      [&accepted](const QSslError &e) { return accepted.contains(e.error()); })) {
-        if (!settings().server.validateCert || AxivionPlugin::handleCertificateIssue())
+        if (!settings().server.validateCert || handleCertificateIssue())
             reply->ignoreSslErrors(errors);
     }
 #else // ssl
@@ -334,4 +313,34 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
     }
 }
 
+class AxivionPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Axivion.json")
+
+    ~AxivionPlugin() final
+    {
+        AxivionProjectSettings::destroyProjectSettings();
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new AxivionPluginPrivate;
+
+        AxivionProjectSettings::setupProjectPanel();
+
+        connect(ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::startupProjectChanged,
+                dd, &AxivionPluginPrivate::onStartupProjectChanged);
+        connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+                dd, &AxivionPluginPrivate::onDocumentOpened);
+        connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
+                dd, &AxivionPluginPrivate::onDocumentClosed);
+    }
+};
+
 } // Axivion::Internal
+
+#include "axivionplugin.moc"

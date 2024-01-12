@@ -94,7 +94,7 @@ void DashboardWidget::updateUi()
         delete child->widget();
         delete child;
     }
-    std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo = AxivionPlugin::projectInfo();
+    std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo = Internal::projectInfo();
     if (!projectInfo)
         return;
     const Dto::ProjectInfoDto &info = projectInfo->data;

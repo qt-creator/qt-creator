@@ -207,7 +207,7 @@ void AxivionProjectSettingsWidget::linkProject()
     const QString projectName = selected.first()->text(0);
     m_projectSettings->setDashboardProjectName(projectName);
     updateUi();
-    AxivionPlugin::fetchProjectInfo(projectName);
+    fetchProjectInfo(projectName);
 }
 
 void AxivionProjectSettingsWidget::unlinkProject()
@@ -216,7 +216,7 @@ void AxivionProjectSettingsWidget::unlinkProject()
 
     m_projectSettings->setDashboardProjectName({});
     updateUi();
-    AxivionPlugin::fetchProjectInfo({});
+    fetchProjectInfo({});
 }
 
 void AxivionProjectSettingsWidget::updateUi()

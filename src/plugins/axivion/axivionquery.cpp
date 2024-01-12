@@ -70,7 +70,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
             const int exitCode = m_process.exitCode();
             if (m_process.exitStatus() == QProcess::NormalExit
                     && (exitCode == 35 || exitCode == 60)
-                    && AxivionPlugin::handleCertificateIssue()) {
+                    && handleCertificateIssue()) {
                 // prepend -k for re-requesting same query
                 CommandLine cmdline = m_process.commandLine();
                 cmdline.prependArgs({"-k"});
