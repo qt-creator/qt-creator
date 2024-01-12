@@ -28,7 +28,7 @@ class CtfVisualizerTool  : public QObject
     Q_OBJECT
 
 public:
-    CtfVisualizerTool();
+    explicit CtfVisualizerTool(QObject *parent);
     ~CtfVisualizerTool();
 
     Timeline::TimelineModelAggregator *modelAggregator() const;
@@ -66,6 +66,6 @@ private:
     QMenu *const m_restrictToThreadsMenu;
 };
 
-void setupCtfVisualizerTool();
+void setupCtfVisualizerTool(QObject *guard);
 
 } // namespace CtfVisualizer::Internal

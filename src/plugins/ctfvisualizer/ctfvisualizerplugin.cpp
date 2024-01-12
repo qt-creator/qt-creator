@@ -14,7 +14,7 @@ class CtfVisualizerPlugin : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        setupCtfVisualizerTool();
+        setupCtfVisualizerTool(this);
     }
 };
 

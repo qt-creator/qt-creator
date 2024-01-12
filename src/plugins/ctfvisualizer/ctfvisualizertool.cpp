@@ -35,8 +35,9 @@ namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
 
-CtfVisualizerTool::CtfVisualizerTool()
-    : m_modelAggregator(new Timeline::TimelineModelAggregator(this))
+CtfVisualizerTool::CtfVisualizerTool(QObject *parent)
+    : QObject(parent)
+    , m_modelAggregator(new Timeline::TimelineModelAggregator(this))
     , m_zoomControl(new Timeline::TimelineZoomControl(this))
     , m_statisticsModel(new CtfStatisticsModel(this))
     , m_traceManager(new CtfTraceManager(this, m_modelAggregator.get(), m_statisticsModel.get()))
@@ -251,9 +252,9 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     m_loader->start();
 }
 
-void setupCtfVisualizerTool()
+void setupCtfVisualizerTool(QObject *guard)
 {
-    static CtfVisualizerTool theCtfVisualizerTool;
+    (void) new CtfVisualizerTool(guard);
 }
 
 }  // namespace CtfVisualizer::Internal
