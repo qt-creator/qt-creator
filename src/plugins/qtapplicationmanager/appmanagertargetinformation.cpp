@@ -112,7 +112,8 @@ TargetInformation::TargetInformation(const Target *target)
     const RunConfiguration *rc = target->activeRunConfiguration();
     if (!rc)
         return;
-    if (rc->id() != Constants::RUNCONFIGURATION_ID)
+    if (rc->id() != Constants::RUNCONFIGURATION_ID &&
+        rc->id() != Constants::RUNANDDEBUGCONFIGURATION_ID)
         return;
 
     const auto buildKey = rc->buildKey();

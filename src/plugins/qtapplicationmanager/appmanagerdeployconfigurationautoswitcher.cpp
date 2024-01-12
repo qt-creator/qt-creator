@@ -61,7 +61,8 @@ void AppManagerDeployConfigurationAutoSwitcher::onActiveDeployConfigurationChang
 
 static bool isApplicationManagerRunConfiguration(const RunConfiguration *runConfiguration)
 {
-    return runConfiguration && runConfiguration->id() == Constants::RUNCONFIGURATION_ID;
+    return runConfiguration && (runConfiguration->id() == Constants::RUNCONFIGURATION_ID ||
+                                runConfiguration->id() == Constants::RUNANDDEBUGCONFIGURATION_ID);
 }
 
 static bool isApplicationManagerDeployConfiguration(const DeployConfiguration *deployConfiguration)

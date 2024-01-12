@@ -27,6 +27,7 @@ public:
     QString code;
     QString runtime;
 
+    bool supportsDebugging() const { return isQmlRuntime() || isNativeRuntime(); }
     bool isQmlRuntime() const { return runtime.toLower() == "qml"; }
     bool isNativeRuntime() const { return runtime.toLower() == "native"; }
 

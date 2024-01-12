@@ -285,6 +285,7 @@ public:
         setProduct<AppManagerRunner>();
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+        addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }
 };
 
@@ -295,7 +296,7 @@ public:
     {
         setProduct<AppManagerDebugSupport>();
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+        addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }
 };
 
@@ -307,7 +308,7 @@ public:
         setProduct<AppManagerQmlToolingSupport>();
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-        addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
+        addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }
 };
 

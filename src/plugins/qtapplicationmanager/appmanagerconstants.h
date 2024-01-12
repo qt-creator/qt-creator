@@ -22,6 +22,7 @@ const char DEPLOY_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.DeployPac
 const char INSTALL_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.InstallPackageStep";
 const char REMOTE_INSTALL_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.RemoteInstallPackageStep";
 const char RUNCONFIGURATION_ID[] = "ApplicationManagerPlugin.Run.Configuration";
+const char RUNANDDEBUGCONFIGURATION_ID[] = "ApplicationManagerPlugin.RunAndDebug.Configuration";
 
 const char EXTRADATA_TARGET_ID[] = "ApplicationManagerPlugin.ExtraData.Target";
 

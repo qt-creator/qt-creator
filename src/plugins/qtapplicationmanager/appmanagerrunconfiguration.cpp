@@ -22,26 +22,27 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
-class AppManagerRunConfiguration final : public RunConfiguration
+class AppManagerRunConfiguration : public RunConfiguration
 {
 public:
     AppManagerRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        setDefaultDisplayName(Tr::tr("Run on AM Device"));
-    }
-
-    QString disabledReason() const override
-    {
-        if (activeBuildSystem()->isParsing()) {
-            return Tr::tr("The project file \"%1\" is currently being parsed.")
-                .arg(project()->projectFilePath().toString());
-        }
-        return QString();
+        setDefaultDisplayName(Tr::tr("Run an Appman Package"));
     }
 };
 
-class AppManagerRunConfigurationFactory final : public RunConfigurationFactory
+class AppManagerRunAndDebugConfiguration final : public AppManagerRunConfiguration
+{
+public:
+    AppManagerRunAndDebugConfiguration(Target *target, Id id)
+        : AppManagerRunConfiguration(target, id)
+    {
+        setDefaultDisplayName(Tr::tr("Run and Debug an Appman Package"));
+    }
+};
+
+class AppManagerRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     AppManagerRunConfigurationFactory()
@@ -51,14 +52,30 @@ public:
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     }
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *target) const final
+    virtual bool supportsBuildKey(Target *target, const QString &key) const final
+    {
+        QList<TargetInformation> tis = TargetInformation::readFromProject(target);
+        return Utils::anyOf(tis, [key](const TargetInformation &ti) {
+            return ti.buildKey == key;
+        });
+    }
+
+    virtual bool filterTarget(const TargetInformation &ti) const
+    {
+        return !ti.manifest.supportsDebugging();
+    }
+
+    QList<RunConfigurationCreationInfo> availableCreators(Target *target) const
     {
         QObject::connect(&m_fileSystemWatcher, &FileSystemWatcher::fileChanged,
                          target->project(), &Project::displayNameChanged,
                          Qt::UniqueConnection);
 
         const auto buildTargets = TargetInformation::readFromProject(target);
-        auto result = Utils::transform(buildTargets, [this, target](const TargetInformation &ti) {
+        const auto filteredTargets = Utils::filtered(buildTargets, [this](const TargetInformation &ti){
+            return filterTarget(ti);
+        });
+        auto result = Utils::transform(filteredTargets, [this, target](const TargetInformation &ti) {
 
             QVariantMap settings;
             // ti.buildKey is currently our app id
@@ -71,6 +88,7 @@ public:
             rci.displayName = ti.displayName;
             rci.displayNameUniquifier = ti.displayNameUniquifier;
             rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
+            rci.projectFilePath = Utils::FilePath::fromString(ti.manifest.fileName);
             rci.useTerminal = false;
             if (!m_fileSystemWatcher.files().contains(ti.manifest.fileName)) {
                 m_fileSystemWatcher.addFile(ti.manifest.fileName, FileSystemWatcher::WatchAllChanges);
@@ -84,9 +102,26 @@ public:
     mutable FileSystemWatcher m_fileSystemWatcher;
 };
 
+class AppManagerRunAndDebugConfigurationFactory final : public AppManagerRunConfigurationFactory
+{
+public:
+    AppManagerRunAndDebugConfigurationFactory()
+    {
+        registerRunConfiguration<AppManagerRunAndDebugConfiguration>(Constants::RUNANDDEBUGCONFIGURATION_ID);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+
+    virtual bool filterTarget(const TargetInformation &ti) const final
+    {
+        return ti.manifest.supportsDebugging();
+    }
+};
+
 void setupAppManagerRunConfiguration()
 {
     static AppManagerRunConfigurationFactory theAppManagerRunConfigurationFactory;
+    static AppManagerRunAndDebugConfigurationFactory theAppManagerRunAndDebugConfigurationFactory;
 }
 
 } // AppManager::Internal
