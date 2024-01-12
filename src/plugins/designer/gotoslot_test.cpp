@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "formeditorplugin.h"
-
 #include "formeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -30,7 +28,7 @@ using namespace Designer;
 using namespace Designer::Internal;
 using namespace Utils;
 
-namespace {
+namespace Designer::Internal {
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/designer/")
 
@@ -207,14 +205,18 @@ public:
     }
 };
 
-} // anonymous namespace
+class GoToSlotTest final : public QObject
+{
+    Q_OBJECT
 
-namespace Designer {
-namespace Internal {
+private slots:
+    void test_gotoslot();
+    void test_gotoslot_data();
+};
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are correctly updated.
-void FormEditorPlugin::test_gotoslot()
+void GoToSlotTest::test_gotoslot()
 {
     class SystemSettingsMgr {
     public:
@@ -235,7 +237,7 @@ void FormEditorPlugin::test_gotoslot()
     (GoToSlotTestCase(Utils::transform(files, FilePath::fromString)));
 }
 
-void FormEditorPlugin::test_gotoslot_data()
+void GoToSlotTest::test_gotoslot_data()
 {
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
@@ -269,5 +271,11 @@ void FormEditorPlugin::test_gotoslot_data()
                         testDataDir.file(_("form.ui"))});
 }
 
-} // namespace Internal
-} // namespace Designer
+QObject *createGoToSlotTest()
+{
+    return new GoToSlotTest;
+}
+
+} // Designer::Internal
+
+#include "gotoslot_test.moc"

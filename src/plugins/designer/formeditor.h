@@ -63,5 +63,7 @@ QList<Core::IOptionsPage *> optionsPages();
 void setQtPluginPath(const QString &qtPluginPath);
 void addPluginPath(const QString &pluginPath);
 
+QObject *createGoToSlotTest();
+
 } // namespace Internal
 } // namespace Designer
