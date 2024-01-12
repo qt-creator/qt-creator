@@ -34,15 +34,15 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
 static TestTreeModel *s_instance = nullptr;
 
-TestTreeModel::TestTreeModel(TestCodeParser *parser) :
-    m_parser(parser)
+TestTreeModel::TestTreeModel(TestCodeParser *parser)
+    : m_parser(parser)
 {
     s_instance = this;
 
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::testParseResultReady,
-            this, &TestTreeModel::onParseResultReady);
+    connect(m_parser, &TestCodeParser::testParseResultsReady,
+            this, &TestTreeModel::onParseResultsReady);
     connect(m_parser, &TestCodeParser::parsingFinished,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
@@ -678,13 +678,15 @@ void TestTreeModel::revalidateCheckState(ITestTreeItem *item)
     }
 }
 
-void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
+void TestTreeModel::onParseResultsReady(const QList<TestParseResultPtr> &results)
 {
-    ITestFramework *framework = result->framework;
-    QTC_ASSERT(framework, return);
-    TestTreeItem *rootNode = framework->rootNode();
-    QTC_ASSERT(rootNode, return);
-    handleParseResult(result.data(), rootNode);
+    for (const auto &result : results) {
+        ITestFramework *framework = result->framework;
+        QTC_ASSERT(framework, return);
+        TestTreeItem *rootNode = framework->rootNode();
+        QTC_ASSERT(rootNode, return);
+        handleParseResult(result.data(), rootNode);
+    }
 }
 
 void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,

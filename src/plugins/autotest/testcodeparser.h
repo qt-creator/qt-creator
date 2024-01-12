@@ -50,7 +50,7 @@ public:
 
 signals:
     void aboutToPerformFullParse();
-    void testParseResultReady(const TestParseResultPtr result); // TODO: pass list of results?
+    void testParseResultsReady(const QList<TestParseResultPtr> &results);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();

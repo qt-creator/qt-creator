@@ -78,7 +78,7 @@ signals:
 #endif
 
 private:
-    void onParseResultReady(const TestParseResultPtr result);
+    void onParseResultsReady(const QList<TestParseResultPtr> &results);
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                        const QVector<int> &roles);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);

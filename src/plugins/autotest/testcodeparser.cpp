@@ -384,9 +384,9 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         ++*storage;
     };
     const auto onDone = [this](const Async<TestParseResultPtr> &async) {
-        const QList<TestParseResultPtr> results = async.results();
-        for (const TestParseResultPtr &result : results)
-            emit testParseResultReady(result);
+        const QList<TestParseResultPtr> &results = async.results();
+        if (!results.isEmpty())
+            emit testParseResultsReady(results);
     };
     const Group root {
         parallelLimit(limit),
