@@ -1563,7 +1563,7 @@ void AndroidConfigurations::updateAndroidDevice()
 }
 
 #ifdef WITH_TESTS
-void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms_data()
+void AndroidTests::testAndroidConfigAvailableNdkPlatforms_data()
 {
     QTest::addColumn<FilePath>("ndkPath");
     QTest::addColumn<Abis>("abis");
@@ -1608,7 +1608,7 @@ void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms_data()
                 << abis64Bit;
 }
 
-void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms()
+void AndroidTests::testAndroidConfigAvailableNdkPlatforms()
 {
     QFETCH(FilePath, ndkPath);
     QFETCH(Abis, abis);

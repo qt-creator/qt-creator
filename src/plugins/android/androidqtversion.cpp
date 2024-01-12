@@ -286,7 +286,7 @@ void setupAndroidQtVersion()
 }
 
 #ifdef WITH_TESTS
-void AndroidPlugin::testAndroidQtVersionParseBuiltWith_data()
+void AndroidTests::testAndroidQtVersionParseBuiltWith_data()
 {
     QTest::addColumn<QString>("modulesCoreJson");
     QTest::addColumn<bool>("hasInfo");
@@ -332,7 +332,7 @@ void AndroidPlugin::testAndroidQtVersionParseBuiltWith_data()
         << 31;
 }
 
-void AndroidPlugin::testAndroidQtVersionParseBuiltWith()
+void AndroidTests::testAndroidQtVersionParseBuiltWith()
 {
     QFETCH(QString, modulesCoreJson);
     QFETCH(bool, hasInfo);

@@ -3,21 +3,16 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
 
 namespace Android::Internal {
 
-class AndroidPlugin final : public ExtensionSystem::IPlugin
+class AndroidTests final : public QObject
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Android.json")
-
-    void initialize() final;
-
-    void kitsRestored();
-    void askUserAboutAndroidSetup();
-
 #ifdef WITH_TESTS
+
+    Q_OBJECT
+
 private slots:
    void testAndroidConfigAvailableNdkPlatforms_data();
    void testAndroidConfigAvailableNdkPlatforms();
