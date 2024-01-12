@@ -36,14 +36,7 @@ private:
 };
 
 #ifdef WITH_TESTS
-class KeilParserTest final : public QObject
-{
-   Q_OBJECT
-
-private slots:
-   void testKeilOutputParsers_data();
-   void testKeilOutputParsers();
-};
+QObject *createKeilParserTest();
 #endif // WITH_TESTS
 
 } // BareMetal::Internal

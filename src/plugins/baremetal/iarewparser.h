@@ -39,14 +39,7 @@ private:
 };
 
 #ifdef WITH_TESTS
-class IarParserTest final : public QObject
-{
-   Q_OBJECT
-
-private slots:
-   void testIarOutputParsers_data();
-   void testIarOutputParsers();
-};
+QObject *createIarParserTest();
 #endif // WITH_TESTS
 
 } // BareMetal::Internal

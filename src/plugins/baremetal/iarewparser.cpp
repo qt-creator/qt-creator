@@ -231,6 +231,15 @@ void IarParser::flush()
 
 namespace BareMetal::Internal {
 
+class IarParserTest final : public QObject
+{
+   Q_OBJECT
+
+private slots:
+   void testIarOutputParsers_data();
+   void testIarOutputParsers();
+};
+
 void IarParserTest::testIarOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
@@ -409,3 +418,5 @@ void IarParserTest::testIarOutputParsers()
 } // BareMetal::Internal
 
 #endif // WITH_TESTS
+
+#include "iarewparser.moc"

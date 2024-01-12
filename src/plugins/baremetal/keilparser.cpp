@@ -253,6 +253,15 @@ void KeilParser::flush()
 
 namespace BareMetal::Internal {
 
+class KeilParserTest final : public QObject
+{
+   Q_OBJECT
+
+private slots:
+   void testKeilOutputParsers_data();
+   void testKeilOutputParsers();
+};
+
 void KeilParserTest::testKeilOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
@@ -520,6 +529,13 @@ void KeilParserTest::testKeilOutputParsers()
                           outputLines);
 }
 
+QObject *createKeilParserTest()
+{
+    return new KeilParserTest;
+}
+
 } // BareMetal::Internal
 
 #endif // WITH_TESTS
+
+#include "keilparser.moc"

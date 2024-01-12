@@ -146,6 +146,15 @@ void SdccParser::flush()
 
 namespace BareMetal::Internal {
 
+class SdccParserTest final : public QObject
+{
+   Q_OBJECT
+
+private slots:
+   void testSdccOutputParsers_data();
+   void testSdccOutputParsers();
+};
+
 void SdccParserTest::testSdccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
@@ -306,6 +315,13 @@ void SdccParserTest::testSdccOutputParsers()
                           outputLines);
 }
 
+QObject *createSdccParserTest()
+{
+    return new SdccParserTest;
+}
+
 } // BareMetal::Internal
 
 #endif // WITH_TESTS
+
+#include "sdccparser.moc"

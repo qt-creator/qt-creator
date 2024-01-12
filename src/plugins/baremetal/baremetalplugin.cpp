@@ -36,9 +36,9 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
         setupBareMetalDebugSupport();
 
 #ifdef WITH_TESTS
-        addTest<IarParserTest>();
-        addTest<KeilParserTest>();
-        addTest<SdccParserTest>();
+        addTestCreator(createIarParserTest);
+        addTestCreator(createKeilParserTest);
+        addTestCreator(createSdccParserTest);
 #endif
     }
 

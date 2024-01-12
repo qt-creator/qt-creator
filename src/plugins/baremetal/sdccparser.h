@@ -26,14 +26,7 @@ private:
 };
 
 #ifdef WITH_TESTS
-class SdccParserTest final : public QObject
-{
-   Q_OBJECT
-
-private slots:
-   void testSdccOutputParsers_data();
-   void testSdccOutputParsers();
-};
+QObject *createSdccParserTest();
 #endif // WITH_TESTS
 
 } // BareMetal::Internal
