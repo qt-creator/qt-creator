@@ -121,7 +121,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
     const Storage<ClangToolStorage> storage;
 
-    const auto mainToolArguments = [=](const ClangToolStorage &data) {
+    const auto mainToolArguments = [input](const ClangToolStorage &data) {
         QStringList result;
         result << "-export-fixes=" + data.outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
@@ -130,7 +130,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         return result;
     };
 
-    const auto onSetup = [=] {
+    const auto onSetup = [storage, input, setupHandler] {
         if (setupHandler && !setupHandler())
             return SetupResult::StopWithError;
 
@@ -150,7 +150,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
 
         return SetupResult::Continue;
     };
-    const auto onProcessSetup = [=](Process &process) {
+    const auto onProcessSetup = [storage, input, mainToolArguments](Process &process) {
         process.setEnvironment(input.environment);
         process.setUseCtrlCStub(true);
         process.setLowPriority();
@@ -167,7 +167,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [=](const Process &process, DoneWith result) {
+    const auto onProcessDone = [storage, input, outputHandler](const Process &process, DoneWith result) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
 
         if (!outputHandler)
@@ -196,13 +196,14 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
             {false, input.unit.file, data.outputFilePath, {}, input.tool, message, details});
     };
 
-    const auto onReadSetup = [=](Async<expected_str<Diagnostics>> &data) {
+    const auto onReadSetup = [storage, input](Async<expected_str<Diagnostics>> &data) {
         data.setConcurrentCallData(&parseDiagnostics,
                                    storage->outputFilePath,
                                    input.diagnosticsFilter);
         data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
-    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data, DoneWith result) {
+    const auto onReadDone = [storage, input, outputHandler](
+                                const Async<expected_str<Diagnostics>> &data, DoneWith result) {
         if (!outputHandler)
             return;
         const expected_str<Diagnostics> diagnosticsResult = data.result();
