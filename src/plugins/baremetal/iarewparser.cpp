@@ -415,6 +415,11 @@ void IarParserTest::testIarOutputParsers()
                           outputLines);
 }
 
+QObject *createIarParserTest()
+{
+    return new IarParserTest;
+}
+
 } // BareMetal::Internal
 
 #endif // WITH_TESTS
