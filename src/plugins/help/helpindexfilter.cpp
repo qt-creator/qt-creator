@@ -70,7 +70,7 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
         LocatorFilterEntry filterEntry;
         filterEntry.displayName = key;
         filterEntry.acceptor = [key] {
-            HelpPlugin::showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
+            showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
             return AcceptResult();
         };
         filterEntry.displayIcon = icon;

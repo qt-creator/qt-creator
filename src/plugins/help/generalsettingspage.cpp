@@ -255,7 +255,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     connect(defaultPageButton, &QPushButton::clicked,
             this, &GeneralSettingsPageWidget::setDefaultPage);
 
-    HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
+    HelpViewer *viewer = modeHelpWidget()->currentViewer();
     if (!viewer)
         currentPageButton->setEnabled(false);
 
@@ -334,8 +334,7 @@ void GeneralSettingsPageWidget::apply()
 
 void GeneralSettingsPageWidget::setCurrentPage()
 {
-    HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
-    if (viewer)
+    if (HelpViewer *viewer = modeHelpWidget()->currentViewer())
         homePageLineEdit->setText(viewer->source().toString());
 }
 

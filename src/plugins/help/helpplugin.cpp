@@ -36,6 +36,7 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/kitmanager.h>
@@ -148,34 +149,6 @@ public:
 static HelpPluginPrivate *dd = nullptr;
 static HelpManager *m_helpManager = nullptr;
 
-HelpPlugin::HelpPlugin()
-{
-    m_helpManager = new HelpManager;
-}
-
-HelpPlugin::~HelpPlugin()
-{
-    delete dd;
-    dd = nullptr;
-    delete m_helpManager;
-    m_helpManager = nullptr;
-}
-
-void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
-{
-    dd->showHelpUrl(url, location);
-}
-
-void HelpPlugin::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
-{
-    dd->showLinksInCurrentViewer(links, key);
-}
-
-void HelpPlugin::initialize()
-{
-    dd = new HelpPluginPrivate;
-}
-
 HelpPluginPrivate::HelpPluginPrivate()
 {
     const QString locale = ICore::userInterfaceLanguage();
@@ -273,39 +246,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     m_mode.setWidget(m_centralWidget);
 }
 
-void HelpPlugin::extensionsInitialized()
-{
-    QStringList filesToRegister;
-    // we might need to register creators inbuild help
-    filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator.qch");
-    filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator-dev.qch");
-    Core::HelpManager::registerDocumentation(filesToRegister);
-}
-
-bool HelpPlugin::delayedInitialize()
-{
-    if (ProjectExplorer::KitManager::isLoaded()) {
-        HelpManager::setupHelpManager();
-    } else {
-        connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
-                this, &HelpManager::setupHelpManager);
-    }
-    return true;
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
-{
-    delete dd->m_externalWindow.data();
-
-    delete dd->m_centralWidget;
-    dd->m_centralWidget = nullptr;
-
-    delete dd->m_rightPaneSideBarWidget;
-    dd->m_rightPaneSideBarWidget = nullptr;
-
-    return SynchronousShutdown;
-}
-
 void HelpPluginPrivate::saveExternalWindowSettings()
 {
     if (!m_externalWindow)
@@ -364,7 +304,17 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
     return m_externalWindow->currentViewer();
 }
 
-HelpViewer *HelpPlugin::createHelpViewer()
+void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
+{
+    dd->showHelpUrl(url, location);
+}
+
+void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
+{
+    dd->showLinksInCurrentViewer(links, key);
+}
+
+HelpViewer *createHelpViewer()
 {
     const HelpViewerFactory factory = LocalHelpManager::viewerBackend();
     QTC_ASSERT(factory.create, return nullptr);
@@ -372,24 +322,22 @@ HelpViewer *HelpPlugin::createHelpViewer()
 
     // initialize font
     viewer->setViewerFont(LocalHelpManager::fallbackFont());
-    connect(LocalHelpManager::instance(), &LocalHelpManager::fallbackFontChanged,
-            viewer, &HelpViewer::setViewerFont);
+    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::fallbackFontChanged,
+                     viewer, &HelpViewer::setViewerFont);
 
     // initialize zoom
     viewer->setFontZoom(LocalHelpManager::fontZoom());
-    connect(LocalHelpManager::instance(), &LocalHelpManager::fontZoomChanged,
-            viewer, &HelpViewer::setFontZoom);
+    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::fontZoomChanged,
+                     viewer, &HelpViewer::setFontZoom);
 
     // initialize antialias
     viewer->setAntialias(LocalHelpManager::antialias());
-    connect(LocalHelpManager::instance(),
-            &LocalHelpManager::antialiasChanged,
-            viewer,
-            &HelpViewer::setAntialias);
+    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::antialiasChanged,
+                     viewer, &HelpViewer::setAntialias);
 
     viewer->setScrollWheelZoomingEnabled(LocalHelpManager::isScrollWheelZoomingEnabled());
-    connect(LocalHelpManager::instance(), &LocalHelpManager::scrollWheelZoomingEnabledChanged,
-            viewer, &HelpViewer::setScrollWheelZoomingEnabled);
+    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::scrollWheelZoomingEnabledChanged,
+                     viewer, &HelpViewer::setScrollWheelZoomingEnabled);
 
     // add find support
     auto agg = new Aggregation::Aggregate;
@@ -399,7 +347,7 @@ HelpViewer *HelpPlugin::createHelpViewer()
     return viewer;
 }
 
-HelpWidget *HelpPlugin::modeHelpWidget()
+HelpWidget *modeHelpWidget()
 {
     return dd->m_centralWidget;
 }
@@ -659,4 +607,67 @@ void HelpPluginPrivate::doSetupIfNeeded()
     }
 }
 
+// HelpPlugin
+
+class HelpPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Help.json")
+
+public:
+    HelpPlugin()
+    {
+        m_helpManager = new HelpManager;
+    }
+
+    ~HelpPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+        delete m_helpManager;
+        m_helpManager = nullptr;
+    }
+
+private:
+    void initialize() final
+    {
+        dd = new HelpPluginPrivate;
+    }
+
+    void extensionsInitialized() final
+    {
+        QStringList filesToRegister;
+        // we might need to register creators inbuild help
+        filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator.qch");
+        filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator-dev.qch");
+        Core::HelpManager::registerDocumentation(filesToRegister);
+    }
+
+    bool delayedInitialize() final
+    {
+        if (ProjectExplorer::KitManager::isLoaded()) {
+            HelpManager::setupHelpManager();
+        } else {
+            connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+                    this, &HelpManager::setupHelpManager);
+        }
+        return true;
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        delete dd->m_externalWindow.data();
+
+        delete dd->m_centralWidget;
+        dd->m_centralWidget = nullptr;
+
+        delete dd->m_rightPaneSideBarWidget;
+        dd->m_rightPaneSideBarWidget = nullptr;
+
+        return SynchronousShutdown;
+    }
+};
+
 } // Help::Internal
+
+#include "helpplugin.moc"

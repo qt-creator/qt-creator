@@ -686,7 +686,7 @@ HelpViewer *HelpWidget::addViewer(const QUrl &url)
 HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
 {
     m_model.beginInsertRows({}, index, index);
-    HelpViewer *viewer = HelpPlugin::createHelpViewer();
+    HelpViewer *viewer = createHelpViewer();
     m_viewerStack->insertWidget(index, viewer);
     viewer->setFocus(Qt::OtherFocusReason);
     viewer->setActionVisible(HelpViewer::Action::NewPage, supportsPages());

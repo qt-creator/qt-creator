@@ -4,39 +4,20 @@
 #pragma once
 
 #include <coreplugin/helpmanager.h>
-#include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpWidget;
 class HelpViewer;
 
-class HelpPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Help.json")
+void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
+void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links,
+                              const QString &key);
+HelpViewer *createHelpViewer();
+HelpWidget *modeHelpWidget();
 
-public:
-    HelpPlugin();
-    ~HelpPlugin() final;
-
-    static void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
-    static void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links,
-                                         const QString &key);
-    static HelpViewer *createHelpViewer();
-    static HelpWidget *modeHelpWidget();
-
-private:
-    void initialize() final;
-    void extensionsInitialized() final;
-    bool delayedInitialize() final;
-    ShutdownFlag aboutToShutdown() final;
-};
-
-} // namespace Internal
-} // namespace Help
+} // Help::Internal
