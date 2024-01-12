@@ -1,8 +1,6 @@
 // Copyright (C) 2016 Hugues Delorme
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "bazaarplugin.h"
-
 #include "bazaarclient.h"
 #include "bazaarcommitwidget.h"
 #include "bazaareditor.h"
@@ -21,6 +19,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -319,22 +319,6 @@ private:
     QCheckBox *localCheckBox;
     QLineEdit *revisionLineEdit;
 };
-
-BazaarPlugin::~BazaarPlugin()
-{
-    delete d;
-    d = nullptr;
-}
-
-void BazaarPlugin::initialize()
-{
-    d = new BazaarPluginPrivate;
-}
-
-void BazaarPlugin::extensionsInitialized()
-{
-    d->extensionsInitialized();
-}
 
 BazaarPluginPrivate::BazaarPluginPrivate()
     : VcsBasePluginPrivate(Context(Constants::BAZAAR_CONTEXT))
@@ -728,6 +712,38 @@ void BazaarPluginPrivate::diffFromEditorSelected(const QStringList &files)
     m_client.diff(m_submitRepository, files);
 }
 
+class BazaarPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bazaar.json")
+
+    ~BazaarPlugin() final
+    {
+        delete d;
+        d = nullptr;
+    }
+
+    void initialize() final
+    {
+        d = new BazaarPluginPrivate;
+    }
+
+    void extensionsInitialized() final
+    {
+        d->extensionsInitialized();
+    }
+
+#ifdef WITH_TESTS
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
+private:
+    BazaarPluginPrivate *d = nullptr;
+};
+
 #ifdef WITH_TESTS
 
 void BazaarPlugin::testDiffFileResolving_data()
@@ -975,3 +991,5 @@ void BazaarPluginPrivate::changed(const QVariant &v)
 }
 
 } // Bazaar::Internal
+
+#include "bazaarplugin.moc"
