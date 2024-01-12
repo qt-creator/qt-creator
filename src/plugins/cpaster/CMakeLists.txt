@@ -10,7 +10,7 @@ add_qtc_plugin(CodePaster
     columnindicatortextedit.cpp columnindicatortextedit.h
     cpasterconstants.h
     cpaster.qrc
-    cpasterplugin.cpp cpasterplugin.h
+    cpasterplugin.cpp
     cpastertr.h
     dpastedotcomprotocol.cpp dpastedotcomprotocol.h
     fileshareprotocol.cpp fileshareprotocol.h

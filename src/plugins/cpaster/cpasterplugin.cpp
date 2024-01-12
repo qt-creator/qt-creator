@@ -1,8 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cpasterplugin.h"
-
+#include "codepasterservice.h"
 #include "cpastertr.h"
 #include "dpastedotcomprotocol.h"
 #include "fileshareprotocol.h"
@@ -19,6 +18,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -44,12 +45,35 @@ using namespace Utils;
 
 namespace CodePaster {
 
+class CodePasterPluginPrivate;
+
+enum PasteSource {
+    PasteEditor = 0x1,
+    PasteClipboard = 0x2
+};
+
+class CodePasterServiceImpl final : public QObject, public CodePaster::Service
+{
+    Q_OBJECT
+    Q_INTERFACES(CodePaster::Service)
+
+public:
+    explicit CodePasterServiceImpl(CodePasterPluginPrivate *d);
+
+private:
+    void postText(const QString &text, const QString &mimeType) final;
+    void postCurrentEditor() final;
+    void postClipboard() final;
+
+    CodePasterPluginPrivate *d = nullptr;
+};
+
 class CodePasterPluginPrivate : public QObject
 {
 public:
     CodePasterPluginPrivate();
 
-    void post(CodePasterPlugin::PasteSources pasteSources);
+    void post(PasteSource pasteSources);
     void post(QString data, const QString &mimeType);
 
     void pasteSnippet();
@@ -99,25 +123,15 @@ void CodePasterServiceImpl::postText(const QString &text, const QString &mimeTyp
 
 void CodePasterServiceImpl::postCurrentEditor()
 {
-    d->post(CodePasterPlugin::PasteEditor);
+    d->post(PasteEditor);
 }
 
 void CodePasterServiceImpl::postClipboard()
 {
-    d->post(CodePasterPlugin::PasteClipboard);
+    d->post(PasteClipboard);
 }
 
-// ---------- CodepasterPlugin
-
-CodePasterPlugin::~CodePasterPlugin()
-{
-    delete d;
-}
-
-void CodePasterPlugin::initialize()
-{
-    d = new CodePasterPluginPrivate;
-}
+// CodepasterPlugin
 
 CodePasterPluginPrivate::CodePasterPluginPrivate()
 {
@@ -166,17 +180,6 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
         .addOnTriggered(this, &CodePasterPluginPrivate::fetchUrl);
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag CodePasterPlugin::aboutToShutdown()
-{
-    // Delete temporary, fetched files
-    for (const QString &fetchedSnippet : std::as_const(d->m_fetchedSnippets)) {
-        QFile file(fetchedSnippet);
-        if (file.exists())
-            file.remove();
-    }
-    return SynchronousShutdown;
-}
-
 static inline void textFromCurrentEditor(QString *text, QString *mimeType)
 {
     IEditor *editor = EditorManager::currentEditor();
@@ -223,13 +226,13 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
-void CodePasterPluginPrivate::post(CodePasterPlugin::PasteSources pasteSources)
+void CodePasterPluginPrivate::post(PasteSource pasteSources)
 {
     QString data;
     QString mimeType;
-    if (pasteSources & CodePasterPlugin::PasteEditor)
+    if (pasteSources & PasteEditor)
         textFromCurrentEditor(&data, &mimeType);
-    if (data.isEmpty() && (pasteSources & CodePasterPlugin::PasteClipboard)) {
+    if (data.isEmpty() && (pasteSources & PasteClipboard)) {
         QString subType = "plain";
         data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
@@ -271,7 +274,7 @@ void CodePasterPluginPrivate::fetchUrl()
 
 void CodePasterPluginPrivate::pasteSnippet()
 {
-    post(CodePasterPlugin::PasteEditor | CodePasterPlugin::PasteClipboard);
+    post(PasteSource(PasteEditor | PasteClipboard));
 }
 
 void CodePasterPluginPrivate::fetch()
@@ -382,4 +385,39 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
     editor->document()->setPreferredDisplayName(titleDescription);
 }
 
+// CodePasterPlugin
+
+class CodePasterPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CodePaster.json")
+
+public:
+    ~CodePasterPlugin() final
+    {
+        delete d;
+    }
+
+private:
+    void initialize() final
+    {
+        d = new CodePasterPluginPrivate;
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        // Delete temporary, fetched files
+        for (const QString &fetchedSnippet : std::as_const(d->m_fetchedSnippets)) {
+            QFile file(fetchedSnippet);
+            if (file.exists())
+                file.remove();
+        }
+        return SynchronousShutdown;
+    }
+
+    CodePasterPluginPrivate *d = nullptr;
+};
+
 } // namespace CodePaster
+
+#include "cpasterplugin.moc"

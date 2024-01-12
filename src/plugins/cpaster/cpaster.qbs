@@ -18,7 +18,6 @@ QtcPlugin {
         "cpasterconstants.h",
         "cpaster.qrc",
         "cpasterplugin.cpp",
-        "cpasterplugin.h",
         "cpastertr.h",
         "dpastedotcomprotocol.cpp",
         "dpastedotcomprotocol.h",
