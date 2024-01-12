@@ -13,7 +13,6 @@ add_qtc_plugin(CtfVisualizer
     ctfvisualizertraceview.cpp
     ctfstatisticsmodel.h
     ctfstatisticsview.h
-    ctfvisualizerplugin.h
     ctfvisualizertool.h
     ctfvisualizertr.h
     ctftimelinemodel.h

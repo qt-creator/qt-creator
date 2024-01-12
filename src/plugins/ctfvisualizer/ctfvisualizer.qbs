@@ -19,7 +19,7 @@ QtcPlugin {
         "ctftimelinemodel.cpp", "ctftimelinemodel.h",
         "ctftracemanager.cpp", "ctftracemanager.h",
         "ctfvisualizerconstants.h",
-        "ctfvisualizerplugin.cpp", "ctfvisualizerplugin.h",
+        "ctfvisualizerplugin.cpp",
         "ctfvisualizertool.cpp", "ctfvisualizertool.h",
         "ctfvisualizertraceview.cpp", "ctfvisualizertraceview.h",
         "ctfvisualizertr.h",

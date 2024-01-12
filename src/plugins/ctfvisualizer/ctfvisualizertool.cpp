@@ -251,4 +251,9 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     m_loader->start();
 }
 
+void setupCtfVisualizerTool()
+{
+    static CtfVisualizerTool theCtfVisualizerTool;
+}
+
 }  // namespace CtfVisualizer::Internal

@@ -66,4 +66,6 @@ private:
     QMenu *const m_restrictToThreadsMenu;
 };
 
+void setupCtfVisualizerTool();
+
 } // namespace CtfVisualizer::Internal
