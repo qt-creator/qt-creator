@@ -750,18 +750,18 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         // Collect files
         AnalyzeUnits unitsToProcess;
-        for (const FileInfo &fileInfo : fileInfos)
-            unitsToProcess.append({fileInfo, includeDir, clangVersion});
-
+        for (const FileInfo &fileInfo : fileInfos) {
+            if (diagnosticConfig.isEnabled(tool)
+                || runSettings.hasConfigFileForSourceFile(fileInfo.file)) {
+                unitsToProcess.append({fileInfo, includeDir, clangVersion});
+            }
+        }
         qCDebug(LOG) << Q_FUNC_INFO << executable << includeDir << clangVersion;
         qCDebug(LOG) << "Files to process:" << unitsToProcess;
         qCDebug(LOG) << "Environment:" << environment;
 
         QList<GroupItem> tasks{parallelLimit(qMax(1, runSettings.parallelJobs()))};
         for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
-            if (!diagnosticConfig.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(unit.file))
-                continue;
-
             const auto setupHandler = [this, tool](const AnalyzeUnit &unit) {
                 const QString filePath = unit.file.toUserOutput();
                 m_runControl->postMessage(Tr::tr("Analyzing \"%1\" [%2].")
