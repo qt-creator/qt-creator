@@ -51,4 +51,8 @@ private:
 
 void setupAndroidQtVersion();
 
+#ifdef WITH_TESTS
+QObject *createAndroidQtVersionTest();
+#endif
+
 } // Android::Internal

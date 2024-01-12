@@ -58,7 +58,6 @@
 
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include "androidplugin.h"
 #endif // WITH_TESTS
 
 using namespace QtSupport;
@@ -1563,7 +1562,17 @@ void AndroidConfigurations::updateAndroidDevice()
 }
 
 #ifdef WITH_TESTS
-void AndroidTests::testAndroidConfigAvailableNdkPlatforms_data()
+
+class AndroidConfigurationsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+   void testAndroidConfigAvailableNdkPlatforms_data();
+   void testAndroidConfigAvailableNdkPlatforms();
+};
+
+void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms_data()
 {
     QTest::addColumn<FilePath>("ndkPath");
     QTest::addColumn<Abis>("abis");
@@ -1608,7 +1617,7 @@ void AndroidTests::testAndroidConfigAvailableNdkPlatforms_data()
                 << abis64Bit;
 }
 
-void AndroidTests::testAndroidConfigAvailableNdkPlatforms()
+void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms()
 {
     QFETCH(FilePath, ndkPath);
     QFETCH(Abis, abis);
@@ -1619,6 +1628,11 @@ void AndroidTests::testAndroidConfigAvailableNdkPlatforms()
     QCOMPARE(foundPlatforms, expectedPlatforms);
 }
 
+QObject *createAndroidConfigurationsTest()
+{
+    return new AndroidConfigurationsTest;
+}
+
 #endif // WITH_TESTS
 
 void setupAndroidConfigurations()
@@ -1627,3 +1641,5 @@ void setupAndroidConfigurations()
 }
 
 } // namespace Android
+
+#include "androidconfigurations.moc"

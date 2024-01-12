@@ -1,8 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidplugin.h"
-
 #include "androidconfigurations.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
@@ -123,9 +121,10 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
              [] { return new JLSSettings; }});
 
 #ifdef WITH_TESTS
-        addTest<AndroidSdkManagerTest>();
-        addTest<SdkManagerOutputParserTest>();
-        addTest<AndroidTests>();
+        addTestCreator(createAndroidSdkManagerTest);
+        addTestCreator(createAndroidSdkManagerOutputParserTest);
+        addTestCreator(createAndroidQtVersionTest);
+        addTestCreator(createAndroidConfigurationsTest);
 #endif
     }
 

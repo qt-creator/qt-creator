@@ -208,6 +208,10 @@ private:
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
 
+#ifdef WITH_TESTS
+QObject *createAndroidConfigurationsTest();
+#endif
+
 void setupAndroidConfigurations();
 
 } // namespace Android

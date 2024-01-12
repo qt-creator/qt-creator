@@ -10,18 +10,65 @@
 #include <QString>
 #include <QTest>
 #include <QVersionNumber>
-#include <QtGlobal>
-#include <qtestcase.h>
 #include <QVersionNumber>
 
 namespace Android::Internal {
 
-SdkManagerOutputParserTest::SdkManagerOutputParserTest(QObject *parent)
-    : QObject(parent)
-    , m_parser(std::make_unique<SdkManagerOutputParser>(m_packages))
-{}
+class SdkManagerOutputParserTest : public QObject
+{
+    Q_OBJECT
+public:
+    SdkManagerOutputParserTest()
+        : m_parser(std::make_unique<SdkManagerOutputParser>(m_packages))
+    {}
 
-SdkManagerOutputParserTest::~SdkManagerOutputParserTest() = default;
+private:
+    AndroidSdkPackageList m_packages;
+    std::unique_ptr<SdkManagerOutputParser> m_parser;
+
+private slots:
+    void testParsePackageListing_data();
+    void testParsePackageListing();
+
+    void testParseMarkers_data();
+    void testParseMarkers();
+
+    void testParseBuildToolsPackage_data();
+    void testParseBuildToolsPackage();
+    void testParseBuildToolsPackageEmpty();
+
+    void testParseSdkToolsPackage_data();
+    void testParseSdkToolsPackage();
+    void testParseSdkToolsPackageEmpty();
+
+    void testParsePlatformToolsPackage_data();
+    void testParsePlatformToolsPackage();
+    void testParsePlatformToolsPackageEmpty();
+
+    void testParseEmulatorToolsPackage_data();
+    void testParseEmulatorToolsPackage();
+    void testParseEmulatorToolsPackageEmpty();
+
+    void testParseNdkPackage_data();
+    void testParseNdkPackage();
+    void testParseNdkPackageEmpty();
+
+    void testParseExtraToolsPackage_data();
+    void testParseExtraToolsPackage();
+    void testParseExtraToolsPackageEmpty();
+
+    void testParseGenericToolsPackage_data();
+    void testParseGenericToolsPackage();
+    void testParseGenericToolsPackageEmpty();
+
+    void testParsePlatformPackage_data();
+    void testParsePlatformPackage();
+    void testParsePlatformPackageEmpty();
+
+    void testParseSystemImagePackage_data();
+    void testParseSystemImagePackage();
+    void testParseSystemImagePackageEmpty();
+};
 
 void SdkManagerOutputParserTest::testParseMarkers_data()
 {
@@ -789,5 +836,11 @@ cmdline-tools;latest
 
 }
 
+QObject *createAndroidSdkManagerOutputParserTest()
+{
+    return new SdkManagerOutputParserTest;
+}
+
 } // namespace Android::Internal
 
+#include "sdkmanageroutputparser_test.moc"

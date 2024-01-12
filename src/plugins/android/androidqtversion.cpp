@@ -33,7 +33,6 @@
 
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include "androidplugin.h"
 #endif // WITH_TESTS
 
 using namespace ProjectExplorer;
@@ -286,7 +285,17 @@ void setupAndroidQtVersion()
 }
 
 #ifdef WITH_TESTS
-void AndroidTests::testAndroidQtVersionParseBuiltWith_data()
+
+class AndroidQtVersionTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+   void testAndroidQtVersionParseBuiltWith_data();
+   void testAndroidQtVersionParseBuiltWith();
+};
+
+void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
 {
     QTest::addColumn<QString>("modulesCoreJson");
     QTest::addColumn<bool>("hasInfo");
@@ -332,7 +341,7 @@ void AndroidTests::testAndroidQtVersionParseBuiltWith_data()
         << 31;
 }
 
-void AndroidTests::testAndroidQtVersionParseBuiltWith()
+void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith()
 {
     QFETCH(QString, modulesCoreJson);
     QFETCH(bool, hasInfo);
@@ -346,6 +355,14 @@ void AndroidTests::testAndroidQtVersionParseBuiltWith()
     QCOMPARE(bw.apiVersion, apiVersion);
     QCOMPARE(bw.ndkVersion, ndkVersion);
 }
+
+QObject *createAndroidQtVersionTest()
+{
+    return new AndroidQtVersionTest;
+}
+
 #endif // WITH_TESTS
 
 } // Android::Internal
+
+#include "androidqtversion.moc"
