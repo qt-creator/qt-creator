@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cvsplugin.h"
-
 #include "cvseditor.h"
 #include "cvssettings.h"
 #include "cvssubmiteditor.h"
@@ -33,6 +31,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -460,25 +460,10 @@ void CvsPluginPrivate::cleanCommitMessageFile()
         m_commitRepository.clear();
     }
 }
+
 bool CvsPluginPrivate::isCommitEditorOpen() const
 {
     return !m_commitMessageFileName.isEmpty();
-}
-
-CvsPlugin::~CvsPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void CvsPlugin::initialize()
-{
-    dd = new CvsPluginPrivate;
-}
-
-void CvsPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
 }
 
 CvsPluginPrivate::CvsPluginPrivate()
@@ -1408,7 +1393,18 @@ bool CvsPluginPrivate::checkCVSDirectory(const QDir &directory) const
 }
 
 #ifdef WITH_TESTS
-void CvsPlugin::testDiffFileResolving_data()
+
+class CvsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+};
+
+void CvsTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -1422,12 +1418,12 @@ void CvsPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/cvs/cvseditor.cpp");
 }
 
-void CvsPlugin::testDiffFileResolving()
+void CvsTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void CvsPlugin::testLogResolving()
+void CvsTest::testLogResolving()
 {
     QByteArray data(
                 "RCS file: /sources/cvs/ccvs/Attic/FIXED-BUGS,v\n"
@@ -1454,4 +1450,32 @@ void CvsPlugin::testLogResolving()
 }
 #endif
 
+class CvsPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
+
+    ~CvsPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new CvsPluginPrivate;
+
+        #ifdef WITH_TESTS
+        addTest<CvsTest>();
+        #endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
 } // namespace Cvs::Internal
+
+#include "cvsplugin.moc"
