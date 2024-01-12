@@ -462,7 +462,7 @@ public:
         setIndenterCreator(&createGlslIndenter);
         setSyntaxHighlighterCreator(&createGlslHighlighter);
         setCommentDefinition(Utils::CommentDefinition::CppStyle);
-        setCompletionAssistProvider(new GlslCompletionAssistProvider);
+        setCompletionAssistProvider(createGlslCompletionAssistProvider());
         setParenthesesMatchingEnabled(true);
         setCodeFoldingSupported(true);
 

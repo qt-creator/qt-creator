@@ -54,19 +54,6 @@ private:
     friend class GlslEditorWidget;
 };
 
-class GlslCompletionAssistInterface;
-
-class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-};
-
 class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
@@ -97,6 +84,8 @@ private:
     QString m_mimeType;
     Document::Ptr m_glslDoc;
 };
+
+TextEditor::CompletionAssistProvider *createGlslCompletionAssistProvider();
 
 } // namespace Internal
 } // namespace GlslEditor

@@ -162,21 +162,6 @@ static QIcon glslIcon(IconTypes iconType)
 // ----------------------------
 // GlslCompletionAssistProvider
 // ----------------------------
-IAssistProcessor *GlslCompletionAssistProvider::createProcessor(const AssistInterface *) const
-{
-    return new GlslCompletionAssistProcessor;
-}
-
-int GlslCompletionAssistProvider::activationCharSequenceLength() const
-{
-    return 1;
-}
-
-bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
-{
-    return isActivationChar(sequence.at(0));
-}
-
 struct FunctionItem
 {
     FunctionItem() = default;
@@ -529,6 +514,37 @@ GlslCompletionAssistInterface::GlslCompletionAssistInterface(const QTextCursor &
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {
+}
+
+// GlslCompletionAssistProvider
+
+class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+{
+public:
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
+
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+};
+
+IAssistProcessor *GlslCompletionAssistProvider::createProcessor(const AssistInterface *) const
+{
+    return new GlslCompletionAssistProcessor;
+}
+
+int GlslCompletionAssistProvider::activationCharSequenceLength() const
+{
+    return 1;
+}
+
+bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+{
+    return isActivationChar(sequence.at(0));
+}
+
+CompletionAssistProvider *createGlslCompletionAssistProvider()
+{
+    return new GlslCompletionAssistProvider;
 }
 
 } // namespace Internal
