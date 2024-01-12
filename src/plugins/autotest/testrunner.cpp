@@ -351,7 +351,7 @@ void TestRunner::runTestsHelper()
     const LoopRepeat repeater(selectedTests.size());
     const Storage<TestStorage> storage;
 
-    const auto onSetup = [this, selectedTests, repeater] {
+    const auto onSetup = [this, selectedTests, repeater, storage](Process &process) {
         ITestConfiguration *config = selectedTests.at(repeater.iteration());
         QTC_ASSERT(config, return SetupResult::StopWithError);
         if (!config->project())
@@ -361,14 +361,10 @@ void TestRunner::runTestsHelper()
                          Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
             return SetupResult::StopWithSuccess;
         }
-        return SetupResult::Continue;
-    };
-    const auto onProcessSetup = [this, selectedTests, repeater, storage](Process &process) {
-        ITestConfiguration *config = selectedTests.at(repeater.iteration());
         TestStorage *testStorage = storage.activeStorage();
-        QTC_ASSERT(testStorage, return);
+        QTC_ASSERT(testStorage, return SetupResult::StopWithError);
         testStorage->m_outputReader.reset(config->createOutputReader(&process));
-        QTC_ASSERT(testStorage->m_outputReader, return);
+        QTC_ASSERT(testStorage->m_outputReader, return SetupResult::StopWithError);
         connect(testStorage->m_outputReader.get(), &TestOutputReader::newResult,
                 this, &TestRunner::testResultReady);
         connect(testStorage->m_outputReader.get(), &TestOutputReader::newOutputLineAvailable,
@@ -410,8 +406,9 @@ void TestRunner::runTestsHelper()
         qCInfo(runnerLog) << "Arguments:" << process.commandLine().arguments();
         qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
         qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
+        return SetupResult::Continue;
     };
-    const auto onProcessDone = [this, selectedTests, repeater, storage](const Process &process) {
+    const auto onDone = [this, selectedTests, repeater, storage](const Process &process) {
         ITestConfiguration *config = selectedTests.at(repeater.iteration());
         TestStorage *testStorage = storage.activeStorage();
         QTC_ASSERT(testStorage, return);
@@ -451,10 +448,8 @@ void TestRunner::runTestsHelper()
         finishAllAndSuccess,
         repeater,
         Group {
-            finishAllAndSuccess,
             storage,
-            onGroupSetup(onSetup),
-            ProcessTask(onProcessSetup, onProcessDone)
+            ProcessTask(onSetup, onDone)
         }
     };
 
