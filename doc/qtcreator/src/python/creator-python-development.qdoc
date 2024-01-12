@@ -21,6 +21,7 @@
         \li \l{Create Qt for Python applications}
         \li \l{Select the Python interpreter}
         \li \l{Create a virtual environment}
+        \li \l{Create kits for Python interpreters}
         \li \l{Use Python interactive shell}
         \li \l{Configure Python language servers}
         \li \l{Run Python applications}
@@ -95,8 +96,10 @@
     \image qtcreator-python-interpreters.webp {Python Interpreters in Preferences}
 
     You can add and remove interpreters and clean up references to interpreters
-    that you uninstalled, but that still appear in the list. In addition, you
-    can set the interpreter to use by default.
+    that you uninstalled, but that still appear in the list.
+
+    To use the selected Python interpreter by default, select
+    \uicontrol {Make Default}.
 
     \section1 Create a virtual environment
 
@@ -106,6 +109,16 @@
     \uicontrol {Create new virtual environment} check box in the project wizard.
     Set the directory where to create the environment in
     \uicontrol {Path to virtual environment}.
+
+    \section1 Create kits for Python interpreters
+
+    \QC automatically adds all Python interpreters it can find to the list of
+    interpreters in \preferences > \uicontrol Python > \uicontrol Interpreters.
+    It generates \l{kits-tab}{kits} for the global Python interpreters that are
+    not inside a virtual environment.
+
+    To use a virtual environment as a kit, select it in \uicontrol Interpreters,
+    and then select \uicontrol {Generate Kit}.
 
     \section1 Use Python interactive shell
 
