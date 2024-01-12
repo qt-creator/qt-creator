@@ -762,14 +762,12 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
             if (!diagnosticConfig.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(unit.file))
                 continue;
 
-            const auto setupHandler = [this, unit, tool] {
+            const auto setupHandler = [this, tool](const AnalyzeUnit &unit) {
                 const QString filePath = unit.file.toUserOutput();
                 m_runControl->postMessage(Tr::tr("Analyzing \"%1\" [%2].")
                                               .arg(filePath, clangToolName(tool)), StdOutFormat);
                 return true;
             };
-            const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
-                                         environment, unit};
             const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
                 if (!output.success) {
                     qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
@@ -799,6 +797,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                 }
                 updateForCurrentState();
             };
+            const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
+                                         environment, unit};
             tasks.append(clangToolTask(input, setupHandler, outputHandler));
         }
         taskTree.setRecipe(tasks);

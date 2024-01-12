@@ -51,7 +51,7 @@ struct AnalyzeOutputData
     QString errorDetails = {};
 };
 
-using AnalyzeSetupHandler = std::function<bool()>;
+using AnalyzeSetupHandler = std::function<bool(const AnalyzeUnit &)>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
 Tasking::GroupItem clangToolTask(const AnalyzeInputData &input,

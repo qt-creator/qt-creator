@@ -131,7 +131,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
 
     const auto onSetup = [storage, input, setupHandler] {
-        if (setupHandler && !setupHandler())
+        if (setupHandler && !setupHandler(input.unit))
             return SetupResult::StopWithError;
 
         ClangToolStorage *data = storage.activeStorage();

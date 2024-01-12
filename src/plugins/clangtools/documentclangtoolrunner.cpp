@@ -212,7 +212,7 @@ void DocumentClangToolRunner::run()
                                      unit,
                                      vfso().overlayFilePath().toString(),
                                      diagnosticFilter};
-        const auto setupHandler = [this, executable] {
+        const auto setupHandler = [this, executable](const AnalyzeUnit &) {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
