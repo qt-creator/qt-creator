@@ -1,8 +1,6 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "compilationdatabaseprojectmanagerplugin.h"
-
 #include "compilationdatabaseconstants.h"
 #include "compilationdatabaseproject.h"
 #include "compilationdatabaseprojectmanagertr.h"
@@ -11,6 +9,8 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -37,50 +37,60 @@ public:
     QAction changeRootAction{Tr::tr("Change Root Directory")};
 };
 
-CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugin()
+class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CompilationDatabaseProjectManager.json")
 
-void CompilationDatabaseProjectManagerPlugin::initialize()
-{
-    d = new CompilationDatabaseProjectManagerPluginPrivate;
+    ~CompilationDatabaseProjectManagerPlugin()
+    {
+        delete d;
+    }
 
-    Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
-                                                     COMPILE_COMMANDS_JSON);
-    Utils::FileIconProvider::registerIconOverlayForFilename(
-        Utils::Icons::PROJECT.imageFilePath().toString(),
-        QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
+    void initialize() final
+    {
+        d = new CompilationDatabaseProjectManagerPluginPrivate;
 
-    ProjectManager::registerProjectType<CompilationDatabaseProject>(
-                Constants::COMPILATIONDATABASEMIMETYPE);
+        Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
+                                                                COMPILE_COMMANDS_JSON);
+        Utils::FileIconProvider::registerIconOverlayForFilename(
+            Utils::Icons::PROJECT.imageFilePath().toString(),
+            QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 
-    Command *cmd = ActionManager::registerAction(&d->changeRootAction, CHANGEROOTDIR);
+        ProjectManager::registerProjectType<CompilationDatabaseProject>(
+            Constants::COMPILATIONDATABASEMIMETYPE);
 
-    ActionContainer *mprojectContextMenu = ActionManager::actionContainer(
-        ProjectExplorer::Constants::M_PROJECTCONTEXT);
-    mprojectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
-    mprojectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
+        Command *cmd = ActionManager::registerAction(&d->changeRootAction, CHANGEROOTDIR);
 
-    connect(&d->changeRootAction, &QAction::triggered,
-            ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
+        ActionContainer *mprojectContextMenu = ActionManager::actionContainer(
+            ProjectExplorer::Constants::M_PROJECTCONTEXT);
+        mprojectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
+        mprojectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
 
-    const auto onProjectChanged = [this] {
-        const auto currentProject = qobject_cast<CompilationDatabaseProject *>(
-                    ProjectTree::currentProject());
+        connect(&d->changeRootAction, &QAction::triggered,
+                ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
 
-        d->changeRootAction.setEnabled(currentProject);
-    };
+        const auto onProjectChanged = [this] {
+            const auto currentProject = qobject_cast<CompilationDatabaseProject *>(
+                ProjectTree::currentProject());
 
-    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-            this, onProjectChanged);
+            d->changeRootAction.setEnabled(currentProject);
+        };
 
-    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-            this, onProjectChanged);
+        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
+                this, onProjectChanged);
+
+        connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+                this, onProjectChanged);
 
 #ifdef WITH_TESTS
-    addTest<CompilationDatabaseTests>();
+        addTest<CompilationDatabaseTests>();
 #endif
-}
+    }
+
+    class CompilationDatabaseProjectManagerPluginPrivate *d = nullptr;
+};
 
 } // CompilationDatabaseProjectManager::Internal
+
+#include "compilationdatabaseprojectmanagerplugin.moc"
