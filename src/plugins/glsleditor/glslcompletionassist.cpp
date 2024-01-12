@@ -11,24 +11,21 @@
 #include <glsl/glslastdump.h>
 
 #include <coreplugin/idocument.h>
+
 #include <texteditor/completionsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/functionhintproposal.h>
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 
 #include <utils/icon.h>
-#include <utils/faketooltip.h>
 
 #include <QIcon>
-#include <QPainter>
-#include <QLabel>
-#include <QToolButton>
-#include <QApplication>
-#include <QDebug>
 
 using namespace TextEditor;
 
@@ -261,7 +258,18 @@ int GlslFunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 // GLSLCompletionAssistProcessor
 // -----------------------------
-GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor() = default;
+
+class GlslCompletionAssistProcessor final : public TextEditor::AsyncProcessor
+{
+public:
+    TextEditor::IAssistProposal *performAsync() final;
+
+private:
+    TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
+    bool acceptsIdleEditor() const;
+
+    int m_startPosition = 0;
+};
 
 static AssistProposalItem *createCompletionItem(const QString &text, const QIcon &icon, int order = 0)
 {

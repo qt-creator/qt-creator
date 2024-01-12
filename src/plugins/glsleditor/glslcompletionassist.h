@@ -7,11 +7,9 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/asyncprocessor.h>
-#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <QScopedPointer>
 #include <QSharedPointer>
 
 namespace GLSL {
@@ -21,7 +19,7 @@ class TranslationUnitAST;
 class Scope;
 } // namespace GLSL
 
-namespace TextEditor { class AssistProposalItem; }
+namespace TextEditor { class CompletionAssistProvider; }
 
 namespace GlslEditor {
 namespace Internal {
@@ -52,20 +50,6 @@ private:
     QList<Range> _cursors;
 
     friend class GlslEditorWidget;
-};
-
-class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
-{
-public:
-    ~GlslCompletionAssistProcessor() override;
-
-    TextEditor::IAssistProposal *performAsync() override;
-
-private:
-    TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
-    bool acceptsIdleEditor() const;
-
-    int m_startPosition = 0;
 };
 
 class GlslCompletionAssistInterface : public TextEditor::AssistInterface
