@@ -375,21 +375,27 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     if (limit == 0)
         limit = std::max(QThread::idealThreadCount() / 4, 1);
     qCDebug(LOG) << "Using" << limit << "threads for scan.";
-    QList<GroupItem> tasks{parallelLimit(limit)};
-    for (const FilePath &file : filteredFiles) {
-        const auto onSetup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
-            async.setConcurrentCallData(parseFileForTests, codeParsers, file);
-            async.setPriority(QThread::LowestPriority);
-            async.setFutureSynchronizer(&m_futureSynchronizer);
-        };
-        const auto onDone = [this](const Async<TestParseResultPtr> &async) {
-            const QList<TestParseResultPtr> results = async.results();
-            for (const TestParseResultPtr &result : results)
-                emit testParseResultReady(result);
-        };
-        tasks.append(AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success));
-    }
-    m_taskTree.reset(new TaskTree{tasks});
+
+    const Storage<QSet<FilePath>::const_iterator> storage;
+    const auto onSetup = [this, codeParsers, storage](Async<TestParseResultPtr> &async) {
+        async.setConcurrentCallData(parseFileForTests, codeParsers, **storage);
+        async.setPriority(QThread::LowestPriority);
+        async.setFutureSynchronizer(&m_futureSynchronizer);
+        ++*storage;
+    };
+    const auto onDone = [this](const Async<TestParseResultPtr> &async) {
+        const QList<TestParseResultPtr> results = async.results();
+        for (const TestParseResultPtr &result : results)
+            emit testParseResultReady(result);
+    };
+    const Group root {
+        parallelLimit(limit),
+        storage,
+        onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
+        LoopRepeat(filteredFiles.size()),
+        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success)
+    };
+    m_taskTree.reset(new TaskTree(root));
     connect(m_taskTree.get(), &TaskTree::started, this, &TestCodeParser::parsingStarted);
     connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
         m_taskTree.release()->deleteLater();
