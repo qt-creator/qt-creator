@@ -19,12 +19,6 @@ public:
     void initialize() final;
     void extensionsInitialized() final;
 
-#ifdef WITH_TESTS
-private slots:
-    void testNimParser_data();
-    void testNimParser();
-#endif
-
 private:
     class NimPluginPrivate *d = nullptr;
 };

@@ -6,17 +6,18 @@
 #include "nimconstants.h"
 #include "nimtr.h"
 #include "editor/nimeditorfactory.h"
-#include "project/nimblerunconfiguration.h"
 #include "project/nimblebuildconfiguration.h"
+#include "project/nimblebuildstep.h"
+#include "project/nimbleproject.h"
+#include "project/nimblerunconfiguration.h"
+#include "project/nimbletaskstep.h"
 #include "project/nimbuildconfiguration.h"
 #include "project/nimcompilerbuildstep.h"
 #include "project/nimcompilercleanstep.h"
+#include "project/nimoutputtaskparser.h"
 #include "project/nimproject.h"
-#include "project/nimbleproject.h"
 #include "project/nimrunconfiguration.h"
 #include "project/nimtoolchain.h"
-#include "project/nimblebuildstep.h"
-#include "project/nimbletaskstep.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 
@@ -68,6 +69,10 @@ NimPlugin::~NimPlugin()
 void NimPlugin::initialize()
 {
     d = new NimPluginPrivate;
+
+#ifdef WITH_TESTS
+    addTest<NimParserTest>();
+#endif
 
     ToolchainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
