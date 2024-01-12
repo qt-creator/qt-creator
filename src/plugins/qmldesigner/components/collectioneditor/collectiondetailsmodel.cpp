@@ -20,17 +20,27 @@ namespace {
 
 QStringList getJsonHeaders(const QJsonArray &collectionArray)
 {
-    QSet<QString> result;
+    QSet<QString> resultSet;
+    QList<QString> result;
+
     for (const QJsonValue &value : collectionArray) {
         if (value.isObject()) {
             const QJsonObject object = value.toObject();
-            const QStringList headers = object.toVariantMap().keys();
-            for (const QString &header : headers)
-                result.insert(header);
+            QJsonObject::ConstIterator element = object.constBegin();
+            const QJsonObject::ConstIterator stopItem = object.constEnd();
+
+            while (element != stopItem) {
+                const QString property = element.key();
+                if (!resultSet.contains(property)) {
+                    result.append(property);
+                    resultSet.insert(property);
+                }
+                ++element;
+            }
         }
     }
 
-    return result.values();
+    return result;
 }
 
 class CollectionDataTypeHelper
