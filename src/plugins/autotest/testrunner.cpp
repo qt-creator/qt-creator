@@ -347,13 +347,13 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    QList<GroupItem> tasks{finishAllAndSuccess};
-
-    for (ITestConfiguration *config : m_selectedTests) {
-        QTC_ASSERT(config, continue);
+        const QList<ITestConfiguration *> selectedTests = m_selectedTests;
+        const LoopRepeat repeater(selectedTests.size());
         const Storage<TestStorage> storage;
 
-        const auto onSetup = [this, config] {
+        const auto onSetup = [this, selectedTests, repeater] {
+            ITestConfiguration *config = selectedTests.at(repeater.iteration());
+            QTC_ASSERT(config, return SetupResult::StopWithError);
             if (!config->project())
                 return SetupResult::StopWithSuccess;
             if (config->testExecutable().isEmpty()) {
@@ -363,7 +363,8 @@ void TestRunner::runTestsHelper()
             }
             return SetupResult::Continue;
         };
-        const auto onProcessSetup = [this, config, storage](Process &process) {
+        const auto onProcessSetup = [this, selectedTests, repeater, storage](Process &process) {
+            ITestConfiguration *config = selectedTests.at(repeater.iteration());
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             testStorage->m_outputReader.reset(config->createOutputReader(&process));
@@ -410,7 +411,8 @@ void TestRunner::runTestsHelper()
             qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
             qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         };
-        const auto onProcessDone = [this, config, storage](const Process &process) {
+        const auto onProcessDone = [this, selectedTests, repeater, storage](const Process &process) {
+            ITestConfiguration *config = selectedTests.at(repeater.iteration());
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             if (process.result() == ProcessResult::StartFailed) {
@@ -444,16 +446,19 @@ void TestRunner::runTestsHelper()
                 testStorage->m_outputReader->resetCommandlineColor();
             }
         };
-        const Group group {
+
+    const Group root {
+        finishAllAndSuccess,
+        repeater,
+        Group {
             finishAllAndSuccess,
             storage,
             onGroupSetup(onSetup),
             ProcessTask(onProcessSetup, onProcessDone)
-        };
-        tasks.append(group);
-    }
+        }
+    };
 
-    m_taskTree.reset(new TaskTree(tasks));
+    m_taskTree.reset(new TaskTree(root));
     connect(m_taskTree.get(), &TaskTree::done, this, &TestRunner::onFinished);
 
     auto progress = new TaskProgress(m_taskTree.get());
