@@ -798,8 +798,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                 updateForCurrentState();
             };
             const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
-                                         environment, unit};
-            tasks.append(clangToolTask(input, setupHandler, outputHandler));
+                                         environment};
+            tasks.append(clangToolTask(unit, input, setupHandler, outputHandler));
         }
         taskTree.setRecipe(tasks);
         return SetupResult::Continue;

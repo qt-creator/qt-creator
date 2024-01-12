@@ -209,14 +209,13 @@ void DocumentClangToolRunner::run()
                                      config,
                                      m_temporaryDir.path(),
                                      env,
-                                     unit,
                                      vfso().overlayFilePath().toString(),
                                      diagnosticFilter};
         const auto setupHandler = [this, executable](const AnalyzeUnit &) {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{finishAllAndSuccess, clangToolTask(input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndSuccess, clangToolTask(unit, input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);
