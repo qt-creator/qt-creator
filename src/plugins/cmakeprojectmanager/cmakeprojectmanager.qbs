@@ -56,7 +56,6 @@ QtcPlugin {
         "cmakeprojectnodes.cpp",
         "cmakeprojectnodes.h",
         "cmakeprojectplugin.cpp",
-        "cmakeprojectplugin.h",
         "cmaketool.cpp",
         "cmaketool.h",
         "cmaketoolmanager.cpp",

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "presetsparser.h"
-
 #include <qtsupport/qtprojectimporter.h>
 
 #include <utils/temporarydirectory.h>
@@ -50,6 +48,10 @@ private:
     const CMakeProject *m_project;
     Utils::TemporaryDirectory m_presetsTempDir;
 };
+
+#ifdef WITH_TESTS
+QObject *createCMakeProjectImporterTest();
+#endif
 
 } // namespace Internal
 } // namespace CMakeProjectManager
