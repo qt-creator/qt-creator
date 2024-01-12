@@ -470,8 +470,8 @@ private:
     QTimer m_killTimer;
 };
 
-constexpr QLatin1StringView YAML_MIME_TYPE{"application/x-yaml"};
-constexpr QLatin1StringView JSON_MIME_TYPE{"application/json"};
+constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
+constexpr char JSON_MIME_TYPE[]{"application/json"};
 
 void autoSetupLanguageServer(TextDocument *document)
 {
@@ -534,7 +534,8 @@ void autoSetupLanguageServer(TextDocument *document)
                 settings->m_executable = executable;
                 settings->m_arguments = "--stdio";
                 settings->m_name = Tr::tr("%1 Language Server").arg(language);
-                settings->m_languageFilter.mimeTypes = {isYaml ? YAML_MIME_TYPE : JSON_MIME_TYPE};
+                settings->m_languageFilter.mimeTypes = {isYaml ? QString(YAML_MIME_TYPE)
+                                                               : QString(JSON_MIME_TYPE)};
 
                 LanguageClientSettings::addSettings(settings);
                 LanguageClientManager::applySettings();
