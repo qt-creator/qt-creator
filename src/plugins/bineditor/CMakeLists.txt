@@ -4,8 +4,9 @@ add_qtc_plugin(BinEditor
     bineditor_global.h
     bineditortr.h
     bineditorconstants.h
-    bineditorplugin.cpp bineditorplugin.h
+    bineditorplugin.cpp
     bineditorservice.h
-    bineditorwidget.cpp bineditorwidget.h
+    bineditorwidget.cpp
+    bineditorwidget.h
     markup.cpp markup.h
 )

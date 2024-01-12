@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "bineditorplugin.h"
-
 #include "bineditorconstants.h"
 #include "bineditorservice.h"
 #include "bineditortr.h"
@@ -18,6 +16,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/codecchooser.h>
@@ -324,11 +323,11 @@ private:
     BinEditorWidget *m_widget;
 };
 
-class BinEditor : public IEditor
+class BinEditorImpl: public IEditor
 {
     Q_OBJECT
 public:
-    BinEditor(BinEditorWidget *widget)
+    BinEditorImpl(BinEditorWidget *widget)
     {
         using namespace TextEditor;
         setWidget(widget);
@@ -354,9 +353,9 @@ public:
         widget->setEditor(this);
 
         connect(widget, &BinEditorWidget::cursorPositionChanged,
-                this, &BinEditor::updateCursorPosition);
+                this, &BinEditorImpl::updateCursorPosition);
         connect(m_addressEdit, &QLineEdit::editingFinished,
-                this, &BinEditor::jumpToAddress);
+                this, &BinEditorImpl::jumpToAddress);
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
@@ -367,7 +366,7 @@ public:
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditor() override
+    ~BinEditorImpl() override
     {
         delete m_widget;
     }
@@ -397,6 +396,33 @@ private:
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
     TextEditor::CodecChooser *m_codecChooser;
+};
+
+///////////////////////////////// BinEditor Services //////////////////////////////////
+
+class FactoryServiceImpl final : public QObject, public FactoryService
+{
+    Q_OBJECT
+    Q_INTERFACES(BinEditor::FactoryService)
+
+public:
+    EditorService *createEditorService(const QString &title0, bool wantsEditor) final
+    {
+        BinEditorWidget *widget = nullptr;
+        if (wantsEditor) {
+            QString title = title0;
+            IEditor *editor = EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
+            if (!editor)
+                return nullptr;
+            widget = qobject_cast<BinEditorWidget *>(editor->widget());
+            widget->setEditor(editor);
+        } else {
+            widget = new BinEditorWidget;
+            widget->setWindowTitle(title0);
+        }
+        return widget->editorService();
+    }
 };
 
 ///////////////////////////////// BinEditorPluginPrivate //////////////////////////////////
@@ -454,7 +480,7 @@ BinEditorFactory::BinEditorFactory()
 
     setEditorCreator([] {
         auto widget = new BinEditorWidget();
-        auto editor = new BinEditor(widget);
+        auto editor = new BinEditorImpl(widget);
 
         connect(dd->m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
         connect(dd->m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
@@ -479,38 +505,24 @@ BinEditorFactory::BinEditorFactory()
     });
 }
 
-///////////////////////////////// BinEditor Services //////////////////////////////////
-
-EditorService *FactoryServiceImpl::createEditorService(const QString &title0, bool wantsEditor)
-{
-    BinEditorWidget *widget = nullptr;
-    if (wantsEditor) {
-        QString title = title0;
-        IEditor *editor = EditorManager::openEditorWithContents(
-                    Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
-        if (!editor)
-            return nullptr;
-        widget = qobject_cast<BinEditorWidget *>(editor->widget());
-        widget->setEditor(editor);
-    } else {
-        widget = new BinEditorWidget;
-        widget->setWindowTitle(title0);
-    }
-    return widget->editorService();
-}
-
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin::~BinEditorPlugin()
+class BinEditorPlugin final : public ExtensionSystem::IPlugin
 {
-    delete dd;
-    dd = nullptr;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BinEditor.json")
 
-void BinEditorPlugin::initialize()
-{
-    dd = new BinEditorPluginPrivate;
-}
+    ~BinEditorPlugin() override
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new BinEditorPluginPrivate;
+    }
+};
 
 } // BinEditor::Internal
 
