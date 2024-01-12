@@ -225,7 +225,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
         return !rc->runnable().command.isEmpty();
     });
 
-    const ChoicePair oldChoice = AutotestPlugin::cachedChoiceFor(buildTargetKey);
+    const ChoicePair oldChoice = cachedChoiceFor(buildTargetKey);
     if (!oldChoice.executable.isEmpty()) {
         runConfig = Utils::findOrDefault(runConfigurations,
                                          [&oldChoice](const RunConfiguration *rc) {
@@ -251,7 +251,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
             return rc->runnable().command.executable() == exe;
         });
         if (runConfig && dialog.rememberChoice())
-            AutotestPlugin::cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
+            cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
     }
     return runConfig;
 }
@@ -468,7 +468,7 @@ void TestRunner::runTestsHelper()
     });
 
     if (testSettings().popupOnStart())
-        AutotestPlugin::popupResultsPane();
+        popupResultsPane();
 
     m_taskTree->start();
 }
@@ -590,7 +590,7 @@ void TestRunner::debugTests()
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
     if (useOutputProcessor && testSettings().popupOnStart())
-        AutotestPlugin::popupResultsPane();
+        popupResultsPane();
 }
 
 static bool executablesEmpty()
@@ -672,7 +672,7 @@ static RunAfterBuildMode runAfterBuild()
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
         return testSettings().runAfterBuildMode();
 
-    TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(project);
+    TestProjectSettings *projectSettings = Internal::projectSettings(project);
     return projectSettings->useGlobalSettings() ? testSettings().runAfterBuildMode()
                                                 : projectSettings->runAfterBuild();
 }

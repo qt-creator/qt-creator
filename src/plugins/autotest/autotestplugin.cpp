@@ -39,6 +39,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/buildmanager.h>
@@ -73,8 +74,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class AutotestPluginPrivate final : public QObject
 {
@@ -107,24 +107,6 @@ public:
 
 static AutotestPluginPrivate *dd = nullptr;
 static QHash<ProjectExplorer::Project *, TestProjectSettings *> s_projectSettings;
-
-AutotestPlugin::AutotestPlugin()
-{
-    // needed to be used in QueuedConnection connects
-    qRegisterMetaType<TestResult>();
-    qRegisterMetaType<TestTreeItem *>();
-    qRegisterMetaType<TestCodeLocationAndType>();
-    // warm up meta type system to be able to read Qt::CheckState with persistent settings
-    qRegisterMetaType<Qt::CheckState>();
-
-    setupTestNavigationWidgetFactory();
-}
-
-AutotestPlugin::~AutotestPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
 
 AutotestPluginPrivate::AutotestPluginPrivate()
 {
@@ -170,7 +152,7 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
     delete m_resultsPane;
 }
 
-TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *project)
+TestProjectSettings *projectSettings(ProjectExplorer::Project *project)
 {
     auto &settings = s_projectSettings[project];
     if (!settings)
@@ -262,73 +244,13 @@ void AutotestPluginPrivate::initializeMenuEntries()
     toolsMenu->addMenu(menu);
     using namespace ProjectExplorer;
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
-            this, &AutotestPlugin::updateMenuItemsEnabledState);
+            this, &updateMenuItemsEnabledState);
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-            this, &AutotestPlugin::updateMenuItemsEnabledState);
+            this, &updateMenuItemsEnabledState);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
-            this, &AutotestPlugin::updateMenuItemsEnabledState);
+            this, &updateMenuItemsEnabledState);
     connect(&dd->m_testTreeModel, &TestTreeModel::testTreeModelChanged,
-            this, &AutotestPlugin::updateMenuItemsEnabledState);
-}
-
-void AutotestPlugin::initialize()
-{
-    dd = new AutotestPluginPrivate;
-#ifdef WITH_TESTS
-    ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
-                   [] { return dd->m_loadProjectScenario(); });
-
-    addTest<AutoTestUnitTests>(&dd->m_testTreeModel);
-#endif
-}
-
-void AutotestPlugin::extensionsInitialized()
-{
-    ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
-    if (!contextMenu) // if QC is started without CppEditor plugin
-        return;
-
-    const Id menuId = "Autotest.TestUnderCursor";
-    ActionContainer * const runTestMenu = ActionManager::createMenu(menuId);
-    runTestMenu->menu()->setTitle(Tr::tr("Run Test Under Cursor"));
-    contextMenu->addSeparator();
-    contextMenu->addMenu(runTestMenu);
-    contextMenu->addSeparator();
-
-    ActionBuilder(this, Constants::ACTION_RUN_UCURSOR)
-        .setText(Tr::tr("&Run Test"))
-        .setEnabled(false)
-        .setIcon(Utils::Icons::RUN_SMALL.icon())
-        .addToContainer(menuId)
-        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
-
-    ActionBuilder(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY)
-        .setText(Tr::tr("Run Test Without Deployment"))
-        .setIcon(Utils::Icons::RUN_SMALL.icon())
-        .setEnabled(false)
-        .addToContainer(menuId)
-        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
-
-    ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR)
-        .setText(Tr::tr("&Debug Test"))
-        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
-        .setEnabled(false)
-        .addToContainer(menuId)
-        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
-
-    ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY)
-        .setText(Tr::tr("Debug Test Without Deployment"))
-        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
-        .setEnabled(false)
-        .addToContainer(menuId)
-        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
-{
-    dd->m_testCodeParser.aboutToShutdown(true);
-    dd->m_testTreeModel.disconnect();
-    return SynchronousShutdown;
+            this, &updateMenuItemsEnabledState);
 }
 
 void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
@@ -400,7 +322,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         const QList<const CPlusPlus::Name *> fullName
                 = CPlusPlus::LookupContext::fullyQualifiedName(scope);
         const QString funcName = CPlusPlus::Overview().prettyName(fullName);
-        const TestFrameworks active = AutotestPlugin::activeTestFrameworks();
+        const TestFrameworks active = activeTestFrameworks();
         for (auto framework : active) {
             const QStringList testName = framework->testNameForSymbolName(funcName);
             if (!testName.size())
@@ -468,7 +390,7 @@ void AutotestPluginPrivate::onDisableTemporarily(bool disable)
         // clear model
         m_testTreeModel.removeAllTestItems();
         m_testTreeModel.removeAllTestToolItems();
-        AutotestPlugin::updateMenuItemsEnabledState();
+        updateMenuItemsEnabledState();
     } else {
         // re-enable
         m_testCodeParser.setState(TestCodeParser::Idle);
@@ -477,7 +399,7 @@ void AutotestPluginPrivate::onDisableTemporarily(bool disable)
     }
 }
 
-TestFrameworks AutotestPlugin::activeTestFrameworks()
+TestFrameworks activeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestFrameworks sorted;
@@ -495,7 +417,7 @@ TestFrameworks AutotestPlugin::activeTestFrameworks()
     return sorted;
 }
 
-void AutotestPlugin::updateMenuItemsEnabledState()
+void updateMenuItemsEnabledState()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
@@ -528,24 +450,24 @@ void AutotestPlugin::updateMenuItemsEnabledState()
     ActionManager::command(Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY)->action()->setEnabled(canRun);
 }
 
-void AutotestPlugin::cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice)
+void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice)
 {
     if (dd)
         dd->m_runconfigCache.insert(buildTargetKey, choice);
 }
 
-ChoicePair AutotestPlugin::cachedChoiceFor(const QString &buildTargetKey)
+ChoicePair cachedChoiceFor(const QString &buildTargetKey)
 {
     return dd ? dd->m_runconfigCache.value(buildTargetKey) : ChoicePair();
 }
 
-void AutotestPlugin::clearChoiceCache()
+void clearChoiceCache()
 {
     if (dd)
         dd->m_runconfigCache.clear();
 }
 
-void AutotestPlugin::popupResultsPane()
+void popupResultsPane()
 {
     if (dd)
         dd->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
@@ -556,7 +478,93 @@ bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const
     return rc && rc->displayName() == displayName && rc->runnable().command.executable() == executable;
 }
 
-} // Internal
-} // Autotest
+// AutotestPlugin
+
+class AutotestPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutoTest.json")
+
+public:
+    AutotestPlugin()
+    {
+        // needed to be used in QueuedConnection connects
+        qRegisterMetaType<TestResult>();
+        qRegisterMetaType<TestTreeItem *>();
+        qRegisterMetaType<TestCodeLocationAndType>();
+        // warm up meta type system to be able to read Qt::CheckState with persistent settings
+        qRegisterMetaType<Qt::CheckState>();
+
+        setupTestNavigationWidgetFactory();
+    }
+
+    ~AutotestPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new AutotestPluginPrivate;
+    #ifdef WITH_TESTS
+        ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
+                       [] { return dd->m_loadProjectScenario(); });
+
+        addTest<AutoTestUnitTests>(&dd->m_testTreeModel);
+    #endif
+    }
+
+    void extensionsInitialized()
+    {
+        ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
+        if (!contextMenu) // if QC is started without CppEditor plugin
+            return;
+
+        const Id menuId = "Autotest.TestUnderCursor";
+        ActionContainer * const runTestMenu = ActionManager::createMenu(menuId);
+        runTestMenu->menu()->setTitle(Tr::tr("Run Test Under Cursor"));
+        contextMenu->addSeparator();
+        contextMenu->addMenu(runTestMenu);
+        contextMenu->addSeparator();
+
+        ActionBuilder(this, Constants::ACTION_RUN_UCURSOR)
+            .setText(Tr::tr("&Run Test"))
+            .setEnabled(false)
+            .setIcon(Utils::Icons::RUN_SMALL.icon())
+            .addToContainer(menuId)
+            .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
+
+        ActionBuilder(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY)
+            .setText(Tr::tr("Run Test Without Deployment"))
+            .setIcon(Utils::Icons::RUN_SMALL.icon())
+            .setEnabled(false)
+            .addToContainer(menuId)
+            .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
+
+        ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR)
+            .setText(Tr::tr("&Debug Test"))
+            .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+            .setEnabled(false)
+            .addToContainer(menuId)
+            .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
+
+        ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY)
+            .setText(Tr::tr("Debug Test Without Deployment"))
+            .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+            .setEnabled(false)
+            .addToContainer(menuId)
+            .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        dd->m_testCodeParser.aboutToShutdown(true);
+        dd->m_testTreeModel.disconnect();
+        return SynchronousShutdown;
+    }
+};
+
+} // Autotest::Internal
 
 #include "autotestplugin.moc"

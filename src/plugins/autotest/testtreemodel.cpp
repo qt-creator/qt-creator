@@ -80,8 +80,7 @@ void TestTreeModel::setupParsingConnections()
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
         synchronizeTestTools();
-        m_checkStateCache = project ? AutotestPlugin::projectSettings(project)->checkStateCache()
-                                    : nullptr;
+        m_checkStateCache = project ? projectSettings(project)->checkStateCache() : nullptr;
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
@@ -251,7 +250,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     if (!testTool)
         return;
     // FIXME
-    const TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(bs->project());
+    const TestProjectSettings *projectSettings = Internal::projectSettings(bs->project());
     if ((projectSettings->useGlobalSettings() && !testTool->active())
             || !projectSettings->activeTestTools().contains(testTool)) {
         return;
@@ -303,7 +302,7 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 
 void TestTreeModel::synchronizeTestFrameworks()
 {
-    const TestFrameworks sorted = AutotestPlugin::activeTestFrameworks();
+    const TestFrameworks sorted = activeTestFrameworks();
     qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
     const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
     // pre-check to avoid further processing when frameworks are unchanged
@@ -339,12 +338,12 @@ void TestTreeModel::synchronizeTestTools()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestTools tools;
-    if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
+    if (!project || Internal::projectSettings(project)->useGlobalSettings()) {
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 &ITestFramework::active);
         qCDebug(LOG) << "Active test tools" << tools; // FIXME tools aren't sorted
     } else { // we've got custom project settings
-        const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
+        const TestProjectSettings *settings = Internal::projectSettings(project);
         const QHash<ITestTool *, bool> active = settings->activeTestTools();
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 [active](ITestTool *testTool) {

@@ -5,8 +5,6 @@
 
 #include "itestframework.h"
 
-#include <extensionsystem/iplugin.h>
-
 #include <utils/filepath.h>
 
 namespace ProjectExplorer {
@@ -14,8 +12,7 @@ class Project;
 class RunConfiguration;
 }
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestProjectSettings;
 
@@ -29,27 +26,13 @@ struct ChoicePair
     Utils::FilePath executable;
 };
 
-class AutotestPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutoTest.json")
+TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
+TestFrameworks activeTestFrameworks();
+void updateMenuItemsEnabledState();
+void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
+ChoicePair cachedChoiceFor(const QString &buildTargetKey);
+void clearChoiceCache();
+void popupResultsPane();
 
-public:
-    AutotestPlugin();
-    ~AutotestPlugin() override;
 
-    void initialize() override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
-
-    static TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
-    static TestFrameworks activeTestFrameworks();
-    static void updateMenuItemsEnabledState();
-    static void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
-    static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
-    static void clearChoiceCache();
-    static void popupResultsPane();
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

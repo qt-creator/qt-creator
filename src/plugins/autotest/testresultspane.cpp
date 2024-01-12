@@ -513,7 +513,7 @@ void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
     m_stopTestRun->setEnabled(true);
-    AutotestPlugin::updateMenuItemsEnabledState();
+    updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }
 
@@ -529,7 +529,7 @@ void TestResultsPane::onTestRunFinished()
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 
-    AutotestPlugin::updateMenuItemsEnabledState();
+    updateMenuItemsEnabledState();
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();

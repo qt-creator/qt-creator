@@ -46,7 +46,7 @@ private:
 };
 
 ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
-    : m_projectSettings(AutotestPlugin::projectSettings(project))
+    : m_projectSettings(projectSettings(project))
 {
     setGlobalSettingsId(Constants::AUTOTEST_SETTINGS_ID);
 
