@@ -14,6 +14,7 @@
 #include "session.h"
 #include "settingsdatabase.h"
 #include "themechooser.h"
+#include "vcsmanager.h"
 
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
@@ -242,6 +243,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 #ifdef ENABLE_CRASHPAD
     connect(ICore::instance(), &ICore::coreOpened, this, &CorePlugin::warnAboutCrashReporing,
             Qt::QueuedConnection);
+#endif
+
+#ifdef WITH_TESTS
+    addTestCreator(&createVcsManagerTest);
 #endif
 
     return true;

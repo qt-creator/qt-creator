@@ -91,4 +91,8 @@ private:
     friend class IVersionControl;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createVcsManagerTest(); }
+#endif
+
 } // namespace Core

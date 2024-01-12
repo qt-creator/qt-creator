@@ -440,8 +440,6 @@ void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 
 #include <QtTest>
 
-#include "coreplugin.h"
-
 #include <extensionsystem/pluginmanager.h>
 
 namespace Core {
@@ -471,7 +469,16 @@ static QString makeString(const QString &s)
     return QString::fromLatin1(TEST_PREFIX) + s;
 }
 
-void CorePlugin::testVcsManager_data()
+class VcsManagerTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testVcsManager_data();
+    void testVcsManager();
+};
+
+void VcsManagerTest::testVcsManager_data()
 {
     // avoid conflicts with real files and directories:
 
@@ -523,7 +530,7 @@ void CorePlugin::testVcsManager_data()
             << QStringList({"a/2:a:A:*"});
 }
 
-void CorePlugin::testVcsManager()
+void VcsManagerTest::testVcsManager()
 {
     // setup:
     QList<IVersionControl *> orig = Core::d->m_versionControlList;
@@ -578,7 +585,14 @@ void CorePlugin::testVcsManager()
     Core::d->m_versionControlList = orig;
 }
 
+QObject *createVcsManagerTest()
+{
+    return new VcsManagerTest;
+}
+
 } // namespace Internal
 } // namespace Core
 
 #endif
+
+#include "vcsmanager.moc"
