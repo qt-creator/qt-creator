@@ -24,7 +24,6 @@ QtcPlugin {
         "cppcheckmanualrundialog.cpp",
         "cppcheckmanualrundialog.h",
         "cppcheckplugin.cpp",
-        "cppcheckplugin.h",
         "cppcheckrunner.cpp",
         "cppcheckrunner.h",
         "cppchecksettings.cpp",

@@ -1,8 +1,6 @@
 // Copyright (C) 2018 Sergey Morozov
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cppcheckplugin.h"
-
 #include "cppcheckconstants.h"
 #include "cppcheckdiagnosticview.h"
 #include "cppchecksettings.h"
@@ -13,18 +11,20 @@
 #include "cppcheckdiagnosticsmodel.h"
 #include "cppcheckmanualrundialog.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+
+#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggermainwindow.h>
+
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-
-#include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/debuggermainwindow.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
@@ -139,30 +139,36 @@ void CppcheckPluginPrivate::updateManualRunAction()
     manualRunAction->setEnabled(canRun);
 }
 
-CppcheckPlugin::CppcheckPlugin() = default;
-
-CppcheckPlugin::~CppcheckPlugin() = default;
-
-void CppcheckPlugin::initialize()
+class CppcheckPlugin final : public ExtensionSystem::IPlugin
 {
-    d.reset(new CppcheckPluginPrivate);
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Cppcheck.json")
 
-    using namespace Core;
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-
+    void initialize() final
     {
-        auto action = new QAction(Tr::tr("Cppcheck..."), this);
-        menu->addAction(ActionManager::registerAction(action, Constants::MANUAL_RUN_ACTION),
-                        Debugger::Constants::G_ANALYZER_TOOLS);
-        connect(action, &QAction::triggered,
-                d.get(), &CppcheckPluginPrivate::startManualRun);
-        d->manualRunAction = action;
+        d.reset(new CppcheckPluginPrivate);
+
+        using namespace Core;
+        ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+
+        {
+            auto action = new QAction(Tr::tr("Cppcheck..."), this);
+            menu->addAction(ActionManager::registerAction(action, Constants::MANUAL_RUN_ACTION),
+                            Debugger::Constants::G_ANALYZER_TOOLS);
+            connect(action, &QAction::triggered,
+                    d.get(), &CppcheckPluginPrivate::startManualRun);
+            d->manualRunAction = action;
+        }
+
+        using ProjectExplorer::ProjectExplorerPlugin;
+        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
+                d.get(), &CppcheckPluginPrivate::updateManualRunAction);
+        d->updateManualRunAction();
     }
 
-    using ProjectExplorer::ProjectExplorerPlugin;
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
-            d.get(), &CppcheckPluginPrivate::updateManualRunAction);
-    d->updateManualRunAction();
-}
+    std::unique_ptr<CppcheckPluginPrivate> d;
+};
 
 } // Cppcheck::Internal
+
+#include "cppcheckplugin.moc"
