@@ -80,13 +80,13 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 }
 
 
-void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
+void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
 {
     if (!pITask)
         return;
 
     const HWND winId = hwndOfWidget(Core::ICore::mainWindow());
-    if (text.isEmpty()) {
+    if (m_appLabelText.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
         QPixmap pix = Utils::Icons::ERROR_TASKBAR.pixmap();
@@ -96,9 +96,9 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
         QFont font = p.font();
         font.setPixelSize(pix.height() * 0.5);
         p.setFont(font);
-        p.drawText(pix.rect(), Qt::AlignCenter, text);
+        p.drawText(pix.rect(), Qt::AlignCenter, m_appLabelText);
         const HICON icon = qt_pixmapToWinHICON(pix);
-        pITask->SetOverlayIcon(winId, icon, (wchar_t*)text.utf16());
+        pITask->SetOverlayIcon(winId, icon, (wchar_t*)m_appLabelText.utf16());
         DestroyIcon(icon);
     }
 }
@@ -138,9 +138,8 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 {
 }
 
-void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
+void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
 {
-    Q_UNUSED(text)
 }
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)

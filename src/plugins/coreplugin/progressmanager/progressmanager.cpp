@@ -261,6 +261,7 @@ public:
 
 ProgressManagerPrivate::ProgressManagerPrivate()
     : m_opacityEffect(new QGraphicsOpacityEffect(this))
+    , m_appLabelUpdateTimer(new QTimer(this))
 {
     m_opacityEffect->setOpacity(.999);
     m_instance = this;
@@ -268,6 +269,8 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView.data(), &ProgressView::hoveredChanged, this, &ProgressManagerPrivate::updateVisibilityWithDelay);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, &ProgressManagerPrivate::cancelAllRunningTasks);
+    m_appLabelUpdateTimer->setSingleShot(true);
+    m_appLabelUpdateTimer->callOnTimeout(this, &ProgressManagerPrivate::updateApplicationLabelNow);
 }
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
@@ -706,6 +709,15 @@ void ProgressManagerPrivate::progressDetailsToggled(bool checked)
     settings->endGroup();
 }
 
+void ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
+{
+    if (m_appLabelText == text)
+        return;
+    m_appLabelText = text;
+    if (!m_appLabelUpdateTimer->isActive())
+        m_appLabelUpdateTimer->start(20);
+}
+
 /*!
     \internal
 */
@@ -801,7 +813,7 @@ FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const
 /*!
     Shows the given \a text in a platform dependent way in the application
     icon in the system's task bar or dock. This is used to show the number
-    of build errors on Windows 7 and \macos.
+    of build errors on Windows and \macos.
 */
 void ProgressManager::setApplicationLabel(const QString &text)
 {

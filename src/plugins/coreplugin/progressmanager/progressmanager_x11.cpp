@@ -11,9 +11,8 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 {
 }
 
-void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
+void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
 {
-    Q_UNUSED(text)
 }
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
