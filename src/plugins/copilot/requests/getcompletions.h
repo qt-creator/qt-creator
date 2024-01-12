@@ -11,8 +11,8 @@ namespace Copilot {
 
 class Completion : public LanguageServerProtocol::JsonObject
 {
-    static constexpr Key displayTextKey{"displayText"};
-    static constexpr Key uuidKey{"uuid"};
+    static constexpr LanguageServerProtocol::Key displayTextKey{"displayText"};
+    static constexpr LanguageServerProtocol::Key uuidKey{"uuid"};
 
 public:
     using JsonObject::JsonObject;
@@ -41,7 +41,7 @@ public:
 class GetCompletionParams : public LanguageServerProtocol::JsonObject
 {
 public:
-    static constexpr Key docKey{"doc"};
+    static constexpr LanguageServerProtocol::Key docKey{"doc"};
 
     GetCompletionParams(const LanguageServerProtocol::TextDocumentIdentifier &document,
                         int version,
@@ -95,7 +95,7 @@ public:
 
 class GetCompletionResponse : public LanguageServerProtocol::JsonObject
 {
-    static constexpr Key completionKey{"completions"};
+    static constexpr LanguageServerProtocol::Key completionKey{"completions"};
 
 public:
     using JsonObject::JsonObject;

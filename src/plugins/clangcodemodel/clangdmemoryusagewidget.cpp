@@ -46,8 +46,8 @@ public:
         return components;
     }
 
-    static constexpr Key totalKey{"_total"};
-    static constexpr Key selfKey{"_self"};
+    static constexpr LanguageServerProtocol::Key totalKey{"_total"};
+    static constexpr LanguageServerProtocol::Key selfKey{"_self"};
 };
 
 

@@ -88,6 +88,8 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
+using Key = LanguageServerProtocol::Key;
+
 Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);

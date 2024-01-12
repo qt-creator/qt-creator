@@ -3,21 +3,9 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
-#include <QLatin1StringView>
-#else
-#include <QLatin1String>
-#endif
+#include "jsonobject.h"
 
 namespace LanguageServerProtocol {
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
-using Key = QLatin1StringView;
-#else
-using Key = QLatin1String;
-#endif
 
 constexpr Key actionsKey{"actions"};
 constexpr Key activeParameterKey{"activeParameter"};

@@ -10,7 +10,26 @@
 #include <QDebug>
 #include <QJsonObject>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+#include <QLatin1StringView>
+#else
+#include <QLatin1String>
+#endif
+
 namespace LanguageServerProtocol {
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+using Key = QLatin1StringView;
+#else
+class Key : public QLatin1String
+{
+public:
+    using QLatin1String::QLatin1String;
+    constexpr inline explicit Key(const char *s) noexcept
+        : QLatin1String(s, std::char_traits<char>::length(s))
+    {}
+};
+#endif
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonObject
 {
@@ -43,11 +62,6 @@ public:
     const_iterator end() const { return m_jsonObject.end(); }
 
 protected:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
-    using Key = QLatin1StringView;
-#else
-    using Key = QLatin1String;
-#endif
     iterator insert(const Key key, const JsonObject &value);
     iterator insert(const Key key, const QJsonValue &value);
 

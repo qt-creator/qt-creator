@@ -26,6 +26,8 @@ using namespace Core;
 
 namespace Coco {
 
+using Key = LanguageServerProtocol::Key;
+
 CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csmes)
     : Client(clientInterface(coco, csmes))
 {
