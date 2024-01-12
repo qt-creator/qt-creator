@@ -6,7 +6,7 @@
    height="600"
    id="svg2"
    version="1.1"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    sodipodi:docname="qtcreatoricons.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -521,9 +521,9 @@
          result="offset"
          id="feOffset7108" />
       <feComposite
-         in="offset"
-         in2="SourceGraphic"
-         operator="destination-over"
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
          result="composite2"
          id="feComposite7110" />
     </filter>
@@ -550,7 +550,10 @@
        snapvisiblegridlinesonly="true"
        dotted="true"
        spacingx="0.5px"
-       spacingy="0.5px" />
+       spacingy="0.5px"
+       originx="0"
+       originy="0"
+       units="px" />
     <sodipodi:guide
        orientation="0,1"
        position="0,32"
