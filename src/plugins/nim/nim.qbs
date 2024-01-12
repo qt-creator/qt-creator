@@ -17,7 +17,7 @@ QtcPlugin {
         files: [
             "nim.qrc",
             "nimconstants.h",
-            "nimplugin.cpp", "nimplugin.h",
+            "nimplugin.cpp",
             "nimtr.h",
         ]
     }

@@ -48,8 +48,6 @@ NimParser::Result NimParser::handleLine(const QString &lne, OutputFormat)
 
 #ifdef WITH_TESTS
 
-#include "nimplugin.h"
-
 #include <projectexplorer/outputparser_test.h>
 
 #include <QTest>
