@@ -21,6 +21,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
@@ -32,6 +34,7 @@
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
 
+using namespace Debugger;
 using namespace Utils;
 using namespace ProjectExplorer;
 
@@ -48,6 +51,8 @@ public:
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
     SimpleTargetRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
     SimpleTargetRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory nimDebugWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory nimbleDebugWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
     SimpleTargetRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;

@@ -107,11 +107,13 @@ public:
 protected:
     template <typename Worker>
     void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
+    void setId(Utils::Id id) { m_id = id; }
     void setProducer(const WorkerCreator &producer);
     void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
+    void cloneProduct(Utils::Id exitstingStepId, Utils::Id overrideId = Utils::Id());
 
 private:
     friend class RunControl;
@@ -122,6 +124,7 @@ private:
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
     QList<Utils::Id> m_supportedDeviceTypes;
+    Utils::Id m_id;
 };
 
 /**

@@ -13,6 +13,8 @@
 #include "pythontr.h"
 #include "pythonwizardpage.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -25,6 +27,7 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -45,6 +48,7 @@ public:
     PySideBuildStepFactory buildStepFactory;
     PythonBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory debugRunWorkerFactory{{runConfigFactory.runConfigurationId()}, {ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE}};
     PythonSettings settings;
     PythonWizardPageFactory pythonWizardPageFactory;
 };
@@ -84,7 +88,7 @@ private:
     {
         // Add MIME overlay icons (these icons displayed at Project dock panel)
         const QString imageFile = Utils::creatorTheme()->imageFile(Theme::IconOverlayPro,
-                                                                   ::Constants::FILEOVERLAY_PY);
+                                                               ProjectExplorer::Constants::FILEOVERLAY_PY);
         FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
         TaskHub::addCategory({PythonErrorTaskCategory,

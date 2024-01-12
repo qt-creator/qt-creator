@@ -10,6 +10,8 @@
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -18,6 +20,7 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -34,6 +37,7 @@ public:
     MesonActionsManager m_actions;
     MachineFileManager m_machineFilesManager;
     SimpleTargetRunnerFactory m_mesonRunWorkerFactory{{m_runConfigurationFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory m_mesonDebugRunWorkerFactory{{m_runConfigurationFactory.runConfigurationId()}};
 };
 
 class MesonProjectPlugin final : public ExtensionSystem::IPlugin

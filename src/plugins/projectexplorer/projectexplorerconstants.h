@@ -176,6 +176,11 @@ const char QML_PREVIEW_RUNNER[]="RunConfiguration.QmlPreviewRunner";
 const char PERFPROFILER_RUN_MODE[]="PerfProfiler.RunMode";
 const char PERFPROFILER_RUNNER[]="PerfProfiler.Runner";
 
+// RunConfig
+const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
+const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
+const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
+
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";
 

@@ -1092,12 +1092,15 @@ void DebugServerRunner::setAttachPid(ProcessHandle pid)
 DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
 {
     setProduct<DebuggerRunTool>();
+    setId(Constants::DEBUGGER_RUN_FACTORY);
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
+    addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
 }
 
 } // Debugger

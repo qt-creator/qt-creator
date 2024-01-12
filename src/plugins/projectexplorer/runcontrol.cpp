@@ -98,6 +98,25 @@ void RunWorkerFactory::addSupportedDeviceType(Id deviceType)
     m_supportedDeviceTypes.append(deviceType);
 }
 
+void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
+{
+    for (RunWorkerFactory *factory : g_runWorkerFactories) {
+        if (factory->m_id == exitstingStepId) {
+            m_producer = factory->m_producer;
+            // Other bits are intentionally not copied as they are unlikely to be
+            // useful in the cloner's context. The cloner can/has to finish the
+            // setup on its own.
+            break;
+        }
+    }
+    // Existence should be guaranteed by plugin dependencies. In case it fails,
+    // bark and keep the factory in a state where the invalid m_stepId keeps it
+    // inaction.
+    QTC_ASSERT(m_producer, return);
+    if (overrideId.isValid())
+        m_id = overrideId;
+}
+
 bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
 {
     if (!m_supportedRunModes.contains(runMode))

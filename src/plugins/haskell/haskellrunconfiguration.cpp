@@ -7,6 +7,8 @@
 #include "haskelltr.h"
 #include "haskellsettings.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
@@ -18,6 +20,7 @@
 
 #include <utils/processinterface.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -92,6 +95,7 @@ void setupHaskellRunSupport()
 {
     static HaskellRunConfigurationFactory runConfigFactory;
     static SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
+    static SimpleDebugRunnerFactory debugWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 }
 
 } // Haskell::Internal

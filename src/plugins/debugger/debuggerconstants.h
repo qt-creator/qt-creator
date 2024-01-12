@@ -14,6 +14,8 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 // Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
+const char DEBUGGER_RUN_FACTORY[]         = "RunWorkerFactory.DebuggerRunWorkerFactory";
+
 } // namespace Constants
 
 // Keep in sync with dumper.py

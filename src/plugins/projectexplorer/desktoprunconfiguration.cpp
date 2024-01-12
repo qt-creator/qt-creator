@@ -168,13 +168,9 @@ public:
     {}
 };
 
-const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
-const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
-const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
-
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
-    registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RUNCONFIG_ID);
+    registerRunConfiguration<CMakeRunConfiguration>(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
@@ -182,7 +178,7 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 
 QbsRunConfigurationFactory::QbsRunConfigurationFactory()
 {
-    registerRunConfiguration<QbsRunConfiguration>(QBS_RUNCONFIG_ID);
+    registerRunConfiguration<QbsRunConfiguration>(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
     addSupportedProjectType(QbsProjectManager::Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
@@ -190,7 +186,7 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory()
 
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
 {
-    registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RUNCONFIG_ID);
+    registerRunConfiguration<DesktopQmakeRunConfiguration>(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
