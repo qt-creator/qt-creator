@@ -7,9 +7,7 @@
 #include "androidsdkpackage.h"
 
 #include <QMap>
-#include <QString>
 #include <QTest>
-#include <QVersionNumber>
 #include <QVersionNumber>
 
 namespace Android::Internal {
@@ -17,14 +15,9 @@ namespace Android::Internal {
 class SdkManagerOutputParserTest : public QObject
 {
     Q_OBJECT
-public:
-    SdkManagerOutputParserTest()
-        : m_parser(std::make_unique<SdkManagerOutputParser>(m_packages))
-    {}
 
-private:
     AndroidSdkPackageList m_packages;
-    std::unique_ptr<SdkManagerOutputParser> m_parser;
+    SdkManagerOutputParser m_parser{m_packages};
 
 private slots:
     void testParsePackageListing_data();
@@ -103,7 +96,7 @@ void SdkManagerOutputParserTest::testParseMarkers()
     QFETCH(QString, output);
     QFETCH(SdkManagerOutputParser::MarkerTag, markerTag);
 
-    SdkManagerOutputParser::MarkerTag actualMarkerTag = m_parser->parseMarkers(output);
+    SdkManagerOutputParser::MarkerTag actualMarkerTag = m_parser.parseMarkers(output);
 
     QCOMPARE(actualMarkerTag, markerTag);
 }
@@ -139,7 +132,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    BuildTools *actualBuildTools = m_parser->parseBuildToolsPackage(output);
+    BuildTools *actualBuildTools = m_parser.parseBuildToolsPackage(output);
 
     QVERIFY(actualBuildTools != nullptr);
     QCOMPARE(actualBuildTools->descriptionText(), description);
@@ -149,7 +142,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackage()
 
 void SdkManagerOutputParserTest::testParseBuildToolsPackageEmpty()
 {
-    BuildTools *actualBuildTools = m_parser->parseBuildToolsPackage({""});
+    BuildTools *actualBuildTools = m_parser.parseBuildToolsPackage({""});
 
     QVERIFY(actualBuildTools == nullptr);
 }
@@ -185,7 +178,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<SdkTools> actualSdkTool(m_parser->parseSdkToolsPackage(output));
+    std::unique_ptr<SdkTools> actualSdkTool(m_parser.parseSdkToolsPackage(output));
 
     QVERIFY(actualSdkTool != nullptr);
     QCOMPARE(actualSdkTool->descriptionText(), description);
@@ -195,7 +188,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackage()
 
 void SdkManagerOutputParserTest::testParseSdkToolsPackageEmpty()
 {
-    std::unique_ptr<SdkTools> actualSdkTool(m_parser->parseSdkToolsPackage({""}));
+    std::unique_ptr<SdkTools> actualSdkTool(m_parser.parseSdkToolsPackage({""}));
 
     QVERIFY(actualSdkTool == nullptr);
 }
@@ -225,7 +218,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackage()
     QFETCH(QVersionNumber, revision);
 
     std::unique_ptr<PlatformTools> actualPlatformTool(
-        m_parser->parsePlatformToolsPackage(output));
+        m_parser.parsePlatformToolsPackage(output));
 
     QVERIFY(actualPlatformTool != nullptr);
     QCOMPARE(actualPlatformTool->descriptionText(), description);
@@ -236,7 +229,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackage()
 void SdkManagerOutputParserTest::testParsePlatformToolsPackageEmpty()
 {
     std::unique_ptr<PlatformTools> actualPlatformTool(
-        m_parser->parsePlatformToolsPackage({""}));
+        m_parser.parsePlatformToolsPackage({""}));
 
     QVERIFY(actualPlatformTool == nullptr);
 }
@@ -264,7 +257,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackage()
     QFETCH(QVersionNumber, revision);
 
     std::unique_ptr<EmulatorTools> actualEmulatorTools(
-        m_parser->parseEmulatorToolsPackage(output));
+        m_parser.parseEmulatorToolsPackage(output));
 
     QVERIFY(actualEmulatorTools != nullptr);
     QCOMPARE(actualEmulatorTools->descriptionText(), description);
@@ -275,7 +268,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackage()
 void SdkManagerOutputParserTest::testParseEmulatorToolsPackageEmpty()
 {
     std::unique_ptr<EmulatorTools> actualEmulatorTools(
-        m_parser->parseEmulatorToolsPackage({""}));
+        m_parser.parseEmulatorToolsPackage({""}));
 
     QVERIFY(actualEmulatorTools == nullptr);
 }
@@ -303,7 +296,7 @@ void SdkManagerOutputParserTest::testParseNdkPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<Ndk> actualNdkPackage(m_parser->parseNdkPackage(output));
+    std::unique_ptr<Ndk> actualNdkPackage(m_parser.parseNdkPackage(output));
 
     QVERIFY(actualNdkPackage != nullptr);
     QCOMPARE(actualNdkPackage->descriptionText(), description);
@@ -313,7 +306,7 @@ void SdkManagerOutputParserTest::testParseNdkPackage()
 
 void SdkManagerOutputParserTest::testParseNdkPackageEmpty()
 {
-    std::unique_ptr<Ndk> actualNdkPackage(m_parser->parseNdkPackage({""}));
+    std::unique_ptr<Ndk> actualNdkPackage(m_parser.parseNdkPackage({""}));
 
     QVERIFY(actualNdkPackage == nullptr);
 }
@@ -346,7 +339,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackage()
     QFETCH(QVersionNumber, revision);
 
     std::unique_ptr<ExtraTools> actualExtraTools(
-        m_parser->parseExtraToolsPackage(output));
+        m_parser.parseExtraToolsPackage(output));
 
     QVERIFY(actualExtraTools != nullptr);
     QCOMPARE(actualExtraTools->descriptionText(), description);
@@ -357,7 +350,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackage()
 void SdkManagerOutputParserTest::testParseExtraToolsPackageEmpty()
 {
     std::unique_ptr<ExtraTools> actualExtraTools(
-        m_parser->parseExtraToolsPackage({""}));
+        m_parser.parseExtraToolsPackage({""}));
 
     QVERIFY(actualExtraTools == nullptr);
 }
@@ -387,7 +380,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackage()
     QFETCH(QVersionNumber, revision);
 
     std::unique_ptr<GenericSdkPackage> actualGenericTools(
-        m_parser->parseGenericTools(output));
+        m_parser.parseGenericTools(output));
 
     QVERIFY(actualGenericTools != nullptr);
     QCOMPARE(actualGenericTools->descriptionText(), description);
@@ -398,7 +391,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackage()
 void SdkManagerOutputParserTest::testParseGenericToolsPackageEmpty()
 {
     std::unique_ptr<GenericSdkPackage> actualGenericTools(
-        m_parser->parseGenericTools({""}));
+        m_parser.parseGenericTools({""}));
 
     QVERIFY(actualGenericTools == nullptr);
 }
@@ -438,7 +431,7 @@ void SdkManagerOutputParserTest::testParsePlatformPackage()
     QFETCH(QVersionNumber, revision);
     QFETCH(QString, extension);
 
-    std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser->parsePlatform(output));
+    std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser.parsePlatform(output));
 
     QVERIFY(actualPlatform != nullptr);
     QCOMPARE(actualPlatform->descriptionText(), description);
@@ -449,7 +442,7 @@ void SdkManagerOutputParserTest::testParsePlatformPackage()
 
 void SdkManagerOutputParserTest::testParsePlatformPackageEmpty()
 {
-    std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser->parsePlatform({""}));
+    std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser.parsePlatform({""}));
 
     QVERIFY(actualPlatform == nullptr);
 }
@@ -481,7 +474,7 @@ void SdkManagerOutputParserTest::testParseSystemImagePackage()
     QFETCH(QString, installLocation);
     QFETCH(QVersionNumber, revision);
 
-    QPair<SystemImage *, int> actualSystemImagePair(m_parser->parseSystemImage(output));
+    QPair<SystemImage *, int> actualSystemImagePair(m_parser.parseSystemImage(output));
 
     SystemImage *actualSystemImage = actualSystemImagePair.first;
 
@@ -494,7 +487,7 @@ void SdkManagerOutputParserTest::testParseSystemImagePackage()
 
 void SdkManagerOutputParserTest::testParseSystemImagePackageEmpty()
 {
-    QPair<SystemImage *, int> actualSystemImagePair(m_parser->parseSystemImage({""}));
+    QPair<SystemImage *, int> actualSystemImagePair(m_parser.parseSystemImage({""}));
     SystemImage *actualSystemImage = actualSystemImagePair.first;
 
     QVERIFY(actualSystemImage == nullptr);
@@ -506,7 +499,7 @@ void SdkManagerOutputParserTest::testParsePackageListing()
     QFETCH(QList<AndroidSdkPackage::PackageType>, packageTypes);
     QFETCH(int, sdkManagerOutputPackagesNumber);
 
-    m_parser->parsePackageListing(sdkManagerOutput);
+    m_parser.parsePackageListing(sdkManagerOutput);
 
     QCOMPARE(m_packages.length(), sdkManagerOutputPackagesNumber);
 
