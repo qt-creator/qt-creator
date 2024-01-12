@@ -85,6 +85,8 @@ const char vOff[] = "*off*";
 const char vDevelopment[] = "Development";
 const char vYes[] = "YES";
 
+const char kHandler[] = "Handler";
+
 class IosDeviceInfoWidget : public IDeviceWidget
 {
 public:
@@ -145,6 +147,7 @@ void IosDevice::fromMap(const Store &map)
     const Store vMap = storeFromVariant(map.value(Constants::EXTRA_INFO_KEY));
     for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
         m_extraInfo.insert(stringFromKey(i.key()), i.value().toString());
+    m_handler = Handler(map.value(kHandler).toInt());
 }
 
 Store IosDevice::toMap() const
@@ -154,6 +157,7 @@ Store IosDevice::toMap() const
     for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
         vMap.insert(keyFromString(i.key()), i.value());
     res.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
+    res.insert(kHandler, int(m_handler));
     return res;
 }
 
@@ -193,6 +197,11 @@ Utils::Port IosDevice::nextPort() const
     if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
         m_lastPort = Constants::IOS_DEVICE_PORT_START;
     return Utils::Port(m_lastPort);
+}
+
+IosDevice::Handler IosDevice::handler() const
+{
+    return m_handler;
 }
 
 // IosDeviceManager
@@ -293,7 +302,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
                     info[kCpuArchitecture]
                         = device["hardwareProperties"]["cpuType"]["name"].toString();
                     info[kUniqueDeviceId] = udid;
-                    deviceInfo(nullptr, devId, info);
+                    deviceInfo(devId, IosDevice::Handler::DeviceCtl, info);
                     return DoneResult::Success;
                 }
             }
@@ -305,11 +314,14 @@ void IosDeviceManager::updateInfo(const QString &devId)
     const auto infoFromIosTool = IosToolTask([this, devId](IosToolRunner &runner) {
         runner.setDeviceType(IosDeviceType::IosDevice);
         runner.setStartHandler([this, devId](IosToolHandler *handler) {
-            connect(handler,
-                    &IosToolHandler::deviceInfo,
-                    this,
-                    &IosDeviceManager::deviceInfo,
-                    Qt::QueuedConnection);
+            connect(
+                handler,
+                &IosToolHandler::deviceInfo,
+                this,
+                [this](IosToolHandler *, const QString &uid, const Ios::IosToolHandler::Dict &info) {
+                    deviceInfo(uid, IosDevice::Handler::IosTool, info);
+                },
+                Qt::QueuedConnection);
             handler->requestDeviceInfo(devId);
         });
     });
@@ -320,7 +332,8 @@ void IosDeviceManager::updateInfo(const QString &devId)
     task->start();
 }
 
-void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
+void IosDeviceManager::deviceInfo(const QString &uid,
+                                  IosDevice::Handler handler,
                                   const Ios::IosToolHandler::Dict &info)
 {
     DeviceManager *devManager = DeviceManager::instance();
@@ -332,7 +345,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
     IosDevice *newDev = nullptr;
     if (!dev.isNull() && dev->type() == devType) {
         auto iosDev = static_cast<const IosDevice *>(dev.data());
-        if (iosDev->m_extraInfo == info) {
+        if (iosDev->m_handler == handler && iosDev->m_extraInfo == info) {
             skipUpdate = true;
             newDev = const_cast<IosDevice *>(iosDev);
         } else {
@@ -346,6 +359,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
         if (info.contains(kDeviceName))
             newDev->settings()->displayName.setValue(info.value(kDeviceName));
         newDev->m_extraInfo = info;
+        newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;
         dev = IDevice::ConstPtr(newDev);
         devManager->addDevice(dev);

@@ -23,6 +23,8 @@ public:
     using ConstPtr = QSharedPointer<const IosDevice>;
     using Ptr = QSharedPointer<IosDevice>;
 
+    enum class Handler { IosTool, DeviceCtl };
+
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
@@ -32,6 +34,7 @@ public:
     QString osVersion() const;
     QString cpuArchitecture() const;
     Utils::Port nextPort() const;
+    Handler handler() const;
 
     static QString name();
 
@@ -48,6 +51,7 @@ protected:
     IosDevice(CtorHelper);
 
     Dict m_extraInfo;
+    Handler m_handler = Handler::IosTool;
     bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
 };
@@ -73,7 +77,8 @@ public:
     void deviceDisconnected(const QString &uid);
     friend class IosConfigurations;
     void updateInfo(const QString &devId);
-    void deviceInfo(Ios::IosToolHandler *gatherer, const QString &deviceId,
+    void deviceInfo(const QString &deviceId,
+                    IosDevice::Handler handler,
                     const Ios::IosToolHandler::Dict &info);
     void monitorAvailableDevices();
 
