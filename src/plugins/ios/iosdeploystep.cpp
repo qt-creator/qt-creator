@@ -20,9 +20,12 @@
 
 #include <solutions/tasking/tasktree.h>
 
+#include <utils/process.h>
 #include <utils/temporaryfile.h>
 
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QSettings>
 
 using namespace ProjectExplorer;
@@ -99,6 +102,91 @@ private:
 
 using IosTransferTask = CustomTask<IosTransferTaskAdapter>;
 
+GroupItem createDeviceCtlDeployTask(
+    const IosDevice::ConstPtr &device,
+    const FilePath &bundlePath,
+    const std::function<void(int)> &progressHandler,
+    const std::function<void(QString, std::optional<Task::TaskType>)> &errorHandler)
+{
+    const auto onSetup = [=](Process &process) {
+        if (!device) {
+            TaskHub::addTask(
+                DeploymentTask(Task::Error, Tr::tr("Deployment failed. No iOS device found.")));
+            return SetupResult::StopWithError;
+        }
+        process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
+                            {"devicectl",
+                             "device",
+                             "install",
+                             "app",
+                             "--device",
+                             device->uniqueInternalDeviceId(),
+                             "--quiet",
+                             "--json-output",
+                             "-",
+                             bundlePath.path()}});
+        // TODO Use process.setStdOutCallback to parse progress information.
+        // Progress information looks like
+        // 1%... 2%... 3%... 4%... 5%...
+        progressHandler(0);
+        return SetupResult::Continue;
+    };
+    const auto onDone = [=](const Process &process, DoneWith result) -> DoneResult {
+        if (result == DoneWith::Cancel) {
+            errorHandler(Tr::tr("Deployment canceled."), {});
+            return DoneResult::Error;
+        }
+        if (process.error() != QProcess::UnknownError) {
+            errorHandler(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
+                         Task::Error);
+            return DoneResult::Error;
+        }
+        const QByteArray rawOutput = process.rawStdOut();
+        // there can be crap (progress info) at front and/or end
+        const int firstCurly = rawOutput.indexOf('{');
+        const int start = std::max(firstCurly, 0);
+        const int lastCurly = rawOutput.lastIndexOf('}');
+        const int end = lastCurly >= 0 ? lastCurly : rawOutput.size() - 1;
+        QJsonParseError parseError;
+        auto jsonOutput = QJsonDocument::fromJson(rawOutput.sliced(start, end - start + 1),
+                                                  &parseError);
+        if (jsonOutput.isNull()) {
+            // parse error
+            errorHandler(Tr::tr("Failed to parse devicectl output: %1.")
+                             .arg(parseError.errorString()),
+                         Task::Error);
+            return DoneResult::Error;
+        }
+        const QJsonValue errorValue = jsonOutput["error"];
+        if (!errorValue.isUndefined()) {
+            // error
+            QString error
+                = Tr::tr("Deployment failed: %1.")
+                      .arg(errorValue["userInfo"]["NSLocalizedDescription"]["string"].toString());
+            const QJsonValue userInfo
+                = errorValue["userInfo"]["NSUnderlyingError"]["error"]["userInfo"];
+            const QList<QJsonValue> moreInfo{userInfo["NSLocalizedDescription"]["string"],
+                                             userInfo["NSLocalizedFailureReason"]["string"],
+                                             userInfo["NSLocalizedRecoverySuggestion"]["string"]};
+            for (const QJsonValue &v : moreInfo) {
+                if (!v.isUndefined())
+                    error += "\n" + v.toString();
+            }
+            errorHandler(error, Task::Error);
+            return DoneResult::Error;
+        }
+        if (jsonOutput["result"]["installedApplications"].isUndefined()) {
+            // something unexpected happened ... proceed anyway
+            errorHandler(
+                Tr::tr("devicectl returned unexpected output ... deployment might have failed."),
+                Task::Error);
+            return DoneResult::Success;
+        }
+        return DoneResult::Success;
+    };
+    return ProcessTask(onSetup, onDone);
+}
+
 class IosDeployStep final : public BuildStep
 {
 public:
@@ -164,6 +252,18 @@ bool IosDeployStep::init()
 
 GroupItem IosDeployStep::runRecipe()
 {
+    static const QString transferringMessage = Tr::tr("Transferring application");
+    if (iosdevice() && iosdevice()->handler() == IosDevice::Handler::DeviceCtl) {
+        const auto handleProgress = [this](int value) { emit progress(value, transferringMessage); };
+        const auto handleError = [this](const QString &error,
+                                        const std::optional<Task::TaskType> &taskType) {
+            emit addOutput(error, OutputFormat::ErrorMessage);
+            if (taskType)
+                TaskHub::addTask(DeploymentTask(*taskType, error));
+        };
+        return createDeviceCtlDeployTask(iosdevice(), m_bundlePath, handleProgress, handleError);
+    }
+    // otherwise use iostool:
     const auto onSetup = [this](IosTransfer &transfer) {
         if (m_device.isNull()) {
             TaskHub::addTask(
@@ -173,7 +273,7 @@ GroupItem IosDeployStep::runRecipe()
         transfer.setDeviceType(m_deviceType);
         transfer.setBundlePath(m_bundlePath);
         transfer.setExpectSuccess(checkProvisioningProfile());
-        emit progress(0, Tr::tr("Transferring application"));
+        emit progress(0, transferringMessage);
         connect(&transfer, &IosTransfer::progressValueChanged, this, &IosDeployStep::progress);
         connect(&transfer, &IosTransfer::errorMessage, this, [this](const QString &message) {
             emit addOutput(message, OutputFormat::ErrorMessage);
