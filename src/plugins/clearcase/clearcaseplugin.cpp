@@ -81,8 +81,7 @@ using namespace VcsBase;
 using namespace Utils;
 using namespace std::placeholders;
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 const char CLEARCASE_CONTEXT[]         = "ClearCase Context";
 const char CMD_ID_CLEARCASE_MENU[]     = "ClearCase.Menu";
@@ -285,6 +284,7 @@ private:
     void updateStatusForFile(const QString &absFile);
     void updateEditDerivedObjectWarning(const QString &fileName, const FileStatus::Status status);
 
+public:
     ClearCaseSettings m_settings;
 
     FilePath m_checkInMessageFilePath;
@@ -343,14 +343,12 @@ private:
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
-    friend class ClearCasePlugin;
 #ifdef WITH_TESTS
     bool m_fakeClearTool = false;
     FilePath m_tempFile;
 #endif
 };
 
-// ------------- ClearCasePlugin
 static ClearCasePluginPrivate *dd = nullptr;
 
 ClearCasePluginPrivate::~ClearCasePluginPrivate()
@@ -561,16 +559,6 @@ QString ClearCasePluginPrivate::findTopLevel(const FilePath &directory) const
         return m_topLevel.toString();
 
     return ccManagesDirectory(directory);
-}
-
-void ClearCasePlugin::initialize()
-{
-    dd = new ClearCasePluginPrivate;
-}
-
-void ClearCasePlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
 }
 
 ClearCasePluginPrivate::ClearCasePluginPrivate()
@@ -2451,60 +2439,75 @@ bool ClearCasePluginPrivate::vcsCreateRepository(const FilePath &)
 
 // ClearCasePlugin
 
-ClearCasePlugin::~ClearCasePlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-bool ClearCasePlugin::newActivity()
+bool newActivity()
 {
     return dd->newActivity();
 }
 
-const QList<QStringPair> ClearCasePlugin::activities(int *current)
+const QList<QStringPair> activities(int *current)
 {
     return dd->activities(current);
 }
 
-QStringList ClearCasePlugin::ccGetActiveVobs()
+QStringList ccGetActiveVobs()
 {
     return dd->ccGetActiveVobs();
 }
 
-void ClearCasePlugin::refreshActivities()
+void refreshActivities()
 {
     dd->refreshActivities();
 }
 
-const ViewData ClearCasePlugin::viewData()
+const ViewData viewData()
 {
     return dd->m_viewData;
 }
 
-void ClearCasePlugin::setStatus(const QString &file, FileStatus::Status status, bool update)
+void setStatus(const QString &file, FileStatus::Status status, bool update)
 {
     dd->setStatus(file, status, update);
 }
 
-const ClearCaseSettings &ClearCasePlugin::settings()
+const ClearCaseSettings &settings()
 {
     return dd->m_settings;
 }
 
-void ClearCasePlugin::setSettings(const ClearCaseSettings &s)
+void setSettings(const ClearCaseSettings &s)
 {
     dd->setSettings(s);
 }
 
-QSharedPointer<StatusMap> ClearCasePlugin::statusMap()
+QSharedPointer<StatusMap> statusMap()
 {
     return dd->m_statusMap;
 }
 
 #ifdef WITH_TESTS
 
-void ClearCasePlugin::testDiffFileResolving_data()
+class ClearCaseTest final : public QObject
+{
+    Q_OBJECT
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+    void testFileStatusParsing_data();
+    void testFileStatusParsing();
+    void testFileNotManaged();
+    void testFileCheckedOutDynamicView();
+    void testFileCheckedInDynamicView();
+    void testFileNotManagedDynamicView();
+    void testStatusActions_data();
+    void testStatusActions();
+    void testVcsStatusDynamicReadonlyNotManaged();
+    void testVcsStatusDynamicNotManaged();
+};
+
+void ClearCaseTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -2516,12 +2519,12 @@ void ClearCasePlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/clearcase/clearcaseeditor.cpp");
 }
 
-void ClearCasePlugin::testDiffFileResolving()
+void ClearCaseTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void ClearCasePlugin::testLogResolving()
+void ClearCaseTest::testLogResolving()
 {
     QByteArray data(
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
@@ -2532,7 +2535,7 @@ void ClearCasePlugin::testLogResolving()
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");
 }
 
-void ClearCasePlugin::initTestCase()
+void ClearCaseTest::initTestCase()
 {
     dd->m_tempFile = FilePath::currentWorkingPath() / "cc_file.cpp";
     FileSaver srcSaver(dd->m_tempFile);
@@ -2540,12 +2543,12 @@ void ClearCasePlugin::initTestCase()
     srcSaver.finalize();
 }
 
-void ClearCasePlugin::cleanupTestCase()
+void ClearCaseTest::cleanupTestCase()
 {
     QVERIFY(dd->m_tempFile.removeFile());
 }
 
-void ClearCasePlugin::testFileStatusParsing_data()
+void ClearCaseTest::testFileStatusParsing_data()
 {
     QTest::addColumn<QString>("filename");
     QTest::addColumn<QString>("cleartoolLsLine");
@@ -2575,7 +2578,7 @@ void ClearCasePlugin::testFileStatusParsing_data()
             << static_cast<int>(FileStatus::Missing);
 }
 
-void ClearCasePlugin::testFileStatusParsing()
+void ClearCaseTest::testFileStatusParsing()
 {
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
 
@@ -2587,14 +2590,14 @@ void ClearCasePlugin::testFileStatusParsing()
     ccSync.verifyParseStatus(filename, cleartoolLsLine, static_cast<FileStatus::Status>(status));
 }
 
-void ClearCasePlugin::testFileNotManaged()
+void ClearCaseTest::testFileNotManaged()
 {
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileNotManaged();
 }
 
-void ClearCasePlugin::testFileCheckedOutDynamicView()
+void ClearCaseTest::testFileCheckedOutDynamicView()
 {
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
 
@@ -2602,14 +2605,14 @@ void ClearCasePlugin::testFileCheckedOutDynamicView()
     ccSync.verifyFileCheckedOutDynamicView();
 }
 
-void ClearCasePlugin::testFileCheckedInDynamicView()
+void ClearCaseTest::testFileCheckedInDynamicView()
 {
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileCheckedInDynamicView();
 }
 
-void ClearCasePlugin::testFileNotManagedDynamicView()
+void ClearCaseTest::testFileNotManagedDynamicView()
 {
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
@@ -2665,7 +2668,7 @@ private:
 };
 }
 
-void ClearCasePlugin::testStatusActions_data()
+void ClearCaseTest::testStatusActions_data()
 {
     QTest::addColumn<int>("status");
     QTest::addColumn<bool>("checkOutAction");
@@ -2686,7 +2689,7 @@ void ClearCasePlugin::testStatusActions_data()
                                 << false << false << false << false << true  << false << false;
 }
 
-void ClearCasePlugin::testStatusActions()
+void ClearCaseTest::testStatusActions()
 {
     const QString fileName = QDir::currentPath() + QLatin1String("/clearcase_file.cpp");
     TestCase testCase(fileName);
@@ -2718,7 +2721,7 @@ void ClearCasePlugin::testStatusActions()
     QCOMPARE(dd->m_diffActivityAction->isEnabled(), diffActivityAction);
 }
 
-void ClearCasePlugin::testVcsStatusDynamicReadonlyNotManaged()
+void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
@@ -2741,7 +2744,7 @@ void ClearCasePlugin::testVcsStatusDynamicReadonlyNotManaged()
 
 }
 
-void ClearCasePlugin::testVcsStatusDynamicNotManaged()
+void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
     ClearCasePluginPrivate::instance();
     dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
@@ -2758,7 +2761,31 @@ void ClearCasePlugin::testVcsStatusDynamicNotManaged()
 }
 #endif
 
-} // namespace Internal
-} // namespace ClearCase
+
+class ClearCasePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
+
+    ~ClearCasePlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new ClearCasePluginPrivate;
+#ifdef WITH_TESTS
+        addTest<ClearCaseTest>();
+#endif
+    }
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
+} // ClearCase::Internal
 
 #include "clearcaseplugin.moc"

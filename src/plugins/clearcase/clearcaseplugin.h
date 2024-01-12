@@ -48,46 +48,14 @@ public:
     QString root;
 };
 
-class ClearCasePlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
-
-    ~ClearCasePlugin() final;
-
-public:
-    static bool newActivity();
-    static const QList<QStringPair> activities(int *current);
-    static QStringList ccGetActiveVobs();
-    static void refreshActivities();
-    static const ViewData viewData();
-    static void setStatus(const QString &file, FileStatus::Status status, bool update);
-    static const ClearCaseSettings &settings();
-    static void setSettings(const ClearCaseSettings &s);
-    static QSharedPointer<StatusMap> statusMap();
-
-private:
-    void initialize() final;
-    void extensionsInitialized() final;
-
-#ifdef WITH_TESTS
-private slots:
-    void initTestCase();
-    void cleanupTestCase();
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-    void testFileStatusParsing_data();
-    void testFileStatusParsing();
-    void testFileNotManaged();
-    void testFileCheckedOutDynamicView();
-    void testFileCheckedInDynamicView();
-    void testFileNotManagedDynamicView();
-    void testStatusActions_data();
-    void testStatusActions();
-    void testVcsStatusDynamicReadonlyNotManaged();
-    void testVcsStatusDynamicNotManaged();
-#endif
-};
+bool newActivity();
+const QList<QStringPair> activities(int *current);
+QStringList ccGetActiveVobs();
+void refreshActivities();
+const ViewData viewData();
+void setStatus(const QString &file, FileStatus::Status status, bool update);
+const ClearCaseSettings &settings();
+void setSettings(const ClearCaseSettings &s);
+QSharedPointer<StatusMap> statusMap();
 
 } // ClearCase::Internal

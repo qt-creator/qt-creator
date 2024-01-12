@@ -19,7 +19,7 @@ namespace ClearCase::Internal {
 
 ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent)
 {
-    QTC_ASSERT(ClearCasePlugin::viewData().isUcm, return);
+    QTC_ASSERT(Internal::viewData().isUcm, return);
 
     auto hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
@@ -33,7 +33,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent)
     hboxLayout->addWidget(m_cmbActivity);
 
     QString addText = Tr::tr("Add");
-    if (!ClearCasePlugin::settings().autoAssignActivityName)
+    if (!Internal::settings().autoAssignActivityName)
         addText.append(QLatin1String("..."));
     auto btnAdd = new QToolButton;
     btnAdd->setText(addText);
@@ -55,7 +55,7 @@ void ActivitySelector::userChanged()
 bool ActivitySelector::refresh()
 {
     int current;
-    const QList<QStringPair> activities = ClearCasePlugin::activities(&current);
+    const QList<QStringPair> activities = Internal::activities(&current);
     m_cmbActivity->clear();
     for (const QStringPair &activity : activities)
         m_cmbActivity->addItem(activity.second, activity.first);
@@ -90,7 +90,7 @@ void ActivitySelector::setActivity(const QString &act)
 
 void ActivitySelector::newActivity()
 {
-    if (ClearCasePlugin::newActivity())
+    if (Internal::newActivity())
         refresh();
 }
 
