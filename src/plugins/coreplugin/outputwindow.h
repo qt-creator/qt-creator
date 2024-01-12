@@ -97,6 +97,9 @@ private:
     void handleOutputChunk(const QString &output, Utils::OutputFormat format);
     void updateAutoScroll();
 
+    using TextMatchingFunction = std::function<qsizetype(const QString &text)>;
+    TextMatchingFunction makeMatchingFunction() const;
+
     Internal::OutputWindowPrivate *d = nullptr;
 };
 

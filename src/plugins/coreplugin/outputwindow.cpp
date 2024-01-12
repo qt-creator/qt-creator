@@ -379,29 +379,43 @@ void OutputWindow::setOutputFileNameHint(const QString &fileName)
     d->outputFileNameHint = fileName;
 }
 
-void OutputWindow::filterNewContent()
+OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFunction() const
 {
-    QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
-    if (!lastBlock.isValid())
-        lastBlock = document()->begin();
-
-    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted);
-    if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
+    if (d->filterText.isEmpty()) {
+        return [](const QString &) { return true; };
+    } else if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
         QRegularExpression regExp(d->filterText);
         if (!d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive))
             regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        if (!regExp.isValid())
+            return [](const QString &) { return false; };
 
-        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-            lastBlock.setVisible(d->filterText.isEmpty()
-                                 || regExp.match(lastBlock.text()).hasMatch() != invert);
+        return [regExp](const QString &text) { return regExp.match(text).hasMatch(); };
     } else {
         const auto cs = d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)
                             ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-            lastBlock.setVisible(d->filterText.isEmpty()
-                                 || lastBlock.text().contains(d->filterText, cs) != invert);
+        return [cs, filterText = d->filterText](const QString &text) {
+            return text.contains(filterText, cs);
+        };
     }
+
+    return {};
+}
+
+void OutputWindow::filterNewContent()
+{
+    const auto findNextMatch = makeMatchingFunction();
+    QTC_ASSERT(findNextMatch, return);
+    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted)
+                        && !d->filterText.isEmpty();
+
+    QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
+    if (!lastBlock.isValid())
+        lastBlock = document()->begin();
+
+    for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
+        lastBlock.setVisible(findNextMatch(lastBlock.text()) != invert);
 
     d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
 
