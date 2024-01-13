@@ -9,8 +9,6 @@
 #include <QBoxLayout>
 #include <QPainter>
 
-using namespace Qt::Literals::StringLiterals;
-
 class LightWidget final : public QWidget
 {
 public:
@@ -47,8 +45,8 @@ class ButtonWidget final : public QAbstractButton
 {
 public:
     ButtonWidget(QWidget *parent = nullptr)
-        : QAbstractButton(parent), m_playIcon(":/play.png"_L1)
-        , m_pauseIcon(":/pause.png"_L1)
+        : QAbstractButton(parent), m_playIcon(":/play.png")
+        , m_pauseIcon(":/pause.png")
     {
         setCheckable(true);
     }
@@ -72,15 +70,15 @@ class TrafficLightWidget final : public QWidget
 public:
     TrafficLightWidget(QWidget *parent = nullptr)
         : QWidget(parent)
-        , m_background(":/background.png"_L1)
+        , m_background(":/background.png")
     {
         QVBoxLayout *vbox = new QVBoxLayout(this);
         vbox->setContentsMargins(0, 40, 0, 80);
-        m_red = new LightWidget(":/red.png"_L1);
+        m_red = new LightWidget(":/red.png");
         vbox->addWidget(m_red, 0, Qt::AlignHCenter);
-        m_yellow = new LightWidget(":/yellow.png"_L1);
+        m_yellow = new LightWidget(":/yellow.png");
         vbox->addWidget(m_yellow, 0, Qt::AlignHCenter);
-        m_green = new LightWidget(":/green.png"_L1);
+        m_green = new LightWidget(":/green.png");
         vbox->addWidget(m_green, 0, Qt::AlignHCenter);
         setLayout(vbox);
     }
