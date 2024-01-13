@@ -7,6 +7,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
@@ -396,11 +398,12 @@ public:
     QString m_input;
     LocatorFilterEntries m_output;
     int m_parallelLimit = 0;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 LocatorMatcher::LocatorMatcher()
-    : d(new LocatorMatcherPrivate) {}
+    : d(new LocatorMatcherPrivate)
+{}
 
 LocatorMatcher::~LocatorMatcher() = default;
 
@@ -423,7 +426,6 @@ void LocatorMatcher::start()
 {
     QTC_ASSERT(!isRunning(), return);
     d->m_output = {};
-    d->m_taskTree.reset(new TaskTree);
 
     struct CollectorStorage
     {
@@ -479,27 +481,19 @@ void LocatorMatcher::start()
             parallelTasks
         }
     };
-
-    d->m_taskTree->setRecipe(root);
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+    d->m_taskTreeRunner.start(root, {}, [this](DoneWith result) {
         emit done(result == DoneWith::Success);
-        d->m_taskTree.release()->deleteLater();
     });
-    d->m_taskTree->start();
 }
 
 void LocatorMatcher::stop()
 {
-    if (!isRunning())
-        return;
-
-    d->m_taskTree->stop();
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.stop();
 }
 
 bool LocatorMatcher::isRunning() const
 {
-    return d->m_taskTree.get() && d->m_taskTree->isRunning();
+    return d->m_taskTreeRunner.isRunning();
 }
 
 LocatorFilterEntries LocatorMatcher::outputData() const
