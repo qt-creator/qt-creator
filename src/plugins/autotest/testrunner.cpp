@@ -347,22 +347,22 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-        const QList<ITestConfiguration *> selectedTests = m_selectedTests;
-        const LoopRepeat repeater(selectedTests.size());
-        const Storage<TestStorage> storage;
+    const QList<ITestConfiguration *> selectedTests = m_selectedTests;
+    const LoopRepeat repeater(selectedTests.size());
+    const Storage<TestStorage> storage;
 
-        const auto onSetup = [this, selectedTests, repeater] {
-            ITestConfiguration *config = selectedTests.at(repeater.iteration());
-            QTC_ASSERT(config, return SetupResult::StopWithError);
-            if (!config->project())
-                return SetupResult::StopWithSuccess;
-            if (config->testExecutable().isEmpty()) {
-                reportResult(ResultType::MessageFatal,
-                             Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
-                return SetupResult::StopWithSuccess;
-            }
-            return SetupResult::Continue;
-        };
+    const auto onSetup = [this, selectedTests, repeater] {
+        ITestConfiguration *config = selectedTests.at(repeater.iteration());
+        QTC_ASSERT(config, return SetupResult::StopWithError);
+        if (!config->project())
+            return SetupResult::StopWithSuccess;
+        if (config->testExecutable().isEmpty()) {
+            reportResult(ResultType::MessageFatal,
+                         Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
+            return SetupResult::StopWithSuccess;
+        }
+        return SetupResult::Continue;
+    };
         const auto onProcessSetup = [this, selectedTests, repeater, storage](Process &process) {
             ITestConfiguration *config = selectedTests.at(repeater.iteration());
             TestStorage *testStorage = storage.activeStorage();
@@ -424,28 +424,28 @@ void TestRunner::runTestsHelper()
             if (testStorage->m_outputReader)
                 testStorage->m_outputReader->onDone(process.exitCode());
 
-            if (process.exitStatus() == QProcess::CrashExit) {
-                if (testStorage->m_outputReader)
-                    testStorage->m_outputReader->reportCrash();
-                reportResult(ResultType::MessageFatal,
-                             Tr::tr("Test for project \"%1\" crashed.").arg(config->displayName())
-                             + processInformation(&process) + rcInfo(config));
-            } else if (testStorage->m_outputReader && !testStorage->m_outputReader->hadValidOutput()) {
-                reportResult(ResultType::MessageFatal,
-                             Tr::tr("Test for project \"%1\" did not produce any expected output.")
-                             .arg(config->displayName()) + processInformation(&process)
-                             + rcInfo(config));
-            }
-            if (testStorage->m_outputReader) {
-                const int disabled = testStorage->m_outputReader->disabledTests();
-                if (disabled > 0)
-                    emit hadDisabledTests(disabled);
-                if (testStorage->m_outputReader->hasSummary())
-                    emit reportSummary(testStorage->m_outputReader->id(), testStorage->m_outputReader->summary());
+        if (process.exitStatus() == QProcess::CrashExit) {
+            if (testStorage->m_outputReader)
+                testStorage->m_outputReader->reportCrash();
+            reportResult(ResultType::MessageFatal,
+                         Tr::tr("Test for project \"%1\" crashed.").arg(config->displayName())
+                         + processInformation(&process) + rcInfo(config));
+        } else if (testStorage->m_outputReader && !testStorage->m_outputReader->hadValidOutput()) {
+            reportResult(ResultType::MessageFatal,
+                         Tr::tr("Test for project \"%1\" did not produce any expected output.")
+                         .arg(config->displayName()) + processInformation(&process)
+                         + rcInfo(config));
+        }
+        if (testStorage->m_outputReader) {
+            const int disabled = testStorage->m_outputReader->disabledTests();
+            if (disabled > 0)
+                emit hadDisabledTests(disabled);
+            if (testStorage->m_outputReader->hasSummary())
+                emit reportSummary(testStorage->m_outputReader->id(), testStorage->m_outputReader->summary());
 
-                testStorage->m_outputReader->resetCommandlineColor();
-            }
-        };
+            testStorage->m_outputReader->resetCommandlineColor();
+        }
+    };
 
     const Group root {
         finishAllAndSuccess,
