@@ -1595,17 +1595,7 @@ void tst_Process::eventLoopMode()
     subConfig.setupSubProcess(&process);
     process.setProcessImpl(processImpl);
     process.runBlocking(eventLoopMode);
-    const ProcessResult actualResult = process.result();
-
-    // FIXME: On Windows, Process::runBlocking(EventLoopMode::On) and ProcessImpl::QProcess fails
-    // with ProcessResult::StartFailed. Details: QTCREATORBUG-30066
-    const bool isFailingCombination = HostOsInfo::isWindowsHost()
-                                      && processImpl == ProcessImpl::QProcess
-                                      && eventLoopMode == EventLoopMode::On;
-    const ProcessResult expectedResult = isFailingCombination ? ProcessResult::StartFailed
-                                                              : ProcessResult::FinishedWithSuccess;
-
-    QCOMPARE(actualResult, expectedResult);
+    QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
 }
 
 QTEST_GUILESS_MAIN(tst_Process)

@@ -1865,43 +1865,45 @@ void Process::setWriteData(const QByteArray &writeData)
 
 void Process::runBlocking(EventLoopMode eventLoopMode)
 {
-    // Attach a dynamic property with info about blocking type
-    d->storeEventLoopDebugInfo(int(eventLoopMode));
-
     QDateTime startTime;
     static const int blockingThresholdMs = qtcEnvironmentVariableIntValue("QTC_PROCESS_THRESHOLD");
-    if (blockingThresholdMs > 0 && isMainThread())
-        startTime = QDateTime::currentDateTime();
-    Process::start();
 
-    // Remove the dynamic property so that it's not reused in subseqent start()
-    d->storeEventLoopDebugInfo({});
+    auto starter = [this, eventLoopMode, &startTime] {
+        // Attach a dynamic property with info about blocking type
+        d->storeEventLoopDebugInfo(int(eventLoopMode));
+
+        if (blockingThresholdMs > 0 && isMainThread())
+            startTime = QDateTime::currentDateTime();
+        start();
+
+        // Remove the dynamic property so that it's not reused in subseqent start()
+        d->storeEventLoopDebugInfo({});
+    };
 
     if (eventLoopMode == EventLoopMode::On) {
-        // Start failure is triggered immediately if the executable cannot be found in the path.
-        // In this case the process is left in NotRunning state.
-        // Do not start the event loop in that case.
-        if (state() == QProcess::Starting) {
-            QTimer timer(this);
-            connect(&timer, &QTimer::timeout, d, &ProcessPrivate::slotTimeout);
-            timer.setInterval(1000);
-            timer.start();
+        QTimer timer(this);
+        connect(&timer, &QTimer::timeout, d, &ProcessPrivate::slotTimeout);
+        timer.setInterval(1000);
+        timer.start();
 #ifdef QT_GUI_LIB
-            if (isGuiEnabled())
-                QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+        if (isGuiEnabled())
+            QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-            QEventLoop eventLoop(this);
-            QTC_ASSERT(!d->m_eventLoop, return);
-            d->m_eventLoop = &eventLoop;
-            eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-            d->m_eventLoop = nullptr;
-            timer.stop();
+        QEventLoop eventLoop(this);
+        QTC_ASSERT(!d->m_eventLoop, return);
+        d->m_eventLoop = &eventLoop;
+        // Queue the call to start() so that it's executed after the nested event loop is started,
+        // otherwise it fails on Windows with QProcessImpl. See QTCREATORBUG-30066.
+        QMetaObject::invokeMethod(this, starter, Qt::QueuedConnection);
+        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+        d->m_eventLoop = nullptr;
+        timer.stop();
 #ifdef QT_GUI_LIB
-            if (isGuiEnabled())
-                QGuiApplication::restoreOverrideCursor();
+        if (isGuiEnabled())
+            QGuiApplication::restoreOverrideCursor();
 #endif
-        }
     } else {
+        starter();
         if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
             d->m_result = ProcessResult::StartFailed;
             return;
