@@ -31,6 +31,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
@@ -276,7 +277,7 @@ public:
     QFutureWatcher<void> m_progressWatcher;
     QPointer<FutureProgress> m_futureProgress;
 
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
     QElapsedTimer m_elapsed;
 };
 
@@ -309,6 +310,28 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
             this, &BuildManager::cancel);
     connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
             this, &BuildManager::finish);
+
+    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [](DoneWith result) {
+        const bool success = result == DoneWith::Success;
+
+        if (!success && d->m_progressFutureInterface)
+            d->m_progressFutureInterface->reportCanceled();
+
+        cleanupBuild();
+
+        if (d->m_pendingQueue.isEmpty()) {
+            d->m_poppedUpTaskWindow = false;
+            d->m_isDeploying = false;
+        }
+
+        emit m_instance->buildQueueFinished(success);
+
+        if (!d->m_pendingQueue.isEmpty()) {
+            d->m_buildQueue = d->m_pendingQueue;
+            d->m_pendingQueue.clear();
+            startBuildQueue();
+        }
+    });
 }
 
 BuildManager *BuildManager::instance()
@@ -520,10 +543,10 @@ void BuildManager::cleanupBuild()
 
 void BuildManager::cancel()
 {
-    if (!d->m_taskTree)
+    if (!d->m_taskTreeRunner.isRunning())
         return;
 
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.reset();
 
     const QList<BuildItem> pendingQueue = d->m_pendingQueue;
     d->m_pendingQueue.clear();
@@ -679,31 +702,6 @@ void BuildManager::startBuildQueue()
     if (!targetTasks.isEmpty())
         topLevel.append(Group(targetTasks));
 
-    d->m_taskTree.reset(new TaskTree(Group{topLevel}));
-    const auto onDone = [](DoneWith result) {
-        const bool success = result == DoneWith::Success;
-        d->m_taskTree.release()->deleteLater();
-
-        if (!success && d->m_progressFutureInterface)
-            d->m_progressFutureInterface->reportCanceled();
-
-        cleanupBuild();
-
-        if (d->m_pendingQueue.isEmpty()) {
-            d->m_poppedUpTaskWindow = false;
-            d->m_isDeploying = false;
-        }
-
-        emit m_instance->buildQueueFinished(success);
-
-        if (!d->m_pendingQueue.isEmpty()) {
-            d->m_buildQueue = d->m_pendingQueue;
-            d->m_pendingQueue.clear();
-            startBuildQueue();
-        }
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, instance(), onDone);
-
     // Progress Reporting
     d->m_progressFutureInterface = new QFutureInterface<void>;
     d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
@@ -720,7 +718,7 @@ void BuildManager::startBuildQueue()
     d->m_progressFutureInterface->reportStarted();
 
     d->m_elapsed.start();
-    d->m_taskTree->start();
+    d->m_taskTreeRunner.start(topLevel);
 }
 
 void BuildManager::showBuildResults()
@@ -761,7 +759,7 @@ void BuildManager::progressChanged(int percent, const QString &text)
 
 bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QStringList &preambleMessage)
 {
-    if (!d->m_taskTree) {
+    if (!d->m_taskTreeRunner.isRunning()) {
         d->m_outputWindow->clearContents();
         if (ProjectExplorerPlugin::projectExplorerSettings().clearIssuesOnRebuild) {
             TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
@@ -797,7 +795,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
         return false;
     }
 
-    if (d->m_taskTree)
+    if (d->m_taskTreeRunner.isRunning())
         d->m_pendingQueue << items;
     else
         d->m_buildQueue = items;
@@ -812,7 +810,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
     for (const BuildItem &item : items)
         incrementActiveBuildSteps(item.buildStep);
 
-    if (!d->m_taskTree)
+    if (!d->m_taskTreeRunner.isRunning())
         startBuildQueue();
     return true;
 }
