@@ -7,6 +7,7 @@
 #include "diffutils.h"
 
 #include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <QObject>
 
@@ -48,7 +49,7 @@ public:
     static DiffEditorController *controller(Core::IDocument *document);
 
 protected:
-    bool isReloading() const;
+    bool isReloading() const { return m_taskTreeRunner.isRunning(); }
     int contextLineCount() const;
     bool ignoreWhitespace() const;
     bool chunkExists(int fileIndex, int chunkIndex) const;
@@ -72,7 +73,7 @@ private:
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
     Tasking::Group m_reloadRecipe;
 };
 
