@@ -12,6 +12,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
+
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/infobar.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -24,8 +27,6 @@
 #include <QTimer>
 #include <QVersionNumber>
 #include <QScrollArea>
-
-#include <memory>
 
 Q_LOGGING_CATEGORY(updateLog, "qtc.updateinfo", QtWarningMsg)
 
@@ -53,7 +54,7 @@ class UpdateInfoPluginPrivate
 {
 public:
     FilePath m_maintenanceTool;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
     QPointer<TaskProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
@@ -102,7 +103,7 @@ void UpdateInfoPlugin::stopAutoCheckForUpdates()
 
 void UpdateInfoPlugin::doAutoCheckForUpdates()
 {
-    if (d->m_taskTree)
+    if (d->m_taskTreeRunner.isRunning())
         return; // update task is still running (might have been run manually just before)
 
     if (nextCheckDate().isValid() && nextCheckDate() > QDate::currentDate())
@@ -113,10 +114,23 @@ void UpdateInfoPlugin::doAutoCheckForUpdates()
 
 void UpdateInfoPlugin::startCheckForUpdates()
 {
-    if (d->m_taskTree)
+    if (d->m_taskTreeRunner.isRunning())
         return; // do not trigger while update task is already running
 
     emit checkForUpdatesRunningChanged(true);
+
+    const auto onTreeSetup = [this](TaskTree *taskTree) {
+        d->m_progress = new TaskProgress(taskTree);
+        d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
+        d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));
+        d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+        d->m_progress->setSubtitleVisibleInStatusBar(true);
+    };
+    const auto onTreeDone = [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            checkForUpdatesFinished();
+        checkForUpdatesStopped();
+    };
 
     const auto doSetup = [this](Process &process, const QStringList &args) {
         process.setCommand({d->m_maintenanceTool, args});
@@ -140,28 +154,15 @@ void UpdateInfoPlugin::startCheckForUpdates()
         };
         tasks << ProcessTask(onPackagesSetup, onPackagesDone, CallDoneIf::Success);
     }
-
-    d->m_taskTree.reset(new TaskTree(Group{tasks}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            checkForUpdatesFinished();
-        d->m_taskTree.release()->deleteLater();
-        checkForUpdatesStopped();
-    });
-    d->m_progress = new TaskProgress(d->m_taskTree.get());
-    d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
-    d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));
-    d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
-    d->m_progress->setSubtitleVisibleInStatusBar(true);
-    d->m_taskTree->start();
+    d->m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone);
 }
 
 void UpdateInfoPlugin::stopCheckForUpdates()
 {
-    if (!d->m_taskTree)
+    if (!d->m_taskTreeRunner.isRunning())
         return;
 
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.reset();
     checkForUpdatesStopped();
 }
 
@@ -275,7 +276,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 
 bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
 {
-    return d->m_taskTree.get() != nullptr;
+    return d->m_taskTreeRunner.isRunning();
 }
 
 void UpdateInfoPlugin::extensionsInitialized()
