@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
