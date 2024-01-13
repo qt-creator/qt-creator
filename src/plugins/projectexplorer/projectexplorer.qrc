@@ -26,10 +26,8 @@
         <file>images/devicestatusindicator@2x.png</file>
         <file>images/build.png</file>
         <file>images/build@2x.png</file>
-        <file>images/build_hammerhandle_mask.png</file>
-        <file>images/build_hammerhandle_mask@2x.png</file>
-        <file>images/build_hammerhead_mask.png</file>
-        <file>images/build_hammerhead_mask@2x.png</file>
+        <file>images/build_hammer_mask.png</file>
+        <file>images/build_hammer_mask@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/window.png</file>
         <file>images/buildstepdisable.png</file>
