@@ -22,6 +22,7 @@
 #include <coreplugin/icore.h>
 
 #include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -46,6 +47,7 @@
 #endif
 
 using namespace ProjectExplorer::Internal;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -279,7 +281,7 @@ public:
     bool printEnvironment = false;
     bool autoDelete = false;
     bool m_supportsReRunning = true;
-    std::optional<Tasking::Group> m_runRecipe;
+    std::optional<Group> m_runRecipe;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -291,6 +293,9 @@ public:
         : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
+        connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, q, &RunControl::started);
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done,
+                this, &RunControlPrivate::checkAutoDeleteAndEmitStopped);
     }
 
     ~RunControlPrivate() override
@@ -333,7 +338,7 @@ public:
 
     RunControl *q;
     Id runMode;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 } // Internal
@@ -438,7 +443,7 @@ void RunControl::setAutoDeleteOnStop(bool autoDelete)
     d->autoDelete = autoDelete;
 }
 
-void RunControl::setRunRecipe(const Tasking::Group &group)
+void RunControl::setRunRecipe(const Group &group)
 {
     d->m_runRecipe = group;
 }
@@ -466,7 +471,7 @@ void RunControl::initiateReStart()
 void RunControl::initiateStop()
 {
     if (d->isUsingTaskTree()) {
-        d->m_taskTree.reset();
+        d->m_taskTreeRunner.reset();
         d->checkAutoDeleteAndEmitStopped();
     } else {
         d->initiateStop();
@@ -476,7 +481,7 @@ void RunControl::initiateStop()
 void RunControl::forceStop()
 {
     if (d->isUsingTaskTree()) {
-        d->m_taskTree.reset();
+        d->m_taskTreeRunner.reset();
         emit stopped();
     } else {
         d->forceStop();
@@ -1072,15 +1077,7 @@ bool RunControlPrivate::supportsReRunning() const
 
 void RunControlPrivate::startTaskTree()
 {
-    using namespace Tasking;
-
-    m_taskTree.reset(new TaskTree(*m_runRecipe));
-    connect(m_taskTree.get(), &TaskTree::started, q, &RunControl::started);
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        m_taskTree.release()->deleteLater();
-        checkAutoDeleteAndEmitStopped();
-    });
-    m_taskTree->start();
+    m_taskTreeRunner.start(*m_runRecipe);
 }
 
 void RunControlPrivate::checkAutoDeleteAndEmitStopped()
@@ -1097,7 +1094,7 @@ void RunControlPrivate::checkAutoDeleteAndEmitStopped()
 bool RunControl::isRunning() const
 {
     if (d->isUsingTaskTree())
-        return d->m_taskTree.get();
+        return d->m_taskTreeRunner.isRunning();
     return d->state == RunControlState::Running;
 }
 
@@ -1111,7 +1108,7 @@ bool RunControl::isStarting() const
 bool RunControl::isStopped() const
 {
     if (d->isUsingTaskTree())
-        return !d->m_taskTree.get();
+        return !d->m_taskTreeRunner.isRunning();
     return d->state == RunControlState::Stopped;
 }
 
