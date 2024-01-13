@@ -9,6 +9,8 @@
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
@@ -45,7 +47,7 @@ public:
 
     GenericLinuxDeviceTester *q = nullptr;
     IDevice::Ptr m_device;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
     QList<GroupItem> m_extraTests;
 };
@@ -280,6 +282,9 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
     : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate(this))
 {
+    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+        emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
+    });
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
@@ -296,14 +301,9 @@ void GenericLinuxDeviceTester::setExtraTests(const QList<GroupItem> &extraTests)
 
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
-    QTC_ASSERT(!d->m_taskTree, return);
+    QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
 
     d->m_device = deviceConfiguration;
-
-    auto onDone = [this](DoneWith result) {
-        emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
-        d->m_taskTree.release()->deleteLater();
-    };
 
     QList<GroupItem> taskItems = {
         d->echoTask("Hello"), // No quoting necessary
@@ -314,16 +314,14 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     };
     if (!d->m_extraTests.isEmpty())
         taskItems << Group { d->m_extraTests };
-    taskItems << d->commandTasks() << onGroupDone(onDone);
-
-    d->m_taskTree.reset(new TaskTree(taskItems));
-    d->m_taskTree->start();
+    taskItems << d->commandTasks();
+    d->m_taskTreeRunner.start(taskItems);
 }
 
 void GenericLinuxDeviceTester::stopTest()
 {
-    QTC_ASSERT(d->m_taskTree, return);
-    d->m_taskTree.reset();
+    QTC_ASSERT(d->m_taskTreeRunner.isRunning(), return);
+    d->m_taskTreeRunner.reset();
     emit finished(TestFailure);
 }
 
