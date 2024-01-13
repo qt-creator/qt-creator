@@ -18,12 +18,10 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CppEditor {
-
-CppProjectUpdater::CppProjectUpdater() = default;
-CppProjectUpdater::~CppProjectUpdater() = default;
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
                                const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers)
@@ -69,7 +67,6 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     }
 
     const auto onDone = [this, storage, compilers](DoneWith result) {
-        m_taskTree.release()->deleteLater();
         if (result != DoneWith::Success)
             return;
         QList<ExtraCompiler *> extraCompilers;
@@ -90,15 +87,15 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         Group(tasks),
         onGroupDone(onDone)
     };
-    m_taskTree.reset(new TaskTree(root));
-    auto progress = new Core::TaskProgress(m_taskTree.get());
-    progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
-    m_taskTree->start();
+    m_taskTreeRunner.start(root, [](TaskTree *taskTree) {
+        auto progress = new Core::TaskProgress(taskTree);
+        progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
+    });
 }
 
 void CppProjectUpdater::cancel()
 {
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     m_futureSynchronizer.cancelAllFutures();
 }
 

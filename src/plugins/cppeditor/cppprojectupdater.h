@@ -8,10 +8,11 @@
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/futuresynchronizer.h>
 
 namespace ProjectExplorer { class ExtraCompiler; }
-namespace Tasking { class TaskTree; }
 
 namespace CppEditor {
 
@@ -33,16 +34,13 @@ class CPPEDITOR_EXPORT CppProjectUpdater final
     Q_OBJECT
 
 public:
-    CppProjectUpdater();
-    ~CppProjectUpdater() override;
-
     void update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo,
                 const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers) override;
     void cancel() override;
 
 private:
     Utils::FutureSynchronizer m_futureSynchronizer;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace CppEditor
