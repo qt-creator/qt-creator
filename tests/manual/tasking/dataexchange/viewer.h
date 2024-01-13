@@ -7,6 +7,7 @@
 #include "recipe.h"
 
 #include <tasking/tasktree.h>
+#include <tasking/tasktreerunner.h>
 
 #include <QNetworkAccessManager>
 #include <QtWidgets>
@@ -27,7 +28,7 @@ private:
     QNetworkAccessManager m_nam;
     const Tasking::Storage<ExternalData> m_storage;
     const Tasking::Group m_recipe;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 #endif // VIEWER_H

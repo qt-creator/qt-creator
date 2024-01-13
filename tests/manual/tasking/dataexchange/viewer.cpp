@@ -46,15 +46,13 @@ Viewer::Viewer(QWidget *parent)
         m_progressBar->setValue(0);
     };
 
-    connect(startButton, &QAbstractButton::clicked, this, [this, reset] {
-        reset();
-        const auto setInput = [this](ExternalData &data) {
+    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+        taskTree->onStorageSetup(m_storage, [this](ExternalData &data) {
             data.inputNam = &m_nam;
             data.inputUrl = m_lineEdit->text();
             m_statusBar->showMessage(tr("Executing recipe..."));
-        };
-
-        const auto getOutput = [this](const ExternalData &data) {
+        });
+        taskTree->onStorageDone(m_storage, [this](const ExternalData &data) {
             if (data.outputError) {
                 m_statusBar->showMessage(*data.outputError);
                 return;
@@ -65,29 +63,26 @@ Viewer::Viewer(QWidget *parent)
                 m_listWidget->addItem(new QListWidgetItem(QPixmap::fromImage(it.value()),
                                                           QString("%1x%1").arg(it.key())));
             }
-        };
-
-        const auto onDone = [this] { m_taskTree.release()->deleteLater(); };
-
-        m_taskTree.reset(new TaskTree(m_recipe));
-        m_taskTree->onStorageSetup(m_storage, setInput);
-        m_taskTree->onStorageDone(m_storage, getOutput);
-        m_progressBar->setMaximum(m_taskTree->progressMaximum());
-        QObject::connect(m_taskTree.get(), &TaskTree::progressValueChanged,
+        });
+        QObject::connect(taskTree, &TaskTree::progressValueChanged,
                          m_progressBar, &QProgressBar::setValue);
-        QObject::connect(m_taskTree.get(), &TaskTree::done, this, onDone);
-        m_taskTree->start();
+        m_progressBar->setMaximum(taskTree->progressMaximum());
+    });
+
+    connect(startButton, &QAbstractButton::clicked, this, [this, reset] {
+        reset();
+        m_taskTreeRunner.start(m_recipe);
     });
 
     connect(stopButton, &QAbstractButton::clicked, this, [this] {
-        if (m_taskTree) {
+        if (m_taskTreeRunner.isRunning()) {
             m_statusBar->showMessage(tr("Recipe stopped by user."));
-            m_taskTree.reset();
+            m_taskTreeRunner.reset();
         }
     });
 
     connect(resetButton, &QAbstractButton::clicked, this, [this, reset] {
-        m_taskTree.reset();
+        m_taskTreeRunner.reset();
         reset();
     });
 }
