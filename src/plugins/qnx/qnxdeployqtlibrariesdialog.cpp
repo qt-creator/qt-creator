@@ -13,6 +13,8 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -95,7 +97,7 @@ private:
     enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
     CheckResult m_checkResult = CheckResult::Abort;
     mutable QList<DeployableFile> m_deployableFiles;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
@@ -241,7 +243,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
 void QnxDeployQtLibrariesDialogPrivate::start()
 {
     QTC_ASSERT(m_device, return);
-    QTC_ASSERT(!m_taskTree, return);
+    QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
     if (m_remoteDirectory->text().isEmpty()) {
         QMessageBox::warning(q, q->windowTitle(),
                              Tr::tr("Please input a remote directory to deploy to."));
@@ -260,19 +262,14 @@ void QnxDeployQtLibrariesDialogPrivate::start()
     m_deployableFiles = gatherFiles();
     m_deployProgress->setRange(0, m_deployableFiles.count());
 
-    m_taskTree.reset(new TaskTree(deployRecipe()));
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        m_taskTree.release()->deleteLater();
-        handleUploadFinished();
-    });
-    m_taskTree->start();
+    m_taskTreeRunner.start(deployRecipe());
 }
 
 void QnxDeployQtLibrariesDialogPrivate::stop()
 {
-    if (!m_taskTree)
+    if (!m_taskTreeRunner.isRunning())
         return;
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     handleUploadFinished();
 }
 
@@ -326,6 +323,8 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
             this, &QnxDeployQtLibrariesDialogPrivate::start);
     connect(m_closeButton, &QAbstractButton::clicked,
             q, &QWidget::close);
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done,
+            this, &QnxDeployQtLibrariesDialogPrivate::handleUploadFinished);
 }
 
 QnxDeployQtLibrariesDialog::~QnxDeployQtLibrariesDialog()
