@@ -277,14 +277,15 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                                                     .arg(indexName, currentName),
                                                 this,
                                                 [this] { merge(false); });
-            taskTree.reset(onFastForwardMerge([&] {
+            taskTree.reset(new TaskTree(fastForwardMergeRecipe([&] {
                 auto ffMerge = new QAction(
                     Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)").arg(indexName, currentName));
                 connect(ffMerge, &QAction::triggered, this, [this] { merge(true); });
                 contextMenu.insertAction(mergeAction, ffMerge);
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
-            }));
+            })));
+            taskTree->start();
             connect(mergeAction, &QObject::destroyed, taskTree.get(), &TaskTree::stop);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
@@ -534,7 +535,7 @@ bool BranchView::reset(const QByteArray &resetType)
     return false;
 }
 
-TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
+Group BranchView::fastForwardMergeRecipe(const std::function<void()> &callback)
 {
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
@@ -572,9 +573,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
                 callback();
         }, CallDoneIf::Success)
     };
-    auto taskTree = new TaskTree(root);
-    taskTree->start();
-    return taskTree;
+    return root;
 }
 
 bool BranchView::merge(bool allowFastForward)
