@@ -363,66 +363,66 @@ void TestRunner::runTestsHelper()
         }
         return SetupResult::Continue;
     };
-        const auto onProcessSetup = [this, selectedTests, repeater, storage](Process &process) {
-            ITestConfiguration *config = selectedTests.at(repeater.iteration());
-            TestStorage *testStorage = storage.activeStorage();
-            QTC_ASSERT(testStorage, return);
-            testStorage->m_outputReader.reset(config->createOutputReader(&process));
-            QTC_ASSERT(testStorage->m_outputReader, return);
-            connect(testStorage->m_outputReader.get(), &TestOutputReader::newResult,
-                    this, &TestRunner::testResultReady);
-            connect(testStorage->m_outputReader.get(), &TestOutputReader::newOutputLineAvailable,
-                    TestResultsPane::instance(), &TestResultsPane::addOutputLine);
+    const auto onProcessSetup = [this, selectedTests, repeater, storage](Process &process) {
+        ITestConfiguration *config = selectedTests.at(repeater.iteration());
+        TestStorage *testStorage = storage.activeStorage();
+        QTC_ASSERT(testStorage, return);
+        testStorage->m_outputReader.reset(config->createOutputReader(&process));
+        QTC_ASSERT(testStorage->m_outputReader, return);
+        connect(testStorage->m_outputReader.get(), &TestOutputReader::newResult,
+                this, &TestRunner::testResultReady);
+        connect(testStorage->m_outputReader.get(), &TestOutputReader::newOutputLineAvailable,
+                TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
-            CommandLine command{config->testExecutable(), {}};
-            if (config->testBase()->type() == ITestBase::Framework) {
-                TestConfiguration *current = static_cast<TestConfiguration *>(config);
-                QStringList omitted;
-                command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), CommandLine::Raw);
-                if (!omitted.isEmpty()) {
-                    const QString &details = constructOmittedDetailsString(omitted);
-                    reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
-                }
-            } else {
-                TestToolConfiguration *current = static_cast<TestToolConfiguration *>(config);
-                command.setArguments(current->commandLine().arguments());
+        CommandLine command{config->testExecutable(), {}};
+        if (config->testBase()->type() == ITestBase::Framework) {
+            TestConfiguration *current = static_cast<TestConfiguration *>(config);
+            QStringList omitted;
+            command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), CommandLine::Raw);
+            if (!omitted.isEmpty()) {
+                const QString &details = constructOmittedDetailsString(omitted);
+                reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
             }
-            process.setCommand(command);
+        } else {
+            TestToolConfiguration *current = static_cast<TestToolConfiguration *>(config);
+            command.setArguments(current->commandLine().arguments());
+        }
+        process.setCommand(command);
 
-            process.setWorkingDirectory(config->workingDirectory());
-            const Environment &original = config->environment();
-            Environment environment = config->filteredEnvironment(original);
-            const EnvironmentItems removedVariables = Utils::filtered(
-                        original.diff(environment), [](const EnvironmentItem &it) {
-                return it.operation == EnvironmentItem::Unset;
-            });
-            if (!removedVariables.isEmpty()) {
-                const QString &details = constructOmittedVariablesDetailsString(removedVariables)
-                        .arg(config->displayName());
-                reportResult(ResultType::MessageWarn, details);
-            }
-            process.setEnvironment(environment);
+        process.setWorkingDirectory(config->workingDirectory());
+        const Environment &original = config->environment();
+        Environment environment = config->filteredEnvironment(original);
+        const EnvironmentItems removedVariables = Utils::filtered(
+                    original.diff(environment), [](const EnvironmentItem &it) {
+            return it.operation == EnvironmentItem::Unset;
+        });
+        if (!removedVariables.isEmpty()) {
+            const QString &details = constructOmittedVariablesDetailsString(removedVariables)
+                    .arg(config->displayName());
+            reportResult(ResultType::MessageWarn, details);
+        }
+        process.setEnvironment(environment);
 
-            m_cancelTimer.setInterval(testSettings().timeout());
-            m_cancelTimer.start();
+        m_cancelTimer.setInterval(testSettings().timeout());
+        m_cancelTimer.start();
 
-            qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
-            qCInfo(runnerLog) << "Arguments:" << process.commandLine().arguments();
-            qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
-            qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
-        };
-        const auto onProcessDone = [this, selectedTests, repeater, storage](const Process &process) {
-            ITestConfiguration *config = selectedTests.at(repeater.iteration());
-            TestStorage *testStorage = storage.activeStorage();
-            QTC_ASSERT(testStorage, return);
-            if (process.result() == ProcessResult::StartFailed) {
-                reportResult(ResultType::MessageFatal,
-                    Tr::tr("Failed to start test for project \"%1\".").arg(config->displayName())
-                        + processInformation(&process) + rcInfo(config));
-            }
+        qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
+        qCInfo(runnerLog) << "Arguments:" << process.commandLine().arguments();
+        qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
+        qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
+    };
+    const auto onProcessDone = [this, selectedTests, repeater, storage](const Process &process) {
+        ITestConfiguration *config = selectedTests.at(repeater.iteration());
+        TestStorage *testStorage = storage.activeStorage();
+        QTC_ASSERT(testStorage, return);
+        if (process.result() == ProcessResult::StartFailed) {
+            reportResult(ResultType::MessageFatal,
+                Tr::tr("Failed to start test for project \"%1\".").arg(config->displayName())
+                    + processInformation(&process) + rcInfo(config));
+        }
 
-            if (testStorage->m_outputReader)
-                testStorage->m_outputReader->onDone(process.exitCode());
+        if (testStorage->m_outputReader)
+            testStorage->m_outputReader->onDone(process.exitCode());
 
         if (process.exitStatus() == QProcess::CrashExit) {
             if (testStorage->m_outputReader)
