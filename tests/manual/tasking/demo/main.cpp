@@ -4,6 +4,7 @@
 #include "taskwidget.h"
 
 #include <tasking/tasktree.h>
+#include <tasking/tasktreerunner.h>
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -181,7 +182,14 @@ int main(int argc, char *argv[])
 
     // Task tree (takes initial configuation from GUI)
 
-    std::unique_ptr<TaskTree> taskTree;
+    TaskTreeRunner taskTreeRunner;
+
+    QObject::connect(&taskTreeRunner, &TaskTreeRunner::aboutToStart,
+                     progressBar, [progressBar](TaskTree *taskTree) {
+        progressBar->setMaximum(taskTree->progressMaximum());
+        QObject::connect(taskTree, &TaskTree::progressValueChanged,
+                         progressBar, &QProgressBar::setValue);
+    });
 
     const auto setupGroup = [](GroupWidget *widget) {
         return GroupItem {
@@ -241,26 +249,13 @@ int main(int argc, char *argv[])
 
     // Non-task GUI handling
 
-    const auto createTaskTree = [&] {
-        TaskTree *taskTree = new TaskTree(recipe());
-        progressBar->setMaximum(taskTree->progressMaximum());
-        QObject::connect(taskTree, &TaskTree::progressValueChanged,
-                         progressBar, &QProgressBar::setValue);
-        return taskTree;
-    };
-
     const auto stopTaskTree = [&] {
-        if (taskTree)
-            taskTree->stop();
-        // TODO: unlock GUI controls?
+        if (taskTreeRunner.isRunning())
+            taskTreeRunner.stop();
     };
 
     const auto resetTaskTree = [&] {
-        if (!taskTree)
-            return;
-
-        stopTaskTree();
-        taskTree.reset();
+        taskTreeRunner.reset();
         for (GroupWidget *widget : allGroupWidgets)
             widget->setState(State::Initial);
         for (TaskWidget *widget : allTaskWidgets)
@@ -270,9 +265,7 @@ int main(int argc, char *argv[])
 
     auto startTaskTree = [&] {
         resetTaskTree();
-        taskTree.reset(createTaskTree());
-        taskTree->start();
-        // TODO: lock GUI controls?
+        taskTreeRunner.start(recipe());
     };
 
     QObject::connect(startButton, &QAbstractButton::clicked, startTaskTree);
