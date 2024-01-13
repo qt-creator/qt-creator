@@ -7,13 +7,15 @@
 #include "gitconstants.h"
 #include "gittr.h"
 
-#include <vcsbase/vcscommand.h>
-#include <vcsbase/vcsoutputwindow.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -228,7 +230,7 @@ public:
     QString currentSha;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
-    std::unique_ptr<TaskTree> refreshTask;
+    TaskTreeRunner taskTreeRunner;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -254,6 +256,7 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the sha field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
+    connect(&d->taskTreeRunner, &TaskTreeRunner::done, this, &BranchModel::endResetModel);
 }
 
 BranchModel::~BranchModel()
@@ -402,9 +405,9 @@ void BranchModel::clear()
 
 void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 {
-    if (d->refreshTask) {
+    if (d->taskTreeRunner.isRunning()) {
         endResetModel(); // for the running task tree.
-        d->refreshTask.reset(); // old running tree is reset, no handlers are being called
+        d->taskTreeRunner.reset(); // old running tree is reset, no handlers are being called
     }
     beginResetModel();
     clear();
@@ -463,18 +466,11 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const auto finalize = [this] {
-        endResetModel();
-        d->refreshTask.release()->deleteLater();
-    };
-
     const Group root {
         topRevisionProc,
-        ProcessTask(onForEachRefSetup, onForEachRefDone),
-        onGroupDone(finalize)
+        ProcessTask(onForEachRefSetup, onForEachRefDone)
     };
-    d->refreshTask.reset(new TaskTree(root));
-    d->refreshTask->start();
+    d->taskTreeRunner.start(root);
 }
 
 void BranchModel::setCurrentBranch()
