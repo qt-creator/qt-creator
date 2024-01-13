@@ -7,6 +7,7 @@
 #include "process.h"
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <QFile>
 #include <QMutex>
@@ -26,17 +27,16 @@ class FileStreamBase : public QObject
     Q_OBJECT
 
 public:
-    void setFilePath(const FilePath &filePath) { m_filePath = filePath; }
-    void start() {
-        QTC_ASSERT(!m_taskTree, return);
-
-        const GroupItem task = m_filePath.needsDevice() ? remoteTask() : localTask();
-        m_taskTree.reset(new TaskTree({task}));
-        connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
-            m_taskTree.release()->deleteLater();
+    FileStreamBase()
+    {
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
             emit done(toDoneResult(result == DoneWith::Success));
         });
-        m_taskTree->start();
+    }
+    void setFilePath(const FilePath &filePath) { m_filePath = filePath; }
+    void start() {
+        QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
+        m_taskTreeRunner.start({m_filePath.needsDevice() ? remoteTask() : localTask()});
     }
 
 signals:
@@ -44,7 +44,7 @@ signals:
 
 protected:
     FilePath m_filePath;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 
 private:
     virtual GroupItem remoteTask() = 0;
@@ -229,17 +229,17 @@ public:
     }
 
     void setWriteData(const QByteArray &writeData) {
-        QTC_ASSERT(!m_taskTree, return);
+        QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
         m_writeData = writeData;
     }
     void write(const QByteArray &newData) {
-        QTC_ASSERT(m_taskTree, return);
+        QTC_ASSERT(m_taskTreeRunner.isRunning(), return);
         QTC_ASSERT(m_writeData.isEmpty(), return);
         QTC_ASSERT(m_writeBuffer, return);
         m_writeBuffer->write(newData);
     }
     void closeWriteChannel() {
-        QTC_ASSERT(m_taskTree, return);
+        QTC_ASSERT(m_taskTreeRunner.isRunning(), return);
         QTC_ASSERT(m_writeData.isEmpty(), return);
         QTC_ASSERT(m_writeBuffer, return);
         m_writeBuffer->closeWriteChannel();
@@ -382,7 +382,7 @@ public:
     QByteArray m_readBuffer;
     QByteArray m_writeBuffer;
     DoneResult m_streamResult = DoneResult::Error;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 
     GroupItem task() {
         if (m_streamerMode == StreamMode::Reader)
@@ -422,6 +422,10 @@ FileStreamer::FileStreamer(QObject *parent)
     : QObject(parent)
     , d(new FileStreamerPrivate)
 {
+    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+        d->m_streamResult = toDoneResult(result == DoneWith::Success);
+        emit done();
+    });
 }
 
 FileStreamer::~FileStreamer()
@@ -462,19 +466,13 @@ DoneResult FileStreamer::result() const
 void FileStreamer::start()
 {
     // TODO: Preliminary check if local source exists?
-    QTC_ASSERT(!d->m_taskTree, return);
-    d->m_taskTree.reset(new TaskTree({d->task()}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
-        d->m_streamResult = toDoneResult(result == DoneWith::Success);
-        d->m_taskTree.release()->deleteLater();
-        emit done();
-    });
-    d->m_taskTree->start();
+    QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
+    d->m_taskTreeRunner.start({d->task()});
 }
 
 void FileStreamer::stop()
 {
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.reset();
 }
 
 } // namespace Utils
