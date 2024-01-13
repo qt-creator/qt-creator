@@ -70,6 +70,22 @@ TestRunner::TestRunner()
     connect(this, &TestRunner::requestStopTestRun, this, [this] { cancelCurrent(UserCanceled); });
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
+    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+        auto progress = new TaskProgress(taskTree);
+        progress->setDisplayName(Tr::tr("Running Tests"));
+        progress->setAutoStopOnCancel(false);
+        progress->setHalfLifeTimePerTask(10000); // 10 seconds
+        connect(progress, &TaskProgress::canceled, this, [this, progress] {
+            // Progress was a child of task tree which is going to be deleted directly.
+            // Unwind properly.
+            progress->setParent(nullptr);
+            progress->deleteLater();
+            cancelCurrent(UserCanceled);
+        });
+        if (testSettings().popupOnStart())
+            popupResultsPane();
+    });
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &TestRunner::onFinished);
 }
 
 TestRunner::~TestRunner()
@@ -140,7 +156,7 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
         reportResult(ResultType::MessageFatal, Tr::tr("Test case canceled due to timeout.\nMaybe raise the timeout?"));
     else if (reason == UserCanceled)
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     onFinished();
 }
 
@@ -452,25 +468,7 @@ void TestRunner::runTestsHelper()
             ProcessTask(onSetup, onDone)
         }
     };
-
-    m_taskTree.reset(new TaskTree(root));
-    connect(m_taskTree.get(), &TaskTree::done, this, &TestRunner::onFinished);
-
-    auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(Tr::tr("Running Tests"));
-    progress->setAutoStopOnCancel(false);
-    progress->setHalfLifeTimePerTask(10000); // 10 seconds
-    connect(progress, &TaskProgress::canceled, this, [this, progress] {
-        // progress was a child of task tree which is going to be deleted directly. Unwind properly.
-        progress->setParent(nullptr);
-        progress->deleteLater();
-        cancelCurrent(UserCanceled);
-    });
-
-    if (testSettings().popupOnStart())
-        popupResultsPane();
-
-    m_taskTree->start();
+    m_taskTreeRunner.start(root);
 }
 
 static void processOutput(TestOutputReader *outputreader, const QString &msg, OutputFormat format)
@@ -700,8 +698,7 @@ void TestRunner::onBuildQueueFinished(bool success)
 
 void TestRunner::onFinished()
 {
-    if (m_taskTree)
-        m_taskTree.release()->deleteLater();
+    m_taskTreeRunner.reset();
     disconnect(m_stopDebugConnect);
     disconnect(m_targetConnect);
     qDeleteAll(m_selectedTests);
