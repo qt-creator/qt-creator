@@ -19,7 +19,7 @@ Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDi
     cancelButton->setEnabled(false);
     connect(cancelButton, &QPushButton::clicked, this, [this] {
         statusBar->showMessage(tr("Canceled."));
-        taskTree.reset();
+        taskTreeRunner.reset();
     });
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -106,9 +106,7 @@ void Images::process()
         onGroupDone(onRootDone, CallDoneIf::Success)
     };
 
-    taskTree.reset(new TaskTree(tasks));
-    connect(taskTree.get(), &TaskTree::done, this, [this] { taskTree.release()->deleteLater(); });
-    taskTree->start();
+    taskTreeRunner.start(tasks);
 }
 
 void Images::initLayout(qsizetype count)

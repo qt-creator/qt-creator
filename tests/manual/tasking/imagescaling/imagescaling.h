@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QtWidgets>
 #include <tasking/tasktree.h>
+#include <tasking/tasktreerunner.h>
 
 class DownloadDialog;
 class Images : public QWidget
@@ -27,7 +28,7 @@ private:
     DownloadDialog *downloadDialog;
 
     QNetworkAccessManager qnam;
-    std::unique_ptr<Tasking::TaskTree> taskTree;
+    Tasking::TaskTreeRunner taskTreeRunner;
 };
 
 #endif // IMAGESCALING_H
