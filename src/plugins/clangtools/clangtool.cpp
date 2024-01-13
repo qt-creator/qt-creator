@@ -766,37 +766,37 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                                           .arg(filePath, clangToolName(tool)), StdOutFormat);
             return true;
         };
-            const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
-                if (!output.success) {
-                    qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
-                                           << output.errorMessage << '\n' << output.errorDetails;
-                    ++m_filesFailed;
+        const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
+            if (!output.success) {
+                qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
+                                       << output.errorMessage << '\n' << output.errorDetails;
+                ++m_filesFailed;
 
-                    const QString message = Tr::tr("Failed to analyze \"%1\": %2")
-                        .arg(output.fileToAnalyze.toUserOutput(), output.errorMessage);
-                    // TODO: postMessage() instead
-                    m_runControl->postMessage(message, StdErrFormat);
-                    m_runControl->postMessage(output.errorDetails, StdErrFormat);
-                } else if (!output.errorMessage.isEmpty()) {
-                    m_runControl->postMessage(output.errorMessage, ErrorMessageFormat);
-                    m_runControl->postMessage(output.errorDetails, StdErrFormat);
-                } else {
-                    qCDebug(LOG) << "Clang tool task finished with success:"
-                                 << output.outputFilePath;
-                    ++m_filesSucceeded;
+                const QString message = Tr::tr("Failed to analyze \"%1\": %2")
+                    .arg(output.fileToAnalyze.toUserOutput(), output.errorMessage);
+                // TODO: postMessage() instead
+                m_runControl->postMessage(message, StdErrFormat);
+                m_runControl->postMessage(output.errorDetails, StdErrFormat);
+            } else if (!output.errorMessage.isEmpty()) {
+                m_runControl->postMessage(output.errorMessage, ErrorMessageFormat);
+                m_runControl->postMessage(output.errorDetails, StdErrFormat);
+            } else {
+                qCDebug(LOG) << "Clang tool task finished with success:"
+                             << output.outputFilePath;
+                ++m_filesSucceeded;
 
-                    const Diagnostics diagnostics = output.diagnostics;
-                    if (!diagnostics.isEmpty()) {
-                        // do not generate marks when we always analyze open files since marks from that
-                        // analysis should be more up to date
-                        const bool generateMarks = !runSettings.analyzeOpenFiles();
-                        onNewDiagnosticsAvailable(diagnostics, generateMarks);
-                    }
+                const Diagnostics diagnostics = output.diagnostics;
+                if (!diagnostics.isEmpty()) {
+                    // do not generate marks when we always analyze open files since marks from that
+                    // analysis should be more up to date
+                    const bool generateMarks = !runSettings.analyzeOpenFiles();
+                    onNewDiagnosticsAvailable(diagnostics, generateMarks);
                 }
-                updateForCurrentState();
-            };
-            const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
-                                         environment};
+            }
+            updateForCurrentState();
+        };
+        const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
+                                     environment};
 
         taskTree.setRecipe({clangToolTask(unitsToProcess, input, setupHandler, outputHandler)});
         return SetupResult::Continue;
