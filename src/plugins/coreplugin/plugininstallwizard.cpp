@@ -10,6 +10,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -189,7 +191,7 @@ public:
         m_label->setWordWrap(true);
         m_cancelButton = new QPushButton(Tr::tr("Cancel"));
         connect(m_cancelButton, &QPushButton::clicked, this, [this] {
-            m_taskTree.reset();
+            m_taskTreeRunner.reset();
             m_cancelButton->setVisible(false);
             m_label->setType(InfoLabel::Information);
             m_label->setText(Tr::tr("Canceled."));
@@ -260,28 +262,21 @@ public:
             UnarchiverTask(onUnarchiverSetup, onUnarchiverError, CallDoneIf::Error),
             AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
         };
-        m_taskTree.reset(new TaskTree(root));
-
-        connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-            m_cancelButton->setVisible(false);
-            m_taskTree.release()->deleteLater();
-        });
-
         m_cancelButton->setVisible(true);
-        m_taskTree->start();
+        m_taskTreeRunner.start(root, {}, [this](DoneWith) { m_cancelButton->setVisible(false); });
     }
 
     void cleanupPage() final
     {
         // back button pressed
-        m_taskTree.reset();
+        m_taskTreeRunner.reset();
         m_tempDir.reset();
     }
 
     bool isComplete() const final { return m_isComplete; }
 
     std::unique_ptr<TemporaryDirectory> m_tempDir;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;
