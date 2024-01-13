@@ -1590,12 +1590,23 @@ void tst_Process::eventLoopMode()
     QFETCH(ProcessImpl, processImpl);
     QFETCH(EventLoopMode, eventLoopMode);
 
-    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    Process process;
-    subConfig.setupSubProcess(&process);
-    process.setProcessImpl(processImpl);
-    process.runBlocking(eventLoopMode);
-    QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
+    {
+        SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+        Process process;
+        subConfig.setupSubProcess(&process);
+        process.setProcessImpl(processImpl);
+        process.runBlocking(eventLoopMode);
+        QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
+    }
+
+    {
+        Process process;
+        process.setCommand({FilePath::fromString(
+                "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
+        process.setProcessImpl(processImpl);
+        process.runBlocking(eventLoopMode);
+        QCOMPARE(process.result(), ProcessResult::StartFailed);
+    }
 }
 
 QTEST_GUILESS_MAIN(tst_Process)
