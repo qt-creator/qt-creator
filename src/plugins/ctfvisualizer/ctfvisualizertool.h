@@ -7,13 +7,13 @@
 
 #include <debugger/debuggermainwindow.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
 
 #include <QCoreApplication>
 #include <QScopedPointer>
-
-namespace Tasking { class TaskTree; }
 
 namespace CtfVisualizer::Internal {
 
@@ -50,7 +50,7 @@ private:
                                      QCoreApplication::translate("QtC::CtfVisualizer",
                                                                  "Chrome Trace Format Visualizer")};
 
-    std::unique_ptr<Tasking::TaskTree> m_loader;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
     QScopedPointer<QAction> m_loadJson;
 
     CtfVisualizerTraceView *m_traceView = nullptr;
