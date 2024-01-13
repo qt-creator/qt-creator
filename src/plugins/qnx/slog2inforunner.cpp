@@ -32,7 +32,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
 void Slog2InfoRunner::start()
 {
     using namespace Tasking;
-    QTC_CHECK(!m_taskTree);
+    QTC_CHECK(!m_taskTreeRunner.isRunning());
 
     const auto onTestSetup = [this](Process &process) {
         process.setCommand({device()->filePath("slog2info"), {}});
@@ -75,14 +75,13 @@ void Slog2InfoRunner::start()
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error)
     };
 
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
+    m_taskTreeRunner.start(root);
     reportStarted();
 }
 
 void Slog2InfoRunner::stop()
 {
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     processRemainingLogData();
     reportStopped();
 }
