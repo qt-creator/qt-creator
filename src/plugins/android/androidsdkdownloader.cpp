@@ -18,6 +18,7 @@
 #include <QProgressDialog>
 #include <QStandardPaths>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace { Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg) }
@@ -29,7 +30,9 @@ namespace Android::Internal {
  */
 AndroidSdkDownloader::AndroidSdkDownloader()
     : m_androidConfig(AndroidConfigurations::currentConfig())
-{}
+{
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this] { m_progressDialog.reset(); });
+}
 
 AndroidSdkDownloader::~AndroidSdkDownloader() = default;
 
@@ -99,10 +102,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     m_progressDialog->setAutoClose(false);
     connect(m_progressDialog.get(), &QProgressDialog::canceled, this, [this] {
         m_progressDialog.release()->deleteLater();
-        m_taskTree.reset();
+        m_taskTreeRunner.reset();
     });
-
-    using namespace Tasking;
 
     Storage<std::optional<FilePath>> storage;
 
@@ -187,12 +188,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
     };
 
-    m_taskTree.reset(new TaskTree(root));
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        m_taskTree.release()->deleteLater();
-        m_progressDialog.reset();
-    });
-    m_taskTree->start();
+    m_taskTreeRunner.start(root);
 }
 
 QString AndroidSdkDownloader::dialogTitle()

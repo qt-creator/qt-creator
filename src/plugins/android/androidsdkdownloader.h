@@ -5,13 +5,11 @@
 
 #include "androidconfigurations.h"
 
-#include <QObject>
+#include <solutions/tasking/tasktreerunner.h>
 
 QT_BEGIN_NAMESPACE
 class QProgressDialog;
 QT_END_NAMESPACE
-
-namespace Tasking { class TaskTree; }
 
 namespace Android::Internal {
 
@@ -35,7 +33,7 @@ private:
 
     AndroidConfig &m_androidConfig;
     std::unique_ptr<QProgressDialog> m_progressDialog;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Android::Internal
