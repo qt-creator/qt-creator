@@ -33,6 +33,7 @@ public:
     void reset();
 
 signals:
+    void aboutToStart(TaskTree *taskTree);
     void done(DoneWith result);
 
 private:

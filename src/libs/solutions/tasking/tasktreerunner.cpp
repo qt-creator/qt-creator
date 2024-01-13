@@ -16,6 +16,7 @@ void TaskTreeRunner::start(const Group &recipe)
         m_taskTree.release()->deleteLater();
         emit done(result);
     });
+    emit aboutToStart(m_taskTree.get());
     m_taskTree->start();
 }
 
