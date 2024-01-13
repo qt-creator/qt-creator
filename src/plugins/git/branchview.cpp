@@ -16,6 +16,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
@@ -229,7 +231,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
-    std::unique_ptr<TaskTree> taskTree;
+    TaskTreeRunner taskTreeRunner;
     QAction *mergeAction = nullptr;
 
     SetInContext block(m_blockRefresh);
@@ -277,16 +279,15 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                                                     .arg(indexName, currentName),
                                                 this,
                                                 [this] { merge(false); });
-            taskTree.reset(new TaskTree(fastForwardMergeRecipe([&] {
+            taskTreeRunner.start(fastForwardMergeRecipe([&] {
                 auto ffMerge = new QAction(
                     Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)").arg(indexName, currentName));
                 connect(ffMerge, &QAction::triggered, this, [this] { merge(true); });
                 contextMenu.insertAction(mergeAction, ffMerge);
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
-            })));
-            taskTree->start();
-            connect(mergeAction, &QObject::destroyed, taskTree.get(), &TaskTree::stop);
+            }));
+            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &TaskTreeRunner::reset);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),
