@@ -57,6 +57,7 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, &DocumentClangToolRunner::scheduleRun);
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
 }
 
@@ -155,7 +156,7 @@ void DocumentClangToolRunner::run()
 {
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     QScopeGuard cleanup([this] { finalize(); });
 
     auto isEditorForCurrentDocument = [this](const IEditor *editor) {
@@ -223,9 +224,7 @@ void DocumentClangToolRunner::run()
         return;
 
     cleanup.dismiss();
-    m_taskTree.reset(new TaskTree(tasks));
-    connect(m_taskTree.get(), &TaskTree::done, this, &DocumentClangToolRunner::finalize);
-    m_taskTree->start();
+    m_taskTreeRunner.start(tasks);
 }
 
 static void updateLocation(Debugger::DiagnosticLocation &location)
@@ -301,8 +300,6 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 
 void DocumentClangToolRunner::finalize()
 {
-    if (m_taskTree)
-        m_taskTree.release()->deleteLater();
     // remove all disabled marks
     const auto [newMarks, toDelete] = Utils::partition(m_marks, &DiagnosticMark::enabled);
     m_marks = newMarks;
