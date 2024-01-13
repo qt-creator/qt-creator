@@ -8,10 +8,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QObject>
 #include <QTimer>
-
-namespace Tasking { class TaskTree; }
 
 namespace Core {
 namespace Internal {
@@ -71,7 +71,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
     QList<ILocatorFilter *> m_refreshingFilters;
 };
 
