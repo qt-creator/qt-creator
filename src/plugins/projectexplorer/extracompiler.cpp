@@ -13,6 +13,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
@@ -48,7 +50,7 @@ public:
 
     QTimer timer;
 
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
@@ -154,11 +156,7 @@ void ExtraCompiler::compileContent(const QByteArray &content)
 
 void ExtraCompiler::compileImpl(const ContentProvider &provider)
 {
-    d->m_taskTree.reset(new TaskTree({taskItemImpl(provider)}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
-        d->m_taskTree.release()->deleteLater();
-    });
-    d->m_taskTree->start();
+    d->m_taskTreeRunner.start({taskItemImpl(provider)});
 }
 
 void ExtraCompiler::compileIfDirty()
