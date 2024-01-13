@@ -7,6 +7,7 @@
 #include "xmlprotocol/parser.h"
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/process.h>
 #include <utils/processinterface.h>
@@ -62,7 +63,11 @@ class ValgrindProcessPrivate : public QObject
 public:
     ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
-    {}
+    {
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+            emit q->done(toDoneResult(result == DoneWith::Success));
+        });
+    }
 
     void setupValgrindProcess(Process *process, const CommandLine &command) const {
         CommandLine cmd = command;
@@ -115,7 +120,7 @@ public:
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
 
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 Group ValgrindProcessPrivate::runRecipe() const
@@ -211,14 +216,8 @@ Group ValgrindProcessPrivate::runRecipe() const
 
 bool ValgrindProcessPrivate::run()
 {
-    m_taskTree.reset(new TaskTree);
-    m_taskTree->setRecipe(runRecipe());
-    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
-        m_taskTree.release()->deleteLater();
-        emit q->done(toDoneResult(result == DoneWith::Success));
-    });
-    m_taskTree->start();
-    return bool(m_taskTree);
+    m_taskTreeRunner.start(runRecipe());
+    return m_taskTreeRunner.isRunning();
 }
 
 ValgrindProcess::ValgrindProcess(QObject *parent)
@@ -260,7 +259,7 @@ bool ValgrindProcess::start()
 
 void ValgrindProcess::stop()
 {
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.reset();
 }
 
 bool ValgrindProcess::runBlocking()
