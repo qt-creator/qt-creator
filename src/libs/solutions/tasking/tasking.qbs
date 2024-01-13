@@ -16,6 +16,8 @@ QtcLibrary {
         "tasking_global.h",
         "tasktree.cpp",
         "tasktree.h",
+        "tasktreerunner.cpp",
+        "tasktreerunner.h",
     ]
 
     Export {
