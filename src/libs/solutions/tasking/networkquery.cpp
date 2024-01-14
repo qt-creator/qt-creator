@@ -21,7 +21,7 @@ void NetworkQuery::start()
     }
     m_reply.reset(m_manager->get(m_request));
     connect(m_reply.get(), &QNetworkReply::finished, this, [this] {
-        disconnect(m_reply.get(), nullptr, this, nullptr);
+        disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
         emit done(toDoneResult(m_reply->error() == QNetworkReply::NoError));
         m_reply.release()->deleteLater();
     });
@@ -31,8 +31,10 @@ void NetworkQuery::start()
 
 NetworkQuery::~NetworkQuery()
 {
-    if (m_reply)
+    if (m_reply) {
+        disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
         m_reply->abort();
+    }
 }
 
 } // namespace Tasking

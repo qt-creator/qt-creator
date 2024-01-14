@@ -61,6 +61,7 @@ Viewer::Viewer(QWidget *parent)
             }
             m_statusBar->showMessage(tr("Recipe executed successfully."));
             for (auto it = data.outputImages.begin(); it != data.outputImages.end(); ++it) {
+                // TODO: use sizeForIndex(it.key())
                 m_listWidget->addItem(new QListWidgetItem(QPixmap::fromImage(it.value()),
                                                           QString("%1x%1").arg(it.key())));
             }

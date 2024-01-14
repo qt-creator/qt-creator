@@ -101,6 +101,7 @@ private slots:
     void storageOperators();
     void storageDestructor();
     void restart();
+    void destructorOfTaskEmittingDone();
 };
 
 void tst_Tasking::validConstructs()
@@ -3113,6 +3114,22 @@ void tst_Tasking::restart()
     QVERIFY(!taskTree.isRunning());
     taskTree.start();
     QVERIFY(taskTree.isRunning());
+}
+
+class BrokenTaskAdapter : public TaskAdapter<int>
+{
+public:
+    // QTCREATORBUG-30204
+    ~BrokenTaskAdapter() { emit done(DoneResult::Success); }
+    void start() {}
+};
+
+using BrokenTask = CustomTask<BrokenTaskAdapter>;
+
+void tst_Tasking::destructorOfTaskEmittingDone()
+{
+    TaskTree taskTree({BrokenTask()});
+    taskTree.start();
 }
 
 QTEST_GUILESS_MAIN(tst_Tasking)

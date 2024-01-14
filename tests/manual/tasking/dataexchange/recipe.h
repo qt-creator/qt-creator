@@ -22,6 +22,7 @@ static const int s_maxSize = s_sizeInterval * s_imageCount;
 
 class QNetworkAccessManager;
 
+// TODO: Add an QObject with signal for feeding the images progressively.
 class ExternalData
 {
 public:

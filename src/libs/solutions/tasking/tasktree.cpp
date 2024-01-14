@@ -1639,6 +1639,15 @@ class RuntimeTask
     Q_DISABLE_COPY(RuntimeTask)
 
 public:
+    ~RuntimeTask()
+    {
+        if (m_task) {
+            // Ensures the running task's d'tor doesn't emit done() signal. QTCREATORBUG-30204.
+            QObject::disconnect(m_task.get(), &TaskInterface::done,
+                                m_taskNode.m_container.m_taskTreePrivate->q, nullptr);
+        }
+    }
+
     const TaskNode &m_taskNode; // Not owning.
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
     std::optional<RuntimeContainer> m_container = {}; // Owning.
@@ -1974,6 +1983,7 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith do
     if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
         result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
     container->m_callStorageDoneHandlersOnDestruction = true;
+    // TODO: is it needed?
     container->m_parentTask->m_container.reset();
     return result == DoneResult::Success;
 }
