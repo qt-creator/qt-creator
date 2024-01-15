@@ -375,8 +375,10 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     const QString &propertyName = d->properties.at(column).name;
     const QJsonObject &element = d->elements.at(row);
 
-    if (element.isEmpty())
+    if (typeAt(column) == DataType::Unknown || element.isEmpty()
+        || data(row, column) == QVariant::fromValue(nullptr)) {
         return DataTypeWarning::Warning::None;
+    }
 
     if (element.contains(propertyName) && typeAt(column) != typeAt(row, column))
         return DataTypeWarning::Warning::CellDataTypeMismatch;

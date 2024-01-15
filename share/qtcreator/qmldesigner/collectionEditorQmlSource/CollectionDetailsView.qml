@@ -221,9 +221,18 @@ Rectangle {
                     clip: true
                     implicitWidth: 100
                     implicitHeight: StudioTheme.Values.baseHeight
-                    border.color: dataTypeWarning !== CollectionDetails.Warning.None ?
-                                  StudioTheme.Values.themeWarning : StudioTheme.Values.themeControlBackgroundInteraction
+                    color: itemSelected ? StudioTheme.Values.themeControlBackgroundInteraction
+                                        : StudioTheme.Values.themeControlBackground
                     border.width: 1
+                    border.color: {
+                        if (dataTypeWarning !== CollectionDetails.Warning.None)
+                            return StudioTheme.Values.themeWarning
+
+                        if (itemSelected)
+                            return StudioTheme.Values.themeControlOutlineInteraction
+
+                        return StudioTheme.Values.themeControlBackgroundInteraction
+                    }
 
                     HelperWidgets.ToolTipArea {
                         anchors.fill: parent
@@ -254,9 +263,8 @@ Rectangle {
 
                             Text {
                                 text: display
-                                color: itemSelected
-                                       ? StudioTheme.Values.themeInteraction
-                                       : StudioTheme.Values.themePlaceholderTextColorInteraction
+                                color: itemSelected ? StudioTheme.Values.themeInteraction
+                                                    : StudioTheme.Values.themePlaceholderTextColorInteraction
                                 leftPadding: 5
                                 topPadding: 3
                                 bottomPadding: 3
@@ -274,7 +282,7 @@ Rectangle {
                         }
 
                         function resetSource() {
-                            if (columnType == CollectionDetails.DataType.Color)
+                            if (columnType === CollectionDetails.DataType.Color)
                                 cellContentLoader.sourceComponent = colorEditorComponent
                             else
                                 cellContentLoader.sourceComponent = cellText
@@ -290,28 +298,6 @@ Rectangle {
                             left: itemCell.left
                         }
                     }
-
-                    states: [
-                        State {
-                            name: "default"
-                            when: !itemSelected
-
-                            PropertyChanges {
-                                target: itemCell
-                                color: StudioTheme.Values.themeControlBackground
-                            }
-                        },
-                        State {
-                            name: "selected"
-                            when: itemSelected
-
-                            PropertyChanges {
-                                target: itemCell
-                                color: StudioTheme.Values.themeControlBackgroundInteraction
-                                border.color: StudioTheme.Values.themeControlBackground
-                            }
-                        }
-                    ]
 
                     StudioControls.Menu {
                         id: cellContextMenu
