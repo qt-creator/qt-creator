@@ -3,7 +3,6 @@
 
 #include "languageclientmanager.h"
 
-#include "languageclientplugin.h"
 #include "languageclientsymbolsupport.h"
 #include "languageclienttr.h"
 #include "locatorfilter.h"
@@ -23,6 +22,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <texteditor/ioutlinewidget.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
@@ -74,14 +74,6 @@ LanguageClientManager::~LanguageClientManager()
     QTC_ASSERT(m_clients.isEmpty(), qDeleteAll(m_clients));
     qDeleteAll(m_currentSettings);
     managerInstance = nullptr;
-}
-
-void LanguageClientManager::init()
-{
-    if (managerInstance)
-        return;
-    QTC_ASSERT(LanguageClientPlugin::instance(), return);
-    new LanguageClientManager(LanguageClientPlugin::instance());
 }
 
 void LanguageClient::LanguageClientManager::addClient(Client *client)
@@ -679,6 +671,11 @@ bool LanguageClientManager::isShutdownFinished()
     QTC_ASSERT(managerInstance, return true);
     return managerInstance->m_clients.isEmpty()
            && managerInstance->m_scheduledForDeletion.isEmpty();
+}
+
+void setupLanguageClientManager(QObject *guard)
+{
+    (void) new LanguageClientManager(guard);
 }
 
 } // namespace LanguageClient

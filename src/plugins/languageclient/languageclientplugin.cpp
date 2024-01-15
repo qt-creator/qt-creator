@@ -29,19 +29,14 @@ LanguageClientPlugin::~LanguageClientPlugin()
     m_instance = nullptr;
 }
 
-LanguageClientPlugin *LanguageClientPlugin::instance()
-{
-    return m_instance;
-}
-
 void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
     setupCallHierarchyFactory();
     setupLanguageClientProjectPanel();
+    setupLanguageClientManager(this);
 
-    LanguageClientManager::init();
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
                                                 Tr::tr("Generic StdIO Language Server"),
                                                 []() { return new StdIOSettings; }});

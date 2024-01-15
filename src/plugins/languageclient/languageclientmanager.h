@@ -33,10 +33,6 @@ class LANGUAGECLIENT_EXPORT LanguageClientManager : public QObject
     Q_DISABLE_COPY_MOVE(LanguageClientManager)
 
 public:
-    ~LanguageClientManager() override;
-
-    static void init();
-
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
@@ -89,7 +85,10 @@ signals:
     void openCallHierarchy();
 
 private:
-    LanguageClientManager(QObject *parent);
+    explicit LanguageClientManager(QObject *parent);
+    ~LanguageClientManager() override;
+
+    friend void setupLanguageClientManager(QObject *guard);
 
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
@@ -118,5 +117,7 @@ template<typename T> bool LanguageClientManager::hasClients()
         return qobject_cast<const T* >(c);
     });
 }
+
+void setupLanguageClientManager(QObject *guard);
 
 } // namespace LanguageClient

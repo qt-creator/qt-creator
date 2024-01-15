@@ -17,8 +17,6 @@ public:
     LanguageClientPlugin();
     ~LanguageClientPlugin() override;
 
-    static LanguageClientPlugin *instance();
-
     // IPlugin interface
 private:
     void initialize() override;
