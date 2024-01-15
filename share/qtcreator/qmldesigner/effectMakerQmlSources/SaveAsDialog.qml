@@ -84,6 +84,9 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
                 onClicked: {
+                    if (!enabled) // needed since this event handler can be triggered from keyboard events
+                        return
+
                     EffectMakerBackend.effectMakerModel.saveComposition(nameText.text)
 
                     if (root.clearOnClose) {
