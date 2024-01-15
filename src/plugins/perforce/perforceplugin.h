@@ -3,30 +3,11 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QString>
 
 namespace Perforce::Internal {
 
-class PerforcePlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Perforce.json")
-
-    ~PerforcePlugin() final;
-
-    void initialize() final;
-    void extensionsInitialized() final;
-
-public:
-    // Map a perforce name "//xx" to its real name in the file system
-    static QString fileNameFromPerforceName(const QString& perforceName,
-                                            bool quiet,
-                                            QString *errorMessage);
-
-#ifdef WITH_TESTS
-private slots:
-    void testLogResolving();
-#endif
-};
+// Map a perforce name "//xx" to its real name in the file system
+QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QString *errorMessage);
 
 } // Perforce::Internal

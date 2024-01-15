@@ -22,6 +22,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/locator/commandlocator.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/environment.h>
@@ -42,7 +44,6 @@
 #include <QAction>
 #include <QDebug>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QMainWindow>
@@ -557,12 +558,6 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     });
 }
 
-void PerforcePlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-    dd->getTopLevel();
-}
-
 void PerforcePluginPrivate::openCurrentFile()
 {
     const VcsBasePluginState state = currentState();
@@ -704,7 +699,7 @@ void PerforcePluginPrivate::printOpenedFileList()
         mapped.clear();
         const int delimiterPos = line.indexOf(delimiter);
         if (delimiterPos > 0)
-            mapped = PerforcePlugin::fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
+            mapped = fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
         if (mapped.isEmpty())
             VcsOutputWindow::appendSilently(line);
         else
@@ -1623,9 +1618,7 @@ static QString msgWhereFailed(const QString & file, const QString &why)
 }
 
 // Map a perforce name "//xx" to its real name in the file system
-QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
-                                                 bool quiet,
-                                                 QString *errorMessage)
+QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QString *errorMessage)
 {
     // All happy, already mapped
     if (!perforceName.startsWith(QLatin1String("//")))
@@ -1691,16 +1684,33 @@ void PerforcePluginPrivate::getTopLevel(const FilePath &workingDirectory, bool i
         checker->waitForFinished();
 }
 
-PerforcePlugin::~PerforcePlugin()
+class PerforcePlugin final : public ExtensionSystem::IPlugin
 {
-    delete dd;
-    dd = nullptr;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Perforce.json")
 
-void PerforcePlugin::initialize()
-{
-    dd = new PerforcePluginPrivate;
-}
+    ~PerforcePlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new PerforcePluginPrivate;
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+        dd->getTopLevel();
+    }
+
+#ifdef WITH_TESTS
+private slots:
+    void testLogResolving();
+#endif
+};
 
 #ifdef WITH_TESTS
 void PerforcePlugin::testLogResolving()
