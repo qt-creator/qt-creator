@@ -18,8 +18,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 static QString findQMakeLine(const FilePath &makefile, const QString &key)
 {
@@ -365,23 +364,26 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     }
 }
 
-} // Internal
-} // QmakeProjectManager
-
-// Unit tests:
+} // QmakeProjectManager::Internal
 
 #ifdef WITH_TESTS
-
-#include "qmakeprojectmanagerplugin.h"
 
 #include <projectexplorer/outputparser_test.h>
 
 #include <QTest>
 
-using namespace QmakeProjectManager::Internal;
-using namespace ProjectExplorer;
+namespace QmakeProjectManager::Internal {
 
-void QmakeProjectManagerPlugin::testMakefileParser_data()
+class QmakeMakeFileParserTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testMakefileParser_data();
+    void testMakefileParser();
+};
+
+void QmakeMakeFileParserTest::testMakefileParser_data()
 {
     QTest::addColumn<QString>("command");
     QTest::addColumn<QString>("project");
@@ -478,7 +480,7 @@ void QmakeProjectManagerPlugin::testMakefileParser_data()
             << true << false << false << 2;
 }
 
-void QmakeProjectManagerPlugin::testMakefileParser()
+void QmakeMakeFileParserTest::testMakefileParser()
 {
     QFETCH(QString, command);
     QFETCH(QString, project);
@@ -502,4 +504,14 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     QCOMPARE(qmsc.useQtQuickCompiler == TriState::Enabled, useQtQuickCompiler);
     QCOMPARE(qmsc.separateDebugInfo == TriState::Enabled, separateDebugInfo);
 }
+
+QObject *createQmakeMakeFileParserTest()
+{
+    return new QmakeMakeFileParserTest;
+}
+
+} // QmakeProjectManager::Internal
+
 #endif
+
+#include "makefileparse.moc"

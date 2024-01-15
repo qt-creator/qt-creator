@@ -9,8 +9,7 @@
 
 #include <optional>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 struct QMakeAssignment
 {
@@ -66,5 +65,8 @@ private:
     QString m_unparsedArguments;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+#ifdef WITH_TESTS
+QObject *createQmakeMakeFileParserTest();
+#endif
+
+} // QmakeProjectManager::Internal

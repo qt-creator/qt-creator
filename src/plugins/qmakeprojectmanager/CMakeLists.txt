@@ -32,7 +32,7 @@ add_qtc_plugin(QmakeProjectManager
     qmakeprojectmanager_global.h
     qmakeprojectmanagertr.h
     qmakeprojectmanagerconstants.h
-    qmakeprojectmanagerplugin.cpp qmakeprojectmanagerplugin.h
+    qmakeprojectmanagerplugin.cpp
     qmakesettings.cpp qmakesettings.h
     qmakestep.cpp qmakestep.h
     wizards/qtprojectparameters.cpp wizards/qtprojectparameters.h

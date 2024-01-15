@@ -37,7 +37,7 @@ QtcPlugin {
             "qmakeprojectmanager.qrc",
             "qmakeprojectmanager_global.h", "qmakeprojectmanagertr.h",
             "qmakeprojectmanagerconstants.h",
-            "qmakeprojectmanagerplugin.cpp", "qmakeprojectmanagerplugin.h",
+            "qmakeprojectmanagerplugin.cpp",
         ]
     }
 

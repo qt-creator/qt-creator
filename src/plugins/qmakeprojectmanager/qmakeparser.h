@@ -24,4 +24,8 @@ private:
     const QRegularExpression m_error;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQmakeOutputParserTest(); }
+#endif
+
 } // namespace QmakeProjectManager

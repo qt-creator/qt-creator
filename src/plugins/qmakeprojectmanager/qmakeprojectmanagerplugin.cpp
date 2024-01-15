@@ -1,14 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmakeprojectmanagerplugin.h"
-
 #include "addlibrarywizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
+#include "makefileparse.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakemakestep.h"
 #include "qmakenodes.h"
+#include "qmakeparser.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
@@ -22,6 +22,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -42,17 +44,12 @@
 #include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
 
-#ifdef WITH_TESTS
-#    include <QTest>
-#endif
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeProjectManagerPluginPrivate : public QObject
 {
@@ -112,13 +109,30 @@ public:
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
 };
 
-QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
+
+class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeProjectManager.json")
+
+public:
+    ~QmakeProjectManagerPlugin() final
+    {
+        delete d;
+    }
+
+    void initialize() final;
+
+    class QmakeProjectManagerPluginPrivate *d = nullptr;
+};
 
 void QmakeProjectManagerPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQmakeOutputParserTest);
+    addTestCreator(createQmakeMakeFileParserTest);
+#endif
+
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
@@ -574,5 +588,6 @@ void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const FilePath &file
     m_buildFileContextMenu->setEnabled(visible && enabled);
 }
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal
+
+#include "qmakeprojectmanagerplugin.moc"
