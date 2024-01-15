@@ -4,14 +4,11 @@
 #pragma once
 
 #include "tasking_global.h"
+#include "tasktree.h"
 
 #include <QObject>
 
 namespace Tasking {
-
-enum class DoneWith;
-class Group;
-class TaskTree;
 
 class TASKING_EXPORT TaskTreeRunner : public QObject
 {
