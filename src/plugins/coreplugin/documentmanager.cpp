@@ -855,6 +855,10 @@ FilePath DocumentManager::getSaveAsFileName(const IDocument *document)
         const FilePath defaultPath = document->fallbackSaveAsPath();
         if (!defaultPath.isEmpty() && !suggestedName.isEmpty())
             fileDialogPath = defaultPath / suggestedName;
+        else if (!suggestedName.isEmpty())
+            fileDialogPath = FilePath::fromUserInput(suggestedName);
+        else if (!defaultPath.isEmpty())
+            fileDialogPath = defaultPath;
     }
     if (selectedFilter.isEmpty())
         selectedFilter = Utils::mimeTypeForName(document->mimeType()).filterString();
