@@ -119,12 +119,12 @@ public:
     FormPageFactory formPageFactory;
 };
 
-class FormEditorPlugin final : public ExtensionSystem::IPlugin
+class DesignerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Designer.json")
 
-    ~FormEditorPlugin() final
+    ~DesignerPlugin() final
     {
         deleteInstance();
         delete d;
@@ -178,7 +178,7 @@ class FormEditorPlugin final : public ExtensionSystem::IPlugin
         mformtools->menu()->setTitle(Tr::tr("For&m Editor"));
         mtools->addMenu(mformtools);
 
-        connect(&d->actionSwitchSource, &QAction::triggered, this, &FormEditorPlugin::switchSourceForm);
+        connect(&d->actionSwitchSource, &QAction::triggered, this, &DesignerPlugin::switchSourceForm);
         Context context(C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
         Command *cmd = ActionManager::registerAction(&d->actionSwitchSource,
                                                      "FormEditor.FormSwitchSource", context);
@@ -198,4 +198,4 @@ class FormEditorPlugin final : public ExtensionSystem::IPlugin
 
 } // Designer::Internal
 
-#include "formeditorplugin.moc"
+#include "designerplugin.moc"

@@ -42,11 +42,11 @@ add_qtc_plugin(Designer
     designer_export.h
     designerconstants.h
     designercontext.cpp designercontext.h
+    designerplugin.cpp
     designertr.h
     editordata.h
     editorwidget.cpp editorwidget.h
     formeditorfactory.cpp formeditorfactory.h
-    formeditorplugin.cpp
     formeditorstack.cpp formeditorstack.h
     formeditor.cpp formeditor.h
     formtemplatewizardpage.cpp formtemplatewizardpage.h
