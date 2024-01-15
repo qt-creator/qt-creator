@@ -623,10 +623,8 @@ void ExternalToolRunner::run()
     }
     m_process = new Process(this);
     connect(m_process, &Process::done, this, &ExternalToolRunner::done);
-    connect(m_process, &Process::readyReadStandardOutput,
-            this, &ExternalToolRunner::readStandardOutput);
-    connect(m_process, &Process::readyReadStandardError,
-            this, &ExternalToolRunner::readStandardError);
+    m_process->setStdOutLineCallback([this](const QString &s) { readStandardOutput(s); });
+    m_process->setStdErrLineCallback([this](const QString &s) { readStandardError(s); });
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     const CommandLine cmd{m_resolvedExecutable, m_resolvedArguments, CommandLine::Raw};
@@ -665,30 +663,29 @@ void ExternalToolRunner::done()
     deleteLater();
 }
 
-void ExternalToolRunner::readStandardOutput()
+static QString stripNewline(const QString &output)
+{
+    if (output.endsWith('\n'))
+        return output.chopped(1);
+    return output;
+}
+
+void ExternalToolRunner::readStandardOutput(const QString &output)
 {
     if (m_tool->outputHandling() == ExternalTool::Ignore)
         return;
-    const QByteArray data = m_process->readAllRawStandardOutput();
-    const QString output = m_outputCodec->toUnicode(data.constData(),
-                                                    data.length(),
-                                                    &m_outputCodecState);
     if (m_tool->outputHandling() == ExternalTool::ShowInPane)
-        MessageManager::writeSilently(output);
+        MessageManager::writeSilently(stripNewline(output));
     else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
 
-void ExternalToolRunner::readStandardError()
+void ExternalToolRunner::readStandardError(const QString &output)
 {
     if (m_tool->errorHandling() == ExternalTool::Ignore)
         return;
-    const QByteArray data = m_process->readAllRawStandardError();
-    const QString output = m_outputCodec->toUnicode(data.constData(),
-                                                    data.length(),
-                                                    &m_errorCodecState);
     if (m_tool->errorHandling() == ExternalTool::ShowInPane)
-        MessageManager::writeSilently(output);
+        MessageManager::writeSilently(stripNewline(output));
     else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }

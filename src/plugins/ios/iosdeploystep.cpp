@@ -336,7 +336,7 @@ bool IosDeployStep::checkProvisioningProfile()
         return true;
 
     const QStringList deviceIds = provisionPlist.value("ProvisionedDevices").toStringList();
-    const QString targetId = device->uniqueDeviceID();
+    const QString targetId = device->uniqueInternalDeviceId();
     for (const QString &deviceId : deviceIds) {
         if (deviceId == targetId)
             return true;
