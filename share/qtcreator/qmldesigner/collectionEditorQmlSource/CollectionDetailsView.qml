@@ -18,7 +18,6 @@ Rectangle {
 
     implicitWidth: 300
     implicitHeight: 400
-
     color: StudioTheme.Values.themeControlBackground
 
     ColumnLayout {
@@ -124,7 +123,7 @@ Rectangle {
                             tableView.model.selectColumn(index)
 
                             if (mouse.button === Qt.RightButton) {
-                                let posX = index === root.model.columnCount() - 1 ? parent.width - editProperyDialog.width : 0
+                                let posX = index === root.model.columnCount() - 1 ? parent.width - editPropertyDialog.width : 0
 
                                 headerMenu.clickedHeaderIndex = index
                                 headerMenu.dialogPos = parent.mapToGlobal(posX, parent.height)
@@ -159,8 +158,8 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Edit")
-                        onTriggered: editProperyDialog.openDialog(headerMenu.clickedHeaderIndex,
-                                                                  headerMenu.dialogPos)
+                        onTriggered: editPropertyDialog.openDialog(headerMenu.clickedHeaderIndex,
+                                                                   headerMenu.dialogPos)
                     }
 
                     StudioControls.MenuItem {
@@ -476,8 +475,13 @@ Rectangle {
     }
 
     EditPropertyDialog {
-        id: editProperyDialog
+        id: editPropertyDialog
         model: root.model
+    }
+
+    Connections {
+        target: root.parent
+        onIsHorizontalChanged: editPropertyDialog.close()
     }
 
     StudioControls.Dialog {
