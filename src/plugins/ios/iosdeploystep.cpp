@@ -3,6 +3,7 @@
 
 #include "iosdeploystep.h"
 
+#include "devicectlutils.h"
 #include "iosconstants.h"
 #include "iosdevice.h"
 #include "iosrunconfiguration.h"
@@ -141,48 +142,23 @@ GroupItem createDeviceCtlDeployTask(
                          Task::Error);
             return DoneResult::Error;
         }
-        const QByteArray rawOutput = process.rawStdOut();
-        // there can be crap (progress info) at front and/or end
-        const int firstCurly = rawOutput.indexOf('{');
-        const int start = std::max(firstCurly, 0);
-        const int lastCurly = rawOutput.lastIndexOf('}');
-        const int end = lastCurly >= 0 ? lastCurly : rawOutput.size() - 1;
-        QJsonParseError parseError;
-        auto jsonOutput = QJsonDocument::fromJson(rawOutput.sliced(start, end - start + 1),
-                                                  &parseError);
-        if (jsonOutput.isNull()) {
-            // parse error
-            errorHandler(Tr::tr("Failed to parse devicectl output: %1.")
-                             .arg(parseError.errorString()),
-                         Task::Error);
-            return DoneResult::Error;
-        }
-        const QJsonValue errorValue = jsonOutput["error"];
-        if (!errorValue.isUndefined()) {
-            // error
-            QString error
-                = Tr::tr("Deployment failed: %1.")
-                      .arg(errorValue["userInfo"]["NSLocalizedDescription"]["string"].toString());
-            const QJsonValue userInfo
-                = errorValue["userInfo"]["NSUnderlyingError"]["error"]["userInfo"];
-            const QList<QJsonValue> moreInfo{userInfo["NSLocalizedDescription"]["string"],
-                                             userInfo["NSLocalizedFailureReason"]["string"],
-                                             userInfo["NSLocalizedRecoverySuggestion"]["string"]};
-            for (const QJsonValue &v : moreInfo) {
-                if (!v.isUndefined())
-                    error += "\n" + v.toString();
+        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
+            process.rawStdOut());
+        if (resultValue) {
+            // success
+            if ((*resultValue)["installedApplications"].isUndefined()) {
+                // something unexpected happened ...
+                errorHandler(
+                    Tr::tr(
+                        "devicectl returned unexpected output ... deployment might have failed."),
+                    Task::Error);
+                // ... proceed anyway
             }
-            errorHandler(error, Task::Error);
-            return DoneResult::Error;
-        }
-        if (jsonOutput["result"]["installedApplications"].isUndefined()) {
-            // something unexpected happened ... proceed anyway
-            errorHandler(
-                Tr::tr("devicectl returned unexpected output ... deployment might have failed."),
-                Task::Error);
             return DoneResult::Success;
         }
-        return DoneResult::Success;
+        // failure
+        errorHandler(resultValue.error(), Task::Error);
+        return DoneResult::Error;
     };
     return ProcessTask(onSetup, onDone);
 }

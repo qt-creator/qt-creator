@@ -3,6 +3,8 @@ add_qtc_plugin(Ios
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QmakeProjectManager CMakeProjectManager
   SOURCES
     createsimulatordialog.cpp createsimulatordialog.h
+    devicectlutils.cpp
+    devicectlutils.h
     ios.qrc
     iosbuildconfiguration.cpp iosbuildconfiguration.h
     iosbuildstep.cpp iosbuildstep.h
