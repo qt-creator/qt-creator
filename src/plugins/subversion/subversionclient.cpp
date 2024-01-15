@@ -245,8 +245,8 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     return controller;
 }
 
-void SubversionClient::diff(const FilePath &workingDirectory, const QStringList &files,
-                            const QStringList &extraOptions)
+void SubversionClient::showDiffEditor(const FilePath &workingDirectory, const QStringList &files,
+                                      const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)
 

@@ -29,9 +29,9 @@ public:
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = {}) override;
 
-    void diff(const Utils::FilePath &workingDirectory,
-              const QStringList &files,
-              const QStringList &extraOptions) override;
+    void showDiffEditor(const Utils::FilePath &workingDirectory,
+                        const QStringList &files = {},
+                        const QStringList &extraOptions = {});
 
     void log(const Utils::FilePath &workingDir,
              const QStringList &files = {},

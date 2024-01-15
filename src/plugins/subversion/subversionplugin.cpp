@@ -568,7 +568,7 @@ bool SubversionPluginPrivate::activateCommit()
 
 void SubversionPluginPrivate::diffCommitFiles(const QStringList &files)
 {
-    m_client->diff(m_commitRepository, files, QStringList());
+    m_client->showDiffEditor(m_commitRepository, files);
 }
 
 SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(const QString &fileName)
@@ -686,22 +686,23 @@ void SubversionPluginPrivate::diffProject()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
-    m_client->diff(state.currentProjectTopLevel(),
-                   relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject), {});
+    m_client->showDiffEditor(state.currentProjectTopLevel(),
+                             relativeProject.isEmpty() ? QStringList()
+                                                       : QStringList(relativeProject));
 }
 
 void SubversionPluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {});
+    m_client->showDiffEditor(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void SubversionPluginPrivate::startCommitCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    startCommit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    startCommit(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void SubversionPluginPrivate::startCommitAll()
@@ -791,7 +792,7 @@ void SubversionPluginPrivate::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client->diff(state.topLevel(), QStringList(), QStringList());
+    m_client->showDiffEditor(state.topLevel());
 }
 
 void SubversionPluginPrivate::statusRepository()
