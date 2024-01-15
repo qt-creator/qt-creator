@@ -225,7 +225,7 @@ void MergeTool::done()
 
     const FilePath workingDirectory = m_process.workingDirectory();
     gitClient().continueCommandIfNeeded(workingDirectory, success);
-    GitPlugin::emitRepositoryChanged(workingDirectory);
+    emitRepositoryChanged(workingDirectory);
     deleteLater();
 }
 

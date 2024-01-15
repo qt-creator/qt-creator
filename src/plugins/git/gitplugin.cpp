@@ -473,17 +473,17 @@ bool GitPluginPrivate::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-IVersionControl *GitPlugin::versionControl()
+IVersionControl *versionControl()
 {
     return dd;
 }
 
-const VcsBasePluginState &GitPlugin::currentState()
+const VcsBasePluginState &currentState()
 {
     return dd->currentState();
 }
 
-QString GitPlugin::msgRepositoryLabel(const FilePath &repository)
+QString msgRepositoryLabel(const FilePath &repository)
 {
     return repository.isEmpty() ?
             Tr::tr("<No repository>")  :
@@ -492,7 +492,7 @@ QString GitPlugin::msgRepositoryLabel(const FilePath &repository)
 
 // Returns a regular expression pattern with characters not allowed
 // in branch and remote names.
-QString GitPlugin::invalidBranchAndRemoteNamePattern()
+QString invalidBranchAndRemoteNamePattern()
 {
     return QLatin1String(
         "\\s"     // no whitespace
@@ -1886,52 +1886,54 @@ void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     gitClient().annotate(filePath.absolutePath(), filePath.fileName(), line);
 }
 
-void GitPlugin::emitFilesChanged(const QStringList &l)
+// "Internal API"
+
+void emitFilesChanged(const QStringList &l)
 {
     emit dd->filesChanged(l);
 }
 
-void GitPlugin::emitRepositoryChanged(const FilePath &r)
+void emitRepositoryChanged(const FilePath &r)
 {
     emit dd->repositoryChanged(r);
 }
 
-void GitPlugin::startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)
+void startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)
 {
     dd->startRebaseFromCommit(workingDirectory, commit);
 }
 
-void GitPlugin::manageRemotes()
+void manageRemotes()
 {
     dd->manageRemotes();
 }
 
-void GitPlugin::initRepository()
+void initRepository()
 {
     dd->initRepository();
 }
 
-void GitPlugin::startCommit()
+void startCommit()
 {
     dd->startCommit();
 }
 
-void GitPlugin::updateCurrentBranch()
+void updateCurrentBranch()
 {
     dd->updateCurrentBranch();
 }
 
-void GitPlugin::updateBranches(const FilePath &repository)
+void updateBranches(const FilePath &repository)
 {
     dd->updateBranches(repository);
 }
 
-void GitPlugin::gerritPush(const FilePath &topLevel)
+void gerritPush(const FilePath &topLevel)
 {
     dd->m_gerritPlugin.push(topLevel);
 }
 
-bool GitPlugin::isCommitEditorOpen()
+bool isCommitEditorOpen()
 {
     return dd->isCommitEditorOpen();
 }

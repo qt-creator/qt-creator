@@ -134,7 +134,7 @@ BranchView::BranchView()
             this, &BranchView::expandAndResize);
 
     m_branchView->selectionModel()->clear();
-    m_repository = GitPlugin::currentState().topLevel();
+    m_repository = currentState().topLevel();
 }
 
 void BranchView::refreshIfSame(const FilePath &repository)
@@ -159,7 +159,7 @@ void BranchView::refresh(const FilePath &repository, bool force)
         m_branchView->setEnabled(false);
     } else {
         m_repositoryLabel->setText(m_repository.toUserOutput());
-        m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+        m_repositoryLabel->setToolTip(msgRepositoryLabel(m_repository));
         m_addAction->setToolTip(Tr::tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
@@ -249,9 +249,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             });
             contextMenu.addSeparator();
         }
-        contextMenu.addAction(Tr::tr("Manage &Remotes..."), this, [] {
-            GitPlugin::manageRemotes();
-        });
+        contextMenu.addAction(Tr::tr("Manage &Remotes..."), this, &manageRemotes);
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
@@ -343,7 +341,7 @@ QModelIndex BranchView::selectedIndex()
 bool BranchView::add()
 {
     if (m_repository.isEmpty()) {
-        GitPlugin::initRepository();
+        initRepository();
         return true;
     }
 

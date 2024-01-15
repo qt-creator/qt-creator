@@ -128,7 +128,7 @@ void InstantBlame::setup()
         if (qobject_cast<const VcsBaseEditorWidget *>(widget))
             return; // Skip in VCS editors like log or blame
 
-        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
+        const FilePath workingDirectory = currentState().currentFileTopLevel();
         if (!refreshWorkingDirectory(workingDirectory))
             return;
 
@@ -208,7 +208,7 @@ void InstantBlame::once()
         connect(widget, &QPlainTextEdit::cursorPositionChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
-        const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
+        const FilePath workingDirectory = currentState().topLevel();
         if (!refreshWorkingDirectory(workingDirectory))
             return;
     }

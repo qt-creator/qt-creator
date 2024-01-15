@@ -1365,7 +1365,7 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
     const QStringList arguments = {"remote", "prune", remote};
     const auto commandHandler = [workingDirectory](const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithSuccess)
-            GitPlugin::updateBranches(workingDirectory);
+            updateBranches(workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
                        RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
@@ -2276,7 +2276,7 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const FilePath &w
 
 void GitClient::continueCommandIfNeeded(const FilePath &workingDirectory, bool allowContinue)
 {
-    if (GitPlugin::isCommitEditorOpen())
+    if (isCommitEditorOpen())
         return;
     CommandInProgress command = checkCommandInProgress(workingDirectory);
     ContinueCommandMode continueMode;
@@ -2349,7 +2349,7 @@ void GitClient::continuePreviousGitCommand(const FilePath &workingDirectory,
         if (isRebase)
             rebase(workingDirectory, QLatin1String(hasChanges ? "--continue" : "--skip"));
         else
-            GitPlugin::startCommit();
+            startCommit();
     }
 }
 
@@ -2845,7 +2845,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
                                                     RunFlags::UseEventLoop);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
-        GitPlugin::updateCurrentBranch();
+        updateCurrentBranch();
         return true;
     }
     VcsOutputWindow::appendError(Tr::tr("Cannot commit %n file(s).", nullptr, commitCount) + "\n");
@@ -2947,7 +2947,7 @@ void GitClient::revertFiles(const QStringList &files, bool revertStaging)
     QString errorMessage;
     switch (revertI(files, &isDirectory, &errorMessage, revertStaging)) {
     case RevertOk:
-        GitPlugin::emitFilesChanged(files);
+        emitFilesChanged(files);
         break;
     case RevertCanceled:
         break;
@@ -2967,7 +2967,7 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
     const QStringList arguments{"fetch", (remote.isEmpty() ? "--all" : remote)};
     const auto commandHandler = [workingDirectory](const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithSuccess)
-            GitPlugin::updateBranches(workingDirectory);
+            updateBranches(workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
                        RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
@@ -3153,7 +3153,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
         const PushFailure pushFailure = handleError(result.cleanedStdErr(),
                                                     &pushFallbackCommand);
         if (result.result() == ProcessResult::FinishedWithSuccess) {
-            GitPlugin::updateCurrentBranch();
+            updateCurrentBranch();
             return;
         }
         if (pushFailure == PushFailure::Unknown)
@@ -3172,7 +3172,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
             }
             const auto commandHandler = [](const CommandResult &result) {
                 if (result.result() == ProcessResult::FinishedWithSuccess)
-                    GitPlugin::updateCurrentBranch();
+                    updateCurrentBranch();
             };
             vcsExecWithHandler(workingDirectory,
                                QStringList{"push", "--force-with-lease"} + pushArgs,
@@ -3194,7 +3194,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
         const QStringList fallbackCommandParts = pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
         const auto commandHandler = [workingDirectory](const CommandResult &result) {
             if (result.result() == ProcessResult::FinishedWithSuccess)
-                GitPlugin::updateBranches(workingDirectory);
+                updateBranches(workingDirectory);
         };
         vcsExecWithHandler(workingDirectory, fallbackCommandParts.mid(1),
                            this, commandHandler,
@@ -3591,7 +3591,7 @@ void GitClient::StashInfo::end()
     if (m_pushAction == NormalPush)
         gitClient().push(m_workingDir);
     else if (m_pushAction == PushToGerrit)
-        GitPlugin::gerritPush(m_workingDir);
+        gerritPush(m_workingDir);
 
     m_pushAction = NoPush;
     m_stashResult = NotStashed;
@@ -3645,7 +3645,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         });
         connect(menu->addAction(Tr::tr("&Interactive Rebase from %1...").arg(change)),
                 &QAction::triggered, [workingDir, change] {
-            GitPlugin::startRebaseFromCommit(workingDir, change);
+            startRebaseFromCommit(workingDir, change);
         });
     }
     QAction *logAction = menu->addAction(Tr::tr("&Log for %1").arg(change), [workingDir, change] {

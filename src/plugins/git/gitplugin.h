@@ -17,6 +17,23 @@ namespace VcsBase { class VcsBasePluginState; }
 
 namespace Git::Internal {
 
+Core::IVersionControl *versionControl();
+const VcsBase::VcsBasePluginState &currentState();
+
+QString msgRepositoryLabel(const Utils::FilePath &repository);
+QString invalidBranchAndRemoteNamePattern();
+bool isCommitEditorOpen();
+
+void emitFilesChanged(const QStringList &);
+void emitRepositoryChanged(const Utils::FilePath &);
+void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
+void manageRemotes();
+void initRepository();
+void startCommit();
+void updateCurrentBranch();
+void updateBranches(const Utils::FilePath &repository);
+void gerritPush(const Utils::FilePath &topLevel);
+
 class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -30,23 +47,6 @@ public:
 
     QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
                            const QStringList &args) final;
-
-    static Core::IVersionControl *versionControl();
-    static const VcsBase::VcsBasePluginState &currentState();
-
-    static QString msgRepositoryLabel(const Utils::FilePath &repository);
-    static QString invalidBranchAndRemoteNamePattern();
-    static bool isCommitEditorOpen();
-
-    static void emitFilesChanged(const QStringList &);
-    static void emitRepositoryChanged(const Utils::FilePath &);
-    static void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
-    static void manageRemotes();
-    static void initRepository();
-    static void startCommit();
-    static void updateCurrentBranch();
-    static void updateBranches(const Utils::FilePath &repository);
-    static void gerritPush(const Utils::FilePath &topLevel);
 
 #ifdef WITH_TESTS
 private slots:

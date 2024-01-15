@@ -224,7 +224,7 @@ void GerritPlugin::push(const FilePath &topLevel)
 
 static FilePath currentRepository()
 {
-    return GitPlugin::currentState().topLevel();
+    return currentState().topLevel();
 }
 
 // Open or raise the Gerrit dialog window.
@@ -362,7 +362,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 // Try to find a matching repository for a project by asking the VcsManager.
 FilePath GerritPlugin::findLocalRepository(const QString &project, const QString &branch) const
 {
-    const FilePaths gitRepositories = VcsManager::repositories(GitPlugin::versionControl());
+    const FilePaths gitRepositories = VcsManager::repositories(versionControl());
     // Determine key (file name) to look for (qt/qtbase->'qtbase').
     const int slashPos = project.lastIndexOf('/');
     const QString fixedProject = (slashPos < 0) ? project : project.mid(slashPos + 1);

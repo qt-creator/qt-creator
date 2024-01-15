@@ -37,7 +37,7 @@ class RemoteAdditionDialog : public QDialog
 {
 public:
     RemoteAdditionDialog(const QStringList &remoteNames) :
-        m_invalidRemoteNameChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
+        m_invalidRemoteNameChars(invalidBranchAndRemoteNamePattern()),
         m_remoteNames(remoteNames)
     {
         resize(381, 93);
@@ -200,7 +200,7 @@ void RemoteDialog::refresh(const FilePath &repository, bool force)
     if (m_remoteModel->workingDirectory() == repository && !force)
         return;
     // Refresh
-    m_repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
+    m_repositoryLabel->setText(msgRepositoryLabel(repository));
     if (repository.isEmpty()) {
         m_remoteModel->clear();
     } else {

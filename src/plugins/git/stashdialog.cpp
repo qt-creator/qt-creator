@@ -165,7 +165,7 @@ void StashDialog::refresh(const FilePath &repository, bool force)
         return;
     // Refresh
     m_repository = repository;
-    m_repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
+    m_repositoryLabel->setText(msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
         m_model->setStashes(QList<Stash>());
     } else {
