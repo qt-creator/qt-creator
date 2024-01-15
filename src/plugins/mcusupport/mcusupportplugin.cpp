@@ -128,6 +128,55 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
     return isMcuProject;
 }
 
+static void askUserAboutMcuSupportKitsSetup()
+{
+    if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
+        || dd->m_options.qulDirFromSettings().isEmpty()
+        || !McuKitManager::existingKits(nullptr).isEmpty())
+        return;
+
+    Utils::InfoBarEntry info(setupMcuSupportKits,
+                             Tr::tr("Create Kits for Qt for MCUs? "
+                                    "To do it later, select Edit > Preferences > Devices > MCU."),
+                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    // clazy:excludeall=connect-3arg-lambda
+    info.addCustomButton(Tr::tr("Create Kits for Qt for MCUs"), [] {
+        ICore::infoBar()->removeInfo(setupMcuSupportKits);
+        QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
+    });
+    ICore::infoBar()->addInfo(info);
+}
+
+static void askUserAboutRemovingUninstalledTargetsKits()
+{
+    const char removeUninstalledKits[] = "RemoveUninstalledKits";
+    QList<Kit *> uninstalledTargetsKits;
+
+    if (!ICore::infoBar()->canInfoBeAdded(removeUninstalledKits)
+        || (uninstalledTargetsKits = McuKitManager::findUninstalledTargetsKits()).isEmpty())
+        return;
+
+    Utils::InfoBarEntry
+        info(removeUninstalledKits,
+             Tr::tr("Detected %n uninstalled MCU target(s). Remove corresponding kits?",
+                    nullptr,
+                    uninstalledTargetsKits.size()),
+             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+
+    info.addCustomButton(Tr::tr("Keep"), [removeUninstalledKits] {
+        ICore::infoBar()->removeInfo(removeUninstalledKits);
+    });
+
+    info.addCustomButton(Tr::tr("Remove"), [removeUninstalledKits, uninstalledTargetsKits] {
+        ICore::infoBar()->removeInfo(removeUninstalledKits);
+        QTimer::singleShot(0, [uninstalledTargetsKits]() {
+            McuKitManager::removeUninstalledTargetsKits(uninstalledTargetsKits);
+        });
+    });
+
+    ICore::infoBar()->addInfo(info);
+}
+
 class McuSupportPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -142,9 +191,6 @@ public:
 
     void initialize() final;
     void extensionsInitialized() final;
-
-    void askUserAboutMcuSupportKitsSetup();
-    static void askUserAboutRemovingUninstalledTargetsKits();
 
     Q_INVOKABLE static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
 };
@@ -234,55 +280,6 @@ void McuSupportPlugin::extensionsInitialized()
         askUserAboutMcuSupportKitsSetup();
         askUserAboutRemovingUninstalledTargetsKits();
     });
-}
-
-void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
-{
-    if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
-        || dd->m_options.qulDirFromSettings().isEmpty()
-        || !McuKitManager::existingKits(nullptr).isEmpty())
-        return;
-
-    Utils::InfoBarEntry info(setupMcuSupportKits,
-                             Tr::tr("Create Kits for Qt for MCUs? "
-                                "To do it later, select Edit > Preferences > Devices > MCU."),
-                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    // clazy:excludeall=connect-3arg-lambda
-    info.addCustomButton(Tr::tr("Create Kits for Qt for MCUs"), [] {
-        ICore::infoBar()->removeInfo(setupMcuSupportKits);
-        QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
-    });
-    ICore::infoBar()->addInfo(info);
-}
-
-void McuSupportPlugin::askUserAboutRemovingUninstalledTargetsKits()
-{
-    const char removeUninstalledKits[] = "RemoveUninstalledKits";
-    QList<Kit *> uninstalledTargetsKits;
-
-    if (!ICore::infoBar()->canInfoBeAdded(removeUninstalledKits)
-        || (uninstalledTargetsKits = McuKitManager::findUninstalledTargetsKits()).isEmpty())
-        return;
-
-    Utils::InfoBarEntry
-        info(removeUninstalledKits,
-             Tr::tr("Detected %n uninstalled MCU target(s). Remove corresponding kits?",
-                    nullptr,
-                    uninstalledTargetsKits.size()),
-             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-
-    info.addCustomButton(Tr::tr("Keep"), [removeUninstalledKits] {
-        ICore::infoBar()->removeInfo(removeUninstalledKits);
-    });
-
-    info.addCustomButton(Tr::tr("Remove"), [removeUninstalledKits, uninstalledTargetsKits] {
-        ICore::infoBar()->removeInfo(removeUninstalledKits);
-        QTimer::singleShot(0, [uninstalledTargetsKits]() {
-            McuKitManager::removeUninstalledTargetsKits(uninstalledTargetsKits);
-        });
-    });
-
-    ICore::infoBar()->addInfo(info);
 }
 
 void McuSupportPlugin::updateDeployStep(ProjectExplorer::Target *target, bool enabled)
