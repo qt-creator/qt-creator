@@ -8,7 +8,11 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <QTimer>
+
+#include <unordered_map>
 
 namespace Ios {
 class IosConfigurations;
@@ -85,6 +89,7 @@ public:
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
+    std::unordered_map<QString, std::unique_ptr<Tasking::TaskTree>> m_updateTasks; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
 };

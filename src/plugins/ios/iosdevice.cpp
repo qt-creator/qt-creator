@@ -251,6 +251,9 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 void IosDeviceManager::deviceDisconnected(const QString &uid)
 {
     qCDebug(detectLog) << "detected disconnection of ios device " << uid;
+    // if an update is currently still running for the device being connected, cancel that
+    // erasing deletes the unique_ptr which deletes the TaskTree which stops it
+    m_updateTasks.erase(uid);
     DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
@@ -279,7 +282,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
                                 {"devicectl", "list", "devices", "--quiet", "--json-output", "-"}});
         },
-        [this, devId](const Process &process, DoneWith) -> DoneResult {
+        [this, devId](const Process &process) {
             auto jsonOutput = QJsonDocument::fromJson(process.rawStdOut());
             // find device
             const QJsonArray deviceList = jsonOutput["result"]["devices"].toArray();
@@ -327,8 +330,16 @@ void IosDeviceManager::updateInfo(const QString &devId)
     });
 
     const Group root{sequential, stopOnSuccess, infoFromDeviceCtl, infoFromIosTool};
-    auto task = new TaskTree(root);
-    connect(task, &TaskTree::done, task, [task] { task->deleteLater(); });
+
+    TaskTree *task = new TaskTree(root);
+    m_updateTasks[devId].reset(task); // cancels any existing update, not calling done handlers
+    connect(task, &TaskTree::done, this, [this, task, devId] {
+        const auto taskIt = m_updateTasks.find(devId);
+        QTC_ASSERT(taskIt != m_updateTasks.end(), return);
+        QTC_ASSERT(taskIt->second.get() == task, return);
+        taskIt->second.release()->deleteLater();
+        m_updateTasks.erase(taskIt);
+    });
     task->start();
 }
 
