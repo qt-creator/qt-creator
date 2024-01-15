@@ -1,8 +1,6 @@
 // Copyright (C) 2016 Brian McGillion
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "mercurialplugin.h"
-
 #include "commiteditor.h"
 #include "constants.h"
 #include "mercurialclient.h"
@@ -22,6 +20,8 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -217,22 +217,6 @@ public:
 };
 
 static MercurialPluginPrivate *dd = nullptr;
-
-MercurialPlugin::~MercurialPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void MercurialPlugin::initialize()
-{
-    dd = new MercurialPluginPrivate;
-}
-
-void MercurialPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-}
 
 MercurialPluginPrivate::MercurialPluginPrivate()
     : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::MERCURIAL_CONTEXT))
@@ -813,7 +797,17 @@ void MercurialPluginPrivate::changed(const QVariant &v)
 
 #ifdef WITH_TESTS
 
-void MercurialPlugin::testDiffFileResolving_data()
+class MercurialTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+};
+
+void MercurialTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -840,12 +834,12 @@ void MercurialPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/mercurial/mercurialeditor.cpp");
 }
 
-void MercurialPlugin::testDiffFileResolving()
+void MercurialTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void MercurialPlugin::testLogResolving()
+void MercurialTest::testLogResolving()
 {
     QByteArray data(
                 "changeset:   18473:692cbda1eb50\n"
@@ -866,4 +860,31 @@ void MercurialPlugin::testLogResolving()
 }
 #endif
 
+class MercurialPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Mercurial.json")
+
+    ~MercurialPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new MercurialPluginPrivate;
+#ifdef WITH_TESTS
+        addTest<MercurialTest>();
+#endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
 } // Mercurial::Internal
+
+#include "mercurialplugin.moc"
