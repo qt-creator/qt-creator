@@ -572,6 +572,7 @@ void InterpreterOptionsWidget::generateKit()
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid())
         PythonSettings::addKitsForInterpreter(m_model.itemAt(index.row())->itemData);
+    m_generateKitButton->setEnabled(false);
 }
 
 void InterpreterOptionsWidget::cleanUp()
