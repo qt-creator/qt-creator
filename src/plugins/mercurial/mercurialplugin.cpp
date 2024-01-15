@@ -339,14 +339,14 @@ void MercurialPluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client.showDiffEditor(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void MercurialPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {}, true);
+    m_client.log(state.currentFileTopLevel(), {state.relativeCurrentFile()}, {}, true);
 }
 
 void MercurialPluginPrivate::revertCurrentFile()
@@ -402,7 +402,7 @@ void MercurialPluginPrivate::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.diff(state.topLevel());
+    m_client.showDiffEditor(state.topLevel());
 }
 
 void MercurialPluginPrivate::logRepository()
@@ -621,7 +621,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
 
 void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
 {
-    m_client.diff(m_submitRepository, files);
+    m_client.showDiffEditor(m_submitRepository, files);
 }
 
 bool MercurialPluginPrivate::activateCommit()

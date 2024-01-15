@@ -307,8 +307,8 @@ void MercurialClient::commit(const FilePath &repositoryRoot, const QStringList &
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
 }
 
-void MercurialClient::diff(const FilePath &workingDir, const QStringList &files,
-                           const QStringList &extraOptions)
+void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringList &files,
+                                     const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)
 

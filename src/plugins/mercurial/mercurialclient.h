@@ -45,8 +45,8 @@ public:
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = QStringList()) override;
-    void diff(const Utils::FilePath &workingDir, const QStringList &files = {},
-              const QStringList &extraOptions = {}) override;
+    void showDiffEditor(const Utils::FilePath &workingDir, const QStringList &files = {},
+                        const QStringList &extraOptions = {});
     void import(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QStringList &extraOptions = {}) override;
     void revertAll(const Utils::FilePath &workingDir, const QString &revision = {},
