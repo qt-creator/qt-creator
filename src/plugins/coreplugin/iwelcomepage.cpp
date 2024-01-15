@@ -3,9 +3,6 @@
 
 #include "iwelcomepage.h"
 
-#include "icore.h"
-#include "welcomepagehelper.h"
-
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
 #include <utils/stylehelper.h>
