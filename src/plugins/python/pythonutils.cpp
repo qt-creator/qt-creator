@@ -19,6 +19,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
+#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 
 #include <QReadLocker>
@@ -169,8 +170,8 @@ PythonProject *pythonProjectForFile(const FilePath &pythonFile)
     return nullptr;
 }
 
-void createVenv(const Utils::FilePath &python,
-                const Utils::FilePath &venvPath,
+void createVenv(const FilePath &python,
+                const FilePath &venvPath,
                 const std::function<void(bool)> &callback)
 {
     QTC_ASSERT(python.isExecutableFile(), callback(false); return);
@@ -189,25 +190,57 @@ void createVenv(const Utils::FilePath &python,
     process->start();
 }
 
-bool isVenvPython(const Utils::FilePath &python)
+bool isVenvPython(const FilePath &python)
 {
     return python.parentDir().parentDir().contains("pyvenv.cfg");
 }
 
-bool venvIsUsable(const Utils::FilePath &python)
+bool venvIsUsable(const FilePath &python)
 {
-    Process process;
-    process.setCommand({python, QStringList{"-m", "venv", "-h"}});
-    process.runBlocking();
-    return process.result() == ProcessResult::FinishedWithSuccess;
+    static QHash<FilePath, bool> cache;
+    auto it = cache.find(python);
+    if (it == cache.end()) {
+        auto store = PersistentCacheStore::byKey(keyFromString("pyVenvIsUsable"));
+        if (store && store->value(keyFromString(python.toString())).toBool()) {
+            cache.insert(python, true);
+            return true;
+        }
+        Process process;
+        process.setCommand({python, QStringList{"-m", "venv", "-h"}});
+        process.runBlocking();
+        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
+        if (usable) {
+            Store newStore = store.value_or(Store{});
+            newStore.insert(keyFromString(python.toString()), true);
+            PersistentCacheStore::write(keyFromString("pyVenvIsUsable"), newStore);
+        }
+        it = cache.insert(python, usable);
+    }
+    return *it;
 }
 
-bool pipIsUsable(const Utils::FilePath &python)
+bool pipIsUsable(const FilePath &python)
 {
-    Process process;
-    process.setCommand({python, QStringList{"-m", "pip", "-V"}});
-    process.runBlocking();
-    return process.result() == ProcessResult::FinishedWithSuccess;
+    static QHash<FilePath, bool> cache;
+    auto it = cache.find(python);
+    if (it == cache.end()) {
+        auto store = PersistentCacheStore::byKey(keyFromString("pyPipIsUsable"));
+        if (store && store->value(keyFromString(python.toString())).toBool()) {
+            cache.insert(python, true);
+            return true;
+        }
+        Process process;
+        process.setCommand({python, QStringList{"-m", "pip", "-h"}});
+        process.runBlocking();
+        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
+        if (usable) {
+            Store newStore = store.value_or(Store{});
+            newStore.insert(keyFromString(python.toString()), true);
+            PersistentCacheStore::write(keyFromString("pyPipIsUsable"), newStore);
+        }
+        it = cache.insert(python, usable);
+    }
+    return *it;
 }
 
 QString pythonVersion(const FilePath &python)
@@ -225,7 +258,7 @@ QString pythonVersion(const FilePath &python)
     Process p;
     p.setCommand({python, {"--version"}});
     p.runBlocking();
-    if (p.result() == Utils::ProcessResult::FinishedWithSuccess) {
+    if (p.result() == ProcessResult::FinishedWithSuccess) {
         const QString version = p.readAllStandardOutput().trimmed();
         QWriteLocker locker(&lock);
         versionCache.insert(python, version);
