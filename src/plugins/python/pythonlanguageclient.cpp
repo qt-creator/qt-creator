@@ -7,9 +7,7 @@
 #include "pythonbuildconfiguration.h"
 #include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
-#include "pythonplugin.h"
 #include "pythonproject.h"
-#include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
@@ -35,15 +33,9 @@
 #include <utils/async.h>
 #include <utils/infobar.h>
 #include <utils/process.h>
-#include <utils/variablechooser.h>
 
-#include <QCheckBox>
-#include <QComboBox>
 #include <QFutureWatcher>
-#include <QGroupBox>
 #include <QJsonDocument>
-#include <QPushButton>
-#include <QRegularExpression>
 #include <QTimer>
 
 using namespace LanguageClient;
@@ -263,11 +255,24 @@ PyLSClient *PyLSClient::clientForPython(const FilePath &python)
     return pythonClients()[python];
 }
 
-PyLSConfigureAssistant *PyLSConfigureAssistant::instance()
+class PyLSConfigureAssistant : public QObject
 {
-    static auto *instance = new PyLSConfigureAssistant(pluginInstance());
-    return instance;
-}
+public:
+    PyLSConfigureAssistant();
+
+    void handlePyLSState(const Utils::FilePath &python,
+                         const PythonLanguageServerState &state,
+                         TextEditor::TextDocument *document);
+    void resetEditorInfoBar(TextEditor::TextDocument *document);
+    void installPythonLanguageServer(const Utils::FilePath &python,
+                                     QPointer<TextEditor::TextDocument> document,
+                                     const Utils::FilePath &pylsPath);
+    void openDocument(const FilePath &python, TextEditor::TextDocument *document);
+
+    QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
+    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>>
+        m_runningChecks;
+};
 
 void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
                                                          QPointer<TextEditor::TextDocument> document,
@@ -300,10 +305,9 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     install->run();
 }
 
-void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
-                                                    TextEditor::TextDocument *document)
+void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::TextDocument *document)
 {
-    instance()->resetEditorInfoBar(document);
+    resetEditorInfoBar(document);
     if (!PythonSettings::pylsEnabled() || !python.exists())
         return;
 
@@ -316,7 +320,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
     QPointer<CheckPylsWatcher> watcher = new CheckPylsWatcher();
 
     // cancel and delete watcher after a 10 second timeout
-    QTimer::singleShot(10000, instance(), [watcher]() {
+    QTimer::singleShot(10000, this, [watcher]() {
         if (watcher) {
             watcher->cancel();
             watcher->deleteLater();
@@ -325,18 +329,18 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
 
     connect(watcher,
             &CheckPylsWatcher::resultReadyAt,
-            instance(),
+            this,
             [=, document = QPointer<TextEditor::TextDocument>(document)]() {
                 if (!document || !watcher)
                     return;
-                instance()->handlePyLSState(python, watcher->result(), document);
+                handlePyLSState(python, watcher->result(), document);
             });
     connect(watcher, &CheckPylsWatcher::finished, watcher, &CheckPylsWatcher::deleteLater);
-    connect(watcher, &CheckPylsWatcher::finished, instance(), [document](){
-        instance()->m_runningChecks.remove(document);
+    connect(watcher, &CheckPylsWatcher::finished, this, [this, document] {
+        m_runningChecks.remove(document);
     });
     watcher->setFuture(Utils::asyncRun(&checkPythonLanguageServer, python));
-    instance()->m_runningChecks[document] = watcher;
+    m_runningChecks[document] = watcher;
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
@@ -375,8 +379,7 @@ void PyLSConfigureAssistant::resetEditorInfoBar(TextEditor::TextDocument *docume
         watcher->cancel();
 }
 
-PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
-    : QObject(parent)
+PyLSConfigureAssistant::PyLSConfigureAssistant()
 {
     Core::EditorManager::instance();
 
@@ -387,6 +390,17 @@ PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
                 if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
                     resetEditorInfoBar(textDocument);
             });
+}
+
+static PyLSConfigureAssistant &pyLSConfigureAssistant()
+{
+    static PyLSConfigureAssistant thePyLSConfigureAssistant;
+    return thePyLSConfigureAssistant;
+}
+
+void openDocumentWithPython(const FilePath &python, TextEditor::TextDocument *document)
+{
+    pyLSConfigureAssistant().openDocument(python, document);
 }
 
 } // Python::Internal

@@ -289,7 +289,7 @@ PythonDocument::PythonDocument()
                     return;
                 const FilePath &python = detectPython(filePath());
                 if (python.exists())
-                    PyLSConfigureAssistant::openDocumentWithPython(python, this);
+                    openDocumentWithPython(python, this);
             });
     connect(this,
             &PythonDocument::openFinishedSuccessfully,
@@ -304,7 +304,7 @@ void PythonDocument::updateCurrentPython()
 
 void PythonDocument::updatePython(const FilePath &python)
 {
-    PyLSConfigureAssistant::openDocumentWithPython(python, this);
+    openDocumentWithPython(python, this);
     PySideInstaller::checkPySideInstallation(python, this);
     emit pythonUpdated(python);
 }

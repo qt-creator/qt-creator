@@ -47,29 +47,6 @@ private:
     QHash<ProjectExplorer::Project *, QList<ProjectExplorer::ExtraCompiler *>> m_extraCompilers;
 };
 
-class PyLSConfigureAssistant : public QObject
-{
-    Q_OBJECT
-public:
-    static PyLSConfigureAssistant *instance();
-
-    static void openDocumentWithPython(const Utils::FilePath &python,
-                                       TextEditor::TextDocument *document);
-
-private:
-    explicit PyLSConfigureAssistant(QObject *parent);
-
-    void handlePyLSState(const Utils::FilePath &python,
-                         const PythonLanguageServerState &state,
-                         TextEditor::TextDocument *document);
-    void resetEditorInfoBar(TextEditor::TextDocument *document);
-    void installPythonLanguageServer(const Utils::FilePath &python,
-                                     QPointer<TextEditor::TextDocument> document,
-                                     const Utils::FilePath &pylsPath);
-
-    QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
-    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>>
-        m_runningChecks;
-};
+void openDocumentWithPython(const Utils::FilePath &python, TextEditor::TextDocument *document);
 
 } // Python::Internal
