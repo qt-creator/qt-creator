@@ -3,35 +3,17 @@
 
 #pragma once
 
-#include "gitlabparameters.h"
-
-#include <extensionsystem/iplugin.h>
-
 namespace ProjectExplorer { class Project; }
+namespace Utils { class Id; }
 
 namespace GitLab {
 
-class Events;
 class GitLabProjectSettings;
 
-class GitLabPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GitLab.json")
+GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
 
-public:
-    GitLabPlugin();
-    ~GitLabPlugin() override;
+bool handleCertificateIssue(const Utils::Id &serverId);
 
-    void initialize() override;
+void linkedStateChanged(bool enabled);
 
-    static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
-    static bool handleCertificateIssue(const Utils::Id &serverId);
-
-    static void linkedStateChanged(bool enabled);
-private:
-    void openView();
-    void onStartupProjectChanged();
-};
-
-} // namespace GitLab
+} // GitLab

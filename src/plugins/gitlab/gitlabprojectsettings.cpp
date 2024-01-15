@@ -4,6 +4,7 @@
 #include "gitlabprojectsettings.h"
 
 #include "gitlaboptionspage.h"
+#include "gitlabparameters.h"
 #include "gitlabplugin.h"
 #include "gitlabtr.h"
 #include "queryrunner.h"
@@ -137,7 +138,7 @@ private:
 };
 
 GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_projectSettings(GitLabPlugin::projectSettings(project))
+    : m_projectSettings(projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
@@ -195,7 +196,7 @@ void GitLabProjectSettingsWidget::unlink()
     m_projectSettings->setLinked(false);
     m_projectSettings->setCurrentProject({});
     updateEnabledStates();
-    GitLabPlugin::linkedStateChanged(false);
+    linkedStateChanged(false);
 }
 
 void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
@@ -258,7 +259,7 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
         m_projectSettings->setCurrentServerHost(remote);
         m_projectSettings->setLinked(true);
         m_projectSettings->setCurrentProject(projectName);
-        GitLabPlugin::linkedStateChanged(true);
+        linkedStateChanged(true);
     }
     updateEnabledStates();
 }
@@ -296,10 +297,10 @@ void GitLabProjectSettingsWidget::updateUi()
             m_hostCB->setCurrentIndex(m_hostCB->findData(QVariant::fromValue(serverHost)));
             m_linkedGitLabServer->setCurrentIndex(
                 m_linkedGitLabServer->findData(QVariant::fromValue(server)));
-            GitLabPlugin::linkedStateChanged(true);
+            linkedStateChanged(true);
         } else {
             m_projectSettings->setLinked(false);
-            GitLabPlugin::linkedStateChanged(false);
+            linkedStateChanged(false);
         }
     }
     updateEnabledStates();

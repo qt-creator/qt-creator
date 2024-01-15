@@ -100,7 +100,7 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
             const int exitCode = m_process.exitCode();
             if (m_process.exitStatus() == QProcess::NormalExit
                     && (exitCode == 35 || exitCode == 60) // common ssl certificate issues
-                    && GitLabPlugin::handleCertificateIssue(id)) {
+                    && handleCertificateIssue(id)) {
                 // prepend -k for re-requesting the same query
                 CommandLine cmdline = m_process.commandLine();
                 cmdline.prependArgs({"-k"});

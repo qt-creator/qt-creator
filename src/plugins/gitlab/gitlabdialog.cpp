@@ -188,7 +188,7 @@ void GitLabDialog::requestMainViewUpdate()
     bool linked = false;
     m_currentServerId = Id();
     if (auto project = ProjectExplorer::ProjectManager::startupProject()) {
-        GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
+        GitLabProjectSettings *projSettings = projectSettings(project);
         if (projSettings->isLinked()) {
             m_currentServerId = projSettings->currentServer();
             linked = true;
