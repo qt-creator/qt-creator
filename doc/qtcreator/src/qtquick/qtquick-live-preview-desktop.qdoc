@@ -17,32 +17,34 @@
     To preview the currently active QML file on the desktop:
 
     \list
-        \li Select \uicontrol Build > \uicontrol {QML Preview}.
-        \li Select the \inlineimage icons/live_preview.png
-            (\uicontrol {Show Live Preview}) button.
+        \li Select the \uicontrol {Live Preview} button on the top toolbar.
         \li Press \key {Alt+P}.
     \endlist
 
-    \image studio-live-preview.png
+    \image studio-live-preview.webp
     \endif
 
-    To preview any QML file that belongs to the project, right-click the
+    To preview any QML file that belongs to the project,
+    \list
+        \li Select the \uicontrol {Live Preview} button on the top toolbar.
+        \li Right-click the
     filename in the \l Projects view, and select \uicontrol {Preview File}.
+    \endlist
 
     \if defined(qtdesignstudio)
-    To preview the whole UI, select \uicontrol {Show Live Preview}
+    To preview the whole UI, select \uicontrol {Live Preview}
     when viewing the main QML file of the project.
 
     To view the UI in different sizes, select the zooming level on the toolbar.
-
-    The frames-per-second (FPS) refresh rate of animations is displayed in the
-    \uicontrol FPS field.
 
     \section1 Selecting the Preview Tool
 
     By default, the QML runtime is used for previewing. To use some
     other tool, specify it in the \uicontrol {QML viewer} field in the run
     settings of the project in the Projects mode.
+
+    \note Click \inlineimage icons/settings.png
+    to access the setting options.
 
     \image studio-run-settings.png "Run settings"
     \endif

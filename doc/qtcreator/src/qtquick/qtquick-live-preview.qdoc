@@ -32,7 +32,7 @@
     \if defined(qtcreator)
     \image qtcreator-live-preview.png
     \else
-    \image studio-live-preview.png
+    \image studio-live-preview.webp
     \endif
 
     \list
