@@ -26,6 +26,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -38,15 +40,16 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 static Node *currentEditorNode()
 {
@@ -70,6 +73,67 @@ public:
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
     QbsEditorFactory editorFactory;
+};
+
+class QbsProjectManagerPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QbsProjectManager.json")
+
+public:
+    static void runStepsForProducts(QbsProject *project,
+                                    const QStringList &products,
+                                    const QList<Id> &stepTypes);
+
+private:
+    ~QbsProjectManagerPlugin() final;
+
+    void initialize() final;
+
+    void targetWasAdded(ProjectExplorer::Target *target);
+    void projectChanged(QbsProject *project);
+
+    void buildFileContextMenu();
+    void buildFile();
+    void buildProductContextMenu();
+    void cleanProductContextMenu();
+    void rebuildProductContextMenu();
+    void runStepsForProductContextMenu(const QList<Id> &stepTypes);
+    void buildProduct();
+    void cleanProduct();
+    void rebuildProduct();
+    void runStepsForProduct(const QList<Id> &stepTypes);
+    void buildSubprojectContextMenu();
+    void cleanSubprojectContextMenu();
+    void rebuildSubprojectContextMenu();
+    void runStepsForSubprojectContextMenu(const QList<Id> &stepTypes);
+
+    void reparseSelectedProject();
+    void reparseCurrentProject();
+    void reparseProject(QbsProject *project);
+
+    void updateContextActions(ProjectExplorer::Node *node);
+    void updateReparseQbsAction();
+    void updateBuildActions();
+
+    void buildFiles(QbsProject *project, const QStringList &files,
+                    const QStringList &activeFileTags);
+    void buildSingleFile(QbsProject *project, const QString &file);
+
+    QbsProjectManagerPluginPrivate *d = nullptr;
+    QAction *m_reparseQbs = nullptr;
+    QAction *m_reparseQbsCtx = nullptr;
+    QAction *m_buildFileCtx = nullptr;
+    QAction *m_buildProductCtx = nullptr;
+    QAction *m_cleanProductCtx = nullptr;
+    QAction *m_rebuildProductCtx = nullptr;
+    QAction *m_buildSubprojectCtx = nullptr;
+    QAction *m_cleanSubprojectCtx = nullptr;
+    QAction *m_rebuildSubprojectCtx = nullptr;
+    ParameterAction *m_buildFile = nullptr;
+    ParameterAction *m_buildProduct = nullptr;
+    QAction *m_cleanProduct = nullptr;
+    QAction *m_rebuildProduct = nullptr;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
@@ -549,11 +613,12 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
         bs->scheduleParsing();
 }
 
-void QbsProjectManagerPlugin::buildNamedProduct(QbsProject *project, const QString &product)
+void buildNamedProduct(QbsProject *project, const QString &product)
 {
     QbsProjectManagerPlugin::runStepsForProducts(
         project, QStringList(product), {Utils::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal
+
+#include "qbsprojectmanagerplugin.moc"

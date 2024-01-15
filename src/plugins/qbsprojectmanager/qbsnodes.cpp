@@ -102,8 +102,8 @@ QbsProductNode::QbsProductNode(const QJsonObject &prd) : ProjectNode(FilePath())
 
 void QbsProductNode::build()
 {
-    QbsProjectManagerPlugin::buildNamedProduct(static_cast<QbsProject *>(getProject()),
-                                               m_productData.value("full-display-name").toString());
+    buildNamedProduct(static_cast<QbsProject *>(getProject()),
+                      m_productData.value("full-display-name").toString());
 }
 
 QStringList QbsProductNode::targetApplications() const
