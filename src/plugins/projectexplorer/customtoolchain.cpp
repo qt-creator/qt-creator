@@ -305,6 +305,7 @@ bool CustomToolChain::operator ==(const Toolchain &other) const
 
     auto customTc = static_cast<const CustomToolChain *>(&other);
     return m_makeCommand == customTc->m_makeCommand
+            && compilerCommand() == customTc->compilerCommand()
             && targetAbi() == customTc->targetAbi()
             && m_predefinedMacros == customTc->m_predefinedMacros
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
