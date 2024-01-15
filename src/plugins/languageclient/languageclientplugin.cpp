@@ -1,33 +1,41 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "languageclientplugin.h"
-
 #include "callhierarchy.h"
 #include "languageclientmanager.h"
+#include "languageclientoutline.h"
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
+#include "snippet.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <QAction>
 #include <QMenu>
 
 namespace LanguageClient {
 
-static LanguageClientPlugin *m_instance = nullptr;
-
-LanguageClientPlugin::LanguageClientPlugin()
+class LanguageClientPlugin final : public ExtensionSystem::IPlugin
 {
-    m_instance = this;
-    qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "LanguageClient.json")
 
-LanguageClientPlugin::~LanguageClientPlugin()
-{
-    m_instance = nullptr;
-}
+public:
+    LanguageClientPlugin()
+    {
+        qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
+    }
+
+private:
+    void initialize() final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
+
+    LanguageClientOutlineWidgetFactory m_outlineFactory;
+};
 
 void LanguageClientPlugin::initialize()
 {
@@ -36,6 +44,10 @@ void LanguageClientPlugin::initialize()
     setupCallHierarchyFactory();
     setupLanguageClientProjectPanel();
     setupLanguageClientManager(this);
+
+#ifdef WITH_TESTS
+    addTestCreator(&createSnippetParsingTest);
+#endif
 
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
                                                 Tr::tr("Generic StdIO Language Server"),
@@ -65,3 +77,5 @@ ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
 }
 
 } // namespace LanguageClient
+
+#include "languageclientplugin.moc"

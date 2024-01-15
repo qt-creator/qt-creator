@@ -11,4 +11,8 @@ namespace LanguageClient {
 
 LANGUAGECLIENT_EXPORT TextEditor::SnippetParseResult parseSnippet(const QString &snippet);
 
+#ifdef WITH_TESTS
+QObject *createSnippetParsingTest();
+#endif
+
 } // namespace LanguageClient

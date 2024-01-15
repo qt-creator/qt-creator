@@ -23,7 +23,7 @@ add_qtc_plugin(LanguageClient
     languageclientinterface.cpp languageclientinterface.h
     languageclientmanager.cpp languageclientmanager.h
     languageclientoutline.cpp languageclientoutline.h
-    languageclientplugin.cpp languageclientplugin.h
+    languageclientplugin.cpp
     languageclientquickfix.cpp languageclientquickfix.h
     languageclientsettings.cpp languageclientsettings.h
     languageclientsymbolsupport.cpp languageclientsymbolsupport.h
