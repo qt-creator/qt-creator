@@ -248,7 +248,7 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
     QTC_ASSERT(document, return);
 
     d->moveToThread(&m_thread);
-    connect(&m_thread, &QThread::finished, d.get(), [this] { d.release()->deleteLater(); });
+    connect(&m_thread, &QThread::finished, d.get(), &QObject::deleteLater);
     m_thread.start();
 
     m_document = document;
@@ -266,6 +266,7 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
 
 ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()
 {
+    d.release();
     m_thread.requestInterruption();
     m_thread.quit();
     m_thread.wait();
