@@ -9,7 +9,6 @@
 #include "appmanagerdeploypackagestep.h"
 #include "appmanagerinstallpackagestep.h"
 #include "appmanagerremoteinstallpackagestep.h"
-#include "appmanagermakeinstallstep.h"
 #include "appmanagercmakepackagestep.h"
 #include "appmanagerrunconfiguration.h"
 #include "appmanagerruncontrol.h"
@@ -26,7 +25,6 @@ class AppManagerPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupAppManagerCMakePackageStep();
-        setupAppManagerMakeInstallStep();
         setupAppManagerCreatePackageStep();
         setupAppManagerDeployPackageStep();
         setupAppManagerInstallPackageStep();

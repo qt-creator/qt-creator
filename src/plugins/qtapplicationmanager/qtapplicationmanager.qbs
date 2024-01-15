@@ -34,8 +34,6 @@ QtcPlugin {
         "appmanagerdeployconfigurationfactory.h",
         "appmanagerdeploypackagestep.cpp",
         "appmanagerdeploypackagestep.h",
-        "appmanagerinstallpackagestep.cpp",
-        "appmanagerinstallpackagestep.h",
         "appmanagermakeinstallstep.cpp",
         "appmanagermakeinstallstep.h",
         "appmanagerplugin.cpp",
