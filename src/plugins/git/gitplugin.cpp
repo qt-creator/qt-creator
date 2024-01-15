@@ -21,6 +21,8 @@
 
 #include "gerrit/gerritplugin.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -36,7 +38,7 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <aggregation/aggregate.h>
+#include <extensionsystem/iplugin.h>
 
 #include <texteditor/texteditor.h>
 
@@ -440,12 +442,6 @@ GitPluginPrivate::~GitPluginPrivate()
     cleanCommitMessageFile();
 }
 
-GitPlugin::~GitPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
 void GitPluginPrivate::onApplySettings()
 {
     emit configurationChanged();
@@ -595,27 +591,6 @@ QAction *GitPluginPrivate::createRepositoryAction(ActionContainer *ac, const QSt
     };
     // Set the member func as data and connect to GitClient method
     return createRepositoryAction(ac, text, id, context, addToLocator, cb, keys);
-}
-
-bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-
-    dd = new GitPluginPrivate;
-
-    auto cmdContext = new QObject(this);
-    connect(ICore::instance(), &ICore::coreOpened, cmdContext, [this, cmdContext, arguments] {
-        NANOTRACE_SCOPE("Git", "GitPlugin::initialize::coreOpened");
-        remoteCommand(arguments, QDir::currentPath(), {});
-        cmdContext->deleteLater();
-    });
-
-    return true;
-}
-
-void GitPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized()    ;
 }
 
 GitPluginPrivate::GitPluginPrivate()
@@ -1736,17 +1711,6 @@ void GitPluginPrivate::updateCurrentBranch()
         m_branchViewFactory.view()->refreshCurrentBranch();
 }
 
-QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &workingDirectory,
-                                  const QStringList &)
-{
-    if (options.size() < 2)
-        return nullptr;
-
-    if (options.first() == "-git-show")
-        gitClient().show(FilePath::fromUserInput(workingDirectory), options.at(1));
-    return nullptr;
-}
-
 void GitPluginPrivate::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
@@ -1940,7 +1904,21 @@ bool isCommitEditorOpen()
 
 #ifdef WITH_TESTS
 
-void GitPlugin::testStatusParsing_data()
+class GitTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testStatusParsing_data();
+    void testStatusParsing();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+    void testGitRemote_data();
+    void testGitRemote();
+};
+
+void GitTest::testStatusParsing_data()
 {
     QTest::addColumn<FileStates>("first");
     QTest::addColumn<FileStates>("second");
@@ -1977,7 +1955,7 @@ void GitPlugin::testStatusParsing_data()
     QTest::newRow("DU") << (DeletedFile | UnmergedFile | UnmergedUs) << FileStates(UnknownFileState);
 }
 
-void GitPlugin::testStatusParsing()
+void GitTest::testStatusParsing()
 {
     CommitData data;
     QFETCH(FileStates, first);
@@ -1992,7 +1970,7 @@ void GitPlugin::testStatusParsing()
         QCOMPARE(data.files.at(1).first, second);
 }
 
-void GitPlugin::testDiffFileResolving_data()
+void GitTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -2022,12 +2000,12 @@ void GitPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/git/giteditor.cpp");
 }
 
-void GitPlugin::testDiffFileResolving()
+void GitTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->commitTextEditorFactory);
 }
 
-void GitPlugin::testLogResolving()
+void GitTest::testLogResolving()
 {
     QByteArray data(
                 "commit 50a6b54c03219ad74b9f3f839e0321be18daeaf6 (HEAD, origin/master)\n"
@@ -2084,7 +2062,7 @@ Q_DECLARE_METATYPE(Git::Internal::RemoteTest)
 
 namespace Git::Internal {
 
-void GitPlugin::testGitRemote_data()
+void GitTest::testGitRemote_data()
 {
     QTest::addColumn<RemoteTest>("rt");
 
@@ -2146,7 +2124,7 @@ void GitPlugin::testGitRemote_data()
                .isLocal(true);
 }
 
-void GitPlugin::testGitRemote()
+void GitTest::testGitRemote()
 {
     QFETCH(RemoteTest, rt);
 
@@ -2165,6 +2143,57 @@ void GitPlugin::testGitRemote()
 }
 
 #endif
+
+class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")
+
+    ~GitPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final
+    {
+        Q_UNUSED(errorMessage)
+
+#ifdef WITH_TESTS
+        addTest<GitTest>();
+#endif
+
+        dd = new GitPluginPrivate;
+
+        auto cmdContext = new QObject(this);
+        connect(ICore::instance(), &ICore::coreOpened, cmdContext, [this, cmdContext, arguments] {
+            NANOTRACE_SCOPE("Git", "GitPlugin::initialize::coreOpened");
+            remoteCommand(arguments, QDir::currentPath(), {});
+            cmdContext->deleteLater();
+        });
+
+        return true;
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+
+    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
+                           const QStringList &args) final
+    {
+        Q_UNUSED(args)
+
+        if (options.size() < 2)
+            return nullptr;
+
+        if (options.first() == "-git-show")
+            gitClient().show(FilePath::fromUserInput(workingDirectory), options.at(1));
+
+        return nullptr;
+    }
+};
 
 } // Git::Internal
 

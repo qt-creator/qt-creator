@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include "git_global.h"
-
 #include <coreplugin/iversioncontrol.h>
-
-#include <extensionsystem/iplugin.h>
 
 #include <functional>
 
@@ -33,31 +29,5 @@ void startCommit();
 void updateCurrentBranch();
 void updateBranches(const Utils::FilePath &repository);
 void gerritPush(const Utils::FilePath &topLevel);
-
-class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")
-
-public:
-    ~GitPlugin() final;
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final;
-
-    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
-                           const QStringList &args) final;
-
-#ifdef WITH_TESTS
-private slots:
-    void testStatusParsing_data();
-    void testStatusParsing();
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-    void testGitRemote_data();
-    void testGitRemote();
-#endif
-};
 
 } // Git::Internal
