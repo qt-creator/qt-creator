@@ -17,6 +17,39 @@ using namespace Utils;
 namespace AppManager {
 namespace Internal {
 
+AppManagerIdAspect::AppManagerIdAspect(Utils::AspectContainer *container)
+    : StringAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.ApplicationId");
+    setDisplayStyle(StringAspect::LineEditDisplay);
+    setLabelText(Tr::tr("Application Id:"));
+    //        setReadOnly(true);
+}
+
+AppManagerInstanceIdAspect::AppManagerInstanceIdAspect(Utils::AspectContainer *container)
+    : StringAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.InstanceId");
+    setDisplayStyle(StringAspect::LineEditDisplay);
+    setLabelText(Tr::tr("AppMan Instance Id:"));
+}
+
+AppManagerDocumentUrlAspect::AppManagerDocumentUrlAspect(Utils::AspectContainer *container)
+    : StringAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.DocumentUrl");
+    setDisplayStyle(StringAspect::LineEditDisplay);
+    setLabelText(Tr::tr("Document Url:"));
+}
+
+AppManagerControllerAspect::AppManagerControllerAspect(Utils::AspectContainer *container)
+    : FilePathAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.AppControllerPath");
+    setLabelText(Tr::tr("Controller:"));
+    setPlaceHolderText(Tr::tr("-"));
+}
+
 AppManagerStringAspect::AppManagerStringAspect(AspectContainer *container)
     : StringAspect(container)
 {

@@ -6,6 +6,7 @@
 #include "appmanagerruncontrol.h"
 
 #include "appmanagerconstants.h"
+#include "appmanagerstringaspect.h"
 #include "appmanagertargetinformation.h"
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
@@ -52,16 +53,20 @@ public:
         });
 
         setStartModifier([this, runControl] {
-            const auto targetInformation = TargetInformation(runControl->target());
-            if (!targetInformation.isValid())
-                return;
+            FilePath controller = runControl->aspect<AppManagerControllerAspect>()->filePath;
+            QString appId = runControl->aspect<AppManagerIdAspect>()->value;
+            QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
+            QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
 
             // Prevent the write channel to be closed, otherwise the appman-controller will exit
             setProcessMode(ProcessMode::Writer);
-            setWorkingDirectory(targetInformation.workingDirectory());
-            setCommandLine({FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, runControl->kit(),
-                                                                 targetInformation.device)),
-                            {"start-application", "-eio", targetInformation.manifest.id}});
+            CommandLine cmd{controller};
+            if (!instanceId.isEmpty())
+                cmd.addArgs({"--instance-id", instanceId});
+            cmd.addArgs({"start-application", "-eio", appId});
+            if (!documentUrl.isEmpty())
+                cmd.addArg(documentUrl);
+            setCommandLine(cmd);
         });
     }
 };
@@ -97,20 +102,19 @@ public:
         addStartDependency(m_portsGatherer);
 
         setStartModifier([this, runControl] {
-
-            const auto targetInformation = TargetInformation(runControl->target());
-            if (!targetInformation.isValid()) {
-                reportFailure();
-                return;
-            }
+            FilePath controller = runControl->aspect<AppManagerControllerAspect>()->filePath;
+            QString appId = runControl->aspect<AppManagerIdAspect>()->value;
+            QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
+            QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
 
 //            const int perfPort = m_portsGatherer->gdbServer().port();
             const int gdbServerPort = m_portsGatherer->gdbServer().port();
             const int qmlServerPort = m_portsGatherer->qmlServer().port();
 
-            CommandLine cmd{FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                                                 runControl->kit(),
-                                                                 targetInformation.device))};
+            CommandLine cmd{controller};
+            if (!instanceId.isEmpty())
+                cmd.addArgs({"--instance-id", instanceId});
+
             cmd.addArg("debug-application");
 
             if (m_useGdbServer || m_useQmlServer) {
@@ -137,12 +141,14 @@ public:
             }
 
             cmd.addArg("-eio");
-            cmd.addArg(targetInformation.manifest.id);
+            cmd.addArg(appId);
+
+            if (!documentUrl.isEmpty())
+                cmd.addArg(documentUrl);
 
             // Prevent the write channel to be closed, otherwise the appman-controller will exit
             setProcessMode(ProcessMode::Writer);
             setCommandLine(cmd);
-            setWorkingDirectory(targetInformation.workingDirectory());
 
             appendMessage(Tr::tr("Starting AppMan Debugging..."), NormalMessageFormat);
             appendMessage(Tr::tr("Using: %1").arg(cmd.toUserOutput()), NormalMessageFormat);

@@ -5,9 +5,51 @@
 
 #pragma once
 
+#include "appmanagertr.h"
+
 #include <utils/aspects.h>
 
 namespace AppManager::Internal {
+
+class AppManagerIdAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerIdAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerIdAspect() final = default;
+};
+
+class AppManagerInstanceIdAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerInstanceIdAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerInstanceIdAspect() final = default;
+};
+
+class AppManagerDocumentUrlAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerDocumentUrlAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerDocumentUrlAspect() final = default;
+};
+
+class AppManagerControllerAspect final : public Utils::FilePathAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerControllerAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerControllerAspect() final = default;
+};
 
 class AppManagerStringAspect : public Utils::StringAspect
 {

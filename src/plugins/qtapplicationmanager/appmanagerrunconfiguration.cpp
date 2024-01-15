@@ -6,8 +6,10 @@
 #include "appmanagerrunconfiguration.h"
 
 #include "appmanagerconstants.h"
+#include "appmanagerstringaspect.h"
 #include "appmanagertargetinformation.h"
 #include "appmanagertr.h"
+#include "appmanagerutilities.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -29,7 +31,30 @@ public:
         : RunConfiguration(target, id)
     {
         setDefaultDisplayName(Tr::tr("Run an Appman Package"));
+
+        setUpdater([this, target] {
+            QList<TargetInformation> tis = TargetInformation::readFromProject(target, buildKey());
+            if (tis.isEmpty())
+                return;
+            const TargetInformation targetInformation = tis.at(0);
+
+            controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, target->kit(),
+                                                                     targetInformation.device)));
+
+            appId.setValue(targetInformation.manifest.id);
+            appId.setReadOnly(true);
+        });
+
+        connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
+        connect(target, &Target::kitChanged, this, &RunConfiguration::update);
     }
+
+    AppManagerControllerAspect controller{this};
+    AppManagerIdAspect appId{this};
+    AppManagerDocumentUrlAspect documentUrl{this};
+    AppManagerInstanceIdAspect instanceId{this};
 };
 
 class AppManagerRunAndDebugConfiguration final : public AppManagerRunConfiguration
