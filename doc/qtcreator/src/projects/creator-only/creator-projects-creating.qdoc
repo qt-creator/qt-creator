@@ -124,7 +124,6 @@
             \li Other project
             \li Create custom \l{\QD} widgets or widget collections,
                 \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects},
-                \l {Creating Tests}{auto-test projects},
                 \l{Add subprojects to projects}{subprojects},
                 empty qmake projects, or qmake projects for testing
                 code snippets.
@@ -132,6 +131,11 @@
             \li Non-Qt project
             \li Create plain C or C++ applications or \l {Create Nimble projects}
                 {Nim or Nimble} applications (experimental).
+        \row
+            \li Test project
+            \li Create a test project based on different supported test
+                frameworks, such as Qt Test, Qt Quick Test, Google Test,
+                Boost Test, or Catch2.
         \row
             \li Imported project
             \li Import projects from a supported \l{Version Control Systems}

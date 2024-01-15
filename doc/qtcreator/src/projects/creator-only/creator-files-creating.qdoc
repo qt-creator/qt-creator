@@ -67,6 +67,10 @@
         \li \uicontrol {vcpkg} (experimental)
         \li vcpkg package manager manifest files (vcpkg.json).
     \row
+        \li \uicontrol {Test Case}
+        \li Test framework specific file holding a new test case, to be
+            added to projects already using a test framework.
+    \row
         \li \uicontrol {Nim} (experimental)
         \li Empty Nim source and script files.
     \endtable
