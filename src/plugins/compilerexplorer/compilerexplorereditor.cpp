@@ -208,6 +208,11 @@ bool JsonSettingsDocument::setContents(const QByteArray &contents)
     return true;
 }
 
+QString JsonSettingsDocument::fallbackSaveAsFileName() const
+{
+    return preferredDisplayName() + ".qtce";
+}
+
 SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                        QUndoStack *undoStack)
     : m_sourceSettings(settings)

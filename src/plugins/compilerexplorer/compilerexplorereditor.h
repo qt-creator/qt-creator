@@ -120,6 +120,8 @@ public:
 
     bool setContents(const QByteArray &contents) override;
 
+    QString fallbackSaveAsFileName() const override;
+
     bool shouldAutoSave() const override { return !filePath().isEmpty(); }
     bool isModified() const override;
     bool isSaveAsAllowed() const override { return true; }
