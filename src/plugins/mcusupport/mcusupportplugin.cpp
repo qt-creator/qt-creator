@@ -240,37 +240,6 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
     ICore::infoBar()->addInfo(info);
 }
 
-void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler)
-{
-    const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
-
-    if (!ICore::infoBar()->canInfoBeAdded(upgradeMcuSupportKits))
-        return;
-
-    Utils::InfoBarEntry info(upgradeMcuSupportKits,
-                             Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"),
-                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    using McuKitManager::UpgradeOption;
-    static UpgradeOption selectedOption = UpgradeOption::Keep;
-
-    const QList<Utils::InfoBarEntry::ComboInfo> infos
-        = {{Tr::tr("Create new kits"), QVariant::fromValue(UpgradeOption::Keep)},
-           {Tr::tr("Replace existing kits"), QVariant::fromValue(UpgradeOption::Replace)}};
-
-    info.setComboInfo(infos, [](const Utils::InfoBarEntry::ComboInfo &selected) {
-        selectedOption = selected.data.value<UpgradeOption>();
-    });
-
-    info.addCustomButton(Tr::tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
-        ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
-        QTimer::singleShot(0, [settingsHandler]() {
-            McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);
-        });
-    });
-
-    ICore::infoBar()->addInfo(info);
-}
-
 void McuSupportPlugin::askUserAboutRemovingUninstalledTargetsKits()
 {
     const char removeUninstalledKits[] = "RemoveUninstalledKits";

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "settingshandler.h"
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/target.h>
@@ -25,7 +23,6 @@ public:
     void extensionsInitialized() final;
 
     void askUserAboutMcuSupportKitsSetup();
-    static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
     static void askUserAboutRemovingUninstalledTargetsKits();
 
     Q_INVOKABLE static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);

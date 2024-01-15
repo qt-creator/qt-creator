@@ -17,6 +17,8 @@
 #include <cmakeprojectmanager/cmakekitaspect.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 
+#include <coreplugin/icore.h>
+
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
@@ -29,14 +31,18 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QTimer>
 
 using CMakeProjectManager::CMakeConfig;
 using CMakeProjectManager::CMakeConfigItem;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
+
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -491,6 +497,38 @@ QList<Kit *> outdatedKits()
 }
 
 // Maintenance
+
+static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler)
+{
+    const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
+
+    if (!ICore::infoBar()->canInfoBeAdded(upgradeMcuSupportKits))
+        return;
+
+    InfoBarEntry info(upgradeMcuSupportKits,
+                      Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"),
+                      InfoBarEntry::GlobalSuppression::Enabled);
+    using McuKitManager::UpgradeOption;
+    static UpgradeOption selectedOption = UpgradeOption::Keep;
+
+    const QList<InfoBarEntry::ComboInfo> infos
+        = {{Tr::tr("Create new kits"), QVariant::fromValue(UpgradeOption::Keep)},
+           {Tr::tr("Replace existing kits"), QVariant::fromValue(UpgradeOption::Replace)}};
+
+    info.setComboInfo(infos, [](const InfoBarEntry::ComboInfo &selected) {
+        selectedOption = selected.data.value<UpgradeOption>();
+    });
+
+    info.addCustomButton(Tr::tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
+        ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
+        QTimer::singleShot(0, [settingsHandler]() {
+            McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);
+        });
+    });
+
+    ICore::infoBar()->addInfo(info);
+}
+
 void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
 {
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
@@ -562,7 +600,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
             }
             if (needsUpgrade)
-                McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(settingsHandler);
+                askUserAboutMcuSupportKitsUpgrade(settingsHandler);
         }
     };
 
