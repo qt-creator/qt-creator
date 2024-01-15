@@ -4,17 +4,8 @@
 #pragma once
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 
 namespace Python::Internal {
-
-class PythonEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    PythonEditorFactory();
-private:
-    QObject m_guard;
-};
 
 class PythonDocument : public TextEditor::TextDocument
 {
@@ -28,5 +19,7 @@ public:
 signals:
     void pythonUpdated(const Utils::FilePath &python);
 };
+
+void setupPythonEditorFactory(QObject *guard);
 
 } // Python::Internal

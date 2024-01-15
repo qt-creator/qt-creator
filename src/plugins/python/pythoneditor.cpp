@@ -10,7 +10,6 @@
 #include "pythonindenter.h"
 #include "pythonkitaspect.h"
 #include "pythonlanguageclient.h"
-#include "pythonplugin.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
@@ -28,6 +27,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <utils/stylehelper.h>
@@ -278,28 +278,6 @@ void PythonEditorWidget::updateInterpretersSelector()
     });
 }
 
-PythonEditorFactory::PythonEditorFactory()
-{
-    registerReplAction(&m_guard);
-
-    setId(Constants::C_PYTHONEDITOR_ID);
-    setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
-    addMimeType(Constants::C_PY_MIMETYPE);
-
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                            | TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::UnCollapseAll
-                            | TextEditorActionHandler::FollowSymbolUnderCursor);
-
-    setDocumentCreator([]() { return new PythonDocument; });
-    setEditorWidgetCreator([]() { return new PythonEditorWidget; });
-    setIndenterCreator(&createPythonIndenter);
-    setSyntaxHighlighterCreator(&createPythonHighlighter);
-    setCommentDefinition(CommentDefinition::HashStyle);
-    setParenthesesMatchingEnabled(true);
-    setCodeFoldingSupported(true);
-}
-
 PythonDocument::PythonDocument()
     : TextDocument(Constants::C_PYTHONEDITOR_ID)
 {
@@ -329,6 +307,37 @@ void PythonDocument::updatePython(const FilePath &python)
     PyLSConfigureAssistant::openDocumentWithPython(python, this);
     PySideInstaller::checkPySideInstallation(python, this);
     emit pythonUpdated(python);
+}
+
+class PythonEditorFactory final : public TextEditorFactory
+{
+public:
+    PythonEditorFactory()
+    {
+        setId(Constants::C_PYTHONEDITOR_ID);
+        setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
+        addMimeType(Constants::C_PY_MIMETYPE);
+
+        setEditorActionHandlers(TextEditorActionHandler::Format
+                                | TextEditorActionHandler::UnCommentSelection
+                                | TextEditorActionHandler::UnCollapseAll
+                                | TextEditorActionHandler::FollowSymbolUnderCursor);
+
+        setDocumentCreator([]() { return new PythonDocument; });
+        setEditorWidgetCreator([]() { return new PythonEditorWidget; });
+        setIndenterCreator(&createPythonIndenter);
+        setSyntaxHighlighterCreator(&createPythonHighlighter);
+        setCommentDefinition(CommentDefinition::HashStyle);
+        setParenthesesMatchingEnabled(true);
+        setCodeFoldingSupported(true);
+    }
+};
+
+void setupPythonEditorFactory(QObject *guard)
+{
+    static PythonEditorFactory thePythonEditorFactory;
+
+    registerReplAction(guard);
 }
 
 } // Python::Internal
