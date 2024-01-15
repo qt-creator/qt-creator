@@ -20,6 +20,7 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/process.h>
 
@@ -35,8 +36,6 @@ const char ArgumentsDefault[] = "install-package -a";
 
 class AppManagerRemoteInstallPackageStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AppManager::Internal::AppManagerInstallPackageStep)
-
 public:
     AppManagerRemoteInstallPackageStep(BuildStepList *bsl, Id id);
 
@@ -44,10 +43,9 @@ private:
     GroupItem deployRecipe() final;
 
 private:
-    AppManagerFilePathAspect executable{this};
-    AppManagerStringAspect arguments{this};
-    AppManagerStringAspect packageFileName{this};
-    AppManagerFilePathAspect packageDirectory{this};
+    AppManagerControllerAspect controller{this};
+    ProjectExplorer::ArgumentsAspect arguments{this};
+    FilePathAspect packageFile{this};
 };
 
 AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStepList *bsl, Id id)
@@ -55,41 +53,25 @@ AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStep
 {
     setDisplayName(tr("Remote Install Application Manager package"));
 
-    executable.setSettingsKey(SETTINGSPREFIX "Executable");
-    executable.setHistoryCompleter(SETTINGSPREFIX "Executable.History");
-    executable.setLabelText(tr("Executable:"));
-
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
-    arguments.setHistoryCompleter(SETTINGSPREFIX "Arguments.History");
-    arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments.setLabelText(tr("Arguments:"));
 
-    packageFileName.setSettingsKey(SETTINGSPREFIX "FileName");
-    packageFileName.setHistoryCompleter(SETTINGSPREFIX "FileName.History");
-    packageFileName.setDisplayStyle(StringAspect::LineEditDisplay);
-    packageFileName.setLabelText(tr("File name:"));
-
-    packageDirectory.setSettingsKey(SETTINGSPREFIX "Directory");
-    packageDirectory.setHistoryCompleter(SETTINGSPREFIX "Directory.History");
-    packageDirectory.setExpectedKind(PathChooser::Directory);
-    packageDirectory.setLabelText(tr("Directory:"));
+    packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
+    packageFile.setLabelText(Tr::tr("Package file:"));
 
     setInternalInitializer([this] { return isDeploymentPossible(); });
 
     const auto updateAspects = [this]  {
         const TargetInformation targetInformation(target());
 
-        executable.setPromptDialogFilter(getToolNameByDevice(Constants::APPMAN_CONTROLLER, targetInformation.device));
-        executable.setButtonsVisible(!targetInformation.remote);
-        executable.setExpectedKind(targetInformation.remote ? PathChooser::Command : PathChooser::ExistingCommand);
-        executable.setPlaceHolderPath(getToolFilePath(Constants::APPMAN_CONTROLLER, target()->kit(), targetInformation.device));
-        arguments.setPlaceHolderText(ArgumentsDefault);
-        packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
-        auto device = DeviceKitAspect::device(target()->kit());
-        bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-        QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
-        packageDirectory.setPlaceHolderPath(packageDirectoryPath.absolutePath());
-        packageDirectory.setButtonsVisible(!targetInformation.remote);
+        controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER,
+                                                                 target()->kit(),
+                                                                 targetInformation.device)));
+        controller.setDefaultValue(controller.value());
+        arguments.setArguments(ArgumentsDefault);
+        arguments.setResetter([](){ return QLatin1String(ArgumentsDefault); });
+
+        packageFile.setValue(targetInformation.packageFile.absoluteFilePath());
+        packageFile.setDefaultValue(packageFile.value());
 
         setEnabled(!targetInformation.isBuiltin);
     };
@@ -106,18 +88,18 @@ GroupItem AppManagerRemoteInstallPackageStep::deployRecipe()
 {
     const TargetInformation targetInformation(target());
 
-    const FilePath controller = executable.valueOrDefault(getToolFilePath(Constants::APPMAN_CONTROLLER, target()->kit(), targetInformation.device));
-    const QString controllerArguments = arguments.valueOrDefault(ArgumentsDefault);
-    const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
-    auto device = DeviceKitAspect::device(target()->kit());
-    bool remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    QDir packageDirectoryPath = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : targetInformation.packageFile.absolutePath();
-    const FilePath packageDir = packageDirectory.valueOrDefault(packageDirectoryPath.absolutePath());
+    const FilePath controllerPath = controller().isEmpty() ?
+                                        FilePath::fromString(controller.defaultValue()) :
+                                        controller();
+    const QString controllerArguments = arguments();
+    const FilePath packageFilePath = packageFile().isEmpty() ?
+                                         FilePath::fromString(packageFile.defaultValue()) :
+                                         packageFile();
 
     const auto setupHandler = [=](Process &process) {
-        CommandLine remoteCmd(controller);
+        CommandLine remoteCmd(controllerPath);
         remoteCmd.addArgs(controllerArguments, CommandLine::Raw);
-        remoteCmd.addArg(packageDir.toString() + '/' + packageFile);
+        remoteCmd.addArg(packageFilePath.nativePath());
 
         CommandLine cmd(deviceConfiguration()->filePath("/bin/sh"));
         cmd.addArg("-c");

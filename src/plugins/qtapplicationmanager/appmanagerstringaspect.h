@@ -28,7 +28,11 @@ class AppManagerInstanceIdAspect final : public Utils::StringAspect
 public:
     AppManagerInstanceIdAspect(Utils::AspectContainer *container = nullptr);
 
-    ~AppManagerInstanceIdAspect() final = default;
+    QString operator()() const;
+
+    struct Data : StringAspect::Data { QString value; };
+
+    ~AppManagerInstanceIdAspect() override = default;
 };
 
 class AppManagerDocumentUrlAspect final : public Utils::StringAspect
@@ -51,35 +55,14 @@ public:
     ~AppManagerControllerAspect() final = default;
 };
 
-class AppManagerStringAspect : public Utils::StringAspect
+class AppManagerPackagerAspect final : public Utils::FilePathAspect
 {
+    Q_OBJECT
+
 public:
-    AppManagerStringAspect(Utils::AspectContainer *container);
+    AppManagerPackagerAspect(Utils::AspectContainer *container = nullptr);
 
-    QString valueOrDefault(const QString &defaultValue) const;
-};
-
-class AppManagerFilePathAspect : public Utils::FilePathAspect
-{
-public:
-    AppManagerFilePathAspect(Utils::AspectContainer *container);
-
-    void setButtonsVisible(bool visible);
-    void setPlaceHolderPath(const QString &value);
-    void setPromptDialogFilter(const QString &value);
-
-    void addToLayout(Layouting::LayoutItem &parent) override;
-
-    Utils::FilePath valueOrDefault(const Utils::FilePath &defaultValue) const;
-    Utils::FilePath valueOrDefault(const QString &defaultValue) const;
-
-private:
-    bool validatePathWithPlaceHolder(Utils::FancyLineEdit *lineEdit, QString *errorMessage) const;
-    void updateWidgets();
-
-    QString m_placeHolderPath;
-    QString m_promptDialogFilter;
-    bool m_buttonsVisibile = true;
+    ~AppManagerPackagerAspect() final = default;
 };
 
 } // AppManager::Internal

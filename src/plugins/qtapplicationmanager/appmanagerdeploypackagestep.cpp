@@ -39,21 +39,19 @@ public:
         setDisplayName(Tr::tr("Deploy Application Manager package"));
 
         packageFilePath.setSettingsKey(SETTINGSPREFIX "FilePath");
-        packageFilePath.setHistoryCompleter(SETTINGSPREFIX "FilePath.History");
-        packageFilePath.setExpectedKind(PathChooser::File);
-        packageFilePath.setLabelText(Tr::tr("Package file path:"));
+        packageFilePath.setLabelText(Tr::tr("Package file:"));
 
         targetDirectory.setSettingsKey(SETTINGSPREFIX "TargetDirectory");
-        targetDirectory.setHistoryCompleter(SETTINGSPREFIX "TargetDirectory.History");
-        targetDirectory.setExpectedKind(PathChooser::Directory);
         targetDirectory.setLabelText(Tr::tr("Target directory:"));
-        targetDirectory.setButtonsVisible(false);
 
         const auto updateAspects = [this] {
             const TargetInformation targetInformation(target());
 
-            packageFilePath.setPlaceHolderPath(targetInformation.packageFile.absoluteFilePath());
-            targetDirectory.setPlaceHolderPath(targetInformation.runDirectory.absolutePath());
+            packageFilePath.setValue(targetInformation.packageFile.absoluteFilePath());
+            packageFilePath.setDefaultValue(packageFilePath.value());
+
+            targetDirectory.setValue(targetInformation.runDirectory.absolutePath());
+            targetDirectory.setDefaultValue(targetDirectory.value());
 
             setEnabled(!targetInformation.isBuiltin);
         };
@@ -77,10 +75,12 @@ private:
     {
         const auto onSetup = [this](FileStreamer &streamer) {
             const TargetInformation targetInformation(target());
-            const FilePath source = packageFilePath.valueOrDefault(
-                targetInformation.packageFile.absoluteFilePath());
-            const FilePath targetDir = targetDirectory.valueOrDefault(
-                targetInformation.runDirectory.absolutePath());
+            const FilePath source = packageFilePath().isEmpty() ?
+                                        FilePath::fromString(packageFilePath.defaultValue()) :
+                                        packageFilePath();
+            const FilePath targetDir = targetDirectory().isEmpty() ?
+                                           FilePath::fromString(targetDirectory.defaultValue()) :
+                                           targetDirectory();
             const FilePath target = targetInformation.device->filePath(targetDir.path())
                                         .pathAppended(source.fileName());
             streamer.setSource(source);
@@ -96,8 +96,8 @@ private:
         return FileStreamerTask(onSetup, onDone);
     }
 
-    AppManagerFilePathAspect packageFilePath{this};
-    AppManagerFilePathAspect targetDirectory{this};
+    FilePathAspect packageFilePath{this};
+    FilePathAspect targetDirectory{this};
 };
 
 // Factory

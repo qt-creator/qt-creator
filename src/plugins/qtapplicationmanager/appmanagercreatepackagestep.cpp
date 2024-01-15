@@ -18,6 +18,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
@@ -37,42 +38,33 @@ public:
     {
         setDisplayName(Tr::tr("Create Application Manager package"));
 
-        executable.setSettingsKey(SETTINGSPREFIX "Executable");
-        executable.setHistoryCompleter(SETTINGSPREFIX "Executable.History");
-        executable.setExpectedKind(PathChooser::ExistingCommand);
-        executable.setLabelText(Tr::tr("Executable:"));
-        executable.setPromptDialogFilter(getToolNameByDevice(Constants::APPMAN_PACKAGER));
+        packager.setSettingsKey(SETTINGSPREFIX "Executable");
 
         arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
-        arguments.setHistoryCompleter(SETTINGSPREFIX "Arguments.History");
-        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-        arguments.setLabelText(Tr::tr("Arguments:"));
 
         sourceDirectory.setSettingsKey(SETTINGSPREFIX "SourceDirectory");
-        sourceDirectory.setHistoryCompleter(SETTINGSPREFIX "SourceDirectory.History");
-        sourceDirectory.setExpectedKind(PathChooser::Directory);
         sourceDirectory.setLabelText(Tr::tr("Source directory:"));
+        sourceDirectory.setExpectedKind(Utils::PathChooser::ExistingDirectory);
 
-        buildDirectory.setSettingsKey(SETTINGSPREFIX "BuildDirectory");
-        buildDirectory.setHistoryCompleter(SETTINGSPREFIX "BuildDirectory.History");
-        buildDirectory.setExpectedKind(PathChooser::Directory);
-        buildDirectory.setLabelText(Tr::tr("Build directory:"));
-
-        packageFileName.setSettingsKey(SETTINGSPREFIX "FileName");
-        packageFileName.setHistoryCompleter(SETTINGSPREFIX "FileName.History");
-        packageFileName.setDisplayStyle(StringAspect::LineEditDisplay);
-        packageFileName.setLabelText(Tr::tr("Package file name:"));
+        packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
+        packageFile.setLabelText(Tr::tr("Package file:"));
+        packageFile.setExpectedKind(Utils::PathChooser::SaveFile);
 
         const auto updateAspects = [this] {
             const auto targetInformation = TargetInformation(target());
 
-            executable.setPlaceHolderPath(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
-            arguments.setPlaceHolderText(ArgumentsDefault);
-            sourceDirectory.setPlaceHolderPath(targetInformation.packageSourcesDirectory.absolutePath());
-            buildDirectory.setPlaceHolderPath(targetInformation.buildDirectory.absolutePath());
-            packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
+            packager.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_PACKAGER,
+                                                                   target()->kit(),
+                                                                   targetInformation.device)));
+            packager.setDefaultValue(packager.value());
+            arguments.setArguments(ArgumentsDefault);
+            arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
 
-            setEnabled(!targetInformation.isBuiltin);
+            packageFile.setValue(targetInformation.packageFile.absoluteFilePath());
+            packageFile.setDefaultValue(packageFile.value());
+
+            sourceDirectory.setValue(targetInformation.packageSourcesDirectory.absolutePath());
+            sourceDirectory.setDefaultValue(sourceDirectory.value());
         };
 
         connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
@@ -88,31 +80,31 @@ public:
         if (!AbstractProcessStep::init())
             return false;
 
-        const auto targetInformation = TargetInformation(target());
-        if (!targetInformation.isValid())
-            return false;
+        const FilePath packagerPath = packager().isEmpty() ?
+                                          FilePath::fromString(packager.defaultValue()) :
+                                          packager();
+        const QString packagerArguments = arguments();
+        const FilePath sourceDirectoryPath = sourceDirectory().isEmpty() ?
+                                                 FilePath::fromString(sourceDirectory.defaultValue()) :
+                                                 sourceDirectory();
+        const FilePath packageFilePath = packageFile().isEmpty() ?
+                                             FilePath::fromString(packageFile.defaultValue()) :
+                                             packageFile();
 
-        const FilePath packager = executable.valueOrDefault(getToolFilePath(Constants::APPMAN_PACKAGER, target()->kit(), nullptr));
-        const QString packagerArguments = arguments.valueOrDefault(ArgumentsDefault);
-        const FilePath packageSourcesDirectory = sourceDirectory.valueOrDefault(targetInformation.packageSourcesDirectory.absolutePath());
-        const FilePath packageDirectory = buildDirectory.valueOrDefault(targetInformation.buildDirectory.absolutePath());
-        const QString packageFile = packageFileName.valueOrDefault(targetInformation.packageFile.fileName());
 
-        CommandLine cmd(packager);
+        CommandLine cmd(packagerPath);
         cmd.addArgs(packagerArguments, CommandLine::Raw);
-        cmd.addArgs({packageFile, packageSourcesDirectory.path()});
-        processParameters()->setWorkingDirectory(packageDirectory);
+        cmd.addArgs({packageFilePath.nativePath(), sourceDirectoryPath.nativePath()});
         processParameters()->setCommandLine(cmd);
 
         return true;
     }
 
 private:
-    AppManagerFilePathAspect executable{this};
-    AppManagerStringAspect arguments{this};
-    AppManagerFilePathAspect sourceDirectory{this};
-    AppManagerFilePathAspect buildDirectory{this};
-    AppManagerStringAspect packageFileName{this};
+    AppManagerPackagerAspect packager{this};
+    ProjectExplorer::ArgumentsAspect arguments{this};
+    FilePathAspect sourceDirectory{this};
+    FilePathAspect packageFile{this};
 };
 
 // Factory
