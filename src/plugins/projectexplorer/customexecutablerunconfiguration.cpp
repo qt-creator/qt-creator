@@ -46,7 +46,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     setDefaultDisplayName(defaultDisplayName());
 }
 
-bool CustomExecutableRunConfiguration::isEnabled() const
+bool CustomExecutableRunConfiguration::isEnabled(Id) const
 {
     return true;
 }

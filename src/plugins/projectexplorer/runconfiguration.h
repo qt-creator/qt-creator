@@ -78,8 +78,8 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     ~RunConfiguration() override;
 
-    virtual QString disabledReason() const;
-    virtual bool isEnabled() const;
+    virtual QString disabledReason(Utils::Id runMode) const;
+    virtual bool isEnabled(Utils::Id runMode) const;
 
     QWidget *createConfigurationWidget();
 

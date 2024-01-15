@@ -2980,7 +2980,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
                                                 Id runMode,
                                                 const bool forceSkipDeploy)
 {
-    if (!rc->isEnabled())
+    if (!rc->isEnabled(runMode))
         return;
     const auto delay = [rc, runMode] {
         dd->m_runMode = runMode;
@@ -3004,7 +3004,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         delay();
         break;
     case BuildForRunConfigStatus::NotBuilding:
-        if (rc->isEnabled())
+        if (rc->isEnabled(runMode))
             dd->executeRunConfiguration(rc, runMode);
         else
             delay();
@@ -3108,8 +3108,8 @@ expected_str<void> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode
                 .arg(target->displayName(), project->displayName()));
     }
 
-    if (!activeRC->isEnabled())
-        return make_unexpected(activeRC->disabledReason());
+    if (!activeRC->isEnabled(runMode))
+        return make_unexpected(activeRC->disabledReason(runMode));
 
     if (dd->m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off
             && dd->m_projectExplorerSettings.deployBeforeRun

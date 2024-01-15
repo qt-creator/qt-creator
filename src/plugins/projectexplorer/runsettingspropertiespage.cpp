@@ -8,6 +8,7 @@
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
 #include "projectconfigurationmodel.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "target.h"
@@ -523,8 +524,12 @@ void RunSettingsWidget::removeSubWidgets()
 
 void RunSettingsWidget::updateEnabledState()
 {
-    const bool enable = m_runConfiguration ? m_runConfiguration->isEnabled() : false;
-    const QString reason = m_runConfiguration ? m_runConfiguration->disabledReason() : QString();
+    const bool enable = m_runConfiguration
+                            ? m_runConfiguration->isEnabled(Constants::NORMAL_RUN_MODE)
+                            : false;
+    const QString reason = m_runConfiguration
+                               ? m_runConfiguration->disabledReason(Constants::NORMAL_RUN_MODE)
+                               : QString();
 
     m_runConfigurationWidget->setEnabled(enable);
 

@@ -15,6 +15,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -87,7 +88,7 @@ void IosDeviceTypeAspect::updateDeviceType()
         m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
 }
 
-bool IosRunConfiguration::isEnabled() const
+bool IosRunConfiguration::isEnabled(Id runMode) const
 {
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
@@ -98,6 +99,12 @@ bool IosRunConfiguration::isEnabled() const
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
+
+    IosDevice::ConstPtr iosdevice = dev.dynamicCast<const IosDevice>();
+    if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
+        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        return false;
+    }
 
     return true;
 }
@@ -223,7 +230,7 @@ void IosDeviceTypeAspect::toMap(Store &map) const
     map.insert(deviceTypeKey, QVariant::fromValue(deviceType().toMap()));
 }
 
-QString IosRunConfiguration::disabledReason() const
+QString IosRunConfiguration::disabledReason(Id runMode) const
 {
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
@@ -270,8 +277,14 @@ QString IosRunConfiguration::disabledReason() const
             else
                 return Tr::tr("%1 is not connected.").arg(dev->displayName());
         }
+        IosDevice::ConstPtr iosdevice = dev.dynamicCast<const IosDevice>();
+        if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
+            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+            return Tr::tr("Debugging and profiling is currently not supported for devices with iOS "
+                          "17 and later.");
+        }
     }
-    return RunConfiguration::disabledReason();
+    return RunConfiguration::disabledReason(runMode);
 }
 
 IosDeviceType IosRunConfiguration::deviceType() const

@@ -18,6 +18,7 @@
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -780,12 +781,12 @@ void Target::updateDefaultRunConfigurations()
 
     // Make sure a configured RC will be active after we delete the RCs:
     RunConfiguration *active = activeRunConfiguration();
-    if (active && (removalList.contains(active) || !active->isEnabled())) {
+    if (active && (removalList.contains(active) || !active->isEnabled(Constants::NORMAL_RUN_MODE))) {
         RunConfiguration *newConfiguredDefault = newConfigured.isEmpty() ? nullptr : newConfigured.at(0);
 
-        RunConfiguration *rc
-                = Utils::findOrDefault(existingConfigured,
-                                       [](RunConfiguration *rc) { return rc->isEnabled(); });
+        RunConfiguration *rc = Utils::findOrDefault(existingConfigured, [](RunConfiguration *rc) {
+            return rc->isEnabled(Constants::NORMAL_RUN_MODE);
+        });
         if (!rc) {
             rc = Utils::findOr(newConfigured, newConfiguredDefault,
                                Utils::equal(&RunConfiguration::displayName, project()->displayName()));

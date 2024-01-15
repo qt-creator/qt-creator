@@ -186,13 +186,13 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
 
 RunConfiguration::~RunConfiguration() = default;
 
-QString RunConfiguration::disabledReason() const
+QString RunConfiguration::disabledReason(Utils::Id) const
 {
     BuildSystem *bs = activeBuildSystem();
     return bs ? bs->disabledReason(m_buildKey) : Tr::tr("No build system active");
 }
 
-bool RunConfiguration::isEnabled() const
+bool RunConfiguration::isEnabled(Utils::Id) const
 {
     BuildSystem *bs = activeBuildSystem();
     return bs && bs->hasParsingData();

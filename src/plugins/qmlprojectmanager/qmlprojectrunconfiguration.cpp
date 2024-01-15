@@ -57,8 +57,8 @@ public:
     QmlProjectRunConfiguration(Target *target, Id id);
 
 private:
-    QString disabledReason() const final;
-    bool isEnabled() const final;
+    QString disabledReason(Utils::Id runMode) const final;
+    bool isEnabled(Utils::Id) const final;
 
     FilePath mainScript() const;
     FilePath qmlRuntimeFilePath() const;
@@ -180,7 +180,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     update();
 }
 
-QString QmlProjectRunConfiguration::disabledReason() const
+QString QmlProjectRunConfiguration::disabledReason(Utils::Id runMode) const
 {
     if (mainScript().isEmpty())
         return Tr::tr("No script file to execute.");
@@ -193,7 +193,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     }
     if (viewer.isEmpty())
         return Tr::tr("No QML utility specified for target device.");
-    return RunConfiguration::disabledReason();
+    return RunConfiguration::disabledReason(runMode);
 }
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
@@ -306,7 +306,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
     }
 }
 
-bool QmlProjectRunConfiguration::isEnabled() const
+bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
            && !commandLine().executable().isEmpty()
