@@ -146,9 +146,9 @@ public:
     void annotate(const Utils::FilePath &workingDir, const QString &file,
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;
-    virtual void diff(const Utils::FilePath &workingDir,
-                      const QStringList &files = {},
-                      const QStringList &extraOptions = {});
+    void diff(const Utils::FilePath &workingDir,
+              const QStringList &files = {},
+              const QStringList &extraOptions = {});
     virtual void log(const Utils::FilePath &workingDir,
                      const QStringList &files = {},
                      const QStringList &extraOptions = {},
