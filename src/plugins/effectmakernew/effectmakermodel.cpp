@@ -570,7 +570,7 @@ QString EffectMakerModel::getQmlEffectString()
     if (m_shaderFeatures.enabled(ShaderFeatures::Time)
         || m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
         s += "    // Enable this to animate iTime property\n";
-        s += "    property bool timeRunning: false\n";
+        s += "    property bool timeRunning: true\n";
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Time)) {
         s += "    // When timeRunning is false, this can be used to control iTime manually\n";
