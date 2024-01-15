@@ -221,7 +221,7 @@ QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
 }
 
 Pip::Pip(const Utils::FilePath &python)
-    : QObject(PythonPlugin::instance())
+    : QObject(pluginInstance())
     , m_python(python)
 {}
 

@@ -265,7 +265,7 @@ PyLSClient *PyLSClient::clientForPython(const FilePath &python)
 
 PyLSConfigureAssistant *PyLSConfigureAssistant::instance()
 {
-    static auto *instance = new PyLSConfigureAssistant(PythonPlugin::instance());
+    static auto *instance = new PyLSConfigureAssistant(pluginInstance());
     return instance;
 }
 

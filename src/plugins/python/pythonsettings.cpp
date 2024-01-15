@@ -642,7 +642,7 @@ static void disableOutdatedPyls()
         disableOutdatedPylsNow();
     } else {
         QObject::connect(PluginManager::instance(), &PluginManager::initializationDone,
-                         PythonPlugin::instance(), &disableOutdatedPylsNow);
+                         pluginInstance(), &disableOutdatedPylsNow);
     }
 }
 

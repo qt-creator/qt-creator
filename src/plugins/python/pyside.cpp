@@ -81,7 +81,7 @@ QString PySideInstaller::importedPySide(const QString &text)
 }
 
 PySideInstaller::PySideInstaller()
-    : QObject(PythonPlugin::instance())
+    : QObject(pluginInstance())
 {}
 
 void PySideInstaller::installPyside(const FilePath &python,

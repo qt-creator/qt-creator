@@ -3,28 +3,10 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
 
 namespace Python::Internal {
 
-class PythonBuildConfigurationFactory;
-
-class PythonPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")
-
-public:
-    PythonPlugin();
-    ~PythonPlugin() final;
-
-    static PythonPlugin *instance();
-
-private:
-    void initialize() final;
-    void extensionsInitialized() final;
-
-    class PythonPluginPrivate *d = nullptr;
-};
+QObject *pluginInstance();
 
 } // Python::Internal

@@ -13,6 +13,8 @@
 #include "pythontr.h"
 #include "pythonwizardpage.h"
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
@@ -28,7 +30,12 @@ using namespace Utils;
 
 namespace Python::Internal {
 
-static PythonPlugin *m_instance = nullptr;
+static QObject *m_instance = nullptr;
+
+QObject *pluginInstance()
+{
+    return m_instance;
+}
 
 class PythonPluginPrivate
 {
@@ -43,44 +50,51 @@ public:
     PythonWizardPageFactory pythonWizardPageFactory;
 };
 
-PythonPlugin::PythonPlugin()
+class PythonPlugin final : public ExtensionSystem::IPlugin
 {
-    m_instance = this;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")
 
-PythonPlugin::~PythonPlugin()
-{
-    m_instance = nullptr;
-    delete d;
-}
+public:
+    PythonPlugin()
+    {
+        m_instance = this;
+    }
 
-PythonPlugin *PythonPlugin::instance()
-{
-    return m_instance;
-}
+    ~PythonPlugin() final
+    {
+        m_instance = nullptr;
+        delete d;
+    }
 
-void PythonPlugin::initialize()
-{
-    d = new PythonPluginPrivate;
+private:
+    void initialize() final
+    {
+        d = new PythonPluginPrivate;
 
-    KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
-                                     + QSet<Id>{PythonKitAspect::id()});
+        KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
+                                         + QSet<Id>{PythonKitAspect::id()});
 
-    ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE);
-    ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE_LEGACY);
-}
+        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE);
+        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE_LEGACY);
+    }
 
-void PythonPlugin::extensionsInitialized()
-{
-    // Add MIME overlay icons (these icons displayed at Project dock panel)
-    const QString imageFile = Utils::creatorTheme()->imageFile(Theme::IconOverlayPro,
-                                                               ::Constants::FILEOVERLAY_PY);
-    FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
+    void extensionsInitialized() final
+    {
+        // Add MIME overlay icons (these icons displayed at Project dock panel)
+        const QString imageFile = Utils::creatorTheme()->imageFile(Theme::IconOverlayPro,
+                                                                   ::Constants::FILEOVERLAY_PY);
+        FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
-    TaskHub::addCategory({PythonErrorTaskCategory,
-                          "Python",
-                          Tr::tr("Issues parsed from Python runtime output."),
-                          true});
-}
+        TaskHub::addCategory({PythonErrorTaskCategory,
+                              "Python",
+                              Tr::tr("Issues parsed from Python runtime output."),
+                              true});
+    }
+
+    PythonPluginPrivate *d = nullptr;
+};
 
 } // Python::Internal
+
+#include "pythonplugin.moc"
