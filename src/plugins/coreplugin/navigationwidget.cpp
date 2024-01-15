@@ -210,11 +210,9 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
     NavigationWidget *navigationWidget = instance(fallbackSide);
     int preferredPosition = -1;
 
-    // TODO: Use find
-    if (s_activationsMap.contains(factoryId)) {
-        const ActivationInfo info = s_activationsMap.value(factoryId);
-        navigationWidget = instance(info.side);
-        preferredPosition = info.position;
+    if (const auto it = s_activationsMap.constFind(factoryId); it != s_activationsMap.constEnd()) {
+        navigationWidget = instance(it->side);
+        preferredPosition = it->position;
     }
 
     return navigationWidget->activateSubWidget(factoryId, preferredPosition);
