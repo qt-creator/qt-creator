@@ -180,11 +180,4 @@ void ProcessHelper::interruptPid(qint64 pid)
 #endif
 }
 
-void ProcessHelper::interruptProcess(QProcess *process)
-{
-    ProcessHelper *helper = qobject_cast<ProcessHelper *>(process);
-    if (helper && helper->m_useCtrlCStub)
-        ProcessHelper::interruptPid(process->processId());
-}
-
 } // namespace Utils

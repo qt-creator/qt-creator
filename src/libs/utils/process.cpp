@@ -486,7 +486,7 @@ private:
             m_process->kill();
             break;
         case ControlSignal::Interrupt:
-            ProcessHelper::interruptProcess(m_process);
+            ProcessHelper::interruptPid(m_process->processId());
             break;
         case ControlSignal::KickOff:
             QTC_CHECK(false);

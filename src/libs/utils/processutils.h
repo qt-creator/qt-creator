@@ -45,7 +45,6 @@ public:
     void setUseCtrlCStub(bool enabled); // release only
 
     static void terminateProcess(QProcess *process);
-    static void interruptProcess(QProcess *process);
     static void interruptPid(qint64 pid);
 
 private:
