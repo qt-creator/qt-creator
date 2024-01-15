@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormEditorInterface;
+class QObject;
 class QWidget;
 QT_END_NAMESPACE
 
