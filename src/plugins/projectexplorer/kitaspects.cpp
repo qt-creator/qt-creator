@@ -1480,8 +1480,7 @@ private:
         if (HostOsInfo::isWindowsHost())
             changes.removeAll(forceMSVCEnglishItem());
 
-        return sorted(std::move(changes), [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
-        { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
+        return changes;
     }
 
     void initMSVCOutputSwitch(QVBoxLayout *layout)

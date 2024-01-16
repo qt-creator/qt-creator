@@ -3,19 +3,39 @@
 
 #pragma once
 
-#include "utils_global.h"
-
 #include "namevalueitem.h"
+#include "utils_global.h"
 
 #include <QDialog>
 
 #include <functional>
-#include <memory>
 #include <optional>
 
 namespace Utils {
 
-namespace Internal { class NameValueItemsWidget; }
+namespace Internal { class TextEditHelper; }
+
+class QTCREATOR_UTILS_EXPORT NameValueItemsWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit NameValueItemsWidget(QWidget *parent = nullptr);
+
+    void setEnvironmentItems(const EnvironmentItems &items);
+    EnvironmentItems environmentItems() const;
+
+    void setPlaceholderText(const QString &text);
+
+    enum class Selection { Name, Value };
+    bool editVariable(const QString &name, Selection selection);
+
+signals:
+    void userChangedItems(const EnvironmentItems &items);
+
+private:
+    Internal::TextEditHelper *m_editor;
+    NameValueItems m_originalItems;
+};
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog
 {
@@ -36,7 +56,7 @@ protected:
                               QWidget *parent = {});
 
 private:
-    Internal::NameValueItemsWidget *m_editor;
+    NameValueItemsWidget *m_editor;
 };
 
 } // namespace Utils
