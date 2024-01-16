@@ -307,21 +307,16 @@ void MercurialClient::commit(const FilePath &repositoryRoot, const QStringList &
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
 }
 
-void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringList &files,
-                                     const QStringList &extraOptions)
+void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringList &files)
 {
-    Q_UNUSED(extraOptions)
-
-    QString fileName;
-
     if (files.empty()) {
         const QString title = Tr::tr("Mercurial Diff");
-        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile.toString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
-        fileName = files.at(0);
+        const QString &fileName = files.at(0);
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(fileName);
         const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
@@ -329,7 +324,7 @@ void MercurialClient::showDiffEditor(const FilePath &workingDir, const QStringLi
         requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
-        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, QString());
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir.toString();
         requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
