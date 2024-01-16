@@ -87,8 +87,11 @@ bool CollectionListModel::removeRows(int row, int count, const QModelIndex &pare
     QStringList removedCollections = stringList().mid(row, count);
 
     bool itemsRemoved = Super::removeRows(row, count, parent);
-    if (itemsRemoved)
+    if (itemsRemoved) {
         emit collectionsRemoved(removedCollections);
+        if (m_selectedIndex >= row)
+            selectCollectionIndex(m_selectedIndex - count, true);
+    }
 
     return itemsRemoved;
 }

@@ -327,6 +327,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
             return returnError(tr("No model is available for the JSON model group."));
 
         collections->selectCollectionName(collectionName);
+        setSelectedCollectionName(collectionName);
         return true;
     } else {
         return returnError(tr("JSON document type should be an object containing models."));
@@ -405,9 +406,11 @@ void CollectionSourceModel::onSelectedCollectionChanged(CollectionListModel *col
 
         m_previousSelectedList = collectionList;
 
-        emit collectionSelected(collectionList->collectionNameAt(collectionIndex));
+        setSelectedCollectionName(collectionList->collectionNameAt(collectionIndex));
 
         selectSourceIndex(sourceIndex(collectionList->sourceNode()));
+    } else {
+        setSelectedCollectionName({});
     }
 }
 
@@ -415,7 +418,7 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
                                                     const QString &oldName, const QString &newName)
 {
     auto emitRenameWarning = [this](const QString &msg) -> void {
-        emit this->warning(tr("Rename Model"), msg);
+        emit warning(tr("Rename Model"), msg);
     };
 
     const ModelNode node = collectionList->sourceNode();
@@ -577,9 +580,11 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
         }
 
         for (const QString &collectionName : std::as_const(collectionsRemovedFromDocument))
-            emit this->collectionRemoved(collectionName);
+            emit collectionRemoved(collectionName);
 
         updateCollectionList(nodeIndex);
+        if (m_previousSelectedList == collectionList)
+            onSelectedCollectionChanged(collectionList, collectionList->selectedIndex());
     }
 }
 
@@ -609,9 +614,17 @@ void CollectionSourceModel::setSelectedIndex(int idx)
             } else if (m_previousSelectedList) {
                 m_previousSelectedList->selectCollectionIndex(-1);
                 m_previousSelectedList = {};
-                emit this->collectionSelected({});
+                setSelectedCollectionName({});
             }
         }
+    }
+}
+
+void CollectionSourceModel::setSelectedCollectionName(const QString &collectionName)
+{
+    if (m_selectedCollectionName != collectionName) {
+        m_selectedCollectionName = collectionName;
+        emit collectionSelected(m_selectedCollectionName);
     }
 }
 
