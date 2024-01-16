@@ -51,6 +51,7 @@
 #include <QPushButton>
 #include <QTimer>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -73,19 +74,19 @@ static bool qmlDesignerEnabled()
 
 static QString alwaysOpenWithMode()
 {
-    return Core::ICore::settings()
+    return ICore::settings()
         ->value(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE, "")
         .toString();
 }
 
 static void setAlwaysOpenWithMode(const QString &mode)
 {
-    Core::ICore::settings()->setValue(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE, mode);
+    ICore::settings()->setValue(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE, mode);
 }
 
 static void clearAlwaysOpenWithMode()
 {
-    Core::ICore::settings()->remove(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE);
+    ICore::settings()->remove(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE);
 }
 
 class QmlProjectPluginPrivate
@@ -111,20 +112,20 @@ QmlProjectPlugin::~QmlProjectPlugin()
     delete d;
 }
 
-void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
+void openQDS(const FilePath &fileName)
 {
-    const Utils::FilePath &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
+    const FilePath qdsPath = qdsInstallationEntry();
     bool qdsStarted = false;
     qputenv(Constants::enviromentLaunchedQDS, "true");
     //-a and -client arguments help to append project to open design studio application
-    if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = Utils::Process::startDetached(
+    if (HostOsInfo::isMacHost())
+        qdsStarted = Process::startDetached(
             {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toString()}});
     else
-        qdsStarted = Utils::Process::startDetached({qdsPath, {"-client", fileName.toString()}});
+        qdsStarted = Process::startDetached({qdsPath, {"-client", fileName.toString()}});
 
     if (!qdsStarted) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
+        QMessageBox::warning(ICore::dialogParent(),
                              fileName.fileName(),
                              Tr::tr("Failed to start Qt Design Studio."));
         if (alwaysOpenWithMode() == Core::Constants::MODE_DESIGN)
@@ -132,20 +133,20 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     }
 }
 
-Utils::FilePath QmlProjectPlugin::qdsInstallationEntry()
+FilePath qdsInstallationEntry()
 {
-    QtcSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const Key qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
 
-    return Utils::FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
+    return FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }
 
-bool QmlProjectPlugin::qdsInstallationExists()
+bool qdsInstallationExists()
 {
     return qdsInstallationEntry().exists();
 }
 
-bool QmlProjectPlugin::checkIfEditorIsuiQml(Core::IEditor *editor)
+bool checkIfEditorIsuiQml(IEditor *editor)
 {
     if (editor
         && (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
@@ -159,18 +160,18 @@ bool QmlProjectPlugin::checkIfEditorIsuiQml(Core::IEditor *editor)
     return false;
 }
 
-const Utils::FilePath findQmlProject(const Utils::FilePath &folder)
+const FilePath findQmlProject(const FilePath &folder)
 {
-    const Utils::FilePaths files = folder.dirEntries({QStringList("*.qmlproject"), QDir::Files});
+    const FilePaths files = folder.dirEntries({QStringList("*.qmlproject"), QDir::Files});
     if (files.isEmpty())
         return {};
 
     return files.constFirst();
 }
 
-const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
+const FilePath findQmlProjectUpwards(const FilePath &folder)
 {
-    auto ret = findQmlProject(folder);
+    FilePath ret = findQmlProject(folder);
     if (ret.exists())
         return ret;
 
@@ -180,41 +181,37 @@ const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
     return {};
 }
 
-static bool findAndOpenProject(const Utils::FilePath &filePath)
+static bool findAndOpenProject(const FilePath &filePath)
 {
-    ProjectExplorer::Project *project
-            = ProjectExplorer::ProjectManager::projectForFile(filePath);
-
-    if (project) {
+    if (Project *project = ProjectManager::projectForFile(filePath)) {
         if (project->projectFilePath().suffix() == "qmlproject") {
-            QmlProjectPlugin::openQDS(project->projectFilePath());
+            openQDS(project->projectFilePath());
             return true;
-        } else {
-            auto projectFolder = project->rootProjectDirectory();
-            auto qmlProjectFile = findQmlProject(projectFolder);
-            if (qmlProjectFile.exists()) {
-                QmlProjectPlugin::openQDS(qmlProjectFile);
-                return true;
-            }
+        }
+        FilePath projectFolder = project->rootProjectDirectory();
+        FilePath qmlProjectFile = findQmlProject(projectFolder);
+        if (qmlProjectFile.exists()) {
+            openQDS(qmlProjectFile);
+            return true;
         }
     }
 
-    auto qmlProjectFile = findQmlProjectUpwards(filePath);
+    FilePath qmlProjectFile = findQmlProjectUpwards(filePath);
     if (qmlProjectFile.exists()) {
-        QmlProjectPlugin::openQDS(qmlProjectFile);
+        openQDS(qmlProjectFile);
         return true;
     }
     return false;
 }
 
-void QmlProjectPlugin::openInQDSWithProject(const Utils::FilePath &filePath)
+void openInQDSWithProject(const FilePath &filePath)
 {
     if (findAndOpenProject(filePath)) {
         openQDS(filePath);
         //The first one might be ignored when QDS is starting up
         QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
     } else {
-        Core::AsynchronousMessageBox::warning(
+        AsynchronousMessageBox::warning(
             Tr::tr("Qt Design Studio"),
             Tr::tr("No project file (*.qmlproject) found for Qt Design "
                "Studio.\nQt Design Studio requires a .qmlproject "
@@ -228,7 +225,7 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
         return nullptr;
 
     if (QmlProject *qmlProject = qobject_cast<QmlProject*>(fileNode->getProject())) {
-        auto target = qmlProject->activeTarget();
+        Target *target = qmlProject->activeTarget();
         if (!target)
             return nullptr;
 
@@ -255,20 +252,20 @@ void QmlProjectPlugin::initialize()
 
         const QStringList mimeTypes = {Utils::Constants::QMLUI_MIMETYPE};
         auto context = new Internal::DesignModeContext(d->landingPageWidget);
-        Core::ICore::addContextObject(context);
+        ICore::addContextObject(context);
 
-        Core::DesignMode::registerDesignWidget(d->landingPageWidget, mimeTypes, context->context());
+        DesignMode::registerDesignWidget(d->landingPageWidget, mimeTypes, context->context());
 
-        connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
+        connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
     }
 
     ProjectManager::registerProjectType<QmlProject>(Utils::Constants::QMLPROJECT_MIMETYPE);
-    Utils::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
-                                                         "qmlproject");
+    FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
+                                                   "qmlproject");
 
-    if (Core::ICore::isQtDesignStudio()) {
-        Core::ActionContainer *menu = Core::ActionManager::actionContainer(
+    if (ICore::isQtDesignStudio()) {
+        ActionContainer *menu = ActionManager::actionContainer(
             ProjectExplorer::Constants::M_FILECONTEXT);
         QAction *mainfileAction = new QAction(Tr::tr("Set as Main .qml File"), this);
         mainfileAction->setEnabled(false);
@@ -279,17 +276,17 @@ void QmlProjectPlugin::initialize()
                 || currentNode->asFileNode()->fileType() != FileType::QML)
                 return;
 
-            const Utils::FilePath file = currentNode->filePath();
+            const FilePath file = currentNode->filePath();
 
             QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(currentNode->asFileNode());
             if (buildSystem)
                 buildSystem->setMainFileInProjectFile(file);
         });
 
-        menu->addAction(Core::ActionManager::registerAction(
+        menu->addAction(ActionManager::registerAction(
                             mainfileAction,
                             "QmlProject.setMainFile",
-                            Core::Context(ProjectExplorer::Constants::C_PROJECT_TREE)),
+                            Context(ProjectExplorer::Constants::C_PROJECT_TREE)),
                         ProjectExplorer::Constants::G_FILE_OTHER);
         mainfileAction->setVisible(false);
         connect(ProjectTree::instance(),
@@ -322,14 +319,14 @@ void QmlProjectPlugin::initialize()
                 || currentNode->asFileNode()->fileType() != FileType::QML)
                 return;
 
-            const Utils::FilePath file = currentNode->filePath();
+            const FilePath file = currentNode->filePath();
 
             QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(currentNode->asFileNode());
             if (buildSystem)
                 buildSystem->setMainUiFileInProjectFile(file);
         });
 
-        menu->addAction(Core::ActionManager::registerAction(
+        menu->addAction(ActionManager::registerAction(
                             mainUifileAction,
                             "QmlProject.setMainUIFile",
                             Core::Context(ProjectExplorer::Constants::C_PROJECT_TREE)),
@@ -356,7 +353,7 @@ void QmlProjectPlugin::initialize()
     }
 
     GenerateCmake::generateMenuEntry(this);
-    if (Core::ICore::isQtDesignStudio())
+    if (ICore::isQtDesignStudio())
         GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
 }
 
@@ -379,14 +376,14 @@ void QmlProjectPlugin::hideQmlLandingPage()
         d->landingPage->hide();
 }
 
-static bool isDesignerMode(Utils::Id mode)
+static bool isDesignerMode(Id mode)
 {
     return mode == Core::Constants::MODE_DESIGN;
 }
 
-void QmlProjectPlugin::editorModeChanged(Utils::Id newMode, Utils::Id oldMode)
+void QmlProjectPlugin::editorModeChanged(Id newMode, Id oldMode)
 {
-    Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+    IEditor *currentEditor = EditorManager::currentEditor();
     if (checkIfEditorIsuiQml(currentEditor)) {
         if (isDesignerMode(newMode)) {
             if (alwaysOpenWithMode() == Core::Constants::MODE_DESIGN)
@@ -409,7 +406,7 @@ void QmlProjectPlugin::openQtc(bool permanent)
     if (d->landingPage)
         hideQmlLandingPage();
 
-    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
 void QmlProjectPlugin::openQds(bool permanent)
@@ -420,12 +417,11 @@ void QmlProjectPlugin::openQds(bool permanent)
     if (d->landingPage)
         hideQmlLandingPage();
 
-    auto editor = Core::EditorManager::currentEditor();
-    if (editor)
+    if (IEditor *editor = EditorManager::currentEditor())
         openInQDSWithProject(editor->document()->filePath());
 }
 
-void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile)
+void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const FilePath &projectFile)
 {
     if (!d->landingPage)
         return;
@@ -437,15 +433,16 @@ void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &pr
     d->landingPage->setQdsVersion(qdsVersionString);
 }
 
-Utils::FilePath QmlProjectPlugin::projectFilePath()
+FilePath projectFilePath()
 {
-    auto project = ProjectExplorer::ProjectManager::startupProject();
-    const QmlProjectManager::QmlProject *qmlProject = qobject_cast<const QmlProjectManager::QmlProject*>(project);
-    if (qmlProject) {
+    Project *project = ProjectManager::startupProject();
+
+    if (const QmlProject *qmlProject = qobject_cast<const QmlProject*>(project))
         return qmlProject->projectFilePath();
-    } else if (project) {
-        auto projectFolder = project->rootProjectDirectory();
-        auto qmlProjectFile = findQmlProject(projectFolder);
+
+    if (project) {
+        FilePath projectFolder = project->rootProjectDirectory();
+        FilePath qmlProjectFile = findQmlProject(projectFolder);
         if (qmlProjectFile.exists())
             return qmlProjectFile;
     }

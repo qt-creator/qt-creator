@@ -87,7 +87,7 @@ void QdsLandingPage::openQds(bool rememberSelection)
 
     auto editor = Core::EditorManager::currentEditor();
     if (editor)
-        QmlProjectPlugin::openInQDSWithProject(editor->document()->filePath());
+        openInQDSWithProject(editor->document()->filePath());
 }
 
 void QdsLandingPage::installQds()

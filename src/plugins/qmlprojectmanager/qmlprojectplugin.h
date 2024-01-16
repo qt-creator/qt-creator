@@ -7,8 +7,18 @@
 #include <extensionsystem/iplugin.h>
 #include <utils/filepath.h>
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
+
+void openQDS(const Utils::FilePath &fileName);
+Utils::FilePath qdsInstallationEntry();
+bool qdsInstallationExists();
+bool checkIfEditorIsuiQml(Core::IEditor *editor);
+Utils::FilePath projectFilePath();
+Utils::FilePaths rootCmakeFiles();
+QString qtVersion(const Utils::FilePath &projectFilePath);
+QString qdsVersion(const Utils::FilePath &projectFilePath);
+void openInQDSWithProject(const Utils::FilePath &filePath);
+const QString readFileContents(const Utils::FilePath &filePath);
 
 class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 {
@@ -18,17 +28,6 @@ class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 public:
     QmlProjectPlugin() = default;
     ~QmlProjectPlugin() final;
-
-    static void openQDS(const Utils::FilePath &fileName);
-    static Utils::FilePath qdsInstallationEntry();
-    static bool qdsInstallationExists();
-    static bool checkIfEditorIsuiQml(Core::IEditor *editor);
-    static Utils::FilePath projectFilePath();
-    static Utils::FilePaths rootCmakeFiles();
-    static QString qtVersion(const Utils::FilePath &projectFilePath);
-    static QString qdsVersion(const Utils::FilePath &projectFilePath);
-    static void openInQDSWithProject(const Utils::FilePath &filePath);
-    static const QString readFileContents(const Utils::FilePath &filePath);
 
 public slots:
     void editorModeChanged(Utils::Id newMode, Utils::Id oldMode);
@@ -44,5 +43,4 @@ private:
     class QmlProjectPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace QmlProject
+} // QmlProject::Internal
