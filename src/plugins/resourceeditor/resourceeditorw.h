@@ -4,12 +4,6 @@
 #pragma once
 
 #include <coreplugin/idocument.h>
-#include <coreplugin/editormanager/ieditor.h>
-
-QT_BEGIN_NAMESPACE
-class QMenu;
-class QToolBar;
-QT_END_NAMESPACE
 
 namespace ResourceEditor::Internal {
 
@@ -54,50 +48,6 @@ private:
     RelativeResourceModel *m_model;
     bool m_blockDirtyChanged = false;
     bool m_shouldAutoSave = false;
-};
-
-class ResourceEditorW : public Core::IEditor
-{
-    Q_OBJECT
-
-public:
-    ResourceEditorW(const Core::Context &context, QWidget *parent = nullptr);
-    ~ResourceEditorW() override;
-
-    // IEditor
-    Core::IDocument *document() const override { return m_resourceDocument; }
-    QByteArray saveState() const override;
-    void restoreState(const QByteArray &state) override;
-    QWidget *toolBar() override;
-
-private:
-    void onUndoStackChanged(bool canUndo, bool canRedo);
-    void showContextMenu(const QPoint &globalPoint, const QString &fileName);
-    void openCurrentFile();
-    void openFile(const QString &fileName);
-    void renameCurrentFile();
-    void copyCurrentResourcePath();
-    void orderList();
-
-    const QString m_extension;
-    const QString m_fileFilter;
-    QString m_displayName;
-    QrcEditor *m_resourceEditor;
-    ResourceEditorDocument *m_resourceDocument;
-    QMenu *m_contextMenu;
-    QMenu *m_openWithMenu;
-    QString m_currentFileName;
-    QToolBar *m_toolBar;
-    QAction *m_renameAction;
-    QAction *m_copyFileNameAction;
-    QAction *m_orderList;
-
-public:
-    void onRefresh();
-    void onUndo();
-    void onRedo();
-
-    friend class ResourceEditorDocument;
 };
 
 void setupResourceEditor(QObject *guard);
