@@ -5,12 +5,10 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmltaskmanager.h"
-#include "quicktoolbar.h"
 
 #include <qmljs/jsoncheck.h>
 #include <qmljs/qmljsicons.h>
@@ -27,6 +25,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -54,8 +54,7 @@ using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlJSEditorPluginPrivate : public QObject
 {
@@ -89,25 +88,7 @@ public:
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
-static QmlJSEditorPlugin *m_instance = nullptr;
-
-QmlJSEditorPlugin::QmlJSEditorPlugin()
-{
-    m_instance = this;
-}
-
-QmlJSEditorPlugin::~QmlJSEditorPlugin()
-{
-    delete QmlJS::Icons::instance(); // delete object held by singleton
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
-}
-
-void QmlJSEditorPlugin::initialize()
-{
-    d = new QmlJSEditorPluginPrivate;
-}
+static QmlJSEditorPluginPrivate *dd = nullptr;
 
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
@@ -203,24 +184,9 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
             this, &QmlJSEditorPluginPrivate::autoFormatOnSave);
 }
 
-void QmlJSEditorPlugin::extensionsInitialized()
+QmlJS::JsonSchemaManager *jsonManager()
 {
-    FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
-                                                     Utils::Constants::QMLUI_MIMETYPE);
-
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
-                          Tr::tr("QML"),
-                          Tr::tr("Issues that the QML code parser found.")});
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
-                          Tr::tr("QML Analysis"),
-                          Tr::tr("Issues that the QML static analyzer found."),
-                          false});
-    QmllsSettingsManager::instance()->setupAutoupdate();
-}
-
-QmlJS::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
-{
-    return &m_instance->d->m_jsonManager;
+    return &dd->m_jsonManager;
 }
 
 void QmlJSEditorPluginPrivate::renameUsages()
@@ -314,9 +280,9 @@ Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
     return command;
 }
 
-QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider()
+QmlJSQuickFixAssistProvider *quickFixAssistProvider()
 {
-    return &m_instance->d->m_quickFixAssistProvider;
+    return &dd->m_quickFixAssistProvider;
 }
 
 void QmlJSEditorPluginPrivate::currentEditorChanged(IEditor *editor)
@@ -369,5 +335,39 @@ void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
     reformatFile();
 }
 
-} // namespace Internal
-} // namespace QmlJSEditor
+class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSEditor.json")
+
+    ~QmlJSEditorPlugin() final
+    {
+        delete QmlJS::Icons::instance(); // delete object held by singleton
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new QmlJSEditorPluginPrivate;
+    }
+
+    void extensionsInitialized() final
+    {
+        FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
+                                                         Utils::Constants::QMLUI_MIMETYPE);
+
+        TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
+                              Tr::tr("QML"),
+                              Tr::tr("Issues that the QML code parser found.")});
+        TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
+                              Tr::tr("QML Analysis"),
+                              Tr::tr("Issues that the QML static analyzer found."),
+                              false});
+        QmllsSettingsManager::instance()->setupAutoupdate();
+    }
+};
+
+} // QmlJSEditor::Internal
+
+#include "qmljseditorplugin.moc"
