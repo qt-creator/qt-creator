@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qdslandingpage.h"
 #include "qmlprojectplugin.h"
+
+#include "qdslandingpage.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
@@ -19,6 +20,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -98,19 +101,6 @@ public:
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
 };
-
-QmlProjectPlugin::~QmlProjectPlugin()
-{
-    QTC_ASSERT(d, return);
-
-    if (d->lastMessageBox)
-        d->lastMessageBox->deleteLater();
-    if (d->landingPage)
-        d->landingPage->deleteLater();
-    if (d->landingPageWidget)
-        d->landingPageWidget->deleteLater();
-    delete d;
-}
 
 void openQDS(const FilePath &fileName)
 {
@@ -235,6 +225,37 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
 
     return nullptr;
 }
+
+class QmlProjectPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProjectManager.json")
+
+public:
+    ~QmlProjectPlugin()
+    {
+        if (d->lastMessageBox)
+            d->lastMessageBox->deleteLater();
+        if (d->landingPage)
+            d->landingPage->deleteLater();
+        if (d->landingPageWidget)
+            d->landingPageWidget->deleteLater();
+        delete d;
+    }
+
+public slots:
+    void editorModeChanged(Utils::Id newMode, Utils::Id oldMode);
+    void openQtc(bool permanent = false);
+    void openQds(bool permanent = false);
+
+private:
+    void initialize() final;
+    void displayQmlLandingPage();
+    void hideQmlLandingPage();
+    void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);
+
+    class QmlProjectPluginPrivate *d = nullptr;
+};
 
 void QmlProjectPlugin::initialize()
 {
@@ -451,3 +472,5 @@ FilePath projectFilePath()
 }
 
 } // QmlProjectManager::Internal
+
+#include "qmlprojectplugin.moc"
