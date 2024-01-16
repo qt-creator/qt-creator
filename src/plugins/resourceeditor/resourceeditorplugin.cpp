@@ -4,7 +4,6 @@
 #include "resourceeditorplugin.h"
 
 #include "resourceeditorconstants.h"
-#include "resourceeditorfactory.h"
 #include "resourceeditortr.h"
 #include "resourceeditorw.h"
 #include "resourcenode.h"
@@ -90,7 +89,7 @@ private:
 class ResourceEditorPluginPrivate : public QObject
 {
 public:
-    explicit ResourceEditorPluginPrivate(ResourceEditorPlugin *q);
+    ResourceEditorPluginPrivate();
 
     void onUndo();
     void onRedo();
@@ -131,12 +130,9 @@ public:
     // file context menu
     Utils::ParameterAction *m_copyPath = nullptr;
     Utils::ParameterAction *m_copyUrl = nullptr;
-
-    ResourceEditorFactory m_editorFactory;
 };
 
-ResourceEditorPluginPrivate::ResourceEditorPluginPrivate(ResourceEditorPlugin *q)
-    : m_editorFactory(q)
+ResourceEditorPluginPrivate::ResourceEditorPluginPrivate()
 {
     // Register undo and redo
     const Core::Context context(Constants::C_RESOURCEEDITOR);
@@ -427,7 +423,9 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
 
 void ResourceEditorPlugin::initialize()
 {
-    d = new ResourceEditorPluginPrivate(this);
+    d = new ResourceEditorPluginPrivate;
+
+    setupResourceEditor(this);
 }
 
 void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,

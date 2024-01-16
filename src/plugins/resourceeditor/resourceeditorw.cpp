@@ -3,6 +3,7 @@
 
 #include "resourceeditorw.h"
 
+#include "projectexplorer/projectexplorerconstants.h"
 #include "resourceeditorconstants.h"
 #include "resourceeditorplugin.h"
 #include "resourceeditortr.h"
@@ -11,10 +12,13 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
@@ -310,6 +314,29 @@ void ResourceEditorW::onUndo()
 void ResourceEditorW::onRedo()
 {
     m_resourceEditor->onRedo();
+}
+
+class ResourceEditorFactory final : public Core::IEditorFactory
+{
+public:
+    explicit ResourceEditorFactory(ResourceEditorPlugin *plugin)
+    {
+        setId(Constants::RESOURCEEDITOR_ID);
+        setMimeTypes(QStringList(Utils::Constants::RESOURCE_MIMETYPE));
+        setDisplayName(::Core::Tr::tr(Constants::C_RESOURCEEDITOR_DISPLAY_NAME));
+
+        FileIconProvider::registerIconOverlayForSuffix(
+            ProjectExplorer::Constants::FILEOVERLAY_QRC, "qrc");
+
+        setEditorCreator([plugin] {
+            return new ResourceEditorW(Core::Context(Constants::C_RESOURCEEDITOR), plugin);
+        });
+    }
+};
+
+void setupResourceEditor(ResourceEditorPlugin *plugin)
+{
+    static ResourceEditorFactory theResourceEditorFactory(plugin);
 }
 
 } // ResourceEditor::Internal

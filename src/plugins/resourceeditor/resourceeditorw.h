@@ -104,4 +104,7 @@ public:
     friend class ResourceEditorDocument;
 };
 
+class ResourceEditorPlugin;
+void setupResourceEditor(ResourceEditorPlugin *plugin);
+
 } // ResourceEditor::Internal

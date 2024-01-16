@@ -15,7 +15,6 @@ QtcPlugin {
         name: "General"
         files: [
             "resourceeditorconstants.h",
-            "resourceeditorfactory.cpp", "resourceeditorfactory.h",
             "resourceeditorplugin.cpp", "resourceeditorplugin.h",
             "resourceeditortr.h",
             "resourceeditorw.cpp", "resourceeditorw.h",
