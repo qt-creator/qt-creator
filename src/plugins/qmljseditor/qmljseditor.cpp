@@ -51,6 +51,7 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/colorpreviewhoverhandler.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
@@ -306,11 +307,6 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
         m_outlineCombo->setRootModelIndex(QModelIndex());
     }
 }
-
-} // namespace QmlJSEditor
-
-
-namespace QmlJSEditor {
 
 void QmlJSEditorWidget::updateContextPane()
 {
@@ -1181,11 +1177,37 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
                             | TextEditorActionHandler::FindUsage);
 }
 
-void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
+static void decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(createQmlJsIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new AutoCompleter);
 }
+
+namespace Internal {
+
+void inspectElement()
+{
+    if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
+        widget->inspectElementUnderCursor();
+}
+
+void showContextPane()
+{
+    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
+        editor->showContextPane();
+}
+
+void setupQmlJSEditor()
+{
+    static QmlJSEditorFactory theQmlJSEditorFactory;
+
+    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
+                                               Tr::tr("QML", "SnippetProvider"),
+                                               &decorateEditor);
+
+}
+
+} // namespace Internal
 
 } // namespace QmlJSEditor

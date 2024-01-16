@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmljseditorplugin.h"
+
 #include "qmljseditingsettingspage.h"
-#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmljseditortr.h"
@@ -49,7 +50,6 @@
 #include <QMenu>
 #include <QAction>
 
-using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
@@ -69,9 +69,7 @@ public:
     Command *addToolAction(QAction *a, Context &context, Id id,
                            ActionContainer *c1, const QString &keySequence);
 
-    void renameUsages();
     void reformatFile();
-    void showContextPane();
 
     QmlJSQuickFixAssistProvider m_quickFixAssistProvider;
     QmlTaskManager m_qmlTaskManager;
@@ -83,7 +81,6 @@ public:
     QmlJS::JsonSchemaManager m_jsonManager{
         {ICore::userResourcePath("json/").toString(),
          ICore::resourcePath("json/").toString()}};
-    QmlJSEditorFactory m_qmlJSEditorFactory;
     QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
@@ -92,10 +89,6 @@ static QmlJSEditorPluginPrivate *dd = nullptr;
 
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
-    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
-                                               Tr::tr("QML", "SnippetProvider"),
-                                               &QmlJSEditorFactory::decorateEditor);
-
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     QmllsSettingsManager::instance();
 
@@ -150,17 +143,15 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     cmd = ActionManager::registerAction(inspectElementAction,
                                         Id("QmlJSEditor.InspectElementUnderCursor"),
                                         context);
-    connect(inspectElementAction, &QAction::triggered, [] {
-        if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
-            widget->inspectElementUnderCursor();
-    });
+    connect(inspectElementAction, &QAction::triggered, &Internal::inspectElement);
+
     qmlToolsMenu->addAction(cmd);
 
     QAction *showQuickToolbar = new QAction(Tr::tr("Show Qt Quick Toolbar"), this);
     cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(useMacShortcuts ? QKeySequence(Qt::META | Qt::ALT | Qt::Key_Space)
                                                : QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Space));
-    connect(showQuickToolbar, &QAction::triggered, this, &QmlJSEditorPluginPrivate::showContextPane);
+    connect(showQuickToolbar, &QAction::triggered, this, &showContextPane);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -187,12 +178,6 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 QmlJS::JsonSchemaManager *jsonManager()
 {
     return &dd->m_jsonManager;
-}
-
-void QmlJSEditorPluginPrivate::renameUsages()
-{
-    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->renameSymbolUnderCursor();
 }
 
 void QmlJSEditorPluginPrivate::reformatFile()
@@ -261,12 +246,6 @@ void QmlJSEditorPluginPrivate::reformatFile()
             tc.insertText(newText);
         }
     }
-}
-
-void QmlJSEditorPluginPrivate::showContextPane()
-{
-    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->showContextPane();
 }
 
 Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
@@ -350,6 +329,8 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         dd = new QmlJSEditorPluginPrivate;
+
+        setupQmlJSEditor();
     }
 
     void extensionsInitialized() final

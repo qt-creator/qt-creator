@@ -12,4 +12,8 @@ class QmlJSQuickFixAssistProvider;
 QmlJSQuickFixAssistProvider *quickFixAssistProvider();
 QmlJS::JsonSchemaManager *jsonManager();
 
+void setupQmlJSEditor();
+void inspectElement();
+void showContextPane();
+
 } // QmlJSEditor::Internal
