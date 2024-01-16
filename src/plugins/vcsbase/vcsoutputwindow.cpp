@@ -76,7 +76,6 @@ public:
 
     void appendLines(const QString &text, VcsOutputWindow::MessageStyle style,
                      const FilePath &repository);
-    VcsOutputLineParser *parser();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -88,14 +87,14 @@ private:
     VcsOutputLineParser *m_parser = nullptr;
 };
 
-OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
+OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent)
+    : Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
+    , m_parser(new VcsOutputLineParser)
 {
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
     outputFormatter()->setBoldFontEnabled(false);
-    m_parser = new VcsOutputLineParser;
     setLineParsers({m_parser});
 }
 
@@ -145,12 +144,8 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     // Add 'open file'
     FilePath repo;
     const QString token = identifierUnderCursor(event->pos(), &repo);
-    if (!repo.isEmpty()) {
-        if (VcsOutputLineParser * const p = parser()) {
-            if (!href.isEmpty())
-                p->fillLinkContextMenu(menu, repo, href);
-        }
-    }
+    if (!repo.isEmpty() && !href.isEmpty())
+        m_parser->fillLinkContextMenu(menu, repo, href);
     QAction *openAction = nullptr;
     if (!token.isEmpty()) {
         // Check for a file, expand via repository if relative
@@ -197,8 +192,7 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
     }
     if (outputFormatter()->handleFileLink(href))
         return;
-    if (VcsOutputLineParser * const p = parser())
-        p->handleVcsLink(repository, href);
+    m_parser->handleVcsLink(repository, href);
 }
 
 static OutputFormat styleToFormat(VcsOutputWindow::MessageStyle style)
@@ -241,11 +235,6 @@ void OutputWindowPlainTextEdit::appendLines(const QString &text,
         for ( ; block.isValid(); block = block.next())
             block.setUserData(new RepositoryUserData(repository));
     }
-}
-
-VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
-{
-    return m_parser;
 }
 
 } // namespace Internal
