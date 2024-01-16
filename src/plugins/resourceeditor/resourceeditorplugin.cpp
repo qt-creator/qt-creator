@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "resourceeditorplugin.h"
-
 #include "resourceeditorconstants.h"
 #include "resourceeditortr.h"
 #include "resourceeditorw.h"
@@ -15,13 +13,14 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/parameteraction.h>
@@ -44,7 +43,7 @@ namespace ResourceEditor::Internal {
 const char resourcePrefix[] = ":";
 const char urlPrefix[] = "qrc:";
 
-class PrefixLangDialog : public QDialog
+class PrefixLangDialog final : public QDialog
 {
 public:
     PrefixLangDialog(const QString &title, const QString &prefix, const QString &lang, QWidget *parent)
@@ -67,10 +66,8 @@ public:
 
         layout->addWidget(buttons);
 
-        connect(buttons, &QDialogButtonBox::accepted,
-                this, &QDialog::accept);
-        connect(buttons, &QDialogButtonBox::rejected,
-                this, &QDialog::reject);
+        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     }
     QString prefix() const
     {
@@ -198,41 +195,6 @@ ResourceEditorPluginPrivate::ResourceEditorPluginPrivate()
 
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &ResourceEditorPluginPrivate::updateContextActions);
-}
-
-void ResourceEditorPlugin::extensionsInitialized()
-{
-    ProjectTree::registerTreeManager([](FolderNode *folder, ProjectTree::ConstructionPhase phase) {
-        switch (phase) {
-        case ProjectTree::AsyncPhase: {
-            QList<FileNode *> toReplace;
-            folder->forEachNode([&toReplace](FileNode *fn) {
-                if (fn->fileType() == FileType::Resource)
-                    toReplace.append(fn);
-            }, {}, [](const FolderNode *fn) {
-                return dynamic_cast<const ResourceTopLevelNode *>(fn) == nullptr;
-            });
-            for (FileNode *file : std::as_const(toReplace)) {
-                FolderNode *const pn = file->parentFolderNode();
-                QTC_ASSERT(pn, continue);
-                const Utils::FilePath path = file->filePath();
-                auto topLevel = std::make_unique<ResourceTopLevelNode>(path, pn->filePath());
-                topLevel->setEnabled(file->isEnabled());
-                topLevel->setIsGenerated(file->isGenerated());
-                pn->replaceSubtree(file, std::move(topLevel));
-            }
-            break;
-        }
-        case ProjectTree::FinalPhase: {
-            folder->forEachNode({}, [](FolderNode *fn) {
-                auto *topLevel = dynamic_cast<ResourceTopLevelNode *>(fn);
-                if (topLevel)
-                    topLevel->setupWatcherIfNeeded();
-            });
-            break;
-        }
-        }
-    });
 }
 
 void ResourceEditorPluginPrivate::addPrefixContextMenu()
@@ -378,16 +340,62 @@ void ResourceEditorPluginPrivate::updateContextActions(Node *node)
 
 // ResourceEditorPlugin
 
-ResourceEditorPlugin::~ResourceEditorPlugin()
-{
-    delete d;
-}
 
-void ResourceEditorPlugin::initialize()
+class ResourceEditorPlugin final : public ExtensionSystem::IPlugin
 {
-    d = new ResourceEditorPluginPrivate;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ResourceEditor.json")
 
-    setupResourceEditor(this);
-}
+    ~ResourceEditorPlugin() final
+    {
+        delete d;
+    }
+
+    void initialize() final
+    {
+        d = new ResourceEditorPluginPrivate;
+
+        setupResourceEditor(this);
+    }
+
+    void extensionsInitialized() override
+    {
+        ProjectTree::registerTreeManager([](FolderNode *folder, ProjectTree::ConstructionPhase phase) {
+            switch (phase) {
+            case ProjectTree::AsyncPhase: {
+                QList<FileNode *> toReplace;
+                folder->forEachNode([&toReplace](FileNode *fn) {
+                    if (fn->fileType() == FileType::Resource)
+                        toReplace.append(fn);
+                }, {}, [](const FolderNode *fn) {
+                                        return dynamic_cast<const ResourceTopLevelNode *>(fn) == nullptr;
+                                    });
+                for (FileNode *file : std::as_const(toReplace)) {
+                    FolderNode *const pn = file->parentFolderNode();
+                    QTC_ASSERT(pn, continue);
+                    const Utils::FilePath path = file->filePath();
+                    auto topLevel = std::make_unique<ResourceTopLevelNode>(path, pn->filePath());
+                    topLevel->setEnabled(file->isEnabled());
+                    topLevel->setIsGenerated(file->isGenerated());
+                    pn->replaceSubtree(file, std::move(topLevel));
+                }
+                break;
+            }
+            case ProjectTree::FinalPhase: {
+                folder->forEachNode({}, [](FolderNode *fn) {
+                    auto *topLevel = dynamic_cast<ResourceTopLevelNode *>(fn);
+                    if (topLevel)
+                        topLevel->setupWatcherIfNeeded();
+                });
+                break;
+            }
+            }
+        });
+    }
+
+    ResourceEditorPluginPrivate *d = nullptr;
+};
 
 } // ResourceEditor::Internal
+
+#include "resourceeditorplugin.moc"

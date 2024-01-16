@@ -15,10 +15,13 @@ QtcPlugin {
         name: "General"
         files: [
             "resourceeditorconstants.h",
-            "resourceeditorplugin.cpp", "resourceeditorplugin.h",
+            "resourceeditorplugin.cpp",
             "resourceeditortr.h",
-            "resourceeditorw.cpp", "resourceeditorw.h",
-            "resource_global.h", "resourcenode.cpp", "resourcenode.h"
+            "resourceeditorw.cpp",
+            "resourceeditorw.h",
+            "resource_global.h",
+            "resourcenode.cpp",
+            "resourcenode.h"
         ]
     }
 

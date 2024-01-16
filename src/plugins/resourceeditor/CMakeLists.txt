@@ -8,7 +8,7 @@ add_qtc_plugin(ResourceEditor
     qrceditor/undocommands.cpp qrceditor/undocommands_p.h
     resource_global.h
     resourceeditorconstants.h
-    resourceeditorplugin.cpp resourceeditorplugin.h
+    resourceeditorplugin.cpp
     resourceeditortr.h
     resourceeditorw.cpp resourceeditorw.h
     resourcenode.cpp resourcenode.h
