@@ -74,9 +74,8 @@ class OutputWindowPlainTextEdit : public Core::OutputWindow
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
 
-    void appendLines(const QString &s, const FilePath &repository = {});
-    void appendLinesWithStyle(const QString &s, VcsOutputWindow::MessageStyle style,
-                              const FilePath &repository = {});
+    void appendLines(const QString &text, VcsOutputWindow::MessageStyle style,
+                     const FilePath &repository);
     VcsOutputLineParser *parser();
 
 protected:
@@ -84,10 +83,8 @@ protected:
     void handleLink(const QPoint &pos) override;
 
 private:
-    void setFormat(VcsOutputWindow::MessageStyle style);
     QString identifierUnderCursor(const QPoint &pos, FilePath *repository = nullptr) const;
 
-    OutputFormat m_format;
     VcsOutputLineParser *m_parser = nullptr;
 };
 
@@ -204,14 +201,36 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
         p->handleVcsLink(repository, href);
 }
 
-void OutputWindowPlainTextEdit::appendLines(const QString &s, const FilePath &repository)
+static OutputFormat styleToFormat(VcsOutputWindow::MessageStyle style)
 {
-    if (s.isEmpty())
+    switch (style) {
+    case VcsOutputWindow::Warning:
+        return LogMessageFormat;
+    case VcsOutputWindow::Error:
+        return StdErrFormat;
+    case VcsOutputWindow::Message:
+        return StdOutFormat;
+    case VcsOutputWindow::Command:
+        return NormalMessageFormat;
+    case VcsOutputWindow::None:
+        return OutputFormat::StdOutFormat;
+    }
+    return OutputFormat::StdOutFormat;
+}
+
+void OutputWindowPlainTextEdit::appendLines(const QString &text,
+                                            VcsOutputWindow::MessageStyle style,
+                                            const FilePath &repository)
+{
+    if (text.isEmpty())
         return;
 
+    const QString textToAdd = style == VcsOutputWindow::Command
+                            ? QTime::currentTime().toString("\nHH:mm:ss ") + text : text;
     const int previousLineCount = document()->lineCount();
 
-    outputFormatter()->appendMessage(s, m_format);
+    outputFormatter()->setBoldFontEnabled(style == VcsOutputWindow::Command);
+    outputFormatter()->appendMessage(textToAdd, styleToFormat(style));
 
     // Scroll down
     moveCursor(QTextCursor::End);
@@ -224,47 +243,9 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const FilePath &re
     }
 }
 
-void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
-                                                     VcsOutputWindow::MessageStyle style,
-                                                     const FilePath &repository)
-{
-    setFormat(style);
-
-    if (style == VcsOutputWindow::Command) {
-        const QString timeStamp = QTime::currentTime().toString("\nHH:mm:ss ");
-        appendLines(timeStamp + s, repository);
-    } else {
-        appendLines(s, repository);
-    }
-}
-
 VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
 {
     return m_parser;
-}
-
-void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
-{
-    outputFormatter()->setBoldFontEnabled(style == VcsOutputWindow::Command);
-
-    switch (style) {
-    case VcsOutputWindow::Warning:
-        m_format = LogMessageFormat;
-        break;
-    case VcsOutputWindow::Error:
-        m_format = StdErrFormat;
-        break;
-    case VcsOutputWindow::Message:
-        m_format = StdOutFormat;
-        break;
-    case VcsOutputWindow::Command:
-        m_format = NormalMessageFormat;
-        break;
-    default:
-    case VcsOutputWindow::None:
-        m_format = OutputFormat::StdOutFormat;
-        break;
-    }
 }
 
 } // namespace Internal
@@ -391,7 +372,7 @@ void VcsOutputWindow::appendSilently(const QString &text)
 
 void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
 {
-    d->widget.appendLinesWithStyle(text, style, d->repository);
+    d->widget.appendLines(text, style, d->repository);
 
     if (!silently && !d->widget.isVisible())
         m_instance->popup(Core::IOutputPane::NoModeSwitch);
