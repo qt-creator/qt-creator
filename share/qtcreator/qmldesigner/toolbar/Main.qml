@@ -3,10 +3,9 @@
 
 import QtQuick
 import QtQuick.Controls
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
-
-import ToolBar 1.0
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
+import ToolBar
 
 Rectangle {
     id: root

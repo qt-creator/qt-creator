@@ -5,7 +5,6 @@ import QtQuick
 import QtQuick.Layouts
 import HelperWidgets
 import QtQuick.Controls
-
 import StudioTheme as StudioTheme
 import ContentLibraryBackend
 

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import HelperWidgets 2.0
-import StudioTheme 1.0 as StudioTheme
+import HelperWidgets
+import StudioTheme as StudioTheme
 
 PropertyEditorPane {
     id: root

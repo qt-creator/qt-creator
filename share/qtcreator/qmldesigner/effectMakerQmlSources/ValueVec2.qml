@@ -4,7 +4,7 @@
 import QtQuick
 import QtQuick.Layouts
 import StudioControls as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 import EffectMakerBackend
 
 RowLayout {

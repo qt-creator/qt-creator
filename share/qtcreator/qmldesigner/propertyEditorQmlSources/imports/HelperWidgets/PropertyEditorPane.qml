@@ -4,8 +4,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import HelperWidgets 2.0 as HelperWidgets
-import StudioTheme 1.0 as StudioTheme
+import HelperWidgets as HelperWidgets
+import StudioTheme as StudioTheme
 
 Rectangle {
     id: itemPane

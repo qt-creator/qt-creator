@@ -4,9 +4,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 import ContentLibraryBackend
 
 Item {

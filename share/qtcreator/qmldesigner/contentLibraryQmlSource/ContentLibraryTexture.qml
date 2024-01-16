@@ -6,7 +6,6 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import HelperWidgets
 import StudioTheme as StudioTheme
-
 import ContentLibraryBackend
 import WebFetcher
 
