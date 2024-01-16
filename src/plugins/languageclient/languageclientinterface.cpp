@@ -206,8 +206,8 @@ void LocalSocketClientInterface::startImpl()
             [this] { emit error(d->socket->errorString()); });
     connect(d->socket.get(), &QLocalSocket::readyRead, this,
             [this] { parseData(d->socket->readAll()); });
-    connect(d->socket.get(), &QLocalSocket::connected, this, &StdIOClientInterface::started);
-    connect(d->socket.get(), &QLocalSocket::disconnected, this, &StdIOClientInterface::finished);
+    connect(d->socket.get(), &QLocalSocket::connected, this, &LocalSocketClientInterface::started);
+    connect(d->socket.get(), &QLocalSocket::disconnected, this, &LocalSocketClientInterface::finished);
     d->socket->connectToServer();
 }
 
