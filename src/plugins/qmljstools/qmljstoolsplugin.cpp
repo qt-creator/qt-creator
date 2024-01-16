@@ -7,9 +7,9 @@
 #include "qmljslocatordata.h"
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
-#include "qmljstoolsplugin.h"
 #include "qmljstoolssettings.h"
 #include "qmljstoolstr.h"
+#include "qmljstools_test.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -18,12 +18,13 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <QMenu>
 
 using namespace Core;
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
 enum { debug = 0 };
 
@@ -42,16 +43,6 @@ public:
     QmlJSCodeStyleSettingsPage codeStyleSettingsPage;
     BasicBundleProvider basicBundleProvider;
 };
-
-QmlJSToolsPlugin::~QmlJSToolsPlugin()
-{
-    delete d;
-}
-
-void QmlJSToolsPlugin::initialize()
-{
-    d = new QmlJSToolsPluginPrivate;
-}
 
 QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()
 {
@@ -91,10 +82,34 @@ QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()
             });
 }
 
-void QmlJSToolsPlugin::extensionsInitialized()
+class QmlJSToolsPlugin final : public ExtensionSystem::IPlugin
 {
-    d->modelManager.delayedInitialization();
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSTools.json")
 
-} // Internal
-} // QmlJSTools
+public:
+    ~QmlJSToolsPlugin() final
+    {
+        delete d;
+    }
+
+private:
+    void initialize() final
+    {
+#ifdef WITH_TESTS
+        addTestCreator(createQmlJSToolsTest);
+#endif
+        d = new QmlJSToolsPluginPrivate;
+    }
+
+    void extensionsInitialized() final
+    {
+        d->modelManager.delayedInitialization();
+    }
+
+    QmlJSToolsPluginPrivate *d = nullptr;
+};
+
+} // QmlJSTools::Internal
+
+#include "qmljstoolsplugin.moc"
