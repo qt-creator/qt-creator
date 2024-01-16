@@ -14,7 +14,6 @@ QT_END_NAMESPACE
 namespace ResourceEditor::Internal {
 
 class RelativeResourceModel;
-class ResourceEditorPlugin;
 class ResourceEditorW;
 class QrcEditor;
 
@@ -62,9 +61,7 @@ class ResourceEditorW : public Core::IEditor
     Q_OBJECT
 
 public:
-    ResourceEditorW(const Core::Context &context,
-                   ResourceEditorPlugin *plugin,
-                   QWidget *parent = nullptr);
+    ResourceEditorW(const Core::Context &context, QWidget *parent = nullptr);
     ~ResourceEditorW() override;
 
     // IEditor
@@ -87,7 +84,6 @@ private:
     QString m_displayName;
     QrcEditor *m_resourceEditor;
     ResourceEditorDocument *m_resourceDocument;
-    ResourceEditorPlugin *m_plugin;
     QMenu *m_contextMenu;
     QMenu *m_openWithMenu;
     QString m_currentFileName;
@@ -104,7 +100,6 @@ public:
     friend class ResourceEditorDocument;
 };
 
-class ResourceEditorPlugin;
-void setupResourceEditor(ResourceEditorPlugin *plugin);
+void setupResourceEditor(QObject *guard);
 
 } // ResourceEditor::Internal

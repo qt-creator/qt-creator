@@ -111,10 +111,6 @@ public:
 
     ResourceEditorW * currentEditor() const;
 
-    QAction *m_redoAction = nullptr;
-    QAction *m_undoAction = nullptr;
-    QAction *m_refreshAction = nullptr;
-
     // project tree's folder context menu
     QAction *m_addPrefix = nullptr;
     QAction *m_removePrefix = nullptr;
@@ -134,18 +130,6 @@ public:
 
 ResourceEditorPluginPrivate::ResourceEditorPluginPrivate()
 {
-    // Register undo and redo
-    const Core::Context context(Constants::C_RESOURCEEDITOR);
-    m_undoAction = new QAction(Tr::tr("&Undo"), this);
-    m_redoAction = new QAction(Tr::tr("&Redo"), this);
-    m_refreshAction = new QAction(Tr::tr("Recheck Existence of Referenced Files"), this);
-    Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
-    Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
-    Core::ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
-    connect(m_undoAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onUndo);
-    connect(m_redoAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onRedo);
-    connect(m_refreshAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onRefresh);
-
     Core::Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
     Core::ActionContainer *folderContextMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FOLDERCONTEXT);
@@ -249,21 +233,6 @@ void ResourceEditorPlugin::extensionsInitialized()
         }
         }
     });
-}
-
-void ResourceEditorPluginPrivate::onUndo()
-{
-    currentEditor()->onUndo();
-}
-
-void ResourceEditorPluginPrivate::onRedo()
-{
-    currentEditor()->onRedo();
-}
-
-void ResourceEditorPluginPrivate::onRefresh()
-{
-    currentEditor()->onRefresh();
 }
 
 void ResourceEditorPluginPrivate::addPrefixContextMenu()
@@ -407,13 +376,6 @@ void ResourceEditorPluginPrivate::updateContextActions(Node *node)
     }
 }
 
-ResourceEditorW * ResourceEditorPluginPrivate::currentEditor() const
-{
-    auto const focusEditor = qobject_cast<ResourceEditorW *>(Core::EditorManager::currentEditor());
-    QTC_ASSERT(focusEditor, return nullptr);
-    return focusEditor;
-}
-
 // ResourceEditorPlugin
 
 ResourceEditorPlugin::~ResourceEditorPlugin()
@@ -426,15 +388,6 @@ void ResourceEditorPlugin::initialize()
     d = new ResourceEditorPluginPrivate;
 
     setupResourceEditor(this);
-}
-
-void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
-        bool canUndo, bool canRedo)
-{
-    if (editor == d->currentEditor()) {
-        d->m_undoAction->setEnabled(canUndo);
-        d->m_redoAction->setEnabled(canRedo);
-    }
 }
 
 } // ResourceEditor::Internal

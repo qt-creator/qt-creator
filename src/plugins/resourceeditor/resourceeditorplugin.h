@@ -16,9 +16,6 @@ class ResourceEditorPlugin final : public ExtensionSystem::IPlugin
 
     ~ResourceEditorPlugin() final;
 
-public:
-    void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);
-
 private:
     void initialize() final;
     void extensionsInitialized() override;
