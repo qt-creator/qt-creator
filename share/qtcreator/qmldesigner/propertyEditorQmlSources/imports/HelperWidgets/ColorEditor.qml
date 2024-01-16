@@ -7,7 +7,6 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
-import QtQuickDesignerTheme
 import QtQuickDesignerColorPalette
 
 SecondColumnLayout {

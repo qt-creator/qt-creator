@@ -4,7 +4,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0 as HelperWidgets
 import StudioTheme 1.0 as StudioTheme
 
@@ -13,7 +12,7 @@ Rectangle {
 
     width: 320
     height: 400
-    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+    color: StudioTheme.Values.themePanelBackground
 
     Component.onCompleted: Controller.mainScrollView = mainScrollView
 

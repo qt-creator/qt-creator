@@ -3,7 +3,6 @@
 
 import QtQuick
 import QtQuick.Layouts
-import QtQuickDesignerTheme
 import StudioControls as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import EffectMakerBackend

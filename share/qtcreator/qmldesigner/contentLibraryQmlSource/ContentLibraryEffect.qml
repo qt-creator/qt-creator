@@ -3,7 +3,6 @@
 
 import QtQuick
 import QtQuick.Layouts
-import QtQuickDesignerTheme
 import HelperWidgets
 import QtQuick.Controls
 

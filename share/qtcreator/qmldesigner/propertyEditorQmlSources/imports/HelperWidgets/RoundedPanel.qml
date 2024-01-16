@@ -3,7 +3,6 @@
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {

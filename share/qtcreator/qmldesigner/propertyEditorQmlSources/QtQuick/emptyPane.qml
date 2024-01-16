@@ -5,14 +5,13 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
-import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+    color: StudioTheme.Values.themePanelBackground
 
     ColumnLayout {
         id: mainColumn

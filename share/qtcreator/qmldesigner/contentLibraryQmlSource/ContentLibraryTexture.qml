@@ -4,7 +4,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuickDesignerTheme
 import HelperWidgets
 import StudioTheme as StudioTheme
 
