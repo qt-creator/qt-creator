@@ -245,11 +245,8 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     return controller;
 }
 
-void SubversionClient::showDiffEditor(const FilePath &workingDirectory, const QStringList &files,
-                                      const QStringList &extraOptions)
+void SubversionClient::showDiffEditor(const FilePath &workingDirectory, const QStringList &files)
 {
-    Q_UNUSED(extraOptions)
-
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
             + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
