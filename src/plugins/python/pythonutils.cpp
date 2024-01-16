@@ -192,7 +192,7 @@ void createVenv(const FilePath &python,
 
 bool isVenvPython(const FilePath &python)
 {
-    return python.parentDir().parentDir().contains("pyvenv.cfg");
+    return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
 }
 
 bool venvIsUsable(const FilePath &python)
