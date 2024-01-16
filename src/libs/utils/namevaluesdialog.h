@@ -30,11 +30,9 @@ public:
                                                              const NameValueItems &initial = {},
                                                              const QString &placeholderText = {},
                                                              Polisher polish = {},
-                                                             const QString &windowTitle = {},
-                                                             const QString &helpText = {});
+                                                             const QString &windowTitle = {});
 protected:
     explicit NameValuesDialog(const QString &windowTitle,
-                              const QString &helpText,
                               QWidget *parent = {});
 
 private:

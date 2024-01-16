@@ -51,10 +51,20 @@ private:
 NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     : QWidget(parent)
 {
+    const QString helpText = Tr::tr(
+        "Enter one environment variable per line.\n"
+        "To set or change a variable, use VARIABLE=VALUE.\n"
+        "To append to a variable, use VARIABLE+=VALUE.\n"
+        "To prepend to a variable, use VARIABLE=+VALUE.\n"
+        "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
+        "To clear a variable, put its name on a line with nothing else on it.\n"
+        "To disable a variable, prefix the line with \"#\".");
+
     m_editor = new QPlainTextEdit(this);
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_editor);
+    layout->addWidget(new QLabel(helpText, this));
 }
 
 void NameValueItemsWidget::setEnvironmentItems(const EnvironmentItems &items)
@@ -79,7 +89,7 @@ void NameValueItemsWidget::setPlaceholderText(const QString &text)
 
 } // namespace Internal
 
-NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &helpText, QWidget *parent)
+NameValuesDialog::NameValuesDialog(const QString &windowTitle, QWidget *parent)
     : QDialog(parent)
 {
     resize(640, 480);
@@ -92,13 +102,8 @@ NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &he
     connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    auto helpLabel = new QLabel(this);
-    helpLabel->setText(helpText);
-
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_editor);
-    layout->addWidget(helpLabel);
-
     layout->addWidget(box);
 
     setWindowTitle(windowTitle);
@@ -123,10 +128,9 @@ std::optional<NameValueItems> NameValuesDialog::getNameValueItems(QWidget *paren
                                                                     const NameValueItems &initial,
                                                                     const QString &placeholderText,
                                                                     Polisher polisher,
-                                                                    const QString &windowTitle,
-                                                                    const QString &helpText)
+                                                                    const QString &windowTitle)
 {
-    NameValuesDialog dialog(windowTitle, helpText, parent);
+    NameValuesDialog dialog(windowTitle, parent);
     if (polisher)
         polisher(&dialog);
     dialog.setNameValueItems(initial);
