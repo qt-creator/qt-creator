@@ -58,7 +58,8 @@ public:
     void setupProcess(Process *process, const Job &job);
     void installStdCallbacks(Process *process);
     EventLoopMode eventLoopMode() const;
-    void handleDone(Process *process);
+    ProcessResult handleDone(Process *process,
+                             const ExitCodeInterpreter &exitCodeInterpreter = {}) const;
     void startAll();
     void startNextJob();
     void processDone();
@@ -101,7 +102,6 @@ void VcsCommandPrivate::cleanup()
 
 void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 {
-    process->setExitCodeInterpreter(job.exitCodeInterpreter);
     process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
@@ -158,20 +158,33 @@ EventLoopMode VcsCommandPrivate::eventLoopMode() const
     return EventLoopMode::Off;
 }
 
-void VcsCommandPrivate::handleDone(Process *process)
+ProcessResult VcsCommandPrivate::handleDone(Process *process,
+                                            const ExitCodeInterpreter &exitCodeInterpreter) const
 {
-    // Success/Fail message in appropriate window?
-    if (process->result() == ProcessResult::FinishedWithSuccess) {
-        if (m_flags & RunFlags::ShowSuccessMessage)
-            VcsOutputWindow::appendMessage(process->exitMessage());
-    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
-        VcsOutputWindow::appendError(process->exitMessage());
+    ProcessResult result;
+    QString exitMessage;
+    if (exitCodeInterpreter && process->error() != QProcess::FailedToStart
+        && process->exitStatus() == QProcess::NormalExit) {
+        result = exitCodeInterpreter(process->exitCode());
+        exitMessage = Process::exitMessage(process->commandLine(), m_result,
+                                           process->exitCode(), process->timeoutS());
+    } else {
+        result = process->result();
+        exitMessage = process->exitMessage();
     }
-    if (!(m_flags & RunFlags::ExpectRepoChanges))
-        return;
-    // TODO tell the document manager that the directory now received all expected changes
-    // DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    VcsManager::emitRepositoryChanged(process->workingDirectory());
+    // Success/Fail message in appropriate window?
+    if (result == ProcessResult::FinishedWithSuccess) {
+        if (m_flags & RunFlags::ShowSuccessMessage)
+            VcsOutputWindow::appendMessage(exitMessage);
+    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
+        VcsOutputWindow::appendError(exitMessage);
+    }
+    if (m_flags & RunFlags::ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+        VcsManager::emitRepositoryChanged(process->workingDirectory());
+    }
+    return result;
 }
 
 void VcsCommandPrivate::startAll()
@@ -195,13 +208,11 @@ void VcsCommandPrivate::startNextJob()
 
 void VcsCommandPrivate::processDone()
 {
-    handleDone(m_process.get());
+    m_result = handleDone(m_process.get(), m_jobs.at(m_currentJob).exitCodeInterpreter);
     m_stdOut += m_process->cleanedStdOut();
     m_stdErr += m_process->cleanedStdErr();
-    m_result = m_process->result();
     ++m_currentJob;
-    const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
-    if (m_currentJob < m_jobs.count() && success) {
+    if (m_currentJob < m_jobs.count() && m_result == ProcessResult::FinishedWithSuccess) {
         m_process.release()->deleteLater();
         startNextJob();
         return;
