@@ -353,8 +353,7 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     enqueueJob(cmd, args);
 }
 
-void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
-                         const QStringList &extraOptions)
+void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     const Id kind = vcsEditorKind(DiffCommand);
@@ -371,12 +370,11 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
         if (m_diffConfigCreator)
             paramWidget = m_diffConfigCreator(editor->toolBar());
         if (paramWidget) {
-            paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editor, &VcsBaseEditorWidget::diffChunkReverted,
                     paramWidget, &VcsBaseEditorConfig::executeCommand);
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                    this, [=] { diff(workingDir, files, extraOptions); });
+                    this, [this, workingDir, files] { diff(workingDir, files); });
             editor->setEditorConfig(paramWidget);
         }
     }
@@ -384,8 +382,6 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
     QStringList args = {vcsCmdString};
     if (paramWidget)
         args << paramWidget->arguments();
-    else
-        args << extraOptions;
     args << files;
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
                                          : VcsBaseEditor::getCodec(source);
