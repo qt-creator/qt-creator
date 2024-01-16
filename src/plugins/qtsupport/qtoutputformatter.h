@@ -12,8 +12,7 @@
 #define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[((?<file>.+)(?|\\((?<line>\\d+)\\)|:(?<line>\\d+)))\\]$"
 #define QT_TEST_FAIL_WIN_REGEXP "^((?<file>.+)\\((?<line>\\d+)\\)) : failure location\\s*$"
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class QtOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
 {
@@ -21,5 +20,8 @@ public:
     QtOutputFormatterFactory();
 };
 
-} // namespace Internal
-} // namespace QtSupport
+#ifdef WITH_TESTS
+QObject *createQtOutputFormatterTest();
+#endif
+
+} // QtSupport::Internal

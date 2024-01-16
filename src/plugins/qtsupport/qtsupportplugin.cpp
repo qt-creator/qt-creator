@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qtsupportplugin.h"
-
 #include "codegenerator.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
@@ -11,7 +9,10 @@
 #include "qtkitaspect.h"
 #include "qtoptionspage.h"
 #include "qtoutputformatter.h"
+#include "qtparser.h"
+#include "qtprojectimporter.h"
 #include "qtsupporttr.h"
+#include "qttestparser.h"
 #include "qtversionmanager.h"
 #include "qtversions.h"
 #include "translationwizardpage.h"
@@ -19,6 +20,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/buildpropertiessettings.h>
@@ -40,8 +43,7 @@ using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class QtSupportPluginPrivate
 {
@@ -65,11 +67,6 @@ public:
     TranslationWizardPageFactory translationWizardPageFactory;
 };
 
-QtSupportPlugin::~QtSupportPlugin()
-{
-    delete d;
-}
-
 static void processRunnerCallback(ProcessData *data)
 {
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
@@ -88,8 +85,35 @@ static void processRunnerCallback(ProcessData *data)
     data->stdOut = proc.readAllRawStandardOutput();
 }
 
+class QtSupportPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QtSupport.json")
+
+public:
+    ~QtSupportPlugin() final
+    {
+        delete d;
+    }
+
+private:
+    void initialize() final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
+
+    QtSupportPluginPrivate *d = nullptr;
+};
+
 void QtSupportPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQtOutputFormatterTest);
+    addTestCreator(createQtBuildStringParserTest);
+    addTestCreator(createQtOutputParserTest);
+    addTestCreator(createQtTestParserTest);
+    addTestCreator(createQtProjectImporterTest);
+#endif
+
     theProcessRunner() = processRunnerCallback;
 
     thePrompter() = [this](const QString &msg, const QStringList &context) -> std::optional<QString> {
@@ -288,5 +312,6 @@ void QtSupportPlugin::extensionsInitialized()
     askAboutQtInstallation();
 }
 
-} // Internal
-} // QtSupport
+} // QtSupport::Internal
+
+#include "qtsupportplugin.moc"

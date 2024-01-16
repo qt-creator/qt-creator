@@ -75,7 +75,7 @@ private:
     LinkSpec matchLine(const QString &line) const;
 
     QtOutputFormatterPrivate *d;
-    friend class QtSupportPlugin; // for testing
+    friend class QtOutputFormatterTest; // for testing
 };
 
 QtOutputLineParser::QtOutputLineParser(Target *target)
@@ -229,19 +229,14 @@ QtOutputFormatterFactory::QtOutputFormatterFactory()
 
 } // QtSupport::Internal
 
-// Unit tests:
 
 #ifdef WITH_TESTS
 
-#   include <QTest>
-
-#   include "qtsupportplugin.h"
+#include <QTest>
 
 Q_DECLARE_METATYPE(QTextCharFormat)
 
-namespace QtSupport {
-
-using namespace QtSupport::Internal;
+namespace QtSupport::Internal {
 
 class TestQtOutputLineParser : public QtOutputLineParser
 {
@@ -270,7 +265,19 @@ public:
     TestQtOutputFormatter() { setLineParsers({new TestQtOutputLineParser}); }
 };
 
-void QtSupportPlugin::testQtOutputFormatter_data()
+class QtOutputFormatterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testQtOutputFormatter_data();
+    void testQtOutputFormatter();
+    void testQtOutputFormatter_appendMessage_data();
+    void testQtOutputFormatter_appendMessage();
+    void testQtOutputFormatter_appendMixedAssertAndAnsi();
+};
+
+void QtOutputFormatterTest::testQtOutputFormatter_data()
 {
     QTest::addColumn<QString>("input");
 
@@ -380,7 +387,7 @@ void QtSupportPlugin::testQtOutputFormatter_data()
     }
 }
 
-void QtSupportPlugin::testQtOutputFormatter()
+void QtOutputFormatterTest::testQtOutputFormatter()
 {
     QFETCH(QString, input);
 
@@ -430,7 +437,7 @@ static QTextCharFormat greenFormat()
     return result;
 }
 
-void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
+void QtOutputFormatterTest::testQtOutputFormatter_appendMessage_data()
 {
     QTest::addColumn<QString>("inputText");
     QTest::addColumn<QString>("outputText");
@@ -459,7 +466,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
             << tweakedBlueFormat();
 }
 
-void QtSupportPlugin::testQtOutputFormatter_appendMessage()
+void QtOutputFormatterTest::testQtOutputFormatter_appendMessage()
 {
     QPlainTextEdit edit;
     TestQtOutputFormatter formatter;
@@ -481,7 +488,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage()
     QCOMPARE(edit.currentCharFormat(), outputFormat);
 }
 
-void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
+void QtOutputFormatterTest::testQtOutputFormatter_appendMixedAssertAndAnsi()
 {
     QPlainTextEdit edit;
 
@@ -514,6 +521,13 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
     QCOMPARE(edit.currentCharFormat(), tweakedBlueFormat());
 }
 
-} // namespace QtSupport
+QObject *createQtOutputFormatterTest()
+{
+    return new QtOutputFormatterTest;
+}
+
+} // QtSupport::Internal
+
+#include "qtoutputformatter.moc"
 
 #endif // WITH_TESTS

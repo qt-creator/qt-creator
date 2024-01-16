@@ -34,4 +34,8 @@ private:
     void persistTemporaryQt(ProjectExplorer::Kit *k, const QVariantList &vl);
 };
 
-} // namespace QmakeProjectManager
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQtProjectImporterTest(); }
+#endif
+
+} // QtSupport

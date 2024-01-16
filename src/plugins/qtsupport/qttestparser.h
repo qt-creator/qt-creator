@@ -6,8 +6,7 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class QtTestParser : public ProjectExplorer::OutputTaskParser
 {
@@ -21,5 +20,8 @@ private:
     ProjectExplorer::Task m_currentTask;
 };
 
-} // namespace Internal
-} // namespace QtSupport
+#ifdef WITH_TESTS
+QObject *createQtTestParserTest();
+#endif
+
+} // QtSupport::Internal

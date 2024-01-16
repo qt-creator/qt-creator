@@ -88,7 +88,6 @@ QtcPlugin {
         "qtsupport_global.h", "qtsupporttr.h",
         "qtsupportconstants.h",
         "qtsupportplugin.cpp",
-        "qtsupportplugin.h",
         "qttestparser.cpp",
         "qttestparser.h",
         "qtversionfactory.h",

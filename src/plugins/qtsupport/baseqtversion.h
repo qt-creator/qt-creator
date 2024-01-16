@@ -232,6 +232,10 @@ private:
 
 using QtVersions = QList<QtVersion *>;
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQtBuildStringParserTest(); }
+#endif
+
 } // QtSupport
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::QtVersion::QmakeBuildConfigs)

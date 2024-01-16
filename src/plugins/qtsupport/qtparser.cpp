@@ -8,12 +8,6 @@
 
 #include <QFileInfo>
 
-#ifdef WITH_TESTS
-#include "qtsupportplugin.h"
-#include <projectexplorer/outputparser_test.h>
-#include <QTest>
-#endif
-
 using namespace ProjectExplorer;
 
 namespace QtSupport {
@@ -111,12 +105,27 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
     return Status::NotHandled;
 }
 
-// Unit tests:
+} // namespace QtSupport
+
 
 #ifdef WITH_TESTS
-namespace Internal {
 
-void QtSupportPlugin::testQtOutputParser_data()
+#include <projectexplorer/outputparser_test.h>
+
+#include <QTest>
+
+namespace QtSupport::Internal {
+
+class QtOutputParserTest final : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void testQtOutputParser_data();
+    void testQtOutputParser();
+};
+
+void QtOutputParserTest::testQtOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -242,7 +251,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString();
 }
 
-void QtSupportPlugin::testQtOutputParser()
+void QtOutputParserTest::testQtOutputParser()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new QtParser);
@@ -256,7 +265,13 @@ void QtSupportPlugin::testQtOutputParser()
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines, outputLines);
 }
 
-} // namespace Internal
-#endif
+QObject *createQtOutputParserTest()
+{
+    return new QtOutputParserTest;
+}
 
-} // namespace QtSupport
+} // QtSupport::Internal
+
+#include "qtparser.moc"
+
+#endif // WITH_TESTS

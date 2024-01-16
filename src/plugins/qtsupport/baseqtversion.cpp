@@ -2514,12 +2514,18 @@ void QtVersionFactory::setPriority(int priority)
 
 #include <QTest>
 
-#include "qtsupportplugin.h"
+namespace QtSupport::Internal {
 
-namespace QtSupport {
-namespace Internal {
+class QtBuildStringParserTest final : public QObject
+{
+    Q_OBJECT
 
-void QtSupportPlugin::testQtBuildStringParsing_data()
+private slots:
+    void testQtBuildStringParsing_data();
+    void testQtBuildStringParsing();
+};
+
+void QtBuildStringParserTest::testQtBuildStringParsing_data()
 {
     QTest::addColumn<QByteArray>("buildString");
     QTest::addColumn<QString>("expected");
@@ -2552,7 +2558,7 @@ void QtSupportPlugin::testQtBuildStringParsing_data()
             << "5.7.1;x86_64;little;lp64;;eabi-softfloat;shared;release;GCC 6.2.1 20160830";
 }
 
-void QtSupportPlugin::testQtBuildStringParsing()
+void QtBuildStringParserTest::testQtBuildStringParsing()
 {
     QFETCH(QByteArray, buildString);
     QFETCH(QString, expected);
@@ -2565,7 +2571,13 @@ void QtSupportPlugin::testQtBuildStringParsing()
     QCOMPARE(expectedList, actual);
 }
 
-} // Internal
-} // QtSupport
+QObject *createQtBuildStringParserTest()
+{
+    return new QtBuildStringParserTest;
+}
+
+} // QtSupport::Internal
+
+#include "baseqtversion.moc"
 
 #endif // WITH_TESTS
