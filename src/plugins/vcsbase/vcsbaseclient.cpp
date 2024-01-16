@@ -514,12 +514,6 @@ QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
     return {};
 }
 
-ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const
-{
-    Q_UNUSED(cmd)
-    return {};
-}
-
 void VcsBaseClient::setDiffConfigCreator(ConfigCreator creator)
 {
     m_diffConfigCreator = std::move(creator);

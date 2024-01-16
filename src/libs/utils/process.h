@@ -154,7 +154,6 @@ public:
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
     void setTimeOutMessageBoxEnabled(bool);
-    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
 
     void setStdOutCallback(const TextChannelCallback &callback);
     void setStdOutLineCallback(const TextChannelCallback &callback);

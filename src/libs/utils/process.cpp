@@ -831,8 +831,6 @@ public:
         emit (q->*signalName)();
     }
 
-    ProcessResult interpretExitCode(int exitCode);
-
     bool waitForSignal(ProcessSignalType signalType, int msecs);
     Qt::ConnectionType connectionType() const;
     void sendControlSignal(ControlSignal controlSignal);
@@ -848,7 +846,6 @@ public:
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
-    ExitCodeInterpreter m_exitCodeInterpreter;
 
     int m_hangTimerCount = 0;
     int m_maxHangTimerCount = defaultMaxHangTimerCount;
@@ -1111,15 +1108,6 @@ void ProcessPrivate::clearForRun()
     m_processId = 0;
     m_applicationMainThreadId = 0;
     m_resultData = {};
-}
-
-ProcessResult ProcessPrivate::interpretExitCode(int exitCode)
-{
-    if (m_exitCodeInterpreter)
-        return m_exitCodeInterpreter(exitCode);
-
-    // default:
-    return exitCode ? ProcessResult::FinishedWithError : ProcessResult::FinishedWithSuccess;
 }
 
 } // Internal
@@ -1858,11 +1846,6 @@ void Process::setTimeOutMessageBoxEnabled(bool v)
     d->m_timeOutMessageBoxEnabled = v;
 }
 
-void Process::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
-{
-    d->m_exitCodeInterpreter = interpreter;
-}
-
 void Process::setWriteData(const QByteArray &writeData)
 {
     d->m_setup.m_writeData = writeData;
@@ -2096,7 +2079,8 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
     if (m_resultData.m_error != QProcess::FailedToStart) {
         switch (m_resultData.m_exitStatus) {
         case QProcess::NormalExit:
-            m_result = interpretExitCode(m_resultData.m_exitCode);
+            m_result = m_resultData.m_exitCode ? ProcessResult::FinishedWithError
+                                               : ProcessResult::FinishedWithSuccess;
             break;
         case QProcess::CrashExit:
             // Was hang detected before and killed?

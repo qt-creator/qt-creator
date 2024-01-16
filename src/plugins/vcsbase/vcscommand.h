@@ -29,6 +29,8 @@ namespace Internal { class VcsCommandPrivate; }
 
 class VcsCommand;
 
+using ExitCodeInterpreter = std::function<Utils::ProcessResult(int /*exitCode*/)>;
+
 class VCSBASE_EXPORT CommandResult
 {
 public:
@@ -70,7 +72,7 @@ public:
 
     void addJob(const Utils::CommandLine &command, int timeoutS,
                 const Utils::FilePath &workingDirectory = {},
-                const Utils::ExitCodeInterpreter &interpreter = {});
+                const ExitCodeInterpreter &interpreter = {});
     void start();
 
     void addFlags(RunFlags f);

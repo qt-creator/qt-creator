@@ -66,7 +66,6 @@ enum class ProcessResult {
     Hang
 };
 
-using ExitCodeInterpreter = std::function<ProcessResult(int /*exitCode*/)>;
 using TextChannelCallback = std::function<void(const QString & /*text*/)>;
 
 } // namespace Utils
