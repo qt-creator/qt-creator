@@ -170,7 +170,7 @@ void VcsCommandPrivate::handleDone(Process *process)
     if (!(m_flags & RunFlags::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
-    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+    // DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
     VcsManager::emitRepositoryChanged(process->workingDirectory());
 }
 
@@ -284,9 +284,9 @@ ProcessResult VcsCommand::result() const
     return d->m_result;
 }
 
-CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
-                                      const Utils::Environment &environment,
-                                      const Utils::CommandLine &command, RunFlags flags,
+CommandResult VcsCommand::runBlocking(const FilePath &workingDirectory,
+                                      const Environment &environment,
+                                      const CommandLine &command, RunFlags flags,
                                       int timeoutS, QTextCodec *codec)
 {
     VcsCommand vcsCommand(workingDirectory, environment);

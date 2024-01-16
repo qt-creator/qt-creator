@@ -9,6 +9,7 @@
 
 #include <QFileInfo>
 
+using namespace Core;
 using namespace VcsBase;
 using namespace VcsBase::Internal;
 using namespace Utils;
@@ -26,12 +27,11 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
 {
     setTemporary(true);
     connect(m_editor, &VcsBaseSubmitEditor::fileContentsChanged,
-            this, &Core::IDocument::contentsChanged);
+            this, &IDocument::contentsChanged);
 }
 
-Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString,
-                                                   const FilePath &filePath,
-                                                   const FilePath &realFilePath)
+IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const FilePath &filePath,
+                                             const FilePath &realFilePath)
 {
     if (filePath.isEmpty())
         return OpenResult::ReadError;
@@ -83,7 +83,7 @@ bool SubmitEditorFile::saveImpl(QString *errorString, const FilePath &filePath, 
     return true;
 }
 
-Core::IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)

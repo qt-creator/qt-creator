@@ -925,7 +925,7 @@ void VcsBaseEditorWidget::slotJumpToEntry(int index)
     int currentLine, currentColumn;
     convertPosition(position(), &currentLine, &currentColumn);
     if (lineNumber != currentLine) {
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(lineNumber, 0);
     }
 }
@@ -1184,7 +1184,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(FilePath::fromString(fileName));
+    IEditor *ed = EditorManager::openEditor(FilePath::fromString(fileName));
     if (auto editor = qobject_cast<BaseTextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
@@ -1246,8 +1246,8 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
 // Find the codec used for a file querying the editor.
 static QTextCodec *findFileCodec(const FilePath &source)
 {
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
-    if (auto textDocument = qobject_cast<Core::BaseTextDocument *>(document))
+    IDocument *document = DocumentModel::documentForFilePath(source);
+    if (auto textDocument = qobject_cast<BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return nullptr;
 }
@@ -1255,10 +1255,9 @@ static QTextCodec *findFileCodec(const FilePath &source)
 // Find the codec by checking the projects (root dir of project file)
 static QTextCodec *findProjectCodec(const FilePath &dirPath)
 {
-    typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
-    const ProjectList projects = ProjectExplorer::ProjectManager::projects();
-    const ProjectExplorer::Project *p
+    const auto projects = ProjectExplorer::ProjectManager::projects();
+    const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
     return p ? p->editorConfiguration()->textCodec() : nullptr;
 }
@@ -1285,7 +1284,7 @@ QTextCodec *VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStr
     return getCodec(workingDirectory / files.front());
 }
 
-VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
+VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const IEditor *editor)
 {
     if (auto be = qobject_cast<const BaseTextEditor *>(editor))
         return qobject_cast<VcsBaseEditorWidget *>(be->editorWidget());
@@ -1295,11 +1294,11 @@ VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor
 // Return line number of current editor if it matches.
 int VcsBaseEditor::lineNumberOfCurrentEditor(const FilePath &currentFile)
 {
-    Core::IEditor *ed = Core::EditorManager::currentEditor();
+    IEditor *ed = EditorManager::currentEditor();
     if (!ed)
         return -1;
     if (!currentFile.isEmpty()) {
-        const Core::IDocument *idocument  = ed->document();
+        const IDocument *idocument  = ed->document();
         if (!idocument || idocument->filePath() != currentFile)
             return -1;
     }
@@ -1317,7 +1316,7 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const FilePath &currentFile)
     return cursorLine;
 }
 
-bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
+bool VcsBaseEditor::gotoLineOfEditor(IEditor *e, int lineNumber)
 {
     if (lineNumber >= 0 && e) {
         if (auto be = qobject_cast<BaseTextEditor*>(e)) {
@@ -1513,7 +1512,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, PatchAction patchAction) const
 {
-    return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
+    return PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
                                      d->m_workingDirectory, 0, patchAction);
 }
 
@@ -1628,18 +1627,18 @@ QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDir
 
 static const char tagPropertyC[] = "_q_VcsBaseEditorTag";
 
-void VcsBaseEditor::tagEditor(Core::IEditor *e, const QString &tag)
+void VcsBaseEditor::tagEditor(IEditor *e, const QString &tag)
 {
     e->document()->setProperty(tagPropertyC, QVariant(tag));
 }
 
-Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
+IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 {
-    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *document : documents) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
-            return Core::DocumentModel::editorsForDocument(document).constFirst();
+            return DocumentModel::editorsForDocument(document).constFirst();
     }
     return nullptr;
 }

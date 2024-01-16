@@ -531,7 +531,7 @@ void VcsBasePluginPrivate::extensionsInitialized()
     m_listener->slotStateChanged();
 }
 
-void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, Core::IVersionControl *vc)
+void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, IVersionControl *vc)
 {
     if (vc == this) {
         // We are directly affected: Change state
@@ -559,7 +559,7 @@ const VcsBasePluginState &VcsBasePluginPrivate::currentState() const
 }
 
 VcsCommand *VcsBasePluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                               const Utils::FilePath &baseDirectory,
+                                                               const FilePath &baseDirectory,
                                                                const QString &localName,
                                                                const QStringList &extraArgs)
 {

@@ -101,6 +101,7 @@ static bool acceptsWordForCompletion(const QString &word)
 
 namespace VcsBase {
 
+using namespace Core;
 using namespace Internal;
 using namespace Utils;
 
@@ -201,19 +202,17 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     slotUpdateEditorSettings();
     connect(&settings, &CommonVcsSettings::changed,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, [this] {
-                if (Core::EditorManager::currentEditor() == this)
-                    updateFileModel();
-            });
-    connect(qApp, &QApplication::applicationStateChanged,
-            this, [this](Qt::ApplicationState state) {
-                if (state == Qt::ApplicationActive)
-                    updateFileModel();
-            });
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this] {
+        if (EditorManager::currentEditor() == this)
+            updateFileModel();
+    });
+    connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive)
+            updateFileModel();
+    });
 
     auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(new Core::BaseTextFind(descriptionEdit));
+    aggregate->add(new BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
 
@@ -245,7 +244,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::dialogParent()))
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, ICore::dialogParent()))
         return;
 
     // Parse into fields
@@ -314,7 +313,7 @@ void VcsBaseSubmitEditor::setLineWrapWidth(int w)
     d->m_widget->setLineWrapWidth(w);
 }
 
-Core::IDocument *VcsBaseSubmitEditor::document() const
+IDocument *VcsBaseSubmitEditor::document() const
 {
     return &d->m_file;
 }
@@ -441,7 +440,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
-    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(this, EditorManager::IgnoreNavigationHistory);
 
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
@@ -455,7 +454,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
 void VcsBaseSubmitEditor::close()
 {
     d->m_disablePrompt = true;
-    Core::EditorManager::closeDocuments({document()});
+    EditorManager::closeDocuments({document()});
 }
 
 bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
@@ -463,13 +462,13 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
     if (d->m_disablePrompt)
         return true;
 
-    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(this, EditorManager::IgnoreNavigationHistory);
 
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
     if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return true;
 
-    QMessageBox mb(Core::ICore::dialogParent());
+    QMessageBox mb(ICore::dialogParent());
     mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
     mb.setText(plugin->commitAbortMessage());

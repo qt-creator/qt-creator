@@ -31,6 +31,7 @@
 #include <QTextStream>
 #include <QTime>
 
+using namespace Core;
 using namespace Utils;
 
 /*!
@@ -69,7 +70,7 @@ private:
 
 // A plain text edit with a special context menu containing "Clear"
 // and functions to append specially formatted entries.
-class OutputWindowPlainTextEdit : public Core::OutputWindow
+class OutputWindowPlainTextEdit : public OutputWindow
 {
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
@@ -88,7 +89,7 @@ private:
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent)
-    : Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
+    : OutputWindow(Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
     , m_parser(new VcsOutputLineParser)
 {
     setReadOnly(true);
@@ -173,7 +174,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
         }
         if (action == openAction) {
             const auto fileName = FilePath::fromVariant(action->data());
-            Core::EditorManager::openEditor(fileName);
+            EditorManager::openEditor(fileName);
         }
     }
     delete menu;
@@ -274,9 +275,9 @@ VcsOutputWindow::VcsOutputWindow()
     updateFontSettings();
     setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
-    connect(this, &IOutputPane::zoomInRequested, &d->widget, &Core::OutputWindow::zoomIn);
-    connect(this, &IOutputPane::zoomOutRequested, &d->widget, &Core::OutputWindow::zoomOut);
-    connect(this, &IOutputPane::resetZoomRequested, &d->widget, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::zoomInRequested, &d->widget, &OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, &d->widget, &OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, &d->widget, &OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
     connect(TextEditor::TextEditorSettings::instance(),
@@ -364,7 +365,7 @@ void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silen
     d->widget.appendLines(text, style, d->repository);
 
     if (!silently && !d->widget.isVisible())
-        m_instance->popup(Core::IOutputPane::NoModeSwitch);
+        m_instance->popup(IOutputPane::NoModeSwitch);
 }
 
 void VcsOutputWindow::appendError(const QString &text)
