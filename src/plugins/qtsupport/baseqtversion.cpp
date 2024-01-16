@@ -78,7 +78,7 @@ class QtVersionData
 {
 public:
     // Update version if you add data members!
-    static const int version = 2;
+    static const int version = 3;
 
     bool installed = true;
     bool hasExamples = false;
@@ -207,8 +207,11 @@ public:
         hostDataPath = FilePath::fromSettings(map.value("HostDataPath"));
         hostPrefixPath = FilePath::fromSettings(map.value("HostPrefixPath"));
         auto it = map.find("QtAbis");
-        if (it != map.end())
-            qtAbis = Utils::transform(it.value().toStringList(), &Abi::fromString);
+        if (it != map.end()) {
+            const auto qtAbisList = it.value().toStringList();
+            if (!qtAbisList.isEmpty())
+                qtAbis = Utils::transform(qtAbisList, &Abi::fromString);
+        }
         versionInfo = fromStore(map.value("VersionInfo").value<Store>());
     }
 };
