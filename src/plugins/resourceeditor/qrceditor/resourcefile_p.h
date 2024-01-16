@@ -176,7 +176,7 @@ class ResourceModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ResourceModel(QObject *parent = nullptr);
+    ResourceModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = {}) const override;
     QModelIndex parent(const QModelIndex &index) const override;
@@ -250,7 +250,7 @@ signals:
 
 private:
     ResourceFile m_resource_file;
-    bool m_dirty;
+    bool m_dirty = false;
     QString m_lastResourceDir;
     QIcon m_prefixIcon;
 };
@@ -275,10 +275,10 @@ public:
     virtual ~EntryBackup() = default;
 };
 
-class RelativeResourceModel : public ResourceModel
+class RelativeResourceModel final : public ResourceModel
 {
 public:
-    RelativeResourceModel(QObject *parent = nullptr);
+    RelativeResourceModel();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
@@ -301,7 +301,7 @@ public:
     EntryBackup * removeEntry(const QModelIndex &index);
 
 private:
-    bool m_resourceDragEnabled;
+    bool m_resourceDragEnabled = false;
 };
 
 } // ResourceEditor::Internal

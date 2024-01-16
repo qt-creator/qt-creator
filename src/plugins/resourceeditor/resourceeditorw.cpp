@@ -15,6 +15,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
@@ -34,19 +35,53 @@ namespace ResourceEditor::Internal {
 
 enum { debugResourceEditorW = 0 };
 
-QAction *m_redoAction = nullptr;
-QAction *m_undoAction = nullptr;
-QAction *m_refreshAction = nullptr;
+static QAction *s_redoAction = nullptr;
+static QAction *s_undoAction = nullptr;
+static QAction *s_refreshAction = nullptr;
 
-ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
-    IDocument(parent),
-    m_model(new RelativeResourceModel(this))
+class ResourceEditorDocument final : public IDocument
+{
+    Q_OBJECT
+    Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
+
+public:
+    ResourceEditorDocument(QObject *parent = nullptr);
+
+    OpenResult open(QString *errorString, const FilePath &filePath,
+                    const FilePath &realFilePath) final;
+    QString plainText() const;
+    QByteArray contents() const final;
+    bool setContents(const QByteArray &contents) final;
+    bool shouldAutoSave() const final { return m_shouldAutoSave; }
+    bool isModified() const final { return m_model.dirty(); }
+    bool isSaveAsAllowed() const final { return true; }
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
+    void setFilePath(const FilePath &newName) final;
+    void setBlockDirtyChanged(bool value) { m_blockDirtyChanged = value; }
+
+    RelativeResourceModel *model() { return &m_model; }
+    void setShouldAutoSave(bool save) { m_shouldAutoSave = save; }
+
+signals:
+    void loaded(bool success);
+
+private:
+    bool saveImpl(QString *errorString, const FilePath &filePath, bool autoSave) final;
+    void dirtyChanged(bool);
+
+    RelativeResourceModel m_model;
+    bool m_blockDirtyChanged = false;
+    bool m_shouldAutoSave = false;
+};
+
+ResourceEditorDocument::ResourceEditorDocument(QObject *parent)
+    : IDocument(parent)
 {
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setMimeType(Utils::Constants::RESOURCE_MIMETYPE);
-    connect(m_model, &RelativeResourceModel::dirtyChanged,
+    connect(&m_model, &RelativeResourceModel::dirtyChanged,
             this, &ResourceEditorDocument::dirtyChanged);
-    connect(m_model, &ResourceModel::contentsChanged,
+    connect(&m_model, &ResourceModel::contentsChanged,
             this, &IDocument::contentsChanged);
 
     if (debugResourceEditorW)
@@ -69,9 +104,9 @@ public:
     }
 
     IDocument *document() const final { return m_resourceDocument; }
+    QWidget *toolBar() final { return m_toolBar; }
     QByteArray saveState() const final;
     void restoreState(const QByteArray &state) final;
-    QWidget *toolBar() final;
 
 private:
     void onUndoStackChanged(bool canUndo, bool canRedo);
@@ -158,11 +193,11 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
 
     setBlockDirtyChanged(true);
 
-    m_model->setFilePath(realFilePath);
+    m_model.setFilePath(realFilePath);
 
-    OpenResult openResult = m_model->reload();
+    OpenResult openResult = m_model.reload();
     if (openResult != OpenResult::Success) {
-        *errorString = m_model->errorMessage();
+        *errorString = m_model.errorMessage();
         setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
@@ -170,7 +205,7 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
 
     setFilePath(filePath);
     setBlockDirtyChanged(false);
-    m_model->setDirty(filePath != realFilePath);
+    m_model.setDirty(filePath != realFilePath);
     m_shouldAutoSave = false;
 
     emit loaded(true);
@@ -186,18 +221,18 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
         return false;
 
     m_blockDirtyChanged = true;
-    m_model->setFilePath(filePath);
-    if (!m_model->save()) {
-        *errorString = m_model->errorMessage();
-        m_model->setFilePath(this->filePath());
+    m_model.setFilePath(filePath);
+    if (!m_model.save()) {
+        *errorString = m_model.errorMessage();
+        m_model.setFilePath(this->filePath());
         m_blockDirtyChanged = false;
         return false;
     }
 
     m_shouldAutoSave = false;
     if (autoSave) {
-        m_model->setFilePath(this->filePath());
-        m_model->setDirty(true);
+        m_model.setFilePath(this->filePath());
+        m_model.setDirty(true);
         m_blockDirtyChanged = false;
         return true;
     }
@@ -211,12 +246,12 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
 
 QString ResourceEditorDocument::plainText() const
 {
-    return m_model->contents();
+    return m_model.contents();
 }
 
 QByteArray ResourceEditorDocument::contents() const
 {
-    return m_model->contents().toUtf8();
+    return m_model.contents().toUtf8();
 }
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
@@ -226,10 +261,10 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
     if (!saver.finalize(ICore::dialogParent()))
         return false;
 
-    const FilePath originalFileName = m_model->filePath();
-    m_model->setFilePath(saver.filePath());
-    const bool success = (m_model->reload() == OpenResult::Success);
-    m_model->setFilePath(originalFileName);
+    const FilePath originalFileName = m_model.filePath();
+    m_model.setFilePath(saver.filePath());
+    const bool success = (m_model.reload() == OpenResult::Success);
+    m_model.setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.filePath() << ") returns " << success;
@@ -239,23 +274,8 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 
 void ResourceEditorDocument::setFilePath(const FilePath &newName)
 {
-    m_model->setFilePath(newName);
+    m_model.setFilePath(newName);
     IDocument::setFilePath(newName);
-}
-
-void ResourceEditorDocument::setBlockDirtyChanged(bool value)
-{
-    m_blockDirtyChanged = value;
-}
-
-RelativeResourceModel *ResourceEditorDocument::model() const
-{
-    return m_model;
-}
-
-void ResourceEditorDocument::setShouldAutoSave(bool save)
-{
-    m_shouldAutoSave = save;
 }
 
 QByteArray ResourceEditorW::saveState() const
@@ -274,25 +294,7 @@ void ResourceEditorW::restoreState(const QByteArray &state)
     m_resourceEditor->restoreState(splitterState);
 }
 
-QWidget *ResourceEditorW::toolBar()
-{
-    return m_toolBar;
-}
 
-bool ResourceEditorDocument::shouldAutoSave() const
-{
-    return m_shouldAutoSave;
-}
-
-bool ResourceEditorDocument::isModified() const
-{
-    return m_model->dirty();
-}
-
-bool ResourceEditorDocument::isSaveAsAllowed() const
-{
-    return true;
-}
 
 bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
@@ -318,8 +320,8 @@ void ResourceEditorDocument::dirtyChanged(bool dirty)
 void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 {
     if (currentEditor() == this) {
-        m_undoAction->setEnabled(canUndo);
-        m_redoAction->setEnabled(canRedo);
+        s_undoAction->setEnabled(canUndo);
+        s_redoAction->setEnabled(canRedo);
     }
 }
 
@@ -394,24 +396,24 @@ void setupResourceEditor(QObject *guard)
     // Register undo and redo
     const Context context(Constants::C_RESOURCEEDITOR);
 
-    m_undoAction = new QAction(Tr::tr("&Undo"), guard);
-    m_redoAction = new QAction(Tr::tr("&Redo"), guard);
-    m_refreshAction = new QAction(Tr::tr("Recheck Existence of Referenced Files"), guard);
-    ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
-    ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
-    ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
+    s_undoAction = new QAction(Tr::tr("&Undo"), guard);
+    s_redoAction = new QAction(Tr::tr("&Redo"), guard);
+    s_refreshAction = new QAction(Tr::tr("Recheck Existence of Referenced Files"), guard);
+    ActionManager::registerAction(s_undoAction, Core::Constants::UNDO, context);
+    ActionManager::registerAction(s_redoAction, Core::Constants::REDO, context);
+    ActionManager::registerAction(s_refreshAction, Constants::REFRESH, context);
 
-    QObject::connect(m_undoAction, &QAction::triggered, guard, [] {
+    QObject::connect(s_undoAction, &QAction::triggered, guard, [] {
         if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
             editor->onUndo();
     });
 
-    QObject::connect(m_redoAction, &QAction::triggered, guard, [] {
+    QObject::connect(s_redoAction, &QAction::triggered, guard, [] {
         if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
             editor->onRedo();
     });
 
-    QObject::connect(m_refreshAction, &QAction::triggered, guard, [] {
+    QObject::connect(s_refreshAction, &QAction::triggered, guard, [] {
         if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
             editor->onRefresh();
     });

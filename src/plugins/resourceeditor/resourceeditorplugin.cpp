@@ -106,8 +106,6 @@ public:
 
     void updateContextActions(Node *node);
 
-    ResourceEditorW * currentEditor() const;
-
     // project tree's folder context menu
     QAction *m_addPrefix = nullptr;
     QAction *m_removePrefix = nullptr;
