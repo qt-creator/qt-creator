@@ -324,7 +324,7 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
 
         // Special case: when qt_add_executable and qt_add_qml_module use the same target name
         // then qt_add_qml_module function should be used
-        const std::string target_name = targetName.toStdString();
+        const std::string target_name = function->Arguments().front().Value;
         auto add_qml_module_func
             = std::find_if(cmakeListFile.Functions.begin(),
                            cmakeListFile.Functions.end(),
