@@ -20,40 +20,34 @@ Rectangle {
     implicitHeight: 400
     color: StudioTheme.Values.themeControlBackground
 
-    ColumnLayout {
+    Column {
         id: topRow
 
         visible: root.model.collectionName !== ""
-
-        spacing: 0
-        anchors.fill: parent
+        width: parent.width
+        spacing: 10
 
         CollectionDetailsToolbar {
             id: toolbar
             model: root.model
             backend: root.backend
-            Layout.fillWidth: true
-            Layout.minimumWidth: implicitWidth
-        }
-
-        Item { // spacer
-            implicitWidth: 1
-            implicitHeight: 5
+            width: parent.width
         }
 
         GridLayout {
             columns: 3
             rowSpacing: 1
             columnSpacing: 1
+            width: parent.width
 
-            Layout.leftMargin: StudioTheme.Values.collectionTableHorizontalMargin
-            Layout.topMargin: StudioTheme.Values.collectionTableVerticalMargin
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.maximumWidth: parent.width
+            anchors {
+                left: parent.left
+                leftMargin: StudioTheme.Values.collectionTableHorizontalMargin
+            }
 
             Rectangle {
+                id: tableTopLeftCorner
+
                 clip: true
                 visible: !tableView.model.isEmpty
                 color: StudioTheme.Values.themeControlBackgroundInteraction
@@ -168,6 +162,7 @@ Rectangle {
                 Layout.preferredHeight: tableView.height
                 Layout.rowSpan: 2
                 Layout.alignment: Qt.AlignTop + Qt.AlignLeft
+                width: implicitWidth // suppresses GridLayout warnings when resizing
 
                 delegate: HeaderDelegate {
                     selectedItem: tableView.model.selectedRow
@@ -188,11 +183,15 @@ Rectangle {
                 model: root.sortedModel
                 clip: true
 
+                property point tableStart: tableTopLeftCorner.mapToItem(root, Qt.point(x, y));
+
+                Layout.alignment: Qt.AlignTop + Qt.AlignLeft
                 Layout.preferredWidth: tableView.contentWidth
                 Layout.preferredHeight: tableView.contentHeight
                 Layout.minimumWidth: 100
                 Layout.minimumHeight: 20
-                Layout.maximumWidth: root.width
+                Layout.maximumWidth: root.width - (tableStart.x + addColumnContainer.width)
+                Layout.maximumHeight: root.height - (tableStart.y + addRowContainer.height)
 
                 columnWidthProvider: function(column) {
                     if (!isColumnLoaded(column))
@@ -359,6 +358,26 @@ Rectangle {
                         }
                     }
                 }
+
+                HoverHandler { id: hoverHandler }
+
+                ScrollBar.horizontal: StudioControls.TransientScrollBar {
+                    id: horizontalScrollBar
+                    style: StudioTheme.Values.viewStyle
+                    orientation: Qt.Horizontal
+
+                    show: (hoverHandler.hovered || tableView.focus || horizontalScrollBar.inUse)
+                          && horizontalScrollBar.isNeeded
+                }
+
+                ScrollBar.vertical: StudioControls.TransientScrollBar {
+                    id: verticalScrollBar
+                    style: StudioTheme.Values.viewStyle
+                    orientation: Qt.Vertical
+
+                    show: (hoverHandler.hovered || tableView.focus || verticalScrollBar.inUse)
+                          && verticalScrollBar.isNeeded
+                }
             }
 
             HelperWidgets.IconButton {
@@ -437,7 +456,6 @@ Rectangle {
             color: StudioTheme.Values.themeTextColor
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            anchors.fill: parent
             elide: Text.ElideRight
         }
 
