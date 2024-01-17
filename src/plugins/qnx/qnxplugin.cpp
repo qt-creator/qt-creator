@@ -32,6 +32,7 @@
 
 #include <QAction>
 
+using namespace Core;
 using namespace ProjectExplorer;
 
 namespace Qnx::Internal {
@@ -94,22 +95,22 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
 
     void extensionsInitialized() final
     {
-        auto attachToQnxApplication = new QAction{Tr::tr("Attach to remote QNX application..."), this};
-        // Attach support
-        connect(attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
-
         const Utils::Id QNX_DEBUGGING_GROUP = "Debugger.Group.Qnx";
 
         QAction *debugSeparator = nullptr;
+        QAction *attachToQnxApplication = nullptr;
 
-        Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+        ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
         mstart->appendGroup(QNX_DEBUGGING_GROUP);
         mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), QNX_DEBUGGING_GROUP,
                              &debugSeparator);
 
-        Core::Command *cmd = Core::ActionManager::registerAction
-            (attachToQnxApplication, "Debugger.AttachToQnxApplication");
-        mstart->addAction(cmd, QNX_DEBUGGING_GROUP);
+        // Attach support
+        ActionBuilder(this, "Debugger.AttachToQnxApplication")
+            .setText(Tr::tr("Attach to remote QNX application..."))
+            .addToContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING, QNX_DEBUGGING_GROUP)
+            .bindContextAction(&attachToQnxApplication)
+            .addOnTriggered(this, &showAttachToProcessDialog);
 
         connect(KitManager::instance(), &KitManager::kitsChanged, this,
                 [attachToQnxApplication, debugSeparator] {
