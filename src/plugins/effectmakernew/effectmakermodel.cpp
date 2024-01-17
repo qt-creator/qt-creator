@@ -192,14 +192,17 @@ void EffectMakerModel::removeNode(int idx)
     emit nodesChanged();
 }
 
-void EffectMakerModel::clear()
+void EffectMakerModel::clear(bool clearName)
 {
     beginResetModel();
     qDeleteAll(m_nodes);
     m_nodes.clear();
     endResetModel();
+
+    if (clearName)
+        setCurrentComposition("");
+
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
-    setCurrentComposition("");
 
     setIsEmpty(true);
     emit nodesChanged();
@@ -683,7 +686,7 @@ void EffectMakerModel::saveComposition(const QString &name)
 
 void EffectMakerModel::openComposition(const QString &path)
 {
-    clear();
+    clear(true);
 
     const QString effectName = QFileInfo(path).baseName();
     setCurrentComposition(effectName);
