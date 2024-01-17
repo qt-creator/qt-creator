@@ -88,17 +88,17 @@ ResourceEditorDocument::ResourceEditorDocument(QObject *parent)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
 
-class ResourceEditorW final : public IEditor
+class ResourceEditorImpl final : public IEditor
 {
     Q_OBJECT
 
 public:
-    ResourceEditorW();
-    ~ResourceEditorW() final;
+    ResourceEditorImpl();
+    ~ResourceEditorImpl() final;
 
-    static ResourceEditorW *currentEditor()
+    static ResourceEditorImpl *currentEditor()
     {
-        auto const focusEditor = qobject_cast<ResourceEditorW *>(EditorManager::currentEditor());
+        auto const focusEditor = qobject_cast<ResourceEditorImpl *>(EditorManager::currentEditor());
         QTC_ASSERT(focusEditor, return nullptr);
         return focusEditor;
     }
@@ -138,7 +138,7 @@ public:
     friend class ResourceEditorDocument;
 };
 
-ResourceEditorW::ResourceEditorW()
+ResourceEditorImpl::ResourceEditorImpl()
     : m_resourceDocument(new ResourceEditorDocument(this)),
     m_contextMenu(new QMenu),
     m_toolBar(new QToolBar)
@@ -150,33 +150,33 @@ ResourceEditorW::ResourceEditorW()
 
     CommandButton *refreshButton = new CommandButton(Constants::REFRESH, m_toolBar);
     refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
-    connect(refreshButton, &QAbstractButton::clicked, this, &ResourceEditorW::onRefresh);
+    connect(refreshButton, &QAbstractButton::clicked, this, &ResourceEditorImpl::onRefresh);
     m_toolBar->addWidget(refreshButton);
 
     m_resourceEditor->setResourceDragEnabled(true);
-    m_contextMenu->addAction(Tr::tr("Open File"), this, &ResourceEditorW::openCurrentFile);
+    m_contextMenu->addAction(Tr::tr("Open File"), this, &ResourceEditorImpl::openCurrentFile);
     m_openWithMenu = m_contextMenu->addMenu(Tr::tr("Open With"));
     m_renameAction = m_contextMenu->addAction(Tr::tr("Rename File..."), this,
-                                              &ResourceEditorW::renameCurrentFile);
+                                              &ResourceEditorImpl::renameCurrentFile);
     m_copyFileNameAction = m_contextMenu->addAction(Tr::tr("Copy Resource Path to Clipboard"),
-                                                    this, &ResourceEditorW::copyCurrentResourcePath);
-    m_orderList = m_contextMenu->addAction(Tr::tr("Sort Alphabetically"), this, &ResourceEditorW::orderList);
+                                                    this, &ResourceEditorImpl::copyCurrentResourcePath);
+    m_orderList = m_contextMenu->addAction(Tr::tr("Sort Alphabetically"), this, &ResourceEditorImpl::orderList);
 
     connect(m_resourceDocument, &ResourceEditorDocument::loaded,
             m_resourceEditor, &QrcEditor::loaded);
     connect(m_resourceEditor, &QrcEditor::undoStackChanged,
-            this, &ResourceEditorW::onUndoStackChanged);
+            this, &ResourceEditorImpl::onUndoStackChanged);
     connect(m_resourceEditor, &QrcEditor::showContextMenu,
-            this, &ResourceEditorW::showContextMenu);
+            this, &ResourceEditorImpl::showContextMenu);
     connect(m_resourceEditor, &QrcEditor::itemActivated,
-            this, &ResourceEditorW::openFile);
+            this, &ResourceEditorImpl::openFile);
     connect(m_resourceEditor->commandHistory(), &QUndoStack::indexChanged,
             m_resourceDocument, [this] { m_resourceDocument->setShouldAutoSave(true); });
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::ResourceEditorW()";
 }
 
-ResourceEditorW::~ResourceEditorW()
+ResourceEditorImpl::~ResourceEditorImpl()
 {
     if (m_resourceEditor)
         m_resourceEditor->deleteLater();
@@ -278,7 +278,7 @@ void ResourceEditorDocument::setFilePath(const FilePath &newName)
     IDocument::setFilePath(newName);
 }
 
-QByteArray ResourceEditorW::saveState() const
+QByteArray ResourceEditorImpl::saveState() const
 {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
@@ -286,7 +286,7 @@ QByteArray ResourceEditorW::saveState() const
     return bytes;
 }
 
-void ResourceEditorW::restoreState(const QByteArray &state)
+void ResourceEditorImpl::restoreState(const QByteArray &state)
 {
     QDataStream stream(state);
     QByteArray splitterState;
@@ -317,7 +317,7 @@ void ResourceEditorDocument::dirtyChanged(bool dirty)
     emit changed();
 }
 
-void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
+void ResourceEditorImpl::onUndoStackChanged(bool canUndo, bool canRedo)
 {
     if (currentEditor() == this) {
         s_undoAction->setEnabled(canUndo);
@@ -325,7 +325,7 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
     }
 }
 
-void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
+void ResourceEditorImpl::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
     EditorManager::populateOpenWithMenu(m_openWithMenu, FilePath::fromString(fileName));
     m_currentFileName = fileName;
@@ -333,42 +333,42 @@ void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &
     m_contextMenu->popup(globalPoint);
 }
 
-void ResourceEditorW::openCurrentFile()
+void ResourceEditorImpl::openCurrentFile()
 {
     openFile(m_currentFileName);
 }
 
-void ResourceEditorW::openFile(const QString &fileName)
+void ResourceEditorImpl::openFile(const QString &fileName)
 {
     EditorManager::openEditor(FilePath::fromString(fileName));
 }
 
-void ResourceEditorW::onRefresh()
+void ResourceEditorImpl::onRefresh()
 {
     m_resourceEditor->refresh();
 }
 
-void ResourceEditorW::renameCurrentFile()
+void ResourceEditorImpl::renameCurrentFile()
 {
     m_resourceEditor->editCurrentItem();
 }
 
-void ResourceEditorW::copyCurrentResourcePath()
+void ResourceEditorImpl::copyCurrentResourcePath()
 {
     setClipboardAndSelection(m_resourceEditor->currentResourcePath());
 }
 
-void ResourceEditorW::orderList()
+void ResourceEditorImpl::orderList()
 {
     m_resourceDocument->model()->orderList();
 }
 
-void ResourceEditorW::onUndo()
+void ResourceEditorImpl::onUndo()
 {
     m_resourceEditor->onUndo();
 }
 
-void ResourceEditorW::onRedo()
+void ResourceEditorImpl::onRedo()
 {
     m_resourceEditor->onRedo();
 }
@@ -385,7 +385,7 @@ public:
         FileIconProvider::registerIconOverlayForSuffix(
             ProjectExplorer::Constants::FILEOVERLAY_QRC, "qrc");
 
-        setEditorCreator([] { return new ResourceEditorW; });
+        setEditorCreator([] { return new ResourceEditorImpl; });
     }
 };
 
@@ -404,17 +404,17 @@ void setupResourceEditor(QObject *guard)
     ActionManager::registerAction(s_refreshAction, Constants::REFRESH, context);
 
     QObject::connect(s_undoAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
+        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
             editor->onUndo();
     });
 
     QObject::connect(s_redoAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
+        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
             editor->onRedo();
     });
 
     QObject::connect(s_refreshAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorW *editor = ResourceEditorW::currentEditor())
+        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
             editor->onRefresh();
     });
 }
