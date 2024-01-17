@@ -3,32 +3,11 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
-
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 const char FileAddedC[]      = "A";
 const char FileConflictedC[] = "C";
 const char FileDeletedC[]    = "D";
 const char FileModifiedC[]   = "M";
 
-class SubversionPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Subversion.json")
-
-    ~SubversionPlugin() final;
-
-    void initialize() final;
-    void extensionsInitialized() final;
-
-#ifdef WITH_TESTS
-private slots:
-    void testLogResolving();
-#endif
-
-};
-
-} // namespace Subversion
-} // namespace Internal
+} // SubVersion::Internal

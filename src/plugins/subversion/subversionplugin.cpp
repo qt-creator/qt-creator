@@ -20,6 +20,8 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
@@ -63,8 +65,7 @@ using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
 const char CMD_ID_ADD[]                = "Subversion.Add";
@@ -313,12 +314,6 @@ public:
 
 static SubversionPluginPrivate *dd = nullptr;
 
-SubversionPlugin::~SubversionPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
 SubversionPluginPrivate::~SubversionPluginPrivate()
 {
     cleanCommitMessageFile();
@@ -337,16 +332,6 @@ void SubversionPluginPrivate::cleanCommitMessageFile()
 bool SubversionPluginPrivate::isCommitEditorOpen() const
 {
     return !m_commitMessageFileName.isEmpty();
-}
-
-void SubversionPlugin::initialize()
-{
-    dd = new SubversionPluginPrivate;
-}
-
-void SubversionPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
 }
 
 SubversionPluginPrivate::SubversionPluginPrivate()
@@ -1209,7 +1194,16 @@ QString SubversionTopicCache::refreshTopic(const FilePath &repository)
 
 
 #ifdef WITH_TESTS
-void SubversionPlugin::testLogResolving()
+
+class SubversionTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testLogResolving();
+};
+
+void SubversionTest::testLogResolving()
 {
     QByteArray data(
                 "------------------------------------------------------------------------\n"
@@ -1232,5 +1226,32 @@ void SubversionPlugin::testLogResolving()
 
 #endif
 
-} // Internal
-} // Subversion
+class SubversionPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Subversion.json")
+
+    ~SubversionPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new SubversionPluginPrivate;
+
+#ifdef WITH_TESTS
+    addTest<SubversionTest>();
+#endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
+} // Subversion::Internal
+
+#include "subversionplugin.moc"
