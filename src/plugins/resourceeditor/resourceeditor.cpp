@@ -96,11 +96,11 @@ public:
     ResourceEditorImpl();
     ~ResourceEditorImpl() final;
 
-    static ResourceEditorImpl *currentEditor()
+    static QrcEditor *currentQrcEditor()
     {
         auto const focusEditor = qobject_cast<ResourceEditorImpl *>(EditorManager::currentEditor());
         QTC_ASSERT(focusEditor, return nullptr);
-        return focusEditor;
+        return focusEditor->m_resourceEditor;
     }
 
     IDocument *document() const final { return m_resourceDocument; }
@@ -130,11 +130,6 @@ private:
     QAction *m_copyFileNameAction;
     QAction *m_orderList;
 
-public:
-    void onRefresh();
-    void onUndo();
-    void onRedo();
-
     friend class ResourceEditorDocument;
 };
 
@@ -150,7 +145,7 @@ ResourceEditorImpl::ResourceEditorImpl()
 
     CommandButton *refreshButton = new CommandButton(Constants::REFRESH, m_toolBar);
     refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
-    connect(refreshButton, &QAbstractButton::clicked, this, &ResourceEditorImpl::onRefresh);
+    connect(refreshButton, &QAbstractButton::clicked, m_resourceEditor, &QrcEditor::refresh);
     m_toolBar->addWidget(refreshButton);
 
     m_resourceEditor->setResourceDragEnabled(true);
@@ -294,8 +289,6 @@ void ResourceEditorImpl::restoreState(const QByteArray &state)
     m_resourceEditor->restoreState(splitterState);
 }
 
-
-
 bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
@@ -319,7 +312,7 @@ void ResourceEditorDocument::dirtyChanged(bool dirty)
 
 void ResourceEditorImpl::onUndoStackChanged(bool canUndo, bool canRedo)
 {
-    if (currentEditor() == this) {
+    if (currentQrcEditor() == m_resourceEditor) {
         s_undoAction->setEnabled(canUndo);
         s_redoAction->setEnabled(canRedo);
     }
@@ -343,11 +336,6 @@ void ResourceEditorImpl::openFile(const QString &fileName)
     EditorManager::openEditor(FilePath::fromString(fileName));
 }
 
-void ResourceEditorImpl::onRefresh()
-{
-    m_resourceEditor->refresh();
-}
-
 void ResourceEditorImpl::renameCurrentFile()
 {
     m_resourceEditor->editCurrentItem();
@@ -361,16 +349,6 @@ void ResourceEditorImpl::copyCurrentResourcePath()
 void ResourceEditorImpl::orderList()
 {
     m_resourceDocument->model()->orderList();
-}
-
-void ResourceEditorImpl::onUndo()
-{
-    m_resourceEditor->onUndo();
-}
-
-void ResourceEditorImpl::onRedo()
-{
-    m_resourceEditor->onRedo();
 }
 
 class ResourceEditorFactory final : public IEditorFactory
@@ -401,7 +379,7 @@ void setupResourceEditor(QObject *guard)
         .bindContextAction(&s_undoAction)
         .setContext(context)
         .addOnTriggered(guard, [] {
-            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
+            if (QrcEditor *editor = ResourceEditorImpl::currentQrcEditor())
                 editor->onUndo();
         });
 
@@ -410,7 +388,7 @@ void setupResourceEditor(QObject *guard)
         .setText(Tr::tr("&Redo"))
         .setContext(context)
         .addOnTriggered(guard, [] {
-            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
+            if (QrcEditor *editor = ResourceEditorImpl::currentQrcEditor())
                 editor->onRedo();
         });
 
@@ -419,8 +397,8 @@ void setupResourceEditor(QObject *guard)
         .bindContextAction(&s_refreshAction)
         .setContext(context)
         .addOnTriggered(guard, [] {
-            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
-                editor->onRefresh();
+            if (QrcEditor *editor = ResourceEditorImpl::currentQrcEditor())
+                editor->refresh();
         });
 }
 
