@@ -2484,6 +2484,16 @@ QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
     return renamedFiles;
 }
 
+#ifdef WITH_TESTS
+bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Utils::FilePath &target)
+{
+    const bool success = Core::FileUtils::renameFile(source, target, HandleIncludeGuards::Yes);
+    if (success)
+        emit instance()->filesRenamed({std::make_pair(source, target)});
+    return success;
+}
+#endif // WITH_TESTS
+
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
     m_outputPane.createNewOutputWindow(runControl);

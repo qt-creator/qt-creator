@@ -129,6 +129,10 @@ public:
     static QList<std::pair<Utils::FilePath, Utils::FilePath>>
     renameFiles(const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
 
+#ifdef WITH_TESTS
+    static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target);
+#endif
+
     static QStringList projectFilePatterns();
     static bool isProjectFile(const Utils::FilePath &filePath);
     static RecentProjectsEntries recentProjects();
