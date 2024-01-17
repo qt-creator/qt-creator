@@ -551,22 +551,38 @@ void autoSetupLanguageServer(TextDocument *document)
                                                   LanguageClientManager::instance());
 
                 auto handleInstall = [=](const bool success) {
-                    if (success) {
-                        Process process;
-                        process.setCommand(CommandLine(npm, {"bin"}));
-                        process.setWorkingDirectory(lsPath);
-                        process.start();
-                        process.waitForFinished();
-                        const FilePath lspath = FilePath::fromUserInput(
-                            process.stdOutLines().value(0));
-                        FilePath lsExecutable = lspath.pathAppended(languageServer);
-                        if (HostOsInfo::isWindowsHost())
-                            lsExecutable = lsExecutable.stringAppended(".cmd");
-
-                        if (lsExecutable.isExecutableFile())
-                            setupStdIOSettings(lsExecutable);
-                    }
                     install->deleteLater();
+                    if (!success)
+                        return;
+                    FilePath relativePath = FilePath::fromPathPart(
+                        QString("node_modules/.bin/" + languageServer));
+                    if (HostOsInfo::isWindowsHost())
+                        relativePath = relativePath.withSuffix(".cmd");
+                    FilePath lsExecutable = lsPath.resolvePath(relativePath);
+                    if (lsExecutable.isExecutableFile()) {
+                        setupStdIOSettings(lsExecutable);
+                        return;
+                    }
+                    Process process;
+                    process.setCommand(CommandLine(npm, {"list", languageServer}));
+                    process.setWorkingDirectory(lsPath);
+                    process.start();
+                    process.waitForFinished();
+                    const QStringList output = process.stdOutLines();
+                    // we are expecting output in the form of:
+                    // tst@ C:\tmp\tst
+                    // `-- vscode-json-languageserver@1.3.4
+                    for (const QString &line : output) {
+                        const qsizetype splitIndex = line.indexOf('@');
+                        if (splitIndex == -1)
+                            continue;
+                        lsExecutable = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
+                                           .resolvePath(relativePath);
+                        if (lsExecutable.isExecutableFile()) {
+                            setupStdIOSettings(lsExecutable);
+                            return;
+                        }
+                    }
                 };
 
                 QObject::connect(install,
