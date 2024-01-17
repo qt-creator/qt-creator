@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "resourceeditorw.h"
+#include "resourceeditor.h"
 
 #include "projectexplorer/projectexplorerconstants.h"
 #include "resourceeditorconstants.h"
@@ -421,4 +421,4 @@ void setupResourceEditor(QObject *guard)
 
 } // ResourceEditor::Internal
 
-#include "resourceeditorw.moc"
+#include "resourceeditor.moc"
