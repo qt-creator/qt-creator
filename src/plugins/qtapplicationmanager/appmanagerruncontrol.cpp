@@ -185,8 +185,6 @@ public:
         addStartDependency(m_debuggee);
         addStopDependency(m_debuggee);
 
-        m_debuggee->addStopDependency(this);
-
         Target *target = runControl->target();
 
         const Internal::TargetInformation targetInformation(target);
