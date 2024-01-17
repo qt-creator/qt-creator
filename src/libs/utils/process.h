@@ -182,6 +182,8 @@ public:
     const QStringList stdOutLines() const; // split, CR removed
     const QStringList stdErrLines() const; // split, CR removed
 
+    static QString exitMessage(const CommandLine &command, ProcessResult result,
+                               int exitCode, int maxHangTimerCount);
     QString exitMessage() const;
 
     QString toStandaloneCommandLine() const;

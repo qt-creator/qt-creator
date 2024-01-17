@@ -1651,24 +1651,29 @@ QString Process::readAllStandardError()
     return QString::fromUtf8(readAllRawStandardError());
 }
 
-QString Process::exitMessage() const
+QString Process::exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
+                             int maxHangTimerCount)
 {
-    const QString fullCmd = commandLine().toUserOutput();
-    switch (result()) {
+    const QString cmd = command.toUserOutput();
+    switch (result) {
     case ProcessResult::FinishedWithSuccess:
-        return Tr::tr("The command \"%1\" finished successfully.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" finished successfully.").arg(cmd);
     case ProcessResult::FinishedWithError:
-        return Tr::tr("The command \"%1\" terminated with exit code %2.")
-            .arg(fullCmd).arg(exitCode());
+        return Tr::tr("The command \"%1\" terminated with exit code %2.").arg(cmd).arg(exitCode);
     case ProcessResult::TerminatedAbnormally:
-        return Tr::tr("The command \"%1\" terminated abnormally.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" terminated abnormally.").arg(cmd);
     case ProcessResult::StartFailed:
-        return Tr::tr("The command \"%1\" could not be started.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" could not be started.").arg(cmd);
     case ProcessResult::Hang:
         return Tr::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
-            .arg(fullCmd).arg(d->m_maxHangTimerCount);
+            .arg(cmd).arg(maxHangTimerCount);
     }
     return {};
+}
+
+QString Process::exitMessage() const
+{
+    return exitMessage(commandLine(), result(), exitCode(), timeoutS());
 }
 
 QByteArray Process::allRawOutput() const
