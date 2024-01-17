@@ -594,7 +594,7 @@ private:
     int m_currentChildIndex = 0; // Start with Build & Run.
     Project *m_project = nullptr;
     TargetGroupItem *m_targetsItem = nullptr;
-    VanishedTargetsGroupItem *m_vanishedTargetsItem;
+    VanishedTargetsGroupItem *m_vanishedTargetsItem = nullptr;
     MiscSettingsGroupItem *m_miscItem = nullptr;
     const std::function<void ()> m_changeListener;
 };
