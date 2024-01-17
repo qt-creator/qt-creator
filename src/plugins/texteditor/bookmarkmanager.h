@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+
 #include <utils/itemviews.h>
 #include <utils/fileutils.h>
-#include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>
@@ -14,13 +16,9 @@
 #include <QPixmap>
 #include <QStyledItemDelegate>
 
-namespace Core { class IContext; }
-
 namespace TextEditor::Internal {
 
 class Bookmark;
-class BookmarksPlugin;
-class BookmarkContext;
 
 class BookmarkManager final : public QAbstractItemModel
 {
@@ -79,9 +77,7 @@ public:
     void editByFileAndLine(const Utils::FilePath &fileName, int lineNumber);
     bool gotoBookmark(const Bookmark *bookmark) const;
 
-signals:
-    void updateActions(bool enableToggle, int state);
-    void currentIndexChanged(const QModelIndex &);
+    void requestContextMenu(const Utils::FilePath &filePath, int lineNumber, QMenu *menu);
 
 private:
     void updateActionStatus();
@@ -101,6 +97,20 @@ private:
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;
+    Core::Menu m_bookmarkMenu;
+
+    QAction *m_toggleAction = nullptr;
+    QAction *m_editAction = nullptr;
+    QAction *m_prevAction = nullptr;
+    QAction *m_nextAction = nullptr;
+    QAction *m_docPrevAction = nullptr;
+    QAction *m_docNextAction = nullptr;
+
+    QAction m_editBookmarkAction;
+    QAction m_bookmarkMarginAction;
+
+    int m_marginActionLineNumber = 0;
+    Utils::FilePath m_marginActionFileName;
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
