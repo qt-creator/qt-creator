@@ -24,6 +24,7 @@
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
+#include "textmark.h"
 
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
@@ -291,11 +292,6 @@ public:
     TextEditorPluginPrivate *d = nullptr;
 };
 
-QObject *pluginInstance()
-{
-    return m_instance;
-}
-
 void TextEditorPlugin::initialize()
 {
 #ifdef WITH_TESTS
@@ -305,6 +301,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetParserTest);
 #endif
 
+    setupTextMarkRegistry(this);
     setupOutlineFactory();
 
     d = new TextEditorPluginPrivate;

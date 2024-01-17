@@ -10,6 +10,4 @@ namespace TextEditor::Internal {
 class LineNumberFilter;
 LineNumberFilter *lineNumberFilter();
 
-QObject *pluginInstance();
-
 } // TextEditor::Internal

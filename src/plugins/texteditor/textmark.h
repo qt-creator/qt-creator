@@ -152,4 +152,6 @@ private:
     friend class TextDocumentLayout;
 };
 
+void setupTextMarkRegistry(QObject *guard);
+
 } // namespace TextEditor

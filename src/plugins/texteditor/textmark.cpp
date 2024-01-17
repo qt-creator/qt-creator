@@ -33,13 +33,13 @@ class TextMarkRegistry : public QObject
 {
     Q_OBJECT
 public:
+    TextMarkRegistry(QObject *parent);
+
     static void add(TextMark *mark);
     static void add(TextMark *mark, TextDocument *document);
     static bool remove(TextMark *mark);
 
 private:
-    TextMarkRegistry(QObject *parent);
-    static TextMarkRegistry* instance();
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document,
                          const FilePath &oldPath,
@@ -48,6 +48,8 @@ private:
 
     QHash<Utils::FilePath, QSet<TextMark *> > m_marks;
 };
+
+TextMarkRegistry *m_instance = nullptr;
 
 class AnnotationColors
 {
@@ -63,8 +65,6 @@ public:
 private:
     static QHash<SourceColors, AnnotationColors> m_colorCache;
 };
-
-TextMarkRegistry *m_instance = nullptr;
 
 TextMark::TextMark(const FilePath &filePath, int lineNumber, TextMarkCategory category)
     : m_fileName(filePath)
@@ -464,6 +464,8 @@ void TextMark::setIsLocationMarker(bool newIsLocationMarker)
 TextMarkRegistry::TextMarkRegistry(QObject *parent)
     : QObject(parent)
 {
+    m_instance = this;
+
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &TextMarkRegistry::editorOpened);
 
@@ -480,21 +482,14 @@ void TextMarkRegistry::add(TextMark *mark)
 
 void TextMarkRegistry::add(TextMark *mark, TextDocument *document)
 {
-    instance()->m_marks[mark->filePath()].insert(mark);
+    m_instance->m_marks[mark->filePath()].insert(mark);
     if (document)
         document->addMark(mark);
 }
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return instance()->m_marks[mark->filePath()].remove(mark);
-}
-
-TextMarkRegistry *TextMarkRegistry::instance()
-{
-    if (!m_instance)
-        m_instance = new TextMarkRegistry(pluginInstance());
-    return m_instance;
+    return m_instance->m_marks[mark->filePath()].remove(mark);
 }
 
 void TextMarkRegistry::editorOpened(IEditor *editor)
@@ -572,6 +567,11 @@ AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
                                  foregroundLightness);
     }
     return colors;
+}
+
+void setupTextMarkRegistry(QObject *guard)
+{
+    (void) new TextMarkRegistry(guard);
 }
 
 } // namespace TextEditor
