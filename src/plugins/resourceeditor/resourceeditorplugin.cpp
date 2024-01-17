@@ -136,71 +136,91 @@ void ResourceEditorPlugin::initialize()
 {
     setupResourceEditor(this);
 
-    Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
-    ActionContainer *folderContextMenu =
-            ActionManager::actionContainer(ProjectExplorer::Constants::M_FOLDERCONTEXT);
-    ActionContainer *fileContextMenu =
-            ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
-    Command *command = nullptr;
+    const Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
+    const Id folderContextMenu = ProjectExplorer::Constants::M_FOLDERCONTEXT;
+    const Id folderFilesGroup = ProjectExplorer::Constants::G_FOLDER_FILES;
+    const Id fileContextMenu = ProjectExplorer::Constants::M_FILECONTEXT;
 
-    m_addPrefix = new QAction(Tr::tr("Add Prefix..."), this);
-    command = ActionManager::registerAction(m_addPrefix, Constants::C_ADD_PREFIX, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_addPrefix, &QAction::triggered, this, &ResourceEditorPlugin::addPrefixContextMenu);
+    ActionBuilder(this, Constants::C_ADD_PREFIX)
+        .setText(Tr::tr("Add Prefix..."))
+        .bindContextAction(&m_addPrefix)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::addPrefixContextMenu);
 
-    m_renamePrefix = new QAction(Tr::tr("Change Prefix..."), this);
-    command = ActionManager::registerAction(m_renamePrefix, Constants::C_RENAME_PREFIX, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renamePrefix, &QAction::triggered, this, &ResourceEditorPlugin::renamePrefixContextMenu);
+    ActionBuilder(this, Constants::C_RENAME_PREFIX)
+        .setText(Tr::tr("Change Prefix..."))
+        .bindContextAction(&m_renamePrefix)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::renamePrefixContextMenu);
 
-    m_removePrefix = new QAction(Tr::tr("Remove Prefix..."), this);
-    command = ActionManager::registerAction(m_removePrefix, Constants::C_REMOVE_PREFIX, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removePrefix, &QAction::triggered, this, &ResourceEditorPlugin::removePrefixContextMenu);
+    ActionBuilder(this, Constants::C_REMOVE_PREFIX)
+        .setText(Tr::tr("Remove Prefix..."))
+        .bindContextAction(&m_removePrefix)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::removePrefixContextMenu);
 
-    m_removeNonExisting = new QAction(Tr::tr("Remove Missing Files"), this);
-    command = ActionManager::registerAction(m_removeNonExisting, Constants::C_REMOVE_NON_EXISTING, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removeNonExisting, &QAction::triggered, this, &ResourceEditorPlugin::removeNonExisting);
+    ActionBuilder(this, Constants::C_REMOVE_NON_EXISTING)
+        .setText(Tr::tr("Remove Missing Files"))
+        .bindContextAction(&m_removeNonExisting)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::removeNonExisting);
 
-    m_renameResourceFile = new QAction(Tr::tr("Rename..."), this);
-    command = ActionManager::registerAction(m_renameResourceFile, Constants::C_RENAME_FILE, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renameResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::renameFileContextMenu);
+    ActionBuilder(this, Constants::C_RENAME_FILE)
+        .setText(Tr::tr("Rename..."))
+        .bindContextAction(&m_renameResourceFile)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::renameFileContextMenu);
 
-    m_removeResourceFile = new QAction(Tr::tr("Remove File..."), this);
-    command = ActionManager::registerAction(m_removeResourceFile, Constants::C_REMOVE_FILE, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removeResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::removeFileContextMenu);
+    ActionBuilder(this, Constants::C_REMOVE_FILE)
+        .setText(Tr::tr("Remove File..."))
+        .bindContextAction(&m_removeResourceFile)
+        .setContext(projectTreeContext)
+        .setEnabled(false)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::removeFileContextMenu);
 
-    m_openInEditor = new QAction(Tr::tr("Open in Editor"), this);
-    command = ActionManager::registerAction(m_openInEditor, Constants::C_OPEN_EDITOR, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_openInEditor, &QAction::triggered, this, &ResourceEditorPlugin::openEditorContextMenu);
+    ActionBuilder(this, Constants::C_OPEN_EDITOR)
+        .setText(Tr::tr("Open in Editor"))
+        .bindContextAction(&m_openInEditor)
+        .setContext(projectTreeContext)
+        .addToContainer(folderContextMenu, folderFilesGroup)
+        .addOnTriggered(this, &ResourceEditorPlugin::openEditorContextMenu);
 
-    m_openWithMenu = new QMenu(Tr::tr("Open With"), folderContextMenu->menu());
-    folderContextMenu->menu()->insertMenu(
-                folderContextMenu->insertLocation(ProjectExplorer::Constants::G_FOLDER_FILES),
-                m_openWithMenu);
+    ActionContainer *menu = ActionManager::actionContainer(folderContextMenu);
+    m_openWithMenu = new QMenu(Tr::tr("Open With"), menu->menu());
+    menu->menu()->insertMenu(
+        menu->insertLocation(ProjectExplorer::Constants::G_FOLDER_FILES),
+        m_openWithMenu);
 
-    m_copyPath = new ParameterAction(Tr::tr("Copy Path"), Tr::tr("Copy Path \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
-    command->setAttribute(Command::CA_UpdateText);
-    fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyPath, &QAction::triggered, this, &ResourceEditorPlugin::copyPathContextMenu);
+    ActionBuilder(this, Constants::C_COPY_PATH)
+        .setParameterText(Tr::tr("Copy Path \"%1\""),
+                          Tr::tr("Copy Path"),
+                          ActionBuilder::AlwaysEnabled)
+        .bindContextAction(&m_copyPath)
+        .setContext(projectTreeContext)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .addToContainer(fileContextMenu, ProjectExplorer::Constants::G_FILE_OTHER)
+        .addOnTriggered(this, &ResourceEditorPlugin::copyPathContextMenu);
 
-    m_copyUrl = new ParameterAction(Tr::tr("Copy URL"), Tr::tr("Copy URL \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_copyUrl, Constants::C_COPY_URL, projectTreeContext);
-    command->setAttribute(Command::CA_UpdateText);
-    fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyUrl, &QAction::triggered, this, &ResourceEditorPlugin::copyUrlContextMenu);
-
-    m_addPrefix->setEnabled(false);
-    m_removePrefix->setEnabled(false);
-    m_renamePrefix->setEnabled(false);
-    m_removeNonExisting->setEnabled(false);
-    m_renameResourceFile->setEnabled(false);
-    m_removeResourceFile->setEnabled(false);
+    ActionBuilder(this, Constants::C_COPY_URL)
+        .setParameterText(Tr::tr("Copy URL \"%1\""),
+                          Tr::tr("Copy URL"),
+                          ActionBuilder::AlwaysEnabled)
+        .bindContextAction(&m_copyUrl)
+        .setContext(projectTreeContext)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .addToContainer(fileContextMenu, ProjectExplorer::Constants::G_FILE_OTHER)
+        .addOnTriggered(this, &ResourceEditorPlugin::copyUrlContextMenu);
 
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &ResourceEditorPlugin::updateContextActions);

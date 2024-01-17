@@ -396,27 +396,32 @@ void setupResourceEditor(QObject *guard)
     // Register undo and redo
     const Context context(Constants::C_RESOURCEEDITOR);
 
-    s_undoAction = new QAction(Tr::tr("&Undo"), guard);
-    s_redoAction = new QAction(Tr::tr("&Redo"), guard);
-    s_refreshAction = new QAction(Tr::tr("Recheck Existence of Referenced Files"), guard);
-    ActionManager::registerAction(s_undoAction, Core::Constants::UNDO, context);
-    ActionManager::registerAction(s_redoAction, Core::Constants::REDO, context);
-    ActionManager::registerAction(s_refreshAction, Constants::REFRESH, context);
+    ActionBuilder(guard, Core::Constants::UNDO)
+        .setText(Tr::tr("&Undo"))
+        .bindContextAction(&s_undoAction)
+        .setContext(context)
+        .addOnTriggered(guard, [] {
+            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
+                editor->onUndo();
+        });
 
-    QObject::connect(s_undoAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
-            editor->onUndo();
-    });
+    ActionBuilder(guard, Core::Constants::REDO)
+        .bindContextAction(&s_redoAction)
+        .setText(Tr::tr("&Redo"))
+        .setContext(context)
+        .addOnTriggered(guard, [] {
+            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
+                editor->onRedo();
+        });
 
-    QObject::connect(s_redoAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
-            editor->onRedo();
-    });
-
-    QObject::connect(s_refreshAction, &QAction::triggered, guard, [] {
-        if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
-            editor->onRefresh();
-    });
+    ActionBuilder(guard, Constants::REFRESH)
+        .setText(Tr::tr("Recheck Existence of Referenced Files"))
+        .bindContextAction(&s_refreshAction)
+        .setContext(context)
+        .addOnTriggered(guard, [] {
+            if (ResourceEditorImpl *editor = ResourceEditorImpl::currentEditor())
+                editor->onRefresh();
+        });
 }
 
 } // ResourceEditor::Internal
