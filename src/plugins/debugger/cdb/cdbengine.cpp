@@ -214,16 +214,6 @@ void CdbEngine::init()
     m_symbolAddressCache.clear();
     m_coreStopReason.reset();
 
-    // Create local list of mappings in native separators
-    m_sourcePathMappings.clear();
-    const QString &packageSources = runParameters().qtPackageSourceLocation;
-    if (!packageSources.isEmpty()) {
-        for (const QString &buildPath : qtBuildPaths()) {
-            m_sourcePathMappings.push_back({QDir::toNativeSeparators(buildPath),
-                                            QDir::toNativeSeparators(packageSources)});
-        }
-    }
-
     const SourcePathMap &sourcePathMap
         = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
     if (!sourcePathMap.isEmpty()) {

@@ -63,7 +63,6 @@ const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 const char QTVERSIONDETECTIONSOURCE[] = "autodetectionSource";
 const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 const char QTVERSIONQMAKEPATH[] = "QMakePath";
-const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
 const char QTVERSION_ABIS[] = "Abis";
 
@@ -91,7 +90,6 @@ public:
     QString qtVersionString;
 
     FilePath sourcePath;
-    FilePath qtSources;
 
     Utils::FilePath prefix;
 
@@ -148,7 +146,6 @@ public:
 
         result.insert("QtVersionString", qtVersionString);
         result.insert("SourcePath", sourcePath.toSettings());
-        result.insert("QtSources", qtSources.toSettings());
         result.insert("Prefix", prefix.toSettings());
         result.insert("BinPath", binPath.toSettings());
         result.insert("LibExecPath", libExecPath.toSettings());
@@ -187,7 +184,6 @@ public:
         unexpandedDisplayName.fromMap(map, "UnexpandedDisplayName");
         qtVersionString = map.value("QtVersionString").toString();
         sourcePath = FilePath::fromSettings(map.value("SourcePath"));
-        qtSources = FilePath::fromSettings(map.value("QtSources"));
         prefix = FilePath::fromSettings(map.value("Prefix"));
         binPath = FilePath::fromSettings(map.value("BinPath"));
         libExecPath = FilePath::fromSettings(map.value("LibExecPath"));
@@ -769,8 +765,6 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
 
     if (persistentStore && !forceRefreshCache)
         d->m_data.fromMap(*persistentStore);
-    else
-        d->m_data.qtSources = FilePath::fromSettings(map.value(QTVERSIONSOURCEPATH));
 
     Store::const_iterator itQtAbis = map.find(QTVERSION_ABIS);
     if (itQtAbis != map.end()) {
@@ -1044,11 +1038,6 @@ FilePath QtVersion::sourcePath() const
         d->m_data.sourcePath = QtVersionPrivate::sourcePath(d->m_data.versionInfo);
     }
     return d->m_data.sourcePath;
-}
-
-FilePath QtVersion::qtPackageSourcePath() const
-{
-    return d->m_data.qtSources;
 }
 
 FilePath QtVersion::designerFilePath() const

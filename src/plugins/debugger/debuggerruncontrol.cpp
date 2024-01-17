@@ -847,10 +847,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
     m_runParameters.version = DebuggerKitAspect::version(kit);
 
-    if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
-        m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
+    if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtSourceLocation = qtVersion->sourcePath();
-    }
 
     if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
