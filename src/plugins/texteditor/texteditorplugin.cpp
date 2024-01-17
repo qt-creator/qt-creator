@@ -16,7 +16,6 @@
 #include "markdowneditor.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
-#include "snippets/snippet.h"
 #include "snippets/snippetprovider.h"
 #include "tabsettings.h"
 #include "textdocument.h"
@@ -43,6 +42,7 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/iplugin.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -263,22 +263,35 @@ void TextEditorPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         menu->addAction(&m_editBookmarkAction);
 }
 
-static TextEditorPlugin *m_instance = nullptr;
+static class TextEditorPlugin *m_instance = nullptr;
 
-TextEditorPlugin::TextEditorPlugin()
+class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TextEditor.json")
 
-TextEditorPlugin::~TextEditorPlugin()
-{
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
-}
+public:
+    TextEditorPlugin()
+    {
+        m_instance = this;
+    }
 
-TextEditorPlugin *TextEditorPlugin::instance()
+    ~TextEditorPlugin() final
+    {
+        delete d;
+        d = nullptr;
+        m_instance = nullptr;
+    }
+
+    ShutdownFlag aboutToShutdown() final;
+
+    void initialize() final;
+    void extensionsInitialized() final;
+
+    TextEditorPluginPrivate *d = nullptr;
+};
+
+QObject *pluginInstance()
 {
     return m_instance;
 }
@@ -439,7 +452,7 @@ void TextEditorPlugin::extensionsInitialized()
                                });
 }
 
-LineNumberFilter *TextEditorPlugin::lineNumberFilter()
+LineNumberFilter *lineNumberFilter()
 {
     return &m_instance->d->lineNumberFilter;
 }
@@ -532,3 +545,5 @@ void TextEditorPluginPrivate::createStandardContextMenu()
 }
 
 } // namespace TextEditor::Internal
+
+#include "texteditorplugin.moc"

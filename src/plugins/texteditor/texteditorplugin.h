@@ -3,33 +3,13 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 class LineNumberFilter;
+LineNumberFilter *lineNumberFilter();
 
-class TextEditorPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TextEditor.json")
+QObject *pluginInstance();
 
-public:
-    TextEditorPlugin();
-    ~TextEditorPlugin() final;
-
-    static TextEditorPlugin *instance();
-    static LineNumberFilter *lineNumberFilter();
-
-    ShutdownFlag aboutToShutdown() override;
-
-private:
-    void initialize() final;
-    void extensionsInitialized() final;
-
-    class TextEditorPluginPrivate *d = nullptr;
-};
-
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

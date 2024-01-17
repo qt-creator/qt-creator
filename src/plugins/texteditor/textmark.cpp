@@ -493,7 +493,7 @@ bool TextMarkRegistry::remove(TextMark *mark)
 TextMarkRegistry *TextMarkRegistry::instance()
 {
     if (!m_instance)
-        m_instance = new TextMarkRegistry(TextEditorPlugin::instance());
+        m_instance = new TextMarkRegistry(pluginInstance());
     return m_instance;
 }
 

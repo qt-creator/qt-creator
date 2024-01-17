@@ -188,7 +188,7 @@ void TextEditorActionHandlerPrivate::createActions()
     registerAction(SELECTALL,
             [] (TextEditorWidget *w) { w->selectAll(); }, true);
     registerAction(GOTO, [](TextEditorWidget *) {
-        LocatorManager::showFilter(TextEditorPlugin::lineNumberFilter());
+        LocatorManager::showFilter(lineNumberFilter());
     });
     m_modifyingActions << registerAction(PRINT, [](TextEditorWidget *widget) {
         widget->print(ICore::printer());
