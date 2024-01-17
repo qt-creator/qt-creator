@@ -114,7 +114,7 @@ bool CmakeProjectConverter::convertProject(const QmlProjectManager::QmlProject *
 
     if (retVal) {
         QMessageBox::information(Core::ICore::dialogParent(), SUCCESS_TITLE, SUCCESS_TEXT);
-        ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result
+        ProjectExplorer::OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(newProjectFile());
         if (!result)
             ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);

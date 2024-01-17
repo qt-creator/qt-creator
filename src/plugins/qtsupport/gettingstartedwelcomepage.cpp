@@ -203,7 +203,8 @@ static void openProject(const ExampleItem *item)
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
         return;
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
+
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
         ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);

@@ -445,8 +445,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             break;
         }
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            ProjectExplorerPlugin::OpenProjectResult result
-                    = ProjectExplorerPlugin::openProject(file.filePath());
+            OpenProjectResult result = ProjectExplorerPlugin::openProject(file.filePath());
             if (!result) {
                 errorMessage = result.errorMessage();
                 if (errorMessage.isEmpty()) {

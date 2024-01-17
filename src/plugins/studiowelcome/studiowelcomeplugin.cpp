@@ -252,7 +252,7 @@ public:
         const FilePath projectFile = FilePath::fromVariant(
             data(index(row, 0), ProjectModel::FilePathRole));
         if (projectFile.exists()) {
-            const ProjectExplorerPlugin::OpenProjectResult result
+            const OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
             if (!result && !result.alreadyOpen().isEmpty()) {
                 const auto fileToOpen = getMainUiFileWithFallback();

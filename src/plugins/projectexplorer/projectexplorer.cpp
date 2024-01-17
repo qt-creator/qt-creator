@@ -1970,7 +1970,7 @@ void ProjectExplorerPluginPrivate::loadAction()
     if (filePath.isEmpty())
         return;
 
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
     if (!result)
         ProjectExplorerPlugin::showOpenProjectError(result);
 
@@ -2273,7 +2273,7 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
         showOpenProjectError(result);
 }
 
-ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath)
+OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath)
 {
     OpenProjectResult result = openProjects({filePath});
     Project *project = result.project();
@@ -2323,7 +2323,7 @@ static void appendError(QString &errorString, const QString &error)
     errorString.append(error);
 }
 
-ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths)
+OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths)
 {
     QList<Project*> openedPro;
     QList<Project *> alreadyOpen;
@@ -3198,8 +3198,7 @@ void ProjectExplorerPluginPrivate::clearRecentProjects()
 void ProjectExplorerPluginPrivate::openRecentProject(const FilePath &filePath)
 {
     if (!filePath.isEmpty()) {
-        ProjectExplorerPlugin::OpenProjectResult result
-                = ProjectExplorerPlugin::openProject(filePath);
+        OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
     }

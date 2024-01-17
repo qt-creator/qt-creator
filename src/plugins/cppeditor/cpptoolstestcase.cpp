@@ -391,8 +391,7 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const FilePath &projectFile,
         bool configureAsExampleProject, Kit *kit)
 {
-    ProjectExplorerPlugin::OpenProjectResult result =
-            ProjectExplorerPlugin::openProject(projectFile);
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(projectFile);
     if (!result) {
         qWarning() << result.errorMessage() << result.alreadyOpen();
         return {};

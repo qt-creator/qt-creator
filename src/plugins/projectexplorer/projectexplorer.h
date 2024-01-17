@@ -43,6 +43,46 @@ class MiniProjectTargetSelector;
 using RecentProjectsEntry = QPair<Utils::FilePath, QString>;
 using RecentProjectsEntries = QList<RecentProjectsEntry>;
 
+class PROJECTEXPLORER_EXPORT OpenProjectResult
+{
+public:
+    OpenProjectResult(const QList<Project *> &projects, const QList<Project *> &alreadyOpen,
+                      const QString &errorMessage)
+        : m_projects(projects), m_alreadyOpen(alreadyOpen),
+          m_errorMessage(errorMessage)
+    { }
+
+    explicit operator bool() const
+    {
+        return m_errorMessage.isEmpty() && m_alreadyOpen.isEmpty();
+    }
+
+    Project *project() const
+    {
+        return m_projects.isEmpty() ? nullptr : m_projects.first();
+    }
+
+    QList<Project *> projects() const
+    {
+        return m_projects;
+    }
+
+    QString errorMessage() const
+    {
+        return m_errorMessage;
+    }
+
+    QList<Project *> alreadyOpen() const
+    {
+        return m_alreadyOpen;
+    }
+
+private:
+    QList<Project *> m_projects;
+    QList<Project *> m_alreadyOpen;
+    QString m_errorMessage;
+};
+
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -55,45 +95,6 @@ public:
     ~ProjectExplorerPlugin() override;
 
     static ProjectExplorerPlugin *instance();
-
-    class OpenProjectResult
-    {
-    public:
-        OpenProjectResult(const QList<Project *> &projects, const QList<Project *> &alreadyOpen,
-                          const QString &errorMessage)
-            : m_projects(projects), m_alreadyOpen(alreadyOpen),
-              m_errorMessage(errorMessage)
-        { }
-
-        explicit operator bool() const
-        {
-            return m_errorMessage.isEmpty() && m_alreadyOpen.isEmpty();
-        }
-
-        Project *project() const
-        {
-            return m_projects.isEmpty() ? nullptr : m_projects.first();
-        }
-
-        QList<Project *> projects() const
-        {
-            return m_projects;
-        }
-
-        QString errorMessage() const
-        {
-            return m_errorMessage;
-        }
-
-        QList<Project *> alreadyOpen() const
-        {
-            return m_alreadyOpen;
-        }
-    private:
-        QList<Project *> m_projects;
-        QList<Project *> m_alreadyOpen;
-        QString m_errorMessage;
-    };
 
     static OpenProjectResult openProject(const Utils::FilePath &filePath);
     static OpenProjectResult openProjects(const Utils::FilePaths &filePaths);

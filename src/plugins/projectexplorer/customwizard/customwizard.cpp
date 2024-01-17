@@ -529,8 +529,7 @@ bool CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l, QString *err
     // Post-Generate: Open the project and the editors as desired
     for (const GeneratedFile &file : l) {
         if (file.attributes() & GeneratedFile::OpenProjectAttribute) {
-            ProjectExplorerPlugin::OpenProjectResult result
-                    = ProjectExplorerPlugin::openProject(file.filePath());
+            OpenProjectResult result = ProjectExplorerPlugin::openProject(file.filePath());
             if (!result) {
                 if (errorMessage)
                     *errorMessage = result.errorMessage();

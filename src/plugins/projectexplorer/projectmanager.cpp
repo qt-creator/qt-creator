@@ -637,7 +637,7 @@ void ProjectManagerPrivate::restoreProjects(const FilePaths &fileList)
     // Keep projects that failed to load in the session!
     m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
-        ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
+        OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
         const QList<Project *> projects = result.projects();
