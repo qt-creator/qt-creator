@@ -87,6 +87,7 @@ bool EffectMakerModel::setData(const QModelIndex &index, const QVariant &value, 
     if (role == EnabledRole) {
         m_nodes.at(index.row())->setIsEnabled(value.toBool());
         bakeShaders();
+        setHasUnsavedChanges(true);
 
         emit dataChanged(index, index, {role});
     }
