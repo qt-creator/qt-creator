@@ -25,7 +25,7 @@
 
     \section1 Linux
 
-    (K)Ubuntu Linux 20.04 (64-bit) or later is supported.
+    (K)Ubuntu Linux 22.04 (64-bit) or later is supported.
 
     To build Qt applications using \QC on Linux, you usually need the
     following:
