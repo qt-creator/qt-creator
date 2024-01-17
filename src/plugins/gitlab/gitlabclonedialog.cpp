@@ -189,7 +189,6 @@ static FilePaths scanDirectoryForFiles(const FilePath &directory)
 void GitLabCloneDialog::cloneFinished(bool success)
 {
     m_commandRunning = false;
-    delete m_command;
     m_command = nullptr;
 
     const QString emptyLine("\n\n");
