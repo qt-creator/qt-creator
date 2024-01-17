@@ -29,11 +29,11 @@ static FilePath getToolPathByQtVersion(const QtVersion *qtVersion,
 
         const FilePath qtHostBinsDir = qtVersion->hostBinPath();
         if (toolExistsInDir(qtHostBinsDir))
-            return qtHostBinsDir.absolutePath();
+            return qtHostBinsDir;
 
         const FilePath qtBinDir = qtVersion->binPath();
         if (toolExistsInDir(qtBinDir))
-            return qtBinDir.absolutePath();
+            return qtBinDir;
     }
     return {};
 }
