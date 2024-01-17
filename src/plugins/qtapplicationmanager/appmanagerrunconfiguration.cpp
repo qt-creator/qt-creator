@@ -114,7 +114,7 @@ public:
             RunConfigurationCreationInfo rci;
             rci.factory = this;
             rci.buildKey = ti.buildKey;
-            rci.displayName = ti.displayName;
+            rci.displayName = decoratedTargetName(ti.displayName, target);
             rci.displayNameUniquifier = ti.displayNameUniquifier;
             rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
             rci.projectFilePath = Utils::FilePath::fromString(ti.manifest.fileName);

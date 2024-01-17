@@ -59,8 +59,8 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
                 return;
 
             TargetInformation ati;
-            ati.displayNameUniquifier = id + " App";
-            ati.displayName = id + " App";
+            ati.displayNameUniquifier = id + " [App]";
+            ati.displayName = id + " [App]";
             ati.buildKey = id;
             ati.manifest.fileName = manifestFilePath.path();
             ati.manifest.id = id;
