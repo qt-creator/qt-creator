@@ -8,7 +8,7 @@ add_qtc_plugin(SerialTerminal
     serialdevicemodel.cpp serialdevicemodel.h
     serialoutputpane.cpp serialoutputpane.h
     serialterminalconstants.h
-    serialterminalplugin.cpp serialterminalplugin.h
+    serialterminalplugin.cpp
     serialterminalsettings.cpp serialterminalsettings.h
     serialterminaltr.h
 )

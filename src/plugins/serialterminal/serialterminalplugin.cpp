@@ -1,42 +1,58 @@
 // Copyright (C) 2018 Benjamin Balga
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "serialterminalplugin.h"
-
 #include "serialcontrol.h"
+#include "serialoutputpane.h"
+#include "serialterminalsettings.h"
 
 #include <coreplugin/icore.h>
 
-namespace SerialTerminal {
-namespace Internal {
+#include <extensionsystem/iplugin.h>
 
-void SerialTerminalPlugin::initialize()
+#include <memory>
+
+namespace SerialTerminal::Internal {
+
+class SerialTerminalPlugin : public ExtensionSystem::IPlugin
 {
-    m_settings.load(Core::ICore::settings());
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "SerialTerminal.json")
 
-    // Create serial output pane
-    m_serialOutputPane = std::make_unique<SerialOutputPane>(m_settings);
-    connect(m_serialOutputPane.get(), &SerialOutputPane::settingsChanged,
-            this, &SerialTerminalPlugin::settingsChanged);
+public:
+    explicit SerialTerminalPlugin() = default;
 
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, [this] { m_settings.save(Core::ICore::settings()); });
-}
+    void initialize() final
+    {
+        m_settings.load(Core::ICore::settings());
 
-ExtensionSystem::IPlugin::ShutdownFlag SerialTerminalPlugin::aboutToShutdown()
-{
-    m_serialOutputPane->closeTabs(SerialOutputPane::CloseTabNoPrompt);
+        // Create serial output pane
+        m_serialOutputPane = std::make_unique<SerialOutputPane>(m_settings);
+        connect(m_serialOutputPane.get(), &SerialOutputPane::settingsChanged,
+                this, &SerialTerminalPlugin::settingsChanged);
 
-    return SynchronousShutdown;
-}
+        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+                this, [this] { m_settings.save(Core::ICore::settings()); });
+    }
 
-void SerialTerminalPlugin::settingsChanged(const Settings &settings)
-{
-    m_settings = settings;
-    m_settings.save(Core::ICore::settings());
+    ShutdownFlag aboutToShutdown() final
+    {
+        m_serialOutputPane->closeTabs(SerialOutputPane::CloseTabNoPrompt);
 
-    m_serialOutputPane->setSettings(m_settings);
-}
+        return SynchronousShutdown;
+    }
 
-} // namespace Internal
-} // namespace SerialTerminal
+    void settingsChanged(const Settings &settings)
+    {
+        m_settings = settings;
+        m_settings.save(Core::ICore::settings());
+
+        m_serialOutputPane->setSettings(m_settings);
+    }
+
+    Settings m_settings;
+    std::unique_ptr<SerialOutputPane> m_serialOutputPane;
+};
+
+} // SerialTerminal::Internal
+
+#include "serialterminalplugin.moc"
