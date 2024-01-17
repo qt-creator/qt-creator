@@ -71,6 +71,7 @@ static ExampleItem fetchItem()
 void tst_Examples::parsing_data()
 {
     QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("instructionalsModule");
     QTest::addColumn<bool>("isExamples");
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("description");
@@ -94,7 +95,7 @@ void tst_Examples::parsing_data()
 
     QTest::addRow("example")
         << QByteArray(R"raw(
-  <instructionals module="Qt">
+  <instructionals module="QtGui">
     <examples>
         <example docUrl="qthelp://org.qt-project.qtwidgets.660/qtwidgets/qtwidgets-widgets-analogclock-example.html"
                  imageUrl="qthelp://org.qt-project.qtwidgets.660/qtwidgets/images/analogclock-example.png"
@@ -119,8 +120,8 @@ void tst_Examples::parsing_data()
         <category>Embedded</category>
     </categories>
   </instructionals>
- )raw") << /*isExamples=*/true
-        << "Analog Clock"
+ )raw") << "QtGui"
+        << /*isExamples=*/true << "Analog Clock"
         << "The Analog Clock example shows how to draw the contents of a custom widget."
         << "qthelp://org.qt-project.qtwidgets.660/qtwidgets/images/analogclock-example.png"
         << QStringList{"ios", "widgets"}
@@ -140,17 +141,18 @@ void tst_Examples::parsing_data()
 
     QTest::addRow("no category, highlighted")
         << QByteArray(R"raw(
-  <instructionals module="Qt">
+  <instructionals module="QtQuick3D">
     <examples>
         <example name="No Category, highlighted"
                  isHighlighted="true">
         </example>
     </examples>
   </instructionals>
- )raw") << /*isExamples=*/true
-        << "No Category, highlighted" << QString() << QString() << QStringList()
-        << FilePath("examples") << QString() << FilePaths() << FilePath() << FilePaths() << Example
-        << /*hasSourceCode=*/false << false << /*isHighlighted=*/true << ""
+ )raw") << "QtQuick3D"
+        << /*isExamples=*/true << "No Category, highlighted" << QString() << QString()
+        << QStringList() << FilePath("examples") << QString() << FilePaths() << FilePath()
+        << FilePaths() << Example << /*hasSourceCode=*/false << false << /*isHighlighted=*/true
+        << ""
         << "" << QStringList() << MetaData() << QStringList{"Featured"} << QStringList();
 
     QTest::addRow("tutorial with category")
@@ -172,8 +174,8 @@ void tst_Examples::parsing_data()
       </tutorial>
     </tutorials>
   </instructionals>
-)raw") << /*isExamples=*/false
-        << "A tutorial"
+)raw") << "Qt"
+        << /*isExamples=*/false << "A tutorial"
         << "A dummy tutorial."
         << ":qtsupport/images/icons/tutorialicon.png"
         << QStringList{"qt creator", "build", "compile", "help"} << FilePath()
@@ -187,6 +189,7 @@ void tst_Examples::parsing_data()
 void tst_Examples::parsing()
 {
     QFETCH(QByteArray, data);
+    QFETCH(QString, instructionalsModule);
     QFETCH(bool, isExamples);
     QFETCH(QStringList, categories);
     QFETCH(QStringList, categoryOrder);
@@ -198,6 +201,7 @@ void tst_Examples::parsing()
                                                               FilePath("demos"),
                                                               isExamples);
     QVERIFY(result);
+    QCOMPARE(result->instructionalsModule, instructionalsModule);
     QCOMPARE(result->categoryOrder, categoryOrder);
     QCOMPARE(result->items.size(), 1);
     const ExampleItem item = *result->items.at(0);

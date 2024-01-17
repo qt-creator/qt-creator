@@ -34,6 +34,7 @@ public:
 class QTSUPPORT_TEST_EXPORT ParsedExamples
 {
 public:
+    QString instructionalsModule;
     QList<ExampleItem *> items;
     QStringList categoryOrder;
 };
