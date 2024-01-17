@@ -14,10 +14,10 @@ add_qtc_executable(qtcreator_processlauncher
     ${UTILSDIR}/launcherpackets.cpp
     ${UTILSDIR}/launcherpackets.h
     ${UTILSDIR}/processenums.h
+    ${UTILSDIR}/processhelper.cpp
+    ${UTILSDIR}/processhelper.h
     ${UTILSDIR}/processreaper.cpp
     ${UTILSDIR}/processreaper.h
-    ${UTILSDIR}/processutils.cpp
-    ${UTILSDIR}/processutils.h
     ${UTILSDIR}/qtcassert.cpp
     ${UTILSDIR}/qtcassert.h
     ${UTILSDIR}/singleton.cpp

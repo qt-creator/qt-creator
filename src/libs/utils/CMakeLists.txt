@@ -131,10 +131,10 @@ add_qtc_library(Utils
     process.cpp process.h
     processenums.h
     processhandle.cpp processhandle.h
+    processhelper.cpp processhelper.h
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
     processreaper.cpp processreaper.h
-    processutils.cpp processutils.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h

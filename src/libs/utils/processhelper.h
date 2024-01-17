@@ -5,7 +5,6 @@
 
 #include "processenums.h"
 
-#include <QIODevice>
 #include <QProcess>
 
 namespace Utils {

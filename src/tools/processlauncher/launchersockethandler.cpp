@@ -4,8 +4,8 @@
 #include "launchersockethandler.h"
 #include "launcherlogging.h"
 
+#include <utils/processhelper.h>
 #include <utils/processreaper.h>
-#include <utils/processutils.h>
 
 #include <QCoreApplication>
 #include <QLocalSocket>
