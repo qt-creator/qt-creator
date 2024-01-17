@@ -473,130 +473,137 @@ private:
 constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
 constexpr char JSON_MIME_TYPE[]{"application/json"};
 
-void autoSetupLanguageServer(TextDocument *document)
+static void setupNpmServer(TextDocument *document,
+                           const Id &infoBarId,
+                           const QString &languageServer,
+                           const QString &language,
+                           const QStringList &serverMimeTypes)
 {
-    const auto mimeType = Utils::mimeTypeForName(document->mimeType());
-    const bool isYaml = mimeType.inherits(YAML_MIME_TYPE);
-    if (isYaml || mimeType.inherits(JSON_MIME_TYPE)) {
-        // check whether the user suppressed the info bar
-        const Id infoBarId = isYaml ? installYamlLsInfoBarId : installJsonLsInfoBarId;
+    InfoBar *infoBar = document->infoBar();
+    if (!infoBar->canInfoBeAdded(infoBarId))
+        return;
 
-        InfoBar *infoBar = document->infoBar();
-        if (!infoBar->canInfoBeAdded(infoBarId))
+    // check if it is already configured
+    const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
+    for (BaseSettings *setting : settings) {
+        if (setting->isValid() && setting->m_languageFilter.isSupported(document))
             return;
+    }
 
-        // check if it is already configured
-        const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
-        for (BaseSettings *setting : settings) {
-            if (setting->isValid() && setting->m_languageFilter.isSupported(document))
-                return;
-        }
+    // check for npm
+    const FilePath npm = Environment::systemEnvironment().searchInPath("npm");
+    if (!npm.isExecutableFile())
+        return;
 
-        // check for npm
-        const FilePath npm = Environment::systemEnvironment().searchInPath("npm");
-        if (!npm.isExecutableFile())
-            return;
+    FilePath lsExecutable;
 
-        const QString languageServer = isYaml ? QString("yaml-language-server")
-                                              : QString("vscode-json-languageserver");
+    Process process;
+    process.setCommand(CommandLine(npm, {"list", "-g", languageServer}));
+    process.start();
+    process.waitForFinished();
+    if (process.exitCode() == 0) {
+        const FilePath lspath = FilePath::fromUserInput(process.stdOutLines().value(0));
+        lsExecutable = lspath.pathAppended(languageServer);
+        if (HostOsInfo::isWindowsHost())
+            lsExecutable = lsExecutable.stringAppended(".cmd");
+    }
 
-        FilePath lsExecutable;
+    const bool install = !lsExecutable.isExecutableFile();
 
-        Process process;
-        process.setCommand(CommandLine(npm, {"list", "-g", languageServer}));
-        process.start();
-        process.waitForFinished();
-        if (process.exitCode() == 0) {
-            const FilePath lspath = FilePath::fromUserInput(process.stdOutLines().value(0));
-            lsExecutable = lspath.pathAppended(languageServer);
-            if (HostOsInfo::isWindowsHost())
-                lsExecutable = lsExecutable.stringAppended(".cmd");
-        }
-
-        const bool install = !lsExecutable.isExecutableFile();
-
-        const QString language = isYaml ? QString("YAML") : QString("JSON");
-
-        const QString message = install
-                                    ? Tr::tr("Install %1 language server via npm.").arg(language)
+    const QString message = install ? Tr::tr("Install %1 language server via npm.").arg(language)
                                     : Tr::tr("Setup %1 language server (%2).")
                                           .arg(language)
                                           .arg(lsExecutable.toUserOutput());
-        InfoBarEntry info(infoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
-            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-            for (Core::IDocument *doc : openedDocuments)
-                doc->infoBar()->removeInfo(infoBarId);
+    InfoBarEntry info(infoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
+    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
+        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+        for (Core::IDocument *doc : openedDocuments)
+            doc->infoBar()->removeInfo(infoBarId);
 
-            auto setupStdIOSettings = [=](const FilePath &executable){
-                auto settings = new StdIOSettings();
+        auto setupStdIOSettings = [=](const FilePath &executable) {
+            auto settings = new StdIOSettings();
 
-                settings->m_executable = executable;
-                settings->m_arguments = "--stdio";
-                settings->m_name = Tr::tr("%1 Language Server").arg(language);
-                settings->m_languageFilter.mimeTypes = {isYaml ? QString(YAML_MIME_TYPE)
-                                                               : QString(JSON_MIME_TYPE)};
+            settings->m_executable = executable;
+            settings->m_arguments = "--stdio";
+            settings->m_name = Tr::tr("%1 Language Server").arg(language);
+            settings->m_languageFilter.mimeTypes = serverMimeTypes;
+            LanguageClientSettings::addSettings(settings);
+            LanguageClientManager::applySettings();
+        };
 
-                LanguageClientSettings::addSettings(settings);
-                LanguageClientManager::applySettings();
-            };
+        if (install) {
+            const FilePath lsPath = Core::ICore::userResourcePath(languageServer);
+            if (!lsPath.ensureWritableDir())
+                return;
+            auto install = new NpmInstallTask(npm,
+                                              lsPath,
+                                              languageServer,
+                                              LanguageClientManager::instance());
 
-            if (install) {
-                const FilePath lsPath = Core::ICore::userResourcePath(languageServer);
-                if (!lsPath.ensureWritableDir())
+            auto handleInstall = [=](const bool success) {
+                install->deleteLater();
+                if (!success)
                     return;
-                auto install = new NpmInstallTask(npm,
-                                                  lsPath,
-                                                  languageServer,
-                                                  LanguageClientManager::instance());
-
-                auto handleInstall = [=](const bool success) {
-                    install->deleteLater();
-                    if (!success)
-                        return;
-                    FilePath relativePath = FilePath::fromPathPart(
-                        QString("node_modules/.bin/" + languageServer));
-                    if (HostOsInfo::isWindowsHost())
-                        relativePath = relativePath.withSuffix(".cmd");
-                    FilePath lsExecutable = lsPath.resolvePath(relativePath);
+                FilePath relativePath = FilePath::fromPathPart(
+                    QString("node_modules/.bin/" + languageServer));
+                if (HostOsInfo::isWindowsHost())
+                    relativePath = relativePath.withSuffix(".cmd");
+                FilePath lsExecutable = lsPath.resolvePath(relativePath);
+                if (lsExecutable.isExecutableFile()) {
+                    setupStdIOSettings(lsExecutable);
+                    return;
+                }
+                Process process;
+                process.setCommand(CommandLine(npm, {"list", languageServer}));
+                process.setWorkingDirectory(lsPath);
+                process.start();
+                process.waitForFinished();
+                const QStringList output = process.stdOutLines();
+                // we are expecting output in the form of:
+                // tst@ C:\tmp\tst
+                // `-- vscode-json-languageserver@1.3.4
+                for (const QString &line : output) {
+                    const qsizetype splitIndex = line.indexOf('@');
+                    if (splitIndex == -1)
+                        continue;
+                    lsExecutable = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
+                                       .resolvePath(relativePath);
                     if (lsExecutable.isExecutableFile()) {
                         setupStdIOSettings(lsExecutable);
                         return;
                     }
-                    Process process;
-                    process.setCommand(CommandLine(npm, {"list", languageServer}));
-                    process.setWorkingDirectory(lsPath);
-                    process.start();
-                    process.waitForFinished();
-                    const QStringList output = process.stdOutLines();
-                    // we are expecting output in the form of:
-                    // tst@ C:\tmp\tst
-                    // `-- vscode-json-languageserver@1.3.4
-                    for (const QString &line : output) {
-                        const qsizetype splitIndex = line.indexOf('@');
-                        if (splitIndex == -1)
-                            continue;
-                        lsExecutable = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
-                                           .resolvePath(relativePath);
-                        if (lsExecutable.isExecutableFile()) {
-                            setupStdIOSettings(lsExecutable);
-                            return;
-                        }
-                    }
-                };
+                }
+            };
 
-                QObject::connect(install,
-                                 &NpmInstallTask::finished,
-                                 LanguageClientManager::instance(),
-                                 handleInstall);
+            QObject::connect(install,
+                             &NpmInstallTask::finished,
+                             LanguageClientManager::instance(),
+                             handleInstall);
 
-                install->run();
-            } else {
-                setupStdIOSettings(lsExecutable);
-            }
+            install->run();
+        } else {
+            setupStdIOSettings(lsExecutable);
+        }
+    });
+    infoBar->addInfo(info);
+}
 
-        });
-        infoBar->addInfo(info);
+void autoSetupLanguageServer(TextDocument *document)
+{
+    const MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+
+    if (mimeType.inherits(JSON_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installJsonLsInfoBarId,
+                       "vscode-json-languageserver",
+                       QString("JSON"),
+                       {JSON_MIME_TYPE});
+    } else if (mimeType.inherits(YAML_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installYamlLsInfoBarId,
+                       "yaml-language-server",
+                       QString("YAML"),
+                       {YAML_MIME_TYPE});
     }
 }
 
