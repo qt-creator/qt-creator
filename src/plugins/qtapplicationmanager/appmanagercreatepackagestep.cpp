@@ -14,6 +14,7 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -39,8 +40,13 @@ public:
         setDisplayName(Tr::tr("Create Application Manager package"));
 
         packager.setSettingsKey(SETTINGSPREFIX "Executable");
+        packager.setDefaultValue(getToolFilePath(Constants::APPMAN_PACKAGER,
+                                                 kit(),
+                                                 DeviceKitAspect::device(kit())));
 
         arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
+        arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
+        arguments.resetArguments();
 
         sourceDirectory.setSettingsKey(SETTINGSPREFIX "SourceDirectory");
         sourceDirectory.setLabelText(Tr::tr("Source directory:"));
@@ -49,30 +55,6 @@ public:
         packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
         packageFile.setLabelText(Tr::tr("Package file:"));
         packageFile.setExpectedKind(Utils::PathChooser::SaveFile);
-
-        const auto updateAspects = [this] {
-            const auto targetInformation = TargetInformation(target());
-
-            packager.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_PACKAGER,
-                                                                   target()->kit(),
-                                                                   targetInformation.device)));
-            packager.setDefaultValue(packager.value());
-            arguments.setArguments(ArgumentsDefault);
-            arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
-
-            packageFile.setValue(targetInformation.packageFile.absoluteFilePath());
-            packageFile.setDefaultValue(packageFile.value());
-
-            sourceDirectory.setValue(targetInformation.packageSourcesDirectory.absolutePath());
-            sourceDirectory.setDefaultValue(sourceDirectory.value());
-        };
-
-        connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
-        connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
-        connect(target(), &Target::parsingFinished, this, updateAspects);
-        connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
-        connect(project(), &Project::displayNameChanged, this, updateAspects);
-        updateAspects();
     }
 
     bool init() final

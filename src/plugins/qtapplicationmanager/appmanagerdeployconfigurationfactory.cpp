@@ -32,7 +32,7 @@ public:
     AppManagerDeployConfigurationFactory()
     {
         setConfigBaseId(Constants::DEPLOYCONFIGURATION_ID);
-        setDefaultDisplayName(Tr::tr("Deploy Application Manager Package"));
+        setDefaultDisplayName(Tr::tr("Automatic AppMan Deploy Configuration"));
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 

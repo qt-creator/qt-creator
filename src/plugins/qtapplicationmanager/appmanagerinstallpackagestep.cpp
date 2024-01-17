@@ -27,7 +27,7 @@ namespace AppManager::Internal {
 
 #define SETTINGSPREFIX "ApplicationManagerPlugin.Deploy.InstallPackageStep."
 
-const char ArgumentsDefault[] = "install-package -a";
+const char ArgumentsDefault[] = "install-package --acknowledge";
 
 class AppManagerInstallPackageStep final : public AbstractProcessStep
 {
@@ -38,6 +38,7 @@ protected:
     bool init() final;
 
 private:
+    AppManagerCustomizeAspect customizeStep{this};
     AppManagerControllerAspect controller{this};
     ProjectExplorer::ArgumentsAspect arguments{this};
     FilePathAspect packageFile{this};
@@ -48,22 +49,25 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 {
     setDisplayName(Tr::tr("Install Application Manager package"));
 
+    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
+                                               kit(),
+                                               DeviceKitAspect::device(kit())));
+
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
+    arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
+    arguments.resetArguments();
 
     packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
     packageFile.setLabelText(Tr::tr("Package file:"));
+    packageFile.setEnabler(&customizeStep);
 
     const auto updateAspects = [this]  {
+        if (customizeStep.value())
+            return;
+
         const TargetInformation targetInformation(target());
 
-        controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                                                 target()->kit(),
-                                                                 targetInformation.device)));
-        controller.setDefaultValue(controller.value());
-        arguments.setArguments(ArgumentsDefault);
-        arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
-
-        packageFile.setValue(targetInformation.packageFile.absoluteFilePath());
+        packageFile.setDefaultValue(targetInformation.packageFile.absoluteFilePath());
 
         setEnabled(!targetInformation.isBuiltin);
     };
@@ -73,6 +77,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
     connect(target(), &Target::parsingFinished, this, updateAspects);
     connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
     connect(project(), &Project::displayNameChanged, this, updateAspects);
+    connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
     updateAspects();
 }
 

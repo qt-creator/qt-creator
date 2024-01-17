@@ -43,6 +43,16 @@ public:
     ~AppManagerDocumentUrlAspect() final = default;
 };
 
+class AppManagerCustomizeAspect final : public Utils::BoolAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerCustomizeAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerCustomizeAspect() final = default;
+};
+
 class AppManagerControllerAspect final : public Utils::FilePathAspect
 {
     Q_OBJECT

@@ -55,6 +55,15 @@ AppManagerDocumentUrlAspect::AppManagerDocumentUrlAspect(Utils::AspectContainer 
     setLabelText(Tr::tr("Document url:"));
 }
 
+AppManagerCustomizeAspect::AppManagerCustomizeAspect(Utils::AspectContainer *container)
+    : BoolAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.CustomizeStep");
+    setLabelText(Tr::tr("Customize Step"));
+    setToolTip(Tr::tr("Disables the automatic updates based on the current run configuration and "
+                      "allows customizing the values"));
+}
+
 AppManagerControllerAspect::AppManagerControllerAspect(Utils::AspectContainer *container)
     : FilePathAspect(container)
 {

@@ -40,11 +40,16 @@ public:
 
         packageFilePath.setSettingsKey(SETTINGSPREFIX "FilePath");
         packageFilePath.setLabelText(Tr::tr("Package file:"));
+        packageFilePath.setEnabler(&customizeStep);
 
         targetDirectory.setSettingsKey(SETTINGSPREFIX "TargetDirectory");
         targetDirectory.setLabelText(Tr::tr("Target directory:"));
+        targetDirectory.setEnabler(&customizeStep);
 
         const auto updateAspects = [this] {
+            if (customizeStep.value())
+                return;
+
             const TargetInformation targetInformation(target());
 
             packageFilePath.setValue(targetInformation.packageFile.absoluteFilePath());
@@ -61,6 +66,7 @@ public:
         connect(target(), &Target::parsingFinished, this, updateAspects);
         connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
         connect(project(), &Project::displayNameChanged, this, updateAspects);
+        connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
 
         updateAspects();
     }
@@ -96,6 +102,7 @@ private:
         return FileStreamerTask(onSetup, onDone);
     }
 
+    AppManagerCustomizeAspect customizeStep{this};
     FilePathAspect packageFilePath{this};
     FilePathAspect targetDirectory{this};
 };

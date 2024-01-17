@@ -32,7 +32,7 @@ namespace AppManager::Internal {
 
 #define SETTINGSPREFIX "ApplicationManagerPlugin.Deploy.RemoteInstallPackageStep."
 
-const char ArgumentsDefault[] = "install-package -a";
+const char ArgumentsDefault[] = "install-package --acknowledge";
 
 class AppManagerRemoteInstallPackageStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
@@ -43,6 +43,7 @@ private:
     GroupItem deployRecipe() final;
 
 private:
+    AppManagerCustomizeAspect customizeStep{this};
     AppManagerControllerAspect controller{this};
     ProjectExplorer::ArgumentsAspect arguments{this};
     FilePathAspect packageFile{this};
@@ -53,25 +54,30 @@ AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStep
 {
     setDisplayName(tr("Remote Install Application Manager package"));
 
+    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
+                                               target()->kit(),
+                                               DeviceKitAspect::device(target()->kit())));
+
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
+    arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
+    arguments.resetArguments();
 
     packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
     packageFile.setLabelText(Tr::tr("Package file:"));
+    packageFile.setEnabler(&customizeStep);
 
     setInternalInitializer([this] { return isDeploymentPossible(); });
 
     const auto updateAspects = [this]  {
+        if (customizeStep.value())
+            return;
+
         const TargetInformation targetInformation(target());
 
-        controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                                                 target()->kit(),
-                                                                 targetInformation.device)));
-        controller.setDefaultValue(controller.value());
-        arguments.setArguments(ArgumentsDefault);
-        arguments.setResetter([](){ return QLatin1String(ArgumentsDefault); });
+        const QString packageFilePath =
+            targetInformation.runDirectory.absoluteFilePath(targetInformation.packageFile.fileName());
 
-        packageFile.setValue(targetInformation.packageFile.absoluteFilePath());
-        packageFile.setDefaultValue(packageFile.value());
+        packageFile.setDefaultValue(packageFilePath);
 
         setEnabled(!targetInformation.isBuiltin);
     };
@@ -81,6 +87,7 @@ AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStep
     connect(target(), &Target::parsingFinished, this, updateAspects);
     connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
     connect(project(), &Project::displayNameChanged, this, updateAspects);
+    connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
     updateAspects();
 }
 
