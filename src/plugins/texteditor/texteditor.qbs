@@ -238,6 +238,7 @@ QtcPlugin {
             "highlighter_test.cpp",
             "highlighter_test.h",
             "texteditor_test.cpp",
+            "texteditor_test.h",
         ]
     }
 }

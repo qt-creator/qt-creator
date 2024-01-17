@@ -329,12 +329,21 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
 } // namespace TextEditor
 
 #ifdef WITH_TESTS
-#include "texteditorplugin.h"
+
 #include <QTest>
 
 namespace TextEditor::Internal {
 
-void TextEditorPlugin::testFormatting_data()
+class FormatTextTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testFormatting_data();
+    void testFormatting();
+};
+
+void FormatTextTest::testFormatting_data()
 {
     QTest::addColumn<QString>("code");
     QTest::addColumn<QString>("result");
@@ -360,7 +369,7 @@ void TextEditorPlugin::testFormatting_data()
     }
 }
 
-void TextEditorPlugin::testFormatting()
+void FormatTextTest::testFormatting()
 {
     QFETCH(QString, code);
     QFETCH(QString, result);
@@ -377,6 +386,13 @@ void TextEditorPlugin::testFormatting()
     QCOMPARE(editor->toPlainText(), result);
 }
 
+QObject *createFormatTextTest()
+{
+    return new FormatTextTest;
+}
+
 } // namespace TextEditor::Internal
 
-#endif
+#include "formattexteditor.moc"
+
+#endif // WITH_TESTS

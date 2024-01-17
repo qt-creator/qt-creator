@@ -29,20 +29,6 @@ private:
     void extensionsInitialized() final;
 
     class TextEditorPluginPrivate *d = nullptr;
-
-#ifdef WITH_TESTS
-private slots:
-    void testSnippetParsing_data();
-    void testSnippetParsing();
-
-    void testIndentationClean_data();
-    void testIndentationClean();
-
-    void testFormatting_data();
-    void testFormatting();
-
-    void testDeletingMarkOnReload();
-#endif
 };
 
 } // namespace Internal

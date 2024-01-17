@@ -16,10 +16,12 @@
 #include "markdowneditor.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
+#include "snippets/snippet.h"
 #include "snippets/snippetprovider.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
+#include "texteditor_test.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
@@ -283,6 +285,13 @@ TextEditorPlugin *TextEditorPlugin::instance()
 
 void TextEditorPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createFormatTextTest);
+    addTestCreator(createTextDocumentTest);
+    addTestCreator(createTextEditorTest);
+    addTestCreator(createSnippetParserTest);
+#endif
+
     setupOutlineFactory();
 
     d = new TextEditorPluginPrivate;

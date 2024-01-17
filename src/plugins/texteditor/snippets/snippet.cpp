@@ -272,12 +272,9 @@ SnippetParseResult Snippet::parse(const QString &snippet)
 
 } // Texteditor
 
-using namespace TextEditor;
 
 #ifdef WITH_TESTS
 #   include <QTest>
-
-#   include "../texteditorplugin.h"
 
 const char NOMANGLER_ID[] = "TextEditor::NoMangler";
 
@@ -297,9 +294,20 @@ struct SnippetPart
 };
 Q_DECLARE_METATYPE(SnippetPart);
 
+namespace TextEditor::Internal {
+
 using Parts = QList<SnippetPart>;
 
-void Internal::TextEditorPlugin::testSnippetParsing_data()
+class SnippetParserTest final : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void testSnippetParsing_data();
+    void testSnippetParsing();
+};
+
+void SnippetParserTest::testSnippetParsing_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<bool>("success");
@@ -384,7 +392,7 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
                                          };
 }
 
-void Internal::TextEditorPlugin::testSnippetParsing()
+void SnippetParserTest::testSnippetParsing()
 {
     QFETCH(QString, input);
     QFETCH(bool, success);
@@ -407,4 +415,14 @@ void Internal::TextEditorPlugin::testSnippetParsing()
     for (int i = 0; i < parts.size(); ++i)
         rangesCompare(snippet.parts.at(i), parts.at(i));
 }
-#endif
+
+QObject *createSnippetParserTest()
+{
+    return new SnippetParserTest;
+}
+
+} // TextEditor::Internal
+
+#include "snippet.moc"
+
+#endif // WITH_TESTS
