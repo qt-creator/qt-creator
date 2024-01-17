@@ -127,17 +127,16 @@ void ClangCodeModelPlugin::generateCompilationDB()
 void ClangCodeModelPlugin::createCompilationDBAction()
 {
     // generate compile_commands.json
-    m_generateCompilationDBAction = new ParameterAction(
-                Tr::tr("Generate Compilation Database"),
-                Tr::tr("Generate Compilation Database for \"%1\""),
-                ParameterAction::AlwaysEnabled, this);
-    Project *startupProject = ProjectManager::startupProject();
-    if (startupProject)
+    ActionBuilder(this, Constants::GENERATE_COMPILATION_DB)
+        .setParameterText(Tr::tr("Generate Compilation Database for \"%1\""),
+                          Tr::tr("Generate Compilation Database"),
+                          ActionBuilder::AlwaysEnabled)
+        .bindContextAction(&m_generateCompilationDBAction)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .setCommandDescription(m_generateCompilationDBAction->text());
+
+    if (Project *startupProject = ProjectManager::startupProject())
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
-    Command *command = ActionManager::registerAction(m_generateCompilationDBAction,
-                                                     Constants::GENERATE_COMPILATION_DB);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(m_generateCompilationDBAction->text());
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] {
