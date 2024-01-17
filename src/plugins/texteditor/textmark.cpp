@@ -6,7 +6,6 @@
 #include "fontsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditorplugin.h"
 #include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>

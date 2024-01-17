@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "texteditorplugin.h"
-
 #include "bookmarkfilter.h"
 #include "bookmarkmanager.h"
 #include "findincurrentfile.h"
@@ -103,7 +101,6 @@ public:
     FilePath m_marginActionFileName;
 
     TextEditorSettings settings;
-    LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
 
     FindInFiles findInFilesFilter;
     FindInCurrentFile findInCurrentFileFilter;
@@ -303,6 +300,7 @@ void TextEditorPlugin::initialize()
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();
+    setupLineNumberFilter(); // Goto line functionality for quick open
 
     d = new TextEditorPluginPrivate;
 
@@ -447,11 +445,6 @@ void TextEditorPlugin::extensionsInitialized()
                                        return QString();
                                    return Text::wordUnderCursor(editor->editorWidget()->textCursor());
                                });
-}
-
-LineNumberFilter *lineNumberFilter()
-{
-    return &m_instance->d->lineNumberFilter;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()

@@ -7,7 +7,6 @@
 #include "texteditor.h"
 #include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
-#include "texteditorplugin.h"
 #include "texteditorsettings.h"
 #include "textindenter.h"
 

@@ -108,7 +108,7 @@ add_qtc_plugin(TextEditor
     texteditoractionhandler.cpp texteditoractionhandler.h
     texteditorconstants.cpp texteditorconstants.h
     texteditoroverlay.cpp texteditoroverlay.h
-    texteditorplugin.cpp texteditorplugin.h
+    texteditorplugin.cpp
     texteditorsettings.cpp texteditorsettings.h
     textindenter.cpp textindenter.h
     textmark.cpp textmark.h

@@ -7,7 +7,6 @@
 #include "displaysettings.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
-#include "texteditorplugin.h"
 #include "texteditortr.h"
 #include "texteditorsettings.h"
 

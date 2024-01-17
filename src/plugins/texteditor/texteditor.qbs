@@ -145,7 +145,6 @@ QtcPlugin {
         "texteditoroverlay.cpp",
         "texteditoroverlay.h",
         "texteditorplugin.cpp",
-        "texteditorplugin.h",
         "texteditorsettings.cpp",
         "texteditorsettings.h",
         "textindenter.cpp",

@@ -7,13 +7,8 @@
 
 namespace TextEditor::Internal {
 
-class LineNumberFilter : public Core::ILocatorFilter
-{
-public:
-    LineNumberFilter();
+Core::ILocatorFilter *lineNumberFilter();
 
-private:
-    Core::LocatorMatcherTasks matchers() final;
-};
+void setupLineNumberFilter();
 
 } // namespace TextEditor::Internal
