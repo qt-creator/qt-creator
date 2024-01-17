@@ -255,9 +255,13 @@ class LocalQmlProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     LocalQmlProfilerRunWorkerFactory()
     {
+        setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
         setProduct<LocalQmlProfilerSupport>();
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
+        addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
+        addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
     }
 };
 

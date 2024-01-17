@@ -33,6 +33,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprofiler/qmlprofilerruncontrol.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qmljseditor/qmljseditor.h>
@@ -57,6 +59,7 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace QmlProfiler;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -101,6 +104,7 @@ public:
     QmlProjectRunConfigurationFactory runConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     SimpleDebugRunnerFactory debugRunWorkerFactory{{runConfigFactory.runConfigurationId()}};
+    SimpleQmlProfilerRunnerFactory qmlProfilerRunWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
