@@ -116,14 +116,6 @@ private:
 BookmarkManager &bookmarkManager();
 
 void setupBookmarkManager(QObject *guard);
-
-class BookmarkViewFactory : public Core::INavigationWidgetFactory
-{
-public:
-    BookmarkViewFactory();
-
-private:
-    Core::NavigationView createWidget() override;
-};
+void setupBookmarkView();
 
 } // Bookmarks::Internal

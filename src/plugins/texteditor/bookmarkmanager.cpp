@@ -1010,19 +1010,29 @@ BookmarkManager &bookmarkManager()
 
 // BookmarkViewFactory
 
-BookmarkViewFactory::BookmarkViewFactory()
+class BookmarkViewFactory final : public INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Bookmarks"));
-    setPriority(300);
-    setId("Bookmarks");
-    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Alt+Meta+M") : Tr::tr("Alt+M")));
-}
+public:
+    BookmarkViewFactory()
+    {
+        setDisplayName(Tr::tr("Bookmarks"));
+        setPriority(300);
+        setId("Bookmarks");
+        setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Alt+Meta+M") : Tr::tr("Alt+M")));
+    }
 
-NavigationView BookmarkViewFactory::createWidget()
+private:
+    NavigationView createWidget() final
+    {
+        auto view = new BookmarkView;
+        view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
+        return {view, view->createToolBarWidgets()};
+    }
+};
+
+void setupBookmarkView()
 {
-    auto view = new BookmarkView;
-    view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
-    return {view, view->createToolBarWidgets()};
+    static BookmarkViewFactory theBookmarkViewFactory;
 }
 
 } // TextEditor::Internal

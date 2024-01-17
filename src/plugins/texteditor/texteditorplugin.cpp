@@ -83,7 +83,6 @@ public:
     void createStandardContextMenu();
 
     BookmarkFilter m_bookmarkFilter;
-    BookmarkViewFactory m_bookmarkViewFactory;
 
     TextEditorSettings settings;
 
@@ -136,24 +135,16 @@ void TextEditorPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     bookmarkManager().requestContextMenu(widget->textDocument()->filePath(), lineNumber, menu);
 }
 
-static class TextEditorPlugin *m_instance = nullptr;
-
 class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TextEditor.json")
 
 public:
-    TextEditorPlugin()
-    {
-        m_instance = this;
-    }
-
     ~TextEditorPlugin() final
     {
         delete d;
         d = nullptr;
-        m_instance = nullptr;
     }
 
     ShutdownFlag aboutToShutdown() final;
@@ -178,6 +169,7 @@ void TextEditorPlugin::initialize()
     setupLineNumberFilter(); // Goto line functionality for quick open
 
     setupBookmarkManager(this);
+    setupBookmarkView();
 
     d = new TextEditorPluginPrivate;
 
