@@ -294,9 +294,16 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     QString filePath{m_pathCache.sourcePath(sourceId)};
 
     environment.loadFile(
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
+        filePath,
+        filePath,
+        sourceContent,
+        QDateTime{},
+#else
         QQmlJS::Dom::FileToLoad::fromMemory(environment.ownerAs<QQmlJS::Dom::DomEnvironment>(),
                                             filePath,
                                             sourceContent),
+#endif
         [&](QmlDom::Path, const QmlDom::DomItem &, const QmlDom::DomItem &newItems) {
             items = newItems;
         },
