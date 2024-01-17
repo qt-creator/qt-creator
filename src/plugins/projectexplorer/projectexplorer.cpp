@@ -53,6 +53,7 @@
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
 #include "namedwidget.h"
+#include "outputparser_test.h"
 #include "parseissuesdialog.h"
 #include "processstep.h"
 #include "project.h"
@@ -809,6 +810,10 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(error)
+
+#ifdef WITH_TESTS
+    addTestCreator(createOutputParserTest);
+#endif
 
     setupGccToolchains();
     setupMsvcToolchain();

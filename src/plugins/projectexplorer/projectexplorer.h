@@ -198,9 +198,6 @@ private slots:
     void testJsonWizardsComboBox();
     void testJsonWizardsIconList();
 
-    void testAnsiFilterOutputParser_data();
-    void testAnsiFilterOutputParser();
-
     void testGccOutputParsers_data();
     void testGccOutputParsers();
 

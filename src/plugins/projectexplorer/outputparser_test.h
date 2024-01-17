@@ -3,12 +3,13 @@
 
 #pragma once
 
-#if defined(WITH_TESTS)
+#ifdef WITH_TESTS
 
 #include "projectexplorer_export.h"
 
-#include "ioutputparser.h"
 #include "task.h"
+
+#include <utils/outputformatter.h>
 
 namespace ProjectExplorer {
 
@@ -52,18 +53,7 @@ private:
     friend class TestTerminator;
 };
 
-class TestTerminator : public OutputTaskParser
-{
-    Q_OBJECT
-
-public:
-    explicit TestTerminator(OutputParserTester *t);
-
-private:
-    Result handleLine(const QString &line, Utils::OutputFormat type) override;
-
-    OutputParserTester *m_tester = nullptr;
-};
+QObject *createOutputParserTest();
 
 } // namespace ProjectExplorer
 
