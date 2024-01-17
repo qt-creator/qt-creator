@@ -400,6 +400,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
 
 constexpr char installJsonLsInfoBarId[] = "LanguageClient::InstallJsonLs";
 constexpr char installYamlLsInfoBarId[] = "LanguageClient::InstallYamlLs";
+constexpr char installBashLsInfoBarId[] = "LanguageClient::InstallBashLs";
 
 const char npmInstallTaskId[] = "LanguageClient::npmInstallTask";
 
@@ -471,11 +472,13 @@ private:
 };
 
 constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
+constexpr char SHELLSCRIPT_MIME_TYPE[]{"application/x-shellscript"};
 constexpr char JSON_MIME_TYPE[]{"application/json"};
 
 static void setupNpmServer(TextDocument *document,
                            const Id &infoBarId,
                            const QString &languageServer,
+                           const QString &languageServerArgs,
                            const QString &language,
                            const QStringList &serverMimeTypes)
 {
@@ -524,7 +527,7 @@ static void setupNpmServer(TextDocument *document,
             auto settings = new StdIOSettings();
 
             settings->m_executable = executable;
-            settings->m_arguments = "--stdio";
+            settings->m_arguments = languageServerArgs;
             settings->m_name = Tr::tr("%1 Language Server").arg(language);
             settings->m_languageFilter.mimeTypes = serverMimeTypes;
             LanguageClientSettings::addSettings(settings);
@@ -596,14 +599,23 @@ void autoSetupLanguageServer(TextDocument *document)
         setupNpmServer(document,
                        installJsonLsInfoBarId,
                        "vscode-json-languageserver",
+                       "--stdio",
                        QString("JSON"),
                        {JSON_MIME_TYPE});
     } else if (mimeType.inherits(YAML_MIME_TYPE)) {
         setupNpmServer(document,
                        installYamlLsInfoBarId,
                        "yaml-language-server",
+                       "--stdio",
                        QString("YAML"),
                        {YAML_MIME_TYPE});
+    } else if (mimeType.inherits(SHELLSCRIPT_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installBashLsInfoBarId,
+                       "bash-language-server",
+                       "start",
+                       QString("Bash"),
+                       {SHELLSCRIPT_MIME_TYPE});
     }
 }
 
