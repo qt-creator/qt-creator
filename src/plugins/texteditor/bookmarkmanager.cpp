@@ -177,7 +177,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 class BookmarkView final : public Utils::ListView
 {
 public:
-    explicit BookmarkView(BookmarkManager *manager);
+    BookmarkView();
 
     QList<QToolButton *> createToolBarWidgets();
 
@@ -194,12 +194,10 @@ protected:
 private:
     Core::IContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
-    BookmarkManager *m_manager;
 };
 
-BookmarkView::BookmarkView(BookmarkManager *manager)  :
-    m_bookmarkContext(new IContext(this)),
-    m_manager(manager)
+BookmarkView::BookmarkView()
+    : m_bookmarkContext(new IContext(this))
 {
     setWindowTitle(Tr::tr("Bookmarks"));
 
@@ -208,13 +206,13 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
 
     ICore::addContextObject(m_bookmarkContext);
 
-    ListView::setModel(manager);
+    ListView::setModel(&bookmarkManager());
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAttribute(Qt::WA_MacShowFocusRect, false);
-    setSelectionModel(manager->selectionModel());
+    setSelectionModel(bookmarkManager().selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setDragEnabled(true);
@@ -260,11 +258,12 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     if (model()->rowCount() == 0)
         removeAll->setEnabled(false);
 
-    connect(moveUp, &QAction::triggered, m_manager, &BookmarkManager::moveUp);
-    connect(moveDown, &QAction::triggered, m_manager, &BookmarkManager::moveDown);
+    BookmarkManager *manager = &bookmarkManager();
+    connect(moveUp, &QAction::triggered, manager, &BookmarkManager::moveUp);
+    connect(moveDown, &QAction::triggered, manager, &BookmarkManager::moveDown);
     connect(remove, &QAction::triggered, this, &BookmarkView::removeFromContextMenu);
     connect(removeAll, &QAction::triggered, this, &BookmarkView::removeAll);
-    connect(edit, &QAction::triggered, m_manager, &BookmarkManager::edit);
+    connect(edit, &QAction::triggered, manager, &BookmarkManager::edit);
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -276,8 +275,8 @@ void BookmarkView::removeFromContextMenu()
 
 void BookmarkView::removeBookmark(const QModelIndex& index)
 {
-    Bookmark *bm = m_manager->bookmarkForIndex(index);
-    m_manager->deleteBookmark(bm);
+    Bookmark *bm = bookmarkManager().bookmarkForIndex(index);
+    bookmarkManager().deleteBookmark(bm);
 }
 
 void BookmarkView::keyPressEvent(QKeyEvent *event)
@@ -301,25 +300,27 @@ void BookmarkView::removeAll()
         return;
 
     // The performance of this function could be greatly improved.
-    while (m_manager->rowCount()) {
-        QModelIndex index = m_manager->index(0, 0);
+    BookmarkManager *manager = &bookmarkManager();
+    while (manager->rowCount()) {
+        QModelIndex index = manager->index(0, 0);
         removeBookmark(index);
     }
 }
 
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
-    Bookmark *bk = m_manager->bookmarkForIndex(index);
-    if (!m_manager->gotoBookmark(bk))
-        m_manager->deleteBookmark(bk);
+    BookmarkManager *manager = &bookmarkManager();
+    Bookmark *bk = manager->bookmarkForIndex(index);
+    if (!manager->gotoBookmark(bk))
+        manager->deleteBookmark(bk);
 }
 
 ////
 // BookmarkManager
 ////
 
-BookmarkManager::BookmarkManager() :
-    m_selectionModel(new QItemSelectionModel(this, this))
+BookmarkManager::BookmarkManager(QObject *parent)
+    : QAbstractItemModel(parent), m_selectionModel(new QItemSelectionModel(this, this))
 {
     m_editBookmarkAction.setText(Tr::tr("Edit Bookmark"));
     m_bookmarkMarginAction.setText(Tr::tr("Toggle Bookmark"));
@@ -993,10 +994,23 @@ bool BookmarkManager::isAtCurrentBookmark() const
            && currentEditor->currentLine() == bk->lineNumber();
 }
 
+static BookmarkManager *s_bookmarkManager;
+
+void setupBookmarkManager(QObject *guard)
+{
+    QTC_CHECK(!s_bookmarkManager);
+    s_bookmarkManager = new BookmarkManager(guard);
+}
+
+BookmarkManager &bookmarkManager()
+{
+    QTC_CHECK(s_bookmarkManager);
+    return *s_bookmarkManager;
+}
+
 // BookmarkViewFactory
 
-BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
-    : m_manager(bm)
+BookmarkViewFactory::BookmarkViewFactory()
 {
     setDisplayName(Tr::tr("Bookmarks"));
     setPriority(300);
@@ -1006,7 +1020,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
 
 NavigationView BookmarkViewFactory::createWidget()
 {
-    auto view = new BookmarkView(m_manager);
+    auto view = new BookmarkView;
     view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
     return {view, view->createToolBarWidgets()};
 }

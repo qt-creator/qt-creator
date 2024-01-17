@@ -82,9 +82,8 @@ public:
 
     void createStandardContextMenu();
 
-    BookmarkManager m_bookmarkManager;
-    BookmarkFilter m_bookmarkFilter{&m_bookmarkManager};
-    BookmarkViewFactory m_bookmarkViewFactory{&m_bookmarkManager};
+    BookmarkFilter m_bookmarkFilter;
+    BookmarkViewFactory m_bookmarkViewFactory;
 
     TextEditorSettings settings;
 
@@ -110,9 +109,9 @@ void TextEditorPluginPrivate::editorOpened(IEditor *editor)
 {
     if (auto widget = TextEditorWidget::fromEditor(editor)) {
         connect(widget, &TextEditorWidget::markRequested,
-                this, [this, editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
+                this, [editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
                     if (kind == BookmarkRequest && !editor->document()->isTemporary())
-                        m_bookmarkManager.toggleBookmark(editor->document()->filePath(), line);
+                        bookmarkManager().toggleBookmark(editor->document()->filePath(), line);
                 });
 
         connect(widget, &TextEditorWidget::markContextMenuRequested,
@@ -134,7 +133,7 @@ void TextEditorPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     if (widget->textDocument()->isTemporary())
         return;
 
-    m_bookmarkManager.requestContextMenu(widget->textDocument()->filePath(), lineNumber, menu);
+    bookmarkManager().requestContextMenu(widget->textDocument()->filePath(), lineNumber, menu);
 }
 
 static class TextEditorPlugin *m_instance = nullptr;
@@ -177,6 +176,8 @@ void TextEditorPlugin::initialize()
     setupTextMarkRegistry(this);
     setupOutlineFactory();
     setupLineNumberFilter(); // Goto line functionality for quick open
+
+    setupBookmarkManager(this);
 
     d = new TextEditorPluginPrivate;
 

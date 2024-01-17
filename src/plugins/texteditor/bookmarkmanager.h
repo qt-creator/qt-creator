@@ -25,7 +25,7 @@ class BookmarkManager final : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    BookmarkManager();
+    explicit BookmarkManager(QObject *parent);
     ~BookmarkManager() final;
 
     void updateBookmark(Bookmark *bookmark);
@@ -113,15 +113,17 @@ private:
     Utils::FilePath m_marginActionFileName;
 };
 
+BookmarkManager &bookmarkManager();
+
+void setupBookmarkManager(QObject *guard);
+
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
 public:
-    BookmarkViewFactory(BookmarkManager *bm);
+    BookmarkViewFactory();
 
 private:
     Core::NavigationView createWidget() override;
-
-    BookmarkManager *m_manager;
 };
 
 } // Bookmarks::Internal
