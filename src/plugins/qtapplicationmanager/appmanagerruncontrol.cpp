@@ -57,13 +57,25 @@ public:
             QString appId = runControl->aspect<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
+            QStringList envVars;
+            if (auto envAspect = runControl->aspect<EnvironmentAspect>())
+                envVars = envAspect->environment.toStringList();
 
+            // Always use the default environment to start the appman-controller in
+            // The env variables from the EnvironmentAspect are set through the controller
+            setEnvironment({});
             // Prevent the write channel to be closed, otherwise the appman-controller will exit
             setProcessMode(ProcessMode::Writer);
             CommandLine cmd{controller};
             if (!instanceId.isEmpty())
                 cmd.addArgs({"--instance-id", instanceId});
-            cmd.addArgs({"start-application", "-eio", appId});
+            if (envVars.isEmpty()) {
+                cmd.addArgs({"start-application", "-eio", appId});
+            } else {
+                cmd.addArgs({"debug-application", "-eio"});
+                cmd.addArg(envVars.join(' '));
+                cmd.addArg(appId);
+            }
             if (!documentUrl.isEmpty())
                 cmd.addArg(documentUrl);
             setCommandLine(cmd);
@@ -106,6 +118,9 @@ public:
             QString appId = runControl->aspect<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
+            QStringList envVars;
+            if (auto envAspect = runControl->aspect<EnvironmentAspect>())
+                envVars = envAspect->environment.toStringList();
 
 //            const int perfPort = m_portsGatherer->gdbServer().port();
             const int gdbServerPort = m_portsGatherer->gdbServer().port();
@@ -119,6 +134,7 @@ public:
 
             if (m_useGdbServer || m_useQmlServer) {
                 QStringList debugArgs;
+                debugArgs.append(envVars.join(' '));
                 if (m_useGdbServer) {
                     debugArgs.append(QString("gdbserver :%1").arg(gdbServerPort));
                 }
@@ -146,6 +162,9 @@ public:
             if (!documentUrl.isEmpty())
                 cmd.addArg(documentUrl);
 
+            // Always use the default environment to start the appman-controller in
+            // The env variables from the EnvironmentAspect are set through the controller
+            setEnvironment({});
             // Prevent the write channel to be closed, otherwise the appman-controller will exit
             setProcessMode(ProcessMode::Writer);
             setCommandLine(cmd);

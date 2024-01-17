@@ -13,6 +13,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/environmentaspect.h>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -64,7 +65,10 @@ public:
         : AppManagerRunConfiguration(target, id)
     {
         setDefaultDisplayName(Tr::tr("Run and Debug an Appman Package"));
+        environment.addPreferredBaseEnvironment(Tr::tr("Clean Environment"), {});
     }
+
+    EnvironmentAspect environment{this};
 };
 
 class AppManagerRunConfigurationFactory : public RunConfigurationFactory
