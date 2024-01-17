@@ -266,10 +266,10 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
 
 ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()
 {
-    d.release();
     m_thread.requestInterruption();
     m_thread.quit();
     m_thread.wait();
+    d.release();
 }
 
 } // namespace TextEditor
