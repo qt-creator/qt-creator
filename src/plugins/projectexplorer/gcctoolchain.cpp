@@ -206,9 +206,9 @@ static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
     return predefinedMacros;
 }
 
-HeaderPaths GccToolchain::gccHeaderPaths(const FilePath &gcc,
-                                         const QStringList &arguments,
-                                         const Environment &env)
+static HeaderPaths gccHeaderPaths(const FilePath &gcc,
+                                  const QStringList &arguments,
+                                  const Environment &env)
 {
     HeaderPaths builtInHeaderPaths;
     QByteArray line;
@@ -729,16 +729,16 @@ void GccToolchain::initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extra
     m_extraHeaderPathsFunction = std::move(extraHeaderPathsFunction);
 }
 
-HeaderPaths GccToolchain::builtInHeaderPaths(const Environment &env,
-                                             const FilePath &compilerCommand,
-                                             const QStringList &platformCodeGenFlags,
-                                             OptionsReinterpreter reinterpretOptions,
-                                             HeaderPathsCache headerCache,
-                                             Id languageId,
-                                             ExtraHeaderPathsFunction extraHeaderPathsFunction,
-                                             const QStringList &flags,
-                                             const FilePath &sysRoot,
-                                             const QString &originalTargetTriple)
+static HeaderPaths builtInHeaderPaths(const Environment &env,
+                                      const FilePath &compilerCommand,
+                                      const QStringList &platformCodeGenFlags,
+                                      std::function<QStringList(const QStringList &options)> reinterpretOptions,
+                                      GccToolchain::HeaderPathsCache headerCache,
+                                      Id languageId,
+                                      std::function<void(HeaderPaths &)> extraHeaderPathsFunction,
+                                      const QStringList &flags,
+                                      const FilePath &sysRoot,
+                                      const QString &originalTargetTriple)
 {
     QStringList arguments = gccPrepareArguments(flags,
                                                 sysRoot,

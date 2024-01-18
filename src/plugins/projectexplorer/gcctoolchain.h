@@ -110,21 +110,6 @@ protected:
     using ExtraHeaderPathsFunction = std::function<void(HeaderPaths &)>;
     void initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const;
 
-    static HeaderPaths builtInHeaderPaths(const Utils::Environment &env,
-                                          const Utils::FilePath &compilerCommand,
-                                          const QStringList &platformCodeGenFlags,
-                                          OptionsReinterpreter reinterpretOptions,
-                                          HeaderPathsCache headerCache,
-                                          Utils::Id languageId,
-                                          ExtraHeaderPathsFunction extraHeaderPathsFunction,
-                                          const QStringList &flags,
-                                          const Utils::FilePath &sysRoot,
-                                          const QString &originalTargetTriple);
-
-    static HeaderPaths gccHeaderPaths(const Utils::FilePath &gcc,
-                                      const QStringList &args,
-                                      const Utils::Environment &env);
-
     int priority() const override { return m_priority; }
 
     QString sysRoot() const override;
