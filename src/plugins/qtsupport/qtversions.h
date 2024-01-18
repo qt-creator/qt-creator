@@ -3,20 +3,9 @@
 
 #pragma once
 
-#include "qtversionfactory.h"
-
 namespace QtSupport::Internal {
 
-class DesktopQtVersionFactory : public QtVersionFactory
-{
-public:
-    DesktopQtVersionFactory();
-};
-
-class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    EmbeddedLinuxQtVersionFactory();
-};
+void setupDesktopQtVersion();
+void setupEmbeddedLinuxQtVersion();
 
 } // QtSupport::Internal

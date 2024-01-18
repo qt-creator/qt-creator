@@ -48,9 +48,6 @@ namespace QtSupport::Internal {
 class QtSupportPluginPrivate
 {
 public:
-    DesktopQtVersionFactory desktopQtVersionFactory;
-    EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
-
     QtOptionsPage qtOptionsPage;
 
     ExamplesWelcomePage examplesPage{true};
@@ -113,6 +110,9 @@ void QtSupportPlugin::initialize()
     addTestCreator(createQtTestParserTest);
     addTestCreator(createQtProjectImporterTest);
 #endif
+
+    setupDesktopQtVersion();
+    setupEmbeddedLinuxQtVersion();
 
     theProcessRunner() = processRunnerCallback;
 
