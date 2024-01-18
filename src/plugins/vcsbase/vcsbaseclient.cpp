@@ -476,10 +476,8 @@ void VcsBaseClient::status(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    VcsOutputWindow::setRepository(workingDir);
     VcsCommand *cmd = createCommand(workingDir);
     cmd->addFlags(RunFlags::ShowStdOut);
-    connect(cmd, &VcsCommand::done, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository);
     enqueueJob(cmd, args);
 }
 

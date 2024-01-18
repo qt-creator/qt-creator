@@ -802,9 +802,7 @@ void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QStrin
     args << SubversionClient::AddAuthOptions();
     if (!relativePath.isEmpty())
         args << SubversionClient::escapeFile(relativePath);
-    VcsOutputWindow::setRepository(workingDir);
     runSvn(workingDir, args, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
-    VcsOutputWindow::clearRepository();
 }
 
 void SubversionPluginPrivate::filelog(const FilePath &workingDir,

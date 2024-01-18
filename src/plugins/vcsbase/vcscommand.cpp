@@ -90,12 +90,14 @@ int VcsCommandPrivate::timeoutS() const
 
 void VcsCommandPrivate::setup()
 {
+    VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(true);
 }
 
 void VcsCommandPrivate::cleanup()
 {
+    VcsOutputWindow::clearRepository();
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
@@ -227,7 +229,6 @@ void VcsCommandPrivate::processDone()
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
     d(new Internal::VcsCommandPrivate(this, workingDirectory, environment))
 {
-    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
         if (d->m_process && d->m_process->isRunning())
             d->cleanup();

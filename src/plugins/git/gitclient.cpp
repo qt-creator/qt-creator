@@ -1008,10 +1008,7 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
 
 void GitClient::status(const FilePath &workingDirectory) const
 {
-    VcsOutputWindow::setRepository(workingDirectory);
-    vcsExecWithHandler(workingDirectory, {"status", "-u"}, this, [](const CommandResult &) {
-        VcsOutputWindow::instance()->clearRepository();
-    }, RunFlags::ShowStdOut);
+    vcsExec(workingDirectory, {"status", "-u"}, RunFlags::ShowStdOut);
 }
 
 static QStringList normalLogArguments()
