@@ -4,7 +4,6 @@
 import QtQuick
 import QtQuick.Templates as T
 import StudioTheme as StudioTheme
-import QtQuickDesignerTheme
 import StudioWindowManager
 
 T.ComboBox {

@@ -7,7 +7,6 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
-import QtQuickDesignerTheme
 import QtQuickDesignerColorPalette
 
 SecondColumnLayout {
@@ -36,6 +35,7 @@ SecondColumnLayout {
     property alias shapeGradientThumbnail: shapeGradientThumbnail
 
     property alias showExtendedFunctionButton: hexTextField.showExtendedFunctionButton
+    property alias showHexTextField: hexTextField.visible
 
     property bool shapeGradients: false
     property color originalColor

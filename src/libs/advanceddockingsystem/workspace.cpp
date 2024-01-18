@@ -28,6 +28,12 @@ Workspace::Workspace(const Utils::FilePath &filePath, bool isPreset)
     } else {
         m_name = name;
     }
+
+    QString mcusEnabled = DockManager::readMcusEnabled(m_filePath);
+    if (mcusEnabled.isEmpty())
+        setMcusEnabled(true);
+    else
+        m_mcusEnabled = QVariant::fromValue(mcusEnabled).toBool();
 }
 
 void Workspace::setName(const QString &name)
@@ -82,6 +88,18 @@ void Workspace::setPreset(bool value)
 bool Workspace::isPreset() const
 {
     return m_preset;
+}
+
+void Workspace::setMcusEnabled(bool enabled)
+{
+    QString mcusEnabled = QVariant::fromValue(enabled).toString();
+    if (DockManager::writeMcusEnabled(filePath(), mcusEnabled))
+        m_mcusEnabled = enabled;
+}
+
+bool Workspace::isMcusEnabled() const
+{
+    return m_mcusEnabled;
 }
 
 Workspace::operator QString() const

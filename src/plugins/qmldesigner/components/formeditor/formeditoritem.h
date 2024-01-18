@@ -98,6 +98,10 @@ public:
 
     void setFrameColor(const QColor &color);
 
+    void setHasEffect(bool hasEffect);
+    bool hasEffect() const;
+    bool parentHasEffect() const;
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
@@ -129,6 +133,7 @@ private: // variables
     bool m_highlightBoundingRect;
     bool m_blurContent;
     bool m_isContentVisible;
+    bool m_hasEffect;
 };
 
 class FormEditorFlowItem : public FormEditorItem

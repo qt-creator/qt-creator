@@ -7,7 +7,6 @@ import QtQuick.Controls
 import HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import QtQuickDesignerTheme
 
 Row {
     id: root

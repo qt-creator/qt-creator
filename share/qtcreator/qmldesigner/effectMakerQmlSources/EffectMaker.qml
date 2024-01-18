@@ -65,12 +65,12 @@ Item {
 
         EffectMakerTopBar {
             onAddClicked: {
-                root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear() }
+                root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear(true) }
 
                 if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
                     saveChangesDialog.open()
                 else
-                    EffectMakerBackend.effectMakerModel.clear()
+                    EffectMakerBackend.effectMakerModel.clear(true)
             }
 
             onSaveClicked: {

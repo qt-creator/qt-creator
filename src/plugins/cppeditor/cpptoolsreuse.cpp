@@ -786,6 +786,7 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
 QList<Text::Range> symbolOccurrencesInText(const QTextDocument &doc, QStringView text, int offset,
                                            const QString &symbolName)
 {
+    QTC_ASSERT(!symbolName.isEmpty(), return QList<Text::Range>());
     QList<Text::Range> ranges;
     int index = 0;
     while (true) {

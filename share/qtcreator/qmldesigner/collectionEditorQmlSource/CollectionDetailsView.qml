@@ -6,8 +6,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import CollectionDetails 1.0 as CollectionDetails
 import HelperWidgets 2.0 as HelperWidgets
-import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: root
@@ -18,7 +18,6 @@ Rectangle {
 
     implicitWidth: 300
     implicitHeight: 400
-
     color: StudioTheme.Values.themeControlBackground
 
     ColumnLayout {
@@ -114,14 +113,17 @@ Rectangle {
                     color: StudioTheme.Values.themeControlBackgroundInteraction
 
                     MouseArea {
+                        id: topHeaderMouseArea
+
                         anchors.fill: parent
                         anchors.margins: 5
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        hoverEnabled: true
                         onClicked: (mouse) => {
                             tableView.model.selectColumn(index)
 
                             if (mouse.button === Qt.RightButton) {
-                                let posX = index === root.model.columnCount() - 1 ? parent.width - editProperyDialog.width : 0
+                                let posX = index === root.model.columnCount() - 1 ? parent.width - editPropertyDialog.width : 0
 
                                 headerMenu.clickedHeaderIndex = index
                                 headerMenu.dialogPos = parent.mapToGlobal(posX, parent.height)
@@ -130,9 +132,17 @@ Rectangle {
                         }
                     }
 
-                    HelperWidgets.ToolTipArea {
-                        anchors.fill: parent
-                        text: root.model.propertyType(index)
+                    ToolTip {
+                        id: topHeaderToolTip
+
+                        property bool expectedToBeShown: topHeaderMouseArea.containsMouse
+                        visible: expectedToBeShown && text !== ""
+                        delay: 1000
+
+                        onExpectedToBeShownChanged: {
+                            if (expectedToBeShown)
+                                text = root.model.propertyType(index)
+                        }
                     }
                 }
 
@@ -148,8 +158,8 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Edit")
-                        onTriggered: editProperyDialog.openDialog(headerMenu.clickedHeaderIndex,
-                                                                  headerMenu.dialogPos)
+                        onTriggered: editPropertyDialog.openDialog(headerMenu.clickedHeaderIndex,
+                                                                   headerMenu.dialogPos)
                     }
 
                     StudioControls.MenuItem {
@@ -206,11 +216,22 @@ Rectangle {
 
                 delegate: Rectangle {
                     id: itemCell
+
+                    clip: true
                     implicitWidth: 100
-                    implicitHeight: itemText.height
-                    border.color: dataTypeWarning !== CollectionDetails.Warning.None ?
-                                  StudioTheme.Values.themeWarning : StudioTheme.Values.themeControlBackgroundInteraction
+                    implicitHeight: StudioTheme.Values.baseHeight
+                    color: itemSelected ? StudioTheme.Values.themeControlBackgroundInteraction
+                                        : StudioTheme.Values.themeControlBackground
                     border.width: 1
+                    border.color: {
+                        if (dataTypeWarning !== CollectionDetails.Warning.None)
+                            return StudioTheme.Values.themeWarning
+
+                        if (itemSelected)
+                            return StudioTheme.Values.themeControlOutlineInteraction
+
+                        return StudioTheme.Values.themeControlBackgroundInteraction
+                    }
 
                     HelperWidgets.ToolTipArea {
                         anchors.fill: parent
@@ -220,59 +241,125 @@ Rectangle {
                         acceptedButtons: Qt.NoButton
                     }
 
-                    Text {
-                        id: itemText
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: (mouse) => {
+                            let row = index % tableView.model.rowCount()
 
-                        text: display
-                        color: StudioTheme.Values.themePlaceholderTextColorInteraction
-                        width: parent.width
-                        leftPadding: 5
-                        topPadding: 3
-                        bottomPadding: 3
-                        font.pixelSize: StudioTheme.Values.baseFontSize
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        elide: Text.ElideRight
+                            tableView.model.selectRow(row)
+                            cellContextMenu.popup()
+                        }
+                    }
+
+                    Loader {
+                        id: cellContentLoader
+
+                        property int cellColumnType: columnType ? columnType : 0
+
+                        Component {
+                            id: cellText
+
+                            Text {
+                                text: display
+                                color: itemSelected ? StudioTheme.Values.themeInteraction
+                                                    : StudioTheme.Values.themePlaceholderTextColorInteraction
+                                leftPadding: 5
+                                topPadding: 3
+                                bottomPadding: 3
+                                font.pixelSize: StudioTheme.Values.baseFontSize
+                                horizontalAlignment: Text.AlignLeft
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        Component {
+                            id: colorEditorComponent
+
+                            ColorViewDelegate {}
+                        }
+
+                        function resetSource() {
+                            if (columnType === CollectionDetails.DataType.Color)
+                                cellContentLoader.sourceComponent = colorEditorComponent
+                            else
+                                cellContentLoader.sourceComponent = cellText
+                        }
+
+                        Component.onCompleted: resetSource()
+                        onCellColumnTypeChanged: resetSource()
                     }
 
                     TableView.editDelegate: CollectionDetailsEditDelegate {
                         anchors {
-                            top: itemText.top
-                            left: itemText.left
+                            top: itemCell.top
+                            left: itemCell.left
                         }
                     }
 
-                    states: [
-                        State {
-                            name: "default"
-                            when: !itemSelected
+                    StudioControls.Menu {
+                        id: cellContextMenu
 
-                            PropertyChanges {
-                                target: itemCell
-                                color: StudioTheme.Values.themeControlBackground
+                        width: 140
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Add row above")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
                             }
 
-                            PropertyChanges {
-                                target: itemText
-                                color: StudioTheme.Values.themePlaceholderTextColorInteraction
-                            }
-                        },
-                        State {
-                            name: "selected"
-                            when: itemSelected
-
-                            PropertyChanges {
-                                target: itemCell
-                                color: StudioTheme.Values.themeControlBackgroundInteraction
-                                border.color: StudioTheme.Values.themeControlBackground
-                            }
-
-                            PropertyChanges {
-                                target: itemText
-                                color: StudioTheme.Values.themeInteraction
-                            }
+                            onTriggered: root.model.insertRow(root.model.selectedRow)
                         }
-                    ]
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Add row below")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
+                            }
+
+                            onTriggered: root.model.insertRow(root.model.selectedRow + 1)
+                        }
+
+                        StudioControls.MenuItem {
+                            HelperWidgets.IconLabel {
+                                icon: StudioTheme.Constants.addrowabove_medium
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: qsTr("Delete this row")
+                                    color: StudioTheme.Values.themeTextColor
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 10
+                                }
+                            }
+
+                            onTriggered: root.model.removeRows(root.model.selectedRow, 1)
+                        }
+                    }
                 }
             }
 
@@ -388,8 +475,13 @@ Rectangle {
     }
 
     EditPropertyDialog {
-        id: editProperyDialog
+        id: editPropertyDialog
         model: root.model
+    }
+
+    Connections {
+        target: root.parent
+        onIsHorizontalChanged: editPropertyDialog.close()
     }
 
     StudioControls.Dialog {

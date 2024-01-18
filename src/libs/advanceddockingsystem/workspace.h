@@ -30,6 +30,9 @@ public:
     void setPreset(bool value);
     bool isPreset() const;
 
+    void setMcusEnabled(bool value);
+    bool isMcusEnabled() const;
+
     friend bool operator==(const Workspace &a, const Workspace &b)
     {
         return a.fileName() == b.fileName();
@@ -50,6 +53,7 @@ private:
     QString m_name;
     Utils::FilePath m_filePath;
     bool m_preset = false;
+    bool m_mcusEnabled = true;
 };
 
 } // namespace ADS

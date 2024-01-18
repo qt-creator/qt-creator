@@ -28,6 +28,8 @@ Flickable {
     // and set the ads focus on it.
     objectName: "__mainSrollView"
 
+    flickDeceleration: 10000
+
     HoverHandler { id: hoverHandler }
 
     ScrollBar.horizontal: StudioControls.TransientScrollBar {

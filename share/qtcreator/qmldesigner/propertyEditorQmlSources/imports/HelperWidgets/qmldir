@@ -10,6 +10,7 @@ ButtonRowButton 2.0 ButtonRowButton.qml
 CharacterSection 2.0 CharacterSection.qml
 CheckBox 2.0 CheckBox.qml
 ColorEditor 2.0 ColorEditor.qml
+ColorEditorPopup 2.0 ColorEditorPopup.qml
 ColorLogic 2.0 ColorLogic.qml
 ComboBox 2.0 ComboBox.qml
 ComponentButton 2.0 ComponentButton.qml

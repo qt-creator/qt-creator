@@ -18,7 +18,10 @@
 
 #include <QColor>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonParseError>
+#include <QJsonValue>
 #include <QUrl>
 
 namespace {
@@ -104,32 +107,32 @@ inline Utils::FilePath qmlDirFilePath()
 
 } // namespace
 
-namespace QmlDesigner::CollectionEditor {
+namespace QmlDesigner::CollectionEditorUtils {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type)
 {
     return std::visit(LessThanVisitor{}, valueToVariant(a, type), valueToVariant(b, type));
 }
 
-SourceFormat getSourceCollectionFormat(const ModelNode &node)
+CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const ModelNode &node)
 {
     using namespace QmlDesigner;
-    if (node.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
-        return CollectionEditor::SourceFormat::Json;
+    if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
+        return CollectionEditorConstants::SourceFormat::Json;
 
-    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
-        return CollectionEditor::SourceFormat::Csv;
+    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
+        return CollectionEditorConstants::SourceFormat::Csv;
 
-    return CollectionEditor::SourceFormat::Unknown;
+    return CollectionEditorConstants::SourceFormat::Unknown;
 }
 
 QString getSourceCollectionType(const ModelNode &node)
 {
     using namespace QmlDesigner;
-    if (node.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+    if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
         return "json";
 
-    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
         return "csv";
 
     return {};
@@ -157,6 +160,20 @@ bool canAcceptCollectionAsModel(const ModelNode &node)
 
     return modelProperty.isWritable() && !modelProperty.isPrivate()
            && modelProperty.propertyType().isVariant();
+}
+
+bool hasTextRoleProperty(const ModelNode &node)
+{
+    const NodeMetaInfo nodeMetaInfo = node.metaInfo();
+    if (!nodeMetaInfo.isValid())
+        return false;
+
+    const PropertyMetaInfo textRoleProperty = nodeMetaInfo.property("textRole");
+    if (!textRoleProperty.isValid())
+        return false;
+
+    return textRoleProperty.isWritable() && !textRoleProperty.isPrivate()
+           && textRoleProperty.propertyType().isString();
 }
 
 QString getSourceCollectionPath(const ModelNode &dataStoreNode)
@@ -280,4 +297,178 @@ bool ensureDataStoreExists(bool &justCreated)
     return false;
 }
 
-} // namespace QmlDesigner::CollectionEditor
+QJsonArray loadAsSingleJsonCollection(const QUrl &url)
+{
+    QFile file(url.isLocalFile() ? url.toLocalFile() : url.toString());
+    QJsonArray collection;
+    QByteArray jsonData;
+    if (file.open(QFile::ReadOnly))
+        jsonData = file.readAll();
+
+    file.close();
+    if (jsonData.isEmpty())
+        return {};
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonData, &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return {};
+
+    auto refineJsonArray = [](const QJsonArray &array) -> QJsonArray {
+        QJsonArray resultArray;
+        for (const QJsonValue &collectionData : array) {
+            if (collectionData.isObject()) {
+                QJsonObject rowObject = collectionData.toObject();
+                const QStringList rowKeys = rowObject.keys();
+                for (const QString &key : rowKeys) {
+                    QJsonValue cellValue = rowObject.value(key);
+                    if (cellValue.isArray())
+                        rowObject.remove(key);
+                }
+                resultArray.push_back(rowObject);
+            }
+        }
+        return resultArray;
+    };
+
+    if (document.isArray()) {
+        collection = refineJsonArray(document.array());
+    } else if (document.isObject()) {
+        QJsonObject documentObject = document.object();
+        const QStringList mainKeys = documentObject.keys();
+
+        bool arrayFound = false;
+        for (const QString &key : mainKeys) {
+            const QJsonValue &value = documentObject.value(key);
+            if (value.isArray()) {
+                arrayFound = true;
+                collection = refineJsonArray(value.toArray());
+                break;
+            }
+        }
+
+        if (!arrayFound) {
+            QJsonObject singleObject;
+            for (const QString &key : mainKeys) {
+                const QJsonValue value = documentObject.value(key);
+
+                if (!value.isObject())
+                    singleObject.insert(key, value);
+            }
+            collection.push_back(singleObject);
+        }
+    }
+    return collection;
+}
+
+QJsonArray loadAsCsvCollection(const QUrl &url)
+{
+    QFile sourceFile(url.isLocalFile() ? url.toLocalFile() : url.toString());
+    QStringList headers;
+    QJsonArray elements;
+
+    if (sourceFile.open(QFile::ReadOnly)) {
+        QTextStream stream(&sourceFile);
+
+        if (!stream.atEnd())
+            headers = stream.readLine().split(',');
+
+        for (QString &header : headers)
+            header = header.trimmed();
+
+        if (!headers.isEmpty()) {
+            while (!stream.atEnd()) {
+                const QStringList recordDataList = stream.readLine().split(',');
+                int column = -1;
+                QJsonObject recordData;
+                for (const QString &cellData : recordDataList) {
+                    if (++column == headers.size())
+                        break;
+                    recordData.insert(headers.at(column), cellData);
+                }
+                elements.append(recordData);
+            }
+        }
+    }
+
+    return elements;
+}
+
+QString getFirstColumnName(const QString &collectionName)
+{
+    Utils::FilePath dataStorePath = CollectionEditorUtils::dataStoreJsonFilePath();
+
+    if (!dataStorePath.exists())
+        return {};
+
+    Utils::FileReader dataStoreFile;
+    if (!dataStoreFile.fetch(dataStorePath))
+        return {};
+
+    QJsonParseError jsonError;
+    QJsonDocument dataStoreDocument = QJsonDocument::fromJson(dataStoreFile.data(), &jsonError);
+    if (jsonError.error == QJsonParseError::NoError) {
+        QJsonObject rootObject = dataStoreDocument.object();
+        if (rootObject.contains(collectionName)) {
+            QJsonArray collectionArray = rootObject.value(collectionName).toArray();
+            for (const QJsonValue &elementValue : std::as_const(collectionArray)) {
+                const QJsonObject elementObject = elementValue.toObject();
+                QJsonObject::ConstIterator element = elementObject.constBegin();
+                if (element != elementObject.constEnd())
+                    return element.key();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << __LINE__
+                       << QString("Collection \"%1\" not found.").arg(collectionName);
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Problem in reading json file."
+                   << jsonError.errorString();
+    }
+
+    return {};
+}
+
+bool collectionHasColumn(const QString &collectionName, const QString &columnName)
+{
+    Utils::FilePath dataStorePath = CollectionEditorUtils::dataStoreJsonFilePath();
+
+    if (!dataStorePath.exists())
+        return false;
+
+    Utils::FileReader dataStoreFile;
+    if (!dataStoreFile.fetch(dataStorePath))
+        return false;
+
+    QJsonParseError jsonError;
+    QJsonDocument dataStoreDocument = QJsonDocument::fromJson(dataStoreFile.data(), &jsonError);
+    if (jsonError.error == QJsonParseError::NoError) {
+        QJsonObject rootObject = dataStoreDocument.object();
+        if (rootObject.contains(collectionName)) {
+            QJsonArray collectionArray = rootObject.value(collectionName).toArray();
+            for (const QJsonValue &elementValue : std::as_const(collectionArray)) {
+                const QJsonObject elementObject = elementValue.toObject();
+                QJsonObject::ConstIterator element = elementObject.constBegin();
+                const QJsonObject::ConstIterator stopItem = elementObject.constEnd();
+
+                while (element != stopItem) {
+                    const QString keyName = element.key();
+                    ++element;
+
+                    if (columnName == keyName)
+                        return true;
+                }
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << __LINE__
+                       << QString("Collection \"%1\" not found.").arg(collectionName);
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Problem in reading json file."
+                   << jsonError.errorString();
+    }
+
+    return false;
+}
+
+} // namespace QmlDesigner::CollectionEditorUtils

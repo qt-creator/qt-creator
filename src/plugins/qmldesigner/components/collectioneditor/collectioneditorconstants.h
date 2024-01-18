@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace QmlDesigner::CollectionEditor {
+namespace QmlDesigner::CollectionEditorConstants {
 
 enum class SourceFormat { Unknown, Json, Csv };
 
@@ -17,4 +17,4 @@ inline constexpr char CSVCOLLECTIONMODEL_TYPENAME[]         = "QtQuick.Studio.Ut
 inline constexpr char JSONCOLLECTIONCHILDMODEL_TYPENAME[]   = "QtQuick.Studio.Utils.ChildListModel";
 inline constexpr char JSONBACKEND_TYPENAME[]                = "JsonData";
 
-} // namespace QmlDesigner::CollectionEditor
+} // namespace QmlDesigner::CollectionEditorConstants

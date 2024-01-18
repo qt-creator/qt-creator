@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<QtAdvancedDockingSystem version="1" userVersion="0" containers="2" displayName="All Views">
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="2" displayName="All Views" mcusEnabled="false">
   <container floating="false">
     <splitter orientation="Horizontal" count="3">
       <splitter orientation="Vertical" count="3">

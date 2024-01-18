@@ -139,6 +139,8 @@ public:
     bool isFlowActionArea() const;
     ModelNode rootModelNode() const;
 
+    bool isEffectItem() const;
+
     friend auto qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
 };
 

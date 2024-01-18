@@ -11,6 +11,7 @@
 #include "formatoperation.h"
 #include "groupitemaction.h"
 #include "modelnodecontextmenu_helper.h"
+#include "propertytreemodel.h"
 #include "qmldesignerconstants.h"
 #include "qmleditormenu.h"
 #include "rewritingexception.h"
@@ -475,35 +476,20 @@ QStringList getSignalsList(const ModelNode &node)
     if (!node.hasMetaInfo())
         return {};
 
-    QStringList signalsList;
-    NodeMetaInfo nodeMetaInfo = node.metaInfo();
+    QStringList signalList;
 
-    for (const auto &signalName : nodeMetaInfo.signalNames()) {
-        signalsList << QString::fromUtf8(signalName);
-    }
+    std::vector<PropertyName> signalVector = PropertyTreeModel::sortedAndFilteredSignalNames(
+        node.metaInfo());
 
-    //on...Changed are the most regular signals, we assign them the lowest priority,
-    //we don't need them right now
-//    QStringList signalsWithChanged = signalsList.filter("Changed");
+    std::vector<QString> signalVectorString = Utils::transform(signalVector,
+                                                               [](const PropertyName &name) {
+                                                                   return QString::fromUtf8(name);
+                                                               });
 
-    //these are item specific, like MouseArea.clicked, they have higher priority
-    QStringList signalsWithoutChanged = signalsList;
-    signalsWithoutChanged.removeIf([](QString str) {
-        if (str.endsWith("Changed"))
-            return true;
-        return false;
-    });
+    signalList.reserve(Utils::ssize(signalVectorString));
+    std::copy(signalVectorString.begin(), signalVectorString.end(), std::back_inserter(signalList));
 
-    QStringList finalResult;
-    finalResult.append(signalsWithoutChanged);
-
-
-    if (finalResult.isEmpty())
-        finalResult = signalsList;
-
-    finalResult.removeDuplicates();
-
-    return finalResult;
+    return signalList;
 }
 
 struct SlotEntry

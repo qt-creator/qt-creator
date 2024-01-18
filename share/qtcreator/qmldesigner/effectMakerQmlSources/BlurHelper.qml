@@ -12,6 +12,7 @@ Item {
     property alias blurSrc3: blurredItemSource3
     property alias blurSrc4: blurredItemSource4
     property alias blurSrc5: blurredItemSource5
+    property Item source: null
 
     component BlurItem: ShaderEffect {
         property vector2d offset: Qt.vector2d((1.0 + rootItem.blurMultiplier) / width,
@@ -37,8 +38,8 @@ Item {
         // Size of the first blurred item is by default half of the source.
         // Increase for quality and decrease for performance & more blur.
         readonly property int blurItemSize: 8
-        width: Math.ceil(rootItem.width / 16) * blurItemSize
-        height: Math.ceil(rootItem.height / 16) * blurItemSize
+        width: Math.ceil((rootItem.source ? rootItem.source.width : 16) / 16) * blurItemSize
+        height: Math.ceil((rootItem.source ? rootItem.source.height : 16) / 16) * blurItemSize
     }
     BlurItem {
         id: blurredItemSource2

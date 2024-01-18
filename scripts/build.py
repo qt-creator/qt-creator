@@ -60,7 +60,8 @@ def get_arguments():
     parser.add_argument('--no-cdb',
                         help='Skip cdbextension and the python dependency packaging step (Windows)',
                         action='store_true', default=(not common.is_windows_platform()))
-    parser.add_argument('--no-qbs', help='Skip building Qbs as part of Qt Creator', action='store_true', default=False);
+    parser.add_argument('--no-qbs', help='Skip building Qbs as part of Qt Creator',
+                        action='store_true', default=False);
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
     parser.add_argument('--no-build-date', help='Does not show build date in about dialog, for reproducible builds',
@@ -74,6 +75,8 @@ def get_arguments():
     parser.add_argument('--with-pch', help='Enable building with PCH',
                         action='store_true', default=False)
     parser.add_argument('--with-cpack', help='Create packages with cpack',
+                        action='store_true', default=False)
+    parser.add_argument('--with-sdk-tool', help='Builds a internal sdk-tool (not standalone) which is used in Qt Design Studio builds',
                         action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
@@ -171,7 +174,7 @@ def build_qtcreator(args, paths):
                   '-DWITH_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_QBS=' + cmake_option(build_qbs),
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
-                  '-DBUILD_EXECUTABLE_SDKTOOL=OFF',
+                  '-DBUILD_EXECUTABLE_SDKTOOL=' + cmake_option(args.with_sdk_tool),
                   '-DQTC_FORCE_XCB=ON',
                   '-DWITH_TESTS=' + cmake_option(args.with_tests)]
     cmake_args += common_cmake_arguments(args)

@@ -140,7 +140,7 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
                 setupFormEditorItemTree(childNode.toQmlItemNode());
             }
         }
-    } else {
+    } else if (!qmlItemNode.isEffectItem()) {
         m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Default);
         for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) //TODO instance children
             //If the node has source for components/custom parsers we ignore it.
@@ -280,6 +280,13 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     removeNodeFromScene(qmlItemNode);
 }
 
+void FormEditorView::nodeRemoved(const ModelNode &/*removedNode*/,
+                                 const NodeAbstractProperty &/*parentProperty*/,
+                                 PropertyChangeFlags /*propertyChange*/)
+{
+    updateHasEffects();
+}
+
 void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     const QList<FormEditorItem *> items = m_scene->allFormEditorItems();
@@ -343,6 +350,8 @@ static inline bool hasNodeSourceOrNonItemParent(const ModelNode &node)
 void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     addOrRemoveFormEditorItem(node);
+
+    updateHasEffects();
 }
 
 void FormEditorView::nodeSourceChanged(const ModelNode &node,
@@ -830,6 +839,8 @@ void FormEditorView::setupFormEditorWidget()
         m_formEditorWidget->showWarningMessageBox(rewriterView()->warnings());
 
     checkRootModelNode();
+
+    updateHasEffects();
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
@@ -988,6 +999,23 @@ void FormEditorView::setupRootItemSize()
 
         if (contextImage)
             m_formEditorWidget->setBackgoundImage(contextImage.value().value<QImage>());
+    }
+}
+
+void FormEditorView::updateHasEffects()
+{
+    if (model()) {
+        const QList<ModelNode> nodes = allModelNodes();
+        for (const auto &node : nodes) {
+            QmlItemNode qmlNode(node);
+            FormEditorItem *item = m_scene->itemForQmlItemNode(qmlNode);
+            if (item)
+                item->setHasEffect(false);
+            if (qmlNode.isEffectItem()) {
+                FormEditorItem *parentItem = m_scene->itemForQmlItemNode(qmlNode.modelParentItem());
+                parentItem->setHasEffect(true);
+            }
+        }
     }
 }
 

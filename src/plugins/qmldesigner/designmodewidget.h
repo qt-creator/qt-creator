@@ -93,6 +93,7 @@ private:
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
 
+    void aboutToShowViews();
     void aboutToShowWorkspaces();
 
     QPointer<QWidget> m_bottomSideBar;

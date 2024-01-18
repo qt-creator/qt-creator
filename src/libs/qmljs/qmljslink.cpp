@@ -219,6 +219,7 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
                                    document.data(),
                                    m_valueOwner,
                                    &m_snapshot);
+            m_importPaths = provider->prioritizeImportPaths(document.data(), m_importPaths);
         }
 
         populateImportedTypes(imports, document);

@@ -37,6 +37,8 @@ T.SpinBox {
     property bool drag: false
     property bool sliderDrag: sliderPopup.drag
 
+    property bool trailingZeroes: true
+
     property bool dirty: false // user modification flag
 
     // TODO Not used anymore. Will be removed when all dependencies were removed.
@@ -204,11 +206,14 @@ T.SpinBox {
 
     textFromValue: function (value, locale) {
         locale.numberOptions = Locale.OmitGroupSeparator
-        return Number(control.realValue).toLocaleString(locale, 'f', control.decimals)
+        var decimals = trailingZeroes ? control.decimals : decimalCounter(value)
+
+        return Number(control.realValue).toLocaleString(locale, 'f', decimals)
     }
 
     valueFromText: function (text, locale) {
         control.setRealValue(Number.fromLocaleString(locale, spinBoxInput.text))
+
         return 0
     }
 
@@ -399,5 +404,15 @@ T.SpinBox {
 
         if (control.realValue !== currValue)
             control.realValueModified()
+    }
+
+    function decimalCounter(number) {
+        var strNumber = Math.abs(number).toString()
+        var decimalIndex = strNumber.indexOf('.')
+
+        // Set 'index' to a minimum of 1 if there are no fractions
+        var index = decimalIndex == -1 ? 1 : strNumber.length - decimalIndex - 1
+
+        return Math.min(index, control.decimals);
     }
 }

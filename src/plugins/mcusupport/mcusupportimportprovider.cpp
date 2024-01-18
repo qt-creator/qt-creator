@@ -119,6 +119,30 @@ void McuSupportImportProvider::loadBuiltins(ImportsPerDocument *importsPerDocume
     import.info = ImportInfo::moduleImport("qul", {1, 0}, QString());
     getInterfacesImport(context->fileName(), importsPerDocument, import, valueOwner, snapshot);
     imports->append(import);
+}
+
+FilePaths McuSupportImportProvider::prioritizeImportPaths(const Document *context,
+                                                          const FilePaths &importPaths)
+{
+    if (!context)
+        return importPaths;
+    const std::optional<FilePath> cmakeFilesPathOpt = getTargetBuildFolder(context->fileName());
+    if (!cmakeFilesPathOpt)
+        return importPaths;
+    FilePaths ret;
+    // qmltocpp uses an incomplete QtQuick folder present in the build folder
+    // to avoid taking precedence over the correct qul_install/include/*/StyleDefault
+    // move the import path to be last
+    std::copy_if(importPaths.cbegin(),
+                 importPaths.cend(),
+                 std::back_inserter(ret),
+                 [cmakeFilesPathOpt](const FilePath &path) { return path != *cmakeFilesPathOpt; });
+
+    // nothing was removed
+    if (ret.size() == importPaths.size())
+        return importPaths;
+    ret.push_back(*cmakeFilesPathOpt);
+    return ret;
 };
 
 void McuSupportImportProvider::getInterfacesImport(const FilePath &path,
@@ -156,6 +180,7 @@ std::optional<FilePath> McuSupportImportProvider::getFileModule(const FilePath &
                                                                 const FilePath &inputFile) const
 {
     const auto doc = QJsonDocument::fromJson(inputFile.fileContents().value_or(""));
+
     if (!doc.isObject())
         return {};
 

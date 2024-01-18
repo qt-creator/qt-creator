@@ -52,6 +52,8 @@ public:
 
     void nodeCreated(const ModelNode &createdNode) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
+                     PropertyChangeFlags propertyChange) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeSourceChanged(const ModelNode &node, const QString &newNodeSource) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
@@ -138,6 +140,7 @@ private:
     void checkRootModelNode();
     void setupFormEditor3DView();
     void setupRootItemSize();
+    void updateHasEffects();
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "abi.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -435,6 +436,18 @@ static Abis abiOf(const QByteArray &data)
             result = parseCoffHeader(data.mid(pePos + 4), pePos + 4);
     }
     return result;
+}
+
+static QString androidAbiFromAbi(const Abi &abi)
+{
+    QString androidAbi;
+    if (abi.architecture() == Abi::Architecture::ArmArchitecture)
+        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_ARM64_V8A
+                                                         : Constants::ANDROID_ABI_ARMEABI_V7A);
+    else
+        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_X86_64
+                                                         : Constants::ANDROID_ABI_X86);
+    return androidAbi;
 }
 
 // --------------------------------------------------------------------------
@@ -908,7 +921,11 @@ Abi Abi::fromString(const QString &abiString)
             return Abi(architecture, os, flavor, format, 0);
     }
 
-    return Abi(architecture, os, flavor, format, wordWidth);
+    Abi abi(architecture, os, flavor, format, wordWidth);
+    if (abi.os() == LinuxOS && abi.osFlavor() == AndroidLinuxFlavor)
+        abi.m_param = androidAbiFromAbi(abi);
+
+    return abi;
 }
 
 Abi::Architecture Abi::architectureFromString(const QString &a)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<QtAdvancedDockingSystem version="1" containers="1" displayName="Essentials">
+<QtAdvancedDockingSystem version="1" containers="1" displayName="Essentials" mcusEnabled="true">
   <container floating="false">
     <splitter orientation="Horizontal" count="3">
       <splitter orientation="Vertical" count="3">

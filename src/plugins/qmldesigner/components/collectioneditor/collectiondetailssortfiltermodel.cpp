@@ -80,7 +80,9 @@ bool CollectionDetailsSortFilterModel::lessThan(const QModelIndex &sourceleft,
     if (sourceleft.column() == sourceRight.column()) {
         int column = sourceleft.column();
         CollectionDetails::DataType columnType = m_source->propertyDataType(column);
-        return CollectionEditor::variantIslessThan(sourceleft.data(), sourceRight.data(), columnType);
+        return CollectionEditorUtils::variantIslessThan(sourceleft.data(),
+                                                        sourceRight.data(),
+                                                        columnType);
     }
 
     return false;
