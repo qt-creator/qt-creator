@@ -157,12 +157,12 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
                         parentProperty = parentProperty.parentModelNode().nodeAbstractProperty("layer.effect");
                         QmlItemNode::placeEffectNode(parentProperty, modelNode, true);
                     } else {
-                        QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
+                        QmlItemNode qmlNode(modelNode);
+                        QPointF scenePosition = qmlNode.instanceScenePosition();
                         parentProperty.reparentHere(modelNode);
-                        if (!scenePosition.isNull())
+                        if (!scenePosition.isNull() && !qmlNode.isEffectItem())
                             setScenePosition(modelNode, scenePosition);
                     }
-
                 } else {
                     parentProperty.reparentHere(modelNode);
                 }
@@ -885,6 +885,20 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 // We allow move even if target property type doesn't match, if the target property
                 // is the default property of the parent and is of Component type.
                 // In that case an implicit component will be created.
+
+                // We can only have single effect item child
+                if (QmlItemNode(modelNode).isEffectItem()) {
+                    const QList<ModelNode> childNodes = parentProperty.parentModelNode().directSubModelNodes();
+                    bool skip = false;
+                    for (const ModelNode &node : childNodes) {
+                        if (QmlItemNode(node).isEffectItem()) {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (skip)
+                        continue;
+                }
 
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
                 if (nodeCanBeMovedToParentProperty) {
