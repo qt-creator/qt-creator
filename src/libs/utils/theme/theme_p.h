@@ -27,6 +27,8 @@ public:
     QList<QString> imageFiles;
     QList<bool> flags;
     QMap<QString, QColor> palette;
+    QMap<QString, QString> unresolvedPalette;
+    QMap<QString, QString> unresolvedColors;
 };
 
 QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
