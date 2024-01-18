@@ -6,29 +6,29 @@ import WelcomeScreen 1.0
 import StudioTheme 1.0 as StudioTheme
 
 Item {
-    id: twitterButton
+    id: figmaButton
     state: "darkNormal"
 
     property bool isHovered: mouseArea.containsMouse
 
     Image {
-        id: twitterDarkNormal
+        id: figmaDarkNormal
         anchors.fill: parent
-        source: "images/twitterDarkNormal.png"
+        source: "images/figmaDarkNormal.png"
         fillMode: Image.PreserveAspectFit
     }
 
     Image {
-        id: twitterLightNormal
+        id: figmaLightNormal
         anchors.fill: parent
-        source: "images/twitterLightNormal.png"
+        source: "images/figmaLightNormal.png"
         fillMode: Image.PreserveAspectFit
     }
 
     Image {
-        id: twitterHover
+        id: figmaHover
         anchors.fill: parent
-        source: "images/twitterHover.png"
+        source: "images/figmaHover.png"
         fillMode: Image.PreserveAspectFit
     }
 
@@ -39,7 +39,7 @@ Item {
 
         Connections {
             target: mouseArea
-            function onClicked(mouse) { Qt.openUrlExternally("https://twitter.com/qtproject/") }
+            function onClicked(mouse) { Qt.openUrlExternally("https://www.figma.com/@qtdesignstudio/") }
         }
     }
 
@@ -49,17 +49,17 @@ Item {
             when: !StudioTheme.Values.isLightTheme && !mouseArea.containsMouse && !mouseArea.pressed
 
             PropertyChanges {
-                target: twitterDarkNormal
+                target: figmaDarkNormal
                 visible: true
             }
 
             PropertyChanges {
-                target: twitterLightNormal
+                target: figmaLightNormal
                 visible: false
             }
 
             PropertyChanges {
-                target: twitterHover
+                target: figmaHover
                 visible: false
             }
         },
@@ -68,17 +68,17 @@ Item {
             when: StudioTheme.Values.isLightTheme && !mouseArea.containsMouse && !mouseArea.pressed
 
             PropertyChanges {
-                target: twitterHover
+                target: figmaHover
                 visible: false
             }
 
             PropertyChanges {
-                target: twitterLightNormal
+                target: figmaLightNormal
                 visible: true
             }
 
             PropertyChanges {
-                target: twitterDarkNormal
+                target: figmaDarkNormal
                 visible: false
             }
         },
@@ -87,17 +87,17 @@ Item {
             when: mouseArea.containsMouse && !mouseArea.pressed
 
             PropertyChanges {
-                target: twitterHover
+                target: figmaHover
                 visible: true
             }
 
             PropertyChanges {
-                target: twitterLightNormal
+                target: figmaLightNormal
                 visible: false
             }
 
             PropertyChanges {
-                target: twitterDarkNormal
+                target: figmaDarkNormal
                 visible: false
             }
         },
@@ -106,18 +106,18 @@ Item {
             when: (mouseArea.containsMouse || !mouseArea.containsMouse) && mouseArea.pressed
 
             PropertyChanges {
-                target: twitterHover
+                target: figmaHover
                 visible: true
                 scale: 1.1
             }
 
             PropertyChanges {
-                target: twitterLightNormal
+                target: figmaLightNormal
                 visible: false
             }
 
             PropertyChanges {
-                target: twitterDarkNormal
+                target: figmaDarkNormal
                 visible: false
             }
         }
