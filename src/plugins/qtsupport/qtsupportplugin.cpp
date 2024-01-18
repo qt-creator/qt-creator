@@ -48,9 +48,6 @@ namespace QtSupport::Internal {
 class QtSupportPluginPrivate
 {
 public:
-    DesignerExternalEditor designerEditor;
-    LinguistEditor linguistEditor;
-
     TranslationWizardPageFactory translationWizardPageFactory;
 };
 
@@ -108,6 +105,9 @@ void QtSupportPlugin::initialize()
     setupQtOutputFormatter();
     setupUicGenerator();
     setupQScxmlcGenerator();
+
+    setupExternalDesigner(this);
+    setupExternalLinguist();
 
     theProcessRunner() = processRunnerCallback;
 

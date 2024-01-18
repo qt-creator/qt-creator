@@ -3,25 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
 #include <QObject>
 
 namespace QtSupport::Internal {
 
-class DesignerExternalEditor : public Core::IEditorFactory
-{
-public:
-    DesignerExternalEditor();
-
-private:
-    QObject m_guard;
-};
-
-class LinguistEditor : public Core::IEditorFactory
-{
-public:
-    LinguistEditor();
-};
+void setupExternalDesigner(QObject *guard);
+void setupExternalLinguist();
 
 } // QtSupport::Internal
