@@ -50,15 +50,6 @@ bool KitSettingsSortModel::lessThan(const QModelIndex &source_left,
 
 namespace Internal {
 
-// Page pre-selection
-
-static Id selectedKitId;
-
-void setSelectectKitId(const Id &kitId)
-{
-    selectedKitId = kitId;
-}
-
 class KitManagerConfigWidget;
 
 class KitNode : public TreeItem
@@ -595,7 +586,8 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
 void KitOptionsPageWidget::scrollToSelectedKit()
 {
-    QModelIndex index = m_sortModel->mapFromSource(m_model->indexOf(selectedKitId));
+    QModelIndex index = m_sortModel->mapFromSource(
+        m_model->indexOf(Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID)));
     m_selectionModel->select(index,
                              QItemSelectionModel::Clear
                                  | QItemSelectionModel::SelectCurrent

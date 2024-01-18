@@ -119,4 +119,9 @@ protected:
     Utils::FilePath m_categoryIconPath;
 };
 
+// Which part of the settings page to pre-select, if applicable. In practice, this will
+// usually be an item in some sort of (list) view.
+void CORE_EXPORT setPreselectedOptionsPageItem(Utils::Id page, Utils::Id item);
+Utils::Id CORE_EXPORT preselectedOptionsPageItem(Utils::Id page);
+
 } // namespace Core

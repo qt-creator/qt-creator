@@ -13,6 +13,7 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QHash>
 #include <QLabel>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -307,6 +308,18 @@ IOptionsPageProvider::~IOptionsPageProvider()
 const QList<IOptionsPageProvider *> IOptionsPageProvider::allOptionsPagesProviders()
 {
     return g_optionsPagesProviders;
+}
+
+static QHash<Id, Id> g_preselectedOptionPageItems;
+
+void setPreselectedOptionsPageItem(Id page, Id item)
+{
+    g_preselectedOptionPageItems.insert(page, item);
+}
+
+Id preselectedOptionsPageItem(Id page)
+{
+    return g_preselectedOptionPageItems.value(page);
 }
 
 } // Core

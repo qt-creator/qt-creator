@@ -478,6 +478,24 @@ bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 }
 
 /*!
+    Opens the options dialog on the specified \a page. The dialog's \a parent
+    defaults to dialogParent(). If the dialog is already shown when this method
+    is called, it is just switched to the specified \a page.
+    Pre-selects some part of the dialog specified by \a item which the dialog
+    knows how to interpret.
+
+    Returns whether the user accepted the dialog.
+
+    \sa msgShowOptionsDialog()
+    \sa msgShowOptionsDialogToolTip()
+*/
+bool ICore::showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent)
+{
+    setPreselectedOptionsPageItem(page, item);
+    return showOptionsDialog(page, parent);
+}
+
+/*!
     Returns the text to use on buttons that open the options dialog.
 
     \sa showOptionsDialog()

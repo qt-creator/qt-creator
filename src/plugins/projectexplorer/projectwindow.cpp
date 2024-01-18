@@ -914,7 +914,7 @@ public:
             while (treeItem) {
                 const Id kitId = Id::fromSetting(treeItem->data(0, KitIdRole));
                 if (kitId.isValid()) {
-                    setSelectectKitId(kitId);
+                    Core::setPreselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID, kitId);
                     break;
                 }
                 treeItem = treeItem->parent();

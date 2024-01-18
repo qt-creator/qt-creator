@@ -182,8 +182,7 @@ void TargetSetupWidget::manageKit()
     if (!m_kit)
         return;
 
-    setSelectectKitId(m_kit->id());
-    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, m_kit->id(), parentWidget());
 }
 
 void TargetSetupWidget::setProjectPath(const FilePath &projectPath)

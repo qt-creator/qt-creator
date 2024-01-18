@@ -55,6 +55,7 @@ public:
                                   const QVariantMap &extraVariables = {});
 
     static bool showOptionsDialog(const Utils::Id page, QWidget *parent = nullptr);
+    static bool showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent = nullptr);
     static QString msgShowOptionsDialog();
     static QString msgShowOptionsDialogToolTip();
 
