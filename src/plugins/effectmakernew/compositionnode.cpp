@@ -113,6 +113,9 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     m_fragmentCode = EffectUtils::codeFromJsonArray(json.value("fragmentCode").toArray());
     m_vertexCode = EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray());
 
+    if (json.contains("enabled"))
+        m_isEnabled = json["enabled"].toBool();
+
     m_id = json.value("id").toString();
     if (m_id.isEmpty() && !qenPath.isEmpty()) {
         QString fileName = qenPath.split('/').last();

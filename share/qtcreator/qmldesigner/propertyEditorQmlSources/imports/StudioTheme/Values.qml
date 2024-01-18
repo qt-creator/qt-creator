@@ -3,7 +3,7 @@
 
 pragma Singleton
 import QtQuick
-import QtQuickDesignerTheme 1.0
+import QtQuickDesignerTheme
 
 QtObject {
     id: values

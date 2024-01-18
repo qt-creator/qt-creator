@@ -182,14 +182,19 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
         const QString effectName = QFileInfo(effectPath).baseName();
         Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
         try {
-            if (!view->model()->hasImport(import, true, true))
+            if (!view->model()->hasImport(import, true, true)) {
                 view->model()->changeImports({import}, {});
+                // Trigger async reset puppet to ensure full transaction is done before reset
+                view->resetPuppet();
+            }
         } catch (const Exception &) {
             QTC_ASSERT(false, return);
         }
 
         TypeName type(effectName.toUtf8());
-        newQmlItemNode = QmlItemNode(view->createModelNode(type, -1, -1));
+        ModelNode newModelNode = view->createModelNode(type, -1, -1);
+        newModelNode.setIdWithoutRefactoring(view->model()->generateNewId(effectName));
+        newQmlItemNode = QmlItemNode(newModelNode);
 
         placeEffectNode(parentProperty, newQmlItemNode, isLayerEffect);
     };
@@ -206,12 +211,8 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const Qm
 
     parentProperty.reparentHere(effectNode);
 
-    if (!isLayerEffect) {
-        effectNode.modelNode().bindingProperty("source").setExpression("parent");
-        effectNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
-    } else {
+    if (isLayerEffect)
         parentProperty.parentModelNode().variantProperty("layer.enabled").setValue(true);
-    }
 
     if (effectNode.modelNode().metaInfo().hasProperty("timeRunning"))
         effectNode.modelNode().variantProperty("timeRunning").setValue(true);
@@ -615,6 +616,11 @@ ModelNode QmlItemNode::rootModelNode() const
     if (view())
         return view()->rootModelNode();
     return {};
+}
+
+bool QmlItemNode::isEffectItem() const
+{
+    return modelNode().metaInfo().hasProperty("_isEffectItem");
 }
 
 void QmlItemNode::setSize(const QSizeF &size)

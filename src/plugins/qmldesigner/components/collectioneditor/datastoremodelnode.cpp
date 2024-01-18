@@ -7,6 +7,10 @@
 #include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
 #include "model/qmltextgenerator.h"
+#include "plaintexteditmodifier.h"
+#include "qmldesignerbase/qmldesignerbaseplugin.h"
+#include "qmldesignerexternaldependencies.h"
+#include "rewriterview.h"
 
 #include <model.h>
 #include <nodemetainfo.h>
@@ -23,20 +27,25 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QScopedPointer>
 
 namespace {
+
+inline constexpr char CHILDLISTMODEL_TYPENAME[] = "ChildListModel";
 
 QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
 {
     using QmlDesigner::AbstractProperty;
     using QmlDesigner::PropertyName;
     using QmlDesigner::PropertyNameList;
-    static PropertyNameList defaultsNodeProps = {"id",
-                                                 QmlDesigner::CollectionEditor::SOURCEFILE_PROPERTY,
-                                                 QmlDesigner::CollectionEditor::JSONCHILDMODELNAME_PROPERTY,
-                                                 "backend"};
+    static PropertyNameList defaultsNodeProps = {
+        "id",
+        QmlDesigner::CollectionEditorConstants::SOURCEFILE_PROPERTY,
+        QmlDesigner::CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY,
+        "backend"};
     PropertyNameList dynamicPropertyNames = Utils::transform(
         node.dynamicProperties(),
         [](const AbstractProperty &property) -> PropertyName { return property.name(); });
@@ -49,14 +58,66 @@ QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
 bool isValidCollectionPropertyName(const QString &collectionId)
 {
     static const QmlDesigner::PropertyNameList reservedKeywords = {
-        QmlDesigner::CollectionEditor::SOURCEFILE_PROPERTY,
-        QmlDesigner::CollectionEditor::JSONBACKEND_TYPENAME,
+        QmlDesigner::CollectionEditorConstants::SOURCEFILE_PROPERTY,
+        QmlDesigner::CollectionEditorConstants::JSONBACKEND_TYPENAME,
         "backend",
         "models",
     };
 
     return QmlDesigner::ModelNode::isValidId(collectionId)
            && !reservedKeywords.contains(collectionId.toLatin1());
+}
+
+QMap<QString, QmlDesigner::PropertyName> getModelIdMap(const QmlDesigner::ModelNode &rootNode)
+{
+    using namespace QmlDesigner;
+    QMap<QString, PropertyName> modelNameForId;
+
+    const QList<AbstractProperty> propertyNames = rootNode.dynamicProperties();
+
+    for (const AbstractProperty &property : std::as_const(propertyNames)) {
+        if (!property.isNodeProperty())
+            continue;
+
+        NodeProperty nodeProperty = property.toNodeProperty();
+        if (!nodeProperty.hasDynamicTypeName(CHILDLISTMODEL_TYPENAME))
+            continue;
+
+        ModelNode childNode = nodeProperty.modelNode();
+        if (childNode.hasProperty(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)) {
+            QString modelName = childNode
+                                    .property(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)
+                                    .toVariantProperty()
+                                    .value()
+                                    .toString();
+
+            if (!modelName.isEmpty())
+                modelNameForId.insert(modelName, property.name());
+        }
+    }
+    return modelNameForId;
+}
+
+void setQmlContextToModel(QmlDesigner::Model *model, const QString &qmlContext)
+{
+    using namespace QmlDesigner;
+    Q_ASSERT(model);
+
+    QScopedPointer<QPlainTextEdit> textEdit(new QPlainTextEdit);
+    QScopedPointer<NotIndentingTextEditModifier> modifier(
+        new NotIndentingTextEditModifier(textEdit.data()));
+    textEdit->hide();
+    textEdit->setPlainText(qmlContext);
+    QmlDesigner::ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
+    QScopedPointer<RewriterView> rewriter(
+        new RewriterView(externalDependencies, QmlDesigner::RewriterView::Validate));
+
+    rewriter->setParent(model);
+    rewriter->setTextModifier(modifier.get());
+    rewriter->setCheckSemanticErrors(false);
+
+    model->attachView(rewriter.get());
+    model->detachView(rewriter.get());
 }
 
 } // namespace
@@ -77,15 +138,16 @@ void DataStoreModelNode::reloadModel()
     }
     bool forceUpdate = false;
 
-    const FilePath dataStoreQmlPath = CollectionEditor::dataStoreQmlFilePath();
-    const FilePath dataStoreJsonPath = CollectionEditor::dataStoreJsonFilePath();
+    const FilePath dataStoreQmlPath = CollectionEditorUtils::dataStoreQmlFilePath();
+    const FilePath dataStoreJsonPath = CollectionEditorUtils::dataStoreJsonFilePath();
     QUrl dataStoreQmlUrl = dataStoreQmlPath.toUrl();
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
         if (!m_model.get() || m_model->fileUrl() != dataStoreQmlUrl) {
-            m_model = Model::create(CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
+            m_model = Model::create(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
             forceUpdate = true;
-            Import import = Import::createLibraryImport(CollectionEditor::COLLECTIONMODEL_IMPORT);
+            Import import = Import::createLibraryImport(
+                CollectionEditorConstants::COLLECTIONMODEL_IMPORT);
             try {
                 if (!m_model->hasImport(import, true, true))
                     m_model->changeImports({import}, {});
@@ -102,8 +164,10 @@ void DataStoreModelNode::reloadModel()
 
     m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
 
-    if (forceUpdate)
+    if (forceUpdate) {
+        preloadFile();
         update();
+    }
 }
 
 QStringList DataStoreModelNode::collectionNames() const
@@ -143,14 +207,31 @@ void DataStoreModelNode::reset()
     setCollectionNames({});
 }
 
+void DataStoreModelNode::preloadFile()
+{
+    using Utils::FilePath;
+    using Utils::FileReader;
+
+    if (!m_model)
+        return;
+
+    const FilePath dataStoreQmlPath = dataStoreQmlFilePath();
+    FileReader dataStoreQmlFile;
+    QString sourceQmlContext;
+
+    if (dataStoreQmlFile.fetch(dataStoreQmlPath))
+        sourceQmlContext = QString::fromLatin1(dataStoreQmlFile.data());
+
+    setQmlContextToModel(m_model.get(), sourceQmlContext);
+    m_collectionPropertyNames = getModelIdMap(m_model->rootModelNode());
+}
+
 void DataStoreModelNode::updateDataStoreProperties()
 {
     QTC_ASSERT(model(), return);
 
     ModelNode rootNode = modelNode();
     QTC_ASSERT(rootNode.isValid(), return);
-
-    static TypeName childNodeTypename = "ChildListModel";
 
     QSet<QString> collectionNamesToBeAdded;
     const QStringList allCollectionNames = m_collectionPropertyNames.keys();
@@ -165,12 +246,13 @@ void DataStoreModelNode::updateDataStoreProperties()
             continue;
 
         NodeProperty nodeProprty = property.toNodeProperty();
-        if (!nodeProprty.hasDynamicTypeName(childNodeTypename))
+        if (!nodeProprty.hasDynamicTypeName(CHILDLISTMODEL_TYPENAME))
             continue;
 
         ModelNode childNode = nodeProprty.modelNode();
-        if (childNode.hasProperty(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)) {
-            QString modelName = childNode.property(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)
+        if (childNode.hasProperty(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)) {
+            QString modelName = childNode
+                                    .property(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)
                                     .toVariantProperty()
                                     .value()
                                     .toString();
@@ -189,32 +271,17 @@ void DataStoreModelNode::updateDataStoreProperties()
 
     QStringList collectionNamesLeft = collectionNamesToBeAdded.values();
     Utils::sort(collectionNamesLeft);
-    for (const QString &collectionName : std::as_const(collectionNamesLeft)) {
-        PropertyName newPropertyName = getUniquePropertyName(collectionName);
-        if (newPropertyName.isEmpty()) {
-            qWarning() << __FUNCTION__ << __LINE__
-                       << QString("The property name cannot be generated from \"%1\"").arg(collectionName);
-            continue;
-        }
-
-        ModelNode collectionNode = model()->createModelNode(childNodeTypename);
-        VariantProperty modelNameProperty = collectionNode.variantProperty(
-            CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
-        modelNameProperty.setValue(collectionName);
-
-        NodeProperty nodeProp = rootNode.nodeProperty(newPropertyName);
-        nodeProp.setDynamicTypeNameAndsetModelNode(childNodeTypename, collectionNode);
-
-        m_collectionPropertyNames.insert(collectionName, newPropertyName);
-    }
+    for (const QString &collectionName : std::as_const(collectionNamesLeft))
+        addCollectionNameToTheModel(collectionName, getUniquePropertyName(collectionName));
 
     // Backend Property
-    ModelNode backendNode = model()->createModelNode(CollectionEditor::JSONBACKEND_TYPENAME);
+    ModelNode backendNode = model()->createModelNode(CollectionEditorConstants::JSONBACKEND_TYPENAME);
     NodeProperty backendProperty = rootNode.nodeProperty("backend");
-    backendProperty.setDynamicTypeNameAndsetModelNode(CollectionEditor::JSONBACKEND_TYPENAME,
+    backendProperty.setDynamicTypeNameAndsetModelNode(CollectionEditorConstants::JSONBACKEND_TYPENAME,
                                                       backendNode);
     // Source Property
-    VariantProperty sourceProp = rootNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY);
+    VariantProperty sourceProp = rootNode.variantProperty(
+        CollectionEditorConstants::SOURCEFILE_PROPERTY);
     sourceProp.setValue(m_dataRelativePath);
 }
 
@@ -231,17 +298,48 @@ void DataStoreModelNode::updateSingletonFile()
         imports += QStringLiteral("import %1\n").arg(import.toString(true));
 
     QString content = pragmaSingleTone + imports + getModelQmlText();
-    QUrl modelUrl = m_model->fileUrl();
-    FileSaver file(FilePath::fromUserInput(modelUrl.isLocalFile() ? modelUrl.toLocalFile()
-                                                                  : modelUrl.toString()));
+    FileSaver file(dataStoreQmlFilePath());
     file.write(content.toLatin1());
     file.finalize();
 }
 
 void DataStoreModelNode::update()
 {
+    if (!m_model.get())
+        return;
+
     updateDataStoreProperties();
     updateSingletonFile();
+}
+
+void DataStoreModelNode::addCollectionNameToTheModel(const QString &collectionName,
+                                                     const PropertyName &dataStorePropertyName)
+{
+    ModelNode rootNode = modelNode();
+    QTC_ASSERT(rootNode.isValid(), return);
+
+    if (dataStorePropertyName.isEmpty()) {
+        qWarning() << __FUNCTION__ << __LINE__
+                   << QString("The property name cannot be generated from \"%1\"").arg(collectionName);
+        return;
+    }
+
+    ModelNode collectionNode = model()->createModelNode(CHILDLISTMODEL_TYPENAME);
+    VariantProperty modelNameProperty = collectionNode.variantProperty(
+        CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY);
+    modelNameProperty.setValue(collectionName);
+
+    NodeProperty nodeProp = rootNode.nodeProperty(dataStorePropertyName);
+    nodeProp.setDynamicTypeNameAndsetModelNode(CHILDLISTMODEL_TYPENAME, collectionNode);
+
+    m_collectionPropertyNames.insert(collectionName, dataStorePropertyName);
+}
+
+Utils::FilePath DataStoreModelNode::dataStoreQmlFilePath() const
+{
+    QUrl modelUrl = m_model->fileUrl();
+    return Utils::FilePath::fromUserInput(modelUrl.isLocalFile() ? modelUrl.toLocalFile()
+                                                                 : modelUrl.toString());
 }
 
 PropertyName DataStoreModelNode::getUniquePropertyName(const QString &collectionName)
@@ -300,7 +398,7 @@ void DataStoreModelNode::renameCollection(const QString &oldName, const QString 
             NodeProperty collectionNode = dataStoreNode.property(oldPropertyName).toNodeProperty();
             if (collectionNode.isValid()) {
                 VariantProperty modelNameProperty = collectionNode.modelNode().variantProperty(
-                    CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
+                    CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY);
                 modelNameProperty.setValue(newName);
                 m_collectionPropertyNames.remove(oldName);
                 m_collectionPropertyNames.insert(newName, collectionNode.name());
@@ -333,7 +431,7 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
 {
     QTC_ASSERT(targetNode.isValid(), return);
 
-    if (!CollectionEditor::canAcceptCollectionAsModel(targetNode))
+    if (!CollectionEditorUtils::canAcceptCollectionAsModel(targetNode))
         return;
 
     if (!m_collectionPropertyNames.contains(collectionName)) {
@@ -352,12 +450,27 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
         return;
     }
 
-    BindingProperty modelProperty = targetNode.bindingProperty("model");
-
-    QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
-
-    view->executeInTransaction("assignCollectionToNode", [&modelProperty, &identifier]() {
+    view->executeInTransaction("assignCollectionToNode", [&]() {
+        QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
+        BindingProperty modelProperty = targetNode.bindingProperty("model");
         modelProperty.setExpression(identifier);
+        if (CollectionEditorUtils::hasTextRoleProperty(targetNode)) {
+            VariantProperty textRoleProperty = targetNode.variantProperty("textRole");
+            const QVariant currentTextRoleValue = textRoleProperty.value();
+
+            if (currentTextRoleValue.isValid() && !currentTextRoleValue.isNull()) {
+                if (currentTextRoleValue.type() == QVariant::String) {
+                    const QString currentTextRole = currentTextRoleValue.toString();
+                    if (CollectionEditorUtils::collectionHasColumn(collectionName, currentTextRole))
+                        return;
+                } else {
+                    return;
+                }
+            }
+
+            QString textRoleValue = CollectionEditorUtils::getFirstColumnName(collectionName);
+            textRoleProperty.setValue(textRoleValue);
+        }
     });
 }
 

@@ -5,7 +5,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 import QtQuick.Templates as T
-import QtQuickDesignerTheme
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
 import QtQuickDesignerColorPalette
@@ -393,10 +392,7 @@ Column {
                         }
                     }
                 }
-            }
 
-            Connections {
-                target: modelNodeBackend
                 function onSelectionChanged() {
                     root.initEditor()
                 }

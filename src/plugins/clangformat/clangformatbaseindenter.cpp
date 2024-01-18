@@ -389,6 +389,7 @@ Utils::ChangeSet convertReplacements(const QTextDocument *doc,
                               .size();
 
         QString replacementText = QString::fromStdString(replacement.getReplacementText().str());
+        replacementText.replace("\r", "");
         auto sameCharAt = [&](int replacementOffset) {
             if (replacementText.size() <= replacementOffset || replacementOffset < 0)
                 return false;

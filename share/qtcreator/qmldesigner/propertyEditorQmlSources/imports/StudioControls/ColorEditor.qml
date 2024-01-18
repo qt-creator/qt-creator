@@ -3,7 +3,6 @@
 
 import QtQuick
 import StudioTheme as StudioTheme
-import QtQuickDesignerTheme
 import QtQuickDesignerColorPalette
 import StudioHelpers
 

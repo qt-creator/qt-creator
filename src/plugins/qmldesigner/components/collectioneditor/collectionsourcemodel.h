@@ -87,6 +87,7 @@ private slots:
 
 private:
     void setSelectedIndex(int idx);
+    void setSelectedCollectionName(const QString &collectionName);
     void updateEmpty();
     void updateCollectionList(QModelIndex index);
     void registerCollection(const QSharedPointer<CollectionListModel> &collection);
@@ -98,6 +99,7 @@ private:
     QHash<qint32, int> m_sourceIndexHash; // internalId -> index
     QList<QSharedPointer<CollectionListModel>> m_collectionList;
     QPointer<CollectionListModel> m_previousSelectedList;
+    QString m_selectedCollectionName;
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
 };

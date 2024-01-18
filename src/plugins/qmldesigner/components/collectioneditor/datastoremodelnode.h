@@ -7,6 +7,10 @@
 
 #include <QMap>
 
+namespace Utils {
+class FilePath;
+}
+
 namespace QmlDesigner {
 
 class Model;
@@ -34,9 +38,14 @@ private:
     QString getModelQmlText();
 
     void reset();
+    void preloadFile();
     void updateDataStoreProperties();
     void updateSingletonFile();
     void update();
+    void addCollectionNameToTheModel(const QString &collectionName,
+                                     const PropertyName &dataStorePropertyName);
+    Utils::FilePath dataStoreQmlFilePath() const;
+
     PropertyName getUniquePropertyName(const QString &collectionName);
 
     ModelPointer m_model;

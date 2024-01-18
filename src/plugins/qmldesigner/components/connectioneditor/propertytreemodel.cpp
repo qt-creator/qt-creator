@@ -72,9 +72,7 @@ const std::vector<PropertyName> blockListSlots = {"childAt",
                                                   "inputMethodQuery",
                                                   "positionAt",
                                                   "positionToRectangle",
-                                                  "isRightToLeft"
-
-};
+                                                  "isRightToLeft"};
 
 const std::vector<PropertyName> priorityListSignals = {"clicked",
                                                        "doubleClicked",
@@ -99,7 +97,8 @@ const std::vector<PropertyName> priorityListSignals = {"clicked",
                                                        "enabledChanged",
                                                        "visibleChanged",
                                                        "opacityChanged",
-                                                       "rotationChanged"};
+                                                       "rotationChanged",
+                                                       "positionChanged"};
 
 const std::vector<PropertyName> priorityListProperties = {"opacity",
                                                           "checked",
@@ -572,8 +571,7 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
 
                                         const PropertyName name = metaInfo.name();
 
-                                        if (!m_includeDotPropertiesOnFirstLevel
-                                            && name.contains("."))
+                                        if (!m_includeDotPropertiesOnFirstLevel && name.contains("."))
                                             return false;
 
                                         return filterProperty(name, metaInfo, recursive);
@@ -606,8 +604,8 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
     return checkedPriorityList;
 }
 
-const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(
-    const NodeMetaInfo &metaInfo, bool recursive) const
+std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(const NodeMetaInfo &metaInfo,
+                                                                          bool recursive)
 {
     Q_UNUSED(recursive);
 
@@ -627,15 +625,14 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(
     std::set<PropertyName> set(std::make_move_iterator(sorted.begin()),
                                std::make_move_iterator(sorted.end()));
 
-    auto checkedPriorityList = Utils::filtered(priorityListSignals,
-                                               [&set](const PropertyName &name) {
-                                                   auto it = set.find(name);
-                                                   const bool b = it != set.end();
-                                                   if (b)
-                                                       set.erase(it);
+    auto checkedPriorityList = Utils::filtered(priorityListSignals, [&set](const PropertyName &name) {
+        auto it = set.find(name);
+        const bool b = it != set.end();
+        if (b)
+            set.erase(it);
 
-                                                   return b;
-                                               });
+        return b;
+    });
 
     //const int priorityLength = checkedPriorityList.size(); We eventually require this to get the prioproperties
 
@@ -648,8 +645,8 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(
     return checkedPriorityList;
 }
 
-const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSlotNames(
-    const NodeMetaInfo &metaInfo, bool recursive) const
+std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSlotNames(const NodeMetaInfo &metaInfo,
+                                                                        bool recursive)
 {
     Q_UNUSED(recursive);
 

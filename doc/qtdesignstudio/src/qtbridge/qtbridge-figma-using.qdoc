@@ -124,10 +124,14 @@
         \li Purpose
     \row
         \li \uicontrol ID
-        \li \QBF automatically proposes identifiers for all groups and layers.
+        \li \QBF automatically derives identifiers for all groups and layers
+            from layer name.
             You can change them in this field. Use unique and descriptive IDs
             to avoid duplicate IDs when the layer and the respective artwork
             are imported into \QDS.
+            \note Once the ID is edited, the automatic assignment of ID from
+            layer name stops for this layer. Use \inlineimage figma-binding-reset.png
+            button next to \uicontrol ID to reset the ID back to automatic assignment.
     \row
         \li \uicontrol {Export as}
         \li Determines how to export the group or layer:
@@ -146,6 +150,8 @@
                     into one component.
                 \li \uicontrol Skipped completely skips the selected layer.
             \endlist
+            \note Use \inlineimage figma-binding-reset.png button next to
+            \uicontrol {Export as} to reset to default value.
     \row
         \li \uicontrol {Custom Component Type}
         \li Determines the \l{Component Types}{component type} to morph this
@@ -205,13 +211,8 @@
         \li Exports the component generated from this layer as an alias in the
             parent component.
     \row
-        \li \uicontrol Visible
-        \li Determines the visibility of the layer.
-    \row
-        \li \uicontrol Clip
-        \li Enables clipping in the component generated from the layer. The
-            generated component will clip its own painting, as well as the
-            painting of its children, to its bounding rectangle.
+        \li \uicontrol {Start Screen}
+        \li Sets the component to be the starting component in \QDS project.
     \endtable
 
     \section2 Settings
@@ -239,6 +240,10 @@
         \li \uicontrol {Export as shapes}
         \li Exports vectors as components of the type \l{SVG Path Item} from the
             Qt Quick Studio Components module.
+    \row
+        \li \uicontrol {Create page hierarchy}
+        \li Organize the generated UI in \QDS under the directory named after the
+            parent page of the respective component.
     \row
         \li \uicontrol {Reset plugin data}
         \li Resets all settings for all layers and groups (also in the

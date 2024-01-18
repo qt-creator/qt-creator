@@ -66,7 +66,7 @@ public:
 
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
-    Q_INVOKABLE void clear();
+    Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
 

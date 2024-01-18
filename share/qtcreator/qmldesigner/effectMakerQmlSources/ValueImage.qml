@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 import EffectMakerBackend
 
 Row {

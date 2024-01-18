@@ -162,7 +162,7 @@
 
     Now the emulator runs, the qtdesignviewer APK delivered with the \QDS installation
     is uploaded, and the project is uploaded and shown in the emulator.
-    \image qtds-running-emulator.png
+    \image qtds-running-emulator.webp
 
     Note the following:
     \list

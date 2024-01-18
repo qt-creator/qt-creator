@@ -5,7 +5,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Templates as T
-import QtQuickDesignerTheme
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import QtQuickDesignerColorPalette

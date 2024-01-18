@@ -28,7 +28,7 @@ const QMap<DataTypeWarning::Warning, QString> DataTypeWarning::dataTypeWarnings 
 
 class CollectionDetails::Private
 {
-    using SourceFormat = CollectionEditor::SourceFormat;
+    using SourceFormat = CollectionEditorConstants::SourceFormat;
 
 public:
     QList<CollectionProperty> properties;
@@ -85,6 +85,24 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
     }
 }
 
+static QJsonValue variantToJsonValue(const QVariant &variant)
+{
+    using VariantType = QVariant::Type;
+
+    switch (variant.type()) {
+    case VariantType::Bool:
+        return variant.toBool();
+    case VariantType::Double:
+    case VariantType::Int:
+        return variant.toDouble();
+    case VariantType::String:
+    case VariantType::Color:
+    case VariantType::Url:
+    default:
+        return variant.toString();
+    }
+}
+
 CollectionDetails::CollectionDetails()
     : d(new Private())
 {}
@@ -101,7 +119,7 @@ CollectionDetails::~CollectionDetails() = default;
 
 void CollectionDetails::resetDetails(const QStringList &propertyNames,
                                      const QList<QJsonObject> &elements,
-                                     CollectionEditor::SourceFormat format)
+                                     CollectionEditorConstants::SourceFormat format)
 {
     if (!isValid())
         return;
@@ -238,6 +256,7 @@ bool CollectionDetails::setPropertyValue(int row, int column, const QVariant &va
         return false;
 
     element.insert(d->properties.at(column).name, QJsonValue::fromVariant(value));
+    markChanged();
     return true;
 }
 
@@ -277,8 +296,10 @@ bool CollectionDetails::setPropertyType(int column, DataType type)
 
     for (QJsonObject &element : d->elements) {
         if (element.contains(property.name)) {
-            QJsonValue value = element.value(property.name);
-            element.insert(property.name, valueToVariant(value, type).toJsonValue());
+            const QJsonValue value = element.value(property.name);
+            const QVariant properTypedValue = valueToVariant(value, type);
+            const QJsonValue properTypedJsonValue = variantToJsonValue(properTypedValue);
+            element.insert(property.name, properTypedJsonValue);
             changed = true;
         }
     }
@@ -294,7 +315,7 @@ CollectionReference CollectionDetails::reference() const
     return d->reference;
 }
 
-CollectionEditor::SourceFormat CollectionDetails::sourceFormat() const
+CollectionEditorConstants::SourceFormat CollectionDetails::sourceFormat() const
 {
     return d->sourceFormat;
 }
@@ -354,8 +375,10 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     const QString &propertyName = d->properties.at(column).name;
     const QJsonObject &element = d->elements.at(row);
 
-    if (element.isEmpty())
+    if (typeAt(column) == DataType::Unknown || element.isEmpty()
+        || data(row, column) == QVariant::fromValue(nullptr)) {
         return DataTypeWarning::Warning::None;
+    }
 
     if (element.contains(propertyName) && typeAt(column) != typeAt(row, column))
         return DataTypeWarning::Warning::CellDataTypeMismatch;
@@ -458,16 +481,19 @@ void CollectionDetails::resetPropertyTypes()
         resetPropertyType(property);
 }
 
-QString CollectionDetails::getCollectionAsJsonString() const
+QJsonArray CollectionDetails::getCollectionAsJsonArray() const
 {
     QJsonArray collectionArray;
 
     for (const QJsonObject &element : std::as_const(d->elements))
         collectionArray.push_back(element);
 
-    QString collectionString = QString::fromUtf8(QJsonDocument(collectionArray).toJson());
+    return collectionArray;
+}
 
-    return collectionString;
+QString CollectionDetails::getCollectionAsJsonString() const
+{
+    return QString::fromUtf8(QJsonDocument(getCollectionAsJsonArray()).toJson());
 }
 
 QString CollectionDetails::getCollectionAsCsvString() const

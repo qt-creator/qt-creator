@@ -3,10 +3,9 @@
 
 import QtQuick
 import QtQuick.Controls
-import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 import EffectMakerBackend
 
 HelperWidgets.Section {

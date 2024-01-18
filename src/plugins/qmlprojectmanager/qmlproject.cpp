@@ -238,4 +238,17 @@ bool QmlProject::allowOnlySingleProject()
     return !settings->value(key, false).toBool();
 }
 
+bool QmlProject::isMCUs()
+{
+    if (!ProjectExplorer::ProjectManager::startupTarget())
+        return false;
+
+    const QmlProjectManager::QmlBuildSystem *buildSystem
+        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
+    QTC_ASSERT(buildSystem, return false);
+
+    return buildSystem && buildSystem->qtForMCUs();
+}
+
 } // namespace QmlProjectManager

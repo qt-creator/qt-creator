@@ -34,6 +34,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <projectexplorer/projectmanager.h>
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
@@ -219,6 +220,13 @@ void DesignModeWidget::setup()
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::projectFinishedParsing,
+            m_dockManager,
+            [this]() {
+                this->m_dockManager->setMcusProject(QmlProjectManager::QmlProject::isMCUs());
+            });
+
     // Setup icons
     const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::close_small);
     const QString maximizeUnicode = Theme::getIconUnicode(Theme::Icon::maxBar_small);
@@ -273,6 +281,7 @@ void DesignModeWidget::setup()
     Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);
     // View > Views
     Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_VIEW_VIEWS);
+    connect(mviews->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowViews);
     mviews->menu()->addSeparator();
     // View > Workspaces
     Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_VIEW_WORKSPACES);
@@ -482,6 +491,29 @@ void DesignModeWidget::setup()
     show();
 }
 
+static bool isMcuDisabledView(const QString viewId)
+{
+    static const QStringList mcuDisabledViews = {"Editor3D", "MaterialEditor", "MaterialBrowser", "TextureEditor"};
+    return mcuDisabledViews.contains(viewId);
+}
+
+void DesignModeWidget::aboutToShowViews()
+{
+    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+        QString id = widgetInfo.uniqueId;
+        ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(id);
+        QAction *action = dockWidget->toggleViewAction();
+
+        bool isMcuProject = currentDesignDocument() && currentDesignDocument()->isQtForMCUsProject();
+        if (isMcuProject && isMcuDisabledView(id) && action->isEnabled()) {
+            action->setChecked(false);
+            action->setEnabled(false);
+        } else if (!isMcuProject && !action->isEnabled()) {
+            action->setEnabled(true);
+        }
+    }
+}
+
 void DesignModeWidget::aboutToShowWorkspaces()
 {
     Core::ActionContainer *aci = Core::ActionManager::actionContainer(
@@ -520,6 +552,9 @@ void DesignModeWidget::aboutToShowWorkspaces()
         action->setCheckable(true);
         if (workspace == *m_dockManager->activeWorkspace())
             action->setChecked(true);
+
+        if (currentDesignDocument() && currentDesignDocument()->isQtForMCUsProject())
+            action->setEnabled(workspace.isMcusEnabled());
     }
     menu->addActions(ag->actions());
 }

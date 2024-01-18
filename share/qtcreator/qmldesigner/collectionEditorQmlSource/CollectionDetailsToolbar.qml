@@ -102,7 +102,7 @@ Item {
                 icon: StudioTheme.Constants.save_medium
                 tooltip: qsTr("Save changes")
                 enabled: root.model.collectionName !== ""
-                onClicked: root.model.saveCurrentCollection()
+                onClicked: root.model.saveDataStoreCollections()
             }
 
             IconButton {
@@ -113,7 +113,6 @@ Item {
             }
         }
     }
-
 
     PlatformWidgets.FileDialog {
         id: fileDialog

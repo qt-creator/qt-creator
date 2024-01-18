@@ -4,12 +4,11 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuickDesignerTheme 1.0
 import Qt.labs.platform as PlatformWidgets
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import CollectionEditor 1.0
+import CollectionEditor
 
 StudioControls.Dialog {
     id: root

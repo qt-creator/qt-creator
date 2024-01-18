@@ -147,15 +147,15 @@ def package(args, paths):
     if common.is_windows_platform() and args.sign_command:
         command = shlex.split(args.sign_command)
         common.check_print_call(command + [paths.install])
-    common.check_print_call(['7z', 'a', '-mmt2', os.path.join(paths.result, args.name + '.7z'), '*'],
+    common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, os.path.join(paths.result, args.name + '.7z'), '*'],
                             paths.install)
     if os.path.exists(paths.dev_install):  # some plugins might not provide anything in Devel
-        common.check_print_call(['7z', 'a', '-mmt2',
+        common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                  os.path.join(paths.result, args.name + '_dev.7z'), '*'],
                                 paths.dev_install)
     # check for existence - the DebugInfo install target doesn't work for telemetry plugin
     if args.with_debug_info and os.path.exists(paths.debug_install):
-        common.check_print_call(['7z', 'a', '-mmt2',
+        common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
                                  os.path.join(paths.result, args.name + '-debug.7z'), '*'],
                                 paths.debug_install)
     if common.is_mac_platform() and common.codesign_call():

@@ -309,6 +309,13 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
 
 static QString addOnToSignalName(const QString &signal)
 {
+    if (signal.isEmpty())
+        return {};
+
+    static const QRegularExpression rx("^on[A-Z]");
+    if (rx.match(signal).hasMatch())
+        return signal;
+
     QString ret = signal;
     ret[0] = ret.at(0).toUpper();
     ret.prepend("on");
@@ -361,11 +368,10 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
             ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
 
             PropertyName signalHandlerName = signalName;
-            if (signalHandlerName.isEmpty()) {
-                signalHandlerName = addOnToSignalName(QString::fromUtf8(getFirstSignalForTarget(
-                                                          selectedNode.metaInfo())))
-                                        .toUtf8();
-            }
+            if (signalHandlerName.isEmpty())
+                signalHandlerName = getFirstSignalForTarget(selectedNode.metaInfo());
+
+            signalHandlerName = addOnToSignalName(QString::fromUtf8(signalHandlerName)).toUtf8();
 
             connectionView()
                 ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
@@ -855,7 +861,7 @@ int ConnectionModelBackendDelegate::currentRow() const
     return m_currentRow;
 }
 
-QString removeOnFromSignalName(const QString &signal)
+static QString removeOnFromSignalName(const QString &signal)
 {
     if (signal.isEmpty())
         return {};

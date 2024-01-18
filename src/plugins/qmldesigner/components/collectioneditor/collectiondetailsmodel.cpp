@@ -7,11 +7,16 @@
 #include "collectioneditorutils.h"
 #include "modelnode.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/textfileformat.h>
 
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 
@@ -19,17 +24,27 @@ namespace {
 
 QStringList getJsonHeaders(const QJsonArray &collectionArray)
 {
-    QSet<QString> result;
+    QSet<QString> resultSet;
+    QList<QString> result;
+
     for (const QJsonValue &value : collectionArray) {
         if (value.isObject()) {
             const QJsonObject object = value.toObject();
-            const QStringList headers = object.toVariantMap().keys();
-            for (const QString &header : headers)
-                result.insert(header);
+            QJsonObject::ConstIterator element = object.constBegin();
+            const QJsonObject::ConstIterator stopItem = object.constEnd();
+
+            while (element != stopItem) {
+                const QString property = element.key();
+                if (!resultSet.contains(property)) {
+                    result.append(property);
+                    resultSet.insert(property);
+                }
+                ++element;
+            }
         }
     }
 
-    return result.values();
+    return result;
 }
 
 class CollectionDataTypeHelper
@@ -339,8 +354,10 @@ bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue
                                                            newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
-        emit dataChanged(index(0, column), index(rowCount() - 1, column),
-                         {Qt::DisplayRole, DataTypeRole, DataTypeWarningRole});
+        emit dataChanged(
+            index(0, column),
+            index(rowCount() - 1, column),
+            {Qt::DisplayRole, Qt::EditRole, DataTypeRole, DataTypeWarningRole, ColumnDataTypeRole});
     }
 
     return changed;
@@ -353,8 +370,8 @@ bool CollectionDetailsModel::selectRow(int row)
 
     const int rows = rowCount();
 
-    if (m_selectedRow >= rows)
-        return false;
+    if (row >= rows)
+        row = rows - 1;
 
     selectColumn(-1);
 
@@ -388,7 +405,7 @@ QStringList CollectionDetailsModel::typesList()
 
 void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
-    QString fileName = CollectionEditor::getSourceCollectionPath(sourceNode);
+    QString fileName = CollectionEditorUtils::getSourceCollectionPath(sourceNode);
 
     CollectionReference newReference{sourceNode, collection};
     bool alreadyOpen = m_openedCollections.contains(newReference);
@@ -403,21 +420,83 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     } else {
         deselectAll();
         switchToCollection(newReference);
-        if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        if (sourceNode.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
             loadJsonCollection(fileName, collection);
-        else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+        else if (sourceNode.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
             loadCsvCollection(fileName, collection);
     }
 }
 
-bool CollectionDetailsModel::saveCurrentCollection()
+bool CollectionDetailsModel::saveDataStoreCollections()
 {
-    return saveCollection({}, &m_currentCollection);
+    const ModelNode node = m_currentCollection.reference().node;
+    const Utils::FilePath path = CollectionEditorUtils::dataStoreJsonFilePath();
+    Utils::FileReader fileData;
+    Utils::FileSaver sourceFile(path);
+
+    if (!fileData.fetch(path)) {
+        qWarning() << Q_FUNC_INFO << "Cannot read the json file:" << fileData.errorString();
+        return false;
+    }
+
+    QJsonParseError jpe;
+    QJsonDocument document = QJsonDocument::fromJson(fileData.data(), &jpe);
+
+    if (jpe.error == QJsonParseError::NoError) {
+        QJsonObject obj = document.object();
+
+        QList<CollectionDetails> collectionsToBeSaved;
+        for (CollectionDetails &openedCollection : m_openedCollections) {
+            const CollectionReference reference = openedCollection.reference();
+            if (reference.node == node) {
+                obj.insert(reference.name, openedCollection.getCollectionAsJsonArray());
+                collectionsToBeSaved << openedCollection;
+            }
+        }
+
+        document.setObject(obj);
+        bool saved = sourceFile.write(document.toJson());
+        saved &= sourceFile.finalize();
+
+        if (saved) {
+            const CollectionReference currentReference = m_currentCollection.reference();
+            for (CollectionDetails &collection : collectionsToBeSaved) {
+                collection.markSaved();
+                const CollectionReference reference = collection.reference();
+                if (reference != currentReference)
+                    closeCollectionIfSaved(reference);
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
-bool CollectionDetailsModel::exportCollection(const QString &filePath)
+bool CollectionDetailsModel::exportCollection(const QUrl &url)
 {
-    return saveCollection(filePath, &m_currentCollection);
+    using Core::EditorManager;
+    using Utils::FilePath;
+    using Utils::TextFileFormat;
+
+    QTC_ASSERT(m_currentCollection.isValid(), return false);
+
+    bool saved = false;
+    const FilePath filePath = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
+                                                                        : url.toString());
+    const QString saveFormat = filePath.toFileInfo().suffix().toLower();
+    const QString content = saveFormat == "csv" ? m_currentCollection.getCollectionAsCsvString()
+                                                : m_currentCollection.getCollectionAsJsonString();
+
+    TextFileFormat textFileFormat;
+    textFileFormat.codec = EditorManager::defaultTextCodec();
+    textFileFormat.lineTerminationMode = EditorManager::defaultLineEnding();
+    QString errorMessage;
+    saved = textFileFormat.writeFile(filePath, content, &errorMessage);
+
+    if (!saved)
+        qWarning() << Q_FUNC_INFO << "Unable to write file" << errorMessage;
+
+    return saved;
 }
 
 void CollectionDetailsModel::updateEmpty()
@@ -453,19 +532,19 @@ void CollectionDetailsModel::closeCollectionIfSaved(const CollectionReference &c
 
     if (!collectionDetails.isChanged())
         m_openedCollections.remove(collection);
-
-    m_currentCollection = CollectionDetails{};
 }
 
 void CollectionDetailsModel::closeCurrentCollectionIfSaved()
 {
-    if (m_currentCollection.isValid())
+    if (m_currentCollection.isValid()) {
         closeCollectionIfSaved(m_currentCollection.reference());
+        m_currentCollection = CollectionDetails{};
+    }
 }
 
 void CollectionDetailsModel::loadJsonCollection(const QString &source, const QString &collection)
 {
-    using CollectionEditor::SourceFormat;
+    using CollectionEditorConstants::SourceFormat;
 
     QFile sourceFile(source);
     QJsonArray collectionNodes;
@@ -510,7 +589,7 @@ void CollectionDetailsModel::loadJsonCollection(const QString &source, const QSt
 void CollectionDetailsModel::loadCsvCollection(const QString &source,
                                               [[maybe_unused]] const QString &collectionName)
 {
-    using CollectionEditor::SourceFormat;
+    using CollectionEditorConstants::SourceFormat;
 
     QFile sourceFile(source);
     QStringList headers;
@@ -592,49 +671,6 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
         m_collectionName = newCollectionName;
         emit this->collectionNameChanged(m_collectionName);
     }
-}
-
-bool CollectionDetailsModel::saveCollection(const QString &filePath, CollectionDetails *collection)
-{
-    bool saved = false;
-
-    auto saveSingleCollection = [&](CollectionDetails &singleCollection) {
-
-        const ModelNode node = singleCollection.reference().node;
-        QString path = CollectionEditor::getSourceCollectionPath(node);
-        QString saveFormat = CollectionEditor::getSourceCollectionType(node);
-
-        if (!filePath.isEmpty()) {
-            QUrl url(filePath);
-            path = url.isLocalFile() ? QFileInfo(url.toLocalFile()).absoluteFilePath() : url.toString();
-            saveFormat = url.isLocalFile() ? QFileInfo(url.toLocalFile()).suffix().toLower() : saveFormat;
-        }
-
-        saved = saveCollectionFromString(path, (saveFormat == "json") ? singleCollection.getCollectionAsJsonString() :
-                                                   (saveFormat == "csv")  ? singleCollection.getCollectionAsCsvString() : QString());
-
-        if (saved && filePath.isEmpty())
-            singleCollection.markSaved();
-    };
-
-    if (!collection) {
-        for (CollectionDetails &openedCollection : m_openedCollections)
-            saveSingleCollection(openedCollection);
-    } else {
-        saveSingleCollection(*collection);
-    }
-
-    return saved;
-}
-
-bool CollectionDetailsModel::saveCollectionFromString(const QString &path, const QString &content)
-{
-    QFile file(path);
-
-    if (file.open(QFile::WriteOnly) && file.write(content.toUtf8()))
-        return true;
-
-    return false;
 }
 
 QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const

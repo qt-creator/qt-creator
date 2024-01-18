@@ -36,6 +36,11 @@ StudioControls.Dialog {
         root.open()
     }
 
+    onWidthChanged: {
+        if (visible && x > parent.width)
+            root.close()
+    }
+
     onAccepted: {
         if (nameTextField.text !== "" && nameTextField.text !== root.__currentName)
             root.model.renameColumn(root.__propertyIndex, nameTextField.text)
@@ -50,13 +55,13 @@ StudioControls.Dialog {
         Grid {
             columns: 2
             rows: 2
-            spacing: 2
+            rowSpacing: 2
+            columnSpacing: 25
             verticalItemAlignment: Grid.AlignVCenter
 
             Text {
                 text: qsTr("Name")
                 color: StudioTheme.Values.themeTextColor
-                width: 50
                 verticalAlignment: Text.AlignVCenter
             }
 
@@ -129,14 +134,12 @@ StudioControls.Dialog {
         Row {
             height: 40
             spacing: 5
-            anchors.right: parent.right
 
             HelperWidgets.Button {
                 id: editButton
 
                 text: qsTr("Apply")
                 enabled: nameTextField.text !== ""
-                width: 70
                 anchors.bottom: parent.bottom
 
                 onClicked: root.accept()
@@ -145,7 +148,6 @@ StudioControls.Dialog {
             HelperWidgets.Button {
                 text: qsTr("Cancel")
                 anchors.bottom: parent.bottom
-                width: 70
 
                 onClicked: root.reject()
             }

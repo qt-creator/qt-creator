@@ -149,6 +149,14 @@ WorkspaceModel::WorkspaceModel(QObject *)
     };
     if (!connectDockManager())
         connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, connectDockManager);
+
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::projectFinishedParsing,
+            this,
+            [this]() {
+                beginResetModel();
+                endResetModel();
+            });
 }
 
 int WorkspaceModel::rowCount(const QModelIndex &) const
@@ -162,7 +170,8 @@ int WorkspaceModel::rowCount(const QModelIndex &) const
 QHash<int, QByteArray> WorkspaceModel::roleNames() const
 {
     static QHash<int, QByteArray> roleNames{{DisplayNameRole, "displayName"},
-                                            {FileNameRole, "fileName"}};
+                                            {FileNameRole, "fileName"},
+                                            {Enabled, "enabled"}};
 
     return roleNames;
 }
@@ -176,6 +185,9 @@ QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
             return workspace.name();
         } else if (role == FileNameRole) {
             return workspace.fileName();
+        } else if (role == Enabled) {
+            if (QmlProjectManager::QmlProject::isMCUs())
+                return workspace.isMcusEnabled();
         } else {
             qWarning() << Q_FUNC_INFO << "invalid role";
         }
