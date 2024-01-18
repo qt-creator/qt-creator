@@ -54,7 +54,7 @@ private:
     friend class QtVersion;
     friend class QtVersionFactory;
     friend class QtVersionManagerImpl;
-    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSettingsPageWidget;
     friend class Internal::QtSupportPlugin;
 
     static void initialized();

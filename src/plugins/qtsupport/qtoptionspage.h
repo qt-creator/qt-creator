@@ -8,18 +8,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace QtSupport {
-namespace Internal {
-
-class QtOptionsPage final : public Core::IOptionsPage
-{
-public:
-    QtOptionsPage();
-
-    QStringList keywords() const final;
-
-};
-
-} // QtSupport
 
 namespace LinkWithQtSupport {
 QTSUPPORT_EXPORT bool canLinkWithQt();
@@ -28,4 +16,6 @@ QTSUPPORT_EXPORT Utils::FilePath linkedQt();
 QTSUPPORT_EXPORT void linkWithQt();
 }
 
-} // Internal
+namespace Internal { void setupQtSettingsPage(); }
+
+} // QtSupport

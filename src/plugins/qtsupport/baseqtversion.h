@@ -38,7 +38,7 @@ class QtConfigWidget;
 class QtVersion;
 
 namespace Internal {
-class QtOptionsPageWidget;
+class QtSettingsPageWidget;
 class QtVersionPrivate;
 }
 
@@ -220,7 +220,7 @@ private:
     friend class QtVersionFactory;
     friend class QtVersionManager;
     friend class Internal::QtVersionPrivate;
-    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSettingsPageWidget;
 
     void setId(int id);
     QtVersion *clone(bool forceRefreshCache = false) const;
