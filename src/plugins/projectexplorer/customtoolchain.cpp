@@ -13,6 +13,7 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmacro.h"
+#include "toolchain.h"
 #include "toolchainconfigwidget.h"
 
 #include <utils/algorithm.h>
@@ -555,17 +556,24 @@ std::unique_ptr<ToolchainConfigWidget> CustomToolChain::createConfigurationWidge
     return std::make_unique<CustomToolChainConfigWidget>(this);
 }
 
-// --------------------------------------------------------------------------
 // CustomToolChainFactory
-// --------------------------------------------------------------------------
 
-CustomToolchainFactory::CustomToolchainFactory()
+class CustomToolchainFactory final : public ToolchainFactory
 {
-    setDisplayName(Tr::tr("Custom"));
-    setSupportedToolchainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
-    setSupportsAllLanguages(true);
-    setToolchainConstructor([] { return new CustomToolChain; });
-    setUserCreatable(true);
+public:
+    CustomToolchainFactory()
+    {
+        setDisplayName(Tr::tr("Custom"));
+        setSupportedToolchainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
+        setSupportsAllLanguages(true);
+        setToolchainConstructor([] { return new CustomToolChain; });
+        setUserCreatable(true);
+    }
+};
+
+void setupCustomToolchain()
+{
+    static CustomToolchainFactory theCustomToolchainFactory;
 }
 
 } // ProjectExplorer::Internal

@@ -647,8 +647,6 @@ public:
     WinDebugInterface m_winDebugInterface;
 #endif
 
-    CustomToolchainFactory m_customToolChainFactory;
-
     DesktopDeviceFactory m_desktopDeviceFactory;
 
     ToolChainOptionsPage m_toolChainOptionsPage;
@@ -818,6 +816,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupGccToolchains();
     setupMsvcToolchain();
     setupClangClToolchain();
+    setupCustomToolchain();
 
     setupProjectTreeWidgetFactory();
 
