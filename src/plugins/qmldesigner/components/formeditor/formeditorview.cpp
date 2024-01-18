@@ -1013,7 +1013,8 @@ void FormEditorView::updateHasEffects()
                 item->setHasEffect(false);
             if (qmlNode.isEffectItem()) {
                 FormEditorItem *parentItem = m_scene->itemForQmlItemNode(qmlNode.modelParentItem());
-                parentItem->setHasEffect(true);
+                if (parentItem)
+                    parentItem->setHasEffect(true);
             }
         }
     }

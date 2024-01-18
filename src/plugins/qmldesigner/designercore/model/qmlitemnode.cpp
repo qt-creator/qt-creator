@@ -209,6 +209,17 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const Qm
         QmlObjectNode(oldEffect).destroy();
     }
 
+    if (!isLayerEffect) {
+        // Delete previous effect child if one already exists
+        ModelNode parentNode = parentProperty.parentModelNode();
+        QList<ModelNode> children = parentNode.directSubModelNodes();
+        for (ModelNode &child : children) {
+            QmlItemNode qmlChild(child);
+            if (qmlChild.isEffectItem())
+                qmlChild.destroy();
+        }
+    }
+
     parentProperty.reparentHere(effectNode);
 
     if (isLayerEffect)
