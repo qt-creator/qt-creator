@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "appmanagertr.h"
-
 #include <utils/aspects.h>
 
 namespace AppManager::Internal {

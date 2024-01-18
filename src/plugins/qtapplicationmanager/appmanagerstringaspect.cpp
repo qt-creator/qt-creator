@@ -5,6 +5,8 @@
 
 #include "appmanagerstringaspect.h"
 
+#include "appmanagertr.h"
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
