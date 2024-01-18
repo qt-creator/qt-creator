@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
+#include <QObject>
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
 #define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+?"
@@ -14,11 +14,7 @@
 
 namespace QtSupport::Internal {
 
-class QtOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    QtOutputFormatterFactory();
-};
+void setupQtOutputFormatter();
 
 #ifdef WITH_TESTS
 QObject *createQtOutputFormatterTest();

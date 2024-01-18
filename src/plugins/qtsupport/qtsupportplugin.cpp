@@ -48,8 +48,6 @@ namespace QtSupport::Internal {
 class QtSupportPluginPrivate
 {
 public:
-    QtOutputFormatterFactory qtOutputFormatterFactory;
-
     UicGeneratorFactory uicGeneratorFactory;
     QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
 
@@ -110,6 +108,7 @@ void QtSupportPlugin::initialize()
     setupEmbeddedLinuxQtVersion();
     setupGettingStartedWelcomePage();
     setupQtSettingsPage();
+    setupQtOutputFormatter();
 
     theProcessRunner() = processRunnerCallback;
 

@@ -10,6 +10,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <remotelinux/remotelinuxenvironmentaspect.h>

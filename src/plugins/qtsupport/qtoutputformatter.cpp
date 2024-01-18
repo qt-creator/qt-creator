@@ -8,6 +8,8 @@
 #include "qttestparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
@@ -218,13 +220,22 @@ void QtOutputLineParser::updateProjectFileList()
 
 // QtOutputFormatterFactory
 
-QtOutputFormatterFactory::QtOutputFormatterFactory()
+class QtOutputFormatterFactory final : public OutputFormatterFactory
 {
-    setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
-        if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
-            return {new QtTestParser, new QtOutputLineParser(t)};
-        return {};
-    });
+public:
+    QtOutputFormatterFactory()
+    {
+        setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
+            if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
+                return {new QtTestParser, new QtOutputLineParser(t)};
+            return {};
+        });
+    }
+};
+
+void setupQtOutputFormatter()
+{
+    static QtOutputFormatterFactory theQtOutputFormatterFactory;
 }
 
 } // QtSupport::Internal
