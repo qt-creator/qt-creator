@@ -147,9 +147,6 @@ static bool isInLayoutable(NodeAbstractProperty &parentProperty)
 static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
 {
     try {
-        if (parentProperty.parentModelNode().type().startsWith("Effects."))
-            return;
-
         if (!modelNode.hasParentProperty() || parentProperty != modelNode.parentProperty()) {
             if (isInLayoutable(parentProperty)) {
                 removePosition(modelNode);
@@ -550,28 +547,29 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
     if (widget)
         widget->setDragType("");
 
+    ModelNode targetNode = modelNodeForIndex(dropModelIndex);
+    if (!targetNode.isValid() || QmlItemNode(targetNode).isEffectItem())
+        return true;
+
     if (dropModelIndex.model() == this) {
         if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
             const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
-            ModelNode targetNode = modelNodeForIndex(rowModelIndex);
+            targetNode = modelNodeForIndex(rowModelIndex);
             ModelNodeOperations::handleTextureDrop(mimeData, targetNode);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
             const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
-            ModelNode targetNode = modelNodeForIndex(rowModelIndex);
+            targetNode = modelNodeForIndex(rowModelIndex);
             ModelNodeOperations::handleMaterialDrop(mimeData, targetNode);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
             QByteArray filePath = mimeData->data(Constants::MIME_TYPE_BUNDLE_TEXTURE);
-            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.metaInfo().isQtQuick3DModel())
                 m_view->emitCustomNotification("apply_asset_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
-            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)) {
-            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_effect", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
