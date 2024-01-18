@@ -25,6 +25,7 @@ CodeGenSettings &codeGenSettings()
 
 CodeGenSettings::CodeGenSettings()
 {
+    setAutoApply(false);
     setSettingsGroup("FormClassWizardPage");
 
     embedding.setSettingsKey("Embedding");
