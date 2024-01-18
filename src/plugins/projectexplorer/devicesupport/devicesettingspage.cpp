@@ -249,20 +249,10 @@ void DeviceSettingsWidget::displayCurrent()
     m_autoDetectionLabel->setText(current->isAutoDetected()
             ? Tr::tr("Yes (id is \"%1\")").arg(current->id().toString()) : Tr::tr("No"));
     m_deviceStateIconLabel->show();
-    switch (current->deviceState()) {
-    case IDevice::DeviceReadyToUse:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_READY_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceConnected:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_CONNECTED_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceDisconnected:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceStateUnknown:
+    if (const QPixmap &icon = current->deviceStateIcon(); !icon.isNull())
+        m_deviceStateIconLabel->setPixmap(icon);
+    else
         m_deviceStateIconLabel->hide();
-        break;
-    }
     m_deviceStateTextLabel->setText(current->deviceStateToString());
 
     m_removeConfigButton->setEnabled(!current->isAutoDetected()

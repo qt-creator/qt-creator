@@ -143,17 +143,18 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount())
         return {};
-    if (role != Qt::DisplayRole && role != Qt::UserRole)
-        return {};
     const IDevice::ConstPtr dev = device(index.row());
-    if (role == Qt::UserRole)
+    switch (role) {
+    case Qt::DecorationRole:
+        return dev->deviceStateIcon();
+    case Qt::UserRole:
         return dev->id().toSetting();
-    QString name;
-    if (d->deviceManager->defaultDevice(dev->type()) == dev)
-        name = Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
-    else
-        name = dev->displayName();
-    return name;
+    case Qt::DisplayRole:
+        if (d->deviceManager->defaultDevice(dev->type()) == dev)
+            return Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
+        return dev->displayName();
+    }
+    return {};
 }
 
 bool DeviceManagerModel::matchesTypeFilter(const IDevice::ConstPtr &dev) const

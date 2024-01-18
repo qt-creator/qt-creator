@@ -26,6 +26,7 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
+class QPixmap;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -158,6 +159,7 @@ public:
     DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
     QString deviceStateToString() const;
+    QPixmap deviceStateIcon() const;
 
     static Utils::Id typeFromMap(const Utils::Store &map);
     static Utils::Id idFromMap(const Utils::Store &map);

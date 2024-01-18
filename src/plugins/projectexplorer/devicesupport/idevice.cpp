@@ -9,6 +9,7 @@
 
 #include "../kit.h"
 #include "../kitaspects.h"
+#include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
 
@@ -588,6 +589,17 @@ QString IDevice::deviceStateToString() const
     case IDevice::DeviceStateUnknown: return Tr::tr("Unknown");
     default: return Tr::tr("Invalid");
     }
+}
+
+QPixmap IDevice::deviceStateIcon() const
+{
+    switch (d->deviceState) {
+    case IDevice::DeviceReadyToUse: return Icons::DEVICE_READY_INDICATOR.pixmap();
+    case IDevice::DeviceConnected: return Icons::DEVICE_CONNECTED_INDICATOR.pixmap();
+    case IDevice::DeviceDisconnected: return Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap();
+    case IDevice::DeviceStateUnknown: break;
+    }
+    return {};
 }
 
 SshParameters IDevice::sshParameters() const
