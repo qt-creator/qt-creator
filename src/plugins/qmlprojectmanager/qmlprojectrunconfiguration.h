@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+namespace QmlProjectManager::Internal {
 
-namespace QmlProjectManager {
-namespace Internal {
+void setupQmlProjectRunConfiguration();
 
-class QmlProjectRunConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
-{
-public:
-    QmlProjectRunConfigurationFactory();
-};
-
-} // namespace Internal
-} // namespace QmlProjectManager
+} // QmlProjectManager::Internal

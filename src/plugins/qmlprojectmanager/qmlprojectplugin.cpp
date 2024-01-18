@@ -102,7 +102,6 @@ static void clearAlwaysOpenWithMode()
 class QmlProjectPluginPrivate
 {
 public:
-    QmlProjectRunConfigurationFactory runConfigFactory;
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
@@ -274,6 +273,8 @@ private:
 
 void QmlProjectPlugin::initialize()
 {
+    setupQmlProjectRunConfiguration();
+
     d = new QmlProjectPluginPrivate;
 
     if (!qmlDesignerEnabled()) {

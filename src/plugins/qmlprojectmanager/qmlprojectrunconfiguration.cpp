@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmlbuildsystem.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
-#include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 
@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
@@ -20,6 +21,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -318,11 +320,20 @@ FilePath QmlProjectRunConfiguration::mainScript() const
 
 // QmlProjectRunConfigurationFactory
 
-QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
-    : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
+class QmlProjectRunConfigurationFactory final : public FixedRunConfigurationFactory
 {
-    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RUNCONFIG_ID);
-    addSupportedProjectType(Constants::QML_PROJECT_ID);
+public:
+    QmlProjectRunConfigurationFactory()
+        : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
+    {
+        registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RUNCONFIG_ID);
+        addSupportedProjectType(Constants::QML_PROJECT_ID);
+    }
+};
+
+void setupQmlProjectRunConfiguration()
+{
+    static QmlProjectRunConfigurationFactory theQmlProjectRunConfigurationFactory;
 }
 
 } // QmlProjectManager::Internal
