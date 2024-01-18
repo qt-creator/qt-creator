@@ -569,11 +569,17 @@ ProvisioningProfilePtr IosConfigurations::provisioningProfile(const QString &pro
                                 equal(&ProvisioningProfile::identifier, profileID));
 }
 
-IosToolchainFactory::IosToolchainFactory()
+class IosToolchainFactory final : public ToolchainFactory
 {
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
-                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-}
+public:
+    IosToolchainFactory()
+    {
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+};
 
 Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
@@ -610,6 +616,11 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
         }
     }
     return toolChains;
+}
+
+void setupIosToolchain()
+{
+    static IosToolchainFactory theIosToolchainFactory;
 }
 
 QString DevelopmentTeam::identifier() const

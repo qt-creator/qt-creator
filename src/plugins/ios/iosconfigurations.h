@@ -69,15 +69,6 @@ private:
 using DevelopmentTeamPtr = std::shared_ptr<DevelopmentTeam>;
 using DevelopmentTeams = QList<DevelopmentTeamPtr>;
 
-class IosToolchainFactory : public ProjectExplorer::ToolchainFactory
-{
-public:
-    IosToolchainFactory();
-
-    ProjectExplorer::Toolchains autoDetect(
-            const ProjectExplorer::ToolchainDetector &detector) const final;
-};
-
 class IosConfigurations : public QObject
 {
     Q_OBJECT
@@ -122,5 +113,7 @@ private:
 
 QDebug &operator<<(QDebug &stream, std::shared_ptr<ProvisioningProfile> profile);
 QDebug &operator<<(QDebug &stream, std::shared_ptr<DevelopmentTeam> team);
+
+void setupIosToolchain();
 
 } // Ios::Internal
