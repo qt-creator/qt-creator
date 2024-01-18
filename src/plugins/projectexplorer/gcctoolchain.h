@@ -84,13 +84,13 @@ public:
     bool matchesCompilerCommand(const Utils::FilePath &command) const override;
 
     void setPriority(int priority) { m_priority = priority; }
+    void setOriginalTargetTriple(const QString &targetTriple);
 
 protected:
     using CacheItem = QPair<QStringList, Macros>;
     using GccCache = QVector<CacheItem>;
 
     void setSupportedAbis(const Abis &abis);
-    void setOriginalTargetTriple(const QString &targetTriple);
     void setInstallDir(const Utils::FilePath &installDir);
     void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
     Macros macroCache(const QStringList &allCxxflags) const;
@@ -150,7 +150,6 @@ private:
 
     friend class Internal::GccToolchainConfigWidget;
     friend class Internal::GccToolchainFactory;
-    friend class ToolchainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompilerCommand

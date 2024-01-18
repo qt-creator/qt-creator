@@ -14,6 +14,7 @@ using ToolchainList = QList<ProjectExplorer::Toolchain *>;
 class AndroidToolchain : public ProjectExplorer::GccToolchain
 {
 public:
+    explicit AndroidToolchain();
     ~AndroidToolchain() override;
 
     bool isValid() const override;
@@ -30,32 +31,13 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 
 private:
-    explicit AndroidToolchain();
-
-    friend class AndroidToolchainFactory;
-
     mutable Utils::FilePath m_ndkLocation;
 };
 
-class AndroidToolchainFactory : public ProjectExplorer::ToolchainFactory
-{
-public:
-    AndroidToolchainFactory();
-
-    class AndroidToolchainInformation
-    {
-    public:
-        Utils::Id language;
-        Utils::FilePath compilerCommand;
-        ProjectExplorer::Abi abi;
-        QString version;
-    };
-
-    static ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown);
-    static ToolchainList autodetectToolchainsFromNdks(const ToolchainList &alreadyKnown,
-                                                      const QList<Utils::FilePath> &ndkLocations,
-                                                      const bool isCustom = false);
-};
+ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown);
+ToolchainList autodetectToolchainsFromNdks(const ToolchainList &alreadyKnown,
+                                           const QList<Utils::FilePath> &ndkLocations,
+                                           const bool isCustom = false);
 
 void setupAndroidToolchain();
 

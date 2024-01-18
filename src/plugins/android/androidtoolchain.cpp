@@ -134,14 +134,6 @@ GccToolchain::DetectedAbisResult AndroidToolchain::detectSupportedAbis() const
 
 // AndroidToolchainFactory
 
-AndroidToolchainFactory::AndroidToolchainFactory()
-{
-    setDisplayName(Tr::tr("Android Clang"));
-    setSupportedToolchainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
-    setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new AndroidToolchain; });
-}
-
 static FilePath clangPlusPlusPath(const FilePath &clangPath)
 {
     return clangPath.parentDir().pathAppended(clangPath.baseName() + "++").withExecutableSuffix();
@@ -166,13 +158,7 @@ static FilePaths uniqueNdksForCurrentQtVersions()
     return uniqueNdks;
 }
 
-ToolchainList AndroidToolchainFactory::autodetectToolchains(const ToolchainList &alreadyKnown)
-{
-    const QList<FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
-    return autodetectToolchainsFromNdks(alreadyKnown, uniqueNdks);
-}
-
-ToolchainList AndroidToolchainFactory::autodetectToolchainsFromNdks(
+ToolchainList autodetectToolchainsFromNdks(
     const ToolchainList &alreadyKnown,
     const QList<FilePath> &ndkLocations,
     const bool isCustom)
@@ -247,6 +233,24 @@ ToolchainList AndroidToolchainFactory::autodetectToolchainsFromNdks(
 
     return result;
 }
+
+ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown)
+{
+    const QList<FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
+    return autodetectToolchainsFromNdks(alreadyKnown, uniqueNdks);
+}
+
+class AndroidToolchainFactory final : public ToolchainFactory
+{
+public:
+    AndroidToolchainFactory()
+    {
+        setDisplayName(Tr::tr("Android Clang"));
+        setSupportedToolchainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
+        setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new AndroidToolchain; });
+    }
+};
 
 void setupAndroidToolchain()
 {

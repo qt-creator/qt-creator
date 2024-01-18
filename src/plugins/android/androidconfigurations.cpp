@@ -1148,8 +1148,7 @@ void AndroidConfigurations::registerNewToolchains()
     const Toolchains existingAndroidToolchains
             = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const Toolchains newToolchains = AndroidToolchainFactory::autodetectToolchains(
-        existingAndroidToolchains);
+    const Toolchains newToolchains = autodetectToolchains(existingAndroidToolchains);
 
     for (Toolchain *tc : newToolchains)
         ToolchainManager::registerToolchain(tc);
@@ -1310,9 +1309,8 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
 
     const FilePaths customNdks = FileUtils::toFilePathList(currentConfig().getCustomNdkList());
     const Toolchains customToolchains
-        = AndroidToolchainFactory::autodetectToolchainsFromNdks(existingAndroidToolchains,
-                                                                customNdks,
-                                                                true);
+        = autodetectToolchainsFromNdks(existingAndroidToolchains, customNdks, true);
+
     for (Toolchain *tc : customToolchains) {
         ToolchainManager::registerToolchain(tc);
         const auto androidToolchain = static_cast<AndroidToolchain *>(tc);
