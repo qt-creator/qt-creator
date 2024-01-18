@@ -67,13 +67,7 @@ const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor"
 class TextEditorPluginPrivate : public QObject
 {
 public:
-    TextEditorPluginPrivate();
-
     void updateActions(bool enableToggle, int stateMask);
-    void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
-
-    void requestContextMenu(TextEditorWidget *widget, int lineNumber, QMenu *menu);
 
     void extensionsInitialized();
     void updateSearchResultsFont(const FontSettings &);
@@ -94,46 +88,6 @@ public:
     MarkdownEditorFactory markdownEditorFactory;
     JsonEditorFactory jsonEditorFactory;
 };
-
-TextEditorPluginPrivate::TextEditorPluginPrivate()
-{
-    // EditorManager
-    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
-            this, &TextEditorPluginPrivate::editorAboutToClose);
-    connect(EditorManager::instance(), &EditorManager::editorOpened,
-            this, &TextEditorPluginPrivate::editorOpened);
-}
-
-void TextEditorPluginPrivate::editorOpened(IEditor *editor)
-{
-    if (auto widget = TextEditorWidget::fromEditor(editor)) {
-        connect(widget, &TextEditorWidget::markRequested,
-                this, [editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
-                    if (kind == BookmarkRequest && !editor->document()->isTemporary())
-                        bookmarkManager().toggleBookmark(editor->document()->filePath(), line);
-                });
-
-        connect(widget, &TextEditorWidget::markContextMenuRequested,
-                this, &TextEditorPluginPrivate::requestContextMenu);
-    }
-}
-
-void TextEditorPluginPrivate::editorAboutToClose(IEditor *editor)
-{
-    if (auto widget = TextEditorWidget::fromEditor(editor)) {
-        disconnect(widget, &TextEditorWidget::markContextMenuRequested,
-                   this, &TextEditorPluginPrivate::requestContextMenu);
-    }
-}
-
-void TextEditorPluginPrivate::requestContextMenu(TextEditorWidget *widget,
-    int lineNumber, QMenu *menu)
-{
-    if (widget->textDocument()->isTemporary())
-        return;
-
-    bookmarkManager().requestContextMenu(widget->textDocument()->filePath(), lineNumber, menu);
-}
 
 class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {

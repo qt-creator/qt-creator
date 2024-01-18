@@ -6,6 +6,7 @@
 #include "autocompleter.h"
 #include "basehoverhandler.h"
 #include "behaviorsettings.h"
+#include "bookmarkmanager.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
 #include "codeassist/assistinterface.h"
@@ -6429,6 +6430,9 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
     if (d->m_marksVisible) {
         QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
         auto contextMenu = new QMenu(this);
+        bookmarkManager().requestContextMenu(textDocument()->filePath(),
+                                             cursor.blockNumber() + 1,
+                                             contextMenu);
         emit markContextMenuRequested(this, cursor.blockNumber() + 1, contextMenu);
         if (!contextMenu->isEmpty())
             contextMenu->exec(e->globalPos());
@@ -6621,13 +6625,12 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 }
             }
             int line = n + 1;
-            TextMarkRequestKind kind;
-            if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                kind = BookmarkRequest;
-            else
-                kind = BreakpointRequest;
-
-            emit markRequested(this, line, kind);
+            if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+                if (!textDocument()->isTemporary())
+                    bookmarkManager().toggleBookmark(textDocument()->filePath(), line);
+            } else {
+                emit markRequested(this, line, BreakpointRequest);
+            }
         }
     }
 }
