@@ -22,12 +22,12 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-// QnxToolChainConfigWidget
+// QnxToolchainConfigWidget
 
-class QnxToolChainConfigWidget : public ToolchainConfigWidget
+class QnxToolchainConfigWidget : public ToolchainConfigWidget
 {
 public:
-    QnxToolChainConfigWidget(QnxToolChain *tc);
+    QnxToolchainConfigWidget(QnxToolchain *tc);
 
 private:
     void applyImpl() override;
@@ -97,17 +97,17 @@ static QStringList reinterpretOptions(const QStringList &args)
     return arguments;
 }
 
-QnxToolChain::QnxToolChain()
+QnxToolchain::QnxToolchain()
     : GccToolchain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
     setTypeDisplayName(Tr::tr("QCC"));
 
     sdpPath.setSettingsKey("Qnx.QnxToolChain.NDKPath");
-    connect(&sdpPath, &BaseAspect::changed, this, &QnxToolChain::toolChainUpdated);
+    connect(&sdpPath, &BaseAspect::changed, this, &QnxToolchain::toolChainUpdated);
 
     cpuDir.setSettingsKey("Qnx.QnxToolChain.CpuDir");
-    connect(&cpuDir, &BaseAspect::changed, this, &QnxToolChain::toolChainUpdated);
+    connect(&cpuDir, &BaseAspect::changed, this, &QnxToolchain::toolChainUpdated);
 
     connect(this, &AspectContainer::fromMapFinished, this, [this] {
         // Make the ABIs QNX specific (if they aren't already).
@@ -116,12 +116,12 @@ QnxToolChain::QnxToolChain()
     });
 }
 
-std::unique_ptr<ToolchainConfigWidget> QnxToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> QnxToolchain::createConfigurationWidget()
 {
-    return std::make_unique<QnxToolChainConfigWidget>(this);
+    return std::make_unique<QnxToolchainConfigWidget>(this);
 }
 
-void QnxToolChain::addToEnvironment(Environment &env) const
+void QnxToolchain::addToEnvironment(Environment &env) const
 {
     if (env.expandedValueForKey("QNX_HOST").isEmpty() ||
         env.expandedValueForKey("QNX_TARGET").isEmpty() ||
@@ -131,7 +131,7 @@ void QnxToolChain::addToEnvironment(Environment &env) const
     GccToolchain::addToEnvironment(env);
 }
 
-QStringList QnxToolChain::suggestedMkspecList() const
+QStringList QnxToolchain::suggestedMkspecList() const
 {
     return {
         "qnx-armle-v7-qcc",
@@ -141,7 +141,7 @@ QStringList QnxToolChain::suggestedMkspecList() const
     };
 }
 
-GccToolchain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
+GccToolchain::DetectedAbisResult QnxToolchain::detectSupportedAbis() const
 {
     // "unknown-qnx-gnu"is needed to get the "--target=xxx" parameter sent code model,
     // which gets translated as "x86_64-qnx-gnu", which gets Clang to happily parse
@@ -152,12 +152,12 @@ GccToolchain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
     return GccToolchain::DetectedAbisResult{detectTargetAbis(sdpPath()), "unknown-qnx-gnu"};
 }
 
-bool QnxToolChain::operator ==(const Toolchain &other) const
+bool QnxToolchain::operator ==(const Toolchain &other) const
 {
     if (!GccToolchain::operator ==(other))
         return false;
 
-    auto qnxTc = static_cast<const QnxToolChain *>(&other);
+    auto qnxTc = static_cast<const QnxToolchain *>(&other);
 
     return sdpPath() == qnxTc->sdpPath() && cpuDir() == qnxTc->cpuDir();
 }
@@ -166,7 +166,7 @@ bool QnxToolChain::operator ==(const Toolchain &other) const
 // QnxToolChainConfigWidget
 //---------------------------------------------------------------------------------
 
-QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
+QnxToolchainConfigWidget::QnxToolchainConfigWidget(QnxToolchain *tc)
     : ToolchainConfigWidget(tc)
     , m_compilerCommand(new PathChooser)
     , m_sdpPath(new PathChooser)
@@ -193,16 +193,16 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_sdpPath, &PathChooser::rawPathChanged,
-            this, &QnxToolChainConfigWidget::handleSdpPathChange);
+            this, &QnxToolchainConfigWidget::handleSdpPathChange);
     connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolchainConfigWidget::dirty);
 }
 
-void QnxToolChainConfigWidget::applyImpl()
+void QnxToolchainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    auto tc = static_cast<QnxToolChain *>(toolChain());
+    auto tc = static_cast<QnxToolchain *>(toolchain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setDisplayName(displayName); // reset display name
@@ -211,11 +211,11 @@ void QnxToolChainConfigWidget::applyImpl()
     tc->resetToolchain(m_compilerCommand->filePath());
 }
 
-void QnxToolChainConfigWidget::discardImpl()
+void QnxToolchainConfigWidget::discardImpl()
 {
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
-    auto tc = static_cast<const QnxToolChain *>(toolChain());
+    auto tc = static_cast<const QnxToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_sdpPath->setFilePath(tc->sdpPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
@@ -223,16 +223,16 @@ void QnxToolChainConfigWidget::discardImpl()
         m_abiWidget->setEnabled(true);
 }
 
-bool QnxToolChainConfigWidget::isDirtyImpl() const
+bool QnxToolchainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<const QnxToolChain *>(toolChain());
+    auto tc = static_cast<const QnxToolchain *>(toolchain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_sdpPath->filePath() != tc->sdpPath()
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
-void QnxToolChainConfigWidget::handleSdpPathChange()
+void QnxToolchainConfigWidget::handleSdpPathChange()
 {
     const Abi currentAbi = m_abiWidget->currentAbi();
     const bool customAbi = m_abiWidget->isCustomAbi();
@@ -262,7 +262,7 @@ public:
         setSupportedToolchainType(Constants::QNX_TOOLCHAIN_ID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                                ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-        setToolchainConstructor([] { return new QnxToolChain; });
+        setToolchainConstructor([] { return new QnxToolchain; });
         setUserCreatable(true);
     }
 

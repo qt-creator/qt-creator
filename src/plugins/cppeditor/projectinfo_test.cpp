@@ -355,9 +355,9 @@ class ProjectInfoGeneratorTestHelper
 public:
     ProjectInfoGeneratorTestHelper()
     {
-        TestToolchain aToolChain;
-        projectUpdateInfo.cxxToolchainInfo = {&aToolChain, {}, {}};
-        projectUpdateInfo.cToolchainInfo = {&aToolChain, {}, {}};
+        TestToolchain toolchain;
+        projectUpdateInfo.cxxToolchainInfo = {&toolchain, {}, {}};
+        projectUpdateInfo.cToolchainInfo = {&toolchain, {}, {}};
     }
 
     ProjectInfo::ConstPtr generate()

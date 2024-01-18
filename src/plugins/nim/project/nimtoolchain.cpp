@@ -120,10 +120,10 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
 
 // NimToolchainConfigWidget
 
-class NimToolChainConfigWidget : public ToolchainConfigWidget
+class NimToolchainConfigWidget : public ToolchainConfigWidget
 {
 public:
-    explicit NimToolChainConfigWidget(NimToolChain *tc)
+    explicit NimToolchainConfigWidget(NimToolChain *tc)
         : ToolchainConfigWidget(tc)
         , m_compilerCommand(new PathChooser)
         , m_compilerVersion(new QLineEdit)
@@ -142,7 +142,7 @@ public:
         // Connect
         connect(m_compilerCommand, &PathChooser::validChanged, this, [this] {
             const FilePath path = m_compilerCommand->rawFilePath();
-            auto tc = static_cast<NimToolChain *>(toolChain());
+            auto tc = static_cast<NimToolChain *>(toolchain());
             QTC_ASSERT(tc, return);
             tc->setCompilerCommand(path);
             fillUI();
@@ -162,35 +162,35 @@ private:
     QLineEdit *m_compilerVersion;
 };
 
-void NimToolChainConfigWidget::applyImpl()
+void NimToolchainConfigWidget::applyImpl()
 {
-    auto tc = static_cast<NimToolChain *>(toolChain());
+    auto tc = static_cast<NimToolChain *>(toolchain());
     Q_ASSERT(tc);
     if (tc->isAutoDetected())
         return;
     tc->setCompilerCommand(m_compilerCommand->filePath());
 }
 
-void NimToolChainConfigWidget::discardImpl()
+void NimToolchainConfigWidget::discardImpl()
 {
     fillUI();
 }
 
-bool NimToolChainConfigWidget::isDirtyImpl() const
+bool NimToolchainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<NimToolChain *>(toolChain());
+    auto tc = static_cast<NimToolChain *>(toolchain());
     Q_ASSERT(tc);
     return tc->compilerCommand() != m_compilerCommand->filePath();
 }
 
-void NimToolChainConfigWidget::makeReadOnlyImpl()
+void NimToolchainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setReadOnly(true);
 }
 
-void NimToolChainConfigWidget::fillUI()
+void NimToolchainConfigWidget::fillUI()
 {
-    auto tc = static_cast<NimToolChain *>(toolChain());
+    auto tc = static_cast<NimToolChain *>(toolchain());
     Q_ASSERT(tc);
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_compilerVersion->setText(tc->compilerVersion());
@@ -198,7 +198,7 @@ void NimToolChainConfigWidget::fillUI()
 
 std::unique_ptr<ToolchainConfigWidget> NimToolChain::createConfigurationWidget()
 {
-    return std::make_unique<NimToolChainConfigWidget>(this);
+    return std::make_unique<NimToolchainConfigWidget>(this);
 }
 
 // NimToolchainFactory

@@ -278,7 +278,7 @@ private:
     Macros m_macros;
 };
 
-// IarToolChain
+// IarToolchain
 
 class IarToolchain final : public Toolchain
 {
@@ -593,10 +593,10 @@ IarToolchainConfigWidget::IarToolchainConfigWidget(IarToolchain *tc) :
 
 void IarToolchainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    const auto tc = static_cast<IarToolchain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolchain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
 
@@ -616,7 +616,7 @@ void IarToolchainConfigWidget::applyImpl()
 
 bool IarToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<IarToolchain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolchain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
@@ -633,7 +633,7 @@ void IarToolchainConfigWidget::makeReadOnlyImpl()
 void IarToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<IarToolchain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
@@ -648,7 +648,7 @@ void IarToolchainConfigWidget::handleCompilerCommandChange()
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         const QStringList extraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
-        const Id languageId = toolChain()->language();
+        const Id languageId = toolchain()->language();
         m_macros = dumpPredefinedMacros(compilerPath, extraArgs, languageId, env);
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);

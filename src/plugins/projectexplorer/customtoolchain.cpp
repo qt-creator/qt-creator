@@ -488,10 +488,10 @@ void CustomToolChainConfigWidget::errorParserChanged(int )
 
 void CustomToolChainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    auto tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolchain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
@@ -517,7 +517,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
-    auto tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_makeCommand->setFilePath(tc->makeCommand(Environment()));
     m_abiWidget->setAbis(Abis(), tc->targetAbi());
@@ -534,7 +534,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
 
 bool CustomToolChainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolchain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_makeCommand->filePath().toString() != tc->makeCommand(Environment()).toString()

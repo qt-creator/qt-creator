@@ -1134,7 +1134,7 @@ Macros CppModelManagerPrivate::internalDefinedMacros(SyncedProjectData &ld)
     QSet<ProjectExplorer::Macro> alreadyIn;
     for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
-            addUnique(part->toolChainMacros, macros, alreadyIn);
+            addUnique(part->toolchainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
     }

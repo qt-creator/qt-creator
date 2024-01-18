@@ -68,7 +68,7 @@ void CompilationDatabaseTests::testProject()
     const CppEditor::ProjectPart &projectPart = *projectParts.first();
     QVERIFY(!projectPart.headerPaths.isEmpty());
     QVERIFY(!projectPart.projectMacros.isEmpty());
-    QVERIFY(!projectPart.toolChainMacros.isEmpty());
+    QVERIFY(!projectPart.toolchainMacros.isEmpty());
     QVERIFY(!projectPart.files.isEmpty());
 }
 

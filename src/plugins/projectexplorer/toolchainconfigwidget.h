@@ -28,7 +28,7 @@ class PROJECTEXPLORER_EXPORT ToolchainConfigWidget : public QScrollArea
 public:
     explicit ToolchainConfigWidget(Toolchain *tc);
 
-    Toolchain *toolChain() const;
+    Toolchain *toolchain() const;
 
     void apply();
     void discard();

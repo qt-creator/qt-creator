@@ -1724,7 +1724,7 @@ void GdbEngine::handleThreadGroupExited(const GdbMi &result)
     }
 }
 
-static QString msgNoGdbBinaryForToolChain(const Abi &tc)
+static QString msgNoGdbBinaryForToolchain(const Abi &tc)
 {
     return Tr::tr("There is no GDB binary available for binaries in format \"%1\".")
         .arg(tc.toString());
@@ -3833,7 +3833,7 @@ void GdbEngine::setupEngine()
     if (rp.debugger.command.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
-            msgNoGdbBinaryForToolChain(rp.toolChainAbi),
+            msgNoGdbBinaryForToolchain(rp.toolChainAbi),
             Constants::DEBUGGER_COMMON_SETTINGS_ID);
         return;
     }

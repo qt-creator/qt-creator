@@ -43,7 +43,7 @@ public:
             tcInfo.abi = Abi(Abi::X86Architecture, Abi::DarwinOS, Abi::FreeBsdFlavor,
                              Abi::MachOFormat, 64);
         }
-        tcInfo.isMsvc2015ToolChain = isMsvc2015;
+        tcInfo.isMsvc2015Toolchain = isMsvc2015;
         tcInfo.extraCodeModelFlags = extraFlags;
         tcInfo.macroInspectionRunner = [this](const QStringList &) {
             return Toolchain::MacroInspectionReport{toolchainMacros, languageVersion};

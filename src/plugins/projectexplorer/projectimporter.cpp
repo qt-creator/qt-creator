@@ -386,7 +386,7 @@ static ProjectImporter::ToolchainData createToolChains(const ToolchainDescriptio
 }
 
 ProjectImporter::ToolchainData
-ProjectImporter::findOrCreateToolChains(const ToolchainDescription &tcd) const
+ProjectImporter::findOrCreateToolchains(const ToolchainDescription &tcd) const
 {
     ToolchainData result;
     result.tcs = ToolchainManager::toolchains([&tcd](const Toolchain *tc) {

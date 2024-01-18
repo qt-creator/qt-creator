@@ -64,7 +64,7 @@ static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::ConstPtr> &
 {
     ProjectExplorer::Macros defines;
     for (const ProjectPart::ConstPtr &part : projectParts) {
-        defines.append(part->toolChainMacros);
+        defines.append(part->toolchainMacros);
         defines.append(part->projectMacros);
     }
     return defines;

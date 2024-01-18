@@ -162,7 +162,7 @@ ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
     if (toolChain) {
         // Keep the following cheap/non-blocking for the ui thread...
         type = toolChain->typeId();
-        isMsvc2015ToolChain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
+        isMsvc2015Toolchain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
         abi = toolChain->targetAbi();
         targetTriple = toolChain->effectiveCodeModelTargetTriple();
         targetTripleIsAuthoritative = !toolChain->explicitCodeModelTargetTriple().isEmpty();

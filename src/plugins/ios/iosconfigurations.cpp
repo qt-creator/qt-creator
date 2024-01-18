@@ -61,7 +61,7 @@ static Q_LOGGING_CATEGORY(kitSetupLog, "qtc.ios.kitSetup", QtWarningMsg)
 static Q_LOGGING_CATEGORY(iosCommonLog, "qtc.ios.common", QtWarningMsg)
 }
 
-using ToolChainPair = std::pair<GccToolchain *, GccToolchain *>;
+using ToolchainPair = std::pair<GccToolchain *, GccToolchain *>;
 namespace Ios {
 namespace Internal {
 
@@ -98,57 +98,57 @@ static bool isSimulatorDeviceId(const Id &id)
     return id == Constants::IOS_SIMULATOR_TYPE;
 }
 
-static QList<GccToolchain *> clangToolChains(const Toolchains &toolChains)
+static QList<GccToolchain *> clangToolchains(const Toolchains &toolchains)
 {
-    QList<GccToolchain *> clangToolChains;
-    for (Toolchain *toolChain : toolChains)
-        if (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID)
-            clangToolChains.append(static_cast<GccToolchain *>(toolChain));
-    return clangToolChains;
+    QList<GccToolchain *> clangToolchains;
+    for (Toolchain *toolchain : toolchains)
+        if (toolchain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID)
+            clangToolchains.append(static_cast<GccToolchain *>(toolchain));
+    return clangToolchains;
 }
 
-static QList<GccToolchain *> autoDetectedIosToolChains()
+static QList<GccToolchain *> autoDetectedIosToolchains()
 {
-    const QList<GccToolchain *> toolChains = clangToolChains(ToolchainManager::toolchains());
-    return filtered(toolChains, [](GccToolchain *toolChain) {
+    const QList<GccToolchain *> toolchains = clangToolchains(ToolchainManager::toolchains());
+    return filtered(toolchains, [](GccToolchain *toolChain) {
         return toolChain->isAutoDetected()
                && (toolChain->displayName().startsWith("iphone")
                    || toolChain->displayName().startsWith("Apple Clang")); // TODO tool chains should be marked directly
     });
 }
 
-static ToolChainPair findToolChainForPlatform(const XcodePlatform &platform,
+static ToolchainPair findToolchainForPlatform(const XcodePlatform &platform,
                                               const XcodePlatform::ToolchainTarget &target,
-                                              const QList<GccToolchain *> &toolChains)
+                                              const QList<GccToolchain *> &toolchains)
 {
-    ToolChainPair platformToolChains;
+    ToolchainPair platformToolchains;
     auto toolchainMatch = [](GccToolchain *toolChain, const FilePath &compilerPath, const QStringList &flags) {
         return compilerPath == toolChain->compilerCommand()
                 && flags == toolChain->platformCodeGenFlags()
                 && flags == toolChain->platformLinkerFlags();
     };
-    platformToolChains.first = findOrDefault(toolChains, std::bind(toolchainMatch, std::placeholders::_1,
+    platformToolchains.first = findOrDefault(toolchains, std::bind(toolchainMatch, std::placeholders::_1,
                                                                   platform.cCompilerPath,
                                                                   target.backendFlags));
-    platformToolChains.second = findOrDefault(toolChains, std::bind(toolchainMatch, std::placeholders::_1,
+    platformToolchains.second = findOrDefault(toolchains, std::bind(toolchainMatch, std::placeholders::_1,
                                                                    platform.cxxCompilerPath,
                                                                    target.backendFlags));
-    return platformToolChains;
+    return platformToolchains;
 }
 
-static QHash<XcodePlatform::ToolchainTarget, ToolChainPair> findToolChains(const QList<XcodePlatform> &platforms)
+static QHash<XcodePlatform::ToolchainTarget, ToolchainPair> findToolchains(const QList<XcodePlatform> &platforms)
 {
-    QHash<XcodePlatform::ToolchainTarget, ToolChainPair> platformToolChainHash;
-    const QList<GccToolchain *> toolChains = autoDetectedIosToolChains();
+    QHash<XcodePlatform::ToolchainTarget, ToolchainPair> platformToolchainHash;
+    const QList<GccToolchain *> toolchains = autoDetectedIosToolchains();
     for (const XcodePlatform &platform : platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
-            ToolChainPair platformToolchains = findToolChainForPlatform(platform, target,
-                                                                        toolChains);
+            ToolchainPair platformToolchains = findToolchainForPlatform(platform, target,
+                                                                        toolchains);
             if (platformToolchains.first || platformToolchains.second)
-                platformToolChainHash.insert(target, platformToolchains);
+                platformToolchainHash.insert(target, platformToolchains);
         }
     }
-    return platformToolChainHash;
+    return platformToolchainHash;
 }
 
 static QSet<Kit *> existingAutoDetectedIosKits()
@@ -166,16 +166,16 @@ static void printKits(const QSet<Kit *> &kits)
         qCDebug(kitSetupLog) << "  -" << kit->displayName();
 }
 
-static void setupKit(Kit *kit, Id pDeviceType, const ToolChainPair& toolChains,
+static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
                      const QVariant &debuggerId, const FilePath &sdkPath, QtVersion *qtVersion)
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
-    if (toolChains.first)
-        ToolchainKitAspect::setToolchain(kit, toolChains.first);
+    if (toolchains.first)
+        ToolchainKitAspect::setToolchain(kit, toolchains.first);
     else
         ToolchainKitAspect::clearToolchain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    if (toolChains.second)
-        ToolchainKitAspect::setToolchain(kit, toolChains.second);
+    if (toolchains.second)
+        ToolchainKitAspect::setToolchain(kit, toolchains.second);
     else
         ToolchainKitAspect::clearToolchain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
@@ -232,7 +232,7 @@ void IosConfigurations::updateAutomaticKitList()
     qCDebug(kitSetupLog) << "Developer path:" << developerPath();
 
     // target -> tool chain
-    const auto targetToolChainHash = findToolChains(platforms);
+    const auto targetToolchainHash = findToolchains(platforms);
 
     const auto qtVersions = toSet(QtVersionManager::versions([](const QtVersion *v) {
         return v->isValid() && v->type() == Constants::IOSQT;
@@ -256,7 +256,7 @@ void IosConfigurations::updateAutomaticKitList()
 
             const auto target = targets.front();
 
-            const ToolChainPair &platformToolchains = targetToolChainHash.value(target);
+            const ToolchainPair &platformToolchains = targetToolchainHash.value(target);
             if (!platformToolchains.first && !platformToolchains.second) {
                 qCDebug(kitSetupLog) << "  - No tool chain found";
                 continue;
@@ -586,13 +586,13 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return {};
 
-    QList<GccToolchain *> existingClangToolChains = clangToolChains(detector.alreadyKnown);
+    QList<GccToolchain *> existingClangToolChains = clangToolchains(detector.alreadyKnown);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
-    Toolchains toolChains;
-    toolChains.reserve(platforms.size());
+    Toolchains toolchains;
+    toolchains.reserve(platforms.size());
     for (const XcodePlatform &platform : platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
-            ToolChainPair platformToolchains = findToolChainForPlatform(platform, target,
+            ToolchainPair platformToolchains = findToolchainForPlatform(platform, target,
                                                                         existingClangToolChains);
             auto createOrAdd = [&](GccToolchain *toolChain, Id l) {
                 if (!toolChain) {
@@ -608,14 +608,14 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolChains.append(toolChain);
                 }
-                toolChains.append(toolChain);
+                toolchains.append(toolChain);
             };
 
             createOrAdd(platformToolchains.first, ProjectExplorer::Constants::C_LANGUAGE_ID);
             createOrAdd(platformToolchains.second, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
     }
-    return toolChains;
+    return toolchains;
 }
 
 void setupIosToolchain()

@@ -1770,7 +1770,7 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(GccToolchain *tc) :
             }));
         m_parentToolChainConnections.append(
             connect(tcManager, &ToolchainManager::toolchainRemoved, this, [this](Toolchain *tc) {
-                if (tc->id() == toolChain()->id()) {
+                if (tc->id() == toolchain()->id()) {
                     for (QMetaObject::Connection &connection : m_parentToolChainConnections)
                         QObject::disconnect(connection);
                     return;
@@ -1785,10 +1785,10 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(GccToolchain *tc) :
 
 void GccToolchainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    auto tc = static_cast<GccToolchain *>(toolChain());
+    auto tc = static_cast<GccToolchain *>(toolchain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
@@ -1834,7 +1834,7 @@ void GccToolchainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
-    auto tc = static_cast<GccToolchain *>(toolChain());
+    auto tc = static_cast<GccToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags(),
                                                                   HostOsInfo::hostOs()));
@@ -1852,7 +1852,7 @@ void GccToolchainConfigWidget::setFromToolchain()
 
 bool GccToolchainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<GccToolchain *>(toolChain());
+    auto tc = static_cast<GccToolchain *>(toolchain());
 
     if (m_compilerCommand->filePath() != tc->compilerCommand()
            || m_platformCodeGenFlagsLineEdit->text()
@@ -2030,7 +2030,7 @@ void GccToolchainConfigWidget::updateParentToolChainComboBox()
 {
     QTC_ASSERT(m_parentToolchainCombo, return);
 
-    auto *tc = static_cast<GccToolchain *>(toolChain());
+    auto *tc = static_cast<GccToolchain *>(toolchain());
     QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
     if (tc->isAutoDetected() || m_parentToolchainCombo->count() == 0)
         parentId = tc->m_parentToolchainId;

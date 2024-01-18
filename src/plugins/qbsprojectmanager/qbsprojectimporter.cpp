@@ -185,9 +185,9 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
     return createTemporaryKit(qtVersionData,[this, bgData](Kit *k) -> void {
         QList<ToolchainData> tcData;
         if (!bgData->cxxCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cxxCompilerPath, PEConstants::CXX_LANGUAGE_ID});
+            tcData << findOrCreateToolchains({bgData->cxxCompilerPath, PEConstants::CXX_LANGUAGE_ID});
         if (!bgData->cCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
+            tcData << findOrCreateToolchains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
         for (const ToolchainData &tc : std::as_const(tcData)) {
             if (!tc.tcs.isEmpty())
                 ToolchainKitAspect::setToolchain(k, tc.tcs.first());

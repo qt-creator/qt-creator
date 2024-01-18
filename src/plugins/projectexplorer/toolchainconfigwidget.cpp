@@ -66,7 +66,7 @@ bool ToolchainConfigWidget::isDirty() const
     return m_nameLineEdit->text() != m_toolChain->displayName() || isDirtyImpl();
 }
 
-Toolchain *ToolchainConfigWidget::toolChain() const
+Toolchain *ToolchainConfigWidget::toolchain() const
 {
     return m_toolChain;
 }

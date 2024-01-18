@@ -7,7 +7,7 @@
 
 //////////////// the actual autotest
 
-class tst_ToolChainCache : public QObject
+class tst_ToolchainCache : public QObject
 {
     Q_OBJECT
 
@@ -20,7 +20,7 @@ private slots:
 };
 
 
-void tst_ToolChainCache::insertOne()
+void tst_ToolchainCache::insertOne()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
@@ -33,7 +33,7 @@ void tst_ToolChainCache::insertOne()
     QVERIFY(!cache.check({"other"}));
 }
 
-void tst_ToolChainCache::insertOneOne()
+void tst_ToolchainCache::insertOneOne()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
@@ -47,7 +47,7 @@ void tst_ToolChainCache::insertOneOne()
     QVERIFY(!cache.check({"other"}));
 }
 
-void tst_ToolChainCache::insertOneTwo()
+void tst_ToolchainCache::insertOneTwo()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
@@ -65,7 +65,7 @@ void tst_ToolChainCache::insertOneTwo()
     QVERIFY(!cache.check({"other"}));
 }
 
-void tst_ToolChainCache::insertOneTwoThree()
+void tst_ToolchainCache::insertOneTwoThree()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
@@ -87,7 +87,7 @@ void tst_ToolChainCache::insertOneTwoThree()
     QVERIFY(!cache.check({"other"}));
 }
 
-void tst_ToolChainCache::insertOneTwoOneThree()
+void tst_ToolchainCache::insertOneTwoOneThree()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
@@ -110,5 +110,5 @@ void tst_ToolChainCache::insertOneTwoOneThree()
     QVERIFY(!cache.check({"other"}));
 }
 
-QTEST_GUILESS_MAIN(tst_ToolChainCache)
+QTEST_GUILESS_MAIN(tst_ToolchainCache)
 #include "tst_toolchaincache.moc"

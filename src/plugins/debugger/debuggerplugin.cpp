@@ -2368,7 +2368,7 @@ void DebuggerUnitTests::initTestCase()
 //    const QList<Kit *> allKits = KitManager::kits();
 //    if (allKits.count() != 1)
 //        QSKIP("This test requires exactly one kit to be present");
-//    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(allKits.first());
+//    const Toolchain * const toolchain = ToolchainKitAspect::toolchain(allKits.first());
 //    if (!toolchain)
 //        QSKIP("This test requires that there is a kit with a toolchain.");
 //    bool hasClangExecutable;

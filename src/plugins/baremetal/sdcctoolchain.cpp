@@ -470,10 +470,10 @@ SdccToolchainConfigWidget::SdccToolchainConfigWidget(SdccToolchain *tc) :
 
 void SdccToolchainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    const auto tc = static_cast<SdccToolchain *>(toolChain());
+    const auto tc = static_cast<SdccToolchain *>(toolchain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
@@ -490,7 +490,7 @@ void SdccToolchainConfigWidget::applyImpl()
 
 bool SdccToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<SdccToolchain *>(toolChain());
+    const auto tc = static_cast<SdccToolchain *>(toolchain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
@@ -505,7 +505,7 @@ void SdccToolchainConfigWidget::makeReadOnlyImpl()
 void SdccToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<SdccToolchain *>(toolChain());
+    const auto tc = static_cast<SdccToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();

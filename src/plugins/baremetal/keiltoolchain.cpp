@@ -752,10 +752,10 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
 
 void KeilToolchainConfigWidget::applyImpl()
 {
-    if (toolChain()->isAutoDetected())
+    if (toolchain()->isAutoDetected())
         return;
 
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolchain *>(toolchain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
     tc->m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
@@ -773,7 +773,7 @@ void KeilToolchainConfigWidget::applyImpl()
 
 bool KeilToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolchain *>(toolchain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
@@ -790,7 +790,7 @@ void KeilToolchainConfigWidget::makeReadOnlyImpl()
 void KeilToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());

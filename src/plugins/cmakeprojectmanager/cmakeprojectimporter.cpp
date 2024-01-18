@@ -587,7 +587,7 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
 
 Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
 {
-    // A compiler path example. Note that the compiler version is not the same version from MsvcToolChain
+    // A compiler path example. Note that the compiler version is not the same version from MsvcToolchain
     // ... \MSVC\14.29.30133\bin\Hostx64\x64\cl.exe
     //
     // And the CMakePresets.json
@@ -996,7 +996,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
         for (const ToolchainDescription &cmtcd : data->toolchains) {
-            const ToolchainData tcd = findOrCreateToolChains(cmtcd);
+            const ToolchainData tcd = findOrCreateToolchains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
             if (tcd.areTemporary) {

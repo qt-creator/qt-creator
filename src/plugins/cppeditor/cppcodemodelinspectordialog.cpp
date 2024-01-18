@@ -1937,9 +1937,9 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
         {QString::fromLatin1("Buildsystem Target"), buildSystemTarget},
         {QString::fromLatin1("Build Target Type"), CMI::Utils::toString(part->buildTargetType)},
         {QString::fromLatin1("ToolChain Type"), part->toolchainType.toString()},
-        {QString::fromLatin1("ToolChain Target Triple"), part->toolChainTargetTriple},
-        {QString::fromLatin1("ToolChain Word Width"), CMI::Utils::toString(part->toolChainAbi.wordWidth())},
-        {QString::fromLatin1("ToolChain Install Dir"), part->toolChainInstallDir.toString()},
+        {QString::fromLatin1("ToolChain Target Triple"), part->toolchainTargetTriple},
+        {QString::fromLatin1("ToolChain Word Width"), CMI::Utils::toString(part->toolchainAbi.wordWidth())},
+        {QString::fromLatin1("ToolChain Install Dir"), part->toolchainInstallDir.toString()},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
         {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}
@@ -1957,9 +1957,9 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
     m_projectPartTab->setTabText(ProjectPartFilesTab,
         partTabName(ProjectPartFilesTab, part->files.size()));
 
-    int numberOfDefines = defineCount(part->toolChainMacros) + defineCount(part->projectMacros);
+    int numberOfDefines = defineCount(part->toolchainMacros) + defineCount(part->projectMacros);
 
-    m_partToolchainDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->toolChainMacros)));
+    m_partToolchainDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->toolchainMacros)));
     m_partProjectDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->projectMacros)));
     m_projectPartTab->setTabText(ProjectPartDefinesTab,
         partTabName(ProjectPartDefinesTab, numberOfDefines));

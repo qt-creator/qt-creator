@@ -7,10 +7,10 @@
 
 namespace Qnx::Internal {
 
-class QnxToolChain : public ProjectExplorer::GccToolchain
+class QnxToolchain : public ProjectExplorer::GccToolchain
 {
 public:
-    QnxToolChain();
+    QnxToolchain();
 
     std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() override;
 

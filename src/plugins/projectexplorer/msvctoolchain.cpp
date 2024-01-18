@@ -1285,7 +1285,7 @@ protected:
 
     void setFromMsvcToolChain()
     {
-        const auto *tc = static_cast<const MsvcToolChain *>(toolChain());
+        const auto *tc = static_cast<const MsvcToolChain *>(toolchain());
         QTC_ASSERT(tc, return );
         m_nameDisplayLabel->setText(tc->displayName());
         m_varsBatDisplayLabel->setText(msvcVarsToDisplay(*tc));
@@ -1382,7 +1382,7 @@ private:
 
 void MsvcToolChainConfigWidget::applyImpl()
 {
-    auto *tc = static_cast<MsvcToolChain *>(toolChain());
+    auto *tc = static_cast<MsvcToolChain *>(toolchain());
     QTC_ASSERT(tc, return );
     const QString vcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
     tc->setupVarsBat(m_abiWidget->currentAbi(), vcVars, vcVarsArguments());
@@ -1396,7 +1396,7 @@ void MsvcToolChainConfigWidget::discardImpl()
 
 bool MsvcToolChainConfigWidget::isDirtyImpl() const
 {
-    auto msvcToolChain = static_cast<MsvcToolChain *>(toolChain());
+    auto msvcToolChain = static_cast<MsvcToolChain *>(toolchain());
 
     return msvcToolChain->varsBat() != QDir::fromNativeSeparators(m_varsBatPathCombo->currentText())
             || msvcToolChain->varsBatArg() != vcVarsArguments()
@@ -1413,7 +1413,7 @@ void MsvcToolChainConfigWidget::makeReadOnlyImpl()
 
 void MsvcToolChainConfigWidget::setFromMsvcToolChain()
 {
-    const auto *tc = static_cast<const MsvcToolChain *>(toolChain());
+    const auto *tc = static_cast<const MsvcToolChain *>(toolchain());
     QTC_ASSERT(tc, return );
     m_nameDisplayLabel->setText(tc->displayName());
     QString args = tc->varsBatArg();
@@ -1434,7 +1434,7 @@ void MsvcToolChainConfigWidget::setFromMsvcToolChain()
 void MsvcToolChainConfigWidget::updateAbis()
 {
     const QString normalizedVcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
-    const auto *currentTc = static_cast<const MsvcToolChain *>(toolChain());
+    const auto *currentTc = static_cast<const MsvcToolChain *>(toolchain());
     QTC_ASSERT(currentTc, return );
     const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
     const Abi::Architecture arch = archForPlatform(platform);
@@ -1564,7 +1564,7 @@ private:
 
 void ClangClToolChainConfigWidget::setFromClangClToolChain()
 {
-    const auto *currentTC = static_cast<const MsvcToolChain *>(toolChain());
+    const auto *currentTC = static_cast<const MsvcToolChain *>(toolchain());
     m_nameDisplayLabel->setText(currentTC->displayName());
     m_varsBatDisplayCombo->clear();
     m_varsBatDisplayCombo->addItem(msvcVarsToDisplay(*currentTC));
@@ -1574,7 +1574,7 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
             m_varsBatDisplayCombo->addItem(varsToDisplay);
     }
 
-    const auto *clangClToolChain = static_cast<const ClangClToolChain *>(toolChain());
+    const auto *clangClToolChain = static_cast<const ClangClToolChain *>(toolchain());
     if (clangClToolChain->isAutoDetected())
         m_llvmDirLabel->setText(clangClToolChain->clangPath().toUserOutput());
     else
@@ -1696,7 +1696,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
 void ClangClToolChainConfigWidget::applyImpl()
 {
     Utils::FilePath clangClPath = m_compilerCommand->filePath();
-    auto clangClToolChain = static_cast<ClangClToolChain *>(toolChain());
+    auto clangClToolChain = static_cast<ClangClToolChain *>(toolchain());
     clangClToolChain->setClangPath(clangClPath);
 
     if (clangClPath.fileName() != "clang-cl.exe") {

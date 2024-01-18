@@ -46,7 +46,7 @@ public:
 
 private:
     QtVersions autoDetectQtVersions() const;
-    QList<Toolchain *> autoDetectToolChains();
+    QList<Toolchain *> autoDetectToolchains();
     void autoDetectPython();
     QList<Id> autoDetectCMake();
     void autoDetectDebugger();
@@ -107,10 +107,10 @@ void KitDetectorPrivate::undoAutoDetect() const
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing toolchain entries..."));
     const Toolchains toolchains = ToolchainManager::toolchains();
-    for (Toolchain *toolChain : toolchains) {
-        if (toolChain && toolChain->detectionSource() == m_sharedId) {
-            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolChain->displayName()));
-            ToolchainManager::deregisterToolchain(toolChain);
+    for (Toolchain *toolchain : toolchains) {
+        if (toolchain && toolchain->detectionSource() == m_sharedId) {
+            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolchain->displayName()));
+            ToolchainManager::deregisterToolchain(toolchain);
         }
     };
 
@@ -164,9 +164,9 @@ void KitDetectorPrivate::listAutoDetected() const
     }
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Toolchains:"));
-    for (Toolchain *toolChain : ToolchainManager::toolchains()) {
-        if (toolChain->detectionSource() == m_sharedId)
-            emit q->logOutput(toolChain->displayName());
+    for (Toolchain *toolchain : ToolchainManager::toolchains()) {
+        if (toolchain->detectionSource() == m_sharedId)
+            emit q->logOutput(toolchain->displayName());
     }
 
     if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName(
@@ -247,29 +247,29 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
     return qtVersions;
 }
 
-Toolchains KitDetectorPrivate::autoDetectToolChains()
+Toolchains KitDetectorPrivate::autoDetectToolchains()
 {
     const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
 
     Toolchains alreadyKnown = ToolchainManager::toolchains();
-    Toolchains allNewToolChains;
+    Toolchains allNewToolchains;
     QApplication::processEvents();
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Searching toolchains..."));
     for (ToolchainFactory *factory : factories) {
         emit q->logOutput(ProjectExplorer::Tr::tr("Searching toolchains of type %1").arg(factory->displayName()));
         const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
-        const Toolchains newToolChains = factory->autoDetect(detector);
-        for (Toolchain *toolChain : newToolChains) {
-            emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
-            toolChain->setDetectionSource(m_sharedId);
-            ToolchainManager::registerToolchain(toolChain);
-            alreadyKnown.append(toolChain);
+        const Toolchains newToolchains = factory->autoDetect(detector);
+        for (Toolchain *toolchain : newToolchains) {
+            emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolchain->compilerCommand().toUserOutput()));
+            toolchain->setDetectionSource(m_sharedId);
+            ToolchainManager::registerToolchain(toolchain);
+            alreadyKnown.append(toolchain);
         }
-        allNewToolChains.append(newToolChains);
+        allNewToolchains.append(newToolchains);
     }
-    emit q->logOutput(ProjectExplorer::Tr::tr("%1 new toolchains found.").arg(allNewToolChains.size()));
+    emit q->logOutput(ProjectExplorer::Tr::tr("%1 new toolchains found.").arg(allNewToolchains.size()));
 
-    return allNewToolChains;
+    return allNewToolchains;
 }
 
 void KitDetectorPrivate::autoDetectPython()
@@ -333,7 +333,7 @@ void KitDetectorPrivate::autoDetect()
 
     emit q->logOutput(ProjectExplorer::Tr::tr("Starting auto-detection. This will take a while..."));
 
-    const Toolchains toolchains = autoDetectToolChains();
+    const Toolchains toolchains = autoDetectToolchains();
     const QtVersions qtVersions = autoDetectQtVersions();
 
     const QList<Id> cmakeIds = autoDetectCMake();
@@ -363,8 +363,8 @@ void KitDetectorPrivate::autoDetect()
             return tc->detectionSource() == m_sharedId
                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });
-        for (Toolchain *toolChain : toolchainsToSet)
-            ToolchainKitAspect::setToolchain(k, toolChain);
+        for (Toolchain *toolchain : toolchainsToSet)
+            ToolchainKitAspect::setToolchain(k, toolchain);
 
         if (cmakeId.isValid())
             k->setSticky(CMakeProjectManager::Constants::TOOL_ID, true);

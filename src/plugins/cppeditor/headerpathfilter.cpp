@@ -44,10 +44,10 @@ void HeaderPathFilter::removeGccInternalIncludePaths()
         return;
     }
 
-    if (projectPart.toolChainInstallDir.isEmpty())
+    if (projectPart.toolchainInstallDir.isEmpty())
         return;
 
-    const Utils::FilePath gccInstallDir = projectPart.toolChainInstallDir;
+    const Utils::FilePath gccInstallDir = projectPart.toolchainInstallDir;
     auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath) {
         const auto filePath = Utils::FilePath::fromString(headerPath.path);
         return filePath == gccInstallDir.pathAppended("include")

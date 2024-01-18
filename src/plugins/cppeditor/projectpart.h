@@ -76,7 +76,7 @@ public:
 
     // Macros
     const ProjectExplorer::Macros projectMacros;
-    const ProjectExplorer::Macros &toolChainMacros = m_macroReport.macros;
+    const ProjectExplorer::Macros &toolchainMacros = m_macroReport.macros;
 
     // Build system
     const QString buildSystemTarget;
@@ -84,13 +84,13 @@ public:
         = ProjectExplorer::BuildTargetType::Unknown;
     const bool selectedForBuilding = true;
 
-    // ToolChain
+    // Toolchain
     const Utils::Id toolchainType;
     const bool isMsvc2015Toolchain = false;
-    const QString toolChainTargetTriple;
+    const QString toolchainTargetTriple;
     const bool targetTripleIsAuthoritative;
-    const ProjectExplorer::Abi toolChainAbi = ProjectExplorer::Abi::hostAbi();
-    const Utils::FilePath toolChainInstallDir;
+    const ProjectExplorer::Abi toolchainAbi = ProjectExplorer::Abi::hostAbi();
+    const Utils::FilePath toolchainInstallDir;
     const Utils::FilePath compilerFilePath;
     const Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
 

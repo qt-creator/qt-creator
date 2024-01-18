@@ -139,7 +139,7 @@ public:
 
 public:
     Utils::Id type;
-    bool isMsvc2015ToolChain = false;
+    bool isMsvc2015Toolchain = false;
     bool targetTripleIsAuthoritative = false;
     Abi abi;
     QString targetTriple;
