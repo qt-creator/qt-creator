@@ -306,17 +306,25 @@ void LanguageClientManager::applySettings()
             break;
         }
         case BaseSettings::RequiresFile: {
-            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-            for (Core::IDocument *document : openedDocuments) {
-                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-                    if (setting->m_languageFilter.isSupported(document))
-                        documents << textDocument;
+            Client *client = nullptr;
+            for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
+                if (setting->m_languageFilter.isSupported(previousDocument)) {
+                    if (!client)
+                        client = startClient(setting);
+                    openDocumentWithClient(previousDocument, client);
                 }
             }
-            if (!documents.isEmpty()) {
-                Client *client = startClient(setting);
-                for (TextEditor::TextDocument *document : std::as_const(documents))
-                    client->openDocument(document);
+            const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+            for (Core::IDocument *document : openedDocuments) {
+                if (documents.contains(document))
+                    continue; // already handled above
+                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+                    if (setting->m_languageFilter.isSupported(document)) {
+                        if (!client)
+                            client = startClient(setting);
+                        client->openDocument(textDocument);
+                    }
+                }
             }
             break;
         }
