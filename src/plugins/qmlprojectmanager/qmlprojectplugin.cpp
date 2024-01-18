@@ -6,6 +6,7 @@
 #include "qdslandingpage.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
@@ -102,9 +103,6 @@ class QmlProjectPluginPrivate
 {
 public:
     QmlProjectRunConfigurationFactory runConfigFactory;
-    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory debugRunWorkerFactory{{runConfigFactory.runConfigurationId()}};
-    SimpleQmlProfilerRunnerFactory qmlProfilerRunWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
@@ -258,6 +256,15 @@ public slots:
 
 private:
     void initialize() final;
+
+    void extensionsInitialized() final
+    {
+        // These rely on the base tool factories being present:
+        static SimpleTargetRunnerFactory runWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
+        static SimpleQmlProfilerRunnerFactory qmlProfilerRunWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
+        static SimpleDebugRunnerFactory debugRunWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
+    }
+
     void displayQmlLandingPage();
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);

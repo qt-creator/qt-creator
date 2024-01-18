@@ -321,9 +321,8 @@ FilePath QmlProjectRunConfiguration::mainScript() const
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
     : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
 {
-    registerRunConfiguration<QmlProjectRunConfiguration>
-            ("QmlProjectManager.QmlRunConfiguration.Qml");
-    addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
+    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RUNCONFIG_ID);
+    addSupportedProjectType(Constants::QML_PROJECT_ID);
 }
 
 } // QmlProjectManager::Internal
