@@ -6,7 +6,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 TextIndenter::TextIndenter(QTextDocument *doc)
     : Indenter(doc)
@@ -49,15 +49,6 @@ int TextIndenter::indentFor(const QTextBlock &block,
         return 0;
 
     return tabSettings.indentationColumn(previousText);
-}
-
-void TextIndenter::autoIndent(const QTextCursor &cursor,
-                              const TabSettings &tabSettings,
-                              int cursorPositionInEditor)
-{
-    Q_UNUSED(cursor);
-    Q_UNUSED(tabSettings);
-    Q_UNUSED(cursorPositionInEditor);
 }
 
 IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
@@ -135,3 +126,14 @@ std::optional<TabSettings> TextIndenter::tabSettings() const
 {
     return std::optional<TabSettings>();
 }
+
+void PlainTextIndenter::autoIndent(const QTextCursor &cursor,
+                              const TabSettings &tabSettings,
+                              int cursorPositionInEditor)
+{
+    Q_UNUSED(cursor);
+    Q_UNUSED(tabSettings);
+    Q_UNUSED(cursorPositionInEditor);
+}
+
+} // namespace TextEditor

@@ -341,7 +341,7 @@ void RefactoringFile::doFormatting()
         ICodeStylePreferencesFactory * const factory
             = TextEditorSettings::codeStyleFactory(indenterId());
         indenterOwner.reset(factory ? factory->createIndenter(document)
-                                    : new TextIndenter(document));
+                                    : new PlainTextIndenter(document));
         indenter = indenterOwner.get();
         tabSettings = TabSettings::settingsForFile(filePath());
     }

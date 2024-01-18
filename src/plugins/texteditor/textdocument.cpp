@@ -58,7 +58,7 @@ class TextDocumentPrivate
 {
 public:
     TextDocumentPrivate()
-        : m_indenter(new TextIndenter(&m_document))
+        : m_indenter(new PlainTextIndenter(&m_document))
     {
     }
 
