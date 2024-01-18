@@ -101,9 +101,6 @@ static void clearAlwaysOpenWithMode()
 class QmlProjectPluginPrivate
 {
 public:
-    QPointer<QMessageBox> lastMessageBox;
-    QdsLandingPage *landingPage = nullptr;
-    QdsLandingPageWidget *landingPageWidget = nullptr;
 };
 
 void openQDS(const FilePath &fileName)
@@ -238,13 +235,12 @@ class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 public:
     ~QmlProjectPlugin()
     {
-        if (d->lastMessageBox)
-            d->lastMessageBox->deleteLater();
-        if (d->landingPage)
-            d->landingPage->deleteLater();
-        if (d->landingPageWidget)
-            d->landingPageWidget->deleteLater();
-        delete d;
+        if (m_lastMessageBox)
+            m_lastMessageBox->deleteLater();
+        if (m_landingPage)
+            m_landingPage->deleteLater();
+        if (m_landingPageWidget)
+            m_landingPageWidget->deleteLater();
     }
 
 public slots:
@@ -267,30 +263,30 @@ private:
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);
 
-    class QmlProjectPluginPrivate *d = nullptr;
+    QPointer<QMessageBox> m_lastMessageBox;
+    QdsLandingPage *m_landingPage = nullptr;
+    QdsLandingPageWidget *m_landingPageWidget = nullptr;
 };
 
 void QmlProjectPlugin::initialize()
 {
     setupQmlProjectRunConfiguration();
 
-    d = new QmlProjectPluginPrivate;
-
     if (!qmlDesignerEnabled()) {
-        d->landingPage = new QdsLandingPage();
+        m_landingPage = new QdsLandingPage();
         qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi",
                                                      1,
                                                      0,
                                                      "LandingPageApi",
-                                                     d->landingPage);
+                                                     m_landingPage);
 
-        d->landingPageWidget = new QdsLandingPageWidget();
+        m_landingPageWidget = new QdsLandingPageWidget();
 
         const QStringList mimeTypes = {Utils::Constants::QMLUI_MIMETYPE};
-        auto context = new Internal::DesignModeContext(d->landingPageWidget);
+        auto context = new Internal::DesignModeContext(m_landingPageWidget);
         ICore::addContextObject(context);
 
-        DesignMode::registerDesignWidget(d->landingPageWidget, mimeTypes, context->context());
+        DesignMode::registerDesignWidget(m_landingPageWidget, mimeTypes, context->context());
 
         connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
@@ -395,21 +391,21 @@ void QmlProjectPlugin::initialize()
 
 void QmlProjectPlugin::displayQmlLandingPage()
 {
-    if (!d->landingPage)
+    if (!m_landingPage)
         return;
 
-    d->landingPage->setWidget(d->landingPageWidget->widget());
+    m_landingPage->setWidget(m_landingPageWidget->widget());
 
     updateQmlLandingPageProjectInfo(projectFilePath());
-    d->landingPage->setQdsInstalled(qdsInstallationExists());
-    d->landingPage->setCmakeResources(ProjectFileContentTools::rootCmakeFiles());
-    d->landingPage->show();
+    m_landingPage->setQdsInstalled(qdsInstallationExists());
+    m_landingPage->setCmakeResources(ProjectFileContentTools::rootCmakeFiles());
+    m_landingPage->show();
 }
 
 void QmlProjectPlugin::hideQmlLandingPage()
 {
-    if (d->landingPage)
-        d->landingPage->hide();
+    if (m_landingPage)
+        m_landingPage->hide();
 }
 
 static bool isDesignerMode(Id mode)
@@ -439,7 +435,7 @@ void QmlProjectPlugin::openQtc(bool permanent)
     if (permanent)
         setAlwaysOpenWithMode(Core::Constants::MODE_EDIT);
 
-    if (d->landingPage)
+    if (m_landingPage)
         hideQmlLandingPage();
 
     ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -450,7 +446,7 @@ void QmlProjectPlugin::openQds(bool permanent)
     if (permanent)
         setAlwaysOpenWithMode(Core::Constants::MODE_DESIGN);
 
-    if (d->landingPage)
+    if (m_landingPage)
         hideQmlLandingPage();
 
     if (IEditor *editor = EditorManager::currentEditor())
@@ -459,14 +455,14 @@ void QmlProjectPlugin::openQds(bool permanent)
 
 void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const FilePath &projectFile)
 {
-    if (!d->landingPage)
+    if (!m_landingPage)
         return;
 
     const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFile);
     const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFile);
-    d->landingPage->setProjectFileExists(projectFile.exists());
-    d->landingPage->setQtVersion(qtVersionString);
-    d->landingPage->setQdsVersion(qdsVersionString);
+    m_landingPage->setProjectFileExists(projectFile.exists());
+    m_landingPage->setQtVersion(qtVersionString);
+    m_landingPage->setQdsVersion(qdsVersionString);
 }
 
 FilePath projectFilePath()
