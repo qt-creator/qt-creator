@@ -33,17 +33,15 @@ using namespace Utils;
 
 namespace QtSupport::Internal {
 
-class TranslationWizardPage : public WizardPage
+class TranslationWizardPage final : public WizardPage
 {
-    Q_OBJECT
-
 public:
     TranslationWizardPage(const QString &enabledExpr, bool singleFile);
 
 private:
-    void initializePage() override;
-    bool isComplete() const override;
-    bool validatePage() override;
+    void initializePage() final;
+    bool isComplete() const final;
+    bool validatePage() final;
 
     QString tsBaseName() const { return m_fileNameLineEdit.text(); }
     void updateLineEdit();
@@ -169,5 +167,3 @@ void setupTranslationWizardPage()
 }
 
 } // QtSupport::Internal
-
-#include <translationwizardpage.moc>
