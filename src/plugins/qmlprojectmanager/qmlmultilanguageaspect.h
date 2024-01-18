@@ -5,7 +5,7 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <projectexplorer/runconfigurationaspects.h>
 

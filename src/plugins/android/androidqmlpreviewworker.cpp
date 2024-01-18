@@ -23,7 +23,6 @@
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>

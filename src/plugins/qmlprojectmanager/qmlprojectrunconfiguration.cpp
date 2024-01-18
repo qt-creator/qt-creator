@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlbuildsystem.h"
-#include "qmlprojectrunconfiguration.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
-#include "qmlprojectmanagerconstants.h"
+#include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>

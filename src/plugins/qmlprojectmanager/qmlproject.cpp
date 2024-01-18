@@ -19,7 +19,6 @@
 
 #include "projectexplorer/devicesupport/idevice.h"
 #include "qmlprojectconstants.h"
-#include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "utils/algorithm.h"
 #include <qmljs/qmljsmodelmanagerinterface.h>

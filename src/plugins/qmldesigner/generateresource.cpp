@@ -16,7 +16,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>

@@ -6,7 +6,6 @@
 #include "qdslandingpage.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
-#include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"

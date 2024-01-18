@@ -4,7 +4,7 @@
 #include "qmlmainfileaspect.h"
 
 #include "qmlproject.h"
-#include "qmlprojectmanagerconstants.h"
+#include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 
 #include <qmljstools/qmljstoolsconstants.h>

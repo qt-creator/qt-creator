@@ -16,7 +16,6 @@ add_qtc_plugin(QmlProjectManager
     qmlprojectconstants.h
     qmlprojectmanager_global.h
     qmlprojectmanagertr.h
-    qmlprojectmanagerconstants.h
     qmlprojectplugin.cpp qmlprojectplugin.h
     qmlprojectrunconfiguration.cpp qmlprojectrunconfiguration.h
     buildsystem/qmlbuildsystem.cpp buildsystem/qmlbuildsystem.h
