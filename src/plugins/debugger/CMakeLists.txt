@@ -52,6 +52,7 @@ add_qtc_plugin(Debugger
     debuggerrunconfigurationaspect.cpp debuggerrunconfigurationaspect.h
     debuggerruncontrol.cpp debuggerruncontrol.h
     debuggersourcepathmappingwidget.cpp debuggersourcepathmappingwidget.h
+    debuggertest.cpp debuggertest.h
     debuggertooltipmanager.cpp debuggertooltipmanager.h
     debuggertr.h
     disassembleragent.cpp disassembleragent.h
