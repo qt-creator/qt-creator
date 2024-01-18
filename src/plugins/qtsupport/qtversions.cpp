@@ -81,7 +81,7 @@ public:
 
 void setupDesktopQtVersion()
 {
-    static DesktopQtVersion theDesktopQtVersion;
+    static DesktopQtVersionFactory theDesktopQtVersionFactory;
 }
 
 // EmbeddedLinuxQtVersion
