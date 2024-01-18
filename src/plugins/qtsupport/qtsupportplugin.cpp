@@ -45,12 +45,6 @@ using namespace ProjectExplorer;
 
 namespace QtSupport::Internal {
 
-class QtSupportPluginPrivate
-{
-public:
-    TranslationWizardPageFactory translationWizardPageFactory;
-};
-
 static void processRunnerCallback(ProcessData *data)
 {
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
@@ -74,18 +68,9 @@ class QtSupportPlugin final : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QtSupport.json")
 
-public:
-    ~QtSupportPlugin() final
-    {
-        delete d;
-    }
-
-private:
     void initialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
-
-    QtSupportPluginPrivate *d = nullptr;
 };
 
 void QtSupportPlugin::initialize()
@@ -108,6 +93,8 @@ void QtSupportPlugin::initialize()
 
     setupExternalDesigner(this);
     setupExternalLinguist();
+
+    setupTranslationWizardPage();
 
     theProcessRunner() = processRunnerCallback;
 
@@ -148,8 +135,6 @@ void QtSupportPlugin::initialize()
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
 
     BuildPropertiesSettings::showQtSettings();
-
-    d = new QtSupportPluginPrivate;
 
     QtVersionManager::initialized();
 }

@@ -6,6 +6,7 @@
 #include "qtsupporttr.h"
 
 #include <projectexplorer/jsonwizard/jsonwizard.h>
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -30,8 +31,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class TranslationWizardPage : public WizardPage
 {
@@ -53,20 +53,6 @@ private:
     const QString m_enabledExpr;
     const bool m_isProjectWizard;
 };
-
-TranslationWizardPageFactory::TranslationWizardPageFactory()
-{
-    setTypeIdsSuffix("QtTranslation");
-}
-
-WizardPage *TranslationWizardPageFactory::create(JsonWizard *wizard, Id typeId,
-                                                 const QVariant &data)
-{
-    Q_UNUSED(wizard)
-    Q_UNUSED(typeId)
-    return new TranslationWizardPage(data.toMap().value("enabled").toString(),
-                                     data.toMap().value("singleFile").toBool());
-}
 
 TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr, bool singleFile)
     : m_enabledExpr(enabledExpr)
@@ -144,7 +130,7 @@ void TranslationWizardPage::updateLineEdit()
         auto jsonWizard = static_cast<JsonWizard *>(wizard());
         QString projectName = jsonWizard->stringValue("ProjectName");
         if (!m_isProjectWizard && projectName.isEmpty()) {
-            if (auto project = ProjectExplorer::ProjectManager::startupProject())
+            if (auto project = ProjectManager::startupProject())
                 projectName = FileUtils::fileSystemFriendlyName(project->displayName());
             else
                 projectName = FilePath::fromUserInput(jsonWizard->stringValue("InitialPath")).baseName();
@@ -157,7 +143,31 @@ void TranslationWizardPage::updateLineEdit()
     emit completeChanged();
 }
 
-} // namespace Internal
-} // namespace QtSupport
+class TranslationWizardPageFactory final : public JsonWizardPageFactory
+{
+public:
+    TranslationWizardPageFactory()
+    {
+        setTypeIdsSuffix("QtTranslation");
+    }
+
+private:
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
+    {
+        Q_UNUSED(wizard)
+        Q_UNUSED(typeId)
+        return new TranslationWizardPage(data.toMap().value("enabled").toString(),
+                                         data.toMap().value("singleFile").toBool());
+    }
+
+    bool validateData(Id, const QVariant &, QString *) final { return true; }
+};
+
+void setupTranslationWizardPage()
+{
+    static TranslationWizardPageFactory theTranslationWizardPageFactory;
+}
+
+} // QtSupport::Internal
 
 #include <translationwizardpage.moc>
