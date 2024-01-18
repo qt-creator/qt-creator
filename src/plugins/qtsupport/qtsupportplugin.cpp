@@ -50,9 +50,6 @@ class QtSupportPluginPrivate
 public:
     QtOptionsPage qtOptionsPage;
 
-    ExamplesWelcomePage examplesPage{true};
-    ExamplesWelcomePage tutorialPage{false};
-
     QtOutputFormatterFactory qtOutputFormatterFactory;
 
     UicGeneratorFactory uicGeneratorFactory;
@@ -113,6 +110,7 @@ void QtSupportPlugin::initialize()
 
     setupDesktopQtVersion();
     setupEmbeddedLinuxQtVersion();
+    setupGettingStartedWelcomePage();
 
     theProcessRunner() = processRunnerCallback;
 

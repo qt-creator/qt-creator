@@ -3,34 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/iwelcomepage.h>
-#include <utils/filepath.h>
+namespace QtSupport::Internal {
 
-namespace QtSupport {
-namespace Internal {
+void setupGettingStartedWelcomePage();
 
-class ExampleItem;
-
-class ExamplesWelcomePage : public Core::IWelcomePage
-{
-    Q_OBJECT
-
-public:
-    explicit ExamplesWelcomePage(bool showExamples);
-
-    QString title() const final;
-    int priority() const final;
-    Utils::Id id() const final;
-    QWidget *createWidget() const final;
-
-    static void openProject(const ExampleItem *item);
-
-private:
-    static Utils::FilePath copyToAlternativeLocation(const Utils::FilePath &fileInfo,
-                                                     Utils::FilePaths &filesToOpen,
-                                                     const Utils::FilePaths &dependencies);
-    const bool m_showExamples;
-};
-
-} // namespace Internal
-} // namespace QtSupport
+} // QtSupport::Internal
