@@ -3,26 +3,13 @@
 
 #pragma once
 
-#include <projectexplorer/gcctoolchain.h>
-
 #include <QVersionNumber>
 
 namespace WebAssembly::Internal {
 
-class WebAssemblyToolChain final : public ProjectExplorer::GccToolchain
-{
-public:
-    WebAssemblyToolChain();
-
-    void addToEnvironment(Utils::Environment &env) const override;
-
-    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
-    bool isValid() const override;
-
-    static const QVersionNumber &minimumSupportedEmSdkVersion();
-    static void registerToolChains();
-    static bool areToolChainsRegistered();
-};
+const QVersionNumber &minimumSupportedEmSdkVersion();
+void registerToolChains();
+bool areToolChainsRegistered();
 
 void setupWebAssemblyToolchain();
 

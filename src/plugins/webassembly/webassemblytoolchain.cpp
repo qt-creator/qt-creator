@@ -9,6 +9,7 @@
 #include "webassemblytr.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
@@ -21,6 +22,8 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+
+#include <QVersionNumber>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -39,6 +42,12 @@ static const Abi &toolChainAbi()
     return abi;
 }
 
+const QVersionNumber &minimumSupportedEmSdkVersion()
+{
+    static const QVersionNumber number(1, 39);
+    return number;
+}
+
 static void addRegisteredMinGWToEnvironment(Environment &env)
 {
     if (!ToolchainManager::isLoaded()) {
@@ -54,49 +63,47 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
         env.appendOrSetPath(toolChain->compilerCommand().parentDir());
 }
 
-void WebAssemblyToolChain::addToEnvironment(Environment &env) const
+class WebAssemblyToolChain final : public GccToolchain
 {
-    const FilePath emSdk = settings().emSdk();
-    WebAssemblyEmSdk::addToEnvironment(emSdk, env);
-    if (env.osType() == OsTypeWindows)
-        addRegisteredMinGWToEnvironment(env); // qmake based builds require [mingw32-]make.exe
-}
-
-WebAssemblyToolChain::WebAssemblyToolChain() :
-    GccToolchain(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID)
-{
-    setSupportedAbis({toolChainAbi()});
-    setTargetAbi(toolChainAbi());
-    setTypeDisplayName(Tr::tr("Emscripten Compiler"));
-}
-
-FilePath WebAssemblyToolChain::makeCommand(const Environment &environment) const
-{
-    // Diverged duplicate of ClangToolChain::makeCommand and MingwToolChain::makeCommand
-    const QStringList makes = environment.osType() == OsTypeWindows
-            ? QStringList({"mingw32-make.exe", "make.exe"})
-            : QStringList({"make"});
-
-    FilePath tmp;
-    for (const QString &make : makes) {
-        tmp = environment.searchInPath(make);
-        if (!tmp.isEmpty())
-            return tmp;
+public:
+    WebAssemblyToolChain() :
+        GccToolchain(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID)
+    {
+        setSupportedAbis({toolChainAbi()});
+        setTargetAbi(toolChainAbi());
+        setTypeDisplayName(Tr::tr("Emscripten Compiler"));
     }
-    return FilePath::fromString(makes.first());
-}
 
-bool WebAssemblyToolChain::isValid() const
-{
-    return GccToolchain::isValid()
-            && QVersionNumber::fromString(version()) >= minimumSupportedEmSdkVersion();
-}
+    void addToEnvironment(Environment &env) const final
+    {
+        const FilePath emSdk = settings().emSdk();
+        WebAssemblyEmSdk::addToEnvironment(emSdk, env);
+        if (env.osType() == OsTypeWindows)
+            addRegisteredMinGWToEnvironment(env); // qmake based builds require [mingw32-]make.exe
+    }
 
-const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
-{
-    static const QVersionNumber number(1, 39);
-    return number;
-}
+    FilePath makeCommand(const Environment &environment) const final
+    {
+        // Diverged duplicate of ClangToolChain::makeCommand and MingwToolChain::makeCommand
+        const QStringList makes = environment.osType() == OsTypeWindows
+                                      ? QStringList({"mingw32-make.exe", "make.exe"})
+                                      : QStringList({"make"});
+
+        FilePath tmp;
+        for (const QString &make : makes) {
+            tmp = environment.searchInPath(make);
+            if (!tmp.isEmpty())
+                return tmp;
+        }
+        return FilePath::fromString(makes.first());
+    }
+
+    bool isValid() const final
+    {
+        return GccToolchain::isValid()
+               && QVersionNumber::fromString(version()) >= minimumSupportedEmSdkVersion();
+    }
+};
 
 static Toolchains doAutoDetect(const ToolchainDetector &detector)
 {
@@ -136,7 +143,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
     return result;
 }
 
-void WebAssemblyToolChain::registerToolChains()
+void registerToolChains()
 {
     // Remove old toolchains
     for (Toolchain *tc : ToolchainManager::findToolchains(toolChainAbi())) {
@@ -162,7 +169,7 @@ void WebAssemblyToolChain::registerToolChains()
     }
 }
 
-bool WebAssemblyToolChain::areToolChainsRegistered()
+bool areToolChainsRegistered()
 {
     return !ToolchainManager::findToolchains(toolChainAbi()).isEmpty();
 }

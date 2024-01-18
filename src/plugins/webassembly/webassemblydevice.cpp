@@ -55,7 +55,7 @@ static void askUserAboutEmSdkSetup()
 
     if (!ICore::infoBar()->canInfoBeAdded(setupWebAssemblyEmSdk)
             || !WebAssemblyQtVersion::isQtVersionInstalled()
-            || WebAssemblyToolChain::areToolChainsRegistered())
+            || areToolChainsRegistered())
         return;
 
     InfoBarEntry info(setupWebAssemblyEmSdk,
