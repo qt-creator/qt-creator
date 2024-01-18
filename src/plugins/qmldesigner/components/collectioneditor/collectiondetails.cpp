@@ -42,6 +42,79 @@ public:
     bool isValidRowId(int row) const { return row > -1 && row < elements.size(); }
 };
 
+inline static bool isValidColorName(const QString &colorName)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    return QColor::isValidColorName(colorName);
+#else
+    constexpr QStringView colorPattern(
+        u"(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)");
+    static const QRegularExpression colorRegex(colorPattern.toString());
+    return colorRegex.match(colorName).hasMatch();
+#endif // >= Qt 6.4
+}
+
+/**
+ * @brief getCustomUrl
+ * MimeType = <MainType/SubType>
+ * Address = <Url|LocalFile>
+ *
+ * @param value The input value to be evaluated
+ * @param dataType if the value is a valid url or image, the data type
+ * will be stored to this parameter, otherwise, it will be Unknown
+ * @param urlResult if the value is a valid url or image, the address
+ * will be stored in this parameter, otherwise it will be empty.
+ * @param subType if the value is a valid image, the image subtype
+ * will be stored in this parameter, otherwise it will be empty.
+ * @return true if the result is either url or image
+ */
+inline static bool getCustomUrl(const QString &value,
+                                CollectionDetails::DataType &dataType,
+                                QUrl *urlResult = nullptr,
+                                QString *subType = nullptr)
+{
+    constexpr QStringView urlPattern(
+        u"^(?<MimeType>"
+        u"(?<MainType>image)\\/"
+        u"(?<SubType>apng|avif|gif|jpeg|png|(?:svg\\+xml)|webp|xyz)\\:)?" // end of MimeType
+        u"(?<Address>"
+        u"(?<Url>https?:\\/\\/"
+        u"(?:www\\.|(?!www))[A-z0-9][A-z0-9-]+[A-z0-9]\\.[^\\s]{2,}|www\\.[A-z0-9][A-z0-9-]+"
+        u"[A-z0-9]\\.[^\\s]{2,}|https?:\\/\\/"
+        u"(?:www\\.|(?!www))[A-z0-9]+\\.[^\\s]{2,}|www\\.[A-z0-9]+\\.[^\\s]{2,})|" // end of Url
+        u"(?<LocalFile>("
+        u"?:(?:[A-z]:)|(?:(?:\\\\|\\/){1,2}\\w+)\\$?)(?:(?:\\\\|\\/)(?:\\w[\\w ]*.*))+)" // end of LocalFile
+        u"){1}$"); // end of Address
+    static const QRegularExpression urlRegex(urlPattern.toString());
+
+    const QRegularExpressionMatch match = urlRegex.match(value);
+    if (match.hasMatch()) {
+        if (match.hasCaptured("Address")) {
+            if (match.hasCaptured("MimeType") && match.captured("MainType") == "image")
+                dataType = CollectionDetails::DataType::Image;
+            else
+                dataType = CollectionDetails::DataType::Url;
+
+            if (urlResult)
+                urlResult->setUrl(match.captured("Address"));
+
+            if (subType)
+                *subType = match.captured("SubType");
+
+            return true;
+        }
+    }
+
+    if (urlResult)
+        urlResult->clear();
+
+    if (subType)
+        subType->clear();
+
+    dataType = CollectionDetails::DataType::Unknown;
+    return false;
+}
+
 static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonValue &value)
 {
     using DataType = CollectionDetails::DataType;
@@ -56,7 +129,14 @@ static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonV
     case JsonType::Double:
         return DataType::Number;
     case JsonType::String: {
-        // TODO: Image, Color, Url
+        const QString stringValue = value.toString();
+        if (isValidColorName(stringValue))
+            return DataType::Color;
+
+        DataType urlType;
+        if (getCustomUrl(stringValue, urlType))
+            return urlType;
+
         return DataType::String;
     } break;
     default:
@@ -78,6 +158,13 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
         return variantValue.toBool();
     case DataType::Color:
         return variantValue.value<QColor>();
+    case DataType::Image: {
+        DataType type;
+        QUrl url;
+        if (getCustomUrl(variantValue.toString(), type, &url))
+            return url;
+        return variantValue.toString();
+    }
     case DataType::Url:
         return variantValue.value<QUrl>();
     default:
@@ -85,19 +172,36 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
     }
 }
 
-static QJsonValue variantToJsonValue(const QVariant &variant)
+static QJsonValue variantToJsonValue(
+    const QVariant &variant, CollectionDetails::DataType type = CollectionDetails::DataType::Unknown)
 {
     using VariantType = QVariant::Type;
+    using DataType = CollectionDetails::DataType;
 
-    switch (variant.type()) {
-    case VariantType::Bool:
+    if (type == CollectionDetails::DataType::Unknown) {
+        static const QHash<VariantType, DataType> typeMap = {{VariantType::Bool, DataType::Boolean},
+                                                             {VariantType::Double, DataType::Number},
+                                                             {VariantType::Int, DataType::Number},
+                                                             {VariantType::String, DataType::String},
+                                                             {VariantType::Color, DataType::Color},
+                                                             {VariantType::Url, DataType::Url}};
+        type = typeMap.value(variant.type(), DataType::Unknown);
+    }
+
+    switch (type) {
+    case DataType::Boolean:
         return variant.toBool();
-    case VariantType::Double:
-    case VariantType::Int:
+    case DataType::Number:
         return variant.toDouble();
-    case VariantType::String:
-    case VariantType::Color:
-    case VariantType::Url:
+    case DataType::Image: {
+        const QUrl url(variant.toUrl());
+        if (url.isValid())
+            return QString("image/xyz:%1").arg(url.toString());
+        return {};
+    }
+    case DataType::String:
+    case DataType::Color:
+    case DataType::Url:
     default:
         return variant.toString();
     }
@@ -255,7 +359,7 @@ bool CollectionDetails::setPropertyValue(int row, int column, const QVariant &va
     if (value == currentValue)
         return false;
 
-    element.insert(d->properties.at(column).name, QJsonValue::fromVariant(value));
+    element.insert(d->properties.at(column).name, variantToJsonValue(value, typeAt(column)));
     markChanged();
     return true;
 }
@@ -292,13 +396,14 @@ bool CollectionDetails::setPropertyType(int column, DataType type)
     if (property.type != type)
         changed = true;
 
+    const DataType formerType = property.type;
     property.type = type;
 
     for (QJsonObject &element : d->elements) {
         if (element.contains(property.name)) {
             const QJsonValue value = element.value(property.name);
-            const QVariant properTypedValue = valueToVariant(value, type);
-            const QJsonValue properTypedJsonValue = variantToJsonValue(properTypedValue);
+            const QVariant properTypedValue = valueToVariant(value, formerType);
+            const QJsonValue properTypedJsonValue = variantToJsonValue(properTypedValue, type);
             element.insert(property.name, properTypedJsonValue);
             changed = true;
         }
@@ -334,10 +439,19 @@ QVariant CollectionDetails::data(int row, int column) const
     const QString &propertyName = d->properties.at(column).name;
     const QJsonObject &elementNode = d->elements.at(row);
 
-    if (elementNode.contains(propertyName))
-        return elementNode.value(propertyName).toVariant();
+    if (!elementNode.contains(propertyName))
+        return {};
 
-    return {};
+    const QJsonValue cellValue = elementNode.value(propertyName);
+
+    if (typeAt(column) == DataType::Image) {
+        const QUrl imageUrl = valueToVariant(cellValue, DataType::Image).toUrl();
+
+        if (imageUrl.isValid())
+            return imageUrl;
+    }
+
+    return cellValue.toVariant();
 }
 
 QString CollectionDetails::propertyAt(int column) const
