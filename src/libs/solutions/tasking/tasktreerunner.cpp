@@ -9,13 +9,19 @@ namespace Tasking {
 
 TaskTreeRunner::~TaskTreeRunner() = default;
 
-void TaskTreeRunner::start(const Group &recipe)
+void TaskTreeRunner::start(const Group &recipe,
+                           const SetupHandler &setupHandler,
+                           const DoneHandler &doneHandler)
 {
     m_taskTree.reset(new TaskTree(recipe));
-    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this, doneHandler](DoneWith result) {
         m_taskTree.release()->deleteLater();
+        if (doneHandler)
+            doneHandler(result);
         emit done(result);
     });
+    if (setupHandler)
+        setupHandler(m_taskTree.get());
     emit aboutToStart(m_taskTree.get());
     m_taskTree->start();
 }
