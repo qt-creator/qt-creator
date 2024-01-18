@@ -29,6 +29,9 @@ public:
                               ValueOwner *valueOwner,
                               Snapshot *snapshot) override;
 
+    virtual Utils::FilePaths prioritizeImportPaths(const Document *context,
+                                                   const Utils::FilePaths &importPaths) override;
+
     // Add to the interfaces needed for a document
     // path: opened qml document
     // importsPerDocument: imports available in the document (considered imported)

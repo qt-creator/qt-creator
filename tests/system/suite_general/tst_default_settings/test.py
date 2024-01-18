@@ -207,7 +207,8 @@ def __getExpectedCompilers__():
         for c in ('clang++', 'clang', 'afl-clang',
                   'clang-[0-9]', 'clang-[0-9].[0-9]', 'clang-1[0-9]', 'clang-1[0-9].[0-9]',
                   '*g++*', '*gcc*'):
-            compilers.extend(findAllFilesInPATH(c))
+            filesInPath = set(findAllFilesInPATH(c))
+            compilers.extend(filesInPath | set(map(os.path.realpath, filesInPath)))
     if platform.system() == 'Darwin':
         for compilerExe in ('clang++', 'clang'):
             xcodeClang = getOutputFromCmdline(["xcrun", "--find", compilerExe]).strip("\n")

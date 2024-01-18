@@ -216,7 +216,8 @@ void CMakeBuildSystem::requestDebugging()
 
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    if (dynamic_cast<CMakeTargetNode *>(context))
+    const auto cmakeTarget = dynamic_cast<CMakeTargetNode *>(context);
+    if (cmakeTarget && cmakeTarget->productType() != ProductType::Other)
         return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
                || action == ProjectAction::AddExistingDirectory || action == ProjectAction::Rename
                || action == ProjectAction::RemoveFile;
@@ -1623,7 +1624,9 @@ CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
 static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
 {
     const CMakeBuildTarget cmakeBuildTarget
-        = Utils::findOrDefault(bs->buildTargets(), Utils::equal(&CMakeBuildTarget::title, buildKey));
+        = Utils::findOrDefault(bs->buildTargets(), [buildKey](const auto &target) {
+              return target.title == buildKey && target.targetType != UtilityType;
+          });
 
     return cmakeBuildTarget.libraryDirectories;
 }

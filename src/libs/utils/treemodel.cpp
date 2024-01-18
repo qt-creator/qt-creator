@@ -604,7 +604,7 @@ TreeItem::~TreeItem()
 {
     QTC_CHECK(m_parent == nullptr);
     QTC_CHECK(m_model == nullptr);
-    removeChildren();
+    removeChildrenSilently();
 }
 
 TreeItem *TreeItem::childAt(int pos) const
@@ -712,6 +712,13 @@ void TreeItem::removeChildren()
     } else {
         clear();
     }
+}
+
+void TreeItem::removeChildrenSilently()
+{
+    if (childCount() == 0)
+        return;
+    clear();
 }
 
 void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp)
@@ -1061,25 +1068,30 @@ TreeItem *BaseTreeModel::rootItem() const
 
 void BaseTreeModel::setRootItem(TreeItem *item)
 {
+    beginResetModel();
+    setRootItemInternal(item);
+    endResetModel();
+}
+
+void BaseTreeModel::setRootItemInternal(TreeItem *item)
+{
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->m_model == nullptr, return);
     QTC_ASSERT(item->m_parent == nullptr, return);
     QTC_ASSERT(item != m_root, return);
     QTC_CHECK(m_root);
 
-    beginResetModel();
     if (m_root) {
         QTC_CHECK(m_root->m_parent == nullptr);
         QTC_CHECK(m_root->m_model == this);
         // needs to be done explicitly before setting the model to 0, otherwise it might lead to a
         // crash inside a view or proxy model, especially if there are selected items
-        m_root->removeChildren();
+        m_root->removeChildrenSilently();
         m_root->m_model = nullptr;
         delete m_root;
     }
     m_root = item;
     item->propagateModel(this);
-    endResetModel();
 }
 
 void BaseTreeModel::setHeader(const QStringList &displays)

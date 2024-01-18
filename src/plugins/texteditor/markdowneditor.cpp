@@ -20,7 +20,9 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
+#include <QDesktopServices>
 #include <QHBoxLayout>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QTimer>
@@ -70,9 +72,22 @@ public:
 
         // preview
         m_previewWidget = new QTextBrowser();
-        m_previewWidget->setOpenExternalLinks(true);
+        m_previewWidget->setOpenLinks(false); // we want to open files in QtC, not the browser
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         new Utils::MarkdownHighlighter(m_previewWidget->document());
+        connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
+            if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
+                // local anchor
+                m_previewWidget->scrollToAnchor(link.fragment(QUrl::FullyEncoded));
+            } else if (link.isLocalFile() || link.scheme().isEmpty()) {
+                // absolute path or relative (to the document)
+                // open in Qt Creator
+                EditorManager::openEditor(
+                    document()->filePath().parentDir().resolvePath(link.path()));
+            } else {
+                QDesktopServices::openUrl(link);
+            }
+        });
 
         // editor
         m_textEditorWidget = new TextEditorWidget;
@@ -170,6 +185,26 @@ public:
             m_previewRestoreScrollPosition.reset();
 
             m_previewWidget->setMarkdown(m_document->plainText());
+            // Add anchors to headings. This should actually be done by Qt QTBUG-120518
+            for (QTextBlock block = m_previewWidget->document()->begin(); block.isValid();
+                 block = block.next()) {
+                QTextBlockFormat fmt = block.blockFormat();
+                if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
+                    QTextCharFormat cFormat = block.charFormat();
+                    QString anchor;
+                    const QString text = block.text();
+                    for (const QChar &c : text) {
+                        if (c == ' ')
+                            anchor.append('-');
+                        else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
+                            anchor.append(c.toLower());
+                    }
+                    cFormat.setAnchor(true);
+                    cFormat.setAnchorNames({anchor});
+                    QTextCursor cursor(block);
+                    cursor.setBlockCharFormat(cFormat);
+                }
+            }
 
             m_previewWidget->horizontalScrollBar()->setValue(positions.x());
             m_previewWidget->verticalScrollBar()->setValue(positions.y());

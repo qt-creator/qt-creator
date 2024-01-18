@@ -126,10 +126,8 @@ void AndroidPlugin::kitsRestored()
                return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
            }).isEmpty();
 
-    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured() && qtForAndroidInstalled) {
-        connect(Core::ICore::instance(), &Core::ICore::coreOpened, this,
-                &AndroidPlugin::askUserAboutAndroidSetup, Qt::QueuedConnection);
-    }
+    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured() && qtForAndroidInstalled)
+        askUserAboutAndroidSetup();
 
     AndroidConfigurations::registerNewToolChains();
     AndroidConfigurations::updateAutomaticKitList();

@@ -363,7 +363,8 @@ void ExamplesViewController::updateExamples()
 
     const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
                                                                   &demosInstallPath,
-                                                                  &qtVersion);
+                                                                  &qtVersion,
+                                                                  m_isExamples);
     QStringList categoryOrder;
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
@@ -493,12 +494,15 @@ QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) con
 
 QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
                                             QString *demosInstallPath,
-                                            QVersionNumber *qtVersion)
+                                            QVersionNumber *qtVersion,
+                                            bool isExamples)
 {
     QStringList sources;
 
-    // Qt Creator shipped tutorials
-    sources << ":/qtsupport/qtcreator_tutorials.xml";
+    if (!isExamples) {
+        // Qt Creator shipped tutorials
+        sources << ":/qtsupport/qtcreator_tutorials.xml";
+    }
 
     QString examplesPath;
     QString demosPath;

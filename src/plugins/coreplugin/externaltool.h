@@ -115,8 +115,8 @@ public:
 
 private:
     void done();
-    void readStandardOutput();
-    void readStandardError();
+    void readStandardOutput(const QString &output);
+    void readStandardError(const QString &output);
 
     void run();
     bool resolve();
@@ -128,6 +128,7 @@ private:
     Utils::FilePath m_resolvedWorkingDirectory;
     Utils::Environment m_resolvedEnvironment;
     Utils::Process *m_process;
+    // TODO remove codec handling, that is done by Process now
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;

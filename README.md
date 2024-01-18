@@ -17,8 +17,11 @@ https://doc.qt.io/qtcreator/creator-overview.html
 The standalone binary packages support the following platforms:
 
 * Windows 10 (64-bit) or later
-* (K)Ubuntu Linux 20.04 (64-bit) or later
-* macOS 10.15 or later
+* (K)Ubuntu Linux 22.04 (64-bit) or later
+* macOS 11 or later
+
+When you compile Qt Creator yourself, the Qt version that you build with
+determines the supported platforms.
 
 ## Contributing
 

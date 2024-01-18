@@ -219,7 +219,7 @@ void OutlineModel::rebuild()
     auto root = new SymbolItem;
     if (m_cppDocument)
         buildTree(root, true);
-    setRootItem(root);
+    setRootItemInternal(root);
     endResetModel();
 }
 

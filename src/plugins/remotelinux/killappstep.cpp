@@ -58,7 +58,11 @@ GroupItem KillAppStep::deployRecipe()
         addProgressMessage(Tr::tr("Failed to kill remote application. "
                                     "Assuming it was not running."));
     };
-    return DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler);
+    const Group root {
+        finishAllAndDone,
+        DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler)
+    };
+    return root;
 }
 
 KillAppStepFactory::KillAppStepFactory()

@@ -39,6 +39,7 @@ public:
 
     void removeChildAt(int pos);
     void removeChildren();
+    void removeChildrenSilently();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
     void updateAll();
@@ -180,7 +181,8 @@ protected:
     void clear();
 
     TreeItem *rootItem() const;
-    void setRootItem(TreeItem *item);
+    void setRootItem(TreeItem *item); // resets the model
+    void setRootItemInternal(TreeItem *item);
     TreeItem *itemForIndex(const QModelIndex &) const;
     QModelIndex indexForItem(const TreeItem *needle) const;
 

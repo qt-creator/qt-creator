@@ -1125,6 +1125,11 @@ public:
                               [[maybe_unused]] const Document *context,
                               [[maybe_unused]] ValueOwner *valueOwner,
                               [[maybe_unused]] Snapshot *snapshot) {}
+    virtual Utils::FilePaths prioritizeImportPaths([[maybe_unused]] const Document *context,
+                                                   const Utils::FilePaths &importPaths)
+    {
+        return importPaths;
+    }
 };
 
 } // namespace QmlJS
