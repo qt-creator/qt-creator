@@ -48,9 +48,6 @@ namespace QtSupport::Internal {
 class QtSupportPluginPrivate
 {
 public:
-    UicGeneratorFactory uicGeneratorFactory;
-    QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
-
     DesignerExternalEditor designerEditor;
     LinguistEditor linguistEditor;
 
@@ -109,6 +106,8 @@ void QtSupportPlugin::initialize()
     setupGettingStartedWelcomePage();
     setupQtSettingsPage();
     setupQtOutputFormatter();
+    setupUicGenerator();
+    setupQScxmlcGenerator();
 
     theProcessRunner() = processRunnerCallback;
 

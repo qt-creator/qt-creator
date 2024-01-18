@@ -7,6 +7,7 @@
 #include "qtkitaspect.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
 
@@ -19,7 +20,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
+namespace QtSupport::Internal {
 
 class UicGenerator final : public ProcessExtraCompiler
 {
@@ -32,19 +33,16 @@ public:
     }
 
 protected:
-    FilePath command() const override;
-    QStringList arguments() const override { return {"-p"}; }
-    FileNameToContentsHash handleProcessFinished(Process *process) override;
+    FilePath command() const final;
+    QStringList arguments() const final { return {"-p"}; }
+    FileNameToContentsHash handleProcessFinished(Process *process) final;
 };
 
 FilePath UicGenerator::command() const
 {
-    QtSupport::QtVersion *version = nullptr;
-    Target *target;
-    if ((target = project()->activeTarget()))
-        version = QtSupport::QtKitAspect::qtVersion(target->kit());
-    else
-        version = QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
+    Target *target = project()->activeTarget();
+    Kit *kit = target ? target->kit() : KitManager::defaultKit();
+    QtVersion *version = QtKitAspect::qtVersion(kit);
 
     if (!version)
         return {};
@@ -69,21 +67,28 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(Process *process)
     return result;
 }
 
-FileType UicGeneratorFactory::sourceType() const
+// UicGeneratorFactory
+
+class UicGeneratorFactory final : public ExtraCompilerFactory
 {
-    return FileType::Form;
+public:
+    UicGeneratorFactory() = default;
+
+    FileType sourceType() const final { return FileType::Form; }
+
+    QString sourceTag() const final { return QLatin1String("ui"); }
+
+    ExtraCompiler *create(const Project *project,
+                          const FilePath &source,
+                          const FilePaths &targets) final
+    {
+        return new UicGenerator(project, source, targets, this);
+    }
+};
+
+void setupUicGenerator()
+{
+    static UicGeneratorFactory theUicGeneratorFactory;
 }
 
-QString UicGeneratorFactory::sourceTag() const
-{
-    return QLatin1String("ui");
-}
-
-ExtraCompiler *UicGeneratorFactory::create(const Project *project,
-                                           const FilePath &source,
-                                           const FilePaths &targets)
-{
-    return new UicGenerator(project, source, targets, this);
-}
-
-} // QtSupport
+} // QtSupport::Internal
