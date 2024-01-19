@@ -7,6 +7,10 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QIcon;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class Project; }
 
 namespace Axivion::Internal {
@@ -14,6 +18,8 @@ namespace Axivion::Internal {
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
+
+QIcon iconForIssue(const QString &prefix);
 
 } // Axivion::Internal
 

@@ -10,9 +10,12 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QComboBox>
 #include <QFormLayout>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QLabel>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QTextBrowser>
@@ -168,6 +171,116 @@ void DashboardWidget::updateUi()
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
+class IssuesWidget : public QScrollArea
+{
+public:
+    explicit IssuesWidget(QWidget *parent = nullptr);
+    void updateUi();
+
+private:
+    void updateTableView();
+
+    QString m_currentPrefix;
+    std::optional<Dto::TableInfoDto> m_currentTableInfo;
+    QHBoxLayout *m_typesLayout = nullptr;
+    QHBoxLayout *m_filtersLayout = nullptr;
+    QPushButton *m_addedFilter = nullptr;
+    QPushButton *m_removedFilter = nullptr;
+    QComboBox *m_ownerFilter = nullptr;
+    QComboBox *m_versionStart = nullptr;
+    QComboBox *m_versionEnd = nullptr;
+    QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
+};
+
+IssuesWidget::IssuesWidget(QWidget *parent)
+    : QScrollArea(parent)
+{
+    QWidget *widget = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(widget);
+    // row with issue types (-> depending on choice, tables below change)
+    //  and a selectable range (start version, end version)
+    // row with added/removed and some filters (assignee, path glob, (named filter))
+    // table, columns depend on chosen issue type
+    QHBoxLayout *top = new QHBoxLayout;
+    layout->addLayout(top);
+    m_typesLayout = new QHBoxLayout;
+    top->addLayout(m_typesLayout);
+    top->addStretch(1);
+    m_versionStart = new QComboBox(this);
+    m_versionStart->setMinimumContentsLength(25);
+    top->addWidget(m_versionStart);
+    m_versionEnd = new QComboBox(this);
+    m_versionEnd->setMinimumContentsLength(25);
+    top->addWidget(m_versionEnd);
+    top->addStretch(1);
+    m_filtersLayout = new QHBoxLayout;
+    m_addedFilter = new QPushButton(this);
+    m_addedFilter->setIcon(trendIcon(1, 0));
+    m_addedFilter->setText("0");
+    m_filtersLayout->addWidget(m_addedFilter);
+    m_removedFilter = new QPushButton(this);
+    m_removedFilter->setIcon(trendIcon(0, 1));
+    m_removedFilter->setText("0");
+    m_filtersLayout->addWidget(m_removedFilter);
+    m_filtersLayout->addSpacing(1);
+    m_ownerFilter = new QComboBox(this);
+    m_ownerFilter->setToolTip(Tr::tr("Owner"));
+    m_ownerFilter->setMinimumContentsLength(25);
+    m_filtersLayout->addWidget(m_ownerFilter);
+    m_pathGlobFilter = new QLineEdit(this);
+    m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
+    m_filtersLayout->addWidget(m_pathGlobFilter);
+    layout->addLayout(m_filtersLayout);
+    // TODO the issues table
+    layout->addStretch(1);
+    setWidget(widget);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setWidgetResizable(true);
+}
+
+void IssuesWidget::updateUi()
+{
+    m_filtersLayout->setEnabled(false);
+    // TODO extract parts of it and do them only when necessary
+    QLayoutItem *child;
+    while ((child = m_typesLayout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+
+    std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    if (!projectInfo)
+        return;
+    const Dto::ProjectInfoDto &info = *projectInfo;
+    if (info.versions.empty()) // add some warning/information?
+        return;
+
+    // for now just a start..
+    const Dto::AnalysisVersionDto &last = info.versions.back();
+
+    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
+    for (const Dto::IssueKindInfoDto &kind : issueKinds) {
+        auto button = new QToolButton(this);
+        button->setIcon(iconForIssue(kind.prefix));
+        button->setToolTip(kind.nicePluralName);
+        connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
+            m_currentPrefix = prefix;
+            updateTableView();
+        });
+        m_typesLayout->addWidget(button);
+    }
+    // TODO versions range...
+
+    // TODO fill owners
+    m_filtersLayout->setEnabled(true);
+}
+
+void IssuesWidget::updateTableView()
+{
+    // fetch table dto and apply
+    // on done fetch first data for the selected issues
+}
+
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
     : Core::IOutputPane(parent)
 {
@@ -178,6 +291,8 @@ AxivionOutputPane::AxivionOutputPane(QObject *parent)
     m_outputWidget = new QStackedWidget;
     DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
     m_outputWidget->addWidget(dashboardWidget);
+    IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
+    m_outputWidget->addWidget(issuesWidget);
     QTextBrowser *browser = new QTextBrowser(m_outputWidget);
     m_outputWidget->addWidget(browser);
 }
@@ -208,6 +323,16 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
         m_outputWidget->setCurrentIndex(0);
     });
     buttons.append(showDashboard);
+    auto showIssues = new QToolButton(m_outputWidget);
+    showIssues->setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
+    showIssues->setToolTip(Tr::tr("Search for issues"));
+    connect(showIssues, &QToolButton::clicked, this, [this]{
+        QTC_ASSERT(m_outputWidget, return);
+        m_outputWidget->setCurrentIndex(1);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+            issues->updateUi();
+    });
+    buttons.append(showIssues);
     return buttons;
 }
 
@@ -264,10 +389,10 @@ void AxivionOutputPane::updateDashboard()
 
 void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
 {
-    if (auto browser = static_cast<QTextBrowser *>(m_outputWidget->widget(1))) {
+    if (auto browser = static_cast<QTextBrowser *>(m_outputWidget->widget(2))) {
         browser->setText(ruleHtml);
         if (!ruleHtml.isEmpty()) {
-            m_outputWidget->setCurrentIndex(1);
+            m_outputWidget->setCurrentIndex(2);
             popup(Core::IOutputPane::NoModeSwitch);
         }
     }

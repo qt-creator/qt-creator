@@ -55,6 +55,20 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+QIcon iconForIssue(const QString &prefix)
+{
+    static QHash<QString, QIcon> prefixToIcon;
+    auto it = prefixToIcon.find(prefix);
+
+    if (it == prefixToIcon.end()) {
+        Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix.toLower() + ".png"),
+                    Theme::PaletteButtonText}},
+                  Icon::Tint);
+        it = prefixToIcon.insert(prefix, icon.icon());
+    }
+    return it.value();
+}
+
 class AxivionPluginPrivate : public QObject
 {
 public:
@@ -94,6 +108,7 @@ AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &iss
     const QString markText = issue.entity.isEmpty() ? issue.message
                                                     : issue.entity + ": " + issue.message;
     setToolTip(issue.errorNumber + " " + markText);
+    setIcon(iconForIssue("SV")); // FIXME adapt to the issue
     setPriority(TextEditor::TextMark::NormalPriority);
     setLineAnnotation(markText);
     setActionsProvider([this]{
