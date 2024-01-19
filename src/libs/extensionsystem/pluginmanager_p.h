@@ -123,6 +123,8 @@ public:
     static PluginSpec *createSpec();
     static PluginSpecPrivate *privateSpec(PluginSpec *spec);
 
+    static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
+
     mutable QReadWriteLock m_lock;
 
     bool m_isInitializationDone = false;

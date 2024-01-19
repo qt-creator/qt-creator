@@ -37,9 +37,6 @@ public:
                                    const QStringList & /* arguments */) { return nullptr; }
 
 
-    // Deprecated in 10.0, use addTest()
-    virtual QVector<QObject *> createTestObjects() const;
-
     template <typename Test, typename ...Args>
     void addTest(Args && ...args) { addTestCreator([args...] { return new Test(args...); }); }
     void addTestCreator(const TestCreator &creator);
@@ -51,7 +48,7 @@ signals:
     void asynchronousShutdownFinished();
 
 private:
-    Internal::IPluginPrivate *d;
+    Internal::IPluginPrivate *d = nullptr; // For potential extension. Currently unused.
 };
 
 } // namespace ExtensionSystem

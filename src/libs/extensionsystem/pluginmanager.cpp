@@ -1079,6 +1079,15 @@ void PluginManagerPrivate::checkForDuplicatePlugins()
     }
 }
 
+static QHash<IPlugin *, QList<TestCreator>> g_testCreators;
+
+void PluginManagerPrivate::addTestCreator(IPlugin *plugin, const TestCreator &testCreator)
+{
+#ifdef WITH_TESTS
+    g_testCreators[plugin].append(testCreator);
+#endif
+}
+
 #ifdef WITH_TESTS
 
 using TestPlan = QMap<QObject *, QStringList>; // Object -> selected test functions
@@ -1289,7 +1298,8 @@ void PluginManagerPrivate::startTests()
         if (!plugin)
             continue; // plugin not loaded
 
-        const QVector<QObject *> testObjects = plugin->createTestObjects();
+        const QList<TestCreator> testCreators = g_testCreators[plugin];
+        const QVector<QObject *> testObjects = Utils::transform(testCreators, &TestCreator::operator());
         const QScopeGuard cleanup([&] { qDeleteAll(testObjects); });
 
         const bool hasDuplicateTestObjects = testObjects.size()
