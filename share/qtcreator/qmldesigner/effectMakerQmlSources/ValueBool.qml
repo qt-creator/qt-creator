@@ -10,4 +10,5 @@ StudioControls.CheckBox {
     actionIndicatorVisible: false
     checked: uniformValue
     onToggled: uniformValue = checked
+    width: height // limit hovering and clicking the CheckBox to its area
 }
