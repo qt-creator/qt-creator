@@ -86,7 +86,7 @@ void ClangFormatPlugin::initialize()
     }
 
 #ifdef WITH_TESTS
-    addTest<Internal::ClangFormatTest>();
+    addTestCreator(Internal::createClangFormatTest);
 #endif
 }
 
