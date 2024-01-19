@@ -29,10 +29,7 @@ namespace EffectMaker {
 
 static bool enableEffectMaker()
 {
-    Utils::QtcSettings *settings = Core::ICore::settings();
-    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
-
-    return settings->value(enableModelManagerKey, false).toBool();
+    return true;
 }
 
 bool EffectMakerPlugin::delayedInitialize()
