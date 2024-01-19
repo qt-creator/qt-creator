@@ -249,8 +249,8 @@ void QmlPreviewPlugin::initialize()
     d = new QmlPreviewPluginPrivate(this);
 
 #ifdef WITH_TESTS
-    addTest<QmlPreviewClientTest>();
-    addTest<QmlPreviewPluginTest>();
+    addTestCreator(createQmlPreviewClientTest);
+    addTestCreator(createQmlPreviewPluginTest);
 #endif
 }
 

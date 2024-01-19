@@ -8,6 +8,17 @@
 
 namespace QmlPreview {
 
+class QmlPreviewClientTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testLoadFile();
+    void testAnnounceFile();
+    void testZoom();
+    void testMessageReceived();
+};
+
 class TestableQmlPreviewClient : public QmlPreviewClient
 {
     Q_OBJECT
@@ -114,6 +125,11 @@ void QmlPreviewClientTest::testMessageReceived()
         QCOMPARE(numErrors, 1);
         QCOMPARE(numFrames, frames);
     }
+}
+
+QObject *createQmlPreviewClientTest()
+{
+    return new QmlPreviewClientTest;
 }
 
 } // namespace QmlPreview

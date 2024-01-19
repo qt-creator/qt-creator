@@ -5,15 +5,6 @@
 
 namespace QmlPreview {
 
-class QmlPreviewClientTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testLoadFile();
-    void testAnnounceFile();
-    void testZoom();
-    void testMessageReceived();
-};
+QObject *createQmlPreviewClientTest();
 
 } // namespace QmlPreview
