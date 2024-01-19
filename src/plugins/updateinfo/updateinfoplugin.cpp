@@ -121,7 +121,8 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     const auto onTreeSetup = [this](TaskTree *taskTree) {
         d->m_progress = new TaskProgress(taskTree);
-        d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
+        using namespace std::chrono_literals;
+        d->m_progress->setHalfLifeTimePerTask(30s);
         d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));
         d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
         d->m_progress->setSubtitleVisibleInStatusBar(true);

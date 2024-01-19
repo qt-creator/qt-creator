@@ -74,7 +74,8 @@ TestRunner::TestRunner()
         auto progress = new TaskProgress(taskTree);
         progress->setDisplayName(Tr::tr("Running Tests"));
         progress->setAutoStopOnCancel(false);
-        progress->setHalfLifeTimePerTask(10000); // 10 seconds
+        using namespace std::chrono_literals;
+        progress->setHalfLifeTimePerTask(10s);
         connect(progress, &TaskProgress::canceled, this, [this, progress] {
             // Progress was a child of task tree which is going to be deleted directly.
             // Unwind properly.
