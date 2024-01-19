@@ -452,13 +452,17 @@ void CppFileSettingsWidget::slotEdit()
 
 // CppFileSettingsPage
 
-CppFileSettingsPage::CppFileSettingsPage()
+class CppFileSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::CPP_FILE_SETTINGS_ID);
-    setDisplayName(Tr::tr("File Naming"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new CppFileSettingsWidget(&globalCppFileSettings()); });
-}
+public:
+    CppFileSettingsPage()
+    {
+        setId(Constants::CPP_FILE_SETTINGS_ID);
+        setDisplayName(Tr::tr("File Naming"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new CppFileSettingsWidget(&globalCppFileSettings()); });
+    }
+};
 
 CppFileSettingsForProject::CppFileSettingsForProject(ProjectExplorer::Project *project)
     : m_project(project)
@@ -605,6 +609,8 @@ public:
 void setupCppFileSettings()
 {
     static CppFileSettingsProjectPanelFactory theCppFileSettingsProjectPanelFactory;
+
+    static CppFileSettingsPage theCppFileSettingsPage;
 
     globalCppFileSettings().fromSettings(Core::ICore::settings());
     globalCppFileSettings().addMimeInitializer();

@@ -67,12 +67,6 @@ private:
     bool m_useGlobalSettings = true;
 };
 
-class CppFileSettingsPage : public Core::IOptionsPage
-{
-public:
-    CppFileSettingsPage();
-};
-
 CppFileSettings &globalCppFileSettings();
 
 void setupCppFileSettings();

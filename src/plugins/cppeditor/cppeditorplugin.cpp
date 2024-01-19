@@ -180,7 +180,6 @@ public:
 
     CppModelManager modelManager;
     CppToolsSettings settings;
-    CppFileSettingsPage m_cppFileSettingsPage;
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
