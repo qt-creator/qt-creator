@@ -7,14 +7,14 @@
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
 
-#include <variant>
-
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/qtcassert.h>
+
+#include <variant>
 
 #include <QColor>
 #include <QJsonArray>
@@ -290,6 +290,12 @@ bool ensureDataStoreExists(bool &justCreated)
 
     if (qmlDirSaver.finalize()) {
         justCreated = true;
+
+        // Force code model reset to notice changes to existing module
+        auto modelManager = QmlJS::ModelManagerInterface::instance();
+        if (modelManager)
+            modelManager->resetCodeModel();
+
         return true;
     }
 
