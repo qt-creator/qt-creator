@@ -5,13 +5,38 @@
 
 #include "../clangfixitoperation.h"
 
+#include <cppeditor/cpptoolstestcase.h>
+
 #include <utils/changeset.h>
 
 #include <QFile>
+#include <QScopedPointer>
 #include <QtTest>
 #include <QVector>
 
-namespace ClangCodeModel::Internal::Tests {
+namespace ClangCodeModel::Internal {
+
+class ClangFixItTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void init();
+    void testAppendSemicolon();
+    void testComparisonVersusAssignmentChooseComparison();
+    void testComparisonVersusAssignmentChooseParentheses();
+    void testDescription();
+
+private:
+    Utils::FilePath semicolonFilePath() const;
+    Utils::FilePath compareFilePath() const;
+    QString fileContent(const QString &relFilePath) const;
+
+    ClangFixIt semicolonFixIt() const;
+
+private:
+    QScopedPointer<CppEditor::Tests::TemporaryCopiedDir> m_dataDir;
+};
 
 static QString qrcPath(const QString &relativeFilePath)
 {
@@ -86,4 +111,11 @@ void ClangFixItTest::testComparisonVersusAssignmentChooseParentheses()
              fileContent("diagnostic_comparison_fixit_expected2.cpp"));
 }
 
-} // namespace ClangCodeModel::Internal::Tests
+QObject *createClangFixItTest()
+{
+    return new ClangFixItTest;
+}
+
+} // ClangCodeModel::Internal
+
+#include "clangfixittest.moc"

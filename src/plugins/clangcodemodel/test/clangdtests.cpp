@@ -8,25 +8,37 @@
 #include "../clangmodelmanagersupport.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <cplusplus/FindUsages.h>
+
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/semantichighlighter.h>
+
 #include <languageclient/languageclientmanager.h>
+
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+
+#include <qtsupport/qtkitaspect.h>
+
+#include <texteditor/blockrange.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
+#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/semantichighlighter.h>
 #include <texteditor/textmark.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
+#include <utils/searchresultitem.h>
 #include <utils/textutils.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -47,22 +59,16 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace ClangCodeModel {
-namespace Internal {
-namespace Tests {
+namespace ClangCodeModel::Internal {
 
 using Range = std::tuple<int, int, int>;
 
-} // namespace Tests
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal
 
-Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
+Q_DECLARE_METATYPE(ClangCodeModel::Internal::Range)
 Q_DECLARE_METATYPE(IAssistProposal *)
 
-namespace ClangCodeModel {
-namespace Internal {
-namespace Tests {
+namespace ClangCodeModel::Internal {
 
 const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
 
@@ -91,6 +97,42 @@ int timeOutInMs()
     static int timeOut = timeOutFromEnvironmentVariable();
     return timeOut;
 }
+
+class ClangdTest : public QObject
+{
+    Q_OBJECT
+
+public:
+    ~ClangdTest();
+
+protected:
+    // Convention: base bame == name of parent dir
+    void setProjectFileName(const QString &fileName) { m_projectFileName = fileName; }
+
+    void setSourceFileNames(const QStringList &fileNames) { m_sourceFileNames = fileNames; }
+    void setMinimumVersion(int version) { m_minVersion = version; }
+
+    ClangdClient *client() const { return m_client; }
+    Utils::FilePath filePath(const QString &fileName) const;
+    TextEditor::TextDocument *document(const QString &fileName) const {
+        return m_sourceDocuments.value(fileName);
+    }
+    ProjectExplorer::Project *project() const { return m_project; }
+    void waitForNewClient(bool withIndex = true);
+
+protected slots:
+    virtual void initTestCase();
+
+private:
+    CppEditor::Tests::TemporaryCopiedDir *m_projectDir = nullptr;
+    QString m_projectFileName;
+    QStringList m_sourceFileNames;
+    QHash<QString, TextEditor::TextDocument *> m_sourceDocuments;
+    ProjectExplorer::Kit *m_kit = nullptr;
+    ProjectExplorer::Project *m_project = nullptr;
+    ClangdClient *m_client = nullptr;
+    int m_minVersion = -1;
+};
 
 ClangdTest::~ClangdTest()
 {
@@ -182,11 +224,26 @@ void ClangdTest::initTestCase()
     }
 }
 
-ClangdTestFindReferences::ClangdTestFindReferences()
+class ClangdTestFindReferences final : public ClangdTest
 {
-    setProjectFileName("find-usages.pro");
-    setSourceFileNames({"defs.h", "main.cpp"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestFindReferences()
+    {
+        setProjectFileName("find-usages.pro");
+        setSourceFileNames({"defs.h", "main.cpp"});
+    }
+
+private slots:
+    void initTestCase() override;
+    void init() { m_actualResults.clear(); }
+    void test_data();
+    void test();
+
+private:
+    Utils::SearchResultItems m_actualResults;
+};
 
 void ClangdTestFindReferences::initTestCase()
 {
@@ -333,11 +390,22 @@ void ClangdTestFindReferences::test()
 }
 
 
-ClangdTestFollowSymbol::ClangdTestFollowSymbol()
+class ClangdTestFollowSymbol final : public ClangdTest
 {
-    setProjectFileName("follow-symbol.pro");
-    setSourceFileNames({"main.cpp", "header.h"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestFollowSymbol()
+    {
+        setProjectFileName("follow-symbol.pro");
+        setSourceFileNames({"main.cpp", "header.h"});
+    }
+
+private slots:
+    void test_data();
+    void test();
+    void testFollowSymbolInHandler();
+};
 
 void ClangdTestFollowSymbol::test_data()
 {
@@ -462,11 +530,21 @@ void ClangdTestFollowSymbol::testFollowSymbolInHandler()
     timer.stop();
 }
 
-ClangdTestLocalReferences::ClangdTestLocalReferences()
+class ClangdTestLocalReferences final : public ClangdTest
 {
-    setProjectFileName("local-references.pro");
-    setSourceFileNames({"references.cpp"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestLocalReferences()
+    {
+        setProjectFileName("local-references.pro");
+        setSourceFileNames({"references.cpp"});
+    }
+
+private slots:
+    void test_data();
+    void test();
+};
 
 // We currently only support local variables, but if and when clangd implements
 // the linkedEditingRange request, we can change the expected values for
@@ -583,11 +661,22 @@ void ClangdTestLocalReferences::test()
 
 // This tests our help item construction, not the actual tooltip contents. Those come
 // pre-formatted from clangd.
-ClangdTestTooltips::ClangdTestTooltips()
+
+class ClangdTestTooltips final : public ClangdTest
 {
-    setProjectFileName("tooltips.pro");
-    setSourceFileNames({"tooltips.cpp"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestTooltips()
+    {
+        setProjectFileName("tooltips.pro");
+        setSourceFileNames({"tooltips.cpp"});
+    }
+
+private slots:
+    void test_data();
+    void test();
+};
 
 void ClangdTestTooltips::test_data()
 {
@@ -718,11 +807,28 @@ void ClangdTestTooltips::test()
     QCOMPARE(helpItem.docMark(), expectedMark);
 }
 
-ClangdTestHighlighting::ClangdTestHighlighting()
+
+class ClangdTestHighlighting final : public ClangdTest
 {
-    setProjectFileName("highlighting.pro");
-    setSourceFileNames({"highlighting.cpp"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestHighlighting()
+    {
+        setProjectFileName("highlighting.pro");
+        setSourceFileNames({"highlighting.cpp"});
+    }
+
+private slots:
+    void initTestCase() override;
+    void test_data();
+    void test();
+    void testIfdefedOutBlocks();
+
+private:
+    TextEditor::HighlightingResults m_results;
+    QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
+};
 
 void ClangdTestHighlighting::initTestCase()
 {
@@ -1428,7 +1534,7 @@ void ClangdTestHighlighting::testIfdefedOutBlocks()
 }
 
 
-class Manipulator : public TextDocumentManipulatorInterface
+class Manipulator final : public TextDocumentManipulatorInterface
 {
 public:
     Manipulator()
@@ -1495,6 +1601,56 @@ private:
     QTextDocument *m_doc;
     QTextCursor m_cursor;
     int m_skipPos = -1;
+};
+
+
+class ClangdTestCompletion final : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestCompletion();
+
+private slots:
+    void initTestCase() override;
+
+    void testCompletePreprocessorKeywords();
+    void testCompleteIncludeDirective();
+
+    void testCompleteGlobals();
+    void testCompleteMembers();
+    void testCompleteMembersFromInside();
+    void testCompleteMembersFromOutside();
+    void testCompleteMembersFromFriend();
+    void testFunctionAddress();
+    void testFunctionHints();
+    void testFunctionHintsFiltered();
+    void testFunctionHintConstructor();
+    void testCompleteClassAndConstructor();
+    void testCompletePrivateFunctionDefinition();
+
+    void testCompleteWithDotToArrowCorrection();
+    void testDontCompleteWithDotToArrowCorrectionForFloats();
+
+    void testCompleteCodeInGeneratedUiFile();
+
+    void testSignalCompletion_data();
+    void testSignalCompletion();
+
+    void testCompleteAfterProjectChange();
+
+private:
+    void startCollectingHighlightingInfo();
+    void getProposal(const QString &fileName, TextEditor::ProposalModelPtr &proposalModel,
+                     const QString &insertString = {}, int *cursorPos = nullptr);
+    static bool hasItem(TextEditor::ProposalModelPtr model, const QString &text,
+                        const QString &detail = {});
+    static bool hasSnippet(TextEditor::ProposalModelPtr model, const QString &text);
+    static int itemsWithText(TextEditor::ProposalModelPtr model, const QString &text);
+    static TextEditor::AssistProposalItemInterface *getItem(
+            TextEditor::ProposalModelPtr model, const QString &text, const QString &detail = {});
+
+    QSet<Utils::FilePath> m_documentsWithHighlighting;
 };
 
 ClangdTestCompletion::ClangdTestCompletion()
@@ -2006,11 +2162,20 @@ AssistProposalItemInterface *ClangdTestCompletion::getItem(
 }
 
 
-ClangdTestExternalChanges::ClangdTestExternalChanges()
+class ClangdTestExternalChanges final : public ClangdTest
 {
-    setProjectFileName("completion.pro");
-    setSourceFileNames({"mainwindow.cpp", "main.cpp"});
-}
+    Q_OBJECT
+
+public:
+    ClangdTestExternalChanges()
+    {
+        setProjectFileName("completion.pro");
+        setSourceFileNames({"mainwindow.cpp", "main.cpp"});
+    }
+
+private slots:
+    void test();
+};
 
 void ClangdTestExternalChanges::test()
 {
@@ -2053,6 +2218,18 @@ void ClangdTestExternalChanges::test()
         QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::textMarkCreated, timeOutInMs()));
 }
 
+
+class ClangdTestIndirectChanges final : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestIndirectChanges();
+
+private slots:
+    void test();
+};
+
 ClangdTestIndirectChanges::ClangdTestIndirectChanges()
 {
     setProjectFileName("indirect-changes.pro");
@@ -2094,6 +2271,46 @@ void ClangdTestIndirectChanges::test()
     QVERIFY(src->marks().isEmpty());
 }
 
-} // namespace Tests
-} // namespace Internal
-} // namespace ClangCodeModel
+QObject *createClangdTestCompletion()
+{
+    return new ClangdTestCompletion;
+}
+
+QObject *createClangdTestExternalChanges()
+{
+    return new ClangdTestExternalChanges;
+}
+
+QObject *createClangdTestFindReferences()
+{
+    return new ClangdTestFindReferences;
+}
+
+QObject *createClangdTestFollowSymbol()
+{
+    return new ClangdTestFollowSymbol;
+}
+
+QObject *createClangdTestHighlighting()
+{
+    return new ClangdTestHighlighting;
+}
+
+QObject *createClangdTestIndirectChanges()
+{
+    return new ClangdTestIndirectChanges;
+}
+
+QObject *createClangdTestLocalReferences()
+{
+    return new ClangdTestLocalReferences;
+}
+
+QObject *createClangdTestTooltips()
+{
+    return new ClangdTestTooltips;
+}
+
+} // namespace ClangCodeModel::Internal
+
+#include "clangdtests.moc"

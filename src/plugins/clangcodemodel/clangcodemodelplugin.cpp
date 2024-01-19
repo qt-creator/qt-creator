@@ -86,16 +86,16 @@ void ClangCodeModelPlugin::initialize()
     updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT);
 
 #ifdef WITH_TESTS
-    addTest<Tests::ActivationSequenceProcessorTest>();
-    addTest<Tests::ClangdTestCompletion>();
-    addTest<Tests::ClangdTestExternalChanges>();
-    addTest<Tests::ClangdTestFindReferences>();
-    addTest<Tests::ClangdTestFollowSymbol>();
-    addTest<Tests::ClangdTestHighlighting>();
-    addTest<Tests::ClangdTestIndirectChanges>();
-    addTest<Tests::ClangdTestLocalReferences>();
-    addTest<Tests::ClangdTestTooltips>();
-    addTest<Tests::ClangFixItTest>();
+    addTestCreator(createActivationSequenceProcessorTest);
+    addTestCreator(createClangdTestCompletion);
+    addTestCreator(createClangdTestExternalChanges);
+    addTestCreator(createClangdTestFindReferences);
+    addTestCreator(createClangdTestFollowSymbol);
+    addTestCreator(createClangdTestHighlighting);
+    addTestCreator(createClangdTestIndirectChanges);
+    addTestCreator(createClangdTestLocalReferences);
+    addTestCreator(createClangdTestTooltips);
+    addTestCreator(createClangFixItTest);
 #endif
 }
 

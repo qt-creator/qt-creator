@@ -3,40 +3,10 @@
 
 #pragma once
 
-#include <cppeditor/cpptoolstestcase.h>
-
 #include <QObject>
-#include <QScopedPointer>
-#include <QString>
-
-namespace Utils { class FilePath; }
 
 namespace ClangCodeModel::Internal {
-class ClangFixIt;
 
-namespace Tests {
+QObject *createClangFixItTest();
 
-class ClangFixItTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void init();
-    void testAppendSemicolon();
-    void testComparisonVersusAssignmentChooseComparison();
-    void testComparisonVersusAssignmentChooseParentheses();
-    void testDescription();
-
-private:
-    Utils::FilePath semicolonFilePath() const;
-    Utils::FilePath compareFilePath() const;
-    QString fileContent(const QString &relFilePath) const;
-
-    ClangFixIt semicolonFixIt() const;
-
-private:
-    QScopedPointer<CppEditor::Tests::TemporaryCopiedDir> m_dataDir;
-};
-
-} //namespace Tests
 } // namespace ClangCodeModel::Internal

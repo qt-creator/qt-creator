@@ -11,7 +11,7 @@
 
 using namespace CPlusPlus;
 
-namespace ClangCodeModel::Internal::Tests {
+namespace ClangCodeModel::Internal {
 
 static bool resultIs(const ActivationSequenceProcessor &processor, Kind expectedKind,
                      int expectedOffset, int expectedNewPos)
@@ -20,6 +20,33 @@ static bool resultIs(const ActivationSequenceProcessor &processor, Kind expected
             && processor.offset() == expectedOffset
             && processor.operatorStartPosition() == expectedNewPos;
 }
+
+class ActivationSequenceProcessorTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCouldNotProcesseRandomCharacters();
+    void testCouldNotProcesseEmptyString();
+    void testDot();
+    void testComma();
+    void testLeftParenAsFunctionCall();
+    void testLeftParenNotAsFunctionCall();
+    void testColonColon();
+    void testArrow();
+    void testDotStar();
+    void testArrowStar();
+    void testDoxyGenCommentBackSlash();
+    void testDoxyGenCommentAt();
+    void testAngleStringLiteral();
+    void testStringLiteral();
+    void testSlash();
+    void testPound();
+    void testPositionIsOne();
+    void testPositionIsTwo();
+    void testPositionIsTwoWithASingleSign();
+    void testPositionIsThree();
+};
 
 void ActivationSequenceProcessorTest::testCouldNotProcesseRandomCharacters()
 {
@@ -155,4 +182,11 @@ void ActivationSequenceProcessorTest::testPositionIsThree()
     QVERIFY(resultIs(processor, T_ANGLE_STRING_LITERAL, 1, 2));
 }
 
-} // namespace ClangCodeModel::Internal::Tests
+QObject *createActivationSequenceProcessorTest()
+{
+    return new ActivationSequenceProcessorTest;
+}
+
+} // namespace ClangCodeModel::Internal
+
+#include "activationsequenceprocessortest.moc"
