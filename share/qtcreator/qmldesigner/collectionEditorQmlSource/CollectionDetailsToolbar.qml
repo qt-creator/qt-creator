@@ -160,6 +160,7 @@ Item {
         {
             addColumnDialog.clickedIndex = index
             columnName.text = ""
+            columnName.forceActiveFocus()
             addedPropertyType.currentIndex = addedPropertyType.find("String")
 
             addColumnDialog.open()
