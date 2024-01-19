@@ -92,6 +92,8 @@ bool IosRunConfiguration::isEnabled() const
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
+    if (devType == Constants::IOS_SIMULATOR_TYPE)
+        return true;
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
@@ -251,7 +253,7 @@ QString IosRunConfiguration::disabledReason() const
             return Tr::tr("No device chosen. Enable developer mode on a device."); // should not happen
         else
             return Tr::tr("No device available.");
-    } else {
+    } else if (devType == Constants::IOS_DEVICE_TYPE) {
         switch (dev->deviceState()) {
         case IDevice::DeviceReadyToUse:
             break;
