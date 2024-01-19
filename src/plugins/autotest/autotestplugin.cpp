@@ -511,7 +511,7 @@ public:
         ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
                        [] { return dd->m_loadProjectScenario(); });
 
-        addTest<AutoTestUnitTests>(&dd->m_testTreeModel);
+        addTestCreator(createAutotestUnitTests);
     #endif
     }
 
