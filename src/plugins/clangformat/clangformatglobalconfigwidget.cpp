@@ -11,6 +11,7 @@
 #include "clangformatutils.h"
 
 #include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/project.h>
@@ -19,13 +20,13 @@
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
-#include <QWidget>
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
@@ -34,8 +35,44 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
-    TextEditor::ICodeStylePreferences *codeStyle, ProjectExplorer::Project *project, QWidget *parent)
+class ClangFormatGlobalConfigWidget final : public CodeStyleEditorWidget
+{
+public:
+    ClangFormatGlobalConfigWidget(ICodeStylePreferences *codeStyle,
+                                  Project *project,
+                                  QWidget *parent);
+    void apply() final;
+    void finish() final;
+
+private:
+    void initCheckBoxes();
+    void initIndentationOrFormattingCombobox();
+    void initCustomSettingsCheckBox();
+    void initUseGlobalSettingsCheckBox();
+    void initFileSizeThresholdSpinBox();
+    void initCurrentProjectLabel();
+
+    bool projectClangFormatFileExists();
+
+    Project *m_project;
+    ICodeStylePreferences *m_codeStyle;
+    Guard m_ignoreChanges;
+    bool m_useCustomSettings;
+
+    QLabel *m_projectHasClangFormat;
+    QLabel *m_formattingModeLabel;
+    QLabel *m_fileSizeThresholdLabel;
+    QSpinBox *m_fileSizeThresholdSpinBox;
+    QComboBox *m_indentingOrFormatting;
+    QCheckBox *m_formatWhileTyping;
+    QCheckBox *m_formatOnSave;
+    QCheckBox *m_useCustomSettingsCheckBox;
+    QCheckBox *m_useGlobalSettings;
+    QLabel *m_currentProjectLabel;
+};
+
+ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferences *codeStyle,
+                                                             Project *project, QWidget *parent)
     : TextEditor::CodeStyleEditorWidget(parent)
     , m_project(project)
     , m_codeStyle(codeStyle)
@@ -105,8 +142,6 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
 
     globalSettingsGroupBoxWidget->show();
 }
-
-ClangFormatGlobalConfigWidget::~ClangFormatGlobalConfigWidget() = default;
 
 void ClangFormatGlobalConfigWidget::initCheckBoxes()
 {
