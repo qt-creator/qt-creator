@@ -14,9 +14,9 @@ EffectNode::EffectNode(const QString &qenPath)
     : m_qenPath(qenPath)
 {
     const QFileInfo fileInfo = QFileInfo(qenPath);
-    m_name = fileInfo.baseName();
 
-    QString iconPath = QStringLiteral("%1/icon/%2.svg").arg(fileInfo.absolutePath(), m_name);
+    QString iconPath = QStringLiteral("%1/icon/%2.svg").arg(fileInfo.absolutePath(),
+                                                            fileInfo.baseName());
     if (!QFileInfo::exists(iconPath)) {
         QDir parentDir = QDir(fileInfo.absolutePath());
         parentDir.cdUp();
@@ -26,8 +26,10 @@ EffectNode::EffectNode(const QString &qenPath)
     m_iconPath = QUrl::fromLocalFile(iconPath);
 
     CompositionNode node({}, qenPath);
-    const QList<Uniform *> uniforms = node.uniforms();
 
+    m_name = node.name();
+
+    const QList<Uniform *> uniforms = node.uniforms();
     for (const Uniform *uniform : uniforms)
         m_uniformNames.insert(uniform->name());
 }
