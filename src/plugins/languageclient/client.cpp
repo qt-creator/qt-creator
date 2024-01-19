@@ -754,10 +754,10 @@ void Client::cancelRequest(const MessageId &id)
 void Client::closeDocument(TextEditor::TextDocument *document,
                            const std::optional<FilePath> &overwriteFilePath)
 {
-    deactivateDocument(document);
     d->m_postponedDocuments.remove(document);
     d->m_documentsToUpdate.erase(document);
     if (d->m_openedDocument.remove(document) != 0) {
+        deactivateDocument(document);
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
             d->sendCloseNotification(overwriteFilePath.value_or(document->filePath()));
