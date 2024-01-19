@@ -190,7 +190,13 @@ DeviceSettingsWidget::DeviceSettingsWidget()
 
     addButton->setEnabled(hasDeviceFactories);
 
-    int lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
+    int lastIndex = -1;
+    if (const Id deviceToSelect = preselectedOptionsPageItem(Constants::DEVICE_SETTINGS_PAGE_ID);
+        deviceToSelect.isValid()) {
+        lastIndex = m_deviceManagerModel->indexForId(deviceToSelect);
+    }
+    if (lastIndex == -1)
+        lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
     if (lastIndex < m_configurationComboBox->count())

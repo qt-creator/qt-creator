@@ -125,6 +125,7 @@ public:
 protected:
     virtual void makeReadOnly() {}
     virtual void addToLayoutImpl(Layouting::LayoutItem &parentItem) = 0;
+    virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
 
     Kit *m_kit;
     const KitAspectFactory *m_factory;

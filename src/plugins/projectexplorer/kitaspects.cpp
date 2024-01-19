@@ -897,6 +897,8 @@ private:
 
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
+    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(m_kit); }
+
     void refresh() override
     {
         m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(m_kit));

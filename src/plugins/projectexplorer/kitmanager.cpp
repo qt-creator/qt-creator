@@ -796,7 +796,7 @@ void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
     if (m_managingPageId.isValid()) {
         m_manageButton = createSubWidget<QPushButton>(msgManage());
         connect(m_manageButton, &QPushButton::clicked, [this] {
-            Core::ICore::showOptionsDialog(m_managingPageId);
+            Core::ICore::showOptionsDialog(m_managingPageId, settingsPageItemToPreselect());
         });
         parentItem.addItem(m_manageButton);
     }
