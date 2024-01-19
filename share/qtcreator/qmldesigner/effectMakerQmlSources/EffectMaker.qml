@@ -149,6 +149,13 @@ Item {
             clip: true
             interactive: !HelperWidgets.Controller.contextMenuOpened
 
+            onContentHeightChanged: {
+                if (scrollView.contentItem.height > scrollView.height) {
+                    let lastItemH = repeater.itemAt(repeater.count - 1).height
+                    scrollView.contentY = scrollView.contentItem.height - lastItemH
+                }
+            }
+
             Column {
                 width: scrollView.width
                 spacing: 1
