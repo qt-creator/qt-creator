@@ -618,6 +618,13 @@ void Client::openDocument(TextEditor::TextDocument *document)
     if (d->m_openedDocument.contains(document) || !isSupportedDocument(document))
         return;
 
+    connect(document, &TextDocument::destroyed, this, [this, document] {
+        d->m_postponedDocuments.remove(document);
+        d->m_openedDocument.remove(document);
+        d->m_documentsToUpdate.erase(document);
+        d->m_resetAssistProvider.remove(document);
+    });
+
     if (d->m_state != Initialized) {
         d->m_postponedDocuments << document;
         return;
