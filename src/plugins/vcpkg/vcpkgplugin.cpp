@@ -26,7 +26,7 @@ public:
         setupVcpkgManifestEditor();
 
 #ifdef WITH_TESTS
-        addTest<VcpkgSearchTest>();
+        addTestCreator(createVcpkgSearchTest);
 #endif
     }
 

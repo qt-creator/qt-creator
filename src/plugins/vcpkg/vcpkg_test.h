@@ -3,24 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/aspects.h>
+#include <QObject>
 
 namespace Vcpkg::Internal {
 
-class VcpkgSearchTest : public QObject
-{
-    Q_OBJECT
-
-public:
-    VcpkgSearchTest(QObject *parent = nullptr);
-    ~VcpkgSearchTest();
-
-private slots:
-    void testVcpkgJsonParser_data();
-    void testVcpkgJsonParser();
-    void testAddDependency_data();
-    void testAddDependency();
-};
+QObject *createVcpkgSearchTest();
 
 } // namespace Vcpkg::Internal
