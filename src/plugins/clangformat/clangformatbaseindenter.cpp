@@ -23,9 +23,14 @@
 #include <QDebug>
 #include <QTextDocument>
 
+#include <clang/Format/Format.h>
 #include <clang/Tooling/Core/Replacement.h>
 
+using namespace Utils;
+
 namespace ClangFormat {
+
+enum class ReplacementsToKeep { OnlyIndent, IndentAndBefore, All };
 
 Internal::LlvmFileSystemAdapter llvmFileSystemAdapter = {};
 
@@ -490,11 +495,63 @@ int formattingRangeStart(const QTextBlock &currentBlock,
 }
 } // namespace
 
+class ClangFormatBaseIndenterPrivate final
+{
+public:
+    ClangFormatBaseIndenterPrivate(ClangFormatBaseIndenter *parent, QTextDocument *doc, FilePath *fileName)
+        : q(parent), m_doc(doc), m_fileName(fileName)
+    {}
+
+    void indent(const QTextCursor &cursor, const QChar &typedChar, int cursorPositionInEditor);
+    void indentBlocks(const QTextBlock &startBlock,
+                      const QTextBlock &endBlock,
+                      const QChar &typedChar,
+                      int cursorPositionInEditor);
+    ChangeSet indentsFor(QTextBlock startBlock,
+                         const QTextBlock &endBlock,
+                         const QChar &typedChar,
+                         int cursorPositionInEditor,
+                         bool trimTrailingWhitespace = true);
+    ChangeSet replacements(QByteArray buffer,
+                                  const QTextBlock &startBlock,
+                                  const QTextBlock &endBlock,
+                                  int cursorPositionInEditor,
+                                  ReplacementsToKeep replacementsToKeep,
+                                  const QChar &typedChar = QChar::Null,
+                                  bool secondTry = false) const;
+
+    const clang::format::FormatStyle &styleForFile() const;
+
+    ClangFormatBaseIndenter *q;
+    QTextDocument *m_doc;
+    FilePath *m_fileName;
+
+    struct CachedStyle {
+        clang::format::FormatStyle style = clang::format::getNoStyle();
+        QDateTime expirationTime;
+        void setCache(clang::format::FormatStyle newStyle, std::chrono::milliseconds timeout)
+        {
+            style = newStyle;
+            expirationTime = QDateTime::currentDateTime().addMSecs(timeout.count());
+        }
+    };
+
+    mutable CachedStyle m_cachedStyle;
+
+    clang::format::FormatStyle customSettingsStyle(const FilePath &fileName) const;
+    TextEditor::ICodeStylePreferences *m_overriddenPreferences = nullptr;
+};
+
 ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
-    : TextEditor::Indenter(doc)
+    : TextEditor::Indenter(doc), d(new ClangFormatBaseIndenterPrivate(this, doc, &m_fileName))
 {}
 
-Utils::ChangeSet ClangFormatBaseIndenter::replacements(QByteArray buffer,
+ClangFormatBaseIndenter::~ClangFormatBaseIndenter()
+{
+    delete d;
+}
+
+ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
                                                        const QTextBlock &startBlock,
                                                        const QTextBlock &endBlock,
                                                        int cursorPositionInEditor,
@@ -503,7 +560,7 @@ Utils::ChangeSet ClangFormatBaseIndenter::replacements(QByteArray buffer,
                                                        bool secondTry) const
 {
     QTC_ASSERT(replacementsToKeep != ReplacementsToKeep::All, return Utils::ChangeSet());
-    QTC_ASSERT(!m_fileName.isEmpty(), return {});
+    QTC_ASSERT(!m_fileName->isEmpty(), return {});
 
     QByteArray originalBuffer = buffer;
     int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, startBlock.blockNumber() + 1);
@@ -512,7 +569,7 @@ Utils::ChangeSet ClangFormatBaseIndenter::replacements(QByteArray buffer,
 
     int rangeStart = 0;
     if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
-        rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
+        rangeStart = formattingRangeStart(startBlock, buffer, q->lastSaveRevision());
 
     clang::format::FormatStyle style = styleForFile();
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
@@ -535,7 +592,7 @@ Utils::ChangeSet ClangFormatBaseIndenter::replacements(QByteArray buffer,
 
     clang::format::FormattingAttemptStatus status;
     clang::tooling::Replacements clangReplacements = clang::format::reformat(
-        style, buffer.data(), ranges, m_fileName.toFSPathString().toStdString(), &status);
+        style, buffer.data(), ranges, m_fileName->toFSPathString().toStdString(), &status);
 
     clang::tooling::Replacements filtered;
     if (status.FormatComplete) {
@@ -611,11 +668,11 @@ Utils::EditOperations ClangFormatBaseIndenter::format(const TextEditor::RangesIn
     return editOperations;
 }
 
-Utils::ChangeSet ClangFormatBaseIndenter::indentsFor(QTextBlock startBlock,
-                                                              const QTextBlock &endBlock,
-                                                              const QChar &typedChar,
-                                                              int cursorPositionInEditor,
-                                                              bool trimTrailingWhitespace)
+ChangeSet ClangFormatBaseIndenterPrivate::indentsFor(QTextBlock startBlock,
+                                                     const QTextBlock &endBlock,
+                                                     const QChar &typedChar,
+                                                     int cursorPositionInEditor,
+                                                     bool trimTrailingWhitespace)
 {
     if (typedChar != QChar::Null && cursorPositionInEditor > 0
         && m_doc->characterAt(cursorPositionInEditor - 1) == typedChar
@@ -634,7 +691,7 @@ Utils::ChangeSet ClangFormatBaseIndenter::indentsFor(QTextBlock startBlock,
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
 
     ReplacementsToKeep replacementsToKeep = ReplacementsToKeep::OnlyIndent;
-    if (formatWhileTyping()
+    if (q->formatWhileTyping()
         && (cursorPositionInEditor == -1 || cursorPositionInEditor >= startBlockPosition)
         && (typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.
@@ -654,18 +711,18 @@ Utils::ChangeSet ClangFormatBaseIndenter::indentsFor(QTextBlock startBlock,
                         typedChar);
 }
 
-void ClangFormatBaseIndenter::indentBlocks(const QTextBlock &startBlock,
-                                           const QTextBlock &endBlock,
-                                           const QChar &typedChar,
-                                           int cursorPositionInEditor)
+void ClangFormatBaseIndenterPrivate::indentBlocks(const QTextBlock &startBlock,
+                                                  const QTextBlock &endBlock,
+                                                  const QChar &typedChar,
+                                                  int cursorPositionInEditor)
 {
     Utils::ChangeSet changeset = indentsFor(startBlock, endBlock, typedChar, cursorPositionInEditor);
     changeset.apply(m_doc);
 }
 
-void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
-                                     const QChar &typedChar,
-                                     int cursorPositionInEditor)
+void ClangFormatBaseIndenterPrivate::indent(const QTextCursor &cursor,
+                                            const QChar &typedChar,
+                                            int cursorPositionInEditor)
 {
     if (cursor.hasSelection()) {
         indentBlocks(m_doc->findBlock(cursor.selectionStart()),
@@ -682,14 +739,14 @@ void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
                                      const TextEditor::TabSettings & /*tabSettings*/,
                                      int cursorPositionInEditor)
 {
-    indent(cursor, typedChar, cursorPositionInEditor);
+    d->indent(cursor, typedChar, cursorPositionInEditor);
 }
 
 void ClangFormatBaseIndenter::reindent(const QTextCursor &cursor,
                                        const TextEditor::TabSettings & /*tabSettings*/,
                                        int cursorPositionInEditor)
 {
-    indent(cursor, QChar::Null, cursorPositionInEditor);
+    d->indent(cursor, QChar::Null, cursorPositionInEditor);
 }
 
 void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
@@ -697,7 +754,7 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const TextEditor::TabSettings & /*tabSettings*/,
                                           int cursorPositionInEditor)
 {
-    indentBlocks(block, block, typedChar, cursorPositionInEditor);
+    d->indentBlocks(block, block, typedChar, cursorPositionInEditor);
 }
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
@@ -705,7 +762,7 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
                                        int cursorPositionInEditor)
 {
     Utils::ChangeSet toReplace
-        = indentsFor(block, block, QChar::Null, cursorPositionInEditor, false);
+        = d->indentsFor(block, block, QChar::Null, cursorPositionInEditor, false);
     if (toReplace.isEmpty())
         return -1;
 
@@ -721,10 +778,10 @@ TextEditor::IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
     TextEditor::IndentationForBlock ret;
     if (blocks.isEmpty())
         return ret;
-    Utils::ChangeSet toReplace = indentsFor(blocks.front(),
-                                                     blocks.back(),
-                                                     QChar::Null,
-                                                     cursorPositionInEditor);
+    Utils::ChangeSet toReplace = d->indentsFor(blocks.front(),
+                                               blocks.back(),
+                                               QChar::Null,
+                                               cursorPositionInEditor);
 
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
     for (const QTextBlock &block : blocks)
@@ -769,11 +826,11 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
         }
         format({{start.blockNumber() + 1, end.blockNumber() + 1}});
     } else {
-        indent(cursor, QChar::Null, cursorPositionInEditor);
+        d->indent(cursor, QChar::Null, cursorPositionInEditor);
     }
 }
 
-clang::format::FormatStyle ClangFormatBaseIndenter::customSettingsStyle(
+clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
     const Utils::FilePath &fileName) const
 {
     const ProjectExplorer::Project *projectForFile
@@ -809,6 +866,11 @@ static std::chrono::milliseconds getCacheTimeout()
 
 const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
 {
+    return d->styleForFile();
+}
+
+const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
+{
     using namespace std::chrono_literals;
     static const std::chrono::milliseconds cacheTimeout = getCacheTimeout();
 
@@ -816,15 +878,15 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
     if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))
         return m_cachedStyle.style;
 
-    if (getCurrentCustomSettings(m_fileName)) {
-        clang::format::FormatStyle style = customSettingsStyle(m_fileName);
+    if (getCurrentCustomSettings(*m_fileName)) {
+        clang::format::FormatStyle style = customSettingsStyle(*m_fileName);
         m_cachedStyle.setCache(style, cacheTimeout);
         return m_cachedStyle.style;
     }
 
     llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
         = clang::format::getStyle("file",
-                                  m_fileName.toFSPathString().toStdString(),
+                                  m_fileName->toFSPathString().toStdString(),
                                   "none",
                                   "",
                                   &llvmFileSystemAdapter);
@@ -846,7 +908,7 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
 
 void ClangFormatBaseIndenter::setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences)
 {
-    m_overriddenPreferences = preferences;
+    d->m_overriddenPreferences = preferences;
 }
 
 } // namespace ClangFormat
