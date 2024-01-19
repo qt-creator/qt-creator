@@ -129,11 +129,11 @@ private: // variables
     QPointer<QTimeLine> m_attentionTimeLine;
     QTransform m_inverseAttentionTransform;
 
-    double m_borderWidth;
-    bool m_highlightBoundingRect;
-    bool m_blurContent;
-    bool m_isContentVisible;
-    bool m_hasEffect;
+    double m_borderWidth = 1.0;
+    bool m_highlightBoundingRect = false;
+    bool m_blurContent = false;
+    bool m_isContentVisible = true;
+    bool m_hasEffect = false;
 };
 
 class FormEditorFlowItem : public FormEditorItem

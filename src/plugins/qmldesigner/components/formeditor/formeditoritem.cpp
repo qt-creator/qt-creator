@@ -74,11 +74,7 @@ FormEditorScene *FormEditorItem::scene() const {
 FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
     : QGraphicsItem(scene->formLayerItem()),
     m_snappingLineCreator(this),
-    m_qmlItemNode(qmlItemNode),
-    m_borderWidth(1.0),
-    m_highlightBoundingRect(false),
-    m_blurContent(false),
-    m_isContentVisible(true)
+    m_qmlItemNode(qmlItemNode)
 {
     setCacheMode(QGraphicsItem::NoCache);
     setup();
