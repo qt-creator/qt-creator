@@ -23,35 +23,10 @@ Rectangle {
     ColumnLayout {
         id: topRow
 
-        visible: collectionNameText.text !== ""
+        visible: root.model.collectionName !== ""
 
         spacing: 0
-        anchors {
-            fill: parent
-            topMargin: 10
-            leftMargin: 15
-            rightMargin: 15
-            bottomMargin: 10
-        }
-
-        Text {
-            id: collectionNameText
-
-            leftPadding: 8
-            rightPadding: 8
-            topPadding: 3
-            bottomPadding: 3
-
-            color: StudioTheme.Values.themeTextColor
-            text: root.model.collectionName
-            font.pixelSize: StudioTheme.Values.baseFontSize
-            elide: Text.ElideRight
-        }
-
-        Item { // spacer
-            implicitWidth: 1
-            implicitHeight: 10
-        }
+        anchors.fill: parent
 
         CollectionDetailsToolbar {
             id: toolbar
@@ -70,6 +45,8 @@ Rectangle {
             columns: 3
             rowSpacing: 1
             columnSpacing: 1
+
+            Layout.margins: StudioTheme.Values.collectionTableHorizontalMargin
 
             Layout.fillWidth: true
             Layout.fillHeight: true

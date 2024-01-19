@@ -246,6 +246,7 @@ QtObject {
     property real collectionItemTextSideMargin: 10
     property real collectionItemTextMargin: 5
     property real collectionItemTextPadding: 5
+    property real collectionTableHorizontalMargin: 10
 
     // NEW NEW NEW
     readonly property int flowMargin: 7
