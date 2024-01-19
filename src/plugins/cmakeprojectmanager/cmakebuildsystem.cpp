@@ -275,10 +275,9 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
 static std::optional<Link> cmakeFileForBuildKey(const QString &buildKey,
                                                 const QList<CMakeBuildTarget> &targets)
 {
-    auto target = Utils::findOrDefault(targets,
-                                       [buildKey](const CMakeBuildTarget &target) {
-                                           return target.title == buildKey;
-                                       });
+    auto target = Utils::findOrDefault(targets, [buildKey](const CMakeBuildTarget &target) {
+        return target.title == buildKey;
+    });
     if (target.backtrace.isEmpty()) {
         qCCritical(cmakeBuildSystemLog) << "target.backtrace for" << buildKey << "is empty."
                                         << "The location where to add the files is unknown.";
@@ -658,7 +657,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
             return false;
         }
 
-        const std::string target_name = targetName.toStdString();
+        const std::string target_name = function->Arguments().front().Value;
         auto qtAddModule = [target_name](const auto &func) {
             return (func.LowerCaseName() == "qt_add_qml_module"
                     || func.LowerCaseName() == "qt6_add_qml_module")
