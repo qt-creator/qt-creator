@@ -12,7 +12,7 @@ namespace CppEditor::Internal {
 class CppCodeModelSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit CppCodeModelSettingsPage(CppCodeModelSettings *settings);
+    CppCodeModelSettingsPage();
 };
 
 class ClangdSettingsWidget : public QWidget

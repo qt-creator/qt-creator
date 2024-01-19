@@ -8,10 +8,7 @@
 namespace ProjectExplorer { class Project; }
 namespace Utils { class FilePath; }
 
-namespace CppEditor {
-class CppCodeModelSettings;
-
-namespace Internal {
+namespace CppEditor::Internal {
 
 class CppEditorPluginPrivate;
 class CppFileSettings;
@@ -39,7 +36,6 @@ public:
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
-    CppCodeModelSettings *codeModelSettings();
     static CppFileSettings fileSettings(ProjectExplorer::Project *project);
 #ifdef WITH_TESTS
     static void setGlobalFileSettings(const CppFileSettings &settings);
@@ -64,5 +60,4 @@ private:
     CppEditorPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

@@ -46,7 +46,7 @@ namespace CppEditor::Internal {
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
-    CppCodeModelSettingsWidget(CppCodeModelSettings *s);
+    CppCodeModelSettingsWidget();
 
 private:
     void apply() final;
@@ -63,8 +63,8 @@ private:
     QPlainTextEdit *m_ignorePatternTextEdit;
 };
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
-    : m_settings(s)
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
+    : m_settings(&cppCodeModelSettings())
 {
     m_interpretAmbiguousHeadersAsCHeaders
         = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
@@ -184,14 +184,14 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     return settingsChanged;
 }
 
-CppCodeModelSettingsPage::CppCodeModelSettingsPage(CppCodeModelSettings *settings)
+CppCodeModelSettingsPage::CppCodeModelSettingsPage()
 {
     setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
     setDisplayName(Tr::tr("Code Model"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("C++"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
-    setWidgetCreator([settings] { return new CppCodeModelSettingsWidget(settings); });
+    setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
 }
 
 class ClangdSettingsWidget::Private

@@ -31,6 +31,8 @@ public:
     };
 
 public:
+    CppCodeModelSettings();
+
     void fromSettings(Utils::QtcSettings *s);
     void toSettings(Utils::QtcSettings *s);
 
@@ -211,5 +213,7 @@ private:
     bool m_useGlobalSettings = true;
     bool m_blockIndexing = false;
 };
+
+CppCodeModelSettings &cppCodeModelSettings();
 
 } // namespace CppEditor

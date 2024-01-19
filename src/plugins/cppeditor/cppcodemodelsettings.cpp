@@ -68,6 +68,11 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
+CppCodeModelSettings::CppCodeModelSettings()
+{
+    fromSettings(Core::ICore::settings());
+}
+
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
@@ -592,6 +597,12 @@ int ClangdSettings::Data::defaultCompletionResults()
     bool ok = false;
     const int userValue = qtcEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
     return ok ? userValue : 100;
+}
+
+CppCodeModelSettings &cppCodeModelSettings()
+{
+    static CppCodeModelSettings theCppCodeModelSettings;
+    return theCppCodeModelSettings;
 }
 
 } // namespace CppEditor
