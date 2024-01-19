@@ -69,6 +69,16 @@ QIcon iconForIssue(const QString &prefix)
     return it.value();
 }
 
+QString IssueListSearch::toQuery() const
+{
+    if (kind.isEmpty())
+        return {};
+    QString result;
+    result.append(QString("?kind=%1&offset=%2&limit=%3").arg(kind).arg(offset).arg(limit));
+    // TODO other params
+    return result;
+}
+
 class AxivionPluginPrivate : public QObject
 {
 public:
@@ -76,6 +86,8 @@ public:
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
+    void fetchIssueTableLayout(const QString &prefix);
+    void fetchIssues(const IssueListSearch &search);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -125,6 +137,18 @@ void fetchProjectInfo(const QString &projectName)
 {
     QTC_ASSERT(dd, return);
     dd->fetchProjectInfo(projectName);
+}
+
+void fetchIssueTableLayout(const QString &prefix)
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchIssueTableLayout(prefix);
+}
+
+void fetchIssues(const IssueListSearch &search)
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchIssues(search);
 }
 
 std::optional<Dto::ProjectInfoDto> projectInfo()
@@ -330,6 +354,45 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     };
 
     m_taskTreeRunner.start(fetchDataRecipe<Dto::ProjectInfoDto>(url, handler));
+}
+
+void AxivionPluginPrivate::fetchIssueTableLayout(const QString &prefix)
+{
+    QTC_ASSERT(m_currentProjectInfo.has_value(), return);
+    if (m_taskTreeRunner.isRunning()) {
+        QTimer::singleShot(3000, this, [this, prefix] { fetchIssueTableLayout(prefix); });
+        return;
+    }
+    const QUrl url = urlForProject(m_currentProjectInfo.value().name + '/')
+            .resolved(QString("issues_meta?kind=" + prefix));
+
+    const auto handler = [this](const Dto::TableInfoDto &data) {
+        m_axivionOutputPane.setTableDto(data);
+    };
+
+    m_taskTreeRunner.start(fetchDataRecipe<Dto::TableInfoDto>(url, handler));
+}
+
+void AxivionPluginPrivate::fetchIssues(const IssueListSearch &search)
+{
+    QTC_ASSERT(m_currentProjectInfo.has_value(), return);
+    if (m_taskTreeRunner.isRunning()) {
+        QTimer::singleShot(3000, this, [this, search] { fetchIssues(search); });
+        return;
+    }
+
+    const QString query = search.toQuery();
+    if (query.isEmpty())
+        return;
+
+    const QUrl url = urlForProject(m_currentProjectInfo.value().name + '/')
+            .resolved(QString("issues" + query));
+
+    const auto handler = [this](const Dto::IssueTableDto &data) {
+        m_axivionOutputPane.addIssues(data);
+    };
+
+    m_taskTreeRunner.start(fetchDataRecipe<Dto::IssueTableDto>(url, handler));
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)

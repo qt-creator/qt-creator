@@ -8,6 +8,8 @@
 #include "dashboard/dto.h"
 
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
+#include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
@@ -176,6 +178,8 @@ class IssuesWidget : public QScrollArea
 public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi();
+    void setTableDto(const Dto::TableInfoDto &dto);
+    void addIssues(const Dto::IssueTableDto &dto);
 
 private:
     void updateTableView();
@@ -190,6 +194,8 @@ private:
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
+    Utils::BaseTreeView *m_issuesView = nullptr;
+    Utils::TreeModel<> *m_issuesModel = nullptr;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -231,7 +237,13 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     m_filtersLayout->addWidget(m_pathGlobFilter);
     layout->addLayout(m_filtersLayout);
-    // TODO the issues table
+    m_issuesView = new Utils::BaseTreeView(this);
+    m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_issuesView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_issuesView->enableColumnHiding();
+    m_issuesModel = new Utils::TreeModel;
+    m_issuesView->setModel(m_issuesModel);
+    layout->addWidget(m_issuesView);
     layout->addStretch(1);
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -273,12 +285,75 @@ void IssuesWidget::updateUi()
 
     // TODO fill owners
     m_filtersLayout->setEnabled(true);
+    if (info.issueKinds.size())
+        m_currentPrefix = info.issueKinds.front().prefix;
+    updateTableView();
+}
+
+
+void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
+{
+    m_currentTableInfo.emplace(dto);
+
+    // update issues table layout - for now just simple approach
+    Utils::TreeModel<> *issuesModel = new Utils::TreeModel;
+    QStringList columnHeaders;
+    QStringList hiddenColumns;
+    for (const Dto::ColumnInfoDto &column : dto.columns) {
+        columnHeaders << column.key;
+        if (!column.showByDefault)
+            hiddenColumns << column.key;
+    }
+
+    issuesModel->setHeader(columnHeaders);
+
+    auto oldModel = m_issuesModel;
+    m_issuesModel = issuesModel;
+    m_issuesView->setModel(issuesModel);
+    delete oldModel;
+    int counter = 0;
+    for (const QString &header : std::as_const(columnHeaders))
+        m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
+
+    // first time lookup... should we cache and maybe represent old data?
+    IssueListSearch search;
+    search.kind = m_currentPrefix;
+    fetchIssues(search);
+}
+
+void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
+{
+    QTC_ASSERT(m_currentTableInfo.has_value(), return);
+    // handle added/removed/total ?
+
+    const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
+    // const std::vector<Dto::ColumnInfoDto> columns = dto.columns.value();
+    const std::vector<std::map<QString, Dto::Any>> rows = dto.rows;
+    for (auto row : rows) {
+        QStringList data;
+        for (auto column : tableColumns) {
+            auto it = row.find(column.key);
+            if (it != row.end()) {
+                if (it->second.isString())
+                    data << it->second.getString();
+                else if (it->second.isDouble())
+                    data << QString::number(it->second.getDouble());
+                else if (it->second.isBool())
+                    data << QString("%1").arg(it->second.getBool());
+                else
+                    data << "not yet";
+            }
+        }
+        Utils::StaticTreeItem *it = new Utils::StaticTreeItem(data);
+        m_issuesModel->rootItem()->appendChild(it);
+    }
 }
 
 void IssuesWidget::updateTableView()
 {
-    // fetch table dto and apply
-    // on done fetch first data for the selected issues
+    QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
+    // fetch table dto and apply, on done fetch first data for the selected issues
+    fetchIssueTableLayout(m_currentPrefix);
 }
 
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
@@ -385,6 +460,18 @@ void AxivionOutputPane::updateDashboard()
         if (dashboard->hasProject())
             flash();
     }
+}
+
+void AxivionOutputPane::setTableDto(const Dto::TableInfoDto &dto)
+{
+    if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+        issues->setTableDto(dto);
+}
+
+void AxivionOutputPane::addIssues(const Dto::IssueTableDto &dto)
+{
+    if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+        issues->addIssues(dto);
 }
 
 void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
