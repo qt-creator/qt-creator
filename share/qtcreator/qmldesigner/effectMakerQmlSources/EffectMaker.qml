@@ -157,6 +157,7 @@ Item {
             }
 
             Column {
+                id: nodesCol
                 width: scrollView.width
                 spacing: 1
 
@@ -215,7 +216,7 @@ Item {
                             let currItem = repeater.itemAt(i)
                             if (i > root.moveFromIdx) {
                                 if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                    currItem.y = root.secsY[i] - root.draggedSec.height
+                                    currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
                                     root.moveToIdx = i
                                 } else {
                                     currItem.y = root.secsY[i]
@@ -223,7 +224,7 @@ Item {
                             } else if (i < root.moveFromIdx) {
                                 if (!repeater.model.isDependencyNode(i)
                                         && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                    currItem.y = root.secsY[i] + root.draggedSec.height
+                                    currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
                                     root.moveToIdx = Math.min(root.moveToIdx, i)
                                 } else {
                                     currItem.y = root.secsY[i]
