@@ -905,7 +905,7 @@ QString EffectMakerModel::valueAsString(const Uniform &uniform)
         QVector4D v4 = uniform.value().value<QVector4D>();
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x()).arg(v4.y()).arg(v4.z()).arg(v4.w());
     } else if (uniform.type() == Uniform::Type::Sampler) {
-        return getImageElementName(uniform);
+        return getImageElementName(uniform, true);
     } else if (uniform.type() == Uniform::Type::Color) {
         return QString("\"%1\"").arg(uniform.value().toString());
     } else if (uniform.type() == Uniform::Type::Define) {
@@ -941,7 +941,7 @@ QString EffectMakerModel::valueAsBinding(const Uniform &uniform)
         QString sw = QString("g_propertyData.%1.w").arg(uniform.name());
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(sx, sy, sz, sw);
     } else if (uniform.type() == Uniform::Type::Sampler) {
-        return getImageElementName(uniform);
+        return getImageElementName(uniform, false);
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
         return QString();
@@ -976,9 +976,9 @@ QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
 }
 
 // Return name for the image property Image element
-QString EffectMakerModel::getImageElementName(const Uniform &uniform)
+QString EffectMakerModel::getImageElementName(const Uniform &uniform, bool localFiles)
 {
-    if (uniform.value().toString().isEmpty())
+    if (localFiles && uniform.value().toString().isEmpty())
         return QStringLiteral("null");
     QString simplifiedName = uniform.name().simplified();
     simplifiedName = simplifiedName.remove(' ');
@@ -1490,28 +1490,30 @@ QString EffectMakerModel::getQmlImagesString(bool localFiles)
     for (Uniform *uniform : uniforms) {
         if (uniform->type() == Uniform::Type::Sampler) {
             QString imagePath = uniform->value().toString();
-            if (imagePath.isEmpty())
+            // For preview, generate image element even if path is empty, as changing uniform values
+            // will not trigger qml code regeneration
+            if (localFiles && imagePath.isEmpty())
                 continue;
-            imagesString += "        Image {\n";
-            QString simplifiedName = getImageElementName(*uniform);
-            imagesString += QString("            id: %1\n").arg(simplifiedName);
-            imagesString += "            anchors.fill: parent\n";
+            imagesString += "    Image {\n";
+            QString simplifiedName = getImageElementName(*uniform, localFiles);
+            imagesString += QString("        id: %1\n").arg(simplifiedName);
+            imagesString += "        anchors.fill: parent\n";
             // File paths are absolute, return as local when requested
             if (localFiles) {
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
-                imagesString += QString("            source: \"%1\"\n").arg(imagePath);
+                imagesString += QString("        source: \"%1\"\n").arg(imagePath);
             } else {
-                imagesString += QString("            source: g_propertyData.%1\n").arg(uniform->name());
+                imagesString += QString("        source: g_propertyData.%1\n").arg(uniform->name());
 
                 if (uniform->enableMipmap())
-                    imagesString += "            mipmap: true\n";
+                    imagesString += "        mipmap: true\n";
                 else
                     QString mipmapProperty = mipmapPropertyName(uniform->name());
             }
 
-            imagesString += "            visible: false\n";
-            imagesString += "        }\n";
+            imagesString += "        visible: false\n";
+            imagesString += "    }\n";
         }
     }
     return imagesString;

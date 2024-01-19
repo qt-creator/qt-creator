@@ -143,7 +143,7 @@ private:
     QString valueAsString(const Uniform &uniform);
     QString valueAsBinding(const Uniform &uniform);
     QString valueAsVariable(const Uniform &uniform);
-    QString getImageElementName(const Uniform &uniform);
+    QString getImageElementName(const Uniform &uniform, bool localFiles);
     const QString getConstVariables();
     const QString getDefineProperties();
     int getTagIndex(const QStringList &code, const QString &tag);
