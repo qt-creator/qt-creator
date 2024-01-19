@@ -24,12 +24,15 @@
 
 #include <QAction>
 #include <QDateTime>
-#include <QTextCodec>
 #include <QLabel>
 #include <QLayout>
+#include <QLoggingCategory>
+#include <QTextCodec>
 #include <QTimer>
 
 namespace Git::Internal {
+
+static Q_LOGGING_CATEGORY(log, "qtc.vcs.git.instantblame", QtWarningMsg);
 
 using namespace Core;
 using namespace TextEditor;
@@ -105,6 +108,7 @@ InstantBlame::InstantBlame()
 
 void InstantBlame::setup()
 {
+    qCDebug(log) << "Setup";
     m_cursorPositionChangedTimer = new QTimer(this);
     m_cursorPositionChangedTimer->setSingleShot(true);
     connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
@@ -122,16 +126,21 @@ void InstantBlame::setup()
         }
 
         const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
-        if (!widget)
+        if (!widget) {
+            qCWarning(log) << "Cannot get widget for editor" << editor;
             return;
+        }
 
-        if (qobject_cast<const VcsBaseEditorWidget *>(widget))
+        if (qobject_cast<const VcsBaseEditorWidget *>(widget)) {
+            qCDebug(log) << "Deactivating in VCS editors";
             return; // Skip in VCS editors like log or blame
+        }
 
         const FilePath workingDirectory = currentState().currentFileTopLevel();
         if (!refreshWorkingDirectory(workingDirectory))
             return;
 
+        qCInfo(log) << "Adding blame cursor connection";
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
                                        [this] {
                                            if (!settings().instantBlame()) {
@@ -142,6 +151,7 @@ void InstantBlame::setup()
                                        });
         IDocument *document = editor->document();
         m_documentChangedConn = connect(document, &IDocument::changed, this, [this, document] {
+            qCInfo(log) << "Document is changed:" << document;
             if (!document->isModified())
                 force();
         });
@@ -200,8 +210,10 @@ void InstantBlame::once()
 {
     if (!settings().instantBlame()) {
         const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-        if (!widget)
+        if (!widget) {
+            qCWarning(log) << "Cannot get current text editor widget";
             return;
+        }
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
@@ -218,6 +230,7 @@ void InstantBlame::once()
 
 void InstantBlame::force()
 {
+    qCDebug(log) << "Forcing blame now";
     m_lastVisitedEditorLine = -1;
     perform();
 }
@@ -225,10 +238,13 @@ void InstantBlame::force()
 void InstantBlame::perform()
 {
     const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget)
+    if (!widget) {
+        qCWarning(log) << "Cannot get current text editor widget";
         return;
+    }
 
     if (widget->textDocument()->isModified()) {
+        qCDebug(log) << "Document is modified, pausing blame";
         m_blameMark.reset();
         m_lastVisitedEditorLine = -1;
         return;
@@ -248,6 +264,7 @@ void InstantBlame::perform()
     if (m_lastVisitedEditorLine == line)
         return;
 
+    qCDebug(log) << "New editor line:" << line;
     m_lastVisitedEditorLine = line;
 
     const Utils::FilePath filePath = widget->textDocument()->filePath();
@@ -274,12 +291,14 @@ void InstantBlame::perform()
     if (settings().instantBlameIgnoreLineMoves())
         options.append("-M");
     options.append({"-L", lineString, "--", filePath.toString()});
+    qCDebug(log) << "Running git" << options;
     gitClient().vcsExecWithHandler(workingDirectory, options, this,
                                    commandHandler, RunFlags::NoOutput, m_codec);
 }
 
 void InstantBlame::stop()
 {
+    qCInfo(log) << "Stopping blame now";
     m_blameMark.reset();
     m_cursorPositionChangedTimer->stop();
     disconnect(m_blameCursorPosConn);
@@ -294,6 +313,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
     if (m_workingDirectory == workingDirectory)
         return true;
 
+    qCInfo(log) << "Setting new working directory:" << workingDirectory;
     m_workingDirectory = workingDirectory;
 
     const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
@@ -307,6 +327,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
         }
 
         if (m_codec != codec) {
+            qCInfo(log) << "Setting new text codec:" << codec->name();
             m_codec = codec;
             force();
         }
@@ -320,6 +341,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
             const Author author = gitClient().parseAuthor(authorInfo);
 
             if (m_author != author) {
+                qCInfo(log) << "Setting new author name:" << author.name << author.email;
                 m_author = author;
                 force();
             }
