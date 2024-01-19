@@ -61,4 +61,6 @@ private:
     QLabel *m_currentProjectLabel;
 };
 
+void setupClangFormatStyleFactory(QObject *guard);
+
 } // namespace ClangFormat

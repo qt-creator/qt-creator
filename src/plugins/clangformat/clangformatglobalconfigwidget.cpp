@@ -3,14 +3,21 @@
 
 #include "clangformatglobalconfigwidget.h"
 
+#include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
+#include "clangformatindenter.h"
 #include "clangformatsettings.h"
 #include "clangformattr.h"
 #include "clangformatutils.h"
 
+#include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/icodestylepreferences.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -20,7 +27,9 @@
 #include <QSpinBox>
 #include <QWidget>
 
+using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace ClangFormat {
@@ -297,6 +306,40 @@ void ClangFormatGlobalConfigWidget::finish()
     ClangFormatSettings::instance().setUseCustomSettings(m_useCustomSettings);
     m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
         !ClangFormatSettings::instance().useCustomSettings());
+}
+
+class ClangFormatStyleFactory final : public CppCodeStylePreferencesFactory
+{
+public:
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return new ClangFormatForwardingIndenter(doc);
+    }
+
+    std::pair<TextEditor::CodeStyleEditorWidget *, QString> additionalTab(
+        ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) const final
+    {
+        return {createClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};
+    }
+
+    CodeStyleEditorWidget *createAdditionalGlobalSettings(
+        ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) final
+    {
+        return new ClangFormatGlobalConfigWidget(codeStyle, project, parent);
+    }
+};
+
+void setupClangFormatStyleFactory(QObject *guard)
+{
+    static ClangFormatStyleFactory theClangFormatStyleFactory;
+
+    // Replace the default one.
+    TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::registerCodeStyleFactory(&theClangFormatStyleFactory);
+
+    QObject::connect(guard, &QObject::destroyed, [] {
+        TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
+    });
 }
 
 } // namespace ClangFormat
