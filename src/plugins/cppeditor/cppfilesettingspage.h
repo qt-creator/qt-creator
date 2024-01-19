@@ -6,7 +6,6 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <QDir>
 
@@ -72,17 +71,6 @@ class CppFileSettingsPage : public Core::IOptionsPage
 {
 public:
     CppFileSettingsPage();
-};
-
-class CppFileSettingsForProjectWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-public:
-    CppFileSettingsForProjectWidget(const CppFileSettingsForProject &settings);
-    ~CppFileSettingsForProjectWidget();
-
-private:
-    class Private;
-    Private * const d;
 };
 
 CppFileSettings &globalCppFileSettings();

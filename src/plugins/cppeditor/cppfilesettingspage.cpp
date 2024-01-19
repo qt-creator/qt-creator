@@ -537,55 +537,57 @@ void CppFileSettingsForProject::saveSettings()
     m_project->setNamedSettings(projectSettingsKeyC, data);
 }
 
-class CppFileSettingsForProjectWidget::Private
+class CppFileSettingsForProjectWidget : public ProjectExplorer::ProjectSettingsWidget
 {
 public:
-    Private(const CppFileSettingsForProject &s) : settings(s) {}
+    CppFileSettingsForProjectWidget(const CppFileSettingsForProject &settings)
+        : m_settings(settings),
+        m_initialSettings(settings.settings()),
+        m_widget(&m_initialSettings),
+        m_wasGlobal(settings.useGlobalSettings())
+    {
+        setGlobalSettingsId(Constants::CPP_FILE_SETTINGS_ID);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(&m_widget);
 
-    void maybeClearHeaderSourceCache();
-    void updateSubWidgetState() { widget.setEnabled(!settings.useGlobalSettings()); }
+        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this](bool checked) {
+            m_settings.setUseGlobalSettings(checked);
+            if (!checked)
+                m_settings.setSettings(m_widget.currentSettings());
+            maybeClearHeaderSourceCache();
+            updateSubWidgetState();
+        });
 
-    CppFileSettingsForProject settings;
-    CppFileSettings initialSettings = settings.settings();
-    CppFileSettingsWidget widget{&initialSettings};
-    QCheckBox useGlobalSettingsCheckBox;
-    const bool wasGlobal = settings.useGlobalSettings();
-};
+        connect(&m_widget, &CppFileSettingsWidget::userChange, this, [this] {
+            m_settings.setSettings(m_widget.currentSettings());
+            maybeClearHeaderSourceCache();
+        });
 
-CppFileSettingsForProjectWidget::CppFileSettingsForProjectWidget(
-    const CppFileSettingsForProject &settings) : d(new Private(settings))
-{
-    setGlobalSettingsId(Constants::CPP_FILE_SETTINGS_ID);
-    const auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(&d->widget);
-
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-            [this](bool checked) {
-                d->settings.setUseGlobalSettings(checked);
-                if (!checked)
-                    d->settings.setSettings(d->widget.currentSettings());
-                d->maybeClearHeaderSourceCache();
-                d->updateSubWidgetState();
-            });
-    connect(&d->widget, &CppFileSettingsWidget::userChange, this, [this] {
-        d->settings.setSettings(d->widget.currentSettings());
-        d->maybeClearHeaderSourceCache();
-    });
-    d->updateSubWidgetState();
-}
-
-CppFileSettingsForProjectWidget::~CppFileSettingsForProjectWidget() { delete d; }
-
-void CppFileSettingsForProjectWidget::Private::maybeClearHeaderSourceCache()
-{
-    const CppFileSettings &s = settings.settings();
-    if (settings.useGlobalSettings() != wasGlobal
-        || s.headerSearchPaths != initialSettings.headerSearchPaths
-        || s.sourceSearchPaths != initialSettings.sourceSearchPaths) {
-        CppEditorPlugin::clearHeaderSourceCache();
+        updateSubWidgetState();
     }
-}
+
+    void maybeClearHeaderSourceCache()
+    {
+        const CppFileSettings &s = m_settings.settings();
+        if (m_settings.useGlobalSettings() != m_wasGlobal
+            || s.headerSearchPaths != m_initialSettings.headerSearchPaths
+            || s.sourceSearchPaths != m_initialSettings.sourceSearchPaths) {
+            CppEditorPlugin::clearHeaderSourceCache();
+        }
+    }
+
+    void updateSubWidgetState()
+    {
+        m_widget.setEnabled(!m_settings.useGlobalSettings());
+    }
+
+    CppFileSettingsForProject m_settings;
+    CppFileSettings m_initialSettings;
+    CppFileSettingsWidget m_widget;
+    QCheckBox m_useGlobalSettingsCheckBox;
+    const bool m_wasGlobal;
+};
 
 class CppFileSettingsProjectPanelFactory final : public ProjectPanelFactory
 {
