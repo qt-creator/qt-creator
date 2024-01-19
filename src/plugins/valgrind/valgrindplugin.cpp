@@ -54,8 +54,8 @@ public:
 
         RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 #ifdef WITH_TESTS
-        addTest<Test::ValgrindMemcheckParserTest>();
-        addTest<Test::ValgrindTestRunnerTest>();
+        addTestCreator(createValgrindMemcheckParserTest);
+        addTestCreator(createValgrindTestRunnerTest);
 #endif
     }
 };
