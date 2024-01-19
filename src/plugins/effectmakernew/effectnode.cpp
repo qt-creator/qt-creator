@@ -28,6 +28,7 @@ EffectNode::EffectNode(const QString &qenPath)
     CompositionNode node({}, qenPath);
 
     m_name = node.name();
+    m_description = node.description();
 
     const QList<Uniform *> uniforms = node.uniforms();
     for (const Uniform *uniform : uniforms)

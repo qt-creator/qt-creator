@@ -25,7 +25,8 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
 
-        tooltip: modelData.canBeAdded ? "" : qsTr("Existing effect has conflicting properties, this effect cannot be added.")
+        tooltip: modelData.canBeAdded ? modelData.nodeDescription
+                                      : qsTr("Existing effect has conflicting properties, this effect cannot be added.")
 
         onClicked: {
             if (modelData.canBeAdded)
