@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "clangformatplugin.h"
-
 #include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
 #include "clangformatglobalconfigwidget.h"
@@ -21,6 +19,8 @@
 #include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppeditorconstants.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 
 #include <texteditor/icodestylepreferences.h>
@@ -36,7 +36,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatStyleFactory : public CppCodeStylePreferencesFactory
+class ClangFormatStyleFactory final : public CppCodeStylePreferencesFactory
 {
 public:
     Indenter *createIndenter(QTextDocument *doc) const override
@@ -57,37 +57,47 @@ public:
     }
 };
 
-ClangFormatPlugin::~ClangFormatPlugin()
+class ClangFormatPlugin final : public ExtensionSystem::IPlugin
 {
-    TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
-    delete m_factory;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangFormat.json")
 
-void ClangFormatPlugin::initialize()
-{
-    TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
-    m_factory = new ClangFormatStyleFactory;
-    TextEditorSettings::registerCodeStyleFactory(m_factory);
-
-    ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
-    if (contextMenu) {
-        contextMenu->addSeparator();
-
-        ActionBuilder openConfig(this,  Constants::OPEN_CURRENT_CONFIG_ID);
-        openConfig.setText(Tr::tr("Open Used .clang-format Configuration File"));
-        openConfig.addToContainer(CppEditor::Constants::M_CONTEXT);
-        openConfig.addOnTriggered(this, [] {
-            if (const IDocument *doc = EditorManager::currentDocument()) {
-                const FilePath filePath = doc->filePath();
-                if (!filePath.isEmpty())
-                    EditorManager::openEditor(configForFile(filePath));
-            }
-        });
+    ~ClangFormatPlugin() final
+    {
+        TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
+        delete m_factory;
     }
 
+    void initialize() final
+    {
+        TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
+        m_factory = new ClangFormatStyleFactory;
+        TextEditorSettings::registerCodeStyleFactory(m_factory);
+
+        ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
+        if (contextMenu) {
+            contextMenu->addSeparator();
+
+            ActionBuilder openConfig(this,  Constants::OPEN_CURRENT_CONFIG_ID);
+            openConfig.setText(Tr::tr("Open Used .clang-format Configuration File"));
+            openConfig.addToContainer(CppEditor::Constants::M_CONTEXT);
+            openConfig.addOnTriggered(this, [] {
+                if (const IDocument *doc = EditorManager::currentDocument()) {
+                    const FilePath filePath = doc->filePath();
+                    if (!filePath.isEmpty())
+                        EditorManager::openEditor(configForFile(filePath));
+                }
+            });
+        }
+
 #ifdef WITH_TESTS
-    addTestCreator(Internal::createClangFormatTest);
+        addTestCreator(Internal::createClangFormatTest);
 #endif
-}
+    }
+
+    TextEditor::ICodeStylePreferencesFactory *m_factory = nullptr;
+};
 
 } // ClangFormat
+
+#include "clangformatplugin.moc"
