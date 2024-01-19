@@ -605,9 +605,11 @@ void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
     const int fileMegabytes = static_cast<int>(
                 qMin(filePath.fileSize() >> 20,
                      static_cast<qint64>(std::numeric_limits<int>::max())));
-    Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
-                reader->future(), Tr::tr("Loading Trace Data"), Constants::PerfProfilerTaskLoadPerf,
-                fileMegabytes);
+    Core::FutureProgress *fp
+        = Core::ProgressManager::addTimedTask(reader->future(),
+                                              Tr::tr("Loading Trace Data"),
+                                              Constants::PerfProfilerTaskLoadPerf,
+                                              std::chrono::seconds(fileMegabytes));
 
     connect(fp, &Core::FutureProgress::canceled, reader, [reader]() {
         reader->stopParser();

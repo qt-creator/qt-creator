@@ -11,6 +11,8 @@
 #include <QFutureInterfaceBase>
 #include <QObject>
 
+#include <chrono>
+
 namespace Core {
 class FutureProgress;
 
@@ -36,10 +38,16 @@ public:
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
                                    Utils::Id type, ProgressFlags flags = {});
-    static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,
-                                        Utils::Id type, int expectedSeconds, ProgressFlags flags = {});
-    static FutureProgress *addTimedTask(const QFuture<void> &future, const QString &title,
-                                        Utils::Id type, int expectedSeconds, ProgressFlags flags = {});
+    static FutureProgress *addTimedTask(const QFutureInterface<void> &fi,
+                                        const QString &title,
+                                        Utils::Id type,
+                                        std::chrono::seconds expectedDuration,
+                                        ProgressFlags flags = {});
+    static FutureProgress *addTimedTask(const QFuture<void> &future,
+                                        const QString &title,
+                                        Utils::Id type,
+                                        std::chrono::seconds expectedDuration,
+                                        ProgressFlags flags = {});
     static void setApplicationLabel(const QString &text);
 
 public slots:

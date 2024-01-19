@@ -100,8 +100,10 @@ ProcessProgress::ProcessProgress(Process *process)
         if (d->m_parser) {
             d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(), name, id);
         } else {
-            d->m_futureProgress = ProgressManager::addTimedTask(d->m_futureInterface, name, id,
-                                                                d->m_expectedDuration.count());
+            d->m_futureProgress = ProgressManager::addTimedTask(d->m_futureInterface,
+                                                                name,
+                                                                id,
+                                                                d->m_expectedDuration);
         }
         d->m_futureProgress->setKeepOnFinish(d->m_keep);
     });

@@ -188,9 +188,11 @@ void PerfDataReader::triggerRecordingStateChange(bool recording)
                         qMin(delay(currentTime) / (1000ll * million),
                              static_cast<qint64>(std::numeric_limits<int>::max())));
 
-            Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
-                        future(), Tr::tr("Skipping Processing Delay"),
-                        Constants::PerfProfilerTaskSkipDelay, seconds);
+            Core::FutureProgress *fp
+                = Core::ProgressManager::addTimedTask(future(),
+                                                      Tr::tr("Skipping Processing Delay"),
+                                                      Constants::PerfProfilerTaskSkipDelay,
+                                                      std::chrono::seconds(seconds));
             fp->setToolTip(recording ?
                                Tr::tr("Cancel this to ignore the processing delay and immediately "
                                       "start recording.") :

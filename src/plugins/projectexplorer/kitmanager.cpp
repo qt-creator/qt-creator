@@ -482,10 +482,11 @@ void KitManager::showLoadingProgress()
     if (futureInterface.isRunning())
         return;
     futureInterface.reportStarted();
+    using namespace std::chrono_literals;
     Core::ProgressManager::addTimedTask(futureInterface.future(),
                                         Tr::tr("Loading Kits"),
                                         "LoadingKitsProgress",
-                                        5);
+                                        5s);
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 

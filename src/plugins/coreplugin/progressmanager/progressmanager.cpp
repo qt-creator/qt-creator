@@ -37,7 +37,7 @@
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
 static const bool kDetailsPinnedDefault = true;
-static const int TimerInterval = 100; // 100 ms
+static const std::chrono::milliseconds TimerInterval{100};
 
 using namespace Core::Internal;
 using namespace Utils;
@@ -47,10 +47,12 @@ namespace Core {
 class ProgressTimer : public QObject
 {
 public:
-    ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds, QObject *parent)
-        : QObject(parent),
-        m_futureInterface(futureInterface),
-        m_expectedTime(expectedSeconds)
+    ProgressTimer(const QFutureInterfaceBase &futureInterface,
+                  std::chrono::seconds expectedDuration,
+                  QObject *parent)
+        : QObject(parent)
+        , m_futureInterface(futureInterface)
+        , m_expectedDuration(expectedDuration)
     {
         m_futureInterface.setProgressRange(0, 100);
         m_futureInterface.setProgressValue(0);
@@ -64,13 +66,13 @@ private:
     void handleTimeout()
     {
         ++m_currentTime;
-        const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+        const int halfLife = m_expectedDuration / TimerInterval;
         const int progress = MathUtils::interpolateTangential(m_currentTime, halfLife, 0, 100);
         m_futureInterface.setProgressValue(progress);
     }
 
     QFutureInterfaceBase m_futureInterface;
-    int m_expectedTime;
+    std::chrono::seconds m_expectedDuration;
     int m_currentTime = 0;
     QTimer m_timer;
 };
@@ -774,22 +776,28 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     \sa addTask
 */
 
-FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface, const QString &title,
-                                              Id type, int expectedSeconds, ProgressFlags flags)
+FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface,
+                                              const QString &title,
+                                              Id type,
+                                              std::chrono::seconds expectedDuration,
+                                              ProgressFlags flags)
 {
     QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
     FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
-    (void) new ProgressTimer(futureInterface, expectedSeconds, fp);
+    (void) new ProgressTimer(futureInterface, expectedDuration, fp);
     return fp;
 }
 
-FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const QString &title,
-                                              Id type, int expectedSeconds, ProgressFlags flags)
+FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future,
+                                              const QString &title,
+                                              Id type,
+                                              std::chrono::seconds expectedDuration,
+                                              ProgressFlags flags)
 {
     QFutureInterface<void> dummyFutureInterface;
     QFuture<void> dummyFuture = dummyFutureInterface.future();
     FutureProgress *fp = m_instance->doAddTask(dummyFuture, title, type, flags);
-    (void) new ProgressTimer(dummyFutureInterface, expectedSeconds, fp);
+    (void) new ProgressTimer(dummyFutureInterface, expectedDuration, fp);
 
     QFutureWatcher<void> *dummyWatcher = new QFutureWatcher<void>(fp);
     connect(dummyWatcher, &QFutureWatcher<void>::canceled, dummyWatcher, [future] {
