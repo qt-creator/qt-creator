@@ -180,8 +180,7 @@ public:
 
     CppModelManager modelManager;
     CppToolsSettings settings;
-    CppFileSettings m_fileSettings;
-    CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
+    CppFileSettingsPage m_cppFileSettingsPage;
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
@@ -231,15 +230,12 @@ void CppEditorPlugin::initialize()
 void CppEditorPlugin::extensionsInitialized()
 {
     setupCppQuickFixProjectPanel();
-    setupCppFileSettingsProjectPanel();
+    setupCppFileSettings();
 
     if (CppModelManager::isClangCodeModelActive()) {
         setupClangdProjectSettingsPanel();
         setupClangdSettingsPage();
     }
-
-    d->m_fileSettings.fromSettings(ICore::settings());
-    d->m_fileSettings.addMimeInitializer();
 
     // Add the hover handler factories here instead of in initialize()
     // so that the Clang Code Model has a chance to hook in.
@@ -622,16 +618,9 @@ bool CppEditorPlugin::usePragmaOnce(Project *project)
 CppFileSettings CppEditorPlugin::fileSettings(Project *project)
 {
     if (!project)
-        return instance()->d->m_fileSettings;
+        return globalCppFileSettings();
     return CppFileSettingsForProject(project).settings();
 }
-
-#ifdef WITH_TESTS
-void CppEditorPlugin::setGlobalFileSettings(const CppFileSettings &settings)
-{
-    instance()->d->m_fileSettings = settings;
-}
-#endif
 
 static FilePaths findFilesInProject(const QStringList &names, const Project *project,
                                       FileType fileType)

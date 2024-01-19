@@ -71,7 +71,7 @@ private:
 class CppFileSettingsPage : public Core::IOptionsPage
 {
 public:
-    explicit CppFileSettingsPage(CppFileSettings *settings);
+    CppFileSettingsPage();
 };
 
 class CppFileSettingsForProjectWidget : public ProjectExplorer::ProjectSettingsWidget
@@ -85,6 +85,8 @@ private:
     Private * const d;
 };
 
-void setupCppFileSettingsProjectPanel();
+CppFileSettings &globalCppFileSettings();
+
+void setupCppFileSettings();
 
 } // namespace CppEditor::Internal

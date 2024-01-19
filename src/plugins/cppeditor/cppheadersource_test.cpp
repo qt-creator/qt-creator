@@ -71,27 +71,25 @@ void HeaderSourceTest::test_data()
 void HeaderSourceTest::initTestCase()
 {
     QDir(baseTestDir()).mkpath(_("."));
-    CppFileSettings fs = CppEditorPlugin::fileSettings(nullptr);
+    CppFileSettings &fs = globalCppFileSettings();
     fs.headerSearchPaths.append(QLatin1String("include"));
     fs.headerSearchPaths.append(QLatin1String("../include"));
     fs.sourceSearchPaths.append(QLatin1String("src"));
     fs.sourceSearchPaths.append(QLatin1String("../src"));
     fs.headerPrefixes.append(QLatin1String("testh_"));
     fs.sourcePrefixes.append(QLatin1String("testc_"));
-    CppEditorPlugin::setGlobalFileSettings(fs);
 }
 
 void HeaderSourceTest::cleanupTestCase()
 {
     Utils::FilePath::fromString(baseTestDir()).removeRecursively();
-    CppFileSettings fs = CppEditorPlugin::fileSettings(nullptr);
+    CppFileSettings &fs = globalCppFileSettings();
     fs.headerSearchPaths.removeLast();
     fs.headerSearchPaths.removeLast();
     fs.sourceSearchPaths.removeLast();
     fs.sourceSearchPaths.removeLast();
     fs.headerPrefixes.removeLast();
     fs.sourcePrefixes.removeLast();
-    CppEditorPlugin::setGlobalFileSettings(fs);
 }
 
 } // namespace CppEditor::Internal

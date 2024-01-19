@@ -450,14 +450,14 @@ void CppFileSettingsWidget::slotEdit()
     Core::EditorManager::openEditor(path, CppEditor::Constants::CPPEDITOR_ID);
 }
 
-// --------------- CppFileSettingsPage
+// CppFileSettingsPage
 
-CppFileSettingsPage::CppFileSettingsPage(CppFileSettings *settings)
+CppFileSettingsPage::CppFileSettingsPage()
 {
     setId(Constants::CPP_FILE_SETTINGS_ID);
     setDisplayName(Tr::tr("File Naming"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([settings] { return new CppFileSettingsWidget(settings); });
+    setWidgetCreator([] { return new CppFileSettingsWidget(&globalCppFileSettings()); });
 }
 
 CppFileSettingsForProject::CppFileSettingsForProject(ProjectExplorer::Project *project)
@@ -468,7 +468,7 @@ CppFileSettingsForProject::CppFileSettingsForProject(ProjectExplorer::Project *p
 
 CppFileSettings CppFileSettingsForProject::settings() const
 {
-    return m_useGlobalSettings ? CppEditorPlugin::fileSettings(nullptr) : m_customSettings;
+    return m_useGlobalSettings ? globalCppFileSettings() : m_customSettings;
 }
 
 void CppFileSettingsForProject::setSettings(const CppFileSettings &settings)
@@ -600,9 +600,19 @@ public:
     }
 };
 
-void setupCppFileSettingsProjectPanel()
+void setupCppFileSettings()
 {
     static CppFileSettingsProjectPanelFactory theCppFileSettingsProjectPanelFactory;
+
+    globalCppFileSettings().fromSettings(Core::ICore::settings());
+    globalCppFileSettings().addMimeInitializer();
+}
+
+CppFileSettings &globalCppFileSettings()
+{
+    // This is the global instance. There could be more.
+    static CppFileSettings theGlobalCppFileSettings;
+    return theGlobalCppFileSettings;
 }
 
 } // namespace CppEditor::Internal

@@ -37,9 +37,6 @@ public:
     void switchDeclarationDefinition();
 
     static CppFileSettings fileSettings(ProjectExplorer::Project *project);
-#ifdef WITH_TESTS
-    static void setGlobalFileSettings(const CppFileSettings &settings);
-#endif
 
 signals:
     void typeHierarchyRequested();
