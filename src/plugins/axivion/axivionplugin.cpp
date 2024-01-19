@@ -190,9 +190,99 @@ static QUrl urlForProject(const QString &projectName)
 static constexpr int httpStatusCodeOk = 200;
 static const QLatin1String jsonContentType{ "application/json" };
 
-static void deserialize(QPromise<Dto::ProjectInfoDto> &promise, const QByteArray &input)
+template<typename SerializableType>
+static Group fetchDataRecipe(const QUrl &url,
+                             const std::function<void(const SerializableType &result)> &handler)
 {
-    promise.addResult(Dto::ProjectInfoDto::deserialize(input));
+    struct StorageData
+    {
+        QByteArray credentials;
+        QByteArray serializableData;
+    };
+
+    const Storage<StorageData> storage;
+
+    const auto onCredentialSetup = [storage] {
+        storage->credentials = QByteArrayLiteral("AxToken ")
+                              + settings().server.token.toUtf8();
+    };
+
+    const auto onQuerySetup = [storage, url](NetworkQuery &query) {
+        QNetworkRequest request(url);
+        request.setRawHeader(QByteArrayLiteral("Accept"),
+                             QByteArray(jsonContentType.data(), jsonContentType.size()));
+        request.setRawHeader(QByteArrayLiteral("Authorization"),
+                             storage->credentials);
+        const QByteArray ua = QByteArrayLiteral("Axivion")
+                              + QCoreApplication::applicationName().toUtf8()
+                              + QByteArrayLiteral("Plugin/")
+                              + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        query.setRequest(request);
+        query.setNetworkAccessManager(&dd->m_networkAccessManager);
+    };
+
+    const auto onQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
+        QNetworkReply *reply = query.reply();
+        const QNetworkReply::NetworkError error = reply->error();
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
+                                        .toString()
+                                        .split(';')
+                                        .constFirst()
+                                        .trimmed()
+                                        .toLower();
+        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
+            && contentType == jsonContentType) {
+            storage->serializableData = reply->readAll();
+            return DoneResult::Success;
+        }
+
+        const auto getError = [&]() -> Error {
+            if (contentType == jsonContentType) {
+                try {
+                    return DashboardError(reply->url(), statusCode,
+                                          reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                                          Dto::ErrorDto::deserialize(reply->readAll()));
+                } catch (const Dto::invalid_dto_exception &) {
+                    // ignore
+                }
+            }
+            if (statusCode != 0) {
+                return HttpError(reply->url(), statusCode,
+                                 reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                                 QString::fromUtf8(reply->readAll())); // encoding?
+            }
+            return NetworkError(reply->url(), error, reply->errorString());
+        };
+
+        Core::MessageManager::writeFlashing(
+            QStringLiteral("Axivion: %1").arg(getError().message()));
+        return DoneResult::Error;
+    };
+
+    const auto onDeserializeSetup = [storage](Async<SerializableType> &task) {
+        const auto deserialize = [](QPromise<SerializableType> &promise, const QByteArray &input) {
+            promise.addResult(SerializableType::deserialize(input));
+        };
+        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        task.setConcurrentCallData(deserialize, storage->serializableData);
+    };
+
+    const auto onDeserializeDone = [handler](const Async<SerializableType> &task,
+                                             DoneWith doneWith) {
+        if (doneWith == DoneWith::Success)
+            handler(task.future().result());
+    };
+
+    const Group recipe {
+        storage,
+        Sync(onCredentialSetup),
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+        AsyncTask<SerializableType>(onDeserializeSetup, onDeserializeDone)
+    };
+
+    return recipe;
 }
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
@@ -210,103 +300,21 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
     const QUrl url = urlForProject(projectName);
 
-    struct StorageData
-    {
-        QByteArray credential;
-        QByteArray projectInfoData;
-    };
-
-    const Storage<StorageData> storage;
-
-    const auto onCredentialSetup = [storage] {
-        storage->credential = QByteArrayLiteral("AxToken ")
-                              + settings().server.token.toUtf8();
-    };
-
-    const auto onQuerySetup = [this, storage, url](NetworkQuery &query) {
-        QNetworkRequest request(url);
-        request.setRawHeader(QByteArrayLiteral("Accept"),
-                             QByteArray(jsonContentType.data(), jsonContentType.size()));
-        request.setRawHeader(QByteArrayLiteral("Authorization"),
-                             storage->credential);
-        const QByteArray ua = QByteArrayLiteral("Axivion")
-                              + QCoreApplication::applicationName().toUtf8()
-                              + QByteArrayLiteral("Plugin/")
-                              + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
-        query.setRequest(request);
-        query.setNetworkAccessManager(&m_networkAccessManager);
-    };
-
-    const auto onQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
-        QNetworkReply *reply = query.reply();
-        const QNetworkReply::NetworkError error = reply->error();
-        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
-        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == jsonContentType) {
-            storage->projectInfoData = reply->readAll();
-            return DoneResult::Success;
-        }
-
-        const auto getError = [&]() -> Error {
-            if (contentType == jsonContentType) {
-                try {
-                    return DashboardError(reply->url(), statusCode,
-                        reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                        Dto::ErrorDto::deserialize(reply->readAll()));
-                } catch (const Dto::invalid_dto_exception &) {
-                    // ignore
-                }
-            }
-            if (statusCode != 0) {
-                return HttpError(reply->url(), statusCode,
-                    reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                    QString::fromUtf8(reply->readAll())); // encoding?
-            }
-            return NetworkError(reply->url(), error, reply->errorString());
-        };
-
-        Core::MessageManager::writeFlashing(
-            QStringLiteral("Axivion: %1").arg(getError().message()));
-        return DoneResult::Error;
-    };
-
-    const auto onDeserializeSetup = [storage](Async<Dto::ProjectInfoDto> &task) {
-        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        task.setConcurrentCallData(deserialize, storage->projectInfoData);
-    };
-
-    const auto onDeserializeDone = [this, url](const Async<Dto::ProjectInfoDto> &task,
-                                               DoneWith doneWith) {
-        if (doneWith == DoneWith::Success) {
-            m_currentProjectInfo = task.future().result();
-            m_axivionOutputPane.updateDashboard();
-            // handle already opened documents
-            if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
-                !buildSystem || !buildSystem->isParsing()) {
-                handleOpenedDocs(nullptr);
-            } else {
-                connect(ProjectExplorer::ProjectManager::instance(),
-                        &ProjectExplorer::ProjectManager::projectFinishedParsing,
-                        this, &AxivionPluginPrivate::handleOpenedDocs);
-            }
+    const auto handler = [this](const Dto::ProjectInfoDto &data) {
+        m_currentProjectInfo = data;
+        m_axivionOutputPane.updateDashboard();
+        // handle already opened documents
+        if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
+            !buildSystem || !buildSystem->isParsing()) {
+            handleOpenedDocs(nullptr);
+        } else {
+            connect(ProjectExplorer::ProjectManager::instance(),
+                    &ProjectExplorer::ProjectManager::projectFinishedParsing,
+                    this, &AxivionPluginPrivate::handleOpenedDocs);
         }
     };
 
-    const Group recipe {
-        storage,
-        Sync(onCredentialSetup),
-        NetworkQueryTask(onQuerySetup, onQueryDone),
-        AsyncTask<Dto::ProjectInfoDto>(onDeserializeSetup, onDeserializeDone)
-    };
-
-    m_taskTreeRunner.start(recipe);
+    m_taskTreeRunner.start(fetchDataRecipe<Dto::ProjectInfoDto>(url, handler));
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
