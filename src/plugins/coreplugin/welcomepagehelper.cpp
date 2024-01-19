@@ -644,7 +644,8 @@ void ListItemDelegate::goon()
 SectionedGridView::SectionedGridView(QWidget *parent)
     : QStackedWidget(parent)
 {
-    m_searchTimer.setInterval(320);
+    using namespace std::chrono_literals;
+    m_searchTimer.setInterval(320ms);
     m_searchTimer.setSingleShot(true);
     connect(&m_searchTimer, &QTimer::timeout, this, [this] {
         setSearchString(m_delayedSearchString);

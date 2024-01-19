@@ -612,7 +612,8 @@ LocatorWidget::LocatorWidget(Locator *locator)
     m_progressIndicator->raise();
     m_progressIndicator->hide();
     m_showProgressTimer.setSingleShot(true);
-    m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
+    using namespace std::chrono_literals;
+    m_showProgressTimer.setInterval(50ms); // don't show progress for < 50ms tasks
     connect(&m_showProgressTimer, &QTimer::timeout,
             this, [this] { setProgressIndicatorVisible(true); });
 

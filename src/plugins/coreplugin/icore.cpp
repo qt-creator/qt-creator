@@ -1344,7 +1344,8 @@ void ICorePrivate::init()
 
     if (HostOsInfo::isLinuxHost()) {
         m_trimTimer.setSingleShot(true);
-        m_trimTimer.setInterval(60000);
+        using namespace std::chrono_literals;
+        m_trimTimer.setInterval(60s);
         // glibc may not actually free memory in free().
 #ifdef Q_OS_LINUX
         connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });

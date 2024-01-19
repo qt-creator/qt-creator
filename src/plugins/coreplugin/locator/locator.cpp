@@ -163,7 +163,7 @@ void Locator::loadSettings()
                                                                 : QString("QuickOpen");
     const Settings def;
     DB::beginGroup(settingsGroup);
-    m_refreshTimer.setInterval(DB::value("RefreshInterval", 60).toInt() * 60000);
+    m_refreshTimer.setInterval(std::chrono::minutes(DB::value("RefreshInterval", 60).toInt()));
     m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
@@ -359,7 +359,7 @@ void Locator::setRefreshInterval(int interval)
         m_refreshTimer.setInterval(0);
         return;
     }
-    m_refreshTimer.setInterval(interval * 60000);
+    m_refreshTimer.setInterval(std::chrono::minutes(interval));
     m_refreshTimer.start();
 }
 
