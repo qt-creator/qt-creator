@@ -33,7 +33,7 @@ static CppFileSettings fileSettings()
 {
     // Note that the user can set a different project in the wizard *after* the file names
     // have been determined. There's nothing we can do about that here.
-    return CppEditorPlugin::fileSettings(ProjectExplorer::ProjectTree::currentProject());
+    return cppFileSettingsForProject(ProjectExplorer::ProjectTree::currentProject());
 }
 
 static QString fileName(const QString &path, const QString &extension)

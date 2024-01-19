@@ -464,11 +464,30 @@ public:
     }
 };
 
-CppFileSettingsForProject::CppFileSettingsForProject(ProjectExplorer::Project *project)
-    : m_project(project)
+// CppFileSettingsForProject
+
+class CppFileSettingsForProject final
 {
-    loadSettings();
-}
+public:
+    CppFileSettingsForProject(Project *project)
+        : m_project(project)
+    {
+        loadSettings();
+    }
+
+    CppFileSettings settings() const;
+    void setSettings(const CppFileSettings &settings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    Project * const m_project;
+    CppFileSettings m_customSettings;
+    bool m_useGlobalSettings = true;
+};
 
 CppFileSettings CppFileSettingsForProject::settings() const
 {
@@ -621,6 +640,11 @@ CppFileSettings &globalCppFileSettings()
     // This is the global instance. There could be more.
     static CppFileSettings theGlobalCppFileSettings;
     return theGlobalCppFileSettings;
+}
+
+CppFileSettings cppFileSettingsForProject(ProjectExplorer::Project *project)
+{
+    return CppFileSettingsForProject(project).settings();
 }
 
 } // namespace CppEditor::Internal

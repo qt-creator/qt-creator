@@ -601,24 +601,17 @@ void CppEditorPlugin::clearHeaderSourceCache()
 
 FilePath CppEditorPlugin::licenseTemplatePath(Project *project)
 {
-    return FilePath::fromString(fileSettings(project).licenseTemplatePath);
+    return FilePath::fromString(cppFileSettingsForProject(project).licenseTemplatePath);
 }
 
 QString CppEditorPlugin::licenseTemplate(Project *project)
 {
-    return fileSettings(project).licenseTemplate();
+    return cppFileSettingsForProject(project).licenseTemplate();
 }
 
 bool CppEditorPlugin::usePragmaOnce(Project *project)
 {
-    return fileSettings(project).headerPragmaOnce;
-}
-
-CppFileSettings CppEditorPlugin::fileSettings(Project *project)
-{
-    if (!project)
-        return globalCppFileSettings();
-    return CppFileSettingsForProject(project).settings();
+    return cppFileSettingsForProject(project).headerPragmaOnce;
 }
 
 static FilePaths findFilesInProject(const QStringList &names, const Project *project,
@@ -770,7 +763,7 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     }
 
     Project * const projectForFile = ProjectManager::projectForFile(filePath);
-    const CppFileSettings settings = CppEditorPlugin::fileSettings(projectForFile);
+    const CppFileSettings settings = cppFileSettingsForProject(projectForFile);
 
     if (debug)
         qDebug() << Q_FUNC_INFO << filePath.fileName() <<  kind;

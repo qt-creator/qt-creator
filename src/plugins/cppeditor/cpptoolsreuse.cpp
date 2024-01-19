@@ -9,7 +9,6 @@
 #include "cppcodemodelsettings.h"
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
@@ -627,17 +626,17 @@ void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id edi
 
 bool preferLowerCaseFileNames(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).lowerCaseFiles;
+    return Internal::cppFileSettingsForProject(project).lowerCaseFiles;
 }
 
 QString preferredCxxHeaderSuffix(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).headerSuffix;
+    return Internal::cppFileSettingsForProject(project).headerSuffix;
 }
 
 QString preferredCxxSourceSuffix(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).sourceSuffix;
+    return Internal::cppFileSettingsForProject(project).sourceSuffix;
 }
 
 SearchResultItems symbolOccurrencesInDeclarationComments(

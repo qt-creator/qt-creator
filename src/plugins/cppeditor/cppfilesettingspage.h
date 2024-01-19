@@ -48,26 +48,9 @@ public:
     bool operator!=(const CppFileSettings &s) const { return !equals(s); }
 };
 
-class CppFileSettingsForProject
-{
-public:
-    CppFileSettingsForProject(ProjectExplorer::Project *project);
-
-    CppFileSettings settings() const;
-    void setSettings(const CppFileSettings &settings);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobal);
-
-private:
-    void loadSettings();
-    void saveSettings();
-
-    ProjectExplorer::Project * const m_project;
-    CppFileSettings m_customSettings;
-    bool m_useGlobalSettings = true;
-};
-
 CppFileSettings &globalCppFileSettings();
+
+CppFileSettings cppFileSettingsForProject(ProjectExplorer::Project *project);
 
 void setupCppFileSettings();
 

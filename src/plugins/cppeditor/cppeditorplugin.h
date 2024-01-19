@@ -11,7 +11,6 @@ namespace Utils { class FilePath; }
 namespace CppEditor::Internal {
 
 class CppEditorPluginPrivate;
-class CppFileSettings;
 
 class CppEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -35,8 +34,6 @@ public:
     void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
-
-    static CppFileSettings fileSettings(ProjectExplorer::Project *project);
 
 signals:
     void typeHierarchyRequested();
