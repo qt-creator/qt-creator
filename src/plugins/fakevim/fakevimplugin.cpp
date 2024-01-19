@@ -1048,7 +1048,7 @@ void FakeVimPluginPrivate::initialize()
         INSTALL_HANDLER, Context(Core::Constants::C_GLOBAL), true);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+Y,Meta+Shift+Y")
                                                             : Tr::tr("Alt+Y,Alt+Y")));
-    connect(cmd->action(), &QAction::triggered, [this] { settings().writeSettings(); });
+    connect(cmd->action(), &QAction::triggered, [] { settings().writeSettings(); });
 
     ActionContainer *advancedMenu =
         ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
