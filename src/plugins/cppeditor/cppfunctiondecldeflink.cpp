@@ -863,6 +863,8 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             const QStringView docView = QStringView(content);
             for (auto it = renamedTargetParameters.cbegin();
                  it != renamedTargetParameters.cend(); ++it) {
+                if (!it.key()->name())
+                    continue;
                 const QString paramName = Overview().prettyName(it.key()->name());
                 for (const Token &tok : functionComments) {
                     const TranslationUnit * const tu = targetFile->cppDocument()->translationUnit();
