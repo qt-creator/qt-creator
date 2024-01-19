@@ -7,31 +7,10 @@
 
 #include <QObject>
 
-namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; }
-
 namespace TextEditor::Internal {
 
-class TestProvider;
+QObject *createCodeAssistTests();
 
-class CodeAssistTests : public QObject
-{
-    Q_OBJECT
-public:
+} // TextEditor::Internal
 
-private slots:
-    void initTestCase();
-
-    void testFollowSymbolBigFile();
-
-    void cleanupTestCase();
-
-private:
-    TextEditor::BaseTextEditor *m_editor = nullptr;
-    QList<Core::IEditor *> m_editorsToClose;
-    TestProvider *m_testProvider = nullptr;
-};
-
-} // namespace TextEditor::Internal
-
-#endif
+#endif // WITH_TESTS

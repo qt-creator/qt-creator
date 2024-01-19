@@ -177,8 +177,8 @@ void TextEditorPlugin::initialize()
     d->createStandardContextMenu();
 
 #ifdef WITH_TESTS
-    addTest<CodeAssistTests>();
-    addTest<GenerigHighlighterTests>();
+    addTestCreator(createCodeAssistTests);
+    addTestCreator(createGenericHighlighterTests);
 #endif
 }
 

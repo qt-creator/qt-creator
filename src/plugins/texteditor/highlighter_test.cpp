@@ -34,6 +34,22 @@ constexpr auto json = R"(
 }
 )";
 
+class GenerigHighlighterTests final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void testHighlight_data();
+    void testHighlight();
+    void testChange();
+    void testPreeditText();
+    void cleanupTestCase();
+
+private:
+    BaseTextEditor *m_editor = nullptr;
+};
+
 void GenerigHighlighterTests::initTestCase()
 {
     QString title = "test.json";
@@ -221,4 +237,11 @@ void GenerigHighlighterTests::cleanupTestCase()
     QVERIFY(Core::EditorManager::currentEditor() == nullptr);
 }
 
+QObject *createGenericHighlighterTests()
+{
+    return new GenerigHighlighterTests;
+}
+
 } // namespace TextEditor::Internal
+
+#include "highlighter_test.moc"
