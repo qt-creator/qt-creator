@@ -147,6 +147,7 @@ Item {
             width: parent.width
             height: parent.height - y
             clip: true
+            interactive: !HelperWidgets.Controller.contextMenuOpened
 
             Column {
                 width: scrollView.width
