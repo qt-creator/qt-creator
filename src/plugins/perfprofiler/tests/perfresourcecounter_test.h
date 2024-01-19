@@ -5,23 +5,8 @@
 
 #include <QObject>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
-class PerfResourceCounterTest : public QObject
-{
-    Q_OBJECT
-private slots:
-    void testMallocFree();
-    void testRandomFill();
-    void testUnitSized();
-    void testRandomAlternate();
-    void testGuesses();
-    void testNegative();
-    void testInvalidId();
-    void testMultiCounter();
-    void testMove();
-};
+QObject *createPerfResourceCounterTest();
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // PerfProfiler::Internal

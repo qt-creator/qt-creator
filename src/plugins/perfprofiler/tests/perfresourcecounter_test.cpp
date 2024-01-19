@@ -5,8 +5,7 @@
 #include <perfprofiler/perfresourcecounter.h>
 #include <QtTest>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 struct SizePayload : public NoPayload
 {
@@ -70,6 +69,22 @@ static void fill(Counter &counter, const typename Counter::Container &container,
     QCOMPARE(counter.currentTotal(), 0);
     QCOMPARE(sum(container), 0);
 }
+
+class PerfResourceCounterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testMallocFree();
+    void testRandomFill();
+    void testUnitSized();
+    void testRandomAlternate();
+    void testGuesses();
+    void testNegative();
+    void testInvalidId();
+    void testMultiCounter();
+    void testMove();
+};
 
 void PerfResourceCounterTest::testMallocFree()
 {
@@ -345,6 +360,11 @@ void PerfResourceCounterTest::testMove()
     QCOMPARE(counter.currentTotal(), 500ll);
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+QObject *createPerfResourceCounterTest()
+{
+    return new PerfResourceCounterTest;
+}
 
+} // PerfProfiler::Internal
+
+#include "perfresourcecounter_test.moc"

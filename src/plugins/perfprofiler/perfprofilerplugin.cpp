@@ -29,7 +29,7 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
 
 #if WITH_TESTS
         //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
-        addTest<PerfResourceCounterTest>();
+        addTestCreator(createPerfResourceCounterTest);
 #endif // WITH_TESTS
     }
 
