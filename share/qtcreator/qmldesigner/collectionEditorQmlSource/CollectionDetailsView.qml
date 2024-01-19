@@ -481,7 +481,7 @@ Rectangle {
 
     Connections {
         target: root.parent
-        onIsHorizontalChanged: editPropertyDialog.close()
+        function onIsHorizontalChanged() { editPropertyDialog.close() }
     }
 
     StudioControls.Dialog {
