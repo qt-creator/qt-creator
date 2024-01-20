@@ -836,7 +836,6 @@ public:
     ProcessResultData m_resultData;
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
-    QEventLoop *m_eventLoop = nullptr;
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
@@ -1865,8 +1864,6 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
         QEventLoop eventLoop(this);
-        QTC_ASSERT(!d->m_eventLoop, return);
-        d->m_eventLoop = &eventLoop;
 
         // Queue the call to start() so that it's executed after the nested event loop is started,
         // otherwise it fails on Windows with QProcessImpl. See QTCREATORBUG-30066.
@@ -1888,8 +1885,9 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
         }
 
+        connect(this, &Process::done, &eventLoop, [&eventLoop] { eventLoop.quit(); });
+
         eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-        d->m_eventLoop = nullptr;
 #ifdef QT_GUI_LIB
         if (isGuiEnabled())
             QGuiApplication::restoreOverrideCursor();
@@ -2066,8 +2064,6 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
             break;
         }
     }
-    if (m_eventLoop)
-        m_eventLoop->quit();
 
     m_stdOut.handleRest();
     m_stdErr.handleRest();
