@@ -3357,6 +3357,31 @@ bool GitClient::synchronousStashRemove(const FilePath &workingDirectory, const Q
     return false;
 }
 
+/* Parse a stash line in its 2 manifestations (with message/without message containing
+ * <base_sha1>+subject):
+\code
+stash@{1}: WIP on <branch>: <base_sha1> <subject_base_sha1>
+stash@{2}: On <branch>: <message>
+\endcode */
+
+static std::optional<Stash> parseStashLine(const QString &l)
+{
+    const QChar colon = ':';
+    const int branchPos = l.indexOf(colon);
+    if (branchPos < 0)
+        return {};
+    const int messagePos = l.indexOf(colon, branchPos + 1);
+    if (messagePos < 0)
+        return {};
+    // Branch spec
+    const int onIndex = l.indexOf("on ", branchPos + 2, Qt::CaseInsensitive);
+    if (onIndex == -1 || onIndex >= messagePos)
+        return {};
+    return Stash{l.left(branchPos),
+                 l.mid(onIndex + 3, messagePos - onIndex - 3),
+                 l.mid(messagePos + 2)}; // skip blank
+}
+
 bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Stash> *stashes,
                                      QString *errorMessage) const
 {
@@ -3369,11 +3394,11 @@ bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Sta
         msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
         return false;
     }
-    Stash stash;
     const QStringList lines = splitLines(result.cleanedStdOut());
     for (const QString &line : lines) {
-        if (stash.parseStashLine(line))
-            stashes->push_back(stash);
+        const auto stash = parseStashLine(line);
+        if (stash)
+            stashes->push_back(*stash);
     }
     return true;
 }

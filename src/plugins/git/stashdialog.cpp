@@ -167,7 +167,7 @@ void StashDialog::refresh(const FilePath &repository, bool force)
     m_repository = repository;
     m_repositoryLabel->setText(msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
-        m_model->setStashes(QList<Stash>());
+        m_model->setStashes({});
     } else {
         QList<Stash> stashes;
         gitClient().synchronousStashList(m_repository, &stashes);

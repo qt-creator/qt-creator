@@ -8,40 +8,6 @@
 
 namespace Git::Internal {
 
-void Stash::clear()
-{
-    name.clear();
-    branch.clear();
-    message.clear();
-}
-
-/* Parse a stash line in its 2 manifestations (with message/without message containing
- * <base_sha1>+subject):
-\code
-stash@{1}: WIP on <branch>: <base_sha1> <subject_base_sha1>
-stash@{2}: On <branch>: <message>
-\endcode */
-
-bool Stash::parseStashLine(const QString &l)
-{
-    const QChar colon = ':';
-    const int branchPos = l.indexOf(colon);
-    if (branchPos < 0)
-        return false;
-    const int messagePos = l.indexOf(colon, branchPos + 1);
-    if (messagePos < 0)
-        return false;
-    // Branch spec
-    const int onIndex = l.indexOf("on ", branchPos + 2, Qt::CaseInsensitive);
-    if (onIndex == -1 || onIndex >= messagePos)
-        return false;
-    // Happy!
-    name = l.left(branchPos);
-    branch = l.mid(onIndex + 3, messagePos - onIndex - 3);
-    message = l.mid(messagePos + 2); // skip blank
-    return true;
-}
-
 // Make QInputDialog  play nicely, widen it a bit.
 bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s)
 {

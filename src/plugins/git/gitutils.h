@@ -14,9 +14,6 @@ namespace Git::Internal {
 class Stash
 {
 public:
-    void clear();
-    bool parseStashLine(const QString &l);
-
     QString name;
     QString branch;
     QString message;
