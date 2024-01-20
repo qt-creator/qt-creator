@@ -174,7 +174,6 @@ void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) 
     Environment env = executable.deviceEnvironment();
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
-    cmake.setTimeOutMessageBoxEnabled(false);
     cmake.setCommand({executable, args});
     cmake.runBlocking();
 }

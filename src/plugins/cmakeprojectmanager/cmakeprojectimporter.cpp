@@ -225,7 +225,6 @@ static CMakeConfig configurationFromPresetProbe(
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
-    cmake.setTimeOutMessageBoxEnabled(false);
 
     QStringList args;
     args.emplace_back("-S");
@@ -402,7 +401,6 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     Environment cmakeEnv(env);
     cmakeEnv.setupEnglishOutput();
     cmake.setEnvironment(cmakeEnv);
-    cmake.setTimeOutMessageBoxEnabled(false);
 
     QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
     QString cmakeGeneratorPlatform = config.stringValueOf(QByteArray("CMAKE_GENERATOR_PLATFORM"));
