@@ -149,12 +149,10 @@ void InstantBlame::setup()
                                            }
                                            m_cursorPositionChangedTimer->start(500);
                                        });
-        IDocument *document = editor->document();
-        m_documentChangedConn = connect(document, &IDocument::changed, this, [this, document] {
-            qCInfo(log) << "Document is changed:" << document;
-            if (!document->isModified())
-                force();
-        });
+        m_document = editor->document();
+        m_documentChangedConn = connect(m_document, &IDocument::changed,
+                                        this, &InstantBlame::slotDocumentChanged,
+                                        Qt::UniqueConnection);
 
         force();
     };
@@ -351,6 +349,21 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
                                 authorHandler);
 
     return true;
+}
+
+void InstantBlame::slotDocumentChanged()
+{
+    if (m_document == nullptr) {
+        qCWarning(log) << "Document is invalid, disconnecting.";
+        disconnect(m_documentChangedConn);
+        return;
+    }
+
+    const bool modified = m_document->isModified();
+    qCDebug(log) << "Document is changed, modified:" << modified;
+    if (m_modified && !modified)
+        force();
+    m_modified = modified;
 }
 
 } // Git::Internal

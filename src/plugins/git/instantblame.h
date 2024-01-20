@@ -54,11 +54,14 @@ public:
 
 private:
     bool refreshWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void slotDocumentChanged();
 
     Utils::FilePath m_workingDirectory;
     QTextCodec *m_codec = nullptr;
     Author m_author;
     int m_lastVisitedEditorLine = -1;
+    Core::IDocument *m_document = nullptr;
+    bool m_modified = false;
     QTimer *m_cursorPositionChangedTimer = nullptr;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
