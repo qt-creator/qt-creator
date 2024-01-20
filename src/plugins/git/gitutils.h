@@ -25,12 +25,4 @@ public:
 // Make QInputDialog  play nicely
 bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s);
 
-// Version information following Qt convention
-inline unsigned version(unsigned major, unsigned minor, unsigned patch)
-{
-    return (major << 16) + (minor << 8) + patch;
-}
-
-QString versionString(unsigned ver);
-
 } // Git::Internal

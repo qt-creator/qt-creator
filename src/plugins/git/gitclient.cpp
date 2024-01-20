@@ -629,8 +629,7 @@ public:
 
 static bool gitHasRgbColors()
 {
-    const unsigned gitVersion = gitClient().gitVersion().result();
-    return gitVersion >= 0x020300U;
+    return gitClient().gitVersion().result() >= QVersionNumber{2, 3};
 }
 
 static QString logColorName(TextEditor::TextStyle style)
@@ -3429,24 +3428,21 @@ void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringL
                        configFileCodec());
 }
 
-static unsigned parseGitVersion(const QString &output)
+static QVersionNumber parseGitVersion(const QString &output)
 {
     // cut 'git version 1.6.5.1.sha'
     // another form: 'git version 1.9.rc1'
     const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
-    QTC_ASSERT(versionPattern.isValid(), return 0);
+    QTC_ASSERT(versionPattern.isValid(), return {});
     const QRegularExpressionMatch match = versionPattern.match(output);
-    QTC_ASSERT(match.hasMatch(), return 0);
-    const unsigned majorV = match.captured(1).toUInt(nullptr, 16);
-    const unsigned minorV = match.captured(2).toUInt(nullptr, 16);
-    const unsigned patchV = match.captured(3).toUInt(nullptr, 16);
-    return version(majorV, minorV, patchV);
+    QTC_ASSERT(match.hasMatch(), return {});
+    return {match.captured(1).toInt(), match.captured(2).toInt(), match.captured(3).toInt()};
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-QFuture<unsigned> GitClient::gitVersion() const
+QFuture<QVersionNumber> GitClient::gitVersion() const
 {
-    QFutureInterface<unsigned> fi;
+    QFutureInterface<QVersionNumber> fi;
     fi.reportStarted();
 
     // Do not execute repeatedly if that fails (due to git

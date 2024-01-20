@@ -58,17 +58,4 @@ bool inputText(QWidget *parent, const QString &title, const QString &prompt, QSt
     return true;
 }
 
-static inline QString versionPart(unsigned part)
-{
-    return QString::number(part & 0xff, 16);
-}
-
-QString versionString(unsigned ver)
-{
-    return QString::fromLatin1("%1.%2.%3")
-            .arg(versionPart(ver >> 16))
-            .arg(versionPart(ver >> 8))
-            .arg(versionPart(ver));
-}
-
 } // Git::Internal

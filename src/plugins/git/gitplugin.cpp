@@ -132,7 +132,7 @@ public:
     GitLogEditorWidgetT() : GitLogEditorWidget(new Editor) {}
 };
 
-const unsigned minimumRequiredVersion = 0x010900;
+static const QVersionNumber minimumRequiredVersion{1, 9};
 
 const VcsBaseSubmitEditorParameters submitParameters {
     Git::Constants::SUBMIT_MIMETYPE,
@@ -1306,8 +1306,8 @@ void GitPluginPrivate::updateVersionWarning()
     QPointer<IDocument> curDocument = EditorManager::currentDocument();
     if (!curDocument)
         return;
-    Utils::onResultReady(gitClient().gitVersion(), this, [curDocument](unsigned version) {
-        if (!curDocument || !version || version >= minimumRequiredVersion)
+    Utils::onResultReady(gitClient().gitVersion(), this, [curDocument](const QVersionNumber &version) {
+        if (!curDocument || version.isNull() || version >= minimumRequiredVersion)
             return;
         InfoBar *infoBar = curDocument->infoBar();
         Id gitVersionWarning("GitVersionWarning");
@@ -1316,7 +1316,7 @@ void GitPluginPrivate::updateVersionWarning()
         infoBar->addInfo(
             InfoBarEntry(gitVersionWarning,
                          Tr::tr("Unsupported version of Git found. Git %1 or later required.")
-                             .arg(versionString(minimumRequiredVersion)),
+                             .arg(minimumRequiredVersion.toString()),
                          InfoBarEntry::GlobalSuppression::Enabled));
     });
 }

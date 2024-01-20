@@ -15,8 +15,8 @@
 #include <vcsbase/vcsbaseclient.h>
 
 #include <QObject>
-#include <QString>
 #include <QStringList>
+#include <QVersionNumber>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -124,7 +124,7 @@ public:
     ~GitClient();
 
     Utils::FilePath vcsBinary() const override;
-    QFuture<unsigned> gitVersion() const;
+    QFuture<QVersionNumber> gitVersion() const;
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                           bool isRebase = false, const QString &abortCommand = {},
@@ -398,7 +398,7 @@ private:
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
     mutable Utils::FilePath m_gitVersionForBinary;
-    mutable unsigned m_cachedGitVersion = 0;
+    mutable QVersionNumber m_cachedGitVersion;
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;

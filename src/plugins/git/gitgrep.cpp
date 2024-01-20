@@ -202,8 +202,8 @@ GitGrep::GitGrep()
     layout->addWidget(m_treeLineEdit);
     // asynchronously check git version, add "recurse submodules" option if available
     Utils::onResultReady(gitClient().gitVersion(), this,
-                         [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
-        if (version >= 0x021300 && pLayout) {
+                         [this, pLayout = QPointer<QHBoxLayout>(layout)](const QVersionNumber &version) {
+        if (version >= QVersionNumber{2, 13} && pLayout) {
             m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
             pLayout->addWidget(m_recurseSubmodules);
         }
