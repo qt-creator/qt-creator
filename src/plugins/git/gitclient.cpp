@@ -3454,7 +3454,6 @@ static QVersionNumber parseGitVersion(const QString &output)
     return {match.captured(1).toInt(), match.captured(2).toInt(), match.captured(3).toInt()};
 }
 
-// determine version as '(major << 16) + (minor << 8) + patch' or 0.
 QFuture<QVersionNumber> GitClient::gitVersion() const
 {
     QFutureInterface<QVersionNumber> fi;
