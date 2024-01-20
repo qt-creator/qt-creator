@@ -104,14 +104,14 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
 InstantBlame::InstantBlame()
 {
     m_codec = gitClient().defaultCommitEncoding();
+    m_cursorPositionChangedTimer = new QTimer(this);
+    m_cursorPositionChangedTimer->setSingleShot(true);
+    connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
 }
 
 void InstantBlame::setup()
 {
     qCDebug(log) << "Setup";
-    m_cursorPositionChangedTimer = new QTimer(this);
-    m_cursorPositionChangedTimer->setSingleShot(true);
-    connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
 
     auto setupBlameForEditor = [this](Core::IEditor *editor) {
         if (!editor) {
