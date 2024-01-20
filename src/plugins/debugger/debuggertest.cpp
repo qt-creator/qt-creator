@@ -33,12 +33,15 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
+#endif // WITH_TESTS
 
 namespace Debugger::Internal {
-
 static bool s_testRun = false;
 bool isTestRun() { return s_testRun; }
+} // Debugger::Internal
 
+#ifdef WITH_TESTS
+namespace Debugger::Internal {
 class DebuggerUnitTests : public QObject
 {
     Q_OBJECT
@@ -245,4 +248,4 @@ QObject *createDebuggerTest()
 
 #include "debuggertest.moc"
 
-#endif
+#endif // WITH_TESTS
