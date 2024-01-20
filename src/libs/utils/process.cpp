@@ -1876,6 +1876,8 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
         if (d->m_timeoutInSeconds > 0) {
             timeoutHandler = [this, &eventLoop, &timeoutHandler] {
                 if (!d->m_timeOutMessageBoxEnabled || askToKill(d->m_setup.m_commandLine)) {
+                    if (state() == QProcess::NotRunning)
+                        return;
                     stop();
                     waitForFinished();
                     d->m_result = ProcessResult::Hang;
