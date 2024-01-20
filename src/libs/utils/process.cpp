@@ -172,11 +172,6 @@ std::atomic_int MeasureAndRun::s_lineCounter = 0;
 static MeasureAndRun s_start = MeasureAndRun("start");
 static MeasureAndRun s_waitForStarted = MeasureAndRun("waitForStarted");
 
-enum { debug = 0 };
-enum { syncDebug = 0 };
-
-enum { defaultMaxHangTimerCount = 10 };
-
 static Q_LOGGING_CATEGORY(processLog, "qtc.utils.process", QtWarningMsg)
 static Q_LOGGING_CATEGORY(processStdoutLog, "qtc.utils.process.stdout", QtWarningMsg)
 static Q_LOGGING_CATEGORY(processStderrLog, "qtc.utils.process.stderr", QtWarningMsg)
@@ -848,7 +843,7 @@ public:
     ChannelBuffer m_stdErr;
 
     int m_hangTimerCount = 0;
-    int m_maxHangTimerCount = defaultMaxHangTimerCount;
+    int m_maxHangTimerCount = 10; // 10 seconds
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
 
@@ -1985,8 +1980,6 @@ TextChannelMode Process::textChannelMode(Channel channel) const
 void ProcessPrivate::slotTimeout()
 {
     if (!m_waitingForUser && (++m_hangTimerCount > m_maxHangTimerCount)) {
-        if (debug)
-            qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_waitingForUser = true;
         const bool terminate = !m_timeOutMessageBoxEnabled || askToKill(m_setup.m_commandLine);
         m_waitingForUser = false;
@@ -1997,9 +1990,6 @@ void ProcessPrivate::slotTimeout()
         } else {
             m_hangTimerCount = 0;
         }
-    } else {
-        if (debug)
-            qDebug() << Q_FUNC_INFO << m_hangTimerCount;
     }
 }
 
@@ -2072,8 +2062,6 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
     else if (m_result != ProcessResult::Hang)
         m_result = ProcessResult::StartFailed;
 
-    if (debug)
-        qDebug() << Q_FUNC_INFO << m_resultData.m_exitCode << m_resultData.m_exitStatus;
     m_hangTimerCount = 0;
 
     if (m_resultData.m_error != QProcess::FailedToStart) {
