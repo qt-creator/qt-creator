@@ -169,8 +169,7 @@ void StashDialog::refresh(const FilePath &repository, bool force)
     if (m_repository.isEmpty()) {
         m_model->setStashes({});
     } else {
-        QList<Stash> stashes;
-        gitClient().synchronousStashList(m_repository, &stashes);
+        const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
         m_model->setStashes(stashes);
         if (!stashes.isEmpty()) {
             for (int c = 0; c < ColumnCount; c++)

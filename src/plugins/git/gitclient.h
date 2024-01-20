@@ -277,8 +277,7 @@ public:
 
     void stashPop(const Utils::FilePath &workingDirectory, const QString &stash = {});
     void revertFiles(const QStringList &files, bool revertStaging);
-    bool synchronousStashList(const Utils::FilePath &workingDirectory, QList<Stash> *stashes,
-                              QString *errorMessage = nullptr) const;
+    QList<Stash> synchronousStashList(const Utils::FilePath &workingDirectory) const;
 
     QString readGitVar(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar) const;

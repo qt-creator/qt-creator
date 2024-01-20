@@ -1837,12 +1837,10 @@ static QString stashNameFromMessage(const FilePath &workingDirectory, const QStr
     if (message.startsWith(stashNamePrefix))
         return message;
     // Retrieve list and find via message
-    QList<Stash> stashes;
-    if (!gitClient().synchronousStashList(workingDirectory, &stashes))
-        return {};
-    for (const Stash &s : std::as_const(stashes)) {
-        if (s.message == message)
-            return s.name;
+    const QList<Stash> stashes = gitClient().synchronousStashList(workingDirectory);
+    for (const Stash &stash : stashes) {
+        if (stash.message == message)
+            return stash.name;
     }
     //: Look-up of a stash via its descriptive message failed.
     msgCannotRun(Tr::tr("Cannot resolve stash message \"%1\" in \"%2\".")
@@ -3376,25 +3374,23 @@ static std::optional<Stash> parseStashLine(const QString &l)
                  l.mid(messagePos + 2)}; // skip blank
 }
 
-bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Stash> *stashes,
-                                     QString *errorMessage) const
+QList<Stash> GitClient::synchronousStashList(const FilePath &workingDirectory) const
 {
-    stashes->clear();
-
     const QStringList arguments = {"stash", "list", noColorOption};
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
                                                     RunFlags::ForceCLocale);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
-        return false;
+        msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), nullptr);
+        return {};
     }
     const QStringList lines = splitLines(result.cleanedStdOut());
+    QList<Stash> stashes;
     for (const QString &line : lines) {
         const auto stash = parseStashLine(line);
         if (stash)
-            stashes->push_back(*stash);
+            stashes.push_back(*stash);
     }
-    return true;
+    return stashes;
 }
 
 // Read a single-line config value, return trimmed

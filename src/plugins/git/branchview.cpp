@@ -399,9 +399,8 @@ bool BranchView::checkout()
     if (gitClient().gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != GitClient::StatusChanged)
         branchCheckoutDialog.foundNoLocalChanges();
 
-    QList<Stash> stashes;
-    gitClient().synchronousStashList(m_repository, &stashes);
-    for (const Stash &stash : std::as_const(stashes)) {
+    const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
+    for (const Stash &stash : stashes) {
         if (stash.message.startsWith(popMessageStart)) {
             branchCheckoutDialog.foundStashForNextBranch();
             break;
@@ -433,10 +432,9 @@ bool BranchView::checkout()
             if (moveChanges) {
                 gitClient().endStashScope(m_repository);
             } else if (popStash) {
-                QList<Stash> stashes;
                 QString stashName;
-                gitClient().synchronousStashList(m_repository, &stashes);
-                for (const Stash &stash : std::as_const(stashes)) {
+                const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
+                for (const Stash &stash : stashes) {
                     if (stash.message.startsWith(popMessageStart)) {
                         stashName = stash.name;
                         break;
