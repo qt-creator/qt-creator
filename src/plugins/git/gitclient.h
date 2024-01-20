@@ -279,9 +279,6 @@ public:
     void revertFiles(const QStringList &files, bool revertStaging);
     bool synchronousStashList(const Utils::FilePath &workingDirectory, QList<Stash> *stashes,
                               QString *errorMessage = nullptr) const;
-    // Resolve a stash name from message (for IVersionControl's names).
-    bool stashNameFromMessage(const Utils::FilePath &workingDirectory, const QString &messge, QString *name,
-                              QString *errorMessage = nullptr) const;
 
     QString readGitVar(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar) const;

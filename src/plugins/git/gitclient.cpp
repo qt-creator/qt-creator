@@ -1831,29 +1831,23 @@ bool GitClient::executeSynchronousStash(const FilePath &workingDirectory,
 }
 
 // Resolve a stash name from message
-bool GitClient::stashNameFromMessage(const FilePath &workingDirectory,
-                                     const QString &message, QString *name,
-                                     QString *errorMessage) const
+static QString stashNameFromMessage(const FilePath &workingDirectory, const QString &message)
 {
     // All happy
-    if (message.startsWith(stashNamePrefix)) {
-        *name = message;
-        return true;
-    }
+    if (message.startsWith(stashNamePrefix))
+        return message;
     // Retrieve list and find via message
     QList<Stash> stashes;
-    if (!synchronousStashList(workingDirectory, &stashes, errorMessage))
-        return false;
+    if (!gitClient().synchronousStashList(workingDirectory, &stashes))
+        return {};
     for (const Stash &s : std::as_const(stashes)) {
-        if (s.message == message) {
-            *name = s.name;
-            return true;
-        }
+        if (s.message == message)
+            return s.name;
     }
     //: Look-up of a stash via its descriptive message failed.
     msgCannotRun(Tr::tr("Cannot resolve stash message \"%1\" in \"%2\".")
-                 .arg(message, workingDirectory.toUserOutput()), errorMessage);
-    return  false;
+                 .arg(message, workingDirectory.toUserOutput()), nullptr);
+    return {};
 }
 
 bool GitClient::synchronousBranchCmd(const FilePath &workingDirectory, QStringList branchArgs,
@@ -3601,8 +3595,8 @@ bool GitClient::StashInfo::stashingFailed() const
 void GitClient::StashInfo::end()
 {
     if (m_stashResult == Stashed) {
-        QString stashName;
-        if (gitClient().stashNameFromMessage(m_workingDir, m_message, &stashName))
+        const QString stashName = stashNameFromMessage(m_workingDir, m_message);
+        if (!stashName.isEmpty())
             gitClient().stashPop(m_workingDir, stashName);
     }
 
