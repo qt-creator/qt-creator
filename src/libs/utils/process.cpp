@@ -815,7 +815,6 @@ public:
     std::unique_ptr<ProcessInterface> m_process;
     ProcessSetupData m_setup;
 
-    void slotTimeout();
     void handleStarted(qint64 processId, qint64 applicationMainThreadId);
     void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
     void handleDone(const ProcessResultData &data);
@@ -842,10 +841,8 @@ public:
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
 
-    int m_hangTimerCount = 0;
-    int m_maxHangTimerCount = 10; // 10 seconds
+    int m_timeoutInSeconds = 10;
     bool m_timeOutMessageBoxEnabled = false;
-    bool m_waitingForUser = false;
 
     Guard m_guard;
 };
@@ -1091,7 +1088,6 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 
 void ProcessPrivate::clearForRun()
 {
-    m_hangTimerCount = 0;
     m_stdOut.clearForRun();
     m_stdOut.codec = m_codec;
     m_stdErr.clearForRun();
@@ -1820,14 +1816,14 @@ void ChannelBuffer::handleRest()
 void Process::setTimeoutS(int timeoutS)
 {
     if (timeoutS > 0)
-        d->m_maxHangTimerCount = qMax(2, timeoutS);
+        d->m_timeoutInSeconds = qMax(2, timeoutS);
     else
-        d->m_maxHangTimerCount = INT_MAX / 1000;
+        d->m_timeoutInSeconds = INT_MAX / 1000;
 }
 
 int Process::timeoutS() const
 {
-    return d->m_maxHangTimerCount;
+    return d->m_timeoutInSeconds;
 }
 
 void Process::setCodec(QTextCodec *c)
@@ -1864,10 +1860,6 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
     };
 
     if (eventLoopMode == EventLoopMode::On) {
-        QTimer timer(this);
-        connect(&timer, &QTimer::timeout, d, &ProcessPrivate::slotTimeout);
-        timer.setInterval(1000);
-        timer.start();
 #ifdef QT_GUI_LIB
         if (isGuiEnabled())
             QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -1875,23 +1867,38 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
         QEventLoop eventLoop(this);
         QTC_ASSERT(!d->m_eventLoop, return);
         d->m_eventLoop = &eventLoop;
+
         // Queue the call to start() so that it's executed after the nested event loop is started,
         // otherwise it fails on Windows with QProcessImpl. See QTCREATORBUG-30066.
         QMetaObject::invokeMethod(this, starter, Qt::QueuedConnection);
+
+        std::function<void(void)> timeoutHandler = {};
+        if (d->m_timeoutInSeconds > 0) {
+            timeoutHandler = [this, &eventLoop, &timeoutHandler] {
+                if (!d->m_timeOutMessageBoxEnabled || askToKill(d->m_setup.m_commandLine)) {
+                    stop();
+                    waitForFinished();
+                    d->m_result = ProcessResult::Hang;
+                    return;
+                }
+                QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
+            };
+            QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
+        }
+
         eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
         d->m_eventLoop = nullptr;
-        timer.stop();
 #ifdef QT_GUI_LIB
         if (isGuiEnabled())
             QGuiApplication::restoreOverrideCursor();
 #endif
     } else {
         starter();
-        if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
+        if (!waitForStarted(d->m_timeoutInSeconds * 1000)) {
             d->m_result = ProcessResult::StartFailed;
             return;
         }
-        if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
+        if (!waitForFinished(d->m_timeoutInSeconds * 1000)) {
             d->m_result = ProcessResult::Hang;
             terminate();
             if (!waitForFinished(1000)) {
@@ -1977,22 +1984,6 @@ TextChannelMode Process::textChannelMode(Channel channel) const
     return buffer->m_textChannelMode;
 }
 
-void ProcessPrivate::slotTimeout()
-{
-    if (!m_waitingForUser && (++m_hangTimerCount > m_maxHangTimerCount)) {
-        m_waitingForUser = true;
-        const bool terminate = !m_timeOutMessageBoxEnabled || askToKill(m_setup.m_commandLine);
-        m_waitingForUser = false;
-        if (terminate) {
-            q->stop();
-            q->waitForFinished();
-            m_result = ProcessResult::Hang;
-        } else {
-            m_hangTimerCount = 0;
-        }
-    }
-}
-
 void ProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
 {
     QTC_CHECK(m_state == QProcess::Starting);
@@ -2007,8 +1998,6 @@ void ProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteAr
 {
     QTC_CHECK(m_state == QProcess::Running);
 
-    // TODO: check why we need this timer?
-    m_hangTimerCount = 0;
     // TODO: store a copy of m_processChannelMode on start()? Currently we assert that state
     // is NotRunning when setting the process channel mode.
 
@@ -2061,8 +2050,6 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
         m_resultData.m_errorString.clear();
     else if (m_result != ProcessResult::Hang)
         m_result = ProcessResult::StartFailed;
-
-    m_hangTimerCount = 0;
 
     if (m_resultData.m_error != QProcess::FailedToStart) {
         switch (m_resultData.m_exitStatus) {
