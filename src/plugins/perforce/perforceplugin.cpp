@@ -691,7 +691,6 @@ void PerforcePluginPrivate::printOpenedFileList()
         return;
     // reformat "//depot/file.cpp#1 - description" into "file.cpp # - description"
     // for context menu opening to work. This produces absolute paths, then.
-    QString errorMessage;
     QString mapped;
     const QChar delimiter = QLatin1Char('#');
     const QStringList lines = perforceResponse.stdOut.split(QLatin1Char('\n'));
@@ -699,7 +698,7 @@ void PerforcePluginPrivate::printOpenedFileList()
         mapped.clear();
         const int delimiterPos = line.indexOf(delimiter);
         if (delimiterPos > 0)
-            mapped = fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
+            mapped = fileNameFromPerforceName(line.left(delimiterPos), true);
         if (mapped.isEmpty())
             VcsOutputWindow::appendSilently(line);
         else
@@ -1618,7 +1617,7 @@ static QString msgWhereFailed(const QString & file, const QString &why)
 }
 
 // Map a perforce name "//xx" to its real name in the file system
-QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QString *errorMessage)
+QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
 {
     // All happy, already mapped
     if (!perforceName.startsWith(QLatin1String("//")))
@@ -1630,10 +1629,8 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QStrin
     if (!quiet)
         flags |= CommandToWindow|StdErrToWindow|ErrorToWindow;
     const PerforceResponse response = dd->runP4Cmd(settings().topLevelSymLinkTarget(), args, flags);
-    if (response.error) {
-        *errorMessage = msgWhereFailed(perforceName, response.message);
+    if (response.error)
         return {};
-    }
 
     QString output = response.stdOut;
     if (output.endsWith(QLatin1Char('\r')))
@@ -1642,8 +1639,11 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QStrin
         output.chop(1);
 
     if (output.isEmpty()) {
-        //: File is not managed by Perforce
-        *errorMessage = msgWhereFailed(perforceName, Tr::tr("The file is not mapped"));
+        if (!quiet) {
+            //: File is not managed by Perforce
+            VcsOutputWindow::appendError(msgWhereFailed(perforceName,
+                                                        Tr::tr("The file is not mapped")));
+        }
         return {};
     }
     const QString p4fileSpec = output.mid(output.lastIndexOf(QLatin1Char(' ')) + 1);

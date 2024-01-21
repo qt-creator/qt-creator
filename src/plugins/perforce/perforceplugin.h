@@ -8,6 +8,6 @@
 namespace Perforce::Internal {
 
 // Map a perforce name "//xx" to its real name in the file system
-QString fileNameFromPerforceName(const QString &perforceName, bool quiet, QString *errorMessage);
+QString fileNameFromPerforceName(const QString &perforceName, bool quiet);
 
 } // Perforce::Internal
