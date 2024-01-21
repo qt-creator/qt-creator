@@ -56,8 +56,7 @@ public:
     void setupProcess(Process *process, const Job &job);
     void installStdCallbacks(Process *process);
     EventLoopMode eventLoopMode() const;
-    ProcessResult handleDone(Process *process,
-                             const ExitCodeInterpreter &exitCodeInterpreter = {}) const;
+    ProcessResult handleDone(Process *process, const Job &job) const;
     void startAll();
     void startNextJob();
     void processDone();
@@ -152,16 +151,15 @@ EventLoopMode VcsCommandPrivate::eventLoopMode() const
     return EventLoopMode::Off;
 }
 
-ProcessResult VcsCommandPrivate::handleDone(Process *process,
-                                            const ExitCodeInterpreter &exitCodeInterpreter) const
+ProcessResult VcsCommandPrivate::handleDone(Process *process, const Job &job) const
 {
     ProcessResult result;
     QString exitMessage;
-    if (exitCodeInterpreter && process->error() != QProcess::FailedToStart
+    if (job.exitCodeInterpreter && process->error() != QProcess::FailedToStart
         && process->exitStatus() == QProcess::NormalExit) {
-        result = exitCodeInterpreter(process->exitCode());
+        result = job.exitCodeInterpreter(process->exitCode());
         exitMessage = Process::exitMessage(process->commandLine(), m_result,
-                                           process->exitCode(), process->timeoutS());
+                                           process->exitCode(), job.timeoutS);
     } else {
         result = process->result();
         exitMessage = process->exitMessage();
@@ -202,7 +200,7 @@ void VcsCommandPrivate::startNextJob()
 
 void VcsCommandPrivate::processDone()
 {
-    m_result = handleDone(m_process.get(), m_jobs.at(m_currentJob).exitCodeInterpreter);
+    m_result = handleDone(m_process.get(), m_jobs.at(m_currentJob));
     m_stdOut += m_process->cleanedStdOut();
     m_stdErr += m_process->cleanedStdErr();
     ++m_currentJob;
@@ -305,13 +303,14 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
     if (command.executable().isEmpty())
         return {};
 
-    d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
+    const Internal::VcsCommandPrivate::Job job{command, timeoutS, d->m_defaultWorkingDirectory};
+    d->setupProcess(&process, job);
     process.setTimeoutS(timeoutS);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
     process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
     process.runBlocking(eventLoopMode);
-    d->handleDone(&process);
+    d->handleDone(&process, job);
 
     return CommandResult(process);
 }
