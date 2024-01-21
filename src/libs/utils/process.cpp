@@ -1630,7 +1630,7 @@ QString Process::readAllStandardError()
 }
 
 QString Process::exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
-                             int maxHangTimerCount)
+                             int timeoutInSeconds)
 {
     const QString cmd = command.toUserOutput();
     switch (result) {
@@ -1644,14 +1644,14 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result, i
         return Tr::tr("The command \"%1\" could not be started.").arg(cmd);
     case ProcessResult::Hang:
         return Tr::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
-            .arg(cmd).arg(maxHangTimerCount);
+            .arg(cmd).arg(timeoutInSeconds);
     }
     return {};
 }
 
 QString Process::exitMessage() const
 {
-    return exitMessage(commandLine(), result(), exitCode(), timeoutS());
+    return exitMessage(commandLine(), result(), exitCode(), d->m_timeoutInSeconds);
 }
 
 QByteArray Process::allRawOutput() const
@@ -1824,11 +1824,6 @@ void Process::setTimeoutS(int timeoutS)
         d->m_timeoutInSeconds = qMax(2, timeoutS);
     else
         d->m_timeoutInSeconds = INT_MAX / 1000;
-}
-
-int Process::timeoutS() const
-{
-    return d->m_timeoutInSeconds;
 }
 
 void Process::setCodec(QTextCodec *c)

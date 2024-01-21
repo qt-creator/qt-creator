@@ -149,7 +149,6 @@ public:
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
     void setTimeoutS(int timeoutS);
-    int timeoutS() const;
 
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
@@ -182,8 +181,8 @@ public:
     const QStringList stdOutLines() const; // split, CR removed
     const QStringList stdErrLines() const; // split, CR removed
 
-    static QString exitMessage(const CommandLine &command, ProcessResult result,
-                               int exitCode, int maxHangTimerCount);
+    static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
+                               int timeoutInSeconds);
     QString exitMessage() const;
 
     QString toStandaloneCommandLine() const;
