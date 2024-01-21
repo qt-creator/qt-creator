@@ -171,6 +171,7 @@ public:
     QString allOutput() const;
 
     QByteArray rawStdOut() const;
+    QByteArray rawStdErr() const;
 
     QString stdOut() const; // possibly with CR
     QString stdErr() const; // possibly with CR

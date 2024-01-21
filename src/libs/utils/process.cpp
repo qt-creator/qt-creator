@@ -1691,6 +1691,12 @@ QByteArray Process::rawStdOut() const
     return d->m_stdOut.rawData;
 }
 
+QByteArray Process::rawStdErr() const
+{
+    QTC_CHECK(d->m_stdErr.keepRawData);
+    return d->m_stdErr.rawData;
+}
+
 QString Process::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
