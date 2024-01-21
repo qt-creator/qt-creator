@@ -195,52 +195,41 @@ bool isVenvPython(const FilePath &python)
     return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
 }
 
-bool venvIsUsable(const FilePath &python)
+static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyString,
+                           const QString &commandArg, const FilePath &python)
 {
-    static QHash<FilePath, bool> cache;
-    auto it = cache.find(python);
-    if (it == cache.end()) {
-        auto store = PersistentCacheStore::byKey(keyFromString("pyVenvIsUsable"));
+    auto it = cache->find(python);
+    if (it == cache->end()) {
+        const Key key = keyFromString(keyString);
+        const auto store = PersistentCacheStore::byKey(key);
         if (store && store->value(keyFromString(python.toString())).toBool()) {
-            cache.insert(python, true);
+            cache->insert(python, true);
             return true;
         }
         Process process;
-        process.setCommand({python, QStringList{"-m", "venv", "-h"}});
+        process.setCommand({python, QStringList{"-m", commandArg, "-h"}});
         process.runBlocking();
         const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
         if (usable) {
             Store newStore = store.value_or(Store{});
             newStore.insert(keyFromString(python.toString()), true);
-            PersistentCacheStore::write(keyFromString("pyVenvIsUsable"), newStore);
+            PersistentCacheStore::write(key, newStore);
         }
-        it = cache.insert(python, usable);
+        it = cache->insert(python, usable);
     }
     return *it;
+}
+
+bool venvIsUsable(const FilePath &python)
+{
+    static QHash<FilePath, bool> cache;
+    return isUsableHelper(&cache, "pyVenvIsUsable", "venv", python);
 }
 
 bool pipIsUsable(const FilePath &python)
 {
     static QHash<FilePath, bool> cache;
-    auto it = cache.find(python);
-    if (it == cache.end()) {
-        auto store = PersistentCacheStore::byKey(keyFromString("pyPipIsUsable"));
-        if (store && store->value(keyFromString(python.toString())).toBool()) {
-            cache.insert(python, true);
-            return true;
-        }
-        Process process;
-        process.setCommand({python, QStringList{"-m", "pip", "-h"}});
-        process.runBlocking();
-        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
-        if (usable) {
-            Store newStore = store.value_or(Store{});
-            newStore.insert(keyFromString(python.toString()), true);
-            PersistentCacheStore::write(keyFromString("pyPipIsUsable"), newStore);
-        }
-        it = cache.insert(python, usable);
-    }
-    return *it;
+    return isUsableHelper(&cache, "pyPipIsUsable", "pip", python);
 }
 
 QString pythonVersion(const FilePath &python)
