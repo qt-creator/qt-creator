@@ -256,33 +256,16 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     QVector<VisualStudioInstallation> installations;
     Process vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
-    const int timeoutS = 5;
-    vsWhereProcess.setTimeoutS(timeoutS);
+    vsWhereProcess.setTimeoutS(5);
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking();
-    switch (vsWhereProcess.result()) {
-    case ProcessResult::FinishedWithSuccess:
-        break;
-    case ProcessResult::StartFailed:
-        qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "could not be started.";
-        return installations;
-    case ProcessResult::FinishedWithError:
-        qWarning().noquote().nospace() << QDir::toNativeSeparators(vswhere)
-                                       << " finished with exit code "
-                                       << vsWhereProcess.exitCode() << ".";
-        return installations;
-    case ProcessResult::TerminatedAbnormally:
-        qWarning().noquote().nospace()
-            << QDir::toNativeSeparators(vswhere) << " crashed. Exit code: " << vsWhereProcess.exitCode();
-        return installations;
-    case ProcessResult::Hang:
-        qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "did not finish in" << timeoutS
-                             << "seconds.";
+    if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning() << vsWhereProcess.exitMessage();
         return installations;
     }
 
-    QByteArray output = vsWhereProcess.cleanedStdOut().toUtf8();
+    const QByteArray output = vsWhereProcess.cleanedStdOut().toUtf8();
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
     if (error.error != QJsonParseError::NoError || doc.isNull()) {
