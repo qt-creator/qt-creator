@@ -128,7 +128,6 @@ struct PerforceResponse
     int exitCode = -1;
     QString stdOut;
     QString stdErr;
-    QString message;
 };
 
 const VcsBaseSubmitEditorParameters submitEditorParameters {
@@ -1219,7 +1218,6 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     response.exitCode = process.exitCode();
     response.stdErr = process.cleanedStdErr();
     response.stdOut = process.cleanedStdOut();
-    response.message = process.exitMessage();
 
     if (response.error && (flags & ErrorToWindow))
         VcsOutputWindow::appendError(process.exitMessage());
@@ -1234,23 +1232,17 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
                                                  QTextCodec *outputCodec) const
 {
     if (!settings().isValid()) {
-        PerforceResponse invalidConfigResponse;
-        invalidConfigResponse.error = true;
-        invalidConfigResponse.message = Tr::tr("Perforce is not correctly configured.");
-        VcsOutputWindow::appendError(invalidConfigResponse.message);
-        return invalidConfigResponse;
+        VcsOutputWindow::appendError(Tr::tr("Perforce is not correctly configured."));
+        return {};
     }
     QStringList actualArgs = settings().commonP4Arguments(workingDir.toString());
     QString errorMessage;
     QSharedPointer<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
-    if (!tempFile.isNull()) {
+    if (!tempFile.isNull())
         actualArgs << QLatin1String("-x") << tempFile->filePath().toString();
-    } else if (!errorMessage.isEmpty()) {
-        PerforceResponse tempFailResponse;
-        tempFailResponse.error = true;
-        tempFailResponse.message = errorMessage;
-        return tempFailResponse;
-    }
+    else if (!errorMessage.isEmpty())
+        return {};
+
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
@@ -1456,10 +1448,9 @@ bool PerforcePluginPrivate::activateCommit()
     const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
                                                      {}, reader.data());
-    if (submitResponse.error) {
-        VcsOutputWindow::appendError(Tr::tr("p4 submit failed: %1").arg(submitResponse.message));
+    if (submitResponse.error)
         return false;
-    }
+
     VcsOutputWindow::append(submitResponse.stdOut);
     if (submitResponse.stdOut.contains(QLatin1String("Out of date files must be resolved or reverted)")))
         QMessageBox::warning(perforceEditor->widget(), Tr::tr("Pending change"), Tr::tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
