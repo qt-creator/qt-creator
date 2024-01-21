@@ -477,7 +477,6 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
     const AndroidConfig &config = m_avdManager.config();
     const CommandLine command(config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(androidDeviceLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    m_removeAvdProcess->setTimeoutS(5);
     m_removeAvdProcess->setEnvironment(config.toolsEnvironment());
     m_removeAvdProcess->setCommand(command);
     connect(m_removeAvdProcess.get(), &Process::done, this, [this, device] {

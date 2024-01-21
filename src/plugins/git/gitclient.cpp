@@ -3476,7 +3476,6 @@ QFuture<QVersionNumber> GitClient::gitVersion() const
             proc->deleteLater();
         });
 
-        proc->setTimeoutS(vcsTimeoutS());
         proc->setEnvironment(processEnvironment());
         proc->setCommand({newGitBinary, {"--version"}});
         proc->start();
