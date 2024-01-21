@@ -1201,11 +1201,6 @@ static QString msgCrash()
     return Tr::tr("The process terminated abnormally.");
 }
 
-static QString msgExitCode(int ex)
-{
-    return Tr::tr("The process terminated with exit code %1.").arg(ex);
-}
-
 // Run using a SynchronousProcess, emitting signals to the message window
 PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &workingDir,
                                                            const QStringList &args,
@@ -1241,29 +1236,15 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     process.setCommand({settings().p4BinaryPath(), args});
     process.runBlocking(EventLoopMode::On);
 
+    const auto result = process.result();
     PerforceResponse response;
-    response.error = true;
+    response.error = result != ProcessResult::FinishedWithSuccess;
+    if (result == ProcessResult::FinishedWithError)
+        response.error = !(flags & IgnoreExitCode);
     response.exitCode = process.exitCode();
     response.stdErr = process.cleanedStdErr();
     response.stdOut = process.cleanedStdOut();
-    switch (process.result()) {
-    case ProcessResult::FinishedWithSuccess:
-        response.error = false;
-        break;
-    case ProcessResult::FinishedWithError:
-        response.message = msgExitCode(process.exitCode());
-        response.error = !(flags & IgnoreExitCode);
-        break;
-    case ProcessResult::TerminatedAbnormally:
-        response.message = msgCrash();
-        break;
-    case ProcessResult::StartFailed:
-        response.message = msgNotStarted(settings().p4BinaryPath());
-        break;
-    case ProcessResult::Hang:
-        response.message = msgCrash();
-        break;
-    }
+    response.message = process.exitMessage();
     return response;
 }
 
