@@ -37,7 +37,7 @@ static QString getQbsVersion(const FilePath &qbsExe)
     qbsProc.start();
     if (!qbsProc.waitForFinished(5000) || qbsProc.exitCode() != 0)
         return {};
-    return QString::fromLocal8Bit(qbsProc.readAllRawStandardOutput()).trimmed();
+    return QString::fromLocal8Bit(qbsProc.rawStdOut()).trimmed();
 }
 
 static bool operator==(const QbsSettingsData &s1, const QbsSettingsData &s2)

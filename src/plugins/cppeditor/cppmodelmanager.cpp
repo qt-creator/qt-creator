@@ -475,7 +475,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
             return;
         }
         if (isMsvc)
-            saveAndOpen(outFilePath, compiler->readAllRawStandardOutput(), inNextSplit);
+            saveAndOpen(outFilePath, compiler->rawStdOut(), inNextSplit);
         else
             openEditor(outFilePath, inNextSplit, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     });

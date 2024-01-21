@@ -59,8 +59,8 @@ static void processRunnerCallback(ProcessData *data)
 
     data->exitCode = proc.exitCode();
     data->exitStatus = proc.exitStatus();
-    data->stdErr = proc.readAllRawStandardError();
-    data->stdOut = proc.readAllRawStandardOutput();
+    data->stdErr = proc.rawStdErr();
+    data->stdOut = proc.rawStdOut();
 }
 
 class QtSupportPlugin final : public ExtensionSystem::IPlugin

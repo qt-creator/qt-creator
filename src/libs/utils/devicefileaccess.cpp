@@ -1035,7 +1035,7 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
         return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
                                    .arg(filePath.toUserOutput(), p.readAllStandardError()));
     }
-    return p.readAllRawStandardOutput();
+    return p.rawStdOut();
 #else
     return make_unexpected(QString("Not implemented"));
 #endif

@@ -88,7 +88,7 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
     const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(
-                                  d->process->readAllRawStandardOutput());
+                                  d->process->rawStdOut());
     for (const Port port : usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;

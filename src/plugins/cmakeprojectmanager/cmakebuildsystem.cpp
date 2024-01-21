@@ -1892,8 +1892,7 @@ void CMakeBuildSystem::runCTest()
     m_ctestProcess->setCommand({m_ctestPath, { "-N", "--show-only=json-v1"}});
     connect(m_ctestProcess.get(), &Process::done, this, [this] {
         if (m_ctestProcess->result() == ProcessResult::FinishedWithSuccess) {
-            const QJsonDocument json
-                = QJsonDocument::fromJson(m_ctestProcess->readAllRawStandardOutput());
+            const QJsonDocument json = QJsonDocument::fromJson(m_ctestProcess->rawStdOut());
             if (!json.isEmpty() && json.isObject()) {
                 const QJsonObject jsonObj = json.object();
                 const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();

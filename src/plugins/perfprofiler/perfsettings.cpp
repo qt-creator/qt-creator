@@ -165,9 +165,8 @@ void PerfConfigWidget::handleProcessDone()
         useTracePointsButton->setEnabled(true);
         return;
     }
-    const QList<QByteArray> lines =
-            m_process->readAllRawStandardOutput().append(m_process->readAllRawStandardError())
-            .split('\n');
+    const QList<QByteArray> lines
+        = m_process->rawStdOut().append(m_process->rawStdErr()).split('\n');
     auto model = eventsView->model();
     const int previousRows = model->rowCount();
     QHash<QByteArray, QByteArray> tracePoints;

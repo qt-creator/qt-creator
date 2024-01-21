@@ -129,7 +129,7 @@ public:
                 reportFailure();
                 return;
             }
-            const QByteArrayList data = m_process->readAllRawStandardOutput().split(' ');
+            const QByteArrayList data = m_process->rawStdOut().split(' ');
             if (data.size() != 3) {
                 reportFailure();
                 return;

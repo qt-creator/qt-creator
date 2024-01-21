@@ -90,8 +90,8 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
         return RunResult{
             proc.exitCode(),
-            proc.readAllRawStandardOutput(),
-            proc.readAllRawStandardError()
+            proc.rawStdOut(),
+            proc.rawStdErr()
         };
     }
 

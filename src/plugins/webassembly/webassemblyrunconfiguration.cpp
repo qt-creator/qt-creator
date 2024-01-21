@@ -103,7 +103,7 @@ static WebBrowserEntries emrunBrowsers(Target *target)
         browserLister.start();
 
         if (browserLister.waitForFinished())
-            result.append(parseEmrunOutput(browserLister.readAllRawStandardOutput()));
+            result.append(parseEmrunOutput(browserLister.rawStdOut()));
     }
     return result;
 }

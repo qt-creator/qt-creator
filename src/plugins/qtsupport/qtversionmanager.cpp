@@ -410,7 +410,7 @@ QList<QByteArray> QtVersionManagerImpl::runQtChooser(const QString &qtchooser, c
     p.start();
     p.waitForFinished();
     const bool success = p.exitCode() == 0;
-    return success ? p.readAllRawStandardOutput().split('\n') : QList<QByteArray>();
+    return success ? p.rawStdOut().split('\n') : QList<QByteArray>();
 }
 
 // Asks qtchooser for the qmake path of a given version

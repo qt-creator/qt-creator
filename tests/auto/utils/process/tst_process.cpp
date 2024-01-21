@@ -114,7 +114,7 @@ private slots:
         proc.setCommand({envPath, {}});
         proc.runBlocking();
         QCOMPARE(proc.exitCode(), 0);
-        const QByteArray output = proc.readAllRawStandardOutput() + proc.readAllRawStandardError();
+        const QByteArray output = proc.rawStdOut() + proc.rawStdErr();
         qDebug() << "Process output:" << output;
 
         QCOMPARE(output.size() > 0, qoutput.size() > 0);
@@ -1211,8 +1211,8 @@ void tst_Process::channelForwarding()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllRawStandardOutput();
-    const QByteArray error = process.readAllRawStandardError();
+    const QByteArray output = process.rawStdOut();
+    const QByteArray error = process.rawStdErr();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputForwarded);
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);

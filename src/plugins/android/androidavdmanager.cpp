@@ -253,7 +253,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &Process::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
-            const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
+            const QString errorOutput = QString::fromLatin1(avdProcess->rawStdOut());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
                 const QString title = Tr::tr("AVD Start Error");
                 QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);

@@ -662,8 +662,7 @@ CropAndTrimDialog::CropAndTrimDialog(const ClipInfo &clip, QWidget *parent)
     m_process = new Process(this);
     connect(m_process, &Process::done, this, [this] {
         if (m_process->exitCode() != 0) {
-            FFmpegUtils::reportError(m_process->commandLine(),
-                                     m_process->readAllRawStandardError());
+            FFmpegUtils::reportError(m_process->commandLine(), m_process->rawStdErr());
             return;
         }
         const QByteArray &imageData = m_process->rawStdOut();

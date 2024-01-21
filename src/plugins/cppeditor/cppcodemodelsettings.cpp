@@ -363,7 +363,7 @@ static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
     if (!clang.waitForFinished())
         return {};
     const FilePath resourceDir = FilePath::fromUserInput(QString::fromLocal8Bit(
-            clang.readAllRawStandardOutput().trimmed()));
+            clang.rawStdOut().trimmed()));
     if (resourceDir.isEmpty() || !resourceDir.exists())
         return {};
     const FilePath includeDir = resourceDir.pathAppended("include");
