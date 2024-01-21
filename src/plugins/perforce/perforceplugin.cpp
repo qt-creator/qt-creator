@@ -1220,6 +1220,9 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     response.stdErr = process.cleanedStdErr();
     response.stdOut = process.cleanedStdOut();
     response.message = process.exitMessage();
+
+    if (response.error && (flags & ErrorToWindow))
+        VcsOutputWindow::appendError(process.exitMessage());
     return response;
 }
 
@@ -1261,9 +1264,6 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
 
     if (flags & ShowBusyCursor)
         QGuiApplication::restoreOverrideCursor();
-
-    if (response.error && (flags & ErrorToWindow))
-        VcsOutputWindow::appendError(response.message);
     return response;
 }
 
