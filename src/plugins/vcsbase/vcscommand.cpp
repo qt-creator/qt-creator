@@ -104,7 +104,6 @@ void VcsCommandPrivate::cleanup()
 
 void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 {
-    process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
     if (!(m_flags & RunFlags::SuppressCommandLogging))
@@ -125,6 +124,7 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 
     ProcessProgress *progress = new ProcessProgress(process);
     progress->setDisplayName(m_displayName);
+    progress->setExpectedDuration(std::chrono::seconds(qMin(1, job.timeoutS / 5)));
     if (m_progressParser)
         progress->setProgressParser(m_progressParser);
 }
@@ -314,6 +314,7 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
         return {};
 
     d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
+    process.setTimeoutS(timeoutS);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
     process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);

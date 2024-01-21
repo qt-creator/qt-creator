@@ -377,7 +377,6 @@ void MesonProjectParser::setupProcess(const Command &command, const Environment 
     MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
                                   .arg(command.toUserOutput(), command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
-    m_process->setTimeoutS(10);
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }

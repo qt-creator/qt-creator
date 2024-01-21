@@ -147,7 +147,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(::CMakeProjectManager::Tr::tr("Configuring \"%1\"")
                              .arg(parameters.projectName));
-    m_process->setTimeoutS(10); // for process progress timeout estimation
     m_process->setCommand(commandLine);
     m_elapsed.start();
     m_process->start();

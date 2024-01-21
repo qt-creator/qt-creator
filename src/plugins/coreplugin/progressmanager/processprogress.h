@@ -26,6 +26,7 @@ public:
     void setDisplayName(const QString &name);
     void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setProgressParser(const ProgressParser &parser);
+    void setExpectedDuration(std::chrono::seconds duration); // 2s by default
 
 private:
     std::unique_ptr<ProcessProgressPrivate> d;
