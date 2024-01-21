@@ -51,8 +51,6 @@ public:
         return m_environment;
     }
 
-    int timeoutS() const;
-
     void setup();
     void cleanup();
     void setupProcess(Process *process, const Job &job);
@@ -81,12 +79,6 @@ public:
 
     RunFlags m_flags = RunFlags::None;
 };
-
-int VcsCommandPrivate::timeoutS() const
-{
-    return std::accumulate(m_jobs.cbegin(), m_jobs.cend(), 0,
-        [](int sum, const Job &job) { return sum + job.timeoutS; });
-}
 
 void VcsCommandPrivate::setup()
 {
