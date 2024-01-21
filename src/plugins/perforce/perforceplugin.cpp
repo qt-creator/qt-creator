@@ -1608,14 +1608,6 @@ QString PerforcePluginPrivate::pendingChangesData()
     return dataResponse.error ? QString() : dataResponse.stdOut;
 }
 
-static QString msgWhereFailed(const QString & file, const QString &why)
-{
-    //: Failed to run p4 "where" to resolve a Perforce file name to a local
-    //: file system name.
-    return Tr::tr("Error running \"where\" on %1: %2").
-            arg(QDir::toNativeSeparators(file), why);
-}
-
 // Map a perforce name "//xx" to its real name in the file system
 QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
 {
@@ -1640,9 +1632,11 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
 
     if (output.isEmpty()) {
         if (!quiet) {
-            //: File is not managed by Perforce
-            VcsOutputWindow::appendError(msgWhereFailed(perforceName,
-                                                        Tr::tr("The file is not mapped")));
+            //: Failed to run p4 "where" to resolve a Perforce file name to a local
+            //: file system name.
+            VcsOutputWindow::appendError(
+                Tr::tr("Error running \"where\" on %1: The file is not mapped")
+                    .arg(QDir::toNativeSeparators(perforceName)));
         }
         return {};
     }
