@@ -289,12 +289,6 @@ public:
                                         const QByteArray &stdInput,
                                         QTextCodec *outputCodec) const;
 
-    PerforceResponse fullySynchronousProcess(const FilePath &workingDir,
-                                             const QStringList &args,
-                                             unsigned flags,
-                                             const QByteArray &stdInput,
-                                             QTextCodec *outputCodec) const;
-
     QString clientFilePath(const QString &serverFilePath);
     void annotate(const FilePath &workingDir, const QString &fileName,
                   const QString &changeList = QString(), int lineNumber = -1);
@@ -1183,24 +1177,6 @@ QString PerforcePluginPrivate::vcsMakeWritableText() const
     return Tr::tr("&Hijack");
 }
 
-// Run messages
-
-static QString msgNotStarted(const FilePath &cmd)
-{
-    return Tr::tr("Could not start perforce \"%1\". Please check your settings in the preferences.")
-        .arg(cmd.toUserOutput());
-}
-
-static QString msgTimeout(int timeOutS)
-{
-    return Tr::tr("Perforce did not respond within timeout limit (%1 s).").arg(timeOutS);
-}
-
-static QString msgCrash()
-{
-    return Tr::tr("The process terminated abnormally.");
-}
-
 // Run using a SynchronousProcess, emitting signals to the message window
 PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &workingDir,
                                                            const QStringList &args,
@@ -1208,10 +1184,9 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
                                                            const QByteArray &stdInput,
                                                            QTextCodec *outputCodec) const
 {
-    QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
-
     // Run, connect stderr to the output window
     Process process;
+    process.setWriteData(stdInput);
     const int timeOutS = (flags & LongTimeOut) ? settings().longTimeOutS() : settings().timeOutS();
     process.setTimeoutS(timeOutS);
     if (outputCodec)
@@ -1234,7 +1209,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({settings().p4BinaryPath(), args});
-    process.runBlocking(EventLoopMode::On);
+    process.runBlocking(flags & RunFullySynchronous ? EventLoopMode::Off : EventLoopMode::On);
 
     const auto result = process.result();
     PerforceResponse response;
@@ -1245,62 +1220,6 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     response.stdErr = process.cleanedStdErr();
     response.stdOut = process.cleanedStdOut();
     response.message = process.exitMessage();
-    return response;
-}
-
-// Run using a QProcess, for short queries
-PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &workingDir,
-                                                                const QStringList &args,
-                                                                unsigned flags,
-                                                                const QByteArray &stdInput,
-                                                                QTextCodec *outputCodec) const
-{
-    Process process;
-
-    if (flags & OverrideDiffEnvironment)
-        process.setEnvironment(overrideDiffEnvironmentVariable());
-    if (!workingDir.isEmpty())
-        process.setWorkingDirectory(workingDir);
-
-    PerforceResponse response;
-    process.setCommand({settings().p4BinaryPath(), args});
-    process.setWriteData(stdInput);
-    process.start();
-
-    if (!process.waitForStarted(3000)) {
-        response.error = true;
-        response.message = msgNotStarted(settings().p4BinaryPath());
-        return response;
-    }
-
-    QByteArray stdOut;
-    QByteArray stdErr;
-    const int timeOutS = (flags & LongTimeOut) ? settings().longTimeOutS() : settings().timeOutS();
-    if (!process.readDataFromProcess(&stdOut, &stdErr, timeOutS)) {
-        process.stop();
-        process.waitForFinished();
-        response.error = true;
-        response.message = msgTimeout(timeOutS);
-        return response;
-    }
-    if (process.exitStatus() != QProcess::NormalExit) {
-        response.error = true;
-        response.message = msgCrash();
-        return response;
-    }
-    response.exitCode = process.exitCode();
-    response.error = response.exitCode ? !(flags & IgnoreExitCode) : false;
-    response.stdErr = QString::fromLocal8Bit(stdErr);
-    response.stdOut = outputCodec ? outputCodec->toUnicode(stdOut.constData(), stdOut.size()) :
-                                    QString::fromLocal8Bit(stdOut);
-    const QChar cr = QLatin1Char('\r');
-    response.stdErr.remove(cr);
-    response.stdOut.remove(cr);
-    // Logging
-    if ((flags & StdErrToWindow) && !response.stdErr.isEmpty())
-        VcsOutputWindow::appendError(response.stdErr);
-    if ((flags & StdOutToWindow) && !response.stdOut.isEmpty())
-        VcsOutputWindow::append(response.stdOut, VcsOutputWindow::None, flags & SilentStdOut);
     return response;
 }
 
@@ -1337,9 +1256,8 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
     if (flags & ShowBusyCursor)
         QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-    const PerforceResponse  response = (flags & RunFullySynchronous)  ?
-        fullySynchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec) :
-        synchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec);
+    const PerforceResponse response
+        = synchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec);
 
     if (flags & ShowBusyCursor)
         QGuiApplication::restoreOverrideCursor();
