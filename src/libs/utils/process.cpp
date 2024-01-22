@@ -58,17 +58,22 @@ static bool isGuiEnabled()
     return isGuiApp && isMainThread();
 }
 
+static bool isMeasuring()
+{
+    static const bool measuring = qtcEnvironmentVariableIsSet("QTC_MEASURE_PROCESS");
+    return measuring;
+}
+
 class MeasureAndRun
 {
 public:
     MeasureAndRun(const char *functionName)
         : m_functionName(functionName)
-        , m_measureProcess(qtcEnvironmentVariableIsSet("QTC_MEASURE_PROCESS"))
     {}
     template <typename Function, typename... Args>
     std::invoke_result_t<Function, Args...> measureAndRun(Function &&function, Args&&... args)
     {
-        if (!m_measureProcess)
+        if (!isMeasuring())
             return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
         QElapsedTimer timer;
         timer.start();
@@ -151,7 +156,6 @@ private:
     }
 
     const char * const m_functionName;
-    const bool m_measureProcess;
     std::atomic_int m_hitThisAll = 0;
     std::atomic_int m_hitThisMain = 0;
     std::atomic_int64_t m_totalThisAll = 0;
