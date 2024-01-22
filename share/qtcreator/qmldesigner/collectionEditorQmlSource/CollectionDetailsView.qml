@@ -46,7 +46,8 @@ Rectangle {
             rowSpacing: 1
             columnSpacing: 1
 
-            Layout.margins: StudioTheme.Values.collectionTableHorizontalMargin
+            Layout.leftMargin: StudioTheme.Values.collectionTableHorizontalMargin
+            Layout.topMargin: StudioTheme.Values.collectionTableVerticalMargin
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -238,7 +239,7 @@ Rectangle {
                             id: cellText
 
                             Text {
-                                text: display
+                                text: display ?? ""
                                 color: itemSelected ? StudioTheme.Values.themeInteraction
                                                     : StudioTheme.Values.themePlaceholderTextColorInteraction
                                 leftPadding: 5

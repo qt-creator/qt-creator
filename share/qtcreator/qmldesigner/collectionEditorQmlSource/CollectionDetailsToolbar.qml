@@ -34,8 +34,6 @@ Rectangle {
         anchors.fill: parent
         anchors.topMargin: StudioTheme.Values.toolbarVerticalMargin
         anchors.bottomMargin: StudioTheme.Values.toolbarVerticalMargin
-        anchors.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
-        anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
 
         spacing: StudioTheme.Values.sectionRowSpacing
 
@@ -43,6 +41,7 @@ Rectangle {
             id: leftSideToolbar
 
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            Layout.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
             spacing: StudioTheme.Values.sectionRowSpacing
 
             IconButton {
@@ -93,15 +92,12 @@ Rectangle {
             }
         }
 
-        Item { // spacer
-            Layout.minimumHeight: 1
-            Layout.fillWidth: true
-        }
-
         RowLayout {
             id: rightSideToolbar
+
             spacing: StudioTheme.Values.sectionRowSpacing
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            Layout.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
 
             IconButton {
                 buttonIcon: StudioTheme.Constants.save_medium
