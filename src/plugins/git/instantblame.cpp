@@ -127,7 +127,7 @@ void InstantBlame::setup()
 
         const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
         if (!widget) {
-            qCWarning(log) << "Cannot get widget for editor" << editor;
+            qCInfo(log) << "Cannot get widget for editor" << editor;
             return;
         }
 
