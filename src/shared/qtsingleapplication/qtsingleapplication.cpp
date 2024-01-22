@@ -213,7 +213,7 @@ public:
 private:
     bool m_inNotify = false;
     const QString m_align;
-    std::chrono::milliseconds m_threshold = std::chrono::milliseconds(100);
+    std::chrono::milliseconds m_threshold{100};
 };
 
 QtSingleApplication *createApplication(const QString &id, int &argc, char **argv)
