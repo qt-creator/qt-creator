@@ -115,10 +115,34 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
         QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
     for (const QString &filePath : filePaths) {
-        if (QFileInfo::exists(filePath) && !QFile::remove(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Delete File"),
-                                 tr("Could not delete \"%1\".").arg(filePath));
+        QFileInfo fi(filePath);
+        if (fi.exists()) {
+            if (QFile::remove(filePath)) {
+                if (Asset(filePath).isEffect()) {
+                    // If effect maker effect was removed, also remove effect module from project
+                    QString effectName = fi.baseName();
+                    if (!effectName.isEmpty()) {
+                        Utils::FilePath eDir = ModelNodeOperations::getEffectsImportDirectory();
+                        eDir = eDir.pathAppended(effectName);
+                        // The size check is to weed out cases where project path somehow resolves
+                        // to just slash. Shortest legal currentProjectDirPath() would be "/a/".
+                        if (currentProjectDirPath().size() > 2 && eDir.exists()
+                            && eDir.toString().startsWith(currentProjectDirPath())) {
+                            QString error;
+                            eDir.removeRecursively(&error);
+                            if (!error.isEmpty()) {
+                                QMessageBox::warning(Core::ICore::dialogParent(),
+                                                     tr("Failed to Delete Effect Resources"),
+                                                     tr("Could not delete \"%1\".").arg(eDir.toString()));
+                            }
+                        }
+                    }
+                }
+            } else {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Delete File"),
+                                     tr("Could not delete \"%1\".").arg(filePath));
+            }
         }
     }
 }
