@@ -312,17 +312,13 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     beginResetModel();
     clearSections();
 
-    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    Utils::FilePath qmlFileName = document->fileName();
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(qmlFileName);
-    QString projectName = project ? project->displayName() : "";
-
     QStringList excludedImports {
         QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".MaterialBundle",
         QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".EffectBundle"
     };
 
     // create import sections
+    const QString projectName = DocumentManager::currentProjectName();
     const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
@@ -364,6 +360,7 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
         itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importUrl()));
     }
 
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     const bool blockNewImports = document->inFileComponentModelActive();
     const QList<ItemLibraryEntry> itemLibEntries = model->itemLibraryEntries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
