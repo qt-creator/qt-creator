@@ -565,7 +565,7 @@ public:
     ProcessLauncherBlockingImpl(CallerHandle *caller) : m_caller(caller) {}
 
 private:
-    bool waitForSignal(ProcessSignalType signalType, int msecs) final
+    bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout) final
     {
         // TODO: Remove CallerHandle::SignalType
         const CallerHandle::SignalType type = [signalType] {
@@ -580,7 +580,7 @@ private:
             QTC_CHECK(false);
             return CallerHandle::SignalType::NoSignal;
         }();
-        return m_caller->waitForSignal(type, msecs);
+        return m_caller->waitForSignal(type, timeout);
     }
 
     CallerHandle *m_caller = nullptr;
@@ -718,7 +718,7 @@ public:
     ProcessInterfaceHandler(GeneralProcessBlockingImpl *caller, ProcessInterface *process);
 
     // Called from caller's thread exclusively.
-    bool waitForSignal(ProcessSignalType newSignal, int msecs);
+    bool waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout);
     void moveToCallerThread();
 
 private:
@@ -753,7 +753,7 @@ public:
 
 private:
     // Called from caller's thread exclusively
-    bool waitForSignal(ProcessSignalType newSignal, int msecs) final;
+    bool waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout) final;
 
     QList<ProcessInterfaceSignal *> takeAllSignals();
     QList<ProcessInterfaceSignal *> takeSignalsFor(ProcessSignalType signalType);
@@ -873,13 +873,12 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(GeneralProcessBlockingImpl *cal
 }
 
 // Called from caller's thread exclusively.
-bool ProcessInterfaceHandler::waitForSignal(ProcessSignalType newSignal, int msecs)
+bool ProcessInterfaceHandler::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
 {
-    QDeadlineTimer deadline(msecs);
     while (true) {
-        if (deadline.hasExpired())
+        if (timeout.hasExpired())
             break;
-        if (!doWaitForSignal(deadline))
+        if (!doWaitForSignal(timeout))
             break;
         // Matching (or Done) signal was flushed
         if (m_caller->flushFor(newSignal))
@@ -957,7 +956,7 @@ GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(ProcessPrivate *parent)
     //          +- ProcessInterface
 }
 
-bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, int msecs)
+bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
 {
     m_processHandler->setParent(nullptr);
 
@@ -968,7 +967,7 @@ bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, int 
     // the caller here is blocked, so all signals should be buffered and we are going
     // to flush them from inside waitForSignal().
     m_processHandler->moveToThread(&thread);
-    const bool result = m_processHandler->waitForSignal(newSignal, msecs);
+    const bool result = m_processHandler->waitForSignal(newSignal, timeout);
     m_processHandler->moveToCallerThread();
     m_processHandler->setParent(this);
     thread.quit();
@@ -1068,11 +1067,12 @@ bool ProcessPrivate::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer t
     const bool needsSplit = m_killTimer.isActive() && timeout > currentKillTimeout;
     const QDeadlineTimer mainTimeout = needsSplit ? currentKillTimeout : timeout;
 
-    bool result = m_blockingInterface->waitForSignal(newSignal, mainTimeout.remainingTime());
+    bool result = m_blockingInterface->waitForSignal(newSignal,
+         duration_cast<milliseconds>(mainTimeout.remainingTimeAsDuration()));
     if (!result && needsSplit) {
         m_killTimer.stop();
         sendControlSignal(ControlSignal::Kill);
-        result = m_blockingInterface->waitForSignal(newSignal, timeout.remainingTime());
+        result = m_blockingInterface->waitForSignal(newSignal, timeout);
     }
     return result;
 }

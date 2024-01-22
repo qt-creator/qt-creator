@@ -51,7 +51,7 @@ public:
     LauncherHandle *launcherHandle() const { return m_launcherHandle; }
     void setLauncherHandle(LauncherHandle *handle) { QMutexLocker locker(&m_mutex); m_launcherHandle = handle; }
 
-    bool waitForSignal(CallerHandle::SignalType signalType, int msecs);
+    bool waitForSignal(CallerHandle::SignalType signalType, QDeadlineTimer timeout);
 
     // Returns the list of flushed signals.
     void flush();
@@ -132,7 +132,7 @@ public:
     // Called from caller's thread, moved to launcher's thread afterwards.
     LauncherHandle(quintptr token) : m_token(token) {}
     // Called from caller's thread exclusively.
-    bool waitForSignal(CallerHandle::SignalType newSignal, int msecs);
+    bool waitForSignal(CallerHandle::SignalType newSignal, QDeadlineTimer timeout);
     CallerHandle *callerHandle() const { return m_callerHandle; }
     void setCallerHandle(CallerHandle *handle) { QMutexLocker locker(&m_mutex); m_callerHandle = handle; }
 

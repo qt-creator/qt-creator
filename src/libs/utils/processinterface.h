@@ -9,6 +9,7 @@
 #include "commandline.h"
 #include "processenums.h"
 
+#include <QDeadlineTimer>
 #include <QProcess>
 #include <QSize>
 
@@ -125,7 +126,7 @@ private:
     // - Started is being called only in Starting state.
     // - ReadyRead is being called in Starting or Running state.
     // - Done is being called in Starting or Running state.
-    virtual bool waitForSignal(ProcessSignalType signalType, int msecs) = 0;
+    virtual bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout) = 0;
 
     friend class Internal::ProcessPrivate;
 };

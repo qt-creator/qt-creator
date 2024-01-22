@@ -300,11 +300,11 @@ void CallerHandle::setProcessSetupData(ProcessSetupData *setup)
     m_setup = setup;
 }
 
-bool CallerHandle::waitForSignal(SignalType signalType, int msecs)
+bool CallerHandle::waitForSignal(SignalType signalType, QDeadlineTimer timeout)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return false);
     QTC_ASSERT(m_launcherHandle, return false);
-    return m_launcherHandle->waitForSignal(signalType, msecs);
+    return m_launcherHandle->waitForSignal(signalType, timeout);
 }
 
 // Called from caller's or launcher's thread.
@@ -322,14 +322,13 @@ bool CallerHandle::isCalledFromLaunchersThread() const
 }
 
 // Called from caller's thread exclusively.
-bool LauncherHandle::waitForSignal(CallerHandle::SignalType newSignal, int msecs)
+bool LauncherHandle::waitForSignal(CallerHandle::SignalType newSignal, QDeadlineTimer timeout)
 {
     QTC_ASSERT(!isCalledFromLaunchersThread(), return false);
-    QDeadlineTimer deadline(msecs);
     while (true) {
-        if (deadline.hasExpired())
+        if (timeout.hasExpired())
             break;
-        if (!doWaitForSignal(deadline))
+        if (!doWaitForSignal(timeout))
             break;
         // Matching (or Done) signal was flushed
         if (m_callerHandle->flushFor(newSignal))
