@@ -106,7 +106,7 @@ void ToolchainManager::restoreToolchains()
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolchainSettingsAccessor>();
 
-    for (Toolchain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
+    for (Toolchain *tc : d->m_accessor->restoreToolchains(Core::ICore::dialogParent()))
         registerToolchain(tc);
 
     d->m_loaded = true;
@@ -117,7 +117,7 @@ void ToolchainManager::saveToolchains()
 {
     QTC_ASSERT(d->m_accessor, return);
 
-    d->m_accessor->saveToolChains(d->m_toolChains, Core::ICore::dialogParent());
+    d->m_accessor->saveToolchains(d->m_toolChains, Core::ICore::dialogParent());
     QtcSettings *const s = Core::ICore::settings();
     s->setValueWithDefault(DETECT_X64_AS_X32_KEY,
                            d->m_detectionSettings.detectX64AsX32,
@@ -254,7 +254,7 @@ bool ToolchainManager::isLanguageSupported(const Utils::Id &id)
 void ToolchainManager::aboutToShutdown()
 {
     if (HostOsInfo::isWindowsHost())
-        MsvcToolChain::cancelMsvcToolChainDetection();
+        MsvcToolchain::cancelMsvcToolChainDetection();
 }
 
 ToolchainDetectionSettings ToolchainManager::detectionSettings()

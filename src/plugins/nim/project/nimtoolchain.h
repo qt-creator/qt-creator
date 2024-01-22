@@ -8,11 +8,11 @@
 
 namespace Nim {
 
-class NimToolChain : public ProjectExplorer::Toolchain
+class NimToolchain : public ProjectExplorer::Toolchain
 {
 public:
-    NimToolChain();
-    explicit NimToolChain(Utils::Id typeId);
+    NimToolchain();
+    explicit NimToolchain(Utils::Id typeId);
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;

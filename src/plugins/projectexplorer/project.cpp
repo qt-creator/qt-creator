@@ -1617,7 +1617,7 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
 
     const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
     QVERIFY(toolchain);
-    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolChain *>(toolchain)) {
+    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolchain *>(toolchain)) {
         while (!msvcToolchain->environmentInitialized()) {
             QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
                                           &ToolchainManager::toolchainUpdated);

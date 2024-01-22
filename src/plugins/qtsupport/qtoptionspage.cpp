@@ -192,7 +192,7 @@ private:
     };
     ValidityInfo validInformation(const QtVersion *version);
     QList<ProjectExplorer::Toolchain*> toolChains(const QtVersion *version);
-    QByteArray defaultToolChainId(const QtVersion *version);
+    QByteArray defaultToolchainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
     void updateVersionItem(QtVersionItem *item);
@@ -484,7 +484,7 @@ QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const 
     }
 
     // Do we have tool chain issues?
-    Abis missingToolChains;
+    Abis missingToolchains;
     const Abis qtAbis = version->qtAbis();
 
     for (const Abi &abi : qtAbis) {
@@ -495,7 +495,7 @@ QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const 
         };
 
         if (!ToolchainManager::toolchain(abiCompatePred))
-            missingToolChains.append(abi);
+            missingToolchains.append(abi);
     }
 
     bool useable = true;
@@ -503,8 +503,8 @@ QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const 
     if (!isNameUnique(version))
         warnings << Tr::tr("Display Name is not unique.");
 
-    if (!missingToolChains.isEmpty()) {
-        if (missingToolChains.count() == qtAbis.size()) {
+    if (!missingToolchains.isEmpty()) {
+        if (missingToolchains.count() == qtAbis.size()) {
             // Yes, this Qt version can't be used at all!
             info.message =
                 Tr::tr("No compiler can produce code for this Qt version."
@@ -515,7 +515,7 @@ QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const 
             // Yes, some ABIs are unsupported
             warnings << Tr::tr("Not all possible target environments can be supported due to missing compilers.");
             info.toolTip = Tr::tr("The following ABIs are currently not supported: %1")
-                    .arg(formatAbiHtmlList(missingToolChains));
+                    .arg(formatAbiHtmlList(missingToolchains));
             info.icon = m_warningVersionIcon;
         }
     }
@@ -550,7 +550,7 @@ QList<Toolchain*> QtSettingsPageWidget::toolChains(const QtVersion *version)
     return toolChains;
 }
 
-QByteArray QtSettingsPageWidget::defaultToolChainId(const QtVersion *version)
+QByteArray QtSettingsPageWidget::defaultToolchainId(const QtVersion *version)
 {
     QList<Toolchain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())

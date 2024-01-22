@@ -54,8 +54,8 @@ static bool hasOtherUsers(Utils::Id id, const QVariant &v, Kit *k)
 ProjectImporter::ProjectImporter(const Utils::FilePath &path) : m_projectPath(path)
 {
     useTemporaryKitAspect(ToolchainKitAspect::id(),
-                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolChains(k, vl); },
-                               [this](Kit *k, const QVariantList &vl) { persistTemporaryToolChains(k, vl); });
+                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolchains(k, vl); },
+                               [this](Kit *k, const QVariantList &vl) { persistTemporaryToolchains(k, vl); });
 }
 
 ProjectImporter::~ProjectImporter()
@@ -316,7 +316,7 @@ static Toolchain *toolChainFromVariant(const QVariant &v)
     return ToolchainManager::findToolchain(tcId);
 }
 
-void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
+void ProjectImporter::cleanupTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
     for (const QVariant &v : vl) {
         Toolchain *tc = toolChainFromVariant(v);
@@ -326,7 +326,7 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
     }
 }
 
-void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
+void ProjectImporter::persistTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
     for (const QVariant &v : vl) {
         Toolchain *tmpTc = toolChainFromVariant(v);

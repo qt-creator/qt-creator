@@ -827,8 +827,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
 static RawProjectPart generateProjectPart(
         const QJsonObject &product,
         const QJsonObject &group,
-        const std::shared_ptr<const Toolchain> &cToolChain,
-        const std::shared_ptr<const Toolchain> &cxxToolChain,
+        const std::shared_ptr<const Toolchain> &cToolchain,
+        const std::shared_ptr<const Toolchain> &cxxToolchain,
         QtMajorVersion qtVersion,
         QString cPch,
         QString cxxPch,
@@ -850,8 +850,8 @@ static RawProjectPart generateProjectPart(
     QStringList cFlags;
     QStringList cxxFlags;
     getExpandedCompilerFlags(cFlags, cxxFlags, props);
-    rpp.setFlagsForC({cToolChain.get(), cFlags, {}});
-    rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags, {}});
+    rpp.setFlagsForC({cToolchain.get(), cFlags, {}});
+    rpp.setFlagsForCxx({cxxToolchain.get(), cxxFlags, {}});
 
     const QStringList defines = arrayToStringList(props.value("cpp.defines"))
             + arrayToStringList(props.value("cpp.platformDefines"));
@@ -952,8 +952,8 @@ static RawProjectPart generateProjectPart(
 
 static RawProjectParts generateProjectParts(
         const QJsonObject &projectData,
-        const std::shared_ptr<const Toolchain> &cToolChain,
-        const std::shared_ptr<const Toolchain> &cxxToolChain,
+        const std::shared_ptr<const Toolchain> &cToolchain,
+        const std::shared_ptr<const Toolchain> &cxxToolchain,
         QtMajorVersion qtVersion
         )
 {
@@ -986,11 +986,11 @@ static RawProjectParts generateProjectParts(
         };
         for (const QJsonValue &g : groups) {
             appendIfNotEmpty(generateProjectPart(
-                                 prd, g.toObject(), cToolChain, cxxToolChain, qtVersionForPart,
+                                 prd, g.toObject(), cToolchain, cxxToolchain, qtVersionForPart,
                                  cPch, cxxPch, objcPch, objcxxPch));
         }
         appendIfNotEmpty(generateProjectPart(
-                             prd, {}, cToolChain, cxxToolChain, qtVersionForPart,
+                             prd, {}, cToolchain, cxxToolchain, qtVersionForPart,
                              cPch, cxxPch, objcPch, objcxxPch));
     });
     return rpps;

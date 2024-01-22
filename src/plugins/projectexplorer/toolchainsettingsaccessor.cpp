@@ -193,7 +193,7 @@ ToolchainSettingsAccessor::ToolchainSettingsAccessor()
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
 
-Toolchains ToolchainSettingsAccessor::restoreToolChains(QWidget *parent) const
+Toolchains ToolchainSettingsAccessor::restoreToolchains(QWidget *parent) const
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
@@ -229,7 +229,7 @@ Toolchains ToolchainSettingsAccessor::restoreToolChains(QWidget *parent) const
     return ops.toRegister;
 }
 
-void ToolchainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
+void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWidget *parent)
 {
     Store data;
 

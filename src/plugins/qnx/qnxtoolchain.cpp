@@ -277,7 +277,7 @@ public:
     }
 };
 
-void setupQnxToolChain()
+void setupQnxToolchain()
 {
     static QnxToolchainFactory theQnxToolChainFactory;
 }

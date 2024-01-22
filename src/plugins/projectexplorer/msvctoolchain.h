@@ -4,7 +4,6 @@
 #pragma once
 
 #include "abi.h"
-#include "abiwidget.h"
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
 
@@ -20,15 +19,15 @@ namespace ProjectExplorer::Internal {
 // MsvcToolChain
 // --------------------------------------------------------------------------
 
-class MsvcToolChain : public Toolchain
+class MsvcToolchain : public Toolchain
 {
 public:
     enum Type { WindowsSDK, VS };
     enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86,
                     x86_arm64, amd64_arm64, arm64, arm64_x86, arm64_amd64 };
 
-    explicit MsvcToolChain(Utils::Id typeId);
-    ~MsvcToolChain() override;
+    explicit MsvcToolchain(Utils::Id typeId);
+    ~MsvcToolchain() override;
 
     bool isValid() const override;
 
@@ -127,10 +126,10 @@ protected:
     QString m_varsBatArg; // Argument
 };
 
-class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
+class PROJECTEXPLORER_EXPORT ClangClToolchain : public MsvcToolchain
 {
 public:
-    ClangClToolChain();
+    ClangClToolchain();
 
     bool isValid() const override;
     QStringList suggestedMkspecList() const override;
@@ -143,7 +142,7 @@ public:
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
 
-    const QList<MsvcToolChain *> &msvcToolchains() const;
+    const QList<MsvcToolchain *> &msvcToolchains() const;
     Utils::FilePath clangPath() const { return m_clangPath; }
     void setClangPath(const Utils::FilePath &path) { m_clangPath = path; }
 

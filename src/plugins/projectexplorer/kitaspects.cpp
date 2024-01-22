@@ -223,7 +223,7 @@ public:
             ++row;
 
             connect(cb, &QComboBox::currentIndexChanged, this, [this, l](int idx) {
-                currentToolChainChanged(l, idx);
+                currentToolchainChanged(l, idx);
             });
         }
 
@@ -286,7 +286,7 @@ private:
             cb->setEnabled(false);
     }
 
-    void currentToolChainChanged(Id language, int idx)
+    void currentToolchainChanged(Id language, int idx)
     {
         if (m_ignoreChanges.isLocked() || idx < 0)
             return;
@@ -370,7 +370,7 @@ static QMap<Id, QByteArray> defaultToolChainIds()
     return toolChains;
 }
 
-static Store defaultToolChainValue()
+static Store defaultToolchainValue()
 {
     const QMap<Id, QByteArray> toolChains = defaultToolChainIds();
     Store result;
@@ -432,7 +432,7 @@ void ToolchainKitAspectFactory::setup(Kit *k)
     Store value = storeFromVariant(k->value(id()));
     bool lockToolchains = k->isSdkProvided() && !value.isEmpty();
     if (value.empty())
-        value = defaultToolChainValue();
+        value = defaultToolchainValue();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
         Id l = findLanguage(stringFromKey(i.key()));
@@ -594,7 +594,7 @@ void ToolchainKitAspect::setToolchain(Kit *k, Toolchain *tc)
 }
 
 /**
- * @brief ToolChainKitAspect::setAllToolChainsToMatch
+ * @brief ToolchainKitAspect::setAllToolchainsToMatch
  *
  * Set up all toolchains to be similar to the one toolchain provided. Similar ideally means
  * that all toolchains use the "same" compiler from the same installation, but we will

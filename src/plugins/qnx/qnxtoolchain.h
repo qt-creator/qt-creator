@@ -26,6 +26,6 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 };
 
-void setupQnxToolChain();
+void setupQnxToolchain();
 
 } // Qnx::Internal

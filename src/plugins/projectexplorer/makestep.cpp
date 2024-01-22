@@ -127,7 +127,7 @@ QString MakeStep::defaultDisplayName()
     return Tr::tr("Make");
 }
 
-static const QList<Toolchain *> preferredToolChains(const Kit *kit)
+static const QList<Toolchain *> preferredToolchains(const Kit *kit)
 {
     // prefer CXX, then C, then others
     return Utils::sorted(ToolchainKitAspect::toolChains(kit), [](Toolchain *tcA, Toolchain *tcB) {
@@ -146,7 +146,7 @@ static const QList<Toolchain *> preferredToolChains(const Kit *kit)
 FilePath MakeStep::defaultMakeCommand() const
 {
     const Environment env = makeEnvironment();
-    for (const Toolchain *tc : preferredToolChains(kit())) {
+    for (const Toolchain *tc : preferredToolchains(kit())) {
         FilePath make = tc->makeCommand(env);
         if (!make.isEmpty()) {
             IDevice::ConstPtr dev = BuildDeviceKitAspect::device(kit());
@@ -169,7 +169,7 @@ Task MakeStep::makeCommandMissingTask()
 
 bool MakeStep::isJobCountSupported() const
 {
-    const QList<Toolchain *> tcs = preferredToolChains(kit());
+    const QList<Toolchain *> tcs = preferredToolchains(kit());
     const Toolchain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
     return tc && tc->isJobCountSupported();
 }
@@ -236,7 +236,7 @@ Environment MakeStep::makeEnvironment() const
     env.setupEnglishOutput();
     if (makeCommand().isEmpty()) {
         // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-        const QList<Toolchain *> tcs = preferredToolChains(target()->kit());
+        const QList<Toolchain *> tcs = preferredToolchains(target()->kit());
         const Toolchain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
         if (tc && tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {

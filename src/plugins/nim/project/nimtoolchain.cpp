@@ -27,11 +27,11 @@ using namespace Utils;
 
 namespace Nim {
 
-NimToolChain::NimToolChain()
-    : NimToolChain(Constants::C_NIMTOOLCHAIN_TYPEID)
+NimToolchain::NimToolchain()
+    : NimToolchain(Constants::C_NIMTOOLCHAIN_TYPEID)
 {}
 
-NimToolChain::NimToolChain(Utils::Id typeId)
+NimToolchain::NimToolchain(Utils::Id typeId)
     : Toolchain(typeId)
     , m_version(std::make_tuple(-1,-1,-1))
 {
@@ -41,45 +41,45 @@ NimToolChain::NimToolChain(Utils::Id typeId)
     setCompilerCommandKey("Nim.NimToolChain.CompilerCommand");
 }
 
-Toolchain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner NimToolchain::createMacroInspectionRunner() const
 {
     return Toolchain::MacroInspectionRunner();
 }
 
-LanguageExtensions NimToolChain::languageExtensions(const QStringList &) const
+LanguageExtensions NimToolchain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
 }
 
-WarningFlags NimToolChain::warningFlags(const QStringList &) const
+WarningFlags NimToolchain::warningFlags(const QStringList &) const
 {
     return WarningFlags::NoWarnings;
 }
 
-Toolchain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner NimToolchain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     return Toolchain::BuiltInHeaderPathsRunner();
 }
 
-void NimToolChain::addToEnvironment(Environment &env) const
+void NimToolchain::addToEnvironment(Environment &env) const
 {
     if (isValid())
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-FilePath NimToolChain::makeCommand(const Environment &env) const
+FilePath NimToolchain::makeCommand(const Environment &env) const
 {
     const FilePath tmp = env.searchInPath("make");
     return tmp.isEmpty() ? FilePath("make") : tmp;
 }
 
-QList<Utils::OutputLineParser *> NimToolChain::createOutputParsers() const
+QList<Utils::OutputLineParser *> NimToolchain::createOutputParsers() const
 {
     return {};
 }
 
-QString NimToolChain::compilerVersion() const
+QString NimToolchain::compilerVersion() const
 {
     return compilerCommand().isEmpty() || m_version == std::make_tuple(-1,-1,-1)
             ? QString()
@@ -89,7 +89,7 @@ QString NimToolChain::compilerVersion() const
                                 std::get<2>(m_version));
 }
 
-void NimToolChain::fromMap(const Store &data)
+void NimToolchain::fromMap(const Store &data)
 {
     Toolchain::fromMap(data);
     if (hasError())
@@ -97,7 +97,7 @@ void NimToolChain::fromMap(const Store &data)
     parseVersion(compilerCommand(), m_version);
 }
 
-bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)
+bool NimToolchain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)
 {
     Process process;
     process.setCommand({path, {"--version"}});
@@ -123,7 +123,7 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
 class NimToolchainConfigWidget : public ToolchainConfigWidget
 {
 public:
-    explicit NimToolchainConfigWidget(NimToolChain *tc)
+    explicit NimToolchainConfigWidget(NimToolchain *tc)
         : ToolchainConfigWidget(tc)
         , m_compilerCommand(new PathChooser)
         , m_compilerVersion(new QLineEdit)
@@ -142,7 +142,7 @@ public:
         // Connect
         connect(m_compilerCommand, &PathChooser::validChanged, this, [this] {
             const FilePath path = m_compilerCommand->rawFilePath();
-            auto tc = static_cast<NimToolChain *>(toolchain());
+            auto tc = static_cast<NimToolchain *>(toolchain());
             QTC_ASSERT(tc, return);
             tc->setCompilerCommand(path);
             fillUI();
@@ -164,7 +164,7 @@ private:
 
 void NimToolchainConfigWidget::applyImpl()
 {
-    auto tc = static_cast<NimToolChain *>(toolchain());
+    auto tc = static_cast<NimToolchain *>(toolchain());
     Q_ASSERT(tc);
     if (tc->isAutoDetected())
         return;
@@ -178,7 +178,7 @@ void NimToolchainConfigWidget::discardImpl()
 
 bool NimToolchainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<NimToolChain *>(toolchain());
+    auto tc = static_cast<NimToolchain *>(toolchain());
     Q_ASSERT(tc);
     return tc->compilerCommand() != m_compilerCommand->filePath();
 }
@@ -190,13 +190,13 @@ void NimToolchainConfigWidget::makeReadOnlyImpl()
 
 void NimToolchainConfigWidget::fillUI()
 {
-    auto tc = static_cast<NimToolChain *>(toolchain());
+    auto tc = static_cast<NimToolchain *>(toolchain());
     Q_ASSERT(tc);
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_compilerVersion->setText(tc->compilerVersion());
 }
 
-std::unique_ptr<ToolchainConfigWidget> NimToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> NimToolchain::createConfigurationWidget()
 {
     return std::make_unique<NimToolchainConfigWidget>(this);
 }
@@ -208,7 +208,7 @@ NimToolchainFactory::NimToolchainFactory()
     setDisplayName(Tr::tr("Nim"));
     setSupportedToolchainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
-    setToolchainConstructor([] { return new NimToolChain; });
+    setToolchainConstructor([] { return new NimToolchain; });
     setUserCreatable(true);
 }
 
@@ -228,7 +228,7 @@ Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (!result.empty())
         return result;
 
-    auto tc = new NimToolChain;
+    auto tc = new NimToolchain;
     tc->setDetection(Toolchain::AutoDetection);
     tc->setCompilerCommand(compilerPath);
     result.append(tc);
@@ -239,7 +239,7 @@ Toolchains NimToolchainFactory::detectForImport(const ToolchainDescription &tcd)
 {
     Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {
-        auto tc = new NimToolChain;
+        auto tc = new NimToolchain;
         tc->setDetection(Toolchain::ManualDetection); // FIXME: sure?
         tc->setCompilerCommand(tcd.compilerPath);
         result.append(tc);

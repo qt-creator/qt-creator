@@ -84,7 +84,7 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupQnxDevice();
-        setupQnxToolChain();
+        setupQnxToolchain();
         setupQnxQtVersion();
         setupQnxDeployment();
         setupQnxRunnning();

@@ -22,7 +22,7 @@
     \brief The Abi class represents the Application Binary Interface (ABI) of
     a target platform.
 
-    \sa ProjectExplorer::ToolChain
+    \sa ProjectExplorer::Toolchain
 */
 
 namespace ProjectExplorer {

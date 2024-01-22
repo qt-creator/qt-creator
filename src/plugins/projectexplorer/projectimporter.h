@@ -93,8 +93,8 @@ private:
     void markKitAsTemporary(Kit *k) const;
     bool findTemporaryHandler(Utils::Id id) const;
 
-    void cleanupTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
-    void persistTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void cleanupTemporaryToolchains(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void persistTemporaryToolchains(ProjectExplorer::Kit *k, const QVariantList &vl);
 
     const Utils::FilePath m_projectPath;
     mutable bool m_isUpdating = false;

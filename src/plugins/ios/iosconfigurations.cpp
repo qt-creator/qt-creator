@@ -586,14 +586,14 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return {};
 
-    QList<GccToolchain *> existingClangToolChains = clangToolchains(detector.alreadyKnown);
+    QList<GccToolchain *> existingClangToolchains = clangToolchains(detector.alreadyKnown);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
     Toolchains toolchains;
     toolchains.reserve(platforms.size());
     for (const XcodePlatform &platform : platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
             ToolchainPair platformToolchains = findToolchainForPlatform(platform, target,
-                                                                        existingClangToolChains);
+                                                                        existingClangToolchains);
             auto createOrAdd = [&](GccToolchain *toolChain, Id l) {
                 if (!toolChain) {
                     toolChain = new GccToolchain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
@@ -606,7 +606,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                     toolChain->setPlatformLinkerFlags(target.backendFlags);
                     toolChain->resetToolchain(l == ProjectExplorer::Constants::CXX_LANGUAGE_ID ?
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
-                    existingClangToolChains.append(toolChain);
+                    existingClangToolchains.append(toolChain);
                 }
                 toolchains.append(toolChain);
             };

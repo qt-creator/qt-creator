@@ -21,7 +21,7 @@ RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
                                          const Utils::FilePath &includeFileBaseDir)
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
-    // operations are encapsulated in ToolChainInfo as "runners".
+    // operations are encapsulated in ToolchainInfo as "runners".
     this->commandLineFlags = commandLineFlags;
     if (toolChain) {
         warningFlags = toolChain->warningFlags(commandLineFlags);

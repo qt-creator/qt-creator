@@ -242,7 +242,7 @@ void QtKitAspectFactory::fix(Kit *k)
     if (!possibleTcs.isEmpty()) {
         // Prefer exact matches.
         // TODO: We should probably prefer the compiler with the highest version number instead,
-        //       but this information is currently not exposed by the ToolChain class.
+        //       but this information is currently not exposed by the Toolchain class.
         const FilePaths envPathVar = Environment::systemEnvironment().path();
         sort(possibleTcs, [version, &envPathVar](const Toolchain *tc1, const Toolchain *tc2) {
             const QVector<Abi> &qtAbis = version->qtAbis();

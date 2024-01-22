@@ -42,13 +42,13 @@ const char mkspecsKeyC[] = "ProjectExplorer.CustomToolChain.Mkspecs";
 const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
 
 // --------------------------------------------------------------------------
-// CustomToolChain
+// CustomToolchain
 // --------------------------------------------------------------------------
 
-class CustomToolChain : public Toolchain
+class CustomToolchain : public Toolchain
 {
 public:
-    CustomToolChain()
+    CustomToolchain()
         : Toolchain(Constants::CUSTOM_TOOLCHAIN_TYPEID)
         , m_outputParserId(GccParser::id())
     {
@@ -96,7 +96,7 @@ public:
 
     Id outputParserId() const;
     void setOutputParserId(Id parserId);
-    static QList<CustomToolChain::Parser> parsers();
+    static QList<CustomToolchain::Parser> parsers();
 
     CustomParserSettings customParserSettings() const;
 
@@ -111,7 +111,7 @@ private:
     Id m_outputParserId;
 };
 
-CustomParserSettings CustomToolChain::customParserSettings() const
+CustomParserSettings CustomToolchain::customParserSettings() const
 {
     return findOrDefault(ProjectExplorerPlugin::customParsers(),
                          [this](const CustomParserSettings &s) {
@@ -119,12 +119,12 @@ CustomParserSettings CustomToolChain::customParserSettings() const
     });
 }
 
-bool CustomToolChain::isValid() const
+bool CustomToolchain::isValid() const
 {
     return true;
 }
 
-Toolchain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner CustomToolchain::createMacroInspectionRunner() const
 {
     const Macros theMacros = m_predefinedMacros;
     const Id lang = language();
@@ -143,23 +143,23 @@ Toolchain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() 
     };
 }
 
-LanguageExtensions CustomToolChain::languageExtensions(const QStringList &) const
+LanguageExtensions CustomToolchain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
 }
 
-WarningFlags CustomToolChain::warningFlags(const QStringList &cxxflags) const
+WarningFlags CustomToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 
-const Macros &CustomToolChain::rawPredefinedMacros() const
+const Macros &CustomToolchain::rawPredefinedMacros() const
 {
     return m_predefinedMacros;
 }
 
-void CustomToolChain::setPredefinedMacros(const Macros &macros)
+void CustomToolchain::setPredefinedMacros(const Macros &macros)
 {
     if (m_predefinedMacros == macros)
         return;
@@ -167,7 +167,7 @@ void CustomToolChain::setPredefinedMacros(const Macros &macros)
     toolChainUpdated();
 }
 
-Toolchain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner CustomToolchain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     const HeaderPaths builtInHeaderPaths = m_builtInHeaderPaths;
@@ -185,7 +185,7 @@ Toolchain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
     };
 }
 
-void CustomToolChain::addToEnvironment(Environment &env) const
+void CustomToolchain::addToEnvironment(Environment &env) const
 {
     const FilePath compiler = compilerCommand();
     if (compiler.isEmpty())
@@ -197,12 +197,12 @@ void CustomToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(makePath);
 }
 
-QStringList CustomToolChain::suggestedMkspecList() const
+QStringList CustomToolchain::suggestedMkspecList() const
 {
     return m_mkspecs;
 }
 
-QList<OutputLineParser *> CustomToolChain::createOutputParsers() const
+QList<OutputLineParser *> CustomToolchain::createOutputParsers() const
 {
     if (m_outputParserId == GccParser::id())
         return GccParser::gccParserSuite();
@@ -215,12 +215,12 @@ QList<OutputLineParser *> CustomToolChain::createOutputParsers() const
     return {new CustomParser(customParserSettings())};
 }
 
-QStringList CustomToolChain::headerPathsList() const
+QStringList CustomToolchain::headerPathsList() const
 {
     return Utils::transform<QList>(m_builtInHeaderPaths, &HeaderPath::path);
 }
 
-void CustomToolChain::setHeaderPaths(const QStringList &list)
+void CustomToolchain::setHeaderPaths(const QStringList &list)
 {
     HeaderPaths tmp = Utils::transform<QVector>(list, [](const QString &headerPath) {
         return HeaderPath::makeBuiltIn(headerPath.trimmed());
@@ -232,7 +232,7 @@ void CustomToolChain::setHeaderPaths(const QStringList &list)
     toolChainUpdated();
 }
 
-void CustomToolChain::setMakeCommand(const FilePath &path)
+void CustomToolchain::setMakeCommand(const FilePath &path)
 {
     if (path == m_makeCommand)
         return;
@@ -240,12 +240,12 @@ void CustomToolChain::setMakeCommand(const FilePath &path)
     toolChainUpdated();
 }
 
-FilePath CustomToolChain::makeCommand(const Environment &) const
+FilePath CustomToolchain::makeCommand(const Environment &) const
 {
     return m_makeCommand;
 }
 
-void CustomToolChain::setCxx11Flags(const QStringList &flags)
+void CustomToolchain::setCxx11Flags(const QStringList &flags)
 {
     if (flags == m_cxx11Flags)
         return;
@@ -253,12 +253,12 @@ void CustomToolChain::setCxx11Flags(const QStringList &flags)
     toolChainUpdated();
 }
 
-const QStringList &CustomToolChain::cxx11Flags() const
+const QStringList &CustomToolchain::cxx11Flags() const
 {
     return m_cxx11Flags;
 }
 
-void CustomToolChain::setMkspecs(const QString &specs)
+void CustomToolchain::setMkspecs(const QString &specs)
 {
     const QStringList tmp = specs.split(',');
     if (tmp == m_mkspecs)
@@ -267,12 +267,12 @@ void CustomToolChain::setMkspecs(const QString &specs)
     toolChainUpdated();
 }
 
-QString CustomToolChain::mkspecs() const
+QString CustomToolchain::mkspecs() const
 {
     return m_mkspecs.join(',');
 }
 
-void CustomToolChain::toMap(Store &data) const
+void CustomToolchain::toMap(Store &data) const
 {
     Toolchain::toMap(data);
     data.insert(makeCommandKeyC, m_makeCommand.toString());
@@ -284,7 +284,7 @@ void CustomToolChain::toMap(Store &data) const
     data.insert(outputParserKeyC, m_outputParserId.toSetting());
 }
 
-void CustomToolChain::fromMap(const Store &data)
+void CustomToolchain::fromMap(const Store &data)
 {
     Toolchain::fromMap(data);
     if (hasError())
@@ -299,12 +299,12 @@ void CustomToolChain::fromMap(const Store &data)
     setOutputParserId(Id::fromSetting(data.value(outputParserKeyC)));
 }
 
-bool CustomToolChain::operator ==(const Toolchain &other) const
+bool CustomToolchain::operator ==(const Toolchain &other) const
 {
     if (!Toolchain::operator ==(other))
         return false;
 
-    auto customTc = static_cast<const CustomToolChain *>(&other);
+    auto customTc = static_cast<const CustomToolchain *>(&other);
     return m_makeCommand == customTc->m_makeCommand
             && compilerCommand() == customTc->compilerCommand()
             && targetAbi() == customTc->targetAbi()
@@ -312,12 +312,12 @@ bool CustomToolChain::operator ==(const Toolchain &other) const
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
 }
 
-Id CustomToolChain::outputParserId() const
+Id CustomToolchain::outputParserId() const
 {
     return m_outputParserId;
 }
 
-void CustomToolChain::setOutputParserId(Id parserId)
+void CustomToolchain::setOutputParserId(Id parserId)
 {
     if (m_outputParserId == parserId)
         return;
@@ -325,9 +325,9 @@ void CustomToolChain::setOutputParserId(Id parserId)
     toolChainUpdated();
 }
 
-QList<CustomToolChain::Parser> CustomToolChain::parsers()
+QList<CustomToolchain::Parser> CustomToolchain::parsers()
 {
-    QList<CustomToolChain::Parser> result;
+    QList<CustomToolchain::Parser> result;
     result.append({GccParser::id(),      Tr::tr("GCC")});
     result.append({ClangParser::id(),    Tr::tr("Clang")});
     result.append({LinuxIccParser::id(), Tr::tr("ICC")});
@@ -380,13 +380,13 @@ public:
 };
 
 // --------------------------------------------------------------------------
-// CustomToolChainConfigWidget
+// CustomToolchainConfigWidget
 // --------------------------------------------------------------------------
 
-class CustomToolChainConfigWidget final : public ToolchainConfigWidget
+class CustomToolchainConfigWidget final : public ToolchainConfigWidget
 {
 public:
-    explicit CustomToolChainConfigWidget(CustomToolChain *);
+    explicit CustomToolchainConfigWidget(CustomToolchain *);
 
 private:
     void updateSummaries(TextEditDetailsWidget *detailsWidget);
@@ -411,7 +411,7 @@ private:
     QComboBox *m_errorParserComboBox;
 };
 
-CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
+CustomToolchainConfigWidget::CustomToolchainConfigWidget(CustomToolchain *tc) :
     ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_makeCommand(new PathChooser),
@@ -426,7 +426,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    const QList<CustomToolChain::Parser> parsers = CustomToolChain::parsers();
+    const QList<CustomToolchain::Parser> parsers = CustomToolchain::parsers();
     for (const auto &parser : parsers)
         m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
     for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers())
@@ -471,27 +471,27 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_errorParserComboBox, &QComboBox::currentIndexChanged,
-            this, &CustomToolChainConfigWidget::errorParserChanged);
+            this, &CustomToolchainConfigWidget::errorParserChanged);
     errorParserChanged();
 }
 
-void CustomToolChainConfigWidget::updateSummaries(TextEditDetailsWidget *detailsWidget)
+void CustomToolchainConfigWidget::updateSummaries(TextEditDetailsWidget *detailsWidget)
 {
     detailsWidget->updateSummaryText();
     emit dirty();
 }
 
-void CustomToolChainConfigWidget::errorParserChanged(int )
+void CustomToolchainConfigWidget::errorParserChanged(int )
 {
     emit dirty();
 }
 
-void CustomToolChainConfigWidget::applyImpl()
+void CustomToolchainConfigWidget::applyImpl()
 {
     if (toolchain()->isAutoDetected())
         return;
 
-    auto tc = static_cast<CustomToolChain *>(toolchain());
+    auto tc = static_cast<CustomToolchain *>(toolchain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
@@ -513,11 +513,11 @@ void CustomToolChainConfigWidget::applyImpl()
                         // macro parser did with the input.
 }
 
-void CustomToolChainConfigWidget::setFromToolchain()
+void CustomToolchainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
-    auto tc = static_cast<CustomToolChain *>(toolchain());
+    auto tc = static_cast<CustomToolchain *>(toolchain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_makeCommand->setFilePath(tc->makeCommand(Environment()));
     m_abiWidget->setAbis(Abis(), tc->targetAbi());
@@ -532,9 +532,9 @@ void CustomToolChainConfigWidget::setFromToolchain()
     m_errorParserComboBox->setCurrentIndex(index);
 }
 
-bool CustomToolChainConfigWidget::isDirtyImpl() const
+bool CustomToolchainConfigWidget::isDirtyImpl() const
 {
-    auto tc = static_cast<CustomToolChain *>(toolchain());
+    auto tc = static_cast<CustomToolchain *>(toolchain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_makeCommand->filePath().toString() != tc->makeCommand(Environment()).toString()
@@ -546,17 +546,17 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
             || Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
 }
 
-void CustomToolChainConfigWidget::makeReadOnlyImpl()
+void CustomToolchainConfigWidget::makeReadOnlyImpl()
 {
     m_mainLayout->setEnabled(false);
 }
 
-std::unique_ptr<ToolchainConfigWidget> CustomToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> CustomToolchain::createConfigurationWidget()
 {
-    return std::make_unique<CustomToolChainConfigWidget>(this);
+    return std::make_unique<CustomToolchainConfigWidget>(this);
 }
 
-// CustomToolChainFactory
+// CustomToolchainFactory
 
 class CustomToolchainFactory final : public ToolchainFactory
 {
@@ -566,7 +566,7 @@ public:
         setDisplayName(Tr::tr("Custom"));
         setSupportedToolchainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
         setSupportsAllLanguages(true);
-        setToolchainConstructor([] { return new CustomToolChain; });
+        setToolchainConstructor([] { return new CustomToolchain; });
         setUserCreatable(true);
     }
 };

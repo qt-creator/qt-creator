@@ -121,7 +121,7 @@ private:
 
     void setFromToolchain();
 
-    void updateParentToolChainComboBox(); // Clang
+    void updateParentToolchainComboBox(); // Clang
 
     AbiWidget *m_abiWidget;
 
@@ -136,7 +136,7 @@ private:
     ProjectExplorer::Macros m_macros;
 
     // Clang only
-    QList<QMetaObject::Connection> m_parentToolChainConnections;
+    QList<QMetaObject::Connection> m_parentToolchainConnections;
     QComboBox *m_parentToolchainCombo = nullptr;
 };
 
@@ -153,7 +153,7 @@ const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolChain.Pla
 const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
-const char parentToolChainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
+const char parentToolchainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
 const char priorityKeyC[] = "ProjectExplorer.ClangToolChain.Priority";
 const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
@@ -434,19 +434,19 @@ LanguageExtensions GccToolchain::defaultLanguageExtensions() const
     return LanguageExtension::Gnu;
 }
 
-static const Toolchains mingwToolChains()
+static const Toolchains mingwToolchains()
 {
     return ToolchainManager::toolchains([](const Toolchain *tc) -> bool {
         return tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID;
     });
 }
 
-static const GccToolchain *mingwToolChainFromId(const QByteArray &id)
+static const GccToolchain *mingwToolchainFromId(const QByteArray &id)
 {
     if (id.isEmpty())
         return nullptr;
 
-    for (const Toolchain *tc : mingwToolChains()) {
+    for (const Toolchain *tc : mingwToolchains()) {
         if (tc->id() == id)
             return static_cast<const GccToolchain *>(tc);
     }
@@ -457,7 +457,7 @@ static const GccToolchain *mingwToolChainFromId(const QByteArray &id)
 QString GccToolchain::originalTargetTriple() const
 {
     if (m_subType == Clang) {
-        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolchainId))
+        if (const GccToolchain *parentTC = mingwToolchainFromId(m_parentToolchainId))
             return parentTC->originalTargetTriple();
     }
 
@@ -1020,7 +1020,7 @@ void GccToolchain::toMap(Store &data) const
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
 
     if (m_subType == Clang) {
-        data.insert(parentToolChainIdKeyC, m_parentToolchainId);
+        data.insert(parentToolchainIdKeyC, m_parentToolchainId);
         data.insert(priorityKeyC, m_priority);
     }
 }
@@ -1044,7 +1044,7 @@ void GccToolchain::fromMap(const Store &data)
         resetToolchain(compilerCommand());
 
     if (m_subType == Clang) {
-        m_parentToolchainId = data.value(parentToolChainIdKeyC).toByteArray();
+        m_parentToolchainId = data.value(parentToolchainIdKeyC).toByteArray();
         m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
         syncAutodetectedWithParentToolchains();
     }
@@ -1316,7 +1316,7 @@ private:
                                            const Id requiredTypeId,
                                            const Toolchains &known,
                                            const GccToolchain::SubType subType);
-    static Toolchains autoDetectToolChain(const ToolchainDescription &tcd,
+    static Toolchains autoDetectToolchain(const ToolchainDescription &tcd,
                                           const GccToolchain::SubType subType);
     static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
 
@@ -1518,7 +1518,7 @@ Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd)
 
     if ((tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||
         (tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc"))) {
-        result += autoDetectToolChain(tcd, GccToolchain::LinuxIcc);
+        result += autoDetectToolchain(tcd, GccToolchain::LinuxIcc);
     }
 
     bool isCCompiler = tcd.language == Constants::C_LANGUAGE_ID
@@ -1530,7 +1530,7 @@ Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd)
                                    || (fileName == "c++" && resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler)
-        result += autoDetectToolChain(tcd, GccToolchain::Clang);
+        result += autoDetectToolchain(tcd, GccToolchain::Clang);
 
     // GCC
 
@@ -1545,7 +1545,7 @@ Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd)
                 || (fileName == "c++" && !resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler)
-        result += autoDetectToolChain(tcd, GccToolchain::RealGcc);
+        result += autoDetectToolchain(tcd, GccToolchain::RealGcc);
 
     return result;
 }
@@ -1561,7 +1561,7 @@ Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &kn
             return {existingTc};
     }
 
-    return {autoDetectToolChain({compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
+    return {autoDetectToolchain({compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
 }
 
 Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
@@ -1606,7 +1606,7 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
             }
         }
         if (!alreadyExists) {
-            const Toolchains newToolchains = autoDetectToolChain({compilerPath, language}, subType);
+            const Toolchains newToolchains = autoDetectToolchain({compilerPath, language}, subType);
             result << newToolchains;
             existingCandidates << newToolchains;
         }
@@ -1615,7 +1615,7 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
     return result;
 }
 
-Toolchains GccToolchainFactory::autoDetectToolChain(const ToolchainDescription &tcd,
+Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &tcd,
                                                     GccToolchain::SubType subType)
 {
     Toolchains result;
@@ -1757,28 +1757,28 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(GccToolchain *tc) :
                                 m_parentToolchainCombo);
 
         ToolchainManager *tcManager = ToolchainManager::instance();
-        m_parentToolChainConnections.append(
+        m_parentToolchainConnections.append(
             connect(tcManager, &ToolchainManager::toolchainUpdated, this, [this](Toolchain *tc) {
                 if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                    updateParentToolChainComboBox();
+                    updateParentToolchainComboBox();
             }));
-        m_parentToolChainConnections.append(
+        m_parentToolchainConnections.append(
             connect(tcManager, &ToolchainManager::toolhainAdded, this, [this](Toolchain *tc) {
                 if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                    updateParentToolChainComboBox();
+                    updateParentToolchainComboBox();
             }));
-        m_parentToolChainConnections.append(
+        m_parentToolchainConnections.append(
             connect(tcManager, &ToolchainManager::toolchainRemoved, this, [this](Toolchain *tc) {
                 if (tc->id() == toolchain()->id()) {
-                    for (QMetaObject::Connection &connection : m_parentToolChainConnections)
+                    for (QMetaObject::Connection &connection : m_parentToolchainConnections)
                         QObject::disconnect(connection);
                     return;
                 }
                 if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                    updateParentToolChainComboBox();
+                    updateParentToolchainComboBox();
             }));
 
-        updateParentToolChainComboBox();
+        updateParentToolchainComboBox();
     }
 }
 
@@ -1817,7 +1817,7 @@ void GccToolchainConfigWidget::applyImpl()
 
         const QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
         if (!parentId.isEmpty()) {
-            for (const Toolchain *mingwTC : mingwToolChains()) {
+            for (const Toolchain *mingwTC : mingwToolchains()) {
                 if (parentId == mingwTC->id()) {
                     tc->m_parentToolchainId = mingwTC->id();
                     tc->setTargetAbi(mingwTC->targetAbi());
@@ -1846,7 +1846,7 @@ void GccToolchainConfigWidget::setFromToolchain()
     }
 
     if (m_parentToolchainCombo)
-        updateParentToolChainComboBox();
+        updateParentToolchainComboBox();
 }
 
 bool GccToolchainConfigWidget::isDirtyImpl() const
@@ -1867,7 +1867,7 @@ bool GccToolchainConfigWidget::isDirtyImpl() const
     if (!m_parentToolchainCombo)
         return false;
 
-    const GccToolchain *parentTC = mingwToolChainFromId(tc->m_parentToolchainId);
+    const GccToolchain *parentTC = mingwToolchainFromId(tc->m_parentToolchainId);
     const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
     return parentId != m_parentToolchainCombo->currentData();
 }
@@ -1942,7 +1942,7 @@ void GccToolchainConfigWidget::handlePlatformLinkerFlagsChange()
 }
 
 // --------------------------------------------------------------------------
-// ClangToolChain
+// ClangToolchain
 // --------------------------------------------------------------------------
 
 void GccToolchain::syncAutodetectedWithParentToolchains()
@@ -1966,8 +1966,8 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
         return;
     }
 
-    if (!mingwToolChainFromId(m_parentToolchainId)) {
-        const Toolchains mingwTCs = mingwToolChains();
+    if (!mingwToolchainFromId(m_parentToolchainId)) {
+        const Toolchains mingwTCs = mingwToolchains();
         m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
     }
 
@@ -1976,7 +1976,7 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
     m_mingwToolchainAddedConnection
         = connect(tcManager, &ToolchainManager::toolhainAdded, this, [this](Toolchain *tc) {
               if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID
-                  && !mingwToolChainFromId(m_parentToolchainId)) {
+                  && !mingwToolchainFromId(m_parentToolchainId)) {
                   m_parentToolchainId = tc->id();
               }
           });
@@ -1986,7 +1986,7 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
                   QObject::disconnect(m_thisToolchainRemovedConnection);
                   QObject::disconnect(m_mingwToolchainAddedConnection);
               } else if (m_parentToolchainId == tc->id()) {
-                  const Toolchains mingwTCs = mingwToolChains();
+                  const Toolchains mingwTCs = mingwToolchains();
                   m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
               }
           });
@@ -2017,7 +2017,7 @@ bool GccToolchain::matchesCompilerCommand(const FilePath &command) const
 QString GccToolchain::sysRoot() const
 {
     if (m_subType == Clang) {
-        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolchainId)) {
+        if (const GccToolchain *parentTC = mingwToolchainFromId(m_parentToolchainId)) {
             const FilePath mingwCompiler = parentTC->compilerCommand();
             return mingwCompiler.parentDir().parentDir().toString();
         }
@@ -2025,7 +2025,7 @@ QString GccToolchain::sysRoot() const
     return {};
 }
 
-void GccToolchainConfigWidget::updateParentToolChainComboBox()
+void GccToolchainConfigWidget::updateParentToolchainComboBox()
 {
     QTC_ASSERT(m_parentToolchainCombo, return);
 
@@ -2034,7 +2034,7 @@ void GccToolchainConfigWidget::updateParentToolChainComboBox()
     if (tc->isAutoDetected() || m_parentToolchainCombo->count() == 0)
         parentId = tc->m_parentToolchainId;
 
-    const GccToolchain *parentTC = mingwToolChainFromId(parentId);
+    const GccToolchain *parentTC = mingwToolchainFromId(parentId);
 
     m_parentToolchainCombo->clear();
     m_parentToolchainCombo->addItem(parentTC ? parentTC->displayName() : QString(),
@@ -2043,7 +2043,7 @@ void GccToolchainConfigWidget::updateParentToolChainComboBox()
     if (tc->isAutoDetected())
         return;
 
-    for (const Toolchain *mingwTC : mingwToolChains()) {
+    for (const Toolchain *mingwTC : mingwToolchains()) {
         if (mingwTC->id() == parentId)
             continue;
         if (mingwTC->language() != tc->language())
