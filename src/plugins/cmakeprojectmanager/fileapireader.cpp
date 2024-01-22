@@ -5,6 +5,7 @@
 
 #include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakeprojectconstants.h"
 #include "cmakespecificsettings.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
@@ -73,7 +74,7 @@ void FileApiReader::resetData()
     m_cmakeFiles.clear();
     if (!m_parameters.sourceDirectory.isEmpty()) {
         CMakeFileInfo cmakeListsTxt;
-        cmakeListsTxt.path = m_parameters.sourceDirectory.pathAppended("CMakeLists.txt");
+        cmakeListsTxt.path = m_parameters.sourceDirectory.pathAppended(Constants::CMAKE_LISTS_TXT);
         cmakeListsTxt.isCMakeListsDotTxt = true;
         m_cmakeFiles.insert(cmakeListsTxt);
     }
@@ -316,8 +317,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
                                    .arg(reply.toString(), replyPrev.toString())));
     }
 
-    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
-    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended("CMakeCache.txt.prev");
+    FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended(Constants::CMAKE_CACHE_TXT);
+    FilePath cmakeCacheTxtPrev = m_parameters.buildDirectory.pathAppended(Constants::CMAKE_CACHE_TXT_PREV);
     if (!store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 

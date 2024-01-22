@@ -415,7 +415,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             }
 
             RawProjectPart rpp;
-            rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
+            rpp.setProjectFileLocation(
+                t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT).toString());
             rpp.setBuildSystemTarget(t.name);
             const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
                                                 : QString();

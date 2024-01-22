@@ -398,7 +398,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
         fileName = dir.pathAppended(fileName.path());
     if (fileName.exists()) {
         if (fileName.isDir()) {
-            Utils::FilePath subProject = fileName.pathAppended("CMakeLists.txt");
+            Utils::FilePath subProject = fileName.pathAppended(Constants::CMAKE_LISTS_TXT);
             if (subProject.exists())
                 fileName = subProject;
             else

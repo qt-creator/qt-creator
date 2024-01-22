@@ -210,7 +210,7 @@ static CMakeConfig configurationFromPresetProbe(
     const FilePath &sourceDirectory,
     const PresetsDetails::ConfigurePreset &configurePreset)
 {
-    const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
+    const FilePath cmakeListTxt = importPath / Constants::CMAKE_LISTS_TXT;
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
                                               "\n"
                                               "project(preset-probe)\n"
@@ -358,7 +358,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     // Run a CMake project that would do qmake probing
     TemporaryDirectory qtcQMakeProbeDir("qtc-cmake-qmake-probe-XXXXXXXX");
 
-    FilePath cmakeListTxt(qtcQMakeProbeDir.filePath("CMakeLists.txt"));
+    FilePath cmakeListTxt(qtcQMakeProbeDir.filePath(Constants::CMAKE_LISTS_TXT));
 
     cmakeListTxt.writeFileContents(QByteArray(R"(
         cmake_minimum_required(VERSION 3.15)
@@ -829,7 +829,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         return result;
     }
 
-    const FilePath cacheFile = importPath.pathAppended("CMakeCache.txt");
+    const FilePath cacheFile = importPath.pathAppended(Constants::CMAKE_CACHE_TXT);
 
     if (!cacheFile.exists()) {
         qCDebug(cmInputLog) << cacheFile.toUserOutput() << "does not exist, returning.";

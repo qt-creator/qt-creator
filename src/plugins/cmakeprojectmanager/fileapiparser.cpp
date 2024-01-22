@@ -4,6 +4,7 @@
 #include "fileapiparser.h"
 
 #include "cmakeprocess.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -230,7 +231,7 @@ static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesF
 
         info.isCMake = input.value("isCMake").toBool();
         const QString filename = info.path.fileName();
-        info.isCMakeListsDotTxt = (filename.compare("CMakeLists.txt",
+        info.isCMakeListsDotTxt = (filename.compare(Constants::CMAKE_LISTS_TXT,
                                                     HostOsInfo::fileNameCaseSensitivity())
                                    == 0);
 
@@ -860,7 +861,7 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
         return {};
     const FilePath cachePathFromReply = result.replyFile.jsonFile("cache", replyDir);
     if (cachePathFromReply.isEmpty())
-        result.cache = CMakeConfig::fromFile(buildDir / "CMakeCache.txt", &errorMessage);
+        result.cache = CMakeConfig::fromFile(buildDir / Constants::CMAKE_CACHE_TXT, &errorMessage);
     else
         result.cache = readCacheFile(cachePathFromReply, errorMessage);
     if (cancelCheck())

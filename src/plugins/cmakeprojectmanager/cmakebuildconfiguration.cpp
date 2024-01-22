@@ -853,7 +853,8 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
     CMakeConfig changedConfig;
 
     if (enable) {
-        const FilePath cmakeCache = m_buildConfig->buildDirectory().pathAppended("CMakeCache.txt");
+        const FilePath cmakeCache = m_buildConfig->buildDirectory().pathAppended(
+            Constants::CMAKE_CACHE_TXT);
 
         // Only modify the CMAKE_CXX_FLAGS variable if the project was previously configured
         // otherwise CMAKE_CXX_FLAGS_INIT will take care of setting the qmlDebug define
@@ -1349,8 +1350,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             if (oldDir.isEmpty())
                 return newDir;
 
-            const FilePath oldDirCMakeCache = FilePath::fromUserInput(oldDir).pathAppended("CMakeCache.txt");
-            const FilePath newDirCMakeCache = FilePath::fromUserInput(newDir).pathAppended("CMakeCache.txt");
+            const FilePath oldDirCMakeCache = FilePath::fromUserInput(oldDir).pathAppended(
+                Constants::CMAKE_CACHE_TXT);
+            const FilePath newDirCMakeCache = FilePath::fromUserInput(newDir).pathAppended(
+                Constants::CMAKE_CACHE_TXT);
 
             if (oldDirCMakeCache.exists() && !newDirCMakeCache.exists()) {
                 if (QMessageBox::information(
@@ -2048,7 +2051,8 @@ QString CMakeBuildSystem::cmakeBuildType() const
 
     QString cmakeBuildType = cmakeBuildConfiguration()->buildTypeAspect();
 
-    const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended("CMakeCache.txt");
+    const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended(
+        Constants::CMAKE_CACHE_TXT);
     const bool hasCMakeCache = cmakeCacheTxt.exists();
     CMakeConfig config;
 

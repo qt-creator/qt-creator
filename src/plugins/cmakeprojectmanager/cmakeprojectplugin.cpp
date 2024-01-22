@@ -93,7 +93,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
         FileIconProvider::registerIconOverlayForSuffix(Constants::Icons::FILE_OVERLAY, "cmake");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::FILE_OVERLAY,
-                                                         "CMakeLists.txt");
+                                                         Constants::CMAKE_LISTS_TXT);
 
         TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                    Tr::tr("CMake", "SnippetProvider"));

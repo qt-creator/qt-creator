@@ -82,7 +82,7 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist()
                                 Icon::MenuTintedStyle)
                                .icon())
     , m_snippetCollector(Constants::CMAKE_SNIPPETS_GROUP_ID,
-                         FileIconProvider::icon(FilePath::fromString("CMakeLists.txt")))
+                         FileIconProvider::icon(FilePath::fromString(Constants::CMAKE_LISTS_TXT)))
 {}
 
 static bool isInComment(const AssistInterface *interface)

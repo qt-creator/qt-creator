@@ -176,7 +176,7 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Parse called with flags:"
                                  << reparseParametersString(reparseParameters);
 
-    const FilePath cache = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
+    const FilePath cache = m_parameters.buildDirectory.pathAppended(Constants::CMAKE_CACHE_TXT);
     if (!cache.exists()) {
         reparseParameters |= REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         qCDebug(cmakeBuildSystemLog)
@@ -973,7 +973,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     FilePath baseDirectory = sourceFile.parentDir();
 
     while (baseDirectory.isChildOf(project)) {
-        const FilePath cmakeListsTxt = baseDirectory.pathAppended("CMakeLists.txt");
+        const FilePath cmakeListsTxt = baseDirectory.pathAppended(Constants::CMAKE_LISTS_TXT);
         if (cmakeListsTxt.exists())
             break;
         baseDirectory = baseDirectory.parentDir();
@@ -1178,8 +1178,8 @@ void CMakeBuildSystem::clearCMakeCache()
     stopParsingAndClearState();
 
     const FilePath pathsToDelete[] = {
-        m_parameters.buildDirectory / "CMakeCache.txt",
-        m_parameters.buildDirectory / "CMakeCache.txt.prev",
+        m_parameters.buildDirectory / Constants::CMAKE_CACHE_TXT,
+        m_parameters.buildDirectory / Constants::CMAKE_CACHE_TXT_PREV,
         m_parameters.buildDirectory / "CMakeFiles",
         m_parameters.buildDirectory / ".cmake/api/v1/reply",
         m_parameters.buildDirectory / ".cmake/api/v1/reply.prev",
@@ -1601,7 +1601,8 @@ void CMakeBuildSystem::wireUpConnections()
         // No CMakeCache? Run with initial arguments!
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
         const BuildDirParameters parameters(this);
-        const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended("CMakeCache.txt");
+        const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended(
+            Constants::CMAKE_CACHE_TXT);
         const bool hasCMakeCache = cmakeCacheTxt.exists();
         const auto options = ReparseParameters(
                     hasCMakeCache

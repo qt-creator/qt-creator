@@ -4,6 +4,7 @@
 #include "cmakeabstractprocessstep.h"
 
 #include "cmakekitaspect.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 
@@ -50,7 +51,7 @@ bool CMakeAbstractProcessStep::init()
     // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
     const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
     if (bc->buildDirectory() != projectDirectory) {
-        if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
+        if (projectDirectory.pathAppended(Constants::CMAKE_CACHE_TXT).exists()) {
             emit addTask(BuildSystemTask(
                 Task::Warning,
                 Tr::tr("There is a CMakeCache.txt file in \"%1\", which suggest an "

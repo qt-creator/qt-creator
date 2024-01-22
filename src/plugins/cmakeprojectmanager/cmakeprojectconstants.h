@@ -27,6 +27,10 @@ const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
 const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
 
+const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
+const char CMAKE_CACHE_TXT[] = "CMakeCache.txt";
+const char CMAKE_CACHE_TXT_PREV[] = "CMakeCache.txt.prev";
+
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
