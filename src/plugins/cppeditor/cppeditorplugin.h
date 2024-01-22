@@ -26,14 +26,12 @@ public:
     static void clearHeaderSourceCache();
 
     void openDeclarationDefinitionInNextSplit();
-    void openTypeHierarchy();
     void openIncludeHierarchy();
     void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
 signals:
-    void typeHierarchyRequested();
     void includeHierarchyRequested();
 
 private:

@@ -166,7 +166,6 @@ public:
 
     QAction *m_reparseExternallyChangedFiles = nullptr;
     QAction *m_findRefsCategorizedAction = nullptr;
-    QAction *m_openTypeHierarchyAction = nullptr;
     QAction *m_openIncludeHierarchyAction = nullptr;
 
     CppQuickFixSettingsPage m_quickFixSettingsPage;
@@ -174,7 +173,6 @@ public:
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
     CppOutlineWidgetFactory m_cppOutlineWidgetFactory;
-    CppTypeHierarchyFactory m_cppTypeHierarchyFactory;
     CppIncludeHierarchyFactory m_cppIncludeHierarchyFactory;
     CppEditorFactory m_cppEditorFactory;
 
@@ -353,13 +351,7 @@ void CppEditorPlugin::addPerSymbolActions()
 
     addSymbolActionToMenus(TextEditor::Constants::RENAME_SYMBOL);
 
-    ActionBuilder openTypeHierarchy(this, Constants::OPEN_TYPE_HIERARCHY);
-    openTypeHierarchy.setText(Tr::tr("Open Type Hierarchy"));
-    openTypeHierarchy.setContext(context);
-    openTypeHierarchy.bindContextAction(&d->m_openTypeHierarchyAction);
-    openTypeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+T"), Tr::tr("Ctrl+Shift+T"));
-    openTypeHierarchy.addToContainers(menus, Constants::G_SYMBOL);
-    openTypeHierarchy.addOnTriggered(this, &CppEditorPlugin::openTypeHierarchy);
+    setupCppTypeHierarchy();
 
     addSymbolActionToMenus(TextEditor::Constants::OPEN_CALL_HIERARCHY);
 
@@ -551,7 +543,6 @@ void CppEditorPluginPrivate::onTaskStarted(Id type)
         ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(false);
         ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(false);
         m_reparseExternallyChangedFiles->setEnabled(false);
-        m_openTypeHierarchyAction->setEnabled(false);
         m_openIncludeHierarchyAction->setEnabled(false);
     }
 }
@@ -562,7 +553,6 @@ void CppEditorPluginPrivate::onAllTasksFinished(Id type)
         ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(true);
         ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(true);
         m_reparseExternallyChangedFiles->setEnabled(true);
-        m_openTypeHierarchyAction->setEnabled(true);
         m_openIncludeHierarchyAction->setEnabled(true);
     }
 }
@@ -575,14 +565,6 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
         m_cppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::dialogParent());
         ICore::registerWindow(m_cppCodeModelInspectorDialog, Context("CppEditor.Inspector"));
         m_cppCodeModelInspectorDialog->show();
-    }
-}
-
-void CppEditorPlugin::openTypeHierarchy()
-{
-    if (currentCppEditorWidget()) {
-        emit typeHierarchyRequested();
-        NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_ID, Side::Left);
     }
 }
 

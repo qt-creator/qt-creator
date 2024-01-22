@@ -12,6 +12,7 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cpptoolstestcase.h"
+#include "cpptypehierarchy.h"
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
 
@@ -382,7 +383,7 @@ public:
 
 void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
-    CppEditorPlugin::instance()->openTypeHierarchy();
+    openCppTypeHierarchy();
     QApplication::processEvents();
 }
 
