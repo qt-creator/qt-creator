@@ -91,6 +91,7 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
         d = std::make_unique<AutotoolsProjectPluginPrivate>();
     }
 
