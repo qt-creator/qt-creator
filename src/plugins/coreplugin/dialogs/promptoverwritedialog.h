@@ -9,6 +9,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QTreeView;
 class QStandardItemModel;
@@ -18,12 +20,17 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+namespace Internal {
+class PromptOverwriteDialogPrivate;
+} // namespace Internal
+
 // Documentation inside.
 class CORE_EXPORT PromptOverwriteDialog : public QDialog
 {
     Q_OBJECT
 public:
     explicit PromptOverwriteDialog(QWidget *parent = nullptr);
+    ~PromptOverwriteDialog();
 
     void setFiles(const Utils::FilePaths &);
 
@@ -40,9 +47,7 @@ private:
     QStandardItem *itemForFile(const Utils::FilePath &f) const;
     Utils::FilePaths files(Qt::CheckState cs) const;
 
-    QLabel *m_label;
-    QTreeView *m_view;
-    QStandardItemModel *m_model;
+    std::unique_ptr<Internal::PromptOverwriteDialogPrivate> d;
 };
 
 } // Core

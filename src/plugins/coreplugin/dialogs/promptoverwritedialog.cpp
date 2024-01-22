@@ -23,6 +23,21 @@ using namespace Utils;
 
 namespace Core {
 
+namespace Internal {
+class PromptOverwriteDialogPrivate
+{
+public:
+    PromptOverwriteDialogPrivate(PromptOverwriteDialog *dialog)
+        : m_label(new QLabel)
+        , m_view(new QTreeView)
+        , m_model(new QStandardItemModel(0, 1, dialog))
+    {}
+    QLabel *m_label;
+    QTreeView *m_view;
+    QStandardItemModel *m_model;
+};
+} // namespace Internal
+
 static FilePath fileNameOfItem(const QStandardItem *item)
 {
     return FilePath::fromString(item->data(FileNameRole).toString());
@@ -39,27 +54,27 @@ static FilePath fileNameOfItem(const QStandardItem *item)
     can select the files to overwrite.
 */
 
-PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
-    QDialog(parent),
-    m_label(new QLabel),
-    m_view(new QTreeView),
-    m_model(new QStandardItemModel(0, 1, this))
+PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent)
+    : QDialog(parent)
+    , d(new Internal::PromptOverwriteDialogPrivate(this))
 {
     setWindowTitle(Tr::tr("Overwrite Existing Files"));
     setModal(true);
     auto mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(m_label);
-    m_view->setRootIsDecorated(false);
-    m_view->setUniformRowHeights(true);
-    m_view->setHeaderHidden(true);
-    m_view->setSelectionMode(QAbstractItemView::NoSelection);
-    m_view->setModel(m_model);
-    mainLayout->addWidget(m_view);
+    mainLayout->addWidget(d->m_label);
+    d->m_view->setRootIsDecorated(false);
+    d->m_view->setUniformRowHeights(true);
+    d->m_view->setHeaderHidden(true);
+    d->m_view->setSelectionMode(QAbstractItemView::NoSelection);
+    d->m_view->setModel(d->m_model);
+    mainLayout->addWidget(d->m_view);
     QDialogButtonBox *bb = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
     connect(bb, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(bb, &QDialogButtonBox::rejected, this, &QDialog::reject);
     mainLayout->addWidget(bb);
 }
+
+PromptOverwriteDialog::~PromptOverwriteDialog() = default;
 
 void PromptOverwriteDialog::setFiles(const FilePaths &l)
 {
@@ -73,19 +88,19 @@ void PromptOverwriteDialog::setFiles(const FilePaths &l)
         item->setFlags(Qt::ItemIsEnabled);
         item->setCheckable(true);
         item->setCheckState(Qt::Checked);
-        m_model->appendRow(item);
+        d->m_model->appendRow(item);
     }
     const QString message =
         Tr::tr("The following files already exist in the folder\n%1.\n"
                "Would you like to overwrite them?").arg(nativeCommonPath);
-    m_label->setText(message);
+    d->m_label->setText(message);
 }
 
 QStandardItem *PromptOverwriteDialog::itemForFile(const FilePath &f) const
 {
-    const int rowCount = m_model->rowCount();
+    const int rowCount = d->m_model->rowCount();
     for (int r = 0; r < rowCount; ++r) {
-        QStandardItem *item = m_model->item(r, 0);
+        QStandardItem *item = d->m_model->item(r, 0);
         if (fileNameOfItem(item) == f)
             return item;
     }
@@ -95,9 +110,9 @@ QStandardItem *PromptOverwriteDialog::itemForFile(const FilePath &f) const
 FilePaths PromptOverwriteDialog::files(Qt::CheckState cs) const
 {
     FilePaths result;
-    const int rowCount = m_model->rowCount();
+    const int rowCount = d->m_model->rowCount();
     for (int r = 0; r < rowCount; ++r) {
-        const QStandardItem *item = m_model->item(r, 0);
+        const QStandardItem *item = d->m_model->item(r, 0);
         if (item->checkState() == cs)
             result.push_back(fileNameOfItem(item));
     }

@@ -8,30 +8,34 @@
 #include <utils/aspects.h>
 #include <utils/id.h>
 
-#include <QPointer>
-#include <QStringList>
-#include <QWidget>
-
 #include <functional>
+#include <memory>
 
 namespace Core {
+
+namespace Internal {
+class IOptionsPageWidgetPrivate;
+class IOptionsPagePrivate;
+class IOptionsPageProviderPrivate;
+} // namespace Internal
 
 class CORE_EXPORT IOptionsPageWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    void setOnApply(const std::function<void ()> &func) { m_onApply = func; }
-    void setOnFinish(const std::function<void ()> &func) { m_onFinish = func; }
+    IOptionsPageWidget();
+    ~IOptionsPageWidget();
+    void setOnApply(const std::function<void()> &func);
+    void setOnFinish(const std::function<void()> &func);
 
 protected:
     friend class IOptionsPage;
-    virtual void apply() { if (m_onApply) m_onApply(); }
-    virtual void finish() { if (m_onFinish) m_onFinish(); }
+    virtual void apply();
+    virtual void finish();
 
 private:
-    std::function<void()> m_onApply;
-    std::function<void()> m_onFinish;
+    std::unique_ptr<Internal::IOptionsPageWidgetPrivate> d;
 };
 
 class CORE_EXPORT IOptionsPage
@@ -44,10 +48,10 @@ public:
 
     static const QList<IOptionsPage *> allOptionsPages();
 
-    Utils::Id id() const { return m_id; }
-    QString displayName() const { return m_displayName; }
-    Utils::Id category() const { return m_category; }
-    QString displayCategory() const { return m_displayCategory; }
+    Utils::Id id() const;
+    QString displayName() const;
+    Utils::Id category() const;
+    QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
 
     using WidgetCreator = std::function<IOptionsPageWidget *()>;
@@ -62,26 +66,15 @@ public:
 protected:
     virtual QStringList keywords() const;
 
-    void setId(Utils::Id id) { m_id = id; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setCategory(Utils::Id category) { m_category = category; }
-    void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
+    void setId(Utils::Id id);
+    void setDisplayName(const QString &displayName);
+    void setCategory(Utils::Id category);
+    void setDisplayCategory(const QString &displayCategory);
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
 private:
-    Utils::Id m_id;
-    Utils::Id m_category;
-    QString m_displayName;
-    QString m_displayCategory;
-    Utils::FilePath m_categoryIconPath;
-    WidgetCreator m_widgetCreator;
-    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
-
-    mutable bool m_keywordsInitialized = false;
-    mutable QStringList m_keywords;
-
-    std::function<Utils::AspectContainer *()> m_settingsProvider;
+    std::unique_ptr<Internal::IOptionsPagePrivate> d;
 };
 
 /*
@@ -102,21 +95,19 @@ public:
 
     static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
-    Utils::Id category() const { return m_category; }
-    QString displayCategory() const { return m_displayCategory; }
-    Utils::FilePath categoryIconPath() const { return m_categoryIconPath; }
+    Utils::Id category() const;
+    QString displayCategory() const;
+    Utils::FilePath categoryIconPath() const;
 
     virtual QList<IOptionsPage *> pages() const = 0;
     virtual bool matches(const QRegularExpression &regexp) const = 0;
 
 protected:
-    void setCategory(Utils::Id category) { m_category = category; }
-    void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIconPath(const Utils::FilePath &iconPath) { m_categoryIconPath = iconPath; }
+    void setCategory(Utils::Id category);
+    void setDisplayCategory(const QString &displayCategory);
+    void setCategoryIconPath(const Utils::FilePath &iconPath);
 
-    Utils::Id m_category;
-    QString m_displayCategory;
-    Utils::FilePath m_categoryIconPath;
+    std::unique_ptr<Internal::IOptionsPageProviderPrivate> d;
 };
 
 // Which part of the settings page to pre-select, if applicable. In practice, this will
