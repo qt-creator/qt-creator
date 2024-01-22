@@ -14,8 +14,9 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/locator/locatorconstants.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -418,6 +419,13 @@ std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const
                 return Link{link.targetFilePath.toString(), link.targetLine, link.targetColumn};
             }
         }
+        if (!m_cwd.isEmpty() && Utils::allOf(text, [](QChar c) {
+                c = c.toLower();
+                return c.isDigit() || (c >= 'a' && c <= 'f');
+            })) {
+            Link link{QString("vcs:///%1").arg(text)};
+            return link;
+        }
     }
 
     return std::nullopt;
@@ -489,6 +497,18 @@ void TerminalWidget::selectionChanged(const std::optional<Selection> &newSelecti
 
 void TerminalWidget::linkActivated(const Link &link)
 {
+    if (link.text.startsWith("vcs:///")) {
+        QString reference = link.text.mid(7);
+        IVersionControl *vcs = VcsManager::findVersionControlForDirectory(m_cwd);
+
+        if (vcs) {
+            vcs->vcsDescribe(m_cwd, reference);
+            return;
+        }
+
+        return;
+    }
+
     FilePath filePath = FilePath::fromUserInput(link.text);
 
     if (filePath.scheme().toString().startsWith("http")) {
