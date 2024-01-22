@@ -1857,7 +1857,7 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
     QDateTime startTime;
     static const int blockingThresholdMs = qtcEnvironmentVariableIntValue("QTC_PROCESS_THRESHOLD");
 
-    auto starter = [this, eventLoopMode, &startTime] {
+    const auto handleStart = [this, eventLoopMode, &startTime] {
         // Attach a dynamic property with info about blocking type
         d->storeEventLoopDebugInfo(int(eventLoopMode));
 
@@ -1869,6 +1869,14 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
         d->storeEventLoopDebugInfo({});
     };
 
+    const auto handleTimeout = [this] {
+        if (state() == QProcess::NotRunning)
+            return;
+        stop();
+        QTC_CHECK(waitForFinished(2000));
+        d->m_result = ProcessResult::Hang;
+    };
+
     if (eventLoopMode == EventLoopMode::On) {
 #ifdef QT_GUI_LIB
         if (isGuiEnabled())
@@ -1878,17 +1886,13 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
 
         // Queue the call to start() so that it's executed after the nested event loop is started,
         // otherwise it fails on Windows with QProcessImpl. See QTCREATORBUG-30066.
-        QMetaObject::invokeMethod(this, starter, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, handleStart, Qt::QueuedConnection);
 
         std::function<void(void)> timeoutHandler = {};
         if (d->m_timeoutInSeconds > 0) {
-            timeoutHandler = [this, &eventLoop, &timeoutHandler] {
+            timeoutHandler = [this, &eventLoop, &timeoutHandler, &handleTimeout] {
                 if (!d->m_timeOutMessageBoxEnabled || askToKill(d->m_setup.m_commandLine)) {
-                    if (state() == QProcess::NotRunning)
-                        return;
-                    stop();
-                    waitForFinished();
-                    d->m_result = ProcessResult::Hang;
+                    handleTimeout();
                     return;
                 }
                 QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
@@ -1904,19 +1908,9 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             QGuiApplication::restoreOverrideCursor();
 #endif
     } else {
-        starter();
-        if (!waitForStarted(d->m_timeoutInSeconds * 1000)) {
-            d->m_result = ProcessResult::StartFailed;
-            return;
-        }
-        if (!waitForFinished(d->m_timeoutInSeconds * 1000)) {
-            d->m_result = ProcessResult::Hang;
-            terminate();
-            if (!waitForFinished(1000)) {
-                kill();
-                waitForFinished(1000);
-            }
-        }
+        handleStart();
+        if (!waitForFinished(d->m_timeoutInSeconds * 1000))
+            handleTimeout();
     }
     if (blockingThresholdMs > 0) {
         const int timeDiff = startTime.msecsTo(QDateTime::currentDateTime());
