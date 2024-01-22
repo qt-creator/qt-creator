@@ -28,11 +28,15 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
     if (m_displayName.isEmpty())
         m_displayName = m_name;
 
-    QString resPath;
+    value = propObj.contains("value") ? propObj.value("value").toString() : defaultValue;
+
     if (m_type == Type::Sampler) {
-        resPath = getResourcePath(effectName, defaultValue, qenPath);
         if (!defaultValue.isEmpty())
-            defaultValue = resPath;
+            defaultValue = getResourcePath(effectName, defaultValue, qenPath);
+        if (!value.isEmpty())
+            value = getResourcePath(effectName, value, qenPath);
+        if (value.isEmpty())
+            value = defaultValue;
         if (propObj.contains("enableMipmap"))
             m_enableMipmap = getBoolValue(propObj.value("enableMipmap"), false);
         // Update the mipmap property
@@ -40,14 +44,6 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
         g_propertyData[mipmapProperty] = m_enableMipmap;
     }
 
-    if (propObj.contains("value")) {
-        value = propObj.value("value").toString();
-        if (m_type == Type::Sampler)
-            value = resPath;
-    } else {
-        // QEN files don't store the current value, so with those use default value
-        value = defaultValue;
-    }
     m_customValue = propObj.value("customValue").toString();
     m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
 
