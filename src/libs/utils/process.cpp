@@ -1396,12 +1396,12 @@ QVariantHash Process::extraData() const
     return d->m_setup.m_extraData;
 }
 
-void Process::setReaperTimeout(int msecs)
+void Process::setReaperTimeout(milliseconds timeout)
 {
-    d->m_setup.m_reaperTimeout = msecs;
+    d->m_setup.m_reaperTimeout = timeout;
 }
 
-int Process::reaperTimeout() const
+milliseconds Process::reaperTimeout() const
 {
     return d->m_setup.m_reaperTimeout;
 }

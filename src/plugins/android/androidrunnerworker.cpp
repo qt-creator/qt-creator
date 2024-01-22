@@ -42,10 +42,12 @@ static Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerwor
 static const int GdbTempFileMaxCounter = 20;
 }
 
-using namespace std;
-using namespace std::placeholders;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+using namespace std;
+using namespace std::chrono_literals;
+using namespace std::placeholders;
 
 namespace Android {
 namespace Internal {
@@ -53,7 +55,7 @@ namespace Internal {
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
 
-static const int s_jdbTimeout = 5000;
+static const std::chrono::milliseconds s_jdbTimeout = 5s;
 
 static int APP_START_TIMEOUT = 45000;
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
@@ -785,7 +787,7 @@ void AndroidRunnerWorker::handleJdbSettled()
             m_jdbProcess->write(QString("%1\n").arg(command));
     }
 
-    if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {
+    if (!m_jdbProcess->waitForFinished(s_jdbTimeout.count())) {
         m_jdbProcess.reset();
     } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
         qCDebug(androidRunWorkerLog) << "JDB settled";

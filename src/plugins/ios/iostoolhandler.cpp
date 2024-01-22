@@ -596,7 +596,7 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
     qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
     process->setEnvironment(env);
     process->setProcessMode(ProcessMode::Writer);
-    process->setReaperTimeout(1500);
+    process->setReaperTimeout(std::chrono::milliseconds(1500));
 
     QObject::connect(process.get(), &Process::readyReadStandardOutput,
                      q, [this] { subprocessHasData(); });

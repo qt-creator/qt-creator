@@ -85,7 +85,7 @@ public:
     QString m_standardInputFile;
     QString m_nativeArguments; // internal, dependent on specific code path
 
-    int m_reaperTimeout = 500; // in ms
+    std::chrono::milliseconds m_reaperTimeout{500};
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
     bool m_lowPriority = false;

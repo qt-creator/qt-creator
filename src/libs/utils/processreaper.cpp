@@ -16,6 +16,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace Utils {
 namespace Internal {
 
@@ -66,7 +68,7 @@ static QString execWithArguments(QProcess *process)
 struct ReaperSetup
 {
     QProcess *m_process = nullptr;
-    int m_timeoutMs;
+    milliseconds m_timeoutMs;
 };
 
 class Reaper : public QObject
@@ -233,7 +235,7 @@ ProcessReaper::~ProcessReaper()
     m_thread.wait();
 }
 
-void ProcessReaper::reap(QProcess *process, int timeoutMs)
+void ProcessReaper::reap(QProcess *process, milliseconds timeout)
 {
     if (!process)
         return;
@@ -254,7 +256,7 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     ProcessReaperPrivate *priv = instance()->m_private;
 
     process->moveToThread(priv->thread());
-    ReaperSetup reaperSetup {process, timeoutMs};
+    ReaperSetup reaperSetup{process, timeout};
     priv->scheduleReap(reaperSetup);
 }
 

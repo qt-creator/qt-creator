@@ -127,8 +127,8 @@ public:
     void setExtraData(const QVariantHash &extraData);
     QVariantHash extraData() const;
 
-    void setReaperTimeout(int msecs);
-    int reaperTimeout() const;
+    void setReaperTimeout(std::chrono::milliseconds timeout);
+    std::chrono::milliseconds reaperTimeout() const;
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 

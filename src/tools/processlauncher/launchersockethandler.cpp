@@ -274,7 +274,7 @@ void LauncherSocketHandler::removeProcess(quintptr token)
 
     ProcessWithToken *process = it.value();
     m_processes.erase(it);
-    ProcessReaper::reap(process, process->reaperTimeout());
+    ProcessReaper::reap(process, std::chrono::milliseconds(process->reaperTimeout()));
 }
 
 } // namespace Internal

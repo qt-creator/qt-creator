@@ -258,7 +258,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p.lowPriority = m_setup->m_lowPriority;
     p.unixTerminalDisabled = m_setup->m_unixTerminalDisabled;
     p.useCtrlCStub = m_setup->m_useCtrlCStub;
-    p.reaperTimeout = m_setup->m_reaperTimeout;
+    p.reaperTimeout = m_setup->m_reaperTimeout.count();
     p.createConsoleOnWindows = m_setup->m_createConsoleOnWindows;
     sendPacket(p);
 }
