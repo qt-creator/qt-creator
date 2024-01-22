@@ -82,5 +82,7 @@ Rectangle {
 3. Change the order of the effects, if you like
 4. See the preview
 5. Save in the library, if you wish to reuse the effect later") // TODO: revise with doc engineer
+
+        onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qt-using-effect-maker-effects.html")
     }
 }
