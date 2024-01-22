@@ -483,6 +483,7 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                 filtered << a << allFlags.at(i);
         }  else if (a == "-Xclang") {
             filtered << a;
+            continue;
         } else if ((considerSysroot && (a == "--sysroot" || a == "-isysroot"))
                    || a == "-D" || a == "-U"
                    || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
@@ -499,6 +500,8 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                    || a == "-nostdinc" || a == "-nostdinc++") {
             filtered << a;
         }
+        if (!filtered.isEmpty() && filtered.last() == "-Xclang")
+            filtered.removeLast();
     }
     return filtered;
 }
