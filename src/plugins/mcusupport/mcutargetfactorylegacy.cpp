@@ -31,14 +31,14 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
     QHash<QString, McuPackagePtr> freeRTOSPkgs;
     Targets mcuTargets;
     Packages packages;
-    McuToolChainPackagePtr toolchainPackage = getToolchainCompiler(desc.toolchain);
+    McuToolchainPackagePtr toolchainPackage = getToolchainCompiler(desc.toolchain);
     McuPackagePtr toolchainFilePackage = getToolchainFile(qtForMcuPath, desc.toolchain.id);
     for (int colorDepth : desc.platform.colorDepths) {
         Packages required3rdPartyPkgs;
         // Desktop toolchains don't need any additional settings
         if (toolchainPackage
             && toolchainPackage->toolchainType()
-                   != McuToolChainPackage::ToolChainType::Unsupported) {
+                   != McuToolchainPackage::ToolchainType::Unsupported) {
             required3rdPartyPkgs.insert(toolchainPackage);
         }
 
@@ -90,13 +90,13 @@ McuAbstractTargetFactory::AdditionalPackages McuTargetFactory::getAdditionalPack
     return {{}, vendorPkgs};
 }
 
-McuToolChainPackagePtr McuTargetFactory::getToolchainCompiler(
+McuToolchainPackagePtr McuTargetFactory::getToolchainCompiler(
     const McuTargetDescription::Toolchain &desc) const
 {
     auto compilerCreator = toolchainCreators.value(desc.id, [this](const QStringList & /*versions*/) {
-        return McuToolChainPackagePtr{Legacy::createUnsupportedToolChainPackage(settingsHandler)};
+        return McuToolchainPackagePtr{Legacy::createUnsupportedToolchainPackage(settingsHandler)};
     });
-    McuToolChainPackagePtr toolchainPackage = compilerCreator(desc.versions);
+    McuToolchainPackagePtr toolchainPackage = compilerCreator(desc.versions);
     return toolchainPackage;
 }
 
@@ -107,7 +107,7 @@ McuPackagePtr McuTargetFactory::getToolchainFile(const Utils::FilePath &qtForMCU
         return toolchainFile;
     } else {
         return McuPackagePtr{
-            Legacy::createUnsupportedToolChainFilePackage(settingsHandler, qtForMCUSdkPath)};
+            Legacy::createUnsupportedToolchainFilePackage(settingsHandler, qtForMCUSdkPath)};
     }
 }
 } // namespace McuSupport::Internal::Legacy

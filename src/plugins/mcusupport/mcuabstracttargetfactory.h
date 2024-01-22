@@ -28,7 +28,7 @@ public:
                                                    const McuPackagePtr &qtForMCUsPackage)
         = 0;
     using AdditionalPackages
-        = QPair<QHash<QString, McuToolChainPackagePtr>, QHash<QString, McuPackagePtr>>;
+        = QPair<QHash<QString, McuToolchainPackagePtr>, QHash<QString, McuPackagePtr>>;
     virtual AdditionalPackages getAdditionalPackages() const { return {}; }
 }; // struct McuAbstractTargetFactory
 } // namespace McuSupport::Internal

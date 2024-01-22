@@ -20,7 +20,7 @@ public:
     QPair<Targets, Packages> createTargets(const McuTargetDescription &,
                                            const McuPackagePtr &qtForMCUsPackage) override;
     Packages createPackages(const McuTargetDescription &);
-    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &, const Utils::FilePath &sourceFile = Utils::FilePath());
+    McuToolchainPackage *createToolchain(const McuTargetDescription::Toolchain &, const Utils::FilePath &sourceFile = Utils::FilePath());
     McuPackagePtr createPackage(const PackageDescription &);
 
 private:

@@ -100,36 +100,36 @@ private:
     Status m_status = Status::InvalidPath;
 }; // class McuPackage
 
-class McuToolChainPackage final : public McuPackage
+class McuToolchainPackage final : public McuPackage
 {
     Q_OBJECT
 public:
-    enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, MinGW, Unsupported };
+    enum class ToolchainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, MinGW, Unsupported };
 
-    McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+    McuToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                         const QString &label,
                         const Utils::FilePath &defaultPath,
                         const Utils::FilePaths &detectionPaths,
                         const Utils::Key &settingsKey,
-                        ToolChainType toolchainType,
+                        ToolchainType toolchainType,
                         const QStringList &versions,
                         const QString &cmakeVarName,
                         const QString &envVarName,
                         const McuPackageVersionDetector *versionDetector);
 
-    ToolChainType toolchainType() const;
+    ToolchainType toolchainType() const;
     bool isDesktopToolchain() const;
     ProjectExplorer::Toolchain *toolChain(Utils::Id language) const;
-    QString toolChainName() const;
+    QString toolchainName() const;
     QVariant debuggerId() const;
 
-    static ProjectExplorer::Toolchain *msvcToolChain(Utils::Id language);
-    static ProjectExplorer::Toolchain *gccToolChain(Utils::Id language);
+    static ProjectExplorer::Toolchain *msvcToolchain(Utils::Id language);
+    static ProjectExplorer::Toolchain *gccToolchain(Utils::Id language);
 
 private:
-    const ToolChainType m_type;
+    const ToolchainType m_type;
 };
 
 } // namespace McuSupport::Internal
 
-Q_DECLARE_METATYPE(McuSupport::Internal::McuToolChainPackage::ToolChainType)
+Q_DECLARE_METATYPE(McuSupport::Internal::McuToolchainPackage::ToolchainType)

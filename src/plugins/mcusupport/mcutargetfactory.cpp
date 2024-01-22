@@ -18,11 +18,11 @@
 
 namespace McuSupport::Internal {
 
-bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
+bool isDesktopToolchain(McuToolchainPackage::ToolchainType type)
 {
-    return type == McuToolChainPackage::ToolChainType::MSVC
-           || type == McuToolChainPackage::ToolChainType::GCC
-           || type == McuToolChainPackage::ToolChainType::MinGW;
+    return type == McuToolchainPackage::ToolchainType::MSVC
+           || type == McuToolchainPackage::ToolchainType::GCC
+           || type == McuToolchainPackage::ToolchainType::MinGW;
 }
 
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
@@ -82,7 +82,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         if (!toolchain || !toolchainFile)
             continue;
         Packages targetPackages = createPackages(desc);
-        McuToolChainPackagePtr toolchainPtr{toolchain};
+        McuToolchainPackagePtr toolchainPtr{toolchain};
         targetPackages.insert({toolchainPtr});
         targetPackages.insert({qtForMCUsPackage});
         targetPackages.unite({toolchainFile});
@@ -141,29 +141,29 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
                                         pkgDesc.type}};
 }
 
-McuToolChainPackage *McuTargetFactory::createToolchain(
+McuToolchainPackage *McuTargetFactory::createToolchain(
     const McuTargetDescription::Toolchain &toolchain,
     const Utils::FilePath &sourceFile
     )
 {
-    const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
-        {"iar", McuToolChainPackage::ToolChainType::IAR},
-        {"keil", McuToolChainPackage::ToolChainType::KEIL},
-        {"msvc", McuToolChainPackage::ToolChainType::MSVC},
-        {"gcc", McuToolChainPackage::ToolChainType::GCC},
-        {"mingw", McuToolChainPackage::ToolChainType::MinGW},
-        {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
-        {"greenhills", McuToolChainPackage::ToolChainType::GHS},
-        {"arm-greenhills", McuToolChainPackage::ToolChainType::GHSArm},
+    const static QMap<QString, McuToolchainPackage::ToolchainType> toolchainTypeMapping{
+        {"iar", McuToolchainPackage::ToolchainType::IAR},
+        {"keil", McuToolchainPackage::ToolchainType::KEIL},
+        {"msvc", McuToolchainPackage::ToolchainType::MSVC},
+        {"gcc", McuToolchainPackage::ToolchainType::GCC},
+        {"mingw", McuToolchainPackage::ToolchainType::MinGW},
+        {"armgcc", McuToolchainPackage::ToolchainType::ArmGcc},
+        {"greenhills", McuToolchainPackage::ToolchainType::GHS},
+        {"arm-greenhills", McuToolchainPackage::ToolchainType::GHSArm},
     };
 
     const PackageDescription compilerDescription{toolchain.compiler};
 
-    McuToolChainPackage::ToolChainType toolchainType
-        = toolchainTypeMapping.value(toolchain.id, McuToolChainPackage::ToolChainType::Unsupported);
+    McuToolchainPackage::ToolchainType toolchainType
+        = toolchainTypeMapping.value(toolchain.id, McuToolchainPackage::ToolchainType::Unsupported);
 
     if (isDesktopToolchain(toolchainType)) {
-        return new McuToolChainPackage{settingsHandler,
+        return new McuToolchainPackage{settingsHandler,
                                        compilerDescription.label,
                                        compilerDescription.defaultPath,
                                        compilerDescription.detectionPaths,
@@ -189,7 +189,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
     }
 
     if (!errorMessage.isEmpty()) {
-        toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
+        toolchainType = McuToolchainPackage::ToolchainType::Unsupported;
 
         if (toolchain.id.isEmpty()) {
             printMessage(Tr::tr("Toolchain is invalid because %2 in file \"%3\".")
@@ -203,7 +203,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
 
     }
 
-    return new McuToolChainPackage{settingsHandler,
+    return new McuToolchainPackage{settingsHandler,
                                    compilerDescription.label,
                                    compilerDescription.defaultPath,
                                    compilerDescription.detectionPaths,

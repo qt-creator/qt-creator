@@ -124,9 +124,9 @@ private:
     PackageDescription compilerDescription;
     PackageDescription toochainFileDescription;
     McuTargetDescription targetDescription;
-    McuToolChainPackagePtr toolchainPackagePtr;
-    McuToolChainPackagePtr armGccToolchainPackagePtr;
-    McuToolChainPackagePtr iarToolchainPackagePtr;
+    McuToolchainPackagePtr toolchainPackagePtr;
+    McuToolchainPackagePtr armGccToolchainPackagePtr;
+    McuToolchainPackagePtr iarToolchainPackagePtr;
     PackageMock *armGccToolchainFilePackage{new PackageMock};
     McuPackagePtr armGccToolchainFilePackagePtr{armGccToolchainFilePackage};
     McuTarget::Platform platform;

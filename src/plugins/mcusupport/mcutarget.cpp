@@ -19,7 +19,7 @@ McuTarget::McuTarget(const QVersionNumber &qulVersion,
                      const Platform &platform,
                      OS os,
                      const Packages &packages,
-                     const McuToolChainPackagePtr &toolChainPackage,
+                     const McuToolchainPackagePtr &toolChainPackage,
                      const McuPackagePtr &toolChainFilePackage,
                      int colorDepth)
     : m_qulVersion(qulVersion)
@@ -36,7 +36,7 @@ Packages McuTarget::packages() const
     return m_packages;
 }
 
-McuToolChainPackagePtr McuTarget::toolChainPackage() const
+McuToolchainPackagePtr McuTarget::toolChainPackage() const
 {
     return m_toolChainPackage;
 }
@@ -72,10 +72,10 @@ QString McuTarget::desktopCompilerId() const
     // for MSVC and MinGW.
     if (m_toolChainPackage) {
         switch (m_toolChainPackage->toolchainType()) {
-        case McuToolChainPackage::ToolChainType::MSVC:
+        case McuToolchainPackage::ToolchainType::MSVC:
             return QLatin1String("msvc");
-        case McuToolChainPackage::ToolChainType::GCC:
-        case McuToolChainPackage::ToolChainType::MinGW:
+        case McuToolchainPackage::ToolchainType::GCC:
+        case McuToolchainPackage::ToolchainType::MinGW:
             return QLatin1String("gnu");
         default:
             return QLatin1String("unsupported");

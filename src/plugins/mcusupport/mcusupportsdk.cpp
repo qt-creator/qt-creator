@@ -152,7 +152,7 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
                        "https://freertos.org")}; // download url
 }
 
-McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &settingsHandler,
+McuPackagePtr createUnsupportedToolchainFilePackage(const SettingsHandler::Ptr &settingsHandler,
                                                     const FilePath &qtForMCUSdkPath)
 {
     const FilePath toolchainFilePath = qtForMCUSdkPath / Constants::QUL_TOOLCHAIN_CMAKE_DIR
@@ -166,25 +166,25 @@ McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &
                                         {})};
 }
 
-McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolchainPackagePtr createUnsupportedToolchainPackage(const SettingsHandler::Ptr &settingsHandler)
 {
-    return McuToolChainPackagePtr{
-        new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{
+        new McuToolchainPackage(settingsHandler,
                                 {},
                                 {},
                                 {},
                                 {},
-                                McuToolChainPackage::ToolChainType::Unsupported,
+                                McuToolchainPackage::ToolchainType::Unsupported,
                                 {},
                                 {},
                                 {},
                                 nullptr)};
 }
 
-McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createMsvcToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                   const QStringList &versions)
 {
-    Toolchain *toolChain = McuToolChainPackage::msvcToolChain(
+    Toolchain *toolChain = McuToolchainPackage::msvcToolchain(
         ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     const FilePath detectionPath = FilePath("cl").withExecutableSuffix();
@@ -194,22 +194,22 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
                                                                           {"/?"},
                                                                           R"(\b(\d+\.\d+)\.\d+\b)");
 
-    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{new McuToolchainPackage(settingsHandler,
                                                           Tr::tr("MSVC Binary directory"),
                                                           defaultPath,
                                                           {detectionPath},
                                                           "MsvcToolchain",
-                                                          McuToolChainPackage::ToolChainType::MSVC,
+                                                          McuToolchainPackage::ToolchainType::MSVC,
                                                           versions,
                                                           {},
                                                           {},
                                                           versionDetector)};
 }
 
-McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
-    Toolchain *toolChain = McuToolChainPackage::gccToolChain(
+    Toolchain *toolChain = McuToolchainPackage::gccToolchain(
         ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     const FilePath detectionPath = FilePath("bin/g++*").withExecutableSuffix();
@@ -220,19 +220,19 @@ McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &set
                                                                           {"--version"},
                                                                           R"(\b(\d+\.\d+\.\d+)\b)");
 
-    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{new McuToolchainPackage(settingsHandler,
                                                           Tr::tr("GCC Toolchain"),
                                                           defaultPath,
                                                           {detectionPath},
                                                           "GnuToolchain",
-                                                          McuToolChainPackage::ToolChainType::GCC,
+                                                          McuToolchainPackage::ToolchainType::GCC,
                                                           versions,
                                                           {},
                                                           {},
                                                           versionDetector)};
 }
 
-McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                     const QStringList &versions)
 {
     const char envVar[] = "ARMGCC_DIR";
@@ -256,20 +256,20 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
                                                                           {"--version"},
                                                                           R"(\b(\d+\.\d+\.\d+)\b)");
 
-    return McuToolChainPackagePtr{
-        new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{
+        new McuToolchainPackage(settingsHandler,
                                 Tr::tr("GNU Arm Embedded Toolchain"),
                                 defaultPath,
                                 {detectionPath},
                                 "GNUArmEmbeddedToolchain",                  // settingsKey
-                                McuToolChainPackage::ToolChainType::ArmGcc, // toolchainType
+                                McuToolchainPackage::ToolchainType::ArmGcc, // toolchainType
                                 versions,
                                 Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                 envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
     const char envVar[] = "GHS_COMPILER_DIR";
@@ -281,20 +281,20 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
                                                   {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
-    return McuToolChainPackagePtr{
-        new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{
+        new McuToolchainPackage(settingsHandler,
                                 "Green Hills Compiler",
                                 defaultPath,
                                 {FilePath("ccv850").withExecutableSuffix()}, // detectionPath
                                 "GHSToolchain",                              // settingsKey
-                                McuToolChainPackage::ToolChainType::GHS,     // toolchainType
+                                McuToolchainPackage::ToolchainType::GHS,     // toolchainType
                                 versions,
                                 Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                 envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                     const QStringList &versions)
 {
     const char envVar[] = "GHS_ARM_COMPILER_DIR";
@@ -306,20 +306,20 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
                                                   {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
-    return McuToolChainPackagePtr{
-        new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{
+        new McuToolchainPackage(settingsHandler,
                                 "Green Hills Compiler for ARM",
                                 defaultPath,
                                 {FilePath("cxarm").withExecutableSuffix()}, // detectionPath
                                 "GHSArmToolchain",                          // settingsKey
-                                McuToolChainPackage::ToolChainType::GHSArm, // toolchainType
+                                McuToolchainPackage::ToolchainType::GHSArm, // toolchainType
                                 versions,
                                 Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                 envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackagePtr createIarToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
     const char envVar[] = "IAR_ARM_COMPILER_DIR";
@@ -344,13 +344,13 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
                                                   {"--version"},
                                                   R"(\bV(\d+\.\d+\.\d+)\.\d+\b)");
 
-    return McuToolChainPackagePtr{
-        new McuToolChainPackage(settingsHandler,
+    return McuToolchainPackagePtr{
+        new McuToolchainPackage(settingsHandler,
                                 "IAR ARM Compiler",
                                 defaultPath,
                                 {detectionPath},
                                 "IARToolchain",                          // settings key
-                                McuToolChainPackage::ToolChainType::IAR, // toolchainType
+                                McuToolchainPackage::ToolchainType::IAR, // toolchainType
                                 versions,
                                 Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                 envVar,                                  // env var
@@ -494,13 +494,13 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                  return Legacy::createGhsToolchainPackage(settingsHandler, versions);
              }},
             {{"iar"}, {[settingsHandler](const QStringList &versions) {
-                 return Legacy::createIarToolChainPackage(settingsHandler, versions);
+                 return Legacy::createIarToolchainPackage(settingsHandler, versions);
              }}},
             {{"msvc"}, {[settingsHandler](const QStringList &versions) {
-                 return Legacy::createMsvcToolChainPackage(settingsHandler, versions);
+                 return Legacy::createMsvcToolchainPackage(settingsHandler, versions);
              }}},
             {{"gcc"}, {[settingsHandler](const QStringList &versions) {
-                 return Legacy::createGccToolChainPackage(settingsHandler, versions);
+                 return Legacy::createGccToolchainPackage(settingsHandler, versions);
              }}},
             {{"arm-greenhills"}, {[settingsHandler](const QStringList &versions) {
                  return Legacy::createGhsArmToolchainPackage(settingsHandler, versions);
@@ -585,7 +585,7 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &desc
 
     if (isLegacy) {
         auto [toolchainPkgs, vendorPkgs]{targetFactory->getAdditionalPackages()};
-        for (McuToolChainPackagePtr &package : toolchainPkgs) {
+        for (McuToolchainPackagePtr &package : toolchainPkgs) {
             mcuPackages.insert(package);
         }
         for (McuPackagePtr &package : vendorPkgs) {

@@ -19,10 +19,10 @@ namespace McuSupport::Internal {
 
 class McuTarget;
 class McuAbstractPackage;
-class McuToolChainPackage;
+class McuToolchainPackage;
 
 using McuPackagePtr = QSharedPointer<McuAbstractPackage>;
-using McuToolChainPackagePtr = QSharedPointer<McuToolChainPackage>;
+using McuToolchainPackagePtr = QSharedPointer<McuToolchainPackage>;
 using McuTargetPtr = QSharedPointer<McuTarget>;
 
 static const QVersionNumber minimalVersion{2, 0, 0};

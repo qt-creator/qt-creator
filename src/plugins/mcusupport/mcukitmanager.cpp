@@ -75,22 +75,22 @@ static const int KIT_VERSION = 9; // Bumps up whenever details in Kit creation c
 class McuKitFactory
 {
 public:
-    static void setKitToolchains(Kit *k, const McuToolChainPackagePtr &tcPackage)
+    static void setKitToolchains(Kit *k, const McuToolchainPackagePtr &tcPackage)
     {
         switch (tcPackage->toolchainType()) {
-        case McuToolChainPackage::ToolChainType::Unsupported:
+        case McuToolchainPackage::ToolchainType::Unsupported:
             return;
 
-        case McuToolChainPackage::ToolChainType::GHS:
-        case McuToolChainPackage::ToolChainType::GHSArm:
+        case McuToolchainPackage::ToolchainType::GHS:
+        case McuToolchainPackage::ToolchainType::GHSArm:
             return; // No Green Hills toolchain, because support for it is missing.
 
-        case McuToolChainPackage::ToolChainType::IAR:
-        case McuToolChainPackage::ToolChainType::KEIL:
-        case McuToolChainPackage::ToolChainType::MSVC:
-        case McuToolChainPackage::ToolChainType::GCC:
-        case McuToolChainPackage::ToolChainType::MinGW:
-        case McuToolChainPackage::ToolChainType::ArmGcc:
+        case McuToolchainPackage::ToolchainType::IAR:
+        case McuToolchainPackage::ToolchainType::KEIL:
+        case McuToolchainPackage::ToolchainType::MSVC:
+        case McuToolchainPackage::ToolchainType::GCC:
+        case McuToolchainPackage::ToolchainType::MinGW:
+        case McuToolchainPackage::ToolchainType::ArmGcc:
             ToolchainKitAspect::setToolchain(k,
                                              tcPackage->toolChain(
                                                  ProjectExplorer::Constants::C_LANGUAGE_ID));
@@ -116,7 +116,7 @@ public:
         k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
         k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
         k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
-        k->setValue(KIT_MCUTARGET_TOOLCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
+        k->setValue(KIT_MCUTARGET_TOOLCHAIN_KEY, mcuTarget->toolChainPackage()->toolchainName());
         k->setAutoDetected(false);
         k->makeSticky();
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
@@ -136,25 +136,25 @@ public:
         k->setIrrelevantAspects(irrelevant);
     }
 
-    static void setKitDebugger(Kit *k, const McuToolChainPackagePtr &tcPackage)
+    static void setKitDebugger(Kit *k, const McuToolchainPackagePtr &tcPackage)
     {
         if (tcPackage->isDesktopToolchain()) {
-            // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
+            // Qt Creator seems to be smart enough to deduce the right Kit debugger from the Toolchain
             return;
         }
 
         switch (tcPackage->toolchainType()) {
-        case McuToolChainPackage::ToolChainType::Unsupported:
-        case McuToolChainPackage::ToolChainType::GHS:
-        case McuToolChainPackage::ToolChainType::GHSArm:
-        case McuToolChainPackage::ToolChainType::IAR:
+        case McuToolchainPackage::ToolchainType::Unsupported:
+        case McuToolchainPackage::ToolchainType::GHS:
+        case McuToolchainPackage::ToolchainType::GHSArm:
+        case McuToolchainPackage::ToolchainType::IAR:
             return; // No Green Hills and IAR debugger, because support for it is missing.
 
-        case McuToolChainPackage::ToolChainType::KEIL:
-        case McuToolChainPackage::ToolChainType::MSVC:
-        case McuToolChainPackage::ToolChainType::GCC:
-        case McuToolChainPackage::ToolChainType::MinGW:
-        case McuToolChainPackage::ToolChainType::ArmGcc: {
+        case McuToolchainPackage::ToolchainType::KEIL:
+        case McuToolchainPackage::ToolchainType::MSVC:
+        case McuToolchainPackage::ToolchainType::GCC:
+        case McuToolchainPackage::ToolchainType::MinGW:
+        case McuToolchainPackage::ToolchainType::ArmGcc: {
             const QVariant debuggerId = tcPackage->debuggerId();
             if (debuggerId.isValid()) {
                 Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
@@ -252,10 +252,10 @@ public:
         using namespace CMakeProjectManager;
         auto configMap = cMakeConfigToMap(CMakeConfigurationKitAspect::configuration(k));
 
-        // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
+        // CMake Toolchain file for ghs handles CMAKE_*_COMPILER autonomously
         const QList autonomousCompilerDetectionToolchains{
-            McuToolChainPackage::ToolChainType::GHS,
-            McuToolChainPackage::ToolChainType::GHSArm,
+            McuToolchainPackage::ToolchainType::GHS,
+            McuToolchainPackage::ToolchainType::GHSArm,
         };
         if (!autonomousCompilerDetectionToolchains.contains(
                 mcuTarget->toolChainPackage()->toolchainType())) {
@@ -324,8 +324,8 @@ public:
 
         if (HostOsInfo::isWindowsHost()) {
             auto type = mcuTarget->toolChainPackage()->toolchainType();
-            if (type == McuToolChainPackage::ToolChainType::GHS
-                || type == McuToolChainPackage::ToolChainType::GHSArm) {
+            if (type == McuToolchainPackage::ToolchainType::GHS
+                || type == McuToolchainPackage::ToolchainType::GHSArm) {
                 // See https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565802&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565802
                 // and https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565803&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565803
                 CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
@@ -387,9 +387,9 @@ Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk)
 // Kit Information
 QString generateKitNameFromTarget(const McuTarget *mcuTarget)
 {
-    McuToolChainPackagePtr tcPkg = mcuTarget->toolChainPackage();
+    McuToolchainPackagePtr tcPkg = mcuTarget->toolChainPackage();
     const QString compilerName = tcPkg ? QString::fromLatin1(" (%1)").arg(
-                                     tcPkg->toolChainName().toUpper())
+                                     tcPkg->toolchainName().toUpper())
                                        : "";
     const QString colorDepth = mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth
                                    ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
@@ -453,7 +453,7 @@ QList<Kit *> existingKits(const McuTarget *mcuTarget)
                        && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
                               == static_cast<int>(mcuTarget->os())
                        && kit->value(KIT_MCUTARGET_TOOLCHAIN_KEY)
-                              == mcuTarget->toolChainPackage()->toolChainName()));
+                              == mcuTarget->toolChainPackage()->toolchainName()));
     });
 }
 
