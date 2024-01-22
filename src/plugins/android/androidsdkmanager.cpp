@@ -26,9 +26,10 @@ const char commonArgsKey[] = "Common Arguments:";
 
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace Android {
 namespace Internal {
-
 
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
@@ -94,10 +95,9 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                         .toUserOutput();
     Process proc;
     proc.setEnvironment(config.toolsEnvironment());
-    proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(EventLoopMode::On);
+    proc.runBlocking(seconds(timeout), EventLoopMode::On);
     if (output)
         *output = proc.allOutput();
     return proc.result() == ProcessResult::FinishedWithSuccess;
@@ -123,7 +123,6 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     Process proc;
     proc.setEnvironment(config.toolsEnvironment());
     bool assertionFound = false;
-    proc.setTimeoutS(timeout);
     proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
         int progressPercent = parseProgress(out, assertionFound);
         if (assertionFound) {
@@ -143,7 +142,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
         });
     }
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(EventLoopMode::On);
+    proc.runBlocking(seconds(timeout), EventLoopMode::On);
     if (assertionFound) {
         output.success = false;
         output.stdOutput = proc.cleanedStdOut();

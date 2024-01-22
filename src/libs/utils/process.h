@@ -73,6 +73,7 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
+    // TODO: Change to std::chrono::milliseconds.
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
@@ -144,11 +145,8 @@ public:
 
     // Starts the command and waits for finish.
     // User input processing is enabled when EventLoopMode::On was passed.
-    void runBlocking(EventLoopMode eventLoopMode = EventLoopMode::Off);
-
-    /* Timeout for hanging processes (triggers after no more output
-     * occurs on stderr/stdout). */
-    void setTimeoutS(int timeoutS);
+    void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
+                     EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);

@@ -9,7 +9,6 @@
 #include "androidqtversion.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
-#include "avddialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -598,10 +597,9 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 {
     QVector<AndroidDeviceInfo> devices;
     Process adbProc;
-    adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
-    adbProc.runBlocking();
+    adbProc.runBlocking(std::chrono::seconds(30));
     if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
         if (error)
             *error = Tr::tr("Could not run: %1").arg(cmd.toUserOutput());
@@ -667,7 +665,6 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
     cmd.addArgs({"shell", "getprop", property});
 
     Process adbProc;
-    adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
@@ -744,7 +741,6 @@ QStringList AndroidConfig::getAbis(const QString &device)
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
     Process adbProc;
-    adbProc.setTimeoutS(10);
     adbProc.setCommand({adbTool, arguments});
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
@@ -767,7 +763,6 @@ QStringList AndroidConfig::getAbis(const QString &device)
             arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
 
         Process abiProc;
-        abiProc.setTimeoutS(10);
         abiProc.setCommand({adbTool, arguments});
         abiProc.runBlocking();
         if (abiProc.result() != ProcessResult::FinishedWithSuccess)

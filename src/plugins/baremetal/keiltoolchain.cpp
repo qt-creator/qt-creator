@@ -106,7 +106,6 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const Environmen
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {fakeIn.fileName()}});
 
     cpp.runBlocking();
@@ -183,7 +182,6 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const Environme
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
 
     Macros macros;
     auto extractMacros = [&macros](const QString &output) {
@@ -248,7 +246,6 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
 {
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
 
     QStringList args = extraArgs;
     args.push_back("-E");

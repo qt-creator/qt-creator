@@ -297,6 +297,7 @@ CommandResult VcsCommand::runBlocking(const FilePath &workingDirectory,
     return vcsCommand.runBlockingHelper(command, timeoutS);
 }
 
+// TODO: change timeout to std::chrono::seconds
 CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int timeoutS)
 {
     Process process;
@@ -305,11 +306,10 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
 
     const Internal::VcsCommandPrivate::Job job{command, timeoutS, d->m_defaultWorkingDirectory};
     d->setupProcess(&process, job);
-    process.setTimeoutS(timeoutS);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
     process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
-    process.runBlocking(eventLoopMode);
+    process.runBlocking(std::chrono::seconds(timeoutS), eventLoopMode);
     d->handleDone(&process, job);
 
     return CommandResult(process);

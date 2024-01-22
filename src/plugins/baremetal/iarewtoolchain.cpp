@@ -71,7 +71,6 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
 
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
@@ -123,7 +122,6 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Id languageId
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
     cpp.setCommand(cmd);
     cpp.runBlocking();
 

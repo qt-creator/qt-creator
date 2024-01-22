@@ -1621,8 +1621,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
     process.setEnvironment(env);
     process.setCommand({m_settings.ccBinaryPath, arguments});
     process.setWorkingDirectory(workingDir);
-    process.setTimeoutS(m_settings.timeOutS);
-    process.runBlocking();
+    process.runBlocking(std::chrono::seconds(m_settings.timeOutS));
     return CommandResult(process);
 }
 
@@ -2284,11 +2283,10 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
     diff.addArgs(arguments);
 
     Process process;
-    process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
     process.setCommand(diff);
-    process.runBlocking(EventLoopMode::On);
+    process.runBlocking(std::chrono::seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return {};
     return process.allOutput();

@@ -572,12 +572,11 @@ Tasking::GroupItem AndroidDeployQtStep::runRecipe()
 void AndroidDeployQtStep::runCommand(const CommandLine &command)
 {
     Process buildProc;
-    buildProc.setTimeoutS(2 * 60);
     emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.runBlocking(EventLoopMode::On);
+    buildProc.runBlocking(std::chrono::minutes(2), EventLoopMode::On);
     if (buildProc.result() != ProcessResult::FinishedWithSuccess)
         reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }

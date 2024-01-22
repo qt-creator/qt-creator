@@ -60,7 +60,6 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()}});
 
     cpp.runBlocking();
@@ -81,7 +80,6 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {compilerTargetFlag(abi), "--print-search-dirs"}});
 
     cpp.runBlocking();

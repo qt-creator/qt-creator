@@ -100,9 +100,8 @@ public:
     void createDocumentationFile() const final
     {
         Process process;
-        process.setTimeoutS(2);
         process.setCommand({command(), {"--show-config"}});
-        process.runBlocking();
+        process.runBlocking(std::chrono::seconds(2));
         if (process.result() != ProcessResult::FinishedWithSuccess)
             return;
 

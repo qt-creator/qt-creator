@@ -220,9 +220,8 @@ static bool is32BitUserSpace()
     if (HostOsInfo::isLinuxHost()) {
         if (QSysInfo::WordSize == 32) {
             Process proc;
-            proc.setTimeoutS(3);
             proc.setCommand({"getconf", {"LONG_BIT"}});
-            proc.runBlocking();
+            proc.runBlocking(std::chrono::seconds(3));
             if (proc.result() != ProcessResult::FinishedWithSuccess)
                 return true;
             return proc.allOutput().trimmed() == "32";
@@ -312,7 +311,6 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     const CommandLine command({m_config.adbToolPath(), arguments});
     qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
     Process adbProc;
-    adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)

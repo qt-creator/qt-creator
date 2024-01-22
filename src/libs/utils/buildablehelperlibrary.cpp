@@ -11,6 +11,8 @@
 
 #include <set>
 
+using namespace std::chrono_literals;
+
 namespace Utils {
 
 bool BuildableHelperLibrary::isQtChooser(const FilePath &filePath)
@@ -22,9 +24,8 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     Process proc;
-    proc.setTimeoutS(1);
     proc.setCommand({qtChooser, {"-print-env"}});
-    proc.runBlocking();
+    proc.runBlocking(1s);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return {};
     const QString output = proc.cleanedStdOut();
@@ -104,9 +105,8 @@ QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
         return QString();
 
     Process qmake;
-    qmake.setTimeoutS(5);
     qmake.setCommand({qmakePath, {"--version"}});
-    qmake.runBlocking();
+    qmake.runBlocking(5s);
     if (qmake.result() != ProcessResult::FinishedWithSuccess) {
         qWarning() << qmake.exitMessage();
         return QString();

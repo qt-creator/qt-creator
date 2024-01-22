@@ -365,9 +365,8 @@ static std::function<void(FilePath)> postCopyOperation()
         // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
         // to get it loaded as a plugin in Qt Creator.
         Process xattr;
-        xattr.setTimeoutS(1);
         xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
-        xattr.runBlocking();
+        xattr.runBlocking(std::chrono::seconds(1));
     };
 }
 

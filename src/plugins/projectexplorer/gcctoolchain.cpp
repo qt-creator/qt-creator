@@ -167,7 +167,6 @@ static QString runGcc(const FilePath &gcc, const QStringList &arguments, const E
     environment.setupEnglishOutput();
 
     cpp.setEnvironment(environment);
-    cpp.setTimeoutS(10);
     cpp.setCommand({gcc, arguments});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess || cpp.exitCode() != 0) {

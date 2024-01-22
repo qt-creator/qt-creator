@@ -854,7 +854,6 @@ public:
 
     time_point<system_clock, nanoseconds> m_startTimestamp = {};
     time_point<system_clock, nanoseconds> m_doneTimestamp = {};
-    int m_timeoutInSeconds = 10;
     bool m_timeOutMessageBoxEnabled = false;
 
     Guard m_guard;
@@ -1847,14 +1846,6 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setTimeoutS(int timeoutS)
-{
-    if (timeoutS > 0)
-        d->m_timeoutInSeconds = qMax(2, timeoutS);
-    else
-        d->m_timeoutInSeconds = INT_MAX / 1000;
-}
-
 void Process::setCodec(QTextCodec *c)
 {
     QTC_ASSERT(c, return);
@@ -1871,7 +1862,7 @@ void Process::setWriteData(const QByteArray &writeData)
     d->m_setup.m_writeData = writeData;
 }
 
-void Process::runBlocking(EventLoopMode eventLoopMode)
+void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
 {
     QDateTime startTime;
     static const int blockingThresholdMs = qtcEnvironmentVariableIntValue("QTC_PROCESS_THRESHOLD");
@@ -1907,15 +1898,15 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
         QMetaObject::invokeMethod(this, handleStart, Qt::QueuedConnection);
 
         std::function<void(void)> timeoutHandler = {};
-        if (d->m_timeoutInSeconds > 0) {
-            timeoutHandler = [this, &eventLoop, &timeoutHandler, &handleTimeout] {
+        if (timeout > seconds::zero()) {
+            timeoutHandler = [this, &eventLoop, &timeoutHandler, &handleTimeout, timeout] {
                 if (!d->m_timeOutMessageBoxEnabled || askToKill(d->m_setup.m_commandLine)) {
                     handleTimeout();
                     return;
                 }
-                QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
+                QTimer::singleShot(timeout, &eventLoop, timeoutHandler);
             };
-            QTimer::singleShot(d->m_timeoutInSeconds * 1000, &eventLoop, timeoutHandler);
+            QTimer::singleShot(timeout, &eventLoop, timeoutHandler);
         }
 
         connect(this, &Process::done, &eventLoop, [&eventLoop] { eventLoop.quit(); });
@@ -1927,7 +1918,7 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
 #endif
     } else {
         handleStart();
-        if (!waitForFinished(d->m_timeoutInSeconds * 1000))
+        if (!waitForFinished(duration_cast<milliseconds>(timeout).count()))
             handleTimeout();
     }
     if (blockingThresholdMs > 0) {

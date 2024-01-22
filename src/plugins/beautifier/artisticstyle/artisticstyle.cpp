@@ -96,9 +96,8 @@ public:
     void createDocumentationFile() const final
     {
         Process process;
-        process.setTimeoutS(2);
         process.setCommand({command(), {"-h"}});
-        process.runBlocking();
+        process.runBlocking(std::chrono::seconds(2));
         if (process.result() != ProcessResult::FinishedWithSuccess)
             return;
 

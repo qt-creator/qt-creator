@@ -33,10 +33,11 @@
 #include <QMessageBox>
 #include <QVersionNumber>
 
+using namespace Android::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-using namespace Android::Internal;
+using namespace std::chrono_literals;
 
 namespace Android::AndroidManager {
 
@@ -612,9 +613,8 @@ bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystore
                           {"-list", "-keystore", keystorePath.toUserOutput(),
                            "--storepass", keystorePasswd});
     Process proc;
-    proc.setTimeoutS(10);
     proc.setCommand(cmd);
-    proc.runBlocking(EventLoopMode::On);
+    proc.runBlocking(10s, EventLoopMode::On);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -630,9 +630,8 @@ bool checkCertificatePassword(const FilePath &keystorePath, const QString &keyst
         arguments << certificatePasswd;
 
     Process proc;
-    proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.runBlocking(EventLoopMode::On);
+    proc.runBlocking(10s, EventLoopMode::On);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -644,9 +643,8 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
                               "--storepass", keystorePasswd, "-alias", alias };
 
     Process proc;
-    proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.runBlocking(EventLoopMode::On);
+    proc.runBlocking(10s, EventLoopMode::On);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -674,11 +672,10 @@ static SdkToolResult runCommand(const CommandLine &command, const QByteArray &wr
 {
     Android::SdkToolResult cmdResult;
     Process cmdProc;
-    cmdProc.setTimeoutS(timeoutS);
     cmdProc.setWriteData(writeData);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
     cmdProc.setCommand(command);
-    cmdProc.runBlocking(EventLoopMode::On);
+    cmdProc.runBlocking(std::chrono::seconds(timeoutS), EventLoopMode::On);
     cmdResult.m_stdOut = cmdProc.cleanedStdOut().trimmed();
     cmdResult.m_stdErr = cmdProc.cleanedStdErr().trimmed();
     cmdResult.m_success = cmdProc.result() == ProcessResult::FinishedWithSuccess;

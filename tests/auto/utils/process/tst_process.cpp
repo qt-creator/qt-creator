@@ -25,6 +25,9 @@
 
 using namespace Utils;
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 // This handler is inspired by the one used in qtbase/tests/auto/corelib/io/qfile/tst_qfile.cpp
 class MessageHandler {
 public:
@@ -943,33 +946,32 @@ void tst_Process::exitCode()
 void tst_Process::runBlockingStdOut_data()
 {
     QTest::addColumn<bool>("withEndl");
-    QTest::addColumn<int>("timeOutS");
+    QTest::addColumn<seconds>("timeout");
     QTest::addColumn<ProcessResult>("expectedResult");
 
     // Canceled, since the process is killed (canceled) from the callback.
-    QTest::newRow("Short timeout with end of line") << true << 2 << ProcessResult::Canceled;
+    QTest::newRow("Short timeout with end of line") << true << 2s << ProcessResult::Canceled;
 
     // Canceled, since it times out.
-    QTest::newRow("Short timeout without end of line") << false << 2 << ProcessResult::Canceled;
+    QTest::newRow("Short timeout without end of line") << false << 2s << ProcessResult::Canceled;
 
     // FinishedWithSuccess, since it doesn't time out, it finishes process normally,
     // calls the callback handler and tries to stop the process forcefully what is no-op
     // at this point in time since the process is already finished.
     QTest::newRow("Long timeout without end of line")
-            << false << 20 << ProcessResult::FinishedWithSuccess;
+            << false << 20s << ProcessResult::FinishedWithSuccess;
 }
 
 void tst_Process::runBlockingStdOut()
 {
     QFETCH(bool, withEndl);
-    QFETCH(int, timeOutS);
+    QFETCH(seconds, timeout);
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setStdOutCallback([&readLastLine, &process](const QString &out) {
         if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
@@ -977,7 +979,7 @@ void tst_Process::runBlockingStdOut()
             process.kill();
         }
     });
-    process.runBlocking();
+    process.runBlocking(timeout);
 
     // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
@@ -993,14 +995,13 @@ void tst_Process::runBlockingSignal_data()
 void tst_Process::runBlockingSignal()
 {
     QFETCH(bool, withEndl);
-    QFETCH(int, timeOutS);
+    QFETCH(seconds, timeout);
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
     connect(&process, &Process::textOnStandardOutput,
@@ -1010,7 +1011,7 @@ void tst_Process::runBlockingSignal()
             process.kill();
         }
     });
-    process.runBlocking();
+    process.runBlocking(timeout);
 
     // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
@@ -1593,7 +1594,7 @@ void tst_Process::eventLoopMode()
         Process process;
         subConfig.setupSubProcess(&process);
         process.setProcessImpl(processImpl);
-        process.runBlocking(eventLoopMode);
+        process.runBlocking(10s, eventLoopMode);
         QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
     }
 
@@ -1602,7 +1603,7 @@ void tst_Process::eventLoopMode()
         process.setCommand({FilePath::fromString(
                 "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
         process.setProcessImpl(processImpl);
-        process.runBlocking(eventLoopMode);
+        process.runBlocking(10s, eventLoopMode);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
 }

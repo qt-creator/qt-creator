@@ -65,9 +65,8 @@ static FormatTask format(FormatTask task)
         QStringList options = task.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         Process process;
-        process.setTimeoutS(5);
         process.setCommand({executable, options});
-        process.runBlocking();
+        process.runBlocking(std::chrono::seconds(5));
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
             return task;

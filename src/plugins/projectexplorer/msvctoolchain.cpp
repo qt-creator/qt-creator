@@ -44,6 +44,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 #define KEY_ROOT "ProjectExplorer.MsvcToolChain."
 static const char varsBatKeyC[] = KEY_ROOT "VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT "VarsBatArg";
@@ -256,10 +258,9 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     QVector<VisualStudioInstallation> installations;
     Process vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
-    vsWhereProcess.setTimeoutS(5);
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
-    vsWhereProcess.runBlocking();
+    vsWhereProcess.runBlocking(5s);
     if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
         qWarning() << vsWhereProcess.exitMessage();
         return installations;
@@ -2124,7 +2125,6 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     Utils::Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    run.setTimeoutS(60);
     Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
@@ -2134,7 +2134,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
                  << " Env: " << runEnv.toStringList().size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     run.setCommand(cmd);
-    run.runBlocking();
+    run.runBlocking(1min);
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
         const QString message = !run.cleanedStdErr().isEmpty() ? run.cleanedStdErr() : run.exitMessage();

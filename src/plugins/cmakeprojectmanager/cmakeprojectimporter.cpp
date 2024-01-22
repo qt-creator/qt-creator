@@ -34,6 +34,8 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
@@ -215,7 +217,6 @@ static CMakeConfig configurationFromPresetProbe(
                                               "\n"));
 
     Process cmake;
-    cmake.setTimeoutS(30);
     cmake.setDisableUnixTerminal();
 
     const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
@@ -290,7 +291,7 @@ static CMakeConfig configurationFromPresetProbe(
     qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()
                         << args;
     cmake.setCommand({cmakeExecutable, args});
-    cmake.runBlocking();
+    cmake.runBlocking(30s);
 
     QString errorMessage;
     const CMakeConfig config = CMakeConfig::fromFile(importPath.pathAppended(
@@ -395,7 +396,6 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     )"));
 
     Process cmake;
-    cmake.setTimeoutS(5);
     cmake.setDisableUnixTerminal();
 
     Environment cmakeEnv(env);
@@ -447,7 +447,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
     cmake.setCommand({cmakeExecutable, args});
-    cmake.runBlocking();
+    cmake.runBlocking(5s);
 
     const FilePath qmakeLocationTxt = qtcQMakeProbeDir.filePath("qmake-location.txt");
     const FilePath qmakeLocation = FilePath::fromUtf8(

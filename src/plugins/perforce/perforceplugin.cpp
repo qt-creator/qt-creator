@@ -1187,7 +1187,6 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     Process process;
     process.setWriteData(stdInput);
     const int timeOutS = (flags & LongTimeOut) ? settings().longTimeOutS() : settings().timeOutS();
-    process.setTimeoutS(timeOutS);
     if (outputCodec)
         process.setCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
@@ -1208,7 +1207,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({settings().p4BinaryPath(), args});
-    process.runBlocking(flags & RunFullySynchronous ? EventLoopMode::Off : EventLoopMode::On);
+    process.runBlocking(std::chrono::seconds(timeOutS),
+                        flags & RunFullySynchronous ? EventLoopMode::Off : EventLoopMode::On);
 
     const auto result = process.result();
     PerforceResponse response;
