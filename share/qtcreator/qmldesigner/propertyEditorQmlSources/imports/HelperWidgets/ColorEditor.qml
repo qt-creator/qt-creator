@@ -237,6 +237,7 @@ SecondColumnLayout {
                     shapeGradients: colorEditor.shapeGradients
                     supportGradient: colorEditor.supportGradient
                     width: popupDialog.contentWidth
+                    visible: popupDialog.visible
                 }
 
                 onLoaded: {

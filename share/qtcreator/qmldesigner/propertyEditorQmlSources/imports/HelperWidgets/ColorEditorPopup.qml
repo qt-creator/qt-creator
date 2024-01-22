@@ -827,7 +827,7 @@ Column {
                 twoColumnWidth: root.twoColumnWidth
                 fourColumnWidth: root.fourColumnWidth
 
-                enableSingletonConnection: root.opened
+                enableSingletonConnection: root.visible
                 onSelectedColorChanged: {
                     colorPicker.color = colorPalette.selectedColor
                     colorEditor.color = colorPalette.selectedColor
