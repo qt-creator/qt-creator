@@ -41,6 +41,8 @@ This folder must contain a QtCreator repository (or source copy) of tag v6.0.1 n
 without any submodules initialized.
 
 Fourth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
+ * the compilers and debuggers of the toolchains listed in step 2
+ * git with globally configured user.name and user.email
  * cmake 3.14 or newer
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
