@@ -154,22 +154,20 @@ EventLoopMode VcsCommandPrivate::eventLoopMode() const
 ProcessResult VcsCommandPrivate::handleDone(Process *process, const Job &job) const
 {
     ProcessResult result;
-    QString exitMessage;
     if (job.exitCodeInterpreter && process->error() != QProcess::FailedToStart
         && process->exitStatus() == QProcess::NormalExit) {
         result = job.exitCodeInterpreter(process->exitCode());
-        exitMessage = Process::exitMessage(process->commandLine(), m_result,
-                                           process->exitCode(), job.timeoutS);
     } else {
         result = process->result();
-        exitMessage = process->exitMessage();
     }
+    const QString message = Process::exitMessage(process->commandLine(), result,
+                                                 process->exitCode(), process->processDuration());
     // Success/Fail message in appropriate window?
     if (result == ProcessResult::FinishedWithSuccess) {
         if (m_flags & RunFlags::ShowSuccessMessage)
-            VcsOutputWindow::appendMessage(exitMessage);
+            VcsOutputWindow::appendMessage(message);
     } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
-        VcsOutputWindow::appendError(exitMessage);
+        VcsOutputWindow::appendError(message);
     }
     if (m_flags & RunFlags::ExpectRepoChanges) {
         // TODO tell the document manager that the directory now received all expected changes

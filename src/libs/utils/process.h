@@ -180,7 +180,7 @@ public:
     const QStringList stdErrLines() const; // split, CR removed
 
     static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
-                               int timeoutInSeconds);
+                               std::chrono::milliseconds duration);
     QString exitMessage() const;
     std::chrono::milliseconds processDuration() const;
 

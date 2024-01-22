@@ -1647,8 +1647,8 @@ QString Process::readAllStandardError()
     return QString::fromUtf8(readAllRawStandardError());
 }
 
-QString Process::exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
-                             int timeoutInSeconds)
+QString Process::exitMessage(const CommandLine &command, ProcessResult result,
+                             int exitCode, milliseconds duration)
 {
     const QString cmd = command.toUserOutput();
     switch (result) {
@@ -1661,16 +1661,17 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result, i
     case ProcessResult::StartFailed:
         return Tr::tr("The command \"%1\" could not be started.").arg(cmd);
     case ProcessResult::Canceled:
-        return Tr::tr("The command \"%1\" was canceled after (%2 s).")
-            .arg(cmd).arg(timeoutInSeconds);
+        // TODO: We might want to format it nicely when bigger than 1 second, e.g. 1,324 s.
+        //       Also when it's bigger than 1 minute, 1 hour, etc...
+        return Tr::tr("The command \"%1\" was canceled after (%2 ms).")
+            .arg(cmd).arg(duration.count());
     }
     return {};
 }
 
 QString Process::exitMessage() const
 {
-    return exitMessage(commandLine(), result(), exitCode(),
-                       duration_cast<seconds>(processDuration()).count());
+    return exitMessage(commandLine(), result(), exitCode(), processDuration());
 }
 
 milliseconds Process::processDuration() const
