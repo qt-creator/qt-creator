@@ -3812,6 +3812,144 @@
          cx="2027.5"
          r="1.5" />
     </g>
+    <g
+       id="src/plugins/axivion/images/button-av"
+       transform="translate(17)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use12"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path3"
+         d="m 2031,569 -3.5,3.5 v 5 l -5,-5 v 6 l -4,4 m 0,-3.5 v 3.5 h 3.5"
+         style="fill:none;stroke:#000000" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-cl"
+       transform="translate(34)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use11"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:#ffffff;stroke:#000000"
+         id="rect4"
+         width="9"
+         height="9"
+         x="2018.5"
+         y="573.5"
+         ry="2.5" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect4"
+         id="use6"
+         transform="translate(4,-4)"
+         style="fill:none;stroke:#ffffff" />
+      <path
+         id="path7-8"
+         style="display:inline;fill:none;stroke:#ffffff"
+         d="m 2027.5,579 v 1 m -6,-7 v 1" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-cy"
+       transform="translate(51)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use5"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path2"
+         style="fill:none;stroke:#000000"
+         d="m 2025,569 2.5,2.5 -2.5,2.5 M 2018.5,581 v -7 c 0,-1.5 1,-2.5 2.5,-2.5 h 6.5" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path2"
+         id="use4"
+         transform="rotate(180,2025,576)" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-de"
+       transform="translate(68)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use10"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path17-1"
+         style="fill:none;stroke:#000000"
+         d="m 2023,579.5 h 4 m -7.5,-6 v 2.5 l 2,2.5 v 2.5 c 0,0.5 1,1.5 1.5,1.5 h 4 c 0.5,0 1.5,-1 1.5,-1.5 v -2.5 l 2,-2.5 v -2.5 c 0,-5.5 -11,-5.5 -11,0 z"
+         sodipodi:nodetypes="ccsccssssccss" />
+      <circle
+         style="display:inline;stroke:none"
+         id="path18-1"
+         cx="2023.25"
+         cy="575.25"
+         r="1.25" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path18-1"
+         id="use18-9"
+         transform="translate(3.541748,0.125)"
+         style="display:inline" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-mv"
+       transform="translate(85)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use8"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path15"
+         style="fill:none;stroke:#000000"
+         d="m 2020,573.5 h -1 m 1,3 h -1 m 1,3 h -1 m 2.5,-3 v 3 h 3 z m -3,6 h 13 l -13,-13 z" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-sv"
+       transform="translate(102)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use7"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path1"
+         style="fill:none;stroke:#000000"
+         d="m 2031.5,571.5 c 0,0 0.6,1.18 0.14,2.44 -0.38,1.06 -2.64,1.56 -3.39,3.95 M 2021,582.5 h 10 m -9.5,-5 -1.5,3.5 3.5,-1.5 v 0 m 6,-10 2,2 -8,8 -2,-2 z"
+         sodipodi:nodetypes="cscccccccccccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
