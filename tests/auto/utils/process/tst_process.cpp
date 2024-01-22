@@ -281,17 +281,17 @@ void tst_Process::multiRead()
     QVERIFY(process.waitForStarted());
 
     process.writeRaw("hi\n");
-    QVERIFY(process.waitForReadyRead(1000));
+    QVERIFY(process.waitForReadyRead(1s));
     buffer = readData(&process, processChannel);
     QCOMPARE(buffer, QByteArray("hi"));
 
     process.writeRaw("you\n");
-    QVERIFY(process.waitForReadyRead(1000));
+    QVERIFY(process.waitForReadyRead(1s));
     buffer = readData(&process, processChannel);
     QCOMPARE(buffer, QByteArray("you"));
 
     process.writeRaw("exit\n");
-    QVERIFY(process.waitForFinished(1000));
+    QVERIFY(process.waitForFinished(1s));
 }
 
 void tst_Process::splitArgs_data()
@@ -1154,15 +1154,16 @@ void tst_Process::notRunningAfterStartingNonExistingProgram()
 
         QElapsedTimer timer;
         timer.start();
-        const int maxWaitTimeMs = 1000;
+        const seconds timeout = 1s;
 
         switch (signalType) {
-        case ProcessSignalType::Started: QVERIFY(!process.waitForStarted(maxWaitTimeMs)); break;
-        case ProcessSignalType::ReadyRead: QVERIFY(!process.waitForReadyRead(maxWaitTimeMs)); break;
-        case ProcessSignalType::Done: QVERIFY(!process.waitForFinished(maxWaitTimeMs)); break;
+        case ProcessSignalType::Started: QVERIFY(!process.waitForStarted(timeout)); break;
+        case ProcessSignalType::ReadyRead: QVERIFY(!process.waitForReadyRead(timeout)); break;
+        case ProcessSignalType::Done: QVERIFY(!process.waitForFinished(timeout)); break;
         }
 
-        QVERIFY(timer.elapsed() < maxWaitTimeMs); // shouldn't wait, should finish immediately
+        // shouldn't wait, should finish immediately
+        QVERIFY(timer.elapsed() < duration_cast<milliseconds>(timeout).count());
         QCOMPARE(process.state(), QProcess::NotRunning);
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.error(), QProcess::FailedToStart);
@@ -1284,7 +1285,7 @@ void tst_Process::destroyBlockingProcess()
     process.start();
     QVERIFY(process.waitForStarted());
     QVERIFY(process.isRunning());
-    QVERIFY(!process.waitForFinished(1000));
+    QVERIFY(!process.waitForFinished(1s));
 }
 
 void tst_Process::flushFinishedWhileWaitingForReadyRead_data()
@@ -1314,7 +1315,7 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     QDeadlineTimer timer(1000);
     QByteArray reply;
     while (process.state() == QProcess::Running) {
-        process.waitForReadyRead(500);
+        process.waitForReadyRead(500ms);
         if (processChannel == QProcess::StandardOutput)
             reply += process.readAllRawStandardOutput();
         else
@@ -1335,7 +1336,7 @@ void tst_Process::crash()
     subConfig.setupSubProcess(&process);
 
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QVERIFY(process.isRunning());
 
     QEventLoop loop;
@@ -1353,11 +1354,11 @@ void tst_Process::crashAfterOneSecond()
     subConfig.setupSubProcess(&process);
 
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QElapsedTimer timer;
     timer.start();
-    QVERIFY(process.waitForFinished(30000));
-    QVERIFY(timer.elapsed() < 30000);
+    QVERIFY(process.waitForFinished(30s));
+    QVERIFY(timer.elapsed() < 30000); // in milliseconds
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.error(), QProcess::Crashed);
 }
@@ -1370,7 +1371,7 @@ void tst_Process::recursiveCrashingProcess()
     Process process;
     subConfig.setupSubProcess(&process);
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QVERIFY(process.waitForFinished());
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.exitStatus(), QProcess::NormalExit);
@@ -1544,7 +1545,7 @@ void tst_Process::tarPipe()
 
     if (targetProcess.isRunning()) {
         targetProcess.closeWriteChannel();
-        QVERIFY(targetProcess.waitForFinished(2000));
+        QVERIFY(targetProcess.waitForFinished(2s));
     }
 
     QCOMPARE(targetProcess.exitCode(), 0);

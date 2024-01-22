@@ -107,7 +107,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
 
     // waiting for finish
     QApplication::setOverrideCursor(Qt::BusyCursor);
-    bool waitResult = process.waitForFinished(10000);
+    bool waitResult = process.waitForFinished(std::chrono::seconds(10));
     QApplication::restoreOverrideCursor();
     if (!waitResult)
         return items;

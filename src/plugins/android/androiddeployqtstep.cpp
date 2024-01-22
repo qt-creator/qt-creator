@@ -53,6 +53,8 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
@@ -398,7 +400,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
 
     emit addOutput(Tr::tr("Starting: \"%1\"").arg(cmd.toUserOutput()), OutputFormat::NormalMessage);
 
-    while (!process.waitForFinished(200)) {
+    while (!process.waitForFinished(200ms)) {
         if (process.state() == QProcess::NotRunning)
             break;
 
@@ -576,7 +578,7 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.runBlocking(std::chrono::minutes(2), EventLoopMode::On);
+    buildProc.runBlocking(2min, EventLoopMode::On);
     if (buildProc.result() != ProcessResult::FinishedWithSuccess)
         reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }

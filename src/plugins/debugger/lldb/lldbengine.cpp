@@ -213,7 +213,7 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::handleLldbStarted()
 {
-    m_lldbProc.waitForReadyRead(1000);
+    m_lldbProc.waitForReadyRead(std::chrono::seconds(1));
 
     showStatusMessage(Tr::tr("Setting up inferior..."));
 

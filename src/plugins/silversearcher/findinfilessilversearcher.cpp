@@ -51,7 +51,7 @@ static bool isSilverSearcherAvailable()
     Process silverSearcherProcess;
     silverSearcherProcess.setCommand({"ag", {"--version"}});
     silverSearcherProcess.start();
-    return silverSearcherProcess.waitForFinished(1000)
+    return silverSearcherProcess.waitForFinished(std::chrono::seconds(1))
         && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 

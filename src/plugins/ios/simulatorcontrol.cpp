@@ -14,7 +14,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include <chrono>
 #include <memory>
 
 #include <QJsonArray>
@@ -23,7 +22,9 @@
 #include <QLoggingCategory>
 
 using namespace Utils;
+
 using namespace std;
+using namespace std::chrono;
 
 namespace {
 static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
@@ -31,7 +32,7 @@ static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 
 namespace Ios::Internal {
 
-const std::chrono::seconds simulatorStartTimeout = std::chrono::seconds(60);
+const seconds simulatorStartTimeout = seconds(60);
 
 // simctl Json Tags and tokens.
 const char deviceTypeTag[] = "devicetypes";
@@ -61,7 +62,7 @@ static expected_str<void> runCommand(
         return make_unexpected(Tr::tr("Failed to start process."));
 
     forever {
-        if (shouldStop() || p.waitForFinished(1000))
+        if (shouldStop() || p.waitForFinished(seconds(1)))
             break;
     }
 

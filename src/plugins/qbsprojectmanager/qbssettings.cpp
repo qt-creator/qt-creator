@@ -35,7 +35,7 @@ static QString getQbsVersion(const FilePath &qbsExe)
     Process qbsProc;
     qbsProc.setCommand({qbsExe, {"--version"}});
     qbsProc.start();
-    if (!qbsProc.waitForFinished(5000) || qbsProc.exitCode() != 0)
+    if (!qbsProc.waitForFinished(std::chrono::seconds(5)) || qbsProc.exitCode() != 0)
         return {};
     return QString::fromLocal8Bit(qbsProc.rawStdOut()).trimmed();
 }

@@ -120,7 +120,7 @@ public:
     QVersionNumber version() const
     {
         if (m_process.state() != QProcess::NotRunning)
-            m_process.waitForFinished(-1);
+            m_process.waitForFinished(QDeadlineTimer::Forever);
         return m_versionNumber;
     }
 

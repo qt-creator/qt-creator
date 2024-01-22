@@ -22,6 +22,7 @@
 
 using namespace Utils;
 using namespace std;
+using namespace std::chrono_literals;
 
 namespace Android::Internal {
 
@@ -100,7 +101,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     QString errorOutput;
     QByteArray question;
     while (errorOutput.isEmpty()) {
-        proc.waitForReadyRead(500);
+        proc.waitForReadyRead(500ms);
         question += proc.readAllRawStandardOutput();
         if (question.endsWith(QByteArray("]:"))) {
             // truncate to last line
@@ -271,7 +272,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
     avdProcess->setCommand(cmd);
     avdProcess->start();
-    return avdProcess->waitForStarted(-1);
+    return avdProcess->waitForStarted(QDeadlineTimer::Forever);
 }
 
 QString AndroidAvdManager::findAvd(const QString &avdName) const

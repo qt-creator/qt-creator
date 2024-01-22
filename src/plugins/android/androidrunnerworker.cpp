@@ -517,7 +517,7 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
                                            << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->setCommand({adb, logcatArgs});
     m_adbLogcatProcess->start();
-    if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
+    if (m_adbLogcatProcess->waitForStarted(500ms) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
 }
 
@@ -768,7 +768,7 @@ void AndroidRunnerWorker::handleJdbSettled()
     qCDebug(androidRunWorkerLog) << "Handle JDB settled";
     auto waitForCommand = [this] {
         for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
-            m_jdbProcess->waitForReadyRead(500);
+            m_jdbProcess->waitForReadyRead(500ms);
             const QByteArray lines = m_jdbProcess->readAllRawStandardOutput();
             const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
@@ -787,7 +787,7 @@ void AndroidRunnerWorker::handleJdbSettled()
             m_jdbProcess->write(QString("%1\n").arg(command));
     }
 
-    if (!m_jdbProcess->waitForFinished(s_jdbTimeout.count())) {
+    if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {
         m_jdbProcess.reset();
     } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
         qCDebug(androidRunWorkerLog) << "JDB settled";

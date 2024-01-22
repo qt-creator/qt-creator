@@ -23,6 +23,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace TextEditor {
 
 void formatCurrentFile(const Command &command, int startPos, int endPos)
@@ -66,7 +68,7 @@ static FormatTask format(FormatTask task)
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         Process process;
         process.setCommand({executable, options});
-        process.runBlocking(std::chrono::seconds(5));
+        process.runBlocking(5s);
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
             return task;
@@ -94,7 +96,7 @@ static FormatTask format(FormatTask task)
         process.setCommand({executable, options});
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
-        if (!process.waitForFinished(5000)) {
+        if (!process.waitForFinished(5s)) {
             task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
                                                    "reached while formatting file %2.")
                     .arg(executable.toUserOutput(), task.filePath.displayName());

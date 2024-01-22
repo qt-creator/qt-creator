@@ -25,6 +25,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 static QHash<const char *, ProcessTestApp::SubProcessMain> s_subProcesses = {};
 
 ProcessTestApp::ProcessTestApp() = default;
@@ -289,12 +291,12 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
     process.setProcessChannelMode(QProcess::ForwardedChannels);
     process.start();
     while (true) {
-        if (process.waitForFinished(10))
+        if (process.waitForFinished(10ms))
             return 0;
 #ifndef Q_OS_WIN
         if (s_terminate.load()) {
             process.terminate();
-            process.waitForFinished(-1);
+            process.waitForFinished(QDeadlineTimer::Forever);
             break;
         }
 #endif

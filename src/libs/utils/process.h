@@ -14,6 +14,7 @@
 
 #include <solutions/tasking/tasktree.h>
 
+#include <QDeadlineTimer>
 #include <QProcess>
 
 QT_BEGIN_NAMESPACE
@@ -73,10 +74,9 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
-    // TODO: Change to std::chrono::milliseconds.
-    bool waitForStarted(int msecs = 30000);
-    bool waitForReadyRead(int msecs = 30000);
-    bool waitForFinished(int msecs = 30000);
+    bool waitForStarted(QDeadlineTimer timeout = std::chrono::seconds(30));
+    bool waitForReadyRead(QDeadlineTimer timeout = std::chrono::seconds(30));
+    bool waitForFinished(QDeadlineTimer timeout = std::chrono::seconds(30));
 
     // ProcessSetupData related
 

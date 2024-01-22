@@ -49,11 +49,10 @@ QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packag
         break;
     }
 
-    const int timeout = 3000; // usually runs below 1s, but we want to be on the safe side
     Process process;
     process.setCommand({binaryPath, m_detectionArgs});
     process.start();
-    if (!process.waitForFinished(timeout) || process.result() != ProcessResult::FinishedWithSuccess)
+    if (!process.waitForFinished(std::chrono::seconds(3)) || process.result() != ProcessResult::FinishedWithSuccess)
         return {};
 
     return matchRegExp(process.allOutput(), m_detectionRegExp);

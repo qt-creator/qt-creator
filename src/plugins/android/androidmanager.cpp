@@ -656,7 +656,7 @@ Process *startAdbProcess(const QStringList &args, QString *err)
     qCDebug(androidManagerLog).noquote() << "Running command (async):" << command.toUserOutput();
     process->setCommand(command);
     process->start();
-    if (process->waitForStarted(500) && process->state() == QProcess::Running)
+    if (process->waitForStarted(500ms) && process->state() == QProcess::Running)
         return process.release();
 
     const QString errorStr = process->readAllStandardError();

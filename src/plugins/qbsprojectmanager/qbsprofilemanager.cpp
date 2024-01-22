@@ -229,7 +229,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     Utils::Process qbsConfig;
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
-    if (!qbsConfig.waitForFinished(5000)) {
+    if (!qbsConfig.waitForFinished(std::chrono::seconds(5))) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {

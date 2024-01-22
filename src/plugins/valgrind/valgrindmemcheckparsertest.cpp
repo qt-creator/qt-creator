@@ -192,7 +192,7 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
     m_process->setCommand({FilePath::fromString(fakeValgrind), args + otherArgs});
     m_process->start();
 
-    QVERIFY(m_process->waitForStarted(5000));
+    QVERIFY(m_process->waitForStarted(std::chrono::seconds(5)));
     QCOMPARE(m_process->state(), QProcess::Running);
     QVERIFY2(m_process->error() == QProcess::UnknownError, qPrintable(m_process->errorString()));
     QVERIFY(m_server->waitForNewConnection(5000));

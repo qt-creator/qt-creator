@@ -450,7 +450,7 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     process.setCommand(cmd);
     process.setWriteData(data);
     process.start();
-    bool isFinished = process.waitForFinished(2000); // It may freeze on some devices
+    bool isFinished = process.waitForFinished(std::chrono::seconds(2)); // It may freeze on some devices
     if (!isFinished) {
         Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
                                                "The device might have been disconnected.")

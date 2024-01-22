@@ -27,6 +27,7 @@ const char commonArgsKey[] = "Common Arguments:";
 using namespace Utils;
 
 using namespace std::chrono;
+using namespace std::chrono_literals;
 
 namespace Android {
 namespace Internal {
@@ -528,7 +529,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     licenseCommand.start();
     QTextCodec *codec = QTextCodec::codecForLocale();
     int inputCounter = 0, steps = -1;
-    while (!licenseCommand.waitForFinished(200)) {
+    while (!licenseCommand.waitForFinished(200ms)) {
         QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
         bool assertionFound = false;
         if (!stdOut.isEmpty())
@@ -556,9 +557,9 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
 
         if (fi.isCanceled()) {
             licenseCommand.terminate();
-            if (!licenseCommand.waitForFinished(300)) {
+            if (!licenseCommand.waitForFinished(300ms)) {
                 licenseCommand.kill();
-                licenseCommand.waitForFinished(200);
+                licenseCommand.waitForFinished(200ms);
             }
         }
         if (licenseCommand.state() == QProcess::NotRunning)

@@ -1325,7 +1325,7 @@ void SimpleTargetRunnerPrivate::stop()
         switch (m_state) {
         case Run:
             m_process.stop();
-            if (!m_process.waitForFinished(2000)) { // TODO: it may freeze on some devices
+            if (!m_process.waitForFinished(std::chrono::seconds(2))) { // TODO: it may freeze on some devices
                 q->appendMessage(Tr::tr("Remote process did not finish in time. "
                                         "Connectivity lost?"), ErrorMessageFormat);
                 m_process.close();

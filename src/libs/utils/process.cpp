@@ -837,7 +837,7 @@ public:
         emit (q->*signalName)();
     }
 
-    bool waitForSignal(ProcessSignalType signalType, int msecs);
+    bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout);
     Qt::ConnectionType connectionType() const;
     void sendControlSignal(ControlSignal controlSignal);
 
@@ -1062,11 +1062,10 @@ void GeneralProcessBlockingImpl::appendSignal(ProcessInterfaceSignal *newSignal)
     m_signals.append(newSignal);
 }
 
-bool ProcessPrivate::waitForSignal(ProcessSignalType newSignal, int msecs)
+bool ProcessPrivate::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
 {
-    const QDeadlineTimer timeout(msecs);
     const QDeadlineTimer currentKillTimeout(m_killTimer.remainingTime());
-    const bool needsSplit = m_killTimer.isActive() ? timeout > currentKillTimeout : false;
+    const bool needsSplit = m_killTimer.isActive() && timeout > currentKillTimeout;
     const QDeadlineTimer mainTimeout = needsSplit ? currentKillTimeout : timeout;
 
     bool result = m_blockingInterface->waitForSignal(newSignal, mainTimeout.remainingTime());
@@ -1441,6 +1440,7 @@ static bool askToKill(const CommandLine &command)
 // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
 // occurs. Checking of the process' exit state/code still has to be done.
 
+// TODO: Is it really needed?
 bool Process::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int timeoutS)
 {
     enum { syncDebug = 0 };
@@ -1455,7 +1455,7 @@ bool Process::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int ti
     bool finished = false;
     bool hasData = false;
     do {
-        finished = waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
+        finished = waitForFinished(timeoutS > 0 ? seconds(timeoutS) : seconds(-1))
                 || state() == QProcess::NotRunning;
         // First check 'stdout'
         const QByteArray newStdOut = readAllRawStandardOutput();
@@ -1541,7 +1541,7 @@ qint64 Process::processId() const
     return d->m_processId;
 }
 
-bool Process::waitForStarted(int msecs)
+bool Process::waitForStarted(QDeadlineTimer timeout)
 {
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::Running)
@@ -1549,23 +1549,23 @@ bool Process::waitForStarted(int msecs)
     if (d->m_state == QProcess::NotRunning)
         return false;
     return s_waitForStarted.measureAndRun(&ProcessPrivate::waitForSignal, d,
-                                          ProcessSignalType::Started, msecs);
+                                          ProcessSignalType::Started, timeout);
 }
 
-bool Process::waitForReadyRead(int msecs)
+bool Process::waitForReadyRead(QDeadlineTimer timeout)
 {
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(ProcessSignalType::ReadyRead, msecs);
+    return d->waitForSignal(ProcessSignalType::ReadyRead, timeout);
 }
 
-bool Process::waitForFinished(int msecs)
+bool Process::waitForFinished(QDeadlineTimer timeout)
 {
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(ProcessSignalType::Done, msecs);
+    return d->waitForSignal(ProcessSignalType::Done, timeout);
 }
 
 QByteArray Process::readAllRawStandardOutput()
@@ -1884,7 +1884,7 @@ void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
         if (state() == QProcess::NotRunning)
             return;
         stop();
-        QTC_CHECK(waitForFinished(2000));
+        QTC_CHECK(waitForFinished(2s));
     };
 
     if (eventLoopMode == EventLoopMode::On) {
@@ -1919,7 +1919,7 @@ void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
 #endif
     } else {
         handleStart();
-        if (!waitForFinished(duration_cast<milliseconds>(timeout).count()))
+        if (!waitForFinished(timeout))
             handleTimeout();
     }
     if (blockingThresholdMs > 0) {
