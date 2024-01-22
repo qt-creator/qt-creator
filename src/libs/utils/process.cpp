@@ -644,12 +644,18 @@ private:
     ProcessLauncherBlockingImpl *m_blockingImpl = nullptr;
 };
 
-static ProcessImpl defaultProcessImpl()
+static ProcessImpl defaultProcessImplHelper()
 {
     const QString value = qtcEnvironmentVariable("QTC_USE_QPROCESS", "TRUE").toUpper();
     if (value != "FALSE" && value != "0")
         return ProcessImpl::QProcess;
     return ProcessImpl::ProcessLauncher;
+}
+
+static ProcessImpl defaultProcessImpl()
+{
+    static const ProcessImpl impl = defaultProcessImplHelper();
+    return impl;
 }
 
 class ProcessInterfaceSignal
