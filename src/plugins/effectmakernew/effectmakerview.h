@@ -40,6 +40,7 @@ private:
                             const QList<QmlDesigner::ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     QPointer<EffectMakerWidget> m_widget;
+    QString m_currProjectPath;
 };
 
 } // namespace EffectMaker

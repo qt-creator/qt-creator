@@ -7,9 +7,9 @@
 #include "effectmakernodesmodel.h"
 #include "effectmakerwidget.h"
 
-#include "qmldesignerconstants.h"
-
+#include <documentmanager.h>
 #include <modelnodeoperations.h>
+#include <qmldesignerconstants.h>
 
 #include <coreplugin/icore.h>
 
@@ -79,7 +79,15 @@ void EffectMakerView::modelAttached(QmlDesigner::Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->effectMakerNodesModel()->loadModel();
-    m_widget->effectMakerModel()->clear();
+
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+
+    // if starting a new project, clear the effect maker
+    if (m_currProjectPath != currProjectPath)
+        m_widget->effectMakerModel()->clear();
+
+    m_currProjectPath = currProjectPath;
+
     m_widget->initView();
 }
 
