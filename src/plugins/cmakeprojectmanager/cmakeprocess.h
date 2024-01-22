@@ -36,8 +36,6 @@ signals:
     void stdOutReady(const QString &s);
 
 private:
-    void handleProcessDone(const Utils::ProcessResultData &resultData);
-
     std::unique_ptr<Utils::Process> m_process;
     Utils::OutputFormatter m_parser;
     QElapsedTimer m_elapsed;

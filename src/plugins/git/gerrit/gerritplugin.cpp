@@ -119,7 +119,7 @@ void FetchContext::processDone()
     deleteLater();
 
     if (m_process.result() != ProcessResult::FinishedWithSuccess) {
-        if (!m_process.resultData().m_canceledByUser)
+        if (m_process.result() != ProcessResult::Canceled)
             VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
         return;
     }

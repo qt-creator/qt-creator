@@ -45,6 +45,8 @@
 
 using namespace Utils::Internal;
 
+using namespace std::chrono;
+
 namespace Utils {
 namespace Internal {
 
@@ -850,6 +852,8 @@ public:
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
 
+    time_point<system_clock, nanoseconds> m_startTimestamp = {};
+    time_point<system_clock, nanoseconds> m_doneTimestamp = {};
     int m_timeoutInSeconds = 10;
     bool m_timeOutMessageBoxEnabled = false;
 
@@ -1087,8 +1091,10 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
     if (!m_process || (m_state == QProcess::NotRunning))
         return;
 
-    if (controlSignal == ControlSignal::Terminate || controlSignal == ControlSignal::Kill)
-        m_resultData.m_canceledByUser = true;
+    if (controlSignal == ControlSignal::Terminate || controlSignal == ControlSignal::Kill) {
+        m_doneTimestamp = system_clock::now();
+        m_result = ProcessResult::Canceled;
+    }
 
     QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
         m_process->sendControlSignal(controlSignal);
@@ -1102,6 +1108,8 @@ void ProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = ProcessResult::StartFailed;
+    m_startTimestamp = {};
+    m_doneTimestamp = {};
 
     m_killTimer.stop();
     m_state = QProcess::NotRunning;
@@ -1272,6 +1280,7 @@ void Process::start()
     d->setProcessInterface(processImpl);
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
+    d->m_startTimestamp = system_clock::now();
     d->emitGuardedSignal(&Process::starting);
     d->m_process->start();
 }
@@ -1652,8 +1661,8 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result, i
         return Tr::tr("The command \"%1\" terminated abnormally.").arg(cmd);
     case ProcessResult::StartFailed:
         return Tr::tr("The command \"%1\" could not be started.").arg(cmd);
-    case ProcessResult::Hang:
-        return Tr::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
+    case ProcessResult::Canceled:
+        return Tr::tr("The command \"%1\" was canceled after (%2 s).")
             .arg(cmd).arg(timeoutInSeconds);
     }
     return {};
@@ -1661,7 +1670,17 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result, i
 
 QString Process::exitMessage() const
 {
-    return exitMessage(commandLine(), result(), exitCode(), d->m_timeoutInSeconds);
+    return exitMessage(commandLine(), result(), exitCode(),
+                       duration_cast<seconds>(processDuration()).count());
+}
+
+milliseconds Process::processDuration() const
+{
+    if (d->m_startTimestamp == time_point<system_clock, nanoseconds>())
+        return {};
+    const auto end = (d->m_doneTimestamp == time_point<system_clock, nanoseconds>())
+                         ? system_clock::now() : d->m_doneTimestamp;
+    return duration_cast<milliseconds>(end - d->m_startTimestamp);
 }
 
 QByteArray Process::allRawOutput() const
@@ -1874,7 +1893,6 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
             return;
         stop();
         QTC_CHECK(waitForFinished(2000));
-        d->m_result = ProcessResult::Hang;
     };
 
     if (eventLoopMode == EventLoopMode::On) {
@@ -2028,10 +2046,10 @@ void ProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteAr
 
 void ProcessPrivate::handleDone(const ProcessResultData &data)
 {
+    if (m_result != ProcessResult::Canceled)
+        m_doneTimestamp = system_clock::now();
     m_killTimer.stop();
-    const bool wasCanceled = m_resultData.m_canceledByUser;
     m_resultData = data;
-    m_resultData.m_canceledByUser = wasCanceled;
 
     switch (m_state) {
     case QProcess::NotRunning:
@@ -2053,19 +2071,15 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
     // HACK: See QIODevice::errorString() implementation.
     if (m_resultData.m_error == QProcess::UnknownError)
         m_resultData.m_errorString.clear();
-    else if (m_result != ProcessResult::Hang)
-        m_result = ProcessResult::StartFailed;
 
-    if (m_resultData.m_error != QProcess::FailedToStart) {
+    if (m_result != ProcessResult::Canceled && m_resultData.m_error != QProcess::FailedToStart) {
         switch (m_resultData.m_exitStatus) {
         case QProcess::NormalExit:
             m_result = m_resultData.m_exitCode ? ProcessResult::FinishedWithError
                                                : ProcessResult::FinishedWithSuccess;
             break;
         case QProcess::CrashExit:
-            // Was hang detected before and killed?
-            if (m_result != ProcessResult::Hang)
-                m_result = ProcessResult::TerminatedAbnormally;
+            m_result = ProcessResult::TerminatedAbnormally;
             break;
         }
     }
@@ -2093,7 +2107,6 @@ void ProcessPrivate::setupDebugLog()
         return;
 
     auto now = [] {
-        using namespace std::chrono;
         return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     };
 

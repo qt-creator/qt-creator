@@ -946,13 +946,11 @@ void tst_Process::runBlockingStdOut_data()
     QTest::addColumn<int>("timeOutS");
     QTest::addColumn<ProcessResult>("expectedResult");
 
-    // TerminatedAbnormally, since it didn't time out and callback stopped the process forcefully.
-    QTest::newRow("Short timeout with end of line")
-            << true << 2 << ProcessResult::TerminatedAbnormally;
+    // Canceled, since the process is killed (canceled) from the callback.
+    QTest::newRow("Short timeout with end of line") << true << 2 << ProcessResult::Canceled;
 
-    // Hang, since it times out, calls the callback handler and stops the process forcefully.
-    QTest::newRow("Short timeout without end of line")
-            << false << 2 << ProcessResult::Hang;
+    // Canceled, since it times out.
+    QTest::newRow("Short timeout without end of line") << false << 2 << ProcessResult::Canceled;
 
     // FinishedWithSuccess, since it doesn't time out, it finishes process normally,
     // calls the callback handler and tries to stop the process forcefully what is no-op

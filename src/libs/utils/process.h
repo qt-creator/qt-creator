@@ -184,6 +184,7 @@ public:
     static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
                                int timeoutInSeconds);
     QString exitMessage() const;
+    std::chrono::milliseconds processDuration() const;
 
     QString toStandaloneCommandLine() const;
 

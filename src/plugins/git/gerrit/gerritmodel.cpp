@@ -225,8 +225,6 @@ private:
     void processDone();
     void timeout();
 
-    void errorTermination(const QString &msg);
-
     Process m_process;
     QTimer m_timer;
     FilePath m_binary;
@@ -293,12 +291,6 @@ void QueryContext::start()
     m_process.start();
 }
 
-void QueryContext::errorTermination(const QString &msg)
-{
-    if (!m_process.resultData().m_canceledByUser)
-        VcsOutputWindow::appendError(msg);
-}
-
 void QueryContext::terminate()
 {
     m_process.stop();
@@ -313,14 +305,10 @@ void QueryContext::processDone()
     if (!m_error.isEmpty())
         emit errorText(m_error);
 
-    if (m_process.exitStatus() == QProcess::CrashExit)
-        errorTermination(Git::Tr::tr("%1 crashed.").arg(m_binary.toUserOutput()));
-    else if (m_process.exitCode())
-        errorTermination(Git::Tr::tr("%1 returned %2.").arg(m_binary.toUserOutput()).arg(m_process.exitCode()));
-    else if (m_process.result() != ProcessResult::FinishedWithSuccess)
-        errorTermination(Git::Tr::tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString()));
-    else
+    if (m_process.result() == ProcessResult::FinishedWithSuccess)
         emit resultRetrieved(m_output);
+    else if (m_process.result() != ProcessResult::Canceled)
+        VcsOutputWindow::appendError(m_process.exitMessage());
 
     emit finished();
 }
