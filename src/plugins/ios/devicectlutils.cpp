@@ -25,7 +25,8 @@ Utils::expected_str<QJsonValue> Ios::Internal::parseDevicectlResult(const QByteA
     if (!errorValue.isUndefined()) {
         // error
         QString error
-            = Tr::tr("Operation failed: %1.")
+            //: The error message (%1) can contain a full stop, so do not add it here
+            = Tr::tr("Operation failed: %1")
                   .arg(errorValue["userInfo"]["NSLocalizedDescription"]["string"].toString());
         const QJsonValue userInfo
             = errorValue["userInfo"]["NSUnderlyingError"]["error"]["userInfo"];
