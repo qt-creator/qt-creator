@@ -4,14 +4,14 @@
 #include "axivionprojectsettings.h"
 
 #include "axivionplugin.h"
-#include "axivionquery.h"
-#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -96,7 +97,6 @@ public:
 
 private:
     void fetchProjects();
-    void onDashboardInfoReceived(const DashboardInfo &info);
     void onSettingsChanged();
     void linkProject();
     void unlinkProject();
@@ -110,6 +110,7 @@ private:
     QPushButton *m_link = nullptr;
     QPushButton *m_unlink = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project)
@@ -166,30 +167,20 @@ void AxivionProjectSettingsWidget::fetchProjects()
     m_dashboardProjects->clear();
     m_fetchProjects->setEnabled(false);
     m_infoLabel->setVisible(false);
-    // TODO perform query and populate m_dashboardProjects
-    const AxivionQuery query(AxivionQuery::DashboardInfo);
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved,
-            this, [this](const QByteArray &result){
-        onDashboardInfoReceived(ResultParser::parseDashboardInfo(result));
-    });
-    connect(runner, &AxivionQueryRunner::finished, this, [runner]{ runner->deleteLater(); });
-    runner->start();
-}
 
-void AxivionProjectSettingsWidget::onDashboardInfoReceived(const DashboardInfo &info)
-{
-    if (!info.error.isEmpty()) {
-        m_infoLabel->setText(info.error);
-        m_infoLabel->setType(Utils::InfoLabel::Error);
-        m_infoLabel->setVisible(true);
+    const auto onDashboardInfo = [this](const expected_str<DashboardInfo> &info) {
+        if (!info) {
+            m_infoLabel->setText(info.error());
+            m_infoLabel->setType(Utils::InfoLabel::Error);
+            m_infoLabel->setVisible(true);
+        } else {
+            for (const QString &project : info->projects)
+                new QTreeWidgetItem(m_dashboardProjects, {project});
+        }
         updateEnabledStates();
-        return;
-    }
+    };
 
-    for (const Project &project : info.projects)
-        new QTreeWidgetItem(m_dashboardProjects, {project.name});
-    updateEnabledStates();
+    m_taskTreeRunner.start(dashboardInfoRecipe(onDashboardInfo));
 }
 
 void AxivionProjectSettingsWidget::onSettingsChanged()

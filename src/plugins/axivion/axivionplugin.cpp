@@ -33,13 +33,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/expected.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QFutureWatcher>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -97,6 +95,7 @@ public:
 
     NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
+    std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
@@ -322,6 +321,54 @@ static Group fetchDataRecipe(const QUrl &url,
     };
 
     return recipe;
+}
+
+static DashboardInfo toDashboardInfo(const QUrl &source, const Dto::DashboardInfoDto &infoDto)
+{
+    const QVersionNumber versionNumber = infoDto.dashboardVersionNumber
+        ? QVersionNumber::fromString(*infoDto.dashboardVersionNumber) : QVersionNumber();
+
+    QStringList projects;
+    QHash<QString, QUrl> projectUrls;
+
+    if (infoDto.projects) {
+        for (const Dto::ProjectReferenceDto &project : *infoDto.projects) {
+            projects.push_back(project.name);
+            projectUrls.insert(project.name, project.url);
+        }
+    }
+    return {source, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
+}
+
+Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
+{
+    const auto onSetup = [handler] {
+        if (dd->m_dashboardInfo) {
+            if (handler)
+                handler(*dd->m_dashboardInfo);
+            return SetupResult::StopWithSuccess;
+        }
+        return SetupResult::Continue;
+    };
+    const auto onDone = [handler](DoneWith result) {
+        if (result == DoneWith::Error && handler)
+            handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
+    };
+
+    const QUrl url(settings().server.dashboard);
+
+    const auto resultHandler = [handler, url](const Dto::DashboardInfoDto &data) {
+        dd->m_dashboardInfo = toDashboardInfo(url, data);
+        if (handler)
+            handler(*dd->m_dashboardInfo);
+    };
+
+    const Group root {
+        onGroupSetup(onSetup), // Stops if cache exists.
+        fetchDataRecipe<Dto::DashboardInfoDto>(url, resultHandler),
+        onGroupDone(onDone) // TODO: Pass CallDoneIf::Error, write task tree autotest.
+    };
+    return root;
 }
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)

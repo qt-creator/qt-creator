@@ -268,7 +268,7 @@ void IssuesWidget::updateUi()
         return;
 
     // for now just a start..
-    const Dto::AnalysisVersionDto &last = info.versions.back();
+    // const Dto::AnalysisVersionDto &last = info.versions.back();
 
     const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {

@@ -22,13 +22,6 @@ public:
     QString url;
 };
 
-class DashboardInfo : public BaseResult
-{
-public:
-    QString mainUrl;
-    QList<Project> projects;
-};
-
 class ShortIssue : public BaseResult
 {
 public:
@@ -50,7 +43,6 @@ public:
 
 namespace ResultParser {
 
-DashboardInfo parseDashboardInfo(const QByteArray &input);
 IssuesList parseIssuesList(const QByteArray &input);
 QString parseRuleInfo(const QByteArray &input);
 

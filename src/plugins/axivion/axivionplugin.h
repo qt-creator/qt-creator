@@ -5,6 +5,12 @@
 
 #include "dashboard/dto.h"
 
+#include <utils/expected.h>
+
+#include <QHash>
+#include <QUrl>
+#include <QVersionNumber>
+
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -12,6 +18,8 @@ class QIcon;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
+
+namespace Tasking { class Group; }
 
 namespace Axivion::Internal {
 
@@ -28,6 +36,19 @@ struct IssueListSearch
 
     QString toQuery() const;
 };
+
+class DashboardInfo
+{
+public:
+    QUrl source;
+    QVersionNumber versionNumber;
+    QStringList projects;
+    QHash<QString, QUrl> projectUrls;
+    std::optional<QUrl> checkCredentialsUrl;
+};
+
+using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
+Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
 
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
