@@ -36,6 +36,7 @@ Rectangle {
 
     Row {
         spacing: 5
+        anchors.fill: parent
 
         IconImage {
             id: nodeIcon
@@ -52,8 +53,11 @@ Rectangle {
             text: modelData.nodeName
             color: modelData.canBeAdded ? StudioTheme.Values.themeTextColor
                                         : StudioTheme.Values.themeTextColorDisabled
+
             font.pointSize: StudioTheme.Values.smallFontSize
             anchors.verticalCenter: nodeIcon.verticalCenter
+            wrapMode: Text.WordWrap
+            width: parent.width - parent.spacing - nodeIcon.width
         }
     }
 }
