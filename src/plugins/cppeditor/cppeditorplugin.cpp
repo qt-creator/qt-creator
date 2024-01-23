@@ -477,15 +477,15 @@ void CppEditorPlugin::registerVariables()
 
     // TODO: Per-project variants of these three?
     expander->registerVariable("Cpp:LicenseTemplate",
-                               Tr::tr("The license template."),
-                               []() { return CppEditorPlugin::licenseTemplate(nullptr); });
+        Tr::tr("The license template."),
+        [] { return globalCppFileSettings().licenseTemplate(); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
-                                    Tr::tr("The configured path to the license template"),
-                                    []() { return CppEditorPlugin::licenseTemplatePath(nullptr); });
+        Tr::tr("The configured path to the license template"),
+        [] { return FilePath::fromUserInput(globalCppFileSettings().licenseTemplatePath); });
     expander->registerVariable(
         "Cpp:PragmaOnce",
         Tr::tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
-        [] { return usePragmaOnce(nullptr) ? QString("true") : QString(); });
+        [] { return globalCppFileSettings().headerPragmaOnce ? QString("true") : QString(); });
 }
 
 void CppEditorPlugin::registerTests()
@@ -597,21 +597,6 @@ void CppEditorPlugin::openIncludeHierarchy()
 void CppEditorPlugin::clearHeaderSourceCache()
 {
     m_headerSourceMapping.clear();
-}
-
-FilePath CppEditorPlugin::licenseTemplatePath(Project *project)
-{
-    return FilePath::fromString(cppFileSettingsForProject(project).licenseTemplatePath);
-}
-
-QString CppEditorPlugin::licenseTemplate(Project *project)
-{
-    return cppFileSettingsForProject(project).licenseTemplate();
-}
-
-bool CppEditorPlugin::usePragmaOnce(Project *project)
-{
-    return cppFileSettingsForProject(project).headerPragmaOnce;
 }
 
 static FilePaths findFilesInProject(const QStringList &names, const Project *project,

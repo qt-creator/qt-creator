@@ -24,9 +24,6 @@ public:
     static CppEditorPlugin *instance();
 
     static void clearHeaderSourceCache();
-    static Utils::FilePath licenseTemplatePath(ProjectExplorer::Project *project);
-    static QString licenseTemplate(ProjectExplorer::Project *project);
-    static bool usePragmaOnce(ProjectExplorer::Project *project);
 
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
