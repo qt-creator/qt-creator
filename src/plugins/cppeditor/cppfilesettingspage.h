@@ -9,10 +9,6 @@
 
 #include <QDir>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer { class Project; }
 
 namespace CppEditor::Internal {
@@ -31,7 +27,7 @@ public:
     QStringList sourceSearchPaths = {QDir::toNativeSeparators("../src"),
                                      QDir::toNativeSeparators("../Src"),
                                      ".."};
-    QString licenseTemplatePath;
+    Utils::FilePath licenseTemplatePath;
     bool headerPragmaOnce = false;
     bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 

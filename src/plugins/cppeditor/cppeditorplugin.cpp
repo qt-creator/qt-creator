@@ -481,7 +481,7 @@ void CppEditorPlugin::registerVariables()
         [] { return globalCppFileSettings().licenseTemplate(); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
         Tr::tr("The configured path to the license template"),
-        [] { return FilePath::fromUserInput(globalCppFileSettings().licenseTemplatePath); });
+        [] { return globalCppFileSettings().licenseTemplatePath; });
     expander->registerVariable(
         "Cpp:PragmaOnce",
         Tr::tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),

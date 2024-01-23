@@ -65,7 +65,8 @@ void CppFileSettings::toSettings(QtcSettings *s) const
     s->setValueWithDefault(sourceSearchPathsKeyC, sourceSearchPaths, def.sourceSearchPaths);
     s->setValueWithDefault(Constants::LOWERCASE_CPPFILES_KEY, lowerCaseFiles, def.lowerCaseFiles);
     s->setValueWithDefault(headerPragmaOnceC, headerPragmaOnce, def.headerPragmaOnce);
-    s->setValueWithDefault(licenseTemplatePathKeyC, licenseTemplatePath, def.licenseTemplatePath);
+    s->setValueWithDefault(licenseTemplatePathKeyC, licenseTemplatePath.toSettings(),
+                           def.licenseTemplatePath.toSettings());
     s->endGroup();
 }
 
@@ -81,7 +82,8 @@ void CppFileSettings::fromSettings(QtcSettings *s)
     sourceSearchPaths = s->value(sourceSearchPathsKeyC, def.sourceSearchPaths).toStringList();
     lowerCaseFiles = s->value(Constants::LOWERCASE_CPPFILES_KEY, def.lowerCaseFiles).toBool();
     headerPragmaOnce = s->value(headerPragmaOnceC, def.headerPragmaOnce).toBool();
-    licenseTemplatePath = s->value(licenseTemplatePathKeyC, def.licenseTemplatePath).toString();
+    licenseTemplatePath = FilePath::fromSettings(s->value(licenseTemplatePathKeyC,
+                                                          def.licenseTemplatePath.toSettings()));
     s->endGroup();
 }
 
@@ -213,9 +215,10 @@ QString CppFileSettings::licenseTemplate() const
 {
     if (licenseTemplatePath.isEmpty())
         return QString();
-    QFile file(licenseTemplatePath);
+    QFile file(licenseTemplatePath.toFSPathString());
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        qWarning("Unable to open the license template %s: %s", qPrintable(licenseTemplatePath),
+        qWarning("Unable to open the license template %s: %s",
+                 qPrintable(licenseTemplatePath.toUserOutput()),
                  qPrintable(file.errorString()));
         return QString();
     }
@@ -413,7 +416,7 @@ void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
     setComboText(m_sourceSuffixComboBox, s.sourceSuffix);
     m_headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
     m_sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
-    setLicenseTemplatePath(FilePath::fromString(s.licenseTemplatePath));
+    setLicenseTemplatePath(s.licenseTemplatePath);
 }
 
 CppFileSettings CppFileSettingsWidget::currentSettings() const
@@ -427,7 +430,7 @@ CppFileSettings CppFileSettingsWidget::currentSettings() const
     rc.sourceSuffix = m_sourceSuffixComboBox->currentText();
     rc.headerSearchPaths = trimmedPaths(m_headerSearchPathsEdit->text());
     rc.sourceSearchPaths = trimmedPaths(m_sourceSearchPathsEdit->text());
-    rc.licenseTemplatePath = licenseTemplatePath().toString();
+    rc.licenseTemplatePath = licenseTemplatePath();
     return rc;
 }
 
@@ -534,7 +537,8 @@ void CppFileSettingsForProject::loadSettings()
     m_customSettings.headerPragmaOnce = data.value(headerPragmaOnceC,
                                                    m_customSettings.headerPragmaOnce).toBool();
     m_customSettings.licenseTemplatePath
-        = data.value(licenseTemplatePathKeyC, m_customSettings.licenseTemplatePath).toString();
+        = FilePath::fromSettings(data.value(licenseTemplatePathKeyC,
+                                            m_customSettings.licenseTemplatePath.toSettings()));
 }
 
 void CppFileSettingsForProject::saveSettings()
@@ -556,7 +560,7 @@ void CppFileSettingsForProject::saveSettings()
     data.insert(sourceSearchPathsKeyC, m_customSettings.sourceSearchPaths);
     data.insert(Constants::LOWERCASE_CPPFILES_KEY, m_customSettings.lowerCaseFiles);
     data.insert(headerPragmaOnceC, m_customSettings.headerPragmaOnce);
-    data.insert(licenseTemplatePathKeyC, m_customSettings.licenseTemplatePath);
+    data.insert(licenseTemplatePathKeyC, m_customSettings.licenseTemplatePath.toSettings());
     m_project->setNamedSettings(projectSettingsKeyC, data);
 }
 
