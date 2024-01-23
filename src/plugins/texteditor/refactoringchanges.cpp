@@ -65,7 +65,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
     // Reindent the contents:
     if (reindent) {
         cursor.select(QTextCursor::Document);
-        m_formattingCursors = {cursor};
+        m_formattingCursors = {{cursor, false}};
         doFormatting();
     }
     cursor.endEditBlock();
@@ -298,26 +298,29 @@ void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &repl
         switch (op.type()) {
         case ChangeSet::EditOp::Replace:
         case ChangeSet::EditOp::Insert:
-        case ChangeSet::EditOp::Remove:
+        case ChangeSet::EditOp::Remove: {
             cursor.setKeepPositionOnInsert(true);
             cursor.setPosition(op.pos1 + op.length1);
             cursor.setPosition(op.pos1, QTextCursor::KeepAnchor);
-            m_formattingCursors << cursor;
+            const bool advance = op.type() != ChangeSet::EditOp::Remove && !op.text().isEmpty()
+                                 && op.text().front() == '\n';
+            m_formattingCursors << std::make_pair(cursor, advance);
             break;
+        }
         case ChangeSet::EditOp::Flip:
         case ChangeSet::EditOp::Move:
             cursor.setKeepPositionOnInsert(true);
             cursor.setPosition(op.pos1 + op.length1);
             cursor.setPosition(op.pos1, QTextCursor::KeepAnchor);
-            m_formattingCursors << cursor;
+            m_formattingCursors << std::make_pair(cursor, false);
             cursor.setPosition(op.pos2 + op.length2);
             cursor.setPosition(op.pos2, QTextCursor::KeepAnchor);
-            m_formattingCursors << cursor;
+            m_formattingCursors << m_formattingCursors << std::make_pair(cursor, false);
             break;
         case ChangeSet::EditOp::Copy:
             cursor.setKeepPositionOnInsert(true);
             cursor.setPosition(op.pos2, QTextCursor::KeepAnchor);
-            m_formattingCursors << cursor;
+            m_formattingCursors << m_formattingCursors << std::make_pair(cursor, false);
             break;
         }
     }
@@ -348,13 +351,15 @@ void RefactoringFile::doFormatting()
     QTC_ASSERT(document, return);
     QTC_ASSERT(indenter, return);
 
-    Utils::sort(m_formattingCursors, [](const QTextCursor &tc1, const QTextCursor &tc2) {
-        return tc1.selectionStart() < tc2.selectionStart();
+    for (auto &[formattingCursor, advance] : m_formattingCursors) {
+        if (advance)
+            formattingCursor.setPosition(formattingCursor.position() + 1, QTextCursor::KeepAnchor);
+    }
+    Utils::sort(m_formattingCursors, [](const auto &tc1, const auto &tc2) {
+        return tc1.first.selectionStart() < tc2.first.selectionStart();
     });
-    const int firstSelectedBlock = document->findBlock(m_formattingCursors.first().selectionStart())
-                                       .blockNumber();
     static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
-    for (const QTextCursor &formattingCursor : std::as_const(m_formattingCursors)) {
+    for (auto &[formattingCursor, _] : m_formattingCursors) {
         const QTextBlock firstBlock = document->findBlock(formattingCursor.selectionStart());
         const QTextBlock lastBlock = document->findBlock(formattingCursor.selectionEnd());
         QTextBlock b = firstBlock;
@@ -368,7 +373,9 @@ void RefactoringFile::doFormatting()
         }
     }
 
-    for (const QTextCursor &tc : std::as_const(m_formattingCursors))
+    const int firstSelectedBlock
+        = document->findBlock(m_formattingCursors.first().first.selectionStart()).blockNumber();
+    for (const auto &[tc, _] : std::as_const(m_formattingCursors))
         indenter->autoIndent(tc, tabSettings);
 
     for (QTextBlock b = document->findBlockByNumber(firstSelectedBlock);

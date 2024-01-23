@@ -16,6 +16,8 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include <utility>
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
@@ -85,7 +87,10 @@ private:
     mutable QTextDocument *m_document = nullptr;
     TextEditorWidget *m_editor = nullptr;
     Utils::ChangeSet m_changes;
-    QList<QTextCursor> m_formattingCursors;
+
+    // The bool indicates whether to advance the start position.
+    QList<std::pair<QTextCursor, bool>> m_formattingCursors;
+
     bool m_openEditor = false;
     bool m_activateEditor = false;
     int m_editorCursorPosition = -1;
