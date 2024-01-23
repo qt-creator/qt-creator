@@ -46,9 +46,9 @@ Rectangle {
 
             IconButton {
                 buttonIcon: StudioTheme.Constants.addcolumnleft_medium
-                tooltip: qsTr("Add property left %1").arg(leftSideToolbar.topPadding)
+                tooltip: qsTr("Add property left")
                 enabled: root.model.selectedColumn > -1
-                onClicked: addColumnDialog.popUp(root.model.selectedColumn - 1)
+                onClicked: addColumnDialog.popUp(root.model.selectedColumn)
             }
 
             IconButton {
