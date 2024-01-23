@@ -124,6 +124,8 @@ private:
     void setHasMaterialLibrary(bool enable);
     void setHasSceneEnv(bool b);
 
+    void handleDeleteEffects(const QStringList &effectNames);
+
     QSize m_itemIconSize;
 
     SynchronousImageCache &m_fontImageCache;

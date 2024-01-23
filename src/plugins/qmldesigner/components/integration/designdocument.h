@@ -57,6 +57,7 @@ public:
 #endif
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
+    void clearUndoRedoStacks() const;
 
     Model *currentModel() const;
     Model *documentModel() const;

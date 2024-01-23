@@ -514,6 +514,13 @@ bool DesignDocument::isRedoAvailable() const
     return false;
 }
 
+void DesignDocument::clearUndoRedoStacks() const
+{
+    const QPlainTextEdit *edit = plainTextEdit();
+    if (edit)
+        edit->document()->clearUndoRedoStacks();
+}
+
 void DesignDocument::close()
 {
     m_documentLoaded = false;
