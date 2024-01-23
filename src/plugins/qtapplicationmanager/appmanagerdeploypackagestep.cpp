@@ -12,6 +12,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -52,10 +53,10 @@ public:
 
             const TargetInformation targetInformation(target());
 
-            packageFilePath.setValue(targetInformation.packageFile.absoluteFilePath());
+            packageFilePath.setValue(targetInformation.packageFilePath);
             packageFilePath.setDefaultValue(packageFilePath.value());
 
-            targetDirectory.setValue(targetInformation.runDirectory.absolutePath());
+            targetDirectory.setValue(targetInformation.runDirectory);
             targetDirectory.setDefaultValue(targetDirectory.value());
 
             setEnabled(!targetInformation.isBuiltin);
@@ -80,14 +81,13 @@ private:
     GroupItem runRecipe() final
     {
         const auto onSetup = [this](FileStreamer &streamer) {
-            const TargetInformation targetInformation(target());
             const FilePath source = packageFilePath().isEmpty() ?
                                         FilePath::fromString(packageFilePath.defaultValue()) :
                                         packageFilePath();
             const FilePath targetDir = targetDirectory().isEmpty() ?
                                            FilePath::fromString(targetDirectory.defaultValue()) :
                                            targetDirectory();
-            const FilePath target = targetInformation.device->filePath(targetDir.path())
+            const FilePath target = DeviceKitAspect::device(kit())->filePath(targetDir.path())
                                         .pathAppended(source.fileName());
             streamer.setSource(source);
             streamer.setDestination(target);

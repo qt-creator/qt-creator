@@ -16,14 +16,9 @@ namespace Internal {
 class Manifest
 {
 public:
-    QString installPathSuffix;
-    QString fileName;
-
-    int formatVersion = 0;
-    QString formatType;
+    Utils::FilePath filePath;
 
     QString id;
-    QString icon;
     QString code;
     QString runtime;
 
@@ -39,21 +34,15 @@ class TargetInformation final
 {
 public:
     Manifest manifest;
-    QDir buildDirectory;
-    QDir packageSourcesDirectory;
-    QDir runDirectory;
-    QFileInfo packageFile;
-    QFileInfo projectFile;
-    QSharedPointer<const ProjectExplorer::IDevice> device;
+    Utils::FilePath runDirectory;
+    Utils::FilePath packageFilePath;
     QString buildKey;
     QString displayName;
     QString displayNameUniquifier;
     QString cmakeBuildTarget;
     bool isBuiltin = false;
-    bool remote = false;
 
     bool isValid() const;
-    Utils::FilePath workingDirectory() const;
 
     TargetInformation() = default;
     TargetInformation(const TargetInformation &other) = default;

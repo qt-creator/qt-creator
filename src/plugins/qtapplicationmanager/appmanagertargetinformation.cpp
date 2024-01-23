@@ -62,13 +62,13 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
             ati.displayNameUniquifier = id + " [App]";
             ati.displayName = id + " [App]";
             ati.buildKey = id;
-            ati.manifest.fileName = manifestFilePath.path();
+            ati.manifest.filePath = manifestFilePath;
             ati.manifest.id = id;
             ati.manifest.runtime = runtime;
             ati.manifest.code = code;
             ati.isBuiltin = isBuiltinPackage;
             ati.cmakeBuildTarget = cmakeTarget;
-            ati.packageFile = QFileInfo(packageFilePath.path());
+            ati.packageFilePath = packageFilePath;
 
 //                qCritical() << "CREATE CONFIG: BUILTIN:" << isBuiltinPackage << id << "TARGET:" << cmakeTarget;
 
@@ -126,20 +126,12 @@ TargetInformation::TargetInformation(const Target *target)
 
     *this = targetInfoList.first();
 
-    device = DeviceKitAspect::device(target->kit());
-    remote = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    runDirectory = remote ? QDir(Constants::REMOTE_DEFAULT_TMP_PATH) : buildDirectory;
+    runDirectory = Constants::REMOTE_DEFAULT_TMP_PATH;
 }
 
 bool TargetInformation::isValid() const
 {
-    static const QFileInfo INVALID_FILE_INFO = QFileInfo();
-    return !manifest.fileName.isEmpty() && packageFile != INVALID_FILE_INFO;
-}
-
-FilePath TargetInformation::workingDirectory() const
-{
-    return FilePath::fromString(runDirectory.absolutePath());
+    return !manifest.filePath.isEmpty() && packageFilePath.isFile();
 }
 
 } // namespace Internal

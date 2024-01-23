@@ -67,7 +67,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
         const TargetInformation targetInformation(target());
 
-        packageFile.setDefaultValue(targetInformation.packageFile.absoluteFilePath());
+        packageFile.setDefaultValue(targetInformation.packageFilePath.toUserOutput());
 
         setEnabled(!targetInformation.isBuiltin);
     };

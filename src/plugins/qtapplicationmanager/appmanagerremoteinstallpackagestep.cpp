@@ -74,10 +74,10 @@ AppManagerRemoteInstallPackageStep::AppManagerRemoteInstallPackageStep(BuildStep
 
         const TargetInformation targetInformation(target());
 
-        const QString packageFilePath =
-            targetInformation.runDirectory.absoluteFilePath(targetInformation.packageFile.fileName());
+        const Utils::FilePath packageFilePath =
+            targetInformation.runDirectory.pathAppended(targetInformation.packageFilePath.fileName());
 
-        packageFile.setDefaultValue(packageFilePath);
+        packageFile.setDefaultValue(packageFilePath.toUserOutput());
 
         setEnabled(!targetInformation.isBuiltin);
     };

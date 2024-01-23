@@ -11,9 +11,10 @@
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/environmentaspect.h>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -39,8 +40,8 @@ public:
                 return;
             const TargetInformation targetInformation = tis.at(0);
 
-            controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, target->kit(),
-                                                                     targetInformation.device)));
+            controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, kit(),
+                                                                     DeviceKitAspect::device(kit()))));
 
             appId.setValue(targetInformation.manifest.id);
             appId.setReadOnly(true);
@@ -117,10 +118,10 @@ public:
             rci.displayName = decoratedTargetName(ti.displayName, target);
             rci.displayNameUniquifier = ti.displayNameUniquifier;
             rci.creationMode = RunConfigurationCreationInfo::AlwaysCreate;
-            rci.projectFilePath = Utils::FilePath::fromString(ti.manifest.fileName);
+            rci.projectFilePath = ti.manifest.filePath;
             rci.useTerminal = false;
-            if (!m_fileSystemWatcher.files().contains(ti.manifest.fileName)) {
-                m_fileSystemWatcher.addFile(ti.manifest.fileName, FileSystemWatcher::WatchAllChanges);
+            if (!m_fileSystemWatcher.files().contains(ti.manifest.filePath.toFSPathString())) {
+                m_fileSystemWatcher.addFile(ti.manifest.filePath, FileSystemWatcher::WatchAllChanges);
             }
             return rci;
         });
