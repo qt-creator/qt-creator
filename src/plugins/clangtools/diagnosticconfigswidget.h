@@ -15,6 +15,7 @@ class ClazyChecksSortFilterModel;
 class ClazyChecksTreeModel;
 class ClazyChecksWidget;
 class Diagnostic;
+class BaseChecksTreeModel;
 class TidyChecksTreeModel;
 class TidyChecksWidget;
 
@@ -50,7 +51,8 @@ private:
     void connectClazyItemChanged();
     void disconnectClazyItemChanged();
 
-private:
+    void handleChecksAsStringsButtonClicked(BaseChecksTreeModel *model);
+
     // Clang-Tidy
     TidyChecksWidget *m_tidyChecks = nullptr;
     std::unique_ptr<TidyChecksTreeModel> m_tidyTreeModel;
