@@ -14,8 +14,6 @@ Column {
     property int animatedFrame: previewFrameTimer.currentFrame
     property bool timeRunning: previewAnimationRunning
 
-    width: parent.width
-
     required property Item mainRoot
     property var effectMakerModel: EffectMakerBackend.effectMakerModel
     property alias source: source
@@ -166,7 +164,7 @@ Column {
 
         color: colorEditor.color
         width: parent.width
-        height: 200
+        height: root.height - y
         clip: true
 
         Item { // Source item as a canvas (render target) for effect

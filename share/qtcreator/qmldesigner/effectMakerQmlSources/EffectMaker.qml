@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
@@ -58,184 +60,200 @@ Item {
         }
     }
 
-    Column {
-        id: col
+    SplitView {
         anchors.fill: parent
-        spacing: 1
+        orientation: Qt.Vertical
 
-        EffectMakerTopBar {
-            onAddClicked: {
-                root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear(true) }
+        ColumnLayout {
+            spacing: 1
+            SplitView.minimumHeight: 200
+            SplitView.preferredHeight: 300
 
-                if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
-                    saveChangesDialog.open()
-                else
-                    EffectMakerBackend.effectMakerModel.clear(true)
-            }
+            EffectMakerTopBar {
+                onAddClicked: {
+                    root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear(true) }
 
-            onSaveClicked: {
-                let name = EffectMakerBackend.effectMakerModel.currentComposition
+                    if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
+                        saveChangesDialog.open()
+                    else
+                        EffectMakerBackend.effectMakerModel.clear(true)
+                }
 
-                if (name === "")
-                    saveAsDialog.open()
-                else
-                    EffectMakerBackend.effectMakerModel.saveComposition(name)
-            }
+                onSaveClicked: {
+                    let name = EffectMakerBackend.effectMakerModel.currentComposition
 
-            onSaveAsClicked: saveAsDialog.open()
+                    if (name === "")
+                        saveAsDialog.open()
+                    else
+                        EffectMakerBackend.effectMakerModel.saveComposition(name)
+                }
 
-            onAssignToSelectedClicked: {
-                EffectMakerBackend.effectMakerModel.assignToSelected()
-            }
-        }
+                onSaveAsClicked: saveAsDialog.open()
 
-        EffectMakerPreview {
-            mainRoot: root
-
-            FrameAnimation {
-                id: previewFrameTimer
-                running: true
-                paused: !previewAnimationRunning
-            }
-        }
-
-        Rectangle {
-            width: parent.width
-            height: StudioTheme.Values.toolbarHeight
-            color: StudioTheme.Values.themeToolbarBackground
-
-            EffectNodesComboBox {
-                mainRoot: root
-
-                anchors.verticalCenter: parent.verticalCenter
-                x: 5
-                width: parent.width - 50
-            }
-
-            HelperWidgets.AbstractButton {
-                anchors.right: parent.right
-                anchors.rightMargin: 5
-                anchors.verticalCenter: parent.verticalCenter
-
-                style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.clearList_medium
-                tooltip: qsTr("Remove all effect nodes.")
-                enabled: !EffectMakerBackend.effectMakerModel.isEmpty
-
-                onClicked: EffectMakerBackend.effectMakerModel.clear()
-            }
-
-            HelperWidgets.AbstractButton {
-                anchors.right: parent.right
-                anchors.rightMargin: 5
-                anchors.verticalCenter: parent.verticalCenter
-
-                style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.code
-                tooltip: qsTr("Open Shader in Code Editor.")
-                visible: false // TODO: to be implemented
-
-                onClicked: {} // TODO
-            }
-        }
-
-        Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
-
-        HelperWidgets.ScrollView {
-            id: scrollView
-
-            width: parent.width
-            height: parent.height - y
-            clip: true
-            interactive: !HelperWidgets.Controller.contextMenuOpened
-
-            onContentHeightChanged: {
-                if (scrollView.contentItem.height > scrollView.height) {
-                    let lastItemH = repeater.itemAt(repeater.count - 1).height
-                    scrollView.contentY = scrollView.contentItem.height - lastItemH
+                onAssignToSelectedClicked: {
+                    EffectMakerBackend.effectMakerModel.assignToSelected()
                 }
             }
 
-            Column {
-                id: nodesCol
-                width: scrollView.width
-                spacing: 1
+            EffectMakerPreview {
+                mainRoot: root
 
-                Repeater {
-                    id: repeater
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                    width: root.width
-                    model: EffectMakerBackend.effectMakerModel
+                FrameAnimation {
+                    id: previewFrameTimer
+                    running: true
+                    paused: !previewAnimationRunning
+                }
+            }
+        }
 
-                    onCountChanged: {
-                        HelperWidgets.Controller.setCount("EffectMaker", repeater.count)
+        Column {
+            id: lowerSplitCol
+
+            spacing: 1
+
+            SplitView.minimumHeight: 200
+
+            Rectangle {
+                width: parent.width
+                height: StudioTheme.Values.toolbarHeight
+                color: StudioTheme.Values.themeToolbarBackground
+
+                EffectNodesComboBox {
+                    mainRoot: root
+
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: 5
+                    width: parent.width - 50
+                }
+
+                HelperWidgets.AbstractButton {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 5
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    style: StudioTheme.Values.viewBarButtonStyle
+                    buttonIcon: StudioTheme.Constants.clearList_medium
+                    tooltip: qsTr("Remove all effect nodes.")
+                    enabled: !EffectMakerBackend.effectMakerModel.isEmpty
+
+                    onClicked: EffectMakerBackend.effectMakerModel.clear()
+                }
+
+                HelperWidgets.AbstractButton {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 5
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    style: StudioTheme.Values.viewBarButtonStyle
+                    buttonIcon: StudioTheme.Constants.code
+                    tooltip: qsTr("Open Shader in Code Editor.")
+                    visible: false // TODO: to be implemented
+
+                    onClicked: {} // TODO
+                }
+            }
+
+            Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
+
+            HelperWidgets.ScrollView {
+                id: scrollView
+
+                width: parent.width
+                height: parent.height - y
+                clip: true
+                interactive: !HelperWidgets.Controller.contextMenuOpened
+
+                onContentHeightChanged: {
+                    if (scrollView.contentItem.height > scrollView.height) {
+                        let lastItemH = repeater.itemAt(repeater.count - 1).height
+                        scrollView.contentY = scrollView.contentItem.height - lastItemH
                     }
+                }
 
-                    delegate: EffectCompositionNode {
+                Column {
+                    id: nodesCol
+                    width: scrollView.width
+                    spacing: 1
+
+                    Repeater {
+                        id: repeater
+
                         width: root.width
-                        modelIndex: index
+                        model: EffectMakerBackend.effectMakerModel
 
-                        Behavior on y {
-                            PropertyAnimation {
-                                duration: 300
-                                easing.type: Easing.InOutQuad
-                            }
+                        onCountChanged: {
+                            HelperWidgets.Controller.setCount("EffectMaker", repeater.count)
                         }
 
-                        onStartDrag: (section) => {
-                            root.draggedSec = section
-                            root.moveFromIdx = index
+                        delegate: EffectCompositionNode {
+                            width: root.width
+                            modelIndex: index
 
-                            highlightBorder = true
-
-                            root.secsY = []
-                            for (let i = 0; i < repeater.count; ++i)
-                                root.secsY[i] = repeater.itemAt(i).y
-                        }
-
-                        onStopDrag: {
-                            if (root.moveFromIdx === root.moveToIdx)
-                                root.draggedSec.y = root.secsY[root.moveFromIdx]
-                            else
-                                EffectMakerBackend.effectMakerModel.moveNode(root.moveFromIdx, root.moveToIdx)
-
-                            highlightBorder = false
-                            root.draggedSec = null
-                        }
-                    }
-                } // Repeater
-
-                Timer {
-                    running: root.draggedSec
-                    interval: 50
-                    repeat: true
-
-                    onTriggered: {
-                        root.moveToIdx = root.moveFromIdx
-                        for (let i = 0; i < repeater.count; ++i) {
-                            let currItem = repeater.itemAt(i)
-                            if (i > root.moveFromIdx) {
-                                if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                    currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
-                                    root.moveToIdx = i
-                                } else {
-                                    currItem.y = root.secsY[i]
-                                }
-                            } else if (i < root.moveFromIdx) {
-                                if (!repeater.model.isDependencyNode(i)
-                                        && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                    currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
-                                    root.moveToIdx = Math.min(root.moveToIdx, i)
-                                } else {
-                                    currItem.y = root.secsY[i]
+                            Behavior on y {
+                                PropertyAnimation {
+                                    duration: 300
+                                    easing.type: Easing.InOutQuad
                                 }
                             }
+
+                            onStartDrag: (section) => {
+                                root.draggedSec = section
+                                root.moveFromIdx = index
+
+                                highlightBorder = true
+
+                                root.secsY = []
+                                for (let i = 0; i < repeater.count; ++i)
+                                    root.secsY[i] = repeater.itemAt(i).y
+                            }
+
+                            onStopDrag: {
+                                if (root.moveFromIdx === root.moveToIdx)
+                                    root.draggedSec.y = root.secsY[root.moveFromIdx]
+                                else
+                                    EffectMakerBackend.effectMakerModel.moveNode(root.moveFromIdx, root.moveToIdx)
+
+                                highlightBorder = false
+                                root.draggedSec = null
+                            }
                         }
-                    }
-                } // Timer
-            } // Column
-        } // ScrollView
-    }
+                    } // Repeater
+
+                    Timer {
+                        running: root.draggedSec
+                        interval: 50
+                        repeat: true
+
+                        onTriggered: {
+                            root.moveToIdx = root.moveFromIdx
+                            for (let i = 0; i < repeater.count; ++i) {
+                                let currItem = repeater.itemAt(i)
+                                if (i > root.moveFromIdx) {
+                                    if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                        currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
+                                        root.moveToIdx = i
+                                    } else {
+                                        currItem.y = root.secsY[i]
+                                    }
+                                } else if (i < root.moveFromIdx) {
+                                    if (!repeater.model.isDependencyNode(i)
+                                            && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                        currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
+                                        root.moveToIdx = Math.min(root.moveToIdx, i)
+                                    } else {
+                                        currItem.y = root.secsY[i]
+                                    }
+                                }
+                            }
+                        }
+                    } // Timer
+                } // Column
+            } // ScrollView
+        }
+    } // SplitView
 
     Text {
         id: emptyText
@@ -245,7 +263,7 @@ Item {
         font.pixelSize: StudioTheme.Values.baseFontSize
 
         x: scrollView.x + (scrollView.width - emptyText.width) * .5
-        y: scrollView.y + scrollView.height * .5
+        y: lowerSplitCol.y + lowerSplitCol.height * .5
 
         visible: EffectMakerBackend.effectMakerModel.isEmpty
     }
