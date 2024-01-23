@@ -81,6 +81,7 @@ private:
     void setCollectionName(const QString &newCollectionName);
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
+    void ensureSingleCell();
     QVariant variantFromString(const QString &value);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;

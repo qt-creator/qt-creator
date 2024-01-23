@@ -219,11 +219,16 @@ bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIn
     bool columnsRemoved = m_currentCollection.removeColumns(column, count);
     endRemoveColumns();
 
+    if (!columnCount(parent))
+        removeRows(0, rowCount(parent), parent);
+
     int nextColumn = column - 1;
     if (nextColumn < 0 && columnCount(parent) > 0)
         nextColumn = 0;
 
     selectColumn(nextColumn);
+
+    ensureSingleCell();
     return columnsRemoved;
 }
 
@@ -237,6 +242,7 @@ bool CollectionDetailsModel::removeRows(int row, int count, const QModelIndex &p
     bool rowsRemoved = m_currentCollection.removeElements(row, count);
     endRemoveRows();
 
+    ensureSingleCell();
     return rowsRemoved;
 }
 
@@ -317,8 +323,8 @@ bool CollectionDetailsModel::selectColumn(int section)
 
     const int columns = columnCount();
 
-    if (m_selectedColumn >= columns)
-        return false;
+    if (section >= columns)
+        section = columns - 1;
 
     selectRow(-1);
 
@@ -415,6 +421,7 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
             deselectAll();
             beginResetModel();
             switchToCollection(newReference);
+            ensureSingleCell();
             endResetModel();
         }
     } else {
@@ -583,6 +590,7 @@ void CollectionDetailsModel::loadJsonCollection(const QString &source, const QSt
     SourceFormat sourceFormat = jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown;
     beginResetModel();
     m_currentCollection.resetDetails(getJsonHeaders(collectionNodes), elements, sourceFormat);
+    ensureSingleCell();
     endResetModel();
 }
 
@@ -635,7 +643,22 @@ void CollectionDetailsModel::loadCsvCollection(const QString &source,
     SourceFormat sourceFormat = csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown;
     beginResetModel();
     m_currentCollection.resetDetails(headers, elements, sourceFormat);
+    ensureSingleCell();
     endResetModel();
+}
+
+void CollectionDetailsModel::ensureSingleCell()
+{
+    if (!m_currentCollection.isValid())
+        return;
+
+    if (!columnCount())
+        addColumn(0, "Column 1", "String");
+
+    if (!rowCount())
+        insertRow(0);
+
+    updateEmpty();
 }
 
 QVariant CollectionDetailsModel::variantFromString(const QString &value)
