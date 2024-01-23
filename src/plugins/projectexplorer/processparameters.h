@@ -6,6 +6,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/processinterface.h>
+#include <utils/processenums.h>
 
 namespace Utils {
 class MacroExpander;
@@ -31,6 +32,9 @@ public:
     void setMacroExpander(Utils::MacroExpander *mx) { m_macroExpander = mx; }
     Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 
+    void setProcessMode(Utils::ProcessMode mode) { m_processMode = mode; }
+    Utils::ProcessMode processMode() const { return m_processMode; }
+
     /// Get the fully expanded working directory:
     Utils::FilePath effectiveWorkingDirectory() const;
     /// Get the fully expanded command name to run:
@@ -54,6 +58,7 @@ private:
     mutable Utils::FilePath m_effectiveCommand;
     mutable QString m_effectiveArguments;
     mutable bool m_commandMissing = false;
+    mutable Utils::ProcessMode m_processMode = Utils::ProcessMode::Reader;
 };
 
 } // namespace ProjectExplorer

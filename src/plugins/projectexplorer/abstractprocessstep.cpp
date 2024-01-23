@@ -190,6 +190,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
     envWithPwd.set("PWD", workingDir.path());
+    process.setProcessMode(d->m_param.processMode());
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
