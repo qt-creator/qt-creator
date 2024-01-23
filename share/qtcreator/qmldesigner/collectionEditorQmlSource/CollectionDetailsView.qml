@@ -194,6 +194,24 @@ Rectangle {
                 Layout.minimumHeight: 20
                 Layout.maximumWidth: root.width
 
+                columnWidthProvider: function(column) {
+                    if (!isColumnLoaded(column))
+                        return -1
+                    let w = explicitColumnWidth(column)
+                    if (w < 0)
+                        w = implicitColumnWidth(column)
+                    return Math.max(w, StudioTheme.Values.collectionCellMinimumWidth)
+                }
+
+                rowHeightProvider: function(row) {
+                    if (!isRowLoaded(row))
+                        return -1
+                    let h = explicitRowHeight(row)
+                    if (h < 0)
+                        h = implicitRowHeight(row)
+                    return Math.max(h, StudioTheme.Values.collectionCellMinimumHeight)
+                }
+
                 delegate: Rectangle {
                     id: itemCell
 
