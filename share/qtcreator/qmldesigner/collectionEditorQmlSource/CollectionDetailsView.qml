@@ -106,6 +106,8 @@ Rectangle {
                                 headerMenu.clickedHeaderIndex = index
                                 headerMenu.dialogPos = parent.mapToGlobal(posX, parent.height)
                                 headerMenu.popup()
+                            } else {
+                                headerMenu.close()
                             }
                         }
                     }
