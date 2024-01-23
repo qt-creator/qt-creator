@@ -97,7 +97,8 @@ public:
     {
         Process process;
         process.setCommand({command(), {"-h"}});
-        process.runBlocking(std::chrono::seconds(2));
+        using namespace std::chrono_literals;
+        process.runBlocking(2s);
         if (process.result() != ProcessResult::FinishedWithSuccess)
             return;
 

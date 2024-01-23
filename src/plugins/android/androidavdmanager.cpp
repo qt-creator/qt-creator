@@ -222,7 +222,7 @@ static bool is32BitUserSpace()
         if (QSysInfo::WordSize == 32) {
             Process proc;
             proc.setCommand({"getconf", {"LONG_BIT"}});
-            proc.runBlocking(std::chrono::seconds(3));
+            proc.runBlocking(3s);
             if (proc.result() != ProcessResult::FinishedWithSuccess)
                 return true;
             return proc.allOutput().trimmed() == "32";

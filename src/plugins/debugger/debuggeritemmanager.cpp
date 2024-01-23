@@ -621,7 +621,8 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     if (searchPaths.front().osType() == OsTypeMac) {
         Process proc;
         proc.setCommand({"xcrun", {"--find", "lldb"}});
-        proc.runBlocking(std::chrono::seconds(2));
+        using namespace std::chrono_literals;
+        proc.runBlocking(2s);
         // FIXME:
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QString lPath = proc.allOutput().trimmed();

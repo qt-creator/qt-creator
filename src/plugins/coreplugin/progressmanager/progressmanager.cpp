@@ -34,13 +34,15 @@
 #include <QTimer>
 #include <QVariant>
 
+using namespace Core::Internal;
+using namespace Utils;
+
+using namespace std::chrono;
+
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
 static const bool kDetailsPinnedDefault = true;
-static const std::chrono::milliseconds TimerInterval{100};
-
-using namespace Core::Internal;
-using namespace Utils;
+static const milliseconds TimerInterval{100};
 
 namespace Core {
 
@@ -48,7 +50,7 @@ class ProgressTimer : public QObject
 {
 public:
     ProgressTimer(const QFutureInterfaceBase &futureInterface,
-                  std::chrono::seconds expectedDuration,
+                  seconds expectedDuration,
                   QObject *parent)
         : QObject(parent)
         , m_futureInterface(futureInterface)
@@ -72,7 +74,7 @@ private:
     }
 
     QFutureInterfaceBase m_futureInterface;
-    std::chrono::seconds m_expectedDuration;
+    seconds m_expectedDuration;
     int m_currentTime = 0;
     QTimer m_timer;
 };
@@ -779,7 +781,7 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
 FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface,
                                               const QString &title,
                                               Id type,
-                                              std::chrono::seconds expectedDuration,
+                                              seconds expectedDuration,
                                               ProgressFlags flags)
 {
     QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
@@ -791,7 +793,7 @@ FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futu
 FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future,
                                               const QString &title,
                                               Id type,
-                                              std::chrono::seconds expectedDuration,
+                                              seconds expectedDuration,
                                               ProgressFlags flags)
 {
     QFutureInterface<void> dummyFutureInterface;

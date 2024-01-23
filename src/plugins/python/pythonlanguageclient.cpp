@@ -86,7 +86,8 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
 
     Process pythonProcess;
     pythonProcess.setCommand({python, {"-m", "pip", "-V"}});
-    pythonProcess.runBlocking(std::chrono::seconds(2));
+    using namespace std::chrono_literals;
+    pythonProcess.runBlocking(2s);
     if (pythonProcess.allOutput().startsWith("pip "))
         return {PythonLanguageServerState::CanBeInstalled, lspPath};
     return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};

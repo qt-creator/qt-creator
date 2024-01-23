@@ -134,7 +134,8 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
         return QString();
     Process proc;
     proc.setCommand(cmd);
-    proc.runBlocking(std::chrono::seconds(1));
+    using namespace std::chrono_literals;
+    proc.runBlocking(1s);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
     return proc.allOutput();

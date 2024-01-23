@@ -3213,7 +3213,7 @@ static int scheduleTimeout(milliseconds timeout, QObject *context, const Timeout
 
 TimeoutTaskAdapter::TimeoutTaskAdapter()
 {
-    *task() = std::chrono::milliseconds::zero();
+    *task() = milliseconds::zero();
 }
 
 TimeoutTaskAdapter::~TimeoutTaskAdapter()

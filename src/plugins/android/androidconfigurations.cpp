@@ -599,7 +599,8 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
     Process adbProc;
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
-    adbProc.runBlocking(std::chrono::seconds(30));
+    using namespace std::chrono_literals;
+    adbProc.runBlocking(30s);
     if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
         if (error)
             *error = Tr::tr("Could not run: %1").arg(cmd.toUserOutput());

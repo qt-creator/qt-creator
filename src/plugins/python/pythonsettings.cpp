@@ -71,7 +71,8 @@ static Interpreter createInterpreter(const FilePath &python,
     Process pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
     pythonProcess.setCommand({python, {"--version"}});
-    pythonProcess.runBlocking(std::chrono::seconds(1));
+    using namespace std::chrono_literals;
+    pythonProcess.runBlocking(1s);
     if (pythonProcess.result() == ProcessResult::FinishedWithSuccess)
         result.name = pythonProcess.cleanedStdOut().trimmed();
     if (result.name.isEmpty())

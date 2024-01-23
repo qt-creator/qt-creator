@@ -390,7 +390,8 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
         return;
 
     while (!promise.isCanceled()) {
-        if (process.waitForFinished(std::chrono::milliseconds(200)))
+        using namespace std::chrono_literals;
+        if (process.waitForFinished(200ms))
             break;
     }
 

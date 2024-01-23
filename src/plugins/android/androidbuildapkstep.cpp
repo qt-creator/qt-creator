@@ -1000,7 +1000,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
     Process keytoolProc;
     keytoolProc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), params});
-    keytoolProc.runBlocking(std::chrono::seconds(30), EventLoopMode::On);
+    using namespace std::chrono_literals;
+    keytoolProc.runBlocking(30s, EventLoopMode::On);
     if (keytoolProc.result() > ProcessResult::FinishedWithError)
         QMessageBox::critical(nullptr, Tr::tr("Error"), Tr::tr("Failed to run keytool."));
     else

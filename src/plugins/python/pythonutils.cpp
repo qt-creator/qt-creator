@@ -149,7 +149,8 @@ QString pythonName(const FilePath &pythonPath)
     if (name.isEmpty()) {
         Process pythonProcess;
         pythonProcess.setCommand({pythonPath, {"--version"}});
-        pythonProcess.runBlocking(std::chrono::seconds(2));
+        using namespace std::chrono_literals;
+        pythonProcess.runBlocking(2s);
         if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
             return {};
         name = pythonProcess.allOutput().trimmed();

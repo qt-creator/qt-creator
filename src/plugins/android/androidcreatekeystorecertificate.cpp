@@ -274,7 +274,8 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
 
     Process genKeyCertProc;
     genKeyCertProc.setCommand(command);
-    genKeyCertProc.runBlocking(std::chrono::seconds(15), EventLoopMode::On);
+    using namespace std::chrono_literals;
+    genKeyCertProc.runBlocking(15s, EventLoopMode::On);
 
     if (genKeyCertProc.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::critical(this, Tr::tr("Error"),

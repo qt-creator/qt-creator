@@ -366,7 +366,8 @@ static std::function<void(FilePath)> postCopyOperation()
         // to get it loaded as a plugin in Qt Creator.
         Process xattr;
         xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
-        xattr.runBlocking(std::chrono::seconds(1));
+        using namespace std::chrono_literals;
+        xattr.runBlocking(1s);
     };
 }
 

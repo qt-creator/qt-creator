@@ -79,6 +79,8 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace VcsBase;
 using namespace Utils;
+
+using namespace std::chrono;
 using namespace std::placeholders;
 
 namespace ClearCase::Internal {
@@ -1621,7 +1623,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
     process.setEnvironment(env);
     process.setCommand({m_settings.ccBinaryPath, arguments});
     process.setWorkingDirectory(workingDir);
-    process.runBlocking(std::chrono::seconds(m_settings.timeOutS));
+    process.runBlocking(seconds(m_settings.timeOutS));
     return CommandResult(process);
 }
 
@@ -2286,7 +2288,7 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
     process.setCommand(diff);
-    process.runBlocking(std::chrono::seconds(timeOutS), EventLoopMode::On);
+    process.runBlocking(seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return {};
     return process.allOutput();

@@ -19,6 +19,8 @@
 using namespace Core;
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace VcsBase {
 namespace Internal {
 
@@ -115,7 +117,7 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 
     ProcessProgress *progress = new ProcessProgress(process);
     progress->setDisplayName(m_displayName);
-    progress->setExpectedDuration(std::chrono::seconds(qMin(1, job.timeoutS / 5)));
+    progress->setExpectedDuration(seconds(qMin(1, job.timeoutS / 5)));
     if (m_progressParser)
         progress->setProgressParser(m_progressParser);
 }
@@ -307,7 +309,7 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
     process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
-    process.runBlocking(std::chrono::seconds(timeoutS), eventLoopMode);
+    process.runBlocking(seconds(timeoutS), eventLoopMode);
     d->handleDone(&process, job);
 
     return CommandResult(process);

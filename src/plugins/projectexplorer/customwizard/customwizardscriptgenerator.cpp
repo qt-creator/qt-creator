@@ -93,7 +93,8 @@ static bool
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory.toUserOutput()),
                qPrintable(cmd.toUserOutput()));
     process.setCommand(cmd);
-    process.runBlocking(std::chrono::seconds(30), EventLoopMode::On);
+    using namespace std::chrono_literals;
+    process.runBlocking(30s, EventLoopMode::On);
     if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.cleanedStdErr();

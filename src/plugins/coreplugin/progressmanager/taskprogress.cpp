@@ -18,10 +18,12 @@
 using namespace Utils;
 using namespace Tasking;
 
+using namespace std::chrono;
+
 namespace Core {
 
 static const int ProgressResolution = 100; // 100 discrete values
-static const std::chrono::milliseconds TimerInterval{20}; // 20 ms = 50 Hz
+static const milliseconds TimerInterval{20}; // 20 ms = 50 Hz
 
 class TaskProgressPrivate : public QObject
 {
@@ -44,7 +46,7 @@ public:
     QPointer<FutureProgress> m_futureProgress;
     Id m_id;
     bool m_isAutoStopOnCancel = true;
-    std::chrono::milliseconds m_halfLifeTimePerTask{1000};
+    milliseconds m_halfLifeTimePerTask{1000};
     QString m_displayName;
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
     bool m_isSubtitleVisibleInStatusBar = false;
@@ -83,7 +85,7 @@ void TaskProgressPrivate::advanceProgress(int newValue)
 
 void TaskProgressPrivate::updateProgress()
 {
-    using double_millis = std::chrono::duration<double, std::milli>;
+    using double_millis = duration<double, std::milli>;
     const int halfLife = qRound(m_halfLifeTimePerTask / double_millis(TimerInterval));
     const int pMin = ProgressResolution * m_currentProgress;
     const int pMax = ProgressResolution * (m_currentProgress + 1);
@@ -149,7 +151,7 @@ void TaskProgress::setAutoStopOnCancel(bool enable)
     d->m_isAutoStopOnCancel = enable;
 }
 
-void TaskProgress::setHalfLifeTimePerTask(std::chrono::milliseconds duration)
+void TaskProgress::setHalfLifeTimePerTask(milliseconds duration)
 {
     d->m_halfLifeTimePerTask = duration;
 }

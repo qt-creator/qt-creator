@@ -43,6 +43,9 @@
 #include <QFileSystemWatcher>
 #include <QQmlEngine>
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 namespace QmlDesigner {
 
 namespace {
@@ -75,15 +78,12 @@ class PreviewTimeStampProvider : public TimeStampProviderInterface
 public:
     Sqlite::TimeStamp timeStamp(Utils::SmallStringView) const override
     {
-        auto now = std::chrono::steady_clock::now();
-
-        return std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+        return duration_cast<seconds>(steady_clock::now().time_since_epoch()).count();
     }
 
     Sqlite::TimeStamp pause() const override
     {
-        using namespace std::chrono_literals;
-        return std::chrono::duration_cast<std::chrono::seconds>(1h).count();
+        return duration_cast<seconds>(1h).count();
     }
 };
 
@@ -307,7 +307,6 @@ void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
 
 void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
 {
-    using namespace std::chrono_literals;
     m_previewImageCacheData->timer.start(10s);
 }
 

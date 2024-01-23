@@ -6,13 +6,12 @@
 #include <QCoreApplication>
 #include <QEvent>
 
-using namespace std::literals::chrono_literals;
+using namespace std::chrono;
 
 EventSpy::EventSpy(uint eventType)
-    : startTime(std::chrono::steady_clock::now()),
-      eventType(eventType)
-{
-}
+    : startTime(steady_clock::now())
+    , eventType(eventType)
+{}
 
 bool EventSpy::waitForEvent()
 {
@@ -26,15 +25,12 @@ bool EventSpy::event(QEvent *event)
 {
     if (event->type() == eventType) {
         eventHappened = true;
-
         return true;
     }
-
     return false;
 }
 
 bool EventSpy::shouldRun() const
 {
-    return !eventHappened
-        && (std::chrono::steady_clock::now() - startTime) < 1s;
+    return !eventHappened && (steady_clock::now() - startTime) < 1s;
 }

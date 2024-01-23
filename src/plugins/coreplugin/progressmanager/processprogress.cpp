@@ -14,6 +14,7 @@
 
 using namespace Utils;
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 
 namespace Core {
@@ -34,7 +35,7 @@ public:
     QPointer<FutureProgress> m_futureProgress;
     QString m_displayName;
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
-    std::chrono::seconds m_expectedDuration = 2s;
+    seconds m_expectedDuration = 2s;
 };
 
 ProcessProgressPrivate::ProcessProgressPrivate(ProcessProgress *progress, Process *process)
@@ -150,7 +151,7 @@ void ProcessProgress::setProgressParser(const ProgressParser &parser)
             d.get(), &ProcessProgressPrivate::parseProgress);
 }
 
-void ProcessProgress::setExpectedDuration(std::chrono::seconds duration)
+void ProcessProgress::setExpectedDuration(seconds duration)
 {
     d->m_expectedDuration = qMin(1s, duration);
 }

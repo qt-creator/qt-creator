@@ -52,7 +52,8 @@ QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packag
     Process process;
     process.setCommand({binaryPath, m_detectionArgs});
     process.start();
-    if (!process.waitForFinished(std::chrono::seconds(3)) || process.result() != ProcessResult::FinishedWithSuccess)
+    using namespace std::chrono_literals;
+    if (!process.waitForFinished(3s) || process.result() != ProcessResult::FinishedWithSuccess)
         return {};
 
     return matchRegExp(process.allOutput(), m_detectionRegExp);

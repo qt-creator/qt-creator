@@ -29,6 +29,9 @@
 using namespace TextEditor;
 using namespace Utils;
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 namespace ClangFormat {
 
 enum class ReplacementsToKeep { OnlyIndent, IndentAndBefore, All };
@@ -525,7 +528,7 @@ public:
     struct CachedStyle {
         clang::format::FormatStyle style = clang::format::getNoStyle();
         QDateTime expirationTime;
-        void setCache(clang::format::FormatStyle newStyle, std::chrono::milliseconds timeout)
+        void setCache(clang::format::FormatStyle newStyle, milliseconds timeout)
         {
             style = newStyle;
             expirationTime = QDateTime::currentDateTime().addMSecs(timeout.count());
@@ -851,12 +854,11 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
     return currentSettingsStyle;
 }
 
-static std::chrono::milliseconds getCacheTimeout()
+static milliseconds getCacheTimeout()
 {
-    using namespace std::chrono_literals;
     bool ok = false;
     const int envCacheTimeout = qEnvironmentVariableIntValue("CLANG_FORMAT_CACHE_TIMEOUT", &ok);
-    return ok ? std::chrono::milliseconds(envCacheTimeout) : 1s;
+    return ok ? milliseconds(envCacheTimeout) : 1s;
 }
 
 const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
@@ -866,8 +868,7 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
 
 const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
 {
-    using namespace std::chrono_literals;
-    static const std::chrono::milliseconds cacheTimeout = getCacheTimeout();
+    static const milliseconds cacheTimeout = getCacheTimeout();
 
     QDateTime time = QDateTime::currentDateTime();
     if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))

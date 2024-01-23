@@ -215,7 +215,8 @@ QbsSession::~QbsSession()
         d->qbsProcess->disconnect(this);
         if (d->qbsProcess->state() == QProcess::Running) {
             sendQuitPacket();
-            d->qbsProcess->waitForFinished(std::chrono::seconds(10));
+            using namespace std::chrono_literals;
+            d->qbsProcess->waitForFinished(10s);
         }
         delete d->qbsProcess;
     }

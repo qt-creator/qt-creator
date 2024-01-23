@@ -23,6 +23,7 @@ using namespace Core::Internal;
 using namespace Tasking;
 using namespace Utils;
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 
 static const char s_initData[] = R"(
@@ -291,7 +292,7 @@ public:
         QTC_ASSERT(!isRunning(), return);
         m_input.m_input = input;
     }
-    void setTimeout(std::chrono::milliseconds timeout) {
+    void setTimeout(milliseconds timeout) {
         QTC_ASSERT(!isRunning(), return);
         m_timeout = timeout;
     }
@@ -333,7 +334,7 @@ signals:
 private:
     QPointer<JavaScriptEngine> m_engine;
     JavaScriptInput m_input;
-    std::chrono::milliseconds m_timeout = 1000ms;
+    milliseconds m_timeout = 1000ms;
 
     std::unique_ptr<QTimer> m_timer;
 
