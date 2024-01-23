@@ -384,23 +384,38 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         return;
     }
 
-    const QUrl url = urlForProject(projectName);
+    const auto onTaskTreeSetup = [this, projectName](TaskTree &taskTree) {
+        if (!m_dashboardInfo)
+            return SetupResult::StopWithError;
 
-    const auto handler = [this](const Dto::ProjectInfoDto &data) {
-        m_currentProjectInfo = data;
-        m_axivionOutputPane.updateDashboard();
-        // handle already opened documents
-        if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
-            !buildSystem || !buildSystem->isParsing()) {
-            handleOpenedDocs(nullptr);
-        } else {
-            connect(ProjectExplorer::ProjectManager::instance(),
-                    &ProjectExplorer::ProjectManager::projectFinishedParsing,
-                    this, &AxivionPluginPrivate::handleOpenedDocs);
-        }
+        const auto it = m_dashboardInfo->projectUrls.constFind(projectName);
+        if (it == m_dashboardInfo->projectUrls.constEnd())
+            return SetupResult::StopWithError;
+
+        const auto handler = [this](const Dto::ProjectInfoDto &data) {
+            m_currentProjectInfo = data;
+            m_axivionOutputPane.updateDashboard();
+            // handle already opened documents
+            if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
+                !buildSystem || !buildSystem->isParsing()) {
+                handleOpenedDocs(nullptr);
+            } else {
+                connect(ProjectExplorer::ProjectManager::instance(),
+                        &ProjectExplorer::ProjectManager::projectFinishedParsing,
+                        this, &AxivionPluginPrivate::handleOpenedDocs);
+            }
+        };
+
+        const QUrl url(settings().server.dashboard);
+        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(url.resolved(*it), handler));
+        return SetupResult::Continue;
     };
 
-    m_taskTreeRunner.start(fetchDataRecipe<Dto::ProjectInfoDto>(url, handler));
+    const Group root {
+        dashboardInfoRecipe(),
+        TaskTreeTask(onTaskTreeSetup)
+    };
+    m_taskTreeRunner.start(root);
 }
 
 void AxivionPluginPrivate::fetchIssueTableLayout(const QString &prefix)
