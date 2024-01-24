@@ -16,6 +16,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <boot2qt/qdbconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 
 #include <utils/algorithm.h>
@@ -80,6 +81,7 @@ public:
         registerRunConfiguration<AppManagerRunConfiguration>(Constants::RUNCONFIGURATION_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 
     virtual bool supportsBuildKey(Target *target, const QString &key) const final
@@ -140,6 +142,7 @@ public:
         registerRunConfiguration<AppManagerRunAndDebugConfiguration>(Constants::RUNANDDEBUGCONFIGURATION_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 
     virtual bool filterTarget(const TargetInformation &ti) const final

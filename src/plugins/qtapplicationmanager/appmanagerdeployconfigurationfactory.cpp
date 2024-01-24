@@ -14,6 +14,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <boot2qt/qdbconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 
 using namespace ProjectExplorer;
@@ -35,6 +36,7 @@ public:
         setDefaultDisplayName(Tr::tr("Automatic AppMan Deploy Configuration"));
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
 
         addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
         addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);
