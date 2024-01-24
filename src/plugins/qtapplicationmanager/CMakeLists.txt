@@ -12,7 +12,6 @@ add_qtc_plugin(QtApplicationManagerIntegration
     appmanagerdeployconfigurationfactory.cpp appmanagerdeployconfigurationfactory.h
     appmanagerdeploypackagestep.cpp appmanagerdeploypackagestep.h
     appmanagerinstallpackagestep.cpp appmanagerinstallpackagestep.h
-    appmanagerremoteinstallpackagestep.cpp appmanagerremoteinstallpackagestep.h
     appmanagercmakepackagestep.cpp appmanagercmakepackagestep.h
     appmanagerplugin.cpp
     appmanagerrunconfiguration.cpp appmanagerrunconfiguration.h

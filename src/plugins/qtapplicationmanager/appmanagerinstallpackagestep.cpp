@@ -11,17 +11,22 @@
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <remotelinux/abstractremotelinuxdeploystep.h>
+
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/runconfigurationaspects.h>
+
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Tasking;
 
 namespace AppManager::Internal {
 
@@ -29,13 +34,13 @@ namespace AppManager::Internal {
 
 const char ArgumentsDefault[] = "install-package --acknowledge";
 
-class AppManagerInstallPackageStep final : public AbstractProcessStep
+class AppManagerInstallPackageStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
 public:
     AppManagerInstallPackageStep(BuildStepList *bsl, Id id);
 
-protected:
-    bool init() final;
+private:
+    GroupItem deployRecipe() final;
 
 private:
     AppManagerCustomizeAspect customizeStep{this};
@@ -45,11 +50,13 @@ private:
 };
 
 AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    setDisplayName(Tr::tr("Install Application Manager package"));
+    setDisplayName(tr("Install Application Manager package"));
 
-    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER, kit()));
+    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
+                                               target()->kit(),
+                                               DeviceKitAspect::device(target()->kit())));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
@@ -59,13 +66,21 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
     packageFile.setLabelText(Tr::tr("Package file:"));
     packageFile.setEnabler(&customizeStep);
 
+    setInternalInitializer([this] { return isDeploymentPossible(); });
+
     const auto updateAspects = [this]  {
         if (customizeStep.value())
             return;
 
         const TargetInformation targetInformation(target());
 
-        packageFile.setDefaultValue(targetInformation.packageFilePath.toUserOutput());
+        if (DeviceKitAspect::device(kit())->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+            packageFile.setDefaultValue(targetInformation.packageFilePath.toUserOutput());
+        } else {
+            const Utils::FilePath packageFilePath = targetInformation.runDirectory.pathAppended(
+                targetInformation.packageFilePath.fileName());
+            packageFile.setDefaultValue(packageFilePath.toUserOutput());
+        }
 
         setEnabled(!targetInformation.isBuiltin);
     };
@@ -79,10 +94,9 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
     updateAspects();
 }
 
-bool AppManagerInstallPackageStep::init()
+GroupItem AppManagerInstallPackageStep::deployRecipe()
 {
-    if (!AbstractProcessStep::init())
-        return false;
+    const TargetInformation targetInformation(target());
 
     const FilePath controllerPath = controller().isEmpty() ?
                                         FilePath::fromString(controller.defaultValue()) :
@@ -92,12 +106,39 @@ bool AppManagerInstallPackageStep::init()
                                          FilePath::fromString(packageFile.defaultValue()) :
                                          packageFile();
 
-    CommandLine cmd(controllerPath);
-    cmd.addArgs(controllerArguments, CommandLine::Raw);
-    cmd.addArg(packageFilePath.nativePath());
-    processParameters()->setCommandLine(cmd);
+    const auto setupHandler = [=](Process &process) {
+        CommandLine cmd(controllerPath);
+        cmd.addArgs(controllerArguments, CommandLine::Raw);
+        cmd.addArg(packageFilePath.nativePath());
 
-    return true;
+        addProgressMessage(Tr::tr("Starting command \"%1\".").arg(cmd.displayName()));
+
+        process.setCommand(cmd);
+        // Prevent the write channel to be closed, otherwise the appman-controller will exit
+        process.setProcessMode(ProcessMode::Writer);
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
+            handleStdOutData(proc->readAllStandardOutput());
+        });
+        connect(proc, &Process::readyReadStandardError, this, [this, proc] {
+            handleStdErrData(proc->readAllStandardError());
+        });
+    };
+    const auto doneHandler = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            addProgressMessage(tr("Command finished successfully."));
+        } else {
+            if (process.error() != QProcess::UnknownError
+                || process.exitStatus() != QProcess::NormalExit) {
+                addErrorMessage(Tr::tr("Process failed: %1").arg(process.errorString()));
+            } else if (process.exitCode() != 0) {
+                addErrorMessage(Tr::tr("Process finished with exit code %1.")
+                                    .arg(process.exitCode()));
+            }
+        }
+    };
+
+    return ProcessTask(setupHandler, doneHandler);
 }
 
 // Factory

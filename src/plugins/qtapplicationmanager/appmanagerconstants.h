@@ -20,7 +20,6 @@ const char CMAKE_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.CMakePacka
 const char CREATE_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.CreatePackageStep";
 const char DEPLOY_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.DeployPackageStep";
 const char INSTALL_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.InstallPackageStep";
-const char REMOTE_INSTALL_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.RemoteInstallPackageStep";
 const char RUNCONFIGURATION_ID[] = "ApplicationManagerPlugin.Run.Configuration";
 const char RUNANDDEBUGCONFIGURATION_ID[] = "ApplicationManagerPlugin.RunAndDebug.Configuration";
 

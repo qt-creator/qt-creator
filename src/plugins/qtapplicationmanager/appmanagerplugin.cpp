@@ -8,7 +8,6 @@
 #include "appmanagerdeployconfigurationfactory.h"
 #include "appmanagerdeploypackagestep.h"
 #include "appmanagerinstallpackagestep.h"
-#include "appmanagerremoteinstallpackagestep.h"
 #include "appmanagercmakepackagestep.h"
 #include "appmanagerrunconfiguration.h"
 #include "appmanagerruncontrol.h"
@@ -28,7 +27,6 @@ class AppManagerPlugin final : public ExtensionSystem::IPlugin
         setupAppManagerCreatePackageStep();
         setupAppManagerDeployPackageStep();
         setupAppManagerInstallPackageStep();
-        setupAppManagerRemoteInstallPackageStep();
 
         setupAppManagerDeployConfiguration();
         setupAppManagerDeployConfigurationAutoSwitcher();

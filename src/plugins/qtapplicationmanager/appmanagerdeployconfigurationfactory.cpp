@@ -37,11 +37,8 @@ public:
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 
         addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
-        addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID, [](Target *target) {
-            return !isNecessaryToDeploy(target);
-        });
         addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);
-        addInitialStep(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID, isNecessaryToDeploy);
+        addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID);
     }
 };
 
