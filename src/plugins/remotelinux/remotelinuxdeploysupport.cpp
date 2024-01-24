@@ -26,8 +26,8 @@ class RemoteLinuxDeployStepFactory : public Factory
 public:
     RemoteLinuxDeployStepFactory()
     {
-        Factory::setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
         Factory::setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        Factory::setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     }
 };
 
