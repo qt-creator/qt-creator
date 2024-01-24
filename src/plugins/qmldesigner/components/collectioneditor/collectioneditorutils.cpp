@@ -26,7 +26,7 @@
 
 namespace {
 
-using CollectionDataVariant = std::variant<QString, bool, double, QUrl, QColor>;
+using CollectionDataVariant = std::variant<QString, bool, double, int, QUrl, QColor>;
 
 inline bool operator<(const QColor &a, const QColor &b)
 {
@@ -40,12 +40,15 @@ inline CollectionDataVariant valueToVariant(const QVariant &value,
     switch (type) {
     case DataType::String:
         return value.toString();
-    case DataType::Number:
+    case DataType::Real:
         return value.toDouble();
+    case DataType::Integer:
+        return value.toInt();
     case DataType::Boolean:
         return value.toBool();
     case DataType::Color:
         return value.value<QColor>();
+    case DataType::Image:
     case DataType::Url:
         return value.value<QUrl>();
     default:

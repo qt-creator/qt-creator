@@ -126,8 +126,11 @@ static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonV
         return DataType::Unknown;
     case JsonType::Bool:
         return DataType::Boolean;
-    case JsonType::Double:
-        return DataType::Number;
+    case JsonType::Double: {
+        if (qFuzzyIsNull(std::remainder(value.toDouble(), 1)))
+            return DataType::Integer;
+        return DataType::Real;
+    }
     case JsonType::String: {
         const QString stringValue = value.toString();
         if (isValidColorName(stringValue))
@@ -152,7 +155,9 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
     switch (type) {
     case DataType::String:
         return variantValue.toString();
-    case DataType::Number:
+    case DataType::Integer:
+        return variantValue.toInt();
+    case DataType::Real:
         return variantValue.toDouble();
     case DataType::Boolean:
         return variantValue.toBool();
@@ -180,8 +185,8 @@ static QJsonValue variantToJsonValue(
 
     if (type == CollectionDetails::DataType::Unknown) {
         static const QHash<VariantType, DataType> typeMap = {{VariantType::Bool, DataType::Boolean},
-                                                             {VariantType::Double, DataType::Number},
-                                                             {VariantType::Int, DataType::Number},
+                                                             {VariantType::Double, DataType::Real},
+                                                             {VariantType::Int, DataType::Integer},
                                                              {VariantType::String, DataType::String},
                                                              {VariantType::Color, DataType::Color},
                                                              {VariantType::Url, DataType::Url}};
@@ -191,8 +196,10 @@ static QJsonValue variantToJsonValue(
     switch (type) {
     case DataType::Boolean:
         return variant.toBool();
-    case DataType::Number:
+    case DataType::Real:
         return variant.toDouble();
+    case DataType::Integer:
+        return variant.toInt();
     case DataType::Image: {
         const QUrl url(variant.toUrl());
         if (url.isValid())
@@ -489,13 +496,19 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     const QString &propertyName = d->properties.at(column).name;
     const QJsonObject &element = d->elements.at(row);
 
-    if (typeAt(column) == DataType::Unknown || element.isEmpty()
+    const DataType columnType = typeAt(column);
+    const DataType cellType = typeAt(row, column);
+    if (columnType == DataType::Unknown || element.isEmpty()
         || data(row, column) == QVariant::fromValue(nullptr)) {
         return DataTypeWarning::Warning::None;
     }
 
-    if (element.contains(propertyName) && typeAt(column) != typeAt(row, column))
-        return DataTypeWarning::Warning::CellDataTypeMismatch;
+    if (element.contains(propertyName)) {
+        if (columnType == DataType::Real && cellType == DataType::Integer)
+            return DataTypeWarning::Warning::None;
+        else if (columnType != cellType)
+            return DataTypeWarning::Warning::CellDataTypeMismatch;
+    }
 
     return DataTypeWarning::Warning::None;
 }
@@ -577,16 +590,23 @@ void CollectionDetails::resetPropertyType(const QString &propertyName)
 void CollectionDetails::resetPropertyType(CollectionProperty &property)
 {
     const QString &propertyName = property.name;
-    DataType type = DataType::Unknown;
+    DataType columnType = DataType::Unknown;
     for (const QJsonObject &element : std::as_const(d->elements)) {
         if (element.contains(propertyName)) {
-            type = collectionDataTypeFromJsonValue(element.value(propertyName));
-            if (type != DataType::Unknown)
+            const DataType cellType = collectionDataTypeFromJsonValue(element.value(propertyName));
+            if (cellType != DataType::Unknown) {
+                if (columnType == DataType::Integer && cellType != DataType::Real)
+                    continue;
+
+                columnType = cellType;
+                if (columnType == DataType::Integer)
+                    continue;
+
                 break;
+            }
         }
     }
-
-    property.type = type;
+    property.type = columnType;
 }
 
 void CollectionDetails::resetPropertyTypes()

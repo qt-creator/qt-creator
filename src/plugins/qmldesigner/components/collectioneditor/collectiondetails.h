@@ -60,7 +60,7 @@ class CollectionDetails
     Q_GADGET
 
 public:
-    enum class DataType { Unknown, String, Url, Number, Boolean, Image, Color };
+    enum class DataType { Unknown, String, Url, Integer, Real, Boolean, Image, Color };
     Q_ENUM(DataType)
 
     explicit CollectionDetails();

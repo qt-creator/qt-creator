@@ -66,7 +66,7 @@ public:
 
     static QStringList typesStringList()
     {
-        static const QStringList typesList = typeToStringHash().values();
+        static const QStringList typesList = orderedTypeNames();
         return typesList;
     }
 
@@ -79,7 +79,8 @@ private:
             {DataType::Unknown, "Unknown"},
             {DataType::String, "String"},
             {DataType::Url, "Url"},
-            {DataType::Number, "Number"},
+            {DataType::Real, "Real"},
+            {DataType::Integer, "Integer"},
             {DataType::Boolean, "Boolean"},
             {DataType::Image, "Image"},
             {DataType::Color, "Color"},
@@ -94,6 +95,29 @@ private:
             stringTypeHash.insert(transferItem.second, transferItem.first);
 
         return stringTypeHash;
+    }
+
+    static QStringList orderedTypeNames()
+    {
+        const QList<DataType> orderedtypes{
+            DataType::String,
+            DataType::Integer,
+            DataType::Real,
+            DataType::Image,
+            DataType::Color,
+            DataType::Url,
+            DataType::Boolean,
+            DataType::Unknown,
+        };
+
+        QStringList orderedNames;
+        QHash<DataType, QString> typeStringHash = typeToStringHash();
+
+        for (const DataType &type : orderedtypes)
+            orderedNames.append(typeStringHash.take(type));
+
+        Q_ASSERT(typeStringHash.isEmpty());
+        return orderedNames;
     }
 };
 
