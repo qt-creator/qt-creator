@@ -181,8 +181,7 @@ static QVector<FolderNode::LocationInfo> extractBacktraceInformation(
 
         const size_t fileIndex = static_cast<size_t>(btNode.file);
         QTC_ASSERT(fileIndex < backtraces.files.size(), break);
-        const FilePath path = sourceDir.pathAppended(backtraces.files[fileIndex]).absoluteFilePath();
-
+        const FilePath path = sourceDir.resolvePath(backtraces.files[fileIndex]);
         if (btNode.command < 0) {
             // No command, skip: The file itself is already covered:-)
             continue;
