@@ -311,17 +311,17 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
 
 bool DiffEditorDocument::selectEncoding()
 {
-    Core::CodecSelector codecSelector(Core::ICore::dialogParent(), this);
-    switch (codecSelector.exec()) {
-    case Core::CodecSelector::Reload: {
-        setCodec(codecSelector.selectedCodec());
+    const CodecSelectorResult result = askForCodec(Core::ICore::dialogParent(), this);
+    switch (result.action) {
+    case CodecSelectorResult::Reload: {
+        setCodec(result.codec);
         QString errorMessage;
         return reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents);
     }
-    case Core::CodecSelector::Save:
-        setCodec(codecSelector.selectedCodec());
+    case CodecSelectorResult::Save:
+        setCodec(result.codec);
         return Core::EditorManager::saveDocument(this);
-    case Core::CodecSelector::Cancel:
+    case CodecSelectorResult::Cancel:
         break;
     }
     return false;

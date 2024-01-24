@@ -5,44 +5,22 @@
 
 #include "../core_global.h"
 
-#include <QDialog>
-#include <QLabel>
-#include <QDialogButtonBox>
-#include <QListWidget>
 #include <QTextCodec>
+#include <QWidget>
 
-namespace Utils { class ListWidget; }
-namespace Core { class BaseTextDocument; }
+namespace Core {
+class BaseTextDocument;
+}
 
 namespace Core {
 
-class CORE_EXPORT CodecSelector : public QDialog
+struct CORE_EXPORT CodecSelectorResult
 {
-    Q_OBJECT
-
-public:
-
-    CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
-    ~CodecSelector() override;
-
-    QTextCodec *selectedCodec() const;
-
-    // Enumeration returned from QDialog::exec()
-    enum Result {
-        Cancel, Reload, Save
-    };
-
-private:
-    void updateButtons();
-    void buttonClicked(QAbstractButton *button);
-
-    bool m_hasDecodingError;
-    bool m_isModified;
-    QLabel *m_label;
-    Utils::ListWidget *m_listWidget;
-    QDialogButtonBox *m_dialogButtonBox;
-    QAbstractButton *m_reloadButton;
-    QAbstractButton *m_saveButton;
+    enum Action { Cancel, Reload, Save };
+    Action action;
+    QTextCodec *codec;
 };
+
+CORE_EXPORT CodecSelectorResult askForCodec(QWidget *parent, Core::BaseTextDocument *doc);
 
 } // namespace Core

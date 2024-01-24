@@ -1816,22 +1816,22 @@ void TextEditorWidgetPrivate::clearCurrentSuggestion()
 void TextEditorWidget::selectEncoding()
 {
     TextDocument *doc = d->m_document.data();
-    CodecSelector codecSelector(this, doc);
-
-    switch (codecSelector.exec()) {
-    case CodecSelector::Reload: {
+    const CodecSelectorResult result = Core::askForCodec(Core::ICore::dialogParent(), doc);
+    switch (result.action) {
+    case Core::CodecSelectorResult::Reload: {
         QString errorString;
-        if (!doc->reload(&errorString, codecSelector.selectedCodec())) {
+        if (!doc->reload(&errorString, result.codec)) {
             QMessageBox::critical(this, Tr::tr("File Error"), errorString);
             break;
         }
-        break; }
-    case CodecSelector::Save:
-        doc->setCodec(codecSelector.selectedCodec());
+        break;
+    }
+    case Core::CodecSelectorResult::Save:
+        doc->setCodec(result.codec);
         EditorManager::saveDocument(textDocument());
         updateTextCodecLabel();
         break;
-    case CodecSelector::Cancel:
+    case Core::CodecSelectorResult::Cancel:
         break;
     }
 }
