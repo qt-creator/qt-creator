@@ -1357,6 +1357,8 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
                           qWarning("Group done handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_doneHandler
                     = child.m_groupData.m_groupHandler.m_doneHandler;
+                m_groupData.m_groupHandler.m_callDoneIf
+                    = child.m_groupData.m_groupHandler.m_callDoneIf;
             }
             if (child.m_groupData.m_parallelLimit) {
                 QT_ASSERT(!m_groupData.m_parallelLimit,
