@@ -61,21 +61,6 @@
     \endlist
 
     \if defined(qtcreator)
-    \section1 Related Topics
-
-    \list
-
-        \li \l {Using GitHub Copilot}
-
-            The Copilot plugin (disabled by default) integrates
-            \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
-            You can view suggestions from Copilot in the code editor.
-
-        \li \l{Editing MIME Types}
-
-            \QC uses the MIME type of a file to determine which mode and editor
-            to use for opening the file. If your files do not match the
-            predefined MIME types, you can edit the MIME types.
-    \endlist
+    \sa {Using GitHub Copilot}
     \endif
 */

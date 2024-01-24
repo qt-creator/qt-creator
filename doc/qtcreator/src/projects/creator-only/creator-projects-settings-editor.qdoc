@@ -15,9 +15,9 @@
 
     \title Specify editor settings
 
-    \QC uses the \l{Editing MIME Types}{MIME type} of the file to
-    determine which mode and editor to use for opening the file. For example,
-    \QC opens .txt files in \uicontrol Edit mode in the text editor.
+    \QC uses the MIME type of the file to determine which mode and editor to use
+    for opening the file. For example, \QC opens .txt files in \uicontrol Edit
+    mode in the text editor.
 
     To configure the text editor behavior for the current project:
 
@@ -38,6 +38,6 @@
 
     \sa {Configuring Fonts}, {File Encoding},
     {Moving to Symbol Definition or Declaration}, {Indent text or code},
-    {Selecting Line Ending Style}, {Semantic Highlighting},
-    {View function tooltips}
+    {Edit MIME types}, {Selecting Line Ending Style},
+    {Semantic Highlighting}, {View function tooltips}
 */

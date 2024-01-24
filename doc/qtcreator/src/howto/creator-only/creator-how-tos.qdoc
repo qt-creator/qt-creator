@@ -57,6 +57,10 @@
 
     \generatelist creator-how-to-edit
 
+    \section2 Configure Editors
+
+    \generatelist creator-how-to-configure-editors
+
     \section2 Manage Language Servers
 
     \generatelist creator-how-to-lsp

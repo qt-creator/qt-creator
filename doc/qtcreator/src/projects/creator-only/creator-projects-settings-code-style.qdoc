@@ -11,11 +11,11 @@
     \page creator-code-style-settings.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-configure-editors
 
     \title Specify code style
 
-    The \l{Editing MIME Types}{MIME type} of the file determines which mode
+    The MIME type of the file determines which mode
     and editor the file opens in. \QC opens C++ files in \uicontrol Edit mode
     in the C++ code editor and QML files in the Qt Quick editor.
 
@@ -62,5 +62,6 @@
     please select \uicontrol Help > \uicontrol {Report Bug} to report
     the bug and and attach the code that triggers the crash.
 
-    \sa {Indent text or code}, {C++ Code Style}, {Qt Quick Code Style}, {Nim}
+    \sa {Indent text or code}, {Edit MIME types}, {C++ Code Style},
+    {Qt Quick Code Style}, {Nim}
 */
