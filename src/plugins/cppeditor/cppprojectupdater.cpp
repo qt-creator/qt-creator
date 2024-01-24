@@ -66,9 +66,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
             tasks.append(compiler->compileFileItem());
     }
 
-    const auto onDone = [this, storage, compilers](DoneWith result) {
-        if (result != DoneWith::Success)
-            return;
+    const auto onDone = [this, storage, compilers] {
         QList<ExtraCompiler *> extraCompilers;
         QSet<FilePath> compilerFiles;
         for (const QPointer<ExtraCompiler> &compiler : compilers) {
@@ -85,7 +83,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     const Group root {
         storage,
         Group(tasks),
-        onGroupDone(onDone)
+        onGroupDone(onDone, CallDoneIf::Success)
     };
     m_taskTreeRunner.start(root, [](TaskTree *taskTree) {
         auto progress = new Core::TaskProgress(taskTree);
