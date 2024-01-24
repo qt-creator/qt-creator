@@ -7,7 +7,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QAction>
+#include <utils/parameteraction.h>
 
 namespace TextEditor::Internal {
 
@@ -18,13 +18,13 @@ public:
 
 private:
     TextEditor::TextEditorActionHandler m_actionHandler;
-    QAction m_emphasisAction;
-    QAction m_strongAction;
-    QAction m_inlineCodeAction;
-    QAction m_linkAction;
-    QAction m_toggleEditorAction;
-    QAction m_togglePreviewAction;
-    QAction m_swapAction;
+    Utils::ParameterAction m_emphasisAction;
+    Utils::ParameterAction m_strongAction;
+    Utils::ParameterAction m_inlineCodeAction;
+    Utils::ParameterAction m_linkAction;
+    Utils::ParameterAction m_toggleEditorAction;
+    Utils::ParameterAction m_togglePreviewAction;
+    Utils::ParameterAction m_swapAction;
 };
 
 } // TextEditor::Internal

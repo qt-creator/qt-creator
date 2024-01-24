@@ -19,10 +19,11 @@ public:
     enum EnablingMode { AlwaysEnabled, EnabledWithParameter };
     Q_ENUM(EnablingMode)
 
-    explicit ParameterAction(const QString &emptyText,
-                             const QString &parameterText,
-                             EnablingMode em = AlwaysEnabled,
-                             QObject *parent = nullptr);
+    explicit ParameterAction(QObject *parent = nullptr);
+    ParameterAction(const QString &emptyText,
+                    const QString &parameterText,
+                    EnablingMode em = AlwaysEnabled,
+                    QObject *parent = nullptr);
 
     QString emptyText() const;
     void setEmptyText(const QString &);

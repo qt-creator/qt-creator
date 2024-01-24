@@ -24,14 +24,18 @@
 
 namespace Utils {
 
+ParameterAction::ParameterAction(QObject *parent)
+    : ParameterAction({}, {}, AlwaysEnabled, parent)
+{}
+
 ParameterAction::ParameterAction(const QString &emptyText,
-                                     const QString &parameterText,
-                                     EnablingMode mode,
-                                     QObject* parent) :
-    QAction(emptyText, parent),
-    m_emptyText(emptyText),
-    m_parameterText(parameterText),
-    m_enablingMode(mode)
+                                 const QString &parameterText,
+                                 EnablingMode mode,
+                                 QObject *parent)
+    : QAction(emptyText, parent)
+    , m_emptyText(emptyText)
+    , m_parameterText(parameterText)
+    , m_enablingMode(mode)
 {
 }
 

@@ -75,8 +75,8 @@ class ActionBuilderPrivate
 {
 public:
     ActionBuilderPrivate(QObject *contextActionParent, const Id actionId)
-        : contextAction(new ParameterAction({}, {}, ParameterAction::AlwaysEnabled, contextActionParent))
-        , actionId(actionId)
+        : actionId(actionId)
+        , m_parent(contextActionParent)
     {
         command = ActionManager::createCommand(actionId);
     }
@@ -84,15 +84,40 @@ public:
     void registerAction()
     {
         QTC_ASSERT(actionId.isValid(), return);
-        ActionManager::registerAction(contextAction, actionId, context, scriptable);
+        ActionManager::registerAction(contextAction(), actionId, context, scriptable);
     }
 
-    ParameterAction *contextAction = nullptr;
+    ParameterAction *contextAction()
+    {
+        if (!m_contextAction) {
+            QTC_CHECK(m_parent);
+            m_contextAction = new ParameterAction(m_parent);
+        }
+        return m_contextAction;
+    }
+
+    void adopt(ParameterAction *action)
+    {
+        QTC_ASSERT(!m_contextAction,
+                   qWarning() << QLatin1String("Cannot adopt context action for \"%1\"after it "
+                                               "already has been created.")
+                                     .arg(actionId.toString());
+                   return);
+        QTC_ASSERT(action,
+                   qWarning() << QLatin1String("Adopt called with nullptr action for \"%1\".")
+                                     .arg(actionId.toString()));
+        m_contextAction = action;
+    }
+
     Command *command = nullptr;
 
     Id actionId;
     Context context{Constants::C_GLOBAL};
     bool scriptable = false;
+
+private:
+    QObject *m_parent = nullptr;
+    ParameterAction *m_contextAction = nullptr;
 };
 
 /*!
@@ -111,8 +136,6 @@ public:
 */
 
 /*!
-    \fn ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
-
     Constructs an action builder for an action with the Id \a actionId.
 
     The \a contextActionParent is used to provide a QObject parent for the
@@ -122,21 +145,23 @@ public:
  */
 ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
     : d(new ActionBuilderPrivate(contextActionParent, actionId))
-{
-}
+{}
 
 /*!
-    \fn ActionBuilder::~ActionBuilder
-
     Registers the created action with the set properties.
 
     \sa ActionManager::registerAction()
 */
-
 ActionBuilder::~ActionBuilder()
 {
     d->registerAction();
     delete d;
+}
+
+ActionBuilder &ActionBuilder::adopt(Utils::ParameterAction *action)
+{
+    d->adopt(action);
+    return *this;
 }
 
 /*!
@@ -146,7 +171,7 @@ ActionBuilder::~ActionBuilder()
 */
 ActionBuilder &ActionBuilder::setText(const QString &text)
 {
-    d->contextAction->setText(text);
+    d->contextAction()->setText(text);
     return *this;
 }
 
@@ -157,13 +182,13 @@ ActionBuilder &ActionBuilder::setText(const QString &text)
 */
 ActionBuilder &ActionBuilder::setIconText(const QString &iconText)
 {
-    d->contextAction->setIconText(iconText);
+    d->contextAction()->setIconText(iconText);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setToolTip(const QString &toolTip)
 {
-    d->contextAction->setToolTip(toolTip);
+    d->contextAction()->setToolTip(toolTip);
     return *this;
 }
 
@@ -199,7 +224,7 @@ ActionBuilder &ActionBuilder::addToContainers(QList<Id> containerIds, Id groupId
 
 ActionBuilder &ActionBuilder::addOnTriggered(const std::function<void()> &func)
 {
-    QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
+    QObject::connect(d->contextAction(), &QAction::triggered, d->contextAction(), func);
     return *this;
 }
 
@@ -223,13 +248,13 @@ ActionBuilder &ActionBuilder::setDefaultKeySequence(const QString &mac, const QS
 
 ActionBuilder &ActionBuilder::setIcon(const QIcon &icon)
 {
-    d->contextAction->setIcon(icon);
+    d->contextAction()->setIcon(icon);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setIconVisibleInMenu(bool on)
 {
-    d->contextAction->setIconVisibleInMenu(on);
+    d->contextAction()->setIconVisibleInMenu(on);
     return *this;
 }
 
@@ -247,31 +272,31 @@ ActionBuilder &ActionBuilder::setTouchBarText(const QString &text)
 
 ActionBuilder &ActionBuilder::setEnabled(bool on)
 {
-    d->contextAction->setEnabled(on);
+    d->contextAction()->setEnabled(on);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setChecked(bool on)
 {
-    d->contextAction->setChecked(on);
+    d->contextAction()->setChecked(on);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setVisible(bool on)
 {
-    d->contextAction->setVisible(on);
+    d->contextAction()->setVisible(on);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setCheckable(bool on)
 {
-    d->contextAction->setCheckable(on);
+    d->contextAction()->setCheckable(on);
     return *this;
 }
 
 ActionBuilder &ActionBuilder::setSeperator(bool on)
 {
-    d->contextAction->setSeparator(on);
+    d->contextAction()->setSeparator(on);
     return *this;
 }
 
@@ -283,7 +308,7 @@ ActionBuilder &ActionBuilder::setScriptable(bool on)
 
 ActionBuilder &ActionBuilder::setMenuRole(QAction::MenuRole role)
 {
-    d->contextAction->setMenuRole(role);
+    d->contextAction()->setMenuRole(role);
     return *this;
 }
 
@@ -294,12 +319,12 @@ ActionBuilder &ActionBuilder::setParameterText(const QString &parameterText,
     QTC_CHECK(parameterText.contains("%1"));
     QTC_CHECK(!emptyText.contains("%1"));
 
-    d->contextAction->setEmptyText(emptyText);
-    d->contextAction->setParameterText(parameterText);
-    d->contextAction->setEnablingMode(mode == AlwaysEnabled
-                                   ? ParameterAction::AlwaysEnabled
-                                   : ParameterAction::EnabledWithParameter);
-    d->contextAction->setText(emptyText);
+    d->contextAction()->setEmptyText(emptyText);
+    d->contextAction()->setParameterText(parameterText);
+    d->contextAction()->setEnablingMode(mode == AlwaysEnabled
+                                            ? ParameterAction::AlwaysEnabled
+                                            : ParameterAction::EnabledWithParameter);
+    d->contextAction()->setText(emptyText);
     return *this;
 }
 
@@ -320,31 +345,31 @@ QAction *ActionBuilder::commandAction() const
 
 QAction *ActionBuilder::contextAction() const
 {
-    return d->contextAction;
+    return d->contextAction();
 }
 
 ParameterAction *ActionBuilder::contextParameterAction() const
 {
-    return d->contextAction;
+    return d->contextAction();
 }
 
 ActionBuilder &ActionBuilder::bindContextAction(QAction **dest)
 {
     QTC_ASSERT(dest, return *this);
-    *dest = d->contextAction;
+    *dest = d->contextAction();
     return *this;
 }
 
 ActionBuilder &ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
 {
     QTC_ASSERT(dest, return *this);
-    *dest = d->contextAction;
+    *dest = d->contextAction();
     return *this;
 }
 
 ActionBuilder &ActionBuilder::augmentActionWithShortcutToolTip()
 {
-    d->command->augmentActionWithShortcutToolTip(d->contextAction);
+    d->command->augmentActionWithShortcutToolTip(d->contextAction());
     return *this;
 }
 

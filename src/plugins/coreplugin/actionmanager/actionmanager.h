@@ -31,6 +31,8 @@ public:
     ActionBuilder(QObject *contextActionParent, const Utils::Id actionId);
     ~ActionBuilder();
 
+    ActionBuilder &adopt(Utils::ParameterAction *action);
+
     ActionBuilder &setContext(const Utils::Id id);
     ActionBuilder &setContext(const Core::Context &context);
     ActionBuilder &setText(const QString &text);

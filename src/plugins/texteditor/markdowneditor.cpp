@@ -510,57 +510,76 @@ MarkdownEditorFactory::MarkdownEditorFactory()
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
     const auto context = Context(MARKDOWNVIEWER_ID);
-    Command *cmd = nullptr;
-    cmd = ActionManager::registerAction(&m_emphasisAction, EMPHASIS_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Emphasis"));
-    QObject::connect(&m_emphasisAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerEmphasis();
-    });
-    cmd = ActionManager::registerAction(&m_strongAction, STRONG_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Strong"));
-    QObject::connect(&m_strongAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerStrong();
-    });
-    cmd = ActionManager::registerAction(&m_inlineCodeAction, INLINECODE_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Inline Code"));
-    QObject::connect(&m_inlineCodeAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerInlineCode();
-    });
-    cmd = ActionManager::registerAction(&m_linkAction, LINK_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Hyperlink"));
-    QObject::connect(&m_linkAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerLink();
-    });
 
-    cmd = ActionManager::registerAction(&m_toggleEditorAction, TOGGLEEDITOR_ACTION, context);
-    cmd->setDescription(Tr::tr("Show Editor"));
-    QObject::connect(&m_toggleEditorAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->toggleEditor();
-    });
-    cmd = ActionManager::registerAction(&m_togglePreviewAction, TOGGLEPREVIEW_ACTION, context);
-    cmd->setDescription(Tr::tr("Show Preview"));
-    QObject::connect(&m_togglePreviewAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->togglePreview();
-    });
-    cmd = ActionManager::registerAction(&m_swapAction, SWAPVIEWS_ACTION, context);
-    cmd->setDescription(Tr::tr("Swap Views"));
-    QObject::connect(&m_swapAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->swapViews();
-    });
+    ActionBuilder(nullptr, EMPHASIS_ACTION)
+        .adopt(&m_emphasisAction)
+        .setText(Tr::tr("Emphasis"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerEmphasis();
+        });
+
+    ActionBuilder(nullptr, STRONG_ACTION)
+        .adopt(&m_strongAction)
+        .setText("Strong")
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerStrong();
+        });
+
+    ActionBuilder(nullptr, INLINECODE_ACTION)
+        .adopt(&m_inlineCodeAction)
+        .setText(Tr::tr("Inline Code"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerInlineCode();
+        });
+
+    ActionBuilder(nullptr, LINK_ACTION)
+        .adopt(&m_linkAction)
+        .setText(Tr::tr("Hyperlink"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerLink();
+        });
+
+    ActionBuilder(nullptr, TOGGLEEDITOR_ACTION)
+        .adopt(&m_toggleEditorAction)
+        .setText(Tr::tr("Show Editor"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->toggleEditor();
+        });
+
+    ActionBuilder(nullptr, TOGGLEPREVIEW_ACTION)
+        .adopt(&m_togglePreviewAction)
+        .setText(Tr::tr("Show Preview"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->togglePreview();
+        });
+
+    ActionBuilder(nullptr, SWAPVIEWS_ACTION)
+        .adopt(&m_swapAction)
+        .setText(Tr::tr("Swap Views"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->swapViews();
+        });
 }
 
 void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
