@@ -9,13 +9,13 @@ import EffectMakerBackend
 Row {
     id: itemPane
 
-    width: parent.width
     spacing: 5
 
     HelperWidgets.UrlChooser {
         backendValue: uniformBackendValue
 
         actionIndicatorVisible: false
+        comboBox.width: Math.min(parent.width - 70, 300)
 
         onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
 
