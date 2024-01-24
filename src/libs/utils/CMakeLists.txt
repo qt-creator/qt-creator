@@ -173,6 +173,7 @@ add_qtc_library(Utils
     styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
+    synchronizedvalue.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h

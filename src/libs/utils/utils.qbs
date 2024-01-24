@@ -305,6 +305,7 @@ QtcLibrary {
         "styledbar.h",
         "stylehelper.cpp",
         "stylehelper.h",
+        "synchronizedvalue.h",
         "templateengine.cpp",
         "templateengine.h",
         "temporarydirectory.cpp",
