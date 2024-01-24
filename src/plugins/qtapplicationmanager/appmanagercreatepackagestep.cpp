@@ -40,9 +40,7 @@ public:
         setDisplayName(Tr::tr("Create Application Manager package"));
 
         packager.setSettingsKey(SETTINGSPREFIX "Executable");
-        packager.setDefaultValue(getToolFilePath(Constants::APPMAN_PACKAGER,
-                                                 kit(),
-                                                 DeviceKitAspect::device(kit())));
+        packager.setDefaultValue(getToolFilePath(Constants::APPMAN_PACKAGER, kit()));
 
         arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
         arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });

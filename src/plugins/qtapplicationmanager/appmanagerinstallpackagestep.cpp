@@ -49,9 +49,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 {
     setDisplayName(Tr::tr("Install Application Manager package"));
 
-    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                               kit(),
-                                               DeviceKitAspect::device(kit())));
+    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER, kit()));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
