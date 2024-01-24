@@ -4,6 +4,8 @@
 #include "command.h"
 #include "command_p.h"
 
+#include "actionmanager.h"
+
 #include "../coreconstants.h"
 #include "../icontext.h"
 
@@ -530,8 +532,12 @@ QAction *Command::touchBarAction() const
 }
 
 /*!
-    Appends the main keyboard shortcut that is currently assigned to the action
-    \a a to its tool tip.
+    Sets the tool tip of action \a a to the action's text, augmented
+    with the command's main keyboard shortcut. The tool tip automatically
+    updates whenever the main keyboard shortcut or the action's text
+    changes.
+    \sa stringWithAppendedShortcut()
+    \sa createActionWithShortcutToolTip()
 */
 void Command::augmentActionWithShortcutToolTip(QAction *a) const
 {
@@ -542,6 +548,26 @@ void Command::augmentActionWithShortcutToolTip(QAction *a) const
     QObject::connect(a, &QAction::changed, this, [this, a] {
         a->setToolTip(stringWithAppendedShortcut(a->text()));
     });
+}
+
+/*!
+    Returns a new QAction with the command's icon, icon text, and text, that
+    given by \a commandId. Sets the button's parent to \a parent.
+    The action's tool tip is the action's text, augmented with the command's
+    main keyboard shortcut. Other properties of the action are not updated
+    automatically.
+    \sa augmentActionWithShortcutToolTip()
+*/
+QAction *Command::createActionWithShortcutToolTip(Id commandId, QObject *parent)
+{
+    auto a = new QAction(parent);
+    Command *cmd = ActionManager::command(commandId);
+    QTC_ASSERT(cmd, return a);
+    a->setIcon(cmd->action()->icon());
+    a->setIconText(cmd->action()->iconText());
+    a->setText(cmd->action()->text());
+    cmd->augmentActionWithShortcutToolTip(a);
+    return a;
 }
 
 /*!

@@ -10,7 +10,6 @@
 #include "imageviewertr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -30,6 +29,7 @@
 #include <QMenu>
 #include <QSpacerItem>
 #include <QToolBar>
+#include <QToolButton>
 
 using namespace Core;
 using namespace Utils;
@@ -75,16 +75,16 @@ private:
     QWidget *m_toolbar;
 
     QToolButton *m_shareButton;
-    CommandAction *m_actionExportImage;
-    CommandAction *m_actionMultiExportImages;
-    CommandAction *m_actionButtonCopyDataUrl;
-    CommandAction *m_actionBackground;
-    CommandAction *m_actionOutline;
-    CommandAction *m_actionFitToScreen;
-    CommandAction *m_actionOriginalSize;
-    CommandAction *m_actionZoomIn;
-    CommandAction *m_actionZoomOut;
-    CommandAction *m_actionPlayPause;
+    QAction *m_actionExportImage;
+    QAction *m_actionMultiExportImages;
+    QAction *m_actionButtonCopyDataUrl;
+    QAction *m_actionBackground;
+    QAction *m_actionOutline;
+    QAction *m_actionFitToScreen;
+    QAction *m_actionOriginalSize;
+    QAction *m_actionZoomIn;
+    QAction *m_actionZoomOut;
+    QAction *m_actionPlayPause;
     QLabel *m_labelImageSize;
     QLabel *m_labelInfo;
 };
@@ -131,10 +131,12 @@ void ImageViewer::ctor()
     // toolbar
     m_toolbar = new StyledBar;
 
-    m_actionExportImage = new CommandAction(Constants::ACTION_EXPORT_IMAGE, m_toolbar);
-    m_actionMultiExportImages = new CommandAction(Constants::ACTION_EXPORT_MULTI_IMAGES,
-                                                   m_toolbar);
-    m_actionButtonCopyDataUrl = new CommandAction(Constants::ACTION_COPY_DATA_URL, m_toolbar);
+    m_actionExportImage = Command::createActionWithShortcutToolTip(Constants::ACTION_EXPORT_IMAGE,
+                                                                   m_toolbar);
+    m_actionMultiExportImages
+        = Command::createActionWithShortcutToolTip(Constants::ACTION_EXPORT_MULTI_IMAGES, m_toolbar);
+    m_actionButtonCopyDataUrl
+        = Command::createActionWithShortcutToolTip(Constants::ACTION_COPY_DATA_URL, m_toolbar);
     m_shareButton = new QToolButton;
     m_shareButton->setToolTip(Tr::tr("Export"));
     m_shareButton->setPopupMode(QToolButton::InstantPopup);
@@ -146,13 +148,17 @@ void ImageViewer::ctor()
     shareMenu->addAction(m_actionButtonCopyDataUrl);
     m_shareButton->setMenu(shareMenu);
 
-    m_actionBackground = new CommandAction(Constants::ACTION_BACKGROUND, m_toolbar);
-    m_actionOutline = new CommandAction(Constants::ACTION_OUTLINE, m_toolbar);
-    m_actionFitToScreen = new CommandAction(Constants::ACTION_FIT_TO_SCREEN, m_toolbar);
-    m_actionOriginalSize = new CommandAction(Core::Constants::ZOOM_RESET, m_toolbar);
-    m_actionZoomIn = new CommandAction(Core::Constants::ZOOM_IN, m_toolbar);
-    m_actionZoomOut = new CommandAction(Core::Constants::ZOOM_OUT, m_toolbar);
-    m_actionPlayPause = new CommandAction(Constants::ACTION_TOGGLE_ANIMATION, m_toolbar);
+    m_actionBackground = Command::createActionWithShortcutToolTip(Constants::ACTION_BACKGROUND,
+                                                                  m_toolbar);
+    m_actionOutline = Command::createActionWithShortcutToolTip(Constants::ACTION_OUTLINE, m_toolbar);
+    m_actionFitToScreen = Command::createActionWithShortcutToolTip(Constants::ACTION_FIT_TO_SCREEN,
+                                                                   m_toolbar);
+    m_actionOriginalSize = Command::createActionWithShortcutToolTip(Core::Constants::ZOOM_RESET,
+                                                                    m_toolbar);
+    m_actionZoomIn = Command::createActionWithShortcutToolTip(Core::Constants::ZOOM_IN, m_toolbar);
+    m_actionZoomOut = Command::createActionWithShortcutToolTip(Core::Constants::ZOOM_OUT, m_toolbar);
+    m_actionPlayPause = Command::createActionWithShortcutToolTip(Constants::ACTION_TOGGLE_ANIMATION,
+                                                                 m_toolbar);
 
     m_actionBackground->setCheckable(true);
     m_actionBackground->setChecked(settings.showBackground);
@@ -395,19 +401,19 @@ void ImageViewer::updatePauseAction()
 {
     const bool isMovie = m_file->type() == ImageViewerFile::TypeMovie;
     const QMovie::MovieState state = isMovie ? m_file->movie()->state() : QMovie::NotRunning;
-    CommandAction *a = m_actionPlayPause;
+    QAction *a = m_actionPlayPause;
     switch (state) {
     case QMovie::NotRunning:
-        a->setToolTipBase(Tr::tr("Play Animation"));
+        a->setText(Tr::tr("Play Animation"));
         a->setIcon(Icons::RUN_SMALL_TOOLBAR.icon());
         a->setEnabled(isMovie);
         break;
     case QMovie::Paused:
-        a->setToolTipBase(Tr::tr("Resume Paused Animation"));
+        a->setText(Tr::tr("Resume Paused Animation"));
         a->setIcon(Icons::CONTINUE_SMALL_TOOLBAR.icon());
         break;
     case QMovie::Running:
-        a->setToolTipBase(Tr::tr("Pause Animation"));
+        a->setText(Tr::tr("Pause Animation"));
         a->setIcon(Icons::INTERRUPT_SMALL_TOOLBAR.icon());
         break;
     }
