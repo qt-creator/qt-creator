@@ -40,7 +40,7 @@ VcpkgSettings::VcpkgSettings()
     if (!defaultPath.isDir())
         defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
     if (defaultPath.isDir())
-        vcpkgRoot.setDefaultValue(defaultPath.toUserOutput());
+        vcpkgRoot.setDefaultPathValue(defaultPath);
 
     connect(this, &AspectContainer::applied, this, &VcpkgSettings::setVcpkgRootEnvironmentVariable);
 

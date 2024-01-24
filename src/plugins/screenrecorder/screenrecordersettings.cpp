@@ -57,7 +57,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     const FilePath ffmpegDefault
         = Environment::systemEnvironment().searchInPath(Constants::FFMPEG_COMMAND,
                                                         FileUtils::usefulExtraSearchPaths());
-    ffmpegTool.setDefaultValue(ffmpegDefault.toUserOutput());
+    ffmpegTool.setDefaultPathValue(ffmpegDefault);
     ffmpegTool.setLabelText(Tr::tr("ffmpeg tool:"));
 
     ffprobeTool.setSettingsKey("FFprobeTool");
@@ -66,7 +66,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     const FilePath ffprobeDefault
         = Environment::systemEnvironment().searchInPath(Constants::FFPROBE_COMMAND,
                                                         FileUtils::usefulExtraSearchPaths());
-    ffprobeTool.setDefaultValue(ffprobeDefault.toUserOutput());
+    ffprobeTool.setDefaultPathValue(ffprobeDefault);
     ffprobeTool.setLabelText(Tr::tr("ffprobe tool:"));
 
     captureCursor.setSettingsKey("CaptureCursor");

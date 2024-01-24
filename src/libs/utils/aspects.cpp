@@ -1442,6 +1442,11 @@ void FilePathAspect::setDefaultValue(const QString &filePath)
     TypedAspect::setDefaultValue(filePath);
 }
 
+void FilePathAspect::setDefaultPathValue(const FilePath &filePath)
+{
+    TypedAspect::setDefaultValue(filePath.toUserOutput());
+}
+
 /*!
     Adds a check box with a \a checkerLabel according to \a checkBoxPlacement
     to the line edit.

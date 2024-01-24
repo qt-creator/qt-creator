@@ -666,6 +666,7 @@ public:
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);
     void setDefaultValue(const QString &filePath);
+    void setDefaultPathValue(const FilePath &filePath);
 
     void setPromptDialogFilter(const QString &filter);
     void setPromptDialogTitle(const QString &title);
