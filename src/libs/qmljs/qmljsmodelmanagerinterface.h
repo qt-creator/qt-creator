@@ -291,6 +291,13 @@ private:
 private:
     QList<Utils::FilePath> importPathsNames(const SyncedData &lockedData) const;
 
+    static bool findNewQmlApplicationInPath(
+        const Utils::FilePath &path,
+        const Snapshot &snapshot,
+        ModelManagerInterface *modelManager,
+        QSet<Utils::FilePath> *newLibraries,
+        Utils::SynchronizedValue<ModelManagerInterface::SyncedData>::unique_lock &lock);
+
     static void findNewLibraryImports(const Document::Ptr &doc,
                                       const Snapshot &snapshot,
                                       ModelManagerInterface *modelManager,
@@ -310,7 +317,7 @@ private:
 
     void updateLibraryInfo(const Utils::FilePath &path,
                            const QmlJS::LibraryInfo &info,
-                           SyncedData &lockedData);
+                           Utils::SynchronizedValue<SyncedData>::unique_lock &lock);
 };
 
 } // namespace QmlJS

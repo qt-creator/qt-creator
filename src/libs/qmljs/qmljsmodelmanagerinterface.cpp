@@ -720,13 +720,13 @@ void ModelManagerInterface::updateDocument(const Document::Ptr &doc)
 
 void ModelManagerInterface::updateLibraryInfo(const FilePath &path,
                                               const LibraryInfo &info,
-                                              SyncedData &lockedData)
+                                              SynchronizedValue<SyncedData>::unique_lock &lock)
 {
     if (!info.pluginTypeInfoError().isEmpty())
         qCDebug(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
 
-    lockedData.m_validSnapshot.insertLibraryInfo(path, info);
-    lockedData.m_newestSnapshot.insertLibraryInfo(path, info);
+    lock->m_validSnapshot.insertLibraryInfo(path, info);
+    lock->m_newestSnapshot.insertLibraryInfo(path, info);
 
     // only emit if we got new useful information
     if (info.isValid())
@@ -735,7 +735,8 @@ void ModelManagerInterface::updateLibraryInfo(const FilePath &path,
 
 void ModelManagerInterface::updateLibraryInfo(const FilePath &path, const LibraryInfo &info)
 {
-    m_syncedData.write([&path, &info, this](SyncedData &sd) { updateLibraryInfo(path, info, sd); });
+    SynchronizedValue<SyncedData>::unique_lock lock = m_syncedData.writeLocked();
+    updateLibraryInfo(path, info, lock);
 }
 
 static QList<Utils::FilePath> filesInDirectoryForLanguages(const Utils::FilePath &path,
@@ -836,10 +837,12 @@ static LibraryStatus libraryStatus(const FilePath &path,
             : LibraryStatus::Unknown;
 }
 
-static bool findNewQmlApplicationInPath(const FilePath &path,
-                                        const Snapshot &snapshot,
-                                        ModelManagerInterface *modelManager,
-                                        QSet<FilePath> *newLibraries)
+bool ModelManagerInterface::findNewQmlApplicationInPath(
+    const FilePath &path,
+    const Snapshot &snapshot,
+    ModelManagerInterface *modelManager,
+    QSet<FilePath> *newLibraries,
+    SynchronizedValue<SyncedData>::unique_lock &lock)
 {
     switch (libraryStatus(path, snapshot, newLibraries)) {
     case LibraryStatus::Accepted: return true;
@@ -860,8 +863,10 @@ static bool findNewQmlApplicationInPath(const FilePath &path,
     LibraryInfo libraryInfo = LibraryInfo(qmltypesFile.toString());
     const Utils::FilePath libraryPath = path.absolutePath();
     newLibraries->insert(libraryPath);
-    modelManager->updateLibraryInfo(path, libraryInfo);
+    modelManager->updateLibraryInfo(path, libraryInfo, lock);
+    lock.unlock();
     modelManager->loadPluginTypes(libraryPath.canonicalPath(), libraryPath, QString(), QString());
+    lock.lock();
     return true;
 }
 
@@ -885,7 +890,7 @@ bool ModelManagerInterface::findNewQmlLibraryInPath(const Utils::FilePath &path,
         if (!ignoreMissing) {
             LibraryInfo libraryInfo(LibraryInfo::NotFound);
             if (lock)
-                modelManager->updateLibraryInfo(path, libraryInfo, **lock);
+                modelManager->updateLibraryInfo(path, libraryInfo, *lock);
             else
                 modelManager->updateLibraryInfo(path, libraryInfo);
         }
@@ -908,7 +913,7 @@ bool ModelManagerInterface::findNewQmlLibraryInPath(const Utils::FilePath &path,
     const Utils::FilePath libraryPath = qmldirFile.absolutePath();
     newLibraries->insert(libraryPath);
     if (lock)
-        modelManager->updateLibraryInfo(libraryPath, LibraryInfo(qmldirParser), **lock);
+        modelManager->updateLibraryInfo(libraryPath, LibraryInfo(qmldirParser), *lock);
     else
         modelManager->updateLibraryInfo(libraryPath, LibraryInfo(qmldirParser));
 
@@ -1379,7 +1384,7 @@ void ModelManagerInterface::updateImportPaths()
 
     for (const Utils::FilePath &path : std::as_const(allApplicationDirectories)) {
         allImportPaths.maybeInsert(path, Dialect::Qml);
-        findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
+        findNewQmlApplicationInPath(path, snapshot, this, &newLibraries, lock);
     }
     for (const Utils::FilePath &qrcPath : generatedQrc(lock->m_projects.values()))
         updateQrcFile(qrcPath);
