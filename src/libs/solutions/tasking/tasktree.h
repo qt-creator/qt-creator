@@ -514,7 +514,7 @@ public:
     void setRecipe(const Group &recipe);
 
     void start();
-    void stop();
+    void cancel();
     bool isRunning() const;
 
     // Helper methods. They execute a local event loop with ExcludeUserInputEvents.

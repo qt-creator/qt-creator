@@ -3159,7 +3159,7 @@ void tst_Tasking::restart()
     TaskTree taskTree({TestTask([](TaskObject &taskObject) { taskObject = 1000ms; })});
     taskTree.start();
     QVERIFY(taskTree.isRunning());
-    taskTree.stop();
+    taskTree.cancel();
     QVERIFY(!taskTree.isRunning());
     taskTree.start();
     QVERIFY(taskTree.isRunning());

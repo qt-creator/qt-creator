@@ -2852,7 +2852,7 @@ void TaskTree::start()
 
     \sa ~TaskTree()
 */
-void TaskTree::stop()
+void TaskTree::cancel()
 {
     QT_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
                                                "TaskTree handlers, ignoring..."); return);
@@ -2907,7 +2907,7 @@ DoneWith TaskTree::runBlocking(const QFuture<void> &future)
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     });
     QFutureWatcher<void> watcher;
-    connect(&watcher, &QFutureWatcherBase::canceled, this, &TaskTree::stop);
+    connect(&watcher, &QFutureWatcherBase::canceled, this, &TaskTree::cancel);
     watcher.setFuture(future);
 
     QTimer::singleShot(0, this, &TaskTree::start);

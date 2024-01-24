@@ -26,10 +26,10 @@ void TaskTreeRunner::start(const Group &recipe,
     m_taskTree->start();
 }
 
-void TaskTreeRunner::stop()
+void TaskTreeRunner::cancel()
 {
     if (m_taskTree)
-        m_taskTree->stop();
+        m_taskTree->cancel();
 }
 
 void TaskTreeRunner::reset()

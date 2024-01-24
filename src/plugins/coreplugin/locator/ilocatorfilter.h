@@ -167,7 +167,6 @@ public:
     void setInputData(const QString &inputData);
     void setParallelLimit(int limit); // by default 0 = parallel
     void start();
-    void stop();
 
     bool isRunning() const;
     // Total data collected so far, even when running.

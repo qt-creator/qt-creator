@@ -486,11 +486,6 @@ void LocatorMatcher::start()
     });
 }
 
-void LocatorMatcher::stop()
-{
-    d->m_taskTreeRunner.stop();
-}
-
 bool LocatorMatcher::isRunning() const
 {
     return d->m_taskTreeRunner.isRunning();

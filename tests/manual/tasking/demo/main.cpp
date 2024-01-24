@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 
     const auto stopTaskTree = [&] {
         if (taskTreeRunner.isRunning())
-            taskTreeRunner.stop();
+            taskTreeRunner.cancel();
     };
 
     const auto resetTaskTree = [&] {

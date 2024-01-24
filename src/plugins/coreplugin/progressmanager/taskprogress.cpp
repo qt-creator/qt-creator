@@ -110,7 +110,7 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
         emit canceled();
         if (d->m_isAutoStopOnCancel)
-            d->m_taskTree->stop();
+            d->m_taskTree->cancel();
     });
     connect(d->m_taskTree, &TaskTree::started, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();

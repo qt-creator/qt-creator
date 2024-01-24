@@ -27,9 +27,8 @@ public:
                const SetupHandler &setupHandler = {},
                const DoneHandler &doneHandler = {});
 
-    // TODO: rename to cancel(), also in TaskTree API, adapt docs.
     // When task tree is running it emits done(DoneWith::Cancel) synchronously.
-    void stop();
+    void cancel();
 
     // No done() signal is emitted.
     void reset();
