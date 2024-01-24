@@ -84,25 +84,26 @@ public:
         : value(other)
     {}
 
-    class shared_lock
+    template <typename U, template<typename> typename LockType>
+    class Lock
     {
     public:
-        shared_lock(T const &value_, std::shared_mutex &mutex)
+        Lock(U &value_, std::shared_mutex &mutex)
             : m_lock(mutex)
             , m_value(value_)
         {}
 
-        shared_lock(T const &value_, std::shared_mutex &mutex, std::try_to_lock_t)
+        Lock(U &value_, std::shared_mutex &mutex, std::try_to_lock_t)
             : m_lock(mutex, std::try_to_lock)
             , m_value(value_)
         {}
 
-        shared_lock(T const &value_, std::shared_mutex &mutex, std::defer_lock_t)
+        Lock(U &value_, std::shared_mutex &mutex, std::defer_lock_t)
             : m_lock(mutex, std::defer_lock)
             , m_value(value_)
         {}
 
-        shared_lock(T const &value_, std::shared_mutex &mutex, std::adopt_lock_t)
+        Lock(U &value_, std::shared_mutex &mutex, std::adopt_lock_t)
             : m_lock(mutex, std::adopt_lock)
             , m_value(value_)
         {}
@@ -112,67 +113,25 @@ public:
         void lock() { m_lock.lock(); }
         void unlock() { m_lock.unlock(); }
 
-        const T *operator->() const
+        U *operator->() const
         {
             Q_ASSERT(ownsLock());
             return &m_value;
         }
 
-        const T &operator*() const
+        U &operator*() const
         {
             Q_ASSERT(ownsLock());
             return m_value;
         }
 
     private:
-        std::shared_lock<std::shared_mutex> m_lock;
-        T const &m_value;
+        LockType<std::shared_mutex> m_lock;
+        U &m_value;
     };
 
-    class unique_lock
-    {
-    public:
-        unique_lock(T &value_, std::shared_mutex &mutex)
-            : m_lock(mutex)
-            , m_value(value_)
-        {}
-
-        unique_lock(T &value_, std::shared_mutex &mutex, std::try_to_lock_t)
-            : m_lock(mutex, std::try_to_lock)
-            , m_value(value_)
-        {}
-
-        unique_lock(T &value_, std::shared_mutex &mutex, std::defer_lock_t)
-            : m_lock(mutex, std::defer_lock)
-            , m_value(value_)
-        {}
-
-        unique_lock(T &value_, std::shared_mutex &mutex, std::adopt_lock_t)
-            : m_lock(mutex, std::adopt_lock)
-            , m_value(value_)
-        {}
-
-        bool ownsLock() const { return m_lock.owns_lock(); }
-
-        void lock() { m_lock.lock(); }
-        void unlock() { m_lock.unlock(); }
-
-        T *operator->() const
-        {
-            Q_ASSERT(ownsLock());
-            return &m_value;
-        }
-
-        T &operator*() const
-        {
-            Q_ASSERT(ownsLock());
-            return m_value;
-        }
-
-    private:
-        std::unique_lock<std::shared_mutex> m_lock;
-        T &m_value;
-    };
+    using shared_lock = Lock<const T, std::shared_lock>;
+    using unique_lock = Lock<T, std::unique_lock>;
 
     [[nodiscard]] shared_lock readLocked() const { return shared_lock(value, mutex); }
     [[nodiscard]] shared_lock readLocked(std::try_to_lock_t) const
