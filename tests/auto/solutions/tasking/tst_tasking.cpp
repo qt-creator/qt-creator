@@ -597,10 +597,10 @@ void tst_Tasking::testTree_data()
             storage->m_log.append({taskId, Handler::GroupSetup});
         });
     };
-    const auto groupDone = [storage](int taskId) {
+    const auto groupDone = [storage](int taskId, CallDoneIf callIf = CallDoneIf::SuccessOrError) {
         return onGroupDone([storage, taskId](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
-        });
+        }, callIf);
     };
     const auto groupSetupWithTweak = [storage](int taskId, SetupResult desiredResult) {
         return onGroupSetup([storage, taskId, desiredResult] {
@@ -2899,6 +2899,55 @@ void tst_Tasking::testTree_data()
             << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
         QTest::newRow("LoopParallelLimit")
             << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+    }
+
+    {
+        const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
+            return Group {
+                storage,
+                Group {
+                    createTask(1, doneResult)
+                },
+                groupDone(2, callDoneIf)
+            };
+        };
+
+        const Log logSuccessLong {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::GroupSuccess}
+        };
+        const Log logSuccessShort {
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+        const Log logErrorLong {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::GroupError}
+        };
+        const Log logErrorShort {
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+        QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterSuccess")
+            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::SuccessOrError),
+                        logSuccessLong, 1, DoneWith::Success};
+        QTest::newRow("CallDoneIfGroupSuccessAfterSuccess")
+            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Success),
+                        logSuccessLong, 1, DoneWith::Success};
+        QTest::newRow("CallDoneIfGroupErrorAfterSuccess")
+            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Error),
+                        logSuccessShort, 1, DoneWith::Success};
+        QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterError")
+            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::SuccessOrError),
+                        logErrorLong, 1, DoneWith::Error};
+        QTest::newRow("CallDoneIfGroupSuccessAfterError")
+            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Success),
+                        logErrorShort, 1, DoneWith::Error};
+        QTest::newRow("CallDoneIfGroupErrorAfterError")
+            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Error),
+                        logErrorLong, 1, DoneWith::Error};
     }
 
     // This test checks if storage shadowing works OK.
