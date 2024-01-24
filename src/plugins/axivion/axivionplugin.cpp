@@ -350,8 +350,8 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [handler](DoneWith result) {
-        if (result == DoneWith::Error && handler)
+    const auto onDone = [handler] {
+        if (handler)
             handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
     };
 
@@ -366,7 +366,7 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
     const Group root {
         onGroupSetup(onSetup), // Stops if cache exists.
         fetchDataRecipe<Dto::DashboardInfoDto>(url, resultHandler),
-        onGroupDone(onDone) // TODO: Pass CallDoneIf::Error, write task tree autotest.
+        onGroupDone(onDone, CallDoneIf::Error)
     };
     return root;
 }
