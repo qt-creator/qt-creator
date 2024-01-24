@@ -94,8 +94,8 @@ public:
     explicit QdbDeployStepFactory(Id existingStepId)
     {
         cloneStepCreator(existingStepId);
-        setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::QdbLinuxOsType);
     }
 };
 
