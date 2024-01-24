@@ -61,6 +61,9 @@ public:
     static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
+    void removeCollection(const ModelNode &sourceNode, const QString &collection);
+    void removeAllCollections();
+    void renameCollection(const ModelNode &sourceNode, const QString &oldName, const QString &newName);
 
     Q_INVOKABLE bool saveDataStoreCollections();
     Q_INVOKABLE bool exportCollection(const QUrl &url);

@@ -458,6 +458,42 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     }
 }
 
+void CollectionDetailsModel::removeCollection(const ModelNode &sourceNode, const QString &collection)
+{
+    CollectionReference collectionRef{sourceNode, collection};
+    if (!m_openedCollections.contains(collectionRef))
+        return;
+
+    if (m_currentCollection.reference() == collectionRef)
+        loadCollection({}, {});
+
+    m_openedCollections.remove(collectionRef);
+}
+
+void CollectionDetailsModel::removeAllCollections()
+{
+    loadCollection({}, {});
+    m_openedCollections.clear();
+}
+
+void CollectionDetailsModel::renameCollection(const ModelNode &sourceNode,
+                                              const QString &oldName,
+                                              const QString &newName)
+{
+    CollectionReference oldRef{sourceNode, oldName};
+    if (!m_openedCollections.contains(oldRef))
+        return;
+
+    CollectionReference newReference{sourceNode, newName};
+    bool collectionIsSelected = m_currentCollection.reference() == oldRef;
+    CollectionDetails collection = m_openedCollections.take(oldRef);
+    collection.resetReference(newReference);
+    m_openedCollections.insert(newReference, collection);
+
+    if (collectionIsSelected)
+        setCollectionName(newName);
+}
+
 bool CollectionDetailsModel::saveDataStoreCollections()
 {
     const ModelNode node = m_currentCollection.reference().node;

@@ -557,6 +557,14 @@ void CollectionDetails::swap(CollectionDetails &other)
     d.swap(other.d);
 }
 
+void CollectionDetails::resetReference(const CollectionReference &reference)
+{
+    if (d->reference != reference) {
+        d->reference = reference;
+        markChanged();
+    }
+}
+
 void CollectionDetails::registerDeclarativeType()
 {
     typedef CollectionDetails::DataType DataType;

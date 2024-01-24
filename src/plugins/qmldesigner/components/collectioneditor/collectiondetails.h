@@ -103,6 +103,7 @@ public:
     bool markSaved();
 
     void swap(CollectionDetails &other);
+    void resetReference(const CollectionReference &reference);
     QString getCollectionAsJsonString() const;
     QString getCollectionAsCsvString() const;
 
