@@ -307,17 +307,16 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
 
     d->m_device = deviceConfiguration;
 
-    QList<GroupItem> taskItems = {
+    const Group root {
         d->echoTask("Hello"), // No quoting necessary
         d->echoTask("Hello Remote World!"), // Checks quoting, too.
         d->unameTask(),
         d->gathererTask(),
-        d->transferTasks()
+        d->transferTasks(),
+        d->m_extraTests,
+        d->commandTasks()
     };
-    if (!d->m_extraTests.isEmpty())
-        taskItems << Group { d->m_extraTests };
-    taskItems << d->commandTasks();
-    d->m_taskTreeRunner.start(taskItems);
+    d->m_taskTreeRunner.start(root);
 }
 
 void GenericLinuxDeviceTester::stopTest()
