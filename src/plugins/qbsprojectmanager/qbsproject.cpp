@@ -22,7 +22,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/generatedcodemodelsupport.h>
@@ -203,12 +202,6 @@ QbsBuildSystem::~QbsBuildSystem()
     m_parseRequest.reset();
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;
-    if (m_qbsUpdateFutureInterface) {
-        m_qbsUpdateFutureInterface->reportCanceled();
-        m_qbsUpdateFutureInterface->reportFinished();
-        delete m_qbsUpdateFutureInterface;
-        m_qbsUpdateFutureInterface = nullptr;
-    }
     qDeleteAll(m_extraCompilers);
 }
 
@@ -490,7 +483,6 @@ FilePath QbsBuildSystem::installRoot()
 void QbsBuildSystem::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
-    QTC_ASSERT(m_qbsUpdateFutureInterface, return);
 
     qCDebug(qbsPmLog) << "Parsing done, success:" << success;
 
@@ -515,15 +507,10 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
             // point of view.
             dataChanged = true;
         }
-    } else {
-        m_qbsUpdateFutureInterface->reportCanceled();
     }
 
-    m_qbsProjectParser->deleteLaterSafely();
+    delete m_qbsProjectParser;
     m_qbsProjectParser = nullptr;
-    m_qbsUpdateFutureInterface->reportFinished();
-    delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = nullptr;
 
     if (dataChanged) {
         updateAfterParse();
@@ -592,7 +579,7 @@ void QbsBuildSystem::startParsing()
     cancelDelayedParseRequest();
 
     QTC_ASSERT(!m_qbsProjectParser, return);
-    m_qbsProjectParser = new QbsProjectParser(this, m_qbsUpdateFutureInterface);
+    m_qbsProjectParser = new QbsProjectParser(this);
     m_treeCreationWatcher = nullptr;
     connect(m_qbsProjectParser, &QbsProjectParser::done,
             this, &QbsBuildSystem::handleQbsParsingDone);
@@ -638,18 +625,8 @@ void QbsBuildSystem::generateErrors(const ErrorInfo &e)
 void QbsBuildSystem::prepareForParsing()
 {
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    if (m_qbsUpdateFutureInterface) {
-        m_qbsUpdateFutureInterface->reportCanceled();
-        m_qbsUpdateFutureInterface->reportFinished();
-    }
-    delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = nullptr;
-
-    m_qbsUpdateFutureInterface = new QFutureInterface<bool>();
-    m_qbsUpdateFutureInterface->setProgressRange(0, 0);
-    ProgressManager::addTask(m_qbsUpdateFutureInterface->future(),
-        Tr::tr("Reading Project \"%1\"").arg(project()->displayName()), "Qbs.QbsEvaluate");
-    m_qbsUpdateFutureInterface->reportStarted();
+    if (m_qbsProjectParser)
+        m_qbsProjectParser->cancel();
 }
 
 void QbsBuildSystem::updateDocuments()

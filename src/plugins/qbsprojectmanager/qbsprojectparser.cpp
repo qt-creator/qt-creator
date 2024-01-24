@@ -5,8 +5,10 @@
 
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -22,14 +24,20 @@ namespace QbsProjectManager::Internal {
 // QbsProjectParser:
 // --------------------------------------------------------------------
 
-QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi)
+QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem)
     : m_projectFilePath(buildSystem->project()->projectFilePath()),
-      m_session(buildSystem->session()),
-      m_fi(fi)
+      m_session(buildSystem->session())
 {
+    m_fi = new QFutureInterface<bool>();
+    m_fi->setProgressRange(0, 0);
+    Core::ProgressManager::addTask(m_fi->future(),
+                                   Tr::tr("Reading Project \"%1\"")
+                                       .arg(buildSystem->project()->displayName()),
+                                   "Qbs.QbsEvaluate");
+    m_fi->reportStarted();
     auto * const watcher = new QFutureWatcher<bool>(this);
     connect(watcher, &QFutureWatcher<bool>::canceled, this, &QbsProjectParser::cancel);
-    watcher->setFuture(fi->future());
+    watcher->setFuture(m_fi->future());
 }
 
 QbsProjectParser::~QbsProjectParser()
@@ -38,7 +46,12 @@ QbsProjectParser::~QbsProjectParser()
         m_session->disconnect(this);
         cancel();
     }
-    m_fi = nullptr; // we do not own m_fi, do not delete
+
+    if (m_fi) {
+        m_fi->reportCanceled();
+        m_fi->reportFinished();
+        delete m_fi;
+    }
 }
 
 void QbsProjectParser::parse(const Store &config, const Environment &env,
@@ -114,6 +127,10 @@ void QbsProjectParser::finish(bool success)
 {
     m_parsing = false;
     m_session->disconnect(this);
+    if (!success)
+        m_fi->reportCanceled();
+    m_fi->reportFinished();
+    m_fi = nullptr;
     emit done(success);
 }
 

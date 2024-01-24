@@ -130,7 +130,6 @@ private:
     QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
 
     QbsProjectParser *m_qbsProjectParser = nullptr;
-    QFutureInterface<bool> *m_qbsUpdateFutureInterface = nullptr;
     using TreeCreationWatcher = QFutureWatcher<QbsProjectNode *>;
     TreeCreationWatcher *m_treeCreationWatcher = nullptr;
     Utils::Environment m_lastParseEnv;
