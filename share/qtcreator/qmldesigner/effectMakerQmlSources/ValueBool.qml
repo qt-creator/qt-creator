@@ -6,9 +6,11 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import EffectMakerBackend
 
-StudioControls.CheckBox {
-    actionIndicatorVisible: false
-    checked: uniformValue
-    onToggled: uniformValue = checked
-    width: height // limit hovering and clicking the CheckBox to its area
+Item { // The wrapper Item is used to limit hovering and clicking the CheckBox to its area
+    StudioControls.CheckBox {
+        actionIndicatorVisible: false
+        checked: uniformValue
+        onToggled: uniformValue = checked
+        anchors.verticalCenter: parent.verticalCenter
+    }
 }
