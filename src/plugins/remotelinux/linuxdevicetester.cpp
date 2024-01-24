@@ -42,7 +42,6 @@ public:
     GroupItem transferTask(FileTransferMethod method,
                            const Storage<TransferStorage> &storage) const;
     GroupItem transferTasks() const;
-    GroupItem commandTask(const QString &commandName) const;
     GroupItem commandTasks() const;
 
     GenericLinuxDeviceTester *q = nullptr;
@@ -242,15 +241,20 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
     };
 }
 
-GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
+GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 {
-    const auto onSetup = [this, commandName](Process &process) {
+    const QStringList commands = commandsToTest();
+    const LoopRepeat repeater(commands.size());
+
+    const auto onSetup = [this, commands, repeater](Process &process) {
+        const QString commandName = commands.at(repeater.iteration());
         emit q->progressMessage(Tr::tr("%1...").arg(commandName));
         CommandLine command{m_device->filePath("/bin/sh"), {"-c"}};
         command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
         process.setCommand(command);
     };
-    const auto onDone = [this, commandName](const Process &process, DoneWith result) {
+    const auto onDone = [this, commands, repeater](const Process &process, DoneWith result) {
+        const QString commandName = commands.at(repeater.iteration());
         if (result == DoneWith::Success) {
             emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
             return;
@@ -261,18 +265,16 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandNam
                 : Tr::tr("%1 not found.").arg(commandName);
         emit q->errorMessage(message);
     };
-    return ProcessTask(onSetup, onDone);
-}
 
-GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
-{
-    QList<GroupItem> tasks {continueOnError};
-    tasks.append(onGroupSetup([this] {
-        emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
-    }));
-    for (const QString &commandName : commandsToTest())
-        tasks.append(commandTask(commandName));
-    return Group {tasks};
+    const Group root {
+        continueOnError,
+        onGroupSetup([this] {
+            emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
+        }),
+        repeater,
+        ProcessTask(onSetup, onDone)
+    };
+    return root;
 }
 
 } // namespace Internal
