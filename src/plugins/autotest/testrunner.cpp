@@ -364,12 +364,11 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    const QList<ITestConfiguration *> selectedTests = m_selectedTests;
-    const LoopRepeat repeater(selectedTests.size());
+    const LoopList iterator(m_selectedTests);
     const Storage<TestStorage> storage;
 
-    const auto onSetup = [this, selectedTests, repeater, storage](Process &process) {
-        ITestConfiguration *config = selectedTests.at(repeater.iteration());
+    const auto onSetup = [this, iterator, storage](Process &process) {
+        ITestConfiguration *config = *iterator;
         QTC_ASSERT(config, return SetupResult::StopWithError);
         if (!config->project())
             return SetupResult::StopWithSuccess;
@@ -425,8 +424,8 @@ void TestRunner::runTestsHelper()
         qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         return SetupResult::Continue;
     };
-    const auto onDone = [this, selectedTests, repeater, storage](const Process &process) {
-        ITestConfiguration *config = selectedTests.at(repeater.iteration());
+    const auto onDone = [this, iterator, storage](const Process &process) {
+        ITestConfiguration *config = *iterator;
         TestStorage *testStorage = storage.activeStorage();
         QTC_ASSERT(testStorage, return);
         if (process.result() == ProcessResult::StartFailed) {
@@ -463,7 +462,7 @@ void TestRunner::runTestsHelper()
 
     const Group root {
         finishAllAndSuccess,
-        repeater,
+        iterator,
         Group {
             storage,
             ProcessTask(onSetup, onDone)
