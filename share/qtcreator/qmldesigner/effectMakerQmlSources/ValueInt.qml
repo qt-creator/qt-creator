@@ -35,8 +35,8 @@ Row {
         to: uniformMaxValue
         value: uniformValue
         onMoved: {
-            uniformValue = value
-            spinBox.value = value
+            uniformValue = Math.round(value)
+            spinBox.value = Math.round(value)
         }
     }
 }
