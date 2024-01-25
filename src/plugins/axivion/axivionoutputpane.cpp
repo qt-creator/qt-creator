@@ -239,7 +239,6 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     layout->addLayout(m_filtersLayout);
     m_issuesView = new Utils::BaseTreeView(this);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_issuesView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
     m_issuesModel = new Utils::TreeModel;
     m_issuesView->setModel(m_issuesModel);
@@ -268,7 +267,6 @@ void IssuesWidget::updateUi()
         return;
 
     // for now just a start..
-    // const Dto::AnalysisVersionDto &last = info.versions.back();
 
     const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {
@@ -281,9 +279,22 @@ void IssuesWidget::updateUi()
         });
         m_typesLayout->addWidget(button);
     }
-    // TODO versions range...
 
-    // TODO fill owners
+    m_ownerFilter->clear();
+    for (const Dto::UserRefDto &user : projectInfo->users)
+        m_ownerFilter->addItem(user.displayName, user.name);
+
+    m_versionStart->clear();
+    m_versionEnd->clear();
+    const std::vector<Dto::AnalysisVersionDto> &versions = info.versions;
+    for (const Dto::AnalysisVersionDto &version : versions) {
+        const QString label = version.label.value_or(version.name);
+        m_versionStart->insertItem(0, label);
+        m_versionEnd->insertItem(0, label);
+    }
+
+    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
+
     m_filtersLayout->setEnabled(true);
     if (info.issueKinds.size())
         m_currentPrefix = info.issueKinds.front().prefix;
@@ -300,7 +311,7 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     QStringList columnHeaders;
     QStringList hiddenColumns;
     for (const Dto::ColumnInfoDto &column : dto.columns) {
-        columnHeaders << column.key;
+        columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
     }
@@ -318,7 +329,37 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     // first time lookup... should we cache and maybe represent old data?
     IssueListSearch search;
     search.kind = m_currentPrefix;
+    m_issuesView->showProgressIndicator();
     fetchIssues(search);
+}
+
+static QString anyToSimpleString(const Dto::Any &any)
+{
+    if (any.isString())
+        return any.getString();
+    if (any.isBool())
+        return QString("%1").arg(any.getBool());
+    if (any.isDouble())
+        return QString::number(any.getDouble());
+    if (any.isNull())
+        return QString(); // or NULL??
+    if (any.isList()) {
+        const std::vector<Dto::Any> anyList = any.getList();
+        QStringList list;
+        for (const Dto::Any &inner : anyList)
+            list << anyToSimpleString(inner);
+        return list.join(',');
+    }
+    if (any.isMap()) { // TODO
+        const std::map<QString, Dto::Any> anyMap = any.getMap();
+        auto value = anyMap.find("displayName");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+        value = anyMap.find("name");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+    }
+    return QString();
 }
 
 void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
@@ -334,19 +375,16 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
         for (auto column : tableColumns) {
             auto it = row.find(column.key);
             if (it != row.end()) {
-                if (it->second.isString())
-                    data << it->second.getString();
-                else if (it->second.isDouble())
-                    data << QString::number(it->second.getDouble());
-                else if (it->second.isBool())
-                    data << QString("%1").arg(it->second.getBool());
-                else
-                    data << "not yet";
+                QString value = anyToSimpleString(it->second);
+                if (column.key == "id")
+                    value.prepend(m_currentPrefix);
+                data << value;
             }
         }
-        Utils::StaticTreeItem *it = new Utils::StaticTreeItem(data);
+        Utils::StaticTreeItem *it = new Utils::StaticTreeItem(data, data);
         m_issuesModel->rootItem()->appendChild(it);
     }
+    m_issuesView->hideProgressIndicator();
 }
 
 void IssuesWidget::updateTableView()
