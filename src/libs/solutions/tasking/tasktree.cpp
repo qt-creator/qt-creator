@@ -1249,6 +1249,7 @@ public:
     }
 
     const std::optional<int> m_loopCount = {};
+    const Loop::ValueGetter m_valueGetter = {};
     const Loop::Condition m_condition = {};
     std::mutex m_threadDataMutex = {};
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
@@ -1260,17 +1261,22 @@ Loop::Loop()
     : m_loopData(new LoopData)
 {}
 
-Loop::Loop(int count)
-    : m_loopData(new LoopData{count})
+Loop::Loop(int count, const ValueGetter &valueGetter)
+    : m_loopData(new LoopData{count, valueGetter})
 {}
 
 Loop::Loop(const Condition &condition)
-    : m_loopData(new LoopData{{}, condition})
+    : m_loopData(new LoopData{{}, {}, condition})
 {}
 
 int Loop::iteration() const
 {
     return m_loopData->threadData().iteration();
+}
+
+const void *Loop::valuePtr() const
+{
+    return m_loopData->m_valueGetter(iteration());
 }
 
 using StoragePtr = void *;

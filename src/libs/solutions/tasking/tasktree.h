@@ -6,6 +6,7 @@
 #include "tasking_global.h"
 
 #include <QObject>
+#include <QList>
 #include <QSharedPointer>
 
 #include <memory>
@@ -101,13 +102,16 @@ class TASKING_EXPORT Loop
 {
 public:
     using Condition = std::function<bool(int)>; // Takes iteration, called prior to each iteration.
+    using ValueGetter = std::function<const void *(int)>; // Takes iteration, returns ptr to ref.
 
     int iteration() const;
 
 protected:
     Loop(); // LoopForever
-    Loop(int count); // LoopRepeat
+    Loop(int count, const ValueGetter &valueGetter = {}); // LoopRepeat, LoopList
     Loop(const Condition &condition); // LoopUntil
+
+    const void *valuePtr() const;
 
 private:
     friend class ExecutionContextActivator;
@@ -131,6 +135,15 @@ class TASKING_EXPORT LoopUntil final : public Loop
 {
 public:
     LoopUntil(const Condition &condition) : Loop(condition) {}
+};
+
+template <typename T>
+class LoopList final : public Loop
+{
+public:
+    LoopList(const QList<T> &list) : Loop(list.size(), [list](int i) { return &list.at(i); }) {}
+    const T *operator->() const { return static_cast<const T *>(valuePtr()); }
+    const T &operator*() const { return *static_cast<const T *>(valuePtr()); }
 };
 
 class TASKING_EXPORT StorageBase
