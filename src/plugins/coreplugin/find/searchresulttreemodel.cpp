@@ -4,8 +4,8 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
+#include "../icore.h"
 
-#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/searchresultitem.h>
 
