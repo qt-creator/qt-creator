@@ -555,7 +555,7 @@ private:
 
     When the group finishes before \a timeout passes,
     the returned item finishes immediately with the group's result.
-    Otherwise, the \a handler is invoked (if provided), the group is stopped,
+    Otherwise, the \a handler is invoked (if provided), the group's tasks are canceled,
     and the returned item finishes with an error.
 */
 
@@ -766,14 +766,14 @@ private:
 
     When the task finishes before \a timeout passes, the returned item finishes immediately
     with the task's result. Otherwise, \a handler is invoked (if provided),
-    the task is stopped, and the returned item finishes with an error.
+    the task is canceled, and the returned item finishes with an error.
 */
 
 /*!
     \enum Tasking::WorkflowPolicy
 
     This enum describes the possible behavior of the Group element when any group's child task
-    finishes its execution. It's also used when the running Group is stopped.
+    finishes its execution. It's also used when the running Group is canceled.
 
     \value StopOnError
         Default. Corresponds to the stopOnError global element.
@@ -820,9 +820,9 @@ private:
 
     Whenever a child task's result causes the Group to stop, that is,
     in case of StopOnError, StopOnSuccess, or StopOnSuccessOrError policies,
-    the Group stops the other running child tasks (if any - for example in parallel mode),
+    the Group cancels the other running child tasks (if any - for example in parallel mode),
     and skips executing tasks it has not started yet (for example, in the sequential mode -
-    those, that are placed after the failed task). Both stopping and skipping child tasks
+    those, that are placed after the failed task). Both canceling and skipping child tasks
     may happen when parallelLimit() is used.
 
     The table below summarizes the differences between various workflow policies:
@@ -1005,8 +1005,8 @@ private:
            The group's or task's execution ended with an error.
     \value Cancel
            The group's or task's execution was canceled. This happens when the user calls
-           TaskTree::stop() for the running task tree or when the group's workflow policy
-           results in stopping some of its running children.
+           TaskTree::cancel() for the running task tree or when the group's workflow policy
+           results in canceling some of its running children.
            Tweaking the done handler's final result by returning Tasking::DoneResult from
            the handler is no-op when the group's or task's execution was canceled.
 */
@@ -1105,7 +1105,7 @@ private:
     Pass a non-default value for the \a callDoneIf argument when you want the handler to be called
     only on a successful or failed execution.
     Depending on the group's workflow policy, this handler may also be called
-    when the running group is stopped (e.g. when stopOnError element was used).
+    when the running group is canceled (e.g. when stopOnError element was used).
 
     The passed \a handler is of the \c std::function<DoneResult(DoneWith)> type.
     Optionally, each of the return DoneResult type or the argument DoneWith type may be omitted
@@ -2201,7 +2201,7 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
     The presented scenarios assume that all tasks run successfully. If a task
     fails during execution, the task tree finishes with an error. In particular,
     when QProcessTask finishes with an error while ConcurrentCallTask<int> is still being executed,
-    the ConcurrentCallTask<int> is automatically stopped, the subgroup finishes with an error,
+    the ConcurrentCallTask<int> is automatically canceled, the subgroup finishes with an error,
     the NetworkQueryTask is skipped, and the tree finishes with an error.
 
     \section1 Task Types
@@ -2589,7 +2589,7 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
     element into another Group element.
 
     TaskTree reports progress of completed tasks when running. The progress value
-    is increased when a task finishes or is skipped or stopped.
+    is increased when a task finishes or is skipped or canceled.
     When TaskTree is finished and the TaskTree::done() signal is emitted,
     the current value of the progress equals the maximum progress value.
     Maximum progress equals the total number of asynchronous tasks in a tree.
@@ -2726,7 +2726,7 @@ TaskTree::TaskTree(const Group &recipe) : TaskTree()
 /*!
     Destroys the task tree.
 
-    When the task tree is running while being destructed, it stops all the running tasks
+    When the task tree is running while being destructed, it cancels all the running tasks
     immediately. In this case, no handlers are called, not even the groups' and
     tasks' done handlers or onStorageDone() handlers. The task tree also doesn't emit any
     signals from the destructor, not even done() or progressValueChanged() signals.
@@ -2741,7 +2741,7 @@ TaskTree::TaskTree(const Group &recipe) : TaskTree()
     \note Do not call the destructor directly from any of the running task's handlers
           or task tree's signals. In these cases, use \l deleteLater() instead.
 
-    \sa stop()
+    \sa cancel()
 */
 TaskTree::~TaskTree()
 {
@@ -2794,7 +2794,7 @@ void TaskTree::setRecipe(const Group &recipe)
     Make sure you have a QEventLoop or QCoreApplication or one of its
     subclasses running (or about to be run) when calling this method.
 
-    \sa TaskTree(const Tasking::Group &), setRecipe(), isRunning(), stop()
+    \sa TaskTree(const Tasking::Group &), setRecipe(), isRunning(), cancel()
 */
 void TaskTree::start()
 {
@@ -2827,25 +2827,25 @@ void TaskTree::start()
 */
 
 /*!
-    Stops the running task tree.
+    Cancels the execution of the running task tree.
 
-    Stops all the running tasks immediately.
+    Cancels all the running tasks immediately.
     All running tasks finish with an error, invoking their error handlers.
     All running groups dispatch their handlers according to their workflow policies,
     invoking their done handlers. The storages' onStorageDone() handlers are invoked, too.
     The progressValueChanged() signals are also being sent.
     This behavior may always be relied on.
 
-    The \c stop() function is executed synchronously, so that after a call to \c stop()
-    all running tasks are finished and the tree is already stopped.
-    It's guaranteed that \c stop() will run quickly, without any blocking wait for
+    The \c cancel() function is executed synchronously, so that after a call to \c cancel()
+    all running tasks are finished and the tree is already canceled.
+    It's guaranteed that \c cancel() will run quickly, without any blocking wait for
     the currently running tasks to finish, provided the used tasks implement their destructors
     in a non-blocking way.
 
     When the task tree is empty, that is, constructed with a default constructor,
-    a call to \c stop() is no-op and the relevant warning message is issued.
+    a call to \c cancel() is no-op and the relevant warning message is issued.
 
-    Otherwise, when the task tree wasn't started, a call to \c stop() is ignored.
+    Otherwise, when the task tree wasn't started, a call to \c cancel() is ignored.
 
     \note Do not call this function directly from any of the running task's handlers
           or task tree's signals.
@@ -2854,7 +2854,7 @@ void TaskTree::start()
 */
 void TaskTree::cancel()
 {
-    QT_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
+    QT_ASSERT(!d->m_guard.isLocked(), qWarning("The cancel() is called from one of the"
                                                "TaskTree handlers, ignoring..."); return);
     d->stop();
 }
@@ -2862,7 +2862,7 @@ void TaskTree::cancel()
 /*!
     Returns \c true if the task tree is currently running; otherwise returns \c false.
 
-    \sa start(), stop()
+    \sa start(), cancel()
 */
 bool TaskTree::isRunning() const
 {
@@ -2923,7 +2923,7 @@ DoneWith TaskTree::runBlocking(const QFuture<void> &future)
 /*!
     Constructs a temporary task tree using the passed \a recipe and runs it blocking.
 
-    The optionally provided \a timeout is used to stop the tree automatically after
+    The optionally provided \a timeout is used to cancel the tree automatically after
     \a timeout milliseconds have passed.
 
     Returns DoneWith::Success if the task tree finished successfully;
@@ -2972,8 +2972,8 @@ int TaskTree::taskCount() const
 /*!
     \fn void TaskTree::progressValueChanged(int value)
 
-    This signal is emitted when the running task tree finished, stopped, or skipped some tasks.
-    The \a value gives the current total number of finished, stopped or skipped tasks.
+    This signal is emitted when the running task tree finished, canceled, or skipped some tasks.
+    The \a value gives the current total number of finished, canceled or skipped tasks.
     When the task tree is started, and after the started() signal was emitted,
     this signal is emitted with an initial \a value of \c 0.
     When the task tree is about to finish, and before the done() signal is emitted,
@@ -2995,7 +2995,7 @@ int TaskTree::taskCount() const
 /*!
     Returns the current progress value, which is between the \c 0 and progressMaximum().
 
-    The returned number indicates how many tasks have been already finished, stopped, or skipped
+    The returned number indicates how many tasks have been already finished, canceled, or skipped
     while the task tree is running.
     When the task tree is started, this number is set to \c 0.
     When the task tree is finished, this number always equals progressMaximum().
@@ -3088,7 +3088,7 @@ int TaskTree::progressValue() const
     the final content of the given storage dynamically and processing it further outside of
     the task tree.
 
-    This handler is called also when the running tree is stopped. However, it's not called
+    This handler is called also when the running tree is canceled. However, it's not called
     when the running tree is destructed.
 
     \sa onStorageSetup()
