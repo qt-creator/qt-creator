@@ -225,6 +225,7 @@ private:
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
+    QLabel *m_totalRows = nullptr;
     Utils::BaseTreeView *m_issuesView = nullptr;
     Utils::TreeModel<> *m_issuesModel = nullptr;
 };
@@ -274,6 +275,11 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesModel = new Utils::TreeModel;
     m_issuesView->setModel(m_issuesModel);
     layout->addWidget(m_issuesView);
+    m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
+    QHBoxLayout *bottom = new QHBoxLayout;
+    layout->addLayout(bottom);
+    bottom->addStretch(1);
+    bottom->addWidget(m_totalRows);
     layout->addStretch(1);
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -346,6 +352,9 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
         if (!column.showByDefault)
             hiddenColumns << column.key;
     }
+    m_addedFilter->setText("0");
+    m_removedFilter->setText("0");
+    m_totalRows->setText(Tr::tr("Total rows:"));
 
     issuesModel->setHeader(columnHeaders);
 
@@ -360,6 +369,7 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     // first time lookup... should we cache and maybe represent old data?
     IssueListSearch search;
     search.kind = m_currentPrefix;
+    search.computeTotalRowCount = true;
     m_issuesView->showProgressIndicator();
     fetchIssues(search);
 }
@@ -424,13 +434,17 @@ static Utils::Links linksForIssue(const std::map<QString, Dto::Any> &issueRow,
 void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
-    // handle added/removed/total ?
+    if (dto.totalRowCount.has_value())
+        m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(dto.totalRowCount.value()));
+    if (dto.totalAddedCount.has_value())
+        m_addedFilter->setText(QString::number(dto.totalAddedCount.value()));
+    if (dto.totalRemovedCount.has_value())
+        m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     Utils::FilePath baseDir = project ? project->projectDirectory() : Utils::FilePath{};
 
     const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
-    // const std::vector<Dto::ColumnInfoDto> columns = dto.columns.value();
     const std::vector<std::map<QString, Dto::Any>> rows = dto.rows;
     for (auto row : rows) {
         QStringList data;

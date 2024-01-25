@@ -33,6 +33,7 @@ struct IssueListSearch
     QString pathglob;
     int offset = 0;
     int limit = 30;
+    bool computeTotalRowCount = false;
 
     QString toQuery() const;
 };
