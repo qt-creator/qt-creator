@@ -7,8 +7,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <KSyntaxHighlighting/Definition>
-
 #include <QObject>
 #include <QPointer>
 
