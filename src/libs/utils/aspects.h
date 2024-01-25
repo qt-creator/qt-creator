@@ -283,6 +283,8 @@ template <typename ValueType>
 class TypedAspect : public BaseAspect
 {
 public:
+    using valueType = ValueType;
+
     TypedAspect(AspectContainer *container = nullptr)
         : BaseAspect(container)
     {
