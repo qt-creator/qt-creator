@@ -3,7 +3,6 @@
 
 #include "cpptoolsjsextension.h"
 
-#include "cppeditorplugin.h"
 #include "cppfilesettingspage.h"
 #include "cpplocatordata.h"
 #include "cppworkingcopy.h"

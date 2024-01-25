@@ -7,16 +7,10 @@
 
 namespace CppEditor::Internal {
 
-class HeaderSourceTest : public QObject
-{
-    Q_OBJECT
+void clearHeaderSourceCache();
 
-private slots:
-    void initTestCase();
-    void cleanupTestCase();
+#ifdef WITH_TESTS
+QObject *createCppHeaderSourceTest();
+#endif
 
-    void test_data();
-    void test();
-};
-
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

@@ -4,7 +4,6 @@
 #include "cpplocatorfilter.h"
 
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cpplocatordata.h"
 #include "cppmodelmanager.h"

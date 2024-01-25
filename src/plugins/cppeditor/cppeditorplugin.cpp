@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cppeditorplugin.h"
-
 #include "cppautocompleter.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppcodemodelsettings.h"
@@ -14,9 +12,9 @@
 #include "cppeditorwidget.h"
 #include "cppfilesettingspage.h"
 #include "cppincludehierarchy.h"
+#include "cppheadersource.h"
 #include "cppmodelmanager.h"
 #include "cppoutline.h"
-#include "cppprojectfile.h"
 #include "cppprojectupdater.h"
 #include "cppquickfixes.h"
 #include "cppquickfixprojectsettingswidget.h"
@@ -24,7 +22,6 @@
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cpptypehierarchy.h"
-#include "projectinfo.h"
 #include "resourcepreviewhoverhandler.h"
 
 #ifdef WITH_TESTS
@@ -32,7 +29,6 @@
 #include "cppcodegen_test.h"
 #include "cppcompletion_test.h"
 #include "cppdoxygen_test.h"
-#include "cppheadersource_test.h"
 #include "cpphighlighter.h"
 #include "cppincludehierarchy_test.h"
 #include "cppinsertvirtualmethods.h"
@@ -89,7 +85,6 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringtable.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>
@@ -106,11 +101,7 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
-
-enum { QUICKFIX_INTERVAL = 20 };
-enum { debug = 0 };
+namespace CppEditor::Internal {
 
 static CppEditorWidget *currentCppEditorWidget()
 {
@@ -182,8 +173,6 @@ public:
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
-
-static QHash<FilePath, FilePath> m_headerSourceMapping;
 
 class CppEditorPlugin final : public ExtensionSystem::IPlugin
 {
@@ -498,7 +487,7 @@ void CppEditorPlugin::registerTests()
     addTest<CppHighlighterTest>();
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();
-    addTest<HeaderSourceTest>();
+    addTestCreator(createCppHeaderSourceTest);
     addTest<IncludeGroupsTest>();
     addTest<LocalSymbolsTest>();
     addTest<LocatorFilterTest>();
@@ -551,239 +540,6 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
     }
 }
 
-void clearHeaderSourceCache()
-{
-    m_headerSourceMapping.clear();
-}
-
-static FilePaths findFilesInProject(const QStringList &names, const Project *project,
-                                      FileType fileType)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << names << project;
-
-    if (!project)
-        return {};
-
-    const auto filter = [&](const Node *n) {
-        const auto fn = n->asFileNode();
-        return fn && fn->fileType() == fileType && names.contains(fn->filePath().fileName());
-    };
-    return project->files(filter);
-}
-
-// Return the suffixes that should be checked when trying to find a
-// source belonging to a header and vice versa
-static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
-{
-    using namespace Utils::Constants;
-    switch (kind) {
-    case ProjectFile::AmbiguousHeader:
-    case ProjectFile::CHeader:
-    case ProjectFile::CXXHeader:
-    case ProjectFile::ObjCHeader:
-    case ProjectFile::ObjCXXHeader:
-        return mimeTypeForName(C_SOURCE_MIMETYPE).suffixes()
-             + mimeTypeForName(CPP_SOURCE_MIMETYPE).suffixes()
-             + mimeTypeForName(OBJECTIVE_C_SOURCE_MIMETYPE).suffixes()
-             + mimeTypeForName(OBJECTIVE_CPP_SOURCE_MIMETYPE).suffixes()
-             + mimeTypeForName(CUDA_SOURCE_MIMETYPE).suffixes();
-    case ProjectFile::CSource:
-    case ProjectFile::ObjCSource:
-        return mimeTypeForName(C_HEADER_MIMETYPE).suffixes();
-    case ProjectFile::CXXSource:
-    case ProjectFile::ObjCXXSource:
-    case ProjectFile::CudaSource:
-    case ProjectFile::OpenCLSource:
-        return mimeTypeForName(CPP_HEADER_MIMETYPE).suffixes();
-    default:
-        return {};
-    }
-}
-
-static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStringList &suffixes)
-{
-    QStringList result;
-    const QChar dot = QLatin1Char('.');
-    for (const QString &suffix : suffixes) {
-        QString fileName = baseName;
-        fileName += dot;
-        fileName += suffix;
-        result += fileName;
-    }
-    return result;
-}
-
-static QStringList baseNamesWithAllPrefixes(const CppFileSettings &settings,
-                                            const QStringList &baseNames, bool isHeader)
-{
-    QStringList result;
-    const QStringList &sourcePrefixes = settings.sourcePrefixes;
-    const QStringList &headerPrefixes = settings.headerPrefixes;
-
-    for (const QString &name : baseNames) {
-        for (const QString &prefix : isHeader ? headerPrefixes : sourcePrefixes) {
-            if (name.startsWith(prefix)) {
-                QString nameWithoutPrefix = name.mid(prefix.size());
-                result += nameWithoutPrefix;
-                for (const QString &prefix : isHeader ? sourcePrefixes : headerPrefixes)
-                    result += prefix + nameWithoutPrefix;
-            }
-        }
-        for (const QString &prefix : isHeader ? sourcePrefixes : headerPrefixes)
-            result += prefix + name;
-
-    }
-    return result;
-}
-
-static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringList &directories)
-{
-    QStringList result;
-    for (const QString &dir : directories)
-        result << QDir::cleanPath(baseDir.absoluteFilePath(dir));
-    return result;
-}
-
-static int commonFilePathLength(const QString &s1, const QString &s2)
-{
-    int length = qMin(s1.length(), s2.length());
-    for (int i = 0; i < length; ++i)
-        if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
-            if (s1[i] != s2[i])
-                return i;
-        } else {
-            if (s1[i].toLower() != s2[i].toLower())
-                return i;
-        }
-    return length;
-}
-
-static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
-                                                     const QStringList &candidateFileNames,
-                                                     const Project *project,
-                                                     FileType fileType,
-                                                     CacheUsage cacheUsage)
-{
-    const FilePaths projectFiles = findFilesInProject(candidateFileNames, project, fileType);
-
-    // Find the file having the most common path with fileName
-    FilePath bestFilePath;
-    int compareValue = 0;
-    for (const FilePath &projectFile : projectFiles) {
-        int value = commonFilePathLength(filePath.toString(), projectFile.toString());
-        if (value > compareValue) {
-            compareValue = value;
-            bestFilePath = projectFile;
-        }
-    }
-    if (!bestFilePath.isEmpty()) {
-        QTC_ASSERT(bestFilePath.isFile(), return {});
-        if (cacheUsage == CacheUsage::ReadWrite) {
-            m_headerSourceMapping[filePath] = bestFilePath;
-            m_headerSourceMapping[bestFilePath] = filePath;
-        }
-        return bestFilePath;
-    }
-
-    return {};
-}
-
-} // namespace Internal
-
-using namespace Internal;
-
-FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, CacheUsage cacheUsage)
-{
-    ProjectFile::Kind kind = ProjectFile::classify(filePath.fileName());
-    const bool isHeader = ProjectFile::isHeader(kind);
-    if (wasHeader)
-        *wasHeader = isHeader;
-    if (const auto it = m_headerSourceMapping.constFind(filePath);
-        it != m_headerSourceMapping.constEnd()) {
-        return it.value();
-    }
-
-    Project * const projectForFile = ProjectManager::projectForFile(filePath);
-    const CppFileSettings settings = cppFileSettingsForProject(projectForFile);
-
-    if (debug)
-        qDebug() << Q_FUNC_INFO << filePath.fileName() <<  kind;
-
-    if (kind == ProjectFile::Unsupported)
-        return {};
-
-    const QString baseName = filePath.completeBaseName();
-    const QString privateHeaderSuffix = QLatin1String("_p");
-    const QStringList suffixes = matchingCandidateSuffixes(kind);
-
-    QStringList candidateFileNames = baseNameWithAllSuffixes(baseName, suffixes);
-    if (isHeader) {
-        if (baseName.endsWith(privateHeaderSuffix)) {
-            QString sourceBaseName = baseName;
-            sourceBaseName.truncate(sourceBaseName.size() - privateHeaderSuffix.size());
-            candidateFileNames += baseNameWithAllSuffixes(sourceBaseName, suffixes);
-        }
-    } else {
-        QString privateHeaderBaseName = baseName;
-        privateHeaderBaseName.append(privateHeaderSuffix);
-        candidateFileNames += baseNameWithAllSuffixes(privateHeaderBaseName, suffixes);
-    }
-
-    const QDir absoluteDir = filePath.toFileInfo().absoluteDir();
-    QStringList candidateDirs(absoluteDir.absolutePath());
-    // If directory is not root, try matching against its siblings
-    const QStringList searchPaths = isHeader ? settings.sourceSearchPaths
-                                             : settings.headerSearchPaths;
-    candidateDirs += baseDirWithAllDirectories(absoluteDir, searchPaths);
-
-    candidateFileNames += baseNamesWithAllPrefixes(settings, candidateFileNames, isHeader);
-
-    // Try to find a file in the same or sibling directories first
-    for (const QString &candidateDir : std::as_const(candidateDirs)) {
-        for (const QString &candidateFileName : std::as_const(candidateFileNames)) {
-            const FilePath candidateFilePath
-                = FilePath::fromString(candidateDir + '/' + candidateFileName).normalizedPathName();
-            if (candidateFilePath.isFile()) {
-                if (cacheUsage == CacheUsage::ReadWrite) {
-                    m_headerSourceMapping[filePath] = candidateFilePath;
-                    if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
-                        m_headerSourceMapping[candidateFilePath] = filePath;
-                }
-                return candidateFilePath;
-            }
-        }
-    }
-
-    // Find files in the current project
-    Project *currentProject = projectForFile;
-    if (!projectForFile)
-        currentProject = ProjectTree::currentProject();
-    const FileType requestedFileType = isHeader ? FileType::Source : FileType::Header;
-    if (currentProject) {
-        const FilePath path = correspondingHeaderOrSourceInProject(
-            filePath, candidateFileNames, currentProject, requestedFileType, cacheUsage);
-        if (!path.isEmpty())
-            return path;
-
-    // Find files in other projects
-    } else {
-        const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
-        for (const ProjectInfo::ConstPtr &projectInfo : projectInfos) {
-            const Project *project = projectForProjectInfo(*projectInfo);
-            if (project == currentProject)
-                continue; // We have already checked the current project.
-
-            const FilePath path = correspondingHeaderOrSourceInProject(
-                filePath, candidateFileNames, project, requestedFileType, cacheUsage);
-            if (!path.isEmpty())
-                return path;
-        }
-    }
-
-    return {};
-}
-
-} // namespace CppEditor
+} // CppEditor::Internal
 
 #include "cppeditorplugin.moc"

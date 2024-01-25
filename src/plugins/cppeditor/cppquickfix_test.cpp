@@ -4,7 +4,6 @@
 #include "cppquickfix_test.h"
 
 #include "cppcodestylepreferences.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppquickfixassistant.h"

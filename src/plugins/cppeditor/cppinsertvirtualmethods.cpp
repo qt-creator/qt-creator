@@ -40,7 +40,6 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-#include "cppeditorplugin.h"
 #include "cppquickfix_test.h"
 #include <QtTest>
 #endif

@@ -3,8 +3,8 @@
 
 #include "cppfilesettingspage.h"
 
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
+#include "cppheadersource.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>

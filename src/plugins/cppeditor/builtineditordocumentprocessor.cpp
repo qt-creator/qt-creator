@@ -7,7 +7,6 @@
 #include "cppchecksymbols.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditordocument.h"
-#include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"

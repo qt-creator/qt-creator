@@ -3,14 +3,11 @@
 
 #include "fileandtokenactions_test.h"
 
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppquickfix.h"
 #include "cppquickfixassistant.h"
-#include "cppquickfixes.h"
 #include "cppinsertvirtualmethods.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsreuse.h"
 #include "cpptoolstestcase.h"
 #include "cpptypehierarchy.h"
 #include "cppworkingcopy.h"

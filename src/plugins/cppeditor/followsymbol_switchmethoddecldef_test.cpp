@@ -4,12 +4,9 @@
 #include "followsymbol_switchmethoddecldef_test.h"
 
 #include "cppcodemodelsettings.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
-#include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsreuse.h"
 #include "cpptoolstestcase.h"
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"

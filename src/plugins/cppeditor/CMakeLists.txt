@@ -40,7 +40,7 @@ add_qtc_plugin(CppEditor
     cppeditorconstants.h
     cppeditordocument.cpp cppeditordocument.h
     cppeditoroutline.cpp cppeditoroutline.h
-    cppeditorplugin.cpp cppeditorplugin.h
+    cppeditorplugin.cpp
     cppeditorwidget.cpp cppeditorwidget.h
     cppelementevaluator.cpp cppelementevaluator.h
     cppfileiterationorder.cpp cppfileiterationorder.h
@@ -49,6 +49,7 @@ add_qtc_plugin(CppEditor
     cppfollowsymbolundercursor.cpp cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h
     cppfunctionparamrenaminghandler.cpp cppfunctionparamrenaminghandler.h
+    cppheadersource.cpp cppheadersource.h
     cpphighlighter.cpp cpphighlighter.h
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h
@@ -121,7 +122,6 @@ extend_qtc_plugin(CppEditor
     cppcodegen_test.cpp cppcodegen_test.h
     cppcompletion_test.cpp cppcompletion_test.h
     cppdoxygen_test.cpp cppdoxygen_test.h
-    cppheadersource_test.cpp cppheadersource_test.h
     cppincludehierarchy_test.cpp cppincludehierarchy_test.h
     cpplocalsymbols_test.cpp cpplocalsymbols_test.h
     cpplocatorfilter_test.cpp cpplocatorfilter_test.h

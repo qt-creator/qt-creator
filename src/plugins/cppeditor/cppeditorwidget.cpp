@@ -8,7 +8,6 @@
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditoroutline.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppfunctionparamrenaminghandler.h"

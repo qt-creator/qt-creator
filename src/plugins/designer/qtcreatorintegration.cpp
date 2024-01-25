@@ -12,7 +12,6 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppsemanticinfo.h>

@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
