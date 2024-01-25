@@ -11,7 +11,7 @@ add_qtc_library(ExtensionSystem
     pluginerroroverview.cpp pluginerroroverview.h
     pluginerrorview.cpp pluginerrorview.h
     pluginmanager.cpp pluginmanager.h pluginmanager_p.h
-    pluginspec.cpp pluginspec.h pluginspec_p.h
+    pluginspec.cpp pluginspec.h
     pluginview.cpp pluginview.h
   EXPLICIT_MOC
     pluginmanager.h

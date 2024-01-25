@@ -82,6 +82,8 @@ public:
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
 
+    static void addPlugins(const QVector<PluginSpec *> &specs);
+
     // Settings
     static void setSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *settings();

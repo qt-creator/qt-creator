@@ -154,11 +154,11 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
         if (promise.isCanceled())
             return;
         it.next();
-        PluginSpec *spec = PluginSpec::read(it.filePath());
+        expected_str<PluginSpec *> spec = PluginSpecImpl::read(it.filePath());
         if (spec) {
             // Is a Qt Creator plugin. Let's see if we find a Core dependency and check the
             // version
-            const QVector<PluginDependency> dependencies = spec->dependencies();
+            const QVector<PluginDependency> dependencies = (*spec)->dependencies();
             const auto found = std::find_if(dependencies.constBegin(), dependencies.constEnd(),
                 [coreplugin](const PluginDependency &d) { return d.name == coreplugin->name(); });
             if (found == dependencies.constEnd())

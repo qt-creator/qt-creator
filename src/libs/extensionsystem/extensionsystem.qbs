@@ -29,7 +29,6 @@ QtcLibrary {
         "pluginmanager_p.h",
         "pluginspec.cpp",
         "pluginspec.h",
-        "pluginspec_p.h",
         "pluginview.cpp",
         "pluginview.h",
     ]

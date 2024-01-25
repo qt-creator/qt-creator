@@ -36,8 +36,6 @@ class PluginManager;
 
 namespace Internal {
 
-class PluginSpecPrivate;
-
 class EXTENSIONSYSTEM_TEST_EXPORT PluginManagerPrivate : public QObject
 {
 public:
@@ -52,6 +50,8 @@ public:
     void checkForProblematicPlugins();
     void loadPlugins();
     void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
+    void addPlugins(const QVector<PluginSpec *> &specs);
+
     void shutdown();
     void setPluginPaths(const QStringList &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
@@ -118,10 +118,6 @@ public:
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
     PluginSpec *pluginByName(const QString &name) const;
-
-    // used by tests
-    static PluginSpec *createSpec();
-    static PluginSpecPrivate *privateSpec(PluginSpec *spec);
 
     static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
 

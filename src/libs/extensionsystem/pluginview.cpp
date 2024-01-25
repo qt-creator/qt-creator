@@ -5,7 +5,7 @@
 
 #include "extensionsystemtr.h"
 #include "pluginmanager.h"
-#include "pluginspec_p.h"
+#include "pluginspec.h"
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
@@ -416,8 +416,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         });
         QTC_ASSERT(item, continue);
         if (m_affectedPlugins.find(spec) == m_affectedPlugins.end())
-            m_affectedPlugins[spec] = spec->d->enabledBySettings;
-        spec->d->setEnabledBySettings(enable);
+            m_affectedPlugins[spec] = spec->isEnabledBySettings();
+        spec->setEnabledBySettings(enable);
         item->updateColumn(LoadedColumn);
         item->parent()->updateColumn(LoadedColumn);
     }
@@ -428,7 +428,7 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
 void PluginView::cancelChanges()
 {
     for (auto element : m_affectedPlugins)
-        element.first->d->setEnabledBySettings(element.second);
+        element.first->setEnabledBySettings(element.second);
 }
 
 } // namespace ExtensionSystem

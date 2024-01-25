@@ -8,7 +8,6 @@
 #include "optionsparser.h"
 #include "pluginmanager_p.h"
 #include "pluginspec.h"
-#include "pluginspec_p.h"
 
 #include <nanotrace/nanotrace.h>
 
@@ -35,6 +34,7 @@
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QMetaProperty>
+#include <QPluginLoader>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QSysInfo>
@@ -325,6 +325,11 @@ void PluginManager::loadPlugins()
 void PluginManager::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
 {
     d->loadPluginsAtRuntime(plugins);
+}
+
+void PluginManager::addPlugins(const QVector<PluginSpec *> &specs)
+{
+    d->addPlugins(specs);
 }
 
 /*!
@@ -906,14 +911,6 @@ QVector<PluginSpec *> PluginManager::loadQueue()
 /*!
     \internal
 */
-PluginSpec *PluginManagerPrivate::createSpec()
-{
-    return new PluginSpec();
-}
-
-/*!
-    \internal
-*/
 void PluginManagerPrivate::setSettings(QtcSettings *s)
 {
     if (settings)
@@ -935,14 +932,6 @@ void PluginManagerPrivate::setGlobalSettings(QtcSettings *s)
         globalSettings->setParent(this);
 }
 
-/*!
-    \internal
-*/
-PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
-{
-    return spec->d;
-}
-
 void PluginManagerPrivate::startDelayedInitialize()
 {
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
@@ -954,8 +943,8 @@ void PluginManagerPrivate::startDelayedInitialize()
             delayedInitializeQueue.pop();
             NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
             profilingReport(">delayedInitialize", spec);
-            bool delay = spec->d->delayedInitialize();
-            profilingReport("<delayedInitialize", spec, &spec->d->performanceData.delayedInitialize);
+            bool delay = spec->delayedInitialize();
+            profilingReport("<delayedInitialize", spec, &spec->performanceData().delayedInitialize);
             if (delay) // give UI a bit of breathing space, but prevent user interaction
                 QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
@@ -1068,10 +1057,8 @@ void PluginManagerPrivate::checkForDuplicatePlugins()
             if (spec->isEffectivelyEnabled() && other->isEffectivelyEnabled()) {
                 const QString error = Tr::tr(
                     "Multiple versions of the same plugin have been found.");
-                spec->d->hasError = true;
-                spec->d->errorString = error;
-                other->d->hasError = true;
-                other->d->errorString = error;
+                spec->setError(error);
+                other->setError(error);
             }
         } else {
             seen.insert(spec->name(), spec);
@@ -1403,7 +1390,7 @@ void PluginManagerPrivate::loadPlugins()
                 delayedInitializeQueue.push(spec);
             } else {
                 // Plugin initialization failed, so cleanup after it
-                spec->d->kill();
+                spec->kill();
             }
         });
     }
@@ -1421,10 +1408,23 @@ void PluginManagerPrivate::loadPlugins()
 void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
 {
     QTC_CHECK(allOf(plugins, [](PluginSpec *spec) { return spec->isSoftLoadable(); }));
-    // load the plugins ordered by dependency
+
+    // load the plugins and their dependencies (if possible) ordered by dependency
     const QList<PluginSpec *> queue = filtered(loadQueue(), [&plugins](PluginSpec *spec) {
-        return plugins.contains(spec);
+        // Is the current plugin already running, or not soft loadable?
+        if (spec->state() == PluginSpec::State::Running || !spec->isSoftLoadable())
+            return false;
+
+        // Is the current plugin in the list of plugins to load?
+        if (plugins.contains(spec))
+            return true;
+
+        // Is the current plugin a dependency of any of the plugins we want to load?
+        return plugins.contains(spec) || Utils::anyOf(plugins, [spec](PluginSpec *other) {
+                   return other->requiresAny({spec});
+               });
     });
+
     std::queue<PluginSpec *> localDelayedInitializeQueue;
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Loaded);
@@ -1434,12 +1434,12 @@ void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugin
                           [this](PluginSpec *spec) { loadPlugin(spec, PluginSpec::Running); });
     Utils::reverseForeach(queue, [](PluginSpec *spec) {
         if (spec->state() == PluginSpec::Running) {
-            const bool delay = spec->d->delayedInitialize();
+            const bool delay = spec->delayedInitialize();
             if (delay)
                 QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         } else {
             // Plugin initialization failed, so cleanup after it
-            spec->d->kill();
+            spec->kill();
         }
     });
     emit q->pluginsChanged();
@@ -1494,17 +1494,17 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
         return true;
     // check for circular dependencies
     if (circularityCheckQueue.contains(spec)) {
-        spec->d->hasError = true;
-        spec->d->errorString = Tr::tr("Circular dependency detected:");
-        spec->d->errorString += QLatin1Char('\n');
+        QString errorString = Tr::tr("Circular dependency detected:");
+        errorString += QLatin1Char('\n');
         int index = circularityCheckQueue.indexOf(spec);
         for (int i = index; i < circularityCheckQueue.size(); ++i) {
             const PluginSpec *depSpec = circularityCheckQueue.at(i);
-            spec->d->errorString.append(Tr::tr("%1 (%2) depends on")
-                                        .arg(depSpec->name(), depSpec->version()));
-            spec->d->errorString += QLatin1Char('\n');
+            errorString.append(
+                Tr::tr("%1 (%2) depends on").arg(depSpec->name(), depSpec->version()));
+            errorString += QLatin1Char('\n');
         }
-        spec->d->errorString.append(Tr::tr("%1 (%2)").arg(spec->name(), spec->version()));
+        errorString.append(Tr::tr("%1 (%2)").arg(spec->name(), spec->version()));
+        spec->setError(errorString);
         return false;
     }
     circularityCheckQueue.append(spec);
@@ -1523,10 +1523,9 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
             continue;
         PluginSpec *depSpec = it.value();
         if (!loadQueue(depSpec, queue, circularityCheckQueue)) {
-            spec->d->hasError = true;
-            spec->d->errorString =
+            spec->setError(
                 Tr::tr("Cannot load plugin because dependency failed to load: %1 (%2)\nReason: %3")
-                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
+                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString()));
             return false;
         }
     }
@@ -1619,9 +1618,9 @@ void PluginManagerPrivate::checkForProblematicPlugins()
             dialog.addButton(Tr::tr("Continue"), QMessageBox::RejectRole);
             dialog.exec();
             if (dialog.clickedButton() == disableButton) {
-                spec->d->setForceDisabled(true);
+                spec->setForceDisabled(true);
                 for (PluginSpec *other : dependents)
-                    other->d->setForceDisabled(true);
+                    other->setForceDisabled(true);
                 enableDependenciesIndirectly();
             }
         }
@@ -1664,15 +1663,15 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     case PluginSpec::Running: {
         NANOTRACE_SCOPE(specName, specName + "::extensionsInitialized");
         profilingReport(">initializeExtensions", spec);
-        spec->d->initializeExtensions();
+        spec->initializeExtensions();
         profilingReport("<initializeExtensions",
                         spec,
-                        &spec->d->performanceData.extensionsInitialized);
+                        &spec->performanceData().extensionsInitialized);
         return;
     }
     case PluginSpec::Deleted:
         profilingReport(">delete", spec);
-        spec->d->kill();
+        spec->kill();
         profilingReport("<delete", spec);
         return;
     default:
@@ -1686,10 +1685,10 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
                 continue;
             PluginSpec *depSpec = it.value();
             if (depSpec->state() != destState) {
-                spec->d->hasError = true;
-                spec->d->errorString =
-                    Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
-                        .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
+                spec->setError(
+                    Tr::tr(
+                        "Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                        .arg(depSpec->name(), depSpec->version(), depSpec->errorString()));
                 return;
             }
         }
@@ -1698,20 +1697,20 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     case PluginSpec::Loaded: {
         NANOTRACE_SCOPE(specName, specName + "::load");
         profilingReport(">loadLibrary", spec);
-        spec->d->loadLibrary();
-        profilingReport("<loadLibrary", spec, &spec->d->performanceData.load);
+        spec->loadLibrary();
+        profilingReport("<loadLibrary", spec, &spec->performanceData().load);
         break;
     }
     case PluginSpec::Initialized: {
         NANOTRACE_SCOPE(specName, specName + "::initialize");
         profilingReport(">initializePlugin", spec);
-        spec->d->initializePlugin();
-        profilingReport("<initializePlugin", spec, &spec->d->performanceData.initialize);
+        spec->initializePlugin();
+        profilingReport("<initializePlugin", spec, &spec->performanceData().initialize);
         break;
     }
     case PluginSpec::Stopped:
         profilingReport(">stop", spec);
-        if (spec->d->stop() == IPlugin::AsynchronousShutdown) {
+        if (spec->stop() == IPlugin::AsynchronousShutdown) {
             asynchronousPlugins << spec;
             connect(spec->plugin(), &IPlugin::asynchronousShutdownFinished, this, [this, spec] {
                 asynchronousPlugins.remove(spec);
@@ -1753,45 +1752,24 @@ static const QStringList pluginFiles(const QStringList &pluginPaths)
     return pluginFiles;
 }
 
-/*!
-    \internal
-*/
-void PluginManagerPrivate::readPluginPaths()
+void PluginManagerPrivate::addPlugins(const QVector<PluginSpec *> &specs)
 {
-    qDeleteAll(pluginSpecs);
-    pluginSpecs.clear();
-    pluginCategories.clear();
+    pluginSpecs += specs;
 
-    // default
-    pluginCategories.insert(QString(), QVector<PluginSpec *>());
-
-    // from the file system
-    for (const QString &pluginFile : pluginFiles(pluginPaths)) {
-        PluginSpec *spec = PluginSpec::read(pluginFile);
-        if (spec) // Qt Creator plugin
-            pluginSpecs.append(spec);
-    }
-    // static
-    for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
-        PluginSpec *spec = PluginSpec::read(plugin);
-        if (spec) // Qt Creator plugin
-            pluginSpecs.append(spec);
-    }
-
-    for (PluginSpec *spec : pluginSpecs) {
+    for (PluginSpec *spec : specs) {
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec
         if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
-            spec->d->setEnabledByDefault(false);
-            spec->d->setEnabledBySettings(false);
+            spec->setEnabledByDefault(false);
+            spec->setEnabledBySettings(false);
         } else if (!spec->isEnabledByDefault() && defaultEnabledPlugins.contains(spec->name())) {
-            spec->d->setEnabledByDefault(true);
-            spec->d->setEnabledBySettings(true);
+            spec->setEnabledByDefault(true);
+            spec->setEnabledBySettings(true);
         }
         if (!spec->isEnabledByDefault() && forceEnabledPlugins.contains(spec->name()))
-            spec->d->setEnabledBySettings(true);
+            spec->setEnabledBySettings(true);
         if (spec->isEnabledByDefault() && disabledPlugins.contains(spec->name()))
-            spec->d->setEnabledBySettings(false);
+            spec->setEnabledBySettings(false);
 
         pluginCategories[spec->category()].append(spec);
     }
@@ -1803,21 +1781,49 @@ void PluginManagerPrivate::readPluginPaths()
     emit q->pluginsChanged();
 }
 
+/*!
+    \internal
+*/
+void PluginManagerPrivate::readPluginPaths()
+{
+    QVector<PluginSpec *> newSpecs;
+
+    // from the file system
+    for (const QString &pluginFile : pluginFiles(pluginPaths)) {
+        expected_str<PluginSpec *> spec = PluginSpecImpl::read(pluginFile);
+        if (!spec) {
+            qCWarning(pluginLog).noquote()
+                << QString("Ignoring plugin \"%1\" because: %2").arg(pluginFile).arg(spec.error());
+            continue;
+        }
+        newSpecs.append(*spec);
+    }
+
+    // static
+    for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
+        expected_str<PluginSpec *> spec = PluginSpecImpl::read(plugin);
+        QTC_ASSERT_EXPECTED(spec, continue);
+        newSpecs.append(*spec);
+    }
+
+    addPlugins(newSpecs);
+}
+
 void PluginManagerPrivate::resolveDependencies()
 {
     for (PluginSpec *spec : std::as_const(pluginSpecs))
-        spec->d->resolveDependencies(pluginSpecs);
+        spec->resolveDependencies(pluginSpecs);
 }
 
 void PluginManagerPrivate::enableDependenciesIndirectly()
 {
     for (PluginSpec *spec : std::as_const(pluginSpecs))
-        spec->d->enabledIndirectly = false;
+        spec->setEnabledIndirectly(false);
     // cannot use reverse loadQueue here, because test dependencies can introduce circles
     QVector<PluginSpec *> queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
     while (!queue.isEmpty()) {
         PluginSpec *spec = queue.takeFirst();
-        queue += spec->d->enableDependenciesIndirectly(containsTestSpec(spec));
+        queue += spec->enableDependenciesIndirectly(containsTestSpec(spec));
     }
 }
 
