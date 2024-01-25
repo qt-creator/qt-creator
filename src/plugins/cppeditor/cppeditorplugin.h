@@ -3,38 +3,8 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
-
 namespace CppEditor::Internal {
 
-class CppEditorPluginPrivate;
+void clearHeaderSourceCache();
 
-class CppEditorPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppEditor.json")
-
-public:
-    CppEditorPlugin();
-    ~CppEditorPlugin() override;
-
-    static CppEditorPlugin *instance();
-
-    static void clearHeaderSourceCache();
-
-private:
-    void initialize() override;
-    void extensionsInitialized() override;
-
-    void setupMenus();
-    void addPerSymbolActions();
-    void addActionsForSelections();
-    void addPerFileActions();
-    void addGlobalActions();
-    void registerVariables();
-    void registerTests();
-
-    CppEditorPluginPrivate *d = nullptr;
-};
-
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

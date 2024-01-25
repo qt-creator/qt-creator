@@ -67,6 +67,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -181,26 +183,35 @@ public:
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
 
-static CppEditorPlugin *m_instance = nullptr;
 static QHash<FilePath, FilePath> m_headerSourceMapping;
 
-CppEditorPlugin::CppEditorPlugin()
+class CppEditorPlugin final : public ExtensionSystem::IPlugin
 {
-    m_instance = this;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppEditor.json")
 
-CppEditorPlugin::~CppEditorPlugin()
-{
-    destroyCppQuickFixes();
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
-}
+public:
+    ~CppEditorPlugin() final
+    {
+        destroyCppQuickFixes();
+        delete d;
+        d = nullptr;
+    }
 
-CppEditorPlugin *CppEditorPlugin::instance()
-{
-    return m_instance;
-}
+private:
+    void initialize() final;
+    void extensionsInitialized() final;
+
+    void setupMenus();
+    void addPerSymbolActions();
+    void addActionsForSelections();
+    void addPerFileActions();
+    void addGlobalActions();
+    void registerVariables();
+    void registerTests();
+
+    CppEditorPluginPrivate *d = nullptr;
+};
 
 void CppEditorPlugin::initialize()
 {
@@ -540,7 +551,7 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
     }
 }
 
-void CppEditorPlugin::clearHeaderSourceCache()
+void clearHeaderSourceCache()
 {
     m_headerSourceMapping.clear();
 }
@@ -774,3 +785,5 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
 }
 
 } // namespace CppEditor
+
+#include "cppeditorplugin.moc"

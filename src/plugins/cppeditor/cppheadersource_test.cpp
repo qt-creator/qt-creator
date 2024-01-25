@@ -49,10 +49,10 @@ void HeaderSourceTest::test()
     createTempFile(headerPath);
 
     bool wasHeader;
-    CppEditorPlugin::clearHeaderSourceCache();
+    clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(sourcePath, &wasHeader), headerPath);
     QVERIFY(!wasHeader);
-    CppEditorPlugin::clearHeaderSourceCache();
+    clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(headerPath, &wasHeader), sourcePath);
     QVERIFY(wasHeader);
 }

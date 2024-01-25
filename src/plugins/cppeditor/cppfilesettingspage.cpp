@@ -396,7 +396,7 @@ void CppFileSettingsWidget::apply()
     *m_settings = rc;
     m_settings->toSettings(Core::ICore::settings());
     m_settings->applySuffixesToMimeDB();
-    CppEditorPlugin::clearHeaderSourceCache();
+    clearHeaderSourceCache();
 }
 
 static inline void setComboText(QComboBox *cb, const QString &text, int defaultIndex = 0)
@@ -600,7 +600,7 @@ public:
         if (m_settings.useGlobalSettings() != m_wasGlobal
             || s.headerSearchPaths != m_initialSettings.headerSearchPaths
             || s.sourceSearchPaths != m_initialSettings.sourceSearchPaths) {
-            CppEditorPlugin::clearHeaderSourceCache();
+            clearHeaderSourceCache();
         }
     }
 
