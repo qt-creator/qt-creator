@@ -193,7 +193,7 @@ private:
 class AppManagerDebugSupport final : public Debugger::DebuggerRunTool
 {
 private:
-    QString m_symbolFile;
+    FilePath m_symbolFile;
     AppManInferiorRunner *m_debuggee = nullptr;
 
 public:
@@ -217,14 +217,13 @@ public:
             return;
 
         if (targetInformation.manifest.isQmlRuntime()) {
-            const Utils::FilePath dir = SysRootKitAspect::sysRoot(target->kit());
-            // TODO: get real aspect from deploy configuration
-            QString amfolder = Constants::REMOTE_DEFAULT_BIN_PATH;
-            m_symbolFile = dir.toString() + amfolder + QDir::separator() + Constants::APPMAN_LAUNCHER_QML;
+            m_symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
+                                           target->kit(),
+                                           DeviceKitAspect::device(target->kit()));
         } else if (targetInformation.manifest.isNativeRuntime()) {
             m_symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(), [&](const BuildTargetInfo &ti) {
                                return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;
-                           }).targetFilePath.toString();
+                           }).targetFilePath;
         } else {
             reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
         }
@@ -249,7 +248,7 @@ private:
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
             setRemoteChannel(m_debuggee->gdbServer());
-            setSymbolFile(FilePath::fromString(m_symbolFile));
+            setSymbolFile(m_symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {

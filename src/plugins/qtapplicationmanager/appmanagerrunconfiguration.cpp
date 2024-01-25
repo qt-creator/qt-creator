@@ -86,10 +86,8 @@ public:
 
     virtual bool supportsBuildKey(Target *target, const QString &key) const final
     {
-        QList<TargetInformation> tis = TargetInformation::readFromProject(target);
-        return Utils::anyOf(tis, [key](const TargetInformation &ti) {
-            return ti.buildKey == key;
-        });
+        QList<TargetInformation> tis = TargetInformation::readFromProject(target, key);
+        return !tis.isEmpty();
     }
 
     virtual bool filterTarget(const TargetInformation &ti) const

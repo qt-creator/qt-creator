@@ -48,6 +48,7 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
         const Utils::expected_str<QByteArray> localFileContents = manifestFilePath.fileContents();
         if (!localFileContents.has_value()) {
             qWarning() << "NOPE:" << localFileContents.error();
+            continue;
         }
 
         auto createTargetInformation = [buildKey, manifestFilePath, cmakeTarget, packageFilePath, isBuiltinPackage, &result](const YAML::Node &document) {
@@ -131,7 +132,7 @@ TargetInformation::TargetInformation(const Target *target)
 
 bool TargetInformation::isValid() const
 {
-    return !manifest.filePath.isEmpty() && packageFilePath.isFile();
+    return !manifest.filePath.isEmpty() && manifest.filePath.isFile();
 }
 
 } // namespace Internal
