@@ -22,8 +22,6 @@ public:
 
     static void clearHeaderSourceCache();
 
-    void openDeclarationDefinitionInNextSplit();
-    void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 

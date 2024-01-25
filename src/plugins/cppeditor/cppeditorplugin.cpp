@@ -330,7 +330,10 @@ void CppEditorPlugin::addPerSymbolActions()
     openDeclDefSplit.setScriptable(true);
     openDeclDefSplit.setDefaultKeySequence(Tr::tr("Meta+E, Shift+F2"), Tr::tr("Ctrl+E, Shift+F2"));
     openDeclDefSplit.addToContainers(menus, Constants::G_SYMBOL);
-    openDeclDefSplit.addOnTriggered(this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
+    openDeclDefSplit.addOnTriggered(this, [] {
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->switchDeclarationDefinition(/*inNextSplit*/ true);
+    });
 
     addSymbolActionToMenus(TextEditor::Constants::FIND_USAGES);
 
@@ -339,7 +342,7 @@ void CppEditorPlugin::addPerSymbolActions()
     findRefsCategorized.setContext(context);
     findRefsCategorized.bindContextAction(&d->m_findRefsCategorizedAction);
     findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
-    findRefsCategorized.addOnTriggered(this, [this] {
+    findRefsCategorized.addOnTriggered(this, [] {
         if (const auto w = currentCppEditorWidget()) {
             codeModelSettings()->setCategorizeFindReferences(true);
             w->findUsages();
@@ -395,7 +398,10 @@ void CppEditorPlugin::addPerFileActions()
     openPreprocessor.setContext(context);
     openPreprocessor.setDefaultKeySequence({});
     openPreprocessor.addToContainers(menus, Constants::G_FILE);
-    openPreprocessor.addOnTriggered(this, &CppEditorPlugin::showPreProcessorDialog);
+    openPreprocessor.addOnTriggered(this, [] {
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->showPreProcessorWidget();
+    });
 
     ActionBuilder showPreprocessed(this, Constants::SHOW_PREPROCESSED_FILE);
     showPreprocessed.setText(Tr::tr("Show Preprocessed Source"));
@@ -511,22 +517,10 @@ void CppEditorPlugin::switchDeclarationDefinition()
         editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
 }
 
-void CppEditorPlugin::openDeclarationDefinitionInNextSplit()
-{
-    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ true);
-}
-
 void CppEditorPlugin::renameSymbolUnderCursor()
 {
     if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->renameSymbolUnderCursor();
-}
-
-void CppEditorPlugin::showPreProcessorDialog()
-{
-    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->showPreProcessorWidget();
 }
 
 void CppEditorPluginPrivate::onTaskStarted(Id type)
