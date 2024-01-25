@@ -488,7 +488,7 @@ void CppEditorPlugin::registerTests()
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();
     addTestCreator(createCppHeaderSourceTest);
-    addTest<IncludeGroupsTest>();
+    addTestCreator(createIncludeGroupsTest);
     addTest<LocalSymbolsTest>();
     addTest<LocatorFilterTest>();
     addTest<ModelManagerTest>();

@@ -225,13 +225,12 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
                                const Document::Ptr &cppDocument)
 {
     // Find optimal position
-    using namespace IncludeUtils;
-    LineForNewIncludeDirective finder(file->filePath(), file->document(), cppDocument,
-                                      LineForNewIncludeDirective::IgnoreMocIncludes,
-                                      LineForNewIncludeDirective::AutoDetect);
     unsigned newLinesToPrepend = 0;
     unsigned newLinesToAppend = 0;
-    const int insertLine = finder(include, &newLinesToPrepend, &newLinesToAppend);
+    const int insertLine = lineForNewIncludeDirective(file->filePath(), file->document(),
+                                                      cppDocument, IgnoreMocIncludes, AutoDetect,
+                                                      include,
+                                                      &newLinesToPrepend, &newLinesToAppend);
     QTC_ASSERT(insertLine >= 1, return);
     const int insertPosition = file->position(insertLine, 1);
     QTC_ASSERT(insertPosition >= 0, return);
