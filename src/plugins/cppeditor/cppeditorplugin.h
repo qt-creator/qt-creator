@@ -22,9 +22,6 @@ public:
 
     static void clearHeaderSourceCache();
 
-    void renameSymbolUnderCursor();
-    void switchDeclarationDefinition();
-
 private:
     void initialize() override;
     void extensionsInitialized() override;

@@ -357,7 +357,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         if (useClangd && tag.endsWith("Var"))
             initialTestFile->m_editorWidget->openLinkUnderCursor();
         else
-            CppEditorPlugin::instance()->switchDeclarationDefinition();
+            initialTestFile->m_editorWidget->switchDeclarationDefinition(/*inNextSplit*/false);
         break;
     default:
         QFAIL("Unknown test action");

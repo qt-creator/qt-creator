@@ -330,13 +330,14 @@ public:
     void run(CppEditorWidget *) override;
 };
 
-void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *)
+void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Switch Declaration/Definition
     IEditor *editorBefore = EditorManager::currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
-    CppEditorPlugin::instance()->switchDeclarationDefinition();
+    if (editorWidget)
+        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
     QApplication::processEvents();
 
     // Go back
@@ -368,9 +369,11 @@ public:
     void run(CppEditorWidget *) override;
 };
 
-void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *)
+void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
 {
-    CppEditorPlugin::instance()->renameSymbolUnderCursor();
+    if (editorWidget)
+        editorWidget->renameSymbolUnderCursor();
+
     QApplication::processEvents();
 }
 

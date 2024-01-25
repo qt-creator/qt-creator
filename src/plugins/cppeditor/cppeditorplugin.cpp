@@ -511,18 +511,6 @@ void CppEditorPlugin::registerTests()
 #endif
 }
 
-void CppEditorPlugin::switchDeclarationDefinition()
-{
-    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
-}
-
-void CppEditorPlugin::renameSymbolUnderCursor()
-{
-    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->renameSymbolUnderCursor();
-}
-
 void CppEditorPluginPrivate::onTaskStarted(Id type)
 {
     if (type == Constants::TASK_INDEX) {
