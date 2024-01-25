@@ -48,6 +48,10 @@ struct
     {
         FilePath script{":/terminal/shellintegrations/shellintegration-clink.lua"};
     } clink;
+    struct
+    {
+        FilePath script{":/terminal/shellintegrations/shellintegration.fish"};
+    } fish;
 
 } filesToCopy;
 // clang-format on
@@ -72,6 +76,9 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     }
 
     if (cmdLine.executable().baseName() == "cmd")
+        return true;
+
+    if (cmdLine.executable().baseName() == "fish")
         return true;
 
     return false;
@@ -178,6 +185,12 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
         env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath(), ";");
+    } else if (cmd.executable().baseName() == "fish") {
+        FilePath xdgDir = FilePath::fromUserInput(m_tempDir.filePath("fish_xdg_data"));
+        FilePath subDir = xdgDir.resolvePath(QString("fish/vendor_conf.d"));
+        QTC_ASSERT(subDir.createDir(), return);
+        filesToCopy.fish.script.copyFile(subDir.resolvePath(filesToCopy.fish.script.fileName()));
+        env.appendOrSet("XDG_DATA_DIRS", xdgDir.toUserOutput());
     }
 
     process.setCommand(cmd);
