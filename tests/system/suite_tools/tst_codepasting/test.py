@@ -243,7 +243,7 @@ def main():
     # QString QTextCursor::selectedText () const:
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a
     # Unicode U+2029 paragraph separator character instead of a newline \n character."
-    newParagraph = chr(0x2029) if sys.version_info.major > 2 else unichr(0x2029)
+    newParagraph = chr(0x2029)
     selectedText = str(editor.textCursor().selectedText()).replace(newParagraph, "\n")
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
     test.compare(waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit").plainText,

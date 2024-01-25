@@ -104,7 +104,7 @@ def __writeOutlineFile__(outlinePseudoTree, filename):
 
 def retrieveData(record):
     return (testData.field(record, "element"),
-            __builtin__.int(testData.field(record, "nestinglevel")),
+            builtins.int(testData.field(record, "nestinglevel")),
             testData.field(record, "value"))
 
 def verifyOutline(outlinePseudoTree, datasetFileName):

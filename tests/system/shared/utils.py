@@ -595,15 +595,12 @@ def getHelpTitle():
 
 
 def isString(sth):
-    if sys.version_info.major > 2:
-        return isinstance(sth, str)
-    else:
-        return isinstance(sth, (str, unicode))
+    return isinstance(sth, str)
+
 
 # helper function to ensure we get str, converts bytes if necessary
 def stringify(obj):
-    stringTypes = (str, unicode) if sys.version_info.major == 2 else (str)
-    if isinstance(obj, stringTypes):
+    if isString(obj):
         return obj
     if isinstance(obj, bytes):
         if not platform.system() in ('Microsoft', 'Windows'):
