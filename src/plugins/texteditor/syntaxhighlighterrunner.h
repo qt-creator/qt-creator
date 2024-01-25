@@ -25,10 +25,6 @@ class TEXTEDITOR_EXPORT SyntaxHighlighterRunner : public QObject
     Q_OBJECT
 public:
     using SyntaxHighlighterCreator = std::function<SyntaxHighlighter *()>;
-    struct BlockPreeditData {
-        int position;
-        QString text;
-    };
 
     SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
                             QTextDocument *document,

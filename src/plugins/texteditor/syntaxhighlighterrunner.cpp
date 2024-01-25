@@ -18,6 +18,11 @@
 
 namespace TextEditor {
 
+struct BlockPreeditData {
+    int position;
+    QString text;
+};
+
 class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
@@ -48,7 +53,7 @@ public:
     void changeDocument(int from,
                         int charsRemoved,
                         const QString textAdded,
-                        const QMap<int, SyntaxHighlighterRunner::BlockPreeditData> &blocksPreedit)
+                        const QMap<int, BlockPreeditData> &blocksPreedit)
     {
         QTextCursor cursor(m_document);
         cursor.setPosition(qMin(m_document->characterCount() - 1, from + charsRemoved));
@@ -191,7 +196,7 @@ void SyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int cha
 {
     QTC_ASSERT(m_document, return);
     m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
-    QMap<int, SyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
+    QMap<int, BlockPreeditData> blocksPreedit;
     QTextBlock block = m_document->findBlock(from);
     const QTextBlock endBlock = m_document->findBlock(from + charsAdded);
     while (block.isValid() && block != endBlock) {
