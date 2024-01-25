@@ -10,7 +10,6 @@ import EffectMakerBackend
 Rectangle {
     id: root
 
-    width: parent.width
     height: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
 

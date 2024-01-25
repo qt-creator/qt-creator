@@ -70,6 +70,8 @@ Item {
             SplitView.preferredHeight: 300
 
             EffectMakerTopBar {
+                Layout.fillWidth: true
+
                 onAddClicked: {
                     root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear(true) }
 
