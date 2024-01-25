@@ -6,15 +6,14 @@
 #include "baseeditordocumentprocessor.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
-#include "cppeditorwidget.h"
-#include "cppelementevaluator.h"
 #include "cppmodelmanager.h"
-#include "editordocumenthandle.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/navigationwidget.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -30,7 +29,6 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QStackedWidget>
@@ -396,8 +394,6 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     layout->addWidget(ItemViewFind::createSearchableWrapper(new IncludeFinder(m_treeView, &m_model)));
     layout->addWidget(m_includeHierarchyInfoLabel);
 
-    connect(CppEditorPlugin::instance(), &CppEditorPlugin::includeHierarchyRequested,
-            this, &CppIncludeHierarchyWidget::perform);
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
             this, &CppIncludeHierarchyWidget::editorsClosed);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -496,27 +492,6 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
 
 // CppIncludeHierarchyFactory
 
-CppIncludeHierarchyFactory::CppIncludeHierarchyFactory()
-{
-    setDisplayName(Tr::tr("Include Hierarchy"));
-    setPriority(800);
-    setId(Constants::INCLUDE_HIERARCHY_ID);
-}
-
-NavigationView CppIncludeHierarchyFactory::createWidget()
-{
-    auto hierarchyWidget = new CppIncludeHierarchyWidget;
-    hierarchyWidget->perform();
-
-    auto stack = new QStackedWidget;
-    stack->addWidget(hierarchyWidget);
-
-    NavigationView navigationView;
-    navigationView.dockToolBarWidgets << hierarchyWidget->m_toggleSync;
-    navigationView.widget = stack;
-    return navigationView;
-}
-
 static CppIncludeHierarchyWidget *hierarchyWidget(QWidget *widget)
 {
     auto stack = qobject_cast<QStackedWidget *>(widget);
@@ -526,14 +501,83 @@ static CppIncludeHierarchyWidget *hierarchyWidget(QWidget *widget)
     return hierarchyWidget;
 }
 
-void CppIncludeHierarchyFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
+class CppIncludeHierarchyFactory final : public INavigationWidgetFactory
 {
-    hierarchyWidget(widget)->saveSettings(settings, position);
+public:
+    CppIncludeHierarchyFactory()
+    {
+        setDisplayName(Tr::tr("Include Hierarchy"));
+        setPriority(800);
+        setId(Constants::INCLUDE_HIERARCHY_ID);
+
+        ActionBuilder openIncludeHierarchy(this, Constants::OPEN_INCLUDE_HIERARCHY);
+        openIncludeHierarchy.setText(Tr::tr("Open Include Hierarchy"));
+        openIncludeHierarchy.bindContextAction(&m_openIncludeHierarchyAction);
+        openIncludeHierarchy.setContext(Context(Constants::CPPEDITOR_ID));
+        openIncludeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+I"), Tr::tr("Ctrl+Shift+I"));
+        openIncludeHierarchy.addToContainers({Constants::M_TOOLS_CPP, Constants::M_CONTEXT},
+                                             Constants::G_FILE);
+
+        connect(m_openIncludeHierarchyAction, &QAction::triggered, this, [] {
+            NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
+        });
+
+        connect(ProgressManager::instance(), &ProgressManager::taskStarted, [this](Id type) {
+            if (type == Constants::TASK_INDEX)
+                m_openIncludeHierarchyAction->setEnabled(false);
+        });
+        connect(ProgressManager::instance(), &ProgressManager::allTasksFinished, [this](Id type) {
+            if (type == Constants::TASK_INDEX)
+                m_openIncludeHierarchyAction->setEnabled(true);
+        });
+
+    }
+
+    NavigationView createWidget() final
+    {
+        auto hierarchyWidget = new CppIncludeHierarchyWidget;
+        hierarchyWidget->perform();
+
+        auto stack = new QStackedWidget;
+        stack->addWidget(hierarchyWidget);
+
+        NavigationView navigationView;
+        navigationView.dockToolBarWidgets << hierarchyWidget->m_toggleSync;
+        navigationView.widget = stack;
+
+        connect(m_openIncludeHierarchyAction, &QAction::triggered,
+                hierarchyWidget, &CppIncludeHierarchyWidget::perform);
+
+        return navigationView;
+    }
+
+    void saveSettings(QtcSettings *settings, int position, QWidget *widget) final
+    {
+        hierarchyWidget(widget)->saveSettings(settings, position);
+    }
+
+    void restoreSettings(QtcSettings *settings, int position, QWidget *widget) final
+    {
+        hierarchyWidget(widget)->restoreSettings(settings, position);
+    }
+
+    QAction *m_openIncludeHierarchyAction = nullptr;
+};
+
+static CppIncludeHierarchyFactory &cppIncludeHierarchyFactory()
+{
+    static CppIncludeHierarchyFactory theCppIncludeHierarchyFactory;
+    return theCppIncludeHierarchyFactory;
 }
 
-void CppIncludeHierarchyFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
+void openCppIncludeHierarchy()
 {
-    hierarchyWidget(widget)->restoreSettings(settings, position);
+     cppIncludeHierarchyFactory().m_openIncludeHierarchyAction->trigger();
+}
+
+void setupCppIncludeHierarchy()
+{
+    (void) cppIncludeHierarchyFactory(); // Force instantiation
 }
 
 } // namespace Internal

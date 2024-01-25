@@ -166,14 +166,12 @@ public:
 
     QAction *m_reparseExternallyChangedFiles = nullptr;
     QAction *m_findRefsCategorizedAction = nullptr;
-    QAction *m_openIncludeHierarchyAction = nullptr;
 
     CppQuickFixSettingsPage m_quickFixSettingsPage;
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
     CppOutlineWidgetFactory m_cppOutlineWidgetFactory;
-    CppIncludeHierarchyFactory m_cppIncludeHierarchyFactory;
     CppEditorFactory m_cppEditorFactory;
 
     CppModelManager modelManager;
@@ -423,13 +421,7 @@ void CppEditorPlugin::addPerFileActions()
     unfoldComments.addToContainers(menus, Constants::G_FILE);
     unfoldComments.addOnTriggered(this, [] { CppModelManager::unfoldComments(); });
 
-    ActionBuilder openIncludeHierarchy(this, Constants::OPEN_INCLUDE_HIERARCHY);
-    openIncludeHierarchy.setText(Tr::tr("Open Include Hierarchy"));
-    openIncludeHierarchy.bindContextAction(&d->m_openIncludeHierarchyAction);
-    openIncludeHierarchy.setContext(context);
-    openIncludeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+I"), Tr::tr("Ctrl+Shift+I"));
-    openIncludeHierarchy.addToContainers(menus, Constants::G_FILE);
-    openIncludeHierarchy.addOnTriggered(this, &CppEditorPlugin::openIncludeHierarchy);
+    setupCppIncludeHierarchy();
 }
 
 void CppEditorPlugin::addGlobalActions()
@@ -543,7 +535,6 @@ void CppEditorPluginPrivate::onTaskStarted(Id type)
         ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(false);
         ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(false);
         m_reparseExternallyChangedFiles->setEnabled(false);
-        m_openIncludeHierarchyAction->setEnabled(false);
     }
 }
 
@@ -553,7 +544,6 @@ void CppEditorPluginPrivate::onAllTasksFinished(Id type)
         ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(true);
         ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(true);
         m_reparseExternallyChangedFiles->setEnabled(true);
-        m_openIncludeHierarchyAction->setEnabled(true);
     }
 }
 
@@ -565,14 +555,6 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
         m_cppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::dialogParent());
         ICore::registerWindow(m_cppCodeModelInspectorDialog, Context("CppEditor.Inspector"));
         m_cppCodeModelInspectorDialog->show();
-    }
-}
-
-void CppEditorPlugin::openIncludeHierarchy()
-{
-    if (currentCppEditorWidget()) {
-        emit includeHierarchyRequested();
-        NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
     }
 }
 

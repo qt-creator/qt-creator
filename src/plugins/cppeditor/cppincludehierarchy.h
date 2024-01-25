@@ -8,8 +8,7 @@
 
 #include <QSet>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class CppIncludeHierarchyItem;
 
@@ -42,17 +41,7 @@ private:
     bool m_searching = false;
 };
 
-class CppIncludeHierarchyFactory : public Core::INavigationWidgetFactory
-{
-    Q_OBJECT
+void openCppIncludeHierarchy();
+void setupCppIncludeHierarchy();
 
-public:
-    CppIncludeHierarchyFactory();
-
-    Core::NavigationView createWidget() override;
-    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-};
-
-} // namespace Internal
-} // namespace CppEditor
+} // CppEditor::Internal
