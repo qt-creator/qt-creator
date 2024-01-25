@@ -243,18 +243,17 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 {
-    const QStringList commands = commandsToTest();
-    const LoopRepeat repeater(commands.size());
+    const LoopList iterator(commandsToTest());
 
-    const auto onSetup = [this, commands, repeater](Process &process) {
-        const QString commandName = commands.at(repeater.iteration());
+    const auto onSetup = [this, iterator](Process &process) {
+        const QString &commandName = *iterator;
         emit q->progressMessage(Tr::tr("%1...").arg(commandName));
         CommandLine command{m_device->filePath("/bin/sh"), {"-c"}};
         command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
         process.setCommand(command);
     };
-    const auto onDone = [this, commands, repeater](const Process &process, DoneWith result) {
-        const QString commandName = commands.at(repeater.iteration());
+    const auto onDone = [this, iterator](const Process &process, DoneWith result) {
+        const QString &commandName = *iterator;
         if (result == DoneWith::Success) {
             emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
             return;
@@ -271,7 +270,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
         onGroupSetup([this] {
             emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
         }),
-        repeater,
+        iterator,
         ProcessTask(onSetup, onDone)
     };
     return root;
