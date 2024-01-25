@@ -56,7 +56,7 @@ void Images::process()
     const auto urls = downloadDialog->getUrls();
     initLayout(urls.size());
 
-    const LoopRepeat repeater(urls.size());
+    const LoopList iterator(urls);
     const Storage<QByteArray> storage;
 
     const auto onRootSetup = [this] {
@@ -68,13 +68,13 @@ void Images::process()
         cancelButton->setEnabled(false);
     };
 
-    const auto onDownloadSetup = [this, urls, repeater](NetworkQuery &query) {
+    const auto onDownloadSetup = [this, iterator](NetworkQuery &query) {
         query.setNetworkAccessManager(&qnam);
-        query.setRequest(QNetworkRequest(urls.at(repeater.iteration())));
+        query.setRequest(QNetworkRequest(*iterator));
     };
-    const auto onDownloadDone = [this, storage, repeater](const NetworkQuery &query,
+    const auto onDownloadDone = [this, storage, iterator](const NetworkQuery &query,
                                                                   DoneWith result) {
-        const int it = repeater.iteration();
+        const int it = iterator.iteration();
         if (result == DoneWith::Success)
             *storage = query.reply()->readAll();
         else
@@ -84,9 +84,9 @@ void Images::process()
     const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
         data.setConcurrentCallData(&scale, *storage);
     };
-    const auto onScalingDone = [this, repeater](const ConcurrentCall<QImage> &data,
+    const auto onScalingDone = [this, iterator](const ConcurrentCall<QImage> &data,
                                                 DoneWith result) {
-        const int it = repeater.iteration();
+        const int it = iterator.iteration();
         if (result == DoneWith::Success)
             labels[it]->setPixmap(QPixmap::fromImage(data.result()));
         else
@@ -96,7 +96,7 @@ void Images::process()
     const QList<GroupItem> tasks {
         finishAllAndSuccess,
         parallel,
-        repeater,
+        iterator,
         onGroupSetup(onRootSetup),
         Group {
             storage,
