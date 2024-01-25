@@ -232,8 +232,6 @@ public:
         layout->addWidget(m_closeButton);
         setLayout(layout);
 
-        setProperty("managed_titlebar", 1);
-
         m_closeButton->setVisible(false);
         m_floatButton->setVisible(false);
         connect(parent, &QDockWidget::featuresChanged, this, [this] { updateChildren(); });
@@ -261,10 +259,10 @@ public:
 
     void updateChildren()
     {
-        m_titleLabel->setVisible(m_active);
-        m_floatButton->setVisible(m_active && m_hovered
+        setVisible(m_active);
+        m_floatButton->setVisible(m_hovered
                                   && q->features().testFlag(QDockWidget::DockWidgetFloatable));
-        m_closeButton->setVisible(m_active && m_hovered
+        m_closeButton->setVisible(m_hovered
                                   && q->features().testFlag(QDockWidget::DockWidgetClosable));
         updateCollapse();
     }
@@ -287,7 +285,7 @@ public:
 
     void updateCollapse()
     {
-        const bool supported = m_active && q->supportsCollapse();
+        const bool supported = q->supportsCollapse();
         m_collapseButton->setVisible(supported);
         if (q->isCollapsed())
             m_collapseButton->setIcon(Icons::NEXT_TOOLBAR.icon());
