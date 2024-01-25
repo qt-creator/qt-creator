@@ -147,7 +147,7 @@ public:
 
     QSet<Id> availableFeatures(const Kit *k) const override
     {
-        if (k->isAspectRelevant(PythonKitAspect::id()) && PythonKitAspect::python(k))
+        if (PythonKitAspect::python(k))
             return {PythonKitAspect::id()};
         return {};
     }

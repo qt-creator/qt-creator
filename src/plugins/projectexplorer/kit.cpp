@@ -725,8 +725,10 @@ QSet<Id> Kit::supportedPlatforms() const
 QSet<Id> Kit::availableFeatures() const
 {
     QSet<Id> features;
-    for (const KitAspectFactory *factory : KitManager::kitAspectFactories())
-        features |= factory->availableFeatures(this);
+    for (const KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (relevantAspects().isEmpty() || relevantAspects().contains(factory->id()))
+            features |= factory->availableFeatures(this);
+    }
     return features;
 }
 
