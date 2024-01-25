@@ -10,6 +10,6 @@
 namespace AppManager::Internal {
 
 QString getToolNameByDevice(const QString &baseName, const QSharedPointer<const ProjectExplorer::IDevice> &device = nullptr);
-QString getToolFilePath(const QString &toolname, const ProjectExplorer::Kit *kit, const ProjectExplorer::IDevice::ConstPtr &device = nullptr);
+Utils::FilePath getToolFilePath(const QString &toolname, const ProjectExplorer::Kit *kit, const ProjectExplorer::IDevice::ConstPtr &device = nullptr);
 
 } // AppManager::Internal

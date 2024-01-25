@@ -54,9 +54,9 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 {
     setDisplayName(tr("Install Application Manager package"));
 
-    controller.setDefaultValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                               target()->kit(),
-                                               DeviceKitAspect::device(target()->kit())));
+    controller.setDefaultPathValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
+                                                   target()->kit(),
+                                                   DeviceKitAspect::device(target()->kit())));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
@@ -75,11 +75,11 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         const TargetInformation targetInformation(target());
 
         if (DeviceKitAspect::device(kit())->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-            packageFile.setDefaultValue(targetInformation.packageFilePath.toUserOutput());
+            packageFile.setDefaultPathValue(targetInformation.packageFilePath);
         } else {
             const Utils::FilePath packageFilePath = targetInformation.runDirectory.pathAppended(
                 targetInformation.packageFilePath.fileName());
-            packageFile.setDefaultValue(packageFilePath.toUserOutput());
+            packageFile.setDefaultPathValue(packageFilePath);
         }
 
         setEnabled(!targetInformation.isBuiltin);

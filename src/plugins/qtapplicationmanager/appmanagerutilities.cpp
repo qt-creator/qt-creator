@@ -38,14 +38,14 @@ static FilePath getToolPathByQtVersion(const QtVersion *qtVersion,
     return {};
 }
 
-QString getToolFilePath(const QString &toolname, const Kit *kit, const IDevice::ConstPtr &device)
+FilePath getToolFilePath(const QString &toolname, const Kit *kit, const IDevice::ConstPtr &device)
 {
     const bool local = !device || device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     const FilePath path = local ? getToolPathByQtVersion(QtKitAspect::qtVersion(kit))
                                 : FilePath(Constants::REMOTE_DEFAULT_BIN_PATH);
     const QString name = getToolNameByDevice(toolname, device);
     const QString filePath = !path.isEmpty() ? path.pathAppended(name).toString() : name;
-    return !device ? filePath : device->filePath(filePath).toUserOutput();
+    return !device ? FilePath::fromString(filePath) : device->filePath(filePath);
 }
 
 QString getToolNameByDevice(const QString &baseName, const QSharedPointer<const IDevice> &device)

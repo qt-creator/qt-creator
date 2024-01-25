@@ -41,8 +41,8 @@ public:
                 return;
             const TargetInformation targetInformation = tis.at(0);
 
-            controller.setValue(FilePath::fromString(getToolFilePath(Constants::APPMAN_CONTROLLER, kit(),
-                                                                     DeviceKitAspect::device(kit()))));
+            controller.setValue(getToolFilePath(Constants::APPMAN_CONTROLLER, kit(),
+                                                DeviceKitAspect::device(kit())));
 
             appId.setValue(targetInformation.manifest.id);
             appId.setReadOnly(true);
