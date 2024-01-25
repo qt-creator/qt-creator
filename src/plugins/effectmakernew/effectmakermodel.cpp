@@ -571,7 +571,9 @@ import QtQuick
 Item {
     id: rootItem
 
+    // This is an internal property used by tooling to identify effect items
     property var _isEffectItem
+
     property Item _oldParent: null
 )"
     };
