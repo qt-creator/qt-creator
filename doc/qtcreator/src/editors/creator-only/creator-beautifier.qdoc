@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,14 +8,16 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-editor-quick-fixes.html
     \page creator-beautifier.html
-    \nextpage creator-editor-options.html
+    \previouspage creator-how-tos.html
 
-    \title Beautifying Source Code
+    \ingroup creator-how-to-configure-editors
 
-    You can use the experimental Beautifier plugin to format your source code
-    by using the following external tools:
+    \title Beautify source code
+
+    Beautifying code means applying indentation and style to source code files.
+    Use the experimental Beautifier plugin to format your source code with the
+    following external tools:
 
     \list
 
@@ -28,22 +30,14 @@
     \endlist
 
     The Beautifier plugin parses the source code into component structures, such
-    as assignment statements, if blocks, loops, and so on, and formats them as
-    specified in the Beautifier preferences. You can use a predefined style or
+    as assignment statements, if blocks, loops, and so on, and formats them
+    according to the Beautifier preferences. You can use a predefined style or
     define your own style.
 
-    \note Enable the Beautifier plugin to use it. Since \QC 10.0.0, the
-    ClangFormat plugin is enabled by default. Select \preferences >
-    \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
-    to turn off ClangFormat if you enable Beautifier because combining
-    them can lead to unexpected results.
-
-    To use the Beautifier plugin:
+    To automatically format files when you save them:
 
     \list 1
-
         \li Download and install the tool to use for formatting source code:
-
             \list
                 \li \l{http://sourceforge.net/projects/astyle/files/astyle}
                     {Artistic Style}
@@ -51,19 +45,87 @@
                 \li \l{http://sourceforge.net/projects/uncrustify/files/uncrustify}
                     {Uncrustify}
             \endlist
+            \note You might have to build the tools from sources for some
+            platforms.
+        \li Enable the Beautifier plugin.
+            \note Since \QC 10.0.0, the ClangFormat plugin is enabled by default.
+            Go to \preferences > \uicontrol {C++} > \uicontrol {Formatting mode},
+            and select \uicontrol Disable to turn off ClangFormat if you enable
+            Beautifier because combining them can lead to unexpected results.
+        \li Go to \preferences > \uicontrol Beautifier > \uicontrol General to
+            select the tool to use.
+            \image qtcreator-preferences-beautifier-general.webp {General Beautifier preferences}
+        \li Select \uicontrol {Automatic formatting on file save} to
+            automatically beautify files when you save them using the tool you
+            select in the \uicontrol Tool field.
+        \li Go to \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
+            \uicontrol Uncrustify to set the path to the tool executable and
+            to select the configuration file that defines the style to use.
+            \image beautifier_options.png {Uncrustify Beautifier preferences}
+            \caption Beautifier Uncrustify preferences
+    \endlist
 
-            You might have to build the tools from sources for some platforms.
+    \section1 Format the currently open file
 
-        \li Select \preferences >
-            \uicontrol Beautifier to specify settings for beautifying files.
+    Go to \uicontrol Tools > \uicontrol Beautifier > \uicontrol {Artistic Style},
+    \uicontrol ClangFormat, or \uicontrol Uncrustify to select actions for
+    formatting text in the current file.
 
-        \li Select the \uicontrol {Automatic formatting on file save} check box to
+    You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
+    actions.
+
+    Go to \uicontrol {Format Current File} to format the currently open file.
+
+    \section2 Format at cursor with ClangFormat
+
+    Go to \uicontrol Tools > \uicontrol Beautifier > \uicontrol ClangFormat >
+    \uicontrol {Format at Cursor} when no text is selected to format the
+    syntactic entity under the cursor.
+
+    Go to \uicontrol {Format Line(s)} to format the selected lines.
+
+    Go to \uicontrol {Disable Formatting for Selected Text} to wrap selected
+    lines within \c {// clang-format off} and \c {// clang-format on}.
+
+    \section2 Format selected text with Uncrustify
+
+    Go to \uicontrol Tools > \uicontrol Beautifier > \uicontrol Uncrustify >
+    \uicontrol {Format Selected Text} when no text is selected to format
+    the whole file by default.
+
+    To turn off this behavior, clear
+    \uicontrol {Format entire file if no text was selected} in
+    \preferences > \uicontrol Beautifier > \uicontrol Uncrustify.
+
+    \sa {Enable and disable plugins}, {Beautifier}
+*/
+
+/*!
+    \page creator-preferences-beautifier.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Beautifier
+
+    \brief Format source code with Artistic Style, ClangFormat, or Uncrustify.
+
+    Automatically apply indentation and style to source code files when you save
+    them. Use a predefined style or define your own style.
+
+    To specify settings for beautifying files:
+
+    \list 1
+
+         \li Go to \preferences > \uicontrol Beautifier > \uicontrol General.
+
+        \li Select \uicontrol {Automatic formatting on file save} to
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
 
             \image qtcreator-preferences-beautifier-general.webp {General Beautifier preferences}
 
-        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
+        \li In \uicontrol {Restrict to MIME types}, define the MIME
             types of the files to beautify, separated by semicolons. Leave the
             field empty to apply the tool on all files.
 
@@ -72,97 +134,90 @@
             format the currently open file, specify this option in the
             tool-specific tab.
 
-        \li Select the \uicontrol {Restrict to files contained in the current
-            project} check box to only beautify files that belong to the
-            current project.
+        \li Select \uicontrol {Restrict to files contained in the current project}
+            to only beautify files that belong to the current project.
 
-        \li Select \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
+        \li Go to \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
             \uicontrol Uncrustify to specify settings for the tool you want to
             use.
 
-            \image beautifier_options.png "Uncrustify Beautifier preferences"
+            \image beautifier_options.png {Uncrustify Beautifier preferences}
 
-        \li In the \uicontrol Configuration group, specify the path to
-            the tool executable in the \uicontrol {Artistic Style command},
-            \uicontrol {ClangFormat command}, or
-            \uicontrol {Uncrustify command} field.
+        \li In \uicontrol Configuration, specify the path to the
+            tool executable in \uicontrol {Artistic Style command},
+            \uicontrol {ClangFormat command}, or \uicontrol {Uncrustify command}.
 
-        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
+        \li In \uicontrol {Restrict to MIME types}, define the MIME
             types of the files to beautify. This setting is applied when you
             select the menu item to format the currently open file.
 
-        \li In the \uicontrol Options group, select the configuration file that
+        \li In \uicontrol Options, select the configuration file that
             defines the style to use in the source files. If you select several
             options, they are applied from top down. The available options
             depend on the tool.
 
-            \list
-
-                \li Select \uicontrol {Use file *.astylerc defined in project files}
-                    or \uicontrol {Use file uncrustify.cfg defined in project files},
-                    to use the configuration file \l{Specify project contents}
-                    {defined in the project file} as the configuration file
-                    for the selected tool.
-
-                \li Select \uicontrol {Use specific config file} or
-                    \uicontrol {Use file specific uncrustify.cfg} to
-                    use the specified file as the configuration file for the
-                    selected tool.
-
-                \li Select \uicontrol {Use file uncrustify.cfg in <$HOME>} or
-                    \uicontrol {Use file .astylerc or acstylerc in <$HOME>} to
-                    use the specified file in the user's home directory as the
-                    configuration file for the selected tool.
-
-                \li For ClangFormat, you can use a predefined style, by
-                    selecting the \uicontrol {Use predefined style} radio
-                    button, and then selecting the style to use from the list of
-                    available styles.
-
-                    \image qtcreator-beautifier-options-clangformat.png "ClangFormat Beautifier preferences"
-
-                    Select \uicontrol File to load the style configuration from
-                    the \c .clang-format or \c _clang-format file located in the
-                    same directory as the source file or in one of its parent
-                    directories.
-
-                    To specify a fallback style to use if the style configuration
-                    file is not available, use the \uicontrol {Fallback style}
-                    combo box. Select \uicontrol Default to use the default style.
-                    Select \uicontrol None to skip formatting.
-
-                \li Select the \uicontrol {Use customized style} option, and
-                    then \uicontrol Add to define your own style.
-
-                    Define code formatting in the
-                    \uicontrol {Add Configuration} dialog. It offers syntax
-                    highlighting, auto-completion, and context-sensitive help.
-                    For these features, you must have the tool installed.
-
-                   \image beautifier_editor.png "Add Configuration dialog"
-
-            \endlist
-
-        \li Select \preferences > \uicontrol Beautifier
-            > \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
-            \uicontrol Uncrustify > \uicontrol {Format Current File} to format
-            the currently open file.
-
-            You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
-            functions.
-
     \endlist
 
-    In addition, ClangFormat has the \uicontrol {Format at Cursor} command. If you
-    select it when no text is selected, the syntactic entity under the cursor
-    is formatted. The \uicontrol {Disable Formatting for Selected Text} command
-    wraps selected lines within \c {// clang-format off} and
-    \c {// clang-format on}.
+    \section1 Beautifier Tool Options
 
-    Uncrustify has the \uicontrol {Format Selected Text} command. If you
-    select it when no text is selected, the whole file is formatted by default.
-    To disable this behavior, deselect the
-    \uicontrol {Format entire file if no text was selected} check box.
+    To set the following options, you must have one of the tools installed.
 
-    \sa {Enable and disable plugins}
+    \table
+    \header
+        \li Option
+        \li Value
+    \row
+        \li \uicontrol {Use file *.astylerc defined in project files}
+
+            \uicontrol {Use file uncrustify.cfg defined in project files}
+        \li Use the configuration file \l{Specify project contents}
+            {defined in the project file} as the configuration file
+            for the selected tool.
+    \row
+        \li \uicontrol {Use specific config file}
+
+            \uicontrol {Use file specific uncrustify.cfg}
+        \li The file to use as the configuration file for the selected tool.
+    \row
+        \li \uicontrol {Use file uncrustify.cfg in <$HOME>}
+
+            \uicontrol {Use file .astylerc or acstylerc in <$HOME>}
+        \li Use the specified file in the user's home directory as the
+            configuration file for the selected tool.
+    \row
+        \li \uicontrol {Use customized style}
+        \li Set your own code style.
+    \row
+        \li \uicontrol {Format entire file if no text was selected}
+        \li Format the whole file when no text is selected in the editor and
+            you select \uicontrol {Format Selected Text}.
+    \endtable
+
+    \section2 Using a Predefined ClangFormat Style
+
+    To use a predefined ClangFormat style, go to \uicontrol {ClangFormat} and
+    select a style in \uicontrol {Use predefined style}.
+
+    \image qtcreator-beautifier-options-clangformat.png {ClangFormat Beautifier preferences}
+
+    Select \uicontrol File to load the style configuration from the
+    \c .clang-format or \c _clang-format file located in the same
+    directory as the source file or in one of its parent directories.
+
+    In \uicontrol {Fallback style}, select a fallback style to use if the style
+    configuration file is not available. Select \uicontrol Default to use the
+    default style. Select \uicontrol None to skip formatting.
+
+    \section2 Defining a Style
+
+    To define your own style, select \uicontrol {Use customized style}, and then
+    select \uicontrol Add.
+
+    Set the code style in the \uicontrol {Add Configuration} dialog.
+    It offers syntax highlighting, auto-completion, and context-sensitive
+    help.
+
+    \image beautifier_editor.png {Add Configuration dialog}
+
+    \sa {Beautify source code}, {Enable and disable plugins}
 */
