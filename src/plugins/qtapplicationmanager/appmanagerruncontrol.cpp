@@ -97,6 +97,7 @@ public:
         m_qmlServices(qmlServices)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
+        setEssential(true);
 
         connect(&m_launcher, &Process::started, this, &RunWorker::reportStarted);
         connect(&m_launcher, &Process::done, this, &RunWorker::reportStopped);
@@ -202,8 +203,6 @@ public:
     {
         setId("ApplicationManagerPlugin.Debug.Support");
 
-        //setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
-
         m_debuggee = new AppManInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
                                               QmlDebug::QmlDebuggerServices);
 
@@ -285,6 +284,9 @@ public:
         m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
         m_worker->addStartDependency(this);
         addStopDependency(m_worker);
+
+        // Make sure the QML Profiler is stopped before the appman-controller
+        m_runner->addStopDependency(m_worker);
     }
 
 private:
