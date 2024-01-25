@@ -21,7 +21,7 @@ Item {
 
         width: parent.width
         implicitHeight: contentHeight
-        leftMargin: 6
+        leftMargin: 0
 
         model: internalModels
         clip: true
