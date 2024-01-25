@@ -52,7 +52,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/actionmanager/commandbutton.h>
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -71,18 +70,19 @@
 #include <QImageWriter>
 #include <QLabel>
 #include <QMap>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QStyleFactory>
 #include <QTimer>
 #include <QToolBox>
+#include <QToolButton>
 #include <QUndoStack>
 #include <QVBoxLayout>
-#include <QMenu>
-#include <QScrollBar>
 
 #include <algorithm>
 
@@ -297,8 +297,9 @@ void ModelEditor::init()
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarLayout->setSpacing(0);
 
-    auto openParentButton = new CommandButton(Constants::OPEN_PARENT_DIAGRAM, d->toolbar);
-    openParentButton->setDefaultAction(d->actionHandler->openParentDiagramAction());
+    auto openParentButton
+        = Command::toolButtonWithAppendedShortcut(d->actionHandler->openParentDiagramAction(),
+                                                  Constants::OPEN_PARENT_DIAGRAM);
     toolbarLayout->addWidget(openParentButton);
 
     d->diagramSelector = new QComboBox(d->toolbar);
@@ -327,8 +328,9 @@ void ModelEditor::init()
                                                         d->toolbar));
     toolbarLayout->addSpacing(20);
 
-    auto syncToggleButton = new CommandButton(Constants::ACTION_SYNC_BROWSER, d->toolbar);
-    syncToggleButton->setDefaultAction(d->actionHandler->synchronizeBrowserAction());
+    auto syncToggleButton
+        = Command::toolButtonWithAppendedShortcut(d->actionHandler->synchronizeBrowserAction(),
+                                                  Constants::ACTION_SYNC_BROWSER);
     QMenu *syncMenu = new QMenu(syncToggleButton);
     QActionGroup *syncGroup = new QActionGroup(syncMenu);
     d->syncBrowserWithDiagramAction = syncMenu->addAction(Tr::tr("Synchronize Structure with Diagram"));

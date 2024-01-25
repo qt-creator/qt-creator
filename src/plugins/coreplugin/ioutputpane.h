@@ -10,7 +10,6 @@
 #include <utils/id.h>
 
 namespace Core {
-class CommandButton;
 class IContext;
 class OutputWindow;
 
@@ -103,8 +102,8 @@ private:
     Utils::Id m_id;
     QString m_displayName;
     int m_priority = -1;
-    Core::CommandButton * const m_zoomInButton;
-    Core::CommandButton * const m_zoomOutButton;
+    QToolButton *m_zoomInButton;
+    QToolButton *m_zoomOutButton;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     bool m_filterRegexp = false;
     bool m_invertFilter = false;

@@ -8,7 +8,7 @@
 #include "haskellmanager.h"
 #include "haskelltr.h"
 
-#include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreplugintr.h>
 
 #include <texteditor/textdocument.h>
@@ -23,8 +23,8 @@ namespace Haskell::Internal {
 static QWidget *createEditorWidget()
 {
     auto widget = new TextEditorWidget;
-    auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
-    ghciButton->setText(Tr::tr("GHCi"));
+    auto ghciButton = Core::Command::createToolButtonWithShortcutToolTip(Constants::A_RUN_GHCI);
+    ghciButton->defaultAction()->setIconText(Tr::tr("GHCi"));
     QObject::connect(ghciButton, &QToolButton::clicked, widget, [widget] {
         openGhci(widget->textDocument()->filePath());
     });

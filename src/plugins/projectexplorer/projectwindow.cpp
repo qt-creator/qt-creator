@@ -21,7 +21,7 @@
 #include "targetsettingspanel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/coreplugintr.h>
@@ -56,6 +56,7 @@
 #include <QPushButton>
 #include <QStyledItemDelegate>
 #include <QTimer>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -136,12 +137,14 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
     setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
 
     m_zoomIn.setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    m_zoomIn.setText(ActionManager::command(Core::Constants::ZOOM_IN)->action()->text());
     connect(&m_zoomIn, &QAction::triggered, this, [this] { zoomIn(); });
     ActionManager::registerAction(&m_zoomIn,
                                   Core::Constants::ZOOM_IN,
                                   Context(kBuildSystemOutputContext));
 
     m_zoomOut.setIcon(Utils::Icons::MINUS_TOOLBAR.icon());
+    m_zoomOut.setText(ActionManager::command(Core::Constants::ZOOM_OUT)->action()->text());
     connect(&m_zoomOut, &QAction::triggered, this, [this] { zoomOut(); });
     ActionManager::registerAction(&m_zoomOut,
                                   Core::Constants::ZOOM_OUT,
@@ -152,9 +155,8 @@ QWidget *BuildSystemOutputWindow::toolBar()
 {
     if (!m_toolBar) {
         m_toolBar = new StyledBar(this);
-        auto clearButton = new CommandButton(Core::Constants::OUTPUTPANE_CLEAR);
-        clearButton->setDefaultAction(&m_clear);
-        clearButton->setToolTipBase(m_clear.text());
+        auto clearButton
+            = Command::toolButtonWithAppendedShortcut(&m_clear, Core::Constants::OUTPUTPANE_CLEAR);
 
         m_filterOutputLineEdit = new FancyLineEdit;
         m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
@@ -178,10 +180,10 @@ QWidget *BuildSystemOutputWindow::toolBar()
             popup->show();
         });
 
-        auto zoomInButton = new CommandButton(Core::Constants::ZOOM_IN);
-        zoomInButton->setDefaultAction(&m_zoomIn);
-        auto zoomOutButton = new CommandButton(Core::Constants::ZOOM_OUT);
-        zoomOutButton->setDefaultAction(&m_zoomOut);
+        auto zoomInButton = Command::toolButtonWithAppendedShortcut(&m_zoomIn,
+                                                                    Core::Constants::ZOOM_IN);
+        auto zoomOutButton = Command::toolButtonWithAppendedShortcut(&m_zoomOut,
+                                                                     Core::Constants::ZOOM_OUT);
 
         auto layout = new QHBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);

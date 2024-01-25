@@ -6,7 +6,6 @@
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
-#include "actionmanager/commandbutton.h"
 #include "coreplugintr.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/ieditor.h"
@@ -67,20 +66,18 @@ static bool g_managerConstructed = false; // For debugging reasons.
 // OutputPane
 
 IOutputPane::IOutputPane(QObject *parent)
-    : QObject(parent),
-      m_zoomInButton(new Core::CommandButton),
-      m_zoomOutButton(new Core::CommandButton)
+    : QObject(parent)
 {
     // We need all pages first. Ignore latecomers and shout.
     QTC_ASSERT(!g_managerConstructed, return);
     g_outputPanes.append(OutputPaneData(this));
 
+    m_zoomInButton = Command::createToolButtonWithShortcutToolTip(Constants::ZOOM_IN);
     m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_zoomInButton->setCommandId(Constants::ZOOM_IN);
     connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomInRequested(1); });
 
+    m_zoomOutButton = Command::createToolButtonWithShortcutToolTip(Constants::ZOOM_OUT);
     m_zoomOutButton->setIcon(Utils::Icons::MINUS_TOOLBAR.icon());
-    m_zoomOutButton->setCommandId(Constants::ZOOM_OUT);
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOutRequested(1); });
 }
 

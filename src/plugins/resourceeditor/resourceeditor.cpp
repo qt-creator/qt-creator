@@ -10,7 +10,7 @@
 #include "qrceditor/resourcefile_p.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QMenu>
 #include <QToolBar>
+#include <QToolButton>
 
 using namespace Core;
 using namespace Utils;
@@ -143,8 +144,8 @@ ResourceEditorImpl::ResourceEditorImpl()
     setContext(Context(Constants::C_RESOURCEEDITOR));
     setWidget(m_resourceEditor);
 
-    CommandButton *refreshButton = new CommandButton(Constants::REFRESH, m_toolBar);
-    refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
+    QToolButton *refreshButton = Command::createToolButtonWithShortcutToolTip(Constants::REFRESH);
+    refreshButton->defaultAction()->setIcon(QIcon(":/texteditor/images/finddocuments.png"));
     connect(refreshButton, &QAbstractButton::clicked, m_resourceEditor, &QrcEditor::refresh);
     m_toolBar->addWidget(refreshButton);
 

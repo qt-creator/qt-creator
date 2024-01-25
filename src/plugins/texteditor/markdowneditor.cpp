@@ -9,7 +9,6 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
@@ -134,33 +133,31 @@ public:
         }
         agg->add(m_widget.get());
 
-        m_togglePreviewVisible = new CommandButton(TOGGLEPREVIEW_ACTION);
-        m_togglePreviewVisible->setText(m_togglePreviewVisible->toolTipBase());
+        m_togglePreviewVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEPREVIEW_ACTION);
         m_togglePreviewVisible->setCheckable(true);
         m_togglePreviewVisible->setChecked(showPreview);
         m_previewWidget->setVisible(showPreview);
 
-        m_toggleEditorVisible = new CommandButton(TOGGLEEDITOR_ACTION);
-        m_toggleEditorVisible->setText(m_toggleEditorVisible->toolTipBase());
+        m_toggleEditorVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEEDITOR_ACTION);
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
-        auto button = new CommandButton(EMPHASIS_ACTION);
-        button->setText("i");
+        auto button = Command::createToolButtonWithShortcutToolTip(EMPHASIS_ACTION);
+        button->defaultAction()->setIconText("i");
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
         m_markDownButtons.append(button);
-        button = new CommandButton(STRONG_ACTION);
-        button->setText("b");
+        button = Command::createToolButtonWithShortcutToolTip(STRONG_ACTION);
+        button->defaultAction()->setIconText("b");
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
         m_markDownButtons.append(button);
-        button = new CommandButton(INLINECODE_ACTION);
-        button->setText("`");
+        button = Command::createToolButtonWithShortcutToolTip(INLINECODE_ACTION);
+        button->defaultAction()->setIconText("`");
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
         m_markDownButtons.append(button);
-        button = new CommandButton(LINK_ACTION);
+        button = Command::createToolButtonWithShortcutToolTip(LINK_ACTION);
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
         m_markDownButtons.append(button);
@@ -173,8 +170,7 @@ public:
         for (auto button : m_markDownButtons | Utils::views::reverse)
             m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, button);
 
-        m_swapViews = new CommandButton(SWAPVIEWS_ACTION);
-        m_swapViews->setText(m_swapViews->toolTipBase());
+        m_swapViews = Command::createToolButtonWithShortcutToolTip(SWAPVIEWS_ACTION);
         m_swapViews->setEnabled(showEditor && showPreview);
 
         m_swapViewsAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_swapViews);
@@ -486,9 +482,9 @@ private:
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QList<QToolButton *> m_markDownButtons;
-    CommandButton *m_toggleEditorVisible;
-    CommandButton *m_togglePreviewVisible;
-    CommandButton *m_swapViews;
+    QToolButton *m_toggleEditorVisible;
+    QToolButton *m_togglePreviewVisible;
+    QToolButton *m_swapViews;
     QAction *m_toggleEditorVisibleAction;
     QAction *m_togglePreviewVisibleAction;
     QAction *m_swapViewsAction;

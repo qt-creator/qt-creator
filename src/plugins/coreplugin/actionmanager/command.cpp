@@ -571,6 +571,21 @@ QAction *Command::createActionWithShortcutToolTip(Id commandId, QObject *parent)
 }
 
 /*!
+    Returns a new QToolButton with the command's icon, icon text, and text, that
+    given by \a commandId. Sets the button's parent to \a parent.
+    The action's tool tip is the action's text, augmented with the command's
+    main keyboard shortcut. Other properties of the button are not updated
+    automatically.
+    \sa createActionWithShortcutToolTip()
+*/
+QToolButton *Command::createToolButtonWithShortcutToolTip(Utils::Id commandId, QWidget *parent)
+{
+    auto button = new QToolButton(parent);
+    button->setDefaultAction(createActionWithShortcutToolTip(commandId, button));
+    return button;
+}
+
+/*!
     Returns a tool button for \a action.
 
     Appends the main keyboard shortcut \a cmd to the tool tip of the action.
@@ -582,6 +597,17 @@ QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *c
     if (cmd)
         cmd->augmentActionWithShortcutToolTip(action);
     return button;
+}
+
+/*!
+    Returns a tool button for \a action.
+
+    Appends the main keyboard shortcut of the command with ID \a commandId
+    to the tool tip of the button.
+*/
+QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Utils::Id commandId)
+{
+    return toolButtonWithAppendedShortcut(action, ActionManager::command(commandId));
 }
 
 } // namespace Core

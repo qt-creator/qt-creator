@@ -11,8 +11,6 @@ add_qtc_plugin(Core
     actionmanager/command.cpp
     actionmanager/command.h
     actionmanager/command_p.h
-    actionmanager/commandbutton.cpp
-    actionmanager/commandbutton.h
     actionmanager/commandmappings.cpp
     actionmanager/commandmappings.h
     actionmanager/commandsfile.cpp

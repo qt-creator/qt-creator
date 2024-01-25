@@ -15,7 +15,6 @@
 #include "pythonutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 
