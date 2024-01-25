@@ -7,6 +7,12 @@
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
+#include <utils/link.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/basetreeview.h>
@@ -172,6 +178,31 @@ void DashboardWidget::updateUi()
     }
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
+
+class IssueTreeItem : public Utils::StaticTreeItem
+{
+public:
+    IssueTreeItem(const QStringList &data, const QStringList &toolTips)
+        : Utils::StaticTreeItem(data, toolTips)
+    {}
+
+    void setLinks(const Utils::Links &links) { m_links = links; }
+
+    bool setData(int column, const QVariant &value, int role) override
+    {
+        if (role == Utils::BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
+            // TODO for now only simple - just the first..
+            const Utils::Link link = m_links.first();
+            if (link.targetFilePath.exists())
+                Core::EditorManager::openEditorAt(link);
+            return true;
+        }
+        return false;
+    }
+
+private:
+    Utils::Links m_links;
+};
 
 class IssuesWidget : public QScrollArea
 {
@@ -362,10 +393,41 @@ static QString anyToSimpleString(const Dto::Any &any)
     return QString();
 }
 
+static Utils::Links linksForIssue(const std::map<QString, Dto::Any> &issueRow,
+                                  const Utils::FilePath &baseDir)
+{
+    Utils::Links links;
+
+    auto end = issueRow.end();
+    auto findAndAppend = [&links, &issueRow, &end, &baseDir](const QString &path,
+                                                             const QString &line) {
+        auto it = issueRow.find(path);
+        if (it != end) {
+            const Utils::FilePath fp = baseDir.pathAppended(it->second.getString());
+            Utils::Link link{fp};
+            it = issueRow.find(line);
+            if (it != end)
+                link.targetLine = it->second.getDouble();
+            links.append(link);
+        }
+    };
+    // do these always? or just for their "expected" kind
+    findAndAppend("path", "line");
+    findAndAppend("sourcePath", "sourceLine");
+    findAndAppend("targetPath", "targetLine");
+    findAndAppend("leftPath", "leftLine");
+    findAndAppend("rightPath", "rightLine");
+
+    return links;
+}
+
 void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     // handle added/removed/total ?
+
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Utils::FilePath baseDir = project ? project->projectDirectory() : Utils::FilePath{};
 
     const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
     // const std::vector<Dto::ColumnInfoDto> columns = dto.columns.value();
@@ -381,7 +443,8 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
                 data << value;
             }
         }
-        Utils::StaticTreeItem *it = new Utils::StaticTreeItem(data, data);
+        IssueTreeItem *it = new IssueTreeItem(data, data);
+        it->setLinks(linksForIssue(row, baseDir));
         m_issuesModel->rootItem()->appendChild(it);
     }
     m_issuesView->hideProgressIndicator();
