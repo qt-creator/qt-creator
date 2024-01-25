@@ -112,7 +112,6 @@ add_qtc_plugin(CppEditor
     wrappablelineedit.cpp wrappablelineedit.h
    EXPLICIT_MOC
      cppquickfixsettingswidget.h
-     cppquickfixprojectsettingswidget.h
 )
 
 extend_qtc_plugin(CppEditor

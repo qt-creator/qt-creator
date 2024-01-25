@@ -13,5 +13,4 @@ extend_qtc_plugin(Vcpkg
   CONDITION WITH_TESTS
   SOURCES
     vcpkg_test.cpp vcpkg_test.h
-  EXPLICIT_MOC vcpkg_test.h
 )
