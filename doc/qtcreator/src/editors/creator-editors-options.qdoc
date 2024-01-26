@@ -59,7 +59,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Specify editor settings}, {Using FakeVim Mode}, {Completion}, {Snippets}
+    \sa {Specify editor settings}, {Edit like in Vim}, {Completion}, {Snippets}
     \endif
 
 */

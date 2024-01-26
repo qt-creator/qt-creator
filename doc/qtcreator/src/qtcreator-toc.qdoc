@@ -45,9 +45,6 @@
             \li \l{Refactoring}
             \li \l{Beautifying Source Code}
             \li \l{Configuring the Editor}
-            \list
-                \li \l{Using FakeVim Mode}
-            \endlist
             \li \l{Using GitHub Copilot}
             \li \l{Editing MIME Types}
         \endlist
