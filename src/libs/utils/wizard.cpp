@@ -137,9 +137,9 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     connect(m_wizardProgress, &WizardProgress::currentItemChanged,
             this, &LinearProgressWidget::slotCurrentItemChanged);
 
-    QList<WizardProgressItem *> items = m_wizardProgress->items();
-    for (int i = 0; i < items.count(); i++)
-        slotItemAdded(items.at(i));
+    const QSet<WizardProgressItem *> items = m_wizardProgress->items();
+    for (WizardProgressItem *item : items)
+        slotItemAdded(item);
     recreateLayout();
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -539,7 +539,7 @@ public:
     void updateReachableItems();
 
     QMap<int, WizardProgressItem *> m_pageToItem;
-    QMap<WizardProgressItem *, WizardProgressItem *> m_itemToItem;
+    QSet<WizardProgressItem *> m_items;
 
     QList<WizardProgressItem *> m_visitedItems;
     QList<WizardProgressItem *> m_reachableItems;
@@ -550,7 +550,7 @@ public:
 
 inline QDebug &operator<<(QDebug &debug, const WizardProgressPrivate &progress)
 {
-    debug << "items:" << progress.m_itemToItem.size()
+    debug << "items:" << progress.m_items.size()
           << "; visited:" << progress.m_visitedItems.size()
           << "; reachable:" << progress.m_reachableItems.size();
 
@@ -689,12 +689,8 @@ WizardProgress::~WizardProgress()
 {
     Q_D(WizardProgress);
 
-    auto it = d->m_itemToItem.constBegin();
-    const auto itEnd = d->m_itemToItem.constEnd();
-    while (it != itEnd) {
-        delete it.key();
-        ++it;
-    }
+    for (WizardProgressItem *item : std::as_const(d->m_items))
+        delete item;
     delete d_ptr;
 }
 
@@ -703,7 +699,7 @@ WizardProgressItem *WizardProgress::addItem(const QString &title)
     Q_D(WizardProgress);
 
     auto item = new WizardProgressItem(this, title);
-    d->m_itemToItem.insert(item, item);
+    d->m_items.insert(item);
     emit itemAdded(item);
     return item;
 }
@@ -712,8 +708,8 @@ void WizardProgress::removeItem(WizardProgressItem *item)
 {
     Q_D(WizardProgress);
 
-    const auto it = d->m_itemToItem.constFind(item);
-    if (it == d->m_itemToItem.constEnd()) {
+    const auto it = d->m_items.constFind(item);
+    if (it == d->m_items.constEnd()) {
         qWarning("WizardProgress::removePage: Item is not a part of the wizard");
         return;
     }
@@ -745,7 +741,7 @@ void WizardProgress::removeItem(WizardProgressItem *item)
     QList<int> pages = item->pages();
     for (int i = 0; i < pages.count(); i++)
         d->m_pageToItem.remove(pages.at(i));
-    d->m_itemToItem.erase(it);
+    d->m_items.erase(it);
     delete item;
 }
 
@@ -782,11 +778,11 @@ WizardProgressItem *WizardProgress::currentItem() const
     return d->m_currentItem;
 }
 
-QList<WizardProgressItem *> WizardProgress::items() const
+QSet<WizardProgressItem *> WizardProgress::items() const
 {
     Q_D(const WizardProgress);
 
-    return d->m_itemToItem.keys();
+    return d->m_items;
 }
 
 WizardProgressItem *WizardProgress::startItem() const

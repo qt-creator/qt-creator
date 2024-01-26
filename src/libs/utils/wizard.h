@@ -85,7 +85,7 @@ public:
 
     WizardProgressItem *currentItem() const;
 
-    QList<WizardProgressItem *> items() const;
+    QSet<WizardProgressItem *> items() const;
 
     WizardProgressItem *startItem() const;
 
