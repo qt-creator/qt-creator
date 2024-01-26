@@ -64,25 +64,12 @@ const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
 const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor";
 
-class TextEditorPluginPrivate : public QObject
-{
-public:
-    MarkdownEditorFactory markdownEditorFactory;
-    JsonEditorFactory jsonEditorFactory;
-};
-
 class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TextEditor.json")
 
 public:
-    ~TextEditorPlugin() final
-    {
-        delete d;
-        d = nullptr;
-    }
-
     ShutdownFlag aboutToShutdown() final;
 
     void initialize() final;
@@ -93,8 +80,6 @@ public:
     void updateCurrentSelection(const QString &text);
 
     void createStandardContextMenu();
-
-    TextEditorPluginPrivate *d = nullptr;
 };
 
 void TextEditorPlugin::initialize()
@@ -122,7 +107,8 @@ void TextEditorPlugin::initialize()
     setupFindInCurrentFile();
     setupFindInOpenFiles();
 
-    d = new TextEditorPluginPrivate;
+    setupMarkdownEditor();
+    setupJsonEditor();
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 

@@ -3,28 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
-#include <texteditor/texteditoractionhandler.h>
-
-#include <utils/parameteraction.h>
-
 namespace TextEditor::Internal {
 
-class MarkdownEditorFactory final : public Core::IEditorFactory
-{
-public:
-    MarkdownEditorFactory();
-
-private:
-    TextEditor::TextEditorActionHandler m_actionHandler;
-    Utils::Action m_emphasisAction;
-    Utils::Action m_strongAction;
-    Utils::Action m_inlineCodeAction;
-    Utils::Action m_linkAction;
-    Utils::Action m_toggleEditorAction;
-    Utils::Action m_togglePreviewAction;
-    Utils::Action m_swapAction;
-};
+void setupMarkdownEditor();
 
 } // TextEditor::Internal

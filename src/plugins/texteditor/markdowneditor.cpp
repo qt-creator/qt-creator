@@ -8,13 +8,18 @@
 #include "texteditortr.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
+#include <texteditor/texteditoractionhandler.h>
+
 #include <utils/ranges.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcsettings.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
@@ -491,6 +496,22 @@ private:
     std::optional<QPoint> m_previewRestoreScrollPosition;
 };
 
+class MarkdownEditorFactory final : public IEditorFactory
+{
+public:
+    MarkdownEditorFactory();
+
+private:
+    TextEditorActionHandler m_actionHandler;
+    Action m_emphasisAction;
+    Action m_strongAction;
+    Action m_inlineCodeAction;
+    Action m_linkAction;
+    Action m_toggleEditorAction;
+    Action m_togglePreviewAction;
+    Action m_swapAction;
+};
+
 MarkdownEditorFactory::MarkdownEditorFactory()
     : m_actionHandler(MARKDOWNVIEWER_ID,
                       MARKDOWNVIEWER_TEXT_CONTEXT,
@@ -661,6 +682,11 @@ void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
             return;
         }
     }
+}
+
+void setupMarkdownEditor()
+{
+    static MarkdownEditorFactory theMarkdownEditorFactory;
 }
 
 } // namespace TextEditor::Internal

@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "texteditor.h"
-
 namespace TextEditor::Internal {
 
-class JsonEditorFactory final : public TextEditorFactory
-{
-public:
-    JsonEditorFactory();
-};
+void setupJsonEditor();
 
 } // TextEditor::Internal
