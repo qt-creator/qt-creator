@@ -192,7 +192,10 @@ public:
     {
         if (role == Utils::BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
             // TODO for now only simple - just the first..
-            const Utils::Link link = m_links.first();
+            Utils::Link link = m_links.first();
+            ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+            Utils::FilePath baseDir = project ? project->projectDirectory() : Utils::FilePath{};
+            link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
             if (link.targetFilePath.exists())
                 Core::EditorManager::openEditorAt(link);
             return true;
@@ -403,18 +406,15 @@ static QString anyToSimpleString(const Dto::Any &any)
     return QString();
 }
 
-static Utils::Links linksForIssue(const std::map<QString, Dto::Any> &issueRow,
-                                  const Utils::FilePath &baseDir)
+static Utils::Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
 {
     Utils::Links links;
 
     auto end = issueRow.end();
-    auto findAndAppend = [&links, &issueRow, &end, &baseDir](const QString &path,
-                                                             const QString &line) {
+    auto findAndAppend = [&links, &issueRow, &end](const QString &path, const QString &line) {
         auto it = issueRow.find(path);
         if (it != end) {
-            const Utils::FilePath fp = baseDir.pathAppended(it->second.getString());
-            Utils::Link link{fp};
+            Utils::Link link{ Utils::FilePath::fromUserInput(it->second.getString()) };
             it = issueRow.find(line);
             if (it != end)
                 link.targetLine = it->second.getDouble();
@@ -441,9 +441,6 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
     if (dto.totalRemovedCount.has_value())
         m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    Utils::FilePath baseDir = project ? project->projectDirectory() : Utils::FilePath{};
-
     const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> rows = dto.rows;
     for (auto row : rows) {
@@ -458,7 +455,7 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
             }
         }
         IssueTreeItem *it = new IssueTreeItem(data, data);
-        it->setLinks(linksForIssue(row, baseDir));
+        it->setLinks(linksForIssue(row));
         m_issuesModel->rootItem()->appendChild(it);
     }
     m_issuesView->hideProgressIndicator();
