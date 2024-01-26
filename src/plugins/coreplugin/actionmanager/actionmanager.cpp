@@ -158,6 +158,19 @@ ActionBuilder::~ActionBuilder()
     delete d;
 }
 
+/*!
+    Uses the given \a action is the contextAction for this builder.
+    \a action must not be nullptr, and adopt() must be called before
+    setting any actual properties like setText() or setIcon().
+
+    Usually you should prefer passing a \c contextActionParent to the
+    ActionBuilder constructor, and binding a QAction to the automatically
+    created context action with bindContextAction().
+
+    This method is sometimes useful if the caller manages the action's
+    lifetime itself, and for example there is no QObject that can be
+    the parent of an automatically created context action.
+*/
 ActionBuilder &ActionBuilder::adopt(Utils::ParameterAction *action)
 {
     d->adopt(action);
