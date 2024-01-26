@@ -67,15 +67,6 @@ const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor"
 class TextEditorPluginPrivate : public QObject
 {
 public:
-    void updateActions(bool enableToggle, int stateMask);
-
-    void extensionsInitialized();
-    void updateSearchResultsFont(const FontSettings &);
-    void updateSearchResultsTabWidth(const TabSettings &tabSettings);
-    void updateCurrentSelection(const QString &text);
-
-    void createStandardContextMenu();
-
     BookmarkFilter m_bookmarkFilter;
 
     TextEditorSettings settings;
@@ -105,6 +96,12 @@ public:
 
     void initialize() final;
     void extensionsInitialized() final;
+
+    void updateSearchResultsFont(const FontSettings &);
+    void updateSearchResultsTabWidth(const TabSettings &tabSettings);
+    void updateCurrentSelection(const QString &text);
+
+    void createStandardContextMenu();
 
     TextEditorPluginPrivate *d = nullptr;
 };
@@ -174,7 +171,7 @@ void TextEditorPlugin::initialize()
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     Tr::tr("Text", "SnippetProvider"));
 
-    d->createStandardContextMenu();
+    createStandardContextMenu();
 
 #ifdef WITH_TESTS
     addTestCreator(createCodeAssistTests);
@@ -182,7 +179,7 @@ void TextEditorPlugin::initialize()
 #endif
 }
 
-void TextEditorPluginPrivate::extensionsInitialized()
+void TextEditorPlugin::extensionsInitialized()
 {
     connect(FolderNavigationWidgetFactory::instance(),
             &FolderNavigationWidgetFactory::aboutToShowContextMenu,
@@ -193,25 +190,18 @@ void TextEditorPluginPrivate::extensionsInitialized()
                 }
             });
 
-    connect(&settings,
-            &TextEditorSettings::fontSettingsChanged,
-            this,
-            &TextEditorPluginPrivate::updateSearchResultsFont);
+    connect(&d->settings, &TextEditorSettings::fontSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsFont);
 
     updateSearchResultsFont(TextEditorSettings::fontSettings());
 
     connect(TextEditorSettings::codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
-            this, &TextEditorPluginPrivate::updateSearchResultsTabWidth);
+            this, &TextEditorPlugin::updateSearchResultsTabWidth);
 
     updateSearchResultsTabWidth(TextEditorSettings::codeStyle()->currentTabSettings());
 
     connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
-            this, &TextEditorPluginPrivate::updateCurrentSelection);
-}
-
-void TextEditorPlugin::extensionsInitialized()
-{
-    d->extensionsInitialized();
+            this, &TextEditorPlugin::updateCurrentSelection);
 
     MacroExpander *expander = Utils::globalMacroExpander();
 
@@ -276,7 +266,7 @@ ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)
+void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
         const Format textFormat = settings.formatFor(C_TEXT);
@@ -304,13 +294,13 @@ void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settin
     }
 }
 
-void TextEditorPluginPrivate::updateSearchResultsTabWidth(const TabSettings &tabSettings)
+void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
 {
     if (auto window = SearchResultWindow::instance())
         window->setTabWidth(tabSettings.m_tabSize);
 }
 
-void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
+void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
     if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
         const int pos = editor->position();
@@ -330,7 +320,7 @@ void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
     }
 }
 
-void TextEditorPluginPrivate::createStandardContextMenu()
+void TextEditorPlugin::createStandardContextMenu()
 {
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_STANDARDCONTEXTMENU);
     contextMenu->appendGroup(Constants::G_UNDOREDO);
