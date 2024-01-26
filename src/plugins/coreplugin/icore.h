@@ -82,6 +82,8 @@ public:
     static QWidget *dialogParent();
     static Utils::InfoBar *infoBar();
 
+    static void askForRestart(const QString &text);
+
     static void raiseWindow(QWidget *widget);
     static void raiseMainWindow();
 

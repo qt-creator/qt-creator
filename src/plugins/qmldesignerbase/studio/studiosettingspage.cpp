@@ -6,7 +6,6 @@
 #include "../utils/designerpaths.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -174,10 +173,8 @@ void StudioSettingsPage::apply()
                           dirty);
 
     if (dirty) {
-        const QString restartText = tr(
-            "The menu visibility change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(
+            tr("The menu visibility change will take effect after restart."));
     }
 
     QtcSettings *s = Core::ICore::settings();
@@ -194,9 +191,7 @@ void StudioSettingsPage::apply()
         s->setValue(Paths::bundlesDownloadPath, bundlesPath);
         emit bundlesDownloadPathChanged(bundlesPath);
 
-        const QString restartText = tr("Changing bundle path will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("Changing bundle path will take effect after restart."));
     }
 }
 

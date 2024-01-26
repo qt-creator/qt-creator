@@ -7,7 +7,6 @@
 #include "coreplugin.h"
 #include "coreplugintr.h"
 #include "editormanager/editormanager_p.h"
-#include "dialogs/restartdialog.h"
 #include "dialogs/ioptionspage.h"
 #include "fileutils.h"
 #include "icore.h"
@@ -406,10 +405,8 @@ void SystemSettingsWidget::apply()
             m_fileSystemCaseSensitivityChooser->currentData().toInt());
         if (selectedSensitivity != sensitivity) {
             EditorManagerPrivate::writeFileSystemSensitivity(settings, selectedSensitivity);
-            RestartDialog dialog(
-                ICore::dialogParent(),
+            ICore::askForRestart(
                 Tr::tr("The file system case sensitivity change will take effect after restart."));
-            dialog.exec();
         }
     }
 

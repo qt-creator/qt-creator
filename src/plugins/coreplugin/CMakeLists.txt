@@ -53,8 +53,6 @@ add_qtc_plugin(Core
     dialogs/promptoverwritedialog.h
     dialogs/readonlyfilesdialog.cpp
     dialogs/readonlyfilesdialog.h
-    dialogs/restartdialog.cpp
-    dialogs/restartdialog.h
     dialogs/saveitemsdialog.cpp
     dialogs/saveitemsdialog.h
     dialogs/settingsdialog.cpp

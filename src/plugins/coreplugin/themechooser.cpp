@@ -5,7 +5,6 @@
 
 #include "coreconstants.h"
 #include "coreplugintr.h"
-#include "dialogs/restartdialog.h"
 #include "icore.h"
 
 #include <utils/algorithm.h>
@@ -164,9 +163,7 @@ void ThemeChooser::apply()
     if (currentThemeId != themeId) {
         // save filename of selected theme in global config
         settings->setValueWithDefault(Constants::SETTINGS_THEME, themeId, defaultThemeId());
-        RestartDialog restartDialog(ICore::dialogParent(),
-                                    Tr::tr("The theme change will take effect after restart."));
-        restartDialog.exec();
+        ICore::askForRestart(Tr::tr("The theme change will take effect after restart."));
     }
 }
 

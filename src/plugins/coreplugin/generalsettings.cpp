@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "dialogs/restartdialog.h"
 #include "dialogs/ioptionspage.h"
 #include "generalsettings.h"
 #include "coreconstants.h"
@@ -296,11 +295,8 @@ QString GeneralSettingsWidget::language()
 void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
     QtcSettings *settings = ICore::settings();
-    if (settings->value("General/OverrideLanguage").toString() != locale) {
-        RestartDialog dialog(ICore::dialogParent(),
-                             Tr::tr("The language change will take effect after restart."));
-        dialog.exec();
-    }
+    if (settings->value("General/OverrideLanguage").toString() != locale)
+        ICore::askForRestart(Tr::tr("The language change will take effect after restart."));
 
     settings->setValueWithDefault("General/OverrideLanguage", locale, {});
 }
@@ -359,10 +355,8 @@ void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy po
                 settingsKeyDpiPolicy,
                 int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy())).value<Policy>();
     if (policy != previousPolicy) {
-        RestartDialog dialog(ICore::dialogParent(),
-                             Tr::tr("The DPI rounding policy change will take effect after "
-                                    "restart."));
-        dialog.exec();
+        ICore::askForRestart(
+            Tr::tr("The DPI rounding policy change will take effect after restart."));
     }
     settings->setValueWithDefault(settingsKeyDpiPolicy, int(policy),
                                   int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()));

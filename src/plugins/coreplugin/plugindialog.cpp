@@ -5,7 +5,6 @@
 
 #include "coreplugin.h"
 #include "coreplugintr.h"
-#include "dialogs/restartdialog.h"
 #include "icore.h"
 #include "plugininstallwizard.h"
 
@@ -92,11 +91,8 @@ void PluginDialog::closeDialog()
     for (PluginSpec *plugin : std::as_const(m_softLoad))
         CorePlugin::loadMimeFromPlugin(plugin);
 
-    if (m_isRestartRequired) {
-        RestartDialog restartDialog(ICore::dialogParent(),
-                                    Tr::tr("Plugin changes will take effect after restart."));
-        restartDialog.exec();
-    }
+    if (m_isRestartRequired)
+        ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
     accept();
 }
 

@@ -908,6 +908,24 @@ Utils::InfoBar *ICore::infoBar()
 }
 
 /*!
+    Shows a modal dialog that asks the user if they want to restart \QC.
+    Uses \a text as the main text in the dialog, and triggers a restart
+    of \QC if the user chooses that option.
+*/
+void ICore::askForRestart(const QString &text)
+{
+    QMessageBox mb(dialogParent());
+    mb.setWindowTitle(Tr::tr("Restart Required"));
+    mb.setText(text);
+    mb.setIcon(QMessageBox::Information);
+    mb.addButton(Tr::tr("Later"), QMessageBox::NoRole);
+    mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
+
+    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
+    mb.exec();
+}
+
+/*!
     Raises and activates the window for \a widget. This contains workarounds
     for X11.
 */

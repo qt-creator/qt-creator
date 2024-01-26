@@ -10,7 +10,6 @@
 #include "qtversionfactory.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -1053,10 +1052,8 @@ void QtSettingsPageWidget::linkWithQt()
             askForRestart = true;
         }
     }
-    if (askForRestart) {
-        RestartDialog restartDialog(ICore::dialogParent(), restartText);
-        restartDialog.exec();
-    }
+    if (askForRestart)
+        ICore::askForRestart(restartText);
 }
 
 // QtSettingsPage

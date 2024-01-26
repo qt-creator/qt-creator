@@ -205,7 +205,6 @@ QtcPlugin {
             "openwithdialog.cpp", "openwithdialog.h",
             "promptoverwritedialog.cpp", "promptoverwritedialog.h",
             "readonlyfilesdialog.cpp", "readonlyfilesdialog.h",
-            "restartdialog.cpp", "restartdialog.h",
             "saveitemsdialog.cpp", "saveitemsdialog.h",
             "settingsdialog.cpp", "settingsdialog.h",
             "shortcutsettings.cpp", "shortcutsettings.h",

@@ -7,7 +7,6 @@
 #include "qdsnewdialog.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
@@ -180,9 +179,7 @@ public:
 
         Core::ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
 
-        const QString restartText = tr("The change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("The change will take effect after restart."));
 
         setupModel();
     }
@@ -196,9 +193,7 @@ public:
 
         settings->setValue(STATISTICS_COLLECTION_MODE, b ? DETAILED_USAGE_STATISTICS : NO_TELEMETRY);
 
-        const QString restartText = tr("The change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("The change will take effect after restart."));
 
         setupModel();
     }
