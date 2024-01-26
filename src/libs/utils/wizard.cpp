@@ -97,7 +97,7 @@ private:
     QVBoxLayout *m_mainLayout;
     QVBoxLayout *m_itemWidgetLayout;
     WizardProgress *m_wizardProgress;
-    QMap<WizardProgressItem *, ProgressItemWidget *> m_itemToItemWidget;
+    QHash<WizardProgressItem *, ProgressItemWidget *> m_itemToItemWidget;
     QList<WizardProgressItem *> m_visibleItems;
     ProgressItemWidget *m_dotsItemWidget;
     int m_disableUpdatesCount;
@@ -155,15 +155,13 @@ void LinearProgressWidget::slotItemAdded(WizardProgressItem *item)
 
 void LinearProgressWidget::slotItemRemoved(WizardProgressItem *item)
 {
-    ProgressItemWidget *itemWidget = m_itemToItemWidget.value(item);
-    if (!itemWidget)
+    const auto it = m_itemToItemWidget.constFind(item);
+    if (it == m_itemToItemWidget.constEnd())
         return;
 
-    m_itemToItemWidget.remove(item);
-
+    delete *it;
+    m_itemToItemWidget.erase(it);
     recreateLayout();
-
-    delete itemWidget;
 }
 
 void LinearProgressWidget::slotItemChanged(WizardProgressItem *item)
@@ -209,12 +207,9 @@ void LinearProgressWidget::recreateLayout()
 {
     disableUpdates();
 
-    auto it = m_itemToItemWidget.constBegin();
-    const auto itEnd = m_itemToItemWidget.constEnd();
-    while (it != itEnd) {
-        it.value()->setVisible(false);
-        ++it;
-    }
+    for (ProgressItemWidget *itemWidget : std::as_const(m_itemToItemWidget))
+        itemWidget->setVisible(false);
+
     m_dotsItemWidget->setVisible(false);
 
     for (int i = m_itemWidgetLayout->count() - 1; i >= 0; --i) {
@@ -223,8 +218,8 @@ void LinearProgressWidget::recreateLayout()
     }
 
     m_visibleItems = m_wizardProgress->directlyReachableItems();
-    for (int i = 0; i < m_visibleItems.count(); i++) {
-        ProgressItemWidget *itemWidget = m_itemToItemWidget.value(m_visibleItems.at(i));
+    for (WizardProgressItem *progressItem : std::as_const(m_visibleItems)) {
+        ProgressItemWidget *itemWidget = m_itemToItemWidget.value(progressItem);
         m_itemWidgetLayout->addWidget(itemWidget);
         itemWidget->setVisible(true);
     }
@@ -244,14 +239,11 @@ void LinearProgressWidget::updateProgress()
 
     QList<WizardProgressItem *> visitedItems = m_wizardProgress->visitedItems();
 
-    auto it = m_itemToItemWidget.constBegin();
-    const auto itEnd = m_itemToItemWidget.constEnd();
-    while (it != itEnd) {
+    for (auto it = m_itemToItemWidget.cbegin(); it != m_itemToItemWidget.cend(); ++it) {
         WizardProgressItem *item = it.key();
         ProgressItemWidget *itemWidget = it.value();
         itemWidget->setEnabled(visitedItems.contains(item));
         itemWidget->setIndicatorVisible(false);
-        ++it;
     }
 
     WizardProgressItem *currentItem = m_wizardProgress->currentItem();
