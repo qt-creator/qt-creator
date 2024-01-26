@@ -35,11 +35,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-const char behaviorGroup[] = "textBehaviorSettings";
-const char storageGroup[] = "textStorageSettings";
-const char typingGroup[] = "textTypingSettings";
-const char extraEncodingGroup[] = "textEditorManager";
-
 class BehaviorSettingsPagePrivate : public QObject
 {
 public:
@@ -51,10 +46,6 @@ public:
     CodeStylePool *m_defaultCodeStylePool = nullptr;
     SimpleCodeStylePreferences *m_codeStyle = nullptr;
     SimpleCodeStylePreferences *m_pageCodeStyle = nullptr;
-    TypingSettings m_typingSettings;
-    StorageSettings m_storageSettings;
-    BehaviorSettings m_behaviorSettings;
-    ExtraEncodingSettings m_extraEncodingSettings;
 };
 
 BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
@@ -68,12 +59,7 @@ BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
     m_defaultCodeStylePool = new CodeStylePool(nullptr, this); // Any language
     m_defaultCodeStylePool->addCodeStyle(m_codeStyle);
 
-    QtcSettings *s = Core::ICore::settings();
     m_codeStyle->fromSettings(m_settingsPrefix);
-    m_typingSettings.fromMap(storeFromSettings(typingGroup, s));
-    m_storageSettings.fromMap(storeFromSettings(storageGroup, s));
-    m_behaviorSettings.fromMap(storeFromSettings(behaviorGroup, s));
-    m_extraEncodingSettings.fromMap(storeFromSettings(extraEncodingGroup, s));
 }
 
 class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
@@ -111,10 +97,10 @@ public:
             }
         });
 
-        d->m_behaviorWidget->setAssignedTypingSettings(d->m_typingSettings);
-        d->m_behaviorWidget->setAssignedStorageSettings(d->m_storageSettings);
-        d->m_behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
-        d->m_behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
+        d->m_behaviorWidget->setAssignedTypingSettings(globalTypingSettings());
+        d->m_behaviorWidget->setAssignedStorageSettings(globalStorageSettings());
+        d->m_behaviorWidget->setAssignedBehaviorSettings(globalBehaviorSettings());
+        d->m_behaviorWidget->setAssignedExtraEncodingSettings(globalExtraEncodingSettings());
         d->m_behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
         d->m_behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
     }
@@ -147,8 +133,6 @@ void BehaviorSettingsWidgetImpl::apply()
     if (!d->m_behaviorWidget) // page was never shown
         return;
 
-    QtcSettings *s = Core::ICore::settings();
-
     TypingSettings newTypingSettings;
     StorageSettings newStorageSettings;
     BehaviorSettings newBehaviorSettings;
@@ -169,34 +153,12 @@ void BehaviorSettingsWidgetImpl::apply()
         d->m_codeStyle->toSettings(d->m_settingsPrefix);
     }
 
-    if (newTypingSettings != d->m_typingSettings) {
-        d->m_typingSettings = newTypingSettings;
-        storeToSettings(typingGroup, s, d->m_typingSettings.toMap());
+    updateGlobalTypingSettings(newTypingSettings);
+    updateGlobalStorageSettings(newStorageSettings);
+    updateGlobalBehaviorSettings(newBehaviorSettings);
+    updateGlobalExtraEncodingSettings(newExtraEncodingSettings);
 
-        emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
-    }
-
-    if (newStorageSettings != d->m_storageSettings) {
-        d->m_storageSettings = newStorageSettings;
-        storeToSettings(storageGroup, s, d->m_storageSettings.toMap());
-
-        emit TextEditorSettings::instance()->storageSettingsChanged(newStorageSettings);
-    }
-
-    if (newBehaviorSettings != d->m_behaviorSettings) {
-        d->m_behaviorSettings = newBehaviorSettings;
-        storeToSettings(behaviorGroup, s, d->m_behaviorSettings.toMap());
-
-        emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
-    }
-
-    if (newExtraEncodingSettings != d->m_extraEncodingSettings) {
-        d->m_extraEncodingSettings = newExtraEncodingSettings;
-        storeToSettings(extraEncodingGroup, s, d->m_extraEncodingSettings.toMap());
-
-        emit TextEditorSettings::instance()->extraEncodingSettingsChanged(newExtraEncodingSettings);
-    }
-
+    QtcSettings *s = Core::ICore::settings();
     s->setValue(Core::Constants::SETTINGS_DEFAULTTEXTENCODING,
                 d->m_behaviorWidget->assignedCodecName());
     s->setValue(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
@@ -215,22 +177,22 @@ CodeStylePool *BehaviorSettingsPage::codeStylePool() const
 
 const TypingSettings &BehaviorSettingsPage::typingSettings() const
 {
-    return d->m_typingSettings;
+    return globalTypingSettings();
 }
 
 const StorageSettings &BehaviorSettingsPage::storageSettings() const
 {
-    return d->m_storageSettings;
+    return globalStorageSettings();
 }
 
 const BehaviorSettings &BehaviorSettingsPage::behaviorSettings() const
 {
-    return d->m_behaviorSettings;
+    return globalBehaviorSettings();
 }
 
 const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
 {
-    return d->m_extraEncodingSettings;
+    return globalExtraEncodingSettings();
 }
 
 

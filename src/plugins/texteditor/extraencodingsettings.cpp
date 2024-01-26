@@ -4,6 +4,9 @@
 #include "extraencodingsettings.h"
 
 #include "texteditortr.h"
+#include "texteditorsettings.h"
+
+#include <coreplugin/icore.h>
 
 // Keep this for compatibility reasons.
 static const char kUtf8BomBehaviorKey[] = "Utf8BomBehavior";
@@ -37,6 +40,30 @@ bool ExtraEncodingSettings::equals(const ExtraEncodingSettings &s) const
 QStringList ExtraEncodingSettings::lineTerminationModeNames()
 {
     return {Tr::tr("Unix (LF)"), Tr::tr("Windows (CRLF)")};
+}
+
+ExtraEncodingSettings &globalExtraEncodingSettings()
+{
+    static ExtraEncodingSettings theGlobalExtraEncodingSettings;
+    return theGlobalExtraEncodingSettings;
+}
+
+const char extraEncodingGroup[] = "textEditorManager";
+
+void updateGlobalExtraEncodingSettings(const ExtraEncodingSettings &newExtraEncodingSettings)
+{
+    if (newExtraEncodingSettings.equals(globalExtraEncodingSettings()))
+        return;
+
+    globalExtraEncodingSettings() = newExtraEncodingSettings;
+    storeToSettings(extraEncodingGroup, Core::ICore::settings(), globalExtraEncodingSettings().toMap());
+
+    emit TextEditorSettings::instance()->extraEncodingSettingsChanged(newExtraEncodingSettings);
+}
+
+void setupExtraEncodingSettings()
+{
+    globalExtraEncodingSettings().fromMap(storeFromSettings(extraEncodingGroup, Core::ICore::settings()));
 }
 
 } // TextEditor

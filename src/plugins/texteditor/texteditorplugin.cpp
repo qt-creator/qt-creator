@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "behaviorsettings.h"
 #include "bookmarkfilter.h"
 #include "bookmarkmanager.h"
+#include "extraencodingsettings.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
 #include "findinopenfiles.h"
@@ -15,6 +17,7 @@
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
@@ -23,6 +26,7 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textmark.h"
+#include "typingsettings.h"
 
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
@@ -92,6 +96,10 @@ void TextEditorPlugin::initialize()
 #endif
 
     setupTextEditorSettings();
+    setupBehaviorSettings();
+    setupExtraEncodingSettings();
+    setupStorageSettings();
+    setupTypingSettings();
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();

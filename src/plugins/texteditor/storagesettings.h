@@ -21,10 +21,6 @@ public:
     bool removeTrailingWhitespace(const QString &filePattern) const;
 
     bool equals(const StorageSettings &ts) const;
-    friend bool operator==(const StorageSettings &t1, const StorageSettings &t2)
-    { return t1.equals(t2); }
-    friend bool operator!=(const StorageSettings &t1, const StorageSettings &t2)
-    { return !t1.equals(t2); }
 
     QString m_ignoreFileTypes;
     bool m_cleanWhitespace;
@@ -33,5 +29,10 @@ public:
     bool m_cleanIndentation;
     bool m_skipTrailingWhitespace;
 };
+
+void setupStorageSettings();
+void updateGlobalStorageSettings(const StorageSettings &newStorageSettings);
+
+StorageSettings &globalStorageSettings();
 
 } // namespace TextEditor
