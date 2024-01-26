@@ -71,7 +71,6 @@ public:
     FindInCurrentFile findInCurrentFileFilter;
     FindInOpenFiles findInOpenFilesFilter;
 
-    PlainTextEditorFactory plainTextEditorFactory;
     MarkdownEditorFactory markdownEditorFactory;
     JsonEditorFactory jsonEditorFactory;
 };
@@ -116,6 +115,8 @@ void TextEditorPlugin::initialize()
     setupTextMarkRegistry(this);
     setupOutlineFactory();
     setupLineNumberFilter(); // Goto line functionality for quick open
+
+    setupPlainTextEditor();
 
     setupBookmarkManager(this);
     setupBookmarkView();

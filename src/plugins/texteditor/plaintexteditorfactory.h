@@ -7,12 +7,8 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT PlainTextEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    PlainTextEditorFactory();
-    static PlainTextEditorFactory *instance();
-    static BaseTextEditor *createPlainTextEditor();
-};
+TEXTEDITOR_EXPORT BaseTextEditor *createPlainTextEditor();
 
-} // namespace TextEditor
+namespace Internal { void setupPlainTextEditor(); }
+
+} // TextEditor

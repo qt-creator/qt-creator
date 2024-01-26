@@ -1042,7 +1042,7 @@ TextEditor::BaseTextEditor *jsonEditor()
             break;
         delete editor;
     }
-    QTC_ASSERT(textEditor, textEditor = PlainTextEditorFactory::createPlainTextEditor());
+    QTC_ASSERT(textEditor, textEditor = createPlainTextEditor());
     TextDocument *document = textEditor->textDocument();
     TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
