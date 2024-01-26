@@ -251,7 +251,7 @@ const char add3DAssetsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResourc
 const char addQt3DSPresentationsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources",
                                                                     "Qt 3D Studio Presentations");
 const char addCustomEffectDialogDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources",
-                                                                    "Effect Maker Files");
+                                                                    "Effect Composer Files");
 
 } //ComponentCoreConstants
 

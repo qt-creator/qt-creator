@@ -121,7 +121,7 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
         if (fi.exists()) {
             if (QFile::remove(filePath)) {
                 if (Asset(filePath).isEffect()) {
-                    // If effect maker effect was removed, also remove effect module from project
+                    // If an effect composer effect was removed, also remove effect module from project
                     QString effectName = fi.baseName();
                     if (!effectName.isEmpty())
                         deletedEffects.append(effectName);

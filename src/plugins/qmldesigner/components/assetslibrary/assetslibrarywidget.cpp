@@ -513,7 +513,7 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
             // Data: Image format (suffix)
             return {Constants::MIME_TYPE_ASSET_TEXTURE3D, asset.suffix().toUtf8()};
         } else if (asset.isEffect()) {
-            // Data: Effect Maker format (suffix)
+            // Data: Effect Composer format (suffix)
             return {Constants::MIME_TYPE_ASSET_EFFECT, asset.suffix().toUtf8()};
         }
     }

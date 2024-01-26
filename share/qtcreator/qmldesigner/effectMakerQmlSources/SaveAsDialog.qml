@@ -18,7 +18,7 @@ StudioControls.Dialog {
     implicitWidth: 250
     implicitHeight: 160
 
-    property bool clearOnClose: false // clear the effect maker after saving
+    property bool clearOnClose: false // clear the effect composer after saving
 
     onOpened: {
         nameText.text = EffectMakerBackend.effectMakerModel.getUniqueEffectName()

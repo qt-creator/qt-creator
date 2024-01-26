@@ -75,7 +75,7 @@ Rectangle {
 
         style: StudioTheme.Values.viewBarButtonStyle
         buttonIcon: StudioTheme.Constants.help
-        tooltip: qsTr("How to use Effect Maker:
+        tooltip: qsTr("How to use Effect Composer:
 1. Click \"+ Add Effect\" to add effect node
 2. Adjust the effect nodes properties
 3. Change the order of the effects, if you like

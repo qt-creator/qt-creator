@@ -1638,7 +1638,7 @@ void openEffectMaker(const QString &filePath)
     if (ModelNodeOperations::isNewEffectMakerActivated()) {
         QmlDesignerPlugin::instance()->viewManager()
             .emitCustomNotification("open_effectmaker_composition", {}, {filePath});
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Maker", true);
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Composer", true);
     } else {
         ModelNodeOperations::openOldEffectMaker(filePath);
     }
@@ -1742,7 +1742,7 @@ bool validateEffect(const QString &effectPath)
     if (!qmlPath.exists()) {
         QMessageBox msgBox;
         msgBox.setText(QObject::tr("Effect %1 is not complete.").arg(effectName));
-        msgBox.setInformativeText(QObject::tr("Ensure that you have saved it in Qt Quick Effect Maker."
+        msgBox.setInformativeText(QObject::tr("Ensure that you have saved it in the Effect Composer."
                                               "\nDo you want to edit this effect?"));
         msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
         msgBox.setDefaultButton(QMessageBox::Yes);

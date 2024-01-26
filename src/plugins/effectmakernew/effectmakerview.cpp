@@ -59,8 +59,8 @@ QmlDesigner::WidgetInfo EffectMakerView::widgetInfo()
         Core::ICore::addContextObject(context);
     }
 
-    return createWidgetInfo(m_widget.data(), "Effect Maker",
-                            QmlDesigner::WidgetInfo::LeftPane, 0, tr("Effect Maker"));
+    return createWidgetInfo(m_widget.data(), "Effect Composer",
+                            QmlDesigner::WidgetInfo::LeftPane, 0, tr("Effect Composer [beta]"));
 }
 
 void EffectMakerView::customNotification([[maybe_unused]] const AbstractView *view,
@@ -82,7 +82,7 @@ void EffectMakerView::modelAttached(QmlDesigner::Model *model)
 
     QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
 
-    // if starting a new project, clear the effect maker
+    // if starting a new project, clear the effect composer
     if (m_currProjectPath != currProjectPath)
         m_widget->effectMakerModel()->clear();
 

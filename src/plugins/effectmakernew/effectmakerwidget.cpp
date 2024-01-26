@@ -52,7 +52,7 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     , m_effectMakerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
-    setWindowTitle(tr("Effect Maker", "Title of effect maker widget"));
+    setWindowTitle(tr("Effect Composer", "Title of effect composer widget"));
     setMinimumWidth(250);
 
     m_quickWidget->quickWidget()->installEventFilter(this);
