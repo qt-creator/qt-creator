@@ -410,11 +410,10 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    const QString pSep = OsSpecificAspects::pathListSeparator(Utils::OsTypeWindows);
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), pSep);
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath());
     const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
     if (!oldCdbExtensionPath.isEmpty())
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath, pSep);
+        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
 
     m_process.setEnvironment(inferiorEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())

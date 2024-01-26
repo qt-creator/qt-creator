@@ -83,9 +83,7 @@ public:
         Environment env = m_runParameters.debugger.environment;
         const FilePath debugPyDir = packageDir(m_cmd.executable(), "debugpy");
         if (QTC_GUARD(debugPyDir.isSameDevice(m_cmd.executable()))) {
-            env.appendOrSet("PYTHONPATH",
-                            debugPyDir.needsDevice() ? debugPyDir.path() : debugPyDir.toUserOutput(),
-                            OsSpecificAspects::pathListSeparator(debugPyDir.osType()));
+            env.appendOrSet("PYTHONPATH", debugPyDir.path());
         }
 
         m_proc.setEnvironment(env);

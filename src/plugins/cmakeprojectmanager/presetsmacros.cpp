@@ -139,10 +139,8 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
             return presetEnv.value(macroName);
         });
 
-        QString sep;
         bool append = true;
         if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
-            sep = OsSpecificAspects::pathListSeparator(env.osType());
             const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
             if (index != 0)
                 append = false;
@@ -157,9 +155,9 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
         expandAllButEnv(preset, sourceDirectory, value);
 
         if (append)
-            env.appendOrSet(key, value, sep);
+            env.appendOrSet(key, value);
         else
-            env.prependOrSet(key, value, sep);
+            env.prependOrSet(key, value);
     });
 }
 

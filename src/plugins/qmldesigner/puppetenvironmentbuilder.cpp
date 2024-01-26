@@ -223,7 +223,7 @@ void PuppetEnvironmentBuilder::addImportPaths() const
         importPaths.prepend(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
 
     constexpr auto pathSep = Utils::HostOsInfo::pathListSeparator();
-    m_environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);
+    m_environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep));
 
     qCInfo(puppetEnvirmentBuild) << "Puppet import paths:" << importPaths;
 }
@@ -237,9 +237,9 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
 
     customFileSelectors.append("DesignMode");
 
-    constexpr auto pathSep = Utils::HostOsInfo::pathListSeparator();
     if (!customFileSelectors.isEmpty())
-        m_environment.appendOrSet("QML_FILE_SELECTORS", customFileSelectors.join(","), pathSep);
+        m_environment.appendOrSet("QML_FILE_SELECTORS",
+                                  customFileSelectors.join(","));
 
     qCInfo(puppetEnvirmentBuild) << "Puppet selectors:" << customFileSelectors;
 }

@@ -184,17 +184,13 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         rcPath.copyFile(tmpRc);
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
-        env.appendOrSet("CLINK_PATH",
-                        tmpRc.parentDir().nativePath(),
-                        OsSpecificAspects::pathListSeparator(env.osType()));
+        env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath());
     } else if (cmd.executable().baseName() == "fish") {
         FilePath xdgDir = FilePath::fromUserInput(m_tempDir.filePath("fish_xdg_data"));
         FilePath subDir = xdgDir.resolvePath(QString("fish/vendor_conf.d"));
         QTC_ASSERT(subDir.createDir(), return);
         filesToCopy.fish.script.copyFile(subDir.resolvePath(filesToCopy.fish.script.fileName()));
-        env.appendOrSet("XDG_DATA_DIRS",
-                        xdgDir.toUserOutput(),
-                        OsSpecificAspects::pathListSeparator(env.osType()));
+        env.appendOrSet("XDG_DATA_DIRS", xdgDir.toUserOutput());
     }
 
     process.setCommand(cmd);

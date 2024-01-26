@@ -109,15 +109,11 @@ protected:
         Environment env = python.deviceEnvironment();
         const FilePath lspPath = pyLspPath(python);
         if (!lspPath.isEmpty() && lspPath.exists() && QTC_GUARD(lspPath.isSameDevice(python))) {
-            env.appendOrSet("PYTHONPATH",
-                            lspPath.path(),
-                            OsSpecificAspects::pathListSeparator(env.osType()));
+            env.appendOrSet("PYTHONPATH", lspPath.path());
         }
         if (!python.needsDevice()) {
             // todo check where to put this tempdir in remote setups
-            env.appendOrSet("PYTHONPATH",
-                            m_extraPythonPath.path().toString(),
-                            OsSpecificAspects::pathListSeparator(env.osType()));
+            env.appendOrSet("PYTHONPATH", m_extraPythonPath.path().toString());
         }
         if (env.hasChanges())
             setEnvironment(env);

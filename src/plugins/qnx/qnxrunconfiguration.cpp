@@ -63,10 +63,10 @@ public:
         setRunnableModifier([this](ProcessRunData &r) {
             QString libPath = qtLibraries();
             if (!libPath.isEmpty()) {
-                r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");
-                r.environment.appendOrSet("QML_IMPORT_PATH", libPath + "/imports:$QML_IMPORT_PATH");
-                r.environment.appendOrSet("QML2_IMPORT_PATH", libPath + "/qml:$QML2_IMPORT_PATH");
-                r.environment.appendOrSet("QT_PLUGIN_PATH", libPath + "/plugins:$QT_PLUGIN_PATH");
+                r.environment.prependOrSet("LD_LIBRARY_PATH", libPath + "/lib");
+                r.environment.prependOrSet("QML_IMPORT_PATH", libPath + "/imports");
+                r.environment.prependOrSet("QML2_IMPORT_PATH", libPath + "/qml");
+                r.environment.prependOrSet("QT_PLUGIN_PATH", libPath + "/plugins");
                 r.environment.set("QT_QPA_FONTDIR", libPath + "/lib/fonts");
             }
         });
