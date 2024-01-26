@@ -8,11 +8,9 @@
 #include "../icontext.h"
 #include "command.h"
 
-#include <QAction>
+#include <utils/action.h>
 
 #include <functional>
-
-namespace Utils { class Action; }
 
 namespace Core {
 
@@ -22,7 +20,6 @@ class ICore;
 namespace Internal {
 class CorePlugin;
 class ICorePrivate;
-class MainWindow;
 } // Internal
 
 class CORE_EXPORT ActionBuilder
@@ -98,8 +95,7 @@ public:
     Utils::Id id() const;
     Command *command() const;
     QAction *commandAction() const;
-    QAction *contextAction() const;
-    Utils::Action *contextParameterAction() const;
+    Utils::Action *contextAction() const;
 
 private:
     class ActionBuilderPrivate *d = nullptr;

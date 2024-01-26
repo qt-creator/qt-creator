@@ -356,12 +356,7 @@ QAction *ActionBuilder::commandAction() const
     return d->command->action();
 }
 
-QAction *ActionBuilder::contextAction() const
-{
-    return d->contextAction();
-}
-
-Action *ActionBuilder::contextParameterAction() const
+Action *ActionBuilder::contextAction() const
 {
     return d->contextAction();
 }
