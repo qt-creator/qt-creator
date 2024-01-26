@@ -149,7 +149,7 @@ void PuppetEnvironmentBuilder::addControls() const
     const QString styleConfigFileName = getStyleConfigFileName();
 
     if (!styleConfigFileName.isEmpty())
-        m_environment.appendOrSet("QT_QUICK_CONTROLS_CONF", styleConfigFileName);
+        m_environment.set("QT_QUICK_CONTROLS_CONF", styleConfigFileName);
 }
 
 void PuppetEnvironmentBuilder::addPixelRatio() const
@@ -238,8 +238,7 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
     customFileSelectors.append("DesignMode");
 
     if (!customFileSelectors.isEmpty())
-        m_environment.appendOrSet("QML_FILE_SELECTORS",
-                                  customFileSelectors.join(","));
+        m_environment.set("QML_FILE_SELECTORS", customFileSelectors.join(","));
 
     qCInfo(puppetEnvirmentBuild) << "Puppet selectors:" << customFileSelectors;
 }

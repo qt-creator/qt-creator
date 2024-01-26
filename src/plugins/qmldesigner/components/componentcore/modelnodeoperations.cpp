@@ -1679,7 +1679,7 @@ void openOldEffectMaker(const QString &filePath)
         arguments << "--exportpath" << effectResPath.toString();
 
         if (env.osType() == Utils::OsTypeMac)
-            env.appendOrSet("QSG_RHI_BACKEND", "metal");
+            env.set("QSG_RHI_BACKEND", "metal");
 
         Utils::Process *qqemProcess = new Utils::Process();
         qqemProcess->setEnvironment(env);

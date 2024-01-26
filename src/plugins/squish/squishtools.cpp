@@ -704,8 +704,8 @@ Environment SquishTools::squishEnvironment()
 {
     Environment environment = Environment::systemEnvironment();
     if (!toolsSettings.licenseKeyPath.isEmpty())
-        environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
-    environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
+        environment.set("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
+    environment.set("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
     return environment;
 }
 

@@ -47,7 +47,7 @@ private slots:
                                   + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
         LauncherInterface::setPathToLauncher(libExecPath);
 
-        testEnv.appendOrSet("TEST_ECHO", "1");
+        testEnv.set("TEST_ECHO", "1");
 
         if (HostOsInfo::isWindowsHost())
             newLine = "\r\n";
