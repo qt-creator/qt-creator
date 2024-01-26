@@ -8,6 +8,7 @@ add_qtc_library(Utils
   SOURCES
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp
+    action.cpp action.h
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h
@@ -118,7 +119,6 @@ add_qtc_library(Utils
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
     overridecursor.cpp overridecursor.h
-    parameteraction.cpp parameteraction.h
     passworddialog.cpp passworddialog.h
     pathchooser.cpp pathchooser.h
     pathlisteditor.cpp pathlisteditor.h

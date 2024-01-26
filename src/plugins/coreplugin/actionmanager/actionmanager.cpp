@@ -7,9 +7,9 @@
 #include "command_p.h"
 #include "../icore.h"
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>

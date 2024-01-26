@@ -34,10 +34,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/action.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

@@ -22,12 +22,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QAction>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QFormLayout>

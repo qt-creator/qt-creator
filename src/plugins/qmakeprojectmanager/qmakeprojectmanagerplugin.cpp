@@ -39,9 +39,9 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/action.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
-#include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
 
 using namespace Core;

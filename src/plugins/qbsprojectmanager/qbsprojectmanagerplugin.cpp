@@ -38,13 +38,11 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <utils/action.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-
-#include <QAction>
 
 using namespace ProjectExplorer;
 using namespace Utils;

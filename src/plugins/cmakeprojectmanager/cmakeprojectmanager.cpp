@@ -36,9 +36,9 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <utils/action.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/utilsicons.h>
-#include <utils/parameteraction.h>
 
 #include <QMessageBox>
 

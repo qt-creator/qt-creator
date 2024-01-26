@@ -29,12 +29,12 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
-#include <utils/parameteraction.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>

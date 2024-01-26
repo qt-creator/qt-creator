@@ -35,9 +35,9 @@
 
 #include <texteditor/textmark.h>
 
+#include <utils/action.h>
 #include <utils/async.h>
 #include <utils/environment.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 

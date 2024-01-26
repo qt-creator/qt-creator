@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/parameteraction.h>
+#include <utils/action.h>
 
 #include <QCoreApplication>
 

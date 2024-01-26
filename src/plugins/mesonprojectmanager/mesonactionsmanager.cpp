@@ -15,7 +15,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/parameteraction.h>
+#include <utils/action.h>
 
 namespace MesonProjectManager {
 namespace Internal {

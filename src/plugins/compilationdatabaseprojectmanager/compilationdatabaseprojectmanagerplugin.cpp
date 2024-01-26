@@ -17,8 +17,8 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/action.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
 
 using namespace Core;

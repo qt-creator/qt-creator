@@ -24,12 +24,12 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -41,7 +41,6 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <QAction>
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>

@@ -18,9 +18,8 @@
 
 #include <texteditor/texteditoractionhandler.h>
 
+#include <utils/action.h>
 #include <utils/ranges.h>
-#include <utils/parameteraction.h>
-#include <utils/qtcsettings.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>

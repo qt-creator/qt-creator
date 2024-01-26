@@ -35,6 +35,8 @@ QtcLibrary {
     Depends { name: "ptyqt" }
 
     files: [
+        "action.cpp",
+        "action.h",
         "algorithm.h",
         "ansiescapecodehandler.cpp",
         "ansiescapecodehandler.h",
@@ -216,8 +218,6 @@ QtcLibrary {
         "overlaywidget.h",
         "overridecursor.cpp",
         "overridecursor.h",
-        "parameteraction.cpp",
-        "parameteraction.h",
         "passworddialog.cpp",
         "passworddialog.h",
         "pathchooser.cpp",

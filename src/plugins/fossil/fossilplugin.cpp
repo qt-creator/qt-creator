@@ -28,9 +28,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <utils/action.h>
 #include <utils/commandline.h>
 #include <utils/layoutbuilder.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
 #include <vcsbase/basevcseditorfactory.h>

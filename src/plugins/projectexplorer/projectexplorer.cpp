@@ -125,11 +125,11 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
-#include <utils/parameteraction.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/proxyaction.h>

@@ -30,9 +30,9 @@
 #include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 
+#include <utils/action.h>
 #include <utils/mimeconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/parameteraction.h>
 
 #include <QTimer>
 #include <QMenu>
