@@ -84,7 +84,7 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 
     // if starting a new project, clear the effect composer
     if (m_currProjectPath != currProjectPath)
-        m_widget->effectComposerModel()->clear();
+        m_widget->effectComposerModel()->clear(true);
 
     m_currProjectPath = currProjectPath;
 
