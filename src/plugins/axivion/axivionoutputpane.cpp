@@ -25,6 +25,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextBrowser>
 #include <QToolButton>
@@ -218,6 +219,7 @@ public:
 
 private:
     void updateTableView();
+    void fetchMoreIssues();
 
     QString m_currentPrefix;
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
@@ -232,6 +234,8 @@ private:
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
     TreeModel<> *m_issuesModel = nullptr;
+    int m_totalRowCount = 0;
+    int m_lastRequestedOffset = 0;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -278,6 +282,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesView->enableColumnHiding();
     m_issuesModel = new TreeModel;
     m_issuesView->setModel(m_issuesModel);
+    auto sb = m_issuesView->verticalScrollBar();
+    if (QTC_GUARD(sb)) {
+        connect(sb, &QAbstractSlider::valueChanged, sb, [this, sb](int value) {
+            if (value >= sb->maximum() - 10) {
+                if (m_issuesModel->rowCount() < m_totalRowCount)
+                    fetchMoreIssues();
+            }
+        });
+    }
     layout->addWidget(m_issuesView);
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
     QHBoxLayout *bottom = new QHBoxLayout;
@@ -371,6 +384,8 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
 
     // first time lookup... should we cache and maybe represent old data?
+    m_totalRowCount = 0;
+    m_lastRequestedOffset = 0;
     IssueListSearch search;
     search.kind = m_currentPrefix;
     search.computeTotalRowCount = true;
@@ -435,8 +450,10 @@ static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
 void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
-    if (dto.totalRowCount.has_value())
-        m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(dto.totalRowCount.value()));
+    if (dto.totalRowCount.has_value()) {
+        m_totalRowCount = dto.totalRowCount.value();
+        m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(m_totalRowCount));
+    }
     if (dto.totalAddedCount.has_value())
         m_addedFilter->setText(QString::number(dto.totalAddedCount.value()));
     if (dto.totalRemovedCount.has_value())
@@ -467,6 +484,19 @@ void IssuesWidget::updateTableView()
     QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
     // fetch table dto and apply, on done fetch first data for the selected issues
     fetchIssueTableLayout(m_currentPrefix);
+}
+
+void IssuesWidget::fetchMoreIssues()
+{
+    if (m_lastRequestedOffset == m_issuesModel->rowCount())
+        return;
+
+    IssueListSearch search;
+    search.kind = m_currentPrefix;
+    m_lastRequestedOffset = m_issuesModel->rowCount();
+    search.offset = m_lastRequestedOffset;
+    m_issuesView->showProgressIndicator();
+    fetchIssues(search);
 }
 
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
