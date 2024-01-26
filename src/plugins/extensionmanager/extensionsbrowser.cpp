@@ -339,19 +339,11 @@ public:
         {
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
-            constexpr qreal strokeWidth = 1;
-            constexpr qreal shrink = strokeWidth / 2;
-            const QRectF itemRectAdjusted = itemRect.adjusted(shrink, shrink, -shrink, -shrink);
-            constexpr qreal rounding = 4.5;
-            QPainterPath itemOutlinePath;
-            itemOutlinePath.addRoundedRect(itemRectAdjusted, rounding, rounding);
             const QColor fillColor = creatorTheme()->color(hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Background_Muted);
             const QColor strokeColor = creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
                                                                       : Theme::Token_Stroke_Subtle);
-            painter->setBrush(fillColor);
-            painter->setPen(strokeColor);
-            painter->drawPath(itemOutlinePath);
+            WelcomePageHelpers::drawCardBackground(painter, itemRect, fillColor, strokeColor);
         }
         {
             constexpr QRectF bigCircle(16, 16, 48, 48);

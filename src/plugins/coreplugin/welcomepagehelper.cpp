@@ -19,6 +19,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QScrollArea>
 #include <QTimer>
@@ -55,6 +56,25 @@ QWidget *panelBar(QWidget *parent)
     pal.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundPrimaryColor));
     frame->setPalette(pal);
     return frame;
+}
+
+void drawCardBackground(QPainter *painter, const QRectF &rect,
+                        const QBrush &fill, const QPen &pen, qreal rounding)
+{
+    const qreal strokeWidth = pen.style() == Qt::NoPen ? 0 : pen.widthF();
+    const qreal strokeShrink = strokeWidth / 2;
+    const QRectF itemRectAdjusted = rect.adjusted(strokeShrink, strokeShrink,
+                                                  -strokeShrink, -strokeShrink);
+    const qreal roundingAdjusted = rounding - strokeShrink;
+    QPainterPath itemOutlinePath;
+    itemOutlinePath.addRoundedRect(itemRectAdjusted, roundingAdjusted, roundingAdjusted);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(fill);
+    painter->setPen(pen);
+    painter->drawPath(itemOutlinePath);
+    painter->restore();
 }
 
 } // namespace WelcomePageHelpers

@@ -8,6 +8,7 @@
 
 #include <QElapsedTimer>
 #include <QListView>
+#include <QPen>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
@@ -36,6 +37,9 @@ constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
                                       - 67);                   // Bottom margin (for title + tags)
 
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
+CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
+                                    const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
+                                    qreal rounding = 5.0);
 
 } // namespace WelcomePageHelpers
 
