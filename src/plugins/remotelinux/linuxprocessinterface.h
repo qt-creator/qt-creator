@@ -5,7 +5,7 @@
 
 #include "remotelinux_export.h"
 
-#include "linuxdevice.h"
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <utils/processinterface.h>
 
