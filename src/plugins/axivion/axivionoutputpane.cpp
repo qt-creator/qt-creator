@@ -30,7 +30,8 @@
 #include <QToolButton>
 
 #include <map>
-#include <memory>
+
+using namespace Utils;
 
 namespace Axivion::Internal {
 
@@ -74,11 +75,11 @@ DashboardWidget::DashboardWidget(QWidget *parent)
 
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
-    static const QPixmap unchanged = Utils::Icons::NEXT.pixmap();
-    static const QPixmap increased = Utils::Icon(
-                { {":/utils/images/arrowup.png", Utils::Theme::IconsErrorColor} }).pixmap();
-    static const QPixmap decreased = Utils::Icon(
-                {  {":/utils/images/arrowdown.png", Utils::Theme::IconsRunColor} }).pixmap();
+    static const QPixmap unchanged = Icons::NEXT.pixmap();
+    static const QPixmap increased = Icon(
+                { {":/utils/images/arrowup.png", Theme::IconsErrorColor} }).pixmap();
+    static const QPixmap decreased = Icon(
+                {  {":/utils/images/arrowdown.png", Theme::IconsRunColor} }).pixmap();
     if (added == removed)
         return unchanged;
     return added < removed ? decreased : increased;
@@ -179,32 +180,32 @@ void DashboardWidget::updateUi()
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
-class IssueTreeItem : public Utils::StaticTreeItem
+class IssueTreeItem final : public StaticTreeItem
 {
 public:
     IssueTreeItem(const QStringList &data, const QStringList &toolTips)
-        : Utils::StaticTreeItem(data, toolTips)
+        : StaticTreeItem(data, toolTips)
     {}
 
-    void setLinks(const Utils::Links &links) { m_links = links; }
+    void setLinks(const Links &links) { m_links = links; }
 
-    bool setData(int column, const QVariant &value, int role) override
+    bool setData(int column, const QVariant &value, int role) final
     {
-        if (role == Utils::BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
+        if (role == BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
             // TODO for now only simple - just the first..
-            Utils::Link link = m_links.first();
+            Link link = m_links.first();
             ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-            Utils::FilePath baseDir = project ? project->projectDirectory() : Utils::FilePath{};
+            FilePath baseDir = project ? project->projectDirectory() : FilePath{};
             link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
             if (link.targetFilePath.exists())
                 Core::EditorManager::openEditorAt(link);
             return true;
         }
-        return false;
+        return StaticTreeItem::setData(column, value, role);
     }
 
 private:
-    Utils::Links m_links;
+    Links m_links;
 };
 
 class IssuesWidget : public QScrollArea
@@ -229,8 +230,8 @@ private:
     QComboBox *m_versionEnd = nullptr;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
-    Utils::BaseTreeView *m_issuesView = nullptr;
-    Utils::TreeModel<> *m_issuesModel = nullptr;
+    BaseTreeView *m_issuesView = nullptr;
+    TreeModel<> *m_issuesModel = nullptr;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -272,10 +273,10 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     m_filtersLayout->addWidget(m_pathGlobFilter);
     layout->addLayout(m_filtersLayout);
-    m_issuesView = new Utils::BaseTreeView(this);
+    m_issuesView = new BaseTreeView(this);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
-    m_issuesModel = new Utils::TreeModel;
+    m_issuesModel = new TreeModel;
     m_issuesView->setModel(m_issuesModel);
     layout->addWidget(m_issuesView);
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
@@ -347,7 +348,7 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     m_currentTableInfo.emplace(dto);
 
     // update issues table layout - for now just simple approach
-    Utils::TreeModel<> *issuesModel = new Utils::TreeModel;
+    TreeModel<> *issuesModel = new TreeModel;
     QStringList columnHeaders;
     QStringList hiddenColumns;
     for (const Dto::ColumnInfoDto &column : dto.columns) {
@@ -406,15 +407,15 @@ static QString anyToSimpleString(const Dto::Any &any)
     return QString();
 }
 
-static Utils::Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
+static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
 {
-    Utils::Links links;
+    Links links;
 
     auto end = issueRow.end();
     auto findAndAppend = [&links, &issueRow, &end](const QString &path, const QString &line) {
         auto it = issueRow.find(path);
         if (it != end) {
-            Utils::Link link{ Utils::FilePath::fromUserInput(it->second.getString()) };
+            Link link{ FilePath::fromUserInput(it->second.getString()) };
             it = issueRow.find(line);
             if (it != end)
                 link.targetLine = it->second.getDouble();
@@ -503,7 +504,7 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
 {
     QList<QWidget *> buttons;
     auto showDashboard = new QToolButton(m_outputWidget);
-    showDashboard->setIcon(Utils::Icons::HOME_TOOLBAR.icon());
+    showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
     showDashboard->setToolTip(Tr::tr("Show dashboard"));
     connect(showDashboard, &QToolButton::clicked, this, [this]{
         QTC_ASSERT(m_outputWidget, return);
@@ -511,7 +512,7 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
     });
     buttons.append(showDashboard);
     auto showIssues = new QToolButton(m_outputWidget);
-    showIssues->setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
+    showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
     showIssues->setToolTip(Tr::tr("Search for issues"));
     connect(showIssues, &QToolButton::clicked, this, [this]{
         QTC_ASSERT(m_outputWidget, return);
