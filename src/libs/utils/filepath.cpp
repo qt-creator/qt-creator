@@ -182,6 +182,19 @@ FilePath FilePath::fromVariant(const QVariant &variant)
     return fromSettings(variant); // FIXME: Use variant.value<FilePath>()
 }
 
+/*!
+    Constructs a FilePath from \a url.
+
+    \sa toVariant()
+*/
+FilePath FilePath::fromUrl(const QUrl &url)
+{
+    FilePath result;
+    if (url.isLocalFile())
+        return FilePath::fromString(url.toLocalFile());
+    return FilePath::fromParts(url.scheme(), url.host(), url.path());
+}
+
 FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
     FilePath result;

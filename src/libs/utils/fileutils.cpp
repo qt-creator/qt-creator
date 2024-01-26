@@ -397,19 +397,12 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
-static FilePath qUrlToFilePath(const QUrl &url)
-{
-    if (url.isLocalFile())
-        return FilePath::fromString(url.toLocalFile());
-    return FilePath::fromParts(url.scheme(), url.host(), url.path());
-}
-
 static QUrl filePathToQUrl(const FilePath &filePath)
 {
     return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
-void prepareNonNativeDialog(QFileDialog &dialog)
+static void prepareNonNativeDialog(QFileDialog &dialog)
 {
     const auto isValidSideBarPath = [](const FilePath &fp) {
         return !fp.needsDevice() || fp.hasFileAccess();
@@ -422,7 +415,7 @@ void prepareNonNativeDialog(QFileDialog &dialog)
 
         // Check existing urls, remove paths that need a device and are no longer valid.
         for (const QUrl &url : dialog.sidebarUrls()) {
-            FilePath path = qUrlToFilePath(url);
+            FilePath path = FilePath::fromUrl(url);
             if (isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
@@ -467,7 +460,7 @@ FilePaths getFilePaths(QWidget *parent,
     if (dialog.exec() == QDialog::Accepted) {
         if (selectedFilter)
             *selectedFilter = dialog.selectedNameFilter();
-        return Utils::transform(dialog.selectedUrls(), &qUrlToFilePath);
+        return Utils::transform(dialog.selectedUrls(), &FilePath::fromUrl);
     }
     return {};
 }
