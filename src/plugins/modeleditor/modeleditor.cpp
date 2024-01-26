@@ -86,6 +86,7 @@
 
 #include <algorithm>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ModelEditor {
@@ -101,7 +102,7 @@ public:
     ActionHandler *actionHandler = nullptr;
     ModelDocument *document = nullptr;
     qmt::PropertiesView *propertiesView = nullptr;
-    Core::MiniSplitter *rightSplitter = nullptr;
+    MiniSplitter *rightSplitter = nullptr;
     QWidget *leftGroup = nullptr;
     QHBoxLayout *leftGroupLayout = nullptr;
     QToolBox *leftToolBox = nullptr;
@@ -109,7 +110,7 @@ public:
     EditorDiagramView *diagramView = nullptr;
     QLabel *noDiagramLabel = nullptr;
     DiagramsViewManager *diagramsViewManager = nullptr;
-    Core::MiniSplitter *rightHorizSplitter = nullptr;
+    MiniSplitter *rightHorizSplitter = nullptr;
     qmt::ModelTreeView *modelTreeView = nullptr;
     qmt::TreeModelManager *modelTreeViewServant = nullptr;
     QScrollArea *propertiesScrollArea = nullptr;
@@ -126,7 +127,7 @@ public:
 ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler)
     : d(new ModelEditorPrivate)
 {
-    setContext(Core::Context(Constants::MODEL_EDITOR_ID));
+    setContext(Context(Constants::MODEL_EDITOR_ID));
     d->uiController = uiController;
     d->actionHandler = actionHandler;
     d->document = new ModelDocument(this);
@@ -141,7 +142,7 @@ ModelEditor::~ModelEditor()
     delete d;
 }
 
-Core::IDocument *ModelEditor::document() const
+IDocument *ModelEditor::document() const
 {
     return d->document;
 }
@@ -191,7 +192,7 @@ void ModelEditor::init()
     d->propertiesView = new qmt::PropertiesView(this);
 
     // create and configure editor ui
-    d->rightSplitter = new Core::MiniSplitter;
+    d->rightSplitter = new MiniSplitter;
     connect(d->rightSplitter, &QSplitter::splitterMoved,
             this, &ModelEditor::onRightSplitterMoved);
     connect(d->uiController, &UiController::rightSplitterChanged,
@@ -253,7 +254,7 @@ void ModelEditor::init()
     d->leftGroupLayout->addWidget(frame, 0);
     d->leftGroupLayout->addWidget(d->diagramStack, 1);
 
-    d->rightHorizSplitter = new Core::MiniSplitter(d->rightSplitter);
+    d->rightHorizSplitter = new MiniSplitter(d->rightSplitter);
     d->rightHorizSplitter->setOrientation(Qt::Vertical);
     connect(d->rightHorizSplitter, &QSplitter::splitterMoved,
             this, &ModelEditor::onRightHorizSplitterMoved);
@@ -296,7 +297,7 @@ void ModelEditor::init()
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarLayout->setSpacing(0);
 
-    auto openParentButton = new Core::CommandButton(Constants::OPEN_PARENT_DIAGRAM, d->toolbar);
+    auto openParentButton = new CommandButton(Constants::OPEN_PARENT_DIAGRAM, d->toolbar);
     openParentButton->setDefaultAction(d->actionHandler->openParentDiagramAction());
     toolbarLayout->addWidget(openParentButton);
 
@@ -306,15 +307,12 @@ void ModelEditor::init()
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);
 
-    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_RESET,
-                                                        [this] { resetZoom(); },
-                                                        d->toolbar));
-    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_IN,
-                                                        [this] { zoomIn(); },
-                                                        d->toolbar));
-    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_OUT,
-                                                        [this] { zoomOut(); },
-                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(
+        Core::Constants::ZOOM_RESET, [this] { resetZoom(); }, d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(
+        Core::Constants::ZOOM_IN, [this] { zoomIn(); }, d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(
+        Core::Constants::ZOOM_OUT, [this] { zoomOut(); }, d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE,
                                                         [this] { onAddPackage(); },
                                                         d->toolbar));
@@ -329,7 +327,7 @@ void ModelEditor::init()
                                                         d->toolbar));
     toolbarLayout->addSpacing(20);
 
-    auto syncToggleButton = new Core::CommandButton(Constants::ACTION_SYNC_BROWSER, d->toolbar);
+    auto syncToggleButton = new CommandButton(Constants::ACTION_SYNC_BROWSER, d->toolbar);
     syncToggleButton->setDefaultAction(d->actionHandler->synchronizeBrowserAction());
     QMenu *syncMenu = new QMenu(syncToggleButton);
     QActionGroup *syncGroup = new QActionGroup(syncMenu);
@@ -399,8 +397,11 @@ void ModelEditor::initDocument()
     connect(documentController->diagramSceneController(), &qmt::DiagramSceneController::newElementCreated,
             this, &ModelEditor::onNewElementCreated, Qt::QueuedConnection);
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, &ModelEditor::onCurrentEditorChanged, Qt::QueuedConnection);
+    connect(EditorManager::instance(),
+            &EditorManager::currentEditorChanged,
+            this,
+            &ModelEditor::onCurrentEditorChanged,
+            Qt::QueuedConnection);
 
     connect(d->diagramView, &EditorDiagramView::zoomIn,
             this, &ModelEditor::zoomInAtPos);
@@ -602,11 +603,16 @@ void ModelEditor::exportToImage(bool selectedElements)
             if (success)
                 d->lastExportDirPath = QFileInfo(fileName).canonicalPath();
             else if (selectedElements)
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Exporting Selected Elements Failed"),
-                                      Tr::tr("Exporting the selected elements of the current diagram into file<br>\"%1\"<br>failed.").arg(fileName));
+                QMessageBox::critical(ICore::dialogParent(),
+                                      Tr::tr("Exporting Selected Elements Failed"),
+                                      Tr::tr("Exporting the selected elements of the current "
+                                             "diagram into file<br>\"%1\"<br>failed.")
+                                          .arg(fileName));
             else
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Exporting Diagram Failed"),
-                                      Tr::tr("Exporting the diagram into file<br>\"%1\"<br>failed.").arg(fileName));
+                QMessageBox::critical(ICore::dialogParent(),
+                                      Tr::tr("Exporting Diagram Failed"),
+                                      Tr::tr("Exporting the diagram into file<br>\"%1\"<br>failed.")
+                                          .arg(fileName));
         }
     }
 }
@@ -827,12 +833,12 @@ QToolButton *ModelEditor::createToolbarCommandButton(const Utils::Id &id,
                                                      const std::function<void()> &slot,
                                                      QWidget *parent)
 {
-    Core::Command *command = Core::ActionManager::command(id);
+    Command *command = ActionManager::command(id);
     QTC_CHECK(command);
     const QString text = command ? command->description() : QString();
     auto action = new QAction(text, this);
     action->setIcon(command ? command->action()->icon() : QIcon());
-    auto button = Core::Command::toolButtonWithAppendedShortcut(action, command);
+    auto button = Command::toolButtonWithAppendedShortcut(action, command);
     button->setParent(parent);
     connect(button, &QToolButton::clicked, this, slot);
     return button;
@@ -901,7 +907,7 @@ void ModelEditor::onAddCanvasDiagram()
     QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
 }
 
-void ModelEditor::onCurrentEditorChanged(Core::IEditor *editor)
+void ModelEditor::onCurrentEditorChanged(IEditor *editor)
 {
     if (this == editor) {
         QUndoStack *undoStack = d->document->documentController()->undoController()->undoStack();
@@ -914,13 +920,13 @@ void ModelEditor::onCurrentEditorChanged(Core::IEditor *editor)
 
 void ModelEditor::onCanUndoChanged(bool canUndo)
 {
-    if (this == Core::EditorManager::currentEditor())
+    if (this == EditorManager::currentEditor())
         d->actionHandler->undoAction()->setEnabled(canUndo);
 }
 
 void ModelEditor::onCanRedoChanged(bool canRedo)
 {
-    if (this == Core::EditorManager::currentEditor())
+    if (this == EditorManager::currentEditor())
         d->actionHandler->redoAction()->setEnabled(canRedo);
 }
 
@@ -975,7 +981,7 @@ void ModelEditor::onDiagramClipboardChanged(bool isEmpty)
 {
     Q_UNUSED(isEmpty)
 
-    if (this == Core::EditorManager::currentEditor())
+    if (this == EditorManager::currentEditor())
         updateSelectedArea(d->selectedArea);
 }
 
@@ -1358,9 +1364,9 @@ void ModelEditor::storeToolbarIdInDiagram(qmt::MDiagram *diagram)
 
 void ModelEditor::addToNavigationHistory(const qmt::MDiagram *diagram)
 {
-    if (Core::EditorManager::currentEditor() == this) {
-        Core::EditorManager::cutForwardNavigationHistory();
-        Core::EditorManager::addCurrentPositionToNavigationHistory(saveState(diagram));
+    if (EditorManager::currentEditor() == this) {
+        EditorManager::cutForwardNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory(saveState(diagram));
     }
 }
 
