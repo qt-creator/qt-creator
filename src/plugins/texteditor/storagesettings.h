@@ -33,6 +33,6 @@ public:
 void setupStorageSettings();
 void updateGlobalStorageSettings(const StorageSettings &newStorageSettings);
 
-StorageSettings &globalStorageSettings();
+TEXTEDITOR_EXPORT StorageSettings &globalStorageSettings();
 
 } // namespace TextEditor

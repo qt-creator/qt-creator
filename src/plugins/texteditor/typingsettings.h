@@ -57,7 +57,7 @@ public:
 void setupTypingSettings();
 void updateGlobalTypingSettings(const TypingSettings &newTypingSettings);
 
-TypingSettings &globalTypingSettings();
+TEXTEDITOR_EXPORT TypingSettings &globalTypingSettings();
 
 } // namespace TextEditor
 

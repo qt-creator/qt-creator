@@ -35,6 +35,7 @@
 
 using namespace TextEditor::Constants;
 using namespace TextEditor::Internal;
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
@@ -442,7 +443,7 @@ TextEditorSettings::TextEditorSettings()
     updateGeneralMessagesBehaviorSettings();
 
     auto updateCamelCaseNavigation = [] {
-        Utils::FancyLineEdit::setCamelCaseNavigationEnabled(behaviorSettings().m_camelCaseNavigation);
+        FancyLineEdit::setCamelCaseNavigationEnabled(globalBehaviorSettings().m_camelCaseNavigation);
     };
     connect(this, &TextEditorSettings::behaviorSettingsChanged,
             this, updateCamelCaseNavigation);
@@ -466,21 +467,6 @@ const FontSettings &TextEditorSettings::fontSettings()
     return d->m_fontSettings;
 }
 
-const TypingSettings &TextEditorSettings::typingSettings()
-{
-    return d->m_behaviorSettingsPage.typingSettings();
-}
-
-const StorageSettings &TextEditorSettings::storageSettings()
-{
-    return d->m_behaviorSettingsPage.storageSettings();
-}
-
-const BehaviorSettings &TextEditorSettings::behaviorSettings()
-{
-    return d->m_behaviorSettingsPage.behaviorSettings();
-}
-
 const MarginSettings &TextEditorSettings::marginSettings()
 {
     return d->m_displaySettingsPage.marginSettings();
@@ -499,11 +485,6 @@ const CompletionSettings &TextEditorSettings::completionSettings()
 const HighlighterSettings &TextEditorSettings::highlighterSettings()
 {
     return d->m_highlighterSettingsPage.highlighterSettings();
-}
-
-const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
-{
-    return d->m_behaviorSettingsPage.extraEncodingSettings();
 }
 
 void TextEditorSettings::setCommentsSettingsRetriever(

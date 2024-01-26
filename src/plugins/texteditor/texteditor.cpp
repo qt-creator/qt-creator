@@ -1414,13 +1414,13 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     else
         m_document->setTabSettings(tabSettings); // also set through code style ???
 
-    q->setTypingSettings(TextEditorSettings::typingSettings());
-    q->setStorageSettings(TextEditorSettings::storageSettings());
-    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+    q->setTypingSettings(globalTypingSettings());
+    q->setStorageSettings(globalStorageSettings());
+    q->setBehaviorSettings(globalBehaviorSettings());
     q->setMarginSettings(TextEditorSettings::marginSettings());
     q->setDisplaySettings(TextEditorSettings::displaySettings());
     q->setCompletionSettings(TextEditorSettings::completionSettings());
-    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    q->setExtraEncodingSettings(globalExtraEncodingSettings());
     q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();

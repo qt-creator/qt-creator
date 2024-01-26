@@ -494,7 +494,7 @@ void BinEditorWidget::changeEvent(QEvent *e)
 void BinEditorWidget::wheelEvent(QWheelEvent *e)
 {
     if (e->modifiers() & Qt::ControlModifier) {
-        if (!TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming) {
+        if (!TextEditor::globalBehaviorSettings().m_scrollWheelZooming) {
             // When the setting is disabled globally,
             // we have to skip calling QAbstractScrollArea::wheelEvent()
             // that changes zoom in it.

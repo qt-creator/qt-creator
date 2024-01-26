@@ -32,9 +32,9 @@ public:
     bool m_smartSelectionChanging;
 };
 
-TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();
-
 void setupBehaviorSettings();
 void updateGlobalBehaviorSettings(const BehaviorSettings &newBehaviorSettings);
+
+TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();
 
 } // namespace TextEditor

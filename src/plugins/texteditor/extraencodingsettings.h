@@ -33,6 +33,6 @@ public:
 void setupExtraEncodingSettings();
 void updateGlobalExtraEncodingSettings(const ExtraEncodingSettings &newExtraEncodingSettings);
 
-ExtraEncodingSettings &globalExtraEncodingSettings();
+TEXTEDITOR_EXPORT ExtraEncodingSettings &globalExtraEncodingSettings();
 
 } // TextEditor
