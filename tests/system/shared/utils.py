@@ -110,7 +110,7 @@ def textUnderCursor(window, fromPos, toPos):
     cursor.movePosition(toPos, QTextCursor.KeepAnchor)
     returnValue = cursor.selectedText()
     cursor.setPosition(oldposition)
-    return returnValue
+    return str(returnValue)
 
 def which(program):
     # Don't use spawn.find_executable because it can't find .bat or
