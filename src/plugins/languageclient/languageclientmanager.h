@@ -76,9 +76,13 @@ public:
                                   const LanguageServerProtocol::JsonRpcMessage &message);
 
     static void showInspector();
-    static void openDocument(Core::IDocument *document);
-    static void closeDocument(Core::IDocument *document);
-    static void openEditor(Core::IEditor *editor);
+
+public slots:
+    // These slots are called automatically if the a file is opened via the usual EditorManager
+    // methods. If you create an editor manually, you need to call these slots manually as well.
+    void editorOpened(Core::IEditor *editor);
+    void documentOpened(Core::IDocument *document);
+    void documentClosed(Core::IDocument *document);
 
 signals:
     void clientAdded(Client *client);
@@ -92,10 +96,6 @@ private:
     ~LanguageClientManager() override;
 
     friend void setupLanguageClientManager(QObject *guard);
-
-    void editorOpened(Core::IEditor *editor);
-    void documentOpened(Core::IDocument *document);
-    void documentClosed(Core::IDocument *document);
 
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);

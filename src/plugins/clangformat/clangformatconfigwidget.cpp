@@ -54,9 +54,9 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-static QObject *languageClientPlugin()
+static QObject *languageClientManager()
 {
-    return ExtensionSystem::PluginManager::getObjectByName("LanguageClient");
+    return ExtensionSystem::PluginManager::getObjectByName("LanguageClientManager");
 }
 
 class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
@@ -69,11 +69,8 @@ public:
     ~ClangFormatConfigWidget()
     {
         auto doc = qobject_cast<TextEditor::TextDocument *>(m_editor->document());
-        QMetaObject::invokeMethod(languageClientPlugin(),
-                                  "closeClientForDocument",
-                                  Q_ARG(TextEditor::TextDocument *, doc));
-        QMetaObject::invokeMethod(languageClientPlugin(),
-                                  "closeDocument",
+        QMetaObject::invokeMethod(languageClientManager(),
+                                  "documentClosed",
                                   Q_ARG(Core::IDocument *, doc));
     }
 
@@ -181,11 +178,11 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
     m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath());
     m_editor->widget()->adjustSize();
 
-    QMetaObject::invokeMethod(languageClientPlugin(),
-                              "openDocument",
+    QMetaObject::invokeMethod(languageClientManager(),
+                              "documentOpened",
                               Q_ARG(Core::IDocument *, m_editor->document()));
-    QMetaObject::invokeMethod(languageClientPlugin(),
-                              "openEditor",
+    QMetaObject::invokeMethod(languageClientManager(),
+                              "editorOpened",
                               Q_ARG(Core::IEditor *, m_editor));
 
     m_editorWidget = m_editor->widget();
@@ -337,8 +334,8 @@ void ClangFormatConfigWidget::reopenClangFormatDocument()
     QString errorString;
     if (m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath())
         == Core::IDocument::OpenResult::Success) {
-        QMetaObject::invokeMethod(languageClientPlugin(),
-                                  "openDocument",
+        QMetaObject::invokeMethod(languageClientManager(),
+                                  "documentOpened",
                                   Q_ARG(Core::IDocument *, m_editor->document()));
     }
 }

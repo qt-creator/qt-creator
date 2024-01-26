@@ -53,6 +53,8 @@ class LanguageClientManagerPrivate
 LanguageClientManager::LanguageClientManager(QObject *parent)
     : QObject(parent)
 {
+    setObjectName("LanguageClientManager");
+
     managerInstance = this;
     d.reset(new LanguageClientManagerPrivate);
     using namespace Core;
@@ -67,10 +69,13 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
             this, &LanguageClientManager::projectAdded);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, [&](Project *project) { project->disconnect(this); });
+
+    ExtensionSystem::PluginManager::addObject(this);
 }
 
 LanguageClientManager::~LanguageClientManager()
 {
+    ExtensionSystem::PluginManager::removeObject(this);
     QTC_ASSERT(m_clients.isEmpty(), qDeleteAll(m_clients));
     qDeleteAll(m_currentSettings);
     managerInstance = nullptr;
@@ -537,21 +542,6 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
     }
 }
 
-void LanguageClientManager::openEditor(Core::IEditor *editor)
-{
-    instance()->editorOpened(editor);
-}
-
-void LanguageClientManager::openDocument(Core::IDocument *document)
-{
-    instance()->documentOpened(document);
-}
-
-void LanguageClientManager::closeDocument(Core::IDocument *document)
-{
-    instance()->documentClosed(document);
-}
-
 static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document)
 {
     const QList<BaseSettings *> prefilteredSettings
@@ -632,8 +622,13 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
-        m_clientForDocument.remove(textDocument);
+    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+        openDocumentWithClient(textDocument, nullptr);
+        for (auto client : std::as_const(managerInstance->m_clients)) {
+            if (client->documentOpen(textDocument))
+                client->closeDocument(textDocument);
+        }
+    }
 }
 
 void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
