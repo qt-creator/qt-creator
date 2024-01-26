@@ -190,12 +190,12 @@ QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, co
     return path;
 }
 
-bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectMaker)
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)
 {
     bool created = QFile(effectPath).open(QIODevice::WriteOnly);
 
-    if (created && openInEffectMaker) {
-        openEffectMaker(effectPath);
+    if (created && openInEffectComposer) {
+        openEffectComposer(effectPath);
         emit directoryCreated(QFileInfo(effectPath).absolutePath());
     }
 
@@ -432,9 +432,9 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
-void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
+void AssetsLibraryWidget::openEffectComposer(const QString &filePath)
 {
-    ModelNodeOperations::openEffectMaker(filePath);
+    ModelNodeOperations::openEffectComposer(filePath);
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()

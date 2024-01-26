@@ -1623,21 +1623,21 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
     }
 }
 
-bool isNewEffectMakerActivated()
+bool isEffectComposerActivated()
 {
     const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
     return std::find_if(specs.begin(), specs.end(),
                         [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "EffectMakerNew" && spec->isEffectivelyEnabled();
+                            return spec->name() == "EffectComposer" && spec->isEffectivelyEnabled();
                         })
            != specs.end();
 }
 
-void openEffectMaker(const QString &filePath)
+void openEffectComposer(const QString &filePath)
 {
-    if (ModelNodeOperations::isNewEffectMakerActivated()) {
+    if (ModelNodeOperations::isEffectComposerActivated()) {
         QmlDesignerPlugin::instance()->viewManager()
-            .emitCustomNotification("open_effectmaker_composition", {}, {filePath});
+            .emitCustomNotification("open_effectcomposer_composition", {}, {filePath});
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Composer", true);
     } else {
         ModelNodeOperations::openOldEffectMaker(filePath);
@@ -1748,7 +1748,7 @@ bool validateEffect(const QString &effectPath)
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setIcon(QMessageBox::Question);
         if (msgBox.exec() == QMessageBox::Yes)
-            ModelNodeOperations::openEffectMaker(effectPath);
+            ModelNodeOperations::openEffectComposer(effectPath);
         return false;
     }
     return true;

@@ -201,7 +201,7 @@ TreeViewDelegate {
             mouseArea.allowTooltip = false
             AssetsLibraryBackend.tooltipBackend.hideTooltip()
             if (mouse.button === Qt.LeftButton && root.isEffect)
-                AssetsLibraryBackend.rootView.openEffectMaker(filePath)
+                AssetsLibraryBackend.rootView.openEffectComposer(filePath)
         }
 
         ToolTip {
