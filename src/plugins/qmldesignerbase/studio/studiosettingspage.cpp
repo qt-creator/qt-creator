@@ -32,6 +32,8 @@ namespace QmlDesigner {
 
 namespace {
 
+const char experimentalFeatures[] = "QML/Designer/UseExperimentalFeatures44";
+
 bool hideBuildMenuSetting()
 {
     return Core::ICore::settings()
@@ -58,6 +60,11 @@ bool hideToolsMenuSetting()
     return Core::ICore::settings()->value(Core::Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
 }
 
+bool showExperimentalFeatures()
+{
+    return Core::ICore::settings()->value(experimentalFeatures, false).toBool();
+}
+
 void setSettingIfDifferent(const Key &key, bool value, bool &dirty)
 {
     QtcSettings *s = Core::ICore::settings();
@@ -70,12 +77,11 @@ void setSettingIfDifferent(const Key &key, bool value, bool &dirty)
 } // namespace
 
 StudioSettingsPage::StudioSettingsPage()
-    : m_buildCheckBox(new QCheckBox(tr("Build")))
-    , m_debugCheckBox(new QCheckBox(tr("Debug")))
-    , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
-    , m_toolsCheckBox(new QCheckBox(tr("Tools")))
-    , m_pathChooserExamples(new Utils::PathChooser())
-    , m_pathChooserBundles(new Utils::PathChooser())
+    : m_buildCheckBox(new QCheckBox(tr("Build"))), m_debugCheckBox(new QCheckBox(tr("Debug"))),
+      m_analyzeCheckBox(new QCheckBox(tr("Analyze"))), m_toolsCheckBox(new QCheckBox(tr("Tools"))),
+      m_pathChooserExamples(new Utils::PathChooser()),
+      m_pathChooserBundles(new Utils::PathChooser()),
+      m_experimentalCheckBox(new QCheckBox(tr("Enable Experimental Features")))
 {
     const QString toolTip = tr(
         "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
@@ -110,6 +116,7 @@ StudioSettingsPage::StudioSettingsPage()
     m_debugCheckBox->setChecked(hideDebugMenuSetting());
     m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
     m_toolsCheckBox->setChecked(hideToolsMenuSetting());
+    m_experimentalCheckBox->setChecked(showExperimentalFeatures());
 
     // Examples path setting
     auto examplesGroupBox = new QGroupBox(tr("Examples"));
@@ -149,6 +156,18 @@ StudioSettingsPage::StudioSettingsPage()
     bundlesLayout->addWidget(m_pathChooserBundles);
     bundlesLayout->addWidget(bundlesResetButton);
 
+    auto experimentalGroupBox = new QGroupBox(tr("Experimental Features"));
+    boxLayout->addWidget(experimentalGroupBox);
+
+    auto experimentalLayout = new QHBoxLayout(this);
+    experimentalGroupBox->setLayout(experimentalLayout);
+
+    experimentalLayout->addWidget(m_experimentalCheckBox);
+    m_experimentalCheckBox->setToolTip(
+        tr("This option enables experimental features in Qt Design Studio. "
+           "Please provide feedback and bug reports at: %1")
+            .arg("https://bugreports.qt.io/projects/QDS"));
+
     boxLayout->addSpacerItem(
         new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
@@ -172,6 +191,8 @@ void StudioSettingsPage::apply()
     setSettingIfDifferent(Core::Constants::SETTINGS_MENU_HIDE_TOOLS,
                           m_toolsCheckBox->isChecked(),
                           dirty);
+
+    setSettingIfDifferent(experimentalFeatures, m_experimentalCheckBox->isChecked(), dirty);
 
     if (dirty) {
         const QString restartText = tr(

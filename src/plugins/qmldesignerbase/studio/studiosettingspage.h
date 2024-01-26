@@ -32,6 +32,7 @@ private:
     QCheckBox *m_toolsCheckBox;
     Utils::PathChooser *m_pathChooserExamples;
     Utils::PathChooser *m_pathChooserBundles;
+    QCheckBox *m_experimentalCheckBox;
 };
 
 class QMLDESIGNERBASE_EXPORT StudioConfigSettingsPage : public QObject, Core::IOptionsPage
