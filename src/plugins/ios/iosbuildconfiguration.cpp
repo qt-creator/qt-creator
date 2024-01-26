@@ -11,9 +11,11 @@
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/target.h>
 
+#include <cmakeprojectmanager/cmakebuildconfiguration.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <qmakeprojectmanager/qmakebuildinfo.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
@@ -31,8 +33,7 @@ using namespace CMakeProjectManager;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 static Q_LOGGING_CATEGORY(iosSettingsLog, "qtc.ios.common", QtWarningMsg)
 
@@ -43,7 +44,7 @@ const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 
 const int IdentifierRole = Qt::UserRole+1;
 
-class IosSigningSettingsWidget : public NamedWidget
+class IosSigningSettingsWidget final : public NamedWidget
 {
 public:
     explicit IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
@@ -369,14 +370,14 @@ void IosSigningSettingsWidget::updateWarningText()
 
 // IosQmakeBuildConfiguration
 
-class IosQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
+class IosQmakeBuildConfiguration final : public QmakeBuildConfiguration
 {
 public:
     IosQmakeBuildConfiguration(Target *target, Id id);
 
 private:
-    QList<NamedWidget *> createSubConfigWidgets() override;
-    void fromMap(const Store &map) override;
+    QList<NamedWidget *> createSubConfigWidgets() final;
+    void fromMap(const Store &map) final;
 
     void updateQmakeCommand();
 
@@ -471,23 +472,28 @@ void IosQmakeBuildConfiguration::updateQmakeCommand()
     }
 }
 
-IosQmakeBuildConfigurationFactory::IosQmakeBuildConfigurationFactory()
+class IosQmakeBuildConfigurationFactory final : public QmakeBuildConfigurationFactory
 {
-    registerBuildConfiguration<IosQmakeBuildConfiguration>(
-        QmakeProjectManager::Constants::QMAKE_BC_ID);
-    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
-    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
-}
+public:
+    IosQmakeBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<IosQmakeBuildConfiguration>(
+            QmakeProjectManager::Constants::QMAKE_BC_ID);
+        addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+        addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    }
+};
+
 
 // IosCMakeBuildConfiguration
 
-class IosCMakeBuildConfiguration : public CMakeProjectManager::CMakeBuildConfiguration
+class IosCMakeBuildConfiguration final : public CMakeBuildConfiguration
 {
 public:
     IosCMakeBuildConfiguration(Target *target, Id id);
 
 private:
-    QList<NamedWidget *> createSubConfigWidgets() override;
+    QList<NamedWidget *> createSubConfigWidgets() final;
 
     CMakeProjectManager::CMakeConfig signingFlags() const final;
 
@@ -548,13 +554,24 @@ CMakeConfig IosCMakeBuildConfiguration::signingFlags() const
     return {};
 }
 
-IosCMakeBuildConfigurationFactory::IosCMakeBuildConfigurationFactory()
+class IosCMakeBuildConfigurationFactory final : public CMakeBuildConfigurationFactory
 {
-    registerBuildConfiguration<IosCMakeBuildConfiguration>(
-        CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID);
-    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
-    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+public:
+    IosCMakeBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<IosCMakeBuildConfiguration>(
+            CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID);
+        addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+        addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    }
+};
+
+// Factories
+
+void setupIosBuildConfiguration()
+{
+    static IosQmakeBuildConfigurationFactory theIosQmakeBuildConfigurationFactory;
+    static IosCMakeBuildConfigurationFactory theIosCMakeBuildConfigurationFactory;
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

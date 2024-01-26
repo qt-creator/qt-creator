@@ -45,8 +45,6 @@ public:
 class IosPluginPrivate
 {
 public:
-    IosQmakeBuildConfigurationFactory qmakeBuildConfigurationFactory;
-    IosCMakeBuildConfigurationFactory cmakeBuildConfigurationFactory;
     IosRunConfigurationFactory runConfigurationFactory;
     IosSettingsPage settingsPage;
     IosQtVersionFactory qtVersionFactory;
@@ -76,6 +74,7 @@ class IosPlugin final : public ExtensionSystem::IPlugin
         qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
 
         setupIosToolchain();
+        setupIosBuildConfiguration();
 
         IosConfigurations::initialize();
 

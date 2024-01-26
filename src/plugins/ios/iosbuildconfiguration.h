@@ -3,21 +3,8 @@
 
 #pragma once
 
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <cmakeprojectmanager/cmakebuildconfiguration.h>
-
 namespace Ios::Internal {
 
-class IosQmakeBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
-{
-public:
-    IosQmakeBuildConfigurationFactory();
-};
-
-class IosCMakeBuildConfigurationFactory : public CMakeProjectManager::CMakeBuildConfigurationFactory
-{
-public:
-    IosCMakeBuildConfigurationFactory();
-};
+void setupIosBuildConfiguration();
 
 } // Ios::Internal
