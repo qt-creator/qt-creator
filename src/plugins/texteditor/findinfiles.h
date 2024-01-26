@@ -58,4 +58,6 @@ private:
     bool m_isValid = false;
 };
 
+namespace Internal { void setupFindInFiles(QObject *guard); }
+
 } // namespace TextEditor

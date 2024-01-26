@@ -3,6 +3,7 @@
 
 #include "findinopenfiles.h"
 
+#include "basefilefind.h"
 #include "textdocument.h"
 #include "texteditortr.h"
 
@@ -14,6 +15,25 @@
 using namespace Utils;
 
 namespace TextEditor::Internal {
+
+class FindInOpenFiles : public BaseFileFind
+{
+public:
+    FindInOpenFiles();
+
+private:
+    QString id() const final;
+    QString displayName() const final;
+    bool isEnabled() const final;
+    void writeSettings(Utils::QtcSettings *settings) final;
+    void readSettings(Utils::QtcSettings *settings) final;
+
+    QString label() const final;
+    QString toolTip() const final;
+
+    FileContainerProvider fileContainerProvider() const final;
+    void updateEnabledState() { emit enabledChanged(isEnabled()); }
+};
 
 FindInOpenFiles::FindInOpenFiles()
 {
@@ -84,9 +104,11 @@ void FindInOpenFiles::readSettings(QtcSettings *settings)
     settings->endGroup();
 }
 
-void FindInOpenFiles::updateEnabledState()
+
+
+void setupFindInOpenFiles()
 {
-    emit enabledChanged(isEnabled());
+    static FindInOpenFiles theFindInOpenFiles;
 }
 
 } // TextEditor::Internal

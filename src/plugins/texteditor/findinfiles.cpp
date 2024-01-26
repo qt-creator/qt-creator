@@ -23,12 +23,10 @@ using namespace Utils;
 
 namespace TextEditor {
 
-static FindInFiles *m_instance = nullptr;
 static const char HistoryKey[] = "FindInFiles.Directories.History";
 
 FindInFiles::FindInFiles()
 {
-    m_instance = this;
     connect(EditorManager::instance(), &EditorManager::findOnFileSystemRequest,
             this, &FindInFiles::findOnFileSystem);
 }
@@ -209,18 +207,30 @@ void FindInFiles::setBaseDirectory(const FilePath &directory)
     m_directory->setBaseDirectory(directory);
 }
 
+static FindInFiles *s_instance;
+
+FindInFiles &findInFiles()
+{
+    return *s_instance;
+}
+
 void FindInFiles::findOnFileSystem(const QString &path)
 {
-    QTC_ASSERT(m_instance, return);
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    m_instance->setSearchDir(FilePath::fromString(folder));
-    Find::openFindDialog(m_instance);
+    findInFiles().setSearchDir(FilePath::fromString(folder));
+    Find::openFindDialog(&findInFiles());
 }
 
 FindInFiles *FindInFiles::instance()
 {
-    return m_instance;
+    return s_instance;
+}
+
+void Internal::setupFindInFiles(QObject *guard)
+{
+    s_instance = new FindInFiles;
+    s_instance->setParent(guard);
 }
 
 } // TextEditor

@@ -3,32 +3,8 @@
 
 #pragma once
 
-#include "basefilefind.h"
+namespace TextEditor::Internal {
 
-namespace TextEditor {
-namespace Internal {
+void setupFindInOpenFiles();
 
-class FindInOpenFiles : public BaseFileFind
-{
-    Q_OBJECT
-
-public:
-    FindInOpenFiles();
-
-    QString id() const override;
-    QString displayName() const override;
-    bool isEnabled() const override;
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
-
-protected:
-    QString label() const override;
-    QString toolTip() const override;
-
-private:
-    FileContainerProvider fileContainerProvider() const override;
-    void updateEnabledState();
-};
-
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

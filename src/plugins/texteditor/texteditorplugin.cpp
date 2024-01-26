@@ -67,10 +67,6 @@ const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor"
 class TextEditorPluginPrivate : public QObject
 {
 public:
-    FindInFiles findInFilesFilter;
-    FindInCurrentFile findInCurrentFileFilter;
-    FindInOpenFiles findInOpenFilesFilter;
-
     MarkdownEditorFactory markdownEditorFactory;
     JsonEditorFactory jsonEditorFactory;
 };
@@ -121,6 +117,10 @@ void TextEditorPlugin::initialize()
     setupBookmarkManager(this);
     setupBookmarkView();
     setupBookmarkFilter();
+
+    setupFindInFiles(this);
+    setupFindInCurrentFile();
+    setupFindInOpenFiles();
 
     d = new TextEditorPluginPrivate;
 
