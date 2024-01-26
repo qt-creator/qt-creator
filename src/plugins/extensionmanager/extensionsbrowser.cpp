@@ -345,7 +345,7 @@ public:
             constexpr qreal rounding = 4.5;
             QPainterPath itemOutlinePath;
             itemOutlinePath.addRoundedRect(itemRectAdjusted, rounding, rounding);
-            const QColor fillColor = creatorTheme()->color(hovered ? Theme::Token_Background_Hover
+            const QColor fillColor = creatorTheme()->color(hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Background_Muted);
             const QColor strokeColor = creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
                                                                       : Theme::Token_Stroke_Subtle);
@@ -384,7 +384,7 @@ public:
             constexpr QRectF smallCircleAdjusted = smallCircle.adjusted(shrink, shrink,
                                                                         -shrink, -shrink);
             const QRectF smallCircleLocal = smallCircleAdjusted.translated(itemRect.topLeft());
-            const QColor fillColor = creatorTheme()->color(Theme::Token_Background_Hover);
+            const QColor fillColor = creatorTheme()->color(Theme::Token_Foreground_Muted);
             const QColor strokeColor = creatorTheme()->color(Theme::Token_Stroke_Subtle);
             painter->setBrush(fillColor);
             painter->setPen(strokeColor);
