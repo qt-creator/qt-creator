@@ -67,8 +67,6 @@ const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor"
 class TextEditorPluginPrivate : public QObject
 {
 public:
-    TextEditorSettings settings;
-
     FindInFiles findInFilesFilter;
     FindInCurrentFile findInCurrentFileFilter;
     FindInOpenFiles findInOpenFilesFilter;
@@ -112,6 +110,8 @@ void TextEditorPlugin::initialize()
     addTestCreator(createTextEditorTest);
     addTestCreator(createSnippetParserTest);
 #endif
+
+    setupTextEditorSettings();
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();
@@ -189,7 +189,7 @@ void TextEditorPlugin::extensionsInitialized()
                 }
             });
 
-    connect(&d->settings, &TextEditorSettings::fontSettingsChanged,
+    connect(&textEditorSettings(), &TextEditorSettings::fontSettingsChanged,
             this, &TextEditorPlugin::updateSearchResultsFont);
 
     updateSearchResultsFont(TextEditorSettings::fontSettings());

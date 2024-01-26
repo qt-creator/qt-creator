@@ -22,6 +22,7 @@
 #include "typingsettings.h"
 #include "snippets/snippetssettingspage.h"
 
+#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -611,6 +612,17 @@ int TextEditorSettings::increaseFontZoom(int step)
 void TextEditorSettings::resetFontZoom()
 {
     setFontZoom(100);
+}
+
+TextEditorSettings &Internal::textEditorSettings()
+{
+    static TextEditorSettings theTextEditorSettings;
+    return theTextEditorSettings;
+}
+
+void Internal::setupTextEditorSettings()
+{
+    (void) textEditorSettings(); // Trigger instantiation.
 }
 
 } // TextEditor

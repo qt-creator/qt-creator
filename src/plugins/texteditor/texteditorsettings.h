@@ -95,4 +95,9 @@ signals:
     void commentsSettingsChanged();
 };
 
-} // namespace TextEditor
+namespace Internal {
+TextEditorSettings &textEditorSettings();
+void setupTextEditorSettings();
+} // Internal
+
+} // TextEditor
