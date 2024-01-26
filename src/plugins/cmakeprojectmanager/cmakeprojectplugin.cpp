@@ -57,7 +57,6 @@ public:
 
     CMakeSettingsPage settingsPage;
 
-    CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
@@ -81,6 +80,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         d = new CMakeProjectPluginPrivate;
+
+        setupCMakeManager();
 
 #ifdef WITH_TESTS
         addTestCreator(createCMakeConfigTest);

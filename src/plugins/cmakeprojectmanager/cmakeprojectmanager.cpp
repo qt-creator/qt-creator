@@ -27,6 +27,7 @@
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -47,6 +48,36 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
+
+class CMakeManager final : public QObject
+{
+public:
+    CMakeManager();
+
+private:
+    void updateCmakeActions(Node *node);
+    void clearCMakeCache(BuildSystem *buildSystem);
+    void runCMake(BuildSystem *buildSystem);
+    void runCMakeWithProfiling(BuildSystem *buildSystem);
+    void rescanProject(BuildSystem *buildSystem);
+    void buildFileContextMenu();
+    void buildFile(Node *node = nullptr);
+    void updateBuildFileAction();
+    void enableBuildFileMenus(Node *node);
+    void reloadCMakePresets();
+
+    QAction *m_runCMakeAction;
+    QAction *m_clearCMakeCacheAction;
+    QAction *m_runCMakeActionContextMenu;
+    QAction *m_rescanProjectAction;
+    QAction *m_buildFileContextMenu;
+    QAction *m_reloadCMakePresetsAction;
+    Utils::ParameterAction *m_buildFileAction;
+    QAction *m_cmakeProfilerAction;
+    QAction *m_cmakeDebuggerAction;
+    QAction *m_cmakeDebuggerSeparator;
+    bool m_canDebugCMake = false;
+};
 
 CMakeManager::CMakeManager()
 {
@@ -409,6 +440,11 @@ void CMakeManager::buildFileContextMenu()
 {
     if (Node *node = ProjectTree::currentNode())
         buildFile(node);
+}
+
+void setupCMakeManager()
+{
+    static CMakeManager theCMakeManager;
 }
 
 } // CMakeProjectManager::Internal
