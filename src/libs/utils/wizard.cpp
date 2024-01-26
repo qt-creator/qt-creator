@@ -98,7 +98,6 @@ private:
     QVBoxLayout *m_itemWidgetLayout;
     WizardProgress *m_wizardProgress;
     QMap<WizardProgressItem *, ProgressItemWidget *> m_itemToItemWidget;
-    QMap<ProgressItemWidget *, WizardProgressItem *> m_itemWidgetToItem;
     QList<WizardProgressItem *> m_visibleItems;
     ProgressItemWidget *m_dotsItemWidget;
     int m_disableUpdatesCount;
@@ -152,7 +151,6 @@ void LinearProgressWidget::slotItemAdded(WizardProgressItem *item)
     itemWidget->setVisible(false);
     itemWidget->setWordWrap(item->titleWordWrap());
     m_itemToItemWidget.insert(item, itemWidget);
-    m_itemWidgetToItem.insert(itemWidget, item);
 }
 
 void LinearProgressWidget::slotItemRemoved(WizardProgressItem *item)
@@ -161,7 +159,6 @@ void LinearProgressWidget::slotItemRemoved(WizardProgressItem *item)
     if (!itemWidget)
         return;
 
-    m_itemWidgetToItem.remove(itemWidget);
     m_itemToItemWidget.remove(item);
 
     recreateLayout();
