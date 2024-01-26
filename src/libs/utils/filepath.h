@@ -122,6 +122,7 @@ public:
     bool isSymLink() const;
     bool hasHardLinks() const;
     bool isRootPath() const;
+    bool isResourceFile() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;

@@ -241,6 +241,15 @@ bool FilePath::isRootPath() const
     return *this == HostOsInfo::root();
 }
 
+bool FilePath::isResourceFile() const
+{
+    if (scheme() == u"qrc")
+        return true;
+    if (needsDevice())
+        return false;
+    return pathView().startsWith(':');
+}
+
 QString FilePath::encodedHost() const
 {
     QString result = host().toString();
