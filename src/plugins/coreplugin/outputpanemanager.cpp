@@ -201,6 +201,7 @@ void IOutputPane::setupFilterUi(const Key &historyKey)
     m_filterOutputLineEdit->setFiltering(true);
     m_filterOutputLineEdit->setEnabled(false);
     m_filterOutputLineEdit->setHistoryCompleter(historyKey);
+    m_filterOutputLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     connect(m_filterOutputLineEdit, &FancyLineEdit::textChanged,
             this, &IOutputPane::updateFilter);
     connect(m_filterOutputLineEdit, &FancyLineEdit::returnPressed,

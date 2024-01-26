@@ -161,6 +161,7 @@ QWidget *BuildSystemOutputWindow::toolBar()
         m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Utils::Icons::MAGNIFIER.icon());
         m_filterOutputLineEdit->setFiltering(true);
         m_filterOutputLineEdit->setHistoryCompleter("ProjectsMode.BuildSystemOutput.Filter");
+        m_filterOutputLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
         connect(m_filterOutputLineEdit,
                 &FancyLineEdit::textChanged,
                 this,
