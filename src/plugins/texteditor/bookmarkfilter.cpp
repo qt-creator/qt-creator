@@ -7,6 +7,8 @@
 #include "bookmarkmanager.h"
 #include "texteditortr.h"
 
+#include <coreplugin/locator/ilocatorfilter.h>
+
 #include <utils/algorithm.h>
 
 using namespace Core;
@@ -14,15 +16,23 @@ using namespace Utils;
 
 namespace TextEditor::Internal {
 
-BookmarkFilter::BookmarkFilter()
+class BookmarkFilter final : public ILocatorFilter
 {
-    setId("Bookmarks");
-    setDisplayName(Tr::tr("Bookmarks"));
-    setDescription(Tr::tr("Locates bookmarks. Filter by file name, by the text on the line of the "
-                          "bookmark, or by the bookmark's note text."));
-    setPriority(Medium);
-    setDefaultShortcutString("b");
-}
+public:
+    BookmarkFilter()
+    {
+        setId("Bookmarks");
+        setDisplayName(Tr::tr("Bookmarks"));
+        setDescription(Tr::tr("Locates bookmarks. Filter by file name, by the text on the line of the "
+                              "bookmark, or by the bookmark's note text."));
+        setPriority(Medium);
+        setDefaultShortcutString("b");
+    }
+
+private:
+    LocatorMatcherTasks matchers() final;
+    LocatorFilterEntries match(const QString &input) const;
+};
 
 LocatorMatcherTasks BookmarkFilter::matchers()
 {
@@ -112,6 +122,11 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
         entries.append(entry);
     }
     return entries;
+}
+
+void setupBookmarkFilter()
+{
+    static BookmarkFilter theBookmarkFilter;
 }
 
 } // TextEditor::Internal

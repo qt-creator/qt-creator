@@ -3,18 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/locator/ilocatorfilter.h>
-
 namespace TextEditor::Internal {
 
-class BookmarkFilter : public Core::ILocatorFilter
-{
-public:
-    BookmarkFilter();
-
-private:
-    Core::LocatorMatcherTasks matchers() final;
-    Core::LocatorFilterEntries match(const QString &input) const;
-};
+void setupBookmarkFilter();
 
 } // TextEditor::Internal
