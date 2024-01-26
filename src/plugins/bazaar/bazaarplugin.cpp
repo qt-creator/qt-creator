@@ -222,13 +222,13 @@ public:
     QList<QAction *> m_repositoryActionList;
 
     // Menu Items (file actions)
-    ParameterAction *m_addAction = nullptr;
-    ParameterAction *m_deleteAction = nullptr;
-    ParameterAction *m_annotateFile = nullptr;
-    ParameterAction *m_diffFile = nullptr;
-    ParameterAction *m_logFile = nullptr;
-    ParameterAction *m_revertFile = nullptr;
-    ParameterAction *m_statusFile = nullptr;
+    Action *m_addAction = nullptr;
+    Action *m_deleteAction = nullptr;
+    Action *m_annotateFile = nullptr;
+    Action *m_diffFile = nullptr;
+    Action *m_logFile = nullptr;
+    Action *m_revertFile = nullptr;
+    Action *m_statusFile = nullptr;
 
     QAction *m_menuAction = nullptr;
 

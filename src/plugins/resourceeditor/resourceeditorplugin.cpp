@@ -128,8 +128,8 @@ class ResourceEditorPlugin final : public ExtensionSystem::IPlugin
     QMenu *m_openWithMenu = nullptr;
 
     // file context menu
-    ParameterAction *m_copyPath = nullptr;
-    ParameterAction *m_copyUrl = nullptr;
+    Action *m_copyPath = nullptr;
+    Action *m_copyUrl = nullptr;
 };
 
 void ResourceEditorPlugin::initialize()

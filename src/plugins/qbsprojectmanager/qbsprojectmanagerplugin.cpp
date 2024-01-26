@@ -130,8 +130,8 @@ private:
     QAction *m_buildSubprojectCtx = nullptr;
     QAction *m_cleanSubprojectCtx = nullptr;
     QAction *m_rebuildSubprojectCtx = nullptr;
-    ParameterAction *m_buildFile = nullptr;
-    ParameterAction *m_buildProduct = nullptr;
+    Action *m_buildFile = nullptr;
+    Action *m_buildProduct = nullptr;
     QAction *m_cleanProduct = nullptr;
     QAction *m_rebuildProduct = nullptr;
 };
@@ -189,8 +189,8 @@ void QbsProjectManagerPlugin::initialize()
     connect(m_buildFileCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::buildFileContextMenu);
 
-    m_buildFile = new Utils::ParameterAction(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
-                                                   Utils::ParameterAction::AlwaysEnabled, this);
+    m_buildFile = new Utils::Action(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
+                                                   Utils::Action::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_buildFile, Constants::ACTION_BUILD_FILE);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -206,8 +206,8 @@ void QbsProjectManagerPlugin::initialize()
     connect(m_buildProductCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::buildProductContextMenu);
 
-    m_buildProduct = new Utils::ParameterAction(Tr::tr("Build Product"), Tr::tr("Build Product \"%1\""),
-                                                Utils::ParameterAction::AlwaysEnabled, this);
+    m_buildProduct = new Utils::Action(Tr::tr("Build Product"), Tr::tr("Build Product \"%1\""),
+                                                Utils::Action::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_buildProduct, Constants::ACTION_BUILD_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);

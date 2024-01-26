@@ -49,10 +49,10 @@ public:
     // This can't be stand-alone yet as it registers in the plugin object pool
     CMakeToolManager cmakeToolManager;
 
-    ParameterAction buildTargetContextAction{
+    Action buildTargetContextAction{
         Tr::tr("Build"),
         Tr::tr("Build \"%1\""),
-        ParameterAction::AlwaysEnabled/*handled manually*/
+        Action::AlwaysEnabled/*handled manually*/
     };
 
     CMakeSettingsPage settingsPage;
@@ -114,7 +114,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
                 this, &CMakeProjectPlugin::updateContextActions);
 
-        connect(&d->buildTargetContextAction, &ParameterAction::triggered, this, [] {
+        connect(&d->buildTargetContextAction, &Action::triggered, this, [] {
             if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
                 auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
                 bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());

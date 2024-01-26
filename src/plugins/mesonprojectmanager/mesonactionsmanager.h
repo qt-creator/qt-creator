@@ -13,10 +13,10 @@ namespace Internal {
 class MesonActionsManager : public QObject
 {
     Q_OBJECT
-    Utils::ParameterAction buildTargetContextAction{
+    Utils::Action buildTargetContextAction{
         QCoreApplication::translate("QtC::MesonProjectManager", "Build"),
         QCoreApplication::translate("QtC::MesonProjectManager", "Build \"%1\""),
-        Utils::ParameterAction::AlwaysEnabled /*handled manually*/
+        Utils::Action::AlwaysEnabled /*handled manually*/
     };
     QAction configureActionMenu;
     QAction configureActionContextMenu;

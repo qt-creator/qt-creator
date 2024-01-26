@@ -306,25 +306,25 @@ public:
     bool managesDirectoryFstat(const FilePath &directory);
 
     CommandLocator *m_commandLocator = nullptr;
-    ParameterAction *m_editAction = nullptr;
-    ParameterAction *m_addAction = nullptr;
-    ParameterAction *m_deleteAction = nullptr;
+    Action *m_editAction = nullptr;
+    Action *m_addAction = nullptr;
+    Action *m_deleteAction = nullptr;
     QAction *m_openedAction = nullptr;
-    ParameterAction *m_revertFileAction = nullptr;
-    ParameterAction *m_diffFileAction = nullptr;
-    ParameterAction *m_diffProjectAction = nullptr;
-    ParameterAction *m_updateProjectAction = nullptr;
-    ParameterAction *m_revertProjectAction = nullptr;
-    ParameterAction *m_revertUnchangedAction = nullptr;
+    Action *m_revertFileAction = nullptr;
+    Action *m_diffFileAction = nullptr;
+    Action *m_diffProjectAction = nullptr;
+    Action *m_updateProjectAction = nullptr;
+    Action *m_revertProjectAction = nullptr;
+    Action *m_revertUnchangedAction = nullptr;
     QAction *m_diffAllAction = nullptr;
-    ParameterAction *m_submitProjectAction = nullptr;
+    Action *m_submitProjectAction = nullptr;
     QAction *m_pendingAction = nullptr;
     QAction *m_describeAction = nullptr;
-    ParameterAction *m_annotateCurrentAction = nullptr;
+    Action *m_annotateCurrentAction = nullptr;
     QAction *m_annotateAction = nullptr;
-    ParameterAction *m_filelogCurrentAction = nullptr;
+    Action *m_filelogCurrentAction = nullptr;
     QAction *m_filelogAction = nullptr;
-    ParameterAction *m_logProjectAction = nullptr;
+    Action *m_logProjectAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_updateAllAction = nullptr;
     QString m_commitMessageFileName;
@@ -380,7 +380,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     Command *command;
 
-    m_diffFileAction = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffFileAction = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(Tr::tr("Diff Current File"));
@@ -388,7 +388,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_annotateCurrentAction = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_annotateCurrentAction = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(Tr::tr("Annotate Current File"));
@@ -396,7 +396,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_filelogCurrentAction = new ParameterAction(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_filelogCurrentAction = new Action(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+F") : Tr::tr("Alt+P,Alt+F")));
@@ -407,7 +407,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     perforceContainer->addSeparator(context);
 
-    m_editAction = new ParameterAction(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_editAction = new Action(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_editAction, CMD_ID_EDIT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+E") : Tr::tr("Alt+P,Alt+E")));
@@ -416,7 +416,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+A") : Tr::tr("Alt+P,Alt+A")));
@@ -425,7 +425,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(Tr::tr("Delete File"));
@@ -433,7 +433,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertFileAction = new ParameterAction(Tr::tr("Revert"), Tr::tr("Revert \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_revertFileAction = new Action(Tr::tr("Revert"), Tr::tr("Revert \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFileAction, CMD_ID_REVERT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+R") : Tr::tr("Alt+P,Alt+R")));
@@ -445,7 +445,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addSeparator(context);
 
     const QString diffProjectDefaultText = Tr::tr("Diff Current Project/Session");
-    m_diffProjectAction = new ParameterAction(diffProjectDefaultText, Tr::tr("Diff Project \"%1\""), ParameterAction::AlwaysEnabled, this);
+    m_diffProjectAction = new Action(diffProjectDefaultText, Tr::tr("Diff Project \"%1\""), Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+D") : Tr::tr("Alt+P,Alt+D")));
@@ -454,14 +454,14 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new ParameterAction(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_logProjectAction = new Action(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_logProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::logProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_submitProjectAction = new ParameterAction(Tr::tr("Submit Project"), Tr::tr("Submit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_submitProjectAction = new Action(Tr::tr("Submit Project"), Tr::tr("Submit Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+P,Meta+S") : Tr::tr("Alt+P,Alt+S")));
@@ -470,7 +470,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     m_commandLocator->appendCommand(command);
 
     const QString updateProjectDefaultText = Tr::tr("Update Current Project");
-    m_updateProjectAction = new ParameterAction(updateProjectDefaultText, Tr::tr("Update Project \"%1\""), ParameterAction::AlwaysEnabled, this);
+    m_updateProjectAction = new Action(updateProjectDefaultText, Tr::tr("Update Project \"%1\""), Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, context);
     command->setDescription(updateProjectDefaultText);
     command->setAttribute(Command::CA_UpdateText);
@@ -478,14 +478,14 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertUnchangedAction = new ParameterAction(Tr::tr("Revert Unchanged"), Tr::tr("Revert Unchanged Files of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_revertUnchangedAction = new Action(Tr::tr("Revert Unchanged"), Tr::tr("Revert Unchanged Files of Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_revertUnchangedAction, &QAction::triggered, this, &PerforcePluginPrivate::revertUnchangedCurrentProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertProjectAction = new ParameterAction(Tr::tr("Revert Project"), Tr::tr("Revert Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_revertProjectAction = new Action(Tr::tr("Revert Project"), Tr::tr("Revert Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_revertProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::revertCurrentProject);

@@ -87,16 +87,16 @@ public:
         ActionManager::registerAction(contextAction(), actionId, context, scriptable);
     }
 
-    ParameterAction *contextAction()
+    Action *contextAction()
     {
         if (!m_contextAction) {
             QTC_CHECK(m_parent);
-            m_contextAction = new ParameterAction(m_parent);
+            m_contextAction = new Action(m_parent);
         }
         return m_contextAction;
     }
 
-    void adopt(ParameterAction *action)
+    void adopt(Action *action)
     {
         QTC_ASSERT(!m_contextAction,
                    qWarning() << QLatin1String("Cannot adopt context action for \"%1\"after it "
@@ -117,7 +117,7 @@ public:
 
 private:
     QObject *m_parent = nullptr;
-    ParameterAction *m_contextAction = nullptr;
+    Action *m_contextAction = nullptr;
 };
 
 /*!
@@ -171,7 +171,7 @@ ActionBuilder::~ActionBuilder()
     lifetime itself, and for example there is no QObject that can be
     the parent of an automatically created context action.
 */
-ActionBuilder &ActionBuilder::adopt(Utils::ParameterAction *action)
+ActionBuilder &ActionBuilder::adopt(Utils::Action *action)
 {
     d->adopt(action);
     return *this;
@@ -335,8 +335,8 @@ ActionBuilder &ActionBuilder::setParameterText(const QString &parameterText,
     d->contextAction()->setEmptyText(emptyText);
     d->contextAction()->setParameterText(parameterText);
     d->contextAction()->setEnablingMode(mode == AlwaysEnabled
-                                            ? ParameterAction::AlwaysEnabled
-                                            : ParameterAction::EnabledWithParameter);
+                                            ? Action::AlwaysEnabled
+                                            : Action::EnabledWithParameter);
     d->contextAction()->setText(emptyText);
     return *this;
 }
@@ -361,7 +361,7 @@ QAction *ActionBuilder::contextAction() const
     return d->contextAction();
 }
 
-ParameterAction *ActionBuilder::contextParameterAction() const
+Action *ActionBuilder::contextParameterAction() const
 {
     return d->contextAction();
 }
@@ -373,7 +373,7 @@ ActionBuilder &ActionBuilder::bindContextAction(QAction **dest)
     return *this;
 }
 
-ActionBuilder &ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
+ActionBuilder &ActionBuilder::bindContextAction(Utils::Action **dest)
 {
     QTC_ASSERT(dest, return *this);
     *dest = d->contextAction();

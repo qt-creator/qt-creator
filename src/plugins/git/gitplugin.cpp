@@ -299,7 +299,7 @@ public:
                            const Context &context, bool addToLocator,
                            const std::function<void()> &callback, const QKeySequence &keys);
 
-    ParameterAction *createParameterAction(ActionContainer *ac,
+    Action *createParameterAction(ActionContainer *ac,
                                            const QString &defaultText, const QString &parameterText,
                                            Id id, const Context &context, bool addToLocator,
                                            const std::function<void()> &callback,
@@ -356,10 +356,10 @@ public:
     QAction *m_fixupCommitAction = nullptr;
     QAction *m_interactiveRebaseAction = nullptr;
 
-    QList<ParameterAction *> m_fileActions;
-    QList<ParameterAction *> m_projectActions;
+    QList<Action *> m_fileActions;
+    QList<Action *> m_projectActions;
     QList<QAction *> m_repositoryActions;
-    ParameterAction *m_applyCurrentFilePatchAction = nullptr;
+    Action *m_applyCurrentFilePatchAction = nullptr;
 
     Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
@@ -524,13 +524,13 @@ Command *GitPluginPrivate::createCommand(QAction *action, ActionContainer *ac, I
 }
 
 // Create a parameter action
-ParameterAction *GitPluginPrivate::createParameterAction(ActionContainer *ac,
+Action *GitPluginPrivate::createParameterAction(ActionContainer *ac,
                                                   const QString &defaultText, const QString &parameterText,
                                                   Id id, const Context &context,
                                                   bool addToLocator, const std::function<void()> &callback,
                                                   const QKeySequence &keys)
 {
-    auto action = new ParameterAction(defaultText, parameterText, ParameterAction::EnabledWithParameter, this);
+    auto action = new Action(defaultText, parameterText, Action::EnabledWithParameter, this);
     Command *command = createCommand(action, ac, id, context, addToLocator, callback, keys);
     command->setAttribute(Command::CA_UpdateText);
     return action;
@@ -543,7 +543,7 @@ QAction *GitPluginPrivate::createFileAction(ActionContainer *ac,
                                      const std::function<void()> &callback,
                                      const QKeySequence &keys)
 {
-    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context,
+    Action *action = createParameterAction(ac, defaultText, parameterText, id, context,
                                                     addToLocator, callback, keys);
     m_fileActions.push_back(action);
     return action;
@@ -554,7 +554,7 @@ QAction *GitPluginPrivate::createProjectAction(ActionContainer *ac, const QStrin
                                         bool addToLocator, void (GitPluginPrivate::*func)(),
                                         const QKeySequence &keys)
 {
-    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context,
+    Action *action = createParameterAction(ac, defaultText, parameterText, id, context,
                                                     addToLocator, std::bind(func, this), keys);
     m_projectActions.push_back(action);
     return action;
@@ -1641,12 +1641,12 @@ void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
     const QString fileName = Utils::quoteAmpersands(state.currentFileName());
-    for (ParameterAction *fileAction : std::as_const(m_fileActions))
+    for (Action *fileAction : std::as_const(m_fileActions))
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply
     m_applyCurrentFilePatchAction->setParameter(state.currentPatchFileDisplayName());
     const QString projectName = state.currentProjectName();
-    for (ParameterAction *projectAction : std::as_const(m_projectActions))
+    for (Action *projectAction : std::as_const(m_projectActions))
         projectAction->setParameter(projectName);
 
     for (QAction *repositoryAction : std::as_const(m_repositoryActions))

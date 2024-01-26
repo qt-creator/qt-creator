@@ -61,7 +61,7 @@ MesonActionsManager::MesonActionsManager()
                 this,
                 &MesonActionsManager::updateContextActions);
 
-        connect(&buildTargetContextAction, &Utils::ParameterAction::triggered, this, [] {
+        connect(&buildTargetContextAction, &Utils::Action::triggered, this, [] {
             auto bs = qobject_cast<MesonBuildSystem *>(
                 ProjectExplorer::ProjectTree::currentBuildSystem());
             if (bs) {

@@ -12,7 +12,7 @@
 
 #include <functional>
 
-namespace Utils { class ParameterAction; }
+namespace Utils { class Action; }
 
 namespace Core {
 
@@ -31,7 +31,7 @@ public:
     ActionBuilder(QObject *contextActionParent, const Utils::Id actionId);
     ~ActionBuilder();
 
-    ActionBuilder &adopt(Utils::ParameterAction *action);
+    ActionBuilder &adopt(Utils::Action *action);
 
     ActionBuilder &setContext(const Utils::Id id);
     ActionBuilder &setContext(const Core::Context &context);
@@ -92,14 +92,14 @@ public:
                           EnablingMode mode = EnabledWithParameter);
 
     ActionBuilder &bindContextAction(QAction **dest);
-    ActionBuilder &bindContextAction(Utils::ParameterAction **dest);
+    ActionBuilder &bindContextAction(Utils::Action **dest);
     ActionBuilder &augmentActionWithShortcutToolTip();
 
     Utils::Id id() const;
     Command *command() const;
     QAction *commandAction() const;
     QAction *contextAction() const;
-    Utils::ParameterAction *contextParameterAction() const;
+    Utils::Action *contextParameterAction() const;
 
 private:
     class ActionBuilderPrivate *d = nullptr;

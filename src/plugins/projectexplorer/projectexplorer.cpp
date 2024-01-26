@@ -550,14 +550,14 @@ public:
 
     QAction *m_newAction;
     QAction *m_loadAction;
-    ParameterAction *m_unloadAction;
-    ParameterAction *m_unloadActionContextMenu;
-    ParameterAction *m_unloadOthersActionContextMenu;
+    Action *m_unloadAction;
+    Action *m_unloadActionContextMenu;
+    Action *m_unloadOthersActionContextMenu;
     QAction *m_closeAllProjects;
     QAction *m_buildProjectOnlyAction;
-    ParameterAction *m_buildProjectForAllConfigsAction;
-    ParameterAction *m_buildAction;
-    ParameterAction *m_buildForRunConfigAction;
+    Action *m_buildProjectForAllConfigsAction;
+    Action *m_buildAction;
+    Action *m_buildForRunConfigAction;
     ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
     QAction *m_buildDependenciesActionContextMenu;
@@ -601,15 +601,15 @@ public:
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_projectTreeExpandAllAction;
     QAction *m_projectTreeExpandNodeAction = nullptr;
-    ParameterAction *m_closeProjectFilesActionFileMenu;
-    ParameterAction *m_closeProjectFilesActionContextMenu;
+    Action *m_closeProjectFilesActionFileMenu;
+    Action *m_closeProjectFilesActionContextMenu;
     QAction *m_searchOnFileSystem;
     QAction *m_showInGraphicalShell;
     QAction *m_showFileSystemPane;
     QAction *m_openTerminalHere;
     QAction *m_openTerminalHereBuildEnv;
     QAction *m_openTerminalHereRunEnv;
-    ParameterAction *m_setStartupProjectAction;
+    Action *m_setStartupProjectAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
     QAction *m_projectSelectorActionQuick;
@@ -1163,16 +1163,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateRecentProjectMenu);
 
     // unload action
-    dd->m_unloadAction = new ParameterAction(Tr::tr("Close Project"), Tr::tr("Close Pro&ject \"%1\""),
-                                             ParameterAction::AlwaysEnabled, this);
+    dd->m_unloadAction = new Action(Tr::tr("Close Project"), Tr::tr("Close Pro&ject \"%1\""),
+                                             Action::AlwaysEnabled, this);
     cmd = ActionManager::registerAction(dd->m_unloadAction, Constants::UNLOAD);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
-    dd->m_closeProjectFilesActionFileMenu = new ParameterAction(
+    dd->m_closeProjectFilesActionFileMenu = new Action(
                 Tr::tr("Close All Files in Project"), Tr::tr("Close All Files in Project \"%1\""),
-                ParameterAction::AlwaysEnabled, this);
+                Action::AlwaysEnabled, this);
     cmd = ActionManager::registerAction(dd->m_closeProjectFilesActionFileMenu,
                                         "ProjectExplorer.CloseProjectFilesFileMenu");
     cmd->setAttribute(Command::CA_UpdateText);
@@ -1257,8 +1257,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     // build action
-    dd->m_buildAction = new ParameterAction(Tr::tr("Build Project"), Tr::tr("Build Project \"%1\""),
-                                            ParameterAction::AlwaysEnabled, this);
+    dd->m_buildAction = new Action(Tr::tr("Build Project"), Tr::tr("Build Project \"%1\""),
+                                            Action::AlwaysEnabled, this);
     dd->m_buildAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildAction, Constants::BUILD);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -1267,9 +1267,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     dd->m_buildProjectForAllConfigsAction
-            = new ParameterAction(Tr::tr("Build Project for All Configurations"),
+            = new Action(Tr::tr("Build Project for All Configurations"),
                                   Tr::tr("Build Project \"%1\" for All Configurations"),
-                                  ParameterAction::AlwaysEnabled, this);
+                                  Action::AlwaysEnabled, this);
     dd->m_buildProjectForAllConfigsAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildProjectForAllConfigsAction,
                                         Constants::BUILDALLCONFIGS);
@@ -1287,9 +1287,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
 
     // build for run config
-    dd->m_buildForRunConfigAction = new ParameterAction(
+    dd->m_buildForRunConfigAction = new Action(
                 Tr::tr("Build for &Run Configuration"), Tr::tr("Build for &Run Configuration \"%1\""),
-                ParameterAction::EnabledWithParameter, this);
+                Action::EnabledWithParameter, this);
     dd->m_buildForRunConfigAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildForRunConfigAction,
                                         "ProjectExplorer.BuildForRunConfig");
@@ -1484,9 +1484,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
-    dd->m_closeProjectFilesActionContextMenu = new ParameterAction(
+    dd->m_closeProjectFilesActionContextMenu = new Action(
                 Tr::tr("Close All Files"), Tr::tr("Close All Files in Project \"%1\""),
-                ParameterAction::EnabledWithParameter, this);
+                Action::EnabledWithParameter, this);
     cmd = ActionManager::registerAction(dd->m_closeProjectFilesActionContextMenu,
                                         "ProjectExplorer.CloseAllFilesInProjectContextMenu");
     cmd->setAttribute(Command::CA_UpdateText);
@@ -1494,15 +1494,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_CLOSE);
 
     // unload project again, in right position
-    dd->m_unloadActionContextMenu = new ParameterAction(Tr::tr("Close Project"), Tr::tr("Close Project \"%1\""),
-                                                              ParameterAction::EnabledWithParameter, this);
+    dd->m_unloadActionContextMenu = new Action(Tr::tr("Close Project"), Tr::tr("Close Project \"%1\""),
+                                                              Action::EnabledWithParameter, this);
     cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_CLOSE);
 
-    dd->m_unloadOthersActionContextMenu = new ParameterAction(Tr::tr("Close Other Projects"), Tr::tr("Close All Projects Except \"%1\""),
-                                                              ParameterAction::EnabledWithParameter, this);
+    dd->m_unloadOthersActionContextMenu = new Action(Tr::tr("Close Other Projects"), Tr::tr("Close All Projects Except \"%1\""),
+                                                              Action::EnabledWithParameter, this);
     cmd = ActionManager::registerAction(dd->m_unloadOthersActionContextMenu, Constants::UNLOADOTHERSCM);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadOthersActionContextMenu->text());
@@ -1558,9 +1558,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 //    mproject->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // set startup project action
-    dd->m_setStartupProjectAction = new ParameterAction(Tr::tr("Set as Active Project"),
+    dd->m_setStartupProjectAction = new Action(Tr::tr("Set as Active Project"),
                                                         Tr::tr("Set \"%1\" as Active Project"),
-                                                        ParameterAction::AlwaysEnabled, this);
+                                                        Action::AlwaysEnabled, this);
     cmd = ActionManager::registerAction(dd->m_setStartupProjectAction, Constants::SETSTARTUP,
                              projectTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);

@@ -299,18 +299,18 @@ public:
     QString m_diffPrefix;
 
     CommandLocator *m_commandLocator = nullptr;
-    ParameterAction *m_checkOutAction = nullptr;
-    ParameterAction *m_checkInCurrentAction = nullptr;
-    ParameterAction *m_undoCheckOutAction = nullptr;
-    ParameterAction *m_undoHijackAction = nullptr;
-    ParameterAction *m_diffCurrentAction = nullptr;
-    ParameterAction *m_historyCurrentAction = nullptr;
-    ParameterAction *m_annotateCurrentAction = nullptr;
-    ParameterAction *m_addFileAction = nullptr;
+    Action *m_checkOutAction = nullptr;
+    Action *m_checkInCurrentAction = nullptr;
+    Action *m_undoCheckOutAction = nullptr;
+    Action *m_undoHijackAction = nullptr;
+    Action *m_diffCurrentAction = nullptr;
+    Action *m_historyCurrentAction = nullptr;
+    Action *m_annotateCurrentAction = nullptr;
+    Action *m_addFileAction = nullptr;
     QAction *m_diffActivityAction = nullptr;
     QAction *m_updateIndexAction = nullptr;
-    ParameterAction *m_updateViewAction = nullptr;
-    ParameterAction *m_checkInActivityAction = nullptr;
+    Action *m_updateViewAction = nullptr;
+    Action *m_checkInActivityAction = nullptr;
     QAction *m_checkInAllAction = nullptr;
     QAction *m_statusAction = nullptr;
 

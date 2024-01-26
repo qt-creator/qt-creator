@@ -72,7 +72,7 @@ private:
     QAction *m_rescanProjectAction;
     QAction *m_buildFileContextMenu;
     QAction *m_reloadCMakePresetsAction;
-    Utils::ParameterAction *m_buildFileAction;
+    Utils::Action *m_buildFileAction;
     QAction *m_cmakeProfilerAction;
     QAction *m_cmakeDebuggerAction;
     QAction *m_cmakeDebuggerSeparator;

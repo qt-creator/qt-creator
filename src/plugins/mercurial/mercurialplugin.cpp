@@ -177,13 +177,13 @@ private:
     QList<QAction *> m_repositoryActionList;
 
     // Menu items (file actions)
-    ParameterAction *m_addAction = nullptr;
-    ParameterAction *m_deleteAction = nullptr;
-    ParameterAction *annotateFile = nullptr;
-    ParameterAction *diffFile = nullptr;
-    ParameterAction *logFile = nullptr;
-    ParameterAction *revertFile = nullptr;
-    ParameterAction *statusFile = nullptr;
+    Action *m_addAction = nullptr;
+    Action *m_deleteAction = nullptr;
+    Action *annotateFile = nullptr;
+    Action *diffFile = nullptr;
+    Action *logFile = nullptr;
+    Action *revertFile = nullptr;
+    Action *statusFile = nullptr;
 
     QAction *m_createRepositoryAction = nullptr;
     QAction *m_menuAction = nullptr;
@@ -263,14 +263,14 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
 {
     Core::Command *command;
 
-    annotateFile = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    annotateFile = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(annotateFile, Utils::Id(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, &QAction::triggered, this, &MercurialPluginPrivate::annotateCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    diffFile = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    diffFile = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(diffFile, Utils::Id(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+D") : Tr::tr("Alt+G,Alt+D")));
@@ -278,7 +278,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    logFile = new ParameterAction(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
+    logFile = new Action(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(logFile, Utils::Id(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+L") : Tr::tr("Alt+G,Alt+L")));
@@ -286,7 +286,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    statusFile = new ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
+    statusFile = new Action(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(statusFile, Utils::Id(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+S") : Tr::tr("Alt+G,Alt+S")));
@@ -296,21 +296,21 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
 
     m_mercurialContainer->addSeparator(context);
 
-    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, Utils::Id(Constants::ADD), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &MercurialPluginPrivate::addCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_deleteAction, Utils::Id(Constants::DELETE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &MercurialPluginPrivate::promptToDeleteCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    revertFile = new ParameterAction(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    revertFile = new Action(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(revertFile, Utils::Id(Constants::REVERT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(revertFile, &QAction::triggered, this, &MercurialPluginPrivate::revertCurrentFile);

@@ -62,7 +62,7 @@ private:
     void generateCompilationDB();
     void createCompilationDBAction();
 
-    Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
+    Utils::Action *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
 };
 

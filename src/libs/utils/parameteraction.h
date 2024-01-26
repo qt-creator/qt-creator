@@ -9,18 +9,19 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT ParameterAction : public QAction
+class QTCREATOR_UTILS_EXPORT Action : public QAction
 {
     Q_PROPERTY(QString emptyText READ emptyText WRITE setEmptyText)
     Q_PROPERTY(QString parameterText READ parameterText WRITE setParameterText)
     Q_PROPERTY(EnablingMode enablingMode READ enablingMode WRITE setEnablingMode)
     Q_OBJECT
+
 public:
     enum EnablingMode { AlwaysEnabled, EnabledWithParameter };
     Q_ENUM(EnablingMode)
 
-    explicit ParameterAction(QObject *parent = nullptr);
-    ParameterAction(const QString &emptyText,
+    explicit Action(QObject *parent = nullptr);
+    Action(const QString &emptyText,
                     const QString &parameterText,
                     EnablingMode em = AlwaysEnabled,
                     QObject *parent = nullptr);

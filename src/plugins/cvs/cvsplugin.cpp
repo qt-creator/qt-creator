@@ -294,26 +294,26 @@ private:
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
-    Utils::ParameterAction *m_addAction = nullptr;
-    Utils::ParameterAction *m_deleteAction = nullptr;
-    Utils::ParameterAction *m_revertAction = nullptr;
-    Utils::ParameterAction *m_editCurrentAction = nullptr;
-    Utils::ParameterAction *m_uneditCurrentAction = nullptr;
+    Utils::Action *m_addAction = nullptr;
+    Utils::Action *m_deleteAction = nullptr;
+    Utils::Action *m_revertAction = nullptr;
+    Utils::Action *m_editCurrentAction = nullptr;
+    Utils::Action *m_uneditCurrentAction = nullptr;
     QAction *m_uneditRepositoryAction = nullptr;
-    Utils::ParameterAction *m_diffProjectAction = nullptr;
-    Utils::ParameterAction *m_diffCurrentAction = nullptr;
-    Utils::ParameterAction *m_logProjectAction = nullptr;
+    Utils::Action *m_diffProjectAction = nullptr;
+    Utils::Action *m_diffCurrentAction = nullptr;
+    Utils::Action *m_logProjectAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_commitAllAction = nullptr;
     QAction *m_revertRepositoryAction = nullptr;
-    Utils::ParameterAction *m_commitCurrentAction = nullptr;
-    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
-    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
-    Utils::ParameterAction *m_statusProjectAction = nullptr;
-    Utils::ParameterAction *m_updateProjectAction = nullptr;
-    Utils::ParameterAction *m_commitProjectAction = nullptr;
-    Utils::ParameterAction *m_updateDirectoryAction = nullptr;
-    Utils::ParameterAction *m_commitDirectoryAction = nullptr;
+    Utils::Action *m_commitCurrentAction = nullptr;
+    Utils::Action *m_filelogCurrentAction = nullptr;
+    Utils::Action *m_annotateCurrentAction = nullptr;
+    Utils::Action *m_statusProjectAction = nullptr;
+    Utils::Action *m_updateProjectAction = nullptr;
+    Utils::Action *m_commitProjectAction = nullptr;
+    Utils::Action *m_updateDirectoryAction = nullptr;
+    Utils::Action *m_commitDirectoryAction = nullptr;
     QAction *m_diffRepositoryAction = nullptr;
     QAction *m_updateRepositoryAction = nullptr;
     QAction *m_statusRepositoryAction = nullptr;
@@ -489,7 +489,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     Command *command;
 
-    m_diffCurrentAction = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffCurrentAction = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -498,7 +498,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_filelogCurrentAction = new ParameterAction(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_filelogCurrentAction = new Action(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_filelogCurrentAction,
         CMD_ID_FILELOG_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -506,7 +506,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_annotateCurrentAction = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_annotateCurrentAction = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -516,7 +516,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -525,7 +525,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitCurrentAction = new ParameterAction(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_commitCurrentAction = new Action(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -534,7 +534,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -542,7 +542,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertAction = new ParameterAction(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Action(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -552,14 +552,14 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_editCurrentAction = new ParameterAction(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_editCurrentAction = new Action(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_editCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::editCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_uneditCurrentAction = new ParameterAction(Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_uneditCurrentAction = new Action(Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_uneditCurrentAction, CMD_ID_UNEDIT_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_uneditCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::uneditCurrentFile);
@@ -574,7 +574,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_diffProjectAction = new ParameterAction(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffProjectAction = new Action(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -582,7 +582,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new ParameterAction(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_statusProjectAction = new Action(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -590,21 +590,21 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new ParameterAction(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_logProjectAction = new Action(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_logProjectAction, &QAction::triggered, this, &CvsPluginPrivate::logProject);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new ParameterAction(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_updateProjectAction = new Action(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateProjectAction, &QAction::triggered, this, &CvsPluginPrivate::updateProject);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new ParameterAction(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_commitProjectAction = new Action(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_PROJECTCOMMIT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_commitProjectAction, &QAction::triggered, this, &CvsPluginPrivate::commitProject);
@@ -613,14 +613,14 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_updateDirectoryAction = new ParameterAction(Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_updateDirectoryAction = new Action(Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateDirectoryAction, &QAction::triggered, this, &CvsPluginPrivate::updateDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitDirectoryAction = new ParameterAction(Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_commitDirectoryAction = new Action(Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitDirectoryAction,
         CMD_ID_COMMIT_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);

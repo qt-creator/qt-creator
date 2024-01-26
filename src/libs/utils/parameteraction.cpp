@@ -4,10 +4,10 @@
 #include "parameteraction.h"
 
 /*!
-    \class Utils::ParameterAction
+    \class Utils::Action
     \inmodule QtCreator
 
-    \brief The ParameterAction class is intended for actions that act on a 'current',
+    \brief The Action class is intended for actions that act on a 'current',
      string-type parameter (typically a file name), for example 'Save file %1'.
 
     The action has 2 states:
@@ -24,11 +24,11 @@
 
 namespace Utils {
 
-ParameterAction::ParameterAction(QObject *parent)
-    : ParameterAction({}, {}, AlwaysEnabled, parent)
+Action::Action(QObject *parent)
+    : Action({}, {}, AlwaysEnabled, parent)
 {}
 
-ParameterAction::ParameterAction(const QString &emptyText,
+Action::Action(const QString &emptyText,
                                  const QString &parameterText,
                                  EnablingMode mode,
                                  QObject *parent)
@@ -39,37 +39,37 @@ ParameterAction::ParameterAction(const QString &emptyText,
 {
 }
 
-QString ParameterAction::emptyText() const
+QString Action::emptyText() const
 {
     return m_emptyText;
 }
 
-void ParameterAction::setEmptyText(const QString &t)
+void Action::setEmptyText(const QString &t)
 {
     m_emptyText = t;
 }
 
-QString ParameterAction::parameterText() const
+QString Action::parameterText() const
 {
     return m_parameterText;
 }
 
-void ParameterAction::setParameterText(const QString &t)
+void Action::setParameterText(const QString &t)
 {
     m_parameterText = t;
 }
 
-ParameterAction::EnablingMode ParameterAction::enablingMode() const
+Action::EnablingMode Action::enablingMode() const
 {
     return m_enablingMode;
 }
 
-void ParameterAction::setEnablingMode(EnablingMode m)
+void Action::setEnablingMode(EnablingMode m)
 {
     m_enablingMode = m;
 }
 
-void ParameterAction::setParameter(const QString &p)
+void Action::setParameter(const QString &p)
 {
     const bool enabled = !p.isEmpty();
     if (enabled)

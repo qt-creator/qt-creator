@@ -81,15 +81,15 @@ public:
 
     QAction *m_runQMakeAction = nullptr;
     QAction *m_runQMakeActionContextMenu = nullptr;
-    ParameterAction *m_buildSubProjectContextMenu = nullptr;
+    Action *m_buildSubProjectContextMenu = nullptr;
     QAction *m_subProjectRebuildSeparator = nullptr;
     QAction *m_rebuildSubProjectContextMenu = nullptr;
     QAction *m_cleanSubProjectContextMenu = nullptr;
     QAction *m_buildFileContextMenu = nullptr;
-    ParameterAction *m_buildSubProjectAction = nullptr;
+    Action *m_buildSubProjectAction = nullptr;
     QAction *m_rebuildSubProjectAction = nullptr;
     QAction *m_cleanSubProjectAction = nullptr;
-    ParameterAction *m_buildFileAction = nullptr;
+    Action *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
 
@@ -157,8 +157,8 @@ void QmakeProjectManagerPlugin::initialize()
     //register actions
     Command *command = nullptr;
 
-    d->m_buildSubProjectContextMenu = new ParameterAction(Tr::tr("Build"), Tr::tr("Build \"%1\""),
-                                                              ParameterAction::AlwaysEnabled/*handled manually*/,
+    d->m_buildSubProjectContextMenu = new Action(Tr::tr("Build"), Tr::tr("Build \"%1\""),
+                                                              Action::AlwaysEnabled/*handled manually*/,
                                                               this);
     command = ActionManager::registerAction(d->m_buildSubProjectContextMenu, Constants::BUILDSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
@@ -203,8 +203,8 @@ void QmakeProjectManagerPlugin::initialize()
     connect(d->m_buildFileContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildFileContextMenu);
 
-    d->m_buildSubProjectAction = new ParameterAction(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
-                                                         ParameterAction::AlwaysEnabled, this);
+    d->m_buildSubProjectAction = new Action(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
+                                                         Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
@@ -240,8 +240,8 @@ void QmakeProjectManagerPlugin::initialize()
     connect(d->m_cleanSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
-    d->m_buildFileAction = new ParameterAction(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
-                                                   ParameterAction::AlwaysEnabled, this);
+    d->m_buildFileAction = new Action(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
+                                                   Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);

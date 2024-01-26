@@ -18,13 +18,13 @@ public:
 
 private:
     TextEditor::TextEditorActionHandler m_actionHandler;
-    Utils::ParameterAction m_emphasisAction;
-    Utils::ParameterAction m_strongAction;
-    Utils::ParameterAction m_inlineCodeAction;
-    Utils::ParameterAction m_linkAction;
-    Utils::ParameterAction m_toggleEditorAction;
-    Utils::ParameterAction m_togglePreviewAction;
-    Utils::ParameterAction m_swapAction;
+    Utils::Action m_emphasisAction;
+    Utils::Action m_strongAction;
+    Utils::Action m_inlineCodeAction;
+    Utils::Action m_linkAction;
+    Utils::Action m_toggleEditorAction;
+    Utils::Action m_togglePreviewAction;
+    Utils::Action m_swapAction;
 };
 
 } // TextEditor::Internal

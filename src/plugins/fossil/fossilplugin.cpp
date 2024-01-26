@@ -210,13 +210,13 @@ public:
     QList<QAction *> m_repositoryActionList;
 
     // Menu Items (file actions)
-    ParameterAction *m_addAction = nullptr;
-    ParameterAction *m_deleteAction = nullptr;
-    ParameterAction *m_annotateFile = nullptr;
-    ParameterAction *m_diffFile = nullptr;
-    ParameterAction *m_logFile = nullptr;
-    ParameterAction *m_revertFile = nullptr;
-    ParameterAction *m_statusFile = nullptr;
+    Action *m_addAction = nullptr;
+    Action *m_deleteAction = nullptr;
+    Action *m_annotateFile = nullptr;
+    Action *m_diffFile = nullptr;
+    Action *m_logFile = nullptr;
+    Action *m_revertFile = nullptr;
+    Action *m_statusFile = nullptr;
 
     QAction *m_createRepositoryAction = nullptr;
 
@@ -288,16 +288,16 @@ void FossilPluginPrivate::createFileActions(const Context &context)
 {
     Command *command;
 
-    m_annotateFile = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""),
-                                         ParameterAction::EnabledWithParameter, this);
+    m_annotateFile = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""),
+                                         Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateFile, Constants::ANNOTATE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_annotateFile, &QAction::triggered, this, &FossilPluginPrivate::annotateCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_diffFile = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""),
-                                     ParameterAction::EnabledWithParameter, this);
+    m_diffFile = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""),
+                                     Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+D")
@@ -306,8 +306,8 @@ void FossilPluginPrivate::createFileActions(const Context &context)
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logFile = new ParameterAction(Tr::tr("Timeline Current File"), Tr::tr("Timeline \"%1\""),
-                                    ParameterAction::EnabledWithParameter, this);
+    m_logFile = new Action(Tr::tr("Timeline Current File"), Tr::tr("Timeline \"%1\""),
+                                    Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+L")
@@ -316,8 +316,8 @@ void FossilPluginPrivate::createFileActions(const Context &context)
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusFile = new ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""),
-                                       ParameterAction::EnabledWithParameter, this);
+    m_statusFile = new Action(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""),
+                                       Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+S")
@@ -328,24 +328,24 @@ void FossilPluginPrivate::createFileActions(const Context &context)
 
     m_fossilContainer->addSeparator(context);
 
-    m_addAction = new ParameterAction(Tr::tr("Add Current File"), Tr::tr("Add \"%1\""),
-                                      ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add Current File"), Tr::tr("Add \"%1\""),
+                                      Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, Constants::ADD, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &FossilPluginPrivate::addCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete Current File..."), Tr::tr("Delete \"%1\"..."),
-                                         ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete Current File..."), Tr::tr("Delete \"%1\"..."),
+                                         Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, Constants::DELETE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &FossilPluginPrivate::deleteCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertFile = new ParameterAction(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."),
-                                       ParameterAction::EnabledWithParameter, this);
+    m_revertFile = new Action(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."),
+                                       Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFile, Constants::REVERT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_revertFile, &QAction::triggered, this, &FossilPluginPrivate::revertCurrentFile);
