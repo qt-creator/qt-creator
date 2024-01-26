@@ -65,11 +65,11 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
             QTC_ASSERT(ok, continue);
             ++it;
 
-            QTC_ASSERT(it->startsWith('e'), continue);
+            QTC_ASSERT(it != lines.end() && it->startsWith('e'), continue);
             proc.executable = it->mid(1).trimmed();
             ++it;
 
-            QTC_ASSERT(it->startsWith('c'), continue);
+            QTC_ASSERT(it != lines.end() && it->startsWith('c'), continue);
             proc.commandLine = it->mid(1).trimmed().replace('\0', ' ');
             if (!proc.commandLine.contains("__SKIP_ME__"))
                 processes.append(proc);
