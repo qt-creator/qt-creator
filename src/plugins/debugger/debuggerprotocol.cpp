@@ -753,7 +753,7 @@ QString decodeData(const QString &ba, const QString &encoding)
 
     if (enc.quotes) {
         const QChar doubleQuote('"');
-        result = QString("%1 (%2)").arg(doubleQuote + result + doubleQuote).arg(result.size());
+        result = doubleQuote + result + doubleQuote;
     }
     return result;
 }
