@@ -745,7 +745,7 @@ class Dumper(DumperBase):
             return (qtNamespace, qtVersion)
 
         try:
-            versionValue = self.target.EvaluateExpression('qtHookData[2]')
+            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
             if versionValue.IsValid():
                 return ('', versionValue.unsigned)
         except:
