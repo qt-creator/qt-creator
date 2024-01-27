@@ -297,7 +297,6 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     layout->addLayout(bottom);
     bottom->addStretch(1);
     bottom->addWidget(m_totalRows);
-    layout->addStretch(1);
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
@@ -354,7 +353,6 @@ void IssuesWidget::updateUi()
         m_currentPrefix = info.issueKinds.front().prefix;
     updateTableView();
 }
-
 
 void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
 {
