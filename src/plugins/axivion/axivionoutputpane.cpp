@@ -240,7 +240,7 @@ private:
     TreeModel<> *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
-    TaskTreeRunner m_issuesRunner;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -385,15 +385,6 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
-
-    // first time lookup... should we cache and maybe represent old data?
-    m_totalRowCount = 0;
-    m_lastRequestedOffset = 0;
-    IssueListSearch search;
-    search.kind = m_currentPrefix;
-    search.computeTotalRowCount = true;
-    m_issuesView->showProgressIndicator();
-    fetchIssues(search);
 }
 
 static QString anyToSimpleString(const Dto::Any &any)
@@ -479,20 +470,36 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
         it->setLinks(linksForIssue(row));
         m_issuesModel->rootItem()->appendChild(it);
     }
-    m_issuesView->hideProgressIndicator();
 }
 
 void IssuesWidget::updateTableView()
 {
     QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
     // fetch table dto and apply, on done fetch first data for the selected issues
-    fetchIssueTableLayout(m_currentPrefix);
+    const auto tableHandler = [this](const Dto::TableInfoDto &dto) { setTableDto(dto); };
+    const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
+    const auto doneHandler = [this](DoneWith result) {
+        if (result == DoneWith::Error) {
+            m_issuesView->hideProgressIndicator();
+            return;
+        }
+        // first time lookup... should we cache and maybe represent old data?
+        m_totalRowCount = 0;
+        m_lastRequestedOffset = 0;
+        IssueListSearch search;
+        search.kind = m_currentPrefix;
+        search.computeTotalRowCount = true;
+        fetchIssues(search);
+    };
+    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
 }
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
     const auto issuesHandler = [this](const Dto::IssueTableDto &dto) { addIssues(dto); };
-    m_issuesRunner.start(issueTableRecipe(search, issuesHandler));
+    const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
+    const auto doneHandler = [this](DoneWith) { m_issuesView->hideProgressIndicator(); };
+    m_taskTreeRunner.start(issueTableRecipe(search, issuesHandler), setupHandler, doneHandler);
 }
 
 void IssuesWidget::fetchMoreIssues()
@@ -504,7 +511,6 @@ void IssuesWidget::fetchMoreIssues()
     search.kind = m_currentPrefix;
     m_lastRequestedOffset = m_issuesModel->rowCount();
     search.offset = m_lastRequestedOffset;
-    m_issuesView->showProgressIndicator();
     fetchIssues(search);
 }
 
@@ -612,12 +618,6 @@ void AxivionOutputPane::updateDashboard()
         if (dashboard->hasProject())
             flash();
     }
-}
-
-void AxivionOutputPane::setTableDto(const Dto::TableInfoDto &dto)
-{
-    if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
-        issues->setTableDto(dto);
 }
 
 void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)

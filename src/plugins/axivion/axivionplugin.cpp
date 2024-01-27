@@ -86,7 +86,6 @@ public:
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void fetchIssueTableLayout(const QString &prefix);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -137,12 +136,6 @@ void fetchProjectInfo(const QString &projectName)
 {
     QTC_ASSERT(dd, return);
     dd->fetchProjectInfo(projectName);
-}
-
-void fetchIssueTableLayout(const QString &prefix)
-{
-    QTC_ASSERT(dd, return);
-    dd->fetchIssueTableLayout(prefix);
 }
 
 std::optional<Dto::ProjectInfoDto> projectInfo()
@@ -427,21 +420,11 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     m_taskTreeRunner.start(root);
 }
 
-void AxivionPluginPrivate::fetchIssueTableLayout(const QString &prefix)
+Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 {
-    QTC_ASSERT(m_currentProjectInfo.has_value(), return);
-    if (m_taskTreeRunner.isRunning()) {
-        QTimer::singleShot(3000, this, [this, prefix] { fetchIssueTableLayout(prefix); });
-        return;
-    }
-    const QUrl url = urlForProject(m_currentProjectInfo.value().name + '/')
-            .resolved(QString("issues_meta?kind=" + prefix));
-
-    const auto handler = [this](const Dto::TableInfoDto &data) {
-        m_axivionOutputPane.setTableDto(data);
-    };
-
-    m_taskTreeRunner.start(fetchDataRecipe<Dto::TableInfoDto>(url, handler));
+    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("issues_meta?kind=" + prefix));
+    return fetchDataRecipe<Dto::TableInfoDto>(url, handler);
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
