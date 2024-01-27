@@ -12,6 +12,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/link.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -32,6 +34,7 @@
 
 #include <map>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -219,6 +222,7 @@ public:
 
 private:
     void updateTableView();
+    void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
 
     QString m_currentPrefix;
@@ -236,6 +240,7 @@ private:
     TreeModel<> *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
+    TaskTreeRunner m_issuesRunner;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -484,6 +489,12 @@ void IssuesWidget::updateTableView()
     fetchIssueTableLayout(m_currentPrefix);
 }
 
+void IssuesWidget::fetchIssues(const IssueListSearch &search)
+{
+    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) { addIssues(dto); };
+    m_issuesRunner.start(issueTableRecipe(search, issuesHandler));
+}
+
 void IssuesWidget::fetchMoreIssues()
 {
     if (m_lastRequestedOffset == m_issuesModel->rowCount())
@@ -607,12 +618,6 @@ void AxivionOutputPane::setTableDto(const Dto::TableInfoDto &dto)
 {
     if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
         issues->setTableDto(dto);
-}
-
-void AxivionOutputPane::addIssues(const Dto::IssueTableDto &dto)
-{
-    if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
-        issues->addIssues(dto);
 }
 
 void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)

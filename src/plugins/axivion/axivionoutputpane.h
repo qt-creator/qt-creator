@@ -12,7 +12,6 @@ QT_END_NAMESPACE
 namespace Axivion::Internal {
 
 namespace Dto {
-class IssueTableDto;
 class TableInfoDto;
 }
 
@@ -39,7 +38,6 @@ public:
     void updateDashboard();
     void updateAndShowRule(const QString &ruleHtml);
     void setTableDto(const Dto::TableInfoDto &dto);
-    void addIssues(const Dto::IssueTableDto &dto);
 private:
     QStackedWidget *m_outputWidget = nullptr;
 };

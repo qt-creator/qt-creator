@@ -87,7 +87,6 @@ public:
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
     void fetchIssueTableLayout(const QString &prefix);
-    void fetchIssues(const IssueListSearch &search);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -144,12 +143,6 @@ void fetchIssueTableLayout(const QString &prefix)
 {
     QTC_ASSERT(dd, return);
     dd->fetchIssueTableLayout(prefix);
-}
-
-void fetchIssues(const IssueListSearch &search)
-{
-    QTC_ASSERT(dd, return);
-    dd->fetchIssues(search);
 }
 
 std::optional<Dto::ProjectInfoDto> projectInfo()
@@ -373,6 +366,20 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
     return root;
 }
 
+Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler)
+{
+    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+
+    const QString query = search.toQuery();
+    if (query.isEmpty())
+        return {}; // TODO: Call handler with unexpected?
+
+    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("issues" + query));
+
+    return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
     if (m_taskTreeRunner.isRunning()) { // TODO: cache in queue and run when task tree finished
@@ -435,28 +442,6 @@ void AxivionPluginPrivate::fetchIssueTableLayout(const QString &prefix)
     };
 
     m_taskTreeRunner.start(fetchDataRecipe<Dto::TableInfoDto>(url, handler));
-}
-
-void AxivionPluginPrivate::fetchIssues(const IssueListSearch &search)
-{
-    QTC_ASSERT(m_currentProjectInfo.has_value(), return);
-    if (m_taskTreeRunner.isRunning()) {
-        QTimer::singleShot(3000, this, [this, search] { fetchIssues(search); });
-        return;
-    }
-
-    const QString query = search.toQuery();
-    if (query.isEmpty())
-        return;
-
-    const QUrl url = urlForProject(m_currentProjectInfo.value().name + '/')
-            .resolved(QString("issues" + query));
-
-    const auto handler = [this](const Dto::IssueTableDto &data) {
-        m_axivionOutputPane.addIssues(data);
-    };
-
-    m_taskTreeRunner.start(fetchDataRecipe<Dto::IssueTableDto>(url, handler));
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)

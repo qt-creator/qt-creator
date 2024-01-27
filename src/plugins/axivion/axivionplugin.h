@@ -51,10 +51,13 @@ public:
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
 
+// TODO: Wrap data into expected_str<>?
+using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
+Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
+
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 void fetchIssueTableLayout(const QString &prefix);
-void fetchIssues(const IssueListSearch &search);
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const QString &prefix);
