@@ -28,8 +28,6 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
                                    const CPlusPlus::Snapshot &snapshot,
                                    const Utils::FilePath &documentFilePath)
 {
-    const QTextCursor initialCursor = cursor;
-
     const QChar &c = cursor.document()->characterAt(cursor.position());
     if (!c.isLetter() && c != QLatin1Char('_') && c != QLatin1Char('['))
         return QString();

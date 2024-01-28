@@ -956,7 +956,6 @@ QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
     qDeleteAll(m_marks);
     m_marks.clear();
 
-    QString asmText;
     QTextCursor cursor(document());
 
     QTextCharFormat linkFormat = TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(

@@ -162,7 +162,6 @@ void RecordOptionsDialog::updateCropScene()
 {
     const ScreenRecorderSettings::RecordSettings rs = ScreenRecorderSettings
         ::sanitizedRecordSettings({int(m_screenId()), screenCropRect(), int(m_recordFrameRate())});
-    const QList<QScreen*> screens = QGuiApplication::screens();
     m_thumbnail = QGuiApplication::screens().at(rs.screenId)->grabWindow().toImage();
     const qreal dpr = m_thumbnail.devicePixelRatio();
     m_thumbnail = m_thumbnail.scaled((m_thumbnail.deviceIndependentSize() / m_factor * dpr)

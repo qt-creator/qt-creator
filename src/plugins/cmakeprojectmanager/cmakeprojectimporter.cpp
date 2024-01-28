@@ -882,9 +882,9 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
         // Qt:
-        const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
-        if (!qmake.isEmpty())
-            data->qt = findOrCreateQtVersion(qmake);
+        const auto info = qtInfoFromCMakeCache(config, env);
+        if (!info.qmakePath.isEmpty())
+            data->qt = findOrCreateQtVersion(info.qmakePath);
 
         // Toolchains:
         data->toolchains = extractToolchainsFromCache(config);
