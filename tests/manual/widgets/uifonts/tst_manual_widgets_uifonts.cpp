@@ -43,8 +43,9 @@ int main(int argc, char *argv[])
         sampleLabel->setFont(font);
         sampleLabel->setSizePolicy(uiElementLabel->sizePolicy());
         QFontInfo fontInfo(font);
-        const QString pixelMetrics = QString::fromLatin1("Pixel size: %1")
-                                         .arg(fontInfo.pixelSize());
+        const QString pixelMetrics = QString::fromLatin1("Pixel size: %1, line height: %2")
+                                         .arg(fontInfo.pixelSize())
+                                         .arg(StyleHelper::uiFontLineHeight(uiElement.uiElement));
         auto *metricsLabel = new QLabel(pixelMetrics);
         fontLabels.addItems({uiElementLabel, sampleLabel, st, font.toString(), metricsLabel, br});
     }

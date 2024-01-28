@@ -1002,6 +1002,14 @@ QFont StyleHelper::uiFont(UiElement element)
     return font;
 }
 
+int StyleHelper::uiFontLineHeight(UiElement element)
+{
+    const UiFontMetrics &metrics = uiFontMetrics(element);
+    const qreal lineHeightToPixelSizeRatio = qreal(metrics.lineHeight) / metrics.pixelSize;
+    const QFontInfo fontInfo(uiFont(element));
+    return qCeil(fontInfo.pixelSize() * lineHeightToPixelSizeRatio);
+}
+
 QString StyleHelper::fontToCssProperties(const QFont &font)
 {
     const QString fontSize = font.pixelSize() != -1 ? QString::number(font.pixelSize()) + "px"
