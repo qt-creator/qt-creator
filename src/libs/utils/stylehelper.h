@@ -41,6 +41,33 @@ constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 
 constexpr char C_QT_SCALE_FACTOR_ROUNDING_POLICY[] = "QT_SCALE_FACTOR_ROUNDING_POLICY";
 
+namespace SpacingTokens {
+    constexpr int VPaddingXXS = 4;   // Top and bottom padding within the component
+    constexpr int HPaddingXXS = 4;   // Left and right padding within the component
+    constexpr int VGapXXS = 4;       // Vertical Space between TEXT LINE within the Component
+    constexpr int HGapXXS = 4;       // Horizontal Space between elements within the Component
+
+    constexpr int VPaddingXS = 8;
+    constexpr int HPaddingXS = 8;
+    constexpr int VGapXS = 4;
+    constexpr int HGapXS = 8;
+
+    constexpr int VPaddingS = 8;
+    constexpr int HPaddingS = 16;
+    constexpr int VGapS = 4;
+    constexpr int HGapS = 8;
+
+    constexpr int VPaddingM = 16;
+    constexpr int HPaddingM = 24;
+    constexpr int VGapM = 4;
+    constexpr int HGapM = 16;
+
+    constexpr int VPaddingL = 12;
+    constexpr int HPaddingL = 24;
+    constexpr int VGapL = 8;
+    constexpr int HGapL = 16;
+}
+
 enum ToolbarStyle {
     ToolbarStyleCompact,
     ToolbarStyleRelaxed,
