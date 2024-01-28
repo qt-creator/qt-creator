@@ -221,6 +221,39 @@ public:
         }
     }
 
+    template <typename R>
+    void updateCapabilities(const QList<R> &regs)
+    {
+        bool updateCompletion = false;
+        bool updateFunctionHint = false;
+        bool updateSemanticToken = false;
+        for (const R &reg : regs) {
+            if (reg.method() == CompletionRequest::methodName)
+                updateCompletion = true;
+            if (reg.method() == SignatureHelpRequest::methodName)
+                updateFunctionHint = true;
+            if (reg.method() == "textDocument/semanticTokens") {
+                updateSemanticToken = true;
+                if constexpr (std::is_same_v<R, Registration>) {
+                    const SemanticTokensOptions options(reg.registerOptions());
+                    if (options.isValid())
+                        m_tokenSupport.setLegend(options.legend());
+                }
+            }
+        }
+        if (updateCompletion || updateFunctionHint || updateSemanticToken) {
+            for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
+                if (updateCompletion)
+                    updateCompletionProvider(it.key());
+                if (updateFunctionHint)
+                    updateFunctionHintProvider(it.key());
+                if (updateSemanticToken)
+                    m_tokenSupport.updateSemanticTokens(it.key());
+            }
+        }
+        emit q->capabilitiesChanged(m_dynamicCapabilities);
+    }
+
     void sendMessageNow(const JsonRpcMessage &message);
     void handleResponse(const MessageId &id,
                         const JsonRpcMessage &message);
@@ -1266,44 +1299,13 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     d->m_dynamicCapabilities.registerCapability(registrations);
-    for (const Registration &registration : registrations) {
-        if (registration.method() == CompletionRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateCompletionProvider(document);
-        }
-        if (registration.method() == SignatureHelpRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateFunctionHintProvider(document);
-        }
-        if (registration.method() == "textDocument/semanticTokens") {
-            SemanticTokensOptions options(registration.registerOptions());
-            if (options.isValid())
-                d->m_tokenSupport.setLegend(options.legend());
-            for (auto document : d->m_openedDocument.keys())
-                d->m_tokenSupport.updateSemanticTokens(document);
-        }
-    }
-    emit capabilitiesChanged(d->m_dynamicCapabilities);
+    d->updateCapabilities(registrations);
 }
 
 void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
 {
     d->m_dynamicCapabilities.unregisterCapability(unregistrations);
-    for (const Unregistration &unregistration : unregistrations) {
-        if (unregistration.method() == CompletionRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateCompletionProvider(document);
-        }
-        if (unregistration.method() == SignatureHelpRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateFunctionHintProvider(document);
-        }
-        if (unregistration.method() == "textDocument/semanticTokens") {
-            for (auto document : d->m_openedDocument.keys())
-                d->m_tokenSupport.updateSemanticTokens(document);
-        }
-    }
-    emit capabilitiesChanged(d->m_dynamicCapabilities);
+    d->updateCapabilities(unregistrations);
 }
 
 void Client::setLocatorsEnabled(bool enabled)
