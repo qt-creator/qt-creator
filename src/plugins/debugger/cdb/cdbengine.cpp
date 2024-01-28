@@ -3060,7 +3060,8 @@ void CdbEngine::watchPoint(const QPoint &p)
     m_watchPointX = p.x();
     m_watchPointY = p.y();
     DebuggerCommand cmd("widgetat", ExtensionCommand);
-    cmd.args = QString("%1 %2").arg(p.x(), p.y());
+    // Keep 2 separate .arg(), since we pass ints there.
+    cmd.args = QString("%1 %2").arg(p.x()).arg(p.y());
     runCommand(cmd);
 }
 
