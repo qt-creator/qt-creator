@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
         { StyleHelper::UiElementH6Capital, "H6 CAPITAL" },
         { StyleHelper::UiElementCaptionStrong, "Caption strong" },
         { StyleHelper::UiElementCaption, "Caption" },
+        { StyleHelper::UIElementIconStandard, "Icon Standard" },
+        { StyleHelper::UIElementIconActive, "Icon Active" },
     };
     static const QString textSample("AaBbCcXxYyZz123");
 

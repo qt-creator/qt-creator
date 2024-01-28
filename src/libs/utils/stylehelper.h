@@ -84,6 +84,8 @@ enum UiElement {
     UiElementH6Capital,
     UiElementCaptionStrong,
     UiElementCaption,
+    UIElementIconStandard,
+    UIElementIconActive,
 };
 
 // Height of the project explorer navigation bar

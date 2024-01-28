@@ -961,6 +961,8 @@ static const UiFontMetrics& uiFontMetrics(StyleHelper::UiElement element)
         {StyleHelper::UiElementH6Capital,           {12, 14, QFont::DemiBold}},
         {StyleHelper::UiElementCaptionStrong,       {10, 12, QFont::DemiBold}},
         {StyleHelper::UiElementCaption,             {10, 12, QFont::Normal}},
+        {StyleHelper::UIElementIconStandard,        {12, 16, QFont::Normal}},
+        {StyleHelper::UIElementIconActive,          {12, 16, QFont::DemiBold}},
     };
     QTC_ASSERT(metrics.count(element) > 0, return metrics.at(StyleHelper::UiElementCaptionStrong));
     return metrics.at(element);
