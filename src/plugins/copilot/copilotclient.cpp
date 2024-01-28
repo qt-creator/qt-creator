@@ -142,7 +142,8 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
 {
     cancelRunningRequest(editor);
 
-    if (!m_scheduledRequests.contains(editor)) {
+    auto it = m_scheduledRequests.find(editor);
+    if (it == m_scheduledRequests.end()) {
         auto timer = new QTimer(this);
         timer->setSingleShot(true);
         connect(timer, &QTimer::timeout, this, [this, editor]() {
@@ -156,11 +157,11 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
         connect(editor, &TextEditorWidget::cursorPositionChanged, this, [this, editor] {
             cancelRunningRequest(editor);
         });
-        m_scheduledRequests.insert(editor, {editor->textCursor().position(), timer});
+        it = m_scheduledRequests.insert(editor, {editor->textCursor().position(), timer});
     } else {
-        m_scheduledRequests[editor].cursorPosition = editor->textCursor().position();
+        it->cursorPosition = editor->textCursor().position();
     }
-    m_scheduledRequests[editor].timer->start(500);
+    it->timer->start(500);
 }
 
 void CopilotClient::requestCompletions(TextEditorWidget *editor)
@@ -237,8 +238,8 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
 
 void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
 {
-    auto it = m_runningRequests.find(editor);
-    if (it == m_runningRequests.end())
+    const auto it = m_runningRequests.constFind(editor);
+    if (it == m_runningRequests.constEnd())
         return;
     cancelRequest(it->id());
     m_runningRequests.erase(it);
