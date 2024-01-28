@@ -123,14 +123,6 @@ private:
     QThread m_thread;
 };
 
-static void updateEditorToolBar(QList<TextEditor::TextDocument *> documents)
-{
-    for (TextEditor::TextDocument *document : documents) {
-        for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
-            updateEditorToolBar(editor);
-    }
-}
-
 class ClientPrivate : public QObject
 {
     Q_OBJECT
@@ -206,7 +198,7 @@ public:
                     widget->removeHoverHandler(&m_hoverHandler);
                 }
             }
-            updateEditorToolBar(m_openedDocument.keys());
+            updateOpenedEditorToolBars();
         }
         for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
@@ -220,6 +212,14 @@ public:
     }
 
     Client *q;
+
+    void updateOpenedEditorToolBars()
+    {
+        for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
+            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(it.key()))
+                updateEditorToolBar(editor);
+        }
+    }
 
     void sendMessageNow(const JsonRpcMessage &message);
     void handleResponse(const MessageId &id,
@@ -1694,7 +1694,7 @@ bool ClientPrivate::reset()
     m_state = Client::Uninitialized;
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
-    updateEditorToolBar(m_openedDocument.keys());
+    updateOpenedEditorToolBars();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     if (m_diagnosticManager)
