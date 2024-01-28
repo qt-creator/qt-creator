@@ -1090,7 +1090,7 @@ void PluginManagerPrivate::addTestCreator(IPlugin *plugin, const TestCreator &te
 
 #ifdef WITH_TESTS
 
-using TestPlan = QMap<QObject *, QStringList>; // Object -> selected test functions
+using TestPlan = QHash<QObject *, QStringList>; // Object -> selected test functions
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {

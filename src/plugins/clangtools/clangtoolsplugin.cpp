@@ -71,7 +71,7 @@ public:
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
     ClangToolsOptionsPage optionsPage;
-    QMap<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
+    QHash<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
 

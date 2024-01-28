@@ -211,7 +211,7 @@ public:
     QWidget *m_modeWidget = nullptr;
     EditorWidget *m_editorWidget = nullptr;
 
-    QMap<Command *, QAction *> m_commandToDesignerAction;
+    QHash<Command *, QAction *> m_commandToDesignerAction;
     FormWindowEditorFactory *m_xmlEditorFactory = nullptr;
 };
 

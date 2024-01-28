@@ -1155,8 +1155,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                 return newSpecialization;
             }
         } else {
-            QMap<const TemplateNameId *, ClassOrNamespace *>::const_iterator citInstantiation
-                    = reference->_instantiations.constFind(templId);
+            const auto citInstantiation = reference->_instantiations.constFind(templId);
             if (citInstantiation != reference->_instantiations.constEnd())
                 return citInstantiation.value();
 

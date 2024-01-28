@@ -3,9 +3,7 @@
 
 #include "documentmanager.h"
 
-#include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
-#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "diffservice.h"
@@ -14,8 +12,6 @@
 #include "dialogs/saveitemsdialog.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/editormanager_p.h"
-#include "editormanager/editorview.h"
-#include "editormanager/ieditor.h"
 #include "editormanager/ieditorfactory.h"
 #include "icore.h"
 #include "idocument.h"
@@ -135,7 +131,7 @@ struct FileStateItem
 struct FileState
 {
     FilePath watchedFilePath;
-    QMap<IDocument *, FileStateItem> lastUpdatedState;
+    QHash<IDocument *, FileStateItem> lastUpdatedState;
     FileStateItem expected;
 };
 

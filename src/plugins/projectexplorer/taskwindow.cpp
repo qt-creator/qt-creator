@@ -144,7 +144,7 @@ public:
     Internal::TaskFilterModel *m_filter;
     TaskView m_treeView;
     Core::IContext *m_taskWindowContext;
-    QMap<const QAction *, ITaskHandler *> m_actionToHandlerMap;
+    QHash<const QAction *, ITaskHandler *> m_actionToHandlerMap;
     ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;

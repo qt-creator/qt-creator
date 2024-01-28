@@ -121,7 +121,7 @@ private:
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
-    QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
+    QHash<const TemplateNameId *, ClassOrNamespace *> _instantiations;
     Anonymouses _anonymouses;
     QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
 

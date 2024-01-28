@@ -64,7 +64,7 @@ private:
     void startSearch(Core::SearchResult *search);
 
     bool m_enabled;
-    QMap<QFutureWatcher<Utils::SearchResultItem> *, QPointer<Core::SearchResult> > m_watchers;
+    QHash<QFutureWatcher<Utils::SearchResultItem> *, QPointer<Core::SearchResult>> m_watchers;
     QPointer<Core::SearchResult> m_currentSearch;
     SearchSymbols::SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
