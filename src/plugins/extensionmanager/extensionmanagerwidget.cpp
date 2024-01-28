@@ -11,7 +11,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
-#include <coreplugin/modemanager.h> // TODO: Remove!
 #include <coreplugin/welcomepagehelper.h>
 
 #include <extensionsystem/pluginspec.h>
