@@ -272,6 +272,10 @@ public:
     QJsonObject m_initializationOptions;
     class OpenedDocument
     {
+        // TODO: We should specify here:
+        // Q_DISABLE_COPY(OpenedDocument)
+        // otherwise, we may get unexpected document deletions on copying when map grows or shrinks.
+        // QMap doesn't guarantee valid refs on grow / shrink: consider using std::map.
     public:
         ~OpenedDocument()
         {
@@ -287,6 +291,7 @@ public:
         QMetaObject::Connection savedConnection;
         QTextDocument *document = nullptr;
     };
+    // TODO: consider using std::map - see comments to OpenedDocument.
     QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
@@ -300,7 +305,7 @@ public:
     std::unordered_map<TextEditor::TextDocument *,
                        QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
-    QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
+    QHash<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
     Utils::Id m_id;
     LanguageServerProtocol::ClientCapabilities m_clientCapabilities;
@@ -314,7 +319,7 @@ public:
     };
 
     AssistProviders m_clientProviders;
-    QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
+    QHash<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
     QHash<QString, Client::CustomMethodHandler> m_customHandlers;
     static const int MaxRestarts = 5;
@@ -1185,7 +1190,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    if (!d->m_openedDocument.contains(document) || !reachable())
+    const auto it = d->m_openedDocument.constFind(document);
+    if (it == d->m_openedDocument.constEnd() || !reachable())
         return;
     if (d->m_runningFindLinkRequest.isValid())
         cancelRequest(d->m_runningFindLinkRequest);
@@ -1203,7 +1209,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
 
     const QString &text = document->textAt(position, charsAdded);
-    QTextCursor cursor(d->m_openedDocument[document].document);
+    QTextCursor cursor(it->document);
     // Workaround https://bugreports.qt.io/browse/QTBUG-80662
     // The contentsChanged gives a character count that can be wrong for QTextCursor
     // when there are special characters removed/added (like formating characters).
@@ -1211,8 +1217,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     // paragraph separator character.
     // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
     // For charsAdded, textAt handles the case itself.
-    cursor.setPosition(qMin(d->m_openedDocument[document].document->characterCount() - 1,
-                            position + charsRemoved));
+    cursor.setPosition(qMin(it->document->characterCount() - 1, position + charsRemoved));
     cursor.setPosition(position, QTextCursor::KeepAnchor);
 
     if (syncKind != TextDocumentSyncKind::None) {
