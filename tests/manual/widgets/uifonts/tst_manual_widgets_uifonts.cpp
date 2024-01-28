@@ -40,7 +40,11 @@ int main(int argc, char *argv[])
         auto *sampleLabel = new QLabel(textSample);
         sampleLabel->setFont(font);
         sampleLabel->setSizePolicy(uiElementLabel->sizePolicy());
-        fontLabels.addItems({uiElementLabel, sampleLabel, st, font.toString(), br});
+        QFontInfo fontInfo(font);
+        const QString pixelMetrics = QString::fromLatin1("Pixel size: %1")
+                                         .arg(fontInfo.pixelSize());
+        auto *metricsLabel = new QLabel(pixelMetrics);
+        fontLabels.addItems({uiElementLabel, sampleLabel, st, font.toString(), metricsLabel, br});
     }
 
     QString html("<html><body><table>");
