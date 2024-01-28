@@ -398,7 +398,7 @@ void Internal::CommandPrivate::addOverrideAction(QAction *action,
             m_contextActionMap.insert(id, action);
         }
     }
-    m_scriptableMap[action] = scriptable;
+    m_scriptableHash[action] = scriptable;
     setCurrentContext(m_context);
 }
 
@@ -434,18 +434,20 @@ bool Internal::CommandPrivate::isEmpty() const
 
 bool Command::isScriptable() const
 {
-    return std::find(d->m_scriptableMap.cbegin(), d->m_scriptableMap.cend(), true)
-           != d->m_scriptableMap.cend();
+    return std::find(d->m_scriptableHash.cbegin(), d->m_scriptableHash.cend(), true)
+           != d->m_scriptableHash.cend();
 }
 
 bool Command::isScriptable(const Context &context) const
 {
-    if (context == d->m_context && d->m_scriptableMap.contains(d->m_action->action()))
-        return d->m_scriptableMap.value(d->m_action->action());
-
+    if (context == d->m_context) {
+        const auto it = d->m_scriptableHash.constFind(d->m_action->action());
+        if (it != d->m_scriptableHash.constEnd())
+            return *it;
+    }
     for (int i = 0; i < context.size(); ++i) {
         if (QAction *a = d->m_contextActionMap.value(context.at(i), nullptr)) {
-            if (d->m_scriptableMap.contains(a) && d->m_scriptableMap.value(a))
+            if (d->m_scriptableHash.value(a, false))
                 return true;
         }
     }

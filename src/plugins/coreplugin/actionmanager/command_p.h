@@ -47,8 +47,8 @@ public:
     mutable std::unique_ptr<Utils::ProxyAction> m_touchBarAction;
     QString m_toolTip;
 
-    QMap<Utils::Id, QPointer<QAction> > m_contextActionMap;
-    QMap<QAction*, bool> m_scriptableMap;
+    QMap<Utils::Id, QPointer<QAction>> m_contextActionMap;
+    QHash<QAction *, bool> m_scriptableHash;
     bool m_active = false;
     bool m_contextInitialized = false;
 };
