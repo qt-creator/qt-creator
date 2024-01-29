@@ -5125,7 +5125,12 @@ public:
             funcDef.append(QLatin1String(" const"));
             funcDecl.append(QLatin1String(" const"));
         }
-        funcDef.append(QLatin1String("\n{"));
+        funcDef.append(QLatin1String("\n{\n"));
+        QString extract = currentFile->textOf(m_extractionStart, m_extractionEnd);
+        extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+        if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
+            extract.append(QLatin1Char('\n'));
+        funcDef.append(extract);
         if (matchingClass)
             funcDecl.append(QLatin1String(";\n"));
         if (m_funcReturn) {
@@ -5139,24 +5144,8 @@ public:
         funcDef.prepend(inlinePrefix(currentFile->filePath()));
         funcCall.append(QLatin1Char(';'));
 
-        // Get starting indentation from original code.
-        int indentedExtractionStart = m_extractionStart;
-        QChar current = currentFile->document()->characterAt(indentedExtractionStart - 1);
-        while (current == QLatin1Char(' ') || current == QLatin1Char('\t')) {
-            --indentedExtractionStart;
-            current = currentFile->document()->characterAt(indentedExtractionStart - 1);
-        }
-        QString extract = currentFile->textOf(indentedExtractionStart, m_extractionEnd);
-        extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-        if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
-            extract.append(QLatin1Char('\n'));
-
-        // Since we need an indent range and a nested reindent range (based on the original
-        // formatting) it's simpler to have two different change sets.
-        ChangeSet change;
-        int position = currentFile->startOf(m_refFuncDef);
-
         // Do not insert right between the function and an associated comment.
+        int position = currentFile->startOf(m_refFuncDef);
         const QList<Token> functionDoc = commentsForDeclaration(
             m_refFuncDef->symbol, m_refFuncDef, *currentFile->document(),
             currentFile->cppDocument());
@@ -5165,16 +5154,9 @@ public:
                 functionDoc.first(), currentFile->document());
         }
 
+        ChangeSet change;
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
-        currentFile->setChangeSet(change);
-        currentFile->apply();
-
-        QTextCursor tc = currentFile->document()->find(QLatin1String("{"), position);
-        QTC_ASSERT(tc.hasSelection(), return);
-        position = tc.selectionEnd() + 1;
-        change.clear();
-        change.insert(position, extract + '\n');
         currentFile->setChangeSet(change);
         currentFile->apply();
 
