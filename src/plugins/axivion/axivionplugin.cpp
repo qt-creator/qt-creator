@@ -74,6 +74,14 @@ QString IssueListSearch::toQuery() const
     QString result;
     result.append(QString("?kind=%1&offset=%2&limit=%3").arg(kind).arg(offset).arg(limit));
     // TODO other params
+    if (!versionStart.isEmpty()) {
+        result.append(QString("&start=%1").arg(
+                          QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
+    }
+    if (!versionEnd.isEmpty()) {
+        result.append(QString("&end=%1").arg(
+                          QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
+    }
     if (computeTotalRowCount)
         result.append("&computeTotalRowCount=true");
     return result;

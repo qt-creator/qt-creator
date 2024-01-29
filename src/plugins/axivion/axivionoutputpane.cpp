@@ -221,6 +221,7 @@ public:
     void addIssues(const Dto::IssueTableDto &dto);
 
 private:
+    void onSearchParameterChanged();
     void updateTableView();
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
@@ -262,6 +263,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     top->addWidget(m_versionStart);
     m_versionEnd = new QComboBox(this);
     m_versionEnd->setMinimumContentsLength(25);
+    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_versionEnd, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
     top->addWidget(m_versionEnd);
     top->addStretch(1);
     m_filtersLayout = new QHBoxLayout;
@@ -347,8 +350,8 @@ void IssuesWidget::updateUi()
     const std::vector<Dto::AnalysisVersionDto> &versions = info.versions;
     for (const Dto::AnalysisVersionDto &version : versions) {
         const QString label = version.label.value_or(version.name);
-        m_versionStart->insertItem(0, label);
-        m_versionEnd->insertItem(0, label);
+        m_versionStart->insertItem(0, label, version.date);
+        m_versionEnd->insertItem(0, label, version.date);
     }
 
     m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
@@ -472,6 +475,27 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
     }
 }
 
+void IssuesWidget::onSearchParameterChanged()
+{
+    m_taskTreeRunner.cancel();
+
+    m_addedFilter->setText("0");
+    m_removedFilter->setText("0");
+    m_totalRows->setText(Tr::tr("Total rows:"));
+
+    m_issuesModel->rootItem()->removeChildren();
+    // new "first" time lookup
+    m_totalRowCount = 0;
+    m_lastRequestedOffset = 0;
+    IssueListSearch search;
+    search.kind = m_currentPrefix;
+    search.versionStart = m_versionStart->currentData().toString();
+    search.versionEnd = m_versionEnd->currentData().toString();
+    search.computeTotalRowCount = true;
+
+    fetchIssues(search);
+}
+
 void IssuesWidget::updateTableView()
 {
     QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
@@ -489,6 +513,8 @@ void IssuesWidget::updateTableView()
         IssueListSearch search;
         search.kind = m_currentPrefix;
         search.computeTotalRowCount = true;
+        search.versionStart = m_versionStart->currentData().toString();
+        search.versionEnd = m_versionEnd->currentData().toString();
         fetchIssues(search);
     };
     m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
@@ -511,6 +537,8 @@ void IssuesWidget::fetchMoreIssues()
     search.kind = m_currentPrefix;
     m_lastRequestedOffset = m_issuesModel->rowCount();
     search.offset = m_lastRequestedOffset;
+    search.versionStart = m_versionStart->currentData().toString();
+    search.versionEnd = m_versionEnd->currentData().toString();
     fetchIssues(search);
 }
 
