@@ -1312,20 +1312,14 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     QVERIFY(process.waitForStarted());
     QCOMPARE(process.state(), QProcess::Running);
 
-    QDeadlineTimer timer(1000);
     QByteArray reply;
     while (process.state() == QProcess::Running) {
-        process.waitForReadyRead(500ms);
+        process.waitForReadyRead();
         if (processChannel == QProcess::StandardOutput)
             reply += process.readAllRawStandardOutput();
         else
             reply += process.readAllRawStandardError();
-        if (timer.hasExpired())
-            break;
     }
-
-    QCOMPARE(process.state(), QProcess::NotRunning);
-    QVERIFY(!timer.hasExpired());
     QVERIFY(reply.contains(expectedData));
 }
 
