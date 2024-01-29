@@ -30,7 +30,7 @@ Row {
             return urlStr
         }
 
-        defaultItems: [uniformDefaultValue.split('/').pop()]
-        defaultPaths: [defaultAsString(uniformDefaultValue)]
+        defaultItems: uniformDefaultValue ? [uniformDefaultValue.split('/').pop()] : undefined
+        defaultPaths: uniformDefaultValue ? [defaultAsString(uniformDefaultValue)] : undefined
     }
 }
