@@ -10,17 +10,13 @@
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
 
-#include <debugger/debuggerruncontrol.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -29,11 +25,7 @@ namespace MesonProjectManager::Internal {
 class MesonProjectPluginPrivate
 {
 public:
-    MesonRunConfigurationFactory m_runConfigurationFactory;
     MesonActionsManager m_actions;
-    MachineFileManager m_machineFilesManager;
-    SimpleTargetRunnerFactory m_mesonRunWorkerFactory{{m_runConfigurationFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory m_mesonDebugRunWorkerFactory{{m_runConfigurationFactory.runConfigurationId()}};
 };
 
 class MesonProjectPlugin final : public ExtensionSystem::IPlugin
@@ -55,10 +47,15 @@ private:
         setupToolsSettingsPage();
         setupToolsSettingsAccessor();
 
+        setupMesonBuildSystem();
         setupMesonBuildConfiguration();
         setupNinjaBuildStep();
 
+        setupMesonRunConfiguration();
+        setupMesonRunAndDebugWorkers();
+
         ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
+
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
     }

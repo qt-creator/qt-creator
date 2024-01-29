@@ -3,14 +3,9 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace MesonProjectManager::Internal {
 
-class MesonRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    MesonRunConfigurationFactory();
-};
+void setupMesonRunConfiguration();
+void setupMesonRunAndDebugWorkers();
 
 } // MesonProjectManager::Internal

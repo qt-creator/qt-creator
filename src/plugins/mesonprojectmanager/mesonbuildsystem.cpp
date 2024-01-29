@@ -92,7 +92,7 @@ static FilePath machineFilesDir()
     return Core::ICore::userResourcePath("Meson-machine-files");
 }
 
-FilePath MachineFileManager::machineFile(const Kit *kit)
+static FilePath machineFile(const Kit *kit)
 {
     QTC_ASSERT(kit, return {});
     auto baseName
@@ -100,6 +100,20 @@ FilePath MachineFileManager::machineFile(const Kit *kit)
     baseName = baseName.remove('{').remove('}');
     return machineFilesDir().pathAppended(baseName);
 }
+
+// MachineFileManager
+
+class MachineFileManager final : public QObject
+{
+public:
+    MachineFileManager();
+
+private:
+    void addMachineFile(const Kit *kit);
+    void removeMachineFile(const Kit *kit);
+    void updateMachineFile(const Kit *kit);
+    void cleanupMachineFiles();
+};
 
 MachineFileManager::MachineFileManager()
 {
@@ -268,8 +282,7 @@ QStringList MesonBuildSystem::configArgs(bool isSetup)
     if (!isSetup || params.contains("--cross-file") || params.contains("--native-file"))
         return m_pendingConfigArgs + bc->mesonConfigArgs();
 
-    return QStringList{
-               QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
+    return QStringList{QString("--native-file=%1").arg(machineFile(kit()).toString())}
            + m_pendingConfigArgs + bc->mesonConfigArgs();
 }
 
@@ -330,6 +343,11 @@ void MesonBuildSystem::updateKit(ProjectExplorer::Kit *kit)
     QTC_ASSERT(kit, return );
     m_kitData = createKitData(kit);
     m_parser.setQtVersion(m_kitData.qtVersion);
+}
+
+void setupMesonBuildSystem()
+{
+    static MachineFileManager theMachineFileManager;
 }
 
 } // MesonProjectManager::Internal

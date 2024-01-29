@@ -54,6 +54,8 @@ const char MESON_INFO[] = "meson-info.json";
 const char MESON_TOOL_MANAGER[] = "MesonProjectManager.Tools";
 const char MESON_BUILD_STEP_ID[] = "MesonProjectManager.BuildStep";
 
+const char MESON_RUNCONFIG_ID[] = "MesonProjectManager.MesonRunConfiguration";
+
 namespace Targets {
 const char all[] = "all";
 const char clean[] = "clean";

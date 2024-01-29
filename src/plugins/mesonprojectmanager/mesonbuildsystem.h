@@ -17,20 +17,6 @@ namespace MesonProjectManager::Internal {
 
 class MesonBuildConfiguration;
 
-class MachineFileManager final : public QObject
-{
-public:
-    MachineFileManager();
-
-    static Utils::FilePath machineFile(const ProjectExplorer::Kit *kit);
-
-private:
-    void addMachineFile(const ProjectExplorer::Kit *kit);
-    void removeMachineFile(const ProjectExplorer::Kit *kit);
-    void updateMachineFile(const ProjectExplorer::Kit *kit);
-    void cleanupMachineFiles();
-};
-
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
@@ -67,5 +53,7 @@ private:
     Utils::FileSystemWatcher m_IntroWatcher;
     KitData m_kitData;
 };
+
+void setupMesonBuildSystem();
 
 } // MesonProjectManager::Internal
