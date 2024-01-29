@@ -137,16 +137,6 @@ public:
     QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
     QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
-    const QList<Id> supportedRunConfigs {
-        m_runConfigFactory.runConfigurationId(),
-        "QmlProjectManager.QmlRunConfiguration"
-    };
-
-    QdbRunWorkerFactory runWorkerFactory{supportedRunConfigs};
-    QdbDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
-    QdbQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
-    QdbPerfProfilerWorkerFactory perfRecorderWorkerFactory;
-
     DeviceDetector m_deviceDetector;
 };
 
@@ -163,6 +153,7 @@ private:
     {
         setupQdbLinuxDevice();
         setupQdbQtVersion();
+        setupQdbRunWorkers();
 
         d = new QdbPluginPrivate;
 

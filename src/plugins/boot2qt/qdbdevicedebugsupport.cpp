@@ -7,6 +7,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
@@ -248,36 +249,63 @@ void QdbDevicePerfProfilerSupport::start()
 
 // Factories
 
-QdbRunWorkerFactory::QdbRunWorkerFactory(const QList<Id> &runConfigs)
+class QdbRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QdbDeviceRunSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    setSupportedRunConfigs(runConfigs);
-    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
-}
+public:
+    QdbRunWorkerFactory()
+    {
+        setProduct<QdbDeviceRunSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::QdbRunConfigurationId);
+        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+    }
+};
 
-QdbDebugWorkerFactory::QdbDebugWorkerFactory(const QList<Id> &runConfigs)
+class QdbDebugWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QdbDeviceDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    setSupportedRunConfigs(runConfigs);
-    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
-}
+public:
+    QdbDebugWorkerFactory()
+    {
+        setProduct<QdbDeviceDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::QdbRunConfigurationId);
+        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+    }
+};
 
-QdbQmlToolingWorkerFactory::QdbQmlToolingWorkerFactory(const QList<Id> &runConfigs)
+class QdbQmlToolingWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QdbDeviceQmlToolingSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-    setSupportedRunConfigs(runConfigs);
-    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
-}
+public:
+    QdbQmlToolingWorkerFactory()
+    {
+        setProduct<QdbDeviceQmlToolingSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedRunConfig(Constants::QdbRunConfigurationId);
+        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+    }
+};
 
-QdbPerfProfilerWorkerFactory::QdbPerfProfilerWorkerFactory()
+class QdbPerfProfilerWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QdbDevicePerfProfilerSupport>();
-    addSupportedRunMode("PerfRecorder");
-    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+public:
+    QdbPerfProfilerWorkerFactory()
+    {
+        setProduct<QdbDevicePerfProfilerSupport>();
+        addSupportedRunMode("PerfRecorder");
+        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+    }
+};
+
+void setupQdbRunWorkers()
+{
+    static QdbRunWorkerFactory theQdbRunWorkerFactory;
+    static QdbDebugWorkerFactory theQdbDebugWorkerFactory;
+    static QdbQmlToolingWorkerFactory theQdbQmlToolingWorkerFactory;
+    static QdbPerfProfilerWorkerFactory theQdbProfilerWorkerFactory;
 }
 
 } // Qdb::Internal
