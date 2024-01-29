@@ -7,7 +7,7 @@
 
 namespace Conan::Internal {
 
-class ConanSettings : public Utils::AspectContainer
+class ConanSettings final : public Utils::AspectContainer
 {
 public:
     ConanSettings();

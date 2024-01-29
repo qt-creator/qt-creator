@@ -9,6 +9,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitaspects.h>
@@ -144,10 +145,19 @@ void ConanInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 
 // ConanInstallStepFactory
 
-ConanInstallStepFactory::ConanInstallStepFactory()
+class ConanInstallStepFactory final : public BuildStepFactory
 {
-    registerStep<ConanInstallStep>(Constants::INSTALL_STEP);
-    setDisplayName(Tr::tr("Run conan install"));
+public:
+    ConanInstallStepFactory()
+    {
+        registerStep<ConanInstallStep>(Constants::INSTALL_STEP);
+        setDisplayName(Tr::tr("Run conan install"));
+    }
+};
+
+void setupConanInstallStep()
+{
+    static ConanInstallStepFactory theConanInstallStepFactory;
 }
 
 } // Conan::Internal
