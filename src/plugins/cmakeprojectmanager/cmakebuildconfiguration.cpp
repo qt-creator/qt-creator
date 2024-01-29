@@ -2254,5 +2254,11 @@ void ConfigureEnvironmentAspect::toMap(Store &map) const
     map.insert(USER_ENVIRONMENT_CHANGES_KEY, tmpMap.value(CHANGES_KEY).toStringList());
 }
 
+
+void setupCMakeBuildConfiguration()
+{
+    static CMakeBuildConfigurationFactory theCMakeBuildConfigurationFactory;
+}
+
 } // namespace Internal
 } // namespace CMakeProjectManager

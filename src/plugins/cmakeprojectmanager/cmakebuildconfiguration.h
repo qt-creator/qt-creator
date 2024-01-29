@@ -131,4 +131,6 @@ private:
     friend class Internal::CMakeProjectImporter;
 };
 
+namespace Internal { void setupCMakeBuildConfiguration(); }
+
 } // namespace CMakeProjectManager

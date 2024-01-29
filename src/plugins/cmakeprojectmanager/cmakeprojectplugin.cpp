@@ -52,7 +52,6 @@ public:
         Action::AlwaysEnabled/*handled manually*/
     };
 
-    CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeInstallStepFactory installStepFactory;
     CMakeBuildTargetFilter cMakeBuildTargetFilter;
     CMakeOpenTargetFilter cMakeOpenTargetFilter;
@@ -75,6 +74,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeToolManager(this);
 
         setupCMakeSettingsPage();
+
+        setupCMakeBuildConfiguration();
         setupCMakeBuildStep();
 
         setupCMakeEditor();
