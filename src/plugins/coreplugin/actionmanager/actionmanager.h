@@ -108,6 +108,7 @@ public:
     ~MenuBuilder();
 
     MenuBuilder &setTitle(const QString &title);
+    MenuBuilder &setIcon(const QIcon &icon);
     MenuBuilder &setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior);
     MenuBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {});
     MenuBuilder &addSeparator();

@@ -418,6 +418,12 @@ MenuBuilder &MenuBuilder::setTitle(const QString &title)
     return *this;
 }
 
+MenuBuilder &MenuBuilder::setIcon(const QIcon &icon)
+{
+    m_menu->menu()->setIcon(icon);
+    return *this;
+}
+
 MenuBuilder &MenuBuilder::setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior)
 {
     m_menu->setOnAllDisabledBehavior(behavior);
