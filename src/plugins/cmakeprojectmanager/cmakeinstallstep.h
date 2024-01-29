@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeInstallStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    CMakeInstallStepFactory();
-};
+void setupCMakeInstallStep();
 
 } // CMakeProjectManager::Internal

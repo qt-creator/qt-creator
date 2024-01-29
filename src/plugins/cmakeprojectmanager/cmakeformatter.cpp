@@ -271,11 +271,11 @@ public:
     }
 };
 
-const CMakeFormatterSettingsPage settingsPage;
-
-CMakeFormatter::CMakeFormatter()
+void setupCMakeFormatter()
 {
+    static const CMakeFormatterSettingsPage theCMakeFormatterSettingsPage;
+
     formatterSettings();
-}
+};
 
 } // CMakeProjectManager::Internal

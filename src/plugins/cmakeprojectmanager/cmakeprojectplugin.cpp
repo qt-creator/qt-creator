@@ -51,12 +51,6 @@ public:
         Tr::tr("Build \"%1\""),
         Action::AlwaysEnabled/*handled manually*/
     };
-
-    CMakeInstallStepFactory installStepFactory;
-    CMakeBuildTargetFilter cMakeBuildTargetFilter;
-    CMakeOpenTargetFilter cMakeOpenTargetFilter;
-
-    CMakeFormatter cmakeFormatter;
 };
 
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
@@ -77,8 +71,12 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
         setupCMakeBuildConfiguration();
         setupCMakeBuildStep();
+        setupCMakeInstallStep();
 
         setupCMakeEditor();
+
+        setupCMakeLocatorFilters();
+        setupCMakeFormatter();
 
         d = new CMakeProjectPluginPrivate;
 

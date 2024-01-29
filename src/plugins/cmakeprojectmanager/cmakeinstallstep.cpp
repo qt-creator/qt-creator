@@ -11,6 +11,7 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
@@ -27,7 +28,7 @@ namespace CMakeProjectManager::Internal {
 
 // CMakeInstallStep
 
-class CMakeInstallStep : public CMakeAbstractProcessStep
+class CMakeInstallStep final : public CMakeAbstractProcessStep
 {
 public:
     CMakeInstallStep(BuildStepList *bsl, Id id)
@@ -112,14 +113,22 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
 // CMakeInstallStepFactory
 
-CMakeInstallStepFactory::CMakeInstallStepFactory()
+class CMakeInstallStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    registerStep<CMakeInstallStep>(Constants::CMAKE_INSTALL_STEP_ID);
-    setDisplayName(
-        Tr::tr("CMake Install", "Display name for CMakeProjectManager::CMakeInstallStep id."));
-    setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
+public:
+    CMakeInstallStepFactory()
+    {
+        registerStep<CMakeInstallStep>(Constants::CMAKE_INSTALL_STEP_ID);
+        setDisplayName(
+            Tr::tr("CMake Install", "Display name for CMakeProjectManager::CMakeInstallStep id."));
+        setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
+        setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
+    }
+};
+
+void setupCMakeInstallStep()
+{
+    static CMakeInstallStepFactory theCMakeInstallStepFactory;
 }
 
 } // CMakeProjectManager::Internal
-

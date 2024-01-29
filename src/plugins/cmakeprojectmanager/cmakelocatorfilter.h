@@ -3,26 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/locator/ilocatorfilter.h>
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeBuildTargetFilter : Core::ILocatorFilter
-{
-public:
-    CMakeBuildTargetFilter();
+void setupCMakeLocatorFilters();
 
-private:
-    Core::LocatorMatcherTasks matchers() final;
-};
-
-class CMakeOpenTargetFilter : Core::ILocatorFilter
-{
-public:
-    CMakeOpenTargetFilter();
-
-private:
-    Core::LocatorMatcherTasks matchers() final;
-};
-
-} // namespace CMakeProjectManager::Internal
+} // CMakeProjectManager::Internal
