@@ -11,6 +11,8 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <qmlprojectmanager/qmlprojectconstants.h>
+
 #include <debugger/debuggerruncontrol.h>
 
 #include <utils/algorithm.h>
@@ -257,7 +259,7 @@ public:
         setProduct<QdbDeviceRunSupport>();
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
-        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 };
@@ -270,7 +272,7 @@ public:
         setProduct<QdbDeviceDebugSupport>();
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
-        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 };
@@ -284,7 +286,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
-        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration");
+        addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 };
