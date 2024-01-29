@@ -138,6 +138,11 @@ static QString fileNameToPresetName(const QString &fileName)
     return name;
 }
 
+static QString displayPresetName(const QString &presetName)
+{
+    return QString("%1 (CMake preset)").arg(presetName);
+}
+
 FilePaths CMakeProjectImporter::importCandidates()
 {
     FilePaths candidates;
@@ -966,6 +971,9 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (data->cmakePreset != presetName)
             return false;
 
+        if (!k->unexpandedDisplayName().contains(displayPresetName(data->cmakePresetDisplayname)))
+            return false;
+
         ensureBuildDirectory(*data, k);
         haveCMakePreset = true;
     }
@@ -1008,8 +1016,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         }
 
         if (!data->cmakePresetDisplayname.isEmpty()) {
-            k->setUnexpandedDisplayName(
-                QString("%1 (CMake preset)").arg(data->cmakePresetDisplayname));
+            k->setUnexpandedDisplayName(displayPresetName(data->cmakePresetDisplayname));
 
             CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
         }
