@@ -101,20 +101,6 @@ private:
     class ActionBuilderPrivate *d = nullptr;
 };
 
-class CORE_EXPORT Menu
-{
-public:
-    Menu();
-
-    void setId(Utils::Id id);
-    void setTitle(const QString &title);
-    void setContainer(Utils::Id containerId, Utils::Id groupId = {});
-    void addSeparator();
-
-private:
-    ActionContainer *m_menu = nullptr;
-};
-
 class CORE_EXPORT MenuBuilder
 {
 public:

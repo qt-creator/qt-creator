@@ -334,9 +334,9 @@ BookmarkManager::BookmarkManager(QObject *parent)
     const Id bookmarkMenuId = "Bookmarks.Menu";
     const Context editorManagerContext(Core::Constants::C_EDITORMANAGER);
 
-    m_bookmarkMenu.setId(bookmarkMenuId);
-    m_bookmarkMenu.setTitle(Tr::tr("&Bookmarks"));
-    m_bookmarkMenu.setContainer(Core::Constants::M_TOOLS);
+    MenuBuilder bookmarkMenu(bookmarkMenuId);
+    bookmarkMenu.setTitle(Tr::tr("&Bookmarks"));
+    bookmarkMenu.addToContainer(Core::Constants::M_TOOLS);
 
     connect(&m_editBookmarkAction, &QAction::triggered, this, [this] {
             editByFileAndLine(m_marginActionFileName, m_marginActionLineNumber);
@@ -378,7 +378,7 @@ BookmarkManager::BookmarkManager(QObject *parent)
         }
     });
 
-    m_bookmarkMenu.addSeparator();
+    bookmarkMenu.addSeparator();
 
     ActionBuilder prevAction(this, Constants::BOOKMARKS_PREV_ACTION);
     prevAction.setContext(editorManagerContext);
@@ -400,7 +400,7 @@ BookmarkManager::BookmarkManager(QObject *parent)
     nextAction.bindContextAction(&m_nextAction);
     nextAction.addOnTriggered(this, [this] { next(); });
 
-    m_bookmarkMenu.addSeparator();
+    bookmarkMenu.addSeparator();
 
     ActionBuilder docPrevAction(this, "Bookmarks.PreviousDocument");
     docPrevAction.setContext(editorManagerContext);

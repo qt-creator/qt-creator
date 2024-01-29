@@ -403,35 +403,6 @@ ActionSeparator::ActionSeparator(Id id)
     container->addSeparator();
 }
 
-// Menu
-
-Menu::Menu() = default;
-
-void Menu::setId(Id id)
-{
-    QTC_ASSERT(!m_menu, return);
-    m_menu = ActionManager::createMenu(id);
-}
-
-void Menu::setTitle(const QString &title)
-{
-    QTC_ASSERT(m_menu, return);
-    m_menu->menu()->setTitle(title);
-}
-
-void Menu::setContainer(Id containerId, Id groupId)
-{
-    QTC_ASSERT(m_menu, return);
-    ActionContainer *container = ActionManager::actionContainer(containerId);
-    container->addMenu(m_menu, groupId);
-}
-
-void Menu::addSeparator()
-{
-    QTC_ASSERT(m_menu, return);
-    m_menu->addSeparator();
-}
-
 // MenuBuilder
 
 MenuBuilder::MenuBuilder(Id id)
