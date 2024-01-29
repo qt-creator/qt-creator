@@ -4,7 +4,6 @@
 #include "cppheadersource.h"
 
 #include "cpptoolsreuse.h"
-#include "cpptoolstestcase.h"
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
 #include "cppfilesettingspage.h"
@@ -22,6 +21,7 @@
 #include <QDir>
 
 #ifdef WITH_TESTS
+#include "cpptoolstestcase.h"
 #include <QtTest>
 #endif
 
@@ -38,22 +38,6 @@ static QHash<FilePath, FilePath> m_headerSourceMapping;
 void Internal::clearHeaderSourceCache()
 {
     m_headerSourceMapping.clear();
-}
-
-static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-
-static void createTempFile(const FilePath &filePath)
-{
-    QString fileName = filePath.toString();
-    QFile file(fileName);
-    QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
-    file.open(QFile::WriteOnly);
-    file.close();
-}
-
-static QString baseTestDir()
-{
-    return Utils::TemporaryDirectory::masterDirectoryPath() + "/qtc_cppheadersource/";
 }
 
 static FilePaths findFilesInProject(const QStringList &names, const Project *project,
@@ -285,6 +269,22 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
 #ifdef WITH_TESTS
 
 namespace CppEditor::Internal {
+
+static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+
+static void createTempFile(const FilePath &filePath)
+{
+    QString fileName = filePath.toString();
+    QFile file(fileName);
+    QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
+    file.open(QFile::WriteOnly);
+    file.close();
+}
+
+static QString baseTestDir()
+{
+    return Utils::TemporaryDirectory::masterDirectoryPath() + "/qtc_cppheadersource/";
+}
 
 class HeaderSourceTest : public QObject
 {
