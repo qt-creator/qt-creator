@@ -9,6 +9,8 @@
 #include "toolsmodel.h"
 #include "tooltreeitem.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 
@@ -119,13 +121,21 @@ void ToolsSettingsWidget::currentMesonToolChanged(const QModelIndex &newCurrent)
     m_removeButton->setEnabled(m_currentItem && !m_currentItem->isAutoDetected());
 }
 
-
-ToolsSettingsPage::ToolsSettingsPage()
+class ToolsSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::SettingsPage::TOOLS_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setCategory(Constants::SettingsPage::CATEGORY);
-    setWidgetCreator([]() { return new ToolsSettingsWidget; });
+public:
+    ToolsSettingsPage()
+    {
+        setId(Constants::SettingsPage::TOOLS_ID);
+        setDisplayName(Tr::tr("Tools"));
+        setCategory(Constants::SettingsPage::CATEGORY);
+        setWidgetCreator([]() { return new ToolsSettingsWidget; });
+    }
+};
+
+void setupToolsSettingsPage()
+{
+    static ToolsSettingsPage theToolsSettingsPage;
 }
 
 } // namespace MesonProjectManager

@@ -4,12 +4,12 @@
 #include "toolssettingsaccessor.h"
 
 #include "mesonpluginconstants.h"
-#include "mesonprojectmanagertr.h"
+#include "mesontools.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/icore.h>
 
 #include <utils/filepath.h>
+#include <utils/settingsaccessor.h>
 #include <utils/store.h>
 
 #include <QGuiApplication>
@@ -20,13 +20,21 @@
 using namespace Core;
 using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static Key entryName(int index)
 {
     return numberedKey(Constants::ToolsSettings::ENTRY_KEY, index);
 }
+
+class ToolsSettingsAccessor final : public UpgradingSettingsAccessor
+{
+public:
+    ToolsSettingsAccessor();
+
+    void saveMesonTools(const std::vector<MesonTools::Tool_t> &tools);
+    std::vector<MesonTools::Tool_t> loadMesonTools();
+};
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()
 {
@@ -81,5 +89,9 @@ std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
     return result;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+void setupToolsSettingsAccessor()
+{
+    static ToolsSettingsAccessor theToolSettingsAccessor;
+}
+
+} // MesonProjectManager::Internal

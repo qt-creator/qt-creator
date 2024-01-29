@@ -39,10 +39,6 @@ private:
     QString m_parameters;
 };
 
-class MesonBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    MesonBuildConfigurationFactory();
-};
+void setupMesonBuildConfiguration();
 
 } // MesonProjectManager::Internal

@@ -3,7 +3,6 @@
 
 #include "ninjabuildstep.h"
 
-#include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
@@ -27,8 +26,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArguments";
@@ -182,13 +180,6 @@ void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     });
 }
 
-MesonBuildStepFactory::MesonBuildStepFactory()
-{
-    registerStep<NinjaBuildStep>(Constants::MESON_BUILD_STEP_ID);
-    setSupportedProjectType(Constants::Project::ID);
-    setDisplayName(Tr::tr("Meson Build"));
-}
-
 void NinjaBuildStep::setBuildTarget(const QString &targetName)
 {
     m_targetName = targetName;
@@ -213,5 +204,22 @@ void NinjaBuildStep::fromMap(const Store &map)
     return AbstractProcessStep::fromMap(map);
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+// NinjaBuildStepFactory
+
+class NinjaBuildStepFactory final : public BuildStepFactory
+{
+public:
+    NinjaBuildStepFactory()
+    {
+        registerStep<NinjaBuildStep>(Constants::MESON_BUILD_STEP_ID);
+        setSupportedProjectType(Constants::Project::ID);
+        setDisplayName(Tr::tr("Meson Build"));
+    }
+};
+
+void setupNinjaBuildStep()
+{
+    static NinjaBuildStepFactory theNinjaBuildStepFactory;
+}
+
+} // MesonProjectManager::Internal

@@ -8,8 +8,7 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class NinjaBuildStep final : public ProjectExplorer::AbstractProcessStep
 {
@@ -39,11 +38,6 @@ private:
     NinjaParser *m_ninjaParser = nullptr;
 };
 
-class MesonBuildStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    MesonBuildStepFactory();
-};
+void setupNinjaBuildStep();
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

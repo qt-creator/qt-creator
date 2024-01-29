@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace MesonProjectManager::Internal {
 
-class ToolsSettingsPage final : public Core::IOptionsPage
-{
-public:
-    ToolsSettingsPage();
-};
+void setupToolsSettingsPage();
 
 } // MesonProjectManager::Internal

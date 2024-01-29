@@ -29,10 +29,6 @@ namespace MesonProjectManager::Internal {
 class MesonProjectPluginPrivate
 {
 public:
-    ToolsSettingsPage m_toolslSettingsPage;
-    ToolsSettingsAccessor m_toolsSettings;
-    MesonBuildStepFactory m_buildStepFactory;
-    MesonBuildConfigurationFactory m_buildConfigurationFactory;
     MesonRunConfigurationFactory m_runConfigurationFactory;
     MesonActionsManager m_actions;
     MachineFileManager m_machineFilesManager;
@@ -55,6 +51,12 @@ private:
     void initialize() final
     {
         d = new MesonProjectPluginPrivate;
+
+        setupToolsSettingsPage();
+        setupToolsSettingsAccessor();
+
+        setupMesonBuildConfiguration();
+        setupNinjaBuildStep();
 
         ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
