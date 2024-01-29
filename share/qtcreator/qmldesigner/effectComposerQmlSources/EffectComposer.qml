@@ -4,13 +4,16 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Templates as T
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import EffectComposerBackend
 
-Item {
+ColumnLayout {
     id: root
+
+    spacing: 1
 
     property var draggedSec: null
     property var secsY: []
@@ -60,63 +63,74 @@ Item {
         }
     }
 
+    EffectComposerTopBar {
+        Layout.fillWidth: true
+
+        onAddClicked: {
+            root.onSaveChangesCallback = () => { EffectComposerBackend.effectComposerModel.clear(true) }
+
+            if (EffectComposerBackend.effectComposerModel.hasUnsavedChanges)
+                saveChangesDialog.open()
+            else
+                EffectComposerBackend.effectComposerModel.clear(true)
+        }
+
+        onSaveClicked: {
+            let name = EffectComposerBackend.effectComposerModel.currentComposition
+
+            if (name === "")
+                saveAsDialog.open()
+            else
+                EffectComposerBackend.effectComposerModel.saveComposition(name)
+        }
+
+        onSaveAsClicked: saveAsDialog.open()
+
+        onAssignToSelectedClicked: {
+            EffectComposerBackend.effectComposerModel.assignToSelected()
+        }
+    }
+
     SplitView {
-        anchors.fill: parent
-        orientation: Qt.Vertical
+        id: splitView
 
-        ColumnLayout {
-            spacing: 1
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+
+        orientation: root.width > root.height ? Qt.Horizontal : Qt.Vertical
+
+        handle: Rectangle {
+            implicitWidth: splitView.orientation === Qt.Horizontal ? 6 : splitView.width
+            implicitHeight: splitView.orientation === Qt.Horizontal ? splitView.height : 6
+            color: T.SplitHandle.pressed ? StudioTheme.Values.themeSliderHandleInteraction
+                : (T.SplitHandle.hovered ? StudioTheme.Values.themeSliderHandleHover
+                                         : "transparent")
+        }
+
+        EffectComposerPreview {
+            mainRoot: root
+
+            SplitView.minimumWidth: 250
             SplitView.minimumHeight: 200
+            SplitView.preferredWidth: 300
             SplitView.preferredHeight: 300
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            EffectComposerTopBar {
-                Layout.fillWidth: true
-
-                onAddClicked: {
-                    root.onSaveChangesCallback = () => { EffectComposerBackend.effectComposerModel.clear(true) }
-
-                    if (EffectComposerBackend.effectComposerModel.hasUnsavedChanges)
-                        saveChangesDialog.open()
-                    else
-                        EffectComposerBackend.effectComposerModel.clear(true)
-                }
-
-                onSaveClicked: {
-                    let name = EffectComposerBackend.effectComposerModel.currentComposition
-
-                    if (name === "")
-                        saveAsDialog.open()
-                    else
-                        EffectComposerBackend.effectComposerModel.saveComposition(name)
-                }
-
-                onSaveAsClicked: saveAsDialog.open()
-
-                onAssignToSelectedClicked: {
-                    EffectComposerBackend.effectComposerModel.assignToSelected()
-                }
-            }
-
-            EffectComposerPreview {
-                mainRoot: root
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                FrameAnimation {
-                    id: previewFrameTimer
-                    running: true
-                    paused: !previewAnimationRunning
-                }
+            FrameAnimation {
+                id: previewFrameTimer
+                running: true
+                paused: !previewAnimationRunning
             }
         }
 
         Column {
-            id: lowerSplitCol
-
             spacing: 1
 
-            SplitView.minimumHeight: 200
+            SplitView.minimumWidth: 250
+            SplitView.minimumHeight: 100
+
+            Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
 
             Rectangle {
                 width: parent.width
@@ -158,115 +172,114 @@ Item {
                 }
             }
 
-            Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
-
-            HelperWidgets.ScrollView {
-                id: scrollView
-
+            Item {
                 width: parent.width
                 height: parent.height - y
-                clip: true
-                interactive: !HelperWidgets.Controller.contextMenuOpened
 
-                onContentHeightChanged: {
-                    if (scrollView.contentItem.height > scrollView.height) {
-                        let lastItemH = repeater.itemAt(repeater.count - 1).height
-                        scrollView.contentY = scrollView.contentItem.height - lastItemH
+                HelperWidgets.ScrollView {
+                    id: scrollView
+
+                    anchors.fill: parent
+                    clip: true
+                    interactive: !HelperWidgets.Controller.contextMenuOpened
+
+                    onContentHeightChanged: {
+                        if (scrollView.contentItem.height > scrollView.height) {
+                            let lastItemH = repeater.itemAt(repeater.count - 1).height
+                            scrollView.contentY = scrollView.contentItem.height - lastItemH
+                        }
                     }
+
+                    Column {
+                        id: nodesCol
+                        width: scrollView.width
+                        spacing: 1
+
+                        Repeater {
+                            id: repeater
+
+                            width: parent.width
+                            model: EffectComposerBackend.effectComposerModel
+
+                            onCountChanged: {
+                                HelperWidgets.Controller.setCount("EffectComposer", repeater.count)
+                            }
+
+                            delegate: EffectCompositionNode {
+                                width: parent.width
+                                modelIndex: index
+
+                                Behavior on y {
+                                    PropertyAnimation {
+                                        duration: 300
+                                        easing.type: Easing.InOutQuad
+                                    }
+                                }
+
+                                onStartDrag: (section) => {
+                                    root.draggedSec = section
+                                    root.moveFromIdx = index
+
+                                    highlightBorder = true
+
+                                    root.secsY = []
+                                    for (let i = 0; i < repeater.count; ++i)
+                                        root.secsY[i] = repeater.itemAt(i).y
+                                }
+
+                                onStopDrag: {
+                                    if (root.moveFromIdx === root.moveToIdx)
+                                        root.draggedSec.y = root.secsY[root.moveFromIdx]
+                                    else
+                                        EffectComposerBackend.effectComposerModel.moveNode(root.moveFromIdx, root.moveToIdx)
+
+                                    highlightBorder = false
+                                    root.draggedSec = null
+                                }
+                            }
+                        } // Repeater
+
+                        Timer {
+                            running: root.draggedSec
+                            interval: 50
+                            repeat: true
+
+                            onTriggered: {
+                                root.moveToIdx = root.moveFromIdx
+                                for (let i = 0; i < repeater.count; ++i) {
+                                    let currItem = repeater.itemAt(i)
+                                    if (i > root.moveFromIdx) {
+                                        if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                            currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
+                                            root.moveToIdx = i
+                                        } else {
+                                            currItem.y = root.secsY[i]
+                                        }
+                                    } else if (i < root.moveFromIdx) {
+                                        if (!repeater.model.isDependencyNode(i)
+                                                && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                            currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
+                                            root.moveToIdx = Math.min(root.moveToIdx, i)
+                                        } else {
+                                            currItem.y = root.secsY[i]
+                                        }
+                                    }
+                                }
+                            }
+                        } // Timer
+                    } // Column
+                } // ScrollView
+
+                Text {
+                    text: qsTr("Add an effect node to start")
+                    color: StudioTheme.Values.themeTextColor
+                    font.pixelSize: StudioTheme.Values.baseFontSize
+
+                    anchors.centerIn: parent
+
+                    visible: EffectComposerBackend.effectComposerModel.isEmpty
                 }
-
-                Column {
-                    id: nodesCol
-                    width: scrollView.width
-                    spacing: 1
-
-                    Repeater {
-                        id: repeater
-
-                        width: root.width
-                        model: EffectComposerBackend.effectComposerModel
-
-                        onCountChanged: {
-                            HelperWidgets.Controller.setCount("EffectComposer", repeater.count)
-                        }
-
-                        delegate: EffectCompositionNode {
-                            width: root.width
-                            modelIndex: index
-
-                            Behavior on y {
-                                PropertyAnimation {
-                                    duration: 300
-                                    easing.type: Easing.InOutQuad
-                                }
-                            }
-
-                            onStartDrag: (section) => {
-                                root.draggedSec = section
-                                root.moveFromIdx = index
-
-                                highlightBorder = true
-
-                                root.secsY = []
-                                for (let i = 0; i < repeater.count; ++i)
-                                    root.secsY[i] = repeater.itemAt(i).y
-                            }
-
-                            onStopDrag: {
-                                if (root.moveFromIdx === root.moveToIdx)
-                                    root.draggedSec.y = root.secsY[root.moveFromIdx]
-                                else
-                                    EffectComposerBackend.effectComposerModel.moveNode(root.moveFromIdx, root.moveToIdx)
-
-                                highlightBorder = false
-                                root.draggedSec = null
-                            }
-                        }
-                    } // Repeater
-
-                    Timer {
-                        running: root.draggedSec
-                        interval: 50
-                        repeat: true
-
-                        onTriggered: {
-                            root.moveToIdx = root.moveFromIdx
-                            for (let i = 0; i < repeater.count; ++i) {
-                                let currItem = repeater.itemAt(i)
-                                if (i > root.moveFromIdx) {
-                                    if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                        currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
-                                        root.moveToIdx = i
-                                    } else {
-                                        currItem.y = root.secsY[i]
-                                    }
-                                } else if (i < root.moveFromIdx) {
-                                    if (!repeater.model.isDependencyNode(i)
-                                            && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                        currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
-                                        root.moveToIdx = Math.min(root.moveToIdx, i)
-                                    } else {
-                                        currItem.y = root.secsY[i]
-                                    }
-                                }
-                            }
-                        }
-                    } // Timer
-                } // Column
-            } // ScrollView
-        }
+            } // Item
+        } // Column
     } // SplitView
-
-    Text {
-        id: emptyText
-
-        text: qsTr("Add an effect node to start")
-        color: StudioTheme.Values.themeTextColor
-        font.pixelSize: StudioTheme.Values.baseFontSize
-
-        x: scrollView.x + (scrollView.width - emptyText.width) * .5
-        y: lowerSplitCol.y + lowerSplitCol.height * .5
-
-        visible: EffectComposerBackend.effectComposerModel.isEmpty
-    }
 }
