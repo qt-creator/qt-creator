@@ -10,6 +10,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -652,17 +653,24 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
     m_makeDefButton->setEnabled(m_currentItem && (!m_model.defaultItemId().isValid() || m_currentItem->m_id != m_model.defaultItemId()));
 }
 
-//
 // CMakeSettingsPage
-//
 
-CMakeSettingsPage::CMakeSettingsPage()
+class CMakeSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::Settings::TOOLS_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setDisplayCategory("CMake");
-    setCategory(Constants::Settings::CATEGORY);
-    setWidgetCreator([] { return new CMakeToolConfigWidget; });
+public:
+    CMakeSettingsPage()
+    {
+        setId(Constants::Settings::TOOLS_ID);
+        setDisplayName(Tr::tr("Tools"));
+        setDisplayCategory("CMake");
+        setCategory(Constants::Settings::CATEGORY);
+        setWidgetCreator([] { return new CMakeToolConfigWidget; });
+    }
+};
+
+void setupCMakeSettingsPage()
+{
+    static CMakeSettingsPage theCMakeSettingsPage;
 }
 
 } // CMakeProjectManager::Internal

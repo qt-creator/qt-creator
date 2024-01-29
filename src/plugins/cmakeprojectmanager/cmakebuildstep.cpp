@@ -803,11 +803,20 @@ void CMakeBuildStep::updateDeploymentData()
 
 // CMakeBuildStepFactory
 
-CMakeBuildStepFactory::CMakeBuildStepFactory()
+class CMakeBuildStepFactory final : public BuildStepFactory
 {
-    registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
-    setDisplayName(Tr::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
-    setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
+public:
+    CMakeBuildStepFactory()
+    {
+        registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
+        setDisplayName(Tr::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
+        setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
+    }
+};
+
+void setupCMakeBuildStep()
+{
+    static CMakeBuildStepFactory theCMakeBuildStepFactory;
 }
 
 } // CMakeProjectManager::Internal

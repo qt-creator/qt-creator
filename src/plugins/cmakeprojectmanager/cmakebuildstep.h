@@ -118,10 +118,6 @@ private:
     std::optional<QString> m_configuration;
 };
 
-class CMakeBuildStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    CMakeBuildStepFactory();
-};
+void setupCMakeBuildStep();
 
 } // CMakeProjectManager::Internal

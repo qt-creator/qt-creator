@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    CMakeEditorFactory();
-};
+void setupCMakeEditor();
 
 } // CMakeProjectManager::Internal

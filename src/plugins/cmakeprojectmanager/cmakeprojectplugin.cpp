@@ -52,11 +52,7 @@ public:
         Action::AlwaysEnabled/*handled manually*/
     };
 
-    CMakeSettingsPage settingsPage;
-
-    CMakeBuildStepFactory buildStepFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
-    CMakeEditorFactory editorFactor;
     CMakeInstallStepFactory installStepFactory;
     CMakeBuildTargetFilter cMakeBuildTargetFilter;
     CMakeOpenTargetFilter cMakeOpenTargetFilter;
@@ -77,6 +73,11 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupCMakeToolManager(this);
+
+        setupCMakeSettingsPage();
+        setupCMakeBuildStep();
+
+        setupCMakeEditor();
 
         d = new CMakeProjectPluginPrivate;
 

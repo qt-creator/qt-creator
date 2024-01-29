@@ -25,13 +25,12 @@
 
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/textutils.h>
 #include <utils/tooltip/tooltip.h>
-
-#include <QTextDocument>
 
 #include <functional>
 
@@ -501,38 +500,45 @@ void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPo
     setToolTip(m_helpToolTip);
 }
 
-//
 // CMakeEditorFactory
-//
 
-CMakeEditorFactory::CMakeEditorFactory()
+class CMakeEditorFactory final : public TextEditorFactory
 {
-    setId(Constants::CMAKE_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr("CMake Editor"));
-    addMimeType(Utils::Constants::CMAKE_MIMETYPE);
-    addMimeType(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
+public:
+    CMakeEditorFactory()
+    {
+        setId(Constants::CMAKE_EDITOR_ID);
+        setDisplayName(::Core::Tr::tr("CMake Editor"));
+        addMimeType(Utils::Constants::CMAKE_MIMETYPE);
+        addMimeType(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
-    setEditorCreator([] { return new CMakeEditor; });
-    setEditorWidgetCreator([] { return new CMakeEditorWidget; });
-    setDocumentCreator(createCMakeDocument);
-    setIndenterCreator(createCMakeIndenter);
-    setUseGenericHighlighter(true);
-    setCommentDefinition(Utils::CommentDefinition::HashStyle);
-    setCodeFoldingSupported(true);
+        setEditorCreator([] { return new CMakeEditor; });
+        setEditorWidgetCreator([] { return new CMakeEditorWidget; });
+        setDocumentCreator(createCMakeDocument);
+        setIndenterCreator(createCMakeIndenter);
+        setUseGenericHighlighter(true);
+        setCommentDefinition(Utils::CommentDefinition::HashStyle);
+        setCodeFoldingSupported(true);
 
-    setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
-    setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
+        setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
+        setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
-    setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::FollowSymbolUnderCursor
-                            | TextEditorActionHandler::Format);
+        setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
+                                | TextEditorActionHandler::FollowSymbolUnderCursor
+                                | TextEditorActionHandler::Format);
 
-    addHoverHandler(new CMakeHoverHandler);
+        addHoverHandler(new CMakeHoverHandler);
 
-    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
-    contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));
-    contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
-    contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
+        ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+        contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));
+        contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
+        contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
+    }
+};
+
+void setupCMakeEditor()
+{
+    static CMakeEditorFactory theCMakeEditorFactory;
 }
 
 } // CMakeProjectManager::Internal

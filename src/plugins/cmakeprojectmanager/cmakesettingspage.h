@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CMakeSettingsPage();
-};
+void setupCMakeSettingsPage();
 
 } // CMakeProjectManager::Internal
