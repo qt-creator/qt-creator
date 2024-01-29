@@ -17,8 +17,24 @@
 
 #include <utils/action.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
+
+class MesonActionsManager : public QObject
+{
+public:
+    MesonActionsManager();
+
+    Utils::Action buildTargetContextAction{
+        Tr::tr("Build"),
+        Tr::tr("Build \"%1\""),
+        Utils::Action::AlwaysEnabled /*handled manually*/
+    };
+    QAction configureActionMenu;
+    QAction configureActionContextMenu;
+
+    void configureCurrentProject();
+    void updateContextActions();
+};
 
 MesonActionsManager::MesonActionsManager()
     : configureActionMenu(Tr::tr("Configure"))
@@ -93,5 +109,9 @@ void MesonActionsManager::updateContextActions()
     buildTargetContextAction.setVisible(targetNode);
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+void setupMesonActions()
+{
+    static MesonActionsManager theMesonActionsManager;
+}
+
+} // MesonProjectManager::Internal

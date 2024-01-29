@@ -12,7 +12,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/fsengine/fileiconprovider.h>
@@ -22,28 +21,13 @@ using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-class MesonProjectPluginPrivate
-{
-public:
-    MesonActionsManager m_actions;
-};
-
 class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "MesonProjectManager.json")
 
-public:
-    ~MesonProjectPlugin() final
-    {
-        delete d;
-    }
-
-private:
     void initialize() final
     {
-        d = new MesonProjectPluginPrivate;
-
         setupToolsSettingsPage();
         setupToolsSettingsAccessor();
 
@@ -54,13 +38,13 @@ private:
         setupMesonRunConfiguration();
         setupMesonRunAndDebugWorkers();
 
+        setupMesonActions();
+
         ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
 
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
     }
-
-    class MesonProjectPluginPrivate *d = nullptr;
 };
 
 } // MesonProjectManager::Internal
