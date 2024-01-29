@@ -5,9 +5,14 @@
 
 #include "iostr.h"
 
+#include <QJsonArray>
 #include <QJsonDocument>
 
-Utils::expected_str<QJsonValue> Ios::Internal::parseDevicectlResult(const QByteArray &rawOutput)
+using namespace Utils;
+
+namespace Ios::Internal {
+
+expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
 {
     // there can be crap (progress info) at front and/or end
     const int firstCurly = rawOutput.indexOf('{');
@@ -18,7 +23,7 @@ Utils::expected_str<QJsonValue> Ios::Internal::parseDevicectlResult(const QByteA
     auto jsonOutput = QJsonDocument::fromJson(rawOutput.sliced(start, end - start + 1), &parseError);
     if (jsonOutput.isNull()) {
         // parse error
-        return Utils::make_unexpected(
+        return make_unexpected(
             Tr::tr("Failed to parse devicectl output: %1.").arg(parseError.errorString()));
     }
     const QJsonValue errorValue = jsonOutput["error"];
@@ -37,12 +42,45 @@ Utils::expected_str<QJsonValue> Ios::Internal::parseDevicectlResult(const QByteA
             if (!v.isUndefined())
                 error += "\n" + v.toString();
         }
-        return Utils::make_unexpected(error);
+        return make_unexpected(error);
     }
     const QJsonValue resultValue = jsonOutput["result"];
     if (resultValue.isUndefined()) {
-        return Utils::make_unexpected(
-            Tr::tr("Failed to parse devicectl output: 'result' is missing"));
+        return make_unexpected(Tr::tr("Failed to parse devicectl output: 'result' is missing"));
     }
     return resultValue;
 }
+
+expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
+                                                     const QString &deviceUsbId)
+{
+    const expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    // find device
+    const QJsonArray deviceList = (*result)["devices"].toArray();
+    for (const QJsonValue &device : deviceList) {
+        const QString udid = device["hardwareProperties"]["udid"].toString();
+        // USB identifiers don't have dashes, but iOS device udids can. Remove.
+        if (QString(udid).remove('-') == deviceUsbId) {
+            // fill in the map that we use for the iostool data
+            QMap<QString, QString> info;
+            info[kDeviceName] = device["deviceProperties"]["name"].toString();
+            info[kDeveloperStatus] = QLatin1String(
+                device["deviceProperties"]["developerModeStatus"] == "enabled" ? vDevelopment
+                                                                               : vOff);
+            info[kDeviceConnected] = vYes; // that's the assumption
+            info[kOsVersion] = QLatin1String("%1 (%2)")
+                                   .arg(device["deviceProperties"]["osVersionNumber"].toString(),
+                                        device["deviceProperties"]["osBuildUpdate"].toString());
+            info[kCpuArchitecture] = device["hardwareProperties"]["cpuType"]["name"].toString();
+            info[kUniqueDeviceId] = udid;
+            return info;
+        }
+    }
+    // device not found, not handled by devicectl
+    // not translated, only internal logging
+    return make_unexpected(QLatin1String("Device is not handled by devicectl"));
+}
+
+} // namespace Ios::Internal

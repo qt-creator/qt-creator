@@ -14,6 +14,9 @@ class tst_Devicectlutils : public QObject
 private slots:
     void parseError_data();
     void parseError();
+
+    void parseDeviceInfo_data();
+    void parseDeviceInfo();
 };
 
 void tst_Devicectlutils::parseError_data()
@@ -146,6 +149,156 @@ void tst_Devicectlutils::parseError()
     const Utils::expected_str<QJsonValue> result = parseDevicectlResult(data);
     if (error.isEmpty()) {
         QVERIFY(result);
+    } else {
+        QVERIFY(!result);
+        QCOMPARE(result.error(), error);
+    }
+}
+
+void tst_Devicectlutils::parseDeviceInfo_data()
+{
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QString>("usbId");
+    QTest::addColumn<QString>("error");
+    QTest::addColumn<QMap<QString, QString>>("info");
+
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "list",
+      "devices",
+      "--quiet",
+      "--json-output",
+      "-"
+    ],
+    "commandType" : "devicectl.list.devices",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "355.7.7"
+  },
+  "result" : {
+    "devices" : [
+      {
+        "capabilities" : [
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.connectdevice",
+            "name" : "Connect to Device"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.acquireusageassertion",
+            "name" : "Acquire Usage Assertion"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.unpairdevice",
+            "name" : "Unpair Device"
+          }
+        ],
+        "connectionProperties" : {
+          "authenticationType" : "manualPairing",
+          "isMobileDeviceOnly" : false,
+          "lastConnectionDate" : "2024-01-29T08:49:25.179Z",
+          "pairingState" : "paired",
+          "potentialHostnames" : [
+            "00000000-0000000000000000.coredevice.local",
+            "00000000-0000-0000-0000-000000000000.coredevice.local"
+          ],
+          "transportType" : "wired",
+          "tunnelState" : "disconnected",
+          "tunnelTransportProtocol" : "tcp"
+        },
+        "deviceProperties" : {
+          "bootedFromSnapshot" : true,
+          "bootedSnapshotName" : "com.apple.os.update-0000",
+          "ddiServicesAvailable" : false,
+          "developerModeStatus" : "enabled",
+          "hasInternalOSBuild" : false,
+          "name" : "Some iOS device",
+          "osBuildUpdate" : "21D50",
+          "osVersionNumber" : "17.3",
+          "rootFileSystemIsWritable" : false
+        },
+        "hardwareProperties" : {
+          "cpuType" : {
+            "name" : "arm64e",
+            "subType" : 2,
+            "type" : 16777228
+          },
+          "deviceType" : "iPad",
+          "ecid" : 0,
+          "hardwareModel" : "J211AP",
+          "internalStorageCapacity" : 64000000000,
+          "isProductionFused" : true,
+          "marketingName" : "iPad mini (5th generation)",
+          "platform" : "iOS",
+          "productType" : "iPad11,2",
+          "reality" : "physical",
+          "serialNumber" : "000000000000",
+          "supportedCPUTypes" : [
+            {
+              "name" : "arm64e",
+              "subType" : 2,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 0,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 1,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64_32",
+              "subType" : 1,
+              "type" : 33554444
+            }
+          ],
+          "supportedDeviceFamilies" : [
+            1,
+            2
+          ],
+          "thinningProductType" : "iPad11,2",
+          "udid" : "00000000-0000000000000000"
+        },
+        "identifier" : "00000000-0000-0000-0000-000000000000",
+        "visibilityClass" : "default"
+      }
+    ]
+  }
+})raw");
+
+    QTest::addRow("handled device")
+        << data << QString("000000000000000000000000") << QString()
+        << QMap<QString, QString>({{"cpuArchitecture", "arm64e"},
+                                   {"developerStatus", "Development"},
+                                   {"deviceConnected", "YES"},
+                                   {"deviceName", "Some iOS device"},
+                                   {"osVersion", "17.3 (21D50)"},
+                                   {"uniqueDeviceId", "00000000-0000000000000000"}});
+    QTest::addRow("unhandled device")
+        << data << QString("000000000000000000000001")
+        << QString("Device is not handled by devicectl") << QMap<QString, QString>({});
+}
+
+void tst_Devicectlutils::parseDeviceInfo()
+{
+    using InfoMap = QMap<QString, QString>;
+    QFETCH(QByteArray, data);
+    QFETCH(QString, usbId);
+    QFETCH(QString, error);
+    QFETCH(InfoMap, info);
+
+    const Utils::expected_str<InfoMap> result = Ios::Internal::parseDeviceInfo(data, usbId);
+    if (error.isEmpty()) {
+        QVERIFY(result);
+        QCOMPARE(*result, info);
     } else {
         QVERIFY(!result);
         QCOMPARE(result.error(), error);

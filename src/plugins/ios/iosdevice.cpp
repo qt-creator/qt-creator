@@ -3,6 +3,7 @@
 
 #include "iosdevice.h"
 
+#include "devicectlutils.h"
 #include "iosconfigurations.h"
 #include "iosconstants.h"
 #include "iossimulator.h"
@@ -74,16 +75,6 @@ static QString CFStringRef2QString(CFStringRef s)
 #endif
 
 namespace Ios::Internal {
-
-const char kDeviceName[] = "deviceName";
-const char kDeveloperStatus[] = "developerStatus";
-const char kDeviceConnected[] = "deviceConnected";
-const char kOsVersion[] = "osVersion";
-const char kCpuArchitecture[] = "cpuArchitecture";
-const char kUniqueDeviceId[] = "uniqueDeviceId";
-const char vOff[] = "*off*";
-const char vDevelopment[] = "Development";
-const char vYes[] = "YES";
 
 const char kHandler[] = "Handler";
 
@@ -283,34 +274,14 @@ void IosDeviceManager::updateInfo(const QString &devId)
                                 {"devicectl", "list", "devices", "--quiet", "--json-output", "-"}});
         },
         [this, devId](const Process &process) {
-            auto jsonOutput = QJsonDocument::fromJson(process.rawStdOut());
-            // find device
-            const QJsonArray deviceList = jsonOutput["result"]["devices"].toArray();
-            for (const QJsonValue &device : deviceList) {
-                const QString udid = device["hardwareProperties"]["udid"].toString();
-                // USB identifiers don't have dashes, but iOS device udids can. Remove.
-                if (QString(udid).remove('-') == devId) {
-                    // fill in the map that we use for the iostool data
-                    QMap<QString, QString> info;
-                    info[kDeviceName] = device["deviceProperties"]["name"].toString();
-                    info[kDeveloperStatus] = QLatin1String(
-                        device["deviceProperties"]["developerModeStatus"] == "enabled"
-                            ? vDevelopment
-                            : vOff);
-                    info[kDeviceConnected] = vYes; // that's the assumption
-                    info[kOsVersion]
-                        = QLatin1String("%1 (%2)")
-                              .arg(device["deviceProperties"]["osVersionNumber"].toString(),
-                                   device["deviceProperties"]["osBuildUpdate"].toString());
-                    info[kCpuArchitecture]
-                        = device["hardwareProperties"]["cpuType"]["name"].toString();
-                    info[kUniqueDeviceId] = udid;
-                    deviceInfo(devId, IosDevice::Handler::DeviceCtl, info);
-                    return DoneResult::Success;
-                }
+            const expected_str<QMap<QString, QString>> result = parseDeviceInfo(process.rawStdOut(),
+                                                                                devId);
+            if (!result) {
+                qCDebug(detectLog) << result.error();
+                return DoneResult::Error;
             }
-            // device not found, not handled by devicectl
-            return DoneResult::Error;
+            deviceInfo(devId, IosDevice::Handler::DeviceCtl, *result);
+            return DoneResult::Success;
         },
         CallDoneIf::Success);
 

@@ -9,6 +9,18 @@
 
 namespace Ios::Internal {
 
+const char kDeviceName[] = "deviceName";
+const char kDeveloperStatus[] = "developerStatus";
+const char kDeviceConnected[] = "deviceConnected";
+const char kOsVersion[] = "osVersion";
+const char kCpuArchitecture[] = "cpuArchitecture";
+const char kUniqueDeviceId[] = "uniqueDeviceId";
+const char vOff[] = "*off*";
+const char vDevelopment[] = "Development";
+const char vYes[] = "YES";
+
 Utils::expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
+Utils::expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
+                                                            const QString &deviceUsbId);
 
 } // namespace Ios::Internal
