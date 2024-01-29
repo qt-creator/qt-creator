@@ -45,12 +45,14 @@ namespace CMakeProjectManager::Internal {
 // CMakeEditor
 //
 
-class CMakeEditor : public TextEditor::BaseTextEditor
+class CMakeEditor final : public BaseTextEditor
 {
-    CMakeKeywords m_keywords;
 public:
     CMakeEditor();
     void contextHelp(const HelpCallback &callback) const final;
+
+private:
+    CMakeKeywords m_keywords;
 };
 
 CMakeEditor::CMakeEditor()
@@ -86,7 +88,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
         return "unknown/";
     };
 
-    const QString word = Utils::Text::wordUnderCursor(editorWidget()->textCursor());
+    const QString word = Text::wordUnderCursor(editorWidget()->textCursor());
     const QString id = helpPrefix(word) + word;
     if (id.startsWith("unknown/")) {
         BaseTextEditor::contextHelp(callback);
@@ -107,10 +109,10 @@ public:
 
 private:
     void findLinkAt(const QTextCursor &cursor,
-                    const Utils::LinkHandler &processLinkCallback,
+                    const LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
-                    bool inNextSplit = false) override;
-    void contextMenuEvent(QContextMenuEvent *e) override;
+                    bool inNextSplit = false) final;
+    void contextMenuEvent(QContextMenuEvent *e) final;
 };
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -163,7 +165,8 @@ static bool isValidIdentifierChar(const QChar &chr)
     return chr.isLetterOrNumber() || chr == '_' || chr == '-';
 }
 
-QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath, QString &projectName)
+static QHash<QString, Link> getLocalSymbolsHash(const QByteArray &content,
+                                                const FilePath &filePath, QString &projectName)
 {
     cmListFile cmakeListFile;
     if (!content.isEmpty()) {
@@ -173,7 +176,7 @@ QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const
             return {};
     }
 
-    QHash<QString, Utils::Link> hash;
+    QHash<QString, Link> hash;
     for (const auto &func : cmakeListFile.Functions) {
         if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
             projectName = QString::fromUtf8(func.Arguments()[0].Value);
@@ -188,7 +191,7 @@ QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const
             continue;
         auto arg = func.Arguments()[0];
 
-        Utils::Link link;
+        Link link;
         link.targetFilePath = filePath;
         link.targetLine = arg.Line;
         link.targetColumn = arg.Column - 1;
@@ -198,11 +201,11 @@ QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const
 }
 
 void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                   const Utils::LinkHandler &processLinkCallback,
+                                   const LinkHandler &processLinkCallback,
                                    bool/* resolveTarget*/,
                                    bool /*inNextSplit*/)
 {
-    Utils::Link link;
+    Link link;
 
     int line = 0;
     int column = 0;
@@ -212,7 +215,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     int beginPos = 0;
     int endPos = 0;
-    auto addTextStartEndToLink = [&](Utils::Link &link) {
+    auto addTextStartEndToLink = [&](Link &link) {
         link.linkTextStart = cursor.position() - column + beginPos + 1;
         link.linkTextEnd = cursor.position() - column + endPos;
         return link;
@@ -277,7 +280,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (buffer.isEmpty())
         return processLinkCallback(link);
 
-    const Utils::FilePath dir = textDocument()->filePath().absolutePath();
+    const FilePath dir = textDocument()->filePath().absolutePath();
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
 
@@ -365,7 +368,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                     struct FunctionToHash
                     {
                         QString functionName;
-                        const QHash<QString, Utils::Link> &hash;
+                        const QHash<QString, Link> &hash;
                     } functionToHashes[] = {{"include", cbs->dotCMakeFilesHash()},
                                             {"find_package", cbs->findPackagesFilesHash()}};
 
@@ -392,12 +395,12 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
         return processLinkCallback(link);
     }
 
-    Utils::FilePath fileName = dir.withNewPath(unescape(buffer));
+    FilePath fileName = dir.withNewPath(unescape(buffer));
     if (fileName.isRelativePath())
         fileName = dir.pathAppended(fileName.path());
     if (fileName.exists()) {
         if (fileName.isDir()) {
-            Utils::FilePath subProject = fileName.pathAppended(Constants::CMAKE_LISTS_TXT);
+            FilePath subProject = fileName.pathAppended(Constants::CMAKE_LISTS_TXT);
             if (subProject.exists())
                 fileName = subProject;
             else
@@ -422,7 +425,7 @@ static TextDocument *createCMakeDocument()
 // CMakeHoverHandler
 //
 
-class CMakeHoverHandler : public TextEditor::BaseHoverHandler
+class CMakeHoverHandler final : public TextEditor::BaseHoverHandler
 {
     mutable CMakeKeywords m_keywords;
     QString m_helpToolTip;
@@ -431,7 +434,7 @@ class CMakeHoverHandler : public TextEditor::BaseHoverHandler
 public:
     const CMakeKeywords &keywords() const;
 
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+    void identifyMatch(TextEditorWidget *editorWidget,
                        int pos,
                        ReportPriority report) final;
     void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
@@ -446,7 +449,7 @@ const CMakeKeywords &CMakeHoverHandler::keywords() const
     return m_keywords;
 }
 
-void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+void CMakeHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                       int pos,
                                       ReportPriority report)
 {
@@ -454,13 +457,13 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
 
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(pos);
-    const QString word = Utils::Text::wordUnderCursor(cursor);
+    const QString word = Text::wordUnderCursor(cursor);
 
     FilePath helpFile;
     QString helpCategory;
     struct
     {
-        const QMap<QString, Utils::FilePath> &map;
+        const QMap<QString, FilePath> &map;
         QString helpCategory;
     } keywordsListMaps[] = {{keywords().functions, "command"},
                             {keywords().variables, "variable"},
@@ -494,9 +497,9 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
 void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     if (!m_helpToolTip.isEmpty() && toolTip() != m_helpToolTip)
-        Utils::ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget, m_contextHelp);
+        ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget, m_contextHelp);
     else if (m_helpToolTip.isEmpty())
-        Utils::ToolTip::hide();
+        ToolTip::hide();
     setToolTip(m_helpToolTip);
 }
 
@@ -517,7 +520,7 @@ public:
         setDocumentCreator(createCMakeDocument);
         setIndenterCreator(createCMakeIndenter);
         setUseGenericHighlighter(true);
-        setCommentDefinition(Utils::CommentDefinition::HashStyle);
+        setCommentDefinition(CommentDefinition::HashStyle);
         setCodeFoldingSupported(true);
 
         setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
