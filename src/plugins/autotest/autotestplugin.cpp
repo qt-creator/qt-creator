@@ -161,16 +161,19 @@ TestProjectSettings *projectSettings(ProjectExplorer::Project *project)
 
 void AutotestPluginPrivate::initializeMenuEntries()
 {
-    ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(Tr::tr("&Tests"));
-    menu->setOnAllDisabledBehavior(ActionContainer::Show);
+    const Id menuId = Constants::MENU_ID;
+
+    MenuBuilder(menuId)
+        .setTitle(Tr::tr("&Tests"))
+        .setOnAllDisabledBehavior(ActionContainer::Show)
+        .addToContainer(Core::Constants::M_TOOLS);
 
     ActionBuilder(this, Constants::ACTION_RUN_ALL_ID)
         .setText(Tr::tr("Run &All Tests"))
         .setIcon(Utils::Icons::RUN_SMALL.icon())
         .setToolTip(Tr::tr("Run All Tests"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A"), Tr::tr("Alt+Shift+T,Alt+A"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
 
@@ -179,7 +182,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setIcon(Utils::Icons::RUN_SMALL.icon())
         .setToolTip(Tr::tr("Run All Tests Without Deployment"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E"), Tr::tr("Alt+Shift+T,Alt+E"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
 
@@ -188,7 +191,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setIcon(Utils::Icons::RUN_SELECTED.icon())
         .setToolTip(Tr::tr("Run Selected Tests"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R"), Tr::tr("Alt+Shift+T,Alt+R"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
 
@@ -197,7 +200,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setIcon(Utils::Icons::RUN_SELECTED.icon())
         .setToolTip(Tr::tr("Run Selected Tests Without Deployment"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W"), Tr::tr("Alt+Shift+T,Alt+W"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
 
@@ -206,7 +209,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setIcon(Icons::RUN_FAILED.icon())
         .setToolTip(Tr::tr("Run Failed Tests"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F"), Tr::tr("Alt+Shift+T,Alt+F"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunFailedTriggered(); });
 
@@ -215,7 +218,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setIcon(Utils::Icons::RUN_FILE.icon())
         .setToolTip(Tr::tr("Run Tests for Current File"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C"), Tr::tr("Alt+Shift+T,Alt+C"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .setEnabled(false)
         .addOnTriggered(this, [this] { onRunFileTriggered(); });
 
@@ -224,13 +227,13 @@ void AutotestPluginPrivate::initializeMenuEntries()
         .setToolTip(Tr::tr("Disable scanning and other actions until explicitly rescanning, "
                            "re-enabling, or restarting Qt Creator."))
         .setCheckable(true)
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .addOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
 
     ActionBuilder(this, Constants::ACTION_SCAN_ID)
         .setText(Tr::tr("Re&scan Tests"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S"), Tr::tr("Alt+Shift+T,Alt+S"))
-        .addToContainer(Constants::MENU_ID)
+        .addToContainer(menuId)
         .addOnTriggered(this, [] {
             if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
                 dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
@@ -238,8 +241,6 @@ void AutotestPluginPrivate::initializeMenuEntries()
                 dd->m_testCodeParser.updateTestTree();
         });
 
-    ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    toolsMenu->addMenu(menu);
     using namespace ProjectExplorer;
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &updateMenuItemsEnabledState);

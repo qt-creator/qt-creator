@@ -432,6 +432,40 @@ void Menu::addSeparator()
     m_menu->addSeparator();
 }
 
+// MenuBuilder
+
+MenuBuilder::MenuBuilder(Id id)
+{
+    m_menu = ActionManager::createMenu(id);
+}
+
+MenuBuilder::~MenuBuilder() = default;
+
+MenuBuilder &MenuBuilder::setTitle(const QString &title)
+{
+    m_menu->menu()->setTitle(title);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior)
+{
+    m_menu->setOnAllDisabledBehavior(behavior);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::addToContainer(Id containerId, Id groupId)
+{
+    ActionContainer *container = ActionManager::actionContainer(containerId);
+    if (QTC_GUARD(container))
+        container->addMenu(m_menu, groupId);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::addSeparator()
+{
+    m_menu->addSeparator();
+    return *this;
+}
 /*!
     \class Core::ActionManager
     \inheaderfile coreplugin/actionmanager/actionmanager.h
