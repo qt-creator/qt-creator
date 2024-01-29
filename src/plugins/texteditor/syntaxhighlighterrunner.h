@@ -24,11 +24,12 @@ class TEXTEDITOR_EXPORT SyntaxHighlighterRunner : public QObject
 public:
     using SyntaxHighlighterCreator = std::function<SyntaxHighlighter *()>;
 
-    SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
-                            QTextDocument *document,
-                            bool async,
-                            const TextEditor::FontSettings &fontSettings
-                            = TextEditorSettings::fontSettings());
+    SyntaxHighlighterRunner(
+        SyntaxHighlighterCreator creator,
+        QTextDocument *document,
+        bool async,
+        const QString &mimeType,
+        const TextEditor::FontSettings &fontSettings = TextEditorSettings::fontSettings());
     virtual ~SyntaxHighlighterRunner();
 
     void setExtraFormats(const QMap<int, QList<QTextLayout::FormatRange>> &formats);

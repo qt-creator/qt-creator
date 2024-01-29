@@ -60,7 +60,7 @@ Last)";
     doc->setPlainText(text);
 
     highlighterRunner = new SyntaxHighlighterRunner(
-        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, false, fontsettings);
+        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, false, {}, fontsettings);
 }
 
 static const HighlightingResults &highlightingResults()

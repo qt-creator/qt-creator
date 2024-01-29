@@ -44,6 +44,9 @@ public:
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
 
+    void setMimeType(const QString &mimeType);
+    QString mimeType() const;
+
     static QList<QColor> generateColors(int n, const QColor &background);
 
     // Don't call in constructors of derived classes

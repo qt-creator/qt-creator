@@ -30,6 +30,7 @@ public:
     SyntaxHighlighterRunnerPrivate(SyntaxHighlighterRunner::SyntaxHighlighterCreator creator,
                                    QTextDocument *document,
                                    bool async,
+                                   const QString &mimeType,
                                    FontSettings fontSettings)
     {
         if (async) {
@@ -42,6 +43,7 @@ public:
         m_highlighter.reset(creator());
         m_highlighter->setFontSettings(fontSettings);
         m_highlighter->setDocument(m_document);
+        m_highlighter->setMimeType(mimeType);
         m_highlighter->setParent(m_document);
 
         connect(m_highlighter.get(),
@@ -111,8 +113,9 @@ signals:
 SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
                                                  QTextDocument *document,
                                                  bool async,
+                                                 const QString &mimeType,
                                                  const TextEditor::FontSettings &fontSettings)
-    : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, fontSettings))
+    : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, mimeType, fontSettings))
     , m_document(document)
 {
     m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter.get());
