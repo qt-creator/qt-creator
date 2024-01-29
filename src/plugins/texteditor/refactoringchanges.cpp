@@ -202,6 +202,7 @@ void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
         return;
 
     m_changes = changeSet;
+    m_formattingCursors.clear();
 }
 
 void RefactoringFile::setOpenEditor(bool activate, int pos)
@@ -365,8 +366,11 @@ void RefactoringFile::doFormatting()
         QTextBlock b = firstBlock;
         while (true) {
             QTC_ASSERT(b.isValid(), break);
-            if (b.text().simplified().isEmpty())
-                QTextCursor(b).insertText(clangFormatLineRemovalBlocker);
+            if (b.text().simplified().isEmpty()) {
+                QTextCursor c(b);
+                c.movePosition(QTextCursor::EndOfBlock);
+                c.insertText(clangFormatLineRemovalBlocker);
+            }
             if (b == lastBlock)
                 break;
             b = b.next();
