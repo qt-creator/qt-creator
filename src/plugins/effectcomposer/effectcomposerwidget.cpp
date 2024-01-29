@@ -16,6 +16,8 @@
 #include "theme.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
@@ -107,6 +109,23 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
         m_importScan.path = path;
 
         m_importScan.timer->start(100);
+    });
+
+    connect(m_effectComposerModel.data(), &EffectComposerModel::hasUnsavedChangesChanged,
+            this, [this]() {
+        if (m_effectComposerModel->hasUnsavedChanges() && !m_effectComposerModel->currentComposition().isEmpty()) {
+            if (auto doc = QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument())
+                doc->setModified();
+        }
+    });
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave,
+            this, [this](Core::IDocument *document) {
+        if (m_effectComposerModel->hasUnsavedChanges()) {
+            QString compName = m_effectComposerModel->currentComposition();
+            if (!compName.isEmpty())
+                m_effectComposerModel->saveComposition(compName);
+        }
     });
 }
 

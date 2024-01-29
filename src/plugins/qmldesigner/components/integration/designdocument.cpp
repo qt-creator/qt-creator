@@ -427,6 +427,12 @@ bool DesignDocument::hasProject() const
     return !DocumentManager::currentProjectDirPath().isEmpty();
 }
 
+void DesignDocument::setModified()
+{
+    if (!m_documentTextModifier.isNull())
+        m_documentTextModifier->textDocument()->setModified(true);
+}
+
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
     m_inFileComponentTextModifier.reset(textModifer);

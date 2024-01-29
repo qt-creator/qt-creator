@@ -89,6 +89,8 @@ public:
     Utils::FilePath projectFolder() const;
     bool hasProject() const;
 
+    void setModified();
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
