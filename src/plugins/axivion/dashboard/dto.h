@@ -48,9 +48,7 @@ namespace Axivion::Internal::Dto
     std::optional<O> optionalTransform(const std::optional<I> &input, const std::function<O(const I&)> &transformer)
     {
         if (input.has_value())
-        {
             return transformer(*input);
-        }
         return std::nullopt;
     }
 
@@ -256,6 +254,54 @@ namespace Axivion::Internal::Dto
     };
 
     /**
+     * The type of the column values.
+     * 
+     * <p>The column type.
+     * 
+     * <p>Possible values:
+     * * `string` - a unicode string or ``null``
+     * * `number` - either ``null`` or ``&quot;Infinity&quot;`` or ``&quot;-Infinity&quot;`` or ``&quot;NaN&quot;`` (string!) or a decimal number with base 10.
+     * * `state` - The fields are strings. Possible values are defined via ``typeOptions``.
+     * * `boolean` - The fields are boolean values, either ``false`` or ``true``. Has ``typeOptions``.
+     * * `path` - **Since 6.4.1** similar to ``string`` or ``null``, however they are normalized (guaranteed single-slash separators) for easy parsing as path
+     * * `tags` - **Since 6.5.0** an array of :json:object:`IssueTag`
+     * * `comments` - **Since 6.9.0** array of :json:object:`IssueComment`
+     * * `owners` - **Since 7.0.0** array of :json:object:`UserRef`
+     */
+    enum class ColumnType
+    {
+        string,
+        number,
+        state,
+        boolean,
+        path,
+        tags,
+        comments,
+        owners
+    };
+
+    class ColumnTypeMeta final
+    {
+    public:
+        static const QLatin1String string;
+        static const QLatin1String number;
+        static const QLatin1String state;
+        static const QLatin1String boolean;
+        static const QLatin1String path;
+        static const QLatin1String tags;
+        static const QLatin1String comments;
+        static const QLatin1String owners;
+
+        // Throws std::range_error
+        static ColumnType strToEnum(QAnyStringView str);
+
+        static QLatin1String enumToStr(ColumnType e);
+
+        ColumnTypeMeta() = delete;
+        ~ColumnTypeMeta() = delete;
+    };
+
+    /**
      * Additional TypeInfo of a ColumnType
      */
     class ColumnTypeOptionDto : public Serializable
@@ -320,7 +366,7 @@ namespace Axivion::Internal::Dto
     /**
      * CSRF token
      * 
-     * @since 7.7.0
+     * @since 7.6.6
      */
     class CsrfTokenDto : public Serializable
     {
@@ -1421,6 +1467,8 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         ApiTokenType getTypeEnum() const;
 
+        std::optional<ApiTokenType> getOptionalTypeEnum() const;
+
         void setTypeEnum(ApiTokenType newValue);
 
         QByteArray serialize() const override;
@@ -1555,6 +1603,8 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         ApiTokenType getTypeEnum() const;
 
+        std::optional<ApiTokenType> getOptionalTypeEnum() const;
+
         void setTypeEnum(ApiTokenType newValue);
 
         QByteArray serialize() const override;
@@ -1597,6 +1647,8 @@ namespace Axivion::Internal::Dto
         QString alignment;
 
         /**
+         * The type of the column values.
+         * 
          * <p>The column type.
          * 
          * <p>Possible values:
@@ -1660,7 +1712,7 @@ namespace Axivion::Internal::Dto
             bool canSort,
             bool canFilter,
             TableCellAlignment alignment,
-            QString type,
+            ColumnType type,
             std::optional<std::vector<ColumnTypeOptionDto>> typeOptions,
             qint32 width,
             bool showByDefault,
@@ -1670,7 +1722,16 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         TableCellAlignment getAlignmentEnum() const;
 
+        std::optional<TableCellAlignment> getOptionalAlignmentEnum() const;
+
         void setAlignmentEnum(TableCellAlignment newValue);
+
+            // Throws std::range_error
+        ColumnType getTypeEnum() const;
+
+        std::optional<ColumnType> getOptionalTypeEnum() const;
+
+        void setTypeEnum(ColumnType newValue);
 
         QByteArray serialize() const override;
     };
@@ -1726,7 +1787,7 @@ namespace Axivion::Internal::Dto
         /**
          * <p>The HTTP-Request Header expected present for all HTTP requests that are not GET, HEAD, OPTIONS or TRACE.
          * 
-         * <p>Deprecated since 7.7.0: the header name is always ``AX-CSRF-Token``.
+         * <p>Deprecated since 7.6.6: the header name is always ``AX-CSRF-Token``.
          * 
          * @deprecated
          */
@@ -1791,7 +1852,7 @@ namespace Axivion::Internal::Dto
         /**
          * <p>Endoint for creating new CSRF tokens.
          * 
-         * @since 7.7.0
+         * @since 7.6.6
          */
         std::optional<QString> csrfTokenUrl;
 
@@ -1882,6 +1943,8 @@ namespace Axivion::Internal::Dto
 
         // Throws std::range_error
         IssueKind getPrefixEnum() const;
+
+        std::optional<IssueKind> getOptionalPrefixEnum() const;
 
         void setPrefixEnum(IssueKind newValue);
 
@@ -2020,6 +2083,8 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         IssueKind getKindEnum() const;
 
+        std::optional<IssueKind> getOptionalKindEnum() const;
+
         void setKindEnum(IssueKind newValue);
 
         QByteArray serialize() const override;
@@ -2040,30 +2105,32 @@ namespace Axivion::Internal::Dto
          * 
          * <p>The log-level of the message.
          */
-        std::optional<QString> severity;
+        QString severity;
 
         /**
          * <p>the log-message. It may contain new-lines.
          */
-        std::optional<QString> message;
+        QString message;
 
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static RepositoryUpdateMessageDto deserialize(const QByteArray &json);
 
         RepositoryUpdateMessageDto(
-            std::optional<QString> severity,
-            std::optional<QString> message
+            QString severity,
+            QString message
         );
 
         RepositoryUpdateMessageDto(
-            std::optional<MessageSeverity> severity,
-            std::optional<QString> message
+            MessageSeverity severity,
+            QString message
         );
 
         // Throws std::range_error
-        std::optional<MessageSeverity> getSeverityEnum() const;
+        MessageSeverity getSeverityEnum() const;
 
-        void setSeverityEnum(std::optional<MessageSeverity> newValue);
+        std::optional<MessageSeverity> getOptionalSeverityEnum() const;
+
+        void setSeverityEnum(MessageSeverity newValue);
 
         QByteArray serialize() const override;
     };
@@ -2125,6 +2192,8 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         SortDirection getDirectionEnum() const;
 
+        std::optional<SortDirection> getOptionalDirectionEnum() const;
+
         void setDirectionEnum(SortDirection newValue);
 
         QByteArray serialize() const override;
@@ -2176,14 +2245,16 @@ namespace Axivion::Internal::Dto
         UserRefDto(
             QString name,
             QString displayName,
-            std::optional<UserRefType> type,
+            UserRefType type,
             std::optional<bool> isPublic
         );
 
         // Throws std::range_error
-        std::optional<UserRefType> getTypeEnum() const;
+        UserRefType getTypeEnum() const;
 
-        void setTypeEnum(std::optional<UserRefType> newValue);
+        std::optional<UserRefType> getOptionalTypeEnum() const;
+
+        void setTypeEnum(UserRefType newValue);
 
         QByteArray serialize() const override;
     };
@@ -2369,6 +2440,8 @@ namespace Axivion::Internal::Dto
 
         // Throws std::range_error
         IssueKind getKindEnum() const;
+
+        std::optional<IssueKind> getOptionalKindEnum() const;
 
         void setKindEnum(IssueKind newValue);
 
@@ -2658,6 +2731,8 @@ namespace Axivion::Internal::Dto
         // Throws std::range_error
         IssueKindForNamedFilterCreation getKindEnum() const;
 
+        std::optional<IssueKindForNamedFilterCreation> getOptionalKindEnum() const;
+
         void setKindEnum(IssueKindForNamedFilterCreation newValue);
 
         QByteArray serialize() const override;
@@ -2778,7 +2853,7 @@ namespace Axivion::Internal::Dto
             QString displayName,
             std::optional<QString> url,
             bool isPredefined,
-            std::optional<NamedFilterType> type,
+            NamedFilterType type,
             bool canWrite,
             std::map<QString, QString> filters,
             std::optional<std::vector<SortInfoDto>> sorters,
@@ -2788,9 +2863,11 @@ namespace Axivion::Internal::Dto
         );
 
         // Throws std::range_error
-        std::optional<NamedFilterType> getTypeEnum() const;
+        NamedFilterType getTypeEnum() const;
 
-        void setTypeEnum(std::optional<NamedFilterType> newValue);
+        std::optional<NamedFilterType> getOptionalTypeEnum() const;
+
+        void setTypeEnum(NamedFilterType newValue);
 
         QByteArray serialize() const override;
     };
