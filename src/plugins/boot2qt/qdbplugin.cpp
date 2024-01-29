@@ -128,8 +128,6 @@ class QdbPluginPrivate final : public QObject
 public:
     void setupDeviceDetection() { m_deviceDetector.start(); }
 
-    QdbLinuxDeviceFactory m_qdbDeviceFactory;
-    QdbQtVersionFactory m_qtVersionFactory;
     QdbDeployConfigurationFactory m_deployConfigFactory;
     QdbRunConfigurationFactory m_runConfigFactory;
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
@@ -163,6 +161,9 @@ public:
 private:
     void initialize() final
     {
+        setupQdbLinuxDevice();
+        setupQdbQtVersion();
+
         d = new QdbPluginPrivate;
 
         registerFlashAction(this);

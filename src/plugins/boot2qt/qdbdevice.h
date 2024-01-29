@@ -35,10 +35,6 @@ private:
     QString m_serialNumber;
 };
 
-class QdbLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    QdbLinuxDeviceFactory();
-};
+void setupQdbLinuxDevice();
 
 } // Qdb::Internal

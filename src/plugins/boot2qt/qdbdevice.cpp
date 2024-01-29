@@ -243,21 +243,30 @@ private:
 
 // Device factory
 
-QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
-    : IDeviceFactory(Constants::QdbLinuxOsType)
+class QdbLinuxDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("Boot2Qt Device"));
-    setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
-    setQuickCreationAllowed(true);
-    setConstructionFunction(&QdbDevice::create);
-    setCreator([] {
-        QdbDeviceWizard wizard(Core::ICore::dialogParent());
-        if (!creatorTheme()->preferredStyles().isEmpty())
-            wizard.setWizardStyle(QWizard::ModernStyle);
-        if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
-    });
+public:
+    QdbLinuxDeviceFactory()
+        : IDeviceFactory(Constants::QdbLinuxOsType)
+    {
+        setDisplayName(Tr::tr("Boot2Qt Device"));
+        setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
+        setQuickCreationAllowed(true);
+        setConstructionFunction(&QdbDevice::create);
+        setCreator([] {
+            QdbDeviceWizard wizard(Core::ICore::dialogParent());
+            if (!creatorTheme()->preferredStyles().isEmpty())
+                wizard.setWizardStyle(QWizard::ModernStyle);
+            if (wizard.exec() != QDialog::Accepted)
+                return IDevice::Ptr();
+            return wizard.device();
+        });
+    }
+};
+
+void setupQdbLinuxDevice()
+{
+    static QdbLinuxDeviceFactory theQdbLinuxSeviceFactory;
 }
 
 } // Qdb::Internal
