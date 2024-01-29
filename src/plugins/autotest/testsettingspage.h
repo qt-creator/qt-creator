@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace Autotest::Internal {
 
-class TestSettingsPage : public Core::IOptionsPage
-{
-public:
-    TestSettingsPage();
-};
+void setupTestSettingsPage();
 
 } // Autotest::Internal

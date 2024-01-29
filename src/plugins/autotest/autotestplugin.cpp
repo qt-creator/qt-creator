@@ -94,8 +94,6 @@ public:
     void onRunUnderCursorTriggered(TestRunMode mode);
     void onDisableTemporarily(bool disable);
 
-    TestSettingsPage m_testSettingPage;
-
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
     TestRunner m_testRunner;
@@ -506,6 +504,8 @@ public:
 
     void initialize() final
     {
+        setupTestSettingsPage();
+
         dd = new AutotestPluginPrivate;
     #ifdef WITH_TESTS
         ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",

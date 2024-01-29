@@ -10,6 +10,8 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/infolabel.h>
@@ -253,14 +255,23 @@ void TestSettingsWidget::onFrameworkItemChanged()
 
 // TestSettingsPage
 
-TestSettingsPage::TestSettingsPage()
+class TestSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::AUTOTEST_SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Testing"));
-    setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
-    setWidgetCreator([] { return new TestSettingsWidget; });
+public:
+    TestSettingsPage()
+    {
+        setId(Constants::AUTOTEST_SETTINGS_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("Testing"));
+        setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
+        setWidgetCreator([] { return new TestSettingsWidget; });
+    }
+};
+
+void setupTestSettingsPage()
+{
+    static TestSettingsPage theTestSettingsPage;
 }
 
 } // Autotest::Internal
