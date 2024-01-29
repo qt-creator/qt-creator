@@ -85,10 +85,6 @@ public:
 
     void fetchUrl();
 
-    QAction *m_postEditorAction = nullptr;
-    QAction *m_fetchAction = nullptr;
-    QAction *m_fetchUrlAction = nullptr;
-
     PasteBinDotComProtocol pasteBinProto;
     FileShareProtocol fileShareProto;
     DPasteDotComProtocol dpasteProto;
@@ -161,21 +157,18 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
 
     ActionBuilder(this, "CodePaster.Post")
         .setText(Tr::tr("Paste Snippet..."))
-        .bindContextAction(&m_postEditorAction)
         .setDefaultKeySequence(Tr::tr("Meta+C,Meta+P"), Tr::tr("Alt+C,Alt+P"))
         .addToContainer(menu)
         .addOnTriggered(this, &CodePasterPluginPrivate::pasteSnippet);
 
     ActionBuilder(this, "CodePaster.Fetch")
         .setText(Tr::tr("Fetch Snippet..."))
-        .bindContextAction(&m_fetchAction)
         .setDefaultKeySequence(Tr::tr("Meta+C,Meta+F"), Tr::tr("Alt+C,Alt+F"))
         .addToContainer(menu)
         .addOnTriggered(this, &CodePasterPluginPrivate::fetch);
 
     ActionBuilder(this, "CodePaster.FetchUrl")
         .setText(Tr::tr("Fetch from URL..."))
-        .bindContextAction(&m_fetchUrlAction)
         .addToContainer(menu)
         .addOnTriggered(this, &CodePasterPluginPrivate::fetchUrl);
 }
