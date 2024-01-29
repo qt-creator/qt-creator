@@ -222,11 +222,13 @@ public:
 
 private:
     void onSearchParameterChanged();
+    void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void updateTableView();
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
 
     QString m_currentPrefix;
+    QString m_currentProject;
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
     QHBoxLayout *m_typesLayout = nullptr;
     QHBoxLayout *m_filtersLayout = nullptr;
@@ -313,50 +315,20 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 void IssuesWidget::updateUi()
 {
     m_filtersLayout->setEnabled(false);
-    // TODO extract parts of it and do them only when necessary
-    QLayoutItem *child;
-    while ((child = m_typesLayout->takeAt(0)) != nullptr) {
-        delete child->widget();
-        delete child;
-    }
-
     std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    updateBasicProjectInfo(projectInfo);
+
     if (!projectInfo)
         return;
     const Dto::ProjectInfoDto &info = *projectInfo;
     if (info.versions.empty()) // add some warning/information?
         return;
 
-    // for now just a start..
-
-    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
-    for (const Dto::IssueKindInfoDto &kind : issueKinds) {
-        auto button = new QToolButton(this);
-        button->setIcon(iconForIssue(kind.prefix));
-        button->setToolTip(kind.nicePluralName);
-        connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
-            m_currentPrefix = prefix;
-            updateTableView();
-        });
-        m_typesLayout->addWidget(button);
-    }
-
-    m_ownerFilter->clear();
-    for (const Dto::UserRefDto &user : projectInfo->users)
-        m_ownerFilter->addItem(user.displayName, user.name);
-
-    m_versionStart->clear();
-    m_versionEnd->clear();
-    const std::vector<Dto::AnalysisVersionDto> &versions = info.versions;
-    for (const Dto::AnalysisVersionDto &version : versions) {
-        const QString label = version.label.value_or(version.name);
-        m_versionStart->insertItem(0, label, version.date);
-        m_versionEnd->insertItem(0, label, version.date);
-    }
-
-    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
-
     m_filtersLayout->setEnabled(true);
+    // avoid refetching existing data
+    if (!m_currentPrefix.isEmpty() || m_issuesModel->rowCount())
+        return;
+
     if (info.issueKinds.size())
         m_currentPrefix = info.issueKinds.front().prefix;
     updateTableView();
@@ -465,6 +437,59 @@ void IssuesWidget::onSearchParameterChanged()
     search.computeTotalRowCount = true;
 
     fetchIssues(search);
+}
+
+void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info)
+{
+    auto cleanOld = [this] {
+        QLayoutItem *child;
+        while ((child = m_typesLayout->takeAt(0)) != nullptr) {
+            delete child->widget();
+            delete child;
+        }
+    };
+
+    if (!info) {
+        cleanOld();
+        m_ownerFilter->clear();
+        m_versionStart->clear();
+        m_versionEnd->clear();
+        m_pathGlobFilter->clear();
+        return;
+    }
+
+    if (m_currentProject == info->name)
+        return;
+    m_currentProject = info->name;
+
+    cleanOld();
+
+    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info->issueKinds;
+    for (const Dto::IssueKindInfoDto &kind : issueKinds) {
+        auto button = new QToolButton(this);
+        button->setIcon(iconForIssue(kind.prefix));
+        button->setToolTip(kind.nicePluralName);
+        connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
+            m_currentPrefix = prefix;
+            updateTableView();
+        });
+        m_typesLayout->addWidget(button);
+    }
+
+    m_ownerFilter->clear();
+    for (const Dto::UserRefDto &user : info->users)
+        m_ownerFilter->addItem(user.displayName, user.name);
+
+    m_versionStart->clear();
+    m_versionEnd->clear();
+    const std::vector<Dto::AnalysisVersionDto> &versions = info->versions;
+    for (const Dto::AnalysisVersionDto &version : versions) {
+        const QString label = version.label.value_or(version.name);
+        m_versionStart->insertItem(0, label, version.date);
+        m_versionEnd->insertItem(0, label, version.date);
+    }
+
+    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
 }
 
 void IssuesWidget::updateTableView()
