@@ -83,4 +83,17 @@ expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput
     return make_unexpected(QLatin1String("Device is not handled by devicectl"));
 }
 
+Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier)
+{
+    const Utils::expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    const QJsonArray apps = (*result)["apps"].toArray();
+    for (const QJsonValue &app : apps) {
+        if (app["bundleIdentifier"].toString() == bundleIdentifier)
+            return QUrl(app["url"].toString());
+    }
+    return {};
+}
+
 } // namespace Ios::Internal

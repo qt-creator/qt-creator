@@ -22,5 +22,6 @@ const char vYes[] = "YES";
 Utils::expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
 Utils::expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
                                                             const QString &deviceUsbId);
+Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
 
 } // namespace Ios::Internal

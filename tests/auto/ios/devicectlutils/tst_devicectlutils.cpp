@@ -17,6 +17,8 @@ private slots:
 
     void parseDeviceInfo_data();
     void parseDeviceInfo();
+
+    void parseAppInfo();
 };
 
 void tst_Devicectlutils::parseError_data()
@@ -303,6 +305,62 @@ void tst_Devicectlutils::parseDeviceInfo()
         QVERIFY(!result);
         QCOMPARE(result.error(), error);
     }
+}
+
+void tst_Devicectlutils::parseAppInfo()
+{
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "info",
+      "apps",
+      "--device",
+      "00000000-0000000000000000",
+      "--quiet",
+      "--json-output",
+      "-"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "355.7.7"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "org.iuehrg.cmake-widgets",
+        "bundleVersion" : "0.1",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "cmake_widgets",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/FAEC04B7-41E6-4A3C-952E-D89792DA053C/cmake_widgets.app/",
+        "version" : "0.1"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "removableAppsIncluded" : true
+  }
+})raw");
+
+    const Utils::expected_str<QUrl> result
+        = Ios::Internal::parseAppInfo(data, "org.iuehrg.cmake-widgets");
+    QVERIFY(result);
+    QCOMPARE(*result,
+             QUrl("file:///private/var/containers/Bundle/Application/"
+                  "FAEC04B7-41E6-4A3C-952E-D89792DA053C/cmake_widgets.app/"));
 }
 
 QTEST_GUILESS_MAIN(tst_Devicectlutils)

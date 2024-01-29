@@ -146,19 +146,12 @@ GroupItem DeviceCtlRunner::findApp(const QString &bundleIdentifier, Storage<AppI
             reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()));
             return DoneResult::Error;
         }
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
-            process.rawStdOut());
-        if (resultValue) {
-            const QJsonArray apps = (*resultValue)["apps"].toArray();
-            for (const QJsonValue &app : apps) {
-                if (app["bundleIdentifier"].toString() == bundleIdentifier) {
-                    appInfo->pathOnDevice = QUrl(app["url"].toString());
-                    break;
-                }
-            }
+        const expected_str<QUrl> pathOnDevice = parseAppInfo(process.rawStdOut(), bundleIdentifier);
+        if (pathOnDevice) {
+            appInfo->pathOnDevice = *pathOnDevice;
             return DoneResult::Success;
         }
-        reportFailure(resultValue.error());
+        reportFailure(pathOnDevice.error());
         return DoneResult::Error;
     };
     return ProcessTask(onSetup, onDone);
