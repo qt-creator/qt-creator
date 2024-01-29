@@ -303,27 +303,9 @@ public:
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
-    class OpenedDocument
-    {
-        Q_DISABLE_COPY_MOVE(OpenedDocument)
-
-    public:
-        OpenedDocument() = default;
-        ~OpenedDocument()
-        {
-            QObject::disconnect(contentsChangedConnection);
-            QObject::disconnect(filePathChangedConnection);
-            QObject::disconnect(aboutToSaveConnection);
-            QObject::disconnect(savedConnection);
-            delete document;
-        }
-        QMetaObject::Connection contentsChangedConnection;
-        QMetaObject::Connection filePathChangedConnection;
-        QMetaObject::Connection aboutToSaveConnection;
-        QMetaObject::Connection savedConnection;
-        QTextDocument *document = nullptr;
-    };
-    std::unordered_map<TextEditor::TextDocument *, std::unique_ptr<OpenedDocument>> m_openedDocument;
+    using TextDocumentDeleter = std::function<void(QTextDocument *)>;
+    using TextDocumentWithDeleter = std::unique_ptr<QTextDocument, TextDocumentDeleter>;
+    std::unordered_map<TextEditor::TextDocument *, TextDocumentWithDeleter> m_openedDocument;
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
     // the build.
@@ -696,43 +678,38 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    auto openedDocument = new ClientPrivate::OpenedDocument;
-    d->m_openedDocument.emplace(document, openedDocument);
-    openedDocument->document = new QTextDocument(document->document()->toPlainText());
-    openedDocument->contentsChangedConnection
-        = connect(document,
-                  &TextDocument::contentsChangedWithPosition,
-                  this,
-                  [this, document](int position, int charsRemoved, int charsAdded) {
-                      documentContentsChanged(document, position, charsRemoved, charsAdded);
-                  });
-    openedDocument->filePathChangedConnection
-        = connect(document,
-                  &TextDocument::filePathChanged,
-                  this,
-                  [this, document](const FilePath &oldPath, const FilePath &newPath) {
-                      if (oldPath == newPath)
-                          return;
-                      closeDocument(document, oldPath);
-                      if (isSupportedDocument(document))
-                          openDocument(document);
-                  });
-    openedDocument->savedConnection
-        = connect(document,
-                  &TextDocument::saved,
-                  this,
-                  [this, document](const FilePath &saveFilePath) {
-                      if (saveFilePath == document->filePath())
-                          documentContentsSaved(document);
-                  });
-    openedDocument->aboutToSaveConnection
-        = connect(document,
-                  &TextDocument::aboutToSave,
-                  this,
-                  [this, document](const FilePath &saveFilePath) {
-                      if (saveFilePath == document->filePath())
-                          documentWillSave(document);
-                  });
+    const QList<QMetaObject::Connection> connections {
+    connect(document, &TextDocument::contentsChangedWithPosition, this,
+            [this, document](int position, int charsRemoved, int charsAdded) {
+                documentContentsChanged(document, position, charsRemoved, charsAdded);
+            }),
+    connect(document, &TextDocument::filePathChanged, this,
+            [this, document](const FilePath &oldPath, const FilePath &newPath) {
+                if (oldPath == newPath)
+                    return;
+                closeDocument(document, oldPath);
+                if (isSupportedDocument(document))
+                    openDocument(document);
+            }),
+    connect(document, &TextDocument::saved, this,
+            [this, document](const FilePath &saveFilePath) {
+                if (saveFilePath == document->filePath())
+                    documentContentsSaved(document);
+            }),
+    connect(document, &TextDocument::aboutToSave, this,
+            [this, document](const FilePath &saveFilePath) {
+                if (saveFilePath == document->filePath())
+                    documentWillSave(document);
+            })
+    };
+    const auto deleter = [connections](QTextDocument *document) {
+        for (const QMetaObject::Connection &connection : connections)
+            QObject::disconnect(connection);
+        delete document;
+    };
+
+    d->m_openedDocument.emplace(document, ClientPrivate::TextDocumentWithDeleter(
+        new QTextDocument(document->document()->toPlainText()), deleter));
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
     d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
@@ -1249,7 +1226,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
 
     const QString &text = document->textAt(position, charsAdded);
-    QTextCursor cursor(it->second->document);
+    QTextCursor cursor(it->second.get());
     // Workaround https://bugreports.qt.io/browse/QTBUG-80662
     // The contentsChanged gives a character count that can be wrong for QTextCursor
     // when there are special characters removed/added (like formating characters).
@@ -1257,7 +1234,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     // paragraph separator character.
     // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
     // For charsAdded, textAt handles the case itself.
-    cursor.setPosition(qMin(it->second->document->characterCount() - 1, position + charsRemoved));
+    cursor.setPosition(qMin(it->second->characterCount() - 1, position + charsRemoved));
     cursor.setPosition(position, QTextCursor::KeepAnchor);
 
     if (syncKind != TextDocumentSyncKind::None) {
