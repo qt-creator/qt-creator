@@ -46,9 +46,6 @@ namespace CMakeProjectManager::Internal {
 class CMakeProjectPluginPrivate : public QObject
 {
 public:
-    // This can't be stand-alone yet as it registers in the plugin object pool
-    CMakeToolManager cmakeToolManager;
-
     Action buildTargetContextAction{
         Tr::tr("Build"),
         Tr::tr("Build \"%1\""),
@@ -79,6 +76,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        setupCMakeToolManager(this);
+
         d = new CMakeProjectPluginPrivate;
 
         setupCMakeManager();

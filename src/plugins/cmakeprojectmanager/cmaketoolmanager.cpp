@@ -170,13 +170,10 @@ public:
 };
 
 static CMakeToolManagerPrivate *d = nullptr;
-CMakeToolManager *CMakeToolManager::m_instance = nullptr;
+static CMakeToolManager *m_instance = nullptr;
 
 CMakeToolManager::CMakeToolManager()
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-
     qRegisterMetaType<QString *>();
 
     d = new CMakeToolManagerPrivate;
@@ -224,7 +221,7 @@ bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
 
     d->m_cmakeTools.emplace_back(std::move(tool));
 
-    emit CMakeToolManager::m_instance->cmakeAdded(toolId);
+    emit m_instance->cmakeAdded(toolId);
 
     ensureDefaultCMakeToolIsValid();
 
@@ -436,6 +433,12 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
     // signaling:
     if (oldId != d->m_defaultCMake)
         emit m_instance->defaultCMakeChanged();
+}
+
+void Internal::setupCMakeToolManager(QObject *guard)
+{
+    m_instance = new CMakeToolManager;
+    m_instance->setParent(guard);
 }
 
 } // CMakeProjectManager

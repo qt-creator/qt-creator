@@ -64,9 +64,9 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
-
-    static CMakeToolManager *m_instance;
 };
+
+namespace Internal { void setupCMakeToolManager(QObject *guard); }
 
 } // namespace CMakeProjectManager
 
