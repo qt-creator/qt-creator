@@ -111,6 +111,10 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_languageBox->setMinimumContentsLength(20);
+    if (Core::ICore::isQtDesignStudio()) {
+        m_languageBox->setDisabled(true);
+        m_languageBox->setToolTip("Qt Design Studio is currently available in English only.");
+    }
 
     m_codecBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_codecBox->setMinimumContentsLength(20);
@@ -193,7 +197,7 @@ void GeneralSettingsWidget::fillLanguageBox() const
     m_languageBox->addItem(Tr::tr("<System Language>"), QString());
     // need to add this explicitly, since there is no qm file for English
     m_languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
-    if (currentLocale == QLatin1String("C"))
+    if (currentLocale == QLatin1String("C") || Core::ICore::isQtDesignStudio())
         m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
 
     const FilePath creatorTrPath = ICore::resourcePath("translations");
