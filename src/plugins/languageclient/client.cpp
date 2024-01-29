@@ -216,7 +216,7 @@ public:
     void updateOpenedEditorToolBars()
     {
         for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
-            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(it.key()))
+            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(it->first))
                 updateEditorToolBar(editor);
         }
     }
@@ -244,11 +244,11 @@ public:
         if (updateCompletion || updateFunctionHint || updateSemanticToken) {
             for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
                 if (updateCompletion)
-                    updateCompletionProvider(it.key());
+                    updateCompletionProvider(it->first);
                 if (updateFunctionHint)
-                    updateFunctionHintProvider(it.key());
+                    updateFunctionHintProvider(it->first);
                 if (updateSemanticToken)
-                    m_tokenSupport.updateSemanticTokens(it.key());
+                    m_tokenSupport.updateSemanticTokens(it->first);
             }
         }
         emit q->capabilitiesChanged(m_dynamicCapabilities);
@@ -305,11 +305,10 @@ public:
     QJsonObject m_initializationOptions;
     class OpenedDocument
     {
-        // TODO: We should specify here:
-        // Q_DISABLE_COPY(OpenedDocument)
-        // otherwise, we may get unexpected document deletions on copying when map grows or shrinks.
-        // QMap doesn't guarantee valid refs on grow / shrink: consider using std::map.
+        Q_DISABLE_COPY_MOVE(OpenedDocument)
+
     public:
+        OpenedDocument() = default;
         ~OpenedDocument()
         {
             QObject::disconnect(contentsChangedConnection);
@@ -324,8 +323,7 @@ public:
         QMetaObject::Connection savedConnection;
         QTextDocument *document = nullptr;
     };
-    // TODO: consider using std::map - see comments to OpenedDocument.
-    QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
+    std::unordered_map<TextEditor::TextDocument *, std::unique_ptr<OpenedDocument>> m_openedDocument;
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
     // the build.
@@ -653,12 +651,16 @@ void Client::setClientCapabilities(const LanguageServerProtocol::ClientCapabilit
 void Client::openDocument(TextEditor::TextDocument *document)
 {
     using namespace TextEditor;
-    if (d->m_openedDocument.contains(document) || !isSupportedDocument(document))
+    if ((d->m_openedDocument.find(document) != d->m_openedDocument.end())
+        || !isSupportedDocument(document)) {
         return;
+    }
 
     connect(document, &TextDocument::destroyed, this, [this, document] {
         d->m_postponedDocuments.remove(document);
-        d->m_openedDocument.remove(document);
+        const auto it = d->m_openedDocument.find(document);
+        if (it != d->m_openedDocument.end())
+            d->m_openedDocument.erase(it);
         d->m_documentsToUpdate.erase(document);
         d->m_resetAssistProvider.remove(document);
     });
@@ -694,15 +696,17 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    d->m_openedDocument[document].document = new QTextDocument(document->document()->toPlainText());
-    d->m_openedDocument[document].contentsChangedConnection
+    auto openedDocument = new ClientPrivate::OpenedDocument;
+    d->m_openedDocument.emplace(document, openedDocument);
+    openedDocument->document = new QTextDocument(document->document()->toPlainText());
+    openedDocument->contentsChangedConnection
         = connect(document,
                   &TextDocument::contentsChangedWithPosition,
                   this,
                   [this, document](int position, int charsRemoved, int charsAdded) {
                       documentContentsChanged(document, position, charsRemoved, charsAdded);
                   });
-    d->m_openedDocument[document].filePathChangedConnection
+    openedDocument->filePathChangedConnection
         = connect(document,
                   &TextDocument::filePathChanged,
                   this,
@@ -713,7 +717,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
                       if (isSupportedDocument(document))
                           openDocument(document);
                   });
-    d->m_openedDocument[document].savedConnection
+    openedDocument->savedConnection
         = connect(document,
                   &TextDocument::saved,
                   this,
@@ -721,7 +725,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
                       if (saveFilePath == document->filePath())
                           documentContentsSaved(document);
                   });
-    d->m_openedDocument[document].aboutToSaveConnection
+    openedDocument->aboutToSaveConnection
         = connect(document,
                   &TextDocument::aboutToSave,
                   this,
@@ -794,7 +798,9 @@ void Client::closeDocument(TextEditor::TextDocument *document,
 {
     d->m_postponedDocuments.remove(document);
     d->m_documentsToUpdate.erase(document);
-    if (d->m_openedDocument.remove(document) != 0) {
+    const auto it = d->m_openedDocument.find(document);
+    if (it != d->m_openedDocument.end()) {
+        d->m_openedDocument.erase(it);
         deactivateDocument(document);
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
@@ -810,8 +816,8 @@ void Client::closeDocument(TextEditor::TextDocument *document,
     QTC_CHECK(shadowIt.value().second.isEmpty());
     bool isReferenced = false;
     for (auto it = d->m_openedDocument.cbegin(); it != d->m_openedDocument.cend(); ++it) {
-        if (referencesShadowFile(it.key(), shadowIt.key())) {
-            d->openShadowDocument(it.key(), shadowIt);
+        if (referencesShadowFile(it->first, shadowIt.key())) {
+            d->openShadowDocument(it->first, shadowIt);
             isReferenced = true;
         }
     }
@@ -1089,14 +1095,15 @@ void ClientPrivate::closeRequiredShadowDocuments(const TextEditor::TextDocument 
 
 bool Client::documentOpen(const TextEditor::TextDocument *document) const
 {
-    return d->m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
+    return d->m_openedDocument.find(const_cast<TextEditor::TextDocument *>(document))
+           != d->m_openedDocument.end();
 }
 
 TextEditor::TextDocument *Client::documentForFilePath(const Utils::FilePath &file) const
 {
     for (auto it = d->m_openedDocument.cbegin(); it != d->m_openedDocument.cend(); ++it) {
-        if (it.key()->filePath() == file)
-            return it.key();
+        if (it->first->filePath() == file)
+            return it->first;
     }
     return nullptr;
 }
@@ -1122,8 +1129,8 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
     if (documentForFilePath(filePath))
         return;
     for (auto docIt = d->m_openedDocument.cbegin(); docIt != d->m_openedDocument.cend(); ++docIt) {
-        if (referencesShadowFile(docIt.key(), filePath))
-            d->openShadowDocument(docIt.key(), shadowIt);
+        if (referencesShadowFile(docIt->first, filePath))
+            d->openShadowDocument(docIt->first, shadowIt);
     }
 }
 
@@ -1156,7 +1163,7 @@ void ClientPrivate::closeShadowDocument(ShadowDocIterator shadowIt)
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
-    if (!d->m_openedDocument.contains(document))
+    if (d->m_openedDocument.find(document) == d->m_openedDocument.end())
         return;
     bool send = true;
     bool includeText = false;
@@ -1193,7 +1200,7 @@ void Client::documentWillSave(Core::IDocument *document)
 {
     const FilePath &filePath = document->filePath();
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    if (!d->m_openedDocument.contains(textDocument))
+    if (d->m_openedDocument.find(textDocument) == d->m_openedDocument.end())
         return;
     bool send = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
@@ -1223,8 +1230,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    const auto it = d->m_openedDocument.constFind(document);
-    if (it == d->m_openedDocument.constEnd() || !reachable())
+    const auto it = d->m_openedDocument.find(document);
+    if (it == d->m_openedDocument.end() || !reachable())
         return;
     if (d->m_runningFindLinkRequest.isValid())
         cancelRequest(d->m_runningFindLinkRequest);
@@ -1242,7 +1249,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
 
     const QString &text = document->textAt(position, charsAdded);
-    QTextCursor cursor(it->document);
+    QTextCursor cursor(it->second->document);
     // Workaround https://bugreports.qt.io/browse/QTBUG-80662
     // The contentsChanged gives a character count that can be wrong for QTextCursor
     // when there are special characters removed/added (like formating characters).
@@ -1250,7 +1257,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     // paragraph separator character.
     // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
     // For charsAdded, textAt handles the case itself.
-    cursor.setPosition(qMin(it->document->characterCount() - 1, position + charsRemoved));
+    cursor.setPosition(qMin(it->second->document->characterCount() - 1, position + charsRemoved));
     cursor.setPosition(position, QTextCursor::KeepAnchor);
 
     if (syncKind != TextDocumentSyncKind::None) {
