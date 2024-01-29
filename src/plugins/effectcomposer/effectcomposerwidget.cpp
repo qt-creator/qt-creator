@@ -11,8 +11,6 @@
 #include "propertyhandler.h"
 
 //#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
 #include "theme.h"
 
 #include <coreplugin/icore.h>
@@ -163,6 +161,12 @@ QPointer<EffectComposerNodesModel> EffectComposerWidget::effectComposerNodesMode
 void EffectComposerWidget::addEffectNode(const QString &nodeQenPath)
 {
     m_effectComposerModel->addNode(nodeQenPath);
+
+    if (!nodeQenPath.isEmpty()) {
+        using namespace QmlDesigner;
+        QString id = nodeQenPath.split('/').last().chopped(4).prepend('_');
+        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_EFFECTCOMPOSER_NODE + id);
+    }
 }
 
 void EffectComposerWidget::focusSection(int section)
