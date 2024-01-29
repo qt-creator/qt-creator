@@ -43,25 +43,10 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeProjectPluginPrivate : public QObject
-{
-public:
-    Action buildTargetContextAction{
-        Tr::tr("Build"),
-        Tr::tr("Build \"%1\""),
-        Action::AlwaysEnabled/*handled manually*/
-    };
-};
-
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
-
-    ~CMakeProjectPlugin()
-    {
-        delete d;
-    }
 
     void initialize() final
     {
@@ -78,8 +63,6 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeLocatorFilters();
         setupCMakeFormatter();
 
-        d = new CMakeProjectPluginPrivate;
-
         setupCMakeManager();
 
 #ifdef WITH_TESTS
@@ -87,8 +70,6 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeParserTest);
         addTestCreator(createCMakeProjectImporterTest);
 #endif
-
-        const Context projectContext{CMakeProjectManager::Constants::CMAKE_PROJECT_ID};
 
         FileIconProvider::registerIconOverlayForSuffix(Constants::Icons::FILE_OVERLAY, "cmake");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::FILE_OVERLAY,
@@ -98,27 +79,24 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
                                                    Tr::tr("CMake", "SnippetProvider"));
         ProjectManager::registerProjectType<CMakeProject>(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
-        //register actions
-        Command *command = ActionManager::registerAction(&d->buildTargetContextAction,
-                                                         Constants::BUILD_TARGET_CONTEXT_MENU,
-                                                         projectContext);
-        command->setAttribute(Command::CA_Hide);
-        command->setAttribute(Command::CA_UpdateText);
-        command->setDescription(d->buildTargetContextAction.text());
+        ActionBuilder(this, Constants::BUILD_TARGET_CONTEXT_MENU)
+            .setParameterText(Tr::tr("Build"), Tr::tr("Build \"%1\""), ActionBuilder::AlwaysEnabled)
+            .setContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
+            .bindContextAction(&m_buildTargetContextAction)
+            .setCommandAttribute(Command::CA_Hide)
+            .setCommandAttribute(Command::CA_UpdateText)
+            .setCommandDescription(m_buildTargetContextAction->text())
+            .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
+                            ProjectExplorer::Constants::G_PROJECT_BUILD)
+            .addOnTriggered(this, [] {
+                if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+                    auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
+                    bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
+                }
+            });
 
-        ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT)
-            ->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-
-        // Wire up context menu updates:
         connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
                 this, &CMakeProjectPlugin::updateContextActions);
-
-        connect(&d->buildTargetContextAction, &Action::triggered, this, [] {
-            if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
-                auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
-                bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
-            }
-        });
     }
 
     void extensionsInitialized() final
@@ -133,12 +111,12 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
 
         // Build Target:
-        d->buildTargetContextAction.setParameter(targetDisplayName);
-        d->buildTargetContextAction.setEnabled(targetNode);
-        d->buildTargetContextAction.setVisible(targetNode);
+        m_buildTargetContextAction->setParameter(targetDisplayName);
+        m_buildTargetContextAction->setEnabled(targetNode);
+        m_buildTargetContextAction->setVisible(targetNode);
     }
 
-    class CMakeProjectPluginPrivate *d = nullptr;
+    Action *m_buildTargetContextAction = nullptr;
 };
 
 } // CMakeProjectManager::Internal
