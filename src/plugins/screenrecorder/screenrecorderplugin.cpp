@@ -26,12 +26,9 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
-#include <QAction>
 #include <QDialog>
-#include <QPushButton>
 
 using namespace Utils;
 using namespace Core;
@@ -123,14 +120,12 @@ class ScreenRecorderPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
-        const QIcon menuIcon = Icon({{":/utils/images/filledcircle.png", Theme::IconsStopColor}},
-                                    Icon::MenuTintedStyle).icon();
-        auto action = new QAction(menuIcon, Tr::tr("Record Screen..."), this);
-        Command *cmd = ActionManager::registerAction(action, Constants::ACTION_ID,
-                                                     Context(Core::Constants::C_GLOBAL));
-        connect(action, &QAction::triggered, this, &ScreenRecorderPlugin::showDialogOrSettings);
-        ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-        mtools->addAction(cmd);
+        ActionBuilder(this, Constants::ACTION_ID)
+            .setText(Tr::tr("Record Screen..."))
+            .setIcon(Icon({{":/utils/images/filledcircle.png", Theme::IconsStopColor}},
+                          Icon::MenuTintedStyle).icon())
+            .addToContainer(Core::Constants::M_TOOLS)
+            .addOnTriggered(this, &ScreenRecorderPlugin::showDialogOrSettings);
 
 #ifdef WITH_TESTS
         addTest<FFmpegOutputParserTest>();
