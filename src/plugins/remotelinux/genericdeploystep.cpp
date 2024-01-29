@@ -48,7 +48,8 @@ public:
         method.setSettingsKey("RemoteLinux.RsyncDeployStep.TransferMethod");
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         method.setDisplayName(Tr::tr("Transfer method:"));
-        method.addOption(Tr::tr("Use rsync if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use rsync or sftp if available, but prefer rsync. "
+                                "Otherwise use default transfer."));
         method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));
         method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
@@ -113,52 +114,45 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
     return AsyncTask<ResultType>(onSetup, onError, CallDoneIf::Error);
 }
 
-static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileToTransfer)
+static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileToTransfer,
+                                                      FileTransferMethod preferred)
 {
     auto sourceDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_source);
     auto targetDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_target);
+    if (!sourceDevice || !targetDevice)
+        return FileTransferMethod::GenericCopy;
 
-    if (sourceDevice && targetDevice) {
-        // TODO: Check if the devices can reach each other via their ip
-        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()
-            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()) {
-            return FileTransferMethod::Rsync;
-        }
-
-        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()
-            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()) {
-            return FileTransferMethod::Sftp;
-        }
+    const auto devicesSupportMethod = [&](Id method) {
+        return sourceDevice->extraData(method).toBool() && targetDevice->extraData(method).toBool();
+    };
+    if (preferred == FileTransferMethod::Rsync
+        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_RSYNC)) {
+        preferred = FileTransferMethod::Sftp;
     }
-
-    return FileTransferMethod::GenericCopy;
+    if (preferred == FileTransferMethod::Sftp
+        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_SFTP)) {
+        preferred = FileTransferMethod::GenericCopy;
+    }
+    return preferred;
 }
 
 GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storage)
 {
     const auto onSetup = [this, storage](FileTransfer &transfer) {
-        FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
+        FileTransferMethod preferredTransferMethod = FileTransferMethod::GenericCopy;
         if (method() == 0)
             preferredTransferMethod = FileTransferMethod::Rsync;
         else if (method() == 1)
             preferredTransferMethod = FileTransferMethod::Sftp;
-        else
-            preferredTransferMethod = FileTransferMethod::GenericCopy;
 
         FileTransferMethod transferMethod = preferredTransferMethod;
-
         if (transferMethod != FileTransferMethod::GenericCopy) {
             for (const FileToTransfer &fileToTransfer : *storage) {
-                const FileTransferMethod supportedMethod = supportedTransferMethodFor(
-                    fileToTransfer);
-
-                if (supportedMethod != preferredTransferMethod) {
-                    transferMethod = FileTransferMethod::GenericCopy;
+                transferMethod = effectiveTransferMethodFor(fileToTransfer, transferMethod);
+                if (transferMethod == FileTransferMethod::GenericCopy)
                     break;
-                }
             }
         }
-
         transfer.setTransferMethod(transferMethod);
 
         transfer.setRsyncFlags(flags());
