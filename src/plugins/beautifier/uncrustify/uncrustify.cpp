@@ -236,22 +236,21 @@ public:
     Uncrustify()
     {
         const Id menuId = "Uncrustify.Menu";
-        Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
-        menu->menu()->setTitle(Tr::tr("&Uncrustify"));
+        Core::MenuBuilder(menuId)
+            .setTitle(Tr::tr("&Uncrustify"))
+            .addToContainer(Constants::MENU_ID);
 
-        Core::ActionBuilder formatFile(this, "Uncrustify.FormatFile");
-        formatFile.setText(msgFormatCurrentFile());
-        formatFile.bindContextAction(&m_formatFile);
-        formatFile.addToContainer(menuId);
-        formatFile.addOnTriggered(this, [this] { this->formatFile(); });
+        Core::ActionBuilder(this, "Uncrustify.FormatFile")
+            .setText(msgFormatCurrentFile())
+            .bindContextAction(&m_formatFile)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &Uncrustify::formatFile);
 
-        Core::ActionBuilder formatRange(this, "Uncrustify.FormatSelectedText");
-        formatRange.setText(msgFormatSelectedText());
-        formatRange.bindContextAction(&m_formatRange);
-        formatRange.addToContainer(menuId);
-        formatRange.addOnTriggered(this, [this] { this->formatSelectedText(); });
-
-        Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        Core::ActionBuilder(this, "Uncrustify.FormatSelectedText")
+            .setText(msgFormatSelectedText())
+            .bindContextAction(&m_formatRange)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &Uncrustify::formatSelectedText);
 
         connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
                 this, [this] { updateActions(Core::EditorManager::currentEditor()); });

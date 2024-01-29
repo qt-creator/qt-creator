@@ -240,16 +240,15 @@ public:
     ArtisticStyle()
     {
         const Id menuId = "ArtisticStyle.Menu";
-        Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
-        menu->menu()->setTitle(Tr::tr("&Artistic Style"));
+        Core::MenuBuilder(menuId)
+            .setTitle(Tr::tr("&Artistic Style"))
+            .addToContainer(Constants::MENU_ID);
 
-        Core::ActionBuilder formatFile(this, "ArtisticStyle.FormatFile");
-        formatFile.setText(msgFormatCurrentFile());
-        formatFile.bindContextAction(&m_formatFile);
-        formatFile.addToContainer(menuId);
-        formatFile.addOnTriggered(this, [this] { this->formatFile(); });
-
-        Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        Core::ActionBuilder(this, "ArtisticStyle.FormatFile")
+            .setText(msgFormatCurrentFile())
+            .bindContextAction(&m_formatFile)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ArtisticStyle::formatFile);
 
         connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
                 this, [this] { updateActions(Core::EditorManager::currentEditor()); });
