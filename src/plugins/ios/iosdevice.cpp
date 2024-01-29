@@ -10,6 +10,7 @@
 #include "iostr.h"
 
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
@@ -302,26 +303,33 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
             bool shouldIgnore = newDev->m_ignoreDevice;
             newDev->m_ignoreDevice = true;
             if (devStatus == QLatin1String("*off*")) {
-                if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
-                    QMessageBox mBox;
-                    mBox.setText(Tr::tr("An iOS device in user mode has been detected."));
-                    mBox.setInformativeText(Tr::tr("Do you want to see how to set it up for development?"));
-                    mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
-                    mBox.setDefaultButton(QMessageBox::Yes);
-                    int ret = mBox.exec();
-                    switch (ret) {
-                    case QMessageBox::Yes:
-                        Core::HelpManager::showHelpUrl(
-                                    QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
-                        break;
-                    case QMessageBox::No:
-                        break;
-                    case QMessageBox::NoAll:
-                        IosConfigurations::setIgnoreAllDevices(true);
-                        break;
-                    default:
-                        break;
-                    }
+                if (!m_devModeDialog && !shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+                    m_devModeDialog = new QMessageBox(Core::ICore::dialogParent());
+                    m_devModeDialog->setText(
+                        Tr::tr("An iOS device in user mode has been detected."));
+                    m_devModeDialog->setInformativeText(
+                        Tr::tr("Do you want to see how to set it up for development?"));
+                    m_devModeDialog->setStandardButtons(QMessageBox::NoAll | QMessageBox::No
+                                                        | QMessageBox::Yes);
+                    m_devModeDialog->setDefaultButton(QMessageBox::Yes);
+                    m_devModeDialog->setAttribute(Qt::WA_DeleteOnClose);
+                    connect(m_devModeDialog, &QDialog::finished, this, [](int result) {
+                        switch (result) {
+                        case QMessageBox::Yes:
+                            Core::HelpManager::showHelpUrl(
+                                QLatin1String("qthelp://org.qt-project.qtcreator/doc/"
+                                              "creator-developing-ios.html"));
+                            break;
+                        case QMessageBox::No:
+                            break;
+                        case QMessageBox::NoAll:
+                            IosConfigurations::setIgnoreAllDevices(true);
+                            break;
+                        default:
+                            break;
+                        }
+                    });
+                    m_devModeDialog->show();
                 }
             }
             if (!m_userModeDeviceIds.contains(uid))

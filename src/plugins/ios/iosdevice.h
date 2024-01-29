@@ -8,6 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <QMessageBox>
 #include <QTimer>
 
 namespace Ios {
@@ -83,6 +84,7 @@ private:
     IosDeviceManager(QObject *parent = nullptr);
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
+    QPointer<QMessageBox> m_devModeDialog;
 };
 
 } // namespace Internal
