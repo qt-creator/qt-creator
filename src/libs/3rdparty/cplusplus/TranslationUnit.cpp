@@ -27,6 +27,7 @@
 #include "Literals.h"
 #include "DiagnosticClient.h"
 
+#include "cppassert.h"
 #include <utils/textutils.h>
 
 #include <stack>
@@ -87,6 +88,7 @@ int TranslationUnit::sourceLength() const
 
 void TranslationUnit::setSource(const char *source, int size)
 {
+    CPP_CHECK(source);
     _firstSourceChar = source;
     _lastSourceChar = source + size;
 }

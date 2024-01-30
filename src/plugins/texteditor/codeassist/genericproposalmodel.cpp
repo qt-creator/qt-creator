@@ -295,16 +295,44 @@ void GenericProposalModel::filter(const QString &prefix)
             continue;
         }
 
-        if (text.startsWith(lowerPrefix, Qt::CaseInsensitive)) {
-            m_currentItems.append(item);
-            item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
-            continue;
-        }
-
-        if (checkInfix && text.contains(lowerPrefix, Qt::CaseInsensitive)) {
-            m_currentItems.append(item);
-            item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
-            continue;
+        switch (caseSensitivity) {
+        case FuzzyMatcher::CaseSensitivity::CaseInsensitive:
+            if (text.startsWith(lowerPrefix, Qt::CaseInsensitive)) {
+                m_currentItems.append(item);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
+                continue;
+            }
+            if (checkInfix && text.contains(lowerPrefix, Qt::CaseInsensitive)) {
+                m_currentItems.append(item);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
+                continue;
+            }
+            break;
+        case FuzzyMatcher::CaseSensitivity::CaseSensitive:
+            if (checkInfix && text.contains(prefix)) {
+                m_currentItems.append(item);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
+                continue;
+            }
+            break;
+        case FuzzyMatcher::CaseSensitivity::FirstLetterCaseSensitive:
+            if (text.startsWith(prefix.at(0))
+                && text.mid(1).startsWith(lowerPrefix.mid(1), Qt::CaseInsensitive)) {
+                m_currentItems.append(item);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
+                continue;
+            }
+            if (checkInfix) {
+                for (auto index = text.indexOf(prefix.at(0)); index >= 0;
+                     index = text.indexOf(prefix.at(0), index + 1)) {
+                    if (text.mid(index + 1).startsWith(lowerPrefix.mid(1), Qt::CaseInsensitive)) {
+                        m_currentItems.append(item);
+                        item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
+                        continue;
+                    }
+                }
+            }
+            break;
         }
 
         // Our fuzzy matcher can become unusably slow with certain inputs, so skip it

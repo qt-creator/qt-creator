@@ -788,7 +788,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
     } else {
-        const GeneratorInfo dv(isIos(k) ? QString("Xcode") : info.generator,
+        const GeneratorInfo dv(info.generator,
                                it->supportsPlatform ? info.platform : QString(),
                                it->supportsToolset ? info.toolset : QString());
         setGeneratorInfo(k, dv);
