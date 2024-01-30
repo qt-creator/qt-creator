@@ -618,6 +618,20 @@ R"(
 )"
     };
 
+    if (m_shaderFeatures.enabled(ShaderFeatures::Mipmap)) {
+        QString mipmap1{
+            R"(parent.layer.smooth = true
+            parent.layer.mipmap = true
+            %1)"
+        };
+        QString mipmap2{
+            R"(_oldParent.layer.smooth = false
+            _oldParent.layer.mipmap = false
+            %2)"
+        };
+        parentChanged = parentChanged.arg(mipmap1, mipmap2);
+    }
+
     parentChanged = parentChanged.arg(m_shaderFeatures.enabled(ShaderFeatures::Source)
                                           ? QString("source = parent") : QString(),
                                       m_shaderFeatures.enabled(ShaderFeatures::Source)

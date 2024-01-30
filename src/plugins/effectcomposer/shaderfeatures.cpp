@@ -73,8 +73,12 @@ void ShaderFeatures::checkLine(const QString &line, Features &features)
         if (m_gridMeshWidth > 1 || m_gridMeshHeight > 1)
             features.setFlag(GridMesh, true);
     }
+
     if (line.contains("@blursources"))
         features.setFlag(BlurSources, true);
+
+    if (line.contains("textureLod("))
+        features.setFlag(Mipmap, true);
 }
 
 int ShaderFeatures::gridMeshHeight() const

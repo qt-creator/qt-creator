@@ -19,7 +19,8 @@ public:
         Mouse       = 1 << 4,
         FragCoord   = 1 << 5,
         GridMesh    = 1 << 6,
-        BlurSources = 1 << 7
+        BlurSources = 1 << 7,
+        Mipmap      = 1 << 8
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
