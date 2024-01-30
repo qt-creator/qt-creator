@@ -577,8 +577,9 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     ProjectInfo oldInfo;
 
     m_syncedData.write([&oldInfo, &snapshot, p, &pinfo](SyncedData &sd) {
-        oldInfo = sd.m_projects.value(p);
-        sd.m_projects.insert(p, pinfo);
+        ProjectInfo &storedInfo = sd.m_projects[p];
+        oldInfo = storedInfo;
+        storedInfo = pinfo;
         if (p == sd.m_defaultProject)
             sd.m_defaultProjectInfo = pinfo;
         snapshot = sd.m_validSnapshot;

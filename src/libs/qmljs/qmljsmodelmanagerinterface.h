@@ -261,7 +261,7 @@ private:
         QSet<Utils::FilePath> m_scannedPaths;
         ProjectExplorer::Project *m_defaultProject = nullptr;
         ProjectInfo m_defaultProjectInfo;
-        QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+        QHash<ProjectExplorer::Project *, ProjectInfo> m_projects;
         QMultiHash<Utils::FilePath, ProjectExplorer::Project *> m_fileToProject;
     };
     Utils::SynchronizedValue<SyncedData> m_syncedData;
