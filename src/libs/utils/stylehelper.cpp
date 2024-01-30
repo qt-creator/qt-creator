@@ -998,7 +998,7 @@ QString StyleHelper::fontToCssProperties(const QFont &font)
                                                 ? "normal" : font.style() == QFont::StyleItalic
                                                       ? "italic" : "oblique");
     const QString fontShorthand = fontStyle + " " + QString::number(font.weight()) + " "
-                                  + fontSize + " " + font.family();
+                                  + fontSize + " '" + font.family() + "'";
     const QString textDecoration = QLatin1String(font.underline() ? "underline" : "none");
     const QString textTransform = QLatin1String(font.capitalization() == QFont::AllUppercase
                                                     ? "uppercase"
