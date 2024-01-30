@@ -150,7 +150,7 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton *button)
 void TodoOutputPane::scanningScopeChanged(ScanningScope scanningScope)
 {
     todoSettings().scanningScope = scanningScope;
-    todoSettings().save(Core::ICore::settings());
+    todoSettings().save();
 
     todoItemsProvider().settingsChanged();
     setScanningScope(todoSettings().scanningScope);

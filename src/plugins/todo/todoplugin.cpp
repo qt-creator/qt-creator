@@ -5,9 +5,6 @@
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
 #include "todoprojectsettingswidget.h"
-#include "todotr.h"
-
-#include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -17,31 +14,19 @@ class TodoPluginPrivate : public QObject
 {
 public:
     TodoPluginPrivate();
-
-    void settingsChanged();
 };
 
 TodoPluginPrivate::TodoPluginPrivate()
 {
-    todoSettings().load(Core::ICore::settings());
+    todoSettings().load();
 
     setupTodoItemsProvider(this);
     setupTodoOutputPane(this);
 
-    setupTodoSettingsPage([this] { settingsChanged(); });
+    setupTodoSettingsPage();
 
     setupTodoSettingsProjectPanel();
 
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, [] { todoSettings().save(Core::ICore::settings()); });
-}
-
-void TodoPluginPrivate::settingsChanged()
-{
-    todoSettings().save(Core::ICore::settings());
-
-    todoItemsProvider().settingsChanged();
-    todoOutputPane().setScanningScope(todoSettings().scanningScope);
 }
 
 class TodoPlugin final : public ExtensionSystem::IPlugin
