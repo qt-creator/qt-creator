@@ -29,7 +29,6 @@
         \list
         \li \l{Writing Code}
             \list
-                \li \l{Working in Edit Mode}
                 \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
                 \li \l{Using Qt Quick Toolbars}

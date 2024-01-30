@@ -70,7 +70,7 @@
 
     \section1 Receiving Suggestions
 
-    When you write code in the \l {Working in Edit Mode}{Edit} mode and
+    When you write code in the \l {Edit Mode}{Edit} mode and
     \uicontrol {Auto request} is enabled, Copilot automatically makes
     suggestions when you type.
 

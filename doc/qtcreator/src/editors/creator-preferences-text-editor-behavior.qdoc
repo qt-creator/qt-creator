@@ -95,31 +95,8 @@
     always place them there. Select \uicontrol {At Line Start} to place single
     line comments at the end of the line.
 
-    \section1 File Encoding
-
-    To define the default file encoding, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol Behavior, and
-    then select a suitable option in \uicontrol {Default encoding}.
-
-    \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding preferences"
-
-    Qt 5 and Qt 6 require UTF-8 encoded source files, and therefore the default
-    encoding is set to \uicontrol UTF-8.
-    Detecting the correct encoding is tricky, so \QC will not try to do so.
-    Instead, it displays the following error message when you try to edit a file
-    that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with
-    "UTF-8"-encoding. Editing not possible.}
-
-    To resolve the issue, use a file conversion tool to convert the file
-    encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
-    of string constants to QString might not work as expected.
-
-    If you develop only Qt 4 applications or other than Qt applications, you
-    can set other encoding options as the default encoding. Select the
-    \uicontrol System option to use the file encoding used by your system.
-
     \if defined(qtcreator)
-    \sa {Find preferences}, {C++ Code Style}, {Nim}
+    \sa {Change text encoding}, {Find preferences}, {C++ Code Style}, {Nim}
     \endif
 
     \sa {Indent text or code}, {Qt Quick Code Style}, {Font & Colors}

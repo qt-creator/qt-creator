@@ -24,7 +24,7 @@
 
     \list
         \if defined(qtcreator)
-        \li \l{Working in Edit Mode}
+        \li \l{Edit Mode}
 
             You can use the editor toolbar to navigate between open files
             and symbols in use. You can also split the view to work on

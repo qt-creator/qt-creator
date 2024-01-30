@@ -674,7 +674,7 @@
      \row
         \li Editor
         \li Open the current source file in the text editor for changing it.
-        \li \l {Working in Edit Mode}
+        \li \l {Edit Mode}
     \endtable
 
     \note The \uicontrol Views menu shows some views only while you are

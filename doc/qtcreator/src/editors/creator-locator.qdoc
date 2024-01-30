@@ -30,7 +30,7 @@
         \li Select \uicontrol Edit > \uicontrol {Go to Line}.
         \if defined(qtcreator)
         \li Click the line and column indicator on the
-            \l{Using the Editor Toolbar}{editor toolbar}.
+            \l{Edit Mode}{editor toolbar}.
         \endif
     \endlist
 
@@ -99,6 +99,7 @@
 
     \endlist
 
+    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
     If the path to a file is very long, it might not fit into the locator
     window. To view the full path, press \key Alt when the filename is selected
     or use the handle next to the locator window to increase the window width.
@@ -132,33 +133,6 @@
     \code
     HelloWorld.qml:41:2
     \endcode
-
-    \if defined(qtcreator)
-    \section2 Locating Symbols
-
-    For example, to locate symbols matching \c {QGuiApplication}:
-
-    \list 1
-
-        \li Activate the locator.
-
-        \li Enter a colon (:) followed by a space and the upper case letters in
-            the symbol name (here, \c {QGuiApplication}):
-
-            \code
-            : qga
-            \endcode
-
-            The locator lists the results.
-
-            \image qtcreator-locator-example.webp "List of files matching the locator filter"
-
-    \endlist
-
-    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
-    Filters locating class and function definitions also accept namespaces,
-    such as \c {Utils::*View}.
-    \endif
 
     \section2 Creating Files and Directories from Locator
 

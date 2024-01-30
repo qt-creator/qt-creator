@@ -65,7 +65,7 @@
     incoming calls.
 
     Select the \inlineimage icons/languageclient.png
-    button on the \l{Managing Language Servers}{editor toolbar}, and then select
+    button on the \l{Edit Mode}{editor toolbar}, and then select
     \uicontrol {Restart} to collect call hierarchy information for the function.
 
     \image qtcreator-call-hierarchy-view.png {Call Hierarchy view}

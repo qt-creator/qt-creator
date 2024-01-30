@@ -18,7 +18,7 @@
     {states} and \l{Animation and Transitions in Qt Quick}{transitions}
     when using Qt 6 as the minimum Qt version and CMake as the build system.
 
-    You will use the \l{Working in Edit Mode}{Edit mode} to create an application
+    You will use the \l{Edit Mode}{Edit} mode to create an application
     that moves a Qt logo between three rectangles when you click them.
 
     \image qtquick-tutorial.gif {Transitions example}
