@@ -6,6 +6,7 @@
 
 #include "constants.h"
 #include "todoitemsmodel.h"
+#include "todoitemsprovider.h"
 #include "todooutputtreeview.h"
 #include "todotr.h"
 
@@ -20,7 +21,6 @@
 #include <QToolButton>
 #include <QButtonGroup>
 #include <QSortFilterProxyModel>
-#include <todoitemsprovider.h>
 
 namespace Todo::Internal {
 
