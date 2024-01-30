@@ -18,19 +18,14 @@ namespace Todo::Internal {
 class TodoItemsModel;
 class TodoItemsScanner;
 
-class TodoItemsProvider : public QObject
+class TodoItemsProvider final : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit TodoItemsProvider(QObject *parent = nullptr);
     TodoItemsModel *todoItemsModel();
 
     void settingsChanged();
     void projectSettingsChanged(ProjectExplorer::Project *project);
-
-signals:
-    void itemsUpdated();
 
 private:
     Settings m_settings;
@@ -57,7 +52,6 @@ private:
     void setItemsListWithinStartupProject();
     void setItemsListWithinSubproject();
 
-private:
     void itemsFetched(const QString &fileName, const QList<TodoItem> &items);
     void startupProjectChanged(ProjectExplorer::Project *project);
     void projectsFilesChanged();
