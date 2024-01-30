@@ -7,6 +7,7 @@
 #include "effectcomposernodesmodel.h"
 #include "effectcomposerwidget.h"
 
+#include <designermcumanager.h>
 #include <documentmanager.h>
 #include <modelnodeoperations.h>
 #include <qmldesignerconstants.h>
@@ -59,7 +60,7 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         Core::ICore::addContextObject(context);
     }
 
-    return createWidgetInfo(m_widget.data(), "Effect Composer",
+    return createWidgetInfo(m_widget.data(), "EffectComposer",
                             QmlDesigner::WidgetInfo::LeftPane, 0, tr("Effect Composer [beta]"));
 }
 
@@ -82,9 +83,11 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 
     QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
 
-    // if starting a new project, clear the effect composer
-    if (m_currProjectPath != currProjectPath)
+    if (m_currProjectPath != currProjectPath) { // starting a new project
         m_widget->effectComposerModel()->clear(true);
+        m_widget->effectComposerModel()->setIsEnabled(
+            !QmlDesigner::DesignerMcuManager::instance().isMCUProject());
+    }
 
     m_currProjectPath = currProjectPath;
 

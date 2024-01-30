@@ -1475,6 +1475,19 @@ void EffectComposerModel::setShadersUpToDate(bool UpToDate)
     emit shadersUpToDateChanged();
 }
 
+bool EffectComposerModel::isEnabled() const
+{
+    return m_isEnabled;
+}
+
+void EffectComposerModel::setIsEnabled(bool enabled)
+{
+    if (m_isEnabled == enabled)
+        return;
+    m_isEnabled = enabled;
+    emit isEnabledChanged();
+}
+
 // Returns name for image mipmap property.
 // e.g. "myImage" -> "myImageMipmap".
 QString EffectComposerModel::mipmapPropertyName(const QString &name) const

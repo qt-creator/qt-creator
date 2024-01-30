@@ -13,6 +13,8 @@ Rectangle {
     height: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
 
+    readonly property var backendModel: EffectComposerBackend.effectComposerModel
+
     signal addClicked
     signal saveClicked
     signal saveAsClicked
@@ -26,7 +28,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.add_medium
             tooltip: qsTr("Add new composition")
-
+            enabled: root.backendModel.isEnabled
             onClicked: root.addClicked()
         }
 
@@ -34,8 +36,8 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.save_medium
             tooltip: qsTr("Save current composition")
-            enabled: EffectComposerBackend.effectComposerModel.hasUnsavedChanges
-                  || EffectComposerBackend.effectComposerModel.currentComposition === ""
+            enabled: root.backendModel.isEnabled && (root.backendModel.hasUnsavedChanges
+                                                  || root.backendModel.currentComposition === "")
 
             onClicked: root.saveClicked()
         }
@@ -44,7 +46,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
-            enabled: !EffectComposerBackend.effectComposerModel.isEmpty
+            enabled: root.backendModel.isEnabled && !root.backendModel.isEmpty
 
             onClicked: root.saveAsClicked()
         }
@@ -53,7 +55,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.assignTo_medium
             tooltip: qsTr("Assign current composition to selected item")
-            enabled: EffectComposerBackend.effectComposerModel.currentComposition !== ""
+            enabled: root.backendModel.isEnabled && root.backendModel.currentComposition !== ""
 
             onClicked: root.assignToSelectedClicked()
         }
@@ -61,7 +63,7 @@ Rectangle {
 
 
     Text {
-        readonly property string compName: EffectComposerBackend.effectComposerModel.currentComposition
+        readonly property string compName: root.backendModel.currentComposition
 
         text: compName !== "" ? compName : qsTr("Untitled")
         anchors.centerIn: parent

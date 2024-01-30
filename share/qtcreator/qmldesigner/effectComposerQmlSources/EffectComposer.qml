@@ -15,6 +15,8 @@ ColumnLayout {
 
     spacing: 1
 
+    readonly property var backendModel: EffectComposerBackend.effectComposerModel
+
     property var draggedSec: null
     property var secsY: []
     property int moveFromIdx: 0
@@ -32,9 +34,9 @@ ColumnLayout {
     }
 
     Connections {
-        target: EffectComposerBackend.effectComposerModel
+        target: root.backendModel
         function onIsEmptyChanged() {
-            if (EffectComposerBackend.effectComposerModel.isEmpty)
+            if (root.backendModel.isEmpty)
                 saveAsDialog.close()
         }
     }
@@ -49,7 +51,7 @@ ColumnLayout {
         anchors.centerIn: parent
 
         onSave: {
-            if (EffectComposerBackend.effectComposerModel.currentComposition === "") {
+            if (root.backendModel.currentComposition === "") {
                 // if current composition is unsaved, show save as dialog and clear afterwards
                 saveAsDialog.clearOnClose = true
                 saveAsDialog.open()
@@ -67,27 +69,27 @@ ColumnLayout {
         Layout.fillWidth: true
 
         onAddClicked: {
-            root.onSaveChangesCallback = () => { EffectComposerBackend.effectComposerModel.clear(true) }
+            root.onSaveChangesCallback = () => { root.backendModel.clear(true) }
 
-            if (EffectComposerBackend.effectComposerModel.hasUnsavedChanges)
+            if (root.backendModel.hasUnsavedChanges)
                 saveChangesDialog.open()
             else
-                EffectComposerBackend.effectComposerModel.clear(true)
+                root.backendModel.clear(true)
         }
 
         onSaveClicked: {
-            let name = EffectComposerBackend.effectComposerModel.currentComposition
+            let name = root.backendModel.currentComposition
 
             if (name === "")
                 saveAsDialog.open()
             else
-                EffectComposerBackend.effectComposerModel.saveComposition(name)
+                root.backendModel.saveComposition(name)
         }
 
         onSaveAsClicked: saveAsDialog.open()
 
         onAssignToSelectedClicked: {
-            EffectComposerBackend.effectComposerModel.assignToSelected()
+            root.backendModel.assignToSelected()
         }
     }
 
@@ -153,9 +155,9 @@ ColumnLayout {
                     style: StudioTheme.Values.viewBarButtonStyle
                     buttonIcon: StudioTheme.Constants.clearList_medium
                     tooltip: qsTr("Remove all effect nodes.")
-                    enabled: !EffectComposerBackend.effectComposerModel.isEmpty
+                    enabled: !root.backendModel.isEmpty
 
-                    onClicked: EffectComposerBackend.effectComposerModel.clear()
+                    onClicked: root.backendModel.clear()
                 }
 
                 HelperWidgets.AbstractButton {
@@ -199,7 +201,7 @@ ColumnLayout {
                             id: repeater
 
                             width: parent.width
-                            model: EffectComposerBackend.effectComposerModel
+                            model: root.backendModel
 
                             onCountChanged: {
                                 HelperWidgets.Controller.setCount("EffectComposer", repeater.count)
@@ -231,7 +233,7 @@ ColumnLayout {
                                     if (root.moveFromIdx === root.moveToIdx)
                                         root.draggedSec.y = root.secsY[root.moveFromIdx]
                                     else
-                                        EffectComposerBackend.effectComposerModel.moveNode(root.moveFromIdx, root.moveToIdx)
+                                        root.backendModel.moveNode(root.moveFromIdx, root.moveToIdx)
 
                                     highlightBorder = false
                                     root.draggedSec = null
@@ -271,13 +273,14 @@ ColumnLayout {
                 } // ScrollView
 
                 Text {
-                    text: qsTr("Add an effect node to start")
+                    text: root.backendModel.isEnabled ? qsTr("Add an effect node to start")
+                                                      : qsTr("Effect Composer is disabled on MCU projects")
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: StudioTheme.Values.baseFontSize
 
                     anchors.centerIn: parent
 
-                    visible: EffectComposerBackend.effectComposerModel.isEmpty
+                    visible: root.backendModel.isEmpty
                 }
             } // Item
         } // Column

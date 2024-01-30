@@ -46,6 +46,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
+    Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
@@ -72,6 +73,9 @@ public:
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
+
+    bool isEnabled() const;
+    void setIsEnabled(bool enabled);
 
     QString fragmentShader() const;
     void setFragmentShader(const QString &newFragmentShader);
@@ -105,6 +109,7 @@ signals:
     void selectedIndexChanged(int idx);
     void effectErrorChanged();
     void shadersUpToDateChanged();
+    void isEnabledChanged();
     void shadersBaked();
     void currentCompositionChanged();
     void nodesChanged();
@@ -201,6 +206,7 @@ private:
     QString m_previewEffectPropertiesString;
     QString m_qmlComponentString;
     bool m_loadComponentImages = true;
+    bool m_isEnabled = true;
     QString m_currentComposition;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
