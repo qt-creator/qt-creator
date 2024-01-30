@@ -5,8 +5,6 @@
 
 namespace Todo::Internal {
 
-class TodoItemsProvider;
-
-void setupTodoSettingsProjectPanel(TodoItemsProvider *provider);
+void setupTodoSettingsProjectPanel();
 
 } // Todo::Internal

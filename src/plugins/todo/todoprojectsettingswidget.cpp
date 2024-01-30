@@ -169,22 +169,22 @@ void TodoProjectSettingsWidget::excludedPatternChanged(QListWidgetItem *item)
 class TodoSettingsProjectPanelFactory : public ProjectPanelFactory
 {
 public:
-    TodoSettingsProjectPanelFactory(TodoItemsProvider *provider)
+    TodoSettingsProjectPanelFactory()
     {
         setPriority(100);
         setDisplayName(Tr::tr("To-Do"));
-        setCreateWidgetFunction([provider](Project *project) {
+        setCreateWidgetFunction([](Project *project) {
             auto widget = new TodoProjectSettingsWidget(project);
             QObject::connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
-                    provider, [project, provider] { provider->projectSettingsChanged(project); });
+                             [project] { todoItemsProvider().projectSettingsChanged(project); });
             return widget;
         });
     }
 };
 
-void setupTodoSettingsProjectPanel(TodoItemsProvider *provider)
+void setupTodoSettingsProjectPanel()
 {
-    static TodoSettingsProjectPanelFactory theTodoSettingsProjectPanelFactory(provider);
+    static TodoSettingsProjectPanelFactory theTodoSettingsProjectPanelFactory;
 }
 
 } // Todo::Internal

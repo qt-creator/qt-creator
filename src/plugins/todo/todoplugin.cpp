@@ -25,23 +25,21 @@ public:
     void settingsChanged();
     void scanningScopeChanged(ScanningScope scanningScope);
     void todoItemClicked(const TodoItem &item);
-    void createItemsProvider();
     void createTodoOutputPane();
 
     TodoOutputPane *m_todoOutputPane = nullptr;
-    TodoItemsProvider *m_todoItemsProvider = nullptr;
 };
 
 TodoPluginPrivate::TodoPluginPrivate()
 {
     todoSettings().load(Core::ICore::settings());
 
-    createItemsProvider();
+    setupTodoItemsProvider(this);
     createTodoOutputPane();
 
     setupTodoSettingsPage([this] { settingsChanged(); });
 
-    setupTodoSettingsProjectPanel(m_todoItemsProvider);
+    setupTodoSettingsProjectPanel();
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, [] { todoSettings().save(Core::ICore::settings()); });
@@ -51,7 +49,7 @@ void TodoPluginPrivate::settingsChanged()
 {
     todoSettings().save(Core::ICore::settings());
 
-    m_todoItemsProvider->settingsChanged();
+    todoItemsProvider().settingsChanged();
     m_todoOutputPane->setScanningScope(todoSettings().scanningScope);
 }
 
@@ -67,14 +65,9 @@ void TodoPluginPrivate::todoItemClicked(const TodoItem &item)
         Core::EditorManager::openEditorAt(Utils::Link(item.file, item.line));
 }
 
-void TodoPluginPrivate::createItemsProvider()
-{
-    m_todoItemsProvider = new TodoItemsProvider(this);
-}
-
 void TodoPluginPrivate::createTodoOutputPane()
 {
-    m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel(), this);
+    m_todoOutputPane = new TodoOutputPane(todoItemsProvider().todoItemsModel(), this);
     m_todoOutputPane->setScanningScope(todoSettings().scanningScope);
     connect(m_todoOutputPane, &TodoOutputPane::scanningScopeChanged,
             this, &TodoPluginPrivate::scanningScopeChanged);

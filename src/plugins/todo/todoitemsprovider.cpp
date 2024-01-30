@@ -26,8 +26,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 TodoItemsProvider::TodoItemsProvider(QObject *parent) :
     QObject(parent),
@@ -209,5 +208,16 @@ void TodoItemsProvider::setupItemsModel()
     m_itemsModel->setTodoItemsList(&m_itemsList);
 }
 
+static TodoItemsProvider *s_instance = nullptr;
+
+TodoItemsProvider &todoItemsProvider()
+{
+    return *s_instance;
 }
+
+void setupTodoItemsProvider(QObject *guard)
+{
+    s_instance = new TodoItemsProvider(guard);
 }
+
+} // Internal

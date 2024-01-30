@@ -13,8 +13,7 @@
 #include <QHash>
 #include <QList>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoItemsModel;
 class TodoItemsScanner;
@@ -66,5 +65,8 @@ private:
     void updateListTimeoutElapsed();
 };
 
-}
-}
+TodoItemsProvider &todoItemsProvider();
+
+void setupTodoItemsProvider(QObject *guard);
+
+} // Todo::Internal
