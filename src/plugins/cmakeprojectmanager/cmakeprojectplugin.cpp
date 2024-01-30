@@ -80,7 +80,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         ProjectManager::registerProjectType<CMakeProject>(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
         ActionBuilder(this, Constants::BUILD_TARGET_CONTEXT_MENU)
-            .setParameterText(Tr::tr("Build"), Tr::tr("Build \"%1\""), ActionBuilder::AlwaysEnabled)
+            .setParameterText(Tr::tr("Build \"%1\""), Tr::tr("Build"), ActionBuilder::AlwaysEnabled)
             .setContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
             .bindContextAction(&m_buildTargetContextAction)
             .setCommandAttribute(Command::CA_Hide)
