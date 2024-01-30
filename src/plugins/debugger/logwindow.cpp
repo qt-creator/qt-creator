@@ -190,7 +190,7 @@ public:
 
     void contextMenuEvent(QContextMenuEvent *ev) override
     {
-        QMenu *menu = createStandardContextMenu();
+        QPointer<QMenu> menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         menu->addAction(settings().logTimeStamps.action());
