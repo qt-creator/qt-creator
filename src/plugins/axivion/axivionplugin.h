@@ -57,6 +57,9 @@ Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &ha
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
 Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
 
+using HtmlHandler = std::function<void(const QByteArray &)>;
+Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
+
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();

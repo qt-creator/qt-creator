@@ -5,7 +5,6 @@
 
 #include "axivionoutputpane.h"
 #include "axivionprojectsettings.h"
-#include "axivionquery.h"
 #include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
@@ -140,7 +139,7 @@ public:
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
     void handleIssuesForFile(const IssuesList &issues);
-    void fetchRuleInfo(const QString &id);
+    void fetchIssueInfo(const QString &id);
 
     NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
@@ -149,6 +148,7 @@ public:
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
+    TaskTreeRunner m_issueInfoRunner;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -176,8 +176,7 @@ AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &iss
        auto action = new QAction;
        action->setIcon(Utils::Icons::INFO.icon());
        action->setToolTip(Tr::tr("Show rule details"));
-       QObject::connect(action, &QAction::triggered,
-                        dd, [this]{ dd->fetchRuleInfo(m_id); });
+       QObject::connect(action, &QAction::triggered, dd, [this] { dd->fetchIssueInfo(m_id); });
        return QList{action};
     });
 }
@@ -265,10 +264,66 @@ static QUrl urlForProject(const QString &projectName)
 
 static constexpr int httpStatusCodeOk = 200;
 static const QLatin1String jsonContentType{ "application/json" };
+static const QLatin1String htmlContentType{ "text/html" };
+
+static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
+{
+    struct StorageData
+    {
+        QByteArray credentials;
+    };
+
+    const Storage<StorageData> storage;
+
+    const auto onCredentialSetup = [storage] {
+        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
+    };
+
+    const auto onQuerySetup = [storage, url](NetworkQuery &query) {
+        QNetworkRequest request(url);
+        request.setRawHeader(QByteArrayLiteral("Accept"),
+                             QByteArray(htmlContentType.data(), htmlContentType.size()));
+        request.setRawHeader(QByteArrayLiteral("Authorization"),
+                             storage->credentials);
+        const QByteArray ua = QByteArrayLiteral("Axivion")
+                              + QCoreApplication::applicationName().toUtf8()
+                              + QByteArrayLiteral("Plugin/")
+                              + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        query.setRequest(request);
+        query.setNetworkAccessManager(&dd->m_networkAccessManager);
+    };
+
+    const auto onQueryDone = [url, handler](const NetworkQuery &query, DoneWith doneWith) {
+        QNetworkReply *reply = query.reply();
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
+                                        .toString()
+                                        .split(';')
+                                        .constFirst()
+                                        .trimmed()
+                                        .toLower();
+        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
+            && contentType == htmlContentType) {
+            handler(reply->readAll());
+            return DoneResult::Success;
+        }
+
+        return DoneResult::Error;
+    };
+
+    const Group recipe {
+        storage,
+        Sync(onCredentialSetup),
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+    };
+
+    return recipe;
+}
 
 template<typename SerializableType>
 static Group fetchDataRecipe(const QUrl &url,
-                             const std::function<void(const SerializableType &result)> &handler)
+                             const std::function<void(const SerializableType &)> &handler)
 {
     struct StorageData
     {
@@ -279,8 +334,7 @@ static Group fetchDataRecipe(const QUrl &url,
     const Storage<StorageData> storage;
 
     const auto onCredentialSetup = [storage] {
-        storage->credentials = QByteArrayLiteral("AxToken ")
-                              + settings().server.token.toUtf8();
+        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
     };
 
     const auto onQuerySetup = [storage, url](NetworkQuery &query) {
@@ -423,6 +477,22 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
+Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
+{
+    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+
+    QString dashboard = settings().server.dashboard;
+    if (!dashboard.endsWith(QLatin1Char('/')))
+        dashboard += QLatin1Char('/');
+
+    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("issues/"))
+                         .resolved(QString(issueId + '/'))
+                         .resolved(QString("properties"));
+
+    return fetchHtmlRecipe(url, handler);
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
     if (m_taskTreeRunner.isRunning()) { // TODO: cache in queue and run when task tree finished
@@ -477,25 +547,16 @@ Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
     return fetchDataRecipe<Dto::TableInfoDto>(url, handler);
 }
 
-void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
+void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
 {
     if (!m_currentProjectInfo)
         return;
 
-    if (m_runningQuery) {
-        QTimer::singleShot(3000, this, [this, id] { fetchRuleInfo(id); });
-        return;
-    }
+    const auto ruleHandler = [](const QByteArray &htmlText) {
+        dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(htmlText));
+    };
 
-    m_runningQuery = true;
-    AxivionQuery query(AxivionQuery::RuleInfo, {m_currentProjectInfo->name, "SV" + id});
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        m_runningQuery = false;
-        m_axivionOutputPane.updateAndShowRule(ResultParser::parseRuleInfo(result));
-    });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
 }
 
 void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
