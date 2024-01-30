@@ -145,13 +145,12 @@ int ProcessTestApp::RunBlockingStdOut::main()
 {
     std::cout << "Wait for the Answer to the Ultimate Question of Life, "
                  "The Universe, and Everything..." << std::endl;
-    QThread::msleep(300);
     std::cout << s_runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
     if (qEnvironmentVariable(envVar()) == "true")
         std::cout << std::endl;
     else
         std::cout << std::flush; // otherwise it won't reach the original process (will be buffered)
-    QThread::msleep(5000);
+    QThread::msleep(3000);
     return 0;
 }
 
