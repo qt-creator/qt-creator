@@ -4,7 +4,7 @@
 
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
-#include "todoprojectsettingswidget.h"
+#include "todoprojectpanel.h"
 
 #include <extensionsystem/iplugin.h>
 

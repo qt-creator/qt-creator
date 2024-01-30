@@ -19,6 +19,6 @@ add_qtc_plugin(Todo
     todooutputtreeviewdelegate.cpp todooutputtreeviewdelegate.h
     todoplugin.cpp
     todoplugin.qrc
-    todoprojectsettingswidget.cpp todoprojectsettingswidget.h
+    todoprojectpanel.cpp todoprojectpanel.h
     todotr.h
 )
