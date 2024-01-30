@@ -178,6 +178,7 @@ const char PERFPROFILER_RUNNER[]="PerfProfiler.Runner";
 
 // RunWorkerFactory
 const char QML_PROFILER_RUN_FACTORY[] = "RunWorkerFactory.LocalQmlProfilerSupport";
+const char QML_PREVIEW_RUN_FACTORY[] = "RunWorkerFactory.LocalQmlPreviewSupport";
 
 // RunConfig
 const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";

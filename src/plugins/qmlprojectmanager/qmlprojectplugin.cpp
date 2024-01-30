@@ -42,6 +42,8 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <qmlpreview/qmlpreviewruncontrol.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -59,6 +61,7 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace QmlPreview;
 using namespace QmlProfiler;
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -257,6 +260,7 @@ private:
         static SimpleTargetRunnerFactory runWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
         static SimpleQmlProfilerRunnerFactory qmlProfilerRunWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
         static SimpleDebugRunnerFactory debugRunWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
+        static SimplePreviewRunnerFactory previewRunWorkerFactory{{Constants::QML_RUNCONFIG_ID}};
     }
 
     void displayQmlLandingPage();
