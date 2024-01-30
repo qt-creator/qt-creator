@@ -456,12 +456,12 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
     if (dto.totalRemovedCount.has_value())
         m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
 
-    const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
-    const std::vector<std::map<QString, Dto::Any>> rows = dto.rows;
-    for (auto row : rows) {
+    const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
+    const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+    for (const auto &row : rows) {
         QStringList data;
-        for (auto column : tableColumns) {
-            auto it = row.find(column.key);
+        for (const auto &column : tableColumns) {
+            const auto it = row.find(column.key);
             if (it != row.end()) {
                 QString value = anyToSimpleString(it->second);
                 if (column.key == "id")
