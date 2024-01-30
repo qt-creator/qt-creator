@@ -5,6 +5,6 @@
 
 namespace Todo::Internal {
 
-void setupTodoSettingsProjectPanel();
+void setupTodoProjectPanel();
 
 } // Todo::Internal

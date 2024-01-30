@@ -30,7 +30,7 @@ public:
 
         setupTodoSettingsPage();
 
-        setupTodoSettingsProjectPanel();
+        setupTodoProjectPanel();
     }
 };
 

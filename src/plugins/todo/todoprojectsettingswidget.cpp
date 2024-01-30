@@ -24,16 +24,10 @@ static QString excludePlaceholder()
     return Tr::tr("<Enter regular expression to exclude>");
 }
 
-class TodoProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+class TodoProjectPanelWidget final : public ProjectSettingsWidget
 {
-    Q_OBJECT
-
 public:
-    explicit TodoProjectSettingsWidget(ProjectExplorer::Project *project);
-    ~TodoProjectSettingsWidget() override;
-
-signals:
-    void projectSettingsChanged();
+    explicit TodoProjectPanelWidget(Project *project);
 
 private:
     void addExcludedPatternButtonClicked();
@@ -45,12 +39,12 @@ private:
     void saveSettings();
     void prepareItem(QListWidgetItem *item) const;
 
-    ProjectExplorer::Project *m_project;
+    Project *m_project;
     QListWidget *m_excludedPatternsList;
     QPushButton *m_removeExcludedPatternButton;
 };
 
-TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project)
+TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     : m_project(project)
 {
     m_excludedPatternsList = new QListWidget;
@@ -82,20 +76,18 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
     connect(addExcludedPatternButton,
             &QPushButton::clicked,
             this,
-            &TodoProjectSettingsWidget::addExcludedPatternButtonClicked);
+            &TodoProjectPanelWidget::addExcludedPatternButtonClicked);
     connect(m_removeExcludedPatternButton, &QPushButton::clicked,
-            this, &TodoProjectSettingsWidget::removeExcludedPatternButtonClicked);
+            this, &TodoProjectPanelWidget::removeExcludedPatternButtonClicked);
     connect(m_excludedPatternsList, &QListWidget::itemChanged,
-            this, &TodoProjectSettingsWidget::excludedPatternChanged, Qt::QueuedConnection);
+            this, &TodoProjectPanelWidget::excludedPatternChanged, Qt::QueuedConnection);
     connect(m_excludedPatternsList, &QListWidget::itemSelectionChanged,
-            this, &TodoProjectSettingsWidget::setExcludedPatternsButtonsEnabled);
+            this, &TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled);
 
     loadSettings();
 }
 
-TodoProjectSettingsWidget::~TodoProjectSettingsWidget() = default;
-
-QListWidgetItem *TodoProjectSettingsWidget::addToExcludedPatternsList(const QString &pattern)
+QListWidgetItem *TodoProjectPanelWidget::addToExcludedPatternsList(const QString &pattern)
 {
     auto item = new QListWidgetItem(pattern);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -104,7 +96,7 @@ QListWidgetItem *TodoProjectSettingsWidget::addToExcludedPatternsList(const QStr
     return item;
 }
 
-void TodoProjectSettingsWidget::loadSettings()
+void TodoProjectPanelWidget::loadSettings()
 {
     QVariant s = m_project->namedSettings(Constants::SETTINGS_NAME_KEY);
     QVariantMap settings = s.toMap();
@@ -113,7 +105,7 @@ void TodoProjectSettingsWidget::loadSettings()
         addToExcludedPatternsList(pattern.toString());
 }
 
-void TodoProjectSettingsWidget::saveSettings()
+void TodoProjectPanelWidget::saveSettings()
 {
     QVariantMap settings;
     QVariantList excludes;
@@ -124,10 +116,11 @@ void TodoProjectSettingsWidget::saveSettings()
     settings[Constants::EXCLUDES_LIST_KEY] = excludes;
 
     m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, settings);
-    emit projectSettingsChanged();
+
+    todoItemsProvider().projectSettingsChanged(m_project);
 }
 
-void TodoProjectSettingsWidget::prepareItem(QListWidgetItem *item) const
+void TodoProjectPanelWidget::prepareItem(QListWidgetItem *item) const
 {
     if (QRegularExpression(item->text()).isValid())
         item->setForeground(QBrush(m_excludedPatternsList->palette().color(QPalette::Active, QPalette::Text)));
@@ -135,26 +128,26 @@ void TodoProjectSettingsWidget::prepareItem(QListWidgetItem *item) const
         item->setForeground(QBrush(Qt::red));
 }
 
-void TodoProjectSettingsWidget::addExcludedPatternButtonClicked()
+void TodoProjectPanelWidget::addExcludedPatternButtonClicked()
 {
     if (!m_excludedPatternsList->findItems(excludePlaceholder(), Qt::MatchFixedString).isEmpty())
         return;
     m_excludedPatternsList->editItem(addToExcludedPatternsList(excludePlaceholder()));
 }
 
-void TodoProjectSettingsWidget::removeExcludedPatternButtonClicked()
+void TodoProjectPanelWidget::removeExcludedPatternButtonClicked()
 {
     delete m_excludedPatternsList->takeItem(m_excludedPatternsList->currentRow());
     saveSettings();
 }
 
-void TodoProjectSettingsWidget::setExcludedPatternsButtonsEnabled()
+void TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled()
 {
     const bool isSomethingSelected = !m_excludedPatternsList->selectedItems().isEmpty();
     m_removeExcludedPatternButton->setEnabled(isSomethingSelected);
 }
 
-void TodoProjectSettingsWidget::excludedPatternChanged(QListWidgetItem *item)
+void TodoProjectPanelWidget::excludedPatternChanged(QListWidgetItem *item)
 {
     if (item->text().isEmpty() || item->text() == excludePlaceholder()) {
         m_excludedPatternsList->removeItemWidget(item);
@@ -166,27 +159,22 @@ void TodoProjectSettingsWidget::excludedPatternChanged(QListWidgetItem *item)
     m_excludedPatternsList->setCurrentItem(nullptr);
 }
 
-class TodoSettingsProjectPanelFactory : public ProjectPanelFactory
+class TodoProjectPanelFactory final : public ProjectPanelFactory
 {
 public:
-    TodoSettingsProjectPanelFactory()
+    TodoProjectPanelFactory()
     {
         setPriority(100);
         setDisplayName(Tr::tr("To-Do"));
         setCreateWidgetFunction([](Project *project) {
-            auto widget = new TodoProjectSettingsWidget(project);
-            QObject::connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
-                             [project] { todoItemsProvider().projectSettingsChanged(project); });
-            return widget;
+            return new TodoProjectPanelWidget(project);
         });
     }
 };
 
-void setupTodoSettingsProjectPanel()
+void setupTodoProjectPanel()
 {
-    static TodoSettingsProjectPanelFactory theTodoSettingsProjectPanelFactory;
+    static TodoProjectPanelFactory theTodoProjectPanelFactory;
 }
 
 } // Todo::Internal
-
-#include "todoprojectsettingswidget.moc"
