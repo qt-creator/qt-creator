@@ -10,16 +10,19 @@
 #include "todotr.h"
 
 #include <aggregation/aggregate.h>
+
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
 
 #include <QIcon>
 #include <QHeaderView>
 #include <QToolButton>
 #include <QButtonGroup>
 #include <QSortFilterProxyModel>
+#include <todoitemsprovider.h>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) :
     IOutputPane(parent),
@@ -31,7 +34,9 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) 
 
     createTreeView();
     createScopeButtons();
-    setScanningScope(ScanningScopeCurrentFile); // default
+
+    setScanningScope(todoSettings().scanningScope);
+
     connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
             this, &TodoOutputPane::navigateStateUpdate);
     connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
@@ -125,15 +130,30 @@ void TodoOutputPane::setScanningScope(ScanningScope scanningScope)
         Q_ASSERT_X(false, "Updating scanning scope buttons", "Unknown scanning scope enum value");
 }
 
+void TodoOutputPane::todoItemClicked(const TodoItem &item)
+{
+    if (item.file.exists())
+        Core::EditorManager::openEditorAt(Utils::Link(item.file, item.line));
+}
+
 void TodoOutputPane::scopeButtonClicked(QAbstractButton *button)
 {
     if (button == m_currentFileButton)
-        emit scanningScopeChanged(ScanningScopeCurrentFile);
+        scanningScopeChanged(ScanningScopeCurrentFile);
     else if (button == m_subProjectButton)
-        emit scanningScopeChanged(ScanningScopeSubProject);
+        scanningScopeChanged(ScanningScopeSubProject);
     else if (button == m_wholeProjectButton)
-        emit scanningScopeChanged(ScanningScopeProject);
+        scanningScopeChanged(ScanningScopeProject);
     emit setBadgeNumber(m_todoTreeView->model()->rowCount());
+}
+
+void TodoOutputPane::scanningScopeChanged(ScanningScope scanningScope)
+{
+    todoSettings().scanningScope = scanningScope;
+    todoSettings().save(Core::ICore::settings());
+
+    todoItemsProvider().settingsChanged();
+    setScanningScope(todoSettings().scanningScope);
 }
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
@@ -295,5 +315,16 @@ QModelIndex TodoOutputPane::previousModelIndex()
         return indexToBeSelected;
 }
 
-} // namespace Internal
-} // namespace Todo
+static TodoOutputPane *s_instance = nullptr;
+
+TodoOutputPane &todoOutputPane()
+{
+    return *s_instance;
+}
+
+void setupTodoOutputPane(QObject *guard)
+{
+    s_instance = new TodoOutputPane(todoItemsProvider().todoItemsModel(), guard);
+}
+
+} // Todo::Internal

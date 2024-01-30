@@ -8,12 +8,8 @@
 #include "todotr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 
 #include <extensionsystem/iplugin.h>
-
-#include <utils/link.h>
 
 namespace Todo::Internal {
 
@@ -23,11 +19,6 @@ public:
     TodoPluginPrivate();
 
     void settingsChanged();
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
-    void createTodoOutputPane();
-
-    TodoOutputPane *m_todoOutputPane = nullptr;
 };
 
 TodoPluginPrivate::TodoPluginPrivate()
@@ -35,7 +26,7 @@ TodoPluginPrivate::TodoPluginPrivate()
     todoSettings().load(Core::ICore::settings());
 
     setupTodoItemsProvider(this);
-    createTodoOutputPane();
+    setupTodoOutputPane(this);
 
     setupTodoSettingsPage([this] { settingsChanged(); });
 
@@ -50,29 +41,7 @@ void TodoPluginPrivate::settingsChanged()
     todoSettings().save(Core::ICore::settings());
 
     todoItemsProvider().settingsChanged();
-    m_todoOutputPane->setScanningScope(todoSettings().scanningScope);
-}
-
-void TodoPluginPrivate::scanningScopeChanged(ScanningScope scanningScope)
-{
-    todoSettings().scanningScope = scanningScope;
-    settingsChanged();
-}
-
-void TodoPluginPrivate::todoItemClicked(const TodoItem &item)
-{
-    if (item.file.exists())
-        Core::EditorManager::openEditorAt(Utils::Link(item.file, item.line));
-}
-
-void TodoPluginPrivate::createTodoOutputPane()
-{
-    m_todoOutputPane = new TodoOutputPane(todoItemsProvider().todoItemsModel(), this);
-    m_todoOutputPane->setScanningScope(todoSettings().scanningScope);
-    connect(m_todoOutputPane, &TodoOutputPane::scanningScopeChanged,
-            this, &TodoPluginPrivate::scanningScopeChanged);
-    connect(m_todoOutputPane, &TodoOutputPane::todoItemClicked,
-            this, &TodoPluginPrivate::todoItemClicked);
+    todoOutputPane().setScanningScope(todoSettings().scanningScope);
 }
 
 class TodoPlugin final : public ExtensionSystem::IPlugin
