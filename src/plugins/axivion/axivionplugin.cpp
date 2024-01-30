@@ -102,7 +102,9 @@ QString IssueListSearch::toQuery() const
     if (kind.isEmpty())
         return {};
     QString result;
-    result.append(QString("?kind=%1&offset=%2&limit=%3").arg(kind).arg(offset).arg(limit));
+    result.append(QString("?kind=%1&offset=%2").arg(kind).arg(offset));
+    if (limit)
+        result.append(QString("&limit=%1").arg(limit));
     // TODO other params
     if (!versionStart.isEmpty()) {
         result.append(QString("&start=%1").arg(
@@ -525,6 +527,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     IssueListSearch search;
     search.kind = "SV";
     search.filter_path = doc->filePath().relativeChildPath(project->projectDirectory()).path();
+    search.limit = 0;
 
     const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
         IssuesList issues;
