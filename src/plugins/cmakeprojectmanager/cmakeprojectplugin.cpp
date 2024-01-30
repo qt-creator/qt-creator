@@ -8,6 +8,7 @@
 #include "cmakeformatter.h"
 #include "cmakeinstallstep.h"
 #include "cmakelocatorfilter.h"
+#include "cmakekitaspect.h"
 #include "cmakeparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
@@ -53,6 +54,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeToolManager(this);
 
         setupCMakeSettingsPage();
+        setupCMakeKitAspects();
 
         setupCMakeBuildConfiguration();
         setupCMakeBuildStep();

@@ -18,12 +18,14 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
-#include <stack>
+
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
+
+#include <stack>
 
 using namespace Core;
 using namespace Utils;
@@ -186,8 +188,6 @@ CMakeToolManager::CMakeToolManager()
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
-
-    CMakeKitAspect::createFactories();
 }
 
 CMakeToolManager::~CMakeToolManager()
