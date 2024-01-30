@@ -30,6 +30,8 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Cppcheck::Internal {
@@ -46,7 +48,7 @@ public:
     CppcheckTool manualRunTool{manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
     Utils::Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
 
-    QAction *manualRunAction;
+    Action *manualRunAction = nullptr;
 
     void startManualRun();
     void updateManualRunAction();
@@ -130,7 +132,6 @@ void CppcheckPluginPrivate::startManualRun()
 
 void CppcheckPluginPrivate::updateManualRunAction()
 {
-    using namespace ProjectExplorer;
     const Project *project = ProjectManager::startupProject();
     const Target *target = ProjectManager::startupTarget();
     const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
@@ -148,19 +149,13 @@ class CppcheckPlugin final : public ExtensionSystem::IPlugin
     {
         d.reset(new CppcheckPluginPrivate);
 
-        using namespace Core;
-        ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+        ActionBuilder(this, Constants::MANUAL_RUN_ACTION)
+            .setText(Tr::tr("Cppcheck..."))
+            .bindContextAction(&d->manualRunAction)
+            .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,
+                            Debugger::Constants::G_ANALYZER_TOOLS)
+            .addOnTriggered(d.get(), &CppcheckPluginPrivate::startManualRun);
 
-        {
-            auto action = new QAction(Tr::tr("Cppcheck..."), this);
-            menu->addAction(ActionManager::registerAction(action, Constants::MANUAL_RUN_ACTION),
-                            Debugger::Constants::G_ANALYZER_TOOLS);
-            connect(action, &QAction::triggered,
-                    d.get(), &CppcheckPluginPrivate::startManualRun);
-            d->manualRunAction = action;
-        }
-
-        using ProjectExplorer::ProjectExplorerPlugin;
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
                 d.get(), &CppcheckPluginPrivate::updateManualRunAction);
         d->updateManualRunAction();
