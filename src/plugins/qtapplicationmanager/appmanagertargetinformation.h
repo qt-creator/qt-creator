@@ -45,7 +45,6 @@ public:
     bool isValid() const;
 
     TargetInformation() = default;
-    TargetInformation(const TargetInformation &other) = default;
     TargetInformation(const ProjectExplorer::Target *target);
 
     static QList<TargetInformation> readFromProject(const ProjectExplorer::Target *target, const QString &buildKey = QString());
