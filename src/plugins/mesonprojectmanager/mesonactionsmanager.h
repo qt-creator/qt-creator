@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <QObject>
+
 namespace MesonProjectManager::Internal {
 
-void setupMesonActions();
+void setupMesonActions(QObject *guard);
 
 } // Internal::MesonProjectManager
