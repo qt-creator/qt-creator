@@ -390,35 +390,6 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
 }
 
-static QString anyToSimpleString(const Dto::Any &any)
-{
-    if (any.isString())
-        return any.getString();
-    if (any.isBool())
-        return QString("%1").arg(any.getBool());
-    if (any.isDouble())
-        return QString::number(any.getDouble());
-    if (any.isNull())
-        return QString(); // or NULL??
-    if (any.isList()) {
-        const std::vector<Dto::Any> anyList = any.getList();
-        QStringList list;
-        for (const Dto::Any &inner : anyList)
-            list << anyToSimpleString(inner);
-        return list.join(',');
-    }
-    if (any.isMap()) { // TODO
-        const std::map<QString, Dto::Any> anyMap = any.getMap();
-        auto value = anyMap.find("displayName");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("name");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-    }
-    return QString();
-}
-
 static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
 {
     Links links;

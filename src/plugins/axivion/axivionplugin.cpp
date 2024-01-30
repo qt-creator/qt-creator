@@ -68,6 +68,35 @@ QIcon iconForIssue(const QString &prefix)
     return it.value();
 }
 
+QString anyToSimpleString(const Dto::Any &any)
+{
+    if (any.isString())
+        return any.getString();
+    if (any.isBool())
+        return QString("%1").arg(any.getBool());
+    if (any.isDouble())
+        return QString::number(any.getDouble());
+    if (any.isNull())
+        return QString(); // or NULL??
+    if (any.isList()) {
+        const std::vector<Dto::Any> anyList = any.getList();
+        QStringList list;
+        for (const Dto::Any &inner : anyList)
+            list << anyToSimpleString(inner);
+        return list.join(',');
+    }
+    if (any.isMap()) { // TODO
+        const std::map<QString, Dto::Any> anyMap = any.getMap();
+        auto value = anyMap.find("displayName");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+        value = anyMap.find("name");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+    }
+    return {};
+}
+
 QString IssueListSearch::toQuery() const
 {
     if (kind.isEmpty())
@@ -77,11 +106,15 @@ QString IssueListSearch::toQuery() const
     // TODO other params
     if (!versionStart.isEmpty()) {
         result.append(QString("&start=%1").arg(
-                          QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
+            QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
     }
     if (!versionEnd.isEmpty()) {
         result.append(QString("&end=%1").arg(
-                          QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
+            QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
+    }
+    if (!filter_path.isEmpty()) {
+        result.append(QString("&filter_path=%1").arg(
+            QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
     }
     if (computeTotalRowCount)
         result.append("&computeTotalRowCount=true");
@@ -108,6 +141,7 @@ public:
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
+    std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -438,15 +472,16 @@ Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
 {
+    if (!m_currentProjectInfo)
+        return;
+
     if (m_runningQuery) {
         QTimer::singleShot(3000, this, [this, id] { fetchRuleInfo(id); });
         return;
     }
 
-    const QStringList args = id.split(':');
-    QTC_ASSERT(args.size() == 2, return);
     m_runningQuery = true;
-    AxivionQuery query(AxivionQuery::RuleInfo, args);
+    AxivionQuery query(AxivionQuery::RuleInfo, {m_currentProjectInfo->name, "SV" + id});
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
         m_runningQuery = false;
@@ -487,16 +522,48 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (!doc || !project->isKnownFile(doc->filePath()))
         return;
 
-    const FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
-    // for now only style violations
-    const AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->name, "SV",
-                                                               relative.path()});
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        handleIssuesForFile(ResultParser::parseIssuesList(result));
+    IssueListSearch search;
+    search.kind = "SV";
+    search.filter_path = doc->filePath().relativeChildPath(project->projectDirectory()).path();
+
+    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
+        IssuesList issues;
+        const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+        for (const auto &row : rows) {
+            ShortIssue issue;
+            for (auto it = row.cbegin(); it != row.cend(); ++it) {
+                if (it->first == "id")
+                    issue.id = anyToSimpleString(it->second);
+                else if (it->first == "state")
+                    issue.state = anyToSimpleString(it->second);
+                else if (it->first == "errorNumber")
+                    issue.errorNumber = anyToSimpleString(it->second);
+                else if (it->first == "message")
+                    issue.message = anyToSimpleString(it->second);
+                else if (it->first == "entity")
+                    issue.entity = anyToSimpleString(it->second);
+                else if (it->first == "path")
+                    issue.filePath = anyToSimpleString(it->second);
+                else if (it->first == "severity")
+                    issue.severity = anyToSimpleString(it->second);
+                else if (it->first == "line")
+                    issue.lineNumber = anyToSimpleString(it->second).toInt();
+            }
+            issues.issues << issue;
+        }
+        handleIssuesForFile(issues);
+    };
+
+    TaskTree *taskTree = new TaskTree;
+    taskTree->setRecipe(issueTableRecipe(search, issuesHandler));
+    m_docMarksTrees.insert_or_assign(doc, std::unique_ptr<TaskTree>(taskTree));
+    connect(taskTree, &TaskTree::done, this, [this, doc] {
+        const auto it = m_docMarksTrees.find(doc);
+        QTC_ASSERT(it != m_docMarksTrees.end(), return);
+        it->second.release()->deleteLater();
+        m_docMarksTrees.erase(it);
     });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    taskTree->start();
 }
 
 void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
@@ -504,6 +571,10 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     const auto document = qobject_cast<TextEditor::TextDocument *>(doc);
     if (!document)
         return;
+
+    const auto it = m_docMarksTrees.find(doc);
+    if (it != m_docMarksTrees.end())
+        m_docMarksTrees.erase(it);
 
     const TextEditor::TextMarks marks = document->marks();
     for (auto m : marks) {

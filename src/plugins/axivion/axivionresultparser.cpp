@@ -54,66 +54,6 @@ static BaseResult prehandleHeader(const QByteArray &header, const QByteArray &bo
 
 namespace ResultParser {
 
-static QRegularExpression issueCsvLineRegex(const QByteArray &firstCsvLine)
-{
-    QString pattern = "^";
-    for (const QByteArray &part : firstCsvLine.split(',')) {
-        const QString cleaned = QString::fromUtf8(part).remove(' ').chopped(1).mid(1);
-        pattern.append(QString("\"(?<" + cleaned + ">.*)\","));
-    }
-    pattern.chop(1); // remove last comma
-    pattern.append('$');
-    const QRegularExpression regex(pattern);
-    QTC_ASSERT(regex.isValid(), return {});
-    return regex;
-}
-
-static void parseCsvIssue(const QByteArray &csv, QList<ShortIssue> *issues)
-{
-    QTC_ASSERT(issues, return);
-
-    bool first = true;
-    std::optional<QRegularExpression> regex;
-    for (auto &line : csv.split('\n')) {
-        if (first) {
-            regex.emplace(issueCsvLineRegex(line));
-            first = false;
-            if (regex.value().pattern().isEmpty())
-                return;
-            continue;
-        }
-        if (line.isEmpty())
-            continue;
-        const QRegularExpressionMatch match = regex->match(QString::fromUtf8(line));
-        QTC_ASSERT(match.hasMatch(), continue);
-        // FIXME: some of these are not present for all issue kinds! Limited to SV for now
-        ShortIssue issue;
-        issue.id = match.captured("Id");
-        issue.state = match.captured("State");
-        issue.errorNumber = match.captured("ErrorNumber");
-        issue.message = match.captured("Message");
-        issue.entity = match.captured("Entity");
-        issue.filePath = match.captured("Path");
-        issue.severity = match.captured("Severity");
-        issue.lineNumber = match.captured("Line").toInt();
-        issues->append(issue);
-    }
-}
-
-IssuesList parseIssuesList(const QByteArray &input)
-{
-    IssuesList result;
-
-    auto [header, body] = splitHeaderAndBody(input);
-    BaseResult headerResult = prehandleHeader(header, body);
-    if (!headerResult.error.isEmpty()) {
-        result.error = headerResult.error;
-        return result;
-    }
-    parseCsvIssue(body, &result.issues);
-    return result;
-}
-
 QString parseRuleInfo(const QByteArray &input) // html result!
 {
     auto [header, body] = splitHeaderAndBody(input);

@@ -43,7 +43,6 @@ public:
 
 namespace ResultParser {
 
-IssuesList parseIssuesList(const QByteArray &input);
 QString parseRuleInfo(const QByteArray &input);
 
 } // ResultParser

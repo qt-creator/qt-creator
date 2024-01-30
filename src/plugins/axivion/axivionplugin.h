@@ -31,6 +31,7 @@ struct IssueListSearch
     QString versionEnd;
     QString owner;
     QString pathglob;
+    QString filter_path;
     int offset = 0;
     int limit = 30;
     bool computeTotalRowCount = false;
@@ -64,6 +65,7 @@ std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const QString &prefix);
+QString anyToSimpleString(const Dto::Any &any);
 
 } // Axivion::Internal
 
