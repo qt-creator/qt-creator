@@ -27,7 +27,6 @@ public:
     bool isNativeRuntime() const { return runtime.toLower() == "native"; }
 
     Manifest() = default;
-    Manifest(const Manifest &other) = default;
 };
 
 class TargetInformation final
