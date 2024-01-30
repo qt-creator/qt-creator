@@ -518,7 +518,7 @@ void CppFileSettingsForProject::loadSettings()
     if (!entry.isValid())
         return;
 
-    const QVariantMap data = entry.toMap();
+    const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
     m_useGlobalSettings = data.value(useGlobalKeyC, true).toBool();
     m_customSettings.headerPrefixes = data.value(headerPrefixesKeyC,
                                                  m_customSettings.headerPrefixes).toStringList();
@@ -574,6 +574,8 @@ public:
         m_wasGlobal(settings.useGlobalSettings())
     {
         setGlobalSettingsId(Constants::CPP_FILE_SETTINGS_ID);
+        setUseGlobalSettings(settings.useGlobalSettings());
+
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(&m_widget);

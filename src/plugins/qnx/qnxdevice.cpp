@@ -14,6 +14,7 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 
 #include <remotelinux/linuxdevice.h>
+#include <remotelinux/remotelinux_constants.h>
 #include <remotelinux/remotelinuxsignaloperation.h>
 #include <remotelinux/sshdevicewizard.h>
 
@@ -72,6 +73,7 @@ public:
         sshParams.timeout = 10;
         setSshParameters(sshParams);
         setFreePorts(PortList::fromString("10000-10100"));
+        setExtraData(RemoteLinux::Constants::SourceProfile, true);
 
         addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
             QnxDeployQtLibrariesDialog dialog(device, parent);

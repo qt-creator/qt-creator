@@ -533,7 +533,7 @@ Document::Ptr Document::create(const FilePath &filePath)
 void Document::setUtf8Source(const QByteArray &source)
 {
     _source = source;
-    _translationUnit->setSource(_source.constBegin(), _source.size());
+    _translationUnit->setSource(_source.constData(), _source.size());
 }
 
 LanguageFeatures Document::languageFeatures() const
