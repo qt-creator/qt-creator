@@ -25,7 +25,7 @@ namespace MesonProjectManager::Internal {
 
 void setupMesonActions(QObject *guard)
 {
-    Action *buildTargetContextAction = nullptr;
+    static Action *buildTargetContextAction = nullptr;
 
     const Context projectContext{Constants::Project::ID};
 
