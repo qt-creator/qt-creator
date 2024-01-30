@@ -625,7 +625,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 
 void NodeInstanceView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
-    restartProcess();
+    delayedRestartProcess();
 }
 
 void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,

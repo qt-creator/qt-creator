@@ -182,11 +182,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
         const QString effectName = QFileInfo(effectPath).baseName();
         Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
         try {
-            if (!view->model()->hasImport(import, true, true)) {
+            if (!view->model()->hasImport(import, true, true))
                 view->model()->changeImports({import}, {});
-                // Trigger async reset puppet to ensure full transaction is done before reset
-                view->resetPuppet();
-            }
         } catch (const Exception &) {
             QTC_ASSERT(false, return);
         }
