@@ -48,6 +48,7 @@
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
+using namespace Core;
 using namespace Tasking;
 using namespace Utils;
 
@@ -95,8 +96,8 @@ public:
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
     void handleOpenedDocs(ProjectExplorer::Project *project);
-    void onDocumentOpened(Core::IDocument *doc);
-    void onDocumentClosed(Core::IDocument * doc);
+    void onDocumentOpened(IDocument *doc);
+    void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
@@ -158,7 +159,7 @@ bool handleCertificateIssue()
 {
     QTC_ASSERT(dd, return false);
     const QString serverHost = QUrl(settings().server.dashboard).host();
-    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+    if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Certificate Error"),
                               Tr::tr("Server certificate for %1 cannot be authenticated.\n"
                                      "Do you want to disable SSL verification for this server?\n"
                                      "Note: This can expose you to man-in-the-middle attack.")
@@ -290,7 +291,7 @@ static Group fetchDataRecipe(const QUrl &url,
             return NetworkError(reply->url(), error, reply->errorString());
         };
 
-        Core::MessageManager::writeFlashing(
+        MessageManager::writeFlashing(
             QStringLiteral("Axivion: %1").arg(getError().message()));
         return DoneResult::Error;
     };
@@ -459,8 +460,8 @@ void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
 {
     if (project && ProjectExplorer::ProjectManager::startupProject() != project)
         return;
-    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *doc : openDocuments)
+    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+    for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
     if (project)
         disconnect(ProjectExplorer::ProjectManager::instance(),
@@ -470,12 +471,12 @@ void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
 
 void AxivionPluginPrivate::clearAllMarks()
 {
-    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *doc : openDocuments)
+    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+    for (IDocument *doc : openDocuments)
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
+void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
     if (!m_currentProjectInfo) // we do not have a project info (yet)
         return;
@@ -498,7 +499,7 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
     runner->start();
 }
 
-void AxivionPluginPrivate::onDocumentClosed(Core::IDocument *doc)
+void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 {
     const auto document = qobject_cast<TextEditor::TextDocument *>(doc);
     if (!document)
@@ -553,9 +554,9 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
         connect(ProjectExplorer::ProjectManager::instance(),
                 &ProjectExplorer::ProjectManager::startupProjectChanged,
                 dd, &AxivionPluginPrivate::onStartupProjectChanged);
-        connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+        connect(EditorManager::instance(), &EditorManager::documentOpened,
                 dd, &AxivionPluginPrivate::onDocumentOpened);
-        connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
+        connect(EditorManager::instance(), &EditorManager::documentClosed,
                 dd, &AxivionPluginPrivate::onDocumentClosed);
     }
 };
