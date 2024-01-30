@@ -183,6 +183,7 @@ const char QML_PROFILER_RUN_FACTORY[] = "RunWorkerFactory.LocalQmlProfilerSuppor
 const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
 const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
+const char CUSTOM_EXECUTABLE_RUNCONFIG_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";

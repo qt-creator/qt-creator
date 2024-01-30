@@ -14,12 +14,10 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-const char CUSTOM_EXECUTABLE_RUNCONFIG_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
-
 // CustomExecutableRunConfiguration
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target)
-    : CustomExecutableRunConfiguration(target, CUSTOM_EXECUTABLE_RUNCONFIG_ID)
+    : CustomExecutableRunConfiguration(target, Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID)
 {}
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Id id)
@@ -88,14 +86,15 @@ Tasks CustomExecutableRunConfiguration::checkForIssues() const
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory() :
     FixedRunConfigurationFactory(Tr::tr("Custom Executable"))
 {
-    registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_RUNCONFIG_ID);
+    registerRunConfiguration<CustomExecutableRunConfiguration>(
+        Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
 CustomExecutableRunWorkerFactory::CustomExecutableRunWorkerFactory()
 {
     setProduct<SimpleTargetRunner>();
     addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(CUSTOM_EXECUTABLE_RUNCONFIG_ID);
+    addSupportedRunConfig(Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
 } // namespace ProjectExplorer

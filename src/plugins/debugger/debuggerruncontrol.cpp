@@ -1099,6 +1099,7 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
     addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
     addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
     addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
 } // Debugger
