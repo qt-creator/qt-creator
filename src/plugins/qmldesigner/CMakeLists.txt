@@ -95,9 +95,10 @@ add_qtc_library(QmlDesignerCore STATIC
 
 extend_qtc_library(QmlDesignerCore
   CONDITION TARGET Nanotrace
-  DEPENDS Nanotrace
-  DEFINES
+  PUBLIC_DEPENDS Nanotrace
+  PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
+  DEFINES
     $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
     $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
     $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
@@ -1146,11 +1147,6 @@ extend_qtc_plugin(QmlDesigner
     toolbar.h
     toolbarbackend.cpp
     toolbarbackend.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Nanotrace
-  DEPENDS Nanotrace
 )
 
 add_qtc_plugin(assetexporterplugin
