@@ -30,7 +30,7 @@ class TodoOutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent = nullptr);
+    TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent);
     ~TodoOutputPane() override;
 
     QWidget *outputWidget(QWidget *parent) override;
@@ -78,7 +78,6 @@ private:
     QList<TodoItem> *items;
     TodoItemsModel *m_todoItemsModel;
     QSortFilterProxyModel *m_filteredTodoItemsModel;
-    const Settings *m_settings;
     QToolButtonList m_filterButtons;
 };
 

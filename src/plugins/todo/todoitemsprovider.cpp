@@ -29,9 +29,9 @@ using namespace Utils;
 namespace Todo {
 namespace Internal {
 
-TodoItemsProvider::TodoItemsProvider(Settings settings, QObject *parent) :
+TodoItemsProvider::TodoItemsProvider(QObject *parent) :
     QObject(parent),
-    m_settings(settings)
+    m_settings(todoSettings())
 {
     setupItemsModel();
     setupStartupProjectBinding();
@@ -45,14 +45,14 @@ TodoItemsModel *TodoItemsProvider::todoItemsModel()
     return m_itemsModel;
 }
 
-void TodoItemsProvider::settingsChanged(const Settings &newSettings)
+void TodoItemsProvider::settingsChanged()
 {
-    if (newSettings.keywords != m_settings.keywords) {
+    if (todoSettings().keywords != m_settings.keywords) {
         for (TodoItemsScanner *scanner : std::as_const(m_scanners))
-            scanner->setParams(newSettings.keywords);
+            scanner->setParams(todoSettings().keywords);
     }
 
-    m_settings = newSettings;
+    m_settings = todoSettings();
 
     updateList();
 }

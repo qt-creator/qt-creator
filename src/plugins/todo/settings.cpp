@@ -25,6 +25,12 @@ using namespace Utils;
 
 namespace Todo::Internal {
 
+Settings &todoSettings()
+{
+    static Settings theTodoSettings;
+    return theTodoSettings;
+}
+
 void Settings::save(QtcSettings *settings) const
 {
     if (!keywordsEdited)
@@ -126,28 +132,17 @@ void Settings::setDefault()
     keywordsEdited = false;
 }
 
-bool Settings::equals(const Settings &other) const
+static bool operator==(const Settings &s1, const Settings &s2)
 {
-    return (keywords == other.keywords)
-            && (scanningScope == other.scanningScope)
-            && (keywordsEdited == other.keywordsEdited);
+    return s1.keywords == s2.keywords
+        && s1.scanningScope == s2.scanningScope
+        && s1.keywordsEdited == s2.keywordsEdited;
 }
-
-bool operator ==(const Settings &s1, const Settings &s2)
-{
-    return s1.equals(s2);
-}
-
-bool operator !=(const Settings &s1, const Settings &s2)
-{
-    return !s1.equals(s2);
-}
-
 
 class OptionsDialog final : public Core::IOptionsPageWidget
 {
 public:
-    OptionsDialog(Settings *settings, const std::function<void ()> &onApply);
+    OptionsDialog(const std::function<void ()> &onApply);
 
     void apply() final;
 
@@ -164,7 +159,6 @@ private:
     void editKeyword(QListWidgetItem *item);
     QSet<QString> keywordNames();
 
-    Settings *m_settings = nullptr;
     std::function<void()> m_onApply;
 
     QListWidget *m_keywordsList;
@@ -176,8 +170,8 @@ private:
     QRadioButton *m_scanInSubprojectRadioButton;
 };
 
-OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &onApply)
-    : m_settings(settings), m_onApply(onApply)
+OptionsDialog::OptionsDialog(const std::function<void ()> &onApply)
+    : m_onApply(onApply)
 {
     m_keywordsList = new QListWidget;
     m_keywordsList->setDragDropMode(QAbstractItemView::DragDrop);
@@ -239,7 +233,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
     connect(m_keywordsList, &QListWidget::itemSelectionChanged,
             this, &OptionsDialog::setKeywordsButtonsEnabled);
 
-    setSettings(*m_settings);
+    setSettings(todoSettings());
 }
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
@@ -360,10 +354,10 @@ void OptionsDialog::apply()
     // "apply" itself is interpreted as "use these keywords, also for other themes".
     newSettings.keywordsEdited = true;
 
-    if (newSettings == *m_settings)
+    if (newSettings == todoSettings())
         return;
 
-    *m_settings = newSettings;
+    todoSettings() = newSettings;
     m_onApply();
 }
 
@@ -372,20 +366,20 @@ void OptionsDialog::apply()
 class TodoSettingsPage final : public Core::IOptionsPage
 {
 public:
-    TodoSettingsPage(Settings *settings, const std::function<void()> &onApply)
+    TodoSettingsPage(const std::function<void()> &onApply)
     {
         setId(Constants::TODO_SETTINGS);
         setDisplayName(Tr::tr("To-Do"));
         setCategory("To-Do");
         setDisplayCategory(Tr::tr("To-Do"));
         setCategoryIconPath(":/todoplugin/images/settingscategory_todo.png");
-        setWidgetCreator([settings, onApply] { return new OptionsDialog(settings, onApply); });
+        setWidgetCreator([onApply] { return new OptionsDialog(onApply); });
     }
 };
 
-void setupTodoSettingsPage(Settings *settings, const std::function<void()> &onApply)
+void setupTodoSettingsPage(const std::function<void()> &onApply)
 {
-    static TodoSettingsPage theTodoSettingsPage(settings, onApply);
+    static TodoSettingsPage theTodoSettingsPage(onApply);
 }
 
 } // Todo::Internal

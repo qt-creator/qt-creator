@@ -24,10 +24,10 @@ class TodoItemsProvider : public QObject
     Q_OBJECT
 
 public:
-    explicit TodoItemsProvider(Settings settings, QObject *parent = nullptr);
+    explicit TodoItemsProvider(QObject *parent = nullptr);
     TodoItemsModel *todoItemsModel();
 
-    void settingsChanged(const Settings &newSettings);
+    void settingsChanged();
     void projectSettingsChanged(ProjectExplorer::Project *project);
 
 signals:

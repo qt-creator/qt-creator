@@ -21,10 +21,9 @@
 namespace Todo {
 namespace Internal {
 
-TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent) :
+TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) :
     IOutputPane(parent),
-    m_todoItemsModel(todoItemsModel),
-    m_settings(settings)
+    m_todoItemsModel(todoItemsModel)
 {
     setId("To-DoEntries");
     setDisplayName(Tr::tr("To-Do Entries"));
@@ -247,7 +246,7 @@ void TodoOutputPane::createScopeButtons()
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
 
     QString tooltip = Tr::tr("Show \"%1\" entries");
-    for (const Keyword &keyword: m_settings->keywords) {
+    for (const Keyword &keyword: todoSettings().keywords) {
         QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);

@@ -27,13 +27,11 @@ public:
     void save(Utils::QtcSettings *settings) const;
     void load(Utils::QtcSettings *settings);
     void setDefault();
-    bool equals(const Settings &other) const;
 };
 
-bool operator ==(const Settings &s1, const Settings &s2);
-bool operator !=(const Settings &s1, const Settings &s2);
+Settings &todoSettings();
 
-void setupTodoSettingsPage(Settings *settings, const std::function<void()> &onApply);
+void setupTodoSettingsPage(const std::function<void()> &onApply);
 
 } // Todo::Internal
 
