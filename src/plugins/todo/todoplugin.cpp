@@ -10,25 +10,6 @@
 
 namespace Todo::Internal {
 
-class TodoPluginPrivate : public QObject
-{
-public:
-    TodoPluginPrivate();
-};
-
-TodoPluginPrivate::TodoPluginPrivate()
-{
-    todoSettings().load();
-
-    setupTodoItemsProvider(this);
-    setupTodoOutputPane(this);
-
-    setupTodoSettingsPage();
-
-    setupTodoSettingsProjectPanel();
-
-}
-
 class TodoPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -40,18 +21,17 @@ public:
         qRegisterMetaType<TodoItem>("TodoItem");
     }
 
-    ~TodoPlugin() final
-    {
-        delete d;
-    }
-
     void initialize() final
     {
-        d = new TodoPluginPrivate;
-    }
+        todoSettings().load();
 
-private:
-    TodoPluginPrivate *d = nullptr;
+        setupTodoItemsProvider(this);
+        setupTodoOutputPane(this);
+
+        setupTodoSettingsPage();
+
+        setupTodoSettingsProjectPanel();
+    }
 };
 
 } // Todo::Internal
