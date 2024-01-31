@@ -43,7 +43,6 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-#include <exception>
 #include <memory>
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";

@@ -11,8 +11,6 @@
 #include <QUrl>
 #include <QVersionNumber>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QIcon;
 QT_END_NAMESPACE
@@ -32,7 +30,7 @@ struct IssueListSearch
     QString owner;
     QString filter_path;
     int offset = 0;
-    int limit = 30;
+    int limit = 150;
     bool computeTotalRowCount = false;
 
     QString toQuery() const;

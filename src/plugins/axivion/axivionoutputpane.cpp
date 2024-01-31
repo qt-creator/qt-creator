@@ -315,7 +315,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     auto sb = m_issuesView->verticalScrollBar();
     if (QTC_GUARD(sb)) {
         connect(sb, &QAbstractSlider::valueChanged, sb, [this, sb](int value) {
-            if (value >= sb->maximum() - 10) {
+            if (value >= sb->maximum() - 50) {
                 if (m_issuesModel->rowCount() < m_totalRowCount)
                     fetchMoreIssues();
             }
