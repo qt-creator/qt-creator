@@ -439,7 +439,7 @@ qint64 SshProcessInterface::processId() const
     return d->m_processId;
 }
 
-bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
+ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
     Process process;
     CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
@@ -449,15 +449,14 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     cmd.addArg(tmp);
     process.setCommand(cmd);
     process.setWriteData(data);
-    process.start();
     using namespace std::chrono_literals;
-    const bool isFinished = process.waitForFinished(2s); // It may freeze on some devices
-    if (!isFinished) {
+    process.runBlocking(2s);
+    if (process.result() == ProcessResult::Canceled) {
         Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
                                                "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
-    return isFinished;
+    return process.result();
 }
 
 void SshProcessInterface::start()
@@ -498,8 +497,16 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     const QString args = QString::fromLatin1("-%1 -%2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
     const CommandLine command = { "kill", args, CommandLine::Raw };
+
+    // Killing by using the pid as process group didn't work
+    // Fallback to killing the pid directly
     // Note: This blocking call takes up to 2 ms for local remote.
-    runInShell(command);
+    if (runInShell(command, {}) != ProcessResult::FinishedWithSuccess) {
+        const QString args = QString::fromLatin1("-%1 %2")
+                                 .arg(controlSignalToInt(controlSignal)).arg(pid);
+        const CommandLine command = { "kill" , args, CommandLine::Raw };
+        runInShell(command, {});
+    }
 }
 
 void SshProcessInterfacePrivate::handleStarted()

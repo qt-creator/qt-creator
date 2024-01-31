@@ -23,7 +23,7 @@ protected:
     void emitStarted(qint64 processId);
     void killIfRunning();
     qint64 processId() const;
-    bool runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
+    Utils::ProcessResult runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
 
     virtual void handleSendControlSignal(Utils::ControlSignal controlSignal);
 
