@@ -1880,7 +1880,7 @@ void tst_Tasking::testTree_data()
             storage,
             Group {
                 groupSetup(1),
-                createSuccessTask(1, 10ms)
+                createSuccessTask(1, 1s)
             },
             Group {
                 groupSetup(2),
@@ -1926,11 +1926,11 @@ void tst_Tasking::testTree_data()
                 parallelLimit(2),
                 Group {
                     groupSetup(1),
-                    createSuccessTask(1, 10ms)
+                    createSuccessTask(1, 1s)
                 },
                 Group {
                     groupSetup(2),
-                    createSuccessTask(2, 1ms)
+                    createSuccessTask(2)
                 },
                 Group {
                     groupSetup(3),
