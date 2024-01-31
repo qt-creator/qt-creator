@@ -328,7 +328,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
     return result;
 }
 
-BuildTools *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &data) const
 {
     BuildTools *buildTools = nullptr;
     GenericPackageData packageData;
@@ -344,7 +344,7 @@ BuildTools *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &da
     return buildTools;
 }
 
-SdkTools *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) const
 {
     SdkTools *sdkTools = nullptr;
     GenericPackageData packageData;
@@ -360,7 +360,7 @@ SdkTools *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) 
     return sdkTools;
 }
 
-PlatformTools *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringList &data) const
 {
     PlatformTools *platformTools = nullptr;
     GenericPackageData packageData;
@@ -376,7 +376,7 @@ PlatformTools *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringLi
     return platformTools;
 }
 
-EmulatorTools *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringList &data) const
 {
     EmulatorTools *emulatorTools = nullptr;
     GenericPackageData packageData;
@@ -392,7 +392,7 @@ EmulatorTools *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringLi
     return emulatorTools;
 }
 
-Ndk *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
 {
     Ndk *ndk = nullptr;
     GenericPackageData packageData;
@@ -408,7 +408,7 @@ Ndk *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
     return ndk;
 }
 
-ExtraTools *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &data) const
 {
     ExtraTools *extraTools = nullptr;
     GenericPackageData packageData;
@@ -424,7 +424,7 @@ ExtraTools *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &da
     return extraTools;
 }
 
-GenericSdkPackage *SdkManagerOutputParser::parseGenericTools(const QStringList &data) const
+AndroidSdkPackage *SdkManagerOutputParser::parseGenericTools(const QStringList &data) const
 {
     GenericSdkPackage *sdkPackage = nullptr;
     GenericPackageData packageData;

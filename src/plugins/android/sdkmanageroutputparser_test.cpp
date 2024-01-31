@@ -132,7 +132,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    BuildTools *actualBuildTools = m_parser.parseBuildToolsPackage(output);
+    AndroidSdkPackage *actualBuildTools = m_parser.parseBuildToolsPackage(output);
 
     QVERIFY(actualBuildTools != nullptr);
     QCOMPARE(actualBuildTools->descriptionText(), description);
@@ -142,7 +142,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackage()
 
 void SdkManagerOutputParserTest::testParseBuildToolsPackageEmpty()
 {
-    BuildTools *actualBuildTools = m_parser.parseBuildToolsPackage({""});
+    AndroidSdkPackage *actualBuildTools = m_parser.parseBuildToolsPackage({""});
 
     QVERIFY(actualBuildTools == nullptr);
 }
@@ -178,7 +178,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<SdkTools> actualSdkTool(m_parser.parseSdkToolsPackage(output));
+    std::unique_ptr<AndroidSdkPackage> actualSdkTool(m_parser.parseSdkToolsPackage(output));
 
     QVERIFY(actualSdkTool != nullptr);
     QCOMPARE(actualSdkTool->descriptionText(), description);
@@ -188,7 +188,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackage()
 
 void SdkManagerOutputParserTest::testParseSdkToolsPackageEmpty()
 {
-    std::unique_ptr<SdkTools> actualSdkTool(m_parser.parseSdkToolsPackage({""}));
+    std::unique_ptr<AndroidSdkPackage> actualSdkTool(m_parser.parseSdkToolsPackage({""}));
 
     QVERIFY(actualSdkTool == nullptr);
 }
@@ -217,7 +217,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<PlatformTools> actualPlatformTool(
+    std::unique_ptr<AndroidSdkPackage> actualPlatformTool(
         m_parser.parsePlatformToolsPackage(output));
 
     QVERIFY(actualPlatformTool != nullptr);
@@ -228,8 +228,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackage()
 
 void SdkManagerOutputParserTest::testParsePlatformToolsPackageEmpty()
 {
-    std::unique_ptr<PlatformTools> actualPlatformTool(
-        m_parser.parsePlatformToolsPackage({""}));
+    std::unique_ptr<AndroidSdkPackage> actualPlatformTool(m_parser.parsePlatformToolsPackage({""}));
 
     QVERIFY(actualPlatformTool == nullptr);
 }
@@ -256,7 +255,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<EmulatorTools> actualEmulatorTools(
+    std::unique_ptr<AndroidSdkPackage> actualEmulatorTools(
         m_parser.parseEmulatorToolsPackage(output));
 
     QVERIFY(actualEmulatorTools != nullptr);
@@ -267,7 +266,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackage()
 
 void SdkManagerOutputParserTest::testParseEmulatorToolsPackageEmpty()
 {
-    std::unique_ptr<EmulatorTools> actualEmulatorTools(
+    std::unique_ptr<AndroidSdkPackage> actualEmulatorTools(
         m_parser.parseEmulatorToolsPackage({""}));
 
     QVERIFY(actualEmulatorTools == nullptr);
@@ -296,7 +295,7 @@ void SdkManagerOutputParserTest::testParseNdkPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<Ndk> actualNdkPackage(m_parser.parseNdkPackage(output));
+    std::unique_ptr<AndroidSdkPackage> actualNdkPackage(m_parser.parseNdkPackage(output));
 
     QVERIFY(actualNdkPackage != nullptr);
     QCOMPARE(actualNdkPackage->descriptionText(), description);
@@ -306,7 +305,7 @@ void SdkManagerOutputParserTest::testParseNdkPackage()
 
 void SdkManagerOutputParserTest::testParseNdkPackageEmpty()
 {
-    std::unique_ptr<Ndk> actualNdkPackage(m_parser.parseNdkPackage({""}));
+    std::unique_ptr<AndroidSdkPackage> actualNdkPackage(m_parser.parseNdkPackage({""}));
 
     QVERIFY(actualNdkPackage == nullptr);
 }
@@ -338,8 +337,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<ExtraTools> actualExtraTools(
-        m_parser.parseExtraToolsPackage(output));
+    std::unique_ptr<AndroidSdkPackage> actualExtraTools(m_parser.parseExtraToolsPackage(output));
 
     QVERIFY(actualExtraTools != nullptr);
     QCOMPARE(actualExtraTools->descriptionText(), description);
@@ -349,8 +347,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackage()
 
 void SdkManagerOutputParserTest::testParseExtraToolsPackageEmpty()
 {
-    std::unique_ptr<ExtraTools> actualExtraTools(
-        m_parser.parseExtraToolsPackage({""}));
+    std::unique_ptr<AndroidSdkPackage> actualExtraTools(m_parser.parseExtraToolsPackage({""}));
 
     QVERIFY(actualExtraTools == nullptr);
 }
@@ -379,8 +376,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackage()
     QFETCH(QString, displayText);
     QFETCH(QVersionNumber, revision);
 
-    std::unique_ptr<GenericSdkPackage> actualGenericTools(
-        m_parser.parseGenericTools(output));
+    std::unique_ptr<AndroidSdkPackage> actualGenericTools(m_parser.parseGenericTools(output));
 
     QVERIFY(actualGenericTools != nullptr);
     QCOMPARE(actualGenericTools->descriptionText(), description);
@@ -390,8 +386,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackage()
 
 void SdkManagerOutputParserTest::testParseGenericToolsPackageEmpty()
 {
-    std::unique_ptr<GenericSdkPackage> actualGenericTools(
-        m_parser.parseGenericTools({""}));
+    std::unique_ptr<AndroidSdkPackage> actualGenericTools(m_parser.parseGenericTools({""}));
 
     QVERIFY(actualGenericTools == nullptr);
 }

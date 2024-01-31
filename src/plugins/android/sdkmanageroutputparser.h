@@ -43,13 +43,13 @@ private:
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
-    BuildTools *parseBuildToolsPackage(const QStringList &data) const;
-    SdkTools *parseSdkToolsPackage(const QStringList &data) const;
-    PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
-    EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
-    Ndk *parseNdkPackage(const QStringList &data) const;
-    ExtraTools *parseExtraToolsPackage(const QStringList &data) const;
-    GenericSdkPackage *parseGenericTools(const QStringList &data) const;
+    AndroidSdkPackage *parseBuildToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseSdkToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parsePlatformToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseEmulatorToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseNdkPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseExtraToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseGenericTools(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
