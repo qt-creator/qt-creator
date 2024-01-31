@@ -314,14 +314,14 @@ private:
     template <typename Handler>
     static GroupSetupHandler wrapGroupSetup(Handler &&handler)
     {
-        // S, V stands for: [S]etupResult, [V]oid
-        static constexpr bool isS = isInvocable<SetupResult, Handler>();
+        // R, V stands for: Setup[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<SetupResult, Handler>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isS || isV,
+        static_assert(isR || isV,
             "Group setup handler needs to take no arguments and has to return void or SetupResult. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler] {
-            if constexpr (isS)
+            if constexpr (isR)
                 return std::invoke(handler);
             std::invoke(handler);
             return SetupResult::Continue;
@@ -330,20 +330,20 @@ private:
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        // D, V, W stands for: [D]oneResult, [V]oid, Done[W]ith
-        static constexpr bool isDW = isInvocable<DoneResult, Handler, DoneWith>();
-        static constexpr bool isD = isInvocable<DoneResult, Handler>();
-        static constexpr bool isVW = isInvocable<void, Handler, DoneWith>();
+        // R, V, D stands for: Done[R]esult, [V]oid, [D]oneWith
+        static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDW || isD || isVW || isV,
+        static_assert(isRD || isR || isVD || isV,
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
             "return void or DoneResult. The passed handler doesn't fulfill these requirements.");
         return [handler](DoneWith result) {
-            if constexpr (isDW)
+            if constexpr (isRD)
                 return std::invoke(handler, result);
-            if constexpr (isD)
+            if constexpr (isR)
                 return std::invoke(handler);
-            if constexpr (isVW)
+            if constexpr (isVD)
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
@@ -397,14 +397,14 @@ public:
 private:
     template <typename Handler>
     static GroupSetupHandler wrapHandler(Handler &&handler) {
-        // D, V stands for: [D]oneResult, [V]oid
-        static constexpr bool isB = isInvocable<DoneResult, Handler>();
+        // R, V stands for: Done[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isB || isV,
+        static_assert(isR || isV,
             "Sync handler needs to take no arguments and has to return void or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler] {
-            if constexpr (isB) {
+            if constexpr (isR) {
                 return std::invoke(handler) == DoneResult::Success ? SetupResult::StopWithSuccess
                                                                    : SetupResult::StopWithError;
             }
@@ -461,15 +461,15 @@ private:
     static InterfaceSetupHandler wrapSetup(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskSetupHandler>)
             return {}; // When user passed {} for the setup handler.
-        // S, V stands for: [S]etupResult, [V]oid
-        static constexpr bool isS = isInvocable<SetupResult, Handler, Task &>();
+        // R, V stands for: Setup[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<SetupResult, Handler, Task &>();
         static constexpr bool isV = isInvocable<void, Handler, Task &>();
-        static_assert(isS || isV,
+        static_assert(isR || isV,
             "Task setup handler needs to take (Task &) as an argument and has to return void or "
             "SetupResult. The passed handler doesn't fulfill these requirements.");
         return [handler](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
-            if constexpr (isS)
+            if constexpr (isR)
                 return std::invoke(handler, *adapter.task());
             std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
@@ -480,34 +480,34 @@ private:
     static InterfaceDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
             return {}; // When user passed {} for the done handler.
-        // D, V, T, W stands for: [D]oneResult, [V]oid, [T]ask, done[W]ith
-        static constexpr bool isDTW = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
-        static constexpr bool isDT = isInvocable<DoneResult, Handler, const Task &>();
-        static constexpr bool isDW = isInvocable<DoneResult, Handler, DoneWith>();
-        static constexpr bool isD = isInvocable<DoneResult, Handler>();
-        static constexpr bool isVTW = isInvocable<void, Handler, const Task &, DoneWith>();
+        // R, V, T, D stands for: Done[R]esult, [V]oid, [T]ask, [D]oneWith
+        static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
+        static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
+        static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isVTD = isInvocable<void, Handler, const Task &, DoneWith>();
         static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
-        static constexpr bool isVW = isInvocable<void, Handler, DoneWith>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDTW || isDT || isDW || isD || isVTW || isVT || isVW || isV,
+        static_assert(isRTD || isRT || isRD || isR || isVTD || isVT || isVD || isV,
             "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
             "(DoneWith) or (void) as arguments and has to return void or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler](const TaskInterface &taskInterface, DoneWith result) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            if constexpr (isDTW)
+            if constexpr (isRTD)
                 return std::invoke(handler, *adapter.task(), result);
-            if constexpr (isDT)
+            if constexpr (isRT)
                 return std::invoke(handler, *adapter.task());
-            if constexpr (isDW)
+            if constexpr (isRD)
                 return std::invoke(handler, result);
-            if constexpr (isD)
+            if constexpr (isR)
                 return std::invoke(handler);
-            if constexpr (isVTW)
+            if constexpr (isVTD)
                 std::invoke(handler, *adapter.task(), result);
             else if constexpr (isVT)
                 std::invoke(handler, *adapter.task());
-            else if constexpr (isVW)
+            else if constexpr (isVD)
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
