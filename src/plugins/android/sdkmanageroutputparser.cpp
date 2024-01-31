@@ -284,6 +284,23 @@ static bool parseAbstractData(GenericPackageData &output, const QStringList &inp
     return output.isValid();
 }
 
+template <typename T>
+AndroidSdkPackage *parsePackage(const QStringList &data, int minParts, const QString &logStrTag)
+{
+    AndroidSdkPackage *package = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, minParts, logStrTag)) {
+        package = new T(packageData.revision, data.at(0));
+        package->setDescriptionText(packageData.description);
+        package->setDisplayText(packageData.description);
+        package->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << logStrTag + ':'
+                               << "Parsing failed. Minimum required data unavailable:" << data;
+    }
+    return package;
+}
+
 AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data) const
 {
     SdkPlatform *platform = nullptr;
@@ -330,114 +347,37 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
 
 AndroidSdkPackage *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &data) const
 {
-    BuildTools *buildTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 2, "Build-tools")) {
-        buildTools = new BuildTools(packageData.revision, data.at(0));
-        buildTools->setDescriptionText(packageData.description);
-        buildTools->setDisplayText(packageData.description);
-        buildTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Build-tools: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return buildTools;
+    return parsePackage<BuildTools>(data, 2, "Build-tools");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) const
 {
-    SdkTools *sdkTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "SDK-tools")) {
-        sdkTools = new SdkTools(packageData.revision, data.at(0));
-        sdkTools->setDescriptionText(packageData.description);
-        sdkTools->setDisplayText(packageData.description);
-        sdkTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "SDK-tools: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return sdkTools;
+    return parsePackage<SdkTools>(data, 1, "SDK-tools");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringList &data) const
 {
-    PlatformTools *platformTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Platform-tools")) {
-        platformTools = new PlatformTools(packageData.revision, data.at(0));
-        platformTools->setDescriptionText(packageData.description);
-        platformTools->setDisplayText(packageData.description);
-        platformTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Platform-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return platformTools;
+    return parsePackage<PlatformTools>(data, 1, "Platform-tools");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringList &data) const
 {
-    EmulatorTools *emulatorTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Emulator-tools")) {
-        emulatorTools = new EmulatorTools(packageData.revision, data.at(0));
-        emulatorTools->setDescriptionText(packageData.description);
-        emulatorTools->setDisplayText(packageData.description);
-        emulatorTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Emulator-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return emulatorTools;
+    return parsePackage<EmulatorTools>(data, 1, "Emulator-tools");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
 {
-    Ndk *ndk = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "NDK")) {
-        ndk = new Ndk(packageData.revision, data.at(0));
-        ndk->setDescriptionText(packageData.description);
-        ndk->setDisplayText(packageData.description);
-        ndk->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "NDK: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return ndk;
+    return parsePackage<Ndk>(data, 1, "NDK");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &data) const
 {
-    ExtraTools *extraTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Extras")) {
-        extraTools = new ExtraTools(packageData.revision, data.at(0));
-        extraTools->setDescriptionText(packageData.description);
-        extraTools->setDisplayText(packageData.description);
-        extraTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Extra-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return extraTools;
+    return parsePackage<ExtraTools>(data, 1, "Extra-tools");
 }
 
 AndroidSdkPackage *SdkManagerOutputParser::parseGenericTools(const QStringList &data) const
 {
-    GenericSdkPackage *sdkPackage = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Generic")) {
-        sdkPackage = new GenericSdkPackage(packageData.revision, data.at(0));
-        sdkPackage->setDescriptionText(packageData.description);
-        sdkPackage->setDisplayText(packageData.description);
-        sdkPackage->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Generic: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return sdkPackage;
+    return parsePackage<GenericSdkPackage>(data, 1, "Generic");
 }
 
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)

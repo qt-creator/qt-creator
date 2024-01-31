@@ -11,9 +11,13 @@
 
 namespace Android {
 
+class AndroidSdkPackage;
+
 namespace Internal {
     class SdkManagerOutputParser;
     class AndroidToolOutputParser;
+    template <typename T>
+    AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
 }
 class SdkPlatform;
 class SystemImage;
@@ -80,6 +84,8 @@ private:
     QString m_extension;
     Utils::FilePath m_installedLocation;
 
+    template<typename T>
+    friend AndroidSdkPackage *Internal::parsePackage(const QStringList &, int, const QString &);
     friend class Internal::SdkManagerOutputParser;
     friend class Internal::AndroidToolOutputParser;
 };
