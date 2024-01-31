@@ -440,7 +440,6 @@ public:
                   "TaskAdapter<Task>.");
     using TaskSetupHandler = std::function<SetupResult(Task &)>;
     using TaskDoneHandler = std::function<DoneResult(const Task &, DoneWith)>;
-    static Adapter *createAdapter() { return new Adapter; }
 
     template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
     CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
@@ -456,6 +455,8 @@ public:
     }
 
 private:
+    static Adapter *createAdapter() { return new Adapter; }
+
     template <typename Handler>
     static InterfaceSetupHandler wrapSetup(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskSetupHandler>)
