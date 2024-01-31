@@ -20,6 +20,7 @@
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 
+#include <QButtonGroup>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -233,6 +234,7 @@ private:
     QString m_currentProject;
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
     QHBoxLayout *m_typesLayout = nullptr;
+    QButtonGroup *m_typesButtonGroup = nullptr;
     QHBoxLayout *m_filtersLayout = nullptr;
     QPushButton *m_addedFilter = nullptr;
     QPushButton *m_removedFilter = nullptr;
@@ -260,6 +262,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     // table, columns depend on chosen issue type
     QHBoxLayout *top = new QHBoxLayout;
     layout->addLayout(top);
+    m_typesButtonGroup = new QButtonGroup(this);
+    m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
     top->addLayout(m_typesLayout);
     top->addStretch(1);
@@ -458,8 +462,11 @@ void IssuesWidget::onSearchParameterChanged()
 void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info)
 {
     auto cleanOld = [this] {
+        const QList<QAbstractButton *> originalList = m_typesButtonGroup->buttons();
         QLayoutItem *child;
         while ((child = m_typesLayout->takeAt(0)) != nullptr) {
+            if (originalList.contains(child->widget()))
+                m_typesButtonGroup->removeButton(qobject_cast<QAbstractButton *>(child->widget()));
             delete child->widget();
             delete child;
         }
@@ -488,16 +495,21 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     cleanOld();
 
     const std::vector<Dto::IssueKindInfoDto> &issueKinds = info->issueKinds;
+    int buttonId = 0;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {
         auto button = new QToolButton(this);
         button->setIcon(iconForIssue(kind.prefix));
         button->setToolTip(kind.nicePluralName);
+        button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
             updateTableView();
         });
+        m_typesButtonGroup->addButton(button, ++buttonId);
         m_typesLayout->addWidget(button);
     }
+    if (auto firstButton = m_typesButtonGroup->button(1))
+        firstButton->setChecked(true);
 
     m_ownerFilter->clear();
     for (const Dto::UserRefDto &user : info->users)
