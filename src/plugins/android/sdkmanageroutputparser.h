@@ -4,12 +4,7 @@
 
 #include "androidsdkpackage.h"
 
-#include <utils/filepath.h>
-
-#include <QVersionNumber>
-
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 /*!
     \class SdkManagerOutputParser
     \brief The SdkManagerOutputParser class is a helper class to parse the output of the \c sdkmanager
@@ -17,17 +12,6 @@ namespace Internal {
  */
 class SdkManagerOutputParser
 {
-    class GenericPackageData
-    {
-    public:
-        bool isValid() const { return !revision.isNull() && !description.isNull(); }
-        QStringList headerParts;
-        QVersionNumber revision;
-        QString description;
-        Utils::FilePath installedLocation;
-        QMap<QString, QString> extraData;
-    };
-
 public:
     enum MarkerTag
     {
@@ -57,9 +41,6 @@ public:
 private:
     void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
-    bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
-                           const QString &logStrTag,
-                           const QStringList &extraKeys = QStringList()) const;
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
     BuildTools *parseBuildToolsPackage(const QStringList &data) const;
@@ -75,5 +56,5 @@ private:
     QHash<AndroidSdkPackage *, int> m_systemImages;
     friend class SdkManagerOutputParserTest;
 };
-} // namespace Internal
-} // namespace Android
+
+} // namespace Android::Internal

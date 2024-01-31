@@ -19,8 +19,7 @@ const char revisionKey[] = "Version:";
 const char descriptionKey[] = "Description:";
 } // namespace
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android::Internal {
 
 using MarkerTagsType = std::map<SdkManagerOutputParser::MarkerTag, const char *>;
 Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags,
@@ -36,6 +35,17 @@ Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags,
                             {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker, "emulator"},
                             {SdkManagerOutputParser::MarkerTag::NdkMarker, Constants::ndkPackageName},
                             {SdkManagerOutputParser::MarkerTag::ExtrasMarker, "extras"}}));
+
+class GenericPackageData
+{
+public:
+    bool isValid() const { return !revision.isNull() && !description.isNull(); }
+    QStringList headerParts;
+    QVersionNumber revision;
+    QString description;
+    Utils::FilePath installedLocation;
+    QMap<QString, QString> extraData;
+};
 
 void SdkManagerOutputParser::parsePackageListing(const QString &output)
 {
@@ -238,10 +248,8 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     return false;
 }
 
-bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPackageData &output,
-                                               const QStringList &input, int minParts,
-                                               const QString &logStrTag,
-                                               const QStringList &extraKeys) const
+static bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
+                              const QString &logStrTag, const QStringList &extraKeys = {})
 {
     if (input.isEmpty()) {
         qCDebug(sdkManagerLog) << logStrTag + ": Empty input";
@@ -448,3 +456,5 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
 
     return None;
 }
+
+} // namespace Android::Internal
