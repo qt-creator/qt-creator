@@ -125,15 +125,26 @@ public:
         QStringList sessionsWithOneClangd;
         ClangDiagnosticConfigs customDiagnosticConfigs;
         Utils::Id diagnosticConfigId;
-        int workerThreadLimit = 0;
-        int documentUpdateThreshold = 500;
-        qint64 sizeThresholdInKb = 1024;
-        bool useClangd = true;
-        IndexingPriority indexingPriority = IndexingPriority::Low;
-        HeaderSourceSwitchMode headerSourceSwitchMode = HeaderSourceSwitchMode::Both;
-        CompletionRankingModel completionRankingModel = CompletionRankingModel::Default;
-        bool autoIncludeHeaders = false;
-        bool sizeThresholdEnabled = false;
+
+        static constexpr auto DefaultWorkerThreadLimit = 0;
+        static constexpr auto DefaultDocumentUpdateThreshold = 500;
+        static constexpr auto DefaultSizeThresholdInKb = 1024ll;
+        static constexpr auto DefaultUseClangd = true;
+        static constexpr auto DefaultIndexingPriority = ClangdSettings::IndexingPriority::Low;
+        static constexpr auto DefaultHeaderSourceSwitchMode = HeaderSourceSwitchMode::Both;
+        static constexpr auto DefaultCompletionRankingModel = CompletionRankingModel::Default;
+        static constexpr auto DefaultAutoIncludeHeaders = false;
+        static constexpr auto DefaultSizeThresholdEnabled = false;
+
+        int workerThreadLimit = DefaultWorkerThreadLimit;
+        int documentUpdateThreshold = DefaultDocumentUpdateThreshold;
+        qint64 sizeThresholdInKb = DefaultSizeThresholdInKb;
+        bool useClangd = DefaultUseClangd;
+        IndexingPriority indexingPriority = DefaultIndexingPriority;
+        HeaderSourceSwitchMode headerSourceSwitchMode = DefaultHeaderSourceSwitchMode;
+        CompletionRankingModel completionRankingModel = DefaultCompletionRankingModel;
+        bool autoIncludeHeaders = DefaultAutoIncludeHeaders;
+        bool sizeThresholdEnabled = DefaultSizeThresholdEnabled;
         bool haveCheckedHardwareReqirements = false;
         int completionResults = defaultCompletionResults();
     };

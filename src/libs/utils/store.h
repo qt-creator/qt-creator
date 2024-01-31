@@ -15,7 +15,26 @@ class QtcSettings;
 
 using KeyList = QList<Key>;
 
-using Store = QMap<Key, QVariant>;
+class Store : public QMap<Key, QVariant>
+{
+public:
+    using QMap<Key, QVariant>::QMap;
+
+    template<typename T>
+    void insertValueWithDefault(const Key &key, const T &val, const T &defaultValue)
+    {
+        if (val != defaultValue)
+            insert(key, val);
+    }
+
+    template<typename T>
+    void insertValueWithDefault(const Key &key, const T &val)
+    {
+        if (val != T())
+            insert(key, val);
+    }
+};
+
 using OldStore = QMap<QByteArray, QVariant>;
 
 QTCREATOR_UTILS_EXPORT KeyList keysFromStrings(const QStringList &list);
