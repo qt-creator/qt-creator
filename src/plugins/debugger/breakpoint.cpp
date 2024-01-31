@@ -207,7 +207,8 @@ QString BreakpointParameters::toString() const
         ts << " [pending]";
     if (!functionName.isEmpty())
         ts << " Function: " << functionName;
-    ts << " Hit: " << hitCount << " times";
+    if (hitCount)
+        ts << " Hit: " << *hitCount << " times";
     ts << ' ';
 
     return result;
