@@ -73,14 +73,6 @@ using namespace Utils;
 namespace StudioWelcome {
 namespace Internal {
 
-static bool useNewWelcomePage()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    const Key newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
-
-    return settings->value(newWelcomePageEntry, false).toBool();
-}
-
 static void openOpenProjectDialog()
 {
     const FilePath path = Core::DocumentManager::useProjectsDirectory()
@@ -814,19 +806,6 @@ WelcomeMode::~WelcomeMode()
 
 void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
 {
-    if (!useNewWelcomePage()) {
-
-#ifdef QT_DEBUG
-        m_quickWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                               + "welcomepage/imports");
-        m_quickWidget->setSource(
-            QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "welcomepage/main.qml"));
-#else
-        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
-        m_quickWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
-        m_quickWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
-#endif
-    } else {
         m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
 
         m_quickWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
@@ -843,7 +822,6 @@ void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
         connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
             m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
         });
-    }
 }
 
 void WelcomeMode::createQuickWidget()
