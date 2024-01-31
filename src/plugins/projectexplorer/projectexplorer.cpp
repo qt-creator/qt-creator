@@ -443,6 +443,15 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
+class RunConfigurationDebugFilter final : public ILocatorFilter
+{
+public:
+    RunConfigurationDebugFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
 class RunConfigurationSwitchFilter final : public ILocatorFilter
 {
 public:
@@ -675,6 +684,7 @@ public:
     CurrentProjectFilter m_currentProjectFilter;
     AllProjectFilesFilter m_allProjectDirectoriesFilter;
     RunConfigurationStartFilter m_runConfigurationStartFilter;
+    RunConfigurationDebugFilter m_runConfigurationDebugFilter;
     RunConfigurationSwitchFilter m_runConfigurationSwitchFilter;
 
     CopyFileStepFactory m_copyFileStepFactory;
@@ -4258,6 +4268,12 @@ static void runAcceptor(RunConfiguration *config)
         ProjectExplorerPlugin::runRunConfiguration(config, Constants::NORMAL_RUN_MODE, true);
 }
 
+static void debugAcceptor(RunConfiguration *config)
+{
+    if (!BuildManager::isBuilding(config->project()))
+        ProjectExplorerPlugin::runRunConfiguration(config, Constants::DEBUG_RUN_MODE, true);
+}
+
 RunConfigurationStartFilter::RunConfigurationStartFilter()
 {
     setId("Run run configuration");
@@ -4271,6 +4287,21 @@ RunConfigurationStartFilter::RunConfigurationStartFilter()
 LocatorMatcherTasks RunConfigurationStartFilter::matchers()
 {
     return runConfigurationMatchers(&runAcceptor);
+}
+
+RunConfigurationDebugFilter::RunConfigurationDebugFilter()
+{
+    setId("Debug run configuration");
+    setDisplayName(Tr::tr("Debug Run Configuration"));
+    setDescription(Tr::tr("Starts debugging a run configuration of the active project."));
+    setDefaultShortcutString("dr");
+    setPriority(Medium);
+    setupFilter(this);
+}
+
+LocatorMatcherTasks RunConfigurationDebugFilter::matchers()
+{
+    return runConfigurationMatchers(&debugAcceptor);
 }
 
 static void switchAcceptor(RunConfiguration *config)
