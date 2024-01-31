@@ -1104,7 +1104,11 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     }
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, m_defaultInterpreterId);
-    settings->setValue(pylsConfigurationKey, m_pylsConfiguration);
+
+    settings->setValueWithDefault(pylsConfigurationKey,
+                                  m_pylsConfiguration,
+                                  defaultPylsConfiguration());
+
     settings->setValue(pylsEnabledKey, m_pylsEnabled);
     settings->setValue(kitsGeneratedKey, true);
     settings->endGroup();
