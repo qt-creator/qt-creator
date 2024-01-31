@@ -31,7 +31,6 @@
 #include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextBrowser>
-#include <QTimer>
 #include <QToolButton>
 
 #include <map>
@@ -248,7 +247,6 @@ private:
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
     TaskTreeRunner m_taskTreeRunner;
-    QTimer m_pathGlobTimer;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -305,10 +303,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_filtersLayout->addWidget(m_ownerFilter);
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
-    m_pathGlobTimer.setSingleShot(true);
-    m_pathGlobTimer.setInterval(300); // avoid multiple network requests when typing a pattern
-    connect(&m_pathGlobTimer, &QTimer::timeout, this, &IssuesWidget::onSearchParameterChanged);
-    connect(m_pathGlobFilter, &QLineEdit::textEdited, this, [this] { m_pathGlobTimer.start(); });
+    connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
     m_filtersLayout->addWidget(m_pathGlobFilter);
     layout->addLayout(m_filtersLayout);
     m_issuesView = new BaseTreeView(this);
@@ -444,8 +439,6 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 
 void IssuesWidget::onSearchParameterChanged()
 {
-    m_taskTreeRunner.cancel();
-
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
