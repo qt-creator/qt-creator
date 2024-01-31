@@ -224,6 +224,7 @@ private:
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void updateTableView();
+    IssueListSearch searchFromUi() const;
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
 
@@ -282,6 +283,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
     m_ownerFilter->setMinimumContentsLength(25);
+    connect(m_ownerFilter, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
     m_filtersLayout->addWidget(m_ownerFilter);
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
@@ -430,12 +432,8 @@ void IssuesWidget::onSearchParameterChanged()
     // new "first" time lookup
     m_totalRowCount = 0;
     m_lastRequestedOffset = 0;
-    IssueListSearch search;
-    search.kind = m_currentPrefix;
-    search.versionStart = m_versionStart->currentData().toString();
-    search.versionEnd = m_versionEnd->currentData().toString();
+    IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
-
     fetchIssues(search);
 }
 
@@ -506,14 +504,21 @@ void IssuesWidget::updateTableView()
         // first time lookup... should we cache and maybe represent old data?
         m_totalRowCount = 0;
         m_lastRequestedOffset = 0;
-        IssueListSearch search;
-        search.kind = m_currentPrefix;
+        IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
-        search.versionStart = m_versionStart->currentData().toString();
-        search.versionEnd = m_versionEnd->currentData().toString();
         fetchIssues(search);
     };
     m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
+}
+
+IssueListSearch IssuesWidget::searchFromUi() const
+{
+    IssueListSearch search;
+    search.kind = m_currentPrefix; // not really ui.. but anyhow
+    search.owner = m_ownerFilter->currentText();
+    search.versionStart = m_versionStart->currentData().toString();
+    search.versionEnd = m_versionEnd->currentData().toString();
+    return search;
 }
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
@@ -529,12 +534,9 @@ void IssuesWidget::fetchMoreIssues()
     if (m_lastRequestedOffset == m_issuesModel->rowCount())
         return;
 
-    IssueListSearch search;
-    search.kind = m_currentPrefix;
+    IssueListSearch search = searchFromUi();
     m_lastRequestedOffset = m_issuesModel->rowCount();
     search.offset = m_lastRequestedOffset;
-    search.versionStart = m_versionStart->currentData().toString();
-    search.versionEnd = m_versionEnd->currentData().toString();
     fetchIssues(search);
 }
 

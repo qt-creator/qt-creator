@@ -114,6 +114,10 @@ QString IssueListSearch::toQuery() const
         result.append(QString("&end=%1").arg(
             QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
     }
+    if (!owner.isEmpty()) {
+        result.append(QString("&user=%1").arg(
+            QString::fromUtf8((QUrl::toPercentEncoding(owner)))));
+    }
     if (!filter_path.isEmpty()) {
         result.append(QString("&filter_path=%1").arg(
             QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
