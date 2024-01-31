@@ -54,9 +54,14 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-static QObject *languageClientManager()
+template<typename... Args>
+static void invokeMethodForLanguageClientManager(const char *method, Args &&...args)
 {
-    return ExtensionSystem::PluginManager::getObjectByName("LanguageClientManager");
+    QObject *languageClientManager = ExtensionSystem::PluginManager::getObjectByName(
+        "LanguageClientManager");
+    if (!languageClientManager)
+        return;
+    QMetaObject::invokeMethod(languageClientManager, method, args...);
 }
 
 class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
@@ -69,9 +74,8 @@ public:
     ~ClangFormatConfigWidget()
     {
         auto doc = qobject_cast<TextEditor::TextDocument *>(m_editor->document());
-        QMetaObject::invokeMethod(languageClientManager(),
-                                  "documentClosed",
-                                  Q_ARG(Core::IDocument *, doc));
+        invokeMethodForLanguageClientManager("documentClosed",
+                                             Q_ARG(Core::IDocument *, doc));
     }
 
     void apply() final;
@@ -178,12 +182,10 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
     m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath());
     m_editor->widget()->adjustSize();
 
-    QMetaObject::invokeMethod(languageClientManager(),
-                              "documentOpened",
-                              Q_ARG(Core::IDocument *, m_editor->document()));
-    QMetaObject::invokeMethod(languageClientManager(),
-                              "editorOpened",
-                              Q_ARG(Core::IEditor *, m_editor));
+    invokeMethodForLanguageClientManager("documentOpened",
+                                         Q_ARG(Core::IDocument *, m_editor->document()));
+    invokeMethodForLanguageClientManager("editorOpened",
+                                         Q_ARG(Core::IEditor *, m_editor));
 
     m_editorWidget = m_editor->widget();
     m_editorWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
@@ -209,7 +211,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
             = parseConfigurationContent(m_editor->document()->contents().toStdString(),
                                         currentSettingsStyle);
 
-        QString text = "";
+        QString text;
         Qt::GlobalColor currentColor;
         QPixmap pixmap;
         if (success) {
@@ -262,7 +264,7 @@ void ClangFormatConfigWidget::initPreview(TextEditor::ICodeStylePreferences *cod
     m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     m_preview->textDocument()->resetSyntaxHighlighter(
         [] { return new CppEditor::CppHighlighter(); });
-    m_preview->textDocument()->indenter()->setFileName(fileName);
+    m_indenter->setFileName(fileName);
     m_preview->show();
 }
 
@@ -334,9 +336,8 @@ void ClangFormatConfigWidget::reopenClangFormatDocument()
     QString errorString;
     if (m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath())
         == Core::IDocument::OpenResult::Success) {
-        QMetaObject::invokeMethod(languageClientManager(),
-                                  "documentOpened",
-                                  Q_ARG(Core::IDocument *, m_editor->document()));
+        invokeMethodForLanguageClientManager("documentOpened",
+                                             Q_ARG(Core::IDocument *, m_editor->document()));
     }
 }
 
@@ -360,18 +361,12 @@ void ClangFormatConfigWidget::apply()
     }
 
     QMessageBox mBox;
-    mBox.setText(Tr::tr("The current settings are not valid. Are you sure you want to apply them?"));
+    mBox.setText(
+        Tr::tr("The current settings are not valid. Are you sure you want to apply them?"));
     mBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
     mBox.setDefaultButton(QMessageBox::No);
-    int ret = mBox.exec();
-    switch (ret) {
-    case QMessageBox::Yes:
+    if (mBox.exec() == QMessageBox::Yes)
         saveSettings();
-        break;
-    case QMessageBox::No:
-    default:
-        break;
-    }
 }
 
 TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
