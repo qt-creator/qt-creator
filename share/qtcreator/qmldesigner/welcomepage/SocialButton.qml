@@ -80,8 +80,8 @@ Button {
             Layout.fillWidth: true
         }
 
-        TwitterButton {
-            id: twitterButton
+        FigmaButton {
+            id: figmaButton
             Layout.maximumHeight: 15
             Layout.minimumHeight: 15
             Layout.preferredHeight: 15
@@ -100,7 +100,7 @@ Button {
     states: [
         State {
             name: "normal"
-            when: !youtubeButton.isHovered && !twitterButton.isHovered && !control.hovered
+            when: !youtubeButton.isHovered && !figmaButton.isHovered && !control.hovered
 
             PropertyChanges {
                 target: buttonBackground
@@ -110,7 +110,7 @@ Button {
         },
         State {
             name: "hover"
-            when: control.hovered || youtubeButton.isHovered || twitterButton.isHovered
+            when: control.hovered || youtubeButton.isHovered || figmaButton.isHovered
 
             PropertyChanges {
                 target: buttonBackground

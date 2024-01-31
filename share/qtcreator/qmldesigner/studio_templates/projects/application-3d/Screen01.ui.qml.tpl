@@ -52,10 +52,10 @@ Rectangle {
 
     Item {
         id: __materialLibrary__
-        DefaultMaterial {
+        PrincipledMaterial {
             id: defaultMaterial
             objectName: "Default Material"
-            diffuseColor: "#4aee45"
+            baseColor: "#4aee45"
         }
     }
 

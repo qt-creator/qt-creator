@@ -60,7 +60,7 @@ class CollectionDetails
     Q_GADGET
 
 public:
-    enum class DataType { Unknown, String, Url, Number, Boolean, Image, Color };
+    enum class DataType { Unknown, String, Url, Integer, Real, Boolean, Image, Color };
     Q_ENUM(DataType)
 
     explicit CollectionDetails();
@@ -103,6 +103,7 @@ public:
     bool markSaved();
 
     void swap(CollectionDetails &other);
+    void resetReference(const CollectionReference &reference);
     QString getCollectionAsJsonString() const;
     QString getCollectionAsCsvString() const;
 

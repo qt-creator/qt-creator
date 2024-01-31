@@ -49,6 +49,9 @@ Item {
         id: grid
         readonly property bool isHorizontal: width >= 500
 
+        columnSpacing: 0
+        rowSpacing: 0
+
         anchors.fill: parent
         columns: isHorizontal ? 3 : 1
 
@@ -62,6 +65,7 @@ Item {
 
             Rectangle {
                 color: StudioTheme.Values.themeToolbarBackground
+
                 Layout.preferredHeight: StudioTheme.Values.toolbarHeight
                 Layout.fillWidth: true
 

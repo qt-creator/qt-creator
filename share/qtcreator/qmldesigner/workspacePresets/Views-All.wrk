@@ -74,8 +74,8 @@
   <container floating="true">
     <geometry>AdnQywADAAAAAAQuAAAB5gAABdEAAAOcAAAELgAAAfkAAAXRAAADnAAAAAAAAAAACgAAAAQuAAAB+QAABdEAAAOc</geometry>
     <splitter orientation="Vertical" count="1">
-      <area tabs="1" current="Effect Maker">
-        <widget name="Effect Maker" closed="true"/>
+      <area tabs="1" current="Effect Composer">
+        <widget name="Effect Composer" closed="true"/>
       </area>
       <sizes>420</sizes>
     </splitter>

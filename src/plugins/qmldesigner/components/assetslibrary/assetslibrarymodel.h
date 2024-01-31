@@ -64,6 +64,7 @@ signals:
     void rootPathChanged();
     void haveFilesChanged();
     void fileChanged(const QString &path);
+    void effectsDeleted(const QStringList &effectNames);
 
 private:
     void setHaveFiles(bool value);

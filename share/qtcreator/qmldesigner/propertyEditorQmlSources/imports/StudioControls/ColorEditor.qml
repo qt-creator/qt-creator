@@ -90,6 +90,7 @@ Item {
                 sourceComponent: ColorEditorPopup {
                     id: popup
                     width: popupDialog.contentWidth
+                    visible: popupDialog.visible
 
                     onActivateColor: function(color) {
                         colorBackend.activateColor(color)

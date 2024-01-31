@@ -5,6 +5,8 @@
 
 #include <coreplugin/icore.h>
 
+#include "qmldesignercomponents_global.h"
+
 #include <QString>
 #include <QStringList>
 #include <QSet>
@@ -12,7 +14,7 @@
 
 namespace QmlDesigner {
 
-class DesignerMcuManager
+class QMLDESIGNERCOMPONENTS_EXPORT DesignerMcuManager
 {
 public:
     struct Version {

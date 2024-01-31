@@ -31,7 +31,7 @@ public:
     static const QStringList &supportedAudioSuffixes();
     static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
-    static const QStringList &supportedEffectMakerSuffixes();
+    static const QStringList &supportedEffectComposerSuffixes();
     static const QSet<QString> &supportedSuffixes();
     static bool isSupported(const QString &path);
 

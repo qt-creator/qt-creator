@@ -261,26 +261,6 @@
                     "source": "%{QdsWizardPath}/shared-plugin/name/designer/plugin.metainfo",
                     "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/designer/plugin.metainfo",
                     "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/JsonData.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/JsonData.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/DataStore.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/models.json.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/models.json",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/data.json.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/data.json",
-                    "condition": "%{QdsProjectStyle}"
                 }
             ]
         }

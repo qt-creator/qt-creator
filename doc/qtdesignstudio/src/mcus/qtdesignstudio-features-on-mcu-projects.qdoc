@@ -82,9 +82,9 @@
         \li \b X
         \li \b -
         \li \b -
-        \li The feature is fully supported as such, but there are some
-        limitations such as StateGroup and the ones listed in
-        \l {\QMCU Known Issues or Limitations}.
+        \li The feature is fully supported, but there are some limitations listed
+        in \l {\QMCU Known Issues or Limitations}.
+        In addition, StateGroup is disabled.
     \row
         \li \l {Transitions}
         \li \b X
@@ -98,7 +98,6 @@
         \li \b -
         \li The \uicontrol Translations view previews with regular Qt Quick instead
         of \QUL, and it can be inaccurate in calculating the text overflow in some translations.
-        Also, the developer needs to configure the \QUL project to use \QDS translations (.ts) files.
     \row
         \li \l {Timeline}
         \li \b X
