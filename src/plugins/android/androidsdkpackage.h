@@ -73,7 +73,7 @@ protected:
     void setInstalledLocation(const Utils::FilePath &path);
     void setExtension(const QString &extension);
 
-    virtual void updatePackageDetails();
+    virtual void updatePackageDetails() {}
 
 private:
     QString m_displayText;
@@ -93,12 +93,10 @@ using AndroidSdkPackageList = QList<AndroidSdkPackage*>;
 
 class SystemImage : public AndroidSdkPackage
 {
-    Q_OBJECT
 public:
     SystemImage(const QVersionNumber &revision, const QString &sdkStylePathStr, const QString &abi,
                 SdkPlatform *platform = nullptr);
 
-// AndroidSdkPackage Overrides
     bool isValid() const override;
     PackageType type() const override;
 
@@ -115,17 +113,12 @@ private:
 };
 using SystemImageList = QList<SystemImage*>;
 
-
 class SdkPlatform : public AndroidSdkPackage
 {
-    Q_OBJECT
 public:
-    SdkPlatform(const QVersionNumber &revision, const QString &sdkStylePathStr, int api,
-                QObject *parent = nullptr);
-
+    SdkPlatform(const QVersionNumber &revision, const QString &sdkStylePathStr, int api);
     ~SdkPlatform() override;
 
-// AndroidSdkPackage Overrides
     bool isValid() const override;
     PackageType type() const override;
     bool operator <(const AndroidSdkPackage &other) const override;
@@ -146,11 +139,8 @@ using SdkPlatformList = QList<SdkPlatform*>;
 class BuildTools : public AndroidSdkPackage
 {
 public:
-    BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-               QObject *parent = nullptr);
+    BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -159,11 +149,8 @@ using BuildToolsList = QList<BuildTools*>;
 class PlatformTools : public AndroidSdkPackage
 {
 public:
-    PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                  QObject *parent = nullptr);
+    PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -171,11 +158,8 @@ public:
 class EmulatorTools : public AndroidSdkPackage
 {
 public:
-    EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                  QObject *parent = nullptr);
+    EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -183,11 +167,8 @@ public:
 class SdkTools : public AndroidSdkPackage
 {
 public:
-    SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-             QObject *parent = nullptr);
+    SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -195,9 +176,8 @@ public:
 class Ndk : public AndroidSdkPackage
 {
 public:
-    Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr, QObject *parent = nullptr);
+    Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-    // AndroidSdkPackage Overrides
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -206,11 +186,8 @@ using NdkList = QList<Ndk *>;
 class ExtraTools : public AndroidSdkPackage
 {
 public:
-    ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-               QObject *parent = nullptr);
+    ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
@@ -218,11 +195,8 @@ public:
 class GenericSdkPackage : public AndroidSdkPackage
 {
 public:
-    GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                      QObject *parent = nullptr);
+    GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr);
 
-// AndroidSdkPackage Overrides
-public:
     bool isValid() const override;
     PackageType type() const override;
 };
