@@ -276,11 +276,23 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
     m_addedFilter->setText("0");
+    m_addedFilter->setCheckable(true);
     m_filtersLayout->addWidget(m_addedFilter);
     m_removedFilter = new QPushButton(this);
     m_removedFilter->setIcon(trendIcon(0, 1));
     m_removedFilter->setText("0");
+    m_removedFilter->setCheckable(true);
     m_filtersLayout->addWidget(m_removedFilter);
+    connect(m_addedFilter, &QPushButton::clicked, this, [this](bool checked) {
+        if (checked && m_removedFilter->isChecked())
+            m_removedFilter->setChecked(false);
+        onSearchParameterChanged();
+    });
+    connect(m_removedFilter, &QPushButton::clicked, this, [this](bool checked) {
+        if (checked && m_addedFilter->isChecked())
+            m_addedFilter->setChecked(false);
+        onSearchParameterChanged();
+    });
     m_filtersLayout->addSpacing(1);
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
@@ -525,6 +537,13 @@ IssueListSearch IssuesWidget::searchFromUi() const
     search.filter_path = m_pathGlobFilter->text();
     search.versionStart = m_versionStart->currentData().toString();
     search.versionEnd = m_versionEnd->currentData().toString();
+    // different approach: checked means disabling in webview, checked here means explicitly request
+    // the checked one, having both checked is impossible (having none checked means fetch both)
+    // reason for different approach: currently poor reflected inside the ui (TODO)
+    if (m_addedFilter->isChecked())
+        search.state = "added";
+    else if (m_removedFilter->isChecked())
+        search.state = "removed";
     return search;
 }
 

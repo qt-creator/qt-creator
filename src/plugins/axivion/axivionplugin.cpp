@@ -122,6 +122,8 @@ QString IssueListSearch::toQuery() const
         result.append(QString("&filter_path=%1").arg(
             QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
     }
+    if (!state.isEmpty())
+        result.append(QString("&state=%1").arg(state));
     if (computeTotalRowCount)
         result.append("&computeTotalRowCount=true");
     return result;
