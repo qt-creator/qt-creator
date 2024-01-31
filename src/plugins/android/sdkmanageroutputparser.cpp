@@ -290,7 +290,17 @@ AndroidSdkPackage *parsePackage(const QStringList &data, int minParts, const QSt
     AndroidSdkPackage *package = nullptr;
     GenericPackageData packageData;
     if (parseAbstractData(packageData, data, minParts, logStrTag)) {
-        package = new T(packageData.revision, data.at(0));
+        if constexpr (std::is_same_v<SdkPlatform, T>) {
+            const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
+            if (apiLevel == -1) {
+                qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
+                return nullptr;
+            }
+            package = new T(packageData.revision, data.at(0), apiLevel);
+            package->setExtension(convertNameToExtension(packageData.headerParts.at(1)));
+        } else {
+            package = new T(packageData.revision, data.at(0));
+        }
         package->setDescriptionText(packageData.description);
         package->setDisplayText(packageData.description);
         package->setInstalledLocation(packageData.installedLocation);
@@ -303,23 +313,7 @@ AndroidSdkPackage *parsePackage(const QStringList &data, int minParts, const QSt
 
 AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data) const
 {
-    SdkPlatform *platform = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 2, "Platform")) {
-        const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
-        if (apiLevel == -1) {
-            qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
-            return nullptr;
-        }
-        platform = new SdkPlatform(packageData.revision, data.at(0), apiLevel);
-        platform->setExtension(convertNameToExtension(packageData.headerParts.at(1)));
-        platform->setInstalledLocation(packageData.installedLocation);
-        platform->setDescriptionText(packageData.description);
-    } else {
-        qCDebug(sdkManagerLog) << "Platform: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return platform;
+    return parsePackage<SdkPlatform>(data, 2, "Platform");
 }
 
 QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QStringList &data) const
