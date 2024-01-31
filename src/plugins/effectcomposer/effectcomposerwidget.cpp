@@ -110,15 +110,14 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     });
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::hasUnsavedChangesChanged,
-            this, [this]() {
+            this, [this] {
         if (m_effectComposerModel->hasUnsavedChanges() && !m_effectComposerModel->currentComposition().isEmpty()) {
             if (auto doc = QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument())
                 doc->setModified();
         }
     });
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave,
-            this, [this](Core::IDocument *document) {
+    connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave, this, [this] {
         if (m_effectComposerModel->hasUnsavedChanges()) {
             QString compName = m_effectComposerModel->currentComposition();
             if (!compName.isEmpty())
