@@ -8,6 +8,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
+#include "cmaketoolmanager.h"
 
 #include <coreplugin/progressmanager/processprogress.h>
 #include <projectexplorer/buildsystem.h>
@@ -144,7 +145,10 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     });
 
     CommandLine commandLine(cmakeExecutable);
-    commandLine.addArgs({"-S", sourceDirectory.path(), "-B", buildDirectory.path()});
+    commandLine.addArgs({"-S",
+                         CMakeToolManager::mappedFilePath(sourceDirectory).path(),
+                         "-B",
+                         CMakeToolManager::mappedFilePath(buildDirectory).path()});
     commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);

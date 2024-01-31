@@ -11,6 +11,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
+#include "cmaketoolmanager.h"
 
 #include <android/androidconstants.h>
 
@@ -438,7 +439,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (buildConfiguration())
         buildDirectory = buildConfiguration()->buildDirectory();
 
-    cmd.addArgs({"--build", buildDirectory.path()});
+    cmd.addArgs({"--build", CMakeToolManager::mappedFilePath(buildDirectory).path()});
 
     cmd.addArg("--target");
     cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {

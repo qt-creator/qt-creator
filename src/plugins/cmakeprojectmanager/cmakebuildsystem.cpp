@@ -13,6 +13,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
+#include "cmaketoolmanager.h"
 #include "projecttreehelper.h"
 
 #include <android/androidconstants.h>
@@ -2292,7 +2293,7 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
         buildDirectory = bc->buildDirectory();
 
     cmd.command.addArg("--build");
-    cmd.command.addArg(buildDirectory.path());
+    cmd.command.addArg(CMakeToolManager::mappedFilePath(buildDirectory).path());
     cmd.command.addArg("--target");
     cmd.command.addArg(installTarget);
 
