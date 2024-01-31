@@ -65,6 +65,8 @@ using ToolchainPair = std::pair<GccToolchain *, GccToolchain *>;
 namespace Ios {
 namespace Internal {
 
+const bool IgnoreAllDevicesDefault = false;
+
 const char SettingsGroup[] = "IosConfigurations";
 const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
 const char screenshotDirPathKey[] = "ScreeshotDirPath";
@@ -365,12 +367,20 @@ QVersionNumber IosConfigurations::xcodeVersion()
     return m_instance->m_xcodeVersion;
 }
 
+static FilePath defaultScreenshotDirPath()
+{
+    return FilePath::fromUserInput(
+        QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst());
+}
+
 void IosConfigurations::save()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    settings->setValue(ignoreAllDevicesKey, m_ignoreAllDevices);
-    settings->setValue(screenshotDirPathKey, m_screenshotDir.toString());
+    settings->setValueWithDefault(ignoreAllDevicesKey, m_ignoreAllDevices, IgnoreAllDevicesDefault);
+    settings->setValueWithDefault(screenshotDirPathKey,
+                                  m_screenshotDir.toSettings(),
+                                  defaultScreenshotDirPath().toSettings());
     settings->endGroup();
 }
 
@@ -386,13 +396,11 @@ void IosConfigurations::load()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
-    m_screenshotDir = FilePath::fromString(settings->value(screenshotDirPathKey).toString());
-    if (!m_screenshotDir.exists()) {
-        QString defaultDir =
-                QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst();
-        m_screenshotDir = FilePath::fromString(defaultDir);
-    }
+    m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, IgnoreAllDevicesDefault).toBool();
+    m_screenshotDir = FilePath::fromSettings(settings->value(screenshotDirPathKey));
+
+    if (!m_screenshotDir.isWritableDir())
+        m_screenshotDir = defaultScreenshotDirPath();
 
     settings->endGroup();
 }
