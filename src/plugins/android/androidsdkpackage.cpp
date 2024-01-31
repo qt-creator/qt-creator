@@ -96,11 +96,6 @@ bool SystemImage::isValid() const
     return m_platform && m_platform->isValid();
 }
 
-AndroidSdkPackage::PackageType SystemImage::type() const
-{
-    return SystemImagePackage;
-}
-
 const QString &SystemImage::abiName() const
 {
     return m_abiName;
@@ -139,16 +134,6 @@ SdkPlatform::~SdkPlatform()
     for (SystemImage *image : std::as_const(m_systemImages))
         delete image;
     m_systemImages.clear();
-}
-
-bool SdkPlatform::isValid() const
-{
-    return m_apiLevel != -1;
-}
-
-AndroidSdkPackage::PackageType SdkPlatform::type() const
-{
-    return SdkPlatformPackage;
 }
 
 bool SdkPlatform::operator <(const AndroidSdkPackage &other) const
@@ -196,104 +181,6 @@ SystemImageList SdkPlatform::systemImages(PackageState state) const
     return Utils::filtered(m_systemImages, [state](const SystemImage *image) {
         return image->state() & state;
     });
-}
-
-BuildTools::BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool BuildTools::isValid() const
-{
-    return true;
-}
-
-AndroidSdkPackage::PackageType BuildTools::type() const
-{
-    return AndroidSdkPackage::BuildToolsPackage;
-}
-
-SdkTools::SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool SdkTools::isValid() const
-{
-    return true;
-}
-
-AndroidSdkPackage::PackageType SdkTools::type() const
-{
-    return AndroidSdkPackage::SdkToolsPackage;
-}
-
-PlatformTools::PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool PlatformTools::isValid() const
-{
-    return true;
-}
-
-AndroidSdkPackage::PackageType PlatformTools::type() const
-{
-    return AndroidSdkPackage::PlatformToolsPackage;
-}
-
-EmulatorTools::EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool EmulatorTools::isValid() const
-{
-    return installedLocation().exists();
-}
-
-AndroidSdkPackage::PackageType EmulatorTools::type() const
-{
-    return AndroidSdkPackage::EmulatorToolsPackage;
-}
-
-ExtraTools::ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool ExtraTools::isValid() const
-{
-    return installedLocation().exists();
-}
-
-AndroidSdkPackage::PackageType ExtraTools::type() const
-{
-    return AndroidSdkPackage::ExtraToolsPackage;
-}
-
-Ndk::Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool Ndk::isValid() const
-{
-    return installedLocation().exists();
-}
-
-AndroidSdkPackage::PackageType Ndk::type() const
-{
-    return AndroidSdkPackage::NDKPackage;
-}
-
-GenericSdkPackage::GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr)
-    : AndroidSdkPackage(revision, sdkStylePathStr)
-{}
-
-bool GenericSdkPackage::isValid() const
-{
-    return installedLocation().exists();
-}
-
-AndroidSdkPackage::PackageType GenericSdkPackage::type() const
-{
-    return AndroidSdkPackage::GenericSdkPackage;
 }
 
 } // namespace Android
