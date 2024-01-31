@@ -30,7 +30,6 @@ struct IssueListSearch
     QString versionStart;
     QString versionEnd;
     QString owner;
-    QString pathglob;
     QString filter_path;
     int offset = 0;
     int limit = 30;

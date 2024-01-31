@@ -30,6 +30,7 @@
 #include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextBrowser>
+#include <QTimer>
 #include <QToolButton>
 
 #include <map>
@@ -245,6 +246,7 @@ private:
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
     TaskTreeRunner m_taskTreeRunner;
+    QTimer m_pathGlobTimer;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -287,6 +289,10 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_filtersLayout->addWidget(m_ownerFilter);
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
+    m_pathGlobTimer.setSingleShot(true);
+    m_pathGlobTimer.setInterval(300); // avoid multiple network requests when typing a pattern
+    connect(&m_pathGlobTimer, &QTimer::timeout, this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_pathGlobFilter, &QLineEdit::textEdited, this, [this] { m_pathGlobTimer.start(); });
     m_filtersLayout->addWidget(m_pathGlobFilter);
     layout->addLayout(m_filtersLayout);
     m_issuesView = new BaseTreeView(this);
@@ -516,6 +522,7 @@ IssueListSearch IssuesWidget::searchFromUi() const
     IssueListSearch search;
     search.kind = m_currentPrefix; // not really ui.. but anyhow
     search.owner = m_ownerFilter->currentText();
+    search.filter_path = m_pathGlobFilter->text();
     search.versionStart = m_versionStart->currentData().toString();
     search.versionEnd = m_versionEnd->currentData().toString();
     return search;
