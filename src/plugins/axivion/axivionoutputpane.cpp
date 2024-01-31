@@ -471,6 +471,13 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
         m_versionStart->clear();
         m_versionEnd->clear();
         m_pathGlobFilter->clear();
+
+        m_currentProject.clear();
+        m_currentPrefix.clear();
+        m_totalRowCount = 0;
+        m_addedFilter->setText("0");
+        m_removedFilter->setText("0");
+        m_issuesModel->clear();
         return;
     }
 
