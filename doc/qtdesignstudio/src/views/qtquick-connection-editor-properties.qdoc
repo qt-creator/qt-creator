@@ -4,7 +4,7 @@
 /*!
     \page quick-dynamic-properties.html
     \previouspage quick-property-bindings.html
-    \nextpage quick-states.html
+    \nextpage quick-json-data-properties.html
 
     \sa {Specifying Component Properties}
     \title Specifying Custom Properties

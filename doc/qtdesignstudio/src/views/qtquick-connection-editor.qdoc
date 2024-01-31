@@ -33,6 +33,10 @@
             not otherwise exist for a particular \l{Component Types}
             {component type} or your custom components.
 
+        \li \l{Connecting Properties to JSON Data Source}
+
+            You can add bindings between properties and data from a JSON file.
+
     \endlist
 
     For an example of using properties, bindings, and connections to create a
