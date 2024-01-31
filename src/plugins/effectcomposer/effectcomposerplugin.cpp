@@ -1,29 +1,12 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "effectcomposerplugin.h"
+#include <effectcomposerview.h>
 
-#include "effectcomposerview.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/externaltool.h>
-#include <coreplugin/externaltoolmanager.h>
-
-#include <componentcore_constants.h>
-#include <designeractionmanager.h>
-#include <viewmanager.h>
-#include <qmldesigner/dynamiclicensecheck.h>
 #include <qmldesignerplugin.h>
-#include <modelnodeoperations.h>
 
-#include <QJsonDocument>
-#include <QMap>
+#include <extensionsystem/iplugin.h>
+
 
 namespace EffectComposer {
 
@@ -32,22 +15,37 @@ static bool enableEffectComposer()
     return true;
 }
 
-bool EffectComposerPlugin::delayedInitialize()
+class EffectComposerPlugin : public ExtensionSystem::IPlugin
 {
-    if (m_delayedInitialized)
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "EffectComposer.json")
+
+public:
+    EffectComposerPlugin() {}
+    ~EffectComposerPlugin() override {}
+
+    bool delayedInitialize() override
+    {
+        if (m_delayedInitialized)
+            return true;
+
+        if (enableEffectComposer()) {
+            auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+            auto &viewManager = designerPlugin->viewManager();
+
+            viewManager.registerView(std::make_unique<EffectComposerView>(
+                QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+        }
+
+        m_delayedInitialized = true;
+
         return true;
-
-    if (enableEffectComposer()) {
-        auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
-        auto &viewManager = designerPlugin->viewManager();
-
-        viewManager.registerView(std::make_unique<EffectComposerView>(
-            QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
     }
 
-    m_delayedInitialized = true;
-
-    return true;
-}
+private:
+    bool m_delayedInitialized = false;
+};
 
 } // namespace EffectComposer
+
+#include "effectcomposerplugin.moc"
