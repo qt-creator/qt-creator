@@ -149,7 +149,7 @@ Item {
             target: editorPopup.editor
 
             function onActiveFocusChanged() {
-                if (!editorPopup.editor.activeFocus)
+                if (!editorPopup.activeFocus)
                     editorPopup.close()
                 else if (edit)
                     editorPopup.editor.editValue = edit
