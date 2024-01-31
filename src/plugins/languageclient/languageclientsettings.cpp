@@ -664,8 +664,10 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
                                        Utils::Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
-    settings->setValue(clientsKey, transform(stdioSettings));
-    settings->setValue(typedClientsKey, transform(typedSettings));
+    if (!stdioSettings.isEmpty())
+        settings->setValue(clientsKey, transform(stdioSettings));
+    if (!typedSettings.isEmpty())
+        settings->setValue(typedClientsKey, transform(typedSettings));
     settings->endGroup();
 }
 
