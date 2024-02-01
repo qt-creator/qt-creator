@@ -19,8 +19,6 @@ QtcPlugin {
         "axivionplugin.h",
         "axivionprojectsettings.h",
         "axivionprojectsettings.cpp",
-        "axivionquery.h",
-        "axivionquery.cpp",
         "axivionresultparser.h",
         "axivionresultparser.cpp",
         "axivionsettings.cpp",
