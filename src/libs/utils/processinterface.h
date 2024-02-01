@@ -55,7 +55,7 @@ public:
 
 private:
     QSize m_size{80, 60};
-    QSharedPointer<SharedData> m_data;
+    std::shared_ptr<SharedData> m_data;
 };
 
 } // namespace Pty
