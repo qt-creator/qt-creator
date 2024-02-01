@@ -57,7 +57,6 @@
 #include <QTextDocumentFragment>
 #include <QTextEdit>
 #include <QMimeData>
-#include <QSharedPointer>
 #include <QDir>
 
 #include <algorithm>
@@ -2282,7 +2281,7 @@ public:
         QPointer<FakeVimHandler::Private> currentHandler;
     };
 
-    using BufferDataPtr = QSharedPointer<BufferData>;
+    using BufferDataPtr = std::shared_ptr<BufferData>;
     void pullOrCreateBufferData();
     BufferDataPtr m_buffer;
 
