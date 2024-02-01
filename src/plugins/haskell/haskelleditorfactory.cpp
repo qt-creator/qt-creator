@@ -16,6 +16,8 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textindenter.h>
 
+#include <QAction>
+
 using namespace TextEditor;
 
 namespace Haskell::Internal {
