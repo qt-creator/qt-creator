@@ -8334,7 +8334,7 @@ void TextEditorWidget::circularPaste()
         return;
     }
 
-    if (const QMimeData *mimeData = circularClipBoard->next().data()) {
+    if (const QMimeData *mimeData = circularClipBoard->next().get()) {
         QApplication::clipboard()->setMimeData(TextEditorWidget::duplicateMimeData(mimeData));
         paste();
     }

@@ -19,16 +19,16 @@ CircularClipboard *CircularClipboard::instance()
 
 void CircularClipboard::collect(const QMimeData *mimeData)
 {
-    collect(QSharedPointer<const QMimeData>(mimeData));
+    collect(std::shared_ptr<const QMimeData>(mimeData));
 }
 
-void CircularClipboard::collect(const QSharedPointer<const QMimeData> &mimeData)
+void CircularClipboard::collect(const std::shared_ptr<const QMimeData> &mimeData)
 {
     //Avoid duplicates
     const QString text = mimeData->text();
-    for (QList< QSharedPointer<const QMimeData> >::iterator i = m_items.begin(); i != m_items.end(); ++i) {
-        if (mimeData == *i || text == (*i)->text()) {
-            m_items.erase(i);
+    for (auto it = m_items.begin(); it != m_items.end(); ++it) {
+        if (mimeData == *it || text == (*it)->text()) {
+            m_items.erase(it);
             break;
         }
     }
@@ -37,10 +37,10 @@ void CircularClipboard::collect(const QSharedPointer<const QMimeData> &mimeData)
     m_items.prepend(mimeData);
 }
 
-QSharedPointer<const QMimeData> CircularClipboard::next() const
+std::shared_ptr<const QMimeData> CircularClipboard::next() const
 {
     if (m_items.isEmpty())
-        return QSharedPointer<const QMimeData>();
+        return {};
 
     if (m_current == m_items.length() - 1)
         m_current = 0;
