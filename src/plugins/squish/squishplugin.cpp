@@ -13,7 +13,6 @@
 #include "squishtr.h"
 #include "squishwizardpages.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
@@ -51,28 +50,25 @@ private:
         qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
 
         const Id menuId = "Squish.Menu";
-        ActionContainer *menu = ActionManager::createMenu(menuId);
-        menu->menu()->setTitle(Tr::tr("&Squish"));
-        menu->setOnAllDisabledBehavior(ActionContainer::Show);
+        MenuBuilder(menuId)
+            .setTitle(Tr::tr("&Squish"))
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
 
-        ActionBuilder serverSettings(this, "Squish.ServerSettings");
-        serverSettings.setText(Tr::tr("&Server Settings..."));
-        serverSettings.addToContainer(menuId);
-        serverSettings.addOnTriggered(this, [] {
-            if (!settings().squishPath().exists()) {
-                SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
-                                                       "installation path inside "
-                                                       "Preferences... > Squish > General to use "
-                                                       "this wizard."));
-                return;
-            }
+        ActionBuilder(this, "Squish.ServerSettings")
+            .setText(Tr::tr("&Server Settings..."))
+            .addToContainer(menuId)
+            .addOnTriggered(this, [] {
+                if (!settings().squishPath().exists()) {
+                    SquishMessages::criticalMessage(
+                        Tr::tr("Invalid Squish settings. Configure Squish installation path inside "
+                               "Preferences... > Squish > General to use this wizard."));
+                    return;
+                }
+                SquishServerSettingsDialog dialog;
+                dialog.exec();
+            });
 
-            SquishServerSettingsDialog dialog;
-            dialog.exec();
-        });
-
-        ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-        toolsMenu->addMenu(menu);
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     }
 
