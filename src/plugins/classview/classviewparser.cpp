@@ -122,7 +122,7 @@ ParserTreeItem::ConstPtr Parser::parse()
         const FilePath projectPath = it.key();
         const SymbolInformation projectInfo = { projectCache.projectName, projectPath.toString() };
         ParserTreeItem::ConstPtr item = getCachedOrParseProjectTree(projectPath, projectCache.fileNames);
-        if (item.isNull())
+        if (!item)
             continue;
         projectTrees.insert(projectInfo, item);
     }
@@ -159,7 +159,7 @@ ParserTreeItem::ConstPtr Parser::getParseProjectTree(const FilePath &projectPath
         revision += doc->revision();
 
         const ParserTreeItem::ConstPtr docTree = getCachedOrParseDocumentTree(doc);
-        if (docTree.isNull())
+        if (!docTree)
             continue;
         docTrees.append(docTree);
     }
@@ -185,7 +185,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseProjectTree(const FilePath &pro
                                                              const QSet<FilePath> &filesInProject)
 {
     const auto it = d->m_projectCache.constFind(projectPath);
-    if (it != d->m_projectCache.constEnd() && !it.value().tree.isNull()) {
+    if (it != d->m_projectCache.constEnd() && it.value().tree) {
         // calculate project's revision
         unsigned revision = 0;
         for (const FilePath &fileInProject : filesInProject) {
@@ -236,7 +236,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
         return ParserTreeItem::ConstPtr();
 
     const auto it = d->m_documentCache.constFind(doc->filePath());
-    if (it != d->m_documentCache.constEnd() && !it.value().tree.isNull()
+    if (it != d->m_documentCache.constEnd() && it.value().tree
             && it.value().treeRevision == doc->revision()) {
         return it.value().tree;
     }

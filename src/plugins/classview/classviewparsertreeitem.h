@@ -8,8 +8,6 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QSharedPointer>
-
 QT_BEGIN_NAMESPACE
 template <typename K, typename T>
 class QHash;
@@ -24,7 +22,7 @@ class ParserTreeItemPrivate;
 class ParserTreeItem
 {
 public:
-    using ConstPtr = QSharedPointer<const ParserTreeItem>;
+    using ConstPtr = std::shared_ptr<const ParserTreeItem>;
 
 public:
     ParserTreeItem();

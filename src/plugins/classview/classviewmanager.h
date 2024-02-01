@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QStandardItem>
 
 namespace Utils { class FilePath; }
@@ -32,7 +31,7 @@ public:
     void onWidgetVisibilityIsChanged(bool visibility);
 
 signals:
-    void treeDataUpdate(QSharedPointer<QStandardItem> result);
+    void treeDataUpdate(std::shared_ptr<QStandardItem> result);
 
 private:
     void initialize();

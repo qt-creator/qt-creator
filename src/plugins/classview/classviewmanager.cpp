@@ -47,7 +47,7 @@ static Manager *managerInstance = nullptr;
 */
 
 /*!
-    \fn void ClassView::Internal::Manager::treeDataUpdate(QSharedPointer<QStandardItem> result)
+    \fn void ClassView::Internal::Manager::treeDataUpdate(std::shared_ptr<QStandardItem> result)
 
     Emits a signal about a tree data update (to tree view). \a result holds the
     item with the current tree.
@@ -128,7 +128,7 @@ ParserTreeItem::ConstPtr ManagerPrivate::findItemByRoot(const QStandardItem *ite
         uiList.removeLast();
         const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
         internal = internal->child(inf);
-        if (internal.isNull())
+        if (!internal)
             break;
     }
 
@@ -147,7 +147,7 @@ Manager::Manager(QObject *parent)
     managerInstance = this;
 
     // register - to be able send between signal/slots
-    qRegisterMetaType<QSharedPointer<QStandardItem> >("QSharedPointer<QStandardItem>");
+    qRegisterMetaType<std::shared_ptr<QStandardItem>>("std::shared_ptr<QStandardItem>");
 
     initialize();
 
@@ -174,7 +174,7 @@ Manager *Manager::instance()
 bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
     ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item, skipRoot);
-    if (ptr.isNull())
+    if (!ptr)
         return false;
     return ptr->canFetchMore(item);
 }
@@ -186,7 +186,7 @@ bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 {
     ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item, skipRoot);
-    if (ptr.isNull())
+    if (!ptr)
         return;
     ptr->fetchMore(item);
 }
@@ -194,7 +194,7 @@ void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 bool Manager::hasChildren(QStandardItem *item) const
 {
     ParserTreeItem::ConstPtr ptr = d->findItemByRoot(item);
-    if (ptr.isNull())
+    if (!ptr)
         return false;
     return ptr->childCount();
 }
@@ -255,8 +255,8 @@ void Manager::initialize()
         if (!state())
             return;
 
-        QSharedPointer<QStandardItem> rootItem(new QStandardItem());
-        d->m_root->fetchMore(rootItem.data());
+        std::shared_ptr<QStandardItem> rootItem(new QStandardItem());
+        d->m_root->fetchMore(rootItem.get());
         emit treeDataUpdate(rootItem);
     }, Qt::QueuedConnection);
 
