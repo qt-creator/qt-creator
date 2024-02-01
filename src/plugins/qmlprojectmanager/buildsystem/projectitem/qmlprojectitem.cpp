@@ -422,4 +422,16 @@ void QmlProjectItem::insertAndUpdateProjectFile(const QString &key, const QJsonV
         m_projectFile.writeFileContents(Converters::jsonToQmlProject(m_project).toUtf8());
 }
 
+bool QmlProjectItem::enableCMakeGeneration() const
+{
+    return m_project["deployment"].toObject()["enableCMakeGeneration"].toBool();
+}
+
+void QmlProjectItem::setEnableCMakeGeneration(bool enable)
+{
+    QJsonObject obj = m_project["deployment"].toObject();
+    obj["enableCMakeGeneration"] = enable;
+    insertAndUpdateProjectFile("deployment", obj);
+}
+
 } // namespace QmlProjectManager

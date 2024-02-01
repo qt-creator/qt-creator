@@ -4,6 +4,7 @@
 import QmlProject
 
 Project {
+    enableCMakeGeneration: false
     widgetApp: false
 
     qt6Project: false

@@ -143,6 +143,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("mainFile", runConfig["mainFile"].toString());
         appendString("mainUiFile", runConfig["mainUiFile"].toString());
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
+        appendBool("enableCMakeGeneration", deploymentConfig["enableCMakeGeneration"].toBool());
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
         appendBreak();
@@ -282,7 +283,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                    || propName.contains("mainuifile", Qt::CaseInsensitive)
                    || propName.contains("forcefreetype", Qt::CaseInsensitive)) {
             currentObj = &runConfigObject;
-        } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)) {
+        } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)
+                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)) {
             currentObj = &deploymentObject;
         } else if (propName.contains("qtformcus", Qt::CaseInsensitive)) {
             qtForMCUs = value.toBool();

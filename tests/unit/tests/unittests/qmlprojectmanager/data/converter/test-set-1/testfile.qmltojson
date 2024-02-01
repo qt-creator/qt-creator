@@ -1,5 +1,6 @@
 {
     "deployment": {
+        "enableCMakeGeneration": false,
         "targetDirectory": "/opt/UntitledProject13"
     },
     "environment": {

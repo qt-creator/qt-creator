@@ -11,6 +11,7 @@ Project {
 
     importPaths: [ "imports", "asset_imports" ]
     targetDirectory: "/opt/targetDirectory"
+    enableCMakeGeneration: true
     fileSelectors: [ "WXGA", "darkTheme", "ShowIndicator"]
 
     qdsVersion: "3.9"

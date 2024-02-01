@@ -6,6 +6,7 @@ import QmlProject
 Project {
     mainFile: "Main.qml"
     targetDirectory: "/opt/UntitledProject13"
+    enableCMakeGeneration: false
     widgetApp: true
     importPaths: [ "imports","asset_imports" ]
 

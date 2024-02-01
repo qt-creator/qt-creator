@@ -121,6 +121,13 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_tar_get_with_qds_prefix_directory)
     ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
 }
 
+TEST_F(QmlProjectItem, get_with_qds_prefix_enable_cmake_generation)
+{
+    auto enable = projectItemWithQdsPrefix->enableCMakeGeneration();
+
+    ASSERT_TRUE(enable);
+}
+
 TEST_F(QmlProjectItem, get_with_qds_prefix_import_paths)
 {
     auto importPaths = projectItemWithQdsPrefix->importPaths();
@@ -264,6 +271,13 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_tar_get_without_qds_prefix_directo
     auto targetDirectory = projectItemWithoutQdsPrefix->targetDirectory();
 
     ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
+}
+
+TEST_F(QmlProjectItem, get_without_qds_prefix_enable_cmake_generation)
+{
+    auto enable = projectItemWithoutQdsPrefix->enableCMakeGeneration();
+
+    ASSERT_TRUE(enable);
 }
 
 TEST_F(QmlProjectItem, get_without_qds_prefix_import_paths)
@@ -411,6 +425,13 @@ TEST_F(QmlProjectItem, get_empty_tar_get_empty_directory)
     auto targetDirectory = projectItemEmpty->targetDirectory();
 
     ASSERT_THAT(targetDirectory, IsEmpty());
+}
+
+TEST_F(QmlProjectItem, get_empty_enable_cmake_generation)
+{
+    auto enable = projectItemEmpty->enableCMakeGeneration();
+
+    ASSERT_FALSE(enable);
 }
 
 TEST_F(QmlProjectItem, get_empty_import_paths)
@@ -675,6 +696,13 @@ TEST_F(QmlProjectItem, set_design_studio_version)
     projectItemSetters->setVersionDesignStudio("6");
 
     ASSERT_EQ(projectItemSetters->versionDesignStudio(), "6");
+}
+
+TEST_F(QmlProjectItem, set_enable_cmake_generation)
+{
+    projectItemSetters->setEnableCMakeGeneration(true);
+
+    ASSERT_EQ(projectItemSetters->enableCMakeGeneration(), true);
 }
 
 // TODO: We should move these 2 tests into the integration tests

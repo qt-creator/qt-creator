@@ -50,6 +50,7 @@ extend_qtc_plugin(QmlProjectManager
       cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
       generatecmakelists.cpp generatecmakelists.h
       generatecmakelistsconstants.h
+      cmakegenerator.cpp cmakegenerator.h
       boilerplate.qrc
 )
 
@@ -57,7 +58,7 @@ add_qtc_library(QmlProjectManagerLib OBJECT
     CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
     EXCLUDE_FROM_INSTALL
     DEPENDS
-        QmlJS Utils
+        QmlJS Utils ProjectExplorer
     INCLUDES
         ${CMAKE_CURRENT_LIST_DIR}
     SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/buildsystem

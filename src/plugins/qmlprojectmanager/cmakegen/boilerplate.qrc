@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/boilerplatetemplates">
+        <file>gencmakeroot.tpl</file>
+        <file>gencmakemodule.tpl</file>
+        <file>gencmakeheadercomponents.tpl</file>
         <file>qmlprojectmaincpp.tpl</file>
         <file>qmlprojectmaincppheader.tpl</file>
         <file>qmlprojectenvheader.tpl</file>
