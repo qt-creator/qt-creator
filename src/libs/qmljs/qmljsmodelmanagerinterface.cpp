@@ -27,12 +27,12 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QLibraryInfo>
 #include <QMetaObject>
 #include <QTextDocument>
 #include <QTextStream>
-#include <QTimer>
 #include <QtAlgorithms>
-#include <QLibraryInfo>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -508,7 +508,7 @@ void ModelManagerInterface::iterateQrcFiles(
 
     for (const Utils::FilePath &qrcFilePath : std::as_const(allQrcs)) {
         QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toFSPathString());
-        if (qrcFile.isNull())
+        if (!qrcFile)
             continue;
         callback(qrcFile);
     }
