@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import EffectComposerBackend
@@ -10,19 +11,18 @@ Row {
     width: parent.width
     spacing: 5
 
-    StudioControls.RealSpinBox {
+    HelperWidgets.DoubleSpinBox {
         id: spinBox
 
         width: 60
-        actionIndicatorVisible: false
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
-        realFrom: uniformMinValue
-        realTo: uniformMaxValue
-        realValue: uniformValue
-        realStepSize: .01
+        minimumValue: uniformMinValue
+        maximumValue: uniformMaxValue
+        value: uniformValue
+        stepSize: .01
         decimals: 2
-        onRealValueModified: uniformValue = realValue
+        onValueModified: uniformValue = value
     }
 
     StudioControls.Slider {
@@ -39,7 +39,7 @@ Row {
         value: uniformValue
         onMoved: {
             uniformValue = value
-            spinBox.realValue = value // binding isn't working for this property so update it
+            spinBox.value = value // binding isn't working for this property so update it
         }
     }
 }

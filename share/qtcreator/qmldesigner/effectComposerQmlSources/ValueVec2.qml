@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import EffectComposerBackend
@@ -11,22 +12,21 @@ RowLayout {
     width: parent.width
     spacing: 0
 
-    StudioControls.RealSpinBox {
+    HelperWidgets.DoubleSpinBox {
         id: vX
 
         Layout.fillWidth: true
         Layout.minimumWidth: 30
         Layout.maximumWidth: 60
 
-        actionIndicatorVisible: false
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
-        realFrom: uniformMinValue.x
-        realTo: uniformMaxValue.x
-        realValue: uniformValue.x
-        realStepSize: .01
+        minimumValue: uniformMinValue.x
+        maximumValue: uniformMaxValue.x
+        value: uniformValue.x
+        stepSize: .01
         decimals: 2
-        onRealValueModified: uniformValue.x = realValue
+        onValueModified: uniformValue.x = value
     }
 
     Item { // spacer
@@ -48,22 +48,21 @@ RowLayout {
         Layout.maximumWidth: 20
     }
 
-    StudioControls.RealSpinBox {
+    HelperWidgets.DoubleSpinBox {
         id: vY
 
         Layout.fillWidth: true
         Layout.minimumWidth: 30
         Layout.maximumWidth: 60
 
-        actionIndicatorVisible: false
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
-        realFrom: uniformMinValue.y
-        realTo: uniformMaxValue.y
-        realValue: uniformValue.y
-        realStepSize: .01
+        minimumValue: uniformMinValue.y
+        maximumValue: uniformMaxValue.y
+        value: uniformValue.y
+        stepSize: .01
         decimals: 2
-        onRealValueModified: uniformValue.y = realValue
+        onValueModified: uniformValue.y = value
     }
 
     Item { // spacer
