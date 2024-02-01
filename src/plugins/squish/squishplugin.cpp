@@ -38,9 +38,6 @@ public:
     SquishPluginPrivate();
 
     bool initializeGlobalScripts();
-
-    SquishOutputPane m_outputPane;
-    SquishTools m_squishTools;
 };
 
 SquishPluginPrivate::SquishPluginPrivate()
@@ -84,7 +81,7 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     if (!squishserver.isExecutableFile())
         return false;
 
-    m_squishTools.queryGlobalScripts([](const QString &output, const QString &error) {
+    SquishTools::instance()->queryGlobalScripts([](const QString &output, const QString &error) {
         if (output.isEmpty() || !error.isEmpty())
             return; // ignore (for now?)
 
@@ -106,6 +103,9 @@ private:
     {
         setupObjectsMapEditor();
 
+        setupSquishOutputPane(this);
+        setupSquishTools(this);
+
         d.reset(new SquishPluginPrivate);
 
         setupSquishWizardPages();
@@ -124,9 +124,9 @@ private:
 
     ShutdownFlag aboutToShutdown() final
     {
-        if (d->m_squishTools.shutdown())
+        if (SquishTools::instance()->shutdown())
             return SynchronousShutdown;
-        connect(&d->m_squishTools, &SquishTools::shutdownFinished,
+        connect(SquishTools::instance(), &SquishTools::shutdownFinished,
                 this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
         return AsynchronousShutdown;
     }
