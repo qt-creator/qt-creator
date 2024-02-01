@@ -95,23 +95,4 @@ private:
     friend class ProjectExplorerPluginPrivate;
 };
 
-namespace Internal {
-
-class JsonWizardFactoryJsExtension : public QObject
-{
-    Q_OBJECT
-public:
-    JsonWizardFactoryJsExtension(Utils::Id platformId,
-                                 const QSet<Utils::Id> &availableFeatures,
-                                 const QSet<Utils::Id> &pluginFeatures);
-
-    Q_INVOKABLE QVariant value(const QString &name) const;
-
-private:
-    Utils::Id m_platformId;
-    QSet<Utils::Id> m_availableFeatures;
-    QSet<Utils::Id> m_pluginFeatures;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

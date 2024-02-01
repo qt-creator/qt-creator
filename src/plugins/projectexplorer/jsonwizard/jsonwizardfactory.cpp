@@ -80,6 +80,39 @@ static QList<JsonWizardGeneratorFactory *> &generatorFactories()
     return theGeneratorFactories;
 }
 
+namespace Internal {
+
+class JsonWizardFactoryJsExtension final : public QObject
+{
+    Q_OBJECT
+
+public:
+    JsonWizardFactoryJsExtension(Id platformId,
+                                 const QSet<Id> &availableFeatures,
+                                 const QSet<Id> &pluginFeatures)
+        : m_platformId(platformId)
+        , m_availableFeatures(availableFeatures)
+        , m_pluginFeatures(pluginFeatures)
+    {}
+
+    Q_INVOKABLE QVariant value(const QString &name) const
+    {
+        if (name == "Platform")
+            return m_platformId.toString();
+        if (name == "Features")
+            return Id::toStringList(m_availableFeatures);
+        if (name == "Plugins")
+            return Id::toStringList(m_pluginFeatures);
+        return {};
+    }
+
+private:
+    Id m_platformId;
+    QSet<Id> m_availableFeatures;
+    QSet<Id> m_pluginFeatures;
+};
+
+} // namespace Internal
 int JsonWizardFactory::m_verbose = 0;
 
 
@@ -870,26 +903,6 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
     return errorMessage->isEmpty();
 }
 
-namespace Internal {
-
-JsonWizardFactoryJsExtension::JsonWizardFactoryJsExtension(Id platformId,
-                                                           const QSet<Id> &availableFeatures,
-                                                           const QSet<Id> &pluginFeatures)
-    : m_platformId(platformId)
-    , m_availableFeatures(availableFeatures)
-    , m_pluginFeatures(pluginFeatures)
-{}
-
-QVariant JsonWizardFactoryJsExtension::value(const QString &name) const
-{
-    if (name == "Platform")
-        return m_platformId.toString();
-    if (name == "Features")
-        return Id::toStringList(m_availableFeatures);
-    if (name == "Plugins")
-        return Id::toStringList(m_pluginFeatures);
-    return {};
-}
-
-} // namespace Internal
 } // namespace ProjectExplorer
+
+#include "jsonwizardfactory.moc"
