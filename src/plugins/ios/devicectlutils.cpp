@@ -107,4 +107,17 @@ Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
     return -1;
 }
 
+Utils::expected_str<qint64> parseLaunchResult(const QByteArray &rawOutput)
+{
+    const Utils::expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    const qint64 pid = (*result)["process"]["processIdentifier"].toInteger(-1);
+    if (pid < 0) {
+        // something unexpected happened ...
+        return make_unexpected(Tr::tr("devicectl returned unexpected output ... running failed."));
+    }
+    return pid;
+}
+
 } // namespace Ios::Internal

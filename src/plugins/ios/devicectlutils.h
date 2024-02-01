@@ -24,5 +24,6 @@ Utils::expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &ra
                                                             const QString &deviceUsbId);
 Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
 Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput);
+Utils::expected_str<qint64> parseLaunchResult(const QByteArray &rawOutput);
 
 } // namespace Ios::Internal

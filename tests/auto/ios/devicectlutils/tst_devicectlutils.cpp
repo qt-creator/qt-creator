@@ -21,6 +21,8 @@ private slots:
     void parseAppInfo();
 
     void parseProcessIdentifier();
+
+    void parseLaunchResult();
 };
 
 void tst_Devicectlutils::parseError_data()
@@ -405,6 +407,71 @@ void tst_Devicectlutils::parseProcessIdentifier()
     const Utils::expected_str<qint64> result = Ios::Internal::parseProcessIdentifier(data);
     QVERIFY(result);
     QCOMPARE(*result, 1000);
+}
+
+void tst_Devicectlutils::parseLaunchResult()
+{
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "00000000-0000000000000000",
+      "--quiet",
+      "--json-output",
+      "-",
+      "org.iuehrg.cmake-widgets"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "355.7.7"
+  },
+  "result" : {
+    "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "xterm-256color"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : false,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        1802,
+        0,
+        5118
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/00000000-0000-0000-0000-000000000000/test.app/test",
+      "processIdentifier" : 1802
+    }
+  }
+})raw");
+    const Utils::expected_str<qint64> result = Ios::Internal::parseLaunchResult(data);
+    QVERIFY(result);
+    QCOMPARE(*result, 1802);
 }
 
 QTEST_GUILESS_MAIN(tst_Devicectlutils)

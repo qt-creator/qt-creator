@@ -247,22 +247,15 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
             reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()));
             return DoneResult::Error;
         }
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
-            process.rawStdOut());
-        if (resultValue) {
-            // success
-            m_processIdentifier = (*resultValue)["process"]["processIdentifier"].toInteger(-1);
-            if (m_processIdentifier < 0) {
-                // something unexpected happened ...
-                reportFailure(Tr::tr("devicectl returned unexpected output ... running failed."));
-                return DoneResult::Error;
-            }
+        const Utils::expected_str<qint64> pid = parseLaunchResult(process.rawStdOut());
+        if (pid) {
+            m_processIdentifier = *pid;
             m_pollTimer.start();
             reportStarted();
             return DoneResult::Success;
         }
         // failure
-        reportFailure(resultValue.error());
+        reportFailure(pid.error());
         return DoneResult::Error;
     };
     return ProcessTask(onSetup, onDone);
