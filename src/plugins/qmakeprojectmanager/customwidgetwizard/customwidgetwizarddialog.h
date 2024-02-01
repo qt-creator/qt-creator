@@ -5,8 +5,6 @@
 
 #include "../wizards/qtwizard.h"
 
-#include <QSharedPointer>
-
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -24,8 +22,7 @@ public:
                                       QWidget *parent,
                                       const Core::WizardDialogParameters &parameters);
 
-    QSharedPointer<PluginOptions> pluginOptions() const;
-
+    std::shared_ptr<PluginOptions> pluginOptions() const;
 
     FileNamingParameters fileNamingParameters() const;
     void setFileNamingParameters(const FileNamingParameters &fnp);

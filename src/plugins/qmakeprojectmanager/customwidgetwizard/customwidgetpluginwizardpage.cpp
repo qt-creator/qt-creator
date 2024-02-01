@@ -102,9 +102,9 @@ void CustomWidgetPluginWizardPage::setCollectionEnabled(bool enColl)
     m_collectionSourceEdit->setEnabled(enColl);
 }
 
-QSharedPointer<PluginOptions> CustomWidgetPluginWizardPage::basicPluginOptions() const
+std::shared_ptr<PluginOptions> CustomWidgetPluginWizardPage::basicPluginOptions() const
 {
-    QSharedPointer<PluginOptions> po(new PluginOptions);
+    std::shared_ptr<PluginOptions> po(new PluginOptions);
     po->pluginName = pluginName();
     po->resourceFile = m_resourceFileEdit->text();
     po->collectionClassName = collectionClassName();
