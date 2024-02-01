@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
 namespace Squish::Internal {
 
-class ObjectsMapEditorFactory : public Core::IEditorFactory
-{
-public:
-    ObjectsMapEditorFactory();
-};
+void setupObjectsMapEditor();
 
 } // Squish::Internal

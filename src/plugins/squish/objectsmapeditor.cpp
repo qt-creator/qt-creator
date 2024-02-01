@@ -9,10 +9,13 @@
 #include "squishtr.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+
+using namespace Core;
 
 namespace Squish::Internal {
 
-class ObjectsMapEditor : public Core::IEditor
+class ObjectsMapEditor final : public IEditor
 {
 public:
     ObjectsMapEditor(std::shared_ptr<ObjectsMapDocument> document)
@@ -21,26 +24,32 @@ public:
         setWidget(new ObjectsMapEditorWidget(m_document.get()));
         setDuplicateSupported(true);
     }
-    ~ObjectsMapEditor() override { delete m_widget; }
+    ~ObjectsMapEditor() final { delete m_widget; }
 
 private:
-    Core::IDocument *document() const override { return m_document.get(); }
-    QWidget *toolBar() override { return nullptr; }
-    Core::IEditor *duplicate() override { return new ObjectsMapEditor(m_document); }
+    IDocument *document() const override { return m_document.get(); }
+    QWidget *toolBar() final { return nullptr; }
+    IEditor *duplicate() final { return new ObjectsMapEditor(m_document); }
     std::shared_ptr<ObjectsMapDocument> m_document;
 };
 
-
-// Factory
-
-ObjectsMapEditorFactory::ObjectsMapEditorFactory()
+class ObjectsMapEditorFactory final : public IEditorFactory
 {
-    setId(Constants::OBJECTSMAP_EDITOR_ID);
-    setDisplayName(Tr::tr("Squish Object Map Editor"));
-    addMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
-    setEditorCreator([] {
-        return new ObjectsMapEditor(std::shared_ptr<ObjectsMapDocument>(new ObjectsMapDocument));
-    });
+public:
+    ObjectsMapEditorFactory()
+    {
+        setId(Constants::OBJECTSMAP_EDITOR_ID);
+        setDisplayName(Tr::tr("Squish Object Map Editor"));
+        addMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
+        setEditorCreator([] {
+            return new ObjectsMapEditor(std::shared_ptr<ObjectsMapDocument>(new ObjectsMapDocument));
+        });
+    }
+};
+
+void setupObjectsMapEditor()
+{
+    static ObjectsMapEditorFactory theObjectsMapEditorFactory;
 }
 
 } // Squish::Internal

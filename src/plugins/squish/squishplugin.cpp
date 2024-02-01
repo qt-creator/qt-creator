@@ -39,7 +39,6 @@ public:
 
     bool initializeGlobalScripts();
 
-    ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane m_outputPane;
     SquishTools m_squishTools;
 };
@@ -105,6 +104,8 @@ class SquishPlugin final : public ExtensionSystem::IPlugin
 private:
     void initialize() final
     {
+        setupObjectsMapEditor();
+
         d.reset(new SquishPluginPrivate);
 
         setupSquishWizardPages();
