@@ -11,17 +11,6 @@ namespace Python::Internal {
 
 class PySideUicExtraCompiler;
 
-class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
-{
-public:
-    PythonInterpreterAspect(Utils::AspectContainer *container, ProjectExplorer::RunConfiguration *rc);
-    ~PythonInterpreterAspect() final;
-
-private:
-    friend class PythonRunConfiguration;
-    class PythonInterpreterAspectPrivate *d = nullptr;
-};
-
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:
