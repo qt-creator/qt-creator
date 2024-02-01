@@ -5,7 +5,7 @@
 
 #include "qqmlextensionplugin.h"
 
-#ifdef BULD_QDS_COMPONENTS
+#ifdef BUILD_QDS_COMPONENTS
 
 Q_IMPORT_QML_PLUGIN(QtQuick_Studio_ComponentsPlugin)
 Q_IMPORT_QML_PLUGIN(QtQuick_Studio_EffectsPlugin)
