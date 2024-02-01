@@ -79,19 +79,19 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_widget->effectComposerNodesModel()->loadModel();
 
     QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
 
     if (m_currProjectPath != currProjectPath) { // starting a new project
+        m_widget->effectComposerNodesModel()->loadModel();
         m_widget->effectComposerModel()->clear(true);
         m_widget->effectComposerModel()->setIsEnabled(
             !QmlDesigner::DesignerMcuManager::instance().isMCUProject());
+        m_widget->initView();
     }
 
     m_currProjectPath = currProjectPath;
 
-    m_widget->initView();
 }
 
 void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)
