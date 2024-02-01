@@ -79,10 +79,12 @@ public:
 
     explicit operator QByteArray() const { return QByteArray(data(), int(size())); }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     explicit operator QLatin1StringView() const noexcept
     {
         return QLatin1StringView(data(), Utils::ssize(*this));
     }
+#endif
 
     operator QUtf8StringView() const noexcept
     {
