@@ -8,7 +8,6 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QWizardPage>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
@@ -32,8 +31,8 @@ class CustomWizardFieldPage : public QWizardPage {
 public:
     using FieldList = QList<CustomWizardField>;
 
-    explicit CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                   const QSharedPointer<CustomWizardParameters> &parameters,
+    explicit CustomWizardFieldPage(const std::shared_ptr<CustomWizardContext> &ctx,
+                                   const std::shared_ptr<CustomWizardParameters> &parameters,
                                    QWidget *parent = nullptr);
 
     bool validatePage() override;
@@ -41,7 +40,7 @@ public:
     void cleanupPage() override;
 
     static QMap<QString, QString> replacementMap(const QWizard *w,
-                                                 const QSharedPointer<CustomWizardContext> &ctx,
+                                                 const std::shared_ptr<CustomWizardContext> &ctx,
                                                  const FieldList &f);
 
 protected:
@@ -85,8 +84,8 @@ private:
                               const CustomWizardField &field);
     void addField(const CustomWizardField &f);
 
-    const QSharedPointer<CustomWizardParameters> m_parameters;
-    const QSharedPointer<CustomWizardContext> m_context;
+    const std::shared_ptr<CustomWizardParameters> m_parameters;
+    const std::shared_ptr<CustomWizardContext> m_context;
     QFormLayout *m_formLayout;
     LineEditDataList m_lineEdits;
     TextEditDataList m_textEdits;
@@ -100,8 +99,8 @@ class CustomWizardPage : public CustomWizardFieldPage
     Q_OBJECT
 
 public:
-    explicit CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
-                              const QSharedPointer<CustomWizardParameters> &parameters,
+    explicit CustomWizardPage(const std::shared_ptr<CustomWizardContext> &ctx,
+                              const std::shared_ptr<CustomWizardParameters> &parameters,
                               QWidget *parent = nullptr);
 
     Utils::FilePath filePath() const;

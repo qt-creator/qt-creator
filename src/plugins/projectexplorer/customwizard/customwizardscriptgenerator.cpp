@@ -13,7 +13,6 @@
 
 #include <QFileInfo>
 #include <QDebug>
-#include <QSharedPointer>
 
 using namespace Utils;
 

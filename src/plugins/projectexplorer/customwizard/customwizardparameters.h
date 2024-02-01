@@ -7,9 +7,8 @@
 
 #include <utils/filepath.h>
 
-#include <QStringList>
 #include <QMap>
-#include <QSharedPointer>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -117,7 +116,7 @@ public:
 class CustomWizardContext {
 public:
     using FieldReplacementMap = QMap<QString, QString>;
-    using TemporaryFilePtr = QSharedPointer<Utils::TemporaryFile>;
+    using TemporaryFilePtr = std::shared_ptr<Utils::TemporaryFile>;
     using TemporaryFilePtrList = QList<TemporaryFilePtr>;
 
     void reset();

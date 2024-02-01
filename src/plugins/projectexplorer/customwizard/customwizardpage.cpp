@@ -63,8 +63,8 @@ CustomWizardFieldPage::PathChooserData::PathChooserData(PathChooser *pe, const Q
 {
 }
 
-CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                             const QSharedPointer<CustomWizardParameters> &parameters,
+CustomWizardFieldPage::CustomWizardFieldPage(const std::shared_ptr<CustomWizardContext> &ctx,
+                                             const std::shared_ptr<CustomWizardParameters> &parameters,
                                              QWidget *parent) :
     QWizardPage(parent),
     m_parameters(parameters),
@@ -376,7 +376,7 @@ bool CustomWizardFieldPage::validatePage()
 }
 
 QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
-                                                             const QSharedPointer<CustomWizardContext> &ctx,
+                                                             const std::shared_ptr<CustomWizardContext> &ctx,
                                                              const FieldList &f)
 {
     QMap<QString, QString> fieldReplacementMap = ctx->baseReplacements;
@@ -402,8 +402,8 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
     \sa ProjectExplorer::CustomWizard
 */
 
-CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
-                                   const QSharedPointer<CustomWizardParameters> &parameters,
+CustomWizardPage::CustomWizardPage(const std::shared_ptr<CustomWizardContext> &ctx,
+                                   const std::shared_ptr<CustomWizardParameters> &parameters,
                                    QWidget *parent) :
     CustomWizardFieldPage(ctx, parameters, parent),
     m_pathChooser(new PathChooser)
