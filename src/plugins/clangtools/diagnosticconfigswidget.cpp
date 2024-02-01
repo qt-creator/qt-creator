@@ -808,7 +808,8 @@ private:
         }
     }
 
-    QModelIndex indexForCheck(const QString &check) const {
+    QModelIndex indexForCheck(const QString &check) const override
+    {
         if (check == "*")
             return index(0, 0, QModelIndex());
 
