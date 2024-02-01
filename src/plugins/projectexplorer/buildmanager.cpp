@@ -234,9 +234,9 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
                     const FilePath executable = rc->commandLine().executable();
                     IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
                     for (const Target * const t : targetsForSelection(p, configSelection)) {
-                        if (device.isNull())
+                        if (!device)
                             device = DeviceKitAspect::device(t->kit());
-                        if (device.isNull() || device->type() != Constants::DESKTOP_DEVICE_TYPE)
+                        if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
                             continue;
                         for (const BuildConfiguration * const bc
                              : buildConfigsForSelection(t, configSelection)) {
@@ -295,9 +295,8 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     for (const Project *pro : projects) {
         for (const Target *const t : targetsForSelection(pro, configSelection)) {
             for (const BuildConfiguration *bc : buildConfigsForSelection(t, configSelection)) {
-                const IDevice::Ptr device = BuildDeviceKitAspect::device(bc->kit())
-                                                .constCast<IDevice>();
-
+                const IDevice::Ptr device = std::const_pointer_cast<IDevice>(
+                    BuildDeviceKitAspect::device(bc->kit()));
                 if (device && !device->prepareForBuild(t)) {
                     preambleMessage.append(
                         Tr::tr("The build device failed to prepare for the build of %1 (%2).")

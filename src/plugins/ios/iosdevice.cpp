@@ -127,7 +127,7 @@ IDevice::DeviceInfo IosDevice::deviceInformation() const
 
 IDeviceWidget *IosDevice::createWidget()
 {
-    return new IosDeviceInfoWidget(sharedFromThis());
+    return new IosDeviceInfoWidget(shared_from_this());
 }
 
 void IosDevice::fromMap(const Store &map)
@@ -222,7 +222,7 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (dev.isNull()) {
+    if (!dev) {
         auto newDev = new IosDevice(uid);
         if (!name.isNull())
             newDev->settings()->displayName.setValue(name);
@@ -250,10 +250,10 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (dev.isNull() || dev->type() != devType) {
+    if (!dev || dev->type() != devType) {
         qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (iosDev->m_extraInfo.isEmpty()
             || iosDev->m_extraInfo.value(kDeviceName) == QLatin1String("*unknown*")) {
             devManager->removeDevice(iosDev->id());
@@ -325,8 +325,8 @@ void IosDeviceManager::deviceInfo(const QString &uid,
     IDevice::ConstPtr dev = devManager->find(devId);
     bool skipUpdate = false;
     IosDevice *newDev = nullptr;
-    if (!dev.isNull() && dev->type() == devType) {
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
+    if (dev && dev->type() == devType) {
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (iosDev->m_handler == handler && iosDev->m_extraInfo == info) {
             skipUpdate = true;
             newDev = const_cast<IosDevice *>(iosDev);
@@ -570,9 +570,9 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
     for (int iDevice = 0; iDevice < devManager->deviceCount(); ++iDevice) {
         IDevice::ConstPtr dev = devManager->deviceAt(iDevice);
         Utils::Id devType(Constants::IOS_DEVICE_TYPE);
-        if (dev.isNull() || dev->type() != devType)
+        if (!dev || dev->type() != devType)
             continue;
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (devices.contains(iosDev->uniqueDeviceID()))
             continue;
         if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
@@ -604,7 +604,7 @@ bool IosDeviceFactory::canRestore(const Store &map) const
 IosDeviceInfoWidget::IosDeviceInfoWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device)
 {
-    const auto iosDevice = qSharedPointerCast<IosDevice>(device);
+    const auto iosDevice = std::static_pointer_cast<IosDevice>(device);
     using namespace Layouting;
     // clang-format off
     Form {

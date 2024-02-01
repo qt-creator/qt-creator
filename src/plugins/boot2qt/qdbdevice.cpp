@@ -124,7 +124,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 
 ProcessInterface *QdbDevice::createProcessInterface() const
 {
-    return new QdbProcessImpl(sharedFromThis());
+    return new QdbProcessImpl(shared_from_this());
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)

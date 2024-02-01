@@ -24,8 +24,8 @@ class IosDevice final : public ProjectExplorer::IDevice
 {
 public:
     using Dict = QMap<QString, QString>;
-    using ConstPtr = QSharedPointer<const IosDevice>;
-    using Ptr = QSharedPointer<IosDevice>;
+    using ConstPtr = std::shared_ptr<const IosDevice>;
+    using Ptr = std::shared_ptr<IosDevice>;
 
     enum class Handler { IosTool, DeviceCtl };
 

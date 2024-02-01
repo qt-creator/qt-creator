@@ -403,7 +403,7 @@ void IosConfigurations::updateSimulators()
     DeviceManager *devManager = DeviceManager::instance();
     Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (dev.isNull()) {
+    if (!dev) {
         dev = IDevice::ConstPtr(new IosSimulator(devId));
         devManager->addDevice(dev);
     }

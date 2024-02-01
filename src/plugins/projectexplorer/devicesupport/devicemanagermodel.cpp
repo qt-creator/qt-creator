@@ -75,7 +75,7 @@ Id DeviceManagerModel::deviceId(int pos) const
 
 int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
 {
-    if (dev.isNull())
+    if (!dev)
         return -1;
     for (int i = 0; i < d->devices.count(); ++i) {
         IDevice::ConstPtr current = d->devices.at(i);

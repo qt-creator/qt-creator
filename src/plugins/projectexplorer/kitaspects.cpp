@@ -986,7 +986,7 @@ Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     Tasks result;
-    if (dev.isNull())
+    if (!dev)
         result.append(BuildSystemTask(Task::Warning, Tr::tr("No device set.")));
     else if (!dev->isCompatibleWith(k))
         result.append(BuildSystemTask(Task::Error, Tr::tr("Device is incompatible with this kit.")));
@@ -1000,7 +1000,7 @@ Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 void DeviceKitAspectFactory::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (!dev.isNull() && !dev->isCompatibleWith(k)) {
+    if (dev && !dev->isCompatibleWith(k)) {
         qWarning("Device is no longer compatible with kit \"%s\", removing it.",
                  qPrintable(k->displayName()));
         DeviceKitAspect::setDeviceId(k, Id());
@@ -1011,7 +1011,7 @@ void DeviceKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (!dev.isNull() && dev->isCompatibleWith(k))
+    if (dev && dev->isCompatibleWith(k))
         return;
 
     DeviceKitAspect::setDeviceId(k, Id::fromSetting(defaultValue(k)));
@@ -1026,13 +1026,13 @@ KitAspect *DeviceKitAspectFactory::createKitAspect(Kit *k) const
 QString DeviceKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    return dev.isNull() ? QString() : dev->displayName();
+    return dev ? dev->displayName() : QString();
 }
 
 KitAspectFactory::ItemList DeviceKitAspectFactory::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    return {{Tr::tr("Device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Device"), dev ? dev->displayName() : Tr::tr("Unconfigured") }};
 }
 
 void DeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
@@ -1258,7 +1258,7 @@ void BuildDeviceKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return );
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    if (!dev.isNull())
+    if (dev)
         return;
 
     dev = defaultDevice();
@@ -1269,7 +1269,7 @@ Tasks BuildDeviceKitAspectFactory::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
     Tasks result;
-    if (dev.isNull())
+    if (!dev)
         result.append(BuildSystemTask(Task::Warning, Tr::tr("No build device set.")));
 
     return result;
@@ -1284,13 +1284,13 @@ KitAspect *BuildDeviceKitAspectFactory::createKitAspect(Kit *k) const
 QString BuildDeviceKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    return dev.isNull() ? QString() : dev->displayName();
+    return dev ? dev->displayName() : QString();
 }
 
 KitAspectFactory::ItemList BuildDeviceKitAspectFactory::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    return {{Tr::tr("Build device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Build device"), dev ? dev->displayName() : Tr::tr("Unconfigured")}};
 }
 
 void BuildDeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const

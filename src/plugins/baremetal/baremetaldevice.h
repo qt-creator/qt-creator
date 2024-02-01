@@ -11,8 +11,8 @@ namespace BareMetal::Internal {
 class BareMetalDevice final : public ProjectExplorer::IDevice
 {
 public:
-    using Ptr = QSharedPointer<BareMetalDevice>;
-    using ConstPtr = QSharedPointer<const BareMetalDevice>;
+    using Ptr = std::shared_ptr<BareMetalDevice>;
+    using ConstPtr = std::shared_ptr<const BareMetalDevice>;
 
     static Ptr create() { return Ptr(new BareMetalDevice); }
     ~BareMetalDevice() final;

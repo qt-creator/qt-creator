@@ -65,7 +65,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
 
     setUpdater([this, target] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
-        const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
+        const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
@@ -97,10 +97,10 @@ bool IosRunConfiguration::isEnabled(Id runMode) const
         return true;
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
-    if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
+    if (!dev || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
 
-    IosDevice::ConstPtr iosdevice = dev.dynamicCast<const IosDevice>();
+    IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
     if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
         && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
         return false;
@@ -242,7 +242,7 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
         DeviceManager *dm = DeviceManager::instance();
         for (int idev = 0; idev < dm->deviceCount(); ++idev) {
             IDevice::ConstPtr availDev = dm->deviceAt(idev);
-            if (!availDev.isNull() && availDev->type() == Constants::IOS_DEVICE_TYPE) {
+            if (availDev && availDev->type() == Constants::IOS_DEVICE_TYPE) {
                 if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
                     validDevName += QLatin1Char(' ');
                     validDevName += availDev->displayName();
@@ -253,7 +253,7 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
         }
     }
 
-    if (dev.isNull()) {
+    if (!dev) {
         if (!validDevName.isEmpty())
             return Tr::tr("No device chosen. Select %1.").arg(validDevName); // should not happen
         else if (hasConncetedDev)
@@ -277,7 +277,7 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
             else
                 return Tr::tr("%1 is not connected.").arg(dev->displayName());
         }
-        IosDevice::ConstPtr iosdevice = dev.dynamicCast<const IosDevice>();
+        IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
             && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
             return Tr::tr("Debugging and profiling is currently not supported for devices with iOS "

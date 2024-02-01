@@ -58,7 +58,7 @@ public:
                                       Tr::tr("Cannot open remote terminal: Current kit has no device."));
                 return;
             }
-            const auto linuxDevice = device.dynamicCast<const LinuxDevice>();
+            const auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(device);
             QTC_ASSERT(linuxDevice, return);
             linuxDevice->openTerminal(env, FilePath());
         });

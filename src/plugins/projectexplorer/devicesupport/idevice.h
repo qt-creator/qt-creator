@@ -92,7 +92,7 @@ public:
 };
 
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
+class PROJECTEXPLORER_EXPORT IDevice : public std::enable_shared_from_this<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:

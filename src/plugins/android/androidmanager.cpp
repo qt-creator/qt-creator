@@ -581,7 +581,7 @@ void installQASIPackage(Target *target, const FilePath &packagePath)
     if (appAbis.isEmpty())
         return;
     const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.data());
+    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
     if (!info.isValid()) // aborted
         return;
 

@@ -118,7 +118,7 @@ DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
     QTC_ASSERT(data, return);
     m_bundlePath = data->bundleDirectory;
     m_arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
-    m_device = DeviceKitAspect::device(runControl->kit()).dynamicCast<const IosDevice>();
+    m_device = std::dynamic_pointer_cast<const IosDevice>(DeviceKitAspect::device(runControl->kit()));
 
     using namespace std::chrono_literals;
     m_pollTimer.setInterval(500ms); // not too often since running devicectl takes time
@@ -465,9 +465,9 @@ FilePath IosRunner::bundlePath() const
 
 QString IosRunner::deviceId() const
 {
-    IosDevice::ConstPtr dev = m_device.dynamicCast<const IosDevice>();
+    IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(m_device);
     if (!dev)
-        return QString();
+        return {};
     return dev->uniqueDeviceID();
 }
 
@@ -502,16 +502,16 @@ void IosRunner::start()
         return;
     }
     if (m_device->type() == Ios::Constants::IOS_DEVICE_TYPE) {
-        IosDevice::ConstPtr iosDevice = m_device.dynamicCast<const IosDevice>();
-        if (m_device.isNull()) {
+        IosDevice::ConstPtr iosDevice = std::dynamic_pointer_cast<const IosDevice>(m_device);
+        if (!m_device) {
             reportFailure();
             return;
         }
         if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices)
             m_qmlServerPort = iosDevice->nextPort();
     } else {
-        IosSimulator::ConstPtr sim = m_device.dynamicCast<const IosSimulator>();
-        if (sim.isNull()) {
+        IosSimulator::ConstPtr sim = std::dynamic_pointer_cast<const IosSimulator>(m_device);
+        if (!sim) {
             reportFailure();
             return;
         }
@@ -700,7 +700,7 @@ IosRunSupport::IosRunSupport(RunControl *runControl)
     setId("IosRunSupport");
     runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
     runControl->setDisplayName(QString("Run on %1")
-                                   .arg(device().isNull() ? QString() : device()->displayName()));
+                                   .arg(device() ? device()->displayName() : QString()));
 }
 
 IosRunSupport::~IosRunSupport()
@@ -798,7 +798,7 @@ void IosDebugSupport::start()
     }
 
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
-        IosDevice::ConstPtr dev = device().dynamicCast<const IosDevice>();
+        IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
         setStartMode(AttachToRemoteProcess);
         setIosPlatform("remote-ios");
         const QString osVersion = dev->osVersion();
@@ -877,7 +877,7 @@ void IosDebugSupport::start()
 IosRunWorkerFactory::IosRunWorkerFactory()
 {
     setProducer([](RunControl *control) -> RunWorker * {
-        IosDevice::ConstPtr iosdevice = control->device().dynamicCast<const IosDevice>();
+        IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(control->device());
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
             return new DeviceCtlRunner(control);
         }

@@ -83,7 +83,7 @@ public:
 
     DeviceProcessSignalOperation::Ptr signalOperation() const final
     {
-        return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
+        return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(shared_from_this()));
     }
 
     DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }

@@ -269,7 +269,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         devSN = m_serialNumber;
 
     if (!avdMananager.isAvdBooted(devSN)) {
-        const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
+        const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).get();
         if (!dev) {
             appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
             return false;

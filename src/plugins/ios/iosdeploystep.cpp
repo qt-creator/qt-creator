@@ -202,7 +202,7 @@ IosDeployStep::IosDeployStep(BuildStepList *parent, Utils::Id id)
 void IosDeployStep::updateDisplayNames()
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
-    const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
+    const QString devName = dev ? dev->displayName() : IosDevice::name();
     setDisplayName(Tr::tr("Deploy to %1").arg(devName));
 }
 
@@ -241,7 +241,7 @@ GroupItem IosDeployStep::runRecipe()
     }
     // otherwise use iostool:
     const auto onSetup = [this](IosTransfer &transfer) {
-        if (m_device.isNull()) {
+        if (!m_device) {
             TaskHub::addTask(
                 DeploymentTask(Task::Error, Tr::tr("Deployment failed. No iOS device found.")));
             return SetupResult::StopWithError;
@@ -273,15 +273,15 @@ QWidget *IosDeployStep::createConfigWidget()
 
 QString IosDeployStep::deviceId() const
 {
-    if (iosdevice().isNull())
-        return QString();
+    if (!iosdevice())
+        return {};
     return iosdevice()->uniqueDeviceID();
 }
 
 bool IosDeployStep::checkProvisioningProfile()
 {
     IosDevice::ConstPtr device = iosdevice();
-    if (device.isNull())
+    if (!device)
         return true;
 
     const FilePath provisioningFilePath = m_bundlePath.pathAppended("embedded.mobileprovision");
@@ -330,12 +330,12 @@ bool IosDeployStep::checkProvisioningProfile()
 
 IosDevice::ConstPtr IosDeployStep::iosdevice() const
 {
-    return m_device.dynamicCast<const IosDevice>();
+    return std::dynamic_pointer_cast<const IosDevice>(m_device);
 }
 
 IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 {
-    return m_device.dynamicCast<const IosSimulator>();
+    return std::dynamic_pointer_cast<const IosSimulator>(m_device);
 }
 
 // IosDeployStepFactory
