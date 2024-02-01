@@ -68,8 +68,8 @@ Task Task::compilerMissingTask()
 void Task::setMark(TextEditor::TextMark *mark)
 {
     QTC_ASSERT(mark, return);
-    QTC_ASSERT(m_mark.isNull(), return);
-    m_mark = QSharedPointer<TextEditor::TextMark>(mark);
+    QTC_ASSERT(!m_mark, return);
+    m_mark = std::shared_ptr<TextEditor::TextMark>(mark);
 }
 
 bool Task::isNull() const
@@ -90,7 +90,7 @@ void Task::clear()
     category = Utils::Id();
     m_icon = QIcon();
     formats.clear();
-    m_mark.clear();
+    m_mark.reset();
 }
 
 void Task::setFile(const Utils::FilePath &file_)

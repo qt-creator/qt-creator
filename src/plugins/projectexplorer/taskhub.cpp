@@ -126,7 +126,7 @@ void TaskHub::addTask(Task task)
     QTC_ASSERT(s_registeredCategories.contains(task.category), return);
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
-    QTC_ASSERT(task.m_mark.isNull(), return);
+    QTC_ASSERT(!task.m_mark, return);
 
     if (task.file.isEmpty() || task.line <= 0)
         task.line = -1;
