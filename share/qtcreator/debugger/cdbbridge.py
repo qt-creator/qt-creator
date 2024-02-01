@@ -190,7 +190,8 @@ class Dumper(DumperBase):
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
         while nativeMember is not None:
-            yield self.fromNativeValue(nativeMember)
+            if nativeMember.address() != 0:
+                yield self.fromNativeValue(nativeMember)
             index += 1
             nativeMember = nativeValue.childFromIndex(index)
 
