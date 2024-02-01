@@ -10,8 +10,6 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <QSharedPointer>
-
 namespace GLSL {
 class Engine;
 class Function;
@@ -27,7 +25,7 @@ namespace Internal {
 class Document
 {
 public:
-    using Ptr = QSharedPointer<Document>;
+    using Ptr = std::shared_ptr<Document>;
 
     ~Document();
 
