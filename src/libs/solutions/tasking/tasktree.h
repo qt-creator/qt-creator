@@ -7,7 +7,6 @@
 
 #include <QObject>
 #include <QList>
-#include <QSharedPointer>
 
 #include <memory>
 
@@ -116,7 +115,7 @@ protected:
 private:
     friend class ExecutionContextActivator;
     friend class TaskTreePrivate;
-    QSharedPointer<LoopData> m_loopData;
+    std::shared_ptr<LoopData> m_loopData;
 };
 
 class TASKING_EXPORT LoopForever final : public Loop
@@ -166,7 +165,7 @@ private:
     friend size_t qHash(const StorageBase &storage, uint seed = 0)
     { return size_t(storage.m_storageData.get()) ^ seed; }
 
-    QSharedPointer<StorageData> m_storageData;
+    std::shared_ptr<StorageData> m_storageData;
 
     template <typename StorageStruct> friend class Storage;
     friend class ExecutionContextActivator;
