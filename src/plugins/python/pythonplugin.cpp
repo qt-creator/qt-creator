@@ -40,13 +40,6 @@ QObject *pluginInstance()
     return m_instance;
 }
 
-class PythonPluginPrivate
-{
-public:
-    PythonSettings settings;
-    PythonWizardPageFactory pythonWizardPageFactory;
-};
-
 class PythonPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -61,14 +54,11 @@ public:
     ~PythonPlugin() final
     {
         m_instance = nullptr;
-        delete d;
     }
 
 private:
     void initialize() final
     {
-        d = new PythonPluginPrivate;
-
         setupPythonEditorFactory(this);
 
         setupPySideBuildStep();
@@ -78,6 +68,9 @@ private:
         setupPythonRunWorker();
         setupPythonDebugWorker();
         setupPythonOutputParser();
+
+        setupPythonSettings(this);
+        setupPythonWizard();
 
         KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
                                          + QSet<Id>{PythonKitAspect::id()});
@@ -98,8 +91,6 @@ private:
                               Tr::tr("Issues parsed from Python runtime output."),
                               true});
     }
-
-    PythonPluginPrivate *d = nullptr;
 };
 
 } // Python::Internal

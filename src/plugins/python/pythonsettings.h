@@ -71,4 +71,6 @@ private:
     static void saveSettings();
 };
 
+void setupPythonSettings(QObject *guard);
+
 } // Python::Internal

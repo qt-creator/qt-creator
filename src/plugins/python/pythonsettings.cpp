@@ -1193,6 +1193,12 @@ Interpreter PythonSettings::interpreter(const QString &interpreterId)
                                 Utils::equal(&Interpreter::id, interpreterId));
 }
 
+void setupPythonSettings(QObject *guard)
+{
+    new PythonSettings; // Initializes settingsInstance
+    settingsInstance->setParent(guard);
+}
+
 } // Python::Internal
 
 #include "pythonsettings.moc"
