@@ -660,8 +660,6 @@ public:
 
     ToolChainOptionsPage m_toolChainOptionsPage;
 
-    TaskHub m_taskHub;
-
     ProjectWelcomePage m_welcomePage;
 
     CustomWizardMetaFactory<CustomProjectWizard> m_customProjectWizard{IWizardFactory::ProjectWizard};

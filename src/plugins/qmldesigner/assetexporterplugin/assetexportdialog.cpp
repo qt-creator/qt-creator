@@ -135,7 +135,7 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
     connect(&m_assetExporter, &AssetExporter::exportProgressChanged,
             this, &AssetExportDialog::updateExportProgress);
 
-    connect(TaskHub::instance(), &TaskHub::taskAdded, this, &AssetExportDialog::onTaskAdded);
+    connect(&taskHub(), &TaskHub::taskAdded, this, &AssetExportDialog::onTaskAdded);
 
     using namespace Layouting;
 

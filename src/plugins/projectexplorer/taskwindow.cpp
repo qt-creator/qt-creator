@@ -233,7 +233,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     setupFilterUi("IssuesPane.Filter");
     setFilteringEnabled(true);
 
-    TaskHub *hub = TaskHub::instance();
+    TaskHub *hub = &taskHub();
     connect(hub, &TaskHub::categoryAdded, this, &TaskWindow::addCategory);
     connect(hub, &TaskHub::taskAdded, this, &TaskWindow::addTask);
     connect(hub, &TaskHub::taskRemoved, this, &TaskWindow::removeTask);
