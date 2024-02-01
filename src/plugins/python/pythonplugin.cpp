@@ -44,8 +44,6 @@ class PythonPluginPrivate
 {
 public:
     PythonRunConfigurationFactory runConfigFactory;
-    PySideBuildStepFactory buildStepFactory;
-    PythonBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     SimpleDebugRunnerFactory debugRunWorkerFactory{{runConfigFactory.runConfigurationId()}, {ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE}};
     PythonSettings settings;
@@ -75,6 +73,9 @@ private:
         d = new PythonPluginPrivate;
 
         setupPythonEditorFactory(this);
+
+        setupPySideBuildStep();
+        setupPythonBuildConfiguration();
 
         setupPythonOutputParser();
 
