@@ -3,7 +3,6 @@
 
 #include "buildmanager.h"
 
-#include "buildprogress.h"
 #include "buildsteplist.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
@@ -36,17 +35,25 @@
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QBoxLayout>
 #include <QElapsedTimer>
+#include <QFont>
 #include <QFutureWatcher>
 #include <QHash>
+#include <QLabel>
 #include <QList>
 #include <QMessageBox>
+#include <QPixmap>
 #include <QPointer>
 #include <QSet>
 #include <QTime>
 #include <QTimer>
+#include <QVBoxLayout>
+#include <QVariant>
 
 using namespace Core;
 using namespace Tasking;
@@ -54,6 +61,95 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 using namespace Internal;
+
+class BuildProgress final : public QWidget
+{
+public:
+    explicit BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation = Qt::Vertical) :
+        m_contentWidget(new QWidget),
+        m_errorIcon(new QLabel),
+        m_warningIcon(new QLabel),
+        m_errorLabel(new QLabel),
+        m_warningLabel(new QLabel),
+        m_taskWindow(taskWindow)
+    {
+        auto contentLayout = new QHBoxLayout;
+        contentLayout->setContentsMargins(0, 0, 0, 0);
+        contentLayout->setSpacing(0);
+        setLayout(contentLayout);
+        contentLayout->addWidget(m_contentWidget);
+        QBoxLayout *layout;
+        if (orientation == Qt::Horizontal)
+            layout = new QHBoxLayout;
+        else
+            layout = new QVBoxLayout;
+        layout->setContentsMargins(8, 2, 0, 2);
+        layout->setSpacing(2);
+        m_contentWidget->setLayout(layout);
+        auto errorLayout = new QHBoxLayout;
+        errorLayout->setSpacing(2);
+        layout->addLayout(errorLayout);
+        errorLayout->addWidget(m_errorIcon);
+        errorLayout->addWidget(m_errorLabel);
+        auto warningLayout = new QHBoxLayout;
+        warningLayout->setSpacing(2);
+        layout->addLayout(warningLayout);
+        warningLayout->addWidget(m_warningIcon);
+        warningLayout->addWidget(m_warningLabel);
+
+        const QFont f = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
+        m_errorLabel->setFont(f);
+        m_warningLabel->setFont(f);
+        m_errorLabel->setPalette(StyleHelper::sidebarFontPalette(m_errorLabel->palette()));
+        m_warningLabel->setPalette(StyleHelper::sidebarFontPalette(m_warningLabel->palette()));
+        m_errorLabel->setProperty("_q_custom_style_disabled", QVariant(true));
+        m_warningLabel->setProperty("_q_custom_style_disabled", QVariant(true));
+
+        m_errorIcon->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        m_warningIcon->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        m_errorIcon->setPixmap(Icons::CRITICAL_TOOLBAR.pixmap());
+        m_warningIcon->setPixmap(Icons::WARNING_TOOLBAR.pixmap());
+
+        m_contentWidget->hide();
+
+        connect(m_taskWindow.data(), &TaskWindow::tasksChanged, this, &BuildProgress::updateState);
+    }
+
+private:
+    void updateState()
+    {
+        if (!m_taskWindow)
+            return;
+        int errors = m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+                     + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE)
+                     + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
+        bool haveErrors = (errors > 0);
+        m_errorIcon->setEnabled(haveErrors);
+        m_errorLabel->setEnabled(haveErrors);
+        m_errorLabel->setText(QString::number(errors));
+        int warnings = m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+                       + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_COMPILE)
+                       + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
+        bool haveWarnings = (warnings > 0);
+        m_warningIcon->setEnabled(haveWarnings);
+        m_warningLabel->setEnabled(haveWarnings);
+        m_warningLabel->setText(QString::number(warnings));
+
+        // Hide warnings and errors unless you need them
+        m_warningIcon->setVisible(haveWarnings);
+        m_warningLabel->setVisible(haveWarnings);
+        m_errorIcon->setVisible(haveErrors);
+        m_errorLabel->setVisible(haveErrors);
+        m_contentWidget->setVisible(haveWarnings || haveErrors);
+    }
+
+    QWidget *m_contentWidget;
+    QLabel *m_errorIcon;
+    QLabel *m_warningIcon;
+    QLabel *m_errorLabel;
+    QLabel *m_warningLabel;
+    QPointer<TaskWindow> m_taskWindow;
+};
 
 class ParserAwaiterTaskAdapter : public TaskAdapter<QSet<BuildSystem *>>
 {
