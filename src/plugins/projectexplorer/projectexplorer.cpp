@@ -724,13 +724,6 @@ public:
 
     DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
     SanitizerOutputFormatterFactory sanitizerFormatterFactory;
-
-    // JsonWizard related
-    FieldPageFactory fieldPageFactory;
-    FilePageFactory filePageFactory;
-    KitsPageFactory kitsPageFactory;
-    ProjectPageFactory projectPageFactory;
-    SummaryPageFactory summaryPageFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -832,6 +825,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     dd = new ProjectExplorerPluginPrivate;
 
+    setupJsonWizardPages();
     setupJsonWizardFileGenerator();
     setupJsonWizardScannerGenerator();
 
