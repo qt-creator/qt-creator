@@ -16,13 +16,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -183,10 +187,34 @@ public:
 
 // Factories
 
-PythonRunConfigurationFactory::PythonRunConfigurationFactory()
+class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    registerRunConfiguration<PythonRunConfiguration>(Constants::C_PYTHONRUNCONFIGURATION_ID);
-    addSupportedProjectType(PythonProjectId);
+public:
+    PythonRunConfigurationFactory()
+    {
+        registerRunConfiguration<PythonRunConfiguration>(Constants::C_PYTHONRUNCONFIGURATION_ID);
+        addSupportedProjectType(PythonProjectId);
+    }
+};
+
+void setupPythonRunConfiguration()
+{
+    static PythonRunConfigurationFactory thePythonRunConfigurationFactory;
+}
+
+void setupPythonRunWorker()
+{
+    static SimpleTargetRunnerFactory thePythonRunWorkerFactory(
+        {Constants::C_PYTHONRUNCONFIGURATION_ID}
+    );
+}
+
+void setupPythonDebugWorker()
+{
+    static Debugger::SimpleDebugRunnerFactory thePythonDebugRunWorkerFactory(
+        {Constants::C_PYTHONRUNCONFIGURATION_ID},
+        {ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE}
+    );
 }
 
 void setupPythonOutputParser()

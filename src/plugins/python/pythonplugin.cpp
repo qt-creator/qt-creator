@@ -43,9 +43,6 @@ QObject *pluginInstance()
 class PythonPluginPrivate
 {
 public:
-    PythonRunConfigurationFactory runConfigFactory;
-    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory debugRunWorkerFactory{{runConfigFactory.runConfigurationId()}, {ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE}};
     PythonSettings settings;
     PythonWizardPageFactory pythonWizardPageFactory;
 };
@@ -77,6 +74,9 @@ private:
         setupPySideBuildStep();
         setupPythonBuildConfiguration();
 
+        setupPythonRunConfiguration();
+        setupPythonRunWorker();
+        setupPythonDebugWorker();
         setupPythonOutputParser();
 
         KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
