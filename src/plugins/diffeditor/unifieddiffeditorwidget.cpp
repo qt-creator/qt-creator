@@ -133,7 +133,8 @@ void UnifiedDiffEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QPointer<QMenu> menu = createStandardContextMenu();
+    QMenu *menu = createStandardContextMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const QTextCursor tc = textCursor();
     QTextCursor start = tc;
@@ -182,9 +183,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     addContextMenuActions(menu, m_data.fileIndexForBlockNumber(blockNumber),
                           m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber), selection);
 
-    connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
-    delete menu;
 }
 
 void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,

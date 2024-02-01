@@ -734,7 +734,8 @@ void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
-    QScopedPointer<QMenu> menu(d->description->createStandardContextMenu());
+    QMenu *menu = d->description->createStandardContextMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
     // Extend
     for (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a :
          std::as_const(d->descriptionEditContextMenuActions)) {
