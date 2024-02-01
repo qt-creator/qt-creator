@@ -43,7 +43,7 @@ public:
 
 private:
     DiffEditor();
-    void setDocument(QSharedPointer<DiffEditorDocument> doc);
+    void setDocument(std::shared_ptr<DiffEditorDocument> doc);
 
     void documentHasChanged();
     void toggleDescription();
@@ -69,7 +69,7 @@ private:
     IDiffView *nextView();
     void setupView(IDiffView *view);
 
-    QSharedPointer<DiffEditorDocument> m_document;
+    std::shared_ptr<DiffEditorDocument> m_document;
     DescriptionEditorWidget *m_descriptionWidget = nullptr;
     UnifiedView *m_unifiedView = nullptr;
     SideBySideView *m_sideBySideView = nullptr;
