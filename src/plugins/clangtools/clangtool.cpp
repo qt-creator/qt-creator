@@ -1199,7 +1199,7 @@ static FileInfos fileInfosMatchingEditedDocuments(const FileInfos &fileInfos)
 
 FileInfoProviders ClangTool::fileInfoProviders(Project *project, const FileInfos &allFileInfos)
 {
-    const QSharedPointer<ClangToolsProjectSettings> s = ClangToolsProjectSettings::getSettings(project);
+    const std::shared_ptr<ClangToolsProjectSettings> s = ClangToolsProjectSettings::getSettings(project);
     static FileInfoSelection openedFilesSelection;
     static FileInfoSelection editeddFilesSelection;
 

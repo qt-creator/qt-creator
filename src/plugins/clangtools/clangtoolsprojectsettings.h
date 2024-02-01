@@ -65,7 +65,7 @@ public:
     void removeSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     void removeAllSuppressedDiagnostics();
 
-    using ClangToolsProjectSettingsPtr = QSharedPointer<ClangToolsProjectSettings>;
+    using ClangToolsProjectSettingsPtr = std::shared_ptr<ClangToolsProjectSettings>;
     static ClangToolsProjectSettingsPtr getSettings(ProjectExplorer::Project *project);
 
 signals:
@@ -91,4 +91,4 @@ private:
 } // namespace Internal
 } // namespace ClangTools
 
-Q_DECLARE_METATYPE(QSharedPointer<ClangTools::Internal::ClangToolsProjectSettings>)
+Q_DECLARE_METATYPE(std::shared_ptr<ClangTools::Internal::ClangToolsProjectSettings>)

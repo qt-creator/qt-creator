@@ -70,7 +70,7 @@ private:
     QPushButton *m_removeSelectedButton;
     QPushButton *m_removeAllButton;
 
-    QSharedPointer<ClangToolsProjectSettings> const m_projectSettings;
+    std::shared_ptr<ClangToolsProjectSettings> const m_projectSettings;
 };
 
 ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *project)
@@ -146,7 +146,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     // Suppressed diagnostics
     auto * const model = new SuppressedDiagnosticsModel(this);
     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
-    connect(m_projectSettings.data(), &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
+    connect(m_projectSettings.get(), &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
             [model, this] {
                     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
                     updateButtonStates();

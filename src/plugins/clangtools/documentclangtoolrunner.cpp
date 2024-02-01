@@ -4,7 +4,6 @@
 #include "documentclangtoolrunner.h"
 
 #include "clangtoolsconstants.h"
-#include "clangtoolslogfilereader.h"
 #include "clangtoolrunner.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
@@ -181,7 +180,7 @@ void DocumentClangToolRunner::run()
                                    : projectSettings->runSettings();
     m_suppressed = projectSettings->suppressedDiagnostics();
     m_lastProjectDirectory = project->projectDirectory();
-    m_projectSettingsUpdate = connect(projectSettings.data(), &ClangToolsProjectSettings::changed,
+    m_projectSettingsUpdate = connect(projectSettings.get(), &ClangToolsProjectSettings::changed,
                                       this, &DocumentClangToolRunner::run);
     if (!runSettings.analyzeOpenFiles())
         return;
