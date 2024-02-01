@@ -65,12 +65,12 @@ public:
     void togglePlay();
 
 private:
-    ImageViewer(const QSharedPointer<ImageViewerFile> &document);
+    ImageViewer(const std::shared_ptr<ImageViewerFile> &document);
     void ctor();
     void playToggled();
     void updatePauseAction();
 
-    QSharedPointer<ImageViewerFile> m_file;
+    std::shared_ptr<ImageViewerFile> m_file;
     ImageView *m_imageView;
     QWidget *m_toolbar;
 
@@ -112,7 +112,7 @@ ImageViewer::ImageViewer()
     ctor();
 }
 
-ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document)
+ImageViewer::ImageViewer(const std::shared_ptr<ImageViewerFile> &document)
 {
     m_file = document;
     ctor();
@@ -120,7 +120,7 @@ ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document)
 
 void ImageViewer::ctor()
 {
-    m_imageView = new ImageView(m_file.data());
+    m_imageView = new ImageView(m_file.get());
     m_imageView->readSettings();
     const ImageView::Settings settings = m_imageView->settings();
 
@@ -256,17 +256,17 @@ void ImageViewer::ctor()
     connect(m_actionBackground, &QAction::toggled, m_imageView, &ImageView::setViewBackground);
     connect(m_actionOutline, &QAction::toggled, m_imageView, &ImageView::setViewOutline);
     connect(m_actionPlayPause, &QAction::triggered, this, &ImageViewer::playToggled);
-    connect(m_file.data(), &ImageViewerFile::imageSizeChanged,
+    connect(m_file.get(), &ImageViewerFile::imageSizeChanged,
             this, &ImageViewer::imageSizeUpdated);
-    connect(m_file.data(), &ImageViewerFile::openFinished,
+    connect(m_file.get(), &ImageViewerFile::openFinished,
             m_imageView, &ImageView::createScene);
-    connect(m_file.data(), &ImageViewerFile::openFinished,
+    connect(m_file.get(), &ImageViewerFile::openFinished,
             this, &ImageViewer::updateToolButtons);
-    connect(m_file.data(), &ImageViewerFile::aboutToReload,
+    connect(m_file.get(), &ImageViewerFile::aboutToReload,
             m_imageView, &ImageView::reset);
-    connect(m_file.data(), &ImageViewerFile::reloadFinished,
+    connect(m_file.get(), &ImageViewerFile::reloadFinished,
             m_imageView, &ImageView::createScene);
-    connect(m_file.data(), &ImageViewerFile::movieStateChanged,
+    connect(m_file.get(), &ImageViewerFile::movieStateChanged,
             this, &ImageViewer::updatePauseAction);
     connect(m_imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
@@ -284,7 +284,7 @@ ImageViewer::~ImageViewer()
 
 IDocument *ImageViewer::document() const
 {
-    return m_file.data();
+    return m_file.get();
 }
 
 QWidget *ImageViewer::toolBar()
