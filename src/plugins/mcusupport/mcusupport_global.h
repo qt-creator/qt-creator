@@ -5,7 +5,6 @@
 
 #include <QList>
 #include <QSet>
-#include <QSharedPointer>
 #include <QVersionNumber>
 #include <QtGlobal>
 
@@ -21,9 +20,9 @@ class McuTarget;
 class McuAbstractPackage;
 class McuToolchainPackage;
 
-using McuPackagePtr = QSharedPointer<McuAbstractPackage>;
-using McuToolchainPackagePtr = QSharedPointer<McuToolchainPackage>;
-using McuTargetPtr = QSharedPointer<McuTarget>;
+using McuPackagePtr = std::shared_ptr<McuAbstractPackage>;
+using McuToolchainPackagePtr = std::shared_ptr<McuToolchainPackage>;
+using McuTargetPtr = std::shared_ptr<McuTarget>;
 
 static const QVersionNumber minimalVersion{2, 0, 0};
 static const QVersionNumber newVersion{2, 3};

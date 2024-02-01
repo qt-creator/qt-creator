@@ -119,7 +119,7 @@ private:
     McuPackagePtr freeRtosPackagePtr{freeRtosPackage};
     McuPackagePtr sdkPackagePtr{sdkPackage};
 
-    QSharedPointer<SettingsHandlerMock> settingsMockPtr{new SettingsHandlerMock};
+    std::shared_ptr<SettingsHandlerMock> settingsMockPtr{new SettingsHandlerMock};
     McuTargetFactory targetFactory;
     PackageDescription compilerDescription;
     PackageDescription toochainFileDescription;
