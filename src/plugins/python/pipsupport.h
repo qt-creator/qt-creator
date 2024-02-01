@@ -91,4 +91,6 @@ private:
     QTimer m_killTimer;
 };
 
+void setupPipSupport(QObject *guard);
+
 } // Python::Internal

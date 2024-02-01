@@ -15,7 +15,7 @@ add_qtc_plugin(Python
     pythonindenter.cpp pythonindenter.h
     pythonkitaspect.h pythonkitaspect.cpp
     pythonlanguageclient.cpp pythonlanguageclient.h
-    pythonplugin.cpp pythonplugin.h
+    pythonplugin.cpp
     pythonproject.cpp pythonproject.h
     pythonrunconfiguration.cpp pythonrunconfiguration.h
     pythonscanner.cpp pythonscanner.h

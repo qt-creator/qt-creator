@@ -5,7 +5,6 @@
 
 #include "pythonconstants.h"
 #include "pythonkitaspect.h"
-#include "pythonplugin.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -619,7 +618,7 @@ static QString defaultPylsConfiguration()
     return QString::fromUtf8(QJsonDocument(configuration).toJson());
 }
 
-static void disableOutdatedPylsNow()
+void PythonSettings::disableOutdatedPylsNow()
 {
     using namespace LanguageClient;
     const QList<BaseSettings *>
@@ -635,14 +634,14 @@ static void disableOutdatedPylsNow()
     }
 }
 
-static void disableOutdatedPyls()
+void PythonSettings::disableOutdatedPyls()
 {
     using namespace ExtensionSystem;
     if (PluginManager::isInitializationDone()) {
         disableOutdatedPylsNow();
     } else {
         QObject::connect(PluginManager::instance(), &PluginManager::initializationDone,
-                         pluginInstance(), &disableOutdatedPylsNow);
+                         this, &PythonSettings::disableOutdatedPylsNow);
     }
 }
 

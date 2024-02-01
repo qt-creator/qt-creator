@@ -264,7 +264,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
 
     updateCacheAndEmitEnvironmentChanged();
 
-    connect(PySideInstaller::instance(),
+    connect(&pySideInstaller(),
             &PySideInstaller::pySideInstalled,
             this,
             &PythonBuildConfiguration::handlePythonUpdated);

@@ -4,7 +4,6 @@
 #include "pyside.h"
 
 #include "pipsupport.h"
-#include "pythonplugin.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -36,23 +35,17 @@ namespace Python::Internal {
 
 const char installPySideInfoBarId[] = "Python::InstallPySide";
 
-PySideInstaller *PySideInstaller::instance()
-{
-    static PySideInstaller *instance = new PySideInstaller; // FIXME: Leaks.
-    return instance;
-}
-
 void PySideInstaller::checkPySideInstallation(const FilePath &python,
                                               TextEditor::TextDocument *document)
 {
     document->infoBar()->removeInfo(installPySideInfoBarId);
-    if (QPointer<QFutureWatcher<bool>> watcher = instance()->m_futureWatchers.value(document))
+    if (QPointer<QFutureWatcher<bool>> watcher = pySideInstaller().m_futureWatchers.value(document))
         watcher->cancel();
     if (!python.exists())
         return;
     const QString pySide = importedPySide(document->plainText());
     if (pySide == "PySide2" || pySide == "PySide6")
-        instance()->runPySideChecker(python, pySide, document);
+        pySideInstaller().runPySideChecker(python, pySide, document);
 }
 
 bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
@@ -80,9 +73,7 @@ QString PySideInstaller::importedPySide(const QString &text)
     return match.captured(2);
 }
 
-PySideInstaller::PySideInstaller()
-    : QObject(pluginInstance())
-{}
+PySideInstaller::PySideInstaller() = default;
 
 void PySideInstaller::installPyside(const FilePath &python,
                                     const QString &pySide,
@@ -226,6 +217,12 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
     });
     watcher->setFuture(Utils::asyncRun(&missingPySideInstallation, python, pySide));
     m_futureWatchers[document] = watcher;
+}
+
+PySideInstaller &pySideInstaller()
+{
+    static PySideInstaller thePySideInstaller;
+    return thePySideInstaller;
 }
 
 } // Python::Internal

@@ -1,8 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "pythonplugin.h"
-
+#include "pipsupport.h"
 #include "pythonbuildconfiguration.h"
 #include "pythonconstants.h"
 #include "pythoneditor.h"
@@ -33,30 +32,11 @@ using namespace Utils;
 
 namespace Python::Internal {
 
-static QObject *m_instance = nullptr;
-
-QObject *pluginInstance()
-{
-    return m_instance;
-}
-
 class PythonPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")
 
-public:
-    PythonPlugin()
-    {
-        m_instance = this;
-    }
-
-    ~PythonPlugin() final
-    {
-        m_instance = nullptr;
-    }
-
-private:
     void initialize() final
     {
         setupPythonEditorFactory(this);
@@ -71,6 +51,8 @@ private:
 
         setupPythonSettings(this);
         setupPythonWizard();
+
+        setupPipSupport(this);
 
         KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
                                          + QSet<Id>{PythonKitAspect::id()});
