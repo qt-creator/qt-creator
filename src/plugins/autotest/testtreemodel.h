@@ -22,7 +22,6 @@ class TestCodeParser;
 } // namespace Internal
 
 class TestParseResult;
-using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
 class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<Utils::TreeItem, ITestTreeItem>
 {

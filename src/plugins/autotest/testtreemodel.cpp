@@ -685,7 +685,7 @@ void TestTreeModel::onParseResultsReady(const QList<TestParseResultPtr> &results
         QTC_ASSERT(framework, return);
         TestTreeItem *rootNode = framework->rootNode();
         QTC_ASSERT(rootNode, return);
-        handleParseResult(result.data(), rootNode);
+        handleParseResult(result.get(), rootNode);
     }
 }
 

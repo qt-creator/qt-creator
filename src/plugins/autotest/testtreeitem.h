@@ -29,6 +29,8 @@ class ITestConfiguration;
 class TestParseResult;
 enum class TestRunMode;
 
+using TestParseResultPtr = std::shared_ptr<TestParseResult>;
+
 class ITestTreeItem : public Utils::TypedTreeItem<ITestTreeItem>
 {
 public:
