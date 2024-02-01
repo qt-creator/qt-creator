@@ -95,7 +95,7 @@ void ProcessList::killProcess(int row)
 
     const ProcessInfo processInfo = at(row);
     d->signalOperation = d->device->signalOperation();
-    connect(d->signalOperation.data(), &DeviceProcessSignalOperation::finished,
+    connect(d->signalOperation.get(), &DeviceProcessSignalOperation::finished,
             this, &ProcessList::reportDelayedKillStatus);
     d->signalOperation->killProcess(processInfo.processId);
 }

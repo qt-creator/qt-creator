@@ -678,7 +678,7 @@ void GdbEngine::interruptInferior()
             QTC_ASSERT(dev, notifyInferiorStopFailed(); return);
             DeviceProcessSignalOperation::Ptr signalOperation = dev->signalOperation();
             QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
-            connect(signalOperation.data(), &DeviceProcessSignalOperation::finished,
+            connect(signalOperation.get(), &DeviceProcessSignalOperation::finished,
                     this, [this, signalOperation](const QString &error) {
                         if (error.isEmpty()) {
                             showMessage("Interrupted " + QString::number(inferiorPid()));
