@@ -690,7 +690,6 @@ public:
     ProcessStepFactory m_processStepFactory;
 
     AllProjectsFind m_allProjectsFind;
-    CurrentProjectFind m_curretProjectFind;
     FilesInAllProjectsFind m_filesInAllProjectsFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
@@ -819,6 +818,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupCustomToolchain();
 
     setupProjectTreeWidgetFactory();
+
+    setupCurrentProjectFind();
 
     dd = new ProjectExplorerPluginPrivate;
 
