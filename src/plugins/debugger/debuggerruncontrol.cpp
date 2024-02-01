@@ -1096,10 +1096,8 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
     addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
-    addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
+
+    addSupportForLocalRunConfigs();
 }
 
 } // Debugger

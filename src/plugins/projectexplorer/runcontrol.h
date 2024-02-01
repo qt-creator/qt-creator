@@ -113,6 +113,7 @@ protected:
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
+    void addSupportForLocalRunConfigs();
     void cloneProduct(Utils::Id exitstingStepId, Utils::Id overrideId = Utils::Id());
 
 private:

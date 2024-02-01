@@ -239,10 +239,8 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
     setProduct<LocalQmlPreviewSupport>();
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-    addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
-    addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
+
+    addSupportForLocalRunConfigs();
 }
 
 } // QmlPreview
