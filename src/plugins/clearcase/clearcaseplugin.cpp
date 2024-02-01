@@ -65,7 +65,6 @@
 #include <QMetaObject>
 #include <QMutex>
 #include <QRegularExpression>
-#include <QSharedPointer>
 #include <QTextCodec>
 #include <QUuid>
 #include <QVBoxLayout>
@@ -317,7 +316,7 @@ public:
     QAction *m_menuAction = nullptr;
     QMutex m_activityMutex;
     QList<QStringPair> m_activities;
-    QSharedPointer<StatusMap> m_statusMap;
+    std::shared_ptr<StatusMap> m_statusMap;
 
     ClearCaseSettingsPage m_settingsPage;
 
@@ -1812,7 +1811,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
     if (files.isEmpty())
         return true;
     const QString title = QString::fromLatin1("Checkin %1").arg(files.join(QLatin1String("; ")));
-    using FCBPointer = QSharedPointer<FileChangeBlocker>;
+    using FCBPointer = std::shared_ptr<FileChangeBlocker>;
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
@@ -2479,7 +2478,7 @@ void setSettings(const ClearCaseSettings &s)
     dd->setSettings(s);
 }
 
-QSharedPointer<StatusMap> statusMap()
+std::shared_ptr<StatusMap> statusMap()
 {
     return dd->m_statusMap;
 }
@@ -2580,7 +2579,7 @@ void ClearCaseTest::testFileStatusParsing_data()
 
 void ClearCaseTest::testFileStatusParsing()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     QFETCH(QString, filename);
     QFETCH(QString, cleartoolLsLine);
@@ -2592,14 +2591,14 @@ void ClearCaseTest::testFileStatusParsing()
 
 void ClearCaseTest::testFileNotManaged()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileNotManaged();
 }
 
 void ClearCaseTest::testFileCheckedOutDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileCheckedOutDynamicView();
@@ -2607,14 +2606,14 @@ void ClearCaseTest::testFileCheckedOutDynamicView()
 
 void ClearCaseTest::testFileCheckedInDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileCheckedInDynamicView();
 }
 
 void ClearCaseTest::testFileNotManagedDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileNotManagedDynamicView();
 }
@@ -2725,7 +2724,7 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const QString fileName = QDir::currentPath() + QLatin1String("/readonly_notmanaged_file.cpp");
 
@@ -2747,7 +2746,7 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
     ClearCasePluginPrivate::instance();
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const QString fileName = QDir::currentPath() + QLatin1String("/notmanaged_file.cpp");
 

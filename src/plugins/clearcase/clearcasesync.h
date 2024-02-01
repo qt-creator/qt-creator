@@ -19,7 +19,7 @@ class ClearCaseSync : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClearCaseSync(QSharedPointer<StatusMap> statusMap);
+    explicit ClearCaseSync(std::shared_ptr<StatusMap> statusMap);
     void run(QPromise<void> &promise, QStringList &files);
 
     QStringList updateStatusHotFiles(const QString &viewRoot, int &total);
@@ -38,7 +38,7 @@ signals:
     void updateStreamAndView();
 
 private:
-    QSharedPointer<StatusMap> m_statusMap;
+    std::shared_ptr<StatusMap> m_statusMap;
 
 #ifdef WITH_TESTS
 public slots:
