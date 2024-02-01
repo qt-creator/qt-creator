@@ -64,7 +64,7 @@ QDebug operator<<(QDebug d, const GerritChange &c)
 }
 
 // Format default Url for a change
-static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p,
+static inline QString defaultUrl(const std::shared_ptr<GerritParameters> &p,
                                  const GerritServer &server,
                                  int gerritNumber)
 {
@@ -208,7 +208,7 @@ class QueryContext : public QObject
     Q_OBJECT
 public:
     QueryContext(const QString &query,
-                 const QSharedPointer<GerritParameters> &p,
+                 const std::shared_ptr<GerritParameters> &p,
                  const GerritServer &server,
                  QObject *parent = nullptr);
 
@@ -236,7 +236,7 @@ private:
 enum { timeOutMS = 30000 };
 
 QueryContext::QueryContext(const QString &query,
-                           const QSharedPointer<GerritParameters> &p,
+                           const std::shared_ptr<GerritParameters> &p,
                            const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
@@ -338,7 +338,7 @@ void QueryContext::timeout()
         m_timer.start();
 }
 
-GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *parent)
+GerritModel::GerritModel(const std::shared_ptr<GerritParameters> &p, QObject *parent)
     : QStandardItemModel(0, ColumnCount, parent)
     , m_parameters(p)
 {
@@ -445,7 +445,7 @@ QStandardItem *GerritModel::itemForNumber(int number) const
     return nullptr;
 }
 
-void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QString &query)
+void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QString &query)
 {
     if (m_query)
         m_query->terminate();
@@ -731,7 +731,7 @@ static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritSe
     return change;
 }
 
-static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
+static bool parseOutput(const std::shared_ptr<GerritParameters> &parameters,
                         const GerritServer &server,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)

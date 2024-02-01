@@ -51,7 +51,7 @@ void GerritRemoteChooser::setRepository(const FilePath &repository)
     m_repository = repository;
 }
 
-void GerritRemoteChooser::setParameters(QSharedPointer<GerritParameters> parameters)
+void GerritRemoteChooser::setParameters(std::shared_ptr<GerritParameters> parameters)
 {
     m_parameters = parameters;
 }

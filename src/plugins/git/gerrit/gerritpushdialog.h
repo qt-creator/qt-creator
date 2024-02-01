@@ -8,7 +8,6 @@
 #include <QDialog>
 #include <QMultiMap>
 #include <QDate>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -33,7 +32,7 @@ class GerritPushDialog : public QDialog
 
 public:
     GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
-                     QSharedPointer<GerritParameters> parameters, QWidget *parent);
+                     std::shared_ptr<GerritParameters> parameters, QWidget *parent);
 
     QString selectedCommit() const;
     QString selectedRemoteName() const;
