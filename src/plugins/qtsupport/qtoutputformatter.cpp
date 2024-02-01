@@ -218,24 +218,18 @@ void QtOutputLineParser::updateProjectFileList()
         d->projectFinder.setProjectFiles(d->project->files(Project::SourceFiles));
 }
 
-// QtOutputFormatterFactory
-
-class QtOutputFormatterFactory final : public OutputFormatterFactory
-{
-public:
-    QtOutputFormatterFactory()
-    {
-        setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
-            if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
-                return {new QtTestParser, new QtOutputLineParser(t)};
-            return {};
-        });
-    }
-};
-
 void setupQtOutputFormatter()
 {
-    static QtOutputFormatterFactory theQtOutputFormatterFactory;
+    addOutputParserFactory([](Target *t) -> OutputLineParser * {
+        if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
+            return new QtTestParser;
+        return nullptr;
+    });
+    addOutputParserFactory([](Target *t) -> OutputLineParser * {
+        if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
+            return new QtOutputLineParser(t);
+        return nullptr;
+    });
 }
 
 } // QtSupport::Internal

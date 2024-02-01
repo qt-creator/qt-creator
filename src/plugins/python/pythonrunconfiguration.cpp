@@ -189,12 +189,12 @@ PythonRunConfigurationFactory::PythonRunConfigurationFactory()
     addSupportedProjectType(PythonProjectId);
 }
 
-PythonOutputFormatterFactory::PythonOutputFormatterFactory()
+void setupPythonOutputParser()
 {
-    setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
+    addOutputParserFactory([](Target *t) -> OutputLineParser * {
         if (t && t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE)
-            return {new PythonOutputLineParser};
-        return {};
+            return new PythonOutputLineParser;
+        return nullptr;
     });
 }
 

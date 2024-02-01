@@ -43,7 +43,6 @@ QObject *pluginInstance()
 class PythonPluginPrivate
 {
 public:
-    PythonOutputFormatterFactory outputFormatterFactory;
     PythonRunConfigurationFactory runConfigFactory;
     PySideBuildStepFactory buildStepFactory;
     PythonBuildConfigurationFactory buildConfigFactory;
@@ -76,6 +75,8 @@ private:
         d = new PythonPluginPrivate;
 
         setupPythonEditorFactory(this);
+
+        setupPythonOutputParser();
 
         KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
                                          + QSet<Id>{PythonKitAspect::id()});

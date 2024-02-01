@@ -3,7 +3,10 @@
 
 #include "sanitizerparser.h"
 
+#include "ioutputparser.h"
 #include "projectexplorerconstants.h"
+#include "runcontrol.h"
+#include "task.h"
 
 #include <QRegularExpression>
 
@@ -18,6 +21,20 @@
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {
+
+class SanitizerParser final : public OutputTaskParser
+{
+private:
+    Result handleLine(const QString &line, OutputFormat format) final;
+    void flush() final;
+
+    Result handleContinuation(const QString &line);
+    void addLinkSpecs(const LinkSpecs &linkSpecs);
+
+    Task m_task;
+    LinkSpecs m_linkSpecs;
+    quint64 m_id = 0;
+};
 
 OutputLineParser::Result SanitizerParser::handleLine(const QString &line, OutputFormat format)
 {
@@ -125,7 +142,22 @@ void SanitizerParser::flush()
     m_id = 0;
 }
 
+OutputLineParser *createSanitizerOutputParser()
+{
+    return new SanitizerParser;
+}
+
+void setupSanitizerOutputParser()
+{
+    addOutputParserFactory([](Target *) { return new SanitizerParser; });
+}
+
+} // namespace ProjectExplorer::Internal
+
 #ifdef WITH_TESTS
+
+namespace ProjectExplorer::Internal {
+
 class SanitizerParserTest : public QObject
 {
     Q_OBJECT
@@ -214,24 +246,14 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         testbench.testParsing(input, OutputParserTester::STDERR, tasks, {}, childStdErrLines, {});
     }
 };
-#endif
 
-std::optional<std::function<QObject *()>> SanitizerParser::testCreator()
+QObject *createSanitizerOutputParserTest()
 {
-#ifdef WITH_TESTS
-    return []() -> QObject * { return new SanitizerParserTest; };
-#else
-    return {};
-#endif
+    return new SanitizerParserTest;
 }
 
-SanitizerOutputFormatterFactory::SanitizerOutputFormatterFactory()
-{
-    setFormatterCreator([](Target *) -> QList<OutputLineParser *> {return {new SanitizerParser}; });
-}
+} // ProjectExplorer::Internal
 
-} // namespace ProjectExplorer::Internal
-
-#ifdef WITH_TESTS
 #include <sanitizerparser.moc>
-#endif
+
+#endif // WITH_TESTS

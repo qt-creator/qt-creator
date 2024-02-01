@@ -17,10 +17,6 @@ public:
     PythonRunConfigurationFactory();
 };
 
-class PythonOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    PythonOutputFormatterFactory();
-};
+void setupPythonOutputParser();
 
 } // Python::Internal

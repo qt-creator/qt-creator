@@ -723,7 +723,6 @@ public:
     }};
 
     DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
-    SanitizerOutputFormatterFactory sanitizerFormatterFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -824,6 +823,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupProjectTreeWidgetFactory();
 
     dd = new ProjectExplorerPluginPrivate;
+
+    setupSanitizerOutputParser();
 
     setupJsonWizardPages();
     setupJsonWizardFileGenerator();
@@ -1953,8 +1954,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
-    if (auto sanitizerTester = SanitizerParser::testCreator())
-        addTestCreator(sanitizerTester.value());
+#ifdef WITH_TESTS
+    addTestCreator(&createSanitizerOutputParserTest);
+#endif
 
     return true;
 }

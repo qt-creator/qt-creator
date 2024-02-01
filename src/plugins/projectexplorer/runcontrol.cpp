@@ -843,7 +843,7 @@ void RunControlPrivate::showError(const QString &msg)
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
+    QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
     if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
@@ -1836,31 +1836,23 @@ void RunWorker::stop()
     reportStopped();
 }
 
-// OutputFormatterFactory
+// Output parser factories
 
-static QList<OutputFormatterFactory *> g_outputFormatterFactories;
+static QList<std::function<OutputLineParser *(Target *)>> g_outputParserFactories;
 
-OutputFormatterFactory::OutputFormatterFactory()
-{
-    g_outputFormatterFactories.append(this);
-}
-
-OutputFormatterFactory::~OutputFormatterFactory()
-{
-    g_outputFormatterFactories.removeOne(this);
-}
-
-QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *target)
+QList<OutputLineParser *> createOutputParsers(Target *target)
 {
     QList<OutputLineParser *> formatters;
-    for (auto factory : std::as_const(g_outputFormatterFactories))
-        formatters << factory->m_creator(target);
+    for (auto factory : std::as_const(g_outputParserFactories)) {
+        if (OutputLineParser *parser = factory(target))
+            formatters << parser;
+    }
     return formatters;
 }
 
-void OutputFormatterFactory::setFormatterCreator(const FormatterCreator &creator)
+void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &factory)
 {
-    m_creator = creator;
+    g_outputParserFactories.append(factory);
 }
 
 // SimpleTargetRunnerFactory

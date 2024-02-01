@@ -216,7 +216,7 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
                 formatter->addLineParser(parser);
         }
 
-        formatter->addLineParser(new Internal::SanitizerParser);
+        formatter->addLineParser(Internal::createSanitizerOutputParser());
         formatter->setForwardStdOutToStdError(buildConfiguration()->parseStdOut());
     }
     FileInProjectFinder fileFinder;
