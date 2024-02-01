@@ -837,7 +837,7 @@ public:
                         ":/android/images/androiddevice.png");
         setConstructionFunction(&AndroidDevice::create);
         if (androidConfig().sdkToolsOk()) {
-            setCreator([this] {
+            setCreator([] {
                 AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
                 if (dialog.exec() != QDialog::Accepted)
                     return IDevice::Ptr();

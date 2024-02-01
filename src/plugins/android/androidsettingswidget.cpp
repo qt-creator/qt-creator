@@ -451,7 +451,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         });
     });
 
-    setOnApply([this] { AndroidConfigurations::setConfig(androidConfig()); });
+    setOnApply([] { AndroidConfigurations::setConfig(androidConfig()); });
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
