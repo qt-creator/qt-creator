@@ -407,10 +407,16 @@ class Dumper(DumperBase):
         return mem
 
     def findStaticMetaObject(self, type):
-        typeName = type.name
+        ptr = 0
         if type.moduleName is not None:
-            typeName = type.moduleName + '!' + typeName
-        ptr = cdbext.getAddressByName(typeName + '::staticMetaObject')
+            # Try to find the static meta object in the same module as the type definition. This is
+            # an optimization that improves the performance of looking up the meta object for not
+            # exported types.
+            ptr = cdbext.getAddressByName(type.moduleName + '!' + type.name + '::staticMetaObject')
+        if ptr == 0:
+            # If we do not find the meta object in the same module or we do not have the module name
+            # we fall back to the slow lookup over all modules.
+            ptr = cdbext.getAddressByName(type.name + '::staticMetaObject')
         return ptr
 
     def warn(self, msg):
