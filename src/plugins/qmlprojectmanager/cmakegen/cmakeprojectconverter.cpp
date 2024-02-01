@@ -15,6 +15,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
 #include <QAction>
@@ -44,9 +45,15 @@ void CmakeProjectConverter::generateMenuEntry(QObject *parent)
 
     action->setEnabled(isProjectConvertable(ProjectExplorer::ProjectManager::startupProject()));
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
-        &ProjectExplorer::ProjectManager::startupProjectChanged, [action]() {
-            action->setEnabled(isProjectConvertable(ProjectExplorer::ProjectManager::startupProject()));
-    });
+                     &ProjectExplorer::ProjectManager::startupProjectChanged,
+                     [action]() {
+                         auto currentBuildSystem = QmlBuildSystem::getStartupBuildSystem();
+                         bool isMCU = currentBuildSystem ? currentBuildSystem->qtForMCUs() : false;
+
+                         action->setEnabled(isMCU
+                                            && isProjectConvertable(
+                                                ProjectExplorer::ProjectManager::startupProject()));
+                     });
 }
 
 bool CmakeProjectConverter::isProjectConvertable(const ProjectExplorer::Project *project)

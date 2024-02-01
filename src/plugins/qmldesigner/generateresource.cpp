@@ -16,6 +16,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -227,9 +228,12 @@ void GenerateResource::generateMenuEntry(QObject *parent)
     action->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
-        &ProjectExplorer::ProjectManager::startupProjectChanged, [action]() {
-            action->setEnabled(ProjectExplorer::ProjectManager::startupProject());
-    });
+                     &ProjectExplorer::ProjectManager::startupProjectChanged,
+                     [action]() {
+                         if (auto buildSystem
+                             = QmlProjectManager::QmlBuildSystem::getStartupBuildSystem())
+                             action->setEnabled(!buildSystem->qtForMCUs());
+                     });
 
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateResource");
     QObject::connect(action, &QAction::triggered, [] () {

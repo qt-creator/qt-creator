@@ -102,6 +102,8 @@ public:
 
     Utils::FilePath getStartupQmlFileWithFallback() const;
 
+    static QmlBuildSystem *getStartupBuildSystem();
+
 signals:
     void projectChanged();
 

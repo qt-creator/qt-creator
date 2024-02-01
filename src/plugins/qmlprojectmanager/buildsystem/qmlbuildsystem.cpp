@@ -32,6 +32,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include "projectexplorer/projectmanager.h"
 #include "projectitem/qmlprojectitem.h"
 #include "projectnode/qmlprojectnodes.h"
 
@@ -387,6 +388,16 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
         return projectFile;
 
     return {};
+}
+
+QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
+        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            project->activeTarget()->buildSystem());
+    }
+    return nullptr;
 }
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const
