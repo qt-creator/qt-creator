@@ -99,6 +99,7 @@ private:
     GroupItem findProcess(Storage<AppInfo> &appInfo);
     GroupItem killProcess(Storage<AppInfo> &appInfo);
     GroupItem launchTask(const QString &bundleIdentifier);
+    void reportStoppedImpl();
 
     FilePath m_bundlePath;
     QStringList m_arguments;
@@ -261,6 +262,13 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
     return ProcessTask(onSetup, onDone);
 }
 
+void DeviceCtlRunner::reportStoppedImpl()
+{
+    appendMessage(Tr::tr("\"%1\" exited").arg(m_bundlePath.toUserOutput()),
+                  Utils::NormalMessageFormat);
+    reportStopped();
+}
+
 void DeviceCtlRunner::start()
 {
     QSettings settings(m_bundlePath.pathAppended("Info.plist").toString(), QSettings::NativeFormat);
@@ -270,6 +278,10 @@ void DeviceCtlRunner::start()
         reportFailure(Tr::tr("Failed to determine bundle identifier."));
         return;
     }
+
+    appendMessage(Tr::tr("Running \"%1\" on %2...")
+                      .arg(m_bundlePath.toUserOutput(), device()->displayName()),
+                  NormalMessageFormat);
 
     // If the app is already running, we should first kill it, then launch again.
     // Usually deployment already kills the running app, but we support running without
@@ -298,7 +310,7 @@ void DeviceCtlRunner::stop()
         m_pollTask.release()->deleteLater();
     const auto onSetup = [this](Process &process) {
         if (!m_device) {
-            reportStopped();
+            reportStoppedImpl();
             return SetupResult::StopWithError;
         }
         process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
@@ -328,7 +340,7 @@ void DeviceCtlRunner::stop()
             reportFailure(resultValue.error());
             return DoneResult::Error;
         }
-        reportStopped();
+        reportStoppedImpl();
         return DoneResult::Success;
     };
     m_runTask.reset(new TaskTree(Group{ProcessTask(onSetup, onDone)}));
@@ -364,7 +376,7 @@ void DeviceCtlRunner::checkProcess()
             // no process with processIdentifier found, or some error occurred, device disconnected
             // or such, assume "stopped"
             m_pollTimer.stop();
-            reportStopped();
+            reportStoppedImpl();
         }
         m_pollTask.release()->deleteLater();
         return DoneResult::Success;
