@@ -96,4 +96,15 @@ Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QStrin
     return {};
 }
 
+Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
+{
+    const expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    const QJsonArray matchingProcesses = (*result)["runningProcesses"].toArray();
+    if (matchingProcesses.size() > 0)
+        return matchingProcesses.first()["processIdentifier"].toInteger(-1);
+    return -1;
+}
+
 } // namespace Ios::Internal

@@ -178,17 +178,12 @@ GroupItem DeviceCtlRunner::findProcess(Storage<AppInfo> &appInfo)
         return SetupResult::Continue;
     };
     const auto onDone = [this, appInfo](const Process &process) {
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
-            process.rawStdOut());
-        if (resultValue) {
-            const QJsonArray matchingProcesses = (*resultValue)["runningProcesses"].toArray();
-            if (matchingProcesses.size() > 0) {
-                appInfo->processIdentifier
-                    = matchingProcesses.first()["processIdentifier"].toInteger(-1);
-            }
+        const Utils::expected_str<qint64> pid = parseProcessIdentifier(process.rawStdOut());
+        if (pid) {
+            appInfo->processIdentifier = *pid;
             return DoneResult::Success;
         }
-        reportFailure(resultValue.error());
+        reportFailure(pid.error());
         return DoneResult::Error;
     };
     return ProcessTask(onSetup, onDone);

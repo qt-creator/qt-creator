@@ -19,6 +19,8 @@ private slots:
     void parseDeviceInfo();
 
     void parseAppInfo();
+
+    void parseProcessIdentifier();
 };
 
 void tst_Devicectlutils::parseError_data()
@@ -361,6 +363,48 @@ void tst_Devicectlutils::parseAppInfo()
     QCOMPARE(*result,
              QUrl("file:///private/var/containers/Bundle/Application/"
                   "FAEC04B7-41E6-4A3C-952E-D89792DA053C/cmake_widgets.app/"));
+}
+
+void tst_Devicectlutils::parseProcessIdentifier()
+{
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "info",
+      "processes",
+      "--device",
+      "00000000-0000000000000000",
+      "--quiet",
+      "--json-output",
+      "-",
+      "--filter",
+      "executable.path BEGINSWITH '/private/var/containers/Bundle/Application/00000000-0000-0000-0000-000000000000/test.app'"
+    ],
+    "commandType" : "devicectl.device.info.processes",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "355.7.7"
+  },
+  "result" : {
+    "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
+    "runningProcesses" : [
+      {
+        "executable" : "file:///private/var/containers/Bundle/Application/00000000-0000-0000-0000-000000000000/test.app/test",
+        "processIdentifier" : 1000
+      }
+    ]
+  }
+})raw");
+
+    const Utils::expected_str<qint64> result = Ios::Internal::parseProcessIdentifier(data);
+    QVERIFY(result);
+    QCOMPARE(*result, 1000);
 }
 
 QTEST_GUILESS_MAIN(tst_Devicectlutils)
