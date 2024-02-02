@@ -106,7 +106,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Start angle")
-                tooltip: qsTr("This property holds the starting angle of the dial in degrees.")
+                tooltip: qsTr("Sets the starting angle of the dial in degrees.")
                 visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
             }
 
@@ -128,7 +128,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("End angle")
-                tooltip: qsTr("This property holds the ending angle of the dial in degrees.")
+                tooltip: qsTr("Sets the ending angle of the dial in degrees.")
                 visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
             }
 
