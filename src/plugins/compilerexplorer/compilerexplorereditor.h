@@ -221,7 +221,7 @@ class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
 public:
-    EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
+    EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                  QUndoStack *undoStack,
                  TextEditor::TextEditorActionHandler &actionHandler,
                  QWidget *parent = nullptr);
@@ -251,7 +251,7 @@ protected:
     QVariantMap windowStateCallback();
 
 private:
-    QSharedPointer<JsonSettingsDocument> m_document;
+    std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
     TextEditor::TextEditorActionHandler &m_actionHandler;
 
@@ -265,10 +265,10 @@ public:
     Editor(TextEditor::TextEditorActionHandler &actionHandler);
     ~Editor();
 
-    Core::IDocument *document() const override { return m_document.data(); }
+    Core::IDocument *document() const override { return m_document.get(); }
     QWidget *toolBar() override;
 
-    QSharedPointer<JsonSettingsDocument> m_document;
+    std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack m_undoStack;
     std::unique_ptr<QToolBar> m_toolBar;
 };

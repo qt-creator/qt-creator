@@ -49,7 +49,7 @@ template<typename Result>
 QFuture<Result> request(
     QNetworkAccessManager *networkManager,
     QNetworkRequest &req,
-    std::function<void(const QByteArray &, QSharedPointer<QPromise<Result>>)> callback,
+    std::function<void(const QByteArray &, std::shared_ptr<QPromise<Result>>)> callback,
     QNetworkAccessManager::Operation op = QNetworkAccessManager::GetOperation,
     const QByteArray &payload = {})
 {
@@ -60,7 +60,7 @@ QFuture<Result> request(
                                             .toUtf8();
     req.setRawHeader("User-Agent", userAgent);
 
-    QSharedPointer<QPromise<Result>> p(new QPromise<Result>);
+    std::shared_ptr<QPromise<Result>> p(new QPromise<Result>);
     p->start();
 
     // For logging purposes only
