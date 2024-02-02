@@ -84,7 +84,7 @@ Column {
             anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale < 2
+                enabled: sourceImage.scale < 3
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
                 tooltip: qsTr("Zoom In")
@@ -174,64 +174,64 @@ Column {
         height: root.height - y
         clip: true
 
+        MouseArea {
+            id: mouseArea
+
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+
+            property real pressX: 0
+            property real pressY: 0
+            property bool panning: false
+
+            onPressed:  {
+                pressX = mouseX - sourceImage.x
+                pressY = mouseY - sourceImage.y
+                panning = true
+            }
+
+            onReleased: {
+                panning = false
+            }
+
+            onWheel: (wheel) => {
+                let prevScale = sourceImage.scale
+
+                if (wheel.angleDelta.y > 0) {
+                    if (sourceImage.scale < 3)
+                        sourceImage.scale += .2
+                } else {
+                    if (sourceImage.scale > .4)
+                        sourceImage.scale -= .2
+                }
+
+                let dScale = sourceImage.scale - prevScale
+
+                sourceImage.x += (sourceImage.x + sourceImage.width * .5 - wheel.x) * dScale;
+                sourceImage.y += (sourceImage.y + sourceImage.height * .5 - wheel.y) * dScale;
+
+                sourceImage.checkBounds()
+            }
+
+            Timer { // pan timer
+                running: parent.panning
+                interval: 16
+                repeat: true
+
+                onTriggered: {
+                    sourceImage.x = mouseArea.mouseX - mouseArea.pressX
+                    sourceImage.y = mouseArea.mouseY - mouseArea.pressY
+                    sourceImage.checkBounds()
+                }
+            }
+        }
+
         Item { // Source item as a canvas (render target) for effect
             id: source
             anchors.fill: parent
             layer.enabled: true
             layer.mipmap: true
             layer.smooth: true
-
-            MouseArea {
-                id: mouseArea
-
-                anchors.fill: parent
-                acceptedButtons: Qt.LeftButton
-
-                property real pressX: 0
-                property real pressY: 0
-                property bool panning: false
-
-                onPressed:  {
-                    pressX = mouseX - sourceImage.x
-                    pressY = mouseY - sourceImage.y
-                    panning = true
-                }
-
-                onReleased: {
-                    panning = false
-                }
-
-                onWheel: (wheel) => {
-                    let prevScale = sourceImage.scale
-
-                    if (wheel.angleDelta.y > 0) {
-                        if (sourceImage.scale < 2)
-                             sourceImage.scale += .2
-                    } else {
-                        if (sourceImage.scale > .4)
-                            sourceImage.scale -= .2
-                    }
-
-                    let dScale = sourceImage.scale - prevScale
-
-                    sourceImage.x += (sourceImage.x + sourceImage.width * .5 - wheel.x) * dScale;
-                    sourceImage.y += (sourceImage.y + sourceImage.height * .5 - wheel.y) * dScale;
-
-                    sourceImage.checkBounds()
-                }
-
-                Timer { // pan timer
-                    running: parent.panning
-                    interval: 16
-                    repeat: true
-
-                    onTriggered: {
-                        sourceImage.x = mouseArea.mouseX - mouseArea.pressX
-                        sourceImage.y = mouseArea.mouseY - mouseArea.pressY
-                        sourceImage.checkBounds()
-                    }
-                }
-            }
 
             Image {
                 id: sourceImage
