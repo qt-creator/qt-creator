@@ -20,6 +20,8 @@ Column {
     // The delay in ms to wait until updating the effect
     readonly property int updateDelay: 100
 
+    readonly property int previewMargin: 5
+
     // Create a dummy parent to host the effect qml object
     function createNewComponent() {
         // If we have a working effect, do not show preview image as it shows through
@@ -88,7 +90,9 @@ Column {
                 tooltip: qsTr("Zoom In")
 
                 onClicked: {
+                    sourceImage.enableAnim(true)
                     sourceImage.scale += .2
+                    sourceImage.enableAnim(false)
                 }
             }
 
@@ -99,18 +103,21 @@ Column {
                 tooltip: qsTr("Zoom out")
 
                 onClicked: {
+                    sourceImage.enableAnim(true)
                     sourceImage.scale -= .2
+                    sourceImage.enableAnim(false)
                 }
             }
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale !== 1
+                enabled: sourceImage.scale !== 1 || sourceImage.x !== root.previewMargin
+                                                 || sourceImage.y !== root.previewMargin
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.fitAll_medium
-                tooltip: qsTr("Zoom Fit")
+                tooltip: qsTr("Reset View")
 
                 onClicked: {
-                    sourceImage.scale = 1
+                    sourceImage.resetTransforms()
                 }
             }
         }
@@ -174,15 +181,131 @@ Column {
             layer.mipmap: true
             layer.smooth: true
 
+            MouseArea {
+                id: mouseArea
+
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+
+                property real pressX: 0
+                property real pressY: 0
+                property bool panning: false
+
+                onPressed:  {
+                    pressX = mouseX - sourceImage.x
+                    pressY = mouseY - sourceImage.y
+                    panning = true
+                }
+
+                onReleased: {
+                    panning = false
+                }
+
+                onWheel: (wheel) => {
+                    let prevScale = sourceImage.scale
+
+                    if (wheel.angleDelta.y > 0) {
+                        if (sourceImage.scale < 2)
+                             sourceImage.scale += .2
+                    } else {
+                        if (sourceImage.scale > .4)
+                            sourceImage.scale -= .2
+                    }
+
+                    let dScale = sourceImage.scale - prevScale
+
+                    sourceImage.x += (sourceImage.x + sourceImage.width * .5 - wheel.x) * dScale;
+                    sourceImage.y += (sourceImage.y + sourceImage.height * .5 - wheel.y) * dScale;
+
+                    sourceImage.checkBounds()
+                }
+
+                Timer { // pan timer
+                    running: parent.panning
+                    interval: 16
+                    repeat: true
+
+                    onTriggered: {
+                        sourceImage.x = mouseArea.mouseX - mouseArea.pressX
+                        sourceImage.y = mouseArea.mouseY - mouseArea.pressY
+                        sourceImage.checkBounds()
+                    }
+                }
+            }
+
             Image {
                 id: sourceImage
-                anchors.margins: 5
-                anchors.fill: parent
+
+                function checkBounds() {
+                    let edgeMargin = 10
+                    // correction factor to account for an observation that edgeMargin decreases
+                    // with increased zoom
+                    let corrFactor = 10 * sourceImage.scale
+                    let imgW2 = sourceImage.paintedWidth * sourceImage.scale * .5
+                    let imgH2 = sourceImage.paintedHeight * sourceImage.scale * .5
+                    let srcW2 = source.width * .5
+                    let srcH2 = source.height * .5
+
+                    if (sourceImage.x < -srcW2 - imgW2 + edgeMargin + corrFactor)
+                        sourceImage.x = -srcW2 - imgW2 + edgeMargin + corrFactor
+                    else if (x > srcW2 + imgW2 - edgeMargin - corrFactor)
+                        sourceImage.x = srcW2 + imgW2 - edgeMargin - corrFactor
+
+                    if (sourceImage.y < -srcH2 - imgH2 + edgeMargin + corrFactor)
+                        sourceImage.y = -srcH2 - imgH2 + edgeMargin + corrFactor
+                    else if (y > srcH2 + imgH2 - edgeMargin - corrFactor)
+                        sourceImage.y = srcH2 + imgH2 - edgeMargin - corrFactor
+                }
+
+                function resetTransforms() {
+                    sourceImage.enableAnim(true)
+                    sourceImage.scale = 1
+                    sourceImage.x = root.previewMargin
+                    sourceImage.y = root.previewMargin
+                    sourceImage.enableAnim(false)
+                }
+
+                function enableAnim(flag) {
+                    xBehavior.enabled = flag
+                    yBehavior.enabled = flag
+                    scaleBehavior.enabled = flag
+                }
+
+                onSourceChanged: sourceImage.resetTransforms()
+
                 fillMode: Image.PreserveAspectFit
+
+                x: root.previewMargin
+                y: root.previewMargin
+                width: parent.width - root.previewMargin * 2
+                height: parent.height - root.previewMargin * 2
                 source: imagesComboBox.selectedImage
                 smooth: true
 
+                Behavior on x {
+                    id: xBehavior
+
+                    enabled: false
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
+
+                Behavior on y {
+                    id: yBehavior
+
+                    enabled: false
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
+
                 Behavior on scale {
+                    id: scaleBehavior
+
+                    enabled: false
                     NumberAnimation {
                         duration: 200
                         easing.type: Easing.OutQuad
