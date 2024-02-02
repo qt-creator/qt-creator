@@ -644,10 +644,10 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     if (it != m_docMarksTrees.end())
         m_docMarksTrees.erase(it);
 
-    const TextMarks marks = document->marks();
-    for (auto m : marks) {
-        if (m->category().id == AxivionTextMarkId)
-            delete m;
+    const TextMarks &marks = document->marks();
+    for (TextMark *mark : marks) {
+        if (mark->category().id == AxivionTextMarkId)
+            delete mark;
     }
 }
 
