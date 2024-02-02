@@ -853,12 +853,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.View3D"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/extended-view3d-16px.png"
 
         ItemLibraryEntry {
             name: "Extended View3D"
             category: "Items"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
+            libraryIcon: ":/qtquickplugin/images/extended-view3d-24px.png"
             version: "6.5"
             requiredImport: "QtQuick3D"
             QmlSource { source: ":/qtquickplugin/source/extendedview3D_template.qml" }
