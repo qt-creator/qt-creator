@@ -819,9 +819,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     setupProjectTreeWidgetFactory();
 
-    setupCurrentProjectFind();
-
     dd = new ProjectExplorerPluginPrivate;
+
+    setupCurrentProjectFind();
 
     setupSanitizerOutputParser();
 
