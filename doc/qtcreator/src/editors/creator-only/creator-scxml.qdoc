@@ -98,7 +98,7 @@
             state chart.
     \endtable
 
-    To search from the state chart, select \uicontrol {Search} and start typing
+    To search in the state chart, select \uicontrol {Search} and start typing
     in the \uicontrol Filter field. The search checks the whole SCXML tree for
     attributes that match the search criteria.
 

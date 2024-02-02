@@ -89,7 +89,7 @@
         \li Add and remove subprojects.
         \li Find unused functions.
         \endif
-        \li Search from the selected directory.
+        \li Search in the selected directory.
 
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \preferences >

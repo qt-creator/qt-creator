@@ -36,11 +36,6 @@
                 \li \l{Using Text Editing Macros}
                 \li \l{Comparing Files}
             \endlist
-            \li \l{Finding}
-            \list
-                \li \l{Finding and Replacing}
-                \li \l{Searching with the Locator}
-            \endlist
             \li \l{Refactoring}
             \li \l{Configuring the Editor}
             \li \l{Using GitHub Copilot}
@@ -149,6 +144,8 @@
                         \generatelist creator-how-to-configure-editors
                     \li Manage Language Servers
                         \generatelist creator-how-to-lsp
+                    \li Search
+                        \generatelist creator-how-to-search
                 \endlist
             \li Manage Kits
                 \generatelist creator-how-to-manage-kits

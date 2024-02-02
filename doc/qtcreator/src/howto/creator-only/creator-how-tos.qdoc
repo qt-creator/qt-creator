@@ -65,6 +65,10 @@
 
     \generatelist creator-how-to-lsp
 
+    \section2 Search
+
+    \generatelist creator-how-to-search
+
     \section1 Manage Kits
 
     \generatelist creator-how-to-manage-kits
@@ -404,34 +408,43 @@
 
 /*!
     \page creator-how-to-search-and-replace-using-regexp.html
-    \previouspage creator-how-to-move-between-open-files.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-search
 
-    \title Search and replace across files using a regular expression
+    \title Search and replace using a regular expression
 
-    As an example, say you want to replace equality checks (\c {foo == bar})
-    with a function (\c {foo.equals(bar)}):
+    Search and replace across files using regular expressions in the
+    \uicontrol {Search Results} view.
+
+    Regular expressions used in \QC are modeled on Perl regular expressions.
+    For more information about using regular expressions, see
+    \l QRegularExpression.
+
+    For example, to replace equality checks (\c {foo == bar}) with a function
+    (\c {foo.equals(bar)}):
 
     \list 1
-    \li Ensure that any work you have done is committed to version control,
-        as the changes cannot be undone.
-    \li Press \key {Ctrl+Shift+F} to bring up the \uicontrol {Advanced Find}
-        form.
-    \li Change the scope to whatever is appropriate for your search.
-    \li Under the \uicontrol {Search for} text field, select
-        the \uicontrol {Use regular expressions} check box.
-    \li Enter the following text in the \uicontrol {Search for} text field:
+    \li Commit your changes to version control, as you cannot undo the
+        replace action.
+    \li Press \key {Ctrl+Shift+F} or go to \uicontrol Edit >
+        \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
+        \uicontrol {Open Advanced Find} to open \uicontrol {Search Results}.
+        \image qtcreator-search-reg-exp.webp {Regular expression in Search Results view}
+    \li In \uicontrol Scope, select whatever is appropriate for your search.
+    \li Select \uicontrol {Use regular expressions}.
+    \li Enter the following text in \uicontrol {Search for}:
         \badcode
         if \((.*) == (.*)\)
         \endcode
-    \li Press \uicontrol {Search & Replace} to see a list of search results.
-    \li In the \uicontrol {Replace with} text field, enter the following text:
+    \li Select \uicontrol {Search & Replace} to see a list of search results.
+        \image qtcreator-search-results-reg-exp.webp {Search results for the regular expression}
+    \li In \uicontrol {Replace with}, enter the following text:
         \badcode
         if (\1.strictlyEquals(\2))
         \endcode
-    \li Press \uicontrol Replace to replace all instances of the text.
+    \li Select \uicontrol Replace to replace all instances of the text.
     \endlist
 
-    \sa {Advanced Search}, {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Edit Code}{How To: Edit Code}, {Search}{How To: Search}, {Edit Mode}
 */

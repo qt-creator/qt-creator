@@ -64,7 +64,7 @@
         \endif
     \endlist
 
-    \l{Search Results} shows the location and number of search hits in the
+    \l{Search Results View} shows the location and number of search hits in the
     current project.
 
     \if defined(qtcreator)

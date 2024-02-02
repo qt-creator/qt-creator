@@ -68,7 +68,7 @@
             To use an \l{Terminal} {internal terminal}, select \preferences >
             \uicontrol Terminal > \uicontrol {Use internal terminal}.
             \endif
-        \li Search from the selected directory.
+        \li Search in the selected directory.
         \li View file properties, such as name, path, MIME type, default editor,
             line endings, indentation, owner, size, last read and modified
             dates, and permissions.
