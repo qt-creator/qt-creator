@@ -93,6 +93,7 @@ Column {
                     sourceImage.enableAnim(true)
                     sourceImage.scale += .2
                     sourceImage.enableAnim(false)
+                    zoomIndicator.show()
                 }
             }
 
@@ -106,6 +107,7 @@ Column {
                     sourceImage.enableAnim(true)
                     sourceImage.scale -= .2
                     sourceImage.enableAnim(false)
+                    zoomIndicator.show()
                 }
             }
 
@@ -211,6 +213,7 @@ Column {
                 sourceImage.y += (sourceImage.y + sourceImage.height * .5 - wheel.y) * dScale;
 
                 sourceImage.checkBounds()
+                zoomIndicator.show()
             }
 
             Timer { // pan timer
@@ -330,6 +333,32 @@ Column {
             // slow down code editing & rest of the UI.
             layer.enabled: true
             layer.smooth: true
+        }
+
+        Rectangle {
+            id: zoomIndicator
+
+            width: 40
+            height: 20
+            color: StudioTheme.Values.themeDialogBackground
+            visible: false
+
+            function show() {
+                zoomIndicator.visible = true
+                zoomIndicatorTimer.start()
+            }
+
+            Text {
+                text: Math.round(sourceImage.scale * 100) + "%"
+                color: StudioTheme.Values.themeTextColor
+                anchors.centerIn: parent
+            }
+
+            Timer {
+                id: zoomIndicatorTimer
+                interval: 1000
+                onTriggered: zoomIndicator.visible = false
+            }
         }
 
         Connections {
