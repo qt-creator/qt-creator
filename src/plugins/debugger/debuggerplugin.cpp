@@ -44,6 +44,7 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
+#include <coreplugin/session.h>
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -787,9 +788,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     ICore::addAdditionalContext(debuggerNotRunning);
 
     m_arguments = arguments;
-    if (!m_arguments.isEmpty())
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,
+    if (!m_arguments.isEmpty()) {
+        connect(SessionManager::instance(), &SessionManager::startupSessionRestored,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
+    }
 
     // Menus
     m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
