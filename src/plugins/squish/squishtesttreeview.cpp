@@ -19,8 +19,7 @@
 
 #include <QRegularExpression>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 SquishTestTreeView::SquishTestTreeView(QWidget *parent)
     : Utils::NavigationTreeView(parent)
@@ -117,19 +116,10 @@ QSize SquishTestTreeItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     return QStyledItemDelegate::sizeHint(opt, idx);
 }
 
-QWidget *SquishTestTreeItemDelegate::createEditor(QWidget *parent,
-                                                  const QStyleOptionViewItem &option,
-                                                  const QModelIndex &index) const
+static QWidget *testCaseEditor(QWidget *parent,
+                               const SquishTestTreeItem *item)
 {
-    Q_UNUSED(option)
-    QTC_ASSERT(parent, return nullptr);
-    QTC_ASSERT(index.isValid(), return nullptr);
-    auto model = static_cast<const SquishTestTreeSortModel *>(index.model());
-    QTC_ASSERT(model, return nullptr);
-    auto srcModel = static_cast<SquishTestTreeModel *>(model->sourceModel());
-
-    const SquishTestTreeItem *suite = srcModel->itemForIndex(model->mapToSource(index.parent()));
-    SquishTestTreeItem *testCaseItem = srcModel->itemForIndex(model->mapToSource(index));
+    const SquishTestTreeItem *suite = static_cast<SquishTestTreeItem *>(item->parent());
     const SuiteConf suiteConf = SuiteConf::readSuiteConf(suite->filePath());
     const QStringList inUse = suiteConf.usedTestCases();
     Utils::FancyLineEdit *editor = new Utils::FancyLineEdit(parent);
@@ -141,13 +131,50 @@ QWidget *SquishTestTreeItemDelegate::createEditor(QWidget *parent,
         return validFileName.match(testName).hasMatch() && !inUse.contains(testName);
     });
 
+    return editor;
+}
+
+static QWidget *sharedScriptEditor(QWidget *parent,
+                                   const SquishTestTreeItem *item)
+{
+    const Utils::FilePath folder = static_cast<SquishTestTreeItem *>(item->parent())->filePath();
+    Utils::FancyLineEdit *editor = new Utils::FancyLineEdit(parent);
+    editor->setValidationFunction([folder](Utils::FancyLineEdit *edit, QString *) {
+        return !edit->text().isEmpty() && !folder.pathAppended(edit->text()).exists();
+    });
+
+    return editor;
+}
+
+QWidget *SquishTestTreeItemDelegate::createEditor(QWidget *parent,
+                                                  const QStyleOptionViewItem &option,
+                                                  const QModelIndex &index) const
+{
+    Q_UNUSED(option)
+    QTC_ASSERT(parent, return nullptr);
+    QTC_ASSERT(index.isValid(), return nullptr);
+    auto model = static_cast<const SquishTestTreeSortModel *>(index.model());
+    QTC_ASSERT(model, return nullptr);
+    auto srcModel = static_cast<SquishTestTreeModel *>(model->sourceModel());
+
+    SquishTestTreeItem *item = srcModel->itemForIndex(model->mapToSource(index));
+    if (!item)
+        return nullptr;
+    QWidget *editor = nullptr;
+    if (item->type() == SquishTestTreeItem::SquishTestCase)
+        editor = testCaseEditor(parent, item);
+    else if (item->type() == SquishTestTreeItem::SquishSharedFile)
+        editor = sharedScriptEditor(parent, item);
+    if (!editor)
+        return nullptr;
+
     connect(this, &QStyledItemDelegate::closeEditor,
-            editor, [srcModel, testCaseItem](QWidget *, EndEditHint hint) {
+            editor, [srcModel, item](QWidget *, EndEditHint hint) {
         QTC_ASSERT(srcModel, return);
-        QTC_ASSERT(testCaseItem, return);
+        QTC_ASSERT(item, return);
         if (hint != QAbstractItemDelegate::RevertModelCache)
             return;
-        srcModel->destroyItem(testCaseItem);
+        srcModel->destroyItem(item);
     });
     return editor;
 }
@@ -203,6 +230,22 @@ void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
         return;
     }
 
+    SquishTestTreeItem *item = sourceModel->itemForIndex(sortModel->mapToSource(index));
+    if (item->type() == SquishTestTreeItem::SquishSharedFile) {
+        SquishTestTreeItem *folder = static_cast<SquishTestTreeItem *>(item->parent());
+        const Utils::FilePath scriptFilePath = folder->filePath().pathAppended(lineEdit->text());
+        // FIXME registered paths may not exist - we do not care so far
+        scriptFilePath.parentDir().ensureWritableDir();
+        if (!scriptFilePath.ensureExistingFile()) {
+            removeFormerlyAdded();
+            return;
+        }
+        item->setFilePath(scriptFilePath);
+        item->setDisplayName(scriptFilePath.fileName());
+        Core::EditorManager::openEditor(scriptFilePath);
+        return;
+    }
+    QTC_ASSERT(item->type() == SquishTestTreeItem::SquishTestCase, removeFormerlyAdded(); return);
     QString chosenName = lineEdit->text();
     if (!chosenName.startsWith("tst_"))
         chosenName.prepend("tst_");
@@ -223,5 +266,4 @@ void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
     Core::EditorManager::openEditor(destination.pathAppended("test" + suiteConf.scriptExtension()));
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal
