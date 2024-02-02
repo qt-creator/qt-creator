@@ -661,10 +661,10 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
 bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
 {
-    ProjectExplorerSettings settings = ProjectExplorerPlugin::projectExplorerSettings();
-    if (!runControl->promptToStop(&settings.prompToStopRunControl))
+    bool promptToStop = projectExplorerSettings().prompToStopRunControl;
+    if (!runControl->promptToStop(&promptToStop))
         return false;
-    ProjectExplorerPlugin::setProjectExplorerSettings(settings);
+    setPromptToStopSettings(promptToStop);
     return true;
 }
 

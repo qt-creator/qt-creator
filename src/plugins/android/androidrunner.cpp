@@ -11,7 +11,6 @@
 #include "androidtr.h"
 
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -88,7 +87,7 @@ AndroidRunner::~AndroidRunner()
 
 void AndroidRunner::start()
 {
-    if (!ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun) {
+    if (!projectExplorerSettings().deployBeforeRun) {
         qCDebug(androidRunnerLog) << "Run without deployment";
        launchAVD();
        if (!m_launchedAVDName.isEmpty()) {

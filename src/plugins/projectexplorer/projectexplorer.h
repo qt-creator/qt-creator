@@ -29,7 +29,6 @@ class CustomParserSettings;
 class FolderNode;
 class Node;
 class Project;
-class ProjectExplorerSettings;
 class RunControl;
 class RunConfiguration;
 
@@ -109,9 +108,6 @@ public:
     void extensionsInitialized() override;
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
-
-    static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);
-    static const ProjectExplorerSettings &projectExplorerSettings();
 
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();

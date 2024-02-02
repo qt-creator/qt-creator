@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include "projectexplorer_export.h"
+
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -20,26 +21,6 @@ enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 class ProjectExplorerSettings
 {
 public:
-    friend bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerSettings &p2)
-    {
-        return p1.buildBeforeDeploy == p2.buildBeforeDeploy
-                && p1.deployBeforeRun == p2.deployBeforeRun
-                && p1.saveBeforeBuild == p2.saveBeforeBuild
-                && p1.useJom == p2.useJom
-                && p1.prompToStopRunControl == p2.prompToStopRunControl
-                && p1.automaticallyCreateRunConfigurations == p2.automaticallyCreateRunConfigurations
-                && p1.addLibraryPathsToRunEnv == p2.addLibraryPathsToRunEnv
-                && p1.environmentId == p2.environmentId
-                && p1.stopBeforeBuild == p2.stopBeforeBuild
-                && p1.terminalMode == p2.terminalMode
-                && p1.closeSourceFilesWithProject == p2.closeSourceFilesWithProject
-                && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
-                && p1.abortBuildAllOnError == p2.abortBuildAllOnError
-                && p1.appEnvChanges == p2.appEnvChanges
-                && p1.warnAgainstNonAsciiBuildDir == p2.warnAgainstNonAsciiBuildDir
-                && p1.lowBuildPriority == p2.lowBuildPriority;
-    }
-
     BuildBeforeRunMode buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
     bool deployBeforeRun = true;
     bool saveBeforeBuild = false;
@@ -64,7 +45,12 @@ public:
     QUuid environmentId;
 };
 
+PROJECTEXPLORER_EXPORT const ProjectExplorerSettings &projectExplorerSettings();
+
 namespace Internal {
+
+void setPromptToStopSettings(bool promptToStop); // FIXME: Remove.
+void setSaveBeforeBuildSettings(bool saveBeforeBuild); // FIXME: Remove.
 
 enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 
@@ -79,11 +65,7 @@ public:
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
-class ProjectExplorerSettingsPage : public Core::IOptionsPage
-{
-public:
-    ProjectExplorerSettingsPage();
-};
+void setupProjectExplorerSettings();
 
 } // namespace Internal
 } // namespace ProjectExplorer

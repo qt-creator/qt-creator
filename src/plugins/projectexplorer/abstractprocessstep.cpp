@@ -189,7 +189,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
-    if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
+    if (d->m_lowPriority && projectExplorerSettings().lowBuildPriority)
         process.setLowPriority();
 
     process.setStdOutCodec(buildEnvironment().hasKey("VSLANG")

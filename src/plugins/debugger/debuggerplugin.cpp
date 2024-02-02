@@ -1993,7 +1993,7 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 {
-    const bool state = ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun;
+    const bool state = projectExplorerSettings().deployBeforeRun;
     m_debugWithoutDeployAction.setVisible(state);
 }
 

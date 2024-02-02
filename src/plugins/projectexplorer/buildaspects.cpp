@@ -190,7 +190,7 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
 
     QString genericProblem;
     QString genericProblemLabelString;
-    if (ProjectExplorerPlugin::projectExplorerSettings().warnAgainstNonAsciiBuildDir) {
+    if (projectExplorerSettings().warnAgainstNonAsciiBuildDir) {
         const auto isInvalid = [](QChar c) { return c.isSpace() || !isascii(c.toLatin1()); };
         if (const auto invalidChar = Utils::findOr(value, std::nullopt, isInvalid)) {
             genericProblem = Tr::tr(

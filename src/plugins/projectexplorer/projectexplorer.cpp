@@ -262,27 +262,6 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 
 const char RECENTPROJECTS_FILE_NAMES_KEY[] = "ProjectExplorer/RecentProjects/FileNames";
 const char RECENTPROJECTS_DISPLAY_NAMES_KEY[] = "ProjectExplorer/RecentProjects/DisplayNames";
-const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildBeforeDeploy";
-const char DEPLOY_BEFORE_RUN_SETTINGS_KEY[] = "ProjectExplorer/Settings/DeployBeforeRun";
-const char SAVE_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/SaveBeforeBuild";
-const char USE_JOM_SETTINGS_KEY[] = "ProjectExplorer/Settings/UseJom";
-const char ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY[] =
-        "ProjectExplorer/Settings/AddLibraryPathsToRunEnv";
-const char PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY[] =
-        "ProjectExplorer/Settings/PromptToStopRunControl";
-const char AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY[] =
-        "ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations";
-const char ENVIRONMENT_ID_SETTINGS_KEY[] = "ProjectExplorer/Settings/EnvironmentId";
-const char STOP_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/StopBeforeBuild";
-const char TERMINAL_MODE_SETTINGS_KEY[] = "ProjectExplorer/Settings/TerminalMode";
-const char CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY[]
-    = "ProjectExplorer/Settings/CloseFilesWithProject";
-const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/ClearIssuesOnRebuild";
-const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
-    = "ProjectExplorer/Settings/AbortBuildAllOnError";
-const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
-const char WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
-const char APP_ENV_CHANGES_SETTINGS_KEY[] = "ProjectExplorer/Settings/AppEnvChanges";
 
 const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
 const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
@@ -640,7 +619,6 @@ public:
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     MiniProjectTargetSelector * m_targetSelector;
-    ProjectExplorerSettings m_projectExplorerSettings;
     QList<CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
@@ -700,7 +678,6 @@ public:
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
     // Settings pages
-    ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
     AppOutputSettingsPage m_appOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     SshSettingsPage m_sshSettingsPage;
@@ -810,6 +787,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupCustomToolchain();
 
     setupProjectTreeWidgetFactory();
+
+    setupProjectExplorerSettings();
 
     dd = new ProjectExplorerPluginPrivate;
 
@@ -1637,73 +1616,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         }
     }
 
-    const QVariant buildBeforeDeploy = s->value(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY);
-    const QString buildBeforeDeployString = buildBeforeDeploy.toString();
-    if (buildBeforeDeployString == "true") { // backward compatibility with QtC < 4.12
-        dd->m_projectExplorerSettings.buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
-    } else if (buildBeforeDeployString == "false") {
-        dd->m_projectExplorerSettings.buildBeforeDeploy = BuildBeforeRunMode::Off;
-    } else if (buildBeforeDeploy.isValid()) {
-        dd->m_projectExplorerSettings.buildBeforeDeploy
-                = static_cast<BuildBeforeRunMode>(buildBeforeDeploy.toInt());
-    }
-
-    static const ProjectExplorerSettings defaultSettings;
-
-    dd->m_projectExplorerSettings.deployBeforeRun
-        = s->value(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, defaultSettings.deployBeforeRun)
-              .toBool();
-    dd->m_projectExplorerSettings.saveBeforeBuild
-        = s->value(Constants::SAVE_BEFORE_BUILD_SETTINGS_KEY, defaultSettings.saveBeforeBuild)
-              .toBool();
-    dd->m_projectExplorerSettings.useJom
-        = s->value(Constants::USE_JOM_SETTINGS_KEY, defaultSettings.useJom).toBool();
-    dd->m_projectExplorerSettings.addLibraryPathsToRunEnv
-        = s->value(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY,
-                   defaultSettings.addLibraryPathsToRunEnv)
-              .toBool();
-    dd->m_projectExplorerSettings.prompToStopRunControl
-        = s->value(Constants::PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY,
-                   defaultSettings.prompToStopRunControl)
-              .toBool();
-    dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations
-        = s->value(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY,
-                   defaultSettings.automaticallyCreateRunConfigurations)
-              .toBool();
-    dd->m_projectExplorerSettings.environmentId =
-            QUuid(s->value(Constants::ENVIRONMENT_ID_SETTINGS_KEY).toByteArray());
-    if (dd->m_projectExplorerSettings.environmentId.isNull())
-        dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
-    int tmp = s->value(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
-                       int(defaultSettings.stopBeforeBuild))
-                  .toInt();
-    if (tmp < 0 || tmp > int(StopBeforeBuild::SameApp))
-        tmp = int(defaultSettings.stopBeforeBuild);
-    dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
-    dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(
-        s->value(Constants::TERMINAL_MODE_SETTINGS_KEY, int(defaultSettings.terminalMode)).toInt());
-    dd->m_projectExplorerSettings.closeSourceFilesWithProject
-        = s->value(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,
-                   defaultSettings.closeSourceFilesWithProject)
-              .toBool();
-    dd->m_projectExplorerSettings.clearIssuesOnRebuild
-        = s->value(Constants::CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY,
-                   defaultSettings.clearIssuesOnRebuild)
-              .toBool();
-    dd->m_projectExplorerSettings.abortBuildAllOnError
-        = s->value(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY,
-                   defaultSettings.abortBuildAllOnError)
-              .toBool();
-    dd->m_projectExplorerSettings.lowBuildPriority
-        = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, defaultSettings.lowBuildPriority)
-              .toBool();
-    dd->m_projectExplorerSettings.warnAgainstNonAsciiBuildDir
-        = s->value(Constants::WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY,
-                   defaultSettings.warnAgainstNonAsciiBuildDir)
-              .toBool();
-    dd->m_projectExplorerSettings.appEnvChanges = EnvironmentItem::fromStringList(
-        s->value(Constants::APP_ENV_CHANGES_SETTINGS_KEY).toStringList());
-
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
         CustomParserSettings settings;
@@ -2145,7 +2057,7 @@ bool ProjectExplorerPlugin::delayedInitialize()
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
 {
-    m_runWithoutDeployAction->setVisible(m_projectExplorerSettings.deployBeforeRun);
+    m_runWithoutDeployAction->setVisible(projectExplorerSettings().deployBeforeRun);
 }
 
 IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
@@ -2227,55 +2139,6 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
     s->setValueWithDefault(Constants::RECENTPROJECTS_FILE_NAMES_KEY, fileNames);
     s->setValueWithDefault(Constants::RECENTPROJECTS_DISPLAY_NAMES_KEY, displayNames);
-
-    static const ProjectExplorerSettings defaultSettings;
-
-    s->setValueWithDefault(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY,
-                           int(dd->m_projectExplorerSettings.buildBeforeDeploy),
-                           int(defaultSettings.buildBeforeDeploy));
-    s->setValueWithDefault(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.deployBeforeRun,
-                           defaultSettings.deployBeforeRun);
-    s->setValueWithDefault(Constants::SAVE_BEFORE_BUILD_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.saveBeforeBuild,
-                           defaultSettings.saveBeforeBuild);
-    s->setValueWithDefault(Constants::USE_JOM_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.useJom,
-                           defaultSettings.useJom);
-    s->setValueWithDefault(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.addLibraryPathsToRunEnv,
-                           defaultSettings.addLibraryPathsToRunEnv);
-    s->setValueWithDefault(Constants::PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.prompToStopRunControl,
-                           defaultSettings.prompToStopRunControl);
-    s->setValueWithDefault(Constants::TERMINAL_MODE_SETTINGS_KEY,
-                           int(dd->m_projectExplorerSettings.terminalMode),
-                           int(defaultSettings.terminalMode));
-    s->setValueWithDefault(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.closeSourceFilesWithProject,
-                           defaultSettings.closeSourceFilesWithProject);
-    s->setValueWithDefault(Constants::CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.clearIssuesOnRebuild,
-                           defaultSettings.clearIssuesOnRebuild);
-    s->setValueWithDefault(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.abortBuildAllOnError,
-                           defaultSettings.abortBuildAllOnError);
-    s->setValueWithDefault(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.lowBuildPriority,
-                           defaultSettings.lowBuildPriority);
-    s->setValueWithDefault(Constants::WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.warnAgainstNonAsciiBuildDir,
-                           defaultSettings.warnAgainstNonAsciiBuildDir);
-    s->setValueWithDefault(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations,
-                           defaultSettings.automaticallyCreateRunConfigurations);
-    s->setValueWithDefault(Constants::ENVIRONMENT_ID_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.environmentId.toByteArray());
-    s->setValueWithDefault(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
-                           int(dd->m_projectExplorerSettings.stopBeforeBuild),
-                           int(defaultSettings.stopBeforeBuild));
-    s->setValueWithDefault(Constants::APP_ENV_CHANGES_SETTINGS_KEY,
-                           EnvironmentItem::toStringList(dd->m_projectExplorerSettings.appEnvChanges));
 
     buildPropertiesSettings().writeSettings(); // FIXME: Should not be needed.
 
@@ -2723,7 +2586,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 {
     QList<IDocument *> documentsToSave = DocumentManager::modifiedDocuments();
     if (!documentsToSave.isEmpty()) {
-        if (dd->m_projectExplorerSettings.saveBeforeBuild) {
+        if (projectExplorerSettings().saveBeforeBuild) {
             bool cancelled = false;
             DocumentManager::saveModifiedDocumentsSilently(documentsToSave, &cancelled);
             if (cancelled)
@@ -2738,7 +2601,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
             }
 
             if (alwaysSave)
-                dd->m_projectExplorerSettings.saveBeforeBuild = true;
+                setSaveBeforeBuildSettings(true);
         }
     }
     return true;
@@ -3054,7 +2917,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
                               && !BuildManager::isBuilding(currentProject)
                               && hasDeploySettings(currentProject);
 
-    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off) {
+    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off) {
         if (hasBuildSettings(project)
                 && !buildSettingsEnabled(project).first)
             enableDeployActions = false;
@@ -3072,7 +2935,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     m_deployProjectOnlyAction->setEnabled(enableDeployActions);
 
     bool enableDeploySessionAction = true;
-    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off) {
+    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off) {
         auto hasDisabledBuildConfiguration = [](Project *project) {
             return project && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
@@ -3116,8 +2979,8 @@ expected_str<void> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode
     if (!activeRC->isEnabled(runMode))
         return make_unexpected(activeRC->disabledReason(runMode));
 
-    if (dd->m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off
-            && dd->m_projectExplorerSettings.deployBeforeRun
+    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off
+            && projectExplorerSettings().deployBeforeRun
             && !BuildManager::isBuilding(project)
             && hasBuildSettings(project)) {
         QPair<bool, QString> buildState = dd->buildSettingsEnabled(project);
@@ -3966,21 +3829,6 @@ ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
 {
     setStartupProject(ProjectTree::currentProject());
-}
-
-void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSettings &pes)
-{
-    QTC_ASSERT(dd->m_projectExplorerSettings.environmentId == pes.environmentId, return);
-
-    if (dd->m_projectExplorerSettings == pes)
-        return;
-    dd->m_projectExplorerSettings = pes;
-    emit m_instance->settingsChanged();
-}
-
-const ProjectExplorerSettings &ProjectExplorerPlugin::projectExplorerSettings()
-{
-    return dd->m_projectExplorerSettings;
 }
 
 void ProjectExplorerPlugin::setAppOutputSettings(const AppOutputSettings &settings)

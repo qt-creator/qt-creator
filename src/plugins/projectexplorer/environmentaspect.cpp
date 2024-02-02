@@ -31,9 +31,7 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
     if (qobject_cast<RunConfiguration *>(container)) {
-        addModifier([](Environment &env) {
-            env.modify(ProjectExplorerPlugin::projectExplorerSettings().appEnvChanges);
-        });
+        addModifier([](Environment &env) { env.modify(projectExplorerSettings().appEnvChanges); });
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
                 this, &EnvironmentAspect::environmentChanged);
     }

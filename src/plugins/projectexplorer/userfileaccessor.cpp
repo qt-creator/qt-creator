@@ -300,7 +300,7 @@ UserFileAccessor::UserFileAccessor(Project *project)
     secondary->setReadOnly();
     setSecondaryAccessor(std::move(secondary));
 
-    setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    setSettingsId(projectExplorerSettings().environmentId.toByteArray());
 
     // Register Upgraders:
     addVersionUpgrader(std::make_unique<UserFileVersion14Upgrader>());
@@ -990,7 +990,7 @@ void ProjectExplorerTest::testUserFileAccessor_prepareToWriteSettings()
 
     QCOMPARE(result.count(), data.count() + 3);
     QCOMPARE(result.value("EnvironmentId").toByteArray(),
-             ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+             projectExplorerSettings().environmentId.toByteArray());
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
     QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
     QCOMPARE(result.value("ProjectExplorer.Project.Updater.FileVersion").toInt(), accessor.currentVersion());
@@ -1013,7 +1013,7 @@ void ProjectExplorerTest::testUserFileAccessor_mergeSettings()
 
     Store data;
     data.insert("Version", accessor.currentVersion());
-    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
@@ -1025,7 +1025,7 @@ void ProjectExplorerTest::testUserFileAccessor_mergeSettings()
     QCOMPARE(result.data.count(), data.count() + 1);
     // mergeSettings does not run updateSettings, so no OriginalVersion will be set
     QCOMPARE(result.data.value("EnvironmentId").toByteArray(),
-             ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray()); // unchanged
+             projectExplorerSettings().environmentId.toByteArray()); // unchanged
     QCOMPARE(result.data.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
     QCOMPARE(result.data.value("Version").toInt(), accessor.currentVersion()); // forced
     QCOMPARE(result.data.value("shared1"), data.value("shared1")); // from data
@@ -1066,7 +1066,7 @@ void ProjectExplorerTest::testUserFileAccessor_mergeSettingsEmptyShared()
     Store data;
     data.insert("Version", accessor.currentVersion());
     data.insert("OriginalVersion", accessor.currentVersion());
-    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
