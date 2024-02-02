@@ -3,6 +3,7 @@
 
 #include "collectionwidget.h"
 
+#include "collectiondetails.h"
 #include "collectiondetailsmodel.h"
 #include "collectiondetailssortfiltermodel.h"
 #include "collectioneditorutils.h"
@@ -215,7 +216,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
 
         if (collectionType == "json") {
             QJsonObject jsonObject;
-            jsonObject.insert(collectionName, CollectionEditorUtils::defaultCollectionArray());
+            jsonObject.insert(collectionName, CollectionEditorUtils::defaultCollection());
 
             QFile sourceFile(sourcePath);
             if (!sourceFile.open(QFile::WriteOnly)) {
@@ -257,8 +258,10 @@ bool CollectionWidget::addCollection(const QString &collectionName,
         }
     } else if (collectionType == "json") {
         QString errorMsg;
-        bool added = m_sourceModel->addCollectionToSource(
-            node, collectionName, CollectionEditorUtils::defaultCollectionArray(), &errorMsg);
+        bool added = m_sourceModel->addCollectionToSource(node,
+                                                          collectionName,
+                                                          CollectionEditorUtils::defaultCollection(),
+                                                          &errorMsg);
         if (!added)
             warn(tr("Can not add a model to the JSON file"), errorMsg);
         return added;
@@ -267,48 +270,69 @@ bool CollectionWidget::addCollection(const QString &collectionName,
     return false;
 }
 
-bool CollectionWidget::importToJson(const QVariant &sourceNode,
-                                    const QString &collectionName,
-                                    const QUrl &url)
+bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url)
 {
-    using CollectionEditorConstants::SourceFormat;
     using Utils::FilePath;
-    const ModelNode node = sourceNode.value<ModelNode>();
-    const SourceFormat nodeFormat = CollectionEditorUtils::getSourceCollectionFormat(node);
-    QTC_ASSERT(node.isValid() && nodeFormat == SourceFormat::Json, return false);
+    ensureDataStoreExists();
+
+    const ModelNode node = dataStoreNode();
+    if (!node.isValid()) {
+        warn(tr("Can not import to the main model"), tr("The data store is not available."));
+        return false;
+    }
 
     FilePath fileInfo = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
                                                                   : url.toString());
     bool added = false;
     QString errorMsg;
-    QJsonArray loadedCollection;
+    CollectionDetails loadedCollection;
+    QByteArray fileContent;
 
-    if (fileInfo.suffix() == "json")
-        loadedCollection = CollectionEditorUtils::loadAsSingleJsonCollection(url);
-    else if (fileInfo.suffix() == "csv")
-        loadedCollection = CollectionEditorUtils::loadAsCsvCollection(url);
+    auto loadUrlContent = [&]() -> bool {
+        QFile file(url.isLocalFile() ? url.toLocalFile() : url.toString());
 
-    if (!loadedCollection.isEmpty()) {
+        if (file.open(QFile::ReadOnly)) {
+            fileContent = file.readAll();
+            file.close();
+            return true;
+        }
+
+        warn(tr("Import from file"), tr("Cannot import from file \"%1\"").arg(file.fileName()));
+        return false;
+    };
+
+    if (fileInfo.suffix() == "json") {
+        if (!loadUrlContent())
+            return false;
+
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(fileContent, &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            warn(tr("Json file Import error"),
+                 tr("Cannot parse json content\n%1").arg(parseError.errorString()));
+        }
+
+        loadedCollection = CollectionDetails::fromImportedJson(document);
+    } else if (fileInfo.suffix() == "csv") {
+        if (!loadUrlContent())
+            return false;
+        loadedCollection = CollectionDetails::fromImportedCsv(fileContent);
+    }
+
+    if (loadedCollection.columns()) {
         const QString newCollectionName = generateUniqueCollectionName(node, collectionName);
-        added = m_sourceModel->addCollectionToSource(node, newCollectionName, loadedCollection, &errorMsg);
+        added = m_sourceModel->addCollectionToSource(node,
+                                                     newCollectionName,
+                                                     loadedCollection.toLocalJson(),
+                                                     &errorMsg);
     } else {
         errorMsg = tr("The imported model is empty or is not supported.");
     }
 
     if (!added)
         warn(tr("Can not add a model to the JSON file"), errorMsg);
+
     return added;
-}
-
-bool CollectionWidget::importCollectionToDataStore(const QString &collectionName, const QUrl &url)
-{
-    using Utils::FilePath;
-    const ModelNode node = dataStoreNode();
-    if (node.isValid())
-        return importToJson(QVariant::fromValue(node), collectionName, url);
-
-    warn(tr("Can not import to the main model"), tr("The data store is not available."));
-    return false;
 }
 
 bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
@@ -324,7 +348,7 @@ bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
     bool added = m_sourceModel->addCollectionToSource(node,
                                                       generateUniqueCollectionName(node,
                                                                                    collectionName),
-                                                      CollectionEditorUtils::defaultCollectionArray(),
+                                                      CollectionEditorUtils::defaultCollection(),
                                                       &errorMsg);
     if (!added)
         warn(tr("Failed to add a model to the default model group"), errorMsg);

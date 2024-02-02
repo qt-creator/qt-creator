@@ -270,7 +270,7 @@ bool CollectionSourceModel::collectionExists(const ModelNode &node, const QStrin
 
 bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
                                                   const QString &collectionName,
-                                                  const QJsonArray &newCollectionData,
+                                                  const QJsonObject &newCollection,
                                                   QString *errorString)
 {
     auto returnError = [errorString](const QString &msg) -> bool {
@@ -308,7 +308,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     if (document.isObject()) {
         QJsonObject sourceObject = document.object();
-        sourceObject.insert(collectionName, newCollectionData);
+        sourceObject.insert(collectionName, newCollection);
         document.setObject(sourceObject);
         if (!jsonFile.resize(0))
             return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));

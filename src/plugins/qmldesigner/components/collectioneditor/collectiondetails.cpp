@@ -3,16 +3,25 @@
 
 #include "collectiondetails.h"
 
+#include "collectioneditorutils.h"
+
 #include <utils/span.h>
 #include <qqml.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTextStream>
 #include <QUrl>
 #include <QVariant>
 
 namespace QmlDesigner {
+#define COLLERR_OK QT_TRANSLATE_NOOP("CollectioParseError", "no error occurred")
+#define COLLERR_MAINOBJECT QT_TRANSLATE_NOOP("CollectioParseError", "Document object not found")
+#define COLLERR_COLLECTIONNAME QT_TRANSLATE_NOOP("CollectioParseError", "Model name not found")
+#define COLLERR_COLLECTIONOBJ QT_TRANSLATE_NOOP("CollectioParseError", "Model is not an object")
+#define COLLERR_COLUMNARRAY QT_TRANSLATE_NOOP("CollectioParseError", "Column is not an array")
+#define COLLERR_UNKNOWN QT_TRANSLATE_NOOP("CollectioParseError", "Unknown error")
 
 struct CollectionProperty
 {
@@ -28,30 +37,23 @@ const QMap<DataTypeWarning::Warning, QString> DataTypeWarning::dataTypeWarnings 
 
 class CollectionDetails::Private
 {
-    using SourceFormat = CollectionEditorConstants::SourceFormat;
-
 public:
     QList<CollectionProperty> properties;
-    QList<QJsonObject> elements;
-    SourceFormat sourceFormat = SourceFormat::Unknown;
+    QList<QJsonArray> dataRecords;
     CollectionReference reference;
     bool isChanged = false;
 
     bool isValidColumnId(int column) const { return column > -1 && column < properties.size(); }
 
-    bool isValidRowId(int row) const { return row > -1 && row < elements.size(); }
+    bool isValidRowId(int row) const { return row > -1 && row < dataRecords.size(); }
 };
 
 inline static bool isValidColorName(const QString &colorName)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
-    return QColor::isValidColorName(colorName);
-#else
     constexpr QStringView colorPattern(
         u"(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)");
     static const QRegularExpression colorRegex(colorPattern.toString());
     return colorRegex.match(colorName).hasMatch();
-#endif // >= Qt 6.4
 }
 
 /**
@@ -115,7 +117,7 @@ inline static bool getCustomUrl(const QString &value,
     return false;
 }
 
-static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonValue &value)
+static CollectionProperty::DataType dataTypeFromJsonValue(const QJsonValue &value)
 {
     using DataType = CollectionDetails::DataType;
     using JsonType = QJsonValue::Type;
@@ -133,6 +135,10 @@ static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonV
     }
     case JsonType::String: {
         const QString stringValue = value.toString();
+
+        if (stringValue.isEmpty())
+            return DataType::Unknown;
+
         if (isValidColorName(stringValue))
             return DataType::Color;
 
@@ -145,6 +151,42 @@ static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonV
     default:
         return DataType::Unknown;
     }
+}
+
+static QList<CollectionProperty> getColumnsFromImportedJsonArray(const QJsonArray &importedArray)
+{
+    using DataType = CollectionDetails::DataType;
+
+    QHash<QString, int> resultSet;
+    QList<CollectionProperty> result;
+
+    for (const QJsonValue &value : importedArray) {
+        if (value.isObject()) {
+            const QJsonObject object = value.toObject();
+            QJsonObject::ConstIterator element = object.constBegin();
+            const QJsonObject::ConstIterator stopItem = object.constEnd();
+
+            while (element != stopItem) {
+                const QString propertyName = element.key();
+                if (resultSet.contains(propertyName)) {
+                    CollectionProperty &property = result[resultSet.value(propertyName)];
+                    if (property.type == DataType::Unknown) {
+                        property.type = dataTypeFromJsonValue(element.value());
+                    } else if (property.type == DataType::Integer) {
+                        const DataType currentCellDataType = dataTypeFromJsonValue(element.value());
+                        if (currentCellDataType == DataType::Real)
+                            property.type = currentCellDataType;
+                    }
+                } else {
+                    result.append({propertyName, dataTypeFromJsonValue(element.value())});
+                    resultSet.insert(propertyName, resultSet.size());
+                }
+                ++element;
+            }
+        }
+    }
+
+    return result;
 }
 
 static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataType type)
@@ -214,6 +256,30 @@ static QJsonValue variantToJsonValue(
     }
 }
 
+inline static bool isEmptyJsonValue(const QJsonValue &value)
+{
+    return value.isNull() || value.isUndefined() || (value.isString() && value.toString().isEmpty());
+}
+
+QString CollectionParseError::errorString() const
+{
+    switch (errorNo) {
+    case NoError:
+        return COLLERR_OK;
+    case MainObjectMissing:
+        return COLLERR_MAINOBJECT;
+    case CollectionNameNotFound:
+        return COLLERR_COLLECTIONNAME;
+    case CollectionIsNotObject:
+        return COLLERR_COLLECTIONOBJ;
+    case ColumnsBlockIsNotArray:
+        return COLLERR_COLUMNARRAY;
+    case UnknownError:
+    default:
+        return COLLERR_UNKNOWN;
+    }
+}
+
 CollectionDetails::CollectionDetails()
     : d(new Private())
 {}
@@ -224,66 +290,70 @@ CollectionDetails::CollectionDetails(const CollectionReference &reference)
     d->reference = reference;
 }
 
+void CollectionDetails::resetData(const QJsonDocument &localDocument,
+                                  const QString &collectionToImport,
+                                  CollectionParseError *error)
+{
+    CollectionDetails importedCollection = fromLocalJson(localDocument, collectionToImport, error);
+    d->properties.swap(importedCollection.d->properties);
+    d->dataRecords.swap(importedCollection.d->dataRecords);
+}
+
 CollectionDetails::CollectionDetails(const CollectionDetails &other) = default;
 
 CollectionDetails::~CollectionDetails() = default;
-
-void CollectionDetails::resetDetails(const QStringList &propertyNames,
-                                     const QList<QJsonObject> &elements,
-                                     CollectionEditorConstants::SourceFormat format)
-{
-    if (!isValid())
-        return;
-
-    d->properties = Utils::transform(propertyNames, [](const QString &name) -> CollectionProperty {
-        return {name, DataType::Unknown};
-    });
-
-    d->elements = elements;
-    d->sourceFormat = format;
-
-    resetPropertyTypes();
-    markSaved();
-}
 
 void CollectionDetails::insertColumn(const QString &propertyName,
                                      int colIdx,
                                      const QVariant &defaultValue,
                                      DataType type)
 {
-    if (!isValid())
-        return;
-
     if (containsPropertyName(propertyName))
         return;
 
     CollectionProperty property = {propertyName, type};
-    if (d->isValidColumnId(colIdx))
+    if (d->isValidColumnId(colIdx)) {
         d->properties.insert(colIdx, property);
-    else
+    } else {
+        colIdx = d->properties.size();
         d->properties.append(property);
+    }
 
-    QJsonValue defaultJsonValue = QJsonValue::fromVariant(defaultValue);
-    for (QJsonObject &element : d->elements)
-        element.insert(propertyName, defaultJsonValue);
+    const QJsonValue defaultJsonValue = QJsonValue::fromVariant(defaultValue);
+    for (QJsonArray &record : d->dataRecords)
+        record.insert(colIdx, defaultJsonValue);
 
     markChanged();
 }
 
 bool CollectionDetails::removeColumns(int colIdx, int count)
 {
-    if (count < 1 || !isValid() || !d->isValidColumnId(colIdx))
+    if (!d->isValidColumnId(colIdx))
         return false;
 
     int maxCount = d->properties.count() - colIdx;
     count = std::min(maxCount, count);
 
-    const QList<CollectionProperty> removedProperties = d->properties.mid(colIdx, count);
+    if (count < 1)
+        return false;
+
     d->properties.remove(colIdx, count);
 
-    for (const CollectionProperty &property : removedProperties) {
-        for (QJsonObject &element : d->elements)
-            element.remove(property.name);
+    for (QJsonArray &record : d->dataRecords) {
+        QJsonArray newElement;
+
+        auto elementItr = record.constBegin();
+        auto elementEnd = elementItr + colIdx;
+        while (elementItr != elementEnd)
+            newElement.append(*(elementItr++));
+
+        elementItr += count;
+        elementEnd = record.constEnd();
+
+        while (elementItr != elementEnd)
+            newElement.append(*(elementItr++));
+
+        record = newElement;
     }
 
     markChanged();
@@ -291,67 +361,31 @@ bool CollectionDetails::removeColumns(int colIdx, int count)
     return true;
 }
 
-void CollectionDetails::insertElementAt(std::optional<QJsonObject> object, int row)
+void CollectionDetails::insertEmptyRows(int row, int count)
 {
-    if (!isValid())
-        return;
-
-    auto insertJson = [this, row](const QJsonObject &jsonObject) {
-        if (d->isValidRowId(row))
-            d->elements.insert(row, jsonObject);
-        else
-            d->elements.append(jsonObject);
-    };
-
-    if (object.has_value()) {
-        insertJson(object.value());
-    } else {
-        QJsonObject defaultObject;
-        for (const CollectionProperty &property : std::as_const(d->properties))
-            defaultObject.insert(property.name, {});
-        insertJson(defaultObject);
-    }
-
-    markChanged();
-}
-
-void CollectionDetails::insertEmptyElements(int row, int count)
-{
-    if (!isValid())
-        return;
-
     if (count < 1)
         return;
 
     row = qBound(0, row, rows());
-    d->elements.insert(row, count, {});
+
+    insertRecords({}, row, count);
 
     markChanged();
 }
 
-bool CollectionDetails::removeElements(int row, int count)
+bool CollectionDetails::removeRows(int row, int count)
 {
-    if (count < 1 || !isValid() || !d->isValidRowId(row))
+    if (!d->isValidRowId(row))
         return false;
 
-    int maxCount = d->elements.count() - row;
+    int maxCount = d->dataRecords.count() - row;
     count = std::min(maxCount, count);
 
-    QSet<QString> removedProperties;
-    Utils::span elementsSpan{std::as_const(d->elements)};
-    for (const QJsonObject &element : elementsSpan.subspan(row, count)) {
-        const QStringList elementPropertyNames = element.keys();
-        for (const QString &removedProperty : elementPropertyNames)
-            removedProperties.insert(removedProperty);
-    }
+    if (count < 1)
+        return false;
 
-    d->elements.remove(row, count);
-
-    for (const QString &removedProperty : removedProperties)
-        resetPropertyType(removedProperty);
-
+    d->dataRecords.remove(row, count);
     markChanged();
-
     return true;
 }
 
@@ -360,13 +394,12 @@ bool CollectionDetails::setPropertyValue(int row, int column, const QVariant &va
     if (!d->isValidRowId(row) || !d->isValidColumnId(column))
         return false;
 
-    QJsonObject &element = d->elements[row];
     QVariant currentValue = data(row, column);
-
     if (value == currentValue)
         return false;
 
-    element.insert(d->properties.at(column).name, variantToJsonValue(value, typeAt(column)));
+    QJsonArray &record = d->dataRecords[row];
+    record.replace(column, variantToJsonValue(value, typeAt(column)));
     markChanged();
     return true;
 }
@@ -377,17 +410,10 @@ bool CollectionDetails::setPropertyName(int column, const QString &value)
         return false;
 
     const CollectionProperty &oldProperty = d->properties.at(column);
-    const QString oldColumnName = oldProperty.name;
-    if (oldColumnName == value)
+    if (oldProperty.name == value)
         return false;
 
     d->properties.replace(column, {value, oldProperty.type});
-    for (QJsonObject &element : d->elements) {
-        if (element.contains(oldColumnName)) {
-            element.insert(value, element.value(oldColumnName));
-            element.remove(oldColumnName);
-        }
-    }
 
     markChanged();
     return true;
@@ -395,7 +421,7 @@ bool CollectionDetails::setPropertyName(int column, const QString &value)
 
 bool CollectionDetails::setPropertyType(int column, DataType type)
 {
-    if (!isValid() || !d->isValidColumnId(column))
+    if (!d->isValidColumnId(column))
         return false;
 
     bool changed = false;
@@ -406,12 +432,12 @@ bool CollectionDetails::setPropertyType(int column, DataType type)
     const DataType formerType = property.type;
     property.type = type;
 
-    for (QJsonObject &element : d->elements) {
-        if (element.contains(property.name)) {
-            const QJsonValue value = element.value(property.name);
+    for (QJsonArray &rowData : d->dataRecords) {
+        if (column < rowData.size()) {
+            const QJsonValue value = rowData.at(column);
             const QVariant properTypedValue = valueToVariant(value, formerType);
             const QJsonValue properTypedJsonValue = variantToJsonValue(properTypedValue, type);
-            element.insert(property.name, properTypedJsonValue);
+            rowData.replace(column, properTypedJsonValue);
             changed = true;
         }
     }
@@ -427,29 +453,15 @@ CollectionReference CollectionDetails::reference() const
     return d->reference;
 }
 
-CollectionEditorConstants::SourceFormat CollectionDetails::sourceFormat() const
-{
-    return d->sourceFormat;
-}
-
 QVariant CollectionDetails::data(int row, int column) const
 {
-    if (!isValid())
-        return {};
-
     if (!d->isValidRowId(row))
         return {};
 
     if (!d->isValidColumnId(column))
         return {};
 
-    const QString &propertyName = d->properties.at(column).name;
-    const QJsonObject &elementNode = d->elements.at(row);
-
-    if (!elementNode.contains(propertyName))
-        return {};
-
-    const QJsonValue cellValue = elementNode.value(propertyName);
+    const QJsonValue cellValue = d->dataRecords.at(row).at(column);
 
     if (typeAt(column) == DataType::Image) {
         const QUrl imageUrl = valueToVariant(cellValue, DataType::Image).toUrl();
@@ -482,48 +494,37 @@ CollectionDetails::DataType CollectionDetails::typeAt(int row, int column) const
     if (!d->isValidRowId(row) || !d->isValidColumnId(column))
         return {};
 
-    const QString &propertyName = d->properties.at(column).name;
-    const QJsonObject &element = d->elements.at(row);
-
-    if (element.contains(propertyName))
-        return collectionDataTypeFromJsonValue(element.value(propertyName));
-
-    return {};
+    const QJsonValue cellData = d->dataRecords.at(row).at(column);
+    return dataTypeFromJsonValue(cellData);
 }
 
 DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column) const
 {
-    const QString &propertyName = d->properties.at(column).name;
-    const QJsonObject &element = d->elements.at(row);
+    const QJsonValue cellValue = d->dataRecords.at(row).at(column);
 
     const DataType columnType = typeAt(column);
     const DataType cellType = typeAt(row, column);
-    if (columnType == DataType::Unknown || element.isEmpty()
-        || data(row, column) == QVariant::fromValue(nullptr)) {
-        return DataTypeWarning::Warning::None;
-    }
 
-    if (element.contains(propertyName)) {
-        if (columnType == DataType::Real && cellType == DataType::Integer)
-            return DataTypeWarning::Warning::None;
-        else if (columnType != cellType)
-            return DataTypeWarning::Warning::CellDataTypeMismatch;
-    }
+    if (columnType == DataType::Unknown || isEmptyJsonValue(cellValue))
+        return DataTypeWarning::Warning::None;
+
+    if (columnType == DataType::Real && cellType == DataType::Integer)
+        return DataTypeWarning::Warning::None;
+
+    if (columnType != cellType)
+        return DataTypeWarning::Warning::CellDataTypeMismatch;
 
     return DataTypeWarning::Warning::None;
 }
 
-bool CollectionDetails::containsPropertyName(const QString &propertyName)
+bool CollectionDetails::containsPropertyName(const QString &propertyName) const
 {
-    if (!isValid())
-        return false;
-
     return Utils::anyOf(d->properties, [&propertyName](const CollectionProperty &property) {
         return property.name == propertyName;
     });
 }
 
-bool CollectionDetails::isValid() const
+bool CollectionDetails::hasValidReference() const
 {
     return d->reference.node.isValid() && d->reference.name.size();
 }
@@ -540,7 +541,7 @@ int CollectionDetails::columns() const
 
 int CollectionDetails::rows() const
 {
-    return d->elements.size();
+    return d->dataRecords.size();
 }
 
 bool CollectionDetails::markSaved()
@@ -565,6 +566,90 @@ void CollectionDetails::resetReference(const CollectionReference &reference)
     }
 }
 
+QString CollectionDetails::toJson() const
+{
+    QJsonArray exportedArray;
+    const int propertyCount = d->properties.count();
+
+    for (const QJsonArray &record : std::as_const(d->dataRecords)) {
+        const int valueCount = std::min(int(record.count()), propertyCount);
+
+        QJsonObject exportedElement;
+        for (int i = 0; i < valueCount; ++i) {
+            const QJsonValue &value = record.at(i);
+            if (!isEmptyJsonValue(value))
+                exportedElement.insert(d->properties.at(i).name, value);
+        }
+
+        exportedArray.append(exportedElement);
+    }
+
+    return QString::fromUtf8(QJsonDocument(exportedArray).toJson());
+}
+
+QString CollectionDetails::toCsv() const
+{
+    QString content;
+
+    auto gotoNextLine = [&content]() {
+        if (content.size() && content.back() == ',')
+            content.back() = '\n';
+        else
+            content += "\n";
+    };
+
+    const int propertyCount = d->properties.count();
+    if (propertyCount <= 0)
+        return "";
+
+    for (const CollectionProperty &property : std::as_const(d->properties))
+        content += property.name + ',';
+
+    gotoNextLine();
+
+    for (const QJsonArray &record : std::as_const(d->dataRecords)) {
+        const int valueCount = std::min(int(record.count()), propertyCount);
+        int i = 0;
+        for (; i < valueCount; ++i) {
+            const QJsonValue &value = record.at(i);
+
+            if (value.isDouble())
+                content += QString::number(value.toDouble()) + ',';
+            else
+                content += value.toString() + ',';
+        }
+
+        for (; i < propertyCount; ++i)
+            content += ',';
+
+        gotoNextLine();
+    }
+
+    return content;
+}
+
+QJsonObject CollectionDetails::toLocalJson() const
+{
+    QJsonObject collectionObject;
+    QJsonArray columnsArray;
+    QJsonArray dataArray;
+
+    for (const CollectionProperty &property : std::as_const(d->properties)) {
+        QJsonObject columnObject;
+        columnObject.insert("name", property.name);
+        columnObject.insert("type", CollectionEditorUtils::dataTypeToString(property.type));
+        columnsArray.append(columnObject);
+    }
+
+    for (const QJsonArray &record : std::as_const(d->dataRecords))
+        dataArray.append(record);
+
+    collectionObject.insert("columns", columnsArray);
+    collectionObject.insert("data", dataArray);
+
+    return collectionObject;
+}
+
 void CollectionDetails::registerDeclarativeType()
 {
     typedef CollectionDetails::DataType DataType;
@@ -573,6 +658,116 @@ void CollectionDetails::registerDeclarativeType()
 
     qRegisterMetaType<DataTypeWarning::Warning>("Warning");
     qmlRegisterUncreatableType<DataTypeWarning>("CollectionDetails", 1, 0, "Warning", "Enum type");
+}
+
+CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document)
+{
+    QStringList headers;
+    QJsonArray importedArray;
+
+    QTextStream stream(document);
+
+    if (!stream.atEnd())
+        headers = stream.readLine().split(',');
+
+    for (QString &header : headers)
+        header = header.trimmed();
+
+    if (!headers.isEmpty()) {
+        while (!stream.atEnd()) {
+            const QStringList recordDataList = stream.readLine().split(',');
+            int column = -1;
+            QJsonObject recordData;
+            for (const QString &cellData : recordDataList) {
+                if (++column == headers.size())
+                    break;
+                recordData.insert(headers.at(column), cellData);
+            }
+            importedArray.append(recordData);
+        }
+    }
+
+    return fromImportedJson(importedArray);
+}
+
+CollectionDetails CollectionDetails::fromImportedJson(const QJsonDocument &document)
+{
+    QJsonArray importedCollection;
+    auto refineJsonArray = [](const QJsonArray &array) -> QJsonArray {
+        QJsonArray resultArray;
+        for (const QJsonValue &collectionData : array) {
+            if (collectionData.isObject()) {
+                QJsonObject rowObject = collectionData.toObject();
+                const QStringList rowKeys = rowObject.keys();
+                for (const QString &key : rowKeys) {
+                    const QJsonValue cellValue = rowObject.value(key);
+                    if (cellValue.isArray())
+                        rowObject.remove(key);
+                }
+                resultArray.push_back(rowObject);
+            }
+        }
+        return resultArray;
+    };
+
+    if (document.isArray()) {
+        importedCollection = refineJsonArray(document.array());
+    } else if (document.isObject()) {
+        QJsonObject documentObject = document.object();
+        const QStringList mainKeys = documentObject.keys();
+
+        bool arrayFound = false;
+        for (const QString &key : mainKeys) {
+            const QJsonValue value = documentObject.value(key);
+            if (value.isArray()) {
+                arrayFound = true;
+                importedCollection = refineJsonArray(value.toArray());
+                break;
+            }
+        }
+
+        if (!arrayFound) {
+            QJsonObject singleObject;
+            for (const QString &key : mainKeys) {
+                const QJsonValue value = documentObject.value(key);
+
+                if (!value.isObject())
+                    singleObject.insert(key, value);
+            }
+            importedCollection.push_back(singleObject);
+        }
+    }
+
+    return fromImportedJson(importedCollection);
+}
+
+CollectionDetails CollectionDetails::fromLocalJson(const QJsonDocument &document,
+                                                   const QString &collectionName,
+                                                   CollectionParseError *error)
+{
+    auto setError = [&error](CollectionParseError::ParseError parseError) {
+        if (error)
+            error->errorNo = parseError;
+    };
+
+    setError(CollectionParseError::NoError);
+
+    if (document.isObject()) {
+        QJsonObject collectionMap = document.object();
+        if (collectionMap.contains(collectionName)) {
+            QJsonValue collectionValue = collectionMap.value(collectionName);
+            if (collectionValue.isObject())
+                return fromLocalCollection(collectionValue.toObject());
+            else
+                setError(CollectionParseError::CollectionIsNotObject);
+        } else {
+            setError(CollectionParseError::CollectionNameNotFound);
+        }
+    } else {
+        setError(CollectionParseError::MainObjectMissing);
+    }
+
+    return CollectionDetails{};
 }
 
 CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)
@@ -587,81 +782,87 @@ void CollectionDetails::markChanged()
     d->isChanged = true;
 }
 
-void CollectionDetails::resetPropertyType(const QString &propertyName)
+void CollectionDetails::insertRecords(const QJsonArray &record, int idx, int count)
 {
-    for (CollectionProperty &property : d->properties) {
-        if (property.name == propertyName)
-            resetPropertyType(property);
+    if (count < 1)
+        return;
+
+    QJsonArray localRecord;
+    const int columnsCount = columns();
+    for (int i = 0; i < columnsCount; i++) {
+        const QJsonValue originalCellData = record.at(i);
+        if (originalCellData.isArray())
+            localRecord.append({});
+        else
+            localRecord.append(originalCellData);
     }
+
+    if (idx > d->dataRecords.size() || idx < 0)
+        idx = d->dataRecords.size();
+
+    d->dataRecords.insert(idx, count, localRecord);
 }
 
-void CollectionDetails::resetPropertyType(CollectionProperty &property)
+CollectionDetails CollectionDetails::fromImportedJson(const QJsonArray &importedArray)
 {
-    const QString &propertyName = property.name;
-    DataType columnType = DataType::Unknown;
-    for (const QJsonObject &element : std::as_const(d->elements)) {
-        if (element.contains(propertyName)) {
-            const DataType cellType = collectionDataTypeFromJsonValue(element.value(propertyName));
-            if (cellType != DataType::Unknown) {
-                if (columnType == DataType::Integer && cellType != DataType::Real)
-                    continue;
+    const QList<CollectionProperty> columnData = getColumnsFromImportedJsonArray(importedArray);
+    QList<QJsonArray> localJsonArray;
+    for (const QJsonValue &importedRowValue : importedArray) {
+        QJsonObject importedRowObject = importedRowValue.toObject();
+        QJsonArray localRow;
+        for (const CollectionProperty &property : columnData)
+            localRow.append(importedRowObject.value(property.name));
+        localJsonArray.append(localRow);
+    }
+    CollectionDetails result;
+    result.d->properties = columnData;
+    result.d->dataRecords = localJsonArray;
+    result.markSaved();
 
-                columnType = cellType;
-                if (columnType == DataType::Integer)
-                    continue;
+    return result;
+}
 
-                break;
+CollectionDetails CollectionDetails::fromLocalCollection(const QJsonObject &localCollection,
+                                                         CollectionParseError *error)
+{
+    auto setError = [&error](CollectionParseError::ParseError parseError) {
+        if (error)
+            error->errorNo = parseError;
+    };
+
+    CollectionDetails result;
+    setError(CollectionParseError::NoError);
+
+    if (localCollection.contains("columns")) {
+        const QJsonValue columnsValue = localCollection.value("columns");
+        if (columnsValue.isArray()) {
+            const QJsonArray columns = columnsValue.toArray();
+            for (const QJsonValue &columnValue : columns) {
+                if (columnValue.isObject()) {
+                    const QJsonObject column = columnValue.toObject();
+                    const QString columnName = column.value("name").toString();
+                    if (!columnName.isEmpty()) {
+                        result.insertColumn(columnName,
+                                            -1,
+                                            {},
+                                            CollectionEditorUtils::dataTypeFromString(
+                                                column.value("type").toString()));
+                    }
+                }
             }
+
+            if (int columnsCount = result.columns()) {
+                const QJsonArray dataRecords = localCollection.value("data").toArray();
+                for (const QJsonValue &dataRecordValue : dataRecords)
+                    result.insertRecords(dataRecordValue.toArray());
+            }
+        } else {
+            setError(CollectionParseError::ColumnsBlockIsNotArray);
+            return result;
         }
     }
-    property.type = columnType;
-}
 
-void CollectionDetails::resetPropertyTypes()
-{
-    for (CollectionProperty &property : d->properties)
-        resetPropertyType(property);
-}
-
-QJsonArray CollectionDetails::getCollectionAsJsonArray() const
-{
-    QJsonArray collectionArray;
-
-    for (const QJsonObject &element : std::as_const(d->elements))
-        collectionArray.push_back(element);
-
-    return collectionArray;
-}
-
-QString CollectionDetails::getCollectionAsJsonString() const
-{
-    return QString::fromUtf8(QJsonDocument(getCollectionAsJsonArray()).toJson());
-}
-
-QString CollectionDetails::getCollectionAsCsvString() const
-{
-    QString content;
-    if (d->properties.count() <= 0)
-        return "";
-
-    for (const CollectionProperty &property : std::as_const(d->properties))
-        content += property.name + ',';
-
-    content.back() = '\n';
-
-    for (const QJsonObject &elementsRow : std::as_const(d->elements)) {
-        for (const CollectionProperty &property : std::as_const(d->properties)) {
-            const QJsonValue &value = elementsRow.value(property.name);
-
-            if (value.isDouble())
-                content += QString::number(value.toDouble()) + ',';
-            else
-                content += value.toString() + ',';
-        }
-        content.back() = '\n';
-    }
-
-    return content;
+    return result;
 }
 
 } // namespace QmlDesigner

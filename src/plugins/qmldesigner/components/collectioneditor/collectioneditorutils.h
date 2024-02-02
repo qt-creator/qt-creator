@@ -8,6 +8,7 @@
 
 QT_BEGIN_NAMESPACE
 class QJsonArray;
+class QJsonObject;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -36,14 +37,12 @@ bool canAcceptCollectionAsModel(const ModelNode &node);
 
 bool hasTextRoleProperty(const ModelNode &node);
 
-QJsonArray defaultCollectionArray();
+QJsonObject defaultCollection();
 
-QJsonArray loadAsSingleJsonCollection(const QUrl &url);
+QString dataTypeToString(CollectionDetails::DataType dataType);
 
-QJsonArray loadAsCsvCollection(const QUrl &url);
+CollectionDetails::DataType dataTypeFromString(const QString &dataType);
 
-QString getFirstColumnName(const QString &collectionName);
-
-bool collectionHasColumn(const QString &collectionName, const QString &columnName);
+QStringList dataTypesStringList();
 
 } // namespace QmlDesigner::CollectionEditorUtils

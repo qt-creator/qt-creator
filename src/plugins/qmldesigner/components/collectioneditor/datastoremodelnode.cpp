@@ -159,7 +159,9 @@ void DataStoreModelNode::reloadModel()
         reset();
     }
 
-    QTC_ASSERT(m_model.get(), return);
+    if (!m_model.get())
+        return;
+
     m_model->setFileUrl(dataStoreQmlUrl);
 
     m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
@@ -182,7 +184,8 @@ Model *DataStoreModelNode::model() const
 
 ModelNode DataStoreModelNode::modelNode() const
 {
-    QTC_ASSERT(m_model.get(), return {});
+    if (!m_model.get())
+        return {};
     return m_model->rootModelNode();
 }
 
@@ -427,7 +430,9 @@ void DataStoreModelNode::removeCollection(const QString &collectionName)
 
 void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
                                                 const ModelNode &targetNode,
-                                                const QString &collectionName)
+                                                const QString &collectionName,
+                                                CollectionColumnFinder collectionHasColumn,
+                                                FirstColumnProvider firstColumnProvider)
 {
     QTC_ASSERT(targetNode.isValid(), return);
 
@@ -461,14 +466,14 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
             if (currentTextRoleValue.isValid() && !currentTextRoleValue.isNull()) {
                 if (currentTextRoleValue.type() == QVariant::String) {
                     const QString currentTextRole = currentTextRoleValue.toString();
-                    if (CollectionEditorUtils::collectionHasColumn(collectionName, currentTextRole))
+                    if (collectionHasColumn(collectionName, currentTextRole))
                         return;
                 } else {
                     return;
                 }
             }
 
-            QString textRoleValue = CollectionEditorUtils::getFirstColumnName(collectionName);
+            QString textRoleValue = firstColumnProvider(collectionName);
             textRoleProperty.setValue(textRoleValue);
         }
     });

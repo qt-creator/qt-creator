@@ -68,11 +68,16 @@ public:
     Q_INVOKABLE bool saveDataStoreCollections();
     Q_INVOKABLE bool exportCollection(const QUrl &url);
 
+    const CollectionDetails upToDateConstCollection(const CollectionReference &reference) const;
+    bool collectionHasColumn(const CollectionReference &reference, const QString &columnName) const;
+    QString getFirstColumnName(const CollectionReference &reference) const;
+
 signals:
     void collectionNameChanged(const QString &collectionName);
     void selectedColumnChanged(int);
     void selectedRowChanged(int);
     void isEmptyChanged(bool);
+    void warning(const QString &title, const QString &body);
 
 private slots:
     void updateEmpty();
@@ -82,10 +87,10 @@ private:
     void closeCollectionIfSaved(const CollectionReference &collection);
     void closeCurrentCollectionIfSaved();
     void setCollectionName(const QString &newCollectionName);
-    void loadJsonCollection(const QString &source, const QString &collection);
-    void loadCsvCollection(const QString &source, const QString &collectionName);
+    void loadJsonCollection(const QString &filePath, const QString &collection);
     void ensureSingleCell();
     QVariant variantFromString(const QString &value);
+    QJsonDocument readJsonFile(const QUrl &url);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;

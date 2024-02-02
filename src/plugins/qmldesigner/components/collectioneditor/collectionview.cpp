@@ -226,7 +226,18 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
 void CollectionView::assignCollectionToSelectedNode(const QString &collectionName)
 {
     QTC_ASSERT(dataStoreNode() && hasSingleSelectedModelNode(), return);
-    m_dataStore->assignCollectionToNode(this, singleSelectedModelNode(), collectionName);
+    m_dataStore->assignCollectionToNode(
+        this,
+        singleSelectedModelNode(),
+        collectionName,
+        [&](const QString &collectionName, const QString &columnName) -> bool {
+            const CollectionReference reference{dataStoreNode(), collectionName};
+            return m_widget->collectionDetailsModel()->collectionHasColumn(reference, columnName);
+        },
+        [&](const QString &collectionName) -> QString {
+            const CollectionReference reference{dataStoreNode(), collectionName};
+            return m_widget->collectionDetailsModel()->getFirstColumnName(reference);
+        });
 }
 
 void CollectionView::registerDeclarativeType()

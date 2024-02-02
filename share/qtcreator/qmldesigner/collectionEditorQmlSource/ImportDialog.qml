@@ -192,7 +192,7 @@ StudioControls.Dialog {
                 enabled: root.fileExists && collectionName.text !== ""
 
                 onClicked: {
-                    let collectionImported = root.backendValue.importCollectionToDataStore(
+                    let collectionImported = root.backendValue.importFile(
                             collectionName.text,
                             fileName.text)
 

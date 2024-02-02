@@ -44,18 +44,10 @@ public:
                                    const QUrl &sourceUrl,
                                    const QVariant &sourceNode);
 
-    Q_INVOKABLE bool importToJson(const QVariant &sourceNode,
-                                  const QString &collectionName,
-                                  const QUrl &url);
-
-    Q_INVOKABLE bool importCollectionToDataStore(const QString &collectionName, const QUrl &url);
-
+    Q_INVOKABLE bool importFile(const QString &collectionName, const QUrl &url);
     Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
-
     Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
-
     Q_INVOKABLE void ensureDataStoreExists();
-
     Q_INVOKABLE ModelNode dataStoreNode() const;
 
     void warn(const QString &title, const QString &body);
