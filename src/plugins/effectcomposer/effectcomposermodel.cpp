@@ -9,9 +9,6 @@
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
-#include <qmlprojectmanager/qmlproject.h>
-
-#include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
@@ -255,7 +252,7 @@ void EffectComposerModel::setVertexShader(const QString &newVertexShader)
     m_vertexShader = newVertexShader;
 }
 
-const QString &EffectComposerModel::qmlComponentString() const
+QString EffectComposerModel::qmlComponentString() const
 {
     return m_qmlComponentString;
 }
@@ -1363,13 +1360,13 @@ void EffectComposerModel::updateCustomUniforms()
 
 void EffectComposerModel::createFiles()
 {
-    if (QFileInfo(m_vertexShaderFilename).exists())
+    if (QFileInfo::exists(m_vertexShaderFilename))
         QFile(m_vertexShaderFilename).remove();
-    if (QFileInfo(m_fragmentShaderFilename).exists())
+    if (QFileInfo::exists(m_fragmentShaderFilename))
         QFile(m_fragmentShaderFilename).remove();
-    if (QFileInfo(m_vertexShaderPreviewFilename).exists())
+    if (QFileInfo::exists(m_vertexShaderPreviewFilename))
         QFile(m_vertexShaderPreviewFilename).remove();
-    if (QFileInfo(m_fragmentShaderPreviewFilename).exists())
+    if (QFileInfo::exists(m_fragmentShaderPreviewFilename))
         QFile(m_fragmentShaderPreviewFilename).remove();
 
     auto vertexShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
@@ -1502,16 +1499,6 @@ void EffectComposerModel::setIsEnabled(bool enabled)
     emit isEnabledChanged();
 }
 
-// Returns name for image mipmap property.
-// e.g. "myImage" -> "myImageMipmap".
-QString EffectComposerModel::mipmapPropertyName(const QString &name) const
-{
-    QString simplifiedName = name.simplified();
-    simplifiedName = simplifiedName.remove(' ');
-    simplifiedName += "Mipmap";
-    return simplifiedName;
-}
-
 QString EffectComposerModel::getQmlImagesString(bool localFiles)
 {
     QString imagesString;
@@ -1537,8 +1524,6 @@ QString EffectComposerModel::getQmlImagesString(bool localFiles)
 
                 if (uniform->enableMipmap())
                     imagesString += "        mipmap: true\n";
-                else
-                    QString mipmapProperty = mipmapPropertyName(uniform->name());
             }
 
             imagesString += "        visible: false\n";

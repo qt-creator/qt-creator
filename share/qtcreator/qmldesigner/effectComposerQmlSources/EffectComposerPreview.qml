@@ -33,7 +33,7 @@ Column {
             oldComponent.destroy();
         try {
             const newObject = Qt.createQmlObject(
-                effectComposerModel.qmlComponentString,
+                effectComposerModel.qmlComponentString(),
                 componentParent,
                 ""
             );

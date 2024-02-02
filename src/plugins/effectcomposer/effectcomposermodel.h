@@ -47,7 +47,6 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
-    Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
@@ -83,7 +82,7 @@ public:
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
 
-    const QString &qmlComponentString() const;
+    Q_INVOKABLE QString qmlComponentString() const;
 
     Q_INVOKABLE void updateQmlComponent();
 
@@ -170,7 +169,6 @@ private:
     void bakeShaders();
     void saveResources(const QString &name);
 
-    QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
 
