@@ -37,11 +37,12 @@
 #include <QVector>
 #include <QVersionNumber>
 
-#include <QLabel>
 #include <QComboBox>
+#include <QDateTime>
 #include <QFormLayout>
+#include <QLabel>
 
-#include <optional>
+#include <utility>
 
 using namespace Utils;
 
@@ -1566,70 +1567,54 @@ void ClangClToolchainConfigWidget::setFromClangClToolchain()
         m_compilerCommand->setFilePath(clangClToolchain->clangPath());
 }
 
-static const MsvcToolchain *findMsvcToolChain(unsigned char wordWidth, Abi::OSFlavor flavor)
+class ClangClInfo
 {
-    return Utils::findOrDefault(g_availableMsvcToolchains,
-                                [wordWidth, flavor](const MsvcToolchain *tc) {
-                                    const Abi abi = tc->targetAbi();
-                                    return abi.osFlavor() == flavor && wordWidth == abi.wordWidth();
-                                });
-}
+public:
+    FilePath filePath() const { return m_filePath; }
+    QVersionNumber version() const { return m_version; }
+    Abi defaultAbi() const { return m_defaultAbi; }
 
-static const MsvcToolchain *findMsvcToolChain(const QString &displayedVarsBat)
-{
-    return Utils::findOrDefault(g_availableMsvcToolchains,
-                                [&displayedVarsBat] (const MsvcToolchain *tc) {
-                                    return msvcVarsToDisplay(*tc) == displayedVarsBat;
-                                });
-}
+    static ClangClInfo getInfo(const FilePath &filePath);
 
-static QVersionNumber clangClVersion(const FilePath &clangClPath)
-{
-    QString error;
-    QString dllversion = winGetDLLVersion(Utils::WinDLLFileVersion, clangClPath.toString(), &error);
-
-    if (!dllversion.isEmpty())
-        return QVersionNumber::fromString(dllversion);
-
-    Process clangClProcess;
-    clangClProcess.setCommand({clangClPath, {"--version"}});
-    clangClProcess.runBlocking();
-    if (clangClProcess.result() != ProcessResult::FinishedWithSuccess)
-        return {};
-    const QRegularExpressionMatch match = QRegularExpression(
-                                              QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
-                                              .match(clangClProcess.cleanedStdOut());
-    if (!match.hasMatch())
-        return {};
-    return QVersionNumber::fromString(match.captured(1));
-}
+private:
+    FilePath m_filePath;
+    QVersionNumber m_version;
+    Abi m_defaultAbi;
+    static inline QHash<FilePath, std::pair<ClangClInfo, QDateTime>> m_cache;
+};
 
 static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
-                                                const FilePath &clangClPath,
-                                                unsigned char wordWidth)
+                                                const FilePath &clangClPath)
 {
-    const MsvcToolchain *toolChain = nullptr;
     if (!displayedVarsBat.isEmpty()) {
-        toolChain = findMsvcToolChain(displayedVarsBat);
-        if (toolChain)
-            return toolChain;
+        if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,
+                                                 [&displayedVarsBat](const MsvcToolchain *tc) {
+                                                     return msvcVarsToDisplay(*tc)
+                                                            == displayedVarsBat;
+                                                 }))
+            return tc;
     }
 
     QTC_CHECK(displayedVarsBat.isEmpty());
-    const QVersionNumber version = clangClVersion(clangClPath);
-    if (version.majorVersion() >= 6) {
-        toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2022Flavor);
-        if (!toolChain)
-            toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2019Flavor);
-        if (!toolChain)
-            toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2017Flavor);
+    const ClangClInfo clangClInfo = ClangClInfo::getInfo(clangClPath);
+    QList<Abi::OSFlavor> flavors;
+    if (clangClInfo.version().majorVersion() >= 6)
+        flavors << Abi::WindowsMsvc2022Flavor << Abi::WindowsMsvc2019Flavor
+                << Abi::WindowsMsvc2017Flavor;
+    flavors << Abi::WindowsMsvc2015Flavor << Abi::WindowsMsvc2013Flavor;
+    for (const Abi::OSFlavor flavor : flavors) {
+        if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,
+                                                 [&clangClInfo, flavor](const MsvcToolchain *tc) {
+                                                     const Abi abi = tc->targetAbi();
+                                                     return abi.osFlavor() == flavor
+                                                            && abi.isCompatibleWith(
+                                                                clangClInfo.defaultAbi())
+                                                            && tc->hostPrefersToolchain();
+                                                 })) {
+            return tc;
+        }
     }
-    if (!toolChain) {
-        toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2015Flavor);
-        if (!toolChain)
-            toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2013Flavor);
-    }
-    return toolChain;
+    return nullptr;
 }
 
 static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
@@ -1638,8 +1623,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                                                bool isDefault = false)
 {
     Toolchains res;
-    const unsigned char wordWidth = Utils::is64BitWindowsBinary(clangClPath) ? 64 : 32;
-    const MsvcToolchain *toolChain = selectMsvcToolChain(displayedVarsBat, clangClPath, wordWidth);
+    const MsvcToolchain *toolChain = selectMsvcToolChain(displayedVarsBat, clangClPath);
 
     if (!toolChain) {
         qWarning("Unable to find a suitable MSVC version for \"%s\".",
@@ -1650,7 +1634,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
     const Abi targetAbi = toolChain->targetAbi();
     const QString name = QString("%1LLVM %2 bit based on %3")
                              .arg(QLatin1String(isDefault ? "Default " : ""))
-                             .arg(wordWidth)
+                             .arg(targetAbi.wordWidth())
                              .arg(Abi::toString(targetAbi.osFlavor()).toUpper());
     for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
         ClangClToolchain *tc = static_cast<ClangClToolchain *>(
@@ -2290,6 +2274,49 @@ void setupClangClToolchain()
 #ifdef Q_OS_WIN
     static ClangClToolchainFactory theClangClToolchainFactory;
 #endif
+}
+
+ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
+{
+    QTC_ASSERT(!filePath.isEmpty(), return {});
+
+    auto &entry = m_cache[filePath];
+    ClangClInfo &info = entry.first;
+    const QDateTime lastModified = filePath.lastModified();
+    if (entry.second == lastModified)
+        return info;
+
+    entry.second = lastModified;
+    Process clangClProcess;
+    clangClProcess.setCommand({filePath, {"--version"}});
+    clangClProcess.runBlocking();
+    if (clangClProcess.result() == ProcessResult::FinishedWithSuccess) {
+        const QString stdOut = clangClProcess.cleanedStdOut();
+        const QRegularExpressionMatch versionMatch
+            = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);
+        if (versionMatch.hasMatch())
+            info.m_version = QVersionNumber::fromString(versionMatch.captured(1));
+        const QString targetKey = "Target:";
+        int startOffset = stdOut.indexOf(targetKey);
+        if (startOffset != -1) {
+            startOffset += targetKey.length();
+            const int endOffset = stdOut.indexOf('\n', startOffset);
+            if (endOffset != -1) {
+                const Abi detectedAbi = Abi::abiFromTargetTriplet(
+                    stdOut.mid(startOffset, endOffset - startOffset).trimmed());
+
+                // Abi::fromTargetTriple() always detects clang triples as msys,
+                // but here in clang-cl context we know that's wrong.
+                info.m_defaultAbi = Abi(detectedAbi.architecture(),
+                                        detectedAbi.os(),
+                                        Abi::UnknownFlavor,
+                                        detectedAbi.binaryFormat(),
+                                        detectedAbi.wordWidth());
+            }
+        }
+    }
+    m_cache.insert(filePath, entry);
+    return info;
 }
 
 } // namespace ProjectExplorer::Internal
