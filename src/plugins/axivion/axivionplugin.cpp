@@ -48,6 +48,7 @@ constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
 using namespace Core;
 using namespace Tasking;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -153,17 +154,17 @@ public:
 
 static AxivionPluginPrivate *dd = nullptr;
 
-class AxivionTextMark : public TextEditor::TextMark
+class AxivionTextMark : public TextMark
 {
 public:
     AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
-        : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
+        : TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
     {
         const QString markText = issue.entity.isEmpty() ? issue.message
                                                         : issue.entity + ": " + issue.message;
         setToolTip(issue.errorNumber + " " + markText);
         setIcon(iconForIssue("SV")); // FIXME adapt to the issue
-        setPriority(TextEditor::TextMark::NormalPriority);
+        setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
         setActionsProvider([id = issue.id] {
             auto action = new QAction;
@@ -635,7 +636,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 
 void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 {
-    const auto document = qobject_cast<TextEditor::TextDocument *>(doc);
+    const auto document = qobject_cast<TextDocument *>(doc);
     if (!document)
         return;
 
@@ -643,7 +644,7 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     if (it != m_docMarksTrees.end())
         m_docMarksTrees.erase(it);
 
-    const TextEditor::TextMarks marks = document->marks();
+    const TextMarks marks = document->marks();
     for (auto m : marks) {
         if (m->category().id == AxivionTextMarkId)
             delete m;
