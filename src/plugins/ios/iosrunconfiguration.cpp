@@ -413,11 +413,20 @@ FilePath IosDeviceTypeAspect::localExecutable() const
 
 // IosRunConfigurationFactory
 
-IosRunConfigurationFactory::IosRunConfigurationFactory()
+class IosRunConfigurationFactory final : public RunConfigurationFactory
 {
-    registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
-    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
-    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+public:
+    IosRunConfigurationFactory()
+    {
+        registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
+        addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+        addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    }
+};
+
+void setupIosRunConfiguration()
+{
+    static IosRunConfigurationFactory theIosRunConfigurationFactory;
 }
 
 } // Ios::Internal

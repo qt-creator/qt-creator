@@ -23,7 +23,6 @@
 #include <projectexplorer/runconfiguration.h>
 
 using namespace ProjectExplorer;
-using namespace QtSupport;
 
 namespace Ios::Internal {
 
@@ -45,10 +44,6 @@ public:
 class IosPluginPrivate
 {
 public:
-    IosRunConfigurationFactory runConfigurationFactory;
-    IosSettingsPage settingsPage;
-    IosQtVersionFactory qtVersionFactory;
-    IosDeviceFactory deviceFactory;
     IosSimulatorFactory simulatorFactory;
     IosBuildStepFactory buildStepFactory;
     IosDeployStepFactory deployStepFactory;
@@ -75,8 +70,13 @@ class IosPlugin final : public ExtensionSystem::IPlugin
 
         setupIosToolchain();
         setupIosBuildConfiguration();
+        setupIosQtVersion();
+        setupIosDevice();
 
         IosConfigurations::initialize();
+
+        setupIosRunConfiguration();
+        setupIosSettingsPage();
 
         d = new IosPluginPrivate;
     }

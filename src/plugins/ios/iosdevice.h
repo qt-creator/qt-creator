@@ -6,7 +6,6 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <solutions/tasking/tasktree.h>
 
@@ -60,14 +59,6 @@ protected:
     mutable quint16 m_lastPort;
 };
 
-class IosDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    IosDeviceFactory();
-
-    bool canRestore(const Utils::Store &map) const override;
-};
-
 class IosDeviceManager : public QObject
 {
 public:
@@ -93,6 +84,8 @@ private:
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
 };
+
+void setupIosDevice();
 
 } // namespace Internal
 } // namespace Ios

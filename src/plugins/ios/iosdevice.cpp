@@ -13,6 +13,7 @@
 #include <coreplugin/helpmanager.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitaspects.h>
 
@@ -78,10 +79,24 @@ namespace Ios::Internal {
 
 const char kHandler[] = "Handler";
 
-class IosDeviceInfoWidget : public IDeviceWidget
+class IosDeviceInfoWidget final : public IDeviceWidget
 {
 public:
-    IosDeviceInfoWidget(const ProjectExplorer::IDevice::Ptr &device);
+    IosDeviceInfoWidget(const IDevice::Ptr &device)
+        : IDeviceWidget(device)
+    {
+        const auto iosDevice = std::static_pointer_cast<IosDevice>(device);
+        using namespace Layouting;
+        // clang-format off
+        Form {
+            Tr::tr("Device name:"), iosDevice->deviceName(), br,
+            Tr::tr("Identifier:"), iosDevice->uniqueInternalDeviceId(), br,
+            Tr::tr("OS Version:"), iosDevice->osVersion(), br,
+            Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(),
+            noMargin
+        }.attachTo(this);
+        // clang-format on
+    }
 
     void updateDeviceFromUi() final {}
 };
@@ -584,37 +599,30 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
 
 // Factory
 
-IosDeviceFactory::IosDeviceFactory()
-    : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
+class IosDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(IosDevice::name());
-    setCombinedIcon(":/ios/images/iosdevicesmall.png",
-                     ":/ios/images/iosdevice.png");
-    setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
-}
+public:
+    IosDeviceFactory()
+        : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
+    {
+        setDisplayName(IosDevice::name());
+        setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                        ":/ios/images/iosdevice.png");
+        setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
+    }
 
-bool IosDeviceFactory::canRestore(const Store &map) const
-{
-    Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
-    if (vMap.isEmpty() || vMap.value(kDeviceName).toString() == QLatin1String("*unknown*"))
-        return false; // transient device (probably generated during an activation)
-    return true;
-}
+    bool canRestore(const Utils::Store &map) const override
+    {
+        Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
+        if (vMap.isEmpty() || vMap.value(kDeviceName).toString() == QLatin1String("*unknown*"))
+            return false; // transient device (probably generated during an activation)
+        return true;
+    }
+};
 
-IosDeviceInfoWidget::IosDeviceInfoWidget(const IDevice::Ptr &device)
-    : IDeviceWidget(device)
+void setupIosDevice()
 {
-    const auto iosDevice = std::static_pointer_cast<IosDevice>(device);
-    using namespace Layouting;
-    // clang-format off
-    Form {
-        Tr::tr("Device name:"), iosDevice->deviceName(), br,
-        Tr::tr("Identifier:"), iosDevice->uniqueInternalDeviceId(), br,
-        Tr::tr("OS Version:"), iosDevice->osVersion(), br,
-        Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(),
-        noMargin
-    }.attachTo(this);
-    // clang-format on
+    static IosDeviceFactory theIosDeviceFactory;
 }
 
 } // Ios::Internal
