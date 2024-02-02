@@ -73,7 +73,9 @@ using namespace Utils;
 
 namespace CMakeProjectManager {
 
+#ifdef Q_OS_WIN
 static Q_LOGGING_CATEGORY(cmakeToolManagerLog, "qtc.cmake.toolmanager", QtWarningMsg);
+#endif
 
 class CMakeToolManagerPrivate
 {
