@@ -44,5 +44,22 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Uniform cell size")
+            tooltip: qsTr("Toggles all cells to have a uniform size.")
+            visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+        }
+        SecondColumnLayout {
+            CheckBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.uniformCellSizes
+                visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }
+

@@ -113,5 +113,34 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Uniform cell sizes")
+            tooltip: qsTr("Toggles all cells to have a uniform height or width.")
+            visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                text: qsTr("Heights")
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.uniformCellHeights
+                visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+            CheckBox {
+                text: qsTr("Widths")
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                backendValue: backendValues.uniformCellWidths
+                visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }
+
