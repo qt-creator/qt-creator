@@ -58,6 +58,7 @@
 #include "processstep.h"
 #include "project.h"
 #include "projectcommentssettings.h"
+#include "projectexplorer_test.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
@@ -795,7 +796,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     m_instance = nullptr;
 
 #ifdef WITH_TESTS
-    deleteTestToolchains();
+    ProjectExplorerTest::deleteTestToolchains();
 #endif
 }
 
@@ -809,6 +810,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Q_UNUSED(error)
 
 #ifdef WITH_TESTS
+    addTest<ProjectExplorerTest>();
     addTestCreator(createOutputParserTest);
 #endif
 
@@ -2505,7 +2507,7 @@ bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Util
 {
     const bool success = Core::FileUtils::renameFile(source, target, HandleIncludeGuards::Yes);
     if (success)
-        emit instance()->filesRenamed({std::make_pair(source, target)});
+        emit ProjectExplorerPlugin::instance()->filesRenamed({std::make_pair(source, target)});
     return success;
 }
 #endif // WITH_TESTS

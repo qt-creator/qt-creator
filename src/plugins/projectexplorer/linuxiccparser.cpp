@@ -8,8 +8,9 @@
 
 #include <utils/qtcassert.h>
 
-using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace ProjectExplorer {
 
 LinuxIccParser::LinuxIccParser() :
     m_temporary(Task())
@@ -109,12 +110,16 @@ void LinuxIccParser::flush()
     scheduleTask(t, m_lines, 1);
 }
 
+} // ProjectExplorer
+
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "outputparser_test.h"
 
-void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
+namespace ProjectExplorer::Internal {
+
+void ProjectExplorerTest::testLinuxIccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -197,7 +202,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << QString();
 }
 
-void ProjectExplorerPlugin::testLinuxIccOutputParsers()
+void ProjectExplorerTest::testLinuxIccOutputParsers()
 {
     OutputParserTester testbench;
     testbench.setLineParsers(LinuxIccParser::iccParserSuite());
@@ -213,4 +218,6 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers()
                           outputLines);
 }
 
-#endif
+} // ProjectExplorer::Internal
+
+#endif // WITH_TESTS

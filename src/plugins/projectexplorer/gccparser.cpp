@@ -10,8 +10,9 @@
 
 #include <numeric>
 
-using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace ProjectExplorer {
 
 // opt. drive letter + filename: (2 brackets)
 static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
@@ -247,15 +248,19 @@ bool GccParser::isContinuation(const QString &newLine) const
                 || newLine.contains("note:"));
 }
 
+} // ProjectExplorer
+
 // Unit tests:
 
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "outputparser_test.h"
 
-void ProjectExplorerPlugin::testGccOutputParsers_data()
+namespace ProjectExplorer::Internal {
+
+void ProjectExplorerTest::testGccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -1432,7 +1437,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString();
 }
 
-void ProjectExplorerPlugin::testGccOutputParsers()
+void ProjectExplorerTest::testGccOutputParsers()
 {
     OutputParserTester testbench;
     testbench.setLineParsers(GccParser::gccParserSuite());
@@ -1447,4 +1452,7 @@ void ProjectExplorerPlugin::testGccOutputParsers()
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);
 }
-#endif
+
+} // ProjectExplorer::Internal
+
+#endif // WITH_TESTS

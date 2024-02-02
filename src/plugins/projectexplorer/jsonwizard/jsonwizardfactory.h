@@ -17,6 +17,7 @@ namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
 class ProjectExplorerPluginPrivate;
+namespace Internal { class ProjectExplorerTest; }
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
@@ -93,6 +94,7 @@ private:
 
     friend class ProjectExplorerPlugin;
     friend class ProjectExplorerPluginPrivate;
+    friend class Internal::ProjectExplorerTest;
 };
 
 } // namespace ProjectExplorer

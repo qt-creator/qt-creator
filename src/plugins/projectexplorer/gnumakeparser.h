@@ -37,18 +37,4 @@ private:
 #endif
 };
 
-#if defined WITH_TESTS
-class GnuMakeParserTester : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = nullptr);
-    void parserIsAboutToBeDeleted();
-
-    Utils::FilePaths directories;
-    GnuMakeParser *parser;
-};
-#endif
-
 } // namespace ProjectExplorer

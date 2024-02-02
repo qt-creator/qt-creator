@@ -290,7 +290,7 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
 } // namespace ProjectExplorer
 
 #ifdef WITH_TESTS
-#include "projectexplorer.h"
+#include "projectexplorer_test.h"
 
 #include "abi.h"
 #include "toolchainconfigwidget.h"
@@ -363,9 +363,9 @@ QList<TTC *> TTC::m_toolChains;
 
 Q_DECLARE_METATYPE(ProjectExplorer::Toolchain *)
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
-void ProjectExplorerPlugin::testToolChainMerging_data()
+void ProjectExplorerTest::testToolChainMerging_data()
 {
     class TestToolchainFactory : ToolchainFactory
     {
@@ -469,7 +469,7 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
             << (Toolchains()) << (Toolchains() << system1 << user1 << auto1);
 }
 
-void ProjectExplorerPlugin::testToolChainMerging()
+void ProjectExplorerTest::testToolChainMerging()
 {
     QFETCH(Toolchains, system);
     QFETCH(Toolchains, user);
@@ -508,12 +508,12 @@ void ProjectExplorerPlugin::testToolChainMerging()
              Utils::toSet(ops.toRegister + ops.toDemote + ops.toDelete));
 }
 
-void ProjectExplorerPlugin::deleteTestToolchains()
+void ProjectExplorerTest::deleteTestToolchains()
 {
     qDeleteAll(TTC::toolChains());
 }
 
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
 
 #endif // WITH_TESTS
 
