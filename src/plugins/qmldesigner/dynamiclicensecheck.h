@@ -133,4 +133,23 @@ inline bool checkEnterpriseLicense()
     return true;
 }
 
+inline bool checkOpenSourceLicense()
+{
+    if (auto plugin = Internal::dsLicenseCheckerPlugin()) {
+        bool retVal = false;
+        bool success = QMetaObject::invokeMethod(plugin,
+                                                 "checkCommunityLicense",
+                                                 Qt::DirectConnection,
+                                                 Q_RETURN_ARG(bool, retVal));
+
+        if (success)
+            return retVal;
+    }
+
+    if (Internal::dsLicenseCheckerPluginExists())
+        return false;
+
+    return true;
+}
+
 } // namespace Utils

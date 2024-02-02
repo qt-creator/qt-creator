@@ -7,11 +7,12 @@
 #include <crumblebar.h>
 #include <designeractionmanager.h>
 #include <designmodewidget.h>
-#include <viewmanager.h>
-#include <zoomaction.h>
+#include <dynamiclicensecheck.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmleditormenu.h>
+#include <viewmanager.h>
+#include <zoomaction.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -732,6 +733,11 @@ bool ToolBarBackend::isMCUs() const
 bool ToolBarBackend::projectOpened() const
 {
     return ProjectExplorer::ProjectManager::instance()->startupProject();
+}
+
+bool ToolBarBackend::isSharingEnabled()
+{
+    return !QmlDesigner::checkOpenSourceLicense();
 }
 
 void ToolBarBackend::launchGlobalAnnotations()
