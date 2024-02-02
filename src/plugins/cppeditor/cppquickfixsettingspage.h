@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace CppEditor::Internal {
 
-class CppQuickFixSettingsPage : public Core::IOptionsPage
-{
-public:
-    CppQuickFixSettingsPage();
-};
+void setupCppQuickFixSettings();
 
 } // CppEditor::Internal

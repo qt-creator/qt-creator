@@ -13,6 +13,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 
+#include <texteditor/ioutlinewidget.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -23,6 +24,8 @@
 #include <QSortFilterProxyModel>
 #include <QTimer>
 #include <QVBoxLayout>
+
+using namespace TextEditor;
 
 namespace CppEditor::Internal {
 
@@ -255,22 +258,36 @@ bool CppOutlineWidget::syncCursor()
     return m_enableCursorSync && !m_blockCursorSync;
 }
 
-bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
+class CppOutlineWidgetFactory final : public IOutlineWidgetFactory
 {
-    const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
-    if (!cppEditor || !CppModelManager::isCppEditor(cppEditor))
-        return false;
-    return !CppModelManager::usesClangd(cppEditor->textDocument());
-}
+public:
+    bool supportsEditor(Core::IEditor *editor) const final
+    {
+        const auto cppEditor = qobject_cast<BaseTextEditor*>(editor);
+        if (!cppEditor || !CppModelManager::isCppEditor(cppEditor))
+            return false;
+        return !CppModelManager::usesClangd(cppEditor->textDocument());
+    }
 
-TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
+    bool supportsSorting() const final
+    {
+        return true;
+    }
+
+    IOutlineWidget *createWidget(Core::IEditor *editor) final
+    {
+        const auto cppEditor = qobject_cast<BaseTextEditor*>(editor);
+        QTC_ASSERT(cppEditor, return nullptr);
+        const auto cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
+        QTC_ASSERT(cppEditorWidget, return nullptr);
+
+        return new CppOutlineWidget(cppEditorWidget);
+    }
+};
+
+void setupCppOutline()
 {
-    const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
-    QTC_ASSERT(cppEditor, return nullptr);
-    const auto cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
-    QTC_ASSERT(cppEditorWidget, return nullptr);
-
-    return new CppOutlineWidget(cppEditorWidget);
+    static CppOutlineWidgetFactory theCppOutlineWidgetFactory;
 }
 
 } // namespace CppEditor::Internal

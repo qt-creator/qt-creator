@@ -97,14 +97,19 @@ void CppProjectUpdater::cancel()
     m_futureSynchronizer.cancelAllFutures();
 }
 
-namespace Internal {
-
-CppProjectUpdaterFactory::CppProjectUpdaterFactory()
+class CppProjectUpdaterFactory final : public ProjectUpdaterFactory
 {
-    setLanguage(Constants::CXX_LANGUAGE_ID);
-    setCreator([] { return new CppProjectUpdater; });
-}
+public:
+    CppProjectUpdaterFactory()
+    {
+        setLanguage(Constants::CXX_LANGUAGE_ID);
+        setCreator([] { return new CppProjectUpdater; });
+    }
+};
 
-} // namespace Internal
+void setupCppProjectUpdater()
+{
+    static CppProjectUpdaterFactory theCppProjectUpdaterFactory;
+}
 
 } // namespace CppEditor

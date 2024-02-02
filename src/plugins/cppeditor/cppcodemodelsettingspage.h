@@ -3,16 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace CppEditor::Internal {
 
-class CppCodeModelSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CppCodeModelSettingsPage();
-};
-
+void setupCppCodeModelSettings();
 void setupClangdProjectSettingsPanel();
 void setupClangdSettingsPage();
 

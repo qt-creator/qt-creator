@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include <texteditor/ioutlinewidget.h>
-
 namespace CppEditor::Internal {
 
-class CppOutlineWidgetFactory final : public TextEditor::IOutlineWidgetFactory
-{
-public:
-    bool supportsEditor(Core::IEditor *editor) const final;
-    bool supportsSorting() const final { return true; }
-    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) final;
-};
+void setupCppOutline();
 
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

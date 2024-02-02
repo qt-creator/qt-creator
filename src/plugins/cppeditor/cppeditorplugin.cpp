@@ -160,18 +160,12 @@ public:
     QAction *m_reparseExternallyChangedFiles = nullptr;
     QAction *m_findRefsCategorizedAction = nullptr;
 
-    CppQuickFixSettingsPage m_quickFixSettingsPage;
-
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
-    CppOutlineWidgetFactory m_cppOutlineWidgetFactory;
     CppEditorFactory m_cppEditorFactory;
 
     CppModelManager modelManager;
     CppToolsSettings settings;
-    CppCodeModelSettingsPage m_cppCodeModelSettingsPage;
-    CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
-    CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
 
 class CppEditorPlugin final : public ExtensionSystem::IPlugin
@@ -205,6 +199,12 @@ private:
 void CppEditorPlugin::initialize()
 {
     d = new CppEditorPluginPrivate;
+
+    setupCppQuickFixSettings();
+    setupCppCodeModelSettings();
+    setupCppOutline();
+    setupCppCodeStyleSettings();
+    setupCppProjectUpdater();
 
     CppModelManager::registerJsExtension();
 

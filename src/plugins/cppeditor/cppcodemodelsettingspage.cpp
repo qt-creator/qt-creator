@@ -10,6 +10,7 @@
 #include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 
@@ -185,14 +186,23 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     return settingsChanged;
 }
 
-CppCodeModelSettingsPage::CppCodeModelSettingsPage()
+class CppCodeModelSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
-    setDisplayName(Tr::tr("Code Model"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("C++"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
-    setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
+public:
+    CppCodeModelSettingsPage()
+    {
+        setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        setDisplayName(Tr::tr("Code Model"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("C++"));
+        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
+        setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
+    }
+};
+
+void setupCppCodeModelSettings()
+{
+    static CppCodeModelSettingsPage theCppCodeModelSettingsPage;
 }
 
 class ClangdSettingsWidget final : public QWidget
