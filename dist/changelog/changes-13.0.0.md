@@ -28,6 +28,7 @@ General
 
 * Improved docking (Debug mode, Widget Designer)
     * Fixed the style of titles and changed them to always be visible
+      (removed `View > Views > Automatically Hide View Titlebars`)
     * Added an option to collapse panels
     * Changed `Hide/Show Left/Right Sidebar` to hide and show the corresponding
       dock area
