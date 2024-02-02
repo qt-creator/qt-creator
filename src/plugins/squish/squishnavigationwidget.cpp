@@ -47,6 +47,7 @@ private:
     void onRowsInserted(const QModelIndex &parent, int, int);
     void onRowsRemoved(const QModelIndex &parent, int, int);
     void onAddSharedFileTriggered(const QModelIndex &idx);
+    void onRemoveSharedFileTriggered(const QModelIndex &idx);
     void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
     void onRemoveAllSharedFolderTriggered();
     void onRecordTestCase(const QString &suiteName, const QString &testCase);
@@ -161,6 +162,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             case SquishTestTreeItem::SquishSharedFile: {
                 QAction *deleteSharedFile = new QAction(Tr::tr("Delete Shared File"), &menu);
                 menu.addAction(deleteSharedFile);
+                connect(deleteSharedFile, &QAction::triggered, this, [this, idx] {
+                    onRemoveSharedFileTriggered(idx);
+                });
                 break;
             }
             case SquishTestTreeItem::SquishSharedFolder: {
@@ -323,6 +327,31 @@ void SquishNavigationWidget::onAddSharedFileTriggered(const QModelIndex &idx)
     QModelIndex added = m_model->indexForItem(item);
     QTC_ASSERT(added.isValid(), return);
     m_view->edit(m_sortModel->mapFromSource(added));
+}
+
+void SquishNavigationWidget::onRemoveSharedFileTriggered(const QModelIndex &idx)
+{
+    const auto scriptFile = FilePath::fromVariant(idx.data(LinkRole));
+    QTC_ASSERT(!scriptFile.isEmpty(), return);
+
+    const QString detail = Tr::tr("Do you really want to delete \"%1\" permanently?")
+            .arg(scriptFile.toUserOutput());
+    const QMessageBox::StandardButton pressed
+        = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                        Tr::tr("Remove Shared File"),
+                                        detail,
+                                        Key("RemoveSharedSquishScript"));
+    if (pressed != QMessageBox::Yes)
+        return;
+
+    const QModelIndex &realIdx = m_sortModel->mapToSource(idx);
+    // close document silently if open
+    if (Core::IDocument *doc = Core::DocumentModel::documentForFilePath(scriptFile))
+        Core::EditorManager::closeDocuments({doc}, false);
+    if (scriptFile.removeFile())
+        m_model->removeTreeItem(realIdx.row(), realIdx.parent());
+    else
+        SquishMessages::criticalMessage(Tr::tr("Failed to remove \"%1\"."));
 }
 
 void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModelIndex &parent)
