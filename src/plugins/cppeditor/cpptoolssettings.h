@@ -19,12 +19,7 @@ public:
     CppToolsSettings();
     ~CppToolsSettings() override;
 
-    static CppToolsSettings *instance();
-
     static CppCodeStylePreferences *cppCodeStyle();
-
-    static bool sortedEditorDocumentOutline();
-    static void setSortedEditorDocumentOutline(bool sorted);
 };
 
 } // namespace CppEditor

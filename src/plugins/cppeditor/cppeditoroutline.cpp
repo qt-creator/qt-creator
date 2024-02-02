@@ -3,6 +3,7 @@
 
 #include "cppeditoroutline.h"
 
+#include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
@@ -12,8 +13,11 @@
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
-#include <coreplugin/editormanager/editormanager.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+
+#include <utils/storekey.h>
 #include <utils/treeviewcombobox.h>
 
 #include <QAction>
@@ -29,6 +33,9 @@
  */
 
 enum { UpdateOutlineIntervalInMs = 500 };
+
+using namespace Core;
+using namespace Utils;
 
 namespace {
 
@@ -69,6 +76,28 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objec
 
 namespace CppEditor::Internal {
 
+static Key sortEditorDocumentOutlineKey()
+{
+    return Key(Constants::CPPEDITOR_SETTINGSGROUP)
+         + '/' + Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE;
+}
+
+const bool kSortEditorDocumentOutlineDefault = true;
+
+static bool sortedEditorDocumentOutline()
+{
+    return ICore::settings()
+        ->value(sortEditorDocumentOutlineKey(), kSortEditorDocumentOutlineDefault)
+        .toBool();
+}
+
+static void setSortedEditorDocumentOutline(bool sorted)
+{
+    ICore::settings()->setValueWithDefault(sortEditorDocumentOutlineKey(),
+                                           sorted,
+                                           kSortEditorDocumentOutlineDefault);
+}
+
 CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     : QObject(editorWidget)
     , m_editorWidget(editorWidget)
@@ -79,7 +108,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     m_proxyModel->setSourceModel(m_model);
 
     // Set up proxy model
-    if (CppToolsSettings::sortedEditorDocumentOutline())
+    if (sortedEditorDocumentOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
         m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
@@ -98,9 +127,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     m_sortAction = new QAction(Tr::tr("Sort Alphabetically"), m_combo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(isSorted());
-    connect(m_sortAction, &QAction::toggled,
-            CppToolsSettings::instance(),
-            &CppToolsSettings::setSortedEditorDocumentOutline);
+    connect(m_sortAction, &QAction::toggled, &setSortedEditorDocumentOutline);
     m_combo->addAction(m_sortAction);
 
     connect(m_combo, &QComboBox::activated, this, &CppEditorOutline::gotoSymbolInEditor);

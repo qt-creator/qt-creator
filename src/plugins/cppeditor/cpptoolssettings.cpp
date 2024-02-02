@@ -21,7 +21,6 @@
 #include <utils/qtcassert.h>
 
 static const char idKey[] = "CppGlobal";
-const bool kSortEditorDocumentOutlineDefault = true;
 
 using namespace Core;
 using namespace TextEditor;
@@ -38,13 +37,10 @@ public:
 
 } // Internal
 
-CppToolsSettings *m_instance = nullptr;
 Internal::CppToolsSettingsPrivate *d = nullptr;
 
 CppToolsSettings::CppToolsSettings()
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
     d = new Internal::CppToolsSettingsPrivate;
 
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
@@ -146,38 +142,11 @@ CppToolsSettings::~CppToolsSettings()
     TextEditorSettings::unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
 
     delete d;
-
-    m_instance = nullptr;
-}
-
-CppToolsSettings *CppToolsSettings::instance()
-{
-    return m_instance;
 }
 
 CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
 {
     return d->m_globalCodeStyle;
-}
-
-static Key sortEditorDocumentOutlineKey()
-{
-    return Key(Constants::CPPEDITOR_SETTINGSGROUP)
-         + '/' + Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE;
-}
-
-bool CppToolsSettings::sortedEditorDocumentOutline()
-{
-    return ICore::settings()
-        ->value(sortEditorDocumentOutlineKey(), kSortEditorDocumentOutlineDefault)
-        .toBool();
-}
-
-void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
-{
-    ICore::settings()->setValueWithDefault(sortEditorDocumentOutlineKey(),
-                                           sorted,
-                                           kSortEditorDocumentOutlineDefault);
 }
 
 } // namespace CppEditor
