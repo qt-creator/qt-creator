@@ -156,26 +156,24 @@ static AxivionPluginPrivate *dd = nullptr;
 class AxivionTextMark : public TextEditor::TextMark
 {
 public:
-    AxivionTextMark(const FilePath &filePath, const ShortIssue &issue);
+    AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
+        : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
+    {
+        const QString markText = issue.entity.isEmpty() ? issue.message
+                                                        : issue.entity + ": " + issue.message;
+        setToolTip(issue.errorNumber + " " + markText);
+        setIcon(iconForIssue("SV")); // FIXME adapt to the issue
+        setPriority(TextEditor::TextMark::NormalPriority);
+        setLineAnnotation(markText);
+        setActionsProvider([id = issue.id] {
+            auto action = new QAction;
+            action->setIcon(Utils::Icons::INFO.icon());
+            action->setToolTip(Tr::tr("Show rule details"));
+            QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
+            return QList{action};
+        });
+    }
 };
-
-AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
-    : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
-{
-    const QString markText = issue.entity.isEmpty() ? issue.message
-                                                    : issue.entity + ": " + issue.message;
-    setToolTip(issue.errorNumber + " " + markText);
-    setIcon(iconForIssue("SV")); // FIXME adapt to the issue
-    setPriority(TextEditor::TextMark::NormalPriority);
-    setLineAnnotation(markText);
-    setActionsProvider([id = issue.id] {
-       auto action = new QAction;
-       action->setIcon(Utils::Icons::INFO.icon());
-       action->setToolTip(Tr::tr("Show rule details"));
-       QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
-       return QList{action};
-    });
-}
 
 void fetchProjectInfo(const QString &projectName)
 {
