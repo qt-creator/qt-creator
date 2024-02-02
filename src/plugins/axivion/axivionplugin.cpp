@@ -553,7 +553,11 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
         return;
 
     const auto ruleHandler = [](const QByteArray &htmlText) {
-        dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(htmlText));
+        QByteArray fixedHtml = htmlText;
+        const int idx = htmlText.indexOf("<div class=\"ax-issuedetails-table-container\">");
+        if (idx >= 0)
+            fixedHtml = "<html><body>" + htmlText.mid(idx);
+        dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(fixedHtml));
     };
 
     m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
