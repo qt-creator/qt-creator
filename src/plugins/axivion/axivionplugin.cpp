@@ -157,14 +157,10 @@ class AxivionTextMark : public TextEditor::TextMark
 {
 public:
     AxivionTextMark(const FilePath &filePath, const ShortIssue &issue);
-
-private:
-    QString m_id;
 };
 
 AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
     : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
-    , m_id(issue.id)
 {
     const QString markText = issue.entity.isEmpty() ? issue.message
                                                     : issue.entity + ": " + issue.message;
@@ -172,11 +168,11 @@ AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &iss
     setIcon(iconForIssue("SV")); // FIXME adapt to the issue
     setPriority(TextEditor::TextMark::NormalPriority);
     setLineAnnotation(markText);
-    setActionsProvider([this]{
+    setActionsProvider([id = issue.id] {
        auto action = new QAction;
        action->setIcon(Utils::Icons::INFO.icon());
        action->setToolTip(Tr::tr("Show rule details"));
-       QObject::connect(action, &QAction::triggered, dd, [this] { dd->fetchIssueInfo(m_id); });
+       QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
        return QList{action};
     });
 }
