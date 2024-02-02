@@ -9,6 +9,7 @@
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <QMessageBox>
+#include <QPointer>
 #include <QTimer>
 
 namespace Ios {
