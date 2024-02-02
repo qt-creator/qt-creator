@@ -26,7 +26,6 @@ public:
 
     QJsonObject toJson() const;
     static AxivionServer fromJson(const QJsonObject &json);
-    QStringList curlArguments() const;
 
     Utils::Id id;
     QString dashboard;
@@ -44,7 +43,6 @@ public:
     void toSettings() const;
 
     AxivionServer server; // shall we have more than one?
-    Utils::FilePathAspect curl{this};
 };
 
 AxivionSettings &settings();

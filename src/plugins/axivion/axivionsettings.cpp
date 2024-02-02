@@ -8,19 +8,15 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QLabel>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QStandardPaths>
 #include <QUuid>
 #include <QVBoxLayout>
 
@@ -34,8 +30,7 @@ AxivionServer::AxivionServer(const Utils::Id &id, const QString &dashboard,
     , dashboard(dashboard)
     , description(description)
     , token(token)
-{
-}
+{}
 
 bool AxivionServer::operator==(const AxivionServer &other) const
 {
@@ -75,14 +70,6 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
         return invalidServer;
     return { Utils::Id::fromString(id.toString()), dashboard.toString(),
                 description.toString(), token.toString() };
-}
-
-QStringList AxivionServer::curlArguments() const
-{
-    QStringList args { "-sS" }; // silent, but show error
-    if (dashboard.startsWith("https://") && !validateCert)
-        args << "-k";
-    return args;
 }
 
 static Utils::FilePath tokensFilePath()
@@ -125,20 +112,9 @@ AxivionSettings::AxivionSettings()
 {
     setSettingsGroup("Axivion");
 
-    curl.setSettingsKey("Curl");
-    curl.setLabelText(Tr::tr("curl:"));
-    curl.setExpectedKind(Utils::PathChooser::ExistingCommand);
-
     AspectContainer::readSettings();
 
     server = readTokenFile(tokensFilePath());
-
-    if (curl().isEmpty() || !curl().exists()) {
-        const QString curlPath = QStandardPaths::findExecutable(
-            HostOsInfo::withExecutableSuffix("curl"));
-        if (!curlPath.isEmpty())
-            curl.setValue(FilePath::fromString(curlPath));
-    }
 }
 
 void AxivionSettings::toSettings() const
@@ -282,7 +258,6 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     Row {
         Form {
             m_dashboardDisplay, br,
-            settings().curl, br,
         }, Column { m_edit, st }
     }.attachTo(this);
 
