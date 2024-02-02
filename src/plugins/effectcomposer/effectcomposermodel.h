@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QRegularExpression>
 #include <QTemporaryFile>
+#include <QTimer>
 
 namespace ProjectExplorer {
 class Target;
@@ -172,6 +173,8 @@ private:
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
 
+    void connectCompositionNode(CompositionNode *node);
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
@@ -206,6 +209,7 @@ private:
     bool m_loadComponentImages = true;
     bool m_isEnabled = true;
     QString m_currentComposition;
+    QTimer m_rebakeTimer;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

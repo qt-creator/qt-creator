@@ -37,6 +37,7 @@ private:
         MaxValueRole,
         MinValueRole,
         TypeRole,
+        ControlTypeRole,
         UseCustomValueRole
     };
 

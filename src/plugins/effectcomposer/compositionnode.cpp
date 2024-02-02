@@ -130,6 +130,10 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
         m_unifomrsModel.addUniform(uniform);
         m_uniforms.append(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
+        if (uniform->type() == Uniform::Type::Define) {
+            // Changing defines requires rebaking the shaders
+            connect(uniform, &Uniform::uniformValueChanged, this, &CompositionNode::rebakeRequested);
+        }
     }
 
     // Seek through code to get tags

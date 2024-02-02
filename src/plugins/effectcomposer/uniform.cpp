@@ -22,6 +22,7 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
     m_name = propObj.value("name").toString();
     m_description = propObj.value("description").toString();
     m_type = Uniform::typeFromString(propObj.value("type").toString());
+    m_controlType = m_type;
     defaultValue = propObj.value("defaultValue").toString();
 
     m_displayName = propObj.value("displayName").toString();
@@ -44,6 +45,12 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
         g_propertyData[mipmapProperty] = m_enableMipmap;
     }
 
+    if (m_type == Type::Define) {
+        QString controlType = propObj.value("controlType").toString();
+        if (!controlType.isEmpty())
+            m_controlType = Uniform::typeFromString(controlType);
+    }
+
     m_customValue = propObj.value("customValue").toString();
     m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
 
@@ -61,10 +68,20 @@ Uniform::Type Uniform::type() const
     return m_type;
 }
 
+Uniform::Type Uniform::controlType() const
+{
+    return m_controlType;
+}
+
 // String representation of the type for qml
 QString Uniform::typeName() const
 {
     return Uniform::stringFromType(m_type);
+}
+
+QString Uniform::controlTypeName() const
+{
+    return Uniform::stringFromType(m_controlType);
 }
 
 QVariant Uniform::value() const
@@ -216,6 +233,13 @@ QVariant Uniform::getInitializedVariant(bool maxValue)
         return maxValue ? QVector4D(1.0, 1.0, 1.0, 1.0) : QVector4D(0.0, 0.0, 0.0, 0.0);
     case Uniform::Type::Color:
         return maxValue ? QColor::fromRgbF(1.0f, 1.0f, 1.0f, 1.0f) : QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f);
+    case Uniform::Type::Define:
+        if (m_controlType == Uniform::Type::Bool)
+            return maxValue ? true : false;
+        else if (m_controlType == Uniform::Type::Int)
+            return maxValue ? 100 : 0;
+        else
+            return QVariant();
     default:
         return QVariant();
     }
@@ -262,7 +286,10 @@ QVariant Uniform::valueStringToVariant(const QString &value)
         variant = value;
         break;
     case Uniform::Type::Define:
-        variant = value;
+        if (m_controlType == Uniform::Type::Bool)
+            variant = (value == "true");
+        else
+            variant = value;
         break;
     }
 

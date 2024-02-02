@@ -26,6 +26,7 @@ QHash<int, QByteArray> EffectComposerUniformsModel::roleNames() const
     roles[MinValueRole] = "uniformMinValue";
     roles[MaxValueRole] = "uniformMaxValue";
     roles[TypeRole] = "uniformType";
+    roles[ControlTypeRole] = "uniformControlType";
     roles[UseCustomValueRole] = "uniformUseCustomValue";
     return roles;
 }

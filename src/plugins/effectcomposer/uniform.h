@@ -20,6 +20,7 @@ class Uniform : public QObject
 
     Q_PROPERTY(QString uniformName MEMBER m_displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
+    Q_PROPERTY(QString uniformControlType READ controlTypeName CONSTANT)
     Q_PROPERTY(QString uniformDescription READ description CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
@@ -45,7 +46,9 @@ public:
     Uniform(const QString &effectName, const QJsonObject &props, const QString &qenPath);
 
     Type type() const;
+    Type controlType() const;
     QString typeName() const;
+    QString controlTypeName() const;
 
     QVariant value() const;
     void setValue(const QVariant &newValue);
@@ -90,6 +93,7 @@ private:
 
     QString m_qenPath;
     Type m_type;
+    Type m_controlType;
     QVariant m_value;
     QVariant m_defaultValue;
     QVariant m_minValue;

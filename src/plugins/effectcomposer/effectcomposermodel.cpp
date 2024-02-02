@@ -49,6 +49,8 @@ static bool writeToFile(const QByteArray &buf, const QString &filename, FileType
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
 {
+    m_rebakeTimer.setSingleShot(true);
+    connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
 }
 
 QHash<int, QByteArray> EffectComposerModel::roleNames() const
@@ -107,10 +109,7 @@ void EffectComposerModel::addNode(const QString &nodeQenPath)
 {
     beginResetModel();
     auto *node = new CompositionNode({}, nodeQenPath);
-    connect(qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
-            &EffectComposerUniformsModel::dataChanged, this, [this] {
-                setHasUnsavedChanges(true);
-            });
+    connectCompositionNode(node);
 
     const QList<QString> requiredNodes = node->requiredNodes();
     if (requiredNodes.size() > 0) {
@@ -122,10 +121,7 @@ void EffectComposerModel::addNode(const QString &nodeQenPath)
 
             const QString path = EffectUtils::nodesSourcesPath() + "/common/" + requiredId + ".qen";
             auto requiredNode = new CompositionNode({}, path);
-            connect(qobject_cast<EffectComposerUniformsModel *>(requiredNode->uniformsModel()),
-                    &EffectComposerUniformsModel::dataChanged, this, [this] {
-                        setHasUnsavedChanges(true);
-                    });
+            connectCompositionNode(requiredNode);
             requiredNode->setRefCount(1);
             m_nodes.prepend(requiredNode);
         }
@@ -167,6 +163,7 @@ void EffectComposerModel::moveNode(int fromIdx, int toIdx)
 void EffectComposerModel::removeNode(int idx)
 {
     beginResetModel();
+    m_rebakeTimer.stop();
     CompositionNode *node = m_nodes.takeAt(idx);
 
     const QStringList reqNodes = node->requiredNodes();
@@ -193,6 +190,7 @@ void EffectComposerModel::removeNode(int idx)
 void EffectComposerModel::clear(bool clearName)
 {
     beginResetModel();
+    m_rebakeTimer.stop();
     qDeleteAll(m_nodes);
     m_nodes.clear();
     endResetModel();
@@ -418,7 +416,7 @@ void EffectComposerModel::setEffectError(const QString &errorMessage, int type, 
     Q_EMIT effectErrorChanged();
 }
 
-QString variantAsDataString(const Uniform::Type type, const QVariant &variant)
+QString variantAsDataString(const Uniform::Type type, const Uniform::Type controlType, const QVariant &variant)
 {
     QString s;
     switch (type) {
@@ -470,7 +468,12 @@ QString variantAsDataString(const Uniform::Type type, const QVariant &variant)
     }
     case Uniform::Type::Sampler:
     case Uniform::Type::Define: {
-        s = variant.toString();
+        if (controlType == Uniform::Type::Int)
+            s = QString::number(variant.toInt());
+        else if (controlType == Uniform::Type::Bool)
+            s = variant.toBool() ? QString("true") : QString("false");
+        else
+            s = variant.toString();
         break;
     }
     }
@@ -495,16 +498,23 @@ QJsonObject nodeToJson(const CompositionNode &node)
         uniformObject.insert("name", QString(uniform->name()));
         QString type = Uniform::stringFromType(uniform->type());
         uniformObject.insert("type", type);
+        if (uniform->type() == Uniform::Type::Define) {
+            QString controlType = Uniform::stringFromType(uniform->controlType());
+            if (controlType != type)
+                uniformObject.insert("controlType", controlType);
+        }
 
         if (!uniform->displayName().isEmpty())
             uniformObject.insert("displayName", QString(uniform->displayName()));
 
-        QString value = variantAsDataString(uniform->type(), uniform->value());
+        QString value = variantAsDataString(uniform->type(), uniform->controlType(),
+                                            uniform->value());
         if (uniform->type() == Uniform::Type::Sampler)
             value = QFileInfo(value).fileName();
         uniformObject.insert("value", value);
 
-        QString defaultValue = variantAsDataString(uniform->type(), uniform->defaultValue());
+        QString defaultValue = variantAsDataString(uniform->type(), uniform->controlType(),
+                                                   uniform->defaultValue());
         if (uniform->type() == Uniform::Type::Sampler) {
             defaultValue = QFileInfo(value).fileName();
             if (uniform->enableMipmap())
@@ -517,9 +527,14 @@ QJsonObject nodeToJson(const CompositionNode &node)
             || uniform->type() == Uniform::Type::Int
             || uniform->type() == Uniform::Type::Vec2
             || uniform->type() == Uniform::Type::Vec3
-            || uniform->type() == Uniform::Type::Vec4) {
-            uniformObject.insert("minValue", variantAsDataString(uniform->type(), uniform->minValue()));
-            uniformObject.insert("maxValue", variantAsDataString(uniform->type(), uniform->maxValue()));
+            || uniform->type() == Uniform::Type::Vec4
+            || uniform->controlType() == Uniform::Type::Int) {
+            uniformObject.insert("minValue", variantAsDataString(uniform->type(),
+                                                                 uniform->controlType(),
+                                                                 uniform->minValue()));
+            uniformObject.insert("maxValue", variantAsDataString(uniform->type(),
+                                                                 uniform->controlType(),
+                                                                 uniform->maxValue()));
         }
         if (!uniform->customValue().isEmpty())
             uniformObject.insert("customValue", uniform->customValue());
@@ -754,10 +769,7 @@ void EffectComposerModel::openComposition(const QString &path)
 
         for (const auto &nodeElement : nodesArray) {
             auto *node = new CompositionNode(effectName, {}, nodeElement.toObject());
-            connect(qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
-                    &EffectComposerUniformsModel::dataChanged, this, [this] {
-                setHasUnsavedChanges(true);
-            });
+            connectCompositionNode(node);
             m_nodes.append(node);
             const QStringList reqIds = node->requiredNodes();
             for (const QString &reqId : reqIds)
@@ -922,6 +934,10 @@ QString EffectComposerModel::valueAsString(const Uniform &uniform)
     } else if (uniform.type() == Uniform::Type::Color) {
         return QString("\"%1\"").arg(uniform.value().toString());
     } else if (uniform.type() == Uniform::Type::Define) {
+        if (uniform.controlType() == Uniform::Type::Int)
+            return QString::number(uniform.value().toInt());
+        else if (uniform.controlType() == Uniform::Type::Bool)
+            return uniform.value().toBool() ? QString("1") : QString("0");
         return uniform.value().toString();
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
@@ -1020,10 +1036,8 @@ const QString EffectComposerModel::getDefineProperties()
     QString s;
     for (Uniform *uniform : uniforms) {
         // TODO: Check if uniform is already added.
-        if (uniform->type() == Uniform::Type::Define) {
-            QString defineValue = uniform->value().toString();
-            s += QString("#define %1 %2\n").arg(uniform->name(), defineValue);
-        }
+        if (uniform->type() == Uniform::Type::Define)
+            s += QString("#define %1 %2\n").arg(uniform->name(), valueAsString(*uniform));
     }
     if (!s.isEmpty())
         s += '\n';
@@ -1618,6 +1632,18 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
 
     s += l1 + "}\n";
     return s;
+}
+
+void EffectComposerModel::connectCompositionNode(CompositionNode *node)
+{
+    connect(qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
+            &EffectComposerUniformsModel::dataChanged, this, [this] {
+                setHasUnsavedChanges(true);
+            });
+    connect(node, &CompositionNode::rebakeRequested, this, [this] {
+        // This can come multiple times in a row in response to property changes, so let's buffer it
+        m_rebakeTimer.start(200);
+    });
 }
 
 QString EffectComposerModel::currentComposition() const
