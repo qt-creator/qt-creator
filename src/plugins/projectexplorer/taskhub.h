@@ -59,7 +59,7 @@ signals:
     void openTask(const Task &task);
 
 private:
-    friend TaskHub &taskHub();
+    friend PROJECTEXPLORER_EXPORT TaskHub &taskHub();
 
     TaskHub();
     ~TaskHub() final;
