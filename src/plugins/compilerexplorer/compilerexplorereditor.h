@@ -22,10 +22,6 @@
 
 #include <memory>
 
-namespace CppEditor {
-class CppEditorWidget;
-}
-
 namespace CompilerExplorer {
 
 class JsonSettingsDocument;
