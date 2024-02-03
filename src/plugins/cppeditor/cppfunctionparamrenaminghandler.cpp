@@ -6,6 +6,7 @@
 #include "cppeditorwidget.h"
 #include "cpplocalrenaming.h"
 #include "cppfunctiondecldeflink.h"
+#include "cppsemanticinfo.h"
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
@@ -17,7 +18,7 @@ using namespace CPlusPlus;
 
 namespace CppEditor::Internal {
 
-using DeclDefLinkPtr = QSharedPointer<FunctionDeclDefLink>;
+using DeclDefLinkPtr = std::shared_ptr<FunctionDeclDefLink>;
 
 class CppFunctionParamRenamingHandler::Private
 {
@@ -54,7 +55,7 @@ CppFunctionParamRenamingHandler::Private::Private(
 void CppFunctionParamRenamingHandler::Private::handleRenamingStarted()
 {
     linkFinder.reset();
-    link.clear();
+    link.reset();
 
     // Are we currently on the function signature? In this case, the normal decl/def link
     // mechanism kicks in and we don't have to do anything.
@@ -78,7 +79,7 @@ void CppFunctionParamRenamingHandler::Private::handleRenamingFinished()
 {
     if (link) {
         link->apply(&editorWidget, false);
-        link.clear();
+        link.reset();
     }
 }
 

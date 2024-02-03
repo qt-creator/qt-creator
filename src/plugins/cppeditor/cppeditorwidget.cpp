@@ -388,7 +388,7 @@ public:
     SemanticInfo m_lastSemanticInfo;
 
     FunctionDeclDefLinkFinder *m_declDefLinkFinder;
-    QSharedPointer<FunctionDeclDefLink> m_declDefLink;
+    std::shared_ptr<FunctionDeclDefLink> m_declDefLink;
 
     QAction *m_parseContextAction = nullptr;
     ParseContextWidget *m_parseContextWidget = nullptr;
@@ -1299,7 +1299,7 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
     return TextEditorWidget::createAssistInterface(kind, reason);
 }
 
-QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
+std::shared_ptr<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
 {
     return d->m_declDefLink;
 }
@@ -1357,7 +1357,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);
 }
 
-void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
+void CppEditorWidget::onFunctionDeclDefLinkFound(std::shared_ptr<FunctionDeclDefLink> link)
 {
     abortDeclDefLink();
     d->m_declDefLink = link;
@@ -1405,7 +1405,7 @@ void CppEditorWidget::abortDeclDefLink()
     }
 
     d->m_declDefLink->hideMarker(this);
-    d->m_declDefLink.clear();
+    d->m_declDefLink.reset();
 }
 
 void CppEditorWidget::showPreProcessorWidget()

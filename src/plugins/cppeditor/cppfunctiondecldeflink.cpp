@@ -46,13 +46,13 @@ FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
 
 void FunctionDeclDefLinkFinder::onFutureDone()
 {
-    QSharedPointer<FunctionDeclDefLink> link = m_watcher->result();
+    std::shared_ptr<FunctionDeclDefLink> link = m_watcher->result();
     m_watcher.reset();
     if (link) {
         link->linkSelection = m_scannedSelection;
         link->nameSelection = m_nameSelection;
         if (m_nameSelection.selectedText() != link->nameInitial)
-            link.clear();
+            link.reset();
     }
     m_scannedSelection = QTextCursor();
     m_nameSelection = QTextCursor();
@@ -129,9 +129,9 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
     return nullptr;
 }
 
-static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppRefactoringChanges changes)
+static std::shared_ptr<FunctionDeclDefLink> findLinkHelper(std::shared_ptr<FunctionDeclDefLink> link, CppRefactoringChanges changes)
 {
-    QSharedPointer<FunctionDeclDefLink> noResult;
+    std::shared_ptr<FunctionDeclDefLink> noResult;
     const Snapshot &snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
@@ -225,7 +225,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_nameSelection.setKeepPositionOnInsert(true);
 
     // set up a base result
-    QSharedPointer<FunctionDeclDefLink> result(new FunctionDeclDefLink);
+    std::shared_ptr<FunctionDeclDefLink> result(new FunctionDeclDefLink);
     result->nameInitial = m_nameSelection.selectedText();
     result->sourceDocument = doc;
     result->sourceFunction = funcDecl->symbol;
@@ -233,7 +233,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     result->sourceFunctionDeclarator = funcDecl;
 
     // handle the rest in a thread
-    m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
+    m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
     connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
 }

@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include "cppquickfix.h"
 #include "cpprefactoringchanges.h"
 
 #include <QString>
 #include <QCoreApplication>
-#include <QSharedPointer>
 #include <QFutureWatcher>
 #include <QTextCursor>
 
@@ -31,14 +29,14 @@ public:
     QTextCursor scannedSelection() const;
 
 signals:
-    void foundLink(QSharedPointer<FunctionDeclDefLink> link);
+    void foundLink(std::shared_ptr<FunctionDeclDefLink> link);
 
 private:
     void onFutureDone();
 
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    QScopedPointer<QFutureWatcher<QSharedPointer<FunctionDeclDefLink> > > m_watcher;
+    QScopedPointer<QFutureWatcher<std::shared_ptr<FunctionDeclDefLink>>> m_watcher;
 };
 
 class FunctionDeclDefLink

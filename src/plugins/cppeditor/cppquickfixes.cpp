@@ -6412,7 +6412,7 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 {
 public:
     explicit ApplyDeclDefLinkOperation(const CppQuickFixInterface &interface,
-            const QSharedPointer<FunctionDeclDefLink> &link)
+            const std::shared_ptr<FunctionDeclDefLink> &link)
         : CppQuickFixOperation(interface, 100)
         , m_link(link)
     {}
@@ -6428,7 +6428,7 @@ protected:
     { /* never called since perform is overridden */ }
 
 private:
-    QSharedPointer<FunctionDeclDefLink> m_link;
+    std::shared_ptr<FunctionDeclDefLink> m_link;
 };
 
 } // anonymous namespace
@@ -6436,7 +6436,7 @@ private:
 void ApplyDeclDefLinkChanges::doMatch(const CppQuickFixInterface &interface,
                                       QuickFixOperations &result)
 {
-    QSharedPointer<FunctionDeclDefLink> link = interface.editor()->declDefLink();
+    std::shared_ptr<FunctionDeclDefLink> link = interface.editor()->declDefLink();
     if (!link || !link->isMarkerVisible())
         return;
 
