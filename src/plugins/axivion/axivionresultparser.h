@@ -15,13 +15,6 @@ public:
     QString error;
 };
 
-class Project : public BaseResult
-{
-public:
-    QString name;
-    QString url;
-};
-
 class ShortIssue : public BaseResult
 {
 public:
