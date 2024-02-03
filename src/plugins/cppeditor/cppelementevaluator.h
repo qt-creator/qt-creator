@@ -41,7 +41,6 @@ public:
     static QFuture<std::shared_ptr<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
     static QFuture<std::shared_ptr<CppElement>> asyncExecute(const QString &expression,
                                                             const Utils::FilePath &filePath);
-    bool identifiedCppElement() const;
     const std::shared_ptr<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
     const QString &diagnosis() const;

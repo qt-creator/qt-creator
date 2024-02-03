@@ -56,8 +56,8 @@ private:
         }
         const FilePath filePath = editorWidget->textDocument()->filePath();
         const QStringList fallback = identifierWordsUnderCursor(tc);
-        if (evaluator.identifiedCppElement()) {
-            const std::shared_ptr<CppElement> &cppElement = evaluator.cppElement();
+        const std::shared_ptr<CppElement> &cppElement = evaluator.cppElement();
+        if (cppElement) {
             const QStringList candidates = cppElement->helpIdCandidates;
             const HelpItem helpItem(candidates + fallback,
                                     filePath,

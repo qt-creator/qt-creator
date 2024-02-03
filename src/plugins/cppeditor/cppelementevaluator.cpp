@@ -672,11 +672,6 @@ void CppElementEvaluator::execute()
     exec(std::ref(d->m_functor), std::bind(&FromGuiFunctor::syncExec, &d->m_functor, _1, _2, _3), false);
 }
 
-bool CppElementEvaluator::identifiedCppElement() const
-{
-    return bool(d->m_functor.m_element);
-}
-
 const std::shared_ptr<CppElement> &CppElementEvaluator::cppElement() const
 {
     return d->m_functor.m_element;
