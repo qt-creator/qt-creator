@@ -47,6 +47,7 @@
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
@@ -135,7 +136,7 @@ public:
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void handleOpenedDocs(ProjectExplorer::Project *project);
+    void handleOpenedDocs(Project *project);
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
@@ -237,7 +238,7 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
 
 void AxivionPluginPrivate::onStartupProjectChanged()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project) {
         clearAllMarks();
         m_currentProjectInfo = {};
@@ -513,12 +514,12 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
             m_currentProjectInfo = data;
             m_axivionOutputPane.updateDashboard();
             // handle already opened documents
-            if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
+            if (auto buildSystem = ProjectManager::startupBuildSystem();
                 !buildSystem || !buildSystem->isParsing()) {
                 handleOpenedDocs(nullptr);
             } else {
-                connect(ProjectExplorer::ProjectManager::instance(),
-                        &ProjectExplorer::ProjectManager::projectFinishedParsing,
+                connect(ProjectManager::instance(),
+                        &ProjectManager::projectFinishedParsing,
                         this, &AxivionPluginPrivate::handleOpenedDocs);
             }
         };
@@ -558,16 +559,15 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
     m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
 }
 
-void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
+void AxivionPluginPrivate::handleOpenedDocs(Project *project)
 {
-    if (project && ProjectExplorer::ProjectManager::startupProject() != project)
+    if (project && ProjectManager::startupProject() != project)
         return;
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
     for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
     if (project)
-        disconnect(ProjectExplorer::ProjectManager::instance(),
-                   &ProjectExplorer::ProjectManager::projectFinishedParsing,
+        disconnect(ProjectManager::instance(), &ProjectManager::projectFinishedParsing,
                    this, &AxivionPluginPrivate::handleOpenedDocs);
 }
 
@@ -583,7 +583,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (!m_currentProjectInfo) // we do not have a project info (yet)
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     // TODO: Sometimes the isKnownFile() returns false after opening a session.
     //       This happens randomly on linux.
     if (!doc || !project->isKnownFile(doc->filePath()))
@@ -656,7 +656,7 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
     if (issues.issues.isEmpty())
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project)
         return;
 
@@ -690,8 +690,7 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
         AxivionProjectSettings::setupProjectPanel();
 
-        connect(ProjectExplorer::ProjectManager::instance(),
-                &ProjectExplorer::ProjectManager::startupProjectChanged,
+        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 dd, &AxivionPluginPrivate::onStartupProjectChanged);
         connect(EditorManager::instance(), &EditorManager::documentOpened,
                 dd, &AxivionPluginPrivate::onDocumentOpened);
