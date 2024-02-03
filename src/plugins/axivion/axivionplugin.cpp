@@ -5,7 +5,6 @@
 
 #include "axivionoutputpane.h"
 #include "axivionprojectsettings.h"
-#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
@@ -53,6 +52,21 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace Axivion::Internal {
+
+class Issue
+{
+public:
+    QString id;
+    QString state;
+    QString errorNumber;
+    QString message;
+    QString entity;
+    QString filePath;
+    QString severity;
+    int lineNumber = 0;
+};
+
+using Issues = QList<Issue>;
 
 QIcon iconForIssue(const QString &prefix)
 {
@@ -140,7 +154,7 @@ public:
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
-    void handleIssuesForFile(const IssuesList &issues);
+    void handleIssuesForFile(const Issues &issues);
     void fetchIssueInfo(const QString &id);
 
     NetworkAccessManager m_networkAccessManager;
@@ -159,7 +173,7 @@ static AxivionPluginPrivate *dd = nullptr;
 class AxivionTextMark : public TextMark
 {
 public:
-    AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
+    AxivionTextMark(const FilePath &filePath, const Issue &issue)
         : TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
     {
         const QString markText = issue.entity.isEmpty() ? issue.message
@@ -583,10 +597,10 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     search.limit = 0;
 
     const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
-        IssuesList issues;
+        Issues issues;
         const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
         for (const auto &row : rows) {
-            ShortIssue issue;
+            Issue issue;
             for (auto it = row.cbegin(); it != row.cend(); ++it) {
                 if (it->first == "id")
                     issue.id = anyToSimpleString(it->second);
@@ -605,7 +619,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
                 else if (it->first == "line")
                     issue.lineNumber = anyToSimpleString(it->second).toInt();
             }
-            issues.issues << issue;
+            issues << issue;
         }
         handleIssuesForFile(issues);
     };
@@ -639,9 +653,9 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     }
 }
 
-void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
+void AxivionPluginPrivate::handleIssuesForFile(const Issues &issues)
 {
-    if (issues.issues.isEmpty())
+    if (issues.isEmpty())
         return;
 
     Project *project = ProjectManager::startupProject();
@@ -649,10 +663,10 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
         return;
 
     const FilePath filePath = project->projectDirectory()
-            .pathAppended(issues.issues.first().filePath);
+            .pathAppended(issues.first().filePath);
 
     const Id axivionId(AxivionTextMarkId);
-    for (const ShortIssue &issue : std::as_const(issues.issues)) {
+    for (const Issue &issue : issues) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
