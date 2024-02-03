@@ -134,9 +134,9 @@ class AxivionPluginPrivate : public QObject
 public:
     AxivionPluginPrivate();
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
-    void onStartupProjectChanged();
+    void onStartupProjectChanged(Project *project);
     void fetchProjectInfo(const QString &projectName);
-    void handleOpenedDocs(Project *project);
+    void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
@@ -147,6 +147,7 @@ public:
     AxivionOutputPane m_axivionOutputPane;
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
+    Project *m_project = nullptr;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
@@ -236,17 +237,24 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
 #endif // ssl
 }
 
-void AxivionPluginPrivate::onStartupProjectChanged()
+void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
 {
-    Project *project = ProjectManager::startupProject();
-    if (!project) {
-        clearAllMarks();
-        m_currentProjectInfo = {};
-        m_axivionOutputPane.updateDashboard();
+    if (project == m_project)
         return;
-    }
 
-    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(project);
+    if (m_project)
+        disconnect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+
+    m_project = project;
+    clearAllMarks();
+    m_currentProjectInfo = {};
+    m_axivionOutputPane.updateDashboard();
+
+    if (!m_project)
+        return;
+
+    connect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
@@ -491,10 +499,9 @@ Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    if (m_taskTreeRunner.isRunning()) { // TODO: cache in queue and run when task tree finished
-        QTimer::singleShot(3000, this, [this, projectName] { fetchProjectInfo(projectName); });
+    if (!m_project)
         return;
-    }
+
     clearAllMarks();
     if (projectName.isEmpty()) {
         m_currentProjectInfo = {};
@@ -513,15 +520,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         const auto handler = [this](const Dto::ProjectInfoDto &data) {
             m_currentProjectInfo = data;
             m_axivionOutputPane.updateDashboard();
-            // handle already opened documents
-            if (auto buildSystem = ProjectManager::startupBuildSystem();
-                !buildSystem || !buildSystem->isParsing()) {
-                handleOpenedDocs(nullptr);
-            } else {
-                connect(ProjectManager::instance(),
-                        &ProjectManager::projectFinishedParsing,
-                        this, &AxivionPluginPrivate::handleOpenedDocs);
-            }
+            handleOpenedDocs();
         };
 
         const QUrl url(settings().server.dashboard);
@@ -559,16 +558,11 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
     m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
 }
 
-void AxivionPluginPrivate::handleOpenedDocs(Project *project)
+void AxivionPluginPrivate::handleOpenedDocs()
 {
-    if (project && ProjectManager::startupProject() != project)
-        return;
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
     for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
-    if (project)
-        disconnect(ProjectManager::instance(), &ProjectManager::projectFinishedParsing,
-                   this, &AxivionPluginPrivate::handleOpenedDocs);
 }
 
 void AxivionPluginPrivate::clearAllMarks()
@@ -580,18 +574,12 @@ void AxivionPluginPrivate::clearAllMarks()
 
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
-    if (!m_currentProjectInfo) // we do not have a project info (yet)
-        return;
-
-    Project *project = ProjectManager::startupProject();
-    // TODO: Sometimes the isKnownFile() returns false after opening a session.
-    //       This happens randomly on linux.
-    if (!doc || !project->isKnownFile(doc->filePath()))
+    if (!doc || !m_currentProjectInfo || !m_project || !m_project->isKnownFile(doc->filePath()))
         return;
 
     IssueListSearch search;
     search.kind = "SV";
-    search.filter_path = doc->filePath().relativeChildPath(project->projectDirectory()).path();
+    search.filter_path = doc->filePath().relativeChildPath(m_project->projectDirectory()).path();
     search.limit = 0;
 
     const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
