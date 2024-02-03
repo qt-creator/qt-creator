@@ -44,6 +44,11 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 
 void DeviceUsedPortsGatherer::start()
 {
+    const auto emitError = [this](const QString &errorString) {
+        d->m_errorString = errorString;
+        emit done(false);
+    };
+
     d->usedPorts.clear();
     d->m_errorString.clear();
     QTC_ASSERT(d->device, emitError("No device given"); return);
@@ -57,7 +62,25 @@ void DeviceUsedPortsGatherer::start()
     d->process.reset(new Process);
     d->process->setCommand(d->portsGatheringMethod.commandLine(protocol));
 
-    connect(d->process.get(), &Process::done, this, &DeviceUsedPortsGatherer::handleProcessDone);
+    connect(d->process.get(), &Process::done, this, [this, emitError] {
+        if (d->process->result() == ProcessResult::FinishedWithSuccess) {
+            d->usedPorts.clear();
+            const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(
+                d->process->rawStdOut());
+            for (const Port port : usedPorts) {
+                if (d->device->freePorts().contains(port))
+                    d->usedPorts << port;
+            }
+            emit done(true);
+        } else {
+            const QString errorString = d->process->errorString();
+            const QString stdErr = d->process->readAllStandardError();
+            const QString outputString
+                = stdErr.isEmpty() ? stdErr : Tr::tr("Remote error output was: %1").arg(stdErr);
+            emitError(Utils::joinStrings({errorString, outputString}, '\n'));
+        }
+        stop();
+    });
     d->process->start();
 }
 
@@ -84,38 +107,6 @@ QString DeviceUsedPortsGatherer::errorString() const
     return d->m_errorString;
 }
 
-void DeviceUsedPortsGatherer::setupUsedPorts()
-{
-    d->usedPorts.clear();
-    const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(
-                                  d->process->rawStdOut());
-    for (const Port port : usedPorts) {
-        if (d->device->freePorts().contains(port))
-            d->usedPorts << port;
-    }
-    emit portListReady();
-}
-
-void DeviceUsedPortsGatherer::emitError(const QString &errorString)
-{
-    d->m_errorString = errorString;
-    emit error(errorString);
-}
-
-void DeviceUsedPortsGatherer::handleProcessDone()
-{
-    if (d->process->result() == ProcessResult::FinishedWithSuccess) {
-        setupUsedPorts();
-    } else {
-        const QString errorString = d->process->errorString();
-        const QString stdErr = d->process->readAllStandardError();
-        const QString outputString
-            = stdErr.isEmpty() ? stdErr : Tr::tr("Remote error output was: %1").arg(stdErr);
-        emitError(Utils::joinStrings({errorString, outputString}, '\n'));
-    }
-    stop();
-}
-
 // PortGatherer
 
 PortsGatherer::PortsGatherer(RunControl *runControl)
@@ -123,11 +114,15 @@ PortsGatherer::PortsGatherer(RunControl *runControl)
 {
     setId("PortGatherer");
 
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, &PortsGatherer::reportFailure);
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
-        m_portList = device()->freePorts();
-        appendMessage(Tr::tr("Found %n free ports.", nullptr, m_portList.count()), NormalMessageFormat);
-        reportStarted();
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::done, this, [this](bool success) {
+        if (success) {
+            m_portList = device()->freePorts();
+            appendMessage(Tr::tr("Found %n free ports.", nullptr, m_portList.count()),
+                          NormalMessageFormat);
+            reportStarted();
+        } else {
+            reportFailure(m_portsGatherer.errorString());
+        }
     });
 }
 
