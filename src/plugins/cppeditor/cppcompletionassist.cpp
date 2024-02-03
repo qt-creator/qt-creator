@@ -784,7 +784,7 @@ const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext 
     ClassOrNamespace *target = context.lookupType(targetScope);
     if (!target)
         target = context.globalNamespace();
-    return LookupContext::minimalName(symbol, target, context.bindings()->control().data());
+    return LookupContext::minimalName(symbol, target, context.bindings()->control().get());
 }
 
 } // Anonymous
@@ -2040,7 +2040,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                     targetCoN = context.globalNamespace();
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = context.bindings()->control().data();
+                Control *control = context.bindings()->control().get();
 
                 // set up signature autocompletion
                 for (Function *f : std::as_const(functions)) {

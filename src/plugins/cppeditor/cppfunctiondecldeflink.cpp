@@ -568,7 +568,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.bindings()->control().data();
+        Control *control = sourceContext.bindings()->control().get();
 
         // get return type start position and declarator info from declaration
         DeclaratorAST *declarator = nullptr;
@@ -614,7 +614,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.bindings()->control().data();
+        Control *control = sourceContext.bindings()->control().get();
         Overview overview = overviewFromCurrentProjectStyle;
         overview.showReturnTypes = true;
         overview.showTemplateParameters = true;

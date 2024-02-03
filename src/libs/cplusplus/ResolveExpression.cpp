@@ -730,7 +730,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 
             const ExpressionDocumentHelper exprHelper(exprTyper.preprocessedExpression(initializer),
-                                                      _context.bindings()->control().data());
+                                                      _context.bindings()->control().get());
             const Document::Ptr exprDoc = exprHelper.document;
 
             DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
@@ -742,7 +742,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (typeItems.empty())
                 continue;
 
-            Clone cloner(_context.bindings()->control().data());
+            Clone cloner(_context.bindings()->control().get());
 
             for (int n = 0; n < typeItems.size(); ++ n) {
                 FullySpecifiedType newType = cloner.type(typeItems[n].type(), nullptr);

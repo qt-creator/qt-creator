@@ -355,7 +355,7 @@ QString declFromExpr(const TypeOrExpr &typeOrExpr, const CallAST *call, const Na
         UseMinimalNames q(con);
         env.enter(&q);
 
-        Control *control = context.bindings()->control().data();
+        Control *control = context.bindings()->control().get();
         return rewriteType(result.first().type(), &env, control);
     };
 
@@ -580,7 +580,7 @@ namespace {
 class RewriteLogicalAndOp: public CppQuickFixOperation
 {
 public:
-    QSharedPointer<ASTPatternBuilder> mk;
+    std::shared_ptr<ASTPatternBuilder> mk;
     UnaryExpressionAST *left;
     UnaryExpressionAST *right;
     BinaryExpressionAST *pattern;
@@ -1368,7 +1368,7 @@ void TranslateStringLiteral::doMatch(const CppQuickFixInterface &interface,
 
     QString trContext;
 
-    QSharedPointer<Control> control = interface.context().bindings()->control();
+    std::shared_ptr<Control> control = interface.context().bindings()->control();
     const Name *trName = control->identifier("tr");
 
     // Check whether we are in a function:
@@ -2768,7 +2768,7 @@ public:
             env.switchScope(decl->enclosingScope());
             UseMinimalNames q(targetCoN);
             env.enter(&q);
-            Control *control = op->context().bindings()->control().data();
+            Control *control = op->context().bindings()->control().get();
 
             // rewrite the function type
             const FullySpecifiedType tn = rewriteType(decl->type(), &env, control);
@@ -3625,7 +3625,7 @@ QString symbolAtDifferentLocation(const CppQuickFixInterface &interface,
     env.switchScope(symbol->enclosingScope());
     UseMinimalNames q(cppCoN);
     env.enter(&q);
-    Control *control = interface.context().bindings()->control().data();
+    Control *control = interface.context().bindings()->control().get();
     Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     return oo.prettyName(LookupContext::minimalName(symbol, cppCoN, control));
 }
@@ -3656,7 +3656,7 @@ FullySpecifiedType typeAtDifferentLocation(const CppQuickFixInterface &interface
     env.switchScope(originalScope);
     UseMinimalNames q(cppCoN);
     env.enter(&q);
-    Control *control = interface.context().bindings()->control().data();
+    Control *control = interface.context().bindings()->control().get();
     return rewriteType(type, &env, control);
 }
 
@@ -5057,7 +5057,7 @@ public:
         env.enter(&subs);
 
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-        Control *control = context().bindings()->control().data();
+        Control *control = context().bindings()->control().get();
         QString funcDef;
         QString funcDecl; // We generate a declaration only in the case of a member function.
         QString funcCall;
@@ -6469,7 +6469,7 @@ QString definitionSignature(const CppQuickFixInterface *assist,
     env.switchScope(func->enclosingScope());
     UseMinimalNames q(cppCoN);
     env.enter(&q);
-    Control *control = assist->context().bindings()->control().data();
+    Control *control = assist->context().bindings()->control().get();
     Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
@@ -7066,7 +7066,7 @@ private:
         UseMinimalNames q(con);
         env.enter(&q);
 
-        Control *control = context().bindings()->control().data();
+        Control *control = context().bindings()->control().get();
         FullySpecifiedType type = rewriteType(result.first().type(), &env, control);
 
         return m_oo.prettyType(type, m_name);
@@ -7775,7 +7775,7 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
     QTC_ASSERT(method, return false);
 
     // Minimize qualification
-    Control *control = context.bindings()->control().data();
+    Control *control = context.bindings()->control().get();
     ClassOrNamespace *functionCON = context.lookupParent(scope);
     const Name *shortName = LookupContext::minimalName(method, functionCON, control);
     if (!shortName->asQualifiedNameId())
