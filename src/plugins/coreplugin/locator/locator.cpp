@@ -213,17 +213,15 @@ void Locator::updateFilterActions()
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
         Id filterId = filter->id();
-        Id actionId = filter->actionId();
         QAction *action = nullptr;
         if (!actionCopy.contains(filterId)) {
             // register new action
-            action = new QAction(filter->displayName(), this);
-            Command *cmd = ActionManager::registerAction(action, actionId);
-            cmd->setAttribute(Command::CA_UpdateText);
-            cmd->setDefaultKeySequence(filter->defaultKeySequence());
-            connect(action, &QAction::triggered, this, [filter] {
-                LocatorManager::showFilter(filter);
-            });
+            ActionBuilder(this, filter->actionId())
+                .setText(filter->displayName())
+                .bindContextAction(&action)
+                .setCommandAttribute(Command::CA_UpdateText)
+                .setDefaultKeySequence(filter->defaultKeySequence())
+                .addOnTriggered(this, [filter] { LocatorManager::showFilter(filter); });
         } else {
             action = actionCopy.take(filterId);
             action->setText(filter->displayName());
