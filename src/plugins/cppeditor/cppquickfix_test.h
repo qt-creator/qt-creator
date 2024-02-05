@@ -224,6 +224,9 @@ private slots:
 
     void testMoveComments_data();
     void testMoveComments();
+
+    void testConvertToMetaMethodInvocation_data();
+    void testConvertToMetaMethodInvocation();
 };
 
 } // namespace Tests

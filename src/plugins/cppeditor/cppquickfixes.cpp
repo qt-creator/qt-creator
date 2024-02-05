@@ -221,8 +221,10 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
 }
 
 // Given include is e.g. "afile.h" or <afile.h> (quotes/angle brackets included!).
-void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file,
-                               const Document::Ptr &cppDocument)
+static void insertNewIncludeDirective(const QString &include,
+                                      CppRefactoringFilePtr file,
+                                      const Document::Ptr &cppDocument,
+                                      ChangeSet &changes)
 {
     // Find optimal position
     unsigned newLinesToPrepend = 0;
@@ -245,10 +247,7 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
     const QString textToInsert = prependedNewLines + includeLine + appendedNewLines;
 
     // Insert
-    ChangeSet changes;
     changes.insert(insertPosition, textToInsert);
-    file->setChangeSet(changes);
-    file->apply();
 }
 
 bool nameIncludesOperatorName(const Name *name)
@@ -322,6 +321,32 @@ QString nameString(const NameAST *name)
     return CppCodeStyleSettings::currentProjectCodeStyleOverview().prettyName(name->name);
 }
 
+static FullySpecifiedType typeOfExpr(const ExpressionAST *expr,
+                                     const CppRefactoringFilePtr &file,
+                                     const Snapshot &snapshot,
+                                     const LookupContext &context)
+{
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.init(file->cppDocument(), snapshot, context.bindings());
+    Scope *scope = file->scopeAt(expr->firstToken());
+    const QList<LookupItem> result = typeOfExpression(
+        file->textOf(expr).toUtf8(), scope, TypeOfExpression::Preprocess);
+    if (result.isEmpty())
+        return {};
+
+    SubstitutionEnvironment env;
+    env.setContext(context);
+    env.switchScope(result.first().scope());
+    ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
+    if (!con)
+        con = typeOfExpression.context().globalNamespace();
+    UseMinimalNames q(con);
+    env.enter(&q);
+
+    Control *control = context.bindings()->control().get();
+    return rewriteType(result.first().type(), &env, control);
+}
+
 // FIXME: Needs to consider the scope at the insertion site.
 QString declFromExpr(const TypeOrExpr &typeOrExpr, const CallAST *call, const NameAST *varName,
                      const Snapshot &snapshot, const LookupContext &context,
@@ -338,25 +363,7 @@ QString declFromExpr(const TypeOrExpr &typeOrExpr, const CallAST *call, const Na
         return {};
     };
     const auto getTypeOfExpr = [&](const ExpressionAST *expr) -> FullySpecifiedType {
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.init(file->cppDocument(), snapshot, context.bindings());
-        Scope *scope = file->scopeAt(expr->firstToken());
-        const QList<LookupItem> result = typeOfExpression(
-            file->textOf(expr).toUtf8(), scope, TypeOfExpression::Preprocess);
-        if (result.isEmpty())
-            return {};
-
-        SubstitutionEnvironment env;
-        env.setContext(context);
-        env.switchScope(result.first().scope());
-        ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
-        if (!con)
-            con = typeOfExpression.context().globalNamespace();
-        UseMinimalNames q(con);
-        env.enter(&q);
-
-        Control *control = context.bindings()->control().get();
-        return rewriteType(result.first().type(), &env, control);
+        return typeOfExpr(expr, file, snapshot, context);
     };
 
     const Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -1791,7 +1798,10 @@ void AddIncludeForUndefinedIdentifierOp::perform()
     CppRefactoringChanges refactoring(snapshot());
     CppRefactoringFilePtr file = refactoring.cppFile(filePath());
 
-    insertNewIncludeDirective(m_include, file, semanticInfo().doc);
+    ChangeSet changes;
+    insertNewIncludeDirective(m_include, file, semanticInfo().doc, changes);
+    file->setChangeSet(changes);
+    file->apply();
 }
 
 AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
@@ -9801,6 +9811,138 @@ void MoveFunctionComments::doMatch(const CppQuickFixInterface &interface,
     }
 }
 
+namespace {
+class ConvertToMetaMethodCallOp : public CppQuickFixOperation
+{
+public:
+    ConvertToMetaMethodCallOp(const CppQuickFixInterface &interface, CallAST *callAst)
+        : CppQuickFixOperation(interface), m_callAst(callAst)
+    {
+        setDescription(Tr::tr("Convert function call to Qt meta-method invocation"));
+    }
+
+private:
+    void perform() override
+    {
+        // Construct the argument list.
+        Overview ov;
+        QStringList arguments;
+        for (ExpressionListAST *it = m_callAst->expression_list; it; it = it->next) {
+            if (!it->value)
+                return;
+            const FullySpecifiedType argType
+                = typeOfExpr(it->value, currentFile(), snapshot(), context());
+            if (!argType.isValid())
+                return;
+            arguments << QString::fromUtf8("Q_ARG(%1, %2)")
+                             .arg(ov.prettyType(argType), currentFile()->textOf(it->value));
+        }
+        QString argsString = arguments.join(", ");
+        if (!argsString.isEmpty())
+            argsString.prepend(", ");
+
+        // Construct the replace string.
+        const auto memberAccessAst = m_callAst->base_expression->asMemberAccess();
+        QTC_ASSERT(memberAccessAst, return);
+        QString baseExpr = currentFile()->textOf(memberAccessAst->base_expression);
+        const FullySpecifiedType baseExprType
+            = typeOfExpr(memberAccessAst->base_expression, currentFile(), snapshot(), context());
+        if (!baseExprType.isValid())
+            return;
+        if (!baseExprType->asPointerType())
+            baseExpr.prepend('&');
+        const QString functionName = currentFile()->textOf(memberAccessAst->member_name);
+        const QString qMetaObject = "QMetaObject";
+        const QString newCall = QString::fromUtf8("%1::invokeMethod(%2, \"%3\"%4)")
+                                    .arg(qMetaObject, baseExpr, functionName, argsString);
+
+        // Determine the start and end positions of the replace operation.
+        // If the call is preceded by an "emit" keyword, that one has to be removed as well.
+        int firstToken = m_callAst->firstToken();
+        if (firstToken > 0)
+            switch (semanticInfo().doc->translationUnit()->tokenKind(firstToken - 1)) {
+            case T_EMIT: case T_Q_EMIT: --firstToken; break;
+            default: break;
+        }
+        const TranslationUnit *const tu = semanticInfo().doc->translationUnit();
+        const int startPos = tu->getTokenPositionInDocument(firstToken, textDocument());
+        const int endPos = tu->getTokenPositionInDocument(m_callAst->lastToken(), textDocument());
+
+        // Replace the old call with the new one.
+        ChangeSet changes;
+        changes.replace(startPos, endPos, newCall);
+
+        // Insert include for QMetaObject, if necessary.
+        const Identifier qMetaObjectId(qPrintable(qMetaObject), qMetaObject.size());
+        Scope * const scope = currentFile()->scopeAt(firstToken);
+        const QList<LookupItem> results = context().lookup(&qMetaObjectId, scope);
+        bool isDeclared = false;
+        for (const LookupItem &item : results) {
+            if (Symbol *declaration = item.declaration(); declaration && declaration->asClass()) {
+                isDeclared = true;
+                break;
+            }
+        }
+        if (!isDeclared) {
+            insertNewIncludeDirective('<' + qMetaObject + '>', currentFile(), semanticInfo().doc,
+                                      changes);
+        }
+
+        // Apply the changes.
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
+    }
+
+    const CallAST * const m_callAst;
+};
+} // namespace
+
+void ConvertToMetaMethodCall::doMatch(const CppQuickFixInterface &interface,
+                                      TextEditor::QuickFixOperations &result)
+{
+    const Document::Ptr &cppDoc = interface.currentFile()->cppDocument();
+    const QList<AST *> path = ASTPath(cppDoc)(interface.cursor());
+    if (path.isEmpty())
+        return;
+
+    // Are we on a member function call?
+    CallAST *callAst = nullptr;
+    for (auto it = path.crbegin(); it != path.crend(); ++it) {
+        if ((callAst = (*it)->asCall()))
+            break;
+    }
+    if (!callAst || !callAst->base_expression)
+        return;
+    ExpressionAST *baseExpr = nullptr;
+    const NameAST *nameAst = nullptr;
+    if (const MemberAccessAST * const ast = callAst->base_expression->asMemberAccess()) {
+        baseExpr = ast->base_expression;
+        nameAst = ast->member_name;
+    }
+    if (!baseExpr || !nameAst || !nameAst->name)
+        return;
+
+    // Locate called function and check whether it is invokable.
+    Scope *scope = cppDoc->globalNamespace();
+    for (auto it = path.crbegin(); it != path.crend(); ++it) {
+        if (const CompoundStatementAST * const stmtAst = (*it)->asCompoundStatement()) {
+            scope = stmtAst->symbol;
+            break;
+        }
+    }
+    const LookupContext context(cppDoc, interface.snapshot());
+    TypeOfExpression exprType;
+    exprType.setExpandTemplates(true);
+    exprType.init(cppDoc, interface.snapshot());
+    const QList<LookupItem> typeMatches = exprType(callAst->base_expression, cppDoc, scope);
+    for (const LookupItem &item : typeMatches) {
+        if (const auto func = item.type()->asFunctionType(); func && func->methodKey()) {
+            result << new ConvertToMetaMethodCallOp(interface, callAst);
+            return;
+        }
+    }
+}
+
 void createCppQuickFixes()
 {
     new AddIncludeForUndefinedIdentifier;
@@ -9860,6 +10002,7 @@ void createCppQuickFixes()
     new GenerateConstructor;
     new ConvertCommentStyle;
     new MoveFunctionComments;
+    new ConvertToMetaMethodCall;
 }
 
 void destroyCppQuickFixes()
