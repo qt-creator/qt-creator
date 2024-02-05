@@ -60,7 +60,10 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     run();
 }
 
-DocumentClangToolRunner::~DocumentClangToolRunner() = default;
+DocumentClangToolRunner::~DocumentClangToolRunner()
+{
+    qDeleteAll(m_marks);
+}
 
 FilePath DocumentClangToolRunner::filePath() const
 {

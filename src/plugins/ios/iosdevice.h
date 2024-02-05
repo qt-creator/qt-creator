@@ -9,6 +9,8 @@
 
 #include <solutions/tasking/tasktree.h>
 
+#include <QMessageBox>
+#include <QPointer>
 #include <QTimer>
 
 #include <unordered_map>
@@ -83,6 +85,7 @@ private:
     std::unordered_map<QString, std::unique_ptr<Tasking::TaskTree>> m_updateTasks; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
+    QPointer<QMessageBox> m_devModeDialog;
 };
 
 void setupIosDevice();

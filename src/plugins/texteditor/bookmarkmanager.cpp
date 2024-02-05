@@ -311,7 +311,7 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
     BookmarkManager *manager = &bookmarkManager();
     Bookmark *bk = manager->bookmarkForIndex(index);
-    if (!manager->gotoBookmark(bk))
+    if (bk && !manager->gotoBookmark(bk))
         manager->deleteBookmark(bk);
 }
 
@@ -647,6 +647,7 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 
 bool BookmarkManager::gotoBookmark(const Bookmark *bookmark) const
 {
+    QTC_ASSERT(bookmark, return false);
     if (IEditor *editor = EditorManager::openEditorAt(
             Utils::Link(bookmark->filePath(), bookmark->lineNumber()))) {
         return editor->currentLine() == bookmark->lineNumber();
