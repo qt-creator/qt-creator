@@ -90,6 +90,7 @@ public:
 
     ActionBuilder &bindContextAction(QAction **dest);
     ActionBuilder &bindContextAction(Utils::Action **dest);
+    ActionBuilder &bindCommand(Command **dest);
     ActionBuilder &augmentActionWithShortcutToolTip();
 
     Utils::Id id() const;

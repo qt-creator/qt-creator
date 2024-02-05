@@ -375,6 +375,13 @@ ActionBuilder &ActionBuilder::bindContextAction(Utils::Action **dest)
     return *this;
 }
 
+ActionBuilder &ActionBuilder::bindCommand(Command **dest)
+{
+    QTC_ASSERT(dest, return *this);
+    *dest = d->command;
+    return *this;
+}
+
 ActionBuilder &ActionBuilder::augmentActionWithShortcutToolTip()
 {
     d->command->augmentActionWithShortcutToolTip(d->contextAction());
