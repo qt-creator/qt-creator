@@ -47,6 +47,9 @@ public:
     void addProject(Kit *k) const;
     void removeProject(Kit *k) const;
 
+signals:
+    void cmakePresetsUpdated();
+
 protected:
     class UpdateGuard
     {

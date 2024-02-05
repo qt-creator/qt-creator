@@ -8,6 +8,7 @@
 #include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectimporter.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectnodes.h"
 #include "cmakespecificsettings.h"
@@ -361,6 +362,8 @@ void CMakeManager::reloadCMakePresets()
     }
 
     project->setOldPresetKits(oldKits);
+
+    emit project->projectImporter()->cmakePresetsUpdated();
 
     Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     Core::ModeManager::setFocusToCurrentMode();

@@ -368,8 +368,21 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
     if (d->m_widgetsWereSetUp)
         d->reset(); // Reset before changing the importer!
 
+    if (d->m_importer) {
+        disconnect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+                   this, &TargetSetupPage::initializePage);
+    }
+
+
     d->m_importer = importer;
     d->m_importWidget->setVisible(d->m_importer);
+
+    if (d->m_importer) {
+        // FIXME: Needed for the refresh of CMake preset kits created by
+        // CMakeProjectImporter
+        connect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+                this, &TargetSetupPage::initializePage);
+    }
 
     if (d->m_widgetsWereSetUp)
         initializePage();
