@@ -48,7 +48,9 @@ clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreference
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
 
-bool parseConfigurationContent(const std::string &fileContent, clang::format::FormatStyle &style);
-bool parseConfigurationFile(const Utils::FilePath &filePath, clang::format::FormatStyle &style);
+Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+                                                    clang::format::FormatStyle &style);
+Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+                                                 clang::format::FormatStyle &style);
 
 } // ClangFormat

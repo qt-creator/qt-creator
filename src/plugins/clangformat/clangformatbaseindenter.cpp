@@ -849,7 +849,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
         return currentQtStyle(preferences);
 
     clang::format::FormatStyle currentSettingsStyle;
-    bool success = parseConfigurationFile(filePath, currentSettingsStyle);
+    const Utils::expected_str<void> success = parseConfigurationFile(filePath, currentSettingsStyle);
     QTC_ASSERT(success, return currentQtStyle(preferences));
 
     return currentSettingsStyle;
