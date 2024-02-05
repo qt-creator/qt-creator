@@ -25,6 +25,7 @@ public:
     Utils::FilePaths importCandidates() final;
     ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
 
+    Utils::FilePaths presetCandidates();
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,
                                    QString *warningMessage) const final;

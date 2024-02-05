@@ -147,19 +147,30 @@ static QString displayPresetName(const QString &presetName)
 
 FilePaths CMakeProjectImporter::importCandidates()
 {
-    FilePaths candidates;
+    FilePaths candidates = presetCandidates();
 
-    candidates << scanDirectory(projectFilePath().absolutePath(), "build");
+    if (candidates.isEmpty()) {
+        candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
-    const QList<Kit *> kits = KitManager::kits();
-    for (const Kit *k : kits) {
-        FilePath shadowBuildDirectory
-            = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
-                                                            k,
-                                                            QString(),
-                                                            BuildConfiguration::Unknown);
-        candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        const QList<Kit *> kits = KitManager::kits();
+        for (const Kit *k : kits) {
+            FilePath shadowBuildDirectory
+                = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
+                                                                k,
+                                                                QString(),
+                                                                BuildConfiguration::Unknown);
+            candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        }
     }
+
+    const FilePaths finalists = Utils::filteredUnique(candidates);
+    qCInfo(cmInputLog) << "import candidates:" << finalists;
+    return finalists;
+}
+
+FilePaths CMakeProjectImporter::presetCandidates()
+{
+    FilePaths candidates;
 
     for (const auto &configPreset : m_project->presetsData().configurePresets) {
         if (configPreset.hidden.value())
@@ -190,9 +201,7 @@ FilePaths CMakeProjectImporter::importCandidates()
         }
     }
 
-    const FilePaths finalists = Utils::filteredUnique(candidates);
-    qCInfo(cmInputLog) << "import candidates:" << finalists;
-    return finalists;
+    return candidates;
 }
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
