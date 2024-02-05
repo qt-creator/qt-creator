@@ -31,8 +31,13 @@ EffectNode::EffectNode(const QString &qenPath)
     m_description = node.description();
 
     const QList<Uniform *> uniforms = node.uniforms();
-    for (const Uniform *uniform : uniforms)
+    for (const Uniform *uniform : uniforms) {
         m_uniformNames.insert(uniform->name());
+        if (uniform->type() == Uniform::Type::Sampler) {
+            m_defaultImagesHash.insert(
+                uniform->name(), uniform->defaultValue().toString());
+        }
+    }
 }
 
 QString EffectNode::name() const

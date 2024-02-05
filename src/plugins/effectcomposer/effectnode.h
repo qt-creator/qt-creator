@@ -25,6 +25,7 @@ public:
     QString name() const;
     QString description() const;
     QString qenPath() const;
+    QHash<QString, QString> defaultImagesHash() const { return m_defaultImagesHash; }
 
     void setCanBeAdded(bool enabled);
 
@@ -40,6 +41,7 @@ private:
     QUrl m_iconPath;
     bool m_canBeAdded = true;
     QSet<QString> m_uniformNames;
+    QHash<QString, QString> m_defaultImagesHash;
 };
 
 } // namespace EffectComposer

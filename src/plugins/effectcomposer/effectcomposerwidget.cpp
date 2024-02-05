@@ -188,6 +188,11 @@ QPoint EffectComposerWidget::globalPos(const QPoint &point) const
     return point;
 }
 
+QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const QString &uniformName) const
+{
+    return m_effectComposerNodesModel->defaultImagesForNode(nodeName).value(uniformName);
+}
+
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};

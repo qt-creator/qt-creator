@@ -678,6 +678,12 @@ R"(
 
 void EffectComposerModel::saveComposition(const QString &name)
 {
+    if (name.isEmpty() || name.size() < 3 || name[0].isLower()) {
+        QString error = QString("Error: Couldn't save composition '%1', name is invalid").arg(name);
+        qWarning() << error;
+        return;
+    }
+
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
     const QString path = effectsAssetsDir + QDir::separator() + name + ".qep";
     auto saveFile = QFile(path);
@@ -708,9 +714,9 @@ void EffectComposerModel::saveComposition(const QString &name)
     saveFile.write(jsonDoc.toJson());
     saveFile.close();
     setCurrentComposition(name);
-    setHasUnsavedChanges(false);
 
     saveResources(name);
+    setHasUnsavedChanges(false);
 }
 
 void EffectComposerModel::openComposition(const QString &path)
@@ -808,24 +814,31 @@ void EffectComposerModel::saveResources(const QString &name)
     // Get effects dir
     const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
     const QString effectsResPath = effectsResDir.pathAppended(name).toString() + QDir::separator();
+    Utils::FilePath effectPath = Utils::FilePath::fromString(effectsResPath);
 
     // Create the qmldir for effects
-    Utils::FilePath qmldirPath = effectsResDir.resolvePath(QStringLiteral("qmldir"));
+    QString qmldirFileName("qmldir");
+    Utils::FilePath qmldirPath = effectsResDir.resolvePath(qmldirFileName);
     QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
         qmldirContent.append("module Effects\n");
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
     }
 
+    Utils::FilePaths oldFiles;
+    QStringList newFileNames;
+
     // Create effect folder if not created
-    Utils::FilePath effectPath = Utils::FilePath::fromString(effectsResPath);
     if (!effectPath.exists()) {
         QDir effectDir(effectsResDir.toString());
         effectDir.mkdir(name);
+    } else {
+        oldFiles = effectPath.dirEntries(QDir::Files);
     }
 
     // Create effect qmldir
-    qmldirPath = effectPath.resolvePath(QStringLiteral("qmldir"));
+    newFileNames.append(qmldirFileName);
+    qmldirPath = effectPath.resolvePath(qmldirFileName);
     qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
         qmldirContent.append("module Effects.");
@@ -857,13 +870,16 @@ void EffectComposerModel::saveResources(const QString &name)
     const QString qmlString = qmlStringList.join('\n');
     QString qmlFilePath = effectsResPath + qmlFilename;
     writeToFile(qmlString.toUtf8(), qmlFilePath, FileType::Text);
+    newFileNames.append(qmlFilename);
 
     // Save shaders and images
     QStringList sources = {m_vertexShaderFilename, m_fragmentShaderFilename};
     QStringList dests = {vsFilename, fsFilename};
 
+    QHash<QString, Uniform *> fileNameToUniformHash;
     const QList<Uniform *> uniforms = allUniforms();
-    for (const Uniform *uniform : uniforms) {
+    bool hasSampler = false;
+    for (Uniform *uniform : uniforms) {
         if (uniform->type() == Uniform::Type::Sampler && !uniform->value().toString().isEmpty()) {
             QString imagePath = uniform->value().toString();
             QFileInfo fi(imagePath);
@@ -874,6 +890,8 @@ void EffectComposerModel::saveResources(const QString &name)
             }
             sources.append(imagePath);
             dests.append(imageFilename);
+            fileNameToUniformHash.insert(imageFilename, uniform);
+            hasSampler = true;
         }
     }
 
@@ -893,11 +911,30 @@ void EffectComposerModel::saveResources(const QString &name)
     for (int i = 0; i < sources.count(); ++i) {
         Utils::FilePath source = Utils::FilePath::fromString(sources[i]);
         Utils::FilePath target = Utils::FilePath::fromString(effectsResPath + dests[i]);
+        newFileNames.append(target.fileName());
         if (target.exists() && source.fileName() != target.fileName())
             target.removeFile(); // Remove existing file for update
-
         if (!source.copyFile(target))
             qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
+
+        if (fileNameToUniformHash.contains(dests[i])) {
+            Uniform *uniform = fileNameToUniformHash[dests[i]];
+            const QVariant newValue = target.toString();
+            uniform->setDefaultValue(newValue);
+            uniform->setValue(newValue);
+        }
+    }
+
+    // Delete old content that was not overwritten
+    for (const Utils::FilePath &oldFile : oldFiles) {
+        if (!newFileNames.contains(oldFile.fileName()))
+            oldFile.removeFile();
+    }
+
+    // Refresh UI to update sampler UrlChoosers
+    if (hasSampler) {
+        beginResetModel();
+        endResetModel();
     }
 
     emit resourcesSaved(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);

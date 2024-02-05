@@ -18,7 +18,8 @@ class Uniform : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString uniformName MEMBER m_displayName CONSTANT)
+    Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString uniformDisplayName MEMBER m_displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
     Q_PROPERTY(QString uniformControlType READ controlTypeName CONSTANT)
     Q_PROPERTY(QString uniformDescription READ description CONSTANT)
@@ -26,7 +27,7 @@ class Uniform : public QObject
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
     Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
-    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue CONSTANT)
+    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue NOTIFY uniformDefaultValueChanged)
     Q_PROPERTY(QVariant uniformUseCustomValue MEMBER m_useCustomValue CONSTANT)
 
 public:
@@ -52,6 +53,7 @@ public:
 
     QVariant value() const;
     void setValue(const QVariant &newValue);
+    void setDefaultValue(const QVariant &newValue);
 
     QVariant backendValue() const;
 
@@ -80,6 +82,7 @@ public:
 signals:
     void uniformValueChanged();
     void uniformBackendValueChanged();
+    void uniformDefaultValueChanged();
 
 private:
     QString mipmapPropertyName(const QString &name) const;

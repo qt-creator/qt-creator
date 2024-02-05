@@ -50,7 +50,7 @@ Item {
         anchors.fill: parent
 
         Text {
-            text: uniformName
+            text: uniformDisplayName
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             horizontalAlignment: Text.AlignRight

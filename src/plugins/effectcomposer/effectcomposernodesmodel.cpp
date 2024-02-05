@@ -68,7 +68,10 @@ void EffectComposerNodesModel::loadModel()
         QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
-            effects.push_back(new EffectNode(itEffects.filePath()));
+            auto node = new EffectNode(itEffects.filePath());
+            if (!node->defaultImagesHash().isEmpty())
+                m_defaultImagesHash.insert(node->name(), node->defaultImagesHash());
+            effects.push_back(node);
         }
 
         catName[0] = catName[0].toUpper(); // capitalize first letter
@@ -106,6 +109,11 @@ void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms)
             node->setCanBeAdded(!match);
         }
     }
+}
+
+QHash<QString, QString> EffectComposerNodesModel::defaultImagesForNode(const QString &name) const
+{
+    return m_defaultImagesHash.value(name);
 }
 
 } // namespace EffectComposer

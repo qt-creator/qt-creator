@@ -102,6 +102,14 @@ void Uniform::setValue(const QVariant &newValue)
     }
 }
 
+void Uniform::setDefaultValue(const QVariant &newValue)
+{
+    if (m_defaultValue != newValue) {
+        m_defaultValue = newValue;
+        emit uniformDefaultValueChanged();
+    }
+}
+
 QVariant Uniform::defaultValue() const
 {
     return m_defaultValue;

@@ -19,8 +19,10 @@ Row {
 
         onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
 
-        function defaultAsString() {
-            let urlStr = uniformDefaultValue.toString()
+        function defaultAsString(defaultPath) {
+            if (!defaultPath)
+                return undefined
+            let urlStr = defaultPath.toString()
             urlStr = urlStr.replace(/^(file:\/{3})/, "")
 
             // Prepend slash if there is no drive letter
@@ -30,7 +32,24 @@ Row {
             return urlStr
         }
 
-        defaultItems: uniformDefaultValue ? [uniformDefaultValue.split('/').pop()] : undefined
-        defaultPaths: uniformDefaultValue ? [defaultAsString(uniformDefaultValue)] : undefined
+        Component.onCompleted: {
+            let originalPath = defaultAsString(
+                        EffectComposerBackend.rootView.uniformDefaultImage(nodeName, uniformName))
+            let originalName = originalPath ? originalPath.split('/').pop() : undefined
+            if (originalName) {
+                defaultItems = [originalName]
+                defaultPaths = [originalPath]
+            } else {
+                let currentPath = uniformDefaultValue ? defaultAsString(uniformDefaultValue) : undefined
+                let currentName = currentPath ? currentPath.split('/').pop() : undefined
+                if (currentName) {
+                    defaultItems = [currentName]
+                    defaultPaths = [currentPath]
+                } else {
+                    defaultItems = []
+                    defaultPaths = []
+                }
+            }
+        }
     }
 }
