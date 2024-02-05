@@ -201,6 +201,8 @@ FilePaths CMakeProjectImporter::presetCandidates()
         }
     }
 
+    m_hasCMakePresets = !candidates.isEmpty();
+
     return candidates;
 }
 
@@ -217,6 +219,22 @@ Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
     m_project->setOldPresetKits({});
 
     return ProjectImporter::preferredTarget(possibleTargets);
+}
+
+bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
+{
+    if (!m_hasCMakePresets)
+        return true;
+
+    const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetConfigItem.isNull())
+        return false;
+
+    const QString presetName = presetConfigItem.expandedValue(k);
+    return std::find_if(m_project->presetsData().configurePresets.cbegin(),
+                        m_project->presetsData().configurePresets.cend(),
+                        [&presetName](const auto &preset) { return presetName == preset.name; })
+           != m_project->presetsData().configurePresets.cend();
 }
 
 static CMakeConfig configurationFromPresetProbe(
