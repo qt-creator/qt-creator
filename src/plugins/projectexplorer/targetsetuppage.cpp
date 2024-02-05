@@ -569,8 +569,11 @@ void TargetSetupPagePrivate::doInitializePage()
     setupWidgets();
     setupImports();
 
-    selectAtLeastOneEnabledKit();
+    const QString filterText = m_importer ? m_importer->kitFilterText() : QString{};
+    kitFilterLineEdit->setText(filterText);
+    kitFilterLineEdit->filterChanged(filterText);
 
+    selectAtLeastOneEnabledKit();
     updateVisibility();
 }
 

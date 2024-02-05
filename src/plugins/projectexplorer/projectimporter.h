@@ -36,6 +36,7 @@ public:
     virtual const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
     virtual Utils::FilePaths importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
+    virtual QString kitFilterText() { return QString(); }
 
     bool isUpdating() const { return m_isUpdating; }
 
