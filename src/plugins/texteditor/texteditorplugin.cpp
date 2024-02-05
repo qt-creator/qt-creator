@@ -121,45 +121,49 @@ void TextEditorPlugin::initialize()
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
-    QAction *completionAction = new QAction(Tr::tr("Trigger Completion"), this);
-    Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Space") : Tr::tr("Ctrl+Space")));
-    connect(completionAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(Completion);
-    });
+    Command *command = nullptr;
+    ActionBuilder(this, Constants::COMPLETE_THIS)
+        .setText(Tr::tr("Trigger Completion"))
+        .setContext(context)
+        .bindCommand(&command)
+        .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(Completion);
+        });
+
     connect(command, &Command::keySequenceChanged, [command] {
         FancyLineEdit::setCompletionShortcut(command->keySequence());
     });
     FancyLineEdit::setCompletionShortcut(command->keySequence());
 
     // Add shortcut for invoking function hint completion
-    QAction *functionHintAction = new QAction(Tr::tr("Display Function Hint"), this);
-    command = ActionManager::registerAction(functionHintAction, Constants::FUNCTION_HINT, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+D")
-                                                                : Tr::tr("Ctrl+Shift+D")));
-    connect(functionHintAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(FunctionHint);
-    });
+    ActionBuilder(this, Constants::FUNCTION_HINT)
+        .setText(Tr::tr("Display Function Hint"))
+        .setContext(context)
+        .setDefaultKeySequence(Tr::tr("Meta+Shift+D"), Tr::tr("Ctrl+Shift+D"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(FunctionHint);
+        });
 
     // Add shortcut for invoking quick fix options
-    QAction *quickFixAction = new QAction(Tr::tr("Trigger Refactoring Action"), this);
-    Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
-    quickFixCommand->setDefaultKeySequence(QKeySequence(Tr::tr("Alt+Return")));
-    connect(quickFixAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(QuickFix);
-    });
+    ActionBuilder(this, Constants::QUICKFIX_THIS)
+        .setText(Tr::tr("Trigger Refactoring Action"))
+        .setContext(context)
+        .setDefaultKeySequence(Tr::tr("Alt+Return"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(QuickFix);
+        });
 
-    QAction *showContextMenuAction = new QAction(Tr::tr("Show Context Menu"), this);
-    ActionManager::registerAction(showContextMenuAction,
-                                  Constants::SHOWCONTEXTMENU,
-                                  context);
-    connect(showContextMenuAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->showContextMenu();
-    });
+    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
+        .setText(Tr::tr("Show Context Menu"))
+        .setContext(context)
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->showContextMenu();
+        });
 
     // Add text snippet provider.
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
