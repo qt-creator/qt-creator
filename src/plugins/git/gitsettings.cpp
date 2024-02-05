@@ -30,10 +30,13 @@ GitSettings::GitSettings()
     setAutoApply(false);
     setSettingsGroup("Git");
 
-    path.setDisplayStyle(StringAspect::LineEditDisplay);
     path.setLabelText(Tr::tr("Prepend to PATH:"));
+    path.setDisplayStyle(StringAspect::LineEditDisplay);
 
+    binaryPath.setLabelText(Tr::tr("Git Command"));
     binaryPath.setDefaultValue("git");
+    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setHistoryCompleter("Git.Command.History");
 
     pullRebase.setSettingsKey("PullRebase");
     pullRebase.setLabelText(Tr::tr("Pull with rebase"));
@@ -121,8 +124,9 @@ GitSettings::GitSettings()
         return Column {
             Group {
                 title(Tr::tr("Configuration")),
-                Column {
-                    Row { path },
+                Form {
+                    binaryPath, br,
+                    path, br,
                     winSetHomeEnvironment,
                 }
             },
