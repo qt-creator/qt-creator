@@ -1,0 +1,3 @@
+#pragma one
+
+void funcWithDocInside();

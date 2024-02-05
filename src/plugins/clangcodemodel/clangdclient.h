@@ -127,7 +127,7 @@ signals:
     void indexingFinished();
     void foundReferences(const Utils::SearchResultItems &items);
     void findUsagesDone();
-    void helpItemGathered(const Core::HelpItem &helpItem);
+    void helpItemGathered(const Core::HelpItem &helpItem, const QString &toolTip);
     void highlightingResultsReady(const TextEditor::HighlightingResults &results,
                                   const Utils::FilePath &file);
     void proposalReady(TextEditor::IAssistProposal *proposal);

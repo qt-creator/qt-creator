@@ -1507,10 +1507,9 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
         mark = type;
 
     const HelpItem helpItem(helpIds, filePath, mark, category);
+    q->hoverHandler()->setHelpItem(token, helpItem);
     if (isTesting)
-        emit q->helpItemGathered(helpItem);
-    else
-        q->hoverHandler()->setHelpItem(token, helpItem);
+        emit q->helpItemGathered(helpItem, q->hoverHandler()->toolTip());
 }
 
 // Unfortunately, clangd ignores almost everything except symbols when sending

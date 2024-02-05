@@ -670,13 +670,54 @@ public:
     ClangdTestTooltips()
     {
         setProjectFileName("tooltips.pro");
-        setSourceFileNames({"tooltips.cpp"});
+        setSourceFileNames({"main.cpp", "tooltips.cpp"});
     }
 
 private slots:
+    void testTooltipFromIndex();
+
     void test_data();
     void test();
 };
+
+void ClangdTestTooltips::testTooltipFromIndex()
+{
+    TextEditor::TextDocument * const doc = document("main.cpp");
+    QVERIFY(doc);
+    const auto editor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(doc->filePath()));
+    QVERIFY(editor);
+    QCOMPARE(editor->document(), doc);
+    QVERIFY(editor->editorWidget());
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop loop;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    HelpItem helpItem;
+    QString tooltip;
+    const auto handler = [&helpItem, &tooltip, &loop](const HelpItem &h, const QString &t) {
+        helpItem = h;
+        tooltip = t;
+        loop.quit();
+    };
+    connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
+
+    QTextCursor cursor(doc->document());
+    const int pos = Text::positionInText(doc->document(), 5, 5);
+    cursor.setPosition(pos);
+    editor->editorWidget()->processTooltipRequest(cursor);
+
+    timer.start(10000);
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+
+    QCOMPARE(int(helpItem.category()), HelpItem::Function);
+    QCOMPARE(helpItem.helpIds(), {"funcWithDocInside"});
+    if (client()->versionNumber().majorVersion() < 20)
+        QEXPECT_FAIL(nullptr, "Requires clangd >= 20", Continue);
+    QVERIFY2(tooltip.contains("Documentation in source file"), qPrintable(tooltip));
+}
 
 void ClangdTestTooltips::test_data()
 {
@@ -772,7 +813,7 @@ void ClangdTestTooltips::test()
 
     TextEditor::TextDocument * const doc = document("tooltips.cpp");
     QVERIFY(doc);
-    const auto editor = TextEditor::BaseTextEditor::currentTextEditor();
+    const auto editor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(doc->filePath()));
     QVERIFY(editor);
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());
