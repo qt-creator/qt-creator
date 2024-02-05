@@ -69,6 +69,11 @@ T.SpinBox {
     editable: true
     validator: control.decimals ? doubleValidator : intValidator
 
+    function checkAndClearFocus() {
+        if (!spinBoxIndicatorUp.activeFocus && !spinBoxIndicatorDown.activeFocus && !spinBoxInput.activeFocus)
+            control.focus = false
+    }
+
     DoubleValidator {
         id: doubleValidator
         locale: control.locale.name
@@ -132,7 +137,7 @@ T.SpinBox {
         __parentControl: control
 
         function handleEditingFinished() {
-            control.focus = false
+            control.checkAndClearFocus()
 
             // Keep the dirty state before calling setValueFromInput(),
             // it will be set to false (cleared) internally
@@ -146,7 +151,10 @@ T.SpinBox {
                 control.compressedValueModified()
         }
 
-        onEditingFinished: spinBoxInput.handleEditingFinished()
+        onEditingFinished: {
+            spinBoxInput.focus = false
+            spinBoxInput.handleEditingFinished()
+        }
     }
 
     background: Rectangle {

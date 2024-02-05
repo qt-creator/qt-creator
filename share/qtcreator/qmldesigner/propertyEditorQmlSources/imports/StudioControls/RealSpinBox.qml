@@ -90,6 +90,11 @@ T.SpinBox {
     value: 0
     to: 99
 
+    function checkAndClearFocus() {
+        if (!spinBoxIndicatorUp.activeFocus && !spinBoxIndicatorDown.activeFocus && !spinBoxInput.activeFocus)
+            control.focus = false
+    }
+
     validator: DoubleValidator {
         id: doubleValidator
         locale: control.locale.name
@@ -151,7 +156,7 @@ T.SpinBox {
         validator: doubleValidator
 
         function handleEditingFinished() {
-            control.focus = false
+            control.checkAndClearFocus()
 
             // Keep the dirty state before calling setValueFromInput(),
             // it will be set to false (cleared) internally
@@ -165,7 +170,11 @@ T.SpinBox {
                 control.compressedRealValueModified()
         }
 
-        onEditingFinished: spinBoxInput.handleEditingFinished()
+        onEditingFinished: {
+            spinBoxInput.focus = false
+            spinBoxInput.handleEditingFinished()
+        }
+
         onTextEdited: control.dirty = true
     }
 
