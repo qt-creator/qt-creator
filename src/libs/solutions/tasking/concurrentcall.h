@@ -41,7 +41,7 @@ private:
     template <typename Function, typename ...Args>
     void wrapConcurrent(Function &&function, Args &&...args)
     {
-        m_startHandler = [=] {
+        m_startHandler = [this, function = std::forward<Function>(function), args...] {
             QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
             return QtConcurrent::run(threadPool, function, args...);
         };
@@ -50,7 +50,7 @@ private:
     template <typename Function, typename ...Args>
     void wrapConcurrent(std::reference_wrapper<const Function> &&wrapper, Args &&...args)
     {
-        m_startHandler = [=] {
+        m_startHandler = [this, wrapper = std::forward<std::reference_wrapper<const Function>>(wrapper), args...] {
             QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
             return QtConcurrent::run(threadPool, std::forward<const Function>(wrapper.get()),
                                      args...);

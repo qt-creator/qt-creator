@@ -50,11 +50,11 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         ProjectInfo::ConstPtr projectInfo = nullptr;
     };
     const Storage<UpdateStorage> storage;
-    const auto onInfoGeneratorSetup = [=](Async<ProjectInfo::ConstPtr> &async) {
+    const auto onInfoGeneratorSetup = [this, infoGenerator](Async<ProjectInfo::ConstPtr> &async) {
         async.setConcurrentCallData(infoGenerator);
         async.setFutureSynchronizer(&m_futureSynchronizer);
     };
-    const auto onInfoGeneratorDone = [=](const Async<ProjectInfo::ConstPtr> &async) {
+    const auto onInfoGeneratorDone = [storage](const Async<ProjectInfo::ConstPtr> &async) {
         if (async.isResultAvailable())
             storage->projectInfo = async.result();
     };

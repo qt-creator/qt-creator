@@ -176,7 +176,7 @@ private:
     template <typename Function, typename ...Args>
     void wrapConcurrent(Function &&function, Args &&...args)
     {
-        m_startHandler = [=] {
+        m_startHandler = [this, function = std::forward<Function>(function), args...] {
             return asyncRun(m_threadPool, m_priority, function, args...);
         };
     }
@@ -184,7 +184,7 @@ private:
     template <typename Function, typename ...Args>
     void wrapConcurrent(std::reference_wrapper<const Function> &&wrapper, Args &&...args)
     {
-        m_startHandler = [=] {
+        m_startHandler = [this, wrapper = std::forward<std::reference_wrapper<const Function>>(wrapper), args...] {
             return asyncRun(m_threadPool, m_priority, std::forward<const Function>(wrapper.get()),
                             args...);
         };

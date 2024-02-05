@@ -44,7 +44,7 @@ LocatorMatcherTasks ExecuteFilter::matchers()
 
     Storage<LocatorStorage> storage;
 
-    const auto onSetup = [=] {
+    const auto onSetup = [this, storage] {
         const QString input = storage->input();
         LocatorFilterEntries entries;
         if (!input.isEmpty()) { // avoid empty entry
