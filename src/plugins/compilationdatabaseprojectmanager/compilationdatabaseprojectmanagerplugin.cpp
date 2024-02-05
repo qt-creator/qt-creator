@@ -56,7 +56,8 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
         ActionBuilder(this, CHANGEROOTDIR)
             .setText(Tr::tr("Change Root Directory"))
             .bindContextAction(&changeRootAction)
-            .addToContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT)
+            .addToContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT,
+                            ProjectExplorer::Constants::G_PROJECT_TREE)
             .addOnTriggered(ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
 
         const auto onProjectChanged = [changeRootAction] {
