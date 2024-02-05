@@ -306,9 +306,10 @@ void BookmarkView::removeAll()
 
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
-    Bookmark *bk = m_manager->bookmarkForIndex(index);
-    if (!m_manager->gotoBookmark(bk))
-        m_manager->deleteBookmark(bk);
+    if (Bookmark *bk = m_manager->bookmarkForIndex(index)) {
+        if (!m_manager->gotoBookmark(bk))
+            m_manager->deleteBookmark(bk);
+    }
 }
 
 ////
