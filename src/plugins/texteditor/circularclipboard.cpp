@@ -3,6 +3,8 @@
 
 #include "circularclipboard.h"
 
+#include <utils/algorithm.h>
+
 using namespace TextEditor::Internal;
 
 static const int kMaxSize = 10;
@@ -26,12 +28,9 @@ void CircularClipboard::collect(const std::shared_ptr<const QMimeData> &mimeData
 {
     //Avoid duplicates
     const QString text = mimeData->text();
-    for (auto it = m_items.begin(); it != m_items.end(); ++it) {
-        if (mimeData == *it || text == (*it)->text()) {
-            m_items.erase(it);
-            break;
-        }
-    }
+    Utils::eraseOne(m_items, [&](const std::shared_ptr<const QMimeData> &it) {
+        return mimeData == it || text == it->text();
+    });
     if (m_items.size() >= kMaxSize)
         m_items.removeLast();
     m_items.prepend(mimeData);
