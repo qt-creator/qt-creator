@@ -322,8 +322,8 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
 {
     if (!ExtensionSystem::PluginManager::isInitializationDone()) {
         connect(ExtensionSystem::PluginManager::instance(),
-                &ExtensionSystem::PluginManager::initializationDone,
-                this, [=] { remoteCommand(QStringList(), workingDirectory, args); });
+                &ExtensionSystem::PluginManager::initializationDone, this,
+                [this, workingDirectory, args] { remoteCommand({}, workingDirectory, args); });
         return nullptr;
     }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);

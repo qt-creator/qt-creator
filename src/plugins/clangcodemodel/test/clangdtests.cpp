@@ -1474,7 +1474,7 @@ void ClangdTestHighlighting::test()
     const auto lessThan = [=](const TextEditor::HighlightingResult &r, int) {
         return Text::positionInText(doc->document(), r.line, r.column) < startPos;
     };
-    const auto findResults = [=] {
+    const auto findResults = [this, endPos, lessThan, doc] {
         TextEditor::HighlightingResults results;
         auto it = std::lower_bound(m_results.cbegin(), m_results.cend(), 0, lessThan);
         if (it == m_results.cend())

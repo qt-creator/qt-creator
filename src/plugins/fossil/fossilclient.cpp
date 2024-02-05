@@ -708,7 +708,8 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
         if (VcsBaseEditorConfig *editorConfig = createAnnotateEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, file, revision, editorConfig] {
                 const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                 annotate(workingDir, file, line, revision, editorConfig->arguments());
             });
@@ -914,7 +915,8 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
         if (VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu, addAuthOptions] {
                 log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu,
                     addAuthOptions);
             });
@@ -969,7 +971,8 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
         if (VcsBaseEditorConfig *editorConfig = createLogCurrentFileEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu, addAuthOptions] {
                 logCurrentFile(workingDir, files, editorConfig->arguments(),
                                enableAnnotationContextMenu, addAuthOptions);
             });

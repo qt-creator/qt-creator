@@ -1135,10 +1135,8 @@ public:
         group->layout()->addWidget(editor->widget());
         layout->addWidget(group);
 
-        connect(editor->editorWidget()->textDocument(),
-                &TextEditor::TextDocument::contentsChanged,
-                this,
-                [=] { m_settings.setJson(editor->document()->contents()); });
+        connect(editor->editorWidget()->textDocument(), &TextEditor::TextDocument::contentsChanged,
+                this, [this, editor] { m_settings.setJson(editor->document()->contents()); });
     }
 
 private:

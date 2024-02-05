@@ -100,20 +100,23 @@ QWidget *IosBuildStep::createConfigWidget()
 
     updateDetails();
 
-    connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this, [=] {
+    connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this,
+            [this, buildArgumentsTextEdit, resetDefaultsButton, updateDetails] {
         setBaseArguments(ProcessArgs::splitArgs(buildArgumentsTextEdit->toPlainText(),
                                                 HostOsInfo::hostOs()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
         updateDetails();
     });
 
-    connect(resetDefaultsButton, &QAbstractButton::clicked, this, [=] {
+    connect(resetDefaultsButton, &QAbstractButton::clicked, this,
+            [this, buildArgumentsTextEdit, resetDefaultsButton] {
         setBaseArguments(defaultArguments());
         buildArgumentsTextEdit->setPlainText(ProcessArgs::joinArgs(baseArguments()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
     });
 
-    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this, [=] {
+    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this,
+            [this, extraArgumentsLineEdit] {
         setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text(),
                                                  HostOsInfo::hostOs()));
     });

@@ -4783,8 +4783,9 @@ public:
                 checkbox->setCheckState(Qt::Checked);
         };
         using Column = CandidateTreeItem::Column;
-        const auto createConnections = [=](QCheckBox *checkbox, Column column) {
-            connect(checkbox, &QCheckBox::stateChanged, [setCheckStateForAll, column](int state) {
+        const auto createConnections = [this, setCheckStateForAll, preventPartiallyChecked](
+                                           QCheckBox *checkbox, Column column) {
+            connect(checkbox, &QCheckBox::stateChanged, this, [setCheckStateForAll, column](int state) {
                 if (state != Qt::PartiallyChecked)
                     setCheckStateForAll(column, state);
             });

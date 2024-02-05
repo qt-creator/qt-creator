@@ -103,8 +103,9 @@ void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySi
     const PipPackage package(pySidePackageName);
     QObject::disconnect(m_watcherConnection);
     m_watcher.reset(new QFutureWatcher<PipPackageInfo>());
-    m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [=] {
-        this->handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
+    m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this,
+                                           [this, python, pySidePackageName] {
+        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher->setFuture(future);

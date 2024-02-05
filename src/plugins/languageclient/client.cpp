@@ -105,7 +105,7 @@ public:
     }
     void sendMessage(const JsonRpcMessage &message)
     {
-        QMetaObject::invokeMethod(m_interface, [=]() { m_interface->sendMessage(message); });
+        QMetaObject::invokeMethod(m_interface, [this, message] { m_interface->sendMessage(message); });
     }
     void resetBuffer()
     {
