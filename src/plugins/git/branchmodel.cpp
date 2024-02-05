@@ -757,7 +757,7 @@ std::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
     if (!node)
         return std::nullopt;
     if (node == remotesNode)
-        return {};
+        return QString(); // keep QString() as {} might convert to std::nullopt
     if (node->parent == remotesNode)
         return node->name;
     return std::nullopt;
