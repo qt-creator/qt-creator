@@ -1305,6 +1305,7 @@ bool StringAspect::bufferToInternal()
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
            return updateStorage(m_internal, *tmp);
+        return false;
     }
     return updateStorage(m_internal, m_buffer);
 }
@@ -1489,6 +1490,7 @@ bool FilePathAspect::bufferToInternal()
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
            return updateStorage(m_internal, *tmp);
+        return false;
     }
     return updateStorage(m_internal, m_buffer);
 }
