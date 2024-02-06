@@ -227,7 +227,8 @@ void BackendModel::addNewBackend()
 
         /* Add a property for non singleton types. For singletons just adding the import is enough. */
         if (!dialog.isSingleton()) {
-            m_connectionView->executeInTransaction("BackendModel::addNewBackend", [=, &dialog](){
+            m_connectionView->executeInTransaction("BackendModel::addNewBackend",
+                                                   [this, metaInfo, typeName, propertyName, &dialog] {
                 int minorVersion = metaInfo.minorVersion();
                 int majorVersion = metaInfo.majorVersion();
 

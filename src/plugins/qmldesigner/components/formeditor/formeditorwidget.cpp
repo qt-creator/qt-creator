@@ -628,11 +628,10 @@ DocumentWarningWidget *FormEditorWidget::errorWidget()
 {
     if (m_documentErrorWidget.isNull()) {
         m_documentErrorWidget = new DocumentWarningWidget(this);
-        connect(m_documentErrorWidget.data(),
-                &DocumentWarningWidget::gotoCodeClicked,
-                [=](const QString &, int codeLine, int codeColumn) {
-                    m_formEditorView->gotoError(codeLine, codeColumn);
-                });
+        connect(m_documentErrorWidget.data(), &DocumentWarningWidget::gotoCodeClicked,
+                [this](const QString &, int codeLine, int codeColumn) {
+            m_formEditorView->gotoError(codeLine, codeColumn);
+        });
     }
     return m_documentErrorWidget;
 }

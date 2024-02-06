@@ -374,7 +374,8 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
             signalHandlerName = addOnToSignalName(QString::fromUtf8(signalHandlerName)).toUtf8();
 
             connectionView()
-                ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
+                ->executeInTransaction("ConnectionModel::addConnection",
+                                       [this, nodeMetaInfo, signalHandlerName, &rootModelNode] {
                     ModelNode newNode = connectionView()
                                             ->createModelNode("QtQuick.Connections",
                                                               nodeMetaInfo.majorVersion(),

@@ -336,7 +336,8 @@ const QmlTimeline TimelineView::addNewTimeline()
 
     ModelNode timelineNode;
 
-    executeInTransaction("TimelineView::addNewTimeline", [=, &timelineNode]() {
+    executeInTransaction("TimelineView::addNewTimeline",
+                         [this, timelineType, metaInfo, &timelineNode] {
         bool hasTimelines = getTimelines().isEmpty();
         QString currentStateName = getStateName(this, hasTimelines);
 
@@ -371,7 +372,8 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
     ModelNode animationNode;
 
-    executeInTransaction("TimelineView::addAnimation", [=, &animationNode]() {
+    executeInTransaction("TimelineView::addAnimation",
+                         [this, timeline, animationType, metaInfo, &animationNode] {
         bool hasAnimations = getAnimations(timeline).isEmpty();
         QString currentStateName = getStateName(this, hasAnimations);
 

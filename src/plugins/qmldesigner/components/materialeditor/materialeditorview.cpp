@@ -459,7 +459,7 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
     if (parts.size() > 1)
         value = parts[1];
 
-    auto renderPreviews = [=](const QString &auxEnv, const QString &auxValue) {
+    auto renderPreviews = [this](const QString &auxEnv, const QString &auxValue) {
         rootModelNode().setAuxiliaryData(materialPreviewEnvDocProperty, auxEnv);
         rootModelNode().setAuxiliaryData(materialPreviewEnvProperty, auxEnv);
         rootModelNode().setAuxiliaryData(materialPreviewEnvValueDocProperty, auxValue);
@@ -491,13 +491,13 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
         });
 
         QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
-                         m_colorDialog, [=](const QColor &color) {
+                         m_colorDialog, [this, renderPreviews, env](const QColor &color) {
             renderPreviews(env, color.name());
             rootModelNode().setAuxiliaryData(materialPreviewColorDocProperty, color.name());
         });
 
-        QObject::connect(m_colorDialog, &QColorDialog::rejected,
-                         m_colorDialog, [=]() {
+        QObject::connect(m_colorDialog, &QColorDialog::rejected, m_colorDialog,
+                         [this, renderPreviews, oldEnv, oldValue] {
             renderPreviews(oldEnv, oldValue);
             initPreviewData();
         });
