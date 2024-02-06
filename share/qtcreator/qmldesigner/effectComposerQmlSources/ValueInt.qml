@@ -22,7 +22,7 @@ Row {
         value: uniformValue
         stepSize: 1
         decimals: 0
-        onValueModified: uniformValue = Math.round(value)
+        onValueChanged: uniformValue = Math.round(value)
     }
 
     StudioControls.Slider {

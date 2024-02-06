@@ -26,7 +26,7 @@ RowLayout {
         value: uniformValue.x
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.x = value
+        onValueChanged: uniformValue.x = value
     }
 
     Item { // spacer
@@ -62,7 +62,7 @@ RowLayout {
         value: uniformValue.y
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.y = value
+        onValueChanged: uniformValue.y = value
     }
 
     Item { // spacer

@@ -26,7 +26,7 @@ RowLayout {
         value: uniformValue.x
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.x = value
+        onValueChanged: uniformValue.x = value
     }
 
     Item { // spacer
@@ -62,7 +62,7 @@ RowLayout {
         value: uniformValue.y
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.y = value
+        onValueChanged: uniformValue.y = value
     }
 
     Item { // spacer
@@ -98,7 +98,7 @@ RowLayout {
         value: uniformValue.z
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.z = value
+        onValueChanged: uniformValue.z = value
     }
 
     Item { // spacer
@@ -134,7 +134,7 @@ RowLayout {
         value: uniformValue.w
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue.w = value
+        onValueChanged: uniformValue.w = value
     }
 
     Item { // spacer

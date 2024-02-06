@@ -22,7 +22,7 @@ Row {
         value: uniformValue
         stepSize: .01
         decimals: 2
-        onValueModified: uniformValue = value
+        onValueChanged: uniformValue = value
     }
 
     StudioControls.Slider {
