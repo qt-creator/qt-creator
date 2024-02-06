@@ -617,6 +617,35 @@ def qdumpHelper__std__string__MSVC(d, value, charType, format):
     d.putCharArrayHelper(data, size, charType, format)
 
 
+def qdump__std__basic_string_view(d, value):
+    innerType = value.type[0]
+    qdumpHelper_std__string_view(d, value, innerType, d.currentItemFormat())
+
+
+def qdump__std__string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char"), d.currentItemFormat())
+
+
+def qdump__std__u16string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char16_t"), d.currentItemFormat())
+
+
+def qdumpHelper_std__string_view(d, value, charType, format):
+    if d.isMsvcTarget():
+        qdumpHelper__std__string__view_MSVC(d, value, charType, format)
+        return
+
+    data = value["_M_str"].pointer()
+    size = int(value["_M_len"])
+    d.putCharArrayHelper(data, size, charType, format)
+
+
+def qdumpHelper__std__string__view_MSVC(d, value, charType, format):
+    data = value["_Mydata"].pointer()
+    size = int(value["_Mysize"])
+    d.putCharArrayHelper(data, size, charType, format)
+
+
 def qdump__std____weak_ptr(d, value):
     return qdump__std__shared_ptr(d, value)
 

@@ -5300,6 +5300,25 @@ void tst_Dumpers::dumper_data()
                + Check("wstr", "\"eeee\"", "std::wstring");
 
 
+    QTest::newRow("StdStringView")
+            << Data("#include <string>\n"
+                    "#include <string_view>\n",
+
+                    "std::string str(\"test\");\n"
+                    "std::u16string u16str(u\"test\");\n"
+                    "std::string_view view = str;\n"
+                    "std::u16string_view u16view = u16str;\n"
+                    "std::basic_string_view<char, std::char_traits<char>> basicview = str;\n"
+                    "std::basic_string_view<char16_t, std::char_traits<char16_t>> u16basicview = u16str;\n",
+
+                    "&view, &u16view, basicview, u16basicview")
+
+               + Check("view", "\"test\"", "std::string_view")
+               + Check("u16view", "\"test\"", "std::u16string_view")
+               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
+               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
+
+
     QTest::newRow("StdStringQt")
             << Data("#include <string>\n"
                     "#include <vector>\n"
