@@ -199,7 +199,9 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
             m_tempDir.filePath(filesToCopy.pwsh.script.fileName()));
         rcPath.copyFile(tmpRc);
 
-        cmd.addArgs(QString("-noexit -command try { . \"%1\" } catch {}{1}").arg(tmpRc.nativePath()),
+        cmd.addArgs(QString("-noexit -command try { . \"%1\" } catch {Write-Host \"Shell "
+                            "integration error:\" $_}")
+                        .arg(tmpRc.nativePath()),
                     CommandLine::Raw);
     } else if (cmd.executable().baseName() == "cmd") {
         const FilePath rcPath = filesToCopy.clink.script;
