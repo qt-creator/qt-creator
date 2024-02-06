@@ -392,6 +392,8 @@ public:
 
 void tst_Async::onResultReady()
 {
+// TODO: Re-enable when QTBUG-119169 is fixed.
+#if 0
     { // lambda
         QObject context;
         QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {
@@ -425,6 +427,7 @@ void tst_Async::onResultReady()
         QCOMPARE(count, 2);
         QCOMPARE(obj.value, QString("there"));
     }
+#endif
     { // member
         QFuture<QString> f = Utils::asyncRun([] { return QString("Hi"); });
         ObjWithProperty obj;

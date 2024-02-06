@@ -57,6 +57,7 @@ public:
 #endif
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
+    void clearUndoRedoStacks() const;
 
     Model *currentModel() const;
     Model *documentModel() const;
@@ -87,6 +88,8 @@ public:
 
     Utils::FilePath projectFolder() const;
     bool hasProject() const;
+
+    void setModified();
 
 signals:
     void displayNameChanged(const QString &newFileName);

@@ -28,7 +28,7 @@
         \li Syntactic and \l{Semantic Highlighting}{semantic highlighting}
 
         \li Navigating in the code by using the \l{Searching with the Locator}
-            {locator}, \l{Moving to Symbol Definition or Declaration}
+            {locator}, \l{Move to symbol definition or declaration}
             {following symbols}, and so on
 
         \li Inspecting code by using the \l{Class View}{class browser}, the

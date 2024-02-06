@@ -218,7 +218,7 @@ bool AndroidDeployQtStep::init()
 
     if (!info.isValid()) {
         const auto dev =
-                static_cast<const AndroidDevice *>(DeviceKitAspect::device(kit()).data());
+                static_cast<const AndroidDevice *>(DeviceKitAspect::device(kit()).get());
         if (!dev) {
             reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
             return false;

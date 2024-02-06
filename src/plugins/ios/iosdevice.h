@@ -6,10 +6,11 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <solutions/tasking/tasktree.h>
 
+#include <QMessageBox>
+#include <QPointer>
 #include <QTimer>
 
 #include <unordered_map>
@@ -24,8 +25,8 @@ class IosDevice final : public ProjectExplorer::IDevice
 {
 public:
     using Dict = QMap<QString, QString>;
-    using ConstPtr = QSharedPointer<const IosDevice>;
-    using Ptr = QSharedPointer<IosDevice>;
+    using ConstPtr = std::shared_ptr<const IosDevice>;
+    using Ptr = std::shared_ptr<IosDevice>;
 
     enum class Handler { IosTool, DeviceCtl };
 
@@ -60,14 +61,6 @@ protected:
     mutable quint16 m_lastPort;
 };
 
-class IosDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    IosDeviceFactory();
-
-    bool canRestore(const Utils::Store &map) const override;
-};
-
 class IosDeviceManager : public QObject
 {
 public:
@@ -92,7 +85,10 @@ private:
     std::unordered_map<QString, std::unique_ptr<Tasking::TaskTree>> m_updateTasks; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
+    QPointer<QMessageBox> m_devModeDialog;
 };
+
+void setupIosDevice();
 
 } // namespace Internal
 } // namespace Ios

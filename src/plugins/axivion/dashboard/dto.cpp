@@ -27,11 +27,8 @@
 #include <QJsonDocument>
 
 #include <cmath>
-#include <cstdint>
-#include <initializer_list>
 #include <limits>
 #include <string>
-#include <typeinfo>
 #include <utility>
 
 namespace Axivion::Internal::Dto {
@@ -103,9 +100,7 @@ namespace Axivion::Internal::Dto {
     static QJsonObject toJsonObject(const QJsonValue &json)
     {
         if (json.isObject())
-        {
             return json.toObject();
-        }
         throw_json_type_conversion<std::map<QString, T>>(json.type());
     }
 
@@ -140,8 +135,7 @@ namespace Axivion::Internal::Dto {
         {
             QJsonParseError error;
             const QJsonDocument qjd = QJsonDocument::fromJson(json, &error);
-            if (error.error != QJsonParseError::ParseError::NoError)
-            {
+            if (error.error != QJsonParseError::ParseError::NoError) {
                 throw_invalid_dto_exception<T>(concat({
                     "Error parsing JSON - ",
                     to_std_string(error.error),
@@ -152,9 +146,7 @@ namespace Axivion::Internal::Dto {
                     }));
             }
             if (!qjd.isObject())
-            {
                 throw_invalid_dto_exception<T>("Error parsing JSON: parsed data is no JSON object");
-            }
             qjv = QJsonValue(qjd.object());
         }
         return deserialize_json<T>(qjv);
@@ -172,16 +164,11 @@ namespace Axivion::Internal::Dto {
         QJsonDocument qjd;
         {
             QJsonValue qjv = serialize_json(value);
-            if (qjv.isObject())
-            {
+            if (qjv.isObject()) {
                 qjd = QJsonDocument(qjv.toObject());
-            }
-            else if (qjv.isArray())
-            {
+            } else if (qjv.isArray()) {
                 qjd = QJsonDocument(qjv.toArray());
-            }
-            else
-            {
+            } else {
                 throw std::domain_error(concat({
                     "Error serializing JSON - value is not an object or array:",
                     to_std_string(qjv.type())
@@ -199,9 +186,7 @@ namespace Axivion::Internal::Dto {
         static std::nullptr_t deserialize(const QJsonValue &json)
         {
             if (json.isNull())
-            {
                 return nullptr;
-            }
             throw_json_type_conversion<std::nullptr_t>(json.type());
         }
 
@@ -222,9 +207,7 @@ namespace Axivion::Internal::Dto {
         static QString deserialize(const QJsonValue &json)
         {
             if (json.isString())
-            {
                 return json.toString();
-            }
             throw_json_type_conversion<QString>(json.type());
         }
 
@@ -245,9 +228,7 @@ namespace Axivion::Internal::Dto {
         static bool deserialize(const QJsonValue &json)
         {
             if (json.isBool())
-            {
                 return json.toBool();
-            }
             throw_json_type_conversion<bool>(json.type());
         }
 
@@ -268,15 +249,11 @@ namespace Axivion::Internal::Dto {
         static qint32 deserialize(const QJsonValue &json)
         {
             if (!json.isDouble())
-            {
                 throw_json_type_conversion<qint32>(json.type());
-            }
             const double rawValue = json.toDouble();
             const qint32 value = static_cast<qint32>(rawValue);
             if (static_cast<double>(value) != rawValue)
-            {
                 throw_json_value_conversion<qint32>(rawValue);
-            }
             return value;
         }
 
@@ -297,15 +274,11 @@ namespace Axivion::Internal::Dto {
         static qint64 deserialize(const QJsonValue &json)
         {
             if (!json.isDouble())
-            {
                 throw_json_type_conversion<qint64>(json.type());
-            }
             const double rawValue = json.toDouble();
             const qint64 value = static_cast<qint64>(rawValue);
             if (static_cast<double>(value) != rawValue)
-            {
                 throw_json_value_conversion<qint64>(rawValue);
-            }
             return value;
         }
 
@@ -330,24 +303,15 @@ namespace Axivion::Internal::Dto {
         static double deserialize(const QJsonValue &json)
         {
             if (json.isDouble())
-            {
                 return json.toDouble();
-            }
-            if (json.isString())
-            {
+            if (json.isString()) {
                 const QString rawValue = json.toString();
                 if (rawValue == deSerializerDoublePositiveInfinity)
-                {
                     return std::numeric_limits<double>::infinity();
-                }
                 if (rawValue == deSerializerDoubleNegativeInfinity)
-                {
                     return -std::numeric_limits<double>::infinity();
-                }
                 if (rawValue == deSerializerDoubleNAN)
-                {
                     return std::numeric_limits<double>::quiet_NaN();
-                }
                 throw_json_value_conversion<double>(rawValue);
             }
             throw_json_type_conversion<double>(json.type());
@@ -356,17 +320,11 @@ namespace Axivion::Internal::Dto {
         static QJsonValue serialize(const double &value)
         {
             if (value == std::numeric_limits<double>::infinity())
-            {
                 return { deSerializerDoublePositiveInfinity };
-            }
             if (value == -std::numeric_limits<double>::infinity())
-            {
                 return { deSerializerDoubleNegativeInfinity };
-            }
             if (std::isnan(value))
-            {
                 return { deSerializerDoubleNAN };
-            }
             return { value };
         }
 
@@ -382,17 +340,14 @@ namespace Axivion::Internal::Dto {
         static std::optional<T> deserialize(const QJsonValue &json)
         {
             if (json.isNull())
-            {
                 return std::nullopt;
-            }
             return deserialize_json<T>(json);
         }
 
         static QJsonValue serialize(const std::optional<T> &value)
         {
-            if (value.has_value()) {
+            if (value.has_value())
                 return serialize_json(*value);
-            }
             return serialize_json(nullptr);
         }
 
@@ -400,69 +355,46 @@ namespace Axivion::Internal::Dto {
         ~de_serializer() = delete;
     };
 
-    template<typename T>
-    class de_serializer<std::vector<T>> final
+    template<template<typename...> typename C, typename ...E>
+    class de_serializer<C<E...>> final
     {
     public:
+        using T = typename C<E...>::value_type;
+
+        static_assert(std::is_same_v<C<E...>, std::vector<T>>
+                          || std::is_same_v<C<E...>, std::unordered_set<T>>,
+                      "unsupported collection type");
+
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static std::vector<T> deserialize(const QJsonValue &json)
+        static C<E...> deserialize(const QJsonValue &json)
         {
             if (!json.isArray())
-            {
-                throw_json_type_conversion<std::vector<T>>(json.type());
-            }
+                throw_json_type_conversion<C<E...>>(json.type());
             const QJsonArray ja = json.toArray();
-            std::vector<T> value;
+            C<E...> value;
             value.reserve(ja.size());
-            for (const auto item : ja)
-            {
-                value.push_back(deserialize_json<T>(item));
+            for (const auto item : ja) {
+                if constexpr (std::is_same_v<C<E...>, std::vector<T>>) {
+                    value.push_back(deserialize_json<T>(item));
+                } else if constexpr (std::is_same_v<C<E...>, std::unordered_set<T>>) {
+                    value.insert(deserialize_json<T>(item));
+                } else {
+                    // static_assert(false, "unsupported collection type");
+                    // Compilation with the static_assert fails.
+                    // So, use class level static_assert + exception here.
+                    throw std::logic_error("unsupported collection type "
+                                           "(congrats, you reached code "
+                                           "that should be dead)");
+                }
             }
             return value;
         }
 
-        static QJsonValue serialize(const std::vector<T> &value)
+        static QJsonValue serialize(const C<E...> &value)
         {
             QJsonArray ja;
             for (const T &e : value)
-            {
                 ja.push_back(serialize_json(e));
-            }
-            return { ja };
-        }
-
-        de_serializer() = delete;
-        ~de_serializer() = delete;
-    };
-
-    template<typename T>
-    class de_serializer<std::unordered_set<T>> final
-    {
-    public:
-        // throws Axivion::Internal::Dto::invalid_dto_exception
-        static std::unordered_set<T> deserialize(const QJsonValue &json)
-        {
-            if (!json.isArray())
-            {
-                throw_json_type_conversion<std::unordered_set<T>>(json.type());
-            }
-            const QJsonArray ja = json.toArray();
-            std::unordered_set<T> value;
-            value.reserve(ja.size());
-            for (const auto item : ja)
-            {
-                value.insert(deserialize_json<T>(item));
-            }
-            return value;
-        }
-
-        static QJsonValue serialize(const std::unordered_set<T> &value)
-        {
-            QJsonArray ja;
-            for (const T &e : value)
-            {
-                ja.push_back(serialize_json(e));
-            }
             return { ja };
         }
 
@@ -481,9 +413,7 @@ namespace Axivion::Internal::Dto {
             std::map<QString, T> value;
             // value.reserve(jo.size());
             for (auto it = jo.constBegin(), end = jo.constEnd(); it != end; ++it)
-            {
                 value[it.key()] = deserialize_json<T>(it.value());
-            }
             return value;
         }
 
@@ -491,9 +421,7 @@ namespace Axivion::Internal::Dto {
         {
             QJsonObject jo;
             for (const auto &[key, val] : value)
-            {
                 jo.insert(key, serialize_json(val));
-            }
             return { jo };
         }
 
@@ -511,8 +439,7 @@ namespace Axivion::Internal::Dto {
         static T deserialize(const QJsonObject &jo, const QString &key)
         {
             const auto it = jo.constFind(key);
-            if (it == jo.constEnd())
-            {
+            if (it == jo.constEnd()) {
                 throw_invalid_dto_exception<T>(concat({
                     "Error parsing JSON: key not found ",
                     to_std_string(key)
@@ -552,23 +479,17 @@ namespace Axivion::Internal::Dto {
         {
             const auto it = jo.constFind(key);
             if (it == jo.constEnd())
-            {
                 return std::nullopt;
-            }
             const auto value = it.value();
             if (value.isNull())
-            {
                 return std::nullopt;
-            }
             return deserialize_json<T>(value);
         }
 
         static void serialize(QJsonObject &json, const QString &key, const std::optional<T> &value)
         {
             if (value.has_value())
-            {
                 serialize_field(json, key, *value);
-            }
         }
 
         field_de_serializer() = delete;
@@ -584,29 +505,17 @@ namespace Axivion::Internal::Dto {
         static Any deserialize(const QJsonValue &json)
         {
             if (json.isNull())
-            {
                 return Any();
-            }
             if (json.isString())
-            {
                 return Any(deserialize_json<QString>(json));
-            }
             if (json.isDouble())
-            {
                 return Any(deserialize_json<double>(json));
-            }
             if (json.isObject())
-            {
                 return Any(deserialize_json<Any::Map>(json));
-            }
             if (json.isArray())
-            {
                 return Any(deserialize_json<Any::Vector>(json));
-            }
             if (json.isBool())
-            {
                 return Any(deserialize_json<bool>(json));
-            }
             throw std::domain_error(concat({
                 "Unknown json value type: ",
                 to_std_string(json.type())
@@ -615,29 +524,17 @@ namespace Axivion::Internal::Dto {
 
         static QJsonValue serialize(const Any &value) {
             if (value.isNull())
-            {
                 return serialize_json(nullptr);
-            }
             if (value.isString())
-            {
                 return serialize_json(value.getString());
-            }
             if (value.isDouble())
-            {
                 return serialize_json(value.getDouble());
-            }
             if (value.isMap())
-            {
                 return serialize_json(value.getMap());
-            }
             if (value.isList())
-            {
                 return serialize_json(value.getList());
-            }
             if (value.isBool())
-            {
                 return serialize_json(value.getBool());
-            }
             throw std::domain_error("Unknown Axivion::Internal::Dto::any variant");
         }
 
@@ -678,7 +575,8 @@ namespace Axivion::Internal::Dto {
         return std::get<1>(this->data);
     }
 
-    const QString &Any::getString() const {
+    const QString &Any::getString() const
+    {
         return std::get<1>(this->data);
     }
 
@@ -749,10 +647,10 @@ namespace Axivion::Internal::Dto {
 
     // version
 
-    constexpr std::array<qint32, 4> ApiVersion::number{7,6,3,12797};
-    const QLatin1String ApiVersion::string{"7.6.3.12797"};
-    const QLatin1String ApiVersion::name{"7.6.3"};
-    const QLatin1String ApiVersion::timestamp{"2023-08-30 15:49:00 +00:00"};
+    constexpr std::array<qint32, 4> ApiVersion::number{7,7,2,13780};
+    const QLatin1String ApiVersion::string{"7.7.2.13780"};
+    const QLatin1String ApiVersion::name{"7.7.2"};
+    const QLatin1String ApiVersion::timestamp{"2024-01-10 07:39:35 +00:00"};
 
     // AnalyzedFileDto
 
@@ -911,6 +809,83 @@ namespace Axivion::Internal::Dto {
     QByteArray ChangePasswordFormDto::serialize() const
     {
         return serialize_bytes(*this);
+    }
+
+    // ColumnType
+
+    const QLatin1String ColumnTypeMeta::string{"string"};
+    const QLatin1String ColumnTypeMeta::number{"number"};
+    const QLatin1String ColumnTypeMeta::state{"state"};
+    const QLatin1String ColumnTypeMeta::boolean{"boolean"};
+    const QLatin1String ColumnTypeMeta::path{"path"};
+    const QLatin1String ColumnTypeMeta::tags{"tags"};
+    const QLatin1String ColumnTypeMeta::comments{"comments"};
+    const QLatin1String ColumnTypeMeta::owners{"owners"};
+
+    // throws std::range_error
+    ColumnType ColumnTypeMeta::strToEnum(QAnyStringView str)
+    {
+        if (str == ColumnTypeMeta::string)
+        {
+            return ColumnType::string;
+        }
+        if (str == ColumnTypeMeta::number)
+        {
+            return ColumnType::number;
+        }
+        if (str == ColumnTypeMeta::state)
+        {
+            return ColumnType::state;
+        }
+        if (str == ColumnTypeMeta::boolean)
+        {
+            return ColumnType::boolean;
+        }
+        if (str == ColumnTypeMeta::path)
+        {
+            return ColumnType::path;
+        }
+        if (str == ColumnTypeMeta::tags)
+        {
+            return ColumnType::tags;
+        }
+        if (str == ColumnTypeMeta::comments)
+        {
+            return ColumnType::comments;
+        }
+        if (str == ColumnTypeMeta::owners)
+        {
+            return ColumnType::owners;
+        }
+        throw std::range_error(concat({ "Unknown ColumnType str: ", to_std_string(str) }));
+    }
+
+    QLatin1String ColumnTypeMeta::enumToStr(ColumnType e)
+    {
+        switch (e)
+        {
+        case ColumnType::string:
+            return ColumnTypeMeta::string;
+        case ColumnType::number:
+            return ColumnTypeMeta::number;
+        case ColumnType::state:
+            return ColumnTypeMeta::state;
+        case ColumnType::boolean:
+            return ColumnTypeMeta::boolean;
+        case ColumnType::path:
+            return ColumnTypeMeta::path;
+        case ColumnType::tags:
+            return ColumnTypeMeta::tags;
+        case ColumnType::comments:
+            return ColumnTypeMeta::comments;
+        case ColumnType::owners:
+            return ColumnTypeMeta::owners;;
+        default:
+            throw std::domain_error(concat({
+                "Unknown ColumnType enum: ",
+                to_std_string(static_cast<int>(e))
+                }));
+        }
     }
 
     // ColumnTypeOptionDto
@@ -2362,6 +2337,15 @@ namespace Axivion::Internal::Dto {
         return ApiTokenTypeMeta::strToEnum(type);
     }
 
+    std::optional<ApiTokenType> ApiTokenCreationRequestDto::getOptionalTypeEnum() const
+    {
+        try {
+            return getTypeEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void ApiTokenCreationRequestDto::setTypeEnum(ApiTokenType newValue)
     {
         type = ApiTokenTypeMeta::enumToStr(newValue);
@@ -2507,6 +2491,15 @@ namespace Axivion::Internal::Dto {
         return ApiTokenTypeMeta::strToEnum(type);
     }
 
+    std::optional<ApiTokenType> ApiTokenInfoDto::getOptionalTypeEnum() const
+    {
+        try {
+            return getTypeEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void ApiTokenInfoDto::setTypeEnum(ApiTokenType newValue)
     {
         type = ApiTokenTypeMeta::enumToStr(newValue);
@@ -2607,7 +2600,7 @@ namespace Axivion::Internal::Dto {
         bool canSort,
         bool canFilter,
         TableCellAlignment alignment,
-        QString type,
+        ColumnType type,
         std::optional<std::vector<ColumnTypeOptionDto>> typeOptions,
         qint32 width,
         bool showByDefault,
@@ -2618,7 +2611,7 @@ namespace Axivion::Internal::Dto {
         std::move(canSort),
         std::move(canFilter),
         TableCellAlignmentMeta::enumToStr(alignment),
-        std::move(type),
+        ColumnTypeMeta::enumToStr(type),
         std::move(typeOptions),
         std::move(width),
         std::move(showByDefault),
@@ -2631,9 +2624,38 @@ namespace Axivion::Internal::Dto {
         return TableCellAlignmentMeta::strToEnum(alignment);
     }
 
+    std::optional<TableCellAlignment> ColumnInfoDto::getOptionalAlignmentEnum() const
+    {
+        try {
+            return getAlignmentEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void ColumnInfoDto::setAlignmentEnum(TableCellAlignment newValue)
     {
         alignment = TableCellAlignmentMeta::enumToStr(newValue);
+    }
+
+    // throws std::range_error
+    ColumnType ColumnInfoDto::getTypeEnum() const
+    {
+        return ColumnTypeMeta::strToEnum(type);
+    }
+
+    std::optional<ColumnType> ColumnInfoDto::getOptionalTypeEnum() const
+    {
+        try {
+            return getTypeEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
+    void ColumnInfoDto::setTypeEnum(ColumnType newValue)
+    {
+        type = ColumnTypeMeta::enumToStr(newValue);
     }
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
@@ -2864,6 +2886,15 @@ namespace Axivion::Internal::Dto {
         return IssueKindMeta::strToEnum(prefix);
     }
 
+    std::optional<IssueKind> IssueKindInfoDto::getOptionalPrefixEnum() const
+    {
+        try {
+            return getPrefixEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void IssueKindInfoDto::setPrefixEnum(IssueKind newValue)
     {
         prefix = IssueKindMeta::enumToStr(newValue);
@@ -3025,6 +3056,15 @@ namespace Axivion::Internal::Dto {
         return IssueKindMeta::strToEnum(kind);
     }
 
+    std::optional<IssueKind> LineMarkerDto::getOptionalKindEnum() const
+    {
+        try {
+            return getKindEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void LineMarkerDto::setKindEnum(IssueKind newValue)
     {
         kind = IssueKindMeta::enumToStr(newValue);
@@ -3049,8 +3089,8 @@ namespace Axivion::Internal::Dto {
         static RepositoryUpdateMessageDto deserialize(const QJsonValue &json) {
             const QJsonObject jo = toJsonObject<RepositoryUpdateMessageDto>(json);
             return {
-                deserialize_field<std::optional<QString>>(jo, repositoryUpdateMessageKeySeverity),
-                deserialize_field<std::optional<QString>>(jo, repositoryUpdateMessageKeyMessage)
+                deserialize_field<QString>(jo, repositoryUpdateMessageKeySeverity),
+                deserialize_field<QString>(jo, repositoryUpdateMessageKeyMessage)
             };
         }
 
@@ -3072,30 +3112,39 @@ namespace Axivion::Internal::Dto {
     }
 
     RepositoryUpdateMessageDto::RepositoryUpdateMessageDto(
-        std::optional<QString> severity,
-        std::optional<QString> message
+        QString severity,
+        QString message
     ) :
         severity(std::move(severity)),
         message(std::move(message))
     { }
 
     RepositoryUpdateMessageDto::RepositoryUpdateMessageDto(
-        std::optional<MessageSeverity> severity,
-        std::optional<QString> message
+        MessageSeverity severity,
+        QString message
     ) : RepositoryUpdateMessageDto(
-        optionalTransform<QString, MessageSeverity>(severity, MessageSeverityMeta::enumToStr),
+        MessageSeverityMeta::enumToStr(severity),
         std::move(message))
     { }
 
     // throws std::range_error
-    std::optional<MessageSeverity> RepositoryUpdateMessageDto::getSeverityEnum() const
+    MessageSeverity RepositoryUpdateMessageDto::getSeverityEnum() const
     {
-        return optionalTransform<MessageSeverity, QString>(severity, MessageSeverityMeta::strToEnum);
+        return MessageSeverityMeta::strToEnum(severity);
     }
 
-    void RepositoryUpdateMessageDto::setSeverityEnum(std::optional<MessageSeverity> newValue)
+    std::optional<MessageSeverity> RepositoryUpdateMessageDto::getOptionalSeverityEnum() const
     {
-        severity = optionalTransform<QString, MessageSeverity>(newValue, MessageSeverityMeta::enumToStr);
+        try {
+            return getSeverityEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
+    void RepositoryUpdateMessageDto::setSeverityEnum(MessageSeverity newValue)
+    {
+        severity = MessageSeverityMeta::enumToStr(newValue);
     }
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
@@ -3205,6 +3254,15 @@ namespace Axivion::Internal::Dto {
         return SortDirectionMeta::strToEnum(direction);
     }
 
+    std::optional<SortDirection> SortInfoDto::getOptionalDirectionEnum() const
+    {
+        try {
+            return getDirectionEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void SortInfoDto::setDirectionEnum(SortDirection newValue)
     {
         direction = SortDirectionMeta::enumToStr(newValue);
@@ -3272,24 +3330,35 @@ namespace Axivion::Internal::Dto {
     UserRefDto::UserRefDto(
         QString name,
         QString displayName,
-        std::optional<UserRefType> type,
+        UserRefType type,
         std::optional<bool> isPublic
     ) : UserRefDto(
         std::move(name),
         std::move(displayName),
-        optionalTransform<QString, UserRefType>(type, UserRefTypeMeta::enumToStr),
+        UserRefTypeMeta::enumToStr(type),
         std::move(isPublic))
     { }
 
     // throws std::range_error
-    std::optional<UserRefType> UserRefDto::getTypeEnum() const
+    UserRefType UserRefDto::getTypeEnum() const
     {
-        return optionalTransform<UserRefType, QString>(type, UserRefTypeMeta::strToEnum);
+        if (!type)
+            throw std::range_error("UserRefDto.type does not contain a value");
+        return UserRefTypeMeta::strToEnum(*type);
     }
 
-    void UserRefDto::setTypeEnum(std::optional<UserRefType> newValue)
+    std::optional<UserRefType> UserRefDto::getOptionalTypeEnum() const
     {
-        type = optionalTransform<QString, UserRefType>(newValue, UserRefTypeMeta::enumToStr);
+        try {
+            return getTypeEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
+    void UserRefDto::setTypeEnum(UserRefType newValue)
+    {
+        type = UserRefTypeMeta::enumToStr(newValue);
     }
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
@@ -3545,6 +3614,15 @@ namespace Axivion::Internal::Dto {
     IssueKind IssueDto::getKindEnum() const
     {
         return IssueKindMeta::strToEnum(kind);
+    }
+
+    std::optional<IssueKind> IssueDto::getOptionalKindEnum() const
+    {
+        try {
+            return getKindEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
     }
 
     void IssueDto::setKindEnum(IssueKind newValue)
@@ -3877,6 +3955,15 @@ namespace Axivion::Internal::Dto {
         return IssueKindForNamedFilterCreationMeta::strToEnum(kind);
     }
 
+    std::optional<IssueKindForNamedFilterCreation> NamedFilterCreateDto::getOptionalKindEnum() const
+    {
+        try {
+            return getKindEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     void NamedFilterCreateDto::setKindEnum(IssueKindForNamedFilterCreation newValue)
     {
         kind = IssueKindForNamedFilterCreationMeta::enumToStr(newValue);
@@ -3981,7 +4068,7 @@ namespace Axivion::Internal::Dto {
         QString displayName,
         std::optional<QString> url,
         bool isPredefined,
-        std::optional<NamedFilterType> type,
+        NamedFilterType type,
         bool canWrite,
         std::map<QString, QString> filters,
         std::optional<std::vector<SortInfoDto>> sorters,
@@ -3993,7 +4080,7 @@ namespace Axivion::Internal::Dto {
         std::move(displayName),
         std::move(url),
         std::move(isPredefined),
-        optionalTransform<QString, NamedFilterType>(type, NamedFilterTypeMeta::enumToStr),
+        NamedFilterTypeMeta::enumToStr(type),
         std::move(canWrite),
         std::move(filters),
         std::move(sorters),
@@ -4003,14 +4090,25 @@ namespace Axivion::Internal::Dto {
     { }
 
     // throws std::range_error
-    std::optional<NamedFilterType> NamedFilterInfoDto::getTypeEnum() const
+    NamedFilterType NamedFilterInfoDto::getTypeEnum() const
     {
-        return optionalTransform<NamedFilterType, QString>(type, NamedFilterTypeMeta::strToEnum);
+        if (!type)
+            throw std::range_error("NamedFilterInfoDto.type does not contain a value");
+        return NamedFilterTypeMeta::strToEnum(*type);
     }
 
-    void NamedFilterInfoDto::setTypeEnum(std::optional<NamedFilterType> newValue)
+    std::optional<NamedFilterType> NamedFilterInfoDto::getOptionalTypeEnum() const
     {
-        type = optionalTransform<QString, NamedFilterType>(newValue, NamedFilterTypeMeta::enumToStr);
+        try {
+            return getTypeEnum();
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
+    void NamedFilterInfoDto::setTypeEnum(NamedFilterType newValue)
+    {
+        type = NamedFilterTypeMeta::enumToStr(newValue);
     }
 
     // throws Axivion::Internal::Dto::invalid_dto_exception

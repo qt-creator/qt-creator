@@ -403,35 +403,46 @@ ActionSeparator::ActionSeparator(Id id)
     container->addSeparator();
 }
 
-// Menu
+// MenuBuilder
 
-Menu::Menu() = default;
-
-void Menu::setId(Id id)
+MenuBuilder::MenuBuilder(Id id)
 {
-    QTC_ASSERT(!m_menu, return);
     m_menu = ActionManager::createMenu(id);
 }
 
-void Menu::setTitle(const QString &title)
+MenuBuilder::~MenuBuilder() = default;
+
+MenuBuilder &MenuBuilder::setTitle(const QString &title)
 {
-    QTC_ASSERT(m_menu, return);
     m_menu->menu()->setTitle(title);
+    return *this;
 }
 
-void Menu::setContainer(Id containerId, Id groupId)
+MenuBuilder &MenuBuilder::setIcon(const QIcon &icon)
 {
-    QTC_ASSERT(m_menu, return);
+    m_menu->menu()->setIcon(icon);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior)
+{
+    m_menu->setOnAllDisabledBehavior(behavior);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::addToContainer(Id containerId, Id groupId)
+{
     ActionContainer *container = ActionManager::actionContainer(containerId);
-    container->addMenu(m_menu, groupId);
+    if (QTC_GUARD(container))
+        container->addMenu(m_menu, groupId);
+    return *this;
 }
 
-void Menu::addSeparator()
+MenuBuilder &MenuBuilder::addSeparator()
 {
-    QTC_ASSERT(m_menu, return);
     m_menu->addSeparator();
+    return *this;
 }
-
 /*!
     \class Core::ActionManager
     \inheaderfile coreplugin/actionmanager/actionmanager.h

@@ -150,7 +150,7 @@ public:
             return true;
         return ::CppEditor::Tests::waitForSignalOrTimeout(
             cppEditor->textDocument()->syntaxHighlighterRunner(),
-            &BaseSyntaxHighlighterRunner::highlightingFinished,
+            &SyntaxHighlighterRunner::highlightingFinished,
             5000);
     }
 

@@ -5,8 +5,6 @@
 
 #include "axivionoutputpane.h"
 #include "axivionprojectsettings.h"
-#include "axivionquery.h"
-#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
@@ -43,15 +41,32 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-#include <exception>
 #include <memory>
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
+using namespace Core;
+using namespace ProjectExplorer;
 using namespace Tasking;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Axivion::Internal {
+
+class Issue
+{
+public:
+    QString id;
+    QString state;
+    QString errorNumber;
+    QString message;
+    QString entity;
+    QString filePath;
+    QString severity;
+    int lineNumber = 0;
+};
+
+using Issues = QList<Issue>;
 
 QIcon iconForIssue(const QString &prefix)
 {
@@ -67,21 +82,62 @@ QIcon iconForIssue(const QString &prefix)
     return it.value();
 }
 
+QString anyToSimpleString(const Dto::Any &any)
+{
+    if (any.isString())
+        return any.getString();
+    if (any.isBool())
+        return QString("%1").arg(any.getBool());
+    if (any.isDouble())
+        return QString::number(any.getDouble());
+    if (any.isNull())
+        return QString(); // or NULL??
+    if (any.isList()) {
+        const std::vector<Dto::Any> anyList = any.getList();
+        QStringList list;
+        for (const Dto::Any &inner : anyList)
+            list << anyToSimpleString(inner);
+        return list.join(',');
+    }
+    if (any.isMap()) { // TODO
+        const std::map<QString, Dto::Any> anyMap = any.getMap();
+        auto value = anyMap.find("displayName");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+        value = anyMap.find("name");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
+    }
+    return {};
+}
+
 QString IssueListSearch::toQuery() const
 {
     if (kind.isEmpty())
         return {};
     QString result;
-    result.append(QString("?kind=%1&offset=%2&limit=%3").arg(kind).arg(offset).arg(limit));
+    result.append(QString("?kind=%1&offset=%2").arg(kind).arg(offset));
+    if (limit)
+        result.append(QString("&limit=%1").arg(limit));
     // TODO other params
     if (!versionStart.isEmpty()) {
         result.append(QString("&start=%1").arg(
-                          QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
+            QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
     }
     if (!versionEnd.isEmpty()) {
         result.append(QString("&end=%1").arg(
-                          QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
+            QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
     }
+    if (!owner.isEmpty()) {
+        result.append(QString("&user=%1").arg(
+            QString::fromUtf8((QUrl::toPercentEncoding(owner)))));
+    }
+    if (!filter_path.isEmpty()) {
+        result.append(QString("&filter_path=%1").arg(
+            QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
+    }
+    if (!state.isEmpty())
+        result.append(QString("&state=%1").arg(state));
     if (computeTotalRowCount)
         result.append("&computeTotalRowCount=true");
     return result;
@@ -92,53 +148,49 @@ class AxivionPluginPrivate : public QObject
 public:
     AxivionPluginPrivate();
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
-    void onStartupProjectChanged();
+    void onStartupProjectChanged(Project *project);
     void fetchProjectInfo(const QString &projectName);
-    void handleOpenedDocs(ProjectExplorer::Project *project);
-    void onDocumentOpened(Core::IDocument *doc);
-    void onDocumentClosed(Core::IDocument * doc);
+    void handleOpenedDocs();
+    void onDocumentOpened(IDocument *doc);
+    void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
-    void handleIssuesForFile(const IssuesList &issues);
-    void fetchRuleInfo(const QString &id);
+    void handleIssuesForFile(const Issues &issues);
+    void fetchIssueInfo(const QString &id);
 
     NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
+    Project *m_project = nullptr;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
+    std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
+    TaskTreeRunner m_issueInfoRunner;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
 
-class AxivionTextMark : public TextEditor::TextMark
+class AxivionTextMark : public TextMark
 {
 public:
-    AxivionTextMark(const FilePath &filePath, const ShortIssue &issue);
-
-private:
-    QString m_id;
+    AxivionTextMark(const FilePath &filePath, const Issue &issue)
+        : TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
+    {
+        const QString markText = issue.entity.isEmpty() ? issue.message
+                                                        : issue.entity + ": " + issue.message;
+        setToolTip(issue.errorNumber + " " + markText);
+        setIcon(iconForIssue("SV")); // FIXME adapt to the issue
+        setPriority(TextMark::NormalPriority);
+        setLineAnnotation(markText);
+        setActionsProvider([id = issue.id] {
+            auto action = new QAction;
+            action->setIcon(Utils::Icons::INFO.icon());
+            action->setToolTip(Tr::tr("Show rule details"));
+            QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
+            return QList{action};
+        });
+    }
 };
-
-AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
-    : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
-    , m_id(issue.id)
-{
-    const QString markText = issue.entity.isEmpty() ? issue.message
-                                                    : issue.entity + ": " + issue.message;
-    setToolTip(issue.errorNumber + " " + markText);
-    setIcon(iconForIssue("SV")); // FIXME adapt to the issue
-    setPriority(TextEditor::TextMark::NormalPriority);
-    setLineAnnotation(markText);
-    setActionsProvider([this]{
-       auto action = new QAction;
-       action->setIcon(Utils::Icons::INFO.icon());
-       action->setToolTip(Tr::tr("Show rule details"));
-       QObject::connect(action, &QAction::triggered,
-                        dd, [this]{ dd->fetchRuleInfo(m_id); });
-       return QList{action};
-    });
-}
 
 void fetchProjectInfo(const QString &projectName)
 {
@@ -158,7 +210,7 @@ bool handleCertificateIssue()
 {
     QTC_ASSERT(dd, return false);
     const QString serverHost = QUrl(settings().server.dashboard).host();
-    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+    if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Certificate Error"),
                               Tr::tr("Server certificate for %1 cannot be authenticated.\n"
                                      "Do you want to disable SSL verification for this server?\n"
                                      "Note: This can expose you to man-in-the-middle attack.")
@@ -199,17 +251,24 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
 #endif // ssl
 }
 
-void AxivionPluginPrivate::onStartupProjectChanged()
+void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        clearAllMarks();
-        m_currentProjectInfo = {};
-        m_axivionOutputPane.updateDashboard();
+    if (project == m_project)
         return;
-    }
 
-    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(project);
+    if (m_project)
+        disconnect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+
+    m_project = project;
+    clearAllMarks();
+    m_currentProjectInfo = {};
+    m_axivionOutputPane.updateDashboard();
+
+    if (!m_project)
+        return;
+
+    connect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
@@ -223,10 +282,66 @@ static QUrl urlForProject(const QString &projectName)
 
 static constexpr int httpStatusCodeOk = 200;
 static const QLatin1String jsonContentType{ "application/json" };
+static const QLatin1String htmlContentType{ "text/html" };
+
+static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
+{
+    struct StorageData
+    {
+        QByteArray credentials;
+    };
+
+    const Storage<StorageData> storage;
+
+    const auto onCredentialSetup = [storage] {
+        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
+    };
+
+    const auto onQuerySetup = [storage, url](NetworkQuery &query) {
+        QNetworkRequest request(url);
+        request.setRawHeader(QByteArrayLiteral("Accept"),
+                             QByteArray(htmlContentType.data(), htmlContentType.size()));
+        request.setRawHeader(QByteArrayLiteral("Authorization"),
+                             storage->credentials);
+        const QByteArray ua = QByteArrayLiteral("Axivion")
+                              + QCoreApplication::applicationName().toUtf8()
+                              + QByteArrayLiteral("Plugin/")
+                              + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        query.setRequest(request);
+        query.setNetworkAccessManager(&dd->m_networkAccessManager);
+    };
+
+    const auto onQueryDone = [url, handler](const NetworkQuery &query, DoneWith doneWith) {
+        QNetworkReply *reply = query.reply();
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
+                                        .toString()
+                                        .split(';')
+                                        .constFirst()
+                                        .trimmed()
+                                        .toLower();
+        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
+            && contentType == htmlContentType) {
+            handler(reply->readAll());
+            return DoneResult::Success;
+        }
+
+        return DoneResult::Error;
+    };
+
+    const Group recipe {
+        storage,
+        Sync(onCredentialSetup),
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+    };
+
+    return recipe;
+}
 
 template<typename SerializableType>
 static Group fetchDataRecipe(const QUrl &url,
-                             const std::function<void(const SerializableType &result)> &handler)
+                             const std::function<void(const SerializableType &)> &handler)
 {
     struct StorageData
     {
@@ -237,8 +352,7 @@ static Group fetchDataRecipe(const QUrl &url,
     const Storage<StorageData> storage;
 
     const auto onCredentialSetup = [storage] {
-        storage->credentials = QByteArrayLiteral("AxToken ")
-                              + settings().server.token.toUtf8();
+        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
     };
 
     const auto onQuerySetup = [storage, url](NetworkQuery &query) {
@@ -290,7 +404,7 @@ static Group fetchDataRecipe(const QUrl &url,
             return NetworkError(reply->url(), error, reply->errorString());
         };
 
-        Core::MessageManager::writeFlashing(
+        MessageManager::writeFlashing(
             QStringLiteral("Axivion: %1").arg(getError().message()));
         return DoneResult::Error;
     };
@@ -381,12 +495,27 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
+Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
+{
+    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+
+    QString dashboard = settings().server.dashboard;
+    if (!dashboard.endsWith(QLatin1Char('/')))
+        dashboard += QLatin1Char('/');
+
+    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("issues/"))
+                         .resolved(QString(issueId + '/'))
+                         .resolved(QString("properties"));
+
+    return fetchHtmlRecipe(url, handler);
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    if (m_taskTreeRunner.isRunning()) { // TODO: cache in queue and run when task tree finished
-        QTimer::singleShot(3000, this, [this, projectName] { fetchProjectInfo(projectName); });
+    if (!m_project)
         return;
-    }
+
     clearAllMarks();
     if (projectName.isEmpty()) {
         m_currentProjectInfo = {};
@@ -405,15 +534,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         const auto handler = [this](const Dto::ProjectInfoDto &data) {
             m_currentProjectInfo = data;
             m_axivionOutputPane.updateDashboard();
-            // handle already opened documents
-            if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
-                !buildSystem || !buildSystem->isParsing()) {
-                handleOpenedDocs(nullptr);
-            } else {
-                connect(ProjectExplorer::ProjectManager::instance(),
-                        &ProjectExplorer::ProjectManager::projectFinishedParsing,
-                        this, &AxivionPluginPrivate::handleOpenedDocs);
-            }
+            handleOpenedDocs();
         };
 
         const QUrl url(settings().server.dashboard);
@@ -435,96 +556,117 @@ Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
     return fetchDataRecipe<Dto::TableInfoDto>(url, handler);
 }
 
-void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
+void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
 {
-    if (m_runningQuery) {
-        QTimer::singleShot(3000, this, [this, id] { fetchRuleInfo(id); });
+    if (!m_currentProjectInfo)
         return;
-    }
 
-    const QStringList args = id.split(':');
-    QTC_ASSERT(args.size() == 2, return);
-    m_runningQuery = true;
-    AxivionQuery query(AxivionQuery::RuleInfo, args);
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        m_runningQuery = false;
-        m_axivionOutputPane.updateAndShowRule(ResultParser::parseRuleInfo(result));
-    });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    const auto ruleHandler = [](const QByteArray &htmlText) {
+        QByteArray fixedHtml = htmlText;
+        const int idx = htmlText.indexOf("<div class=\"ax-issuedetails-table-container\">");
+        if (idx >= 0)
+            fixedHtml = "<html><body>" + htmlText.mid(idx);
+        dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(fixedHtml));
+    };
+
+    m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
 }
 
-void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
+void AxivionPluginPrivate::handleOpenedDocs()
 {
-    if (project && ProjectExplorer::ProjectManager::startupProject() != project)
-        return;
-    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *doc : openDocuments)
+    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+    for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
-    if (project)
-        disconnect(ProjectExplorer::ProjectManager::instance(),
-                   &ProjectExplorer::ProjectManager::projectFinishedParsing,
-                   this, &AxivionPluginPrivate::handleOpenedDocs);
 }
 
 void AxivionPluginPrivate::clearAllMarks()
 {
-    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *doc : openDocuments)
+    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+    for (IDocument *doc : openDocuments)
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
+void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
-    if (!m_currentProjectInfo) // we do not have a project info (yet)
+    if (!doc || !m_currentProjectInfo || !m_project || !m_project->isKnownFile(doc->filePath()))
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    // TODO: Sometimes the isKnownFile() returns false after opening a session.
-    //       This happens randomly on linux.
-    if (!doc || !project->isKnownFile(doc->filePath()))
-        return;
+    IssueListSearch search;
+    search.kind = "SV";
+    search.filter_path = doc->filePath().relativeChildPath(m_project->projectDirectory()).path();
+    search.limit = 0;
 
-    const FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
-    // for now only style violations
-    const AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->name, "SV",
-                                                               relative.path()});
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        handleIssuesForFile(ResultParser::parseIssuesList(result));
+    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
+        Issues issues;
+        const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+        for (const auto &row : rows) {
+            Issue issue;
+            for (auto it = row.cbegin(); it != row.cend(); ++it) {
+                if (it->first == "id")
+                    issue.id = anyToSimpleString(it->second);
+                else if (it->first == "state")
+                    issue.state = anyToSimpleString(it->second);
+                else if (it->first == "errorNumber")
+                    issue.errorNumber = anyToSimpleString(it->second);
+                else if (it->first == "message")
+                    issue.message = anyToSimpleString(it->second);
+                else if (it->first == "entity")
+                    issue.entity = anyToSimpleString(it->second);
+                else if (it->first == "path")
+                    issue.filePath = anyToSimpleString(it->second);
+                else if (it->first == "severity")
+                    issue.severity = anyToSimpleString(it->second);
+                else if (it->first == "line")
+                    issue.lineNumber = anyToSimpleString(it->second).toInt();
+            }
+            issues << issue;
+        }
+        handleIssuesForFile(issues);
+    };
+
+    TaskTree *taskTree = new TaskTree;
+    taskTree->setRecipe(issueTableRecipe(search, issuesHandler));
+    m_docMarksTrees.insert_or_assign(doc, std::unique_ptr<TaskTree>(taskTree));
+    connect(taskTree, &TaskTree::done, this, [this, doc] {
+        const auto it = m_docMarksTrees.find(doc);
+        QTC_ASSERT(it != m_docMarksTrees.end(), return);
+        it->second.release()->deleteLater();
+        m_docMarksTrees.erase(it);
     });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    taskTree->start();
 }
 
-void AxivionPluginPrivate::onDocumentClosed(Core::IDocument *doc)
+void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 {
-    const auto document = qobject_cast<TextEditor::TextDocument *>(doc);
+    const auto document = qobject_cast<TextDocument *>(doc);
     if (!document)
         return;
 
-    const TextEditor::TextMarks marks = document->marks();
-    for (auto m : marks) {
-        if (m->category().id == AxivionTextMarkId)
-            delete m;
+    const auto it = m_docMarksTrees.find(doc);
+    if (it != m_docMarksTrees.end())
+        m_docMarksTrees.erase(it);
+
+    const TextMarks &marks = document->marks();
+    for (TextMark *mark : marks) {
+        if (mark->category().id == AxivionTextMarkId)
+            delete mark;
     }
 }
 
-void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
+void AxivionPluginPrivate::handleIssuesForFile(const Issues &issues)
 {
-    if (issues.issues.isEmpty())
+    if (issues.isEmpty())
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project)
         return;
 
     const FilePath filePath = project->projectDirectory()
-            .pathAppended(issues.issues.first().filePath);
+            .pathAppended(issues.first().filePath);
 
     const Id axivionId(AxivionTextMarkId);
-    for (const ShortIssue &issue : std::as_const(issues.issues)) {
+    for (const Issue &issue : issues) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
@@ -550,12 +692,11 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
         AxivionProjectSettings::setupProjectPanel();
 
-        connect(ProjectExplorer::ProjectManager::instance(),
-                &ProjectExplorer::ProjectManager::startupProjectChanged,
+        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 dd, &AxivionPluginPrivate::onStartupProjectChanged);
-        connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+        connect(EditorManager::instance(), &EditorManager::documentOpened,
                 dd, &AxivionPluginPrivate::onDocumentOpened);
-        connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
+        connect(EditorManager::instance(), &EditorManager::documentClosed,
                 dd, &AxivionPluginPrivate::onDocumentClosed);
     }
 };

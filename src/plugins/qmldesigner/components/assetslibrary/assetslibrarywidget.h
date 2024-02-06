@@ -80,7 +80,7 @@ public:
                                       const QString &targetDirPath = {});
 
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
-    Q_INVOKABLE void openEffectMaker(const QString &filePath);
+    Q_INVOKABLE void openEffectComposer(const QString &filePath);
     Q_INVOKABLE int qtVersion() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
     Q_INVOKABLE QSize imageSize(const QString &id);
@@ -92,7 +92,7 @@ public:
     Q_INVOKABLE void updateContextMenuActionsEnableState();
 
     Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
-    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openInEffectMaker = true);
+    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openInEffectComposer = true);
 
     Q_INVOKABLE bool canCreateEffects() const;
 
@@ -123,6 +123,8 @@ private:
 
     void setHasMaterialLibrary(bool enable);
     void setHasSceneEnv(bool b);
+
+    void handleDeleteEffects(const QStringList &effectNames);
 
     QSize m_itemIconSize;
 

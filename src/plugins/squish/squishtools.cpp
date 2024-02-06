@@ -1327,4 +1327,10 @@ void SquishTools::setupRunnerForRun()
             this, &SquishTools::logOutputReceived);
 }
 
+void setupSquishTools(QObject *guard)
+{
+    s_instance = new SquishTools;
+    s_instance->setParent(guard);
+}
+
 } // namespace Squish::Internal

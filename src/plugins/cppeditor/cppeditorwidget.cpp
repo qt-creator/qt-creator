@@ -388,7 +388,7 @@ public:
     SemanticInfo m_lastSemanticInfo;
 
     FunctionDeclDefLinkFinder *m_declDefLinkFinder;
-    QSharedPointer<FunctionDeclDefLink> m_declDefLink;
+    std::shared_ptr<FunctionDeclDefLink> m_declDefLink;
 
     QAction *m_parseContextAction = nullptr;
     ParseContextWidget *m_parseContextWidget = nullptr;
@@ -616,12 +616,11 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         cursor = textCursor();
 
     // First check if the symbol to be renamed comes from a generated file.
-    LinkHandler continuation = [=, self = QPointer(this)](const Link &link) {
+    LinkHandler continuation = [this, cursor, replacement, self = QPointer(this)](const Link &link) {
         if (!self)
             return;
         showRenameWarningIfFileIsGenerated(link.targetFilePath);
-        CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
-        QPointer<CppEditorWidget> cppEditorWidget = this;
+        const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         CppModelManager::globalRename(cursorInEditor, replacement);
     };
     CppModelManager::followSymbol(CursorInEditor{cursor,
@@ -847,7 +846,8 @@ void CppEditorWidget::renameSymbolUnderCursor()
 
     QPointer<CppEditorWidget> cppEditorWidget = this;
 
-    auto renameSymbols = [=](const QString &symbolName, const Links &links, int revision) {
+    auto renameSymbols = [this, cppEditorWidget](const QString &symbolName, const Links &links,
+                                                 int revision) {
         if (cppEditorWidget) {
             viewport()->setCursor(Qt::IBeamCursor);
 
@@ -1121,8 +1121,8 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
             auto *progressIndicatorMenuItem = new ProgressIndicatorMenuItem(menu);
             menu->addAction(progressIndicatorMenuItem);
 
-            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
-                    menu, [=] (SemanticInfo::LocalUseMap, bool success) {
+            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, menu,
+                    [this, menu, progressIndicatorMenuItem] (SemanticInfo::LocalUseMap, bool success) {
                 QTC_CHECK(success);
                 menu->removeAction(progressIndicatorMenuItem);
                 addRefactoringActions(menu);
@@ -1299,7 +1299,7 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
     return TextEditorWidget::createAssistInterface(kind, reason);
 }
 
-QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
+std::shared_ptr<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
 {
     return d->m_declDefLink;
 }
@@ -1357,7 +1357,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);
 }
 
-void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
+void CppEditorWidget::onFunctionDeclDefLinkFound(std::shared_ptr<FunctionDeclDefLink> link)
 {
     abortDeclDefLink();
     d->m_declDefLink = link;
@@ -1405,7 +1405,7 @@ void CppEditorWidget::abortDeclDefLink()
     }
 
     d->m_declDefLink->hideMarker(this);
-    d->m_declDefLink.clear();
+    d->m_declDefLink.reset();
 }
 
 void CppEditorWidget::showPreProcessorWidget()

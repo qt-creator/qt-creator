@@ -16,18 +16,6 @@ namespace ProjectExplorer { class ExtraCompiler; }
 
 namespace CppEditor {
 
-namespace Internal {
-
-// registered in extensionsystem's object pool for plugins with weak dependency to CppEditor
-class CppProjectUpdaterFactory final
-    : public ProjectExplorer::ProjectUpdaterFactory
-{
-public:
-    CppProjectUpdaterFactory();
-};
-
-} // namespace Internal
-
 class CPPEDITOR_EXPORT CppProjectUpdater final
     : public QObject, public ProjectExplorer::ProjectUpdater
 {
@@ -42,5 +30,7 @@ private:
     Utils::FutureSynchronizer m_futureSynchronizer;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
+
+void setupCppProjectUpdater();
 
 } // namespace CppEditor

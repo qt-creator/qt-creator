@@ -885,7 +885,8 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             stop(0);
     };
 
-    auto onResponseAppLaunch = [=](const SimulatorControl::Response &response) {
+    auto onResponseAppLaunch = [this, captureConsole, monitorPid, stdoutFile, stderrFile](
+                                   const SimulatorControl::Response &response) {
         if (response) {
             if (!isResponseValid(*response))
                 return;

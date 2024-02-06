@@ -7,14 +7,25 @@
 #include "cppeditortr.h"
 #include "cppquickfixsettingswidget.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 namespace CppEditor::Internal {
 
-CppQuickFixSettingsPage::CppQuickFixSettingsPage()
+class CppQuickFixSettingsPage : public Core::IOptionsPage
 {
-    setId(Constants::QUICK_FIX_SETTINGS_ID);
-    setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new CppQuickFixSettingsWidget; });
+public:
+    CppQuickFixSettingsPage()
+    {
+        setId(Constants::QUICK_FIX_SETTINGS_ID);
+        setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new CppQuickFixSettingsWidget; });
+    }
+};
+
+void setupCppQuickFixSettings()
+{
+    static CppQuickFixSettingsPage theCppQuickFixSettingsPage;
 }
 
 } // CppEditor::Internal

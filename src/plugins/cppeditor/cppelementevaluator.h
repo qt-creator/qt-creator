@@ -11,7 +11,6 @@
 #include <utils/utilsicons.h>
 
 #include <QFuture>
-#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
 #include <QTextCursor>
@@ -39,11 +38,10 @@ public:
     void setTextCursor(const QTextCursor &tc);
 
     void execute();
-    static QFuture<QSharedPointer<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
-    static QFuture<QSharedPointer<CppElement>> asyncExecute(const QString &expression,
+    static QFuture<std::shared_ptr<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
+    static QFuture<std::shared_ptr<CppElement>> asyncExecute(const QString &expression,
                                                             const Utils::FilePath &filePath);
-    bool identifiedCppElement() const;
-    const QSharedPointer<CppElement> &cppElement() const;
+    const std::shared_ptr<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
     const QString &diagnosis() const;
 

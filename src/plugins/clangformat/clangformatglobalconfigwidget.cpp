@@ -84,7 +84,9 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
     m_projectHasClangFormat = new QLabel(this);
     m_formattingModeLabel = new QLabel(Tr::tr("Formatting mode:"));
     m_fileSizeThresholdLabel = new QLabel(Tr::tr("Ignore files greater than:"));
+    m_fileSizeThresholdLabel->setToolTip(sizeThresholdToolTip);
     m_fileSizeThresholdSpinBox = new QSpinBox(this);
+    m_fileSizeThresholdSpinBox->setToolTip(sizeThresholdToolTip);
     m_indentingOrFormatting = new QComboBox(this);
     m_formatWhileTyping = new QCheckBox(Tr::tr("Format while typing"));
     m_formatOnSave = new QCheckBox(Tr::tr("Format edited code on file save"));

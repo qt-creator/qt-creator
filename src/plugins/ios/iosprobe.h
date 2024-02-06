@@ -5,7 +5,6 @@
 
 #include <utils/filepath.h>
 
-#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
 

@@ -38,7 +38,7 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
         setupMesonRunConfiguration();
         setupMesonRunAndDebugWorkers();
 
-        setupMesonActions();
+        setupMesonActions(this);
 
         ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
 

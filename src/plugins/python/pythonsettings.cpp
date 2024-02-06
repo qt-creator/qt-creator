@@ -5,7 +5,6 @@
 
 #include "pythonconstants.h"
 #include "pythonkitaspect.h"
-#include "pythonplugin.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -619,7 +618,7 @@ static QString defaultPylsConfiguration()
     return QString::fromUtf8(QJsonDocument(configuration).toJson());
 }
 
-static void disableOutdatedPylsNow()
+void PythonSettings::disableOutdatedPylsNow()
 {
     using namespace LanguageClient;
     const QList<BaseSettings *>
@@ -635,14 +634,14 @@ static void disableOutdatedPylsNow()
     }
 }
 
-static void disableOutdatedPyls()
+void PythonSettings::disableOutdatedPyls()
 {
     using namespace ExtensionSystem;
     if (PluginManager::isInitializationDone()) {
         disableOutdatedPylsNow();
     } else {
         QObject::connect(PluginManager::instance(), &PluginManager::initializationDone,
-                         pluginInstance(), &disableOutdatedPylsNow);
+                         this, &PythonSettings::disableOutdatedPylsNow);
     }
 }
 
@@ -1104,7 +1103,11 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     }
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, m_defaultInterpreterId);
-    settings->setValue(pylsConfigurationKey, m_pylsConfiguration);
+
+    settings->setValueWithDefault(pylsConfigurationKey,
+                                  m_pylsConfiguration,
+                                  defaultPylsConfiguration());
+
     settings->setValue(pylsEnabledKey, m_pylsEnabled);
     settings->setValue(kitsGeneratedKey, true);
     settings->endGroup();
@@ -1187,6 +1190,12 @@ Interpreter PythonSettings::interpreter(const QString &interpreterId)
 {
     return Utils::findOrDefault(settingsInstance->m_interpreters,
                                 Utils::equal(&Interpreter::id, interpreterId));
+}
+
+void setupPythonSettings(QObject *guard)
+{
+    new PythonSettings; // Initializes settingsInstance
+    settingsInstance->setParent(guard);
 }
 
 } // Python::Internal

@@ -1279,7 +1279,7 @@ KitAspect *CMakeConfigurationKitAspect::createKitAspect(Kit *k)
     return cmakeConfigurationKitAspectFactory().createKitAspect(k);
 }
 
-void CMakeKitAspect::createFactories()
+void Internal::setupCMakeKitAspects()
 {
     cmakeKitAspectFactory();
     cmakeGeneratorKitAspectFactory();

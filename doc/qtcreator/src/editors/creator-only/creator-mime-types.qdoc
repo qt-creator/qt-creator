@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -10,46 +10,52 @@
 /*!
     \previouspage creator-copilot.html
     \page creator-mime-types.html
-    \nextpage creator-modeling.html
+    \previouspage creator-how-tos.html
 
-    \title Editing MIME Types
+    \ingroup creator-how-to-configure-editors
+
+    \title Edit MIME types
 
     \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
-    {MIME type} of the file to determine which mode and editor to use for
-    opening the file. For example, \QC opens C++ source and header files in
-    the C++ editor, and Qt widget based UI files (.ui) in \QD.
-    For some MIME types, you can change the editor that is used to open the
+    {MIME type} of a file to determine what type of a file it is, so it can:
+
+    \list
+        \li Choose a mode and editor to open the file in.
+            For example, \QC opens C++ source and header files in
+            the C++ editor, and Qt widget based UI files (.ui) in \QD.
+        \li Offer code editing services, such as code formatting and
+            highlighting.
+        \li Feed files to the correct language server.
+        \li Sort files into headers and sources in \l Projects.
+    \endlist
+
+    For some MIME types, you can change the editor that \QC uses to open the
     files of that type by default.
 
     To identify the MIME type of a file, \QC uses matching by pattern and
     matching by contents. First, \QC looks at the filename to check whether it
-    matches the patterns specified for any MIME type. If no match is found, it
-    checks the contents of the file for magic headers specified for the file.
+    matches the patterns specified for any MIME type. If it does not find a match,
+    it checks the contents of the file for magic headers specified for the file.
 
-    The magic headers can have the following types of values: string, host,
-    big-endian, little-endian, and byte. \QC interprets the values according to
-    the
-    \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
-    {Shared MIME-info Database specification}.
 
     \QC searches for the value within a specified range in the files and takes
     the priority of the magic header into account. If you specify wide search
-    ranges, opening files in \QC might take a long time. Therefore, you are
-    advised to use the recommended values for the range and priority of the
-    magic header.
+    ranges, opening files in \QC might take a long time. Therefore, you should
+    use the recommended values for the range and priority of the magic header.
 
     If your files do not match the predefined MIME types, you can edit the
     MIME types to add filename extensions and magic headers. You cannot add
     new MIME types, however.
 
-    To edit MIME types:
+    \section1 Change predefined MIME types
+
+    To add file name extensions to MIME types:
 
     \list 1
 
-        \li Select \preferences >
-            \uicontrol Environment > \uicontrol {MIME Types}.
+        \li Go to \preferences > \uicontrol Environment > \uicontrol {MIME Types}.
 
-            \image qtcreator-mime-types.png "MIME Types"
+            \image qtcreator-mime-types.png {MIME Types}
 
         \li In \uicontrol {MIME Type}, select a MIME type.
 
@@ -62,44 +68,67 @@
         \li In \uicontrol Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.
 
-        \li Click \uicontrol Add to add \uicontrol {Magic Headers}.
+        \endlist
 
-            \image qtcreator-mime-types-magic-header.png "Magic Header"
+    \section1 Change default editor for a file type
 
-        \li In the \uicontrol Value field, specify a text string or bytes that
+    Even if an alternative editor is not listed for a MIME type, you can still
+    change the editor that is used to open the files of a particular type.
+    Remove the filename extension from the current MIME type and add it to a
+    MIME type that is handled by the editor you want to use.
+
+    For example, to edit Linux kernel device tree source (.dts) files with the text
+    editor, delete the pattern \c {*.dts} from the MIME type \c {audio/vnd.dts} (where
+    it represents the digital surround audio file format), and add it to the
+    \c {text/plain} MIME type.
+
+    Use the \uicontrol Filter field to find the MIME type that currently has a
+    filename extension.
+
+    \section1 Add magic headers
+
+    Magic headers can have the following types of values: string, host,
+    big-endian, little-endian, and byte. \QC interprets the values according to the
+    \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
+    {Shared MIME-info Database specification}.
+
+    \list 1
+
+        \li In \uicontrol {Mime Types}, select \uicontrol Add to add
+            \uicontrol {Magic Headers}.
+
+            \image qtcreator-mime-types-magic-header.png {Magic Header}
+
+        \li In \uicontrol Value, specify a text string or bytes that
             appear in the files.
 
-        \li In the \uicontrol Type field, select the type of the value.
+        \li In \uicontrol Type, select the type of the value.
 
-        \li In the \uicontrol Mask field, specify the number to combine the
+        \li In \uicontrol Mask, specify the number to combine the
             value in the file with using the AND operator before comparing it to
             the specified value. You can specify any numbers as masks for
             numerical types, whereas masks for strings must be in base 16, and
             start with 0x.
 
-            \note You are recommended not to change the range and priority
-            because it might cause problems when opening files in \QC.
+            \note Changing the range and priority might cause problems when
+            opening files in \QC.
 
-        \li Click \uicontrol OK to return to the \uicontrol {MIME Types} tab.
+        \li Select \uicontrol OK to return to the \uicontrol {MIME Types} tab.
 
     \endlist
 
-    Even if an alternative editor is not listed for a MIME type, you can still
-    change the editor that is used to open the files of a particular type.
-    Remove the filename extension from the current MIME type and add it to a
-    MIME type that is handled by the editor you want to use. For example, to
-    edit Linux kernel device tree source (.dts) files with the text editor,
-    delete the pattern \c {*.dts} from the MIME type \c {audio/vnd.dts} (where
-    it represents the digital surround audio file format), and add it to the
-    \c {text/plain} MIME type. You can use the \uicontrol Filter field to find
-    the MIME type that currently has a filename extension.
+    \section1 Reset MIME types
 
-    To revert the changes you have made to the MIME type definitions,
-    select \uicontrol {Reset MIME Types}. To revert the changes you have
-    made to the default editors, select \uicontrol {Reset Handlers}.
+    To revert the changes you made to MIME type definitions, select
+    \uicontrol {Reset MIME Types} in \uicontrol {MIME Types}.
+
+    To revert the changes you made to the default editors, select
+    \uicontrol {Reset Handlers}.
 
     \note If you select \uicontrol OK or \uicontrol Apply after reverting
     changes, you permanently lose all your own patterns and magic headers.
     They are removed the next time you start \QC.
+
+    \sa {Clang Code Model}, {Language Servers}
 
 */

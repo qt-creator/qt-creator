@@ -19,7 +19,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig)
     : IDeviceWidget(deviceConfig)
 {
-    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
 
     const auto formLayout = new QFormLayout(this);
@@ -36,7 +36,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
 
 void BareMetalDeviceConfigurationWidget::debugServerProviderChanged()
 {
-    const auto dev = qSharedPointerCast<BareMetalDevice>(device());
+    const auto dev = std::static_pointer_cast<BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
     dev->setDebugServerProviderId(m_debugServerProviderChooser->currentProviderId());
 }

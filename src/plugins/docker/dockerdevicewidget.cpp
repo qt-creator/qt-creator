@@ -31,7 +31,7 @@ namespace Docker::Internal {
 DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device), m_kitItemDetector(device)
 {
-    auto dockerDevice = device.dynamicCast<DockerDevice>();
+    auto dockerDevice = std::dynamic_pointer_cast<DockerDevice>(device);
     QTC_ASSERT(dockerDevice, return);
 
     DockerDeviceSettings *deviceSettings = static_cast<DockerDeviceSettings *>(device->settings());

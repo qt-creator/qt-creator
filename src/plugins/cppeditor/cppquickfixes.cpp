@@ -225,13 +225,12 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
                                const Document::Ptr &cppDocument)
 {
     // Find optimal position
-    using namespace IncludeUtils;
-    LineForNewIncludeDirective finder(file->filePath(), file->document(), cppDocument,
-                                      LineForNewIncludeDirective::IgnoreMocIncludes,
-                                      LineForNewIncludeDirective::AutoDetect);
     unsigned newLinesToPrepend = 0;
     unsigned newLinesToAppend = 0;
-    const int insertLine = finder(include, &newLinesToPrepend, &newLinesToAppend);
+    const int insertLine = lineForNewIncludeDirective(file->filePath(), file->document(),
+                                                      cppDocument, IgnoreMocIncludes, AutoDetect,
+                                                      include,
+                                                      &newLinesToPrepend, &newLinesToAppend);
     QTC_ASSERT(insertLine >= 1, return);
     const int insertPosition = file->position(insertLine, 1);
     QTC_ASSERT(insertPosition >= 0, return);
@@ -4784,8 +4783,9 @@ public:
                 checkbox->setCheckState(Qt::Checked);
         };
         using Column = CandidateTreeItem::Column;
-        const auto createConnections = [=](QCheckBox *checkbox, Column column) {
-            connect(checkbox, &QCheckBox::stateChanged, [setCheckStateForAll, column](int state) {
+        const auto createConnections = [this, setCheckStateForAll, preventPartiallyChecked](
+                                           QCheckBox *checkbox, Column column) {
+            connect(checkbox, &QCheckBox::stateChanged, this, [setCheckStateForAll, column](int state) {
                 if (state != Qt::PartiallyChecked)
                     setCheckStateForAll(column, state);
             });
@@ -5125,7 +5125,12 @@ public:
             funcDef.append(QLatin1String(" const"));
             funcDecl.append(QLatin1String(" const"));
         }
-        funcDef.append(QLatin1String("\n{"));
+        funcDef.append(QLatin1String("\n{\n"));
+        QString extract = currentFile->textOf(m_extractionStart, m_extractionEnd);
+        extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+        if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
+            extract.append(QLatin1Char('\n'));
+        funcDef.append(extract);
         if (matchingClass)
             funcDecl.append(QLatin1String(";\n"));
         if (m_funcReturn) {
@@ -5139,24 +5144,8 @@ public:
         funcDef.prepend(inlinePrefix(currentFile->filePath()));
         funcCall.append(QLatin1Char(';'));
 
-        // Get starting indentation from original code.
-        int indentedExtractionStart = m_extractionStart;
-        QChar current = currentFile->document()->characterAt(indentedExtractionStart - 1);
-        while (current == QLatin1Char(' ') || current == QLatin1Char('\t')) {
-            --indentedExtractionStart;
-            current = currentFile->document()->characterAt(indentedExtractionStart - 1);
-        }
-        QString extract = currentFile->textOf(indentedExtractionStart, m_extractionEnd);
-        extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-        if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
-            extract.append(QLatin1Char('\n'));
-
-        // Since we need an indent range and a nested reindent range (based on the original
-        // formatting) it's simpler to have two different change sets.
-        ChangeSet change;
-        int position = currentFile->startOf(m_refFuncDef);
-
         // Do not insert right between the function and an associated comment.
+        int position = currentFile->startOf(m_refFuncDef);
         const QList<Token> functionDoc = commentsForDeclaration(
             m_refFuncDef->symbol, m_refFuncDef, *currentFile->document(),
             currentFile->cppDocument());
@@ -5165,16 +5154,9 @@ public:
                 functionDoc.first(), currentFile->document());
         }
 
+        ChangeSet change;
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
-        currentFile->setChangeSet(change);
-        currentFile->apply();
-
-        QTextCursor tc = currentFile->document()->find(QLatin1String("{"), position);
-        QTC_ASSERT(tc.hasSelection(), return);
-        position = tc.selectionEnd() + 1;
-        change.clear();
-        change.insert(position, extract + '\n');
         currentFile->setChangeSet(change);
         currentFile->apply();
 
@@ -6431,7 +6413,7 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 {
 public:
     explicit ApplyDeclDefLinkOperation(const CppQuickFixInterface &interface,
-            const QSharedPointer<FunctionDeclDefLink> &link)
+            const std::shared_ptr<FunctionDeclDefLink> &link)
         : CppQuickFixOperation(interface, 100)
         , m_link(link)
     {}
@@ -6447,7 +6429,7 @@ protected:
     { /* never called since perform is overridden */ }
 
 private:
-    QSharedPointer<FunctionDeclDefLink> m_link;
+    std::shared_ptr<FunctionDeclDefLink> m_link;
 };
 
 } // anonymous namespace
@@ -6455,7 +6437,7 @@ private:
 void ApplyDeclDefLinkChanges::doMatch(const CppQuickFixInterface &interface,
                                       QuickFixOperations &result)
 {
-    QSharedPointer<FunctionDeclDefLink> link = interface.editor()->declDefLink();
+    std::shared_ptr<FunctionDeclDefLink> link = interface.editor()->declDefLink();
     if (!link || !link->isMarkerVisible())
         return;
 

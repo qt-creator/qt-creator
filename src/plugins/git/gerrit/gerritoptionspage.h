@@ -5,8 +5,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QSharedPointer>
-
 namespace Gerrit::Internal {
 
 class GerritParameters;
@@ -14,7 +12,7 @@ class GerritParameters;
 class GerritOptionsPage : public Core::IOptionsPage
 {
 public:
-    GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
+    GerritOptionsPage(const std::shared_ptr<GerritParameters> &p,
                       const std::function<void()> &onChanged);
 };
 

@@ -50,7 +50,7 @@ void CompilerOutputProcessor::start()
         break;
     }
 
-    connect(ProjectExplorer::TaskHub::instance(), &ProjectExplorer::TaskHub::taskAdded,
+    connect(&ProjectExplorer::taskHub(), &ProjectExplorer::TaskHub::taskAdded,
             this, &CompilerOutputProcessor::handleTask);
     while (!m_source.atEnd()) {
         parser.appendMessage(QString::fromLocal8Bit(m_source.readLine().trimmed()),

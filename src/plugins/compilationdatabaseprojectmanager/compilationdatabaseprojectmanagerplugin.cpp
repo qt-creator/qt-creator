@@ -29,27 +29,15 @@ namespace CompilationDatabaseProjectManager::Internal {
 const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
 const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
 
-class CompilationDatabaseProjectManagerPluginPrivate
-{
-public:
-    CompilationDatabaseEditorFactory editorFactory;
-    CompilationDatabaseBuildConfigurationFactory buildConfigFactory;
-    QAction changeRootAction{Tr::tr("Change Root Directory")};
-};
-
 class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CompilationDatabaseProjectManager.json")
 
-    ~CompilationDatabaseProjectManagerPlugin()
-    {
-        delete d;
-    }
-
     void initialize() final
     {
-        d = new CompilationDatabaseProjectManagerPluginPrivate;
+        setupCompilationDatabaseEditor();
+        setupCompilationDatabaseBuildConfiguration();
 
         Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
                                                                 COMPILE_COMMANDS_JSON);
@@ -60,21 +48,22 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
         ProjectManager::registerProjectType<CompilationDatabaseProject>(
             Constants::COMPILATIONDATABASEMIMETYPE);
 
-        Command *cmd = ActionManager::registerAction(&d->changeRootAction, CHANGEROOTDIR);
-
         ActionContainer *mprojectContextMenu = ActionManager::actionContainer(
             ProjectExplorer::Constants::M_PROJECTCONTEXT);
         mprojectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
-        mprojectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
 
-        connect(&d->changeRootAction, &QAction::triggered,
-                ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
+        QAction *changeRootAction = nullptr;
+        ActionBuilder(this, CHANGEROOTDIR)
+            .setText(Tr::tr("Change Root Directory"))
+            .bindContextAction(&changeRootAction)
+            .addToContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT,
+                            ProjectExplorer::Constants::G_PROJECT_TREE)
+            .addOnTriggered(ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
 
-        const auto onProjectChanged = [this] {
+        const auto onProjectChanged = [changeRootAction] {
             const auto currentProject = qobject_cast<CompilationDatabaseProject *>(
                 ProjectTree::currentProject());
-
-            d->changeRootAction.setEnabled(currentProject);
+            changeRootAction->setEnabled(currentProject);
         };
 
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
@@ -87,8 +76,6 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
         addTest<CompilationDatabaseTests>();
 #endif
     }
-
-    class CompilationDatabaseProjectManagerPluginPrivate *d = nullptr;
 };
 
 } // CompilationDatabaseProjectManager::Internal

@@ -64,12 +64,7 @@ signals:
     void finishEmitted();
 };
 
-
-class CppCodeStyleSettingsPage : public Core::IOptionsPage
-{
-public:
-    CppCodeStyleSettingsPage();
-};
+void setupCppCodeStyleSettings();
 
 } // namespace Internal
 } // namespace CppEditor

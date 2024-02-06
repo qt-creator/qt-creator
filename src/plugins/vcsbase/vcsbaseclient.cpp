@@ -413,12 +413,9 @@ void VcsBaseClient::log(const FilePath &workingDir,
         if (editorConfig) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
-                this->log(workingDir,
-                          files,
-                          extraOptions,
-                          enableAnnotationContextMenu,
-                          addAuthOptions);
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions] {
+                log(workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions);
             });
             editor->setEditorConfig(editorConfig);
         }

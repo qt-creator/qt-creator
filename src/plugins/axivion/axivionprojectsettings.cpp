@@ -222,8 +222,7 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = settings().curl().isExecutableFile()
-            && !settings().server.dashboard.isEmpty()
+    const bool hasDashboardSettings = !settings().server.dashboard.isEmpty()
             && !settings().server.token.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()

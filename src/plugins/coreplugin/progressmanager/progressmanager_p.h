@@ -74,7 +74,7 @@ private:
 
     QPointer<ProgressView> m_progressView;
     QList<FutureProgress *> m_taskList;
-    QMap<QFutureWatcher<void> *, Utils::Id> m_runningTasks;
+    QHash<QFutureWatcher<void> *, Utils::Id> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask = nullptr;
     StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;

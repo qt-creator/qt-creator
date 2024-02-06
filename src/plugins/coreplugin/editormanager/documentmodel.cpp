@@ -425,12 +425,13 @@ DocumentModel::Entry *DocumentModelPrivate::removeEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return nullptr);
     IDocument *document = editor->document();
-    QTC_ASSERT(d->m_editors.contains(document), return nullptr);
-    d->m_editors[document].removeAll(editor);
+    const auto it = d->m_editors.find(document);
+    QTC_ASSERT(it != d->m_editors.end(), return nullptr);
+    it->removeAll(editor);
     DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
     QTC_ASSERT(entry, return nullptr);
-    if (d->m_editors.value(document).isEmpty()) {
-        d->m_editors.remove(document);
+    if (it->isEmpty()) {
+        d->m_editors.erase(it);
         entry->document = new IDocument;
         entry->document->setFilePath(document->filePath());
         entry->document->setPreferredDisplayName(document->preferredDisplayName());

@@ -114,13 +114,28 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
     if (dontAskAgain)
         QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
+    QStringList deletedEffects;
+
     for (const QString &filePath : filePaths) {
-        if (QFileInfo::exists(filePath) && !QFile::remove(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Delete File"),
-                                 tr("Could not delete \"%1\".").arg(filePath));
+        QFileInfo fi(filePath);
+        if (fi.exists()) {
+            if (QFile::remove(filePath)) {
+                if (Asset(filePath).isEffect()) {
+                    // If an effect composer effect was removed, also remove effect module from project
+                    QString effectName = fi.baseName();
+                    if (!effectName.isEmpty())
+                        deletedEffects.append(effectName);
+                }
+            } else {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Delete File"),
+                                     tr("Could not delete \"%1\".").arg(filePath));
+            }
         }
     }
+
+    if (!deletedEffects.isEmpty())
+        emit effectsDeleted(deletedEffects);
 }
 
 bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &newName)

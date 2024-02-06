@@ -23,11 +23,11 @@ protected:
     void emitStarted(qint64 processId);
     void killIfRunning();
     qint64 processId() const;
-    bool runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
+    Utils::ProcessResult runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
 
-private:
     virtual void handleSendControlSignal(Utils::ControlSignal controlSignal);
 
+private:
     void start() final;
     qint64 write(const QByteArray &data) final;
     void sendControlSignal(Utils::ControlSignal controlSignal) final;

@@ -90,7 +90,7 @@ Store BareMetalDevice::toMap() const
 
 IDeviceWidget *BareMetalDevice::createWidget()
 {
-    return new BareMetalDeviceConfigurationWidget(sharedFromThis());
+    return new BareMetalDeviceConfigurationWidget(shared_from_this());
 }
 
 // Factory

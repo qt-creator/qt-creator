@@ -20,6 +20,7 @@
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 
+#include <QButtonGroup>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -222,13 +223,17 @@ public:
 
 private:
     void onSearchParameterChanged();
+    void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void updateTableView();
+    IssueListSearch searchFromUi() const;
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
 
     QString m_currentPrefix;
+    QString m_currentProject;
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
     QHBoxLayout *m_typesLayout = nullptr;
+    QButtonGroup *m_typesButtonGroup = nullptr;
     QHBoxLayout *m_filtersLayout = nullptr;
     QPushButton *m_addedFilter = nullptr;
     QPushButton *m_removedFilter = nullptr;
@@ -255,6 +260,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     // table, columns depend on chosen issue type
     QHBoxLayout *top = new QHBoxLayout;
     layout->addLayout(top);
+    m_typesButtonGroup = new QButtonGroup(this);
+    m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
     top->addLayout(m_typesLayout);
     top->addStretch(1);
@@ -271,18 +278,32 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
     m_addedFilter->setText("0");
+    m_addedFilter->setCheckable(true);
     m_filtersLayout->addWidget(m_addedFilter);
     m_removedFilter = new QPushButton(this);
     m_removedFilter->setIcon(trendIcon(0, 1));
     m_removedFilter->setText("0");
+    m_removedFilter->setCheckable(true);
     m_filtersLayout->addWidget(m_removedFilter);
+    connect(m_addedFilter, &QPushButton::clicked, this, [this](bool checked) {
+        if (checked && m_removedFilter->isChecked())
+            m_removedFilter->setChecked(false);
+        onSearchParameterChanged();
+    });
+    connect(m_removedFilter, &QPushButton::clicked, this, [this](bool checked) {
+        if (checked && m_addedFilter->isChecked())
+            m_addedFilter->setChecked(false);
+        onSearchParameterChanged();
+    });
     m_filtersLayout->addSpacing(1);
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
     m_ownerFilter->setMinimumContentsLength(25);
+    connect(m_ownerFilter, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
     m_filtersLayout->addWidget(m_ownerFilter);
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
+    connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
     m_filtersLayout->addWidget(m_pathGlobFilter);
     layout->addLayout(m_filtersLayout);
     m_issuesView = new BaseTreeView(this);
@@ -293,7 +314,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     auto sb = m_issuesView->verticalScrollBar();
     if (QTC_GUARD(sb)) {
         connect(sb, &QAbstractSlider::valueChanged, sb, [this, sb](int value) {
-            if (value >= sb->maximum() - 10) {
+            if (value >= sb->maximum() - 50) {
                 if (m_issuesModel->rowCount() < m_totalRowCount)
                     fetchMoreIssues();
             }
@@ -313,50 +334,20 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 void IssuesWidget::updateUi()
 {
     m_filtersLayout->setEnabled(false);
-    // TODO extract parts of it and do them only when necessary
-    QLayoutItem *child;
-    while ((child = m_typesLayout->takeAt(0)) != nullptr) {
-        delete child->widget();
-        delete child;
-    }
-
     std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    updateBasicProjectInfo(projectInfo);
+
     if (!projectInfo)
         return;
     const Dto::ProjectInfoDto &info = *projectInfo;
     if (info.versions.empty()) // add some warning/information?
         return;
 
-    // for now just a start..
-
-    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
-    for (const Dto::IssueKindInfoDto &kind : issueKinds) {
-        auto button = new QToolButton(this);
-        button->setIcon(iconForIssue(kind.prefix));
-        button->setToolTip(kind.nicePluralName);
-        connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
-            m_currentPrefix = prefix;
-            updateTableView();
-        });
-        m_typesLayout->addWidget(button);
-    }
-
-    m_ownerFilter->clear();
-    for (const Dto::UserRefDto &user : projectInfo->users)
-        m_ownerFilter->addItem(user.displayName, user.name);
-
-    m_versionStart->clear();
-    m_versionEnd->clear();
-    const std::vector<Dto::AnalysisVersionDto> &versions = info.versions;
-    for (const Dto::AnalysisVersionDto &version : versions) {
-        const QString label = version.label.value_or(version.name);
-        m_versionStart->insertItem(0, label, version.date);
-        m_versionEnd->insertItem(0, label, version.date);
-    }
-
-    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
-
     m_filtersLayout->setEnabled(true);
+    // avoid refetching existing data
+    if (!m_currentPrefix.isEmpty() || m_issuesModel->rowCount())
+        return;
+
     if (info.issueKinds.size())
         m_currentPrefix = info.issueKinds.front().prefix;
     updateTableView();
@@ -388,35 +379,6 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
-}
-
-static QString anyToSimpleString(const Dto::Any &any)
-{
-    if (any.isString())
-        return any.getString();
-    if (any.isBool())
-        return QString("%1").arg(any.getBool());
-    if (any.isDouble())
-        return QString::number(any.getDouble());
-    if (any.isNull())
-        return QString(); // or NULL??
-    if (any.isList()) {
-        const std::vector<Dto::Any> anyList = any.getList();
-        QStringList list;
-        for (const Dto::Any &inner : anyList)
-            list << anyToSimpleString(inner);
-        return list.join(',');
-    }
-    if (any.isMap()) { // TODO
-        const std::map<QString, Dto::Any> anyMap = any.getMap();
-        auto value = anyMap.find("displayName");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-        value = anyMap.find("name");
-        if (value != anyMap.end())
-            return anyToSimpleString(value->second);
-    }
-    return QString();
 }
 
 static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
@@ -456,12 +418,12 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
     if (dto.totalRemovedCount.has_value())
         m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
 
-    const std::vector<Dto::ColumnInfoDto> tableColumns = m_currentTableInfo->columns;
-    const std::vector<std::map<QString, Dto::Any>> rows = dto.rows;
-    for (auto row : rows) {
+    const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
+    const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+    for (const auto &row : rows) {
         QStringList data;
-        for (auto column : tableColumns) {
-            auto it = row.find(column.key);
+        for (const auto &column : tableColumns) {
+            const auto it = row.find(column.key);
             if (it != row.end()) {
                 QString value = anyToSimpleString(it->second);
                 if (column.key == "id")
@@ -477,8 +439,6 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 
 void IssuesWidget::onSearchParameterChanged()
 {
-    m_taskTreeRunner.cancel();
-
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
@@ -487,13 +447,77 @@ void IssuesWidget::onSearchParameterChanged()
     // new "first" time lookup
     m_totalRowCount = 0;
     m_lastRequestedOffset = 0;
-    IssueListSearch search;
-    search.kind = m_currentPrefix;
-    search.versionStart = m_versionStart->currentData().toString();
-    search.versionEnd = m_versionEnd->currentData().toString();
+    IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
-
     fetchIssues(search);
+}
+
+void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info)
+{
+    auto cleanOld = [this] {
+        const QList<QAbstractButton *> originalList = m_typesButtonGroup->buttons();
+        QLayoutItem *child;
+        while ((child = m_typesLayout->takeAt(0)) != nullptr) {
+            if (originalList.contains(child->widget()))
+                m_typesButtonGroup->removeButton(qobject_cast<QAbstractButton *>(child->widget()));
+            delete child->widget();
+            delete child;
+        }
+    };
+
+    if (!info) {
+        cleanOld();
+        m_ownerFilter->clear();
+        m_versionStart->clear();
+        m_versionEnd->clear();
+        m_pathGlobFilter->clear();
+
+        m_currentProject.clear();
+        m_currentPrefix.clear();
+        m_totalRowCount = 0;
+        m_addedFilter->setText("0");
+        m_removedFilter->setText("0");
+        m_issuesModel->clear();
+        return;
+    }
+
+    if (m_currentProject == info->name)
+        return;
+    m_currentProject = info->name;
+
+    cleanOld();
+
+    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info->issueKinds;
+    int buttonId = 0;
+    for (const Dto::IssueKindInfoDto &kind : issueKinds) {
+        auto button = new QToolButton(this);
+        button->setIcon(iconForIssue(kind.prefix));
+        button->setToolTip(kind.nicePluralName);
+        button->setCheckable(true);
+        connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
+            m_currentPrefix = prefix;
+            updateTableView();
+        });
+        m_typesButtonGroup->addButton(button, ++buttonId);
+        m_typesLayout->addWidget(button);
+    }
+    if (auto firstButton = m_typesButtonGroup->button(1))
+        firstButton->setChecked(true);
+
+    m_ownerFilter->clear();
+    for (const Dto::UserRefDto &user : info->users)
+        m_ownerFilter->addItem(user.displayName, user.name);
+
+    m_versionStart->clear();
+    m_versionEnd->clear();
+    const std::vector<Dto::AnalysisVersionDto> &versions = info->versions;
+    for (const Dto::AnalysisVersionDto &version : versions) {
+        const QString label = version.label.value_or(version.name);
+        m_versionStart->insertItem(0, label, version.date);
+        m_versionEnd->insertItem(0, label, version.date);
+    }
+
+    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
 }
 
 void IssuesWidget::updateTableView()
@@ -510,14 +534,29 @@ void IssuesWidget::updateTableView()
         // first time lookup... should we cache and maybe represent old data?
         m_totalRowCount = 0;
         m_lastRequestedOffset = 0;
-        IssueListSearch search;
-        search.kind = m_currentPrefix;
+        IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
-        search.versionStart = m_versionStart->currentData().toString();
-        search.versionEnd = m_versionEnd->currentData().toString();
         fetchIssues(search);
     };
     m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
+}
+
+IssueListSearch IssuesWidget::searchFromUi() const
+{
+    IssueListSearch search;
+    search.kind = m_currentPrefix; // not really ui.. but anyhow
+    search.owner = m_ownerFilter->currentText();
+    search.filter_path = m_pathGlobFilter->text();
+    search.versionStart = m_versionStart->currentData().toString();
+    search.versionEnd = m_versionEnd->currentData().toString();
+    // different approach: checked means disabling in webview, checked here means explicitly request
+    // the checked one, having both checked is impossible (having none checked means fetch both)
+    // reason for different approach: currently poor reflected inside the ui (TODO)
+    if (m_addedFilter->isChecked())
+        search.state = "added";
+    else if (m_removedFilter->isChecked())
+        search.state = "removed";
+    return search;
 }
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
@@ -533,12 +572,9 @@ void IssuesWidget::fetchMoreIssues()
     if (m_lastRequestedOffset == m_issuesModel->rowCount())
         return;
 
-    IssueListSearch search;
-    search.kind = m_currentPrefix;
+    IssueListSearch search = searchFromUi();
     m_lastRequestedOffset = m_issuesModel->rowCount();
     search.offset = m_lastRequestedOffset;
-    search.versionStart = m_versionStart->currentData().toString();
-    search.versionEnd = m_versionEnd->currentData().toString();
     fetchIssues(search);
 }
 

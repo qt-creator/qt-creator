@@ -10,25 +10,47 @@
 
 #include <coreplugin/generatedfile.h>
 
-#include <utils/algorithm.h>
-#include <utils/layoutbuilder.h>
-#include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
-
+#include <projectexplorer/jsonwizard/jsonwizard.h>
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
+#include <utils/algorithm.h>
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
+#include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
+#include <utils/wizardpage.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Python::Internal {
 
-PythonWizardPageFactory::PythonWizardPageFactory()
+class PythonWizardPage final : public WizardPage
 {
-    setTypeIdsSuffix("PythonConfiguration");
-}
+public:
+    PythonWizardPage(const QList<QPair<QString, QVariant>> &pySideAndData, int defaultPyside);
+    bool validatePage() final;
+
+private:
+    SelectionAspect m_pySideVersion;
+};
+
+class PythonWizardPageFactory final : public JsonWizardPageFactory
+{
+public:
+    PythonWizardPageFactory()
+    {
+        setTypeIdsSuffix("PythonConfiguration");
+    }
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final;
+    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) final;
+};
 
 WizardPage *PythonWizardPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
@@ -108,6 +130,11 @@ bool PythonWizardPage::validatePage()
     for (auto it = data.begin(), end = data.end(); it != end; ++it)
         wiz->setValue(it.key(), it.value());
     return true;
+}
+
+void setupPythonWizard()
+{
+    static PythonWizardPageFactory thePythonWizardPageFactory;
 }
 
 } // namespace Python::Internal

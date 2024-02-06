@@ -493,7 +493,8 @@ void DesignModeWidget::setup()
 
 static bool isMcuDisabledView(const QString viewId)
 {
-    static const QStringList mcuDisabledViews = {"Editor3D", "MaterialEditor", "MaterialBrowser", "TextureEditor"};
+    static const QStringList mcuDisabledViews = {"Editor3D", "MaterialEditor", "MaterialBrowser",
+                                                 "TextureEditor", "EffectComposer"};
     return mcuDisabledViews.contains(viewId);
 }
 

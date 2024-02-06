@@ -41,8 +41,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 namespace {
 
@@ -481,48 +480,65 @@ static TextEditor::TextDocument *createCompilationDatabaseDocument()
     return doc;
 }
 
-CompilationDatabaseEditorFactory::CompilationDatabaseEditorFactory()
-{
-    setId(Constants::COMPILATIONDATABASEPROJECT_ID);
-    setDisplayName(::Core::Tr::tr("Compilation Database"));
-    addMimeType(Constants::COMPILATIONDATABASEMIMETYPE);
-
-    setEditorCreator([]() { return new TextEditor::BaseTextEditor; });
-    setEditorWidgetCreator([]() { return new TextEditor::TextEditorWidget; });
-    setDocumentCreator(createCompilationDatabaseDocument);
-    setUseGenericHighlighter(true);
-    setCommentDefinition(Utils::CommentDefinition::HashStyle);
-    setCodeFoldingSupported(true);
-}
-
-class CompilationDatabaseBuildConfiguration : public BuildConfiguration
+class CompilationDatabaseEditorFactory final : public TextEditor::TextEditorFactory
 {
 public:
-    CompilationDatabaseBuildConfiguration(Target *target, Utils::Id id)
-        : BuildConfiguration(target, id)
+    CompilationDatabaseEditorFactory()
     {
+        setId(Constants::COMPILATIONDATABASEPROJECT_ID);
+        setDisplayName(::Core::Tr::tr("Compilation Database"));
+        addMimeType(Constants::COMPILATIONDATABASEMIMETYPE);
+
+        setEditorCreator([] { return new TextEditor::BaseTextEditor; });
+        setEditorWidgetCreator([] { return new TextEditor::TextEditorWidget; });
+        setDocumentCreator(createCompilationDatabaseDocument);
+        setUseGenericHighlighter(true);
+        setCommentDefinition(Utils::CommentDefinition::HashStyle);
+        setCodeFoldingSupported(true);
     }
 };
 
-
-CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurationFactory()
+void setupCompilationDatabaseEditor()
 {
-    registerBuildConfiguration<CompilationDatabaseBuildConfiguration>(
-        "CompilationDatabase.CompilationDatabaseBuildConfiguration");
-
-    setSupportedProjectType(Constants::COMPILATIONDATABASEPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
-
-    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool) {
-        const QString name = QCoreApplication::translate("QtC::ProjectExplorer", "Release");
-        ProjectExplorer::BuildInfo info;
-        info.typeName = name;
-        info.displayName = name;
-        info.buildType = BuildConfiguration::Release;
-        info.buildDirectory = projectPath.parentDir();
-        return QList<BuildInfo>{info};
-    });
+    static CompilationDatabaseEditorFactory theCompilationDatabaseEditorFactory;
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+// CompilationDatabaseBuildConfigurationFactory
+
+class CompilationDatabaseBuildConfiguration final : public BuildConfiguration
+{
+public:
+    CompilationDatabaseBuildConfiguration(Target *target, Id id)
+        : BuildConfiguration(target, id)
+    {}
+};
+
+class CompilationDatabaseBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    CompilationDatabaseBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<CompilationDatabaseBuildConfiguration>(
+            "CompilationDatabase.CompilationDatabaseBuildConfiguration");
+
+        setSupportedProjectType(Constants::COMPILATIONDATABASEPROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
+
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool) {
+            const QString name = QCoreApplication::translate("QtC::ProjectExplorer", "Release");
+            ProjectExplorer::BuildInfo info;
+            info.typeName = name;
+            info.displayName = name;
+            info.buildType = BuildConfiguration::Release;
+            info.buildDirectory = projectPath.parentDir();
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
+void setupCompilationDatabaseBuildConfiguration()
+{
+    static CompilationDatabaseBuildConfigurationFactory theCDBuildConfigurationFactory;
+}
+
+} // CompilationDatabaseProjectManager::Internal

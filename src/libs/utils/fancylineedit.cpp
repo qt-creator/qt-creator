@@ -634,7 +634,7 @@ void FancyIconButton::paintEvent(QPaintEvent *)
     const QPixmap iconPixmap = icon().pixmap(sizeHint(), pixelRatio,
                                              isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QStylePainter painter(this);
-    QRect pixmapRect(QPoint(), iconPixmap.size() / pixelRatio);
+    QRect pixmapRect(QPoint(), iconPixmap.size() / iconPixmap.devicePixelRatio());
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)

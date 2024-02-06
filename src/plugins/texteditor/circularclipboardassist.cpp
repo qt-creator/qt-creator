@@ -6,7 +6,6 @@
 #include "codeassist/iassistprocessor.h"
 #include "codeassist/iassistproposal.h"
 #include "codeassist/assistproposalitem.h"
-#include "codeassist/genericproposalmodel.h"
 #include "codeassist/genericproposal.h"
 #include "texteditor.h"
 #include "circularclipboard.h"
@@ -27,7 +26,7 @@ class ClipboardProposalItem final : public AssistProposalItem
 public:
     enum { maxLen = 80 };
 
-    ClipboardProposalItem(QSharedPointer<const QMimeData> mimeData)
+    ClipboardProposalItem(std::shared_ptr<const QMimeData> mimeData)
         : m_mimeData(mimeData)
     {
         QString text = mimeData->text().simplified();
@@ -49,14 +48,14 @@ public:
 
         //Copy the selected item
         QApplication::clipboard()->setMimeData(
-                    TextEditorWidget::duplicateMimeData(m_mimeData.data()));
+                    TextEditorWidget::duplicateMimeData(m_mimeData.get()));
 
         //Paste
         manipulator.paste();
     }
 
 private:
-    QSharedPointer<const QMimeData> m_mimeData;
+    std::shared_ptr<const QMimeData> m_mimeData;
 };
 
 class ClipboardAssistProcessor final : public IAssistProcessor
@@ -69,7 +68,7 @@ public:
         QList<AssistProposalItemInterface *> items;
         items.reserve(clipboard->size());
         for (int i = 0; i < clipboard->size(); ++i) {
-            QSharedPointer<const QMimeData> data = clipboard->next();
+            std::shared_ptr<const QMimeData> data = clipboard->next();
 
             AssistProposalItem *item = new ClipboardProposalItem(data);
             item->setIcon(icon);

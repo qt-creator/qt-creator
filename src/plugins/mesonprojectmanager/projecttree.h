@@ -17,7 +17,7 @@ public:
     ProjectTree();
     static std::unique_ptr<MesonProjectNode> buildTree(const Utils::FilePath &srcDir,
                                                        const TargetsList &targets,
-                                                       const std::vector<Utils::FilePath> &bsFiles);
+                                                       const Utils::FilePaths &bsFiles);
 };
 
 } // namespace Internal

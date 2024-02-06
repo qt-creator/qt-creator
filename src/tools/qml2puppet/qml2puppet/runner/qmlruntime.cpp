@@ -32,7 +32,7 @@ static void registerFonts(const QDir &projectDir)
 static QDir findProjectFolder(const QDir &currentDir, int ret = 0)
 {
     if (ret > 2)
-        QDir::current();
+        return QDir::current();
 
     QDirIterator it{currentDir.absolutePath(),
                     {"*.qmlproject"},

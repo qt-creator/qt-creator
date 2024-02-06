@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
-
 namespace Ios::Internal {
 
-class IosQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    IosQtVersionFactory();
-};
+void setupIosQtVersion();
 
 } // Ios::Internal

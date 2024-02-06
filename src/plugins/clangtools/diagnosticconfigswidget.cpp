@@ -808,7 +808,8 @@ private:
         }
     }
 
-    QModelIndex indexForCheck(const QString &check) const {
+    QModelIndex indexForCheck(const QString &check) const override
+    {
         if (check == "*")
             return index(0, 0, QModelIndex());
 
@@ -1195,7 +1196,7 @@ void DiagnosticConfigsWidget::handleChecksAsStringsButtonClicked(BaseChecksTreeM
         buttonsBox
     }.attachTo(&dialog);
 
-    QObject::connect(&dialog, &QDialog::accepted, this, [=, &initialChecks] {
+    QObject::connect(&dialog, &QDialog::accepted, this, [this, model, textEdit, &initialChecks] {
         const QString updatedChecks = textEdit->toPlainText();
         if (updatedChecks == initialChecks)
             return;

@@ -35,14 +35,9 @@ public:
     QString errorString() const;
 
 signals:
-    void error(const QString &errMsg);
-    void portListReady();
+    void done(bool success);
 
 private:
-    void handleProcessDone();
-    void setupUsedPorts();
-    void emitError(const QString &errorString);
-
     Internal::DeviceUsedPortsGathererPrivate * const d;
 };
 
@@ -51,8 +46,9 @@ class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererTaskAdapter
 {
 public:
     DeviceUsedPortsGathererTaskAdapter() {
-        connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(DoneResult::Success); });
-        connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(DoneResult::Error); });
+        connect(task(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
+            emit done(toDoneResult(success));
+        });
     }
     void start() final { task()->start(); }
 };

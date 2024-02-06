@@ -78,8 +78,8 @@ class CustomWizardPrivate {
 public:
     CustomWizardPrivate() : m_context(new CustomWizardContext) {}
 
-    QSharedPointer<CustomWizardParameters> m_parameters;
-    QSharedPointer<CustomWizardContext> m_context;
+    std::shared_ptr<CustomWizardParameters> m_parameters;
+    std::shared_ptr<CustomWizardContext> m_context;
     static int verbose;
 };
 
@@ -140,7 +140,7 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
 
 BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParameters &p) const
 {
-    QTC_ASSERT(!d->m_parameters.isNull(), return nullptr);
+    QTC_ASSERT(d->m_parameters, return nullptr);
     auto wizard = new BaseFileWizard(this, p.extraValues(), parent);
 
     d->m_context->reset();
@@ -217,8 +217,8 @@ template <class WizardPage>
 
 // Determine where to run the generator script. The user may specify
 // an expression subject to field replacement, default is the target path.
-static inline QString scriptWorkingDirectory(const QSharedPointer<CustomWizardContext> &ctx,
-                                             const QSharedPointer<CustomWizardParameters> &p)
+static inline QString scriptWorkingDirectory(const std::shared_ptr<CustomWizardContext> &ctx,
+                                             const std::shared_ptr<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
         return ctx->targetPath.toString();
@@ -476,7 +476,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
                                                   const QList<QWizardPage *> &extensionPages) const
 {
     const CustomWizardParametersPtr pa = parameters();
-    QTC_ASSERT(!pa.isNull(), return);
+    QTC_ASSERT(pa, return);
 
     const CustomWizardContextPtr ctx = context();
     ctx->reset();

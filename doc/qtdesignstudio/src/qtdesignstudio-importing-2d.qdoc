@@ -30,7 +30,7 @@
 
     \section1 Importing Designs From Other Design Tools
 
-    \image studio-imported-assets.png "UI imported into Qt Design Studio"
+    \image studio-imported-assets.webp "UI imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
     as images and QML files for editing in the \l {2D} view. If you make changes

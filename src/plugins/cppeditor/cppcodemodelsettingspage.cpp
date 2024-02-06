@@ -5,10 +5,12 @@
 
 #include "clangdiagnosticconfigsselectionwidget.h"
 #include "clangdiagnosticconfigswidget.h"
+#include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 
@@ -184,39 +186,57 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     return settingsChanged;
 }
 
-CppCodeModelSettingsPage::CppCodeModelSettingsPage()
-{
-    setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
-    setDisplayName(Tr::tr("Code Model"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("C++"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
-    setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
-}
-
-class ClangdSettingsWidget::Private
+class CppCodeModelSettingsPage final : public Core::IOptionsPage
 {
 public:
-    QCheckBox useClangdCheckBox;
-    QComboBox indexingComboBox;
-    QComboBox headerSourceSwitchComboBox;
-    QComboBox completionRankingModelComboBox;
-    QCheckBox autoIncludeHeadersCheckBox;
-    QCheckBox sizeThresholdCheckBox;
-    QSpinBox threadLimitSpinBox;
-    QSpinBox documentUpdateThreshold;
-    QSpinBox sizeThresholdSpinBox;
-    QSpinBox completionResults;
-    Utils::PathChooser clangdChooser;
-    Utils::InfoLabel versionWarningLabel;
-    ClangDiagnosticConfigsSelectionWidget *configSelectionWidget = nullptr;
-    QGroupBox *sessionsGroupBox = nullptr;
-    QStringListModel sessionsModel;
+    CppCodeModelSettingsPage()
+    {
+        setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        setDisplayName(Tr::tr("Code Model"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("C++"));
+        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
+        setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
+    }
+};
+
+void setupCppCodeModelSettings()
+{
+    static CppCodeModelSettingsPage theCppCodeModelSettingsPage;
+}
+
+class ClangdSettingsWidget final : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ClangdSettingsWidget(const ClangdSettings::Data &settingsData, bool isForProject);
+
+    ClangdSettings::Data settingsData() const;
+
+signals:
+    void settingsDataChanged();
+
+private:
+    QCheckBox m_useClangdCheckBox;
+    QComboBox m_indexingComboBox;
+    QComboBox m_headerSourceSwitchComboBox;
+    QComboBox m_completionRankingModelComboBox;
+    QCheckBox m_autoIncludeHeadersCheckBox;
+    QCheckBox m_sizeThresholdCheckBox;
+    QSpinBox m_threadLimitSpinBox;
+    QSpinBox m_documentUpdateThreshold;
+    QSpinBox m_sizeThresholdSpinBox;
+    QSpinBox m_completionResults;
+    Utils::PathChooser m_clangdChooser;
+    Utils::InfoLabel m_versionWarningLabel;
+    ClangDiagnosticConfigsSelectionWidget *m_configSelectionWidget = nullptr;
+    QGroupBox *m_sessionsGroupBox = nullptr;
+    QStringListModel m_sessionsModel;
 };
 
 ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData,
                                            bool isForProject)
-    : d(new Private)
 {
     const ClangdSettings settings(settingsData);
     const QString indexingToolTip = Tr::tr(
@@ -262,124 +282,124 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const QString completionResultToolTip = Tr::tr(
         "The maximum number of completion results returned by clangd.");
 
-    d->useClangdCheckBox.setText(Tr::tr("Use clangd"));
-    d->useClangdCheckBox.setChecked(settings.useClangd());
-    d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
-    d->clangdChooser.setFilePath(settings.clangdFilePath());
-    d->clangdChooser.setAllowPathFromDevice(true);
-    d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
-    d->clangdChooser.setCommandVersionArguments({"--version"});
+    m_useClangdCheckBox.setText(Tr::tr("Use clangd"));
+    m_useClangdCheckBox.setChecked(settings.useClangd());
+    m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_clangdChooser.setFilePath(settings.clangdFilePath());
+    m_clangdChooser.setAllowPathFromDevice(true);
+    m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
+    m_clangdChooser.setCommandVersionArguments({"--version"});
     using Priority = ClangdSettings::IndexingPriority;
     for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
-        d->indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));
+        m_indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));
         if (prio == settings.indexingPriority())
-            d->indexingComboBox.setCurrentIndex(d->indexingComboBox.count() - 1);
+            m_indexingComboBox.setCurrentIndex(m_indexingComboBox.count() - 1);
     }
-    d->indexingComboBox.setToolTip(indexingToolTip);
+    m_indexingComboBox.setToolTip(indexingToolTip);
     using SwitchMode = ClangdSettings::HeaderSourceSwitchMode;
     for (SwitchMode mode : {SwitchMode::BuiltinOnly, SwitchMode::ClangdOnly, SwitchMode::Both}) {
-        d->headerSourceSwitchComboBox.addItem(
+        m_headerSourceSwitchComboBox.addItem(
             ClangdSettings::headerSourceSwitchModeToDisplayString(mode), int(mode));
         if (mode == settings.headerSourceSwitchMode())
-            d->headerSourceSwitchComboBox.setCurrentIndex(
-                d->headerSourceSwitchComboBox.count() - 1);
+            m_headerSourceSwitchComboBox.setCurrentIndex(
+                m_headerSourceSwitchComboBox.count() - 1);
     }
-    d->headerSourceSwitchComboBox.setToolTip(headerSourceSwitchToolTip);
+    m_headerSourceSwitchComboBox.setToolTip(headerSourceSwitchToolTip);
     for (RankingModel model : {RankingModel::Default, RankingModel::DecisionForest,
                                RankingModel::Heuristics}) {
-        d->completionRankingModelComboBox.addItem(
+        m_completionRankingModelComboBox.addItem(
             ClangdSettings::rankingModelToDisplayString(model), int(model));
         if (model == settings.completionRankingModel())
-            d->completionRankingModelComboBox.setCurrentIndex(
-                d->completionRankingModelComboBox.count() - 1);
+            m_completionRankingModelComboBox.setCurrentIndex(
+                m_completionRankingModelComboBox.count() - 1);
     }
-    d->completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
+    m_completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
 
-    d->autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
-    d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
-    d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
-    d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
-    d->threadLimitSpinBox.setSpecialValueText(Tr::tr("Automatic"));
-    d->threadLimitSpinBox.setToolTip(workerThreadsToolTip);
-    d->documentUpdateThreshold.setMinimum(50);
-    d->documentUpdateThreshold.setMaximum(10000);
-    d->documentUpdateThreshold.setValue(settings.documentUpdateThreshold());
-    d->documentUpdateThreshold.setSingleStep(100);
-    d->documentUpdateThreshold.setSuffix(" ms");
-    d->documentUpdateThreshold.setToolTip(documentUpdateToolTip);
-    d->sizeThresholdCheckBox.setText(Tr::tr("Ignore files greater than"));
-    d->sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
-    d->sizeThresholdCheckBox.setToolTip(sizeThresholdToolTip);
-    d->sizeThresholdSpinBox.setMinimum(1);
-    d->sizeThresholdSpinBox.setMaximum(std::numeric_limits<int>::max());
-    d->sizeThresholdSpinBox.setSuffix(" KB");
-    d->sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
-    d->sizeThresholdSpinBox.setToolTip(sizeThresholdToolTip);
+    m_autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
+    m_autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
+    m_autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
+    m_threadLimitSpinBox.setValue(settings.workerThreadLimit());
+    m_threadLimitSpinBox.setSpecialValueText(Tr::tr("Automatic"));
+    m_threadLimitSpinBox.setToolTip(workerThreadsToolTip);
+    m_documentUpdateThreshold.setMinimum(50);
+    m_documentUpdateThreshold.setMaximum(10000);
+    m_documentUpdateThreshold.setValue(settings.documentUpdateThreshold());
+    m_documentUpdateThreshold.setSingleStep(100);
+    m_documentUpdateThreshold.setSuffix(" ms");
+    m_documentUpdateThreshold.setToolTip(documentUpdateToolTip);
+    m_sizeThresholdCheckBox.setText(Tr::tr("Ignore files greater than"));
+    m_sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
+    m_sizeThresholdCheckBox.setToolTip(sizeThresholdToolTip);
+    m_sizeThresholdSpinBox.setMinimum(1);
+    m_sizeThresholdSpinBox.setMaximum(std::numeric_limits<int>::max());
+    m_sizeThresholdSpinBox.setSuffix(" KB");
+    m_sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
+    m_sizeThresholdSpinBox.setToolTip(sizeThresholdToolTip);
 
     const auto completionResultsLabel = new QLabel(Tr::tr("Completion results:"));
     completionResultsLabel->setToolTip(completionResultToolTip);
-    d->completionResults.setMinimum(0);
-    d->completionResults.setMaximum(std::numeric_limits<int>::max());
-    d->completionResults.setValue(settings.completionResults());
-    d->completionResults.setToolTip(completionResultToolTip);
-    d->completionResults.setSpecialValueText(Tr::tr("No limit"));
+    m_completionResults.setMinimum(0);
+    m_completionResults.setMaximum(std::numeric_limits<int>::max());
+    m_completionResults.setValue(settings.completionResults());
+    m_completionResults.setToolTip(completionResultToolTip);
+    m_completionResults.setSpecialValueText(Tr::tr("No limit"));
 
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(&d->useClangdCheckBox);
+    layout->addWidget(&m_useClangdCheckBox);
 
     const auto formLayout = new QFormLayout;
     const auto chooserLabel = new QLabel(Tr::tr("Path to executable:"));
-    formLayout->addRow(chooserLabel, &d->clangdChooser);
-    formLayout->addRow(QString(), &d->versionWarningLabel);
+    formLayout->addRow(chooserLabel, &m_clangdChooser);
+    formLayout->addRow(QString(), &m_versionWarningLabel);
 
     const auto indexingPriorityLayout = new QHBoxLayout;
-    indexingPriorityLayout->addWidget(&d->indexingComboBox);
+    indexingPriorityLayout->addWidget(&m_indexingComboBox);
     indexingPriorityLayout->addStretch(1);
     const auto indexingPriorityLabel = new QLabel(Tr::tr("Background indexing:"));
     indexingPriorityLabel->setToolTip(indexingToolTip);
     formLayout->addRow(indexingPriorityLabel, indexingPriorityLayout);
 
     const auto headerSourceSwitchLayout = new QHBoxLayout;
-    headerSourceSwitchLayout->addWidget(&d->headerSourceSwitchComboBox);
+    headerSourceSwitchLayout->addWidget(&m_headerSourceSwitchComboBox);
     headerSourceSwitchLayout->addStretch(1);
     const auto headerSourceSwitchLabel = new QLabel(Tr::tr("Header/source switch mode:"));
     headerSourceSwitchLabel->setToolTip(headerSourceSwitchToolTip);
     formLayout->addRow(headerSourceSwitchLabel, headerSourceSwitchLayout);
 
     const auto threadLimitLayout = new QHBoxLayout;
-    threadLimitLayout->addWidget(&d->threadLimitSpinBox);
+    threadLimitLayout->addWidget(&m_threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
     const auto threadLimitLabel = new QLabel(Tr::tr("Worker thread count:"));
     threadLimitLabel->setToolTip(workerThreadsToolTip);
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
 
-    formLayout->addRow(QString(), &d->autoIncludeHeadersCheckBox);
+    formLayout->addRow(QString(), &m_autoIncludeHeadersCheckBox);
     const auto limitResultsLayout = new QHBoxLayout;
-    limitResultsLayout->addWidget(&d->completionResults);
+    limitResultsLayout->addWidget(&m_completionResults);
     limitResultsLayout->addStretch(1);
     formLayout->addRow(completionResultsLabel, limitResultsLayout);
 
     const auto completionRankingModelLayout = new QHBoxLayout;
-    completionRankingModelLayout->addWidget(&d->completionRankingModelComboBox);
+    completionRankingModelLayout->addWidget(&m_completionRankingModelComboBox);
     completionRankingModelLayout->addStretch(1);
     const auto completionRankingModelLabel = new QLabel(Tr::tr("Completion ranking model:"));
     completionRankingModelLabel->setToolTip(completionRankingModelToolTip);
     formLayout->addRow(completionRankingModelLabel, completionRankingModelLayout);
 
     const auto documentUpdateThresholdLayout = new QHBoxLayout;
-    documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
+    documentUpdateThresholdLayout->addWidget(&m_documentUpdateThreshold);
     documentUpdateThresholdLayout->addStretch(1);
     const auto documentUpdateThresholdLabel = new QLabel(Tr::tr("Document update threshold:"));
     documentUpdateThresholdLabel->setToolTip(documentUpdateToolTip);
     formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
     const auto sizeThresholdLayout = new QHBoxLayout;
-    sizeThresholdLayout->addWidget(&d->sizeThresholdSpinBox);
+    sizeThresholdLayout->addWidget(&m_sizeThresholdSpinBox);
     sizeThresholdLayout->addStretch(1);
-    formLayout->addRow(&d->sizeThresholdCheckBox, sizeThresholdLayout);
+    formLayout->addRow(&m_sizeThresholdCheckBox, sizeThresholdLayout);
 
-    d->configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
-    d->configSelectionWidget->refresh(
+    m_configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
+    m_configSelectionWidget->refresh(
                 diagnosticConfigsModel(settings.customDiagnosticConfigs()),
                 settings.diagnosticConfigId(),
                 [](const ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect) {
@@ -388,17 +408,17 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
     layout->addLayout(formLayout);
     if (!isForProject) {
-        d->sessionsModel.setStringList(settingsData.sessionsWithOneClangd);
-        d->sessionsModel.sort(0);
-        d->sessionsGroupBox = new QGroupBox(Tr::tr("Sessions with a single clangd instance"));
+        m_sessionsModel.setStringList(settingsData.sessionsWithOneClangd);
+        m_sessionsModel.sort(0);
+        m_sessionsGroupBox = new QGroupBox(Tr::tr("Sessions with a single clangd instance"));
         const auto sessionsView = new Utils::ListView;
-        sessionsView->setModel(&d->sessionsModel);
+        sessionsView->setModel(&m_sessionsModel);
         sessionsView->setToolTip(
                     Tr::tr("By default, Qt Creator runs one clangd process per project.\n"
                        "If you have sessions with tightly coupled projects that should be\n"
                        "managed by the same clangd process, add them here."));
         const auto outerSessionsLayout = new QHBoxLayout;
-        const auto innerSessionsLayout = new QHBoxLayout(d->sessionsGroupBox);
+        const auto innerSessionsLayout = new QHBoxLayout(m_sessionsGroupBox);
         const auto buttonsLayout = new QVBoxLayout;
         const auto addButton = new QPushButton(Tr::tr("Add ..."));
         const auto removeButton = new QPushButton(Tr::tr("Remove"));
@@ -407,7 +427,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         buttonsLayout->addStretch(1);
         innerSessionsLayout->addWidget(sessionsView);
         innerSessionsLayout->addLayout(buttonsLayout);
-        outerSessionsLayout->addWidget(d->sessionsGroupBox);
+        outerSessionsLayout->addWidget(m_sessionsGroupBox);
         outerSessionsLayout->addStretch(1);
 
         const auto separator = new QFrame;
@@ -424,13 +444,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         connect(removeButton, &QPushButton::clicked, this, [this, sessionsView] {
             const QItemSelection selection = sessionsView->selectionModel()->selection();
             QTC_ASSERT(!selection.isEmpty(), return);
-            d->sessionsModel.removeRow(selection.indexes().first().row());
+            m_sessionsModel.removeRow(selection.indexes().first().row());
         });
 
         connect(addButton, &QPushButton::clicked, this, [this, sessionsView] {
             QInputDialog dlg(sessionsView);
             QStringList sessions = Core::SessionManager::sessions();
-            QStringList currentSessions = d->sessionsModel.stringList();
+            QStringList currentSessions = m_sessionsModel.stringList();
             for (const QString &s : std::as_const(currentSessions))
                 sessions.removeOne(s);
             if (sessions.isEmpty())
@@ -440,8 +460,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             dlg.setComboBoxItems(sessions);
             if (dlg.exec() == QDialog::Accepted) {
                 currentSessions << dlg.textValue();
-                d->sessionsModel.setStringList(currentSessions);
-                d->sessionsModel.sort(0);
+                m_sessionsModel.setStringList(currentSessions);
+                m_sessionsModel.sort(0);
             }
         });
     }
@@ -476,14 +496,14 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     };
     const auto toggleEnabled = [this, formLayout](const bool checked) {
         setWidgetsEnabled(formLayout, checked, setWidgetsEnabled);
-        if (d->sessionsGroupBox)
-            d->sessionsGroupBox->setEnabled(checked);
+        if (m_sessionsGroupBox)
+            m_sessionsGroupBox->setEnabled(checked);
     };
-    connect(&d->useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
-    toggleEnabled(d->useClangdCheckBox.isChecked());
-    d->threadLimitSpinBox.setEnabled(d->useClangdCheckBox.isChecked());
+    connect(&m_useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
+    toggleEnabled(m_useClangdCheckBox.isChecked());
+    m_threadLimitSpinBox.setEnabled(m_useClangdCheckBox.isChecked());
 
-    d->versionWarningLabel.setType(Utils::InfoLabel::Warning);
+    m_versionWarningLabel.setType(Utils::InfoLabel::Warning);
     const auto updateWarningLabel = [this] {
         class WarningLabelSetter {
         public:
@@ -493,70 +513,65 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         private:
             QLabel &m_label;
         };
-        WarningLabelSetter labelSetter(d->versionWarningLabel);
+        WarningLabelSetter labelSetter(m_versionWarningLabel);
 
-        if (!d->clangdChooser.isValid())
+        if (!m_clangdChooser.isValid())
             return;
-        const Utils::FilePath clangdPath = d->clangdChooser.filePath();
+        const Utils::FilePath clangdPath = m_clangdChooser.filePath();
         QString errorMessage;
         if (!Utils::checkClangdVersion(clangdPath, &errorMessage))
             labelSetter.setWarning(errorMessage);
     };
-    connect(&d->clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
-    connect(&d->clangdChooser, &Utils::PathChooser::validChanged, this, updateWarningLabel);
+    connect(&m_clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
+    connect(&m_clangdChooser, &Utils::PathChooser::validChanged, this, updateWarningLabel);
     updateWarningLabel();
 
-    connect(&d->useClangdCheckBox, &QCheckBox::toggled,
+    connect(&m_useClangdCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->indexingComboBox, &QComboBox::currentIndexChanged,
+    connect(&m_indexingComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
+    connect(&m_headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->completionRankingModelComboBox, &QComboBox::currentIndexChanged,
+    connect(&m_completionRankingModelComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
+    connect(&m_autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->threadLimitSpinBox, &QSpinBox::valueChanged,
+    connect(&m_threadLimitSpinBox, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->sizeThresholdCheckBox, &QCheckBox::toggled,
+    connect(&m_sizeThresholdCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->sizeThresholdSpinBox, &QSpinBox::valueChanged,
+    connect(&m_sizeThresholdSpinBox, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->documentUpdateThreshold, &QSpinBox::valueChanged,
+    connect(&m_documentUpdateThreshold, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->clangdChooser, &Utils::PathChooser::textChanged,
+    connect(&m_clangdChooser, &Utils::PathChooser::textChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(d->configSelectionWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
+    connect(m_configSelectionWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->completionResults, &QSpinBox::valueChanged,
+    connect(&m_completionResults, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-}
-
-ClangdSettingsWidget::~ClangdSettingsWidget()
-{
-    delete d;
 }
 
 ClangdSettings::Data ClangdSettingsWidget::settingsData() const
 {
     ClangdSettings::Data data;
-    data.useClangd = d->useClangdCheckBox.isChecked();
-    data.executableFilePath = d->clangdChooser.filePath();
+    data.useClangd = m_useClangdCheckBox.isChecked();
+    data.executableFilePath = m_clangdChooser.filePath();
     data.indexingPriority = ClangdSettings::IndexingPriority(
-        d->indexingComboBox.currentData().toInt());
+        m_indexingComboBox.currentData().toInt());
     data.headerSourceSwitchMode = ClangdSettings::HeaderSourceSwitchMode(
-        d->headerSourceSwitchComboBox.currentData().toInt());
+        m_headerSourceSwitchComboBox.currentData().toInt());
     data.completionRankingModel = ClangdSettings::CompletionRankingModel(
-        d->completionRankingModelComboBox.currentData().toInt());
-    data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
-    data.workerThreadLimit = d->threadLimitSpinBox.value();
-    data.documentUpdateThreshold = d->documentUpdateThreshold.value();
-    data.sizeThresholdEnabled = d->sizeThresholdCheckBox.isChecked();
-    data.sizeThresholdInKb = d->sizeThresholdSpinBox.value();
-    data.sessionsWithOneClangd = d->sessionsModel.stringList();
-    data.customDiagnosticConfigs = d->configSelectionWidget->customConfigs();
-    data.diagnosticConfigId = d->configSelectionWidget->currentConfigId();
-    data.completionResults = d->completionResults.value();
+        m_completionRankingModelComboBox.currentData().toInt());
+    data.autoIncludeHeaders = m_autoIncludeHeadersCheckBox.isChecked();
+    data.workerThreadLimit = m_threadLimitSpinBox.value();
+    data.documentUpdateThreshold = m_documentUpdateThreshold.value();
+    data.sizeThresholdEnabled = m_sizeThresholdCheckBox.isChecked();
+    data.sizeThresholdInKb = m_sizeThresholdSpinBox.value();
+    data.sessionsWithOneClangd = m_sessionsModel.stringList();
+    data.customDiagnosticConfigs = m_configSelectionWidget->customConfigs();
+    data.diagnosticConfigId = m_configSelectionWidget->currentConfigId();
+    data.completionResults = m_completionResults.value();
     return data;
 }
 
@@ -655,3 +670,5 @@ void setupClangdProjectSettingsPanel()
 }
 
 } // CppEditor::Internal
+
+#include "cppcodemodelsettingspage.moc"

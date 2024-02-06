@@ -27,12 +27,12 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QLibraryInfo>
 #include <QMetaObject>
 #include <QTextDocument>
 #include <QTextStream>
-#include <QTimer>
 #include <QtAlgorithms>
-#include <QLibraryInfo>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -508,7 +508,7 @@ void ModelManagerInterface::iterateQrcFiles(
 
     for (const Utils::FilePath &qrcFilePath : std::as_const(allQrcs)) {
         QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toFSPathString());
-        if (qrcFile.isNull())
+        if (!qrcFile)
             continue;
         callback(qrcFile);
     }
@@ -577,8 +577,9 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     ProjectInfo oldInfo;
 
     m_syncedData.write([&oldInfo, &snapshot, p, &pinfo](SyncedData &sd) {
-        oldInfo = sd.m_projects.value(p);
-        sd.m_projects.insert(p, pinfo);
+        ProjectInfo &storedInfo = sd.m_projects[p];
+        oldInfo = storedInfo;
+        storedInfo = pinfo;
         if (p == sd.m_defaultProject)
             sd.m_defaultProjectInfo = pinfo;
         snapshot = sd.m_validSnapshot;

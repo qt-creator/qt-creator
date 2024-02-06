@@ -106,8 +106,10 @@ void GerritPushDialog::initRemoteBranches()
     m_remoteComboBox->updateRemotes(false);
 }
 
-GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
-                                   QSharedPointer<GerritParameters> parameters, QWidget *parent)
+GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir,
+                                   const QString &reviewerList,
+                                   std::shared_ptr<GerritParameters> parameters,
+                                   QWidget *parent)
     : QDialog(parent)
     , m_localBranchComboBox(new BranchComboBox)
     , m_remoteComboBox(new GerritRemoteChooser)

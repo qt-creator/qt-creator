@@ -191,6 +191,7 @@ public:
     void contextMenuEvent(QContextMenuEvent *ev) override
     {
         QMenu *menu = createStandardContextMenu();
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         menu->addAction(settings().logTimeStamps.action());
@@ -198,7 +199,6 @@ public:
         menu->addSeparator();
         menu->addAction(settings().settingsDialog.action());
         menu->exec(ev->globalPos());
-        delete menu;
     }
 
     void append(const QString &text)

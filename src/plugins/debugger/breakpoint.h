@@ -155,7 +155,7 @@ public:
     bool oneShot;            //!< Should this breakpoint trigger only once?
 
     bool pending = true;     //!< Breakpoint not fully resolved.
-    int hitCount = 0;        //!< Number of times this has been hit.
+    std::optional<int> hitCount; //!< Number of times this has been hit.
 };
 
 } // namespace Internal

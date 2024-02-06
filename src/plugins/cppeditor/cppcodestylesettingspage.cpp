@@ -607,12 +607,21 @@ public:
 
 // CppCodeStyleSettingsPage
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
+class CppCodeStyleSettingsPage : public Core::IOptionsPage
 {
-    setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(Tr::tr("Code Style"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
+public:
+    CppCodeStyleSettingsPage()
+    {
+        setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        setDisplayName(Tr::tr("Code Style"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
+    }
+};
+
+void setupCppCodeStyleSettings()
+{
+    static CppCodeStyleSettingsPage theCppCodeStyleSettingsPage;
 }
 
 } // namespace CppEditor::Internal

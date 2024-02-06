@@ -13,8 +13,8 @@ namespace RemoteLinux {
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
 public:
-    using Ptr = QSharedPointer<LinuxDevice>;
-    using ConstPtr = QSharedPointer<const LinuxDevice>;
+    using Ptr = std::shared_ptr<LinuxDevice>;
+    using ConstPtr = std::shared_ptr<const LinuxDevice>;
 
     ~LinuxDevice();
 

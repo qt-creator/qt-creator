@@ -51,7 +51,7 @@ static void runProcess(QPromise<void> &promise, const ClearCaseSettings &setting
         processLine(buffer, ++processed);
 }
 
-ClearCaseSync::ClearCaseSync(QSharedPointer<StatusMap> statusMap) :
+ClearCaseSync::ClearCaseSync(std::shared_ptr<StatusMap> statusMap) :
     m_statusMap(statusMap)
 { }
 

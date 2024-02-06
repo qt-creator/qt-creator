@@ -92,11 +92,11 @@ public:
             };
         });
 
-        ActionContainer *menu = ActionManager::createMenu(Constants::CMAKEFORMATTER_MENU_ID);
-        menu->menu()->setTitle(Tr::tr("CMakeFormatter"));
-        menu->menu()->setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon());
-        menu->setOnAllDisabledBehavior(ActionContainer::Show);
-        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+        MenuBuilder(Constants::CMAKEFORMATTER_MENU_ID)
+            .setTitle(Tr::tr("CMakeFormatter"))
+            .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
 
         Core::Command *cmd = ActionManager::registerAction(&formatFile, Constants::CMAKEFORMATTER_ACTION_ID);
         connect(&formatFile, &QAction::triggered, this, [this] {

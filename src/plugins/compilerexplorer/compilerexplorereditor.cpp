@@ -547,7 +547,7 @@ void CompilerWidget::doCompile()
     m_compileWatcher->setFuture(f);
 }
 
-EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
+EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                            QUndoStack *undoStack,
                            TextEditorActionHandler &actionHandler,
                            QWidget *parent)

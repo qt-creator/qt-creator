@@ -35,7 +35,6 @@ Project {
             "buildsystemfilesparser.h",
             "common.h",
             "infoparser.h",
-            "targetparser.h",
             "target.h",
             "mesonpluginconstants.h",
             "mesonprojectplugin.cpp",

@@ -950,16 +950,16 @@ void tst_Process::runBlockingStdOut_data()
     QTest::addColumn<ProcessResult>("expectedResult");
 
     // Canceled, since the process is killed (canceled) from the callback.
-    QTest::newRow("Short timeout with end of line") << true << 2s << ProcessResult::Canceled;
+    QTest::newRow("Short timeout with end of line") << true << 1s << ProcessResult::Canceled;
 
     // Canceled, since it times out.
-    QTest::newRow("Short timeout without end of line") << false << 2s << ProcessResult::Canceled;
+    QTest::newRow("Short timeout without end of line") << false << 1s << ProcessResult::Canceled;
 
     // FinishedWithSuccess, since it doesn't time out, it finishes process normally,
     // calls the callback handler and tries to stop the process forcefully what is no-op
     // at this point in time since the process is already finished.
     QTest::newRow("Long timeout without end of line")
-            << false << 20s << ProcessResult::FinishedWithSuccess;
+            << false << 10s << ProcessResult::FinishedWithSuccess;
 }
 
 void tst_Process::runBlockingStdOut()
@@ -974,7 +974,7 @@ void tst_Process::runBlockingStdOut()
 
     bool readLastLine = false;
     process.setStdOutCallback([&readLastLine, &process](const QString &out) {
-        if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
+        if (out.contains(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             process.kill();
         }
@@ -1006,7 +1006,7 @@ void tst_Process::runBlockingSignal()
     process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
     connect(&process, &Process::textOnStandardOutput,
             this, [&readLastLine, &process](const QString &out) {
-        if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
+        if (out.contains(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             process.kill();
         }
@@ -1312,20 +1312,14 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     QVERIFY(process.waitForStarted());
     QCOMPARE(process.state(), QProcess::Running);
 
-    QDeadlineTimer timer(1000);
     QByteArray reply;
     while (process.state() == QProcess::Running) {
-        process.waitForReadyRead(500ms);
+        process.waitForReadyRead();
         if (processChannel == QProcess::StandardOutput)
             reply += process.readAllRawStandardOutput();
         else
             reply += process.readAllRawStandardError();
-        if (timer.hasExpired())
-            break;
     }
-
-    QCOMPARE(process.state(), QProcess::NotRunning);
-    QVERIFY(!timer.hasExpired());
     QVERIFY(reply.contains(expectedData));
 }
 

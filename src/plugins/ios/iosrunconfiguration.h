@@ -81,10 +81,6 @@ private:
     IosDeviceTypeAspect iosDeviceType;
 };
 
-class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    IosRunConfigurationFactory();
-};
+void setupIosRunConfiguration();
 
 } // Ios::Internal

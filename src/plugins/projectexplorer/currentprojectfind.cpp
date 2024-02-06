@@ -3,6 +3,7 @@
 
 #include "currentprojectfind.h"
 
+#include "allprojectsfind.h"
 #include "project.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
@@ -12,9 +13,31 @@
 #include <utils/qtcsettings.h>
 
 using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 using namespace Utils;
+
+namespace ProjectExplorer::Internal {
+
+class CurrentProjectFind final : public AllProjectsFind
+{
+public:
+    CurrentProjectFind();
+
+private:
+    QString id() const final;
+    QString displayName() const final;
+
+    bool isEnabled() const final;
+
+    void writeSettings(Utils::QtcSettings *settings) final;
+    void readSettings(Utils::QtcSettings *settings) final;
+
+    QString label() const final;
+
+    TextEditor::FileContainerProvider fileContainerProvider() const final;
+    void handleProjectChanged();
+    void setupSearch(Core::SearchResult *search) final;
+};
 
 CurrentProjectFind::CurrentProjectFind()
 {
@@ -105,3 +128,10 @@ void CurrentProjectFind::readSettings(QtcSettings *settings)
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }
+
+void setupCurrentProjectFind()
+{
+    static CurrentProjectFind theCurrentProjectFind;
+}
+
+} // ProjectExplorer::Internal

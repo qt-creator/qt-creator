@@ -74,9 +74,9 @@ const QStringList &Asset::supportedTexture3DSuffixes()
     return retList;
 }
 
-const QStringList &Asset::supportedEffectMakerSuffixes()
+const QStringList &Asset::supportedEffectComposerSuffixes()
 {
-    // These are file types only supported by Effect Maker
+    // These are file types only supported by Effect Composer
     static QStringList retList {"*.qep"};
     return retList;
 }
@@ -95,7 +95,7 @@ const QSet<QString> &Asset::supportedSuffixes()
         insertSuffixes(supportedAudioSuffixes());
         insertSuffixes(supportedVideoSuffixes());
         insertSuffixes(supportedTexture3DSuffixes());
-        insertSuffixes(supportedEffectMakerSuffixes());
+        insertSuffixes(supportedEffectComposerSuffixes());
     }
     return allSuffixes;
 }
@@ -204,7 +204,7 @@ void Asset::resolveType()
         m_type = Asset::Type::Video;
     else if (supportedTexture3DSuffixes().contains(m_suffix))
         m_type = Asset::Type::Texture3D;
-    else if (supportedEffectMakerSuffixes().contains(m_suffix))
+    else if (supportedEffectComposerSuffixes().contains(m_suffix))
         m_type = Asset::Type::Effect;
 }
 

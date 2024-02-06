@@ -39,7 +39,7 @@ public:
     explicit BareMetalDebugSupport(RunControl *runControl)
         : Debugger::DebuggerRunTool(runControl)
     {
-        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
         if (!dev) {
             reportFailure(Tr::tr("Cannot debug: Kit has no device."));
             return;
@@ -59,7 +59,7 @@ public:
 private:
     void start() final
     {
-        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
         QTC_ASSERT(dev, reportFailure(); return);
         IDebugServerProvider *p = DebugServerProviderManager::findProvider(
             dev->debugServerProviderId());

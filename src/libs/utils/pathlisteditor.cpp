@@ -10,7 +10,6 @@
 #include <QMimeData>
 #include <QPlainTextEdit>
 #include <QPushButton>
-#include <QSharedPointer>
 #include <QTextBlock>
 #include <QVBoxLayout>
 
@@ -64,9 +63,9 @@ void PathListPlainTextEdit::insertFromMimeData(const QMimeData *source)
         // replace separator
         QString text = source->text().trimmed();
         text.replace(HostOsInfo::pathListSeparator(), QLatin1Char('\n'));
-        QSharedPointer<QMimeData> fixed(new QMimeData);
+        QMimeData *fixed = new QMimeData;
         fixed->setText(text);
-        QPlainTextEdit::insertFromMimeData(fixed.data());
+        QPlainTextEdit::insertFromMimeData(fixed);
     } else {
         QPlainTextEdit::insertFromMimeData(source);
     }

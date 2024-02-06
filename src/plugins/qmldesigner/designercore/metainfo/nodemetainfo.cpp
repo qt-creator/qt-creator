@@ -3108,7 +3108,12 @@ bool NodeMetaInfo::isVariant() const
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
     } else {
-        return isValid() && simplifiedTypeName() == "QVariant";
+        if (!isValid())
+            return false;
+
+        const auto type = simplifiedTypeName();
+
+        return type == "QVariant" || type == "var" || type == "variant";
     }
 }
 

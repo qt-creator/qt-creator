@@ -13,7 +13,6 @@
 #include "squishtr.h"
 #include "squishwizardpages.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
@@ -32,71 +31,6 @@ using namespace Utils;
 
 namespace Squish::Internal {
 
-class SquishPluginPrivate final : public QObject
-{
-public:
-    SquishPluginPrivate();
-
-    bool initializeGlobalScripts();
-
-    ObjectsMapEditorFactory m_objectsMapEditorFactory;
-    SquishOutputPane m_outputPane;
-    SquishTools m_squishTools;
-};
-
-SquishPluginPrivate::SquishPluginPrivate()
-{
-    qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
-
-    const Id menuId = "Squish.Menu";
-    ActionContainer *menu = ActionManager::createMenu(menuId);
-    menu->menu()->setTitle(Tr::tr("&Squish"));
-    menu->setOnAllDisabledBehavior(ActionContainer::Show);
-
-    ActionBuilder serverSettings(this, "Squish.ServerSettings");
-    serverSettings.setText(Tr::tr("&Server Settings..."));
-    serverSettings.addToContainer(menuId);
-    serverSettings.addOnTriggered(this, [] {
-        if (!settings().squishPath().exists()) {
-            SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
-                                                   "installation path inside "
-                                                   "Preferences... > Squish > General to use "
-                                                   "this wizard."));
-            return;
-        }
-
-        SquishServerSettingsDialog dialog;
-        dialog.exec();
-    });
-
-    ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    toolsMenu->addMenu(menu);
-}
-
-bool SquishPluginPrivate::initializeGlobalScripts()
-{
-    // The code expects squishTestTreeModel to exist, so force creation now.
-    (void) SquishTestTreeModel::instance();
-
-    SquishFileHandler::instance()->setSharedFolders({});
-
-    const FilePath squishserver = settings().squishPath().pathAppended("bin/squishserver")
-            .withExecutableSuffix();
-    if (!squishserver.isExecutableFile())
-        return false;
-
-    m_squishTools.queryGlobalScripts([](const QString &output, const QString &error) {
-        if (output.isEmpty() || !error.isEmpty())
-            return; // ignore (for now?)
-
-        // FIXME? comma, special characters in paths
-        const Utils::FilePaths globalDirs = Utils::transform(
-                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromUserInput);
-        SquishFileHandler::instance()->setSharedFolders(globalDirs);
-    });
-    return true;
-}
-
 class SquishPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -105,32 +39,79 @@ class SquishPlugin final : public ExtensionSystem::IPlugin
 private:
     void initialize() final
     {
-        d.reset(new SquishPluginPrivate);
+        setupObjectsMapEditor();
+
+        setupSquishOutputPane(this);
+        setupSquishTools(this);
 
         setupSquishWizardPages();
         setupSquishNavigationWidgetFactory();
 
+        qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
+
+        const Id menuId = "Squish.Menu";
+        MenuBuilder(menuId)
+            .setTitle(Tr::tr("&Squish"))
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
+
+        ActionBuilder(this, "Squish.ServerSettings")
+            .setText(Tr::tr("&Server Settings..."))
+            .addToContainer(menuId)
+            .addOnTriggered(this, [] {
+                if (!settings().squishPath().exists()) {
+                    SquishMessages::criticalMessage(
+                        Tr::tr("Invalid Squish settings. Configure Squish installation path inside "
+                               "Preferences... > Squish > General to use this wizard."));
+                    return;
+                }
+                SquishServerSettingsDialog dialog;
+                dialog.exec();
+            });
+
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
+    }
+
+    bool initializeGlobalScripts()
+    {
+        // The code expects squishTestTreeModel to exist, so force creation now.
+        (void) SquishTestTreeModel::instance();
+
+        SquishFileHandler::instance()->setSharedFolders({});
+
+        const FilePath squishserver = settings().squishPath().pathAppended("bin/squishserver")
+                .withExecutableSuffix();
+        if (!squishserver.isExecutableFile())
+            return false;
+
+        SquishTools::instance()->queryGlobalScripts([](const QString &output, const QString &error) {
+            if (output.isEmpty() || !error.isEmpty())
+                return; // ignore (for now?)
+
+            // FIXME? comma, special characters in paths
+            const Utils::FilePaths globalDirs = Utils::transform(
+                        output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromUserInput);
+            SquishFileHandler::instance()->setSharedFolders(globalDirs);
+        });
+        return true;
     }
 
     bool delayedInitialize() final
     {
         connect(&settings().squishPath, &BaseAspect::changed,
-                d.get(), &SquishPluginPrivate::initializeGlobalScripts);
+                this, &SquishPlugin::initializeGlobalScripts);
 
-        return d->initializeGlobalScripts();
+        return initializeGlobalScripts();
     }
 
     ShutdownFlag aboutToShutdown() final
     {
-        if (d->m_squishTools.shutdown())
+        if (SquishTools::instance()->shutdown())
             return SynchronousShutdown;
-        connect(&d->m_squishTools, &SquishTools::shutdownFinished,
+        connect(SquishTools::instance(), &SquishTools::shutdownFinished,
                 this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
         return AsynchronousShutdown;
     }
-
-    std::unique_ptr<SquishPluginPrivate> d;
 };
 
 } // Squish::Internal

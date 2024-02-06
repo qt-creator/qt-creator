@@ -554,7 +554,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 
     connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    connect(dialog, &QDialog::accepted, this, [=]{
+    connect(dialog, &QDialog::accepted, this, [this, editor] {
         const auto expander = m_buildConfig->macroExpander();
 
         const QStringList lines = editor->toPlainText().split('\n', Qt::SkipEmptyParts);
@@ -1012,7 +1012,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 
     auto help = new QAction(Tr::tr("Help"), this);
     menu->addAction(help);
-    connect(help, &QAction::triggered, this, [=] {
+    connect(help, &QAction::triggered, this, [this, idx] {
         const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
 
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());

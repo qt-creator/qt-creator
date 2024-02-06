@@ -43,7 +43,7 @@ public:
     bool isSemanticInfoValid() const;
     bool isRenaming() const;
 
-    QSharedPointer<Internal::FunctionDeclDefLink> declDefLink() const;
+    std::shared_ptr<Internal::FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
     std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
@@ -115,7 +115,7 @@ private:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
     void abortDeclDefLink();
-    void onFunctionDeclDefLinkFound(QSharedPointer<Internal::FunctionDeclDefLink> link);
+    void onFunctionDeclDefLinkFound(std::shared_ptr<Internal::FunctionDeclDefLink> link);
 
     void onCodeWarningsUpdated(unsigned revision,
                                const QList<QTextEdit::ExtraSelection> selections,

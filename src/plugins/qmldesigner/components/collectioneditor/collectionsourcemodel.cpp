@@ -498,8 +498,21 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
             return;
         }
 
+        CollectionListModel *list = m_collectionList.at(nodeIndex.row()).data();
+        bool updateSelectedNames = list && list == m_previousSelectedList.data();
         emit collectionRenamed(oldName, newName);
         updateCollectionList(nodeIndex);
+
+        if (updateSelectedNames) {
+            list = m_collectionList.at(nodeIndex.row()).data();
+            if (m_selectedCollectionName == oldName) {
+                list->selectCollectionName(newName);
+                setSelectedCollectionName(newName);
+            } else {
+                // reselect to update ID if it's changed due to renaming and order changes
+                list->selectCollectionName(m_selectedCollectionName);
+            }
+        }
     }
 }
 

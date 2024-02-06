@@ -42,7 +42,6 @@ QtcPlugin {
             "pythonlanguageclient.cpp",
             "pythonlanguageclient.h",
             "pythonplugin.cpp",
-            "pythonplugin.h",
             "pythonproject.cpp",
             "pythonproject.h",
             "pythonrunconfiguration.cpp",

@@ -48,6 +48,7 @@ public:
     static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
     static Utils::FilePath currentFilePath();
     static Utils::FilePath currentProjectDirPath();
+    static QString currentProjectName();
 
     static QStringList isoIconsQmakeVariableValue(const QString &proPath);
     static bool setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value);

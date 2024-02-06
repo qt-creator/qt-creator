@@ -59,6 +59,8 @@ public slots:
     void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
+    void disableOutdatedPyls();
+    void disableOutdatedPylsNow();
     void fixupPythonKits();
     void initFromSettings(Utils::QtcSettings *settings);
     void writeToSettings(Utils::QtcSettings *settings);
@@ -70,5 +72,7 @@ private:
 
     static void saveSettings();
 };
+
+void setupPythonSettings(QObject *guard);
 
 } // Python::Internal

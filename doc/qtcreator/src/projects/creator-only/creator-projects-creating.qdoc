@@ -8,11 +8,9 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-qmake-libraries.html
-
-    \ingroup creator-explanation-projects
+    \previouspage creator-overview.html
+    \nextpage creator-configuring-projects.html
 
     \title Creating Projects
 

@@ -66,7 +66,7 @@ public:
 
     static QStringList typesStringList()
     {
-        static const QStringList typesList = typeToStringHash().values();
+        static const QStringList typesList = orderedTypeNames();
         return typesList;
     }
 
@@ -79,7 +79,8 @@ private:
             {DataType::Unknown, "Unknown"},
             {DataType::String, "String"},
             {DataType::Url, "Url"},
-            {DataType::Number, "Number"},
+            {DataType::Real, "Real"},
+            {DataType::Integer, "Integer"},
             {DataType::Boolean, "Boolean"},
             {DataType::Image, "Image"},
             {DataType::Color, "Color"},
@@ -94,6 +95,29 @@ private:
             stringTypeHash.insert(transferItem.second, transferItem.first);
 
         return stringTypeHash;
+    }
+
+    static QStringList orderedTypeNames()
+    {
+        const QList<DataType> orderedtypes{
+            DataType::String,
+            DataType::Integer,
+            DataType::Real,
+            DataType::Image,
+            DataType::Color,
+            DataType::Url,
+            DataType::Boolean,
+            DataType::Unknown,
+        };
+
+        QStringList orderedNames;
+        QHash<DataType, QString> typeStringHash = typeToStringHash();
+
+        for (const DataType &type : orderedtypes)
+            orderedNames.append(typeStringHash.take(type));
+
+        Q_ASSERT(typeStringHash.isEmpty());
+        return orderedNames;
     }
 };
 
@@ -219,11 +243,16 @@ bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIn
     bool columnsRemoved = m_currentCollection.removeColumns(column, count);
     endRemoveColumns();
 
+    if (!columnCount(parent))
+        removeRows(0, rowCount(parent), parent);
+
     int nextColumn = column - 1;
     if (nextColumn < 0 && columnCount(parent) > 0)
         nextColumn = 0;
 
     selectColumn(nextColumn);
+
+    ensureSingleCell();
     return columnsRemoved;
 }
 
@@ -237,6 +266,7 @@ bool CollectionDetailsModel::removeRows(int row, int count, const QModelIndex &p
     bool rowsRemoved = m_currentCollection.removeElements(row, count);
     endRemoveRows();
 
+    ensureSingleCell();
     return rowsRemoved;
 }
 
@@ -317,8 +347,8 @@ bool CollectionDetailsModel::selectColumn(int section)
 
     const int columns = columnCount();
 
-    if (m_selectedColumn >= columns)
-        return false;
+    if (section >= columns)
+        section = columns - 1;
 
     selectRow(-1);
 
@@ -415,6 +445,7 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
             deselectAll();
             beginResetModel();
             switchToCollection(newReference);
+            ensureSingleCell();
             endResetModel();
         }
     } else {
@@ -425,6 +456,42 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
         else if (sourceNode.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
             loadCsvCollection(fileName, collection);
     }
+}
+
+void CollectionDetailsModel::removeCollection(const ModelNode &sourceNode, const QString &collection)
+{
+    CollectionReference collectionRef{sourceNode, collection};
+    if (!m_openedCollections.contains(collectionRef))
+        return;
+
+    if (m_currentCollection.reference() == collectionRef)
+        loadCollection({}, {});
+
+    m_openedCollections.remove(collectionRef);
+}
+
+void CollectionDetailsModel::removeAllCollections()
+{
+    loadCollection({}, {});
+    m_openedCollections.clear();
+}
+
+void CollectionDetailsModel::renameCollection(const ModelNode &sourceNode,
+                                              const QString &oldName,
+                                              const QString &newName)
+{
+    CollectionReference oldRef{sourceNode, oldName};
+    if (!m_openedCollections.contains(oldRef))
+        return;
+
+    CollectionReference newReference{sourceNode, newName};
+    bool collectionIsSelected = m_currentCollection.reference() == oldRef;
+    CollectionDetails collection = m_openedCollections.take(oldRef);
+    collection.resetReference(newReference);
+    m_openedCollections.insert(newReference, collection);
+
+    if (collectionIsSelected)
+        setCollectionName(newName);
 }
 
 bool CollectionDetailsModel::saveDataStoreCollections()
@@ -583,6 +650,7 @@ void CollectionDetailsModel::loadJsonCollection(const QString &source, const QSt
     SourceFormat sourceFormat = jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown;
     beginResetModel();
     m_currentCollection.resetDetails(getJsonHeaders(collectionNodes), elements, sourceFormat);
+    ensureSingleCell();
     endResetModel();
 }
 
@@ -635,7 +703,22 @@ void CollectionDetailsModel::loadCsvCollection(const QString &source,
     SourceFormat sourceFormat = csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown;
     beginResetModel();
     m_currentCollection.resetDetails(headers, elements, sourceFormat);
+    ensureSingleCell();
     endResetModel();
+}
+
+void CollectionDetailsModel::ensureSingleCell()
+{
+    if (!m_currentCollection.isValid())
+        return;
+
+    if (!columnCount())
+        addColumn(0, "Column 1", "String");
+
+    if (!rowCount())
+        insertRow(0);
+
+    updateEmpty();
 }
 
 QVariant CollectionDetailsModel::variantFromString(const QString &value)

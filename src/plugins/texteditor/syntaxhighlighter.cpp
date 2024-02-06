@@ -61,6 +61,7 @@ public:
     QList<std::pair<int,TextStyle>> formatCategories;
     QTextCharFormat whitespaceFormat;
     bool noAutomaticHighlighting = false;
+    QString mimeType;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsDelta)
@@ -362,6 +363,18 @@ QTextDocument *SyntaxHighlighter::document() const
 {
     Q_D(const SyntaxHighlighter);
     return d->doc;
+}
+
+void SyntaxHighlighter::setMimeType(const QString &mimeType)
+{
+    Q_D(SyntaxHighlighter);
+    d->mimeType = mimeType;
+}
+
+QString SyntaxHighlighter::mimeType() const
+{
+    Q_D(const SyntaxHighlighter);
+    return d->mimeType;
 }
 
 /*!

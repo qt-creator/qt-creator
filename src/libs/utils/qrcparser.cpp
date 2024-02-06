@@ -8,7 +8,6 @@
 
 #include <qmljs/qmljstr.h> // Yes, the translations are still there
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
@@ -611,8 +610,8 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
         qCWarning(qrcParserLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
         QWriteLocker l(&m_mutex);
-        QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
-        if (currentValue.first.isNull())
+        QPair<QrcParser::Ptr, int> currentValue = m_cache.value(path, {{}, 0});
+        if (!currentValue.first)
             currentValue.first = newParser;
         currentValue.second += 1;
         m_cache.insert(path, currentValue);

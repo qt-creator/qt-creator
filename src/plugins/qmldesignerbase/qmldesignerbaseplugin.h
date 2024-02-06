@@ -28,6 +28,9 @@ public:
     static QStyle *style();
     static class StudioConfigSettingsPage *studioConfigSettingsPage();
 
+    static bool experimentalFeaturesEnabled();
+    static QByteArray experimentalFeaturesSettingsKey();
+
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
 

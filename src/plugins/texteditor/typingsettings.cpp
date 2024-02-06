@@ -3,6 +3,8 @@
 
 #include "typingsettings.h"
 
+#include "texteditorsettings.h"
+
 #include <coreplugin/icore.h>
 
 #include <QTextCursor>
@@ -84,5 +86,28 @@ bool TypingSettings::tabShouldIndent(const QTextDocument *document,
     return (m_tabKeyBehavior == TabAlwaysIndents);
 }
 
+TypingSettings &globalTypingSettings()
+{
+    static TypingSettings theGlobalTypingSettings;
+    return theGlobalTypingSettings;
+}
+
+const char typingGroup[] = "textTypingSettings";
+
+void updateGlobalTypingSettings(const TypingSettings &newTypingSettings)
+{
+    if (newTypingSettings.equals(globalTypingSettings()))
+        return;
+
+    globalTypingSettings() = newTypingSettings;
+    storeToSettings(typingGroup, Core::ICore::settings(), globalTypingSettings().toMap());
+
+    emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
+}
+
+void setupTypingSettings()
+{
+    globalTypingSettings().fromMap(storeFromSettings(typingGroup, Core::ICore::settings()));
+}
 
 } // namespace TextEditor

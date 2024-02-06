@@ -322,11 +322,9 @@ public:
     SystemEditor *m_systemEditor = nullptr;
 
     // actions
-    QAction *m_saveAllAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
     QAction *m_toggleMenubarAction = nullptr;
-    QAction *m_cycleModeSelectorStyleAction = nullptr;
     QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
     QAction *m_setModeSelectorStyleHiddenAction = nullptr;
     QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
@@ -2044,12 +2042,12 @@ void ICorePrivate::registerModeSelectorStyleActions()
     ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
 
     // Cycle Mode Selector Styles
-    m_cycleModeSelectorStyleAction = new QAction(Tr::tr("Cycle Mode Selector Styles"), this);
-    ActionManager::registerAction(m_cycleModeSelectorStyleAction, Constants::CYCLE_MODE_SELECTOR_STYLE);
-    connect(m_cycleModeSelectorStyleAction, &QAction::triggered, this, [this] {
-        ModeManager::cycleModeStyle();
-        updateModeSelectorStyleMenu();
-    });
+    ActionBuilder(this, Constants::CYCLE_MODE_SELECTOR_STYLE)
+        .setText(Tr::tr("Cycle Mode Selector Styles"))
+        .addOnTriggered(this, [this] {
+            ModeManager::cycleModeStyle();
+            updateModeSelectorStyleMenu();
+        });
 
     // Mode Selector Styles
     ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);

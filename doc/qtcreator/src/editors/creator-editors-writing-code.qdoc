@@ -23,14 +23,6 @@
     in-line error indicators while you are typing.
 
     \list
-        \if defined(qtcreator)
-        \li \l{Working in Edit Mode}
-
-            You can use the editor toolbar to navigate between open files
-            and symbols in use. You can also split the view to work on
-            several files simultaneously, add bookmarks, and move between
-            symbol definitions and declarations.
-        \endif
         \li \l{Semantic Highlighting}
 
             \QC enables you to write well formatted code by highlighting
@@ -79,18 +71,10 @@
             keyboard sequence as a macro. You can then play the macro to
             repeat the sequence. You can save the latest macro and assign a
             keyboard shortcut for running it or run it from the locator.
-    \endlist
-
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Comparing Files}
-
-            You can use a diff editor to compare two versions of a file and
-            view the differences side-by-side in the \uicontrol Edit mode.
         \endif
-
     \endlist
 
+    \if defined(qtcreator)
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Comparing Files}
+    \endif
 */

@@ -288,17 +288,17 @@
             \c {cmake-format.exe}.
         \li Select \uicontrol {Automatic formatting on file save} to automatically
             format CMake files when you save them.
-        \li In \uicontrol {Restrict to MIME types}, add the \l{Editing MIME Types}
-            {MIME types} of the files to format, separated by semicolons. The
-            default value, \c {text/x-cmake} formats CMake files. If the field is
-            empty, all files are formatted.
+        \li In \uicontrol {Restrict to MIME types}, add the MIME types of the
+            files to format, separated by semicolons. The default value,
+            \c {text/x-cmake} formats CMake files. If the field is empty, all
+            files are formatted.
         \li Select the \uicontrol {Restrict to files contained in the current
             project} check box to only format CMake files that belong to the
             current project.
     \endlist
 
     \sa {CMake},{Complete CMake code}, {Edit CMake configuration files},
-    {Editing MIME Types}
+    {Edit MIME types}
 */
 
 /*!

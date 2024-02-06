@@ -579,8 +579,10 @@ protected:
     ThemePrivate *d;
 
 private:
+    void readSettingsInternal(QSettings &settings);
     friend QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
     friend QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
+    QColor readNamedColorNoWarning(const QString &color) const;
     QPair<QColor, QString> readNamedColor(const QString &color) const;
 };
 

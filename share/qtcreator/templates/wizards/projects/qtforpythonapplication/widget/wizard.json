@@ -130,6 +130,10 @@
                     "target": "form.ui"
                 },
                 {
+                    "source": "../requirements.txt",
+                    "target": "requirements.txt"
+                },
+                {
                     "source": "../../git.ignore",
                     "target": ".gitignore",
                     "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"

@@ -85,7 +85,7 @@ public:
 private:
     void setMark(TextEditor::TextMark *mark);
 
-    QSharedPointer<TextEditor::TextMark> m_mark;
+    std::shared_ptr<TextEditor::TextMark> m_mark;
     mutable QIcon m_icon;
     static unsigned int s_nextId;
 

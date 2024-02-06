@@ -12,6 +12,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <projectexplorer/kit.h>
@@ -93,14 +94,23 @@ QSet<Utils::Id> IosQtVersion::targetDeviceTypes() const
 
 // Factory
 
-IosQtVersionFactory::IosQtVersionFactory()
+class IosQtVersionFactory final : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new IosQtVersion; });
-    setSupportedType(Constants::IOSQT);
-    setPriority(90);
-    setRestrictionChecker([](const SetupData &setup) {
-        return setup.platforms.contains("ios");
-    });
+public:
+    IosQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new IosQtVersion; });
+        setSupportedType(Constants::IOSQT);
+        setPriority(90);
+        setRestrictionChecker([](const SetupData &setup) {
+            return setup.platforms.contains("ios");
+        });
+    }
+};
+
+void setupIosQtVersion()
+{
+    static IosQtVersionFactory theIosQtVersionFactory;
 }
 
 } // Ios::Internal

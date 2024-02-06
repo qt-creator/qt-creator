@@ -41,7 +41,11 @@ private:
     {
         QTC_ASSERT(controlSignal != ControlSignal::Interrupt, return);
         QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
-        runInShell({Constants::AppcontrollerFilepath, {"--stop"}});
+        if (m_setup.m_commandLine.executable().path() == Constants::AppcontrollerFilepath) {
+            runInShell({Constants::AppcontrollerFilepath, {"--stop"}});
+            return;
+        }
+        SshProcessInterface::handleSendControlSignal(controlSignal);
     }
 };
 
@@ -124,7 +128,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 
 ProcessInterface *QdbDevice::createProcessInterface() const
 {
-    return new QdbProcessImpl(sharedFromThis());
+    return new QdbProcessImpl(shared_from_this());
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)

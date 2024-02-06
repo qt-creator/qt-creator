@@ -283,7 +283,8 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
 
     auto install = new PipInstallTask(python);
 
-    connect(install, &PipInstallTask::finished, this, [=](const bool success) {
+    connect(install, &PipInstallTask::finished, this,
+            [this, python, document, install](const bool success) {
         const QList<TextEditor::TextDocument *> additionalDocuments = m_infoBarEntries.take(python);
         if (success) {
             if (PyLSClient *client = clientForPython(python)) {
@@ -323,10 +324,8 @@ void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::Te
         }
     });
 
-    connect(watcher,
-            &CheckPylsWatcher::resultReadyAt,
-            this,
-            [=, document = QPointer<TextEditor::TextDocument>(document)]() {
+    connect(watcher, &CheckPylsWatcher::resultReadyAt, this,
+            [this, watcher, python, document = QPointer<TextEditor::TextDocument>(document)] {
                 if (!document || !watcher)
                     return;
                 handlePyLSState(python, watcher->result(), document);
@@ -355,8 +354,8 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(installPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(Tr::tr("Install"), [=]() {
-            this->installPythonLanguageServer(python, document, state.pylsModulePath);
+        info.addCustomButton(Tr::tr("Install"), [this, python, document, state] {
+            installPythonLanguageServer(python, document, state.pylsModulePath);
         });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;

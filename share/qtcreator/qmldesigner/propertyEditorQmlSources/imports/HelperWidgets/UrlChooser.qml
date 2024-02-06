@@ -32,6 +32,8 @@ Row {
     property alias spacer: spacer
     property alias actionIndicatorVisible: comboBox.actionIndicatorVisible
 
+    property bool hideDuplicates: true
+
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
@@ -423,6 +425,8 @@ Row {
         // QtDS very slow. This will happen when selecting different items in the scene.
         comboBox.model = {}
 
+        let nameSet = new Set;
+
         if (root.defaultItems !== undefined) {
             for (var i = 0; i < root.defaultItems.length; ++i) {
                 comboBox.listModel.append({
@@ -433,6 +437,7 @@ Row {
                     name: root.defaultItems[i],
                     group: 0
                 })
+                nameSet.add(root.defaultItems[i])
             }
         }
 
@@ -440,12 +445,15 @@ Row {
         for (var j = 0; j < myModel.length; ++j) {
             let item = myModel[j]
 
-            comboBox.listModel.append({
-                absoluteFilePath: item.absoluteFilePath,
-                relativeFilePath: item.relativeFilePath,
-                name: item.fileName,
-                group: 1
-            })
+            if (!root.hideDuplicates || !nameSet.has(item.fileName)) {
+                comboBox.listModel.append({
+                    absoluteFilePath: item.absoluteFilePath,
+                    relativeFilePath: item.relativeFilePath,
+                    name: item.fileName,
+                    group: 1
+                })
+                nameSet.add(item.fileName)
+            }
         }
 
         comboBox.model = Qt.binding(function() { return comboBox.listModel })
@@ -461,6 +469,7 @@ Row {
 
     onDefaultItemsChanged: root.createModel()
     onDefaultPathsChanged: root.createModel()
+    onHideDuplicatesChanged: root.createModel()
 
     Component.onCompleted: {
         root.createModel()

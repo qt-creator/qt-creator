@@ -62,10 +62,10 @@ class BeautifierPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
-        menu->menu()->setTitle(Tr::tr("Bea&utifier"));
-        menu->setOnAllDisabledBehavior(ActionContainer::Show);
-        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+        MenuBuilder(Constants::MENU_ID)
+            .setTitle(Tr::tr("Bea&utifier"))
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
 
         setupArtisticStyle();
         setupClangFormat();

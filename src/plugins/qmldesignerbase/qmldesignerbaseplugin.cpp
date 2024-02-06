@@ -9,12 +9,12 @@
 #include "utils/designersettings.h"
 
 #include <coreplugin/icore.h>
+#include <utils/appinfo.h>
 #include <utils/uniqueobjectptr.h>
 
 #include <QApplication>
 
 namespace QmlDesigner {
-
 
 class QmlDesignerBasePlugin::Data
 {
@@ -29,6 +29,9 @@ public:
 };
 
 namespace {
+
+const char experimentalFeatures[] = "QML/Designer/UseExperimentalFeatures";
+
 QmlDesignerBasePlugin *global;
 }
 
@@ -55,6 +58,19 @@ QStyle *QmlDesignerBasePlugin::style()
 StudioConfigSettingsPage *QmlDesignerBasePlugin::studioConfigSettingsPage()
 {
     return global->d->studioConfigSettingsPage.get();
+}
+
+bool QmlDesignerBasePlugin::experimentalFeaturesEnabled()
+{
+    return Core::ICore::settings()->value(experimentalFeaturesSettingsKey(), false).toBool();
+}
+
+QByteArray QmlDesignerBasePlugin::experimentalFeaturesSettingsKey()
+{
+    QString version = Utils::appInfo().displayVersion;
+    version.remove('.');
+
+    return QByteArray(experimentalFeatures) + version.toLatin1();
 }
 
 bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)

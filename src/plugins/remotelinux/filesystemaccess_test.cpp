@@ -79,7 +79,7 @@ void FileSystemAccessTest::initTestCase()
 
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
-        QVERIFY(!device.isNull());
+        QVERIFY(device);
         DeviceManager *deviceManager = DeviceManager::instance();
         deviceManager->addDevice(device);
         m_device = deviceManager->find(device->id());

@@ -45,6 +45,7 @@
         <file>source/textinputv2.qml</file>
         <file>source/component.qml</file>
         <file>source/component3d.qml</file>
+        <file>source/extendedview3D_template.qml</file>
         <file>images/column-positioner-icon.png</file>
         <file>images/column-positioner-icon-16px.png</file>
         <file>images/default-icon.png</file>

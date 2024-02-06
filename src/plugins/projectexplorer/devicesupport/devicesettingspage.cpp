@@ -12,7 +12,6 @@
 #include "idevicefactory.h"
 #include "idevicewidget.h"
 #include "../projectexplorerconstants.h"
-#include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
@@ -226,7 +225,7 @@ void DeviceSettingsWidget::addDevice()
     if (!factory)
         return;
     IDevice::Ptr device = factory->create();
-    if (device.isNull())
+    if (!device)
         return;
 
     Utils::asyncRun([device] { device->checkOsType(); });
@@ -329,7 +328,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     m_configWidget = nullptr;
     m_additionalActionButtons.clear();
     const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
-    if (device.isNull()) {
+    if (!device) {
         setDeviceInfoWidgetsEnabled(false);
         m_removeConfigButton->setEnabled(false);
         clearDetails();

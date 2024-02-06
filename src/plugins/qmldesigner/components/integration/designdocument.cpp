@@ -427,6 +427,12 @@ bool DesignDocument::hasProject() const
     return !DocumentManager::currentProjectDirPath().isEmpty();
 }
 
+void DesignDocument::setModified()
+{
+    if (!m_documentTextModifier.isNull())
+        m_documentTextModifier->textDocument()->setModified(true);
+}
+
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
     m_inFileComponentTextModifier.reset(textModifer);
@@ -512,6 +518,13 @@ bool DesignDocument::isRedoAvailable() const
         return plainTextEdit()->document()->isRedoAvailable();
 
     return false;
+}
+
+void DesignDocument::clearUndoRedoStacks() const
+{
+    const QPlainTextEdit *edit = plainTextEdit();
+    if (edit)
+        edit->document()->clearUndoRedoStacks();
 }
 
 void DesignDocument::close()

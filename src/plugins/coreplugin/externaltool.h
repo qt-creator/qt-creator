@@ -10,7 +10,6 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QTextCodec>
 #include <QMetaType>
 
@@ -51,10 +50,10 @@ public:
     Utils::EnvironmentItems environmentUserChanges() const;
 
     void setFilePath(const Utils::FilePath &filePath);
-    void setPreset(QSharedPointer<ExternalTool> preset);
+    void setPreset(std::shared_ptr<ExternalTool> preset);
     Utils::FilePath filePath() const;
     // all tools that are preset (changed or unchanged) have the original value here:
-    QSharedPointer<ExternalTool> preset() const;
+    std::shared_ptr<ExternalTool> preset() const;
 
     static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr,
                                        const QString &locale = {});
@@ -99,7 +98,7 @@ private:
 
     Utils::FilePath m_filePath;
     Utils::FilePath m_presetFileName;
-    QSharedPointer<ExternalTool> m_presetTool;
+    std::shared_ptr<ExternalTool> m_presetTool;
 };
 
 class CORE_EXPORT ExternalToolRunner : public QObject

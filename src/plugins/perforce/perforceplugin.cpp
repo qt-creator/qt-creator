@@ -296,8 +296,8 @@ public:
     void changelists(const FilePath &workingDir, const QString &fileName = QString());
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
-    static QSharedPointer<TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
-                                                                            QString *errorString);
+    static std::shared_ptr<TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
+                                                                      QString *errorString);
 
     QString pendingChangesData();
 
@@ -1066,19 +1066,18 @@ bool PerforcePluginPrivate::vcsMove(const FilePath &workingDir, const QString &f
 }
 
 // Write extra args to temporary file
-QSharedPointer<TempFileSaver>
-PerforcePluginPrivate::createTemporaryArgumentFile(const QStringList &extraArgs,
-                                            QString *errorString)
+std::shared_ptr<TempFileSaver> PerforcePluginPrivate::createTemporaryArgumentFile(
+    const QStringList &extraArgs, QString *errorString)
 {
     if (extraArgs.isEmpty())
-        return QSharedPointer<TempFileSaver>();
+        return std::shared_ptr<TempFileSaver>();
     // create pattern
     QString pattern = dd->m_tempFilePattern;
     if (pattern.isEmpty()) {
         pattern = TemporaryDirectory::masterDirectoryPath() + "/qtc_p4_XXXXXX.args";
         dd->m_tempFilePattern = pattern;
     }
-    QSharedPointer<TempFileSaver> rc(new TempFileSaver(pattern));
+    std::shared_ptr<TempFileSaver> rc(new TempFileSaver(pattern));
     rc->setAutoRemove(true);
     const int last = extraArgs.size() - 1;
     for (int i = 0; i <= last; i++) {
@@ -1087,7 +1086,7 @@ PerforcePluginPrivate::createTemporaryArgumentFile(const QStringList &extraArgs,
             rc->write("\n", 1);
     }
     if (!rc->finalize(errorString))
-        return QSharedPointer<TempFileSaver>();
+        return std::shared_ptr<TempFileSaver>();
     return rc;
 }
 
@@ -1237,8 +1236,8 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
     }
     QStringList actualArgs = settings().commonP4Arguments(workingDir.toString());
     QString errorMessage;
-    QSharedPointer<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
-    if (!tempFile.isNull())
+    std::shared_ptr<TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
+    if (tempFile)
         actualArgs << QLatin1String("-x") << tempFile->filePath().toString();
     else if (!errorMessage.isEmpty())
         return {};

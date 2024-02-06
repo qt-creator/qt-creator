@@ -3,18 +3,13 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-QT_BEGIN_NAMESPACE
-template <class T>
-class QSharedPointer;
-QT_END_NAMESPACE
+#include <memory>
 
 namespace ProjectExplorer {
 
 class IDevice;
 
-using IDevicePtr = QSharedPointer<IDevice>;
-using IDeviceConstPtr = QSharedPointer<const IDevice>;
+using IDevicePtr = std::shared_ptr<IDevice>;
+using IDeviceConstPtr = std::shared_ptr<const IDevice>;
 
 } // namespace ProjectExplorer

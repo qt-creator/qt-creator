@@ -227,7 +227,9 @@ public:
         menu->addAction(Tr::tr("&Copy \"%1\"").arg(reference),
                         [reference] { setClipboardAndSelection(reference); });
         QAction *action = menu->addAction(Tr::tr("&Describe Change %1").arg(reference),
-                                          [=] { vcsDescribe(workingDirectory, reference); });
+                                          [this, workingDirectory, reference] {
+            vcsDescribe(workingDirectory, reference);
+        });
         menu->setDefaultAction(action);
         GitClient::addChangeActions(menu, workingDirectory, reference);
     }
@@ -741,7 +743,7 @@ GitPluginPrivate::GitPluginPrivate()
                                      Tr::tr("Update Submodules"), "Git.SubmoduleUpdate",
                                      context, true, std::bind(&GitPluginPrivate::updateSubmodules, this));
 
-    auto createAction = [=](const QString &text, Id id,
+    auto createAction = [this, localRepositoryMenu, context](const QString &text, Id id,
                             const std::function<void(const FilePath &)> &callback) {
         auto actionHandler = [this, callback] {
             if (!DocumentManager::saveAllModifiedDocuments())

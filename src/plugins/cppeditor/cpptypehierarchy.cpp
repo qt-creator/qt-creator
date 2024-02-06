@@ -29,7 +29,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QModelIndex>
-#include <QSharedPointer>
 #include <QStackedLayout>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
@@ -82,7 +81,7 @@ private:
     AnnotatedItemDelegate *m_delegate = nullptr;
     TextEditor::TextEditorLinkLabel *m_inspectedClass = nullptr;
     QLabel *m_infoLabel = nullptr;
-    QFuture<QSharedPointer<CppElement>> m_future;
+    QFuture<std::shared_ptr<CppElement>> m_future;
     QFutureWatcher<void> m_futureWatcher;
     FutureSynchronizer m_synchronizer;
     ProgressIndicator *m_progressIndicator = nullptr;
@@ -258,8 +257,8 @@ void CppTypeHierarchyWidget::displayHierarchy()
         showNoTypeHierarchyLabel();
         return;
     }
-    const QSharedPointer<CppElement> &cppElement = m_future.result();
-    if (cppElement.isNull()) {
+    const std::shared_ptr<CppElement> &cppElement = m_future.result();
+    if (!cppElement) {
         showNoTypeHierarchyLabel();
         return;
     }

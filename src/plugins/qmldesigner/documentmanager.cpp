@@ -358,6 +358,19 @@ Utils::FilePath DocumentManager::currentProjectDirPath()
     return {};
 }
 
+QString DocumentManager::currentProjectName()
+{
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return {});
+
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return {};
+
+    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(qmlFileName);
+
+    return project ? project->displayName() : "";
+}
+
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 {
     ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(proPath));

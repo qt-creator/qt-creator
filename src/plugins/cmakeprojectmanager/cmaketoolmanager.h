@@ -44,6 +44,8 @@ public:
 
     static QString toolTipForRstHelpFile(const Utils::FilePath &helpFile);
 
+    static Utils::FilePath mappedFilePath(const Utils::FilePath &path);
+
 public slots:
     QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
                                   const QString &detectionSource,

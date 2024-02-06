@@ -316,34 +316,33 @@ public:
     ClangFormat()
     {
         const Id menuId = "ClangFormat.Menu";
-        Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
-        menu->menu()->setTitle(Tr::tr("&ClangFormat"));
+        Core::MenuBuilder(menuId)
+            .setTitle(Tr::tr("&ClangFormat"))
+            .addToContainer(Constants::MENU_ID);
 
-        Core::ActionBuilder formatFile(this, "ClangFormat.FormatFile");
-        formatFile.setText(msgFormatCurrentFile());
-        formatFile.bindContextAction(&m_formatFile);
-        formatFile.addToContainer(menuId);
-        formatFile.addOnTriggered(this, [this] { this->formatFile(); });
+        Core::ActionBuilder(this, "ClangFormat.FormatFile")
+            .setText(msgFormatCurrentFile())
+            .bindContextAction(&m_formatFile)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatFile);
 
-        Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
-        formatLines.setText(msgFormatLines());
-        formatLines.bindContextAction(&m_formatLines);
-        formatLines.addToContainer(menuId);
-        formatLines.addOnTriggered(this, [this] { this->formatLines(); });
+        Core::ActionBuilder(this, "ClangFormat.FormatLines")
+            .setText(msgFormatLines())
+            .bindContextAction(&m_formatLines)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatLines);
 
-        Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
-        formatAtCursor.setText(msgFormatAtCursor());
-        formatAtCursor.bindContextAction(&m_formatRange);
-        formatAtCursor.addToContainer(menuId);
-        formatAtCursor.addOnTriggered(this, [this] { this->formatAtCursor(); });
+        Core::ActionBuilder(this, "ClangFormat.FormatAtCursor")
+            .setText(msgFormatAtCursor())
+            .bindContextAction(&m_formatRange)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatAtCursor);
 
-        Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
-        formatDisable.setText(msgDisableFormattingSelectedText());
-        formatDisable.bindContextAction(&m_disableFormattingSelectedText);
-        formatDisable.addToContainer(menuId);
-        formatDisable.addOnTriggered(this, [this] { disableFormattingSelectedText(); });
-
-        Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        Core::ActionBuilder(this, "ClangFormat.DisableFormattingSelectedText")
+            .setText(msgDisableFormattingSelectedText())
+            .bindContextAction(&m_disableFormattingSelectedText)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::disableFormattingSelectedText);
 
         connect(&settings().supportedMimeTypes, &BaseAspect::changed,
                 this, [this] { updateActions(Core::EditorManager::currentEditor()); });

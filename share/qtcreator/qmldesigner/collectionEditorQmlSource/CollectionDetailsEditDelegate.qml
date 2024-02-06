@@ -74,16 +74,16 @@ Item {
         }
 
         Component {
-            id: numberEditor
+            id: realEditor
 
             EditorPopup {
 
-                editor: numberField
+                editor: realField
 
                 StudioControls.RealSpinBox {
-                    id: numberField
+                    id: realField
 
-                    property alias editValue: numberField.realValue
+                    property alias editValue: realField.realValue
 
                     actionIndicator.visible: false
                     realFrom: -9e9
@@ -91,6 +91,27 @@ Item {
                     realStepSize: 1.0
                     decimals: 6
                     trailingZeroes: false
+                }
+            }
+        }
+
+        Component {
+            id: integerEditor
+
+            EditorPopup {
+
+                editor: integerField
+
+                StudioControls.SpinBox {
+                    id: integerField
+
+                    property alias editValue: integerField.value
+
+                    actionIndicatorVisible: false
+                    spinBoxIndicatorVisible: true
+                    from: -2147483647
+                    to: 2147483647
+                    decimals: 0
                 }
             }
         }
@@ -150,7 +171,8 @@ Item {
             name: "default"
             when: columnType !== CollectionDetails.DataType.Boolean
                   && columnType !== CollectionDetails.DataType.Color
-                  && columnType !== CollectionDetails.DataType.Number
+                  && columnType !== CollectionDetails.DataType.Integer
+                  && columnType !== CollectionDetails.DataType.Real
 
             PropertyChanges {
                 target: editorLoader
@@ -158,12 +180,21 @@ Item {
             }
         },
         State {
-            name: "number"
-            when: columnType === CollectionDetails.DataType.Number
+            name: "integer"
+            when: columnType === CollectionDetails.DataType.Integer
 
             PropertyChanges {
                 target: editorLoader
-                sourceComponent: numberEditor
+                sourceComponent: integerEditor
+            }
+        },
+        State {
+            name: "real"
+            when: columnType === CollectionDetails.DataType.Real
+
+            PropertyChanges {
+                target: editorLoader
+                sourceComponent: realEditor
             }
         },
         State {

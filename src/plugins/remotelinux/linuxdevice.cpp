@@ -439,7 +439,7 @@ qint64 SshProcessInterface::processId() const
     return d->m_processId;
 }
 
-bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
+ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
     Process process;
     CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
@@ -449,15 +449,14 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     cmd.addArg(tmp);
     process.setCommand(cmd);
     process.setWriteData(data);
-    process.start();
     using namespace std::chrono_literals;
-    const bool isFinished = process.waitForFinished(2s); // It may freeze on some devices
-    if (!isFinished) {
+    process.runBlocking(2s);
+    if (process.result() == ProcessResult::Canceled) {
         Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
                                                "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
-    return isFinished;
+    return process.result();
 }
 
 void SshProcessInterface::start()
@@ -498,8 +497,16 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     const QString args = QString::fromLatin1("-%1 -%2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
     const CommandLine command = { "kill", args, CommandLine::Raw };
+
+    // Killing by using the pid as process group didn't work
+    // Fallback to killing the pid directly
     // Note: This blocking call takes up to 2 ms for local remote.
-    runInShell(command);
+    if (runInShell(command, {}) != ProcessResult::FinishedWithSuccess) {
+        const QString args = QString::fromLatin1("-%1 %2")
+                                 .arg(controlSignalToInt(controlSignal)).arg(pid);
+        const CommandLine command = { "kill" , args, CommandLine::Raw };
+        runInShell(command, {});
+    }
 }
 
 void SshProcessInterfacePrivate::handleStarted()
@@ -662,7 +669,7 @@ void SshProcessInterfacePrivate::start()
                 this, &SshProcessInterfacePrivate::handleConnected);
         connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
                 this, &SshProcessInterfacePrivate::handleDisconnected);
-        auto linuxDevice = m_device.dynamicCast<const LinuxDevice>();
+        auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
         QTC_ASSERT(linuxDevice, handleDone(); return);
         linuxDevice->connectionAccess()
             ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
@@ -1018,7 +1025,7 @@ LinuxDevice::~LinuxDevice()
 
 IDeviceWidget *LinuxDevice::createWidget()
 {
-    return new Internal::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
+    return new Internal::GenericLinuxDeviceConfigurationWidget(shared_from_this());
 }
 
 DeviceTester *LinuxDevice::createDeviceTester() const
@@ -1028,7 +1035,7 @@ DeviceTester *LinuxDevice::createDeviceTester() const
 
 DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sharedFromThis()));
+    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this()));
 }
 
 bool LinuxDevice::usableAsBuildDevice() const
@@ -1062,7 +1069,7 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
 
 ProcessInterface *LinuxDevice::createProcessInterface() const
 {
-    return new SshProcessInterface(sharedFromThis());
+    return new SshProcessInterface(shared_from_this());
 }
 
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
@@ -1243,7 +1250,7 @@ private:
                     this, &SshTransferInterface::handleConnected);
             connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
                     this, &SshTransferInterface::handleDisconnected);
-            auto linuxDevice = m_device.dynamicCast<const LinuxDevice>();
+            auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
             QTC_ASSERT(linuxDevice, startFailed("No Linux device"); return);
             linuxDevice->connectionAccess()
                 ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
@@ -1497,8 +1504,8 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
     }
 
     switch (setup.m_method) {
-    case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, sharedFromThis());
-    case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, sharedFromThis());
+    case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, shared_from_this());
+    case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, shared_from_this());
     case FileTransferMethod::GenericCopy: return new GenericTransferImpl(setup);
     }
     QTC_CHECK(false);

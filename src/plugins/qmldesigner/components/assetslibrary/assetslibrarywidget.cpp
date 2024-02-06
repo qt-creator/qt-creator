@@ -8,6 +8,8 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 #include "designeractionmanager.h"
+#include "import.h"
+#include "nodemetainfo.h"
 #include "modelnodeoperations.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -27,6 +29,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImageReader>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPointF>
@@ -118,6 +121,9 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     connect(m_assetsModel, &AssetsLibraryModel::fileChanged,
             QmlDesignerPlugin::instance(), &QmlDesignerPlugin::assetChanged);
 
+    connect(m_assetsModel, &AssetsLibraryModel::effectsDeleted,
+            this, &AssetsLibraryWidget::handleDeleteEffects);
+
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
@@ -184,12 +190,12 @@ QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, co
     return path;
 }
 
-bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectMaker)
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)
 {
     bool created = QFile(effectPath).open(QIODevice::WriteOnly);
 
-    if (created && openInEffectMaker) {
-        openEffectMaker(effectPath);
+    if (created && openInEffectComposer) {
+        openEffectComposer(effectPath);
         emit directoryCreated(QFileInfo(effectPath).absolutePath());
     }
 
@@ -261,6 +267,73 @@ void AssetsLibraryWidget::setHasSceneEnv(bool b)
 
     m_hasSceneEnv = b;
     emit hasSceneEnvChanged();
+}
+
+void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
+{
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    if (!document)
+        return;
+
+    bool clearStacks = false;
+
+    // Remove usages of deleted effects from the current document
+    m_assetsView->executeInTransaction(__FUNCTION__, [&]() {
+        QList<ModelNode> allNodes = m_assetsView->allModelNodes();
+        const QString typeTemplate = "Effects.%1.%1";
+        const QString importUrlTemplate = "Effects.%1";
+        const Imports imports = m_assetsView->model()->imports();
+        Imports removedImports;
+        for (const QString &effectName : effectNames) {
+            if (effectName.isEmpty())
+                continue;
+            const TypeName type = typeTemplate.arg(effectName).toUtf8();
+            for (ModelNode &node : allNodes) {
+                if (node.metaInfo().typeName() == type) {
+                    clearStacks = true;
+                    node.destroy();
+                }
+            }
+
+            const QString importPath = importUrlTemplate.arg(effectName);
+            Import removedImport = Utils::findOrDefault(imports, [&importPath](const Import &import) {
+                return import.url() == importPath;
+            });
+            if (!removedImport.isEmpty())
+                removedImports.append(removedImport);
+        }
+
+        if (!removedImports.isEmpty()) {
+            m_assetsView->model()->changeImports({}, removedImports);
+            clearStacks = true;
+        }
+    });
+
+    // The size check here is to weed out cases where project path somehow resolves
+    // to just slash. Shortest legal currentProjectDirPath() would be "/a/".
+    if (m_assetsModel->currentProjectDirPath().size() < 3)
+        return;
+
+    Utils::FilePath effectsDir = ModelNodeOperations::getEffectsImportDirectory();
+
+    // Delete the effect modules
+    for (const QString &effectName : effectNames) {
+        Utils::FilePath eDir = effectsDir.pathAppended(effectName);
+        if (eDir.exists() && eDir.toString().startsWith(m_assetsModel->currentProjectDirPath())) {
+            QString error;
+            eDir.removeRecursively(&error);
+            if (!error.isEmpty()) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Delete Effect Resources"),
+                                     tr("Could not delete \"%1\".").arg(eDir.toString()));
+            }
+        }
+    }
+
+    // Reset undo stack as removing effect components cannot be undone, and thus the stack will
+    // contain only unworkable states.
+    if (clearStacks)
+        document->clearUndoRedoStacks();
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
@@ -359,9 +432,9 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
-void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
+void AssetsLibraryWidget::openEffectComposer(const QString &filePath)
 {
-    ModelNodeOperations::openEffectMaker(filePath);
+    ModelNodeOperations::openEffectComposer(filePath);
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()
@@ -440,7 +513,7 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
             // Data: Image format (suffix)
             return {Constants::MIME_TYPE_ASSET_TEXTURE3D, asset.suffix().toUtf8()};
         } else if (asset.isEffect()) {
-            // Data: Effect Maker format (suffix)
+            // Data: Effect Composer format (suffix)
             return {Constants::MIME_TYPE_ASSET_EFFECT, asset.suffix().toUtf8()};
         }
     }

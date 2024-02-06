@@ -30,11 +30,11 @@
             \l{https://github.com/microsoft/vscode-languageserver-node/pull/367}
             {Proposal of the semantic highlighting protocol extension}
         \li Navigating in the code by using the \l{Searching with the Locator}
-            {locator} or \l{Moving to Symbol Definition or Declaration}
+            {locator} or \l{Move to symbol definition or declaration}
             {moving to the symbol definition}
         \li Inspecting code by viewing the document outline in the
             \l{Outline} view or in the \uicontrol Symbols list on the
-            \l{Using the Editor Toolbar}{editor toolbar}
+            \l{Edit Mode}{editor toolbar}
         \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
         \li \l{Finding Symbols}{Finding references to symbols}
         \li \l{Renaming Symbols}{Renaming the symbol under cursor}
@@ -57,7 +57,8 @@
     type or file pattern, no files will be sent to the language server. This is
     done to avoid unnecessary traffic and inaccurate information, as files are
     only sent to the language server if they are known to be handled by it. For
-    more information about how \QC uses MIME types, see \l {Editing MIME Types}.
+    more information about how \QC uses MIME types, see
+    \l {Edit MIME types}.
 
     \section1 Adding Language Servers
 
@@ -263,8 +264,8 @@
     For a generic language server, the value of the \uicontrol {Startup behavior}
     field in the \l{Add generic language servers}{language server preferences}
     determines when the server is started. To restart language servers, select
-    \inlineimage icons/languageclient.png on the \l{Managing Language Servers}
-    {editor toolbar}, and go to \uicontrol {Restart}.
+    \inlineimage icons/languageclient.png on the \l{Edit Mode}{editor toolbar},
+    and go to \uicontrol {Restart}.
 
     \uicontrol Log displays additional information about the selected log entry.
     You can see the \uicontrol {Content length} and \uicontrol {MIME type} of

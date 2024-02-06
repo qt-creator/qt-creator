@@ -850,4 +850,19 @@ MetaInfo {
             Property { name: "loadPrefix"; type: "string"; value: "lightmaps"; }
         }
     }
+
+    Type {
+        name: "QtQuick3D.View3D"
+        icon: ":/qtquickplugin/images/default3d16.png"
+
+        ItemLibraryEntry {
+            name: "Extended View3D"
+            category: "Items"
+            libraryIcon: ":/qtquickplugin/images/default3d.png"
+            version: "6.5"
+            requiredImport: "QtQuick3D"
+            QmlSource { source: ":/qtquickplugin/source/extendedview3D_template.qml" }
+            toolTip: qsTr("A 2D surface where a 3D scene can be rendered. Includes ExtendedSceneEnvironment.")
+        }
+    }
 }

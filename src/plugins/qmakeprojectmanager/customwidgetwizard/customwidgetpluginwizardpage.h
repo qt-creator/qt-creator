@@ -6,7 +6,6 @@
 #include "filenamingparameters.h"
 
 #include <QWizardPage>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -34,7 +33,7 @@ public:
     void setFileNamingParameters(const FileNamingParameters &fnp) {m_fileNamingParameters = fnp; }
 
     // Fills the plugin fields, excluding widget list.
-    QSharedPointer<PluginOptions> basicPluginOptions() const;
+    std::shared_ptr<PluginOptions> basicPluginOptions() const;
 
 private:
     void slotCheckCompleteness();

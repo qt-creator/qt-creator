@@ -47,10 +47,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = languageVariant(parent()
-                         ? static_cast<TextDocument*>(parent())->mimeType()
-                         : QString());
-    lex.setVariant(variant);
+    lex.setVariant(languageVariant(mimeType()));
 
     int initialState = state;
 

@@ -183,7 +183,7 @@ void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
 void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
 {
     if (m_tokens.contains(doc->filePath())){
-        if (TextEditor::BaseSyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner())
+        if (TextEditor::SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner())
             highlighter->clearAllExtraFormats();
     }
 }
@@ -413,7 +413,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
         return;
-    BaseSyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner();
+    SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner();
     if (!highlighter)
         return;
     const VersionedTokens versionedTokens = m_tokens.value(filePath);

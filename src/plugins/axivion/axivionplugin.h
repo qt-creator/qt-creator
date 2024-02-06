@@ -11,8 +11,6 @@
 #include <QUrl>
 #include <QVersionNumber>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QIcon;
 QT_END_NAMESPACE
@@ -30,9 +28,9 @@ struct IssueListSearch
     QString versionStart;
     QString versionEnd;
     QString owner;
-    QString pathglob;
+    QString filter_path;
     int offset = 0;
-    int limit = 30;
+    int limit = 150;
     bool computeTotalRowCount = false;
 
     QString toQuery() const;
@@ -59,11 +57,15 @@ Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &ha
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
 Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
 
+using HtmlHandler = std::function<void(const QByteArray &)>;
+Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
+
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 
 QIcon iconForIssue(const QString &prefix);
+QString anyToSimpleString(const Dto::Any &any);
 
 } // Axivion::Internal
 

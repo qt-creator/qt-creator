@@ -40,8 +40,6 @@ public:
     int column = 0;
 };
 
-using TestParseResultPtr = QSharedPointer<TestParseResult>;
-
 class ITestParser
 {
 public:

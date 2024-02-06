@@ -75,7 +75,7 @@ const Ranges rangesForResult(
 }
 
 void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-    BaseSyntaxHighlighterRunner *highlighter,
+    SyntaxHighlighterRunner *highlighter,
     const QFuture<HighlightingResult> &future,
     int from,
     int to,
@@ -128,7 +128,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     highlighter->setExtraFormats(blockNumberMap);
 }
 
-void SemanticHighlighter::setExtraAdditionalFormats(BaseSyntaxHighlighterRunner *highlighter,
+void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighterRunner *highlighter,
                                                     const QList<HighlightingResult> &results,
                                                     const QHash<int, QTextCharFormat> &kindToFormat)
 {
@@ -151,7 +151,7 @@ void SemanticHighlighter::setExtraAdditionalFormats(BaseSyntaxHighlighterRunner 
 }
 
 void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-    BaseSyntaxHighlighterRunner *highlighter, const QFuture<HighlightingResult> &future)
+    SyntaxHighlighterRunner *highlighter, const QFuture<HighlightingResult> &future)
 {
     const QTextDocument * const doc = highlighter->document();
     QTextBlock firstBlockToClear = doc->begin();

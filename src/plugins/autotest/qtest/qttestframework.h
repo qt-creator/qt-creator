@@ -31,6 +31,7 @@ public:
     Utils::BoolAspect limitWarnings{this};
     Utils::IntegerAspect maxWarnings{this};
     Utils::BoolAspect quickCheckForDerivedTests{this};
+    Utils::BoolAspect parseMessages{this};
 
     QStringList testNameForSymbolName(const QString &symbolName) const override;
 

@@ -42,8 +42,8 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
 class IosSimulator final : public ProjectExplorer::IDevice
 {
 public:
-    using ConstPtr = QSharedPointer<const IosSimulator>;
-    using Ptr = QSharedPointer<IosSimulator>;
+    using ConstPtr = std::shared_ptr<const IosSimulator>;
+    using Ptr = std::shared_ptr<IosSimulator>;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     ProjectExplorer::IDeviceWidget *createWidget() override;

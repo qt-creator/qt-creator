@@ -186,7 +186,7 @@ Warning *WarningModel::createWarning(Warning::Severity severity, const QString &
     beginInsertRows(QModelIndex(), m_warnings.count(), m_warnings.count());
     auto warning = new Warning(severity, type, reason, description, m_warningVisibilities.value(severity, true));
     connect(warning, &Warning::destroyed, this, &WarningModel::warningDestroyed);
-    connect(warning, &Warning::dataChanged, this, [=] {
+    connect(warning, &Warning::dataChanged, this, [this, warning] {
         emit warningsChanged();
         QModelIndex ind = createIndex(m_warnings.indexOf(warning), 0);
         emit dataChanged(ind, ind);

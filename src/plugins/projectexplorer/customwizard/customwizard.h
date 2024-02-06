@@ -7,7 +7,6 @@
 
 #include <coreplugin/basefilewizardfactory.h>
 
-#include <QSharedPointer>
 #include <QList>
 #include <QMap>
 
@@ -77,8 +76,8 @@ public:
     static int verbose();
 
 protected:
-    using CustomWizardParametersPtr = QSharedPointer<Internal::CustomWizardParameters>;
-    using CustomWizardContextPtr = QSharedPointer<Internal::CustomWizardContext>;
+    using CustomWizardParametersPtr = std::shared_ptr<Internal::CustomWizardParameters>;
+    using CustomWizardContextPtr = std::shared_ptr<Internal::CustomWizardContext>;
 
     // generate files in path
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;

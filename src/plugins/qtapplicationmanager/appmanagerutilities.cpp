@@ -48,7 +48,7 @@ FilePath getToolFilePath(const QString &toolname, const Kit *kit, const IDevice:
     return !device ? FilePath::fromString(filePath) : device->filePath(filePath);
 }
 
-QString getToolNameByDevice(const QString &baseName, const QSharedPointer<const IDevice> &device)
+QString getToolNameByDevice(const QString &baseName, const std::shared_ptr<const IDevice> &device)
 {
     return OsSpecificAspects::withExecutableSuffix(device ? device->osType() : HostOsInfo::hostOs(), baseName);
 }

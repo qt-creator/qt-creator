@@ -1414,13 +1414,13 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     else
         m_document->setTabSettings(tabSettings); // also set through code style ???
 
-    q->setTypingSettings(TextEditorSettings::typingSettings());
-    q->setStorageSettings(TextEditorSettings::storageSettings());
-    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+    q->setTypingSettings(globalTypingSettings());
+    q->setStorageSettings(globalStorageSettings());
+    q->setBehaviorSettings(globalBehaviorSettings());
     q->setMarginSettings(TextEditorSettings::marginSettings());
     q->setDisplaySettings(TextEditorSettings::displaySettings());
     q->setCompletionSettings(TextEditorSettings::completionSettings());
-    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    q->setExtraEncodingSettings(globalExtraEncodingSettings());
     q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();
@@ -1936,7 +1936,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             QStringList commentMarker;
             QStringList docMarker;
             HighlighterHelper::Definition def;
-            if (BaseSyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
+            if (SyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
                 def = HighlighterHelper::definitionForName(highlighter->definitionName());
 
             if (def.isValid()) {
@@ -3743,7 +3743,7 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
-    if (BaseSyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
+    if (SyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
         return HighlighterHelper::definitionForName(highlighter->definitionName());
     return {};
 }
@@ -8132,7 +8132,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
     if (optionFlags != currentOptionFlags) {
-        if (BaseSyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
+        if (SyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
             highlighter->rehighlight();
         QTextOption option = document()->defaultTextOption();
         option.setFlags(optionFlags);
@@ -8334,7 +8334,7 @@ void TextEditorWidget::circularPaste()
         return;
     }
 
-    if (const QMimeData *mimeData = circularClipBoard->next().data()) {
+    if (const QMimeData *mimeData = circularClipBoard->next().get()) {
         QApplication::clipboard()->setMimeData(TextEditorWidget::duplicateMimeData(mimeData));
         paste();
     }

@@ -7,7 +7,6 @@
 
 #include <QObject>
 #include <QPointer>
-#include <QSharedPointer>
 #include <QPair>
 
 namespace Core {
@@ -45,7 +44,7 @@ public:
     void updateActions(const VcsBase::VcsBasePluginState &state);
 
 signals:
-    void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void fetchStarted(const std::shared_ptr<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
 private:
@@ -53,10 +52,10 @@ private:
     void push();
 
     Utils::FilePath findLocalRepository(const QString &project, const QString &branch) const;
-    void fetch(const QSharedPointer<GerritChange> &change, int mode);
+    void fetch(const std::shared_ptr<GerritChange> &change, int mode);
 
-    QSharedPointer<GerritParameters> m_parameters;
-    QSharedPointer<GerritServer> m_server;
+    std::shared_ptr<GerritParameters> m_parameters;
+    std::shared_ptr<GerritServer> m_server;
     QPointer<GerritDialog> m_dialog;
     Core::Command *m_gerritCommand = nullptr;
     Core::Command *m_pushToGerritCommand = nullptr;

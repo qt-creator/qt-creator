@@ -6,7 +6,6 @@
 #include "externaltool.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
-#include "icontext.h"
 #include "icore.h"
 #include "messagemanager.h"
 #include "actionmanager/actionmanager.h"
@@ -114,7 +113,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
             if (isPreset) {
                 // preset that was changed
                 ExternalTool *other = tools->value(tool->id());
-                other->setPreset(QSharedPointer<ExternalTool>(tool));
+                other->setPreset(std::shared_ptr<ExternalTool>(tool));
             } else {
                 qWarning() << Tr::tr("Error: External tool in %1 has duplicate id").arg(fileName);
                 delete tool;
@@ -123,7 +122,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
         }
         if (isPreset) {
             // preset that wasn't changed --> save original values
-            tool->setPreset(QSharedPointer<ExternalTool>(new ExternalTool(tool)));
+            tool->setPreset(std::shared_ptr<ExternalTool>(new ExternalTool(tool)));
         }
         tools->insert(tool->id(), tool);
         (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);

@@ -37,7 +37,7 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate(const QPromise<ProjectInfo:
     const auto projectInfo = ProjectInfo::create(m_projectUpdateInfo, projectParts);
 
     static const auto showWarning = [](const QString &message) {
-        QTimer::singleShot(0, TaskHub::instance(), [message] {
+        QTimer::singleShot(0, &taskHub(), [message] {
             TaskHub::addTask(BuildSystemTask(Task::Warning, message));
         });
     };

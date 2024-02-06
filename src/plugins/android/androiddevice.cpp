@@ -63,7 +63,7 @@ public:
 AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device)
 {
-    const auto dev = qSharedPointerCast<AndroidDevice>(device);
+    const auto dev = std::static_pointer_cast<AndroidDevice>(device);
     const auto formLayout = new QFormLayout(this);
     formLayout->setFormAlignment(Qt::AlignLeft);
     formLayout->setContentsMargins(0, 0, 0, 0);
@@ -383,7 +383,7 @@ IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 
 IDeviceWidget *AndroidDevice::createWidget()
 {
-    return new AndroidDeviceWidget(sharedFromThis());
+    return new AndroidDeviceWidget(shared_from_this());
 }
 
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
@@ -431,7 +431,7 @@ IDevice::DeviceState AndroidDeviceManager::getDeviceState(const QString &serial,
 
 void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device)
 {
-    const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.data());
+    const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.get());
     const QString serial = dev->serialNumber();
     DeviceManager *const devMgr = DeviceManager::instance();
     const Id id = dev->id();
@@ -444,7 +444,7 @@ void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Con
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
 {
     Q_UNUSED(parent)
-    const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
+    const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.get());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
     auto future = Utils::asyncRun([this, name, device] {
@@ -460,13 +460,13 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
 
 void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 {
-    if (device.isNull())
+    if (!device)
         return;
 
     if (device->machineType() == IDevice::Hardware)
         return;
 
-    const QString name = static_cast<const AndroidDevice *>(device.data())->avdName();
+    const QString name = static_cast<const AndroidDevice *>(device.get())->avdName();
     const QString question
         = Tr::tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
     if (!AndroidDeviceWidget::questionDialog(question, parent))
@@ -503,7 +503,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         return;
     }
 
-    const auto androidDev = static_cast<const AndroidDevice *>(device.data());
+    const auto androidDev = static_cast<const AndroidDevice *>(device.get());
     const QStringList adbSelector = AndroidDeviceInfo::adbSelector(androidDev->serialNumber());
     // prepare port
     QStringList args = adbSelector;
@@ -679,8 +679,8 @@ void AndroidDeviceManager::HandleAvdsListChange()
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = AndroidDevice::displayNameFromInfo(item);
         IDevice::ConstPtr dev = devMgr->find(deviceId);
-        if (!dev.isNull()) {
-            const auto androidDev = static_cast<const AndroidDevice *>(dev.data());
+        if (dev) {
+            const auto androidDev = static_cast<const AndroidDevice *>(dev.get());
             // DeviceManager doens't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
             // Also account for the case of an AVD registered through old QC which might have
@@ -837,13 +837,13 @@ public:
                         ":/android/images/androiddevice.png");
         setConstructionFunction(&AndroidDevice::create);
         if (androidConfig().sdkToolsOk()) {
-            setCreator([this] {
+            setCreator([] {
                 AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
                 if (dialog.exec() != QDialog::Accepted)
                     return IDevice::Ptr();
 
                 const IDevice::Ptr dev = dialog.device();
-                if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
+                if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
                     qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
                             qPrintable(androidDev->avdName()));
                 } else {

@@ -6,6 +6,7 @@
 #include "../core_global.h"
 #include "../coreconstants.h"
 #include "../icontext.h"
+#include "actioncontainer.h" // For enum ActionContainer::OnAllDisabledBehavior
 #include "command.h"
 
 #include <utils/action.h>
@@ -14,7 +15,6 @@
 
 namespace Core {
 
-class ActionContainer;
 class ICore;
 
 namespace Internal {
@@ -101,15 +101,17 @@ private:
     class ActionBuilderPrivate *d = nullptr;
 };
 
-class CORE_EXPORT Menu
+class CORE_EXPORT MenuBuilder
 {
 public:
-    Menu();
+    MenuBuilder(Utils::Id menuId);
+    ~MenuBuilder();
 
-    void setId(Utils::Id id);
-    void setTitle(const QString &title);
-    void setContainer(Utils::Id containerId, Utils::Id groupId = {});
-    void addSeparator();
+    MenuBuilder &setTitle(const QString &title);
+    MenuBuilder &setIcon(const QIcon &icon);
+    MenuBuilder &setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior);
+    MenuBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {});
+    MenuBuilder &addSeparator();
 
 private:
     ActionContainer *m_menu = nullptr;

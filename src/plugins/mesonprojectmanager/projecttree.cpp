@@ -57,7 +57,7 @@ void addOptionsFile(std::unique_ptr<MesonProjectNode> &project)
 
 std::unique_ptr<MesonProjectNode> ProjectTree::buildTree(const Utils::FilePath &srcDir,
                                                          const TargetsList &targets,
-                                                         const std::vector<Utils::FilePath> &bsFiles)
+                                                         const Utils::FilePaths &bsFiles)
 {
     using namespace ProjectExplorer;
     std::set<Utils::FilePath> targetPaths;

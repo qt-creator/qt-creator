@@ -44,14 +44,6 @@ using namespace Utils;
 
 namespace Python::Internal {
 
-PySideBuildStepFactory::PySideBuildStepFactory()
-{
-    registerStep<PySideBuildStep>(PySideBuildStep::id());
-    setSupportedProjectType(PythonProjectId);
-    setDisplayName(Tr::tr("Run PySide6 project tool"));
-    setFlags(BuildStep::UniqueStep);
-}
-
 PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
@@ -111,8 +103,9 @@ void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySi
     const PipPackage package(pySidePackageName);
     QObject::disconnect(m_watcherConnection);
     m_watcher.reset(new QFutureWatcher<PipPackageInfo>());
-    m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [=] {
-        this->handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
+    m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this,
+                                           [this, python, pySidePackageName] {
+        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher->setFuture(future);
@@ -245,6 +238,25 @@ private:
     DetailsWidget *m_configureDetailsWidget;
 };
 
+class PySideBuildStepFactory final : public BuildStepFactory
+{
+public:
+    PySideBuildStepFactory()
+    {
+        registerStep<PySideBuildStep>(PySideBuildStep::id());
+        setSupportedProjectType(PythonProjectId);
+        setDisplayName(Tr::tr("Run PySide6 project tool"));
+        setFlags(BuildStep::UniqueStep);
+    }
+};
+
+void setupPySideBuildStep()
+{
+    static PySideBuildStepFactory thePySideBuildStepFactory;
+}
+
+// PythonBuildConfiguration
+
 PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
     : BuildConfiguration(target, id)
     , m_buildSystem(std::make_unique<PythonBuildSystem>(this))
@@ -253,7 +265,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
 
     updateCacheAndEmitEnvironmentChanged();
 
-    connect(PySideInstaller::instance(),
+    connect(&pySideInstaller(),
             &PySideInstaller::pySideInstalled,
             this,
             &PythonBuildConfiguration::handlePythonUpdated);
@@ -378,38 +390,47 @@ std::optional<FilePath> PythonBuildConfiguration::venv() const
     return m_venv;
 }
 
-PythonBuildConfigurationFactory::PythonBuildConfigurationFactory()
+class PythonBuildConfigurationFactory final : public BuildConfigurationFactory
 {
-    registerBuildConfiguration<PythonBuildConfiguration>("Python.PySideBuildConfiguration");
-    setSupportedProjectType(PythonProjectId);
-    setSupportedProjectMimeTypeName(Constants::C_PY_PROJECT_MIME_TYPE);
-    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
-        if (std::optional<Interpreter> python = PythonKitAspect::python(k)) {
-            BuildInfo base;
-            base.buildDirectory = projectPath.parentDir();
-            base.displayName = python->name;
-            base.typeName = Tr::tr("Global Python");
-            base.showBuildDirConfigWidget = false;
+public:
+    PythonBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<PythonBuildConfiguration>("Python.PySideBuildConfiguration");
+        setSupportedProjectType(PythonProjectId);
+        setSupportedProjectMimeTypeName(Constants::C_PY_PROJECT_MIME_TYPE);
+        setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
+            if (std::optional<Interpreter> python = PythonKitAspect::python(k)) {
+                BuildInfo base;
+                base.buildDirectory = projectPath.parentDir();
+                base.displayName = python->name;
+                base.typeName = Tr::tr("Global Python");
+                base.showBuildDirConfigWidget = false;
 
-            if (isVenvPython(python->command) || !venvIsUsable(python->command))
-                return QList<BuildInfo>{base};
+                if (isVenvPython(python->command) || !venvIsUsable(python->command))
+                    return QList<BuildInfo>{base};
 
-            base.enabledByDefault = false;
+                base.enabledByDefault = false;
 
-            BuildInfo venv;
-            const FilePath venvBase = projectPath.parentDir() / ".qtcreator"
-                                      / FileUtils::fileSystemFriendlyName(python->name + "venv");
-            venv.buildDirectory = venvBase;
-            int i = 2;
-            while (venv.buildDirectory.exists())
-                venv.buildDirectory = venvBase.stringAppended('_' + QString::number(i++));
-            venv.displayName = python->name + Tr::tr(" Virtual Environment");
-            venv.typeName = venvTypeName();
-            venv.extraInfo = QVariantMap{{"createVenv", forSetup}};
-            return QList<BuildInfo>{base, venv};
-        }
-        return QList<BuildInfo>{};
-    });
+                BuildInfo venv;
+                const FilePath venvBase = projectPath.parentDir() / ".qtcreator"
+                                          / FileUtils::fileSystemFriendlyName(python->name + "venv");
+                venv.buildDirectory = venvBase;
+                int i = 2;
+                while (venv.buildDirectory.exists())
+                    venv.buildDirectory = venvBase.stringAppended('_' + QString::number(i++));
+                venv.displayName = python->name + Tr::tr(" Virtual Environment");
+                venv.typeName = venvTypeName();
+                venv.extraInfo = QVariantMap{{"createVenv", forSetup}};
+                return QList<BuildInfo>{base, venv};
+            }
+            return QList<BuildInfo>{};
+        });
+    }
+};
+
+void setupPythonBuildConfiguration()
+{
+    static PythonBuildConfigurationFactory thePythonBuildConfigurationFactory;
 }
 
 } // Python::Internal

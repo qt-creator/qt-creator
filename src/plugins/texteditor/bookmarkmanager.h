@@ -97,7 +97,6 @@ private:
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;
-    Core::Menu m_bookmarkMenu;
 
     QAction *m_toggleAction = nullptr;
     QAction *m_editAction = nullptr;

@@ -28,6 +28,7 @@ StudioControls.Dialog {
         nameTextField.forceActiveFocus()
 
         typeComboBox.initialType = root.model.propertyType(root.__propertyIndex)
+        typeComboBox.currentIndex = typeComboBox.find(typeComboBox.initialType)
 
         let newPoint = mapFromGlobal(initialPosition.x, initialPosition.y)
         x = newPoint.x
@@ -92,8 +93,6 @@ StudioControls.Dialog {
 
                 model: root.model.typesList()
                 actionIndicatorVisible: false
-
-                onInitialTypeChanged: typeComboBox.currentIndex = typeComboBox.find(initialType)
             }
         }
 

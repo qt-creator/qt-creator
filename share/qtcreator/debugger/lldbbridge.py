@@ -745,7 +745,7 @@ class Dumper(DumperBase):
             return (qtNamespace, qtVersion)
 
         try:
-            versionValue = self.target.EvaluateExpression('qtHookData[2]')
+            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
             if versionValue.IsValid():
                 return ('', versionValue.unsigned)
         except:
@@ -1543,10 +1543,13 @@ class Dumper(DumperBase):
 
     def handleInferiorOutput(self, proc, channel):
         while True:
-            msg = proc(1024)
-            if msg == None or len(msg) == 0:
-                break
-            self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
+            try:
+                msg = proc(1024)
+                if msg == None or len(msg) == 0:
+                    break
+                self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
+            except SystemError as e:
+                self.warn('Error during reading of process output: %s' % e)
 
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)

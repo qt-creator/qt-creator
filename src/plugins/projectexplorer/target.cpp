@@ -579,7 +579,7 @@ void Target::setOverlayIcon(const QIcon &icon)
 QString Target::overlayIconToolTip()
 {
     IDevice::ConstPtr current = DeviceKitAspect::device(kit());
-    return current.isNull() ? QString() : formatDeviceInfo(current->deviceInformation());
+    return current ? formatDeviceInfo(current->deviceInformation()) : QString();
 }
 
 Store Target::toMap() const
@@ -858,7 +858,7 @@ void Target::updateDeviceState()
 
     QIcon overlay;
     static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();
-    if (current.isNull()) {
+    if (!current) {
         overlay = disconnected;
     } else {
         switch (current->deviceState()) {

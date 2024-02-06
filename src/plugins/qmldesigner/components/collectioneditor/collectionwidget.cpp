@@ -144,7 +144,7 @@ void CollectionWidget::reloadQmlSource()
 
 QSize CollectionWidget::minimumSizeHint() const
 {
-    return {300, 400};
+    return {300, 300};
 }
 
 bool CollectionWidget::loadJsonFile(const QUrl &url, const QString &collectionName)

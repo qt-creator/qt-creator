@@ -209,7 +209,7 @@ ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
                      ClangToolsProjectSettingsPtr{new ClangToolsProjectSettings(project)});
         project->setExtraData(key, v);
     }
-    return v.value<QSharedPointer<ClangToolsProjectSettings>>();
+    return v.value<std::shared_ptr<ClangToolsProjectSettings>>();
 }
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)

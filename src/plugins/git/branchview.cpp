@@ -236,7 +236,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
 
     SetInContext block(m_blockRefresh);
     QMenu contextMenu;
-    contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
+    if (isLocal)
+        contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
+
     const std::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
         contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote] {

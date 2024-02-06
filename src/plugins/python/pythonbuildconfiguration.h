@@ -46,12 +46,6 @@ private:
     QList<PySideUicExtraCompiler *> m_extraCompilers;
 };
 
-class PySideBuildStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    PySideBuildStepFactory();
-};
-
 class PythonBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
@@ -77,10 +71,7 @@ private:
     std::unique_ptr<PythonBuildSystem> m_buildSystem;
 };
 
-class PythonBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    PythonBuildConfigurationFactory();
-};
+void setupPySideBuildStep();
+void setupPythonBuildConfiguration();
 
 } // namespace Python::Internal

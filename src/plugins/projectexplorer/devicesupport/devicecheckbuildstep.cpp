@@ -48,7 +48,7 @@ public:
         }
 
         IDevice::Ptr newDevice = factory->create();
-        if (newDevice.isNull()) {
+        if (!newDevice) {
             emit addOutput(Tr::tr("No device configured."), OutputFormat::ErrorMessage);
             return false;
         }

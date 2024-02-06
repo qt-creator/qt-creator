@@ -142,6 +142,8 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
 {
     const QString href = anchorAt(event->pos());
     QMenu *menu = href.isEmpty() ? createStandardContextMenu(event->pos()) : new QMenu;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
     // Add 'open file'
     FilePath repo;
     const QString token = identifierUnderCursor(event->pos(), &repo);
@@ -177,7 +179,6 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             EditorManager::openEditor(fileName);
         }
     }
-    delete menu;
 }
 
 void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
@@ -264,7 +265,7 @@ VcsOutputWindow::VcsOutputWindow()
 
     auto updateBehaviorSettings = [] {
         d->widget.setWheelZoomEnabled(
-                    TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+                    TextEditor::globalBehaviorSettings().m_scrollWheelZooming);
     };
 
     auto updateFontSettings = [] {

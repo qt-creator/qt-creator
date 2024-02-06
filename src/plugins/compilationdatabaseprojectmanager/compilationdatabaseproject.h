@@ -59,16 +59,8 @@ public:
     Utils::FileSystemWatcher * const m_deployFileWatcher;
 };
 
-class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    CompilationDatabaseEditorFactory();
-};
+void setupCompilationDatabaseEditor();
 
-class CompilationDatabaseBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    CompilationDatabaseBuildConfigurationFactory();
-};
+void setupCompilationDatabaseBuildConfiguration();
 
 } // CompilationDatabaseProjectManager::Internal

@@ -942,52 +942,72 @@ static QStringList brandFontFamilies()
     return families;
 }
 
+struct UiFontMetrics {
+    // Original "text token" values are defined in pixels
+    const int pixelSize = -1;
+    const int lineHeight = -1;
+    const QFont::Weight weight = QFont::Normal;
+};
+
+static const UiFontMetrics& uiFontMetrics(StyleHelper::UiElement element)
+{
+    static const std::map<StyleHelper::UiElement, UiFontMetrics> metrics {
+        {StyleHelper::UiElementH1,                  {36, 54, QFont::DemiBold}},
+        {StyleHelper::UiElementH2,                  {28, 44, QFont::DemiBold}},
+        {StyleHelper::UiElementH3,                  {16, 20, QFont::Bold}},
+        {StyleHelper::UiElementH4,                  {16, 20, QFont::Bold}},
+        {StyleHelper::UiElementH5,                  {14, 16, QFont::DemiBold}},
+        {StyleHelper::UiElementH6,                  {12, 14, QFont::DemiBold}},
+        {StyleHelper::UiElementH6Capital,           {12, 14, QFont::DemiBold}},
+        {StyleHelper::UiElementCaptionStrong,       {10, 12, QFont::DemiBold}},
+        {StyleHelper::UiElementCaption,             {10, 12, QFont::Normal}},
+        {StyleHelper::UIElementIconStandard,        {12, 16, QFont::Normal}},
+        {StyleHelper::UIElementIconActive,          {12, 16, QFont::DemiBold}},
+    };
+    QTC_ASSERT(metrics.count(element) > 0, return metrics.at(StyleHelper::UiElementCaptionStrong));
+    return metrics.at(element);
+}
+
 QFont StyleHelper::uiFont(UiElement element)
 {
     QFont font;
 
-    constexpr qreal panelTitleSize = HostOsInfo::isMacHost() ? 10 : 7.5;
-
     switch (element) {
     case UiElementH1:
         font.setFamilies(brandFontFamilies());
-        font.setPixelSize(30);
-        font.setWeight(QFont::Light);
         font.setWordSpacing(2);
         break;
     case UiElementH2:
         font.setFamilies(brandFontFamilies());
-        font.setPixelSize(16);
         break;
     case UiElementH3:
-        font.setPointSizeF(font.pointSizeF() * 1.6);
-        font.setBold(true);
-        break;
-    case UiElementH4:
-        font.setPointSizeF(font.pointSizeF() * 1.2);
-        font.setBold(true);
-        break;
-    case UiElementH5:
-        font.setPointSizeF(font.pointSizeF() * 1.2);
-        font.setWeight(QFont::DemiBold);
-        break;
-    case UiElementH6:
-        font.setWeight(QFont::DemiBold);
-        break;
     case UiElementH6Capital:
-        font.setWeight(QFont::DemiBold);
         font.setCapitalization(QFont::AllUppercase);
         break;
-    case UiElementCaptionStrong:
-        font.setPointSizeF(panelTitleSize);
-        font.setWeight(QFont::DemiBold);
-        break;
-    case UiElementCaption:
-        font.setPointSizeF(panelTitleSize);
+    default:
         break;
     }
 
+    const UiFontMetrics &metrics = uiFontMetrics(element);
+
+    // On macOS, by default 72 dpi are assumed for conversion between point and pixel size.
+    // For non-macOS, it is 96 dpi.
+    constexpr qreal defaultDpi = HostOsInfo::isMacHost() ? 72.0 : 96.0;
+    constexpr qreal pixelsToPointSizeFactor = 72.0 / defaultDpi;
+    const qreal qrealPointSize = metrics.pixelSize * pixelsToPointSizeFactor;
+    font.setPointSizeF(qrealPointSize);
+
+    font.setWeight(metrics.weight);
+
     return font;
+}
+
+int StyleHelper::uiFontLineHeight(UiElement element)
+{
+    const UiFontMetrics &metrics = uiFontMetrics(element);
+    const qreal lineHeightToPixelSizeRatio = qreal(metrics.lineHeight) / metrics.pixelSize;
+    const QFontInfo fontInfo(uiFont(element));
+    return qCeil(fontInfo.pixelSize() * lineHeightToPixelSizeRatio);
 }
 
 QString StyleHelper::fontToCssProperties(const QFont &font)
@@ -998,7 +1018,7 @@ QString StyleHelper::fontToCssProperties(const QFont &font)
                                                 ? "normal" : font.style() == QFont::StyleItalic
                                                       ? "italic" : "oblique");
     const QString fontShorthand = fontStyle + " " + QString::number(font.weight()) + " "
-                                  + fontSize + " " + font.family();
+                                  + fontSize + " '" + font.family() + "'";
     const QString textDecoration = QLatin1String(font.underline() ? "underline" : "none");
     const QString textTransform = QLatin1String(font.capitalization() == QFont::AllUppercase
                                                     ? "uppercase"

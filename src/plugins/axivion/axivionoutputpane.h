@@ -11,10 +11,6 @@ QT_END_NAMESPACE
 
 namespace Axivion::Internal {
 
-namespace Dto {
-class TableInfoDto;
-}
-
 class AxivionOutputPane : public Core::IOutputPane
 {
     Q_OBJECT

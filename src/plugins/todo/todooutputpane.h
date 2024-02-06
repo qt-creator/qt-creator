@@ -16,8 +16,7 @@ class QAbstractButton;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoItem;
 class TodoItemsModel;
@@ -30,7 +29,7 @@ class TodoOutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent = nullptr);
+    TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent);
     ~TodoOutputPane() override;
 
     QWidget *outputWidget(QWidget *parent) override;
@@ -47,11 +46,9 @@ public:
 
     void setScanningScope(ScanningScope scanningScope);
 
-signals:
+private:
     void todoItemClicked(const TodoItem &item);
     void scanningScopeChanged(ScanningScope scanningScope);
-
-private:
     void scopeButtonClicked(QAbstractButton *button);
     void todoTreeViewClicked(const QModelIndex &index);
     void updateTodoCount();
@@ -78,9 +75,11 @@ private:
     QList<TodoItem> *items;
     TodoItemsModel *m_todoItemsModel;
     QSortFilterProxyModel *m_filteredTodoItemsModel;
-    const Settings *m_settings;
     QToolButtonList m_filterButtons;
 };
 
-} // namespace Internal
-} // namespace Todo
+TodoOutputPane &todoOutputPane();
+
+void setupTodoOutputPane(QObject *guard);
+
+} // Todo::Internal

@@ -3,55 +3,8 @@
 
 #pragma once
 
-#include "jsonwizardpagefactory.h"
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
-namespace Internal {
+void setupJsonWizardPages();
 
-class FieldPageFactory : public JsonWizardPageFactory
-{
-public:
-    FieldPageFactory();
-
-    Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-class FilePageFactory : public JsonWizardPageFactory
-{
-public:
-    FilePageFactory();
-
-    Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-class KitsPageFactory : public JsonWizardPageFactory
-{
-public:
-    KitsPageFactory();
-
-    Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-class ProjectPageFactory : public JsonWizardPageFactory
-{
-public:
-    ProjectPageFactory();
-
-    Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-class SummaryPageFactory : public JsonWizardPageFactory
-{
-public:
-    SummaryPageFactory();
-
-    Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

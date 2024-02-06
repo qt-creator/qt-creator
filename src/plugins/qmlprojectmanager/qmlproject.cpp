@@ -177,13 +177,13 @@ Tasks QmlProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (dev.isNull())
+    if (!dev)
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 
     if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
 
-    if (dev.isNull() || !version)
+    if (!dev || !version)
         return result; // No need to check deeper than this
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {

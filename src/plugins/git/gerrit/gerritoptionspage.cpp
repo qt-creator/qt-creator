@@ -23,7 +23,7 @@ namespace Gerrit::Internal {
 class GerritOptionsWidget : public Core::IOptionsPageWidget
 {
 public:
-    GerritOptionsWidget(const QSharedPointer<GerritParameters> &p,
+    GerritOptionsWidget(const std::shared_ptr<GerritParameters> &p,
                         const std::function<void()> &onChanged)
         : m_parameters(p)
     {
@@ -87,12 +87,12 @@ public:
     }
 
 private:
-    const QSharedPointer<GerritParameters> &m_parameters;
+    const std::shared_ptr<GerritParameters> &m_parameters;
 };
 
 // GerritOptionsPage
 
-GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
+GerritOptionsPage::GerritOptionsPage(const std::shared_ptr<GerritParameters> &p,
                                      const std::function<void()> &onChanged)
 {
     setId("Gerrit");

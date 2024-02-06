@@ -7,10 +7,13 @@
 #include "constants.h"
 #include "keyword.h"
 #include "keyworddialog.h"
+#include "todoitemsprovider.h"
+#include "todooutputpane.h"
 #include "todotr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcsettings.h>
@@ -21,15 +24,23 @@
 #include <QPushButton>
 #include <QRadioButton>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Todo::Internal {
 
-void Settings::save(QtcSettings *settings) const
+Settings &todoSettings()
+{
+    static Settings theTodoSettings;
+    return theTodoSettings;
+}
+
+void Settings::save() const
 {
     if (!keywordsEdited)
         return;
 
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(Constants::SETTINGS_GROUP);
     settings->setValue(Constants::SCANNING_SCOPE, scanningScope);
 
@@ -51,10 +62,11 @@ void Settings::save(QtcSettings *settings) const
     settings->sync();
 }
 
-void Settings::load(QtcSettings *settings)
+void Settings::load()
 {
     setDefault();
 
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(Constants::SETTINGS_GROUP);
 
     scanningScope = static_cast<ScanningScope>(settings->value(Constants::SCANNING_SCOPE,
@@ -126,28 +138,17 @@ void Settings::setDefault()
     keywordsEdited = false;
 }
 
-bool Settings::equals(const Settings &other) const
+static bool operator==(const Settings &s1, const Settings &s2)
 {
-    return (keywords == other.keywords)
-            && (scanningScope == other.scanningScope)
-            && (keywordsEdited == other.keywordsEdited);
+    return s1.keywords == s2.keywords
+        && s1.scanningScope == s2.scanningScope
+        && s1.keywordsEdited == s2.keywordsEdited;
 }
-
-bool operator ==(const Settings &s1, const Settings &s2)
-{
-    return s1.equals(s2);
-}
-
-bool operator !=(const Settings &s1, const Settings &s2)
-{
-    return !s1.equals(s2);
-}
-
 
 class OptionsDialog final : public Core::IOptionsPageWidget
 {
 public:
-    OptionsDialog(Settings *settings, const std::function<void ()> &onApply);
+    OptionsDialog();
 
     void apply() final;
 
@@ -164,9 +165,6 @@ private:
     void editKeyword(QListWidgetItem *item);
     QSet<QString> keywordNames();
 
-    Settings *m_settings = nullptr;
-    std::function<void()> m_onApply;
-
     QListWidget *m_keywordsList;
     QPushButton *m_editKeywordButton;
     QPushButton *m_removeKeywordButton;
@@ -176,8 +174,7 @@ private:
     QRadioButton *m_scanInSubprojectRadioButton;
 };
 
-OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &onApply)
-    : m_settings(settings), m_onApply(onApply)
+OptionsDialog::OptionsDialog()
 {
     m_keywordsList = new QListWidget;
     m_keywordsList->setDragDropMode(QAbstractItemView::DragDrop);
@@ -239,7 +236,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
     connect(m_keywordsList, &QListWidget::itemSelectionChanged,
             this, &OptionsDialog::setKeywordsButtonsEnabled);
 
-    setSettings(*m_settings);
+    setSettings(todoSettings());
 }
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
@@ -360,32 +357,39 @@ void OptionsDialog::apply()
     // "apply" itself is interpreted as "use these keywords, also for other themes".
     newSettings.keywordsEdited = true;
 
-    if (newSettings == *m_settings)
+    if (newSettings == todoSettings())
         return;
 
-    *m_settings = newSettings;
-    m_onApply();
+    todoSettings() = newSettings;
+
+    todoSettings().save();
+
+    todoItemsProvider().settingsChanged();
+    todoOutputPane().setScanningScope(todoSettings().scanningScope);
 }
 
 // TodoSettingsPage
 
-class TodoSettingsPage final : public Core::IOptionsPage
+class TodoSettingsPage final : public IOptionsPage
 {
 public:
-    TodoSettingsPage(Settings *settings, const std::function<void()> &onApply)
+    TodoSettingsPage()
     {
         setId(Constants::TODO_SETTINGS);
         setDisplayName(Tr::tr("To-Do"));
         setCategory("To-Do");
         setDisplayCategory(Tr::tr("To-Do"));
         setCategoryIconPath(":/todoplugin/images/settingscategory_todo.png");
-        setWidgetCreator([settings, onApply] { return new OptionsDialog(settings, onApply); });
+        setWidgetCreator([] { return new OptionsDialog; });
     }
 };
 
-void setupTodoSettingsPage(Settings *settings, const std::function<void()> &onApply)
+void setupTodoSettingsPage()
 {
-    static TodoSettingsPage theTodoSettingsPage(settings, onApply);
+    static TodoSettingsPage theTodoSettingsPage;
+
+    QObject::connect(ICore::instance(), &Core::ICore::saveSettingsRequested,
+                     [] { todoSettings().save(); });
 }
 
 } // Todo::Internal

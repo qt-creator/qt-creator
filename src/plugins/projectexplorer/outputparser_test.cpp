@@ -46,14 +46,14 @@ static inline QByteArray msgFileComparisonFail(const Utils::FilePath &f1, const 
 // test functions:
 OutputParserTester::OutputParserTester()
 {
-    connect(TaskHub::instance(), &TaskHub::taskAdded, this, [this](const Task &t) {
+    connect(&taskHub(), &TaskHub::taskAdded, this, [this](const Task &t) {
         m_receivedTasks.append(t);
     });
 }
 
 OutputParserTester::~OutputParserTester()
 {
-    TaskHub::instance()->disconnect(this);
+    taskHub().disconnect(this);
 }
 
 void OutputParserTester::testParsing(const QString &lines,

@@ -190,7 +190,7 @@ void ExternalTool::setFilePath(const FilePath &filePath)
     m_filePath = filePath;
 }
 
-void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
+void ExternalTool::setPreset(std::shared_ptr<ExternalTool> preset)
 {
     m_presetTool = preset;
 }
@@ -200,7 +200,7 @@ FilePath ExternalTool::filePath() const
     return m_filePath;
 }
 
-QSharedPointer<ExternalTool> ExternalTool::preset() const
+std::shared_ptr<ExternalTool> ExternalTool::preset() const
 {
     return m_presetTool;
 }

@@ -1642,8 +1642,6 @@ public:
 
 class RuntimeTask
 {
-    Q_DISABLE_COPY(RuntimeTask)
-
 public:
     ~RuntimeTask()
     {
@@ -1703,7 +1701,7 @@ void TaskTreePrivate::start()
         QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
                   "exist in task tree. Its handlers will never be called."));
     }
-    m_runtimeRoot.reset(new RuntimeTask{*m_root, nullptr});
+    m_runtimeRoot.reset(new RuntimeTask{*m_root});
     start(m_runtimeRoot.get());
 }
 

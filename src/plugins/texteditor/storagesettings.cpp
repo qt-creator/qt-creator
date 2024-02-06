@@ -3,6 +3,8 @@
 
 #include "storagesettings.h"
 
+#include "texteditorsettings.h"
+
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
@@ -92,6 +94,30 @@ bool StorageSettings::equals(const StorageSettings &ts) const
         && m_cleanIndentation == ts.m_cleanIndentation
         && m_skipTrailingWhitespace == ts.m_skipTrailingWhitespace
         && m_ignoreFileTypes == ts.m_ignoreFileTypes;
+}
+
+StorageSettings &globalStorageSettings()
+{
+    static StorageSettings theGlobalStorageSettings;
+    return theGlobalStorageSettings;
+}
+
+const char storageGroup[] = "textStorageSettings";
+
+void updateGlobalStorageSettings(const StorageSettings &newStorageSettings)
+{
+    if (newStorageSettings.equals(globalStorageSettings()))
+        return;
+
+    globalStorageSettings() = newStorageSettings;
+    storeToSettings(storageGroup, Core::ICore::settings(), globalStorageSettings().toMap());
+
+    emit TextEditorSettings::instance()->storageSettingsChanged(newStorageSettings);
+}
+
+void setupStorageSettings()
+{
+    globalStorageSettings().fromMap(storeFromSettings(storageGroup, Core::ICore::settings()));
 }
 
 } // namespace TextEditor

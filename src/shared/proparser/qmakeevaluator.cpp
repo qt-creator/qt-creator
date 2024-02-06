@@ -877,10 +877,16 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         QRegularExpression regexp(pattern, case_sense ? QRegularExpression::NoPatternOption :
                                                         QRegularExpression::CaseInsensitiveOption);
 
-        // We could make a union of modified and unmodified values,
-        // but this will break just as much as it fixes, so leave it as is.
-        replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
-        debugMsg(2, "replaced %s with %s", dbgQStr(pattern), dbgQStr(replace));
+        try
+        {
+            // We could make a union of modified and unmodified values,
+            // but this will break just as much as it fixes, so leave it as is.
+            replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
+            debugMsg(2, "replaced %s with %s", dbgQStr(pattern), dbgQStr(replace));
+        } catch (const std::bad_alloc &e) {
+            qWarning() << "Bad alloc caught in replaceInList:" << e.what();
+            return ReturnError;
+        }
     } else {
         ProStringList varVal;
         if (expandVariableReferences(tokPtr, sizeHint, &varVal, false) == ReturnError)

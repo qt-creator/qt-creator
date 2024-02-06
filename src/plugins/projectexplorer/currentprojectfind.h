@@ -3,37 +3,8 @@
 
 #pragma once
 
-#include "allprojectsfind.h"
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
+void setupCurrentProjectFind();
 
-class Project;
-
-namespace Internal {
-
-class CurrentProjectFind : public AllProjectsFind
-{
-    Q_OBJECT
-
-public:
-    CurrentProjectFind();
-
-    QString id() const override;
-    QString displayName() const override;
-
-    bool isEnabled() const override;
-
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
-
-protected:
-    QString label() const override;
-
-private:
-    TextEditor::FileContainerProvider fileContainerProvider() const override;
-    void handleProjectChanged();
-    void setupSearch(Core::SearchResult *search) override;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

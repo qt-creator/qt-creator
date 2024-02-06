@@ -48,7 +48,11 @@ CollectionView::CollectionView(ExternalDependenciesInterface &externalDependenci
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
             this,
-            &CollectionView::resetDataStoreNode);
+            [=] {
+                resetDataStoreNode();
+                if (m_widget.get())
+                    m_widget->collectionDetailsModel()->removeAllCollections();
+            });
     resetDataStoreNode();
 }
 
@@ -91,6 +95,9 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 this,
                 [this](const QString &oldName, const QString &newName) {
                     m_dataStore->renameCollection(oldName, newName);
+                    m_widget->collectionDetailsModel()->renameCollection(dataStoreNode(),
+                                                                         oldName,
+                                                                         newName);
                 });
 
         connect(sourceModel,
@@ -98,6 +105,8 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 this,
                 [this](const QString &collectionName) {
                     m_dataStore->removeCollection(collectionName);
+                    m_widget->collectionDetailsModel()->removeCollection(dataStoreNode(),
+                                                                         collectionName);
                 });
     }
 

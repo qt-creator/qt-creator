@@ -82,7 +82,7 @@ private:
     const Utils::Environment m_environment;
 };
 
-static const char s_runBlockingStdOutSubProcessMagicWord[] = "42";
+static const char s_runBlockingStdOutSubProcessMagicWord[] = "MAGIC_WORD";
 
 // Expect ending lines detected at '|':
 static const char s_lineCallbackData[] =

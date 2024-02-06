@@ -12,7 +12,7 @@
     You specify an image to use as the source file for the \uicontrol Texture,
     and also define how it is mapped to meshes in a 3D scene.
 
-    \image studio-qtquick-3d-texture.png "Texture attached to a material in Design mode"
+    \image studio-qtquick-3d-texture.webp {Texture attached to a material in Design mode}
 
     \section1 Selecting the Mapping Method
 
@@ -53,7 +53,7 @@
 
     \section1 UV Scaling
 
-    The \uicontrol {U scale} and \uicontrol {V scale} properties define how
+    The \uicontrol {U} and \uicontrol {V} scale properties define how
     to scale the U and V texture coordinates when mapping to a mesh's UV
     coordinates.
 
@@ -77,8 +77,8 @@
     the component in the \uicontrol {U position} field. To offset the mapping
     from bottom to top, set it in the \uicontrol {V position} field.
 
-    Specify the U and V pivot point in the \uicontrol {U pivot} and
-    \uicontrol {V pivot} fields.
+    Specify the U and V pivot points in the \uicontrol {U} and
+    \uicontrol {V} pivot fields.
 
     To rotate the texture around the pivot point, specify rotation as degrees
     in the \uicontrol {UV rotation} field. A positive value indicates clockwise
@@ -89,28 +89,31 @@
 
     \section1 Applying Textures to Materials
 
-    Drag-and-drop an image from \l Assets on a material to
-    create a texture component. Dragging an image to a default or principled
-    material opens a \uicontrol {Select Texture Property} dialog. You can select
-    the  property to attach the texture to in the \uicontrol {Set texture to property}
-    field. For a custom material, you must assign the texture to a map. If the
-    \uicontrol Texture component is not displayed in \uicontrol {Components},
-    you should add the \uicontrol {Qt Quick 3D} module to your project, as
-    described in \l {Adding and Removing Modules}.
+    To create and apply a texture on the material from an image:
+    \list 1
+        \li Drag an image from \l Assets to a material
+            in \uicontrol {Material Browser}.
+        \li Select a property from the list of properties.
+        \li Select \uicontrol Apply.
+    \endlist
 
-    To use Texture components to apply textures to materials, drag-and-drop a
-    Texture component from \uicontrol Components >
-    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to a material component
-    in \l Navigator. The new texture should now be visible in the \l {2D}
-    and \l {3D} views. \note If the colors in your texture are not visualized
-    correctly, you should check the color in the \uicontrol Diffuse property of
-    the material and try changing it to white (#ffffff).
+    Alternatively, you can add textures to materials as instructed
+    in \l {Working with Textures}.
 
-    \image studio-qtquick-3d-material-texture.png "Material properties"
+    \note If the colors in your texture are not visualized
+    correctly, try setting the \uicontrol {Base Color}
+    in \uicontrol {Material Editor} to \e {white (#ffffff)}.
 
-    To change the source file for the texture, select the \uicontrol Texture
-    component in \uicontrol Navigator, go to the \l Properties view, and specify
-    a new image to use in the \uicontrol Source field.
+    \image studio-qtquick-3d-material-texture.webp {Material Editor}
 
-    \image studio-qtquick-3d-texture-properties.png "Texture properties"
+    To change the source file for the texture:
+    \list 1
+        \li Double-click the texture in \uicontrol {Material Browser}.
+        \li In \uicontrol {Texture Editor}, select \inlineimage icons/add-file-16px.png
+        next to \uicontrol {Source}.
+        \li Select the new texture.
+        \li Select \uicontrol Open.
+    \endlist
+
+    \image studio-qtquick-3d-texture-properties.webp {Texture Editor}
 */

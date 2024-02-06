@@ -443,6 +443,15 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
+class RunConfigurationDebugFilter final : public ILocatorFilter
+{
+public:
+    RunConfigurationDebugFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
 class RunConfigurationSwitchFilter final : public ILocatorFilter
 {
 public:
@@ -651,8 +660,6 @@ public:
 
     ToolChainOptionsPage m_toolChainOptionsPage;
 
-    TaskHub m_taskHub;
-
     ProjectWelcomePage m_welcomePage;
 
     CustomWizardMetaFactory<CustomProjectWizard> m_customProjectWizard{IWizardFactory::ProjectWizard};
@@ -675,6 +682,7 @@ public:
     CurrentProjectFilter m_currentProjectFilter;
     AllProjectFilesFilter m_allProjectDirectoriesFilter;
     RunConfigurationStartFilter m_runConfigurationStartFilter;
+    RunConfigurationDebugFilter m_runConfigurationDebugFilter;
     RunConfigurationSwitchFilter m_runConfigurationSwitchFilter;
 
     CopyFileStepFactory m_copyFileStepFactory;
@@ -682,7 +690,6 @@ public:
     ProcessStepFactory m_processStepFactory;
 
     AllProjectsFind m_allProjectsFind;
-    CurrentProjectFind m_curretProjectFind;
     FilesInAllProjectsFind m_filesInAllProjectsFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
@@ -713,14 +720,6 @@ public:
     }};
 
     DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
-    SanitizerOutputFormatterFactory sanitizerFormatterFactory;
-
-    // JsonWizard related
-    FieldPageFactory fieldPageFactory;
-    FilePageFactory filePageFactory;
-    KitsPageFactory kitsPageFactory;
-    ProjectPageFactory projectPageFactory;
-    SummaryPageFactory summaryPageFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -822,6 +821,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     dd = new ProjectExplorerPluginPrivate;
 
+    setupCurrentProjectFind();
+
+    setupSanitizerOutputParser();
+
+    setupJsonWizardPages();
     setupJsonWizardFileGenerator();
     setupJsonWizardScannerGenerator();
 
@@ -1949,8 +1953,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
-    if (auto sanitizerTester = SanitizerParser::testCreator())
-        addTestCreator(sanitizerTester.value());
+#ifdef WITH_TESTS
+    addTestCreator(&createSanitizerOutputParserTest);
+#endif
 
     return true;
 }
@@ -4258,6 +4263,12 @@ static void runAcceptor(RunConfiguration *config)
         ProjectExplorerPlugin::runRunConfiguration(config, Constants::NORMAL_RUN_MODE, true);
 }
 
+static void debugAcceptor(RunConfiguration *config)
+{
+    if (!BuildManager::isBuilding(config->project()))
+        ProjectExplorerPlugin::runRunConfiguration(config, Constants::DEBUG_RUN_MODE, true);
+}
+
 RunConfigurationStartFilter::RunConfigurationStartFilter()
 {
     setId("Run run configuration");
@@ -4271,6 +4282,21 @@ RunConfigurationStartFilter::RunConfigurationStartFilter()
 LocatorMatcherTasks RunConfigurationStartFilter::matchers()
 {
     return runConfigurationMatchers(&runAcceptor);
+}
+
+RunConfigurationDebugFilter::RunConfigurationDebugFilter()
+{
+    setId("Debug run configuration");
+    setDisplayName(Tr::tr("Debug Run Configuration"));
+    setDescription(Tr::tr("Starts debugging a run configuration of the active project."));
+    setDefaultShortcutString("dr");
+    setPriority(Medium);
+    setupFilter(this);
+}
+
+LocatorMatcherTasks RunConfigurationDebugFilter::matchers()
+{
+    return runConfigurationMatchers(&debugAcceptor);
 }
 
 static void switchAcceptor(RunConfiguration *config)

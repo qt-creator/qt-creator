@@ -211,9 +211,9 @@ void NavigationWidget::onItemDoubleClicked(const QModelIndex &index)
     model root item. The function does nothing if null is passed.
 */
 
-void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
+void NavigationWidget::onDataUpdate(std::shared_ptr<QStandardItem> result)
 {
-    if (result.isNull())
+    if (!result)
         return;
 
     QElapsedTimer timer;
@@ -223,9 +223,9 @@ void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
     // might be just a root - if a lazy data population is enabled.
     // so expanded items must be parsed and 'fetched'
 
-    fetchExpandedItems(result.data(), treeModel->invisibleRootItem());
+    fetchExpandedItems(result.get(), treeModel->invisibleRootItem());
 
-    treeModel->moveRootToTarget(result.data());
+    treeModel->moveRootToTarget(result.get());
 
     // expand top level projects
     QModelIndex sessionIndex;

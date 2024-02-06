@@ -19,11 +19,9 @@
 #include <QCoreApplication>
 #include <QList>
 #include <QObject>
-#include <QSharedPointer>
 #include <QUrl>
 
 #include <functional>
-#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -58,7 +56,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
 public:
-    using Ptr = QSharedPointer<DeviceProcessSignalOperation>;
+    using Ptr = std::shared_ptr<DeviceProcessSignalOperation>;
 
     virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
@@ -94,7 +92,7 @@ public:
 };
 
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
+class PROJECTEXPLORER_EXPORT IDevice : public std::enable_shared_from_this<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:

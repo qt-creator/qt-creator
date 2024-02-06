@@ -10,15 +10,15 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import CollectionEditorBackend
 
-Item {
+Rectangle {
     id: root
 
-    property real iconHeight: 2 * StudioTheme.Values.bigFont
     required property var model
     required property var backend
     property int selectedRow: -1
 
-    implicitHeight: container.height
+    implicitHeight: StudioTheme.Values.toolbarHeight
+    color: StudioTheme.Values.themeToolbarBackground
 
     function addNewColumn() {
         addColumnDialog.popUp(root.model.columnCount())
@@ -30,32 +30,36 @@ Item {
 
     RowLayout {
         id: container
-        width: parent.width
+
+        anchors.fill: parent
+        anchors.topMargin: StudioTheme.Values.toolbarVerticalMargin
+        anchors.bottomMargin: StudioTheme.Values.toolbarVerticalMargin
 
         spacing: StudioTheme.Values.sectionRowSpacing
 
         RowLayout {
             id: leftSideToolbar
 
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            Layout.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
             spacing: StudioTheme.Values.sectionRowSpacing
 
             IconButton {
-                icon: StudioTheme.Constants.addcolumnleft_medium
-                tooltip: qsTr("Add property left %1").arg(leftSideToolbar.topPadding)
+                buttonIcon: StudioTheme.Constants.addcolumnleft_medium
+                tooltip: qsTr("Add property left")
                 enabled: root.model.selectedColumn > -1
-                onClicked: addColumnDialog.popUp(root.model.selectedColumn - 1)
+                onClicked: addColumnDialog.popUp(root.model.selectedColumn)
             }
 
             IconButton {
-                icon: StudioTheme.Constants.addcolumnright_medium
+                buttonIcon: StudioTheme.Constants.addcolumnright_medium
                 tooltip: qsTr("Add property right")
                 enabled: root.model.selectedColumn > -1
                 onClicked: addColumnDialog.popUp(root.model.selectedColumn + 1)
             }
 
             IconButton {
-                icon: StudioTheme.Constants.deletecolumn_medium
+                buttonIcon: StudioTheme.Constants.deletecolumn_medium
                 tooltip: qsTr("Delete selected property")
                 enabled: root.model.selectedColumn > -1
                 onClicked: root.model.removeColumn(root.model.selectedColumn)
@@ -67,46 +71,43 @@ Item {
             }
 
             IconButton {
-                icon: StudioTheme.Constants.addrowbelow_medium
+                buttonIcon: StudioTheme.Constants.addrowbelow_medium
                 tooltip: qsTr("Insert row below")
                 enabled: root.model.selectedRow > -1
                 onClicked: root.model.insertRow(root.model.selectedRow + 1)
             }
 
             IconButton {
-                icon: StudioTheme.Constants.addrowabove_medium
+                buttonIcon: StudioTheme.Constants.addrowabove_medium
                 tooltip: qsTr("Insert row above")
                 enabled: root.model.selectedRow > -1
                 onClicked: root.model.insertRow(root.model.selectedRow)
             }
 
             IconButton {
-                icon: StudioTheme.Constants.deleterow_medium
+                buttonIcon: StudioTheme.Constants.deleterow_medium
                 tooltip: qsTr("Delete selected row")
                 enabled: root.model.selectedRow > -1
                 onClicked: root.model.removeRow(root.model.selectedRow)
             }
         }
 
-        Item { // spacer
-            Layout.minimumHeight: 1
-            Layout.fillWidth: true
-        }
-
         RowLayout {
             id: rightSideToolbar
+
             spacing: StudioTheme.Values.sectionRowSpacing
-            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            Layout.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
 
             IconButton {
-                icon: StudioTheme.Constants.save_medium
+                buttonIcon: StudioTheme.Constants.save_medium
                 tooltip: qsTr("Save changes")
                 enabled: root.model.collectionName !== ""
                 onClicked: root.model.saveDataStoreCollections()
             }
 
             IconButton {
-                icon: StudioTheme.Constants.export_medium
+                buttonIcon: StudioTheme.Constants.export_medium
                 tooltip: qsTr("Export model")
                 enabled: root.model.collectionName !== ""
                 onClicked: fileDialog.open()
@@ -131,11 +132,8 @@ Item {
         }
     }
 
-    component IconButton: HelperWidgets.IconButton {
-        Layout.preferredHeight: root.iconHeight
-        Layout.preferredWidth: root.iconHeight
-        radius: StudioTheme.Values.smallRadius
-        iconSize: StudioTheme.Values.bigFont
+    component IconButton: HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.viewBarButtonStyle
     }
 
     component Spacer: Item {
@@ -160,6 +158,7 @@ Item {
         {
             addColumnDialog.clickedIndex = index
             columnName.text = ""
+            columnName.forceActiveFocus()
             addedPropertyType.currentIndex = addedPropertyType.find("String")
 
             addColumnDialog.open()

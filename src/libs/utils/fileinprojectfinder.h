@@ -8,7 +8,6 @@
 #include "filepath.h"
 
 #include <QHash>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QUrl>
 
@@ -60,7 +59,7 @@ private:
     private:
         FilePaths m_allQrcFiles;
         mutable QHash<QUrl, FilePaths> m_fileCache;
-        mutable QHash<FilePath, QSharedPointer<QrcParser>> m_parserCache;
+        mutable QHash<FilePath, std::shared_ptr<QrcParser>> m_parserCache;
     };
 
     CacheEntry findInSearchPaths(const FilePath &filePath, FileHandler fileHandler,

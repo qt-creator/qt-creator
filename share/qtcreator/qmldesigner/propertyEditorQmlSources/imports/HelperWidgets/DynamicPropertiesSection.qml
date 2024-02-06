@@ -516,6 +516,8 @@ Section {
                             return aliasEditor
                         if (propertyType == "variant")
                             return readonlyEditor
+                        if (propertyType == "var")
+                            return readonlyEditor
                         if (propertyType == "TextureInput")
                             return textureInputEditor
                         if (propertyType == "vector2d" || propertyType == "vector3d" || propertyType == "vector4d")

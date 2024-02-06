@@ -3,35 +3,11 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
-
 namespace Python::Internal {
 
-class PySideUicExtraCompiler;
-
-class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
-{
-public:
-    PythonInterpreterAspect(Utils::AspectContainer *container, ProjectExplorer::RunConfiguration *rc);
-    ~PythonInterpreterAspect() final;
-
-private:
-    friend class PythonRunConfiguration;
-    class PythonInterpreterAspectPrivate *d = nullptr;
-};
-
-class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    PythonRunConfigurationFactory();
-};
-
-class PythonOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    PythonOutputFormatterFactory();
-};
+void setupPythonRunConfiguration();
+void setupPythonRunWorker();
+void setupPythonDebugWorker();
+void setupPythonOutputParser();
 
 } // Python::Internal

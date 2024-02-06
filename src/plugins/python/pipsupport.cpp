@@ -3,7 +3,6 @@
 
 #include "pipsupport.h"
 
-#include "pythonplugin.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -220,9 +219,16 @@ QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
     return Utils::asyncRun(infoImpl, package, m_python);
 }
 
-Pip::Pip(const Utils::FilePath &python)
-    : QObject(pluginInstance())
+static QObject *thePipGuard = nullptr;
+
+Pip::Pip(const FilePath &python)
+    : QObject(thePipGuard)
     , m_python(python)
 {}
+
+void setupPipSupport(QObject *guard)
+{
+    thePipGuard = guard;
+}
 
 } // Python::Internal

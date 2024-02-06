@@ -113,6 +113,7 @@ protected:
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
+    void addSupportForLocalRunConfigs();
     void cloneProduct(Utils::Id exitstingStepId, Utils::Id overrideId = Utils::Id());
 
 private:
@@ -289,22 +290,10 @@ public:
     explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
-class PROJECTEXPLORER_EXPORT OutputFormatterFactory
-{
-protected:
-    OutputFormatterFactory();
 
-public:
-    virtual ~OutputFormatterFactory();
+PROJECTEXPLORER_EXPORT
+void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &);
 
-    static QList<Utils::OutputLineParser *> createFormatters(Target *target);
-
-protected:
-    using FormatterCreator = std::function<QList<Utils::OutputLineParser *>(Target *)>;
-    void setFormatterCreator(const FormatterCreator &creator);
-
-private:
-    FormatterCreator m_creator;
-};
+PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Target *target);
 
 } // namespace ProjectExplorer

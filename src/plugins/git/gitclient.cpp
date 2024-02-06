@@ -1055,7 +1055,9 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
         argWidget = new GitLogArgumentsWidget(!fileName.isEmpty(), editor);
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                [=] { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
+                [this, workingDir, fileName, enableAnnotationContextMenu, args] {
+            log(workingDir, fileName, enableAnnotationContextMenu, args);
+        });
         editor->setEditorConfig(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -1112,7 +1114,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
         if (!ref.isEmpty())
             argWidget->setBaseArguments({ref});
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                [=] { this->reflog(workingDir, ref); });
+                [this, workingDir, ref] { reflog(workingDir, ref); });
         editor->setEditorConfig(argWidget);
     }
     editor->setWorkingDirectory(workingDir);
@@ -1222,7 +1224,8 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     if (!argWidget) {
         argWidget = new GitBlameArgumentsWidget(editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
-        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                [this, workingDir, file, revision, extraOptions] {
             const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
             annotate(workingDir, file, line, revision, extraOptions);
         });
@@ -1248,7 +1251,7 @@ void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, S
         return;
 
     const QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
-    const auto commandHandler = [=](const CommandResult &result) {
+    const auto commandHandler = [this, stashMode, workingDirectory, handler](const CommandResult &result) {
         if (stashMode == StashMode::TryStash)
             endStashScope(workingDirectory);
         if (result.result() == ProcessResult::FinishedWithSuccess)
@@ -2442,7 +2445,8 @@ void GitClient::tryLaunchingGitK(const Environment &env,
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);
         process->setCommand({binary, arguments});
-        connect(process, &Process::done, this, [=] {
+        connect(process, &Process::done, this,
+                [this, process, env, workingDirectory, fileName, trial, gitBinDirectory] {
             if (process->result() == ProcessResult::StartFailed)
                 handleGitKFailedToStart(env, workingDirectory, fileName, trial, gitBinDirectory);
             process->deleteLater();

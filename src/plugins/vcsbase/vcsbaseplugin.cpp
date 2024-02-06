@@ -27,7 +27,6 @@
 #include <QMessageBox>
 #include <QScopedPointer>
 #include <QSharedData>
-#include <QSharedPointer>
 #include <QProcessEnvironment>
 #include <QTextCodec>
 
