@@ -286,8 +286,10 @@ QtObject {
             enabled: root.visible
 
             function onFocusWindowChanged(focusWindow) {
-                if (!focusWindow)
+                if (!focusWindow) {
+                    root.close()
                     return
+                }
 
                 if (root.keepOpen)
                     return
