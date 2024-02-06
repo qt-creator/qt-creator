@@ -20,6 +20,7 @@
 #include <QCursor>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QMenu>
 #include <QMimeData>
 #include <QPair>
 #include <QPointer>
@@ -195,6 +196,8 @@ void OutputWindow::handleLink(const QPoint &pos)
         d->formatter.handleLink(href);
 }
 
+void OutputWindow::adaptContextMenu(QMenu *, const QPoint &) {}
+
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton)
@@ -277,6 +280,21 @@ void OutputWindow::wheelEvent(QWheelEvent *e)
     QAbstractScrollArea::wheelEvent(e);
     updateAutoScroll();
     updateMicroFocus();
+}
+
+void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = createStandardContextMenu(event->pos());
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    adaptContextMenu(menu, event->pos());
+
+    menu->addSeparator();
+    QAction *clearAction = menu->addAction(Tr::tr("Clear"));
+    connect(clearAction, &QAction::triggered, this, [this] { clear(); });
+    clearAction->setEnabled(!document()->isEmpty());
+
+    menu->popup(event->globalPos());
 }
 
 void OutputWindow::setBaseFont(const QFont &newFont)

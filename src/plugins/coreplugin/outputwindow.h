@@ -75,6 +75,7 @@ public slots:
 
 protected:
     virtual void handleLink(const QPoint &pos);
+    virtual void adaptContextMenu(QMenu *menu, const QPoint &pos);
 
 private:
     QMimeData *createMimeDataFromSelection() const override;
@@ -85,6 +86,7 @@ private:
     void resizeEvent(QResizeEvent *e) override;
     void showEvent(QShowEvent *) override;
     void wheelEvent(QWheelEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
     void enableUndoRedo();
