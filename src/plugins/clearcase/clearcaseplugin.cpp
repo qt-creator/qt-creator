@@ -134,7 +134,7 @@ static QString debugCodec(const QTextCodec *c)
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
-class ClearCasePluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
 {
     Q_OBJECT
 
@@ -216,7 +216,7 @@ public:
     void updateStreamAndView();
 
 protected:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VcsBase::VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCheckInMessageFile(); }
     QString ccGet(const FilePath &workingDir, const QString &file, const QString &prefix = {});
@@ -563,7 +563,7 @@ QString ClearCasePluginPrivate::findTopLevel(const FilePath &directory) const
 }
 
 ClearCasePluginPrivate::ClearCasePluginPrivate()
-    : VcsBase::VcsBasePluginPrivate(Context(CLEARCASE_CONTEXT)),
+    : VcsBase::VersionControlBase(Context(CLEARCASE_CONTEXT)),
       m_statusMap(new StatusMap)
 {
     dd = this;
@@ -937,7 +937,7 @@ void ClearCasePluginPrivate::updateStatusActions()
     m_diffActivityAction->setEnabled(m_viewData.isUcm);
 }
 
-void ClearCasePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void ClearCasePluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

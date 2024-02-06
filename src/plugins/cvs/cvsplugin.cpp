@@ -183,7 +183,7 @@ public:
     }
 };
 
-class CvsPluginPrivate final : public VcsBasePluginPrivate
+class CvsPluginPrivate final : public VersionControlBase
 {
 public:
     CvsPluginPrivate();
@@ -467,7 +467,7 @@ bool CvsPluginPrivate::isCommitEditorOpen() const
 }
 
 CvsPluginPrivate::CvsPluginPrivate()
-    : VcsBasePluginPrivate(Context(CVS_CONTEXT))
+    : VersionControlBase(Context(CVS_CONTEXT))
 {
     using namespace Core::Constants;
     dd = this;
@@ -730,7 +730,7 @@ CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const QString &fileName)
     return submitEditor;
 }
 
-void CvsPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void CvsPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

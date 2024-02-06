@@ -166,7 +166,7 @@ private:
     SubversionPluginPrivate *m_plugin;
 };
 
-class SubversionPluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class SubversionPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
     SubversionPluginPrivate();
@@ -220,7 +220,7 @@ public:
                            const QString &revision = {}, int lineNumber = -1);
 
 protected:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VcsBase::VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
@@ -334,7 +334,7 @@ bool SubversionPluginPrivate::isCommitEditorOpen() const
 }
 
 SubversionPluginPrivate::SubversionPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::SUBVERSION_CONTEXT)),
+    : VersionControlBase(Context(Constants::SUBVERSION_CONTEXT)),
       m_svnDirectories(svnDirectories())
 {
     dd = this;
@@ -568,7 +568,7 @@ SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(cons
     return submitEditor;
 }
 
-void SubversionPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void SubversionPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

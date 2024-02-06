@@ -21,7 +21,7 @@ namespace Internal { class SubmitEditorFile; }
 
 class SubmitEditorWidget;
 class SubmitFileModel;
-class VcsBasePluginPrivate;
+class VersionControlBase;
 class VcsBaseSubmitEditorPrivate;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
@@ -47,8 +47,8 @@ public:
 
     ~VcsBaseSubmitEditor() override;
 
-    void accept(VcsBasePluginPrivate *plugin);
-    bool promptSubmit(VcsBasePluginPrivate *plugin);
+    void accept(VersionControlBase *plugin);
+    bool promptSubmit(VersionControlBase *plugin);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);

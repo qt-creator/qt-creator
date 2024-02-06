@@ -108,7 +108,7 @@ const VcsBaseSubmitEditorParameters submitEditorParameters {
 };
 
 
-class FossilPluginPrivate final : public VcsBasePluginPrivate
+class FossilPluginPrivate final : public VersionControlBase
 {
 public:
     enum SyncMode {
@@ -143,7 +143,7 @@ public:
                                              const QString &localName,
                                              const QStringList &extraArgs) final;
 
-    void updateActions(VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
 
     // File menu action slots
@@ -245,7 +245,7 @@ private:
 
 
 FossilPluginPrivate::FossilPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::FOSSIL_CONTEXT))
+    : VersionControlBase(Context(Constants::FOSSIL_CONTEXT))
 {
     Context context(Constants::FOSSIL_CONTEXT);
 
@@ -784,7 +784,7 @@ bool FossilPluginPrivate::activateCommit()
 }
 
 
-void FossilPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void FossilPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     m_createRepositoryAction->setEnabled(true);
 

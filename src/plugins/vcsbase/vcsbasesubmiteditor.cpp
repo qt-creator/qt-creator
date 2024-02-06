@@ -436,7 +436,7 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
-void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
+void VcsBaseSubmitEditor::accept(VersionControlBase *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
@@ -457,7 +457,7 @@ void VcsBaseSubmitEditor::close()
     EditorManager::closeDocuments({document()});
 }
 
-bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
+bool VcsBaseSubmitEditor::promptSubmit(VersionControlBase *plugin)
 {
     if (d->m_disablePrompt)
         return true;

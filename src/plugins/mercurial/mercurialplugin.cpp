@@ -100,7 +100,7 @@ const VcsBaseSubmitEditorParameters submitEditorParameters {
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
-class MercurialPluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
     MercurialPluginPrivate();
@@ -135,7 +135,7 @@ public:
     void changed(const QVariant&);
 
 private:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
+    void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
 
     // File menu action slots
@@ -219,7 +219,7 @@ public:
 static MercurialPluginPrivate *dd = nullptr;
 
 MercurialPluginPrivate::MercurialPluginPrivate()
-    : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::MERCURIAL_CONTEXT))
+    : VcsBase::VersionControlBase(Core::Context(Constants::MERCURIAL_CONTEXT))
 {
     dd = this;
 
@@ -646,7 +646,7 @@ bool MercurialPluginPrivate::activateCommit()
     return true;
 }
 
-void MercurialPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void MercurialPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

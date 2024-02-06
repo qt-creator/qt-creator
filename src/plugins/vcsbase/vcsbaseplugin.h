@@ -30,7 +30,7 @@ namespace VcsBase {
 namespace Internal { class State; }
 
 class VcsBaseSubmitEditor;
-class VcsBasePluginPrivate;
+class VersionControlBase;
 class VcsBasePluginStateData;
 class VcsCommand;
 
@@ -87,7 +87,7 @@ public:
     { return !s1.equals(s2); }
 
 private:
-    friend class VcsBasePluginPrivate;
+    friend class VersionControlBase;
     bool equals(const Internal::State &s) const;
     void setState(const Internal::State &s);
 
@@ -111,12 +111,12 @@ VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &
 // Returns the source of editor contents.
 VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
-class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
+class VCSBASE_EXPORT VersionControlBase : public Core::IVersionControl
 {
     Q_OBJECT
 
 protected:
-    explicit VcsBasePluginPrivate(const Core::Context &context);
+    explicit VersionControlBase(const Core::Context &context);
 
 public:
     void extensionsInitialized();

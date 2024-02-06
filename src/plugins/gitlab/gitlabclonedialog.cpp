@@ -132,7 +132,7 @@ void GitLabCloneDialog::updateUi()
 
 void GitLabCloneDialog::cloneProject()
 {
-    VcsBasePluginPrivate *vc = static_cast<VcsBasePluginPrivate *>(
+    VersionControlBase *vc = static_cast<VersionControlBase *>(
                 Core::VcsManager::versionControl(Id::fromString("G.Git")));
     QTC_ASSERT(vc, return);
     const QStringList extraArgs = m_submodulesCB->isChecked() ? QStringList{ "--recursive" }

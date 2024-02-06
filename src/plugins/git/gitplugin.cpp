@@ -185,7 +185,7 @@ const VcsBaseEditorParameters rebaseEditorParameters {
 
 // GitPlugin
 
-class GitPluginPrivate final : public VcsBasePluginPrivate
+class GitPluginPrivate final : public VersionControlBase
 {
     Q_OBJECT
 
@@ -256,7 +256,7 @@ public:
     void initRepository();
     void startRebaseFromCommit(const FilePath &workingDirectory, QString commit);
 
-    void updateActions(VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
@@ -596,7 +596,7 @@ QAction *GitPluginPrivate::createRepositoryAction(ActionContainer *ac, const QSt
 }
 
 GitPluginPrivate::GitPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::GIT_CONTEXT))
+    : VersionControlBase(Context(Constants::GIT_CONTEXT))
 {
     dd = this;
 
@@ -1624,7 +1624,7 @@ void GitPluginPrivate::stashList()
     ICore::registerWindow(m_stashDialog, Context("Git.Stashes"));
 }
 
-void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     const VcsBasePluginState state = currentState();
     const bool repositoryEnabled = state.hasTopLevel();

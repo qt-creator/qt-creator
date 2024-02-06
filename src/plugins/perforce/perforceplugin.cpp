@@ -181,7 +181,7 @@ struct PerforceDiffParameters
     QStringList files;
 };
 
-class PerforcePluginPrivate final : public VcsBasePluginPrivate
+class PerforcePluginPrivate final : public VersionControlBase
 {
 public:
     PerforcePluginPrivate();
@@ -361,7 +361,7 @@ public:
 static PerforcePluginPrivate *dd = nullptr;
 
 PerforcePluginPrivate::PerforcePluginPrivate()
-    : VcsBasePluginPrivate(Context(PERFORCE_CONTEXT))
+    : VersionControlBase(Context(PERFORCE_CONTEXT))
 {
     Context context(PERFORCE_CONTEXT);
 
@@ -912,7 +912,7 @@ void PerforcePluginPrivate::changelists(const FilePath &workingDir, const QStrin
     }
 }
 
-void PerforcePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void PerforcePluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     const bool menuActionEnabled = enableMenuAction(as, m_menuAction);
     const bool enableActions = currentState().hasTopLevel() && menuActionEnabled;

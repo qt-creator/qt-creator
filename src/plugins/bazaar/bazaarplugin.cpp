@@ -152,7 +152,7 @@ public:
     QLineEdit *revisionLineEdit;
 };
 
-class BazaarPluginPrivate final : public VcsBasePluginPrivate
+class BazaarPluginPrivate final : public VersionControlBase
 {
 public:
     BazaarPluginPrivate();
@@ -183,7 +183,7 @@ public:
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
     void changed(const QVariant &);
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
+    void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
 
     // File menu action slots
@@ -321,7 +321,7 @@ private:
 };
 
 BazaarPluginPrivate::BazaarPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::BAZAAR_CONTEXT))
+    : VersionControlBase(Context(Constants::BAZAAR_CONTEXT))
 {
     Context context(Constants::BAZAAR_CONTEXT);
 
@@ -850,7 +850,7 @@ bool BazaarPluginPrivate::activateCommit()
     return true;
 }
 
-void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void BazaarPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

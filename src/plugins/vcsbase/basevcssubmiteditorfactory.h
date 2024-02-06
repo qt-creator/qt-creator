@@ -14,7 +14,7 @@ namespace VcsBase {
 
 class VcsBaseSubmitEditor;
 class VcsBaseSubmitEditorParameters;
-class VcsBasePluginPrivate;
+class VersionControlBase;
 
 // Parametrizable base class for editor factories creating instances of
 // VcsBaseSubmitEditor subclasses.
@@ -26,7 +26,7 @@ public:
 
     VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters &parameters,
                            const EditorCreator &editorCreator,
-                           VcsBasePluginPrivate *plugin);
+                           VersionControlBase *plugin);
 
     ~VcsSubmitEditorFactory();
 

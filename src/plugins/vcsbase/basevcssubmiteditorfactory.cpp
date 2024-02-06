@@ -20,7 +20,7 @@ const char DIFF_SELECTED[] = "Vcs.DiffSelectedFiles";
 VcsSubmitEditorFactory::VcsSubmitEditorFactory
         (const VcsBaseSubmitEditorParameters &parameters,
          const EditorCreator &editorCreator,
-         VcsBasePluginPrivate *plugin)
+         VersionControlBase *plugin)
 {
     setId(parameters.id);
     setDisplayName(QLatin1String(parameters.displayName));
@@ -46,7 +46,7 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
 
     Command *command = ActionManager::registerAction(&m_submitAction, SUBMIT, context);
     command->setAttribute(Command::CA_UpdateText);
-    QObject::connect(&m_submitAction, &QAction::triggered, plugin, &VcsBasePluginPrivate::commitFromEditor);
+    QObject::connect(&m_submitAction, &QAction::triggered, plugin, &VersionControlBase::commitFromEditor);
 
     m_diffAction.setIcon(VcsBaseSubmitEditor::diffIcon());
     m_diffAction.setText(Tr::tr("Diff &Selected Files"));
