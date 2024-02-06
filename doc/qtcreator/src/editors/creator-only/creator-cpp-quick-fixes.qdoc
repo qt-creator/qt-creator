@@ -624,6 +624,10 @@
 
             \li Class name
         \row
+            \li Move Definition Here
+            \li Moves an existing function definition to its declaration.
+            \li Function declaration
+        \row
             \li Assign to Local Variable
             \li Adds a local variable which stores the return value of a
                 function call or a new expression. For example, rewrites:
