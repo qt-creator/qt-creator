@@ -16,11 +16,11 @@
     To specify preferences for the Nim editor (experimental):
 
     \list 1
-        \li Select \preferences > \uicontrol Nim.
-        \li In the \uicontrol {Current settings} field, select the settings to
-            modify and click \uicontrol Copy.
+        \li Go to \preferences > \uicontrol Nim.
+        \li In \uicontrol {Custom settings}, select the settings to
+            modify, and then select \uicontrol Copy.
             \image qtcreator-preferences-nim-code-style.webp {Nim Code Style preferences}
-        \li Give a name to the settings and click \uicontrol OK.
+        \li Give a name to the settings, and select \uicontrol OK.
         \li Specify how to interpret the \key Tab key presses and how to align
             continuation lines.
         \li Select \uicontrol OK to save the settings.
@@ -36,7 +36,7 @@
     completion.
 
     To use Nimsuggest, you must install it on the development PC and enter the
-    path to the tool executable in the \uicontrol Path field.
+    path to the tool executable in \uicontrol Path.
 
     \image qtcreator-preferences-nim-tools.webp
 
