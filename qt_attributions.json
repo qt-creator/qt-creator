@@ -376,34 +376,6 @@
         "Copyright": "Copyright 2013-2022 Niels Lohmann"
     },
     {
-        "Id": "litehtml-gumbo",
-        "Name": "Gumbo",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used by litehtml.",
-        "Path": "src/libs/qlitehtml/src/3rdparty/litehtml/src/gumbo",
-        "Description": "Gumbo is an implementation of the HTML5 parsing algorithm implemented as a pure C99 library with no outside dependencies.",
-        "Homepage": "https://github.com/google/gumbo-parser",
-        "Version": "0.10.1",
-        "License": "Apache License 2.0 AND MIT",
-        "LicenseFile": "src/libs/qlitehtml/src/3rdparty/litehtml/src/gumbo/LICENSE",
-        "CopyrightFile": "src/libs/qlitehtml/src/3rdparty/GUMBO-AUTHORS.txt"
-    },
-    {
-        "Id": "litehtml",
-        "Name": "litehtml",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for the help viewer.",
-        "Path": "src/libs/qlitehtml/src/3rdparty/litehtml",
-        "Description": "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support.",
-        "Homepage": "https://github.com/litehtml/litehtml",
-        "Version": "v0.5-64-gdb7f59d",
-        "License": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "LicenseFile": "src/libs/qlitehtml/src/3rdparty/litehtml/LICENSE",
-        "Copyright": "Copyright (c) 2013, Yuri Kobets (tordex)"
-    },
-    {
         "Id": "conan.cmake",
         "Name": "conan.cmake",
         "QDocModule": "qtcreator",
