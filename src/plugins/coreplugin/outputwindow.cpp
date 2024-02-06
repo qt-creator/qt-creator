@@ -73,6 +73,8 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
+    //: default file name suggested for saving text from output views
+    QString outputFileNameHint{Tr::tr("output.txt")};
 };
 
 } // namespace Internal
@@ -290,6 +292,13 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
     adaptContextMenu(menu, event->pos());
 
     menu->addSeparator();
+    QAction *saveAction = menu->addAction(Tr::tr("Save Contents..."));
+    connect(saveAction, &QAction::triggered, this, [this] {
+        QFileDialog::saveFileContent(toPlainText().toUtf8(), d->outputFileNameHint);
+    });
+    saveAction->setEnabled(!document()->isEmpty());
+
+    menu->addSeparator();
     QAction *clearAction = menu->addAction(Tr::tr("Clear"));
     connect(clearAction, &QAction::triggered, this, [this] { clear(); });
     clearAction->setEnabled(!document()->isEmpty());
@@ -366,6 +375,11 @@ void OutputWindow::updateFilterProperties(
     }
     d->filterMode = flags;
     filterNewContent();
+}
+
+void OutputWindow::setOutputFileNameHint(const QString &fileName)
+{
+    d->outputFileNameHint = fileName;
 }
 
 void OutputWindow::filterNewContent()

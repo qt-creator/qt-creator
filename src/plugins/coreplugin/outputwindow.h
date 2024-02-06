@@ -67,6 +67,8 @@ public:
             bool regexp,
             bool isInverted);
 
+    void setOutputFileNameHint(const QString &fileName);
+
 signals:
     void wheelZoom();
 
