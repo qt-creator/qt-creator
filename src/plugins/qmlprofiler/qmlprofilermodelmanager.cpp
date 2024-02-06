@@ -359,11 +359,17 @@ bool QmlProfilerModelManager::isRestrictedToRange() const
 QmlProfilerModelManager::QmlEventFilter
 QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
 {
-    return [rangeStart, rangeEnd, this] (QmlEventLoader loader) {
+    return [this, rangeStart, rangeEnd] (QmlEventLoader loader) {
+        // TODO: It seems that below 2 variables are passed by copy to the lambda body,
+        //       thus changing their values inside the lambda body are local to the body only.
+        //       Setting "crossedRangeStart = true" inside the lambda looks no-op.
+        //       Passing always empty "stack" into the lambda also looks no-op.
+        //       Was the intention to pass these variables by reference?
         QStack<QmlEvent> stack;
         bool crossedRangeStart = false;
 
-        return [=](const QmlEvent &event, const QmlEventType &type) mutable {
+        return [this, rangeStart, rangeEnd, loader, crossedRangeStart, stack](
+                   const QmlEvent &event, const QmlEventType &type) mutable {
 
             // No restrictions: load all events
             if (rangeStart == -1 || rangeEnd == -1) {

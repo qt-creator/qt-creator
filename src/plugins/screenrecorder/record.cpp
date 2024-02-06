@@ -248,7 +248,8 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     connect(stopButton, &QToolButton::clicked, this, [this] {
         FFmpegUtils::sendQuitCommand(m_process);
     });
-    connect(m_process, &Process::started, this, [=] {
+    connect(m_process, &Process::started, this,
+            [this, progressLabel, recordButton, stopButton, settingsButton] {
         progressLabel->setEnabled(true);
         recordButton->setEnabled(false);
         stopButton->setEnabled(true);
@@ -256,7 +257,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
         this->m_openClipAction->setEnabled(false);
         emit started();
     });
-    connect(m_process, &Process::done, this, [=] {
+    connect(m_process, &Process::done, this, [this, recordButton, stopButton, settingsButton] {
         recordButton->setEnabled(true);
         stopButton->setEnabled(false);
         settingsButton->setEnabled(true);
