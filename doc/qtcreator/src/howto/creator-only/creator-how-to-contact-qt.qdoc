@@ -1,0 +1,49 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-contact-qt.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Contact Qt
+
+    To report bugs and tell us what you think about \QC and Qt,
+    go to \uicontrol Help.
+
+    \section1 Report bugs and suggest improvements
+
+    To report bugs and add suggestions for improvement to the
+    \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
+    go to \uicontrol Help > \uicontrol {Report Bug}.
+
+    To copy information about your \QC version that you can paste to the bug
+    report, go to \uicontrol Help > \uicontrol {About \QC} and select
+    \uicontrol {Copy and Close}.
+
+    To copy detailed information about your system that you can paste to the bug
+    report, go to \uicontrol Help > \uicontrol {System Information} and select
+    \uicontrol {Copy to Clipboard}.
+
+    To get commercial Qt support, go to \uicontrol Help >
+    \uicontrol {Commercial Qt Support} and create a service request.
+    To check your licenses and services, go to \uicontrol Help >
+    \uicontrol {Qt Account}.
+
+    \section1 Give feedback
+
+    To rate \QC and send us feedback, go to \uicontrol Help >
+    \uicontrol {Give Feedback}.
+
+    Or, give feedback from your Qt account.
+
+    \section1 Join discussions
+
+    To join the \l{https://lists.qt-project.org/listinfo/qt-creator}
+    {\QC mailing list} or \l{https://web.libera.chat/#qt-creator}
+    {#qt-creator} channel on Libera.Chat IRC, go to \uicontrol Help >
+    \uicontrol Contact.
+
+    \sa {Pasting and Fetching Code Snippets}, {Technical Support}
+*/
