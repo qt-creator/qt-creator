@@ -480,6 +480,11 @@ bool QmlItemNode::instanceIsRenderPixmapNull() const
     return nodeInstance().renderPixmap().isNull();
 }
 
+bool QmlItemNode::instanceIsVisible() const
+{
+    return nodeInstance().property("visible").toBool();
+}
+
 QPixmap QmlItemNode::instanceRenderPixmap() const
 {
     return nodeInstance().renderPixmap();

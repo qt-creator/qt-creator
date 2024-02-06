@@ -583,9 +583,13 @@ import QtQuick
 Item {
     id: rootItem
 
-    // This is an internal property used by tooling to identify effect items
+    // Use visible property to show and hide the effect.
+    visible: true
+
+    // This is an internal property used by tooling to identify effect items. Do not modify.
     property var _isEffectItem
 
+    // This is an internal property used to manage the effect. Do not modify.
     property Item _oldParent: null
 )"
     };
@@ -593,7 +597,7 @@ Item {
     s += header.arg(qApp->applicationVersion(), QDateTime::currentDateTime().toString());
 
     if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
-        s += "    // This is the main source for the effect\n";
+        s += "    // This is the main source for the effect. Set internally to the current parent item. Do not modify.\n";
         s += "    property Item source: null\n";
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Time)
@@ -622,10 +626,25 @@ R"(
         }
         if (parent) {
             _oldParent = parent
-            parent.layer.enabled = true
-            parent.layer.effect = effectComponent
+            if (visible) {
+                parent.layer.enabled = true
+                parent.layer.effect = effectComponent
+            }
             %1
         }
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            parent.layer.enabled = true
+            parent.layer.effect = effectComponent
+            source = parent
+        } else {
+            parent.layer.enabled = false
+            parent.layer.effect = null
+            source = null
+        }
+        parent.update()
     }
 )"
     };
