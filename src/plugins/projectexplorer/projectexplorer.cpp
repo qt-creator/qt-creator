@@ -710,17 +710,6 @@ public:
     IDocumentFactory m_documentFactory;
     IDocumentFactory m_taskFileFactory;
     StopMonitoringHandler closeTaskFile;
-
-    DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
-    QbsRunConfigurationFactory qbsRunConfigFactory;
-    CMakeRunConfigurationFactory cmakeRunConfigFactory;
-    SimpleTargetRunnerFactory desktopRunWorkerFactory{{
-        qmakeRunConfigFactory.runConfigurationId(),
-        qbsRunConfigFactory.runConfigurationId(),
-        cmakeRunConfigFactory.runConfigurationId()
-    }};
-
-    DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -822,6 +811,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupProjectTreeWidgetFactory();
 
     dd = new ProjectExplorerPluginPrivate;
+
+    setupDesktopRunConfigurations();
+    setupDesktopRunWorker();
+
+    setupDeviceCheckBuildStep();
 
     setupCurrentProjectFind();
 
