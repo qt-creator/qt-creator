@@ -73,4 +73,6 @@ private:
     void parsePullOutput(const QString &output);
 };
 
+MercurialClient &mercurialClient();
+
 } // Mercurial::Internal

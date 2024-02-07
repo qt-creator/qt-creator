@@ -446,4 +446,10 @@ void MercurialClient::parsePullOutput(const QString &output)
         emit needMerge();
 }
 
+MercurialClient &mercurialClient()
+{
+    static MercurialClient theMercurialClient;
+    return theMercurialClient;
+}
+
 } // Mercurial::Internal

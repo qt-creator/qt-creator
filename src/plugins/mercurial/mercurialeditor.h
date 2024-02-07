@@ -9,12 +9,10 @@
 
 namespace Mercurial::Internal {
 
-class MercurialClient;
-
 class MercurialEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
 public:
-    explicit MercurialEditorWidget(MercurialClient *client);
+    MercurialEditorWidget();
 
 private:
     QString changeUnderCursor(const QTextCursor &cursor) const override;
@@ -25,8 +23,6 @@ private:
     const QRegularExpression exactIdentifier12;
     const QRegularExpression exactIdentifier40;
     const QRegularExpression changesetIdentifier40;
-
-    MercurialClient *m_client;
 };
 
 } // Mercurial::Internal
