@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,19 +8,21 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-how-tos.html
     \page creator-known-issues.html
-    \nextpage creator-glossary.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Known Issues
 
-    This section lists known issues in \QC version \qtcversion. The development
-    team is aware of them, and therefore, you do not need to report them as
-    bugs.
+    \brief Known issues in \QC version \qtcversion.
 
-    For a list of fixed issues and added features, see the changelog file in
-    the \c{qtcreator\dist} folder or the \l{https://bugreports.qt.io}
+    The \QC development team is aware of the issues described here, and
+    therefore, you do not need to report them in the \l{https://bugreports.qt.io}
     {Qt Project Bug Tracker}.
+
+    For a list of fixed issues and added features, go to \uicontrol Help >
+    \uicontrol {Change Log}.
 
     \section1 General Issues
 
