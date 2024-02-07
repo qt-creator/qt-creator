@@ -209,6 +209,7 @@ private slots:
     void testExtractLiteralAsParameterMemberFunctionSeparateFiles();
     void testExtractLiteralAsParameterNotTriggeringForInvalidCode();
 
+    void testAddCurlyBraces_data();
     void testAddCurlyBraces();
 
     void testRemoveUsingNamespace_data();

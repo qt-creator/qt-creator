@@ -764,13 +764,49 @@ void SplitSimpleDeclaration::doMatch(const CppQuickFixInterface &interface,
 }
 
 namespace {
+template<typename Statement> Statement *asControlStatement(AST *node)
+{
+    if constexpr (std::is_same_v<Statement, IfStatementAST>)
+        return node->asIfStatement();
+    if constexpr (std::is_same_v<Statement, WhileStatementAST>)
+        return node->asWhileStatement();
+    if constexpr (std::is_same_v<Statement, ForStatementAST>)
+            return node->asForStatement();
+    if constexpr (std::is_same_v<Statement, RangeBasedForStatementAST>)
+        return node->asRangeBasedForStatement();
+    if constexpr (std::is_same_v<Statement, DoStatementAST>)
+        return node->asDoStatement();
+    return nullptr;
+}
 
-class AddBracesToIfOp: public CppQuickFixOperation
+template<typename Statement>
+int triggerToken(const Statement *statement)
+{
+    if constexpr (std::is_same_v<Statement, IfStatementAST>)
+        return statement->if_token;
+    if constexpr (std::is_same_v<Statement, WhileStatementAST>)
+        return statement->while_token;
+    if constexpr (std::is_same_v<Statement, DoStatementAST>)
+        return statement->do_token;
+    if constexpr (std::is_same_v<Statement, ForStatementAST>
+                  || std::is_same_v<Statement, RangeBasedForStatementAST>) {
+        return statement->for_token;
+    }
+}
+
+template<typename Statement>
+int tokenToInsertOpeningBraceAfter(const Statement *statement)
+{
+    if constexpr (std::is_same_v<Statement, DoStatementAST>)
+        return statement->do_token;
+    return statement->rparen_token;
+}
+
+template<typename Statement> class AddBracesToControlStatementOp : public CppQuickFixOperation
 {
 public:
-    AddBracesToIfOp(const CppQuickFixInterface &interface, int priority,
-                    const IfStatementAST *statement)
-        : CppQuickFixOperation(interface, priority)
+    AddBracesToControlStatementOp(const CppQuickFixInterface &interface, const Statement *statement)
+        : CppQuickFixOperation(interface, 0)
         , _statement(statement)
     {
         setDescription(Tr::tr("Add Curly Braces"));
@@ -783,51 +819,58 @@ public:
 
         ChangeSet changes;
 
-        const int start = currentFile->endOf(_statement->rparen_token);
+        const int start = currentFile->endOf(tokenToInsertOpeningBraceAfter(_statement));
         changes.insert(start, QLatin1String(" {"));
 
-        const int end = currentFile->endOf(_statement->statement->lastToken() - 1);
-        changes.insert(end, QLatin1String("\n}"));
+        if constexpr (std::is_same_v<Statement, DoStatementAST>) {
+            const int end = currentFile->startOf(_statement->while_token);
+            changes.insert(end, QLatin1String("} "));
+        } else {
+            const int end = currentFile->endOf(_statement->statement->lastToken() - 1);
+            changes.insert(end, QLatin1String("\n}"));
+        }
 
+        // TODO: For if statements, also bracify all else cases.
+        //       Also check all else cases in the factory.
         currentFile->setChangeSet(changes);
         currentFile->apply();
     }
 
 private:
-    const IfStatementAST * const _statement;
+    const Statement * const _statement;
 };
 
 } // anonymous namespace
 
-void AddBracesToIf::doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result)
+template<typename Statement>
+bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    const QList<AST *> &path = interface.path();
-    if (path.isEmpty())
-        return;
+    Statement * const statement = asControlStatement<Statement>(interface.path().last());
+    if (!statement)
+        return false;
 
-    // show when we're on the 'if' of an if statement
-    int index = path.size() - 1;
-    IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-    if (ifStatement && interface.isCursorOn(ifStatement->if_token) && ifStatement->statement
-        && !ifStatement->statement->asCompoundStatement()) {
-        result << new AddBracesToIfOp(interface, index, ifStatement);
-        return;
+    if (interface.isCursorOn(triggerToken(statement)) && statement->statement
+        && !statement->statement->asCompoundStatement()) {
+        result << new AddBracesToControlStatementOp(interface, statement);
     }
+    return true;
+}
 
-    // or if we're on the statement contained in the if
-    // ### This may not be such a good idea, consider nested ifs...
-    for (; index != -1; --index) {
-        IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-        if (ifStatement && ifStatement->statement
-            && interface.isCursorOn(ifStatement->statement)
-            && !ifStatement->statement->asCompoundStatement()) {
-            result << new AddBracesToIfOp(interface, index, ifStatement);
-            return;
-        }
-    }
+template<typename ...Statements>
+void checkControlStatements(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    (... || checkControlStatementsHelper<Statements>(interface, result));
+}
 
-    // ### This could very well be extended to the else branch
-    // and other nodes entirely.
+void AddBracesToControlStatement::doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    if (interface.path().isEmpty())
+        return;
+    checkControlStatements<IfStatementAST,
+                           WhileStatementAST,
+                           ForStatementAST,
+                           RangeBasedForStatementAST,
+                           DoStatementAST>(interface, result);
 }
 
 namespace {
@@ -9969,7 +10012,7 @@ void createCppQuickFixes()
     new SplitIfStatement;
     new SplitSimpleDeclaration;
 
-    new AddBracesToIf;
+    new AddBracesToControlStatement;
     new RearrangeParamDeclarationList;
     new ReformatPointerDeclaration;
 

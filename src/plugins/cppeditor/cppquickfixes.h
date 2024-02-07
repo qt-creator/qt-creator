@@ -287,7 +287,7 @@ public:
 };
 
 /*!
-  Add curly braces to a if statement that doesn't already contain a
+  Add curly braces to a control statement that doesn't already contain a
   compound statement. I.e.
 
   if (a)
@@ -297,9 +297,9 @@ public:
       b;
   }
 
-  Activates on: the if
+  Activates on: the keyword
 */
-class AddBracesToIf: public CppQuickFixFactory
+class AddBracesToControlStatement : public CppQuickFixFactory
 {
 public:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;

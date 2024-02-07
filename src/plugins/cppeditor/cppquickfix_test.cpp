@@ -8229,29 +8229,105 @@ void QuickfixTest::testExtractLiteralAsParameterNotTriggeringForInvalidCode()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
-void QuickfixTest::testAddCurlyBraces()
+void QuickfixTest::testAddCurlyBraces_data()
 {
-    QList<TestDocumentPtr> testDocuments;
-    const QByteArray original = R"delim(
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QByteArray original = R"delim(
 void MyObject::f()
 {
     @if (true)
         emit mySig();
-}
-)delim";
-    const QByteArray expected = R"delim(
+})delim";
+    QByteArray expected = R"delim(
 void MyObject::f()
 {
     if (true) {
         emit mySig();
     }
+})delim";
+    QTest::newRow("if") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @while (true)
+        emit mySig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    while (true) {
+        emit mySig();
+    }
+})delim";
+    QTest::newRow("while") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @for (int i = 0; i < 10; ++i)
+        emit mySig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    for (int i = 0; i < 10; ++i) {
+        emit mySig();
+    }
+})delim";
+    QTest::newRow("for") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @for (int i : list)
+        emit mySig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    for (int i : list) {
+        emit mySig();
+    }
+})delim";
+    QTest::newRow("range-based for") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @do
+        emit mySig();
+    while (true);
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    do {
+        emit mySig();
+    } while (true);
+})delim";
+    QTest::newRow("do") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @do {
+        emit mySig();
+    } while (true);
+})delim";
+    expected.clear();
+    QTest::newRow("already has braces") << original << expected;
 }
-)delim";
 
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
-    AddBracesToIf factory;
-    QuickFixOperationTest(testDocuments, &factory);
+void QuickfixTest::testAddCurlyBraces()
+{
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
 
+    AddBracesToControlStatement factory;
+    QuickFixOperationTest({CppTestDocument::create("file.cpp", original, expected)}, &factory);
 }
 
 void QuickfixTest::testConvertQt4ConnectConnectOutOfClass()
