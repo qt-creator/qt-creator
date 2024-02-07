@@ -5348,6 +5348,18 @@ void tst_Dumpers::dumper_data()
                + Check("v.0", "[0]", "\"foo\"", "std::string");
 
 
+    QTest::newRow("StdTuple")
+            << Data("#include <string>\n",
+
+                    "std::tuple<int, std::string, int> tuple = std::make_tuple(123, std::string(\"hello\"), 456);\n",
+
+                    "&tuple")
+
+               + Check("tuple.0", "[0]", "123", "int")
+               + Check("tuple.1", "[1]", "\"hello\"", "std::string")
+               + Check("tuple.2", "[2]", "456", "int");
+
+
     QTest::newRow("StdValArray")
             << Data("#include <valarray>\n"
                     "#include <list>\n",
