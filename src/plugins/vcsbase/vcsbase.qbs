@@ -23,8 +23,6 @@ QtcPlugin {
         "baseannotationhighlighter.h",
         "basevcseditorfactory.cpp",
         "basevcseditorfactory.h",
-        "basevcssubmiteditorfactory.cpp",
-        "basevcssubmiteditorfactory.h",
         "cleandialog.cpp",
         "cleandialog.h",
         "commonvcssettings.cpp",

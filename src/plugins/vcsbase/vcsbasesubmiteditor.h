@@ -127,4 +127,8 @@ private:
     friend class Internal::SubmitEditorFile; // for the file contents
 };
 
+VCSBASE_EXPORT void setupVcsSubmitEditor(
+    VersionControlBase *versionControl,
+    const VcsBaseSubmitEditorParameters &parameters);
+
 } // namespace VcsBase
