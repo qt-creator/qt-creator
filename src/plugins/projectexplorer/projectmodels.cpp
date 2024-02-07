@@ -679,6 +679,8 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
               return n->parentProjectNode() != sourceProjectNode; })) {
         return true;
     }
+    FolderNode * const sourceFolderNode = fileNodes.first()->parentFolderNode();
+    const bool sourceNodeIsSubDir = sourceFolderNode != sourceProjectNode;
     Node *targetNode = nodeForIndex(index(row, column, parent));
     if (!targetNode)
         targetNode = nodeForIndex(parent);
@@ -687,20 +689,22 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     if (!targetProjectNode)
         targetProjectNode = targetNode->parentProjectNode();
     QTC_ASSERT(targetProjectNode, return true);
-    if (sourceProjectNode == targetProjectNode)
+    const bool targetNodeIsSubDir = targetNode != targetProjectNode && targetNode->asFolderNode();
+    if (sourceProjectNode == targetProjectNode && !targetNodeIsSubDir && !sourceNodeIsSubDir)
         return true;
 
     // Node weirdness: Sometimes the "file path" is a directory, sometimes it's a file...
-    const auto dirForProjectNode = [](const ProjectNode *pNode) {
-        const FilePath dir = pNode->filePath();
+    const auto dirForFolderNode = [](const FolderNode *node) {
+        const FilePath dir = node->filePath();
         if (dir.isDir())
             return dir;
         return FilePath::fromString(dir.toFileInfo().path());
     };
-    FilePath targetDir = dirForProjectNode(targetProjectNode);
+    FilePath targetDir = dirForFolderNode(targetNodeIsSubDir ? targetNode->asFolderNode()
+                                                             : targetProjectNode);
 
     // Ask the user what to do now: Copy or add? With or without file transfer?
-    DropFileDialog dlg(targetDir == dirForProjectNode(sourceProjectNode) ? FilePath() : targetDir);
+    DropFileDialog dlg(targetDir == dirForFolderNode(sourceFolderNode) ? FilePath() : targetDir);
     if (dlg.exec() != QDialog::Accepted)
         return true;
     if (!dlg.targetDir().isEmpty())
