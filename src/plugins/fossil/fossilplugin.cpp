@@ -61,23 +61,6 @@ using namespace std::placeholders;
 
 namespace Fossil::Internal {
 
-class FossilTopicCache final : public IVersionControl::TopicCache
-{
-public:
-    FossilTopicCache() = default;
-
-protected:
-    FilePath trackFile(const FilePath &repository) final
-    {
-        return repository.pathAppended(Constants::FOSSILREPO);
-    }
-
-    QString refreshTopic(const FilePath &repository) final
-    {
-        return fossilClient().synchronousTopic(repository);
-    }
-};
-
 class FossilPluginPrivate final : public VersionControlBase
 {
 public:
@@ -222,7 +205,13 @@ FossilPluginPrivate::FossilPluginPrivate()
 {
     Context context(Constants::FOSSIL_CONTEXT);
 
-    setTopicCache(new FossilTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        return repository.pathAppended(Constants::FOSSILREPO);
+    });
+    setTopicRefresher([](const FilePath &repository) {
+        return fossilClient().synchronousTopic(repository);
+    });
+
     connect(&fossilClient(), &VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);

@@ -382,25 +382,6 @@ public:
 
 static GitPluginPrivate *dd = nullptr;
 
-class GitTopicCache : public IVersionControl::TopicCache
-{
-public:
-    GitTopicCache() {}
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        const FilePath gitDir = gitClient().findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        emit dd->repositoryChanged(repository);
-        return gitClient().synchronousTopic(repository);
-    }
-};
-
 GitPluginPrivate::~GitPluginPrivate()
 {
     cleanCommitMessageFile();
@@ -560,7 +541,14 @@ GitPluginPrivate::GitPluginPrivate()
 {
     dd = this;
 
-    setTopicCache(new GitTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        const FilePath gitDir = gitClient().findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
+    });
+    setTopicRefresher([this](const FilePath &repository) {
+        emit repositoryChanged(repository);
+        return gitClient().synchronousTopic(repository);
+    });
 
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);

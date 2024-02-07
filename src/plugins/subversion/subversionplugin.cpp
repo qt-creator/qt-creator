@@ -126,24 +126,6 @@ static inline QStringList svnDirectories()
     return rc;
 }
 
-class SubversionPluginPrivate;
-
-class SubversionTopicCache : public Core::IVersionControl::TopicCache
-{
-public:
-    SubversionTopicCache(SubversionPluginPrivate *plugin) :
-        m_plugin(plugin)
-    { }
-
-protected:
-    FilePath trackFile(const FilePath &repository) override;
-
-    QString refreshTopic(const FilePath &repository) override;
-
-private:
-    SubversionPluginPrivate *m_plugin;
-};
-
 class SubversionPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
@@ -312,7 +294,12 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 {
     dd = this;
 
-    setTopicCache(new SubversionTopicCache(this));
+    setTopicFileTracker([this](const FilePath &repository) {
+        return FilePath::fromString(monitorFile(repository));
+    });
+    setTopicRefresher([this](const FilePath &repository) {
+        return synchronousTopic(repository);
+    });
 
     using namespace Constants;
     using namespace Core::Constants;
@@ -1151,16 +1138,6 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, subversionClient().processEnvironment());
     command->addJob(args, -1);
     return command;
-}
-
-FilePath SubversionTopicCache::trackFile(const FilePath &repository)
-{
-    return FilePath::fromString(m_plugin->monitorFile(repository));
-}
-
-QString SubversionTopicCache::refreshTopic(const FilePath &repository)
-{
-    return m_plugin->synchronousTopic(repository);
 }
 
 

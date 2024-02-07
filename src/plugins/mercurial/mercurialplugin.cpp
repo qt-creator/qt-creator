@@ -51,23 +51,6 @@ using namespace std::placeholders;
 
 namespace Mercurial::Internal {
 
-class MercurialTopicCache : public Core::IVersionControl::TopicCache
-{
-public:
-    MercurialTopicCache() = default;
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        return repository.pathAppended(".hg/branch");
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        return mercurialClient().branchQuerySync(repository.toString());
-    }
-};
-
 class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
@@ -203,7 +186,12 @@ MercurialPluginPrivate::MercurialPluginPrivate()
         [] { return new CommitEditor; }
     });
 
-    setTopicCache(new MercurialTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        return repository.pathAppended(".hg/branch");
+    });
+    setTopicRefresher([](const FilePath &repository) {
+        return mercurialClient().branchQuerySync(repository.toString());
+    });
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
