@@ -39,7 +39,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>

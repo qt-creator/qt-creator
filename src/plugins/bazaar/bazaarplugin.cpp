@@ -30,7 +30,6 @@
 #include <utils/stringutils.h>
 #include <utils/layoutbuilder.h>
 
-#include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>

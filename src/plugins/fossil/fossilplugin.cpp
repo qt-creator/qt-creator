@@ -33,7 +33,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>

@@ -52,7 +52,6 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/cleandialog.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseconstants.h>

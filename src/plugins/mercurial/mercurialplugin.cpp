@@ -28,7 +28,6 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcscommand.h>

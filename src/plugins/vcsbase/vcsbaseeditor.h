@@ -286,6 +286,16 @@ public:
 #endif
 };
 
+class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
+{
+public:
+    VcsEditorFactory(const VcsBaseEditorParameters *parameters,
+                     const EditorWidgetCreator editorWidgetCreator,
+                     std::function<void(const Utils::FilePath &, const QString &)> describeFunc);
+
+    ~VcsEditorFactory();
+};
+
 } // namespace VcsBase
 
 Q_DECLARE_METATYPE(VcsBase::DiffChunk)

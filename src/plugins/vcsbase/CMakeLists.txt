@@ -4,7 +4,6 @@ add_qtc_plugin(VcsBase
   PLUGIN_RECOMMENDS CodePaster CppEditor
   SOURCES
     baseannotationhighlighter.cpp baseannotationhighlighter.h
-    basevcseditorfactory.cpp basevcseditorfactory.h
     cleandialog.cpp cleandialog.h
     commonvcssettings.cpp commonvcssettings.h
     diffandloghighlighter.cpp diffandloghighlighter.h

@@ -21,8 +21,6 @@ QtcPlugin {
     files: [
         "baseannotationhighlighter.cpp",
         "baseannotationhighlighter.h",
-        "basevcseditorfactory.cpp",
-        "basevcseditorfactory.h",
         "cleandialog.cpp",
         "cleandialog.h",
         "commonvcssettings.cpp",
