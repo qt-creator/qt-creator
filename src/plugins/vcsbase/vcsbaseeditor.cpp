@@ -563,7 +563,6 @@ public:
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
-    VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
@@ -723,14 +722,10 @@ int VcsBaseEditorWidget::lineNumberDigits() const
     return digits;
 }
 
-void VcsBaseEditorWidget::setDescribeFunc(DescribeFunc describeFunc)
-{
-    d->m_describeFunc = describeFunc;
-}
-
 void VcsBaseEditorWidget::finalizeInitialization()
 {
-    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_describeFunc);
+    QTC_CHECK(d->m_parameters.describeFunc);
+    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_parameters.describeFunc);
     init();
 }
 
@@ -1673,7 +1668,6 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
     setEditorWidgetCreator([parameters] {
         auto widget = parameters.editorWidgetCreator();
         auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
-        editorWidget->setDescribeFunc(parameters.describeFunc);
         editorWidget->setParameters(parameters);
         return widget;
     });

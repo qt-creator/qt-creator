@@ -147,8 +147,6 @@ public:
 
     void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
-    void setDescribeFunc(DescribeFunc describeFunc);
-    // void
     virtual void init();
     //
     void setParameters(const VcsBaseEditorParameters &parameters);
