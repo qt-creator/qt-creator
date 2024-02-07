@@ -149,7 +149,7 @@ public:
     // void
     virtual void init();
     //
-    void setParameters(const VcsBaseEditorParameters *parameters);
+    void setParameters(const VcsBaseEditorParameters &parameters);
 
     ~VcsBaseEditorWidget() override;
 

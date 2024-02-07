@@ -546,7 +546,7 @@ public:
     QComboBox *entriesComboBox();
 
     TextEditorWidget *q;
-    const VcsBaseEditorParameters *m_parameters = nullptr;
+    VcsBaseEditorParameters m_parameters;
 
     FilePath m_workingDirectory;
 
@@ -640,9 +640,8 @@ VcsBaseEditorWidget::VcsBaseEditorWidget()
     viewport()->setMouseTracking(true);
 }
 
-void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameters)
+void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters &parameters)
 {
-    QTC_CHECK(d->m_parameters == nullptr);
     d->m_parameters = parameters;
 }
 
@@ -678,7 +677,7 @@ void VcsBaseEditorWidget::setAnnotationSeparatorPattern(const QString &pattern)
 
 bool VcsBaseEditorWidget::supportChangeLinks() const
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case LogOutput:
     case AnnotateOutput:
         return true;
@@ -737,7 +736,7 @@ void VcsBaseEditorWidget::finalizeInitialization()
 
 void VcsBaseEditorWidget::init()
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case OtherContent:
         break;
     case LogOutput:
@@ -855,7 +854,7 @@ void VcsBaseEditorWidget::setCodec(QTextCodec *c)
 
 EditorContentType VcsBaseEditorWidget::contentType() const
 {
-    return d->m_parameters->type;
+    return d->m_parameters.type;
 }
 
 bool VcsBaseEditorWidget::isModified() const
@@ -974,14 +973,14 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         const QTextCursor cursor = cursorForPosition(e->pos());
         if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor)) {
             menu = new QMenu;
-            handler->fillContextMenu(menu, d->m_parameters->type);
+            handler->fillContextMenu(menu, d->m_parameters.type);
         }
     }
     if (!menu) {
         menu = new QMenu;
         appendStandardContextMenuActions(menu);
     }
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case LogOutput: // log might have diff
     case DiffOutput: {
         if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
@@ -1093,7 +1092,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 {
     // The annotation highlighting depends on contents (change number
     // set with assigned colors)
-    if (d->m_parameters->type != AnnotateOutput)
+    if (d->m_parameters.type != AnnotateOutput)
         return;
 
     const QSet<QString> changes = annotationChanges();
@@ -1583,7 +1582,7 @@ QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 
 bool VcsBaseEditorWidget::hasDiff() const
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case DiffOutput:
     case LogOutput:
         return true;
@@ -1674,7 +1673,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return document;
     });
 
-    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc] {
+    setEditorWidgetCreator([parameters=*parameters, editorWidgetCreator, describeFunc] {
         auto widget = editorWidgetCreator();
         auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
         editorWidget->setDescribeFunc(describeFunc);
