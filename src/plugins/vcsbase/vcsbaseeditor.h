@@ -45,6 +45,8 @@ public:
     const char *id;
     const char *displayName;
     const char *mimeType;
+    std::function<QWidget *()> editorWidgetCreator;
+    std::function<void (const Utils::FilePath &, const QString &)> describeFunc;
 };
 
 class VCSBASE_EXPORT DiffChunk
@@ -289,10 +291,7 @@ public:
 class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {
 public:
-    VcsEditorFactory(const VcsBaseEditorParameters *parameters,
-                     const EditorWidgetCreator editorWidgetCreator,
-                     std::function<void(const Utils::FilePath &, const QString &)> describeFunc);
-
+    explicit VcsEditorFactory(const VcsBaseEditorParameters &parameters);
     ~VcsEditorFactory();
 };
 

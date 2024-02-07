@@ -132,48 +132,6 @@ public:
 
 static const QVersionNumber minimumRequiredVersion{1, 9};
 
-const VcsBaseEditorParameters svnLogEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_SVN_LOG_EDITOR_ID,
-    Git::Constants::GIT_SVN_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.svnlog"
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Git::Constants::GIT_LOG_EDITOR_ID,
-    Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.log"
-};
-
-const VcsBaseEditorParameters reflogEditorParameters {
-    LogOutput,
-    Git::Constants::GIT_REFLOG_EDITOR_ID,
-    Git::Constants::GIT_REFLOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.reflog"
-};
-
-const VcsBaseEditorParameters blameEditorParameters {
-    AnnotateOutput,
-    Git::Constants::GIT_BLAME_EDITOR_ID,
-    Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.annotation"
-};
-
-const VcsBaseEditorParameters commitTextEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
-    Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.commit"
-};
-
-const VcsBaseEditorParameters rebaseEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_REBASE_EDITOR_ID,
-    Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.rebase"
-};
-
 // GitPlugin
 
 class GitPluginPrivate final : public VersionControlBase
@@ -366,41 +324,59 @@ public:
 
     GitGrep gitGrep;
 
-    VcsEditorFactory svnLogEditorFactory {
-        &svnLogEditorParameters,
+    VcsEditorFactory svnLogEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_SVN_LOG_EDITOR_ID,
+        Git::Constants::GIT_SVN_LOG_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.svnlog",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Git::Constants::GIT_LOG_EDITOR_ID,
+        Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.log",
         [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory reflogEditorFactory {
-        &reflogEditorParameters,
-                [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
+    VcsEditorFactory reflogEditorFactory {{
+        LogOutput,
+        Git::Constants::GIT_REFLOG_EDITOR_ID,
+        Git::Constants::GIT_REFLOG_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.reflog",
+        [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory blameEditorFactory {
-        &blameEditorParameters,
+    VcsEditorFactory blameEditorFactory {{
+        AnnotateOutput,
+        Git::Constants::GIT_BLAME_EDITOR_ID,
+        Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.annotation",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory commitTextEditorFactory {
-        &commitTextEditorParameters,
+    VcsEditorFactory commitTextEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
+        Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.commit",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory rebaseEditorFactory {
-        &rebaseEditorParameters,
+    VcsEditorFactory rebaseEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_REBASE_EDITOR_ID,
+        Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.git.rebase",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static GitPluginPrivate *dd = nullptr;

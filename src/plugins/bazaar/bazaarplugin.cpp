@@ -89,27 +89,6 @@ const char COMMIT[] = "Bazaar.Action.Commit";
 const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
 const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput, // type
-    Constants::FILELOG_ID, // id
-    Constants::FILELOG_DISPLAY_NAME, // display name
-    Constants::LOGAPP // mime type
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    Constants::ANNOTATELOG_ID,
-    Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
-
 class RevertDialog : public QDialog
 {
 public:
@@ -220,23 +199,32 @@ public:
 
     FilePath m_submitRepository;
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput, // type
+        Constants::FILELOG_ID, // id
+        Constants::FILELOG_DISPLAY_NAME, // display name
+        Constants::LOGAPP,// mime type
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        Constants::ANNOTATELOG_DISPLAY_NAME,
+        Constants::ANNOTATEAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        Constants::DIFFLOG_DISPLAY_NAME,
+        Constants::DIFFAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 class UnCommitDialog : public QDialog

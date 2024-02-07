@@ -85,20 +85,6 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Constants::SUBVERSION_LOG_EDITOR_ID,
-    Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
-    Constants::SUBVERSION_LOG_MIMETYPE
-};
-
-const VcsBaseEditorParameters blameEditorParameters {
-    AnnotateOutput,
-    Constants::SUBVERSION_BLAME_EDITOR_ID,
-    Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
-    Constants::SUBVERSION_BLAME_MIMETYPE
-};
-
 static inline QString debugCodec(const QTextCodec *c)
 {
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
@@ -276,17 +262,23 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Constants::SUBVERSION_LOG_EDITOR_ID,
+        Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
+        Constants::SUBVERSION_LOG_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory blameEditorFactory {
-        &blameEditorParameters,
+    VcsEditorFactory blameEditorFactory {{
+        AnnotateOutput,
+        Constants::SUBVERSION_BLAME_EDITOR_ID,
+        Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
+        Constants::SUBVERSION_BLAME_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 
@@ -853,7 +845,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                blameEditorParameters.id, source, codec);
+                                            Constants::SUBVERSION_BLAME_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }

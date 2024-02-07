@@ -67,27 +67,6 @@ protected:
     }
 };
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::LOGAPP
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    Constants::ANNOTATELOG_ID,
-    Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
-
 class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
@@ -180,23 +159,32 @@ private:
     FilePath m_submitRepository;
 
 public:
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Constants::FILELOG_ID,
+        Constants::FILELOG_DISPLAY_NAME,
+        Constants::LOGAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        Constants::ANNOTATELOG_DISPLAY_NAME,
+        Constants::ANNOTATEAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        Constants::DIFFLOG_DISPLAY_NAME,
+        Constants::DIFFAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static MercurialPluginPrivate *dd = nullptr;

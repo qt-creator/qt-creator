@@ -128,27 +128,6 @@ struct PerforceResponse
     QString stdErr;
 };
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    PERFORCE_LOG_EDITOR_ID,
-    PERFORCE_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.p4.log"
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    PERFORCE_ANNOTATION_EDITOR_ID,
-    PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.p4.annotation"
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    PERFORCE_DIFF_EDITOR_ID,
-    PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
-    "text/x-patch"
-};
-
 // Flags for runP4Cmd.
 enum RunFlags
 {
@@ -324,23 +303,32 @@ public:
 
     ManagedDirectoryCache m_managedDirectoryCache;
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        PERFORCE_LOG_EDITOR_ID,
+        PERFORCE_LOG_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.p4.log",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        PERFORCE_ANNOTATION_EDITOR_ID,
+        PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
+        "text/vnd.qtcreator.p4.annotation",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        PERFORCE_DIFF_EDITOR_ID,
+        PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
+        "text/x-patch",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static PerforcePluginPrivate *dd = nullptr;
@@ -827,7 +815,7 @@ void PerforcePluginPrivate::annotate(const FilePath &workingDir,
         if (lineNumber < 1)
             lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor();
         IEditor *ed = showOutputInEditor(Tr::tr("p4 annotate %1").arg(id),
-                                         result.stdOut, annotateEditorParameters.id,
+                                         result.stdOut, PERFORCE_ANNOTATION_EDITOR_ID,
                                          source, codec);
         VcsBaseEditor::gotoLineOfEditor(ed, lineNumber);
     }
@@ -878,7 +866,7 @@ void PerforcePluginPrivate::filelog(const FilePath &workingDir, const QString &f
     if (!result.error) {
         const FilePath source = VcsBaseEditor::getSource(workingDir, fileName);
         IEditor *editor = showOutputInEditor(Tr::tr("p4 filelog %1").arg(id), result.stdOut,
-                                             logEditorParameters.id, source, codec);
+                                             PERFORCE_LOG_EDITOR_ID, source, codec);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(editor)->setFileLogAnnotateEnabled(true);
     }
@@ -900,7 +888,7 @@ void PerforcePluginPrivate::changelists(const FilePath &workingDir, const QStrin
     if (!result.error) {
         const FilePath source = VcsBaseEditor::getSource(workingDir, fileName);
         IEditor *editor = showOutputInEditor(Tr::tr("p4 changelists %1").arg(id), result.stdOut,
-                                             logEditorParameters.id, source, codec);
+                                             PERFORCE_LOG_EDITOR_ID, source, codec);
         VcsBaseEditor::gotoLineOfEditor(editor, 1);
     }
 }
@@ -1376,7 +1364,7 @@ void PerforcePluginPrivate::p4Diff(const PerforceDiffParameters &p)
     }
     // Create new editor
     IEditor *editor = showOutputInEditor(Tr::tr("p4 diff %1").arg(id), result.stdOut,
-                                         diffEditorParameters.id,
+                                         PERFORCE_DIFF_EDITOR_ID,
                                          VcsBaseEditor::getSource(p.workingDir, p.files),
                                          codec);
     VcsBaseEditor::tagEditor(editor, tag);
@@ -1400,7 +1388,7 @@ void PerforcePluginPrivate::vcsDescribe(const FilePath &source, const QString &n
     const PerforceResponse result = runP4Cmd(settings().topLevel(), args, CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              {}, {}, codec);
     if (!result.error)
-        showOutputInEditor(Tr::tr("p4 describe %1").arg(n), result.stdOut, diffEditorParameters.id, source, codec);
+        showOutputInEditor(Tr::tr("p4 describe %1").arg(n), result.stdOut, PERFORCE_DIFF_EDITOR_ID, source, codec);
 }
 
 void PerforcePluginPrivate::cleanCommitMessageFile()

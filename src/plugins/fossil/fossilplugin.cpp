@@ -77,28 +77,6 @@ protected:
     }
 };
 
-const VcsBaseEditorParameters fileLogParameters {
-    LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::LOGAPP
-};
-
-const VcsBaseEditorParameters annotateLogParameters {
-     AnnotateOutput,
-     Constants::ANNOTATELOG_ID,
-     Constants::ANNOTATELOG_DISPLAY_NAME,
-     Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
-
-
 class FossilPluginPrivate final : public VersionControlBase
 {
 public:
@@ -171,23 +149,32 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    VcsEditorFactory fileLogFactory {
-        &fileLogParameters,
+    VcsEditorFactory fileLogFactory {{
+        LogOutput,
+        Constants::FILELOG_ID,
+        Constants::FILELOG_DISPLAY_NAME,
+        Constants::LOGAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateLogFactory {
-        &annotateLogParameters,
+    VcsEditorFactory annotateLogFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        Constants::ANNOTATELOG_DISPLAY_NAME,
+        Constants::ANNOTATEAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffFactory {
-        &diffParameters,
+    VcsEditorFactory diffFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        Constants::DIFFLOG_DISPLAY_NAME,
+        Constants::DIFFAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
     CommandLocator *m_commandLocator = nullptr;
     ActionContainer *m_fossilContainer = nullptr;
