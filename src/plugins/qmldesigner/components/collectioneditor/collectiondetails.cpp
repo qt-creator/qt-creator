@@ -853,8 +853,13 @@ CollectionDetails CollectionDetails::fromLocalCollection(const QJsonObject &loca
 
             if (int columnsCount = result.columns()) {
                 const QJsonArray dataRecords = localCollection.value("data").toArray();
-                for (const QJsonValue &dataRecordValue : dataRecords)
-                    result.insertRecords(dataRecordValue.toArray());
+                for (const QJsonValue &dataRecordValue : dataRecords) {
+                    QJsonArray dataRecord = dataRecordValue.toArray();
+                    while (dataRecord.count() > columnsCount)
+                        dataRecord.removeLast();
+
+                    result.insertRecords(dataRecord);
+                }
             }
         } else {
             setError(CollectionParseError::ColumnsBlockIsNotArray);
