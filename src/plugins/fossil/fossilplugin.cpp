@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -152,7 +153,7 @@ public:
     VcsEditorFactory fileLogFactory {{
         LogOutput,
         Constants::FILELOG_ID,
-        Constants::FILELOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Fossil File Log Editor"),
         Constants::LOGAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
@@ -161,7 +162,7 @@ public:
     VcsEditorFactory annotateLogFactory {{
         AnnotateOutput,
         Constants::ANNOTATELOG_ID,
-        Constants::ANNOTATELOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Fossil Annotation Editor"),
         Constants::ANNOTATEAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
@@ -170,7 +171,7 @@ public:
     VcsEditorFactory diffFactory {{
         DiffOutput,
         Constants::DIFFLOG_ID,
-        Constants::DIFFLOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Fossil Diff Editor"),
         Constants::DIFFAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
@@ -238,7 +239,7 @@ FossilPluginPrivate::FossilPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::COMMITMIMETYPE,
         Constants::COMMIT_ID,
-        Constants::COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Fossil Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });

@@ -28,9 +28,9 @@ class VcsBaseSubmitEditorPrivate;
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
 {
 public:
-    const char *mimeType;
-    const char *id;
-    const char *displayName;
+    QString mimeType;
+    Utils::Id id;
+    QString displayName;
     enum DiffType { DiffRows, DiffFiles } diffType;
     std::function<VcsBaseSubmitEditor *()> editorCreator;
 };

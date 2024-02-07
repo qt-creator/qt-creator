@@ -36,6 +36,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -265,7 +266,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         Constants::SUBVERSION_LOG_EDITOR_ID,
-        Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Subversion File Log Editor"),
         Constants::SUBVERSION_LOG_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
@@ -274,7 +275,7 @@ public:
     VcsEditorFactory blameEditorFactory {{
         AnnotateOutput,
         Constants::SUBVERSION_BLAME_EDITOR_ID,
-        Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Subversion Annotation Editor"),
         Constants::SUBVERSION_BLAME_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
@@ -480,7 +481,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::SUBVERSION_SUBMIT_MIMETYPE,
         Constants::SUBVERSION_COMMIT_EDITOR_ID,
-        Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Subversion Commit Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new SubversionSubmitEditor; },
     });

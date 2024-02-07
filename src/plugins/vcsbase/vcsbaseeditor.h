@@ -42,9 +42,9 @@ class VCSBASE_EXPORT VcsBaseEditorParameters
 {
 public:
     EditorContentType type;
-    const char *id;
-    const char *displayName;
-    const char *mimeType;
+    Utils::Id id;
+    QString displayName;
+    QString mimeType;
     std::function<QWidget *()> editorWidgetCreator;
     std::function<void (const Utils::FilePath &, const QString &)> describeFunc;
 };

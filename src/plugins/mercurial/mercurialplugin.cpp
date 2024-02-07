@@ -30,6 +30,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -162,7 +163,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         Constants::FILELOG_ID,
-        Constants::FILELOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Mercurial File Log Editor"),
         Constants::LOGAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
@@ -171,7 +172,7 @@ public:
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         Constants::ANNOTATELOG_ID,
-        Constants::ANNOTATELOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Mercurial Annotation Editor"),
         Constants::ANNOTATEAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
@@ -180,7 +181,7 @@ public:
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         Constants::DIFFLOG_ID,
-        Constants::DIFFLOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Mercurial Diff Editor"),
         Constants::DIFFAPP,
         [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
@@ -197,7 +198,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::COMMITMIMETYPE,
         Constants::COMMIT_ID,
-        Constants::COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Mercurial Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });

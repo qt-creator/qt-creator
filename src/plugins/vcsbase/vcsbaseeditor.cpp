@@ -1651,16 +1651,16 @@ IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
 {
     setId(parameters.id);
-    setDisplayName(Tr::tr(parameters.displayName));
-    if (QLatin1String(parameters.mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
-        addMimeType(QLatin1String(parameters.mimeType));
+    setDisplayName(parameters.displayName);
+    if (parameters.mimeType != DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)
+        addMimeType(parameters.mimeType);
 
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);
 
     setDocumentCreator([parameters] {
         auto document = new TextDocument(parameters.id);
-        document->setMimeType(QLatin1String(parameters.mimeType));
+        document->setMimeType(parameters.mimeType);
         document->setSuspendAllowed(false);
         return document;
     });

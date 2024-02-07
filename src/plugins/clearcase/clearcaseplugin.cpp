@@ -43,6 +43,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 
 #include <QAbstractButton>
@@ -297,7 +298,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         LOG_EDITOR_ID,
-        QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase File Log Editor"),   // display_name
+        VcsBase::Tr::tr("ClearCase File Log Editor"),   // display_name
         "text/vnd.qtcreator.clearcase.log",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
@@ -306,7 +307,7 @@ public:
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         ANNOTATION_EDITOR_ID,
-        QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Annotation Editor"),   // display_name
+        VcsBase::Tr::tr("ClearCase Annotation Editor"),   // display_name
         "text/vnd.qtcreator.clearcase.annotation",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
@@ -315,7 +316,7 @@ public:
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         DIFF_EDITOR_ID,
-        QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Diff Editor"),   // display_name
+        VcsBase::Tr::tr("ClearCase Diff Editor"),   // display_name
         "text/x-patch",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
@@ -732,7 +733,7 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::CLEARCASE_SUBMIT_MIMETYPE,
         Constants::CLEARCASECHECKINEDITOR_ID,
-        Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("ClearCase Check In Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new ClearCaseSubmitEditor; }
     });

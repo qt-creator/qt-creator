@@ -34,6 +34,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -62,7 +63,6 @@ namespace Bazaar::Internal {
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Commit Log Editor");
 const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
 
 // Menu items
@@ -202,7 +202,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput, // type
         Constants::FILELOG_ID, // id
-        Constants::FILELOG_DISPLAY_NAME, // display name
+        VcsBase::Tr::tr("Bazaar File Log Editor"),
         Constants::LOGAPP,// mime type
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
@@ -211,7 +211,7 @@ public:
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         Constants::ANNOTATELOG_ID,
-        Constants::ANNOTATELOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Bazaar Annotation Editor"),
         Constants::ANNOTATEAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
@@ -220,7 +220,7 @@ public:
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         Constants::DIFFLOG_ID,
-        Constants::DIFFLOG_DISPLAY_NAME,
+        VcsBase::Tr::tr("Bazaar Diff Editor"),
         Constants::DIFFAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
@@ -480,7 +480,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     setupVcsSubmitEditor(this, {
         COMMITMIMETYPE,
         COMMIT_ID,
-        COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Bazaar Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });

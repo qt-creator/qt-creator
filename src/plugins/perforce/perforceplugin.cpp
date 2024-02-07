@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -62,16 +63,9 @@ const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
 const char PERFORCE_CONTEXT[] = "Perforce Context";
 const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
-const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce.SubmitEditor");
-
 const char PERFORCE_LOG_EDITOR_ID[] = "Perforce.LogEditor";
-const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Log Editor");
-
 const char PERFORCE_DIFF_EDITOR_ID[] = "Perforce.DiffEditor";
-const char PERFORCE_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Diff Editor");
-
 const char PERFORCE_ANNOTATION_EDITOR_ID[] = "Perforce.AnnotationEditor";
-const char PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Annotation Editor");
 
 // Ensure adding "..." to relative paths which is p4's convention
 // for the current directory
@@ -306,7 +300,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         PERFORCE_LOG_EDITOR_ID,
-        PERFORCE_LOG_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Perforce Log Editor"),
         "text/vnd.qtcreator.p4.log",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
@@ -315,7 +309,7 @@ public:
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         PERFORCE_ANNOTATION_EDITOR_ID,
-        PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Perforce Annotation Editor"),
         "text/vnd.qtcreator.p4.annotation",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
@@ -324,7 +318,7 @@ public:
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         PERFORCE_DIFF_EDITOR_ID,
-        PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Perforce Diff Editor"),
         "text/x-patch",
         [] { return new PerforceEditorWidget; },
         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
@@ -343,7 +337,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     setupVcsSubmitEditor(this, {
         SUBMIT_MIMETYPE,
         PERFORCE_SUBMIT_EDITOR_ID,
-        PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Perforce.SubmitEditor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new PerforceSubmitEditor; },
     });

@@ -147,10 +147,10 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
 {
     d->m_parameters = parameters;
     d->m_file.setId(parameters.id);
-    d->m_file.setMimeType(QLatin1String(parameters.mimeType));
+    d->m_file.setMimeType(parameters.mimeType);
 
     setWidget(d->m_widget);
-    document()->setPreferredDisplayName(Tr::tr(d->m_parameters.displayName));
+    document()->setPreferredDisplayName(d->m_parameters.displayName);
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();
@@ -643,8 +643,8 @@ public:
             .bindContextAction(&diffAction);
 
         setId(parameters.id);
-        setDisplayName(QLatin1String(parameters.displayName));
-        addMimeType(QLatin1String(parameters.mimeType));
+        setDisplayName(parameters.displayName);
+        addMimeType(parameters.mimeType);
         setEditorCreator([parameters, submitAction, diffAction, undoAction, redoAction] {
             VcsBaseSubmitEditor *editor = parameters.editorCreator();
             editor->setParameters(parameters);
