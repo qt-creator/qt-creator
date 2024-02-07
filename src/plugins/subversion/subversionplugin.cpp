@@ -87,13 +87,6 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const VcsBaseSubmitEditorParameters submitParameters {
-    Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Constants::SUBVERSION_COMMIT_EDITOR_ID,
-    Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     Constants::SUBVERSION_LOG_EDITOR_ID,
@@ -289,12 +282,6 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitParameters,
-        [] { return new SubversionSubmitEditor; },
-        this
-    };
-
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new SubversionEditorWidget; },
@@ -506,6 +493,14 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     m_commandLocator->appendCommand(command);
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+
+    setupVcsSubmitEditor(this, {
+        Constants::SUBVERSION_SUBMIT_MIMETYPE,
+        Constants::SUBVERSION_COMMIT_EDITOR_ID,
+        Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new SubversionSubmitEditor; },
+    });
 }
 
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const

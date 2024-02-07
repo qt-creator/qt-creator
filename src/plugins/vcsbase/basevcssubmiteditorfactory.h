@@ -5,36 +5,13 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <functional>
-
-#include <QAction>
-
 namespace VcsBase {
 
-class VcsBaseSubmitEditor;
 class VcsBaseSubmitEditorParameters;
 class VersionControlBase;
 
-// Parametrizable base class for editor factories creating instances of
-// VcsBaseSubmitEditor subclasses.
-
-class VCSBASE_EXPORT VcsSubmitEditorFactory : public Core::IEditorFactory
-{
-public:
-    typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
-
-    VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters &parameters,
-                           const EditorCreator &editorCreator,
-                           VersionControlBase *plugin);
-
-    ~VcsSubmitEditorFactory();
-
-private:
-    QAction m_submitAction;
-    QAction m_diffAction;
-    QAction m_undoAction;
-    QAction m_redoAction;
-};
+VCSBASE_EXPORT void setupVcsSubmitEditor(
+    VersionControlBase *versionControl,
+    const VcsBaseSubmitEditorParameters &parameters);
 
 } // namespace VcsBase

@@ -93,13 +93,6 @@ const VcsBaseEditorParameters diffEditorParameters {
     Constants::DIFFAPP
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    Constants::COMMITMIMETYPE,
-    Constants::COMMIT_ID,
-    Constants::COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
@@ -191,12 +184,6 @@ private:
     FilePath m_submitRepository;
 
 public:
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
-
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [this] { return new MercurialEditorWidget(&m_client); },
@@ -222,6 +209,14 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     : VcsBase::VersionControlBase(Core::Context(Constants::MERCURIAL_CONTEXT))
 {
     dd = this;
+
+    setupVcsSubmitEditor(this, {
+        Constants::COMMITMIMETYPE,
+        Constants::COMMIT_ID,
+        Constants::COMMIT_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
 
     setTopicCache(new MercurialTopicCache(&m_client));
 

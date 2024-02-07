@@ -112,13 +112,6 @@ const VcsBaseEditorParameters diffEditorParameters {
     Constants::DIFFAPP
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    COMMITMIMETYPE,
-    COMMIT_ID,
-    COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 class RevertDialog : public QDialog
 {
 public:
@@ -212,11 +205,6 @@ public:
     // Variables
     BazaarClient m_client;
 
-    VcsSubmitEditorFactory m_submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
     CommandLocator *m_commandLocator = nullptr;
 
     QList<QAction *> m_repositoryActionList;
@@ -502,6 +490,14 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     m_menuAction = bazaarMenu->menu()->menuAction();
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+
+    setupVcsSubmitEditor(this, {
+        COMMITMIMETYPE,
+        COMMIT_ID,
+        COMMIT_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
 }
 
 void BazaarPluginPrivate::addCurrentFile()

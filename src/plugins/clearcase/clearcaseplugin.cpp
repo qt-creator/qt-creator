@@ -122,13 +122,6 @@ const VcsBaseEditorParameters diffEditorParameters {
     "text/x-patch"
 };
 
-const VcsBaseSubmitEditorParameters submitParameters {
-    Constants::CLEARCASE_SUBMIT_MIMETYPE,
-    Constants::CLEARCASECHECKINEDITOR_ID,
-    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 static QString debugCodec(const QTextCodec *c)
 {
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
@@ -319,12 +312,6 @@ public:
     std::shared_ptr<StatusMap> m_statusMap;
 
     ClearCaseSettingsPage m_settingsPage;
-
-    VcsSubmitEditorFactory m_submitEditorFactory {
-        submitParameters,
-        [] { return new ClearCaseSubmitEditor; },
-        this
-    };
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
@@ -751,6 +738,14 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     status.addOnTriggered(this, &ClearCasePluginPrivate::viewStatus);
     status.addToContainer(CMD_ID_CLEARCASE_MENU);
     m_commandLocator->appendCommand(status.command());
+
+    setupVcsSubmitEditor(this, {
+        Constants::CLEARCASE_SUBMIT_MIMETYPE,
+        Constants::CLEARCASECHECKINEDITOR_ID,
+        Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new ClearCaseSubmitEditor; }
+    });
 }
 
 // called before closing the submit editor

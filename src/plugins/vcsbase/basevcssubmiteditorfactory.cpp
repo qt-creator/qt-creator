@@ -8,6 +8,8 @@
 #include "vcsbasesubmiteditor.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+
 #include <utils/qtcassert.h>
 
 using namespace Core;
@@ -17,42 +19,60 @@ namespace VcsBase {
 const char SUBMIT[] = "Vcs.Submit";
 const char DIFF_SELECTED[] = "Vcs.DiffSelectedFiles";
 
-VcsSubmitEditorFactory::VcsSubmitEditorFactory
-        (const VcsBaseSubmitEditorParameters &parameters,
-         const EditorCreator &editorCreator,
-         VersionControlBase *plugin)
+class VcsSubmitEditorFactory final : public IEditorFactory
 {
-    setId(parameters.id);
-    setDisplayName(QLatin1String(parameters.displayName));
-    addMimeType(QLatin1String(parameters.mimeType));
+public:
+    VcsSubmitEditorFactory(VersionControlBase *versionControl,
+                           const VcsBaseSubmitEditorParameters &parameters)
+    {
+        QAction *submitAction = nullptr;
+        QAction *diffAction = nullptr;
+        QAction *undoAction = nullptr;
+        QAction *redoAction = nullptr;
 
-    setEditorCreator([this, editorCreator, parameters] {
-        VcsBaseSubmitEditor *editor = editorCreator();
-        editor->setParameters(parameters);
-        editor->registerActions(&m_undoAction, &m_redoAction, &m_submitAction, &m_diffAction);
-        return editor;
-    });
+        const Context context(parameters.id);
 
-    Context context(parameters.id);
-    m_undoAction.setText(Tr::tr("&Undo"));
-    ActionManager::registerAction(&m_undoAction, Core::Constants::UNDO, context);
+        ActionBuilder(versionControl, Core::Constants::UNDO)
+            .setText(Tr::tr("&Undo"))
+            .setContext(context)
+            .bindContextAction(&undoAction);
 
-    m_redoAction.setText(Tr::tr("&Redo"));
-    ActionManager::registerAction(&m_redoAction, Core::Constants::REDO, context);
+        ActionBuilder(versionControl, Core::Constants::REDO)
+            .setText(Tr::tr("&Redo"))
+            .setContext(context)
+            .bindContextAction(&redoAction);
 
-    QTC_ASSERT(plugin, return);
-    m_submitAction.setIcon(VcsBaseSubmitEditor::submitIcon());
-    m_submitAction.setText(plugin->commitDisplayName());
+        ActionBuilder(versionControl, SUBMIT)
+            .setText(versionControl->commitDisplayName())
+            .setIcon(VcsBaseSubmitEditor::submitIcon())
+            .setContext(context)
+            .bindContextAction(&submitAction)
+            .setCommandAttribute(Command::CA_UpdateText)
+            .addOnTriggered(versionControl, &VersionControlBase::commitFromEditor);
 
-    Command *command = ActionManager::registerAction(&m_submitAction, SUBMIT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    QObject::connect(&m_submitAction, &QAction::triggered, plugin, &VersionControlBase::commitFromEditor);
+        ActionBuilder(versionControl, DIFF_SELECTED)
+            .setText(Tr::tr("Diff &Selected Files"))
+            .setIcon(VcsBaseSubmitEditor::diffIcon())
+            .setContext(context)
+            .bindContextAction(&diffAction);
 
-    m_diffAction.setIcon(VcsBaseSubmitEditor::diffIcon());
-    m_diffAction.setText(Tr::tr("Diff &Selected Files"));
-    ActionManager::registerAction(&m_diffAction, DIFF_SELECTED, context);
+        setId(parameters.id);
+        setDisplayName(QLatin1String(parameters.displayName));
+        addMimeType(QLatin1String(parameters.mimeType));
+        setEditorCreator([parameters, submitAction, diffAction, undoAction, redoAction] {
+            VcsBaseSubmitEditor *editor = parameters.editorCreator();
+            editor->setParameters(parameters);
+            editor->registerActions(undoAction, redoAction, submitAction, diffAction);
+            return editor;
+        });
+    }
+};
+
+void setupVcsSubmitEditor(VersionControlBase *versionControl,
+                          const VcsBaseSubmitEditorParameters &parameters)
+{
+    auto factory = new VcsSubmitEditorFactory(versionControl, parameters);
+    QObject::connect(versionControl, &QObject::destroyed, [factory] { delete factory; });
 }
-
-VcsSubmitEditorFactory::~VcsSubmitEditorFactory() = default;
 
 } // namespace VcsBase

@@ -100,13 +100,6 @@ const VcsBaseEditorParameters diffParameters {
     Constants::DIFFAPP
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    Constants::COMMITMIMETYPE,
-    Constants::COMMIT_ID,
-    Constants::COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 
 class FossilPluginPrivate final : public VersionControlBase
 {
@@ -180,12 +173,6 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
-
     VcsEditorFactory fileLogFactory {
         &fileLogParameters,
         [] { return new FossilEditorWidget; },
@@ -262,6 +249,14 @@ FossilPluginPrivate::FossilPluginPrivate()
             this, &IVersionControl::configurationChanged);
 
     createMenu(context);
+
+    setupVcsSubmitEditor(this, {
+        Constants::COMMITMIMETYPE,
+        Constants::COMMIT_ID,
+        Constants::COMMIT_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
 }
 
 void FossilPluginPrivate::createMenu(const Context &context)

@@ -130,13 +130,6 @@ struct PerforceResponse
     QString stdErr;
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    SUBMIT_MIMETYPE,
-    PERFORCE_SUBMIT_EDITOR_ID,
-    PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     PERFORCE_LOG_EDITOR_ID,
@@ -333,12 +326,6 @@ public:
 
     ManagedDirectoryCache m_managedDirectoryCache;
 
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new PerforceSubmitEditor; },
-        this
-    };
-
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new PerforceEditorWidget; },
@@ -366,6 +353,14 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     Context context(PERFORCE_CONTEXT);
 
     dd = this;
+
+    setupVcsSubmitEditor(this, {
+        SUBMIT_MIMETYPE,
+        PERFORCE_SUBMIT_EDITOR_ID,
+        PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new PerforceSubmitEditor; },
+    });
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);

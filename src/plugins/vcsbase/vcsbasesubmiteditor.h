@@ -22,6 +22,7 @@ namespace Internal { class SubmitEditorFile; }
 class SubmitEditorWidget;
 class SubmitFileModel;
 class VersionControlBase;
+class VcsBaseSubmitEditor;
 class VcsBaseSubmitEditorPrivate;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
@@ -31,6 +32,7 @@ public:
     const char *id;
     const char *displayName;
     enum DiffType { DiffRows, DiffFiles } diffType;
+    std::function<VcsBaseSubmitEditor *()> editorCreator;
 };
 
 class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
