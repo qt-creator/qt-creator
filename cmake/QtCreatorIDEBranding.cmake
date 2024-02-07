@@ -1,7 +1,7 @@
 set(IDE_VERSION "12.0.82")                            # The IDE version.
 set(IDE_VERSION_COMPAT "12.0.82")                     # The IDE Compatibility version.
 set(IDE_VERSION_DISPLAY "13.0.0-beta1")               # The IDE display version.
-set(IDE_COPYRIGHT_YEAR "2023")                        # The IDE current copyright year.
+set(IDE_COPYRIGHT_YEAR "2024")                        # The IDE current copyright year.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
 set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.
