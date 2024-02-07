@@ -673,8 +673,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
         };
         // Special case: when qt_add_executable and qt_add_qml_module use the same target name
         // then qt_add_qml_module function should be used
-        if (auto preferred = findFunction(*cmakeListFile, qtAddModule); !preferred.has_value())
-            function = preferred;
+        function = findFunction(*cmakeListFile, qtAddModule).value_or(*function);
 
         const QString newSourceFiles = newFilesForFunction(function->LowerCaseName(),
                                                            filePaths,

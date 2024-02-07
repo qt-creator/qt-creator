@@ -21,7 +21,8 @@ namespace Internal { class SubmitEditorFile; }
 
 class SubmitEditorWidget;
 class SubmitFileModel;
-class VcsBasePluginPrivate;
+class VersionControlBase;
+class VcsBaseSubmitEditor;
 class VcsBaseSubmitEditorPrivate;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
@@ -31,6 +32,7 @@ public:
     const char *id;
     const char *displayName;
     enum DiffType { DiffRows, DiffFiles } diffType;
+    std::function<VcsBaseSubmitEditor *()> editorCreator;
 };
 
 class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
@@ -47,8 +49,8 @@ public:
 
     ~VcsBaseSubmitEditor() override;
 
-    void accept(VcsBasePluginPrivate *plugin);
-    bool promptSubmit(VcsBasePluginPrivate *plugin);
+    void accept(VersionControlBase *plugin);
+    bool promptSubmit(VersionControlBase *plugin);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
@@ -124,5 +126,9 @@ private:
 
     friend class Internal::SubmitEditorFile; // for the file contents
 };
+
+VCSBASE_EXPORT void setupVcsSubmitEditor(
+    VersionControlBase *versionControl,
+    const VcsBaseSubmitEditorParameters &parameters);
 
 } // namespace VcsBase

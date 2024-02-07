@@ -3,26 +3,9 @@
 
 #pragma once
 
-#include "runconfiguration.h"
-
 namespace ProjectExplorer::Internal {
 
-class DesktopQmakeRunConfigurationFactory final : public RunConfigurationFactory
-{
-public:
-    DesktopQmakeRunConfigurationFactory();
-};
-
-class QbsRunConfigurationFactory final : public RunConfigurationFactory
-{
-public:
-    QbsRunConfigurationFactory();
-};
-
-class CMakeRunConfigurationFactory final : public RunConfigurationFactory
-{
-public:
-    CMakeRunConfigurationFactory();
-};
+void setupDesktopRunConfigurations();
+void setupDesktopRunWorker();
 
 } // ProjectExplorer::Internal

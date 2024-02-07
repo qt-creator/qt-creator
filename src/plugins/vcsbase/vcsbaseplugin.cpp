@@ -490,14 +490,14 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
     keep it, as it may rapidly change due to context changes, etc.
 */
 
-bool VcsBasePluginPrivate::supportsRepositoryCreation() const
+bool VersionControlBase::supportsRepositoryCreation() const
 {
     return supportsOperation(IVersionControl::CreateRepositoryOperation);
 }
 
 static Internal::StateListener *m_listener = nullptr;
 
-VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
+VersionControlBase::VersionControlBase(const Context &context)
     : m_context(context)
 {
     EditorManager::addCloseEditorListener([this](IEditor *editor) {
@@ -514,7 +514,7 @@ VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
     if (!m_listener)
         m_listener = new Internal::StateListener(Internal::VcsPlugin::instance());
     connect(m_listener, &Internal::StateListener::stateChanged,
-            this, &VcsBasePluginPrivate::slotStateChanged);
+            this, &VersionControlBase::slotStateChanged);
     // VCSes might have become (un-)available, so clear the VCS directory cache
     connect(this, &IVersionControl::configurationChanged,
             VcsManager::instance(), &VcsManager::clearVersionControlCache);
@@ -522,13 +522,13 @@ VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
             m_listener, &Internal::StateListener::slotStateChanged);
 }
 
-void VcsBasePluginPrivate::extensionsInitialized()
+void VersionControlBase::extensionsInitialized()
 {
     // Initialize enable menus.
     m_listener->slotStateChanged();
 }
 
-void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, IVersionControl *vc)
+void VersionControlBase::slotStateChanged(const Internal::State &newInternalState, IVersionControl *vc)
 {
     if (vc == this) {
         // We are directly affected: Change state
@@ -550,12 +550,12 @@ void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalSt
     }
 }
 
-const VcsBasePluginState &VcsBasePluginPrivate::currentState() const
+const VcsBasePluginState &VersionControlBase::currentState() const
 {
     return m_state;
 }
 
-VcsCommand *VcsBasePluginPrivate::createInitialCheckoutCommand(const QString &url,
+VcsCommand *VersionControlBase::createInitialCheckoutCommand(const QString &url,
                                                                const FilePath &baseDirectory,
                                                                const QString &localName,
                                                                const QStringList &extraArgs)
@@ -567,7 +567,7 @@ VcsCommand *VcsBasePluginPrivate::createInitialCheckoutCommand(const QString &ur
     return nullptr;
 }
 
-bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction) const
+bool VersionControlBase::enableMenuAction(ActionState as, QAction *menuAction) const
 {
     qCDebug(baseLog) << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
@@ -588,42 +588,42 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
     return true;
 }
 
-QString VcsBasePluginPrivate::commitDisplayName() const
+QString VersionControlBase::commitDisplayName() const
 {
     //: Name of the "commit" action of the VCS
     return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
 }
 
-QString VcsBasePluginPrivate::commitAbortTitle() const
+QString VersionControlBase::commitAbortTitle() const
 {
     return Tr::tr("Close Commit Editor");
 }
 
-QString VcsBasePluginPrivate::commitAbortMessage() const
+QString VersionControlBase::commitAbortMessage() const
 {
     return Tr::tr("Closing this editor will abort the commit.");
 }
 
-QString VcsBasePluginPrivate::commitErrorMessage(const QString &error) const
+QString VersionControlBase::commitErrorMessage(const QString &error) const
 {
     if (error.isEmpty())
         return Tr::tr("Cannot commit.");
     return Tr::tr("Cannot commit: %1.").arg(error);
 }
 
-void VcsBasePluginPrivate::commitFromEditor()
+void VersionControlBase::commitFromEditor()
 {
     QTC_ASSERT(m_submitEditor, return);
     m_submitEditor->accept(this);
 }
 
-bool VcsBasePluginPrivate::promptBeforeCommit()
+bool VersionControlBase::promptBeforeCommit()
 {
     return DocumentManager::saveAllModifiedDocuments(Tr::tr("Save before %1?")
                                                      .arg(commitDisplayName().toLower()));
 }
 
-void VcsBasePluginPrivate::promptToDeleteCurrentFile()
+void VersionControlBase::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -642,7 +642,7 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
 }
 
-void VcsBasePluginPrivate::createRepository()
+void VersionControlBase::createRepository()
 {
     QTC_ASSERT(supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
@@ -679,17 +679,17 @@ void VcsBasePluginPrivate::createRepository()
     }
 }
 
-void VcsBasePluginPrivate::setSubmitEditor(VcsBaseSubmitEditor *submitEditor)
+void VersionControlBase::setSubmitEditor(VcsBaseSubmitEditor *submitEditor)
 {
     m_submitEditor = submitEditor;
 }
 
-VcsBaseSubmitEditor *VcsBasePluginPrivate::submitEditor() const
+VcsBaseSubmitEditor *VersionControlBase::submitEditor() const
 {
     return m_submitEditor;
 }
 
-bool VcsBasePluginPrivate::raiseSubmitEditor() const
+bool VersionControlBase::raiseSubmitEditor() const
 {
     if (!m_submitEditor)
         return false;
@@ -697,7 +697,7 @@ bool VcsBasePluginPrivate::raiseSubmitEditor() const
     return true;
 }
 
-void VcsBasePluginPrivate::discardCommit()
+void VersionControlBase::discardCommit()
 {
 }
 

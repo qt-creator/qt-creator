@@ -5,7 +5,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorer_test.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -20,7 +20,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
 static QJsonObject createWidget(const QString &type, const QString &nameSuffix, const QJsonObject &data)
 {
@@ -84,7 +84,7 @@ struct FactoryDeleter { void operator()(JsonWizardFactory *f) { f->deleteLater()
 
 using FactoryPtr = std::unique_ptr<JsonWizardFactory, FactoryDeleter>;
 
-void ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
+void ProjectExplorerTest::testJsonWizardsEmptyWizard()
 {
     QString errorMessage;
     const QJsonObject wizard = createGeneralWizard(QJsonObject());
@@ -94,7 +94,7 @@ void ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
     QCOMPARE(qPrintable(errorMessage), "Page has no typeId set.");
 }
 
-void ProjectExplorerPlugin::testJsonWizardsEmptyPage()
+void ProjectExplorerTest::testJsonWizardsEmptyPage()
 {
     QString errorMessage;
     const QJsonObject pages = createFieldPageJsonObject(QJsonArray());
@@ -105,7 +105,7 @@ void ProjectExplorerPlugin::testJsonWizardsEmptyPage()
     QCOMPARE(qPrintable(errorMessage), "When parsing fields of page \"PE.Wizard.Page.Fields\": ");
 }
 
-void ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields_data()
+void ProjectExplorerTest::testJsonWizardsUnusedKeyAtFields_data()
 {
     const QPair<QString, QJsonValue> wrongData = {"wrong", false};
 
@@ -119,7 +119,7 @@ void ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields_data()
     QTest::newRow("ComboBox") << QJsonObject({{wrongData, {"items", QJsonArray()}}});
 }
 
-void ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
+void ProjectExplorerTest::testJsonWizardsUnusedKeyAtFields()
 {
     QString fieldType(QString::fromLatin1(QTest::currentDataTag()));
     QFETCH(QJsonObject, wrongDataJsonObect);
@@ -138,7 +138,7 @@ void ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
     QVERIFY(errorMessage.isEmpty());
 }
 
-void ProjectExplorerPlugin::testJsonWizardsCheckBox()
+void ProjectExplorerTest::testJsonWizardsCheckBox()
 {
     QString errorMessage;
 
@@ -177,7 +177,7 @@ void ProjectExplorerPlugin::testJsonWizardsCheckBox()
     QCOMPARE(qPrintable(wizard->field("SpecialValueCheckedCheckBox").toString()), "SpecialCheckedValue");
 }
 
-void ProjectExplorerPlugin::testJsonWizardsLineEdit()
+void ProjectExplorerTest::testJsonWizardsLineEdit()
 {
     QString errorMessage;
 
@@ -201,7 +201,7 @@ void ProjectExplorerPlugin::testJsonWizardsLineEdit()
     QVERIFY(wizard->page(0)->isComplete());
 }
 
-void ProjectExplorerPlugin::testJsonWizardsComboBox()
+void ProjectExplorerTest::testJsonWizardsComboBox()
 {
     QString errorMessage;
     QWidget parent;
@@ -243,7 +243,7 @@ static QString iconInsideResource(const QString &relativePathToIcon)
     return Core::ICore::resourcePath().resolvePath(relativePathToIcon).toString();
 }
 
-void ProjectExplorerPlugin::testJsonWizardsIconList()
+void ProjectExplorerTest::testJsonWizardsIconList()
 {
     QString errorMessage;
     QWidget parent;
@@ -286,4 +286,4 @@ void ProjectExplorerPlugin::testJsonWizardsIconList()
     QVERIFY(!wizard->page(0)->isComplete());
 }
 
-} // ProjectExplorer
+} // ProjectExplorer::Internal

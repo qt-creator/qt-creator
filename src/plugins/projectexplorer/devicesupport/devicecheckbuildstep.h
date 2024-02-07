@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "../buildstep.h"
-
 namespace ProjectExplorer {
 
-class DeviceCheckBuildStepFactory : public BuildStepFactory
-{
-public:
-    DeviceCheckBuildStepFactory();
-};
+void setupDeviceCheckBuildStep();
 
 } // ProjectExplorer

@@ -193,8 +193,7 @@ private:
     TypeName m_dynamicType;
     std::weak_ptr<InternalNode> m_propertyOwner;
     PropertyType m_propertyType = PropertyType::None;
-    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken = ModelTracing::category().beginObject(
-        "InternalProperty"_t, keyValue("name", m_name));
+    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken;
 };
 
 } // namespace Internal

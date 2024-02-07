@@ -527,7 +527,7 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Id deviceType) const
 
 
 #ifdef WITH_TESTS
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorer_test.h>
 #include <QSignalSpy>
 #include <QTest>
 #include <QUuid>
@@ -561,7 +561,7 @@ public:
     }
 };
 
-void ProjectExplorerPlugin::testDeviceManager()
+void ProjectExplorerTest::testDeviceManager()
 {
     TestDeviceFactory factory;
 

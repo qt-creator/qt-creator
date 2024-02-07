@@ -2060,13 +2060,13 @@ void GccToolchainConfigWidget::updateParentToolchainComboBox()
 // Unit tests:
 
 #ifdef WITH_TESTS
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 
 #   include <QTest>
 #   include <QUrl>
 
 namespace ProjectExplorer {
-void ProjectExplorerPlugin::testGccAbiGuessing_data()
+void ProjectExplorerTest::testGccAbiGuessing_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QByteArray>("macros");
@@ -2204,7 +2204,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
             << QStringList({"x86-bsd-freebsd-elf-32bit"});
 }
 
-void ProjectExplorerPlugin::testGccAbiGuessing()
+void ProjectExplorerTest::testGccAbiGuessing()
 {
     QFETCH(QString, input);
     QFETCH(QByteArray, macros);

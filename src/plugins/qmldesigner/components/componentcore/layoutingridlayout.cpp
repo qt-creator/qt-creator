@@ -465,7 +465,7 @@ void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 
 LayoutInGridLayout::LessThan LayoutInGridLayout::lessThan()
 {
-    return [=](const ModelNode &node1, const ModelNode &node2)->bool {
+    return [this](const ModelNode &node1, const ModelNode &node2) {
         QmlItemNode itemNode1 = QmlItemNode(node1);
         QmlItemNode itemNode2 = QmlItemNode(node2);
         if (itemNode1.isValid() && itemNode2.isValid()) {

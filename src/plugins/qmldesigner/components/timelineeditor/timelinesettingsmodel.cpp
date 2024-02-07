@@ -127,7 +127,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     }
 
     if (comboBox) {
-        connect(comboBox, &QComboBox::activated, this, [=] {
+        connect(comboBox, &QComboBox::activated, this, [this, comboBox] {
             auto delegate = const_cast<TimelineEditorDelegate *>(this);
             emit delegate->commitData(comboBox);
         });

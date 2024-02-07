@@ -58,7 +58,6 @@ CMakeLists.txt.user*
 /src/plugins/**/*.json
 !/src/plugins/**/wizard.json
 /src/plugins/coreplugin/ide_version.h
-/src/libs/qt-breakpad/bin
 /.cmake/
 /.vs/
 app_version.h

@@ -290,12 +290,12 @@ void ClangClParser::flush()
 
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "projectexplorer/outputparser_test.h"
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
-void ProjectExplorerPlugin::testMsvcOutputParsers_data()
+void ProjectExplorerTest::testMsvcOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -594,7 +594,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << "";
 }
 
-void ProjectExplorerPlugin::testMsvcOutputParsers()
+void ProjectExplorerTest::testMsvcOutputParsers()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new MsvcParser);
@@ -610,7 +610,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers()
                           outputLines);
 }
 
-void ProjectExplorerPlugin::testClangClOutputParsers_data()
+void ProjectExplorerTest::testClangClOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -694,7 +694,7 @@ void ProjectExplorerPlugin::testClangClOutputParsers_data()
             << "";
 }
 
-void ProjectExplorerPlugin::testClangClOutputParsers()
+void ProjectExplorerTest::testClangClOutputParsers()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new ClangClParser);
@@ -710,6 +710,6 @@ void ProjectExplorerPlugin::testClangClOutputParsers()
                           outputLines);
 }
 
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
 
 #endif // WITH_TEST

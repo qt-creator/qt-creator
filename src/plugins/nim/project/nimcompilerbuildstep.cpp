@@ -74,7 +74,8 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     formLayout->addRow(Tr::tr("Extra arguments:"),  additionalArgumentsLineEdit);
     formLayout->addRow(Tr::tr("Command:"), commandTextEdit);
 
-    auto updateUi = [=] {
+    auto updateUi = [this, commandTextEdit, targetComboBox, additionalArgumentsLineEdit,
+                     defaultArgumentsComboBox] {
         const CommandLine cmd = commandLine();
         const QStringList parts = ProcessArgs::splitArgs(cmd.toUserOutput(), HostOsInfo::hostOs());
 

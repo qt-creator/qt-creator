@@ -15,8 +15,7 @@
 #include <QApplication>
 #include <QIcon>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 /**************************** SquishTestTreeItem ***************************************/
 
@@ -36,9 +35,11 @@ SquishTestTreeItem::SquishTestTreeItem(const QString &displayName, Type type)
     case SquishTestCase:
         m_flags = common | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
         break;
+    case SquishSharedFile:
+        m_flags = common | Qt::ItemIsEditable;
+        break;
     case SquishSharedData:
     case SquishSharedDataFolder:
-    case SquishSharedFile:
     case SquishSharedFolder:
     case SquishSharedRoot:
         m_flags = common;
@@ -484,5 +485,4 @@ bool SquishTestTreeSortModel::lessThan(const QModelIndex &left, const QModelInde
     return QString::compare(leftVal, rightVal, Qt::CaseInsensitive) > 0;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

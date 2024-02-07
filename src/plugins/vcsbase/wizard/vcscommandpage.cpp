@@ -260,7 +260,7 @@ void VcsCommandPage::delayedInitialize()
     QTC_ASSERT(wiz, return);
 
     const QString vcsId = wiz->expander()->expand(m_vcsId);
-    VcsBasePluginPrivate *vc = static_cast<VcsBasePluginPrivate *>(
+    VersionControlBase *vc = static_cast<VersionControlBase *>(
                 VcsManager::versionControl(Id::fromString(vcsId)));
     if (!vc) {
         qWarning() << Tr::tr("\"%1\" (%2) not found.")

@@ -12,6 +12,7 @@
 #include "project.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
+#include "projectimporter.h"
 #include "projectmanager.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"

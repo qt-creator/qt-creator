@@ -125,6 +125,15 @@
 
     \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
+    \section1 Resizing Views
+
+    To resize the editor views and splits, move the cursor to the edge of the
+    view or split. When the cursor changes, drag the edge of the view or split
+    to another position.
+
+    If the cursor does not change, go to \preferences > \uicontrol Environment >
+    \uicontrol Interface and select \uicontrol {Override cursors for views}.
+
     \section1 Copying File Information
 
     To open a context menu that has commands for managing open files, right-click
@@ -200,7 +209,7 @@
     Filters locating files also accept paths, such as \c {tools/*main.cpp}.
     If the path to a file is very long, it might not fit into the locator
     window. To view the full path, press \key Alt when the filename is selected
-    or use the handle next to the locator window to increase the window width.
+    or drag the right edge of the locator to make it wider.
 
     If the locator does not find some files, see \l{Specify project contents}
     for how to make them known to the locator.

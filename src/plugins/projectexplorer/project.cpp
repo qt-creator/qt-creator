@@ -50,6 +50,7 @@
 #include <limits>
 
 #ifdef WITH_TESTS
+#include "projectexplorer_test.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/temporarydirectory.h>
 
@@ -1358,7 +1359,11 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
 }
 
-#if defined(WITH_TESTS)
+} // ProjectExplorer
+
+#ifdef WITH_TESTS
+
+namespace ProjectExplorer::Internal {
 
 static FilePath constructTestPath(const QString &basePath)
 {
@@ -1405,7 +1410,7 @@ public:
     Target *target = nullptr;
 };
 
-void ProjectExplorerPlugin::testProject_setup()
+void ProjectExplorerTest::testProject_setup()
 {
     TestProject project;
 
@@ -1433,7 +1438,7 @@ void ProjectExplorerPlugin::testProject_setup()
     QVERIFY(!project.target->buildSystem()->hasParsingData());
 }
 
-void ProjectExplorerPlugin::testProject_changeDisplayName()
+void ProjectExplorerTest::testProject_changeDisplayName()
 {
     TestProject project;
 
@@ -1449,7 +1454,7 @@ void ProjectExplorerPlugin::testProject_changeDisplayName()
     QCOMPARE(spy.count(), 0);
 }
 
-void ProjectExplorerPlugin::testProject_parsingSuccess()
+void ProjectExplorerTest::testProject_parsingSuccess()
 {
     TestProject project;
 
@@ -1475,7 +1480,7 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
     QVERIFY(project.target->buildSystem()->hasParsingData());
 }
 
-void ProjectExplorerPlugin::testProject_parsingFail()
+void ProjectExplorerTest::testProject_parsingFail()
 {
     TestProject project;
 
@@ -1512,7 +1517,7 @@ std::unique_ptr<ProjectNode> createFileTree(Project *project)
     return root;
 }
 
-void ProjectExplorerPlugin::testProject_projectTree()
+void ProjectExplorerTest::testProject_projectTree()
 {
     TestProject project;
     QSignalSpy fileSpy(&project, &Project::fileListChanged);
@@ -1554,7 +1559,7 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QVERIFY(!project.rootProjectNode());
 }
 
-void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
+void ProjectExplorerTest::testProject_multipleBuildConfigs()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -1575,7 +1580,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
-    const auto theProject = openProject(projectDir.pathAppended("generic-project.creator"));
+    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
     QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
     theProject.project()->configureAsExampleProject(kit);
     QCOMPARE(theProject.project()->targets().size(), 1);
@@ -1606,7 +1611,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
 }
 
-void ProjectExplorerPlugin::testSourceToBinaryMapping()
+void ProjectExplorerTest::testSourceToBinaryMapping()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -1642,7 +1647,7 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
 
     // Load Project.
     QFETCH(QString, projectFileName);
-    const auto theProject = openProject(projectDir.pathAppended(projectFileName));
+    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
     if (theProject.errorMessage().contains("text/")) {
         QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
               "to be fully functional");
@@ -1682,7 +1687,7 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
 }
 
-void ProjectExplorerPlugin::testSourceToBinaryMapping_data()
+void ProjectExplorerTest::testSourceToBinaryMapping_data()
 {
     QTest::addColumn<QString>("projectFileName");
     QTest::addRow("cmake") << "CMakeLists.txt";
@@ -1690,6 +1695,6 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping_data()
     QTest::addRow("qmake") << "multi-target-project.pro";
 }
 
-#endif // WITH_TESTS
+} // ProjectExplorer::Internal
 
-} // namespace ProjectExplorer
+#endif // WITH_TESTS

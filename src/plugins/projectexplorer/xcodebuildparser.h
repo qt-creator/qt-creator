@@ -11,6 +11,11 @@
 
 namespace ProjectExplorer {
 
+namespace Internal {
+class XcodebuildParserTester;
+class ProjectExplorerTest;
+} // Internal
+
 class PROJECTEXPLORER_EXPORT XcodebuildParser : public OutputTaskParser
 {
     Q_OBJECT
@@ -35,24 +40,9 @@ private:
     XcodebuildStatus m_xcodeBuildParserState = OutsideXcodebuild;
 
 #if defined WITH_TESTS
-    friend class XcodebuildParserTester;
-    friend class ProjectExplorerPlugin;
+    friend class Internal::XcodebuildParserTester;
+    friend class Internal::ProjectExplorerTest;
 #endif
 };
-
-#if defined WITH_TESTS
-class XcodebuildParserTester : public QObject
-{
-    Q_OBJECT
-public:
-    explicit XcodebuildParserTester(XcodebuildParser *parser, QObject *parent = nullptr);
-
-    XcodebuildParser *parser;
-    XcodebuildParser::XcodebuildStatus expectedFinalState = XcodebuildParser::OutsideXcodebuild;
-
-public slots:
-    void onAboutToDeleteParser();
-};
-#endif
 
 } // namespace ProjectExplorer

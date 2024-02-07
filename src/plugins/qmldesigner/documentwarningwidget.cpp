@@ -42,7 +42,7 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     m_ignoreWarningsCheckBox->setText(tr("Always ignore these warnings about features "
                                          "not supported by Qt Quick Designer."));
 
-    connect(m_navigateLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+    connect(m_navigateLabel, &QLabel::linkActivated, this, [this](const QString &link) {
         if (link == QLatin1String("goToCode")) {
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
         } else if (link == QLatin1String("previous")) {
@@ -54,7 +54,7 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
         }
     });
 
-    connect(m_continueButton, &QPushButton::clicked, this, [=]() {
+    connect(m_continueButton, &QPushButton::clicked, this, [this] {
         if (m_mode == ErrorMode)
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
         else

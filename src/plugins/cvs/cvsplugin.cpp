@@ -7,8 +7,6 @@
 #include "cvstr.h"
 #include "cvsutils.h"
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
@@ -91,13 +89,6 @@ const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Commit Editor");
-
-const VcsBaseSubmitEditorParameters submitParameters {
-    CVS_SUBMIT_MIMETYPE,
-    CVSCOMMITEDITOR_ID,
-    CVSCOMMITEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
 
 const VcsBaseEditorParameters commandLogEditorParameters {
     OtherContent,
@@ -183,7 +174,7 @@ public:
     }
 };
 
-class CvsPluginPrivate final : public VcsBasePluginPrivate
+class CvsPluginPrivate final : public VersionControlBase
 {
 public:
     CvsPluginPrivate();
@@ -321,12 +312,6 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitParameters,
-        [] { return new CvsSubmitEditor; },
-        this
-    };
-
     VcsEditorFactory commandLogEditorFactory {
         &commandLogEditorParameters,
         [] { return new CvsEditorWidget; },
@@ -467,10 +452,18 @@ bool CvsPluginPrivate::isCommitEditorOpen() const
 }
 
 CvsPluginPrivate::CvsPluginPrivate()
-    : VcsBasePluginPrivate(Context(CVS_CONTEXT))
+    : VersionControlBase(Context(CVS_CONTEXT))
 {
     using namespace Core::Constants;
     dd = this;
+
+    setupVcsSubmitEditor(this, {
+        CVS_SUBMIT_MIMETYPE,
+        CVSCOMMITEDITOR_ID,
+        CVSCOMMITEDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CvsSubmitEditor; },
+    });
 
     Context context(CVS_CONTEXT);
     m_client = new CvsClient;
@@ -730,7 +723,7 @@ CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const QString &fileName)
     return submitEditor;
 }
 
-void CvsPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void CvsPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

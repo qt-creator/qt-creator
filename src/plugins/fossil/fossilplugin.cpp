@@ -33,8 +33,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -100,15 +98,8 @@ const VcsBaseEditorParameters diffParameters {
     Constants::DIFFAPP
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    Constants::COMMITMIMETYPE,
-    Constants::COMMIT_ID,
-    Constants::COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
 
-
-class FossilPluginPrivate final : public VcsBasePluginPrivate
+class FossilPluginPrivate final : public VersionControlBase
 {
 public:
     enum SyncMode {
@@ -143,7 +134,7 @@ public:
                                              const QString &localName,
                                              const QStringList &extraArgs) final;
 
-    void updateActions(VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
 
     // File menu action slots
@@ -180,12 +171,6 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
-
     VcsEditorFactory fileLogFactory {
         &fileLogParameters,
         [] { return new FossilEditorWidget; },
@@ -245,7 +230,7 @@ private:
 
 
 FossilPluginPrivate::FossilPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::FOSSIL_CONTEXT))
+    : VersionControlBase(Context(Constants::FOSSIL_CONTEXT))
 {
     Context context(Constants::FOSSIL_CONTEXT);
 
@@ -262,6 +247,14 @@ FossilPluginPrivate::FossilPluginPrivate()
             this, &IVersionControl::configurationChanged);
 
     createMenu(context);
+
+    setupVcsSubmitEditor(this, {
+        Constants::COMMITMIMETYPE,
+        Constants::COMMIT_ID,
+        Constants::COMMIT_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
 }
 
 void FossilPluginPrivate::createMenu(const Context &context)
@@ -784,7 +777,7 @@ bool FossilPluginPrivate::activateCommit()
 }
 
 
-void FossilPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void FossilPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     m_createRepositoryAction->setEnabled(true);
 

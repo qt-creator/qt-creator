@@ -52,8 +52,6 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/cleandialog.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseconstants.h>
@@ -134,13 +132,6 @@ public:
 
 static const QVersionNumber minimumRequiredVersion{1, 9};
 
-const VcsBaseSubmitEditorParameters submitParameters {
-    Git::Constants::SUBMIT_MIMETYPE,
-    Git::Constants::GITSUBMITEDITOR_ID,
-    Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffRows
-};
-
 const VcsBaseEditorParameters svnLogEditorParameters {
     OtherContent,
     Git::Constants::GIT_SVN_LOG_EDITOR_ID,
@@ -185,7 +176,7 @@ const VcsBaseEditorParameters rebaseEditorParameters {
 
 // GitPlugin
 
-class GitPluginPrivate final : public VcsBasePluginPrivate
+class GitPluginPrivate final : public VersionControlBase
 {
     Q_OBJECT
 
@@ -256,7 +247,7 @@ public:
     void initRepository();
     void startRebaseFromCommit(const FilePath &workingDirectory, QString commit);
 
-    void updateActions(VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
@@ -409,12 +400,6 @@ public:
         &rebaseEditorParameters,
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
-
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitParameters,
-        [] { return new GitSubmitEditor; },
-        this
     };
 };
 
@@ -596,7 +581,7 @@ QAction *GitPluginPrivate::createRepositoryAction(ActionContainer *ac, const QSt
 }
 
 GitPluginPrivate::GitPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::GIT_CONTEXT))
+    : VersionControlBase(Context(Constants::GIT_CONTEXT))
 {
     dd = this;
 
@@ -968,6 +953,14 @@ GitPluginPrivate::GitPluginPrivate()
     connect(&settings(), &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
 
     m_instantBlame.setup();
+
+    setupVcsSubmitEditor(this, {
+        Git::Constants::SUBMIT_MIMETYPE,
+        Git::Constants::GITSUBMITEDITOR_ID,
+        Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffRows,
+        [] { return new GitSubmitEditor; },
+    });
 }
 
 void GitPluginPrivate::diffCurrentFile()
@@ -1624,7 +1617,7 @@ void GitPluginPrivate::stashList()
     ICore::registerWindow(m_stashDialog, Context("Git.Stashes"));
 }
 
-void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     const VcsBasePluginState state = currentState();
     const bool repositoryEnabled = state.hasTopLevel();

@@ -33,8 +33,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -130,13 +128,6 @@ struct PerforceResponse
     QString stdErr;
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    SUBMIT_MIMETYPE,
-    PERFORCE_SUBMIT_EDITOR_ID,
-    PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     PERFORCE_LOG_EDITOR_ID,
@@ -181,7 +172,7 @@ struct PerforceDiffParameters
     QStringList files;
 };
 
-class PerforcePluginPrivate final : public VcsBasePluginPrivate
+class PerforcePluginPrivate final : public VersionControlBase
 {
 public:
     PerforcePluginPrivate();
@@ -333,12 +324,6 @@ public:
 
     ManagedDirectoryCache m_managedDirectoryCache;
 
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new PerforceSubmitEditor; },
-        this
-    };
-
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new PerforceEditorWidget; },
@@ -361,11 +346,19 @@ public:
 static PerforcePluginPrivate *dd = nullptr;
 
 PerforcePluginPrivate::PerforcePluginPrivate()
-    : VcsBasePluginPrivate(Context(PERFORCE_CONTEXT))
+    : VersionControlBase(Context(PERFORCE_CONTEXT))
 {
     Context context(PERFORCE_CONTEXT);
 
     dd = this;
+
+    setupVcsSubmitEditor(this, {
+        SUBMIT_MIMETYPE,
+        PERFORCE_SUBMIT_EDITOR_ID,
+        PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new PerforceSubmitEditor; },
+    });
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
@@ -912,7 +905,7 @@ void PerforcePluginPrivate::changelists(const FilePath &workingDir, const QStrin
     }
 }
 
-void PerforcePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void PerforcePluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     const bool menuActionEnabled = enableMenuAction(as, m_menuAction);
     const bool enableActions = currentState().hasTopLevel() && menuActionEnabled;

@@ -149,7 +149,7 @@ public:
     // void
     virtual void init();
     //
-    void setParameters(const VcsBaseEditorParameters *parameters);
+    void setParameters(const VcsBaseEditorParameters &parameters);
 
     ~VcsBaseEditorWidget() override;
 
@@ -284,6 +284,16 @@ public:
                                  const QByteArray &entry1,
                                  const QByteArray &entry2);
 #endif
+};
+
+class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
+{
+public:
+    VcsEditorFactory(const VcsBaseEditorParameters *parameters,
+                     const EditorWidgetCreator editorWidgetCreator,
+                     std::function<void(const Utils::FilePath &, const QString &)> describeFunc);
+
+    ~VcsEditorFactory();
 };
 
 } // namespace VcsBase

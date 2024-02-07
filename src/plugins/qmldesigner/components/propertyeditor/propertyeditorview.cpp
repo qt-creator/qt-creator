@@ -145,7 +145,7 @@ void PropertyEditorView::changeValue(const QString &name)
 
         if (QmlDesigner::ModelNode::isValidId(newId)  && !hasId(newId)) {
             executeInTransaction("PropertyEditorView::changeId",
-                                 [=] { m_selectedNode.setIdWithRefactoring(newId); });
+                                 [this, newId] { m_selectedNode.setIdWithRefactoring(newId); });
         } else {
             m_locked = true;
             value->setValue(m_selectedNode.id());

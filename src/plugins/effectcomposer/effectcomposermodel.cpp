@@ -1462,8 +1462,9 @@ void EffectComposerModel::bakeShaders()
             args << "-o" << outPaths[i] << srcPaths[i];
 
             auto qsbProcess = new Utils::Process(this);
-            connect(qsbProcess, &Utils::Process::done, this, [=] {
-                handleQsbProcessExit(qsbProcess, srcPaths[i], preview);
+            connect(qsbProcess, &Utils::Process::done, this,
+                    [this, qsbProcess, path = srcPaths[i], preview] {
+                handleQsbProcessExit(qsbProcess, path, preview);
             });
             qsbProcess->setWorkingDirectory(workDir.absolutePath());
             qsbProcess->setCommand({qsbPath, args});

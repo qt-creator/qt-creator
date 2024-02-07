@@ -10,6 +10,7 @@
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
 #include "squishtr.h"
+#include "suiteconf.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -45,6 +46,7 @@ private:
     void onCollapsed(const QModelIndex &idx);
     void onRowsInserted(const QModelIndex &parent, int, int);
     void onRowsRemoved(const QModelIndex &parent, int, int);
+    void onAddSharedFileTriggered(const QModelIndex &idx);
     void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
     void onRemoveAllSharedFolderTriggered();
     void onRecordTestCase(const QString &suiteName, const QString &testCase);
@@ -164,6 +166,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             case SquishTestTreeItem::SquishSharedFolder: {
                 QAction *addSharedFile = new QAction(Tr::tr("Add Shared File"), &menu);
                 menu.addAction(addSharedFile);
+                connect(addSharedFile, &QAction::triggered, this, [this, idx] {
+                    onAddSharedFileTriggered(idx);
+                });
                 // only add the action 'Remove Shared Folder' for top-level shared folders, not
                 // to their recursively added sub-folders
                 if (idx.parent().data(TypeRole).toInt() == SquishTestTreeItem::Root) {
@@ -288,6 +293,36 @@ void SquishNavigationWidget::onRowsRemoved(const QModelIndex &parent, int, int)
     if (parent.isValid() && parent.data().toString().startsWith(Tr::tr("Test Suites")))
         if (m_model->rowCount(parent) == 0)
             m_view->header()->setDefaultSectionSize(0);
+}
+
+void SquishNavigationWidget::onAddSharedFileTriggered(const QModelIndex &idx)
+{
+    const auto folder = FilePath::fromVariant(idx.data(LinkRole));
+    QTC_ASSERT(!folder.isEmpty(), return);
+
+    const SquishTestTreeItem *anySuiteItem = m_model->findNonRootItem(
+        [](SquishTestTreeItem *it) { return it->type() == SquishTestTreeItem::SquishSuite; });
+    QString extension(".js");
+    if (anySuiteItem) {
+        const SuiteConf conf = SuiteConf::readSuiteConf(anySuiteItem->filePath());
+        extension = conf.scriptExtension();
+    }
+
+    const QString tmpl("script");
+    FilePath scriptFile = folder.pathAppended(tmpl + extension);
+    int i = 1;
+    while (scriptFile.exists())
+        scriptFile = folder.pathAppended(tmpl + QString::number(++i) + extension);
+    SquishTestTreeItem *item = new SquishTestTreeItem(scriptFile.fileName(),
+                                                      SquishTestTreeItem::SquishSharedFile);
+    item->setFilePath(scriptFile);
+    item->setParentName(idx.data().toString());
+    m_model->addTreeItem(item);
+
+    m_view->expand(idx);
+    QModelIndex added = m_model->indexForItem(item);
+    QTC_ASSERT(added.isValid(), return);
+    m_view->edit(m_sortModel->mapFromSource(added));
 }
 
 void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModelIndex &parent)

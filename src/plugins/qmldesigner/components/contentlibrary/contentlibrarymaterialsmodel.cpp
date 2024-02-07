@@ -125,7 +125,8 @@ bool ContentLibraryMaterialsModel::fetchBundleIcons(const QDir &bundleDir)
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
 
-    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this,
+                     [this, downloader, bundleDir] {
         FileExtractor *extractor = new FileExtractor(this);
         extractor->setArchiveName(downloader->completeBaseName());
         extractor->setSourceFile(downloader->outputFile());
@@ -133,7 +134,8 @@ bool ContentLibraryMaterialsModel::fetchBundleIcons(const QDir &bundleDir)
         extractor->setAlwaysCreateDir(false);
         extractor->setClearTargetPathContents(false);
 
-        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this,
+                         [this, downloader, bundleDir, extractor] {
             downloader->deleteLater();
             extractor->deleteLater();
 
@@ -162,10 +164,10 @@ bool ContentLibraryMaterialsModel::fetchBundleMetadata(const QDir &bundleDir)
     downloader->setDownloadEnabled(true);
     downloader->setTargetFilePath(matBundlePath);
 
-    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this,
+                     [this, downloader, bundleDir] {
         if (fetchBundleIcons(bundleDir))
             loadMaterialBundle(bundleDir);
-
         downloader->deleteLater();
     });
 
@@ -181,7 +183,8 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
 
-    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this,
+                     [this, downloader, targetDir] {
         FileExtractor *extractor = new FileExtractor(this);
         extractor->setArchiveName(downloader->completeBaseName());
         extractor->setSourceFile(downloader->outputFile());

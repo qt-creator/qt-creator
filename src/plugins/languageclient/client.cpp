@@ -1511,7 +1511,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
     }
     if (project == d->m_project) {
         if (d->m_state == Initialized) {
-            shutdown();
+            LanguageClientManager::shutdownClient(this);
         } else {
             d->m_state = Shutdown; // otherwise the manager would try to restart this server
             emit finished();

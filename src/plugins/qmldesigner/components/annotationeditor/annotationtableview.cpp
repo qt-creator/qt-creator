@@ -245,7 +245,7 @@ void RichTextCellEditor::setupSignal(int index, const QString &commentTitle)
     if (m_connection)
         disconnect(m_connection);
 
-    m_connection = connect(this, &RichTextCellEditor::clicked, this, [=]() {
+    m_connection = connect(this, &RichTextCellEditor::clicked, this, [this, index, commentTitle] {
         emit richTextClicked(index, commentTitle);
     });
 }
@@ -278,7 +278,7 @@ AnnotationTableView::AnnotationTableView(QWidget *parent)
         if (item->isCheckable())
             m_model->setData(item->index(), item->checkState() == Qt::Checked);
 
-        if (this->m_modelUpdating)
+        if (m_modelUpdating)
             return;
 
         auto *valueItem = m_model->item(item->row(), ColumnId::Value);

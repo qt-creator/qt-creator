@@ -446,7 +446,8 @@ bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
 
-    QObject::connect(downloader, &FileDownloader::downloadFailed, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::downloadFailed, this,
+                     [this, metaFileExists, bundleDir] {
         if (metaFileExists) {
             if (fetchTextureBundleIcons(bundleDir)) {
                 QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
@@ -459,7 +460,8 @@ bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
         }
     });
 
-    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this,
+                     [this, downloader, bundleDir, metaFileExists, filePath] {
         FileExtractor *extractor = new FileExtractor(this);
         extractor->setArchiveName(downloader->completeBaseName());
         extractor->setSourceFile(downloader->outputFile());
@@ -469,7 +471,8 @@ bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
         extractor->setAlwaysCreateDir(false);
         extractor->setClearTargetPathContents(false);
 
-        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this,
+                         [this, downloader, bundleDir, extractor, metaFileExists, filePath] {
             downloader->deleteLater();
             extractor->deleteLater();
 
@@ -527,7 +530,8 @@ bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
 
-    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this,
+                     [this, downloader, bundleDir] {
         FileExtractor *extractor = new FileExtractor(this);
         extractor->setArchiveName(downloader->completeBaseName());
         extractor->setSourceFile(downloader->outputFile());
@@ -535,7 +539,8 @@ bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
         extractor->setAlwaysCreateDir(false);
         extractor->setClearTargetPathContents(false);
 
-        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this,
+                         [this, downloader, extractor] {
             downloader->deleteLater();
             extractor->deleteLater();
 

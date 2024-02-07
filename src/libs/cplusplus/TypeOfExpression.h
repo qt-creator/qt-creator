@@ -35,9 +35,8 @@ public:
      */
     void init(Document::Ptr thisDocument,
               const Snapshot &snapshot,
-              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>(),
-              const QSet<const Declaration *> &autoDeclarationsBeingResolved
-                = QSet<const Declaration *>());
+              std::shared_ptr<CreateBindings> bindings = {},
+              const QSet<const Declaration *> &autoDeclarationsBeingResolved = {});
 
     enum PreprocessMode {
         NoPreprocess,
@@ -116,11 +115,11 @@ private:
 private:
     Document::Ptr m_thisDocument;
     Snapshot m_snapshot;
-    QSharedPointer<CreateBindings> m_bindings;
+    std::shared_ptr<CreateBindings> m_bindings;
     ExpressionAST *m_ast;
     Scope *m_scope;
     LookupContext m_lookupContext;
-    mutable QSharedPointer<Environment> m_environment;
+    mutable std::shared_ptr<Environment> m_environment;
 
     bool m_expandTemplates;
 

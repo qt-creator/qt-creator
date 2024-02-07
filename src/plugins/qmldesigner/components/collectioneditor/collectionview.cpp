@@ -46,13 +46,11 @@ CollectionView::CollectionView(ExternalDependenciesInterface &externalDependenci
 
 {
     connect(ProjectExplorer::ProjectManager::instance(),
-            &ProjectExplorer::ProjectManager::startupProjectChanged,
-            this,
-            [=] {
-                resetDataStoreNode();
-                if (m_widget.get())
-                    m_widget->collectionDetailsModel()->removeAllCollections();
-            });
+            &ProjectExplorer::ProjectManager::startupProjectChanged, this, [this] {
+        resetDataStoreNode();
+        if (m_widget.get())
+            m_widget->collectionDetailsModel()->removeAllCollections();
+    });
     resetDataStoreNode();
 }
 

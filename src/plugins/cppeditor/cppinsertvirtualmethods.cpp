@@ -770,7 +770,7 @@ public:
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);
-        Control *control = context().bindings()->control().data();
+        Control *control = context().bindings()->control().get();
         QList<const Function *> insertedFunctions;
         for (ClassItem *classItem : std::as_const(m_factory->classFunctionModel->classes)) {
             if (classItem->checkState() == Qt::Unchecked)
@@ -904,7 +904,7 @@ public:
                 env.switchScope(decl->enclosingScope());
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = context().bindings()->control().data();
+                Control *control = context().bindings()->control().get();
 
                 // rewrite the function type and name + create definition
                 const FullySpecifiedType type = rewriteType(decl->type(), &env, control);

@@ -59,6 +59,8 @@ private:
     mutable QString m_svnVersion;
 };
 
+SubversionClient &subversionClient();
+
 Utils::CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions);
 
 } // namespace Internal

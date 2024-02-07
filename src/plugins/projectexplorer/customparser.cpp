@@ -22,7 +22,7 @@
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "outputparser_test.h"
 #endif
 
@@ -358,7 +358,7 @@ void CustomParsersSelectionWidget::updateSummary()
 
 using namespace Internal;
 
-void ProjectExplorerPlugin::testCustomOutputParsers_data()
+void ProjectExplorerTest::testCustomOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("workDir");
@@ -657,7 +657,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString();
 }
 
-void ProjectExplorerPlugin::testCustomOutputParsers()
+void ProjectExplorerTest::testCustomOutputParsers()
 {
     QFETCH(QString, input);
     QFETCH(QString, workDir);

@@ -223,7 +223,9 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
         NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
         if (nodeMetaInfo.isValid()) {
-            view->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){
+            view->executeInTransaction("ConnectionModel::addConnection",
+                                       [this, view, nodeMetaInfo, targetModelIndex, modelIndex,
+                                        buttonModelIndex, signalName, &rootModelNode] {
                 ModelNode newNode = view->createModelNode("QtQuick.Connections",
                                                           nodeMetaInfo.majorVersion(),
                                                           nodeMetaInfo.minorVersion());
@@ -263,7 +265,8 @@ void SignalList::removeConnection(const QModelIndex &modelIndex)
 
     ModelNode node = targetSignal.parentModelNode();
     if (node.isValid()) {
-        view->executeInTransaction("ConnectionModel::removeConnection", [=, &node](){
+        view->executeInTransaction("ConnectionModel::removeConnection",
+                                   [this, modelIndex, buttonModelIndex, targetSignal, &node] {
             QList<SignalHandlerProperty> allSignals = node.signalProperties();
             if (allSignals.size() > 1) {
                 const auto targetSignalWithPrefix = SignalHandlerProperty::prefixAdded(targetSignal.name());

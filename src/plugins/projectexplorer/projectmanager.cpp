@@ -35,6 +35,8 @@
 #include <QPushButton>
 
 #ifdef WITH_TESTS
+#include "projectexplorer_test.h"
+
 #include <QTemporaryFile>
 #include <QTest>
 #include <vector>
@@ -709,7 +711,7 @@ FilePaths ProjectManager::projectsForSessionName(const QString &session)
 
 #ifdef WITH_TESTS
 
-void ProjectExplorerPlugin::testSessionSwitch()
+void ProjectExplorerTest::testSessionSwitch()
 {
     QVERIFY(SessionManager::createSession("session1"));
     QVERIFY(SessionManager::createSession("session2"));

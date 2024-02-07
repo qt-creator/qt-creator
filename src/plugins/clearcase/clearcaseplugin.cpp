@@ -39,8 +39,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
@@ -122,19 +120,12 @@ const VcsBaseEditorParameters diffEditorParameters {
     "text/x-patch"
 };
 
-const VcsBaseSubmitEditorParameters submitParameters {
-    Constants::CLEARCASE_SUBMIT_MIMETYPE,
-    Constants::CLEARCASECHECKINEDITOR_ID,
-    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 static QString debugCodec(const QTextCodec *c)
 {
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
-class ClearCasePluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
 {
     Q_OBJECT
 
@@ -216,7 +207,7 @@ public:
     void updateStreamAndView();
 
 protected:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VcsBase::VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCheckInMessageFile(); }
     QString ccGet(const FilePath &workingDir, const QString &file, const QString &prefix = {});
@@ -319,12 +310,6 @@ public:
     std::shared_ptr<StatusMap> m_statusMap;
 
     ClearCaseSettingsPage m_settingsPage;
-
-    VcsSubmitEditorFactory m_submitEditorFactory {
-        submitParameters,
-        [] { return new ClearCaseSubmitEditor; },
-        this
-    };
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
@@ -563,7 +548,7 @@ QString ClearCasePluginPrivate::findTopLevel(const FilePath &directory) const
 }
 
 ClearCasePluginPrivate::ClearCasePluginPrivate()
-    : VcsBase::VcsBasePluginPrivate(Context(CLEARCASE_CONTEXT)),
+    : VcsBase::VersionControlBase(Context(CLEARCASE_CONTEXT)),
       m_statusMap(new StatusMap)
 {
     dd = this;
@@ -751,6 +736,14 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     status.addOnTriggered(this, &ClearCasePluginPrivate::viewStatus);
     status.addToContainer(CMD_ID_CLEARCASE_MENU);
     m_commandLocator->appendCommand(status.command());
+
+    setupVcsSubmitEditor(this, {
+        Constants::CLEARCASE_SUBMIT_MIMETYPE,
+        Constants::CLEARCASECHECKINEDITOR_ID,
+        Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new ClearCaseSubmitEditor; }
+    });
 }
 
 // called before closing the submit editor
@@ -937,7 +930,7 @@ void ClearCasePluginPrivate::updateStatusActions()
     m_diffActivityAction->setEnabled(m_viewData.isUcm);
 }
 
-void ClearCasePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void ClearCasePluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

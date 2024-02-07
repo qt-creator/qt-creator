@@ -30,8 +30,6 @@
 #include <utils/stringutils.h>
 #include <utils/layoutbuilder.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -112,13 +110,6 @@ const VcsBaseEditorParameters diffEditorParameters {
     Constants::DIFFAPP
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    COMMITMIMETYPE,
-    COMMIT_ID,
-    COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 class RevertDialog : public QDialog
 {
 public:
@@ -152,7 +143,7 @@ public:
     QLineEdit *revisionLineEdit;
 };
 
-class BazaarPluginPrivate final : public VcsBasePluginPrivate
+class BazaarPluginPrivate final : public VersionControlBase
 {
 public:
     BazaarPluginPrivate();
@@ -183,7 +174,7 @@ public:
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
     void changed(const QVariant &);
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
+    void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
 
     // File menu action slots
@@ -212,11 +203,6 @@ public:
     // Variables
     BazaarClient m_client;
 
-    VcsSubmitEditorFactory m_submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
     CommandLocator *m_commandLocator = nullptr;
 
     QList<QAction *> m_repositoryActionList;
@@ -321,7 +307,7 @@ private:
 };
 
 BazaarPluginPrivate::BazaarPluginPrivate()
-    : VcsBasePluginPrivate(Context(Constants::BAZAAR_CONTEXT))
+    : VersionControlBase(Context(Constants::BAZAAR_CONTEXT))
 {
     Context context(Constants::BAZAAR_CONTEXT);
 
@@ -502,6 +488,14 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     m_menuAction = bazaarMenu->menu()->menuAction();
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+
+    setupVcsSubmitEditor(this, {
+        COMMITMIMETYPE,
+        COMMIT_ID,
+        COMMIT_DISPLAY_NAME,
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
 }
 
 void BazaarPluginPrivate::addCurrentFile()
@@ -850,7 +844,7 @@ bool BazaarPluginPrivate::activateCommit()
     return true;
 }
 
-void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void BazaarPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

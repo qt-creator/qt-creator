@@ -643,11 +643,10 @@ void Edit3DView::createSeekerSliderAction()
     m_seekerAction->action()->setEnabled(false);
     m_seekerAction->action()->setToolTip(QLatin1String("Seek particle system time when paused."));
 
-    connect(m_seekerAction->seekerAction(),
-            &SeekerSliderAction::valueChanged,
-            this, [=] (int value) {
-        this->emitView3DAction(View3DActionType::ParticlesSeek, value);
-            });
+    connect(m_seekerAction->seekerAction(), &SeekerSliderAction::valueChanged, this,
+            [this] (int value) {
+        emitView3DAction(View3DActionType::ParticlesSeek, value);
+    });
 }
 
 QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const

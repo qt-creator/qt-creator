@@ -46,10 +46,6 @@
 #include <string>
 #include <vector>
 
-#ifdef ENABLE_QT_BREAKPAD
-#include <qtsystemexceptionhandler.h>
-#endif
-
 #ifdef ENABLE_CRASHPAD
 #define NOMINMAX
 #include "client/crashpad_client.h"
@@ -698,13 +694,11 @@ int main(int argc, char **argv)
 
     const QString libexecPath = QCoreApplication::applicationDirPath()
             + '/' + RELATIVE_LIBEXEC_PATH;
-#ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler(libexecPath);
-#else
+
     // Display a backtrace once a serious signal is delivered (Linux only).
     CrashHandlerSetup setupCrashHandler(Core::Constants::IDE_DISPLAY_NAME,
-                                        CrashHandlerSetup::EnableRestart, libexecPath);
-#endif
+                                        CrashHandlerSetup::EnableRestart,
+                                        libexecPath);
 
 #ifdef ENABLE_CRASHPAD
     bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();

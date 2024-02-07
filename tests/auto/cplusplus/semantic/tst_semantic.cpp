@@ -35,7 +35,7 @@ class tst_Semantic: public QObject
 {
     Q_OBJECT
 
-    QSharedPointer<Control> control;
+    std::shared_ptr<Control> control;
 
 public:
     tst_Semantic()
@@ -47,7 +47,7 @@ public:
                            LanguageFeatures features)
     {
         const StringLiteral *fileId = control->stringLiteral("<stdin>");
-        TranslationUnit *unit = new TranslationUnit(control.data(), fileId);
+        TranslationUnit *unit = new TranslationUnit(control.get(), fileId);
         unit->setSource(source.constData(), source.length());
         unit->setLanguageFeatures(features);
         unit->parse(mode);

@@ -122,7 +122,7 @@ PathTool::PathTool(ExternalDependenciesInterface &externalDepoendencies)
 {
     auto textToolAction = new PathToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
-    connect(textToolAction->action(), &QAction::triggered, [=]() {
+    connect(textToolAction->action(), &QAction::triggered, [this] {
         if (m_pathToolView.model())
             m_pathToolView.model()->detachView(&m_pathToolView);
         view()->changeCurrentToolTo(this);

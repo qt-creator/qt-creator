@@ -105,12 +105,11 @@ GroupItem AppManagerInstallPackageStep::deployRecipe()
     const FilePath packageFilePath = packageFile().isEmpty() ?
                                          FilePath::fromString(packageFile.defaultValue()) :
                                          packageFile();
+    CommandLine cmd(controllerPath);
+    cmd.addArgs(controllerArguments, CommandLine::Raw);
+    cmd.addArg(packageFilePath.nativePath());
 
-    const auto setupHandler = [=](Process &process) {
-        CommandLine cmd(controllerPath);
-        cmd.addArgs(controllerArguments, CommandLine::Raw);
-        cmd.addArg(packageFilePath.nativePath());
-
+    const auto setupHandler = [this, cmd](Process &process) {
         addProgressMessage(Tr::tr("Starting command \"%1\".").arg(cmd.displayName()));
 
         process.setCommand(cmd);

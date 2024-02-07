@@ -246,6 +246,8 @@ private:
     TreeModel<> *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
+    QStringList m_userNames;
+    QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
 };
 
@@ -467,6 +469,8 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
 
     if (!info) {
         cleanOld();
+        m_userNames.clear();
+        m_versionDates.clear();
         m_ownerFilter->clear();
         m_versionStart->clear();
         m_versionEnd->clear();
@@ -504,20 +508,28 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     if (auto firstButton = m_typesButtonGroup->button(1))
         firstButton->setChecked(true);
 
+    m_userNames.clear();
     m_ownerFilter->clear();
-    for (const Dto::UserRefDto &user : info->users)
-        m_ownerFilter->addItem(user.displayName, user.name);
+    QStringList userDisplayNames;
+    for (const Dto::UserRefDto &user : info->users) {
+        userDisplayNames.append(user.displayName);
+        m_userNames.append(user.name);
+    }
+    m_ownerFilter->addItems(userDisplayNames);
 
+    m_versionDates.clear();
     m_versionStart->clear();
     m_versionEnd->clear();
+    QStringList versionLabels;
     const std::vector<Dto::AnalysisVersionDto> &versions = info->versions;
-    for (const Dto::AnalysisVersionDto &version : versions) {
-        const QString label = version.label.value_or(version.name);
-        m_versionStart->insertItem(0, label, version.date);
-        m_versionEnd->insertItem(0, label, version.date);
+    for (auto it = versions.crbegin(); it != versions.crend(); ++it) {
+        const Dto::AnalysisVersionDto &version = *it;
+        versionLabels.append(version.label.value_or(version.name));
+        m_versionDates.append(version.date);
     }
-
-    m_versionEnd->setCurrentText(versions.back().label.value_or(versions.back().name));
+    m_versionStart->addItems(versionLabels);
+    m_versionEnd->addItems(versionLabels);
+    m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
 }
 
 void IssuesWidget::updateTableView()
@@ -545,10 +557,10 @@ IssueListSearch IssuesWidget::searchFromUi() const
 {
     IssueListSearch search;
     search.kind = m_currentPrefix; // not really ui.. but anyhow
-    search.owner = m_ownerFilter->currentText();
+    search.owner = m_userNames.at(m_ownerFilter->currentIndex());
     search.filter_path = m_pathGlobFilter->text();
-    search.versionStart = m_versionStart->currentData().toString();
-    search.versionEnd = m_versionEnd->currentData().toString();
+    search.versionStart = m_versionDates.at(m_versionStart->currentIndex());
+    search.versionEnd = m_versionDates.at(m_versionEnd->currentIndex());
     // different approach: checked means disabling in webview, checked here means explicitly request
     // the checked one, having both checked is impossible (having none checked means fetch both)
     // reason for different approach: currently poor reflected inside the ui (TODO)
