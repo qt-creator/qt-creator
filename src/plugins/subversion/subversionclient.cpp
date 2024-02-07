@@ -291,6 +291,12 @@ void SubversionClient::describe(const FilePath &workingDirectory, int changeNumb
     controller->requestReload();
 }
 
+SubversionClient &subversionClient()
+{
+    static SubversionClient theSubversionClient;
+    return theSubversionClient;
+}
+
 } // namespace Internal
 } // namespace Subversion
 
