@@ -4,10 +4,6 @@
 
 #include <QtGlobal>
 
-#ifdef ENABLE_QT_BREAKPAD
-#include <qtsystemexceptionhandler.h>
-#endif
-
 #if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
 #define NOMINMAX
 #include "client/crash_report_database.h"
@@ -60,11 +56,6 @@ namespace {
         return success;
     }
 
-#ifdef ENABLE_QT_BREAKPAD
-    const QString libexecPath = QCoreApplication::applicationDirPath() + '/'
-                                + RELATIVE_LIBEXEC_PATH;
-    QtSystemExceptionHandler systemExceptionHandler(libexecPath);
-#endif //#ifdef ENABLE_QT_BREAKPAD
 #else //#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
     bool startCrashpad(const QString&, const QString&)
     {
