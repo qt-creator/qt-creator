@@ -79,12 +79,12 @@ private:
     QComboBox *m_entriesComboBox = nullptr;
     QSpinBox *m_contextSpinBox = nullptr;
     QAction *m_contextSpinBoxAction = nullptr;
-    QAction *m_toggleSyncAction;
-    QAction *m_whitespaceButtonAction;
-    QAction *m_toggleDescriptionAction;
-    QAction *m_reloadAction;
+    QAction *m_toggleSyncAction = nullptr;
+    QAction *m_whitespaceButtonAction = nullptr;
+    QAction *m_toggleDescriptionAction = nullptr;
+    QAction *m_reloadAction = nullptr;
     QAction *m_contextLabelAction = nullptr;
-    QAction *m_viewSwitcherAction;
+    QAction *m_viewSwitcherAction = nullptr;
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex = -1;
     int m_currentDiffFileIndex = -1;
