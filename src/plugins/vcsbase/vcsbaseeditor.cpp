@@ -1327,7 +1327,7 @@ bool VcsBaseEditor::gotoLineOfEditor(IEditor *e, int lineNumber)
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
-    return workingDirectory.pathAppended(fileName);
+    return workingDirectory.resolvePath(fileName);
 }
 
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)

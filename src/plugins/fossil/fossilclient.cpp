@@ -736,7 +736,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
         lineNumber = -1;
     editor->setDefaultLineNumber(lineNumber);
 
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
@@ -833,7 +833,7 @@ void FossilClient::view(const FilePath &source, const QString &id, const QString
                                                   VcsBaseEditor::getCodec(source), "view", id);
     editor->setWorkingDirectory(workingDirectory);
 
-    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions);
+    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions, source);
 }
 
 class FossilLogHighlighter : QSyntaxHighlighter
@@ -935,7 +935,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     args << effectiveArgs;
     if (!files.isEmpty())
          args << "--path" << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
@@ -989,7 +989,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
 
     QStringList args(vcsCmdString);
     args << effectiveArgs << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 void FossilClient::revertFile(const FilePath &workingDir,
@@ -1009,7 +1009,7 @@ void FossilClient::revertFile(const FilePath &workingDir,
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(cmd, args);
+    enqueueJob(cmd, args, workingDir);
 }
 
 void FossilClient::revertAll(const FilePath &workingDir, const QString &revision, const QStringList &extraOptions)
@@ -1033,7 +1033,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(createCommand(workingDir), args);
+    enqueueJob(createCommand(workingDir), args, workingDir);
 }
 
 QString FossilClient::sanitizeFossilOutput(const QString &output) const

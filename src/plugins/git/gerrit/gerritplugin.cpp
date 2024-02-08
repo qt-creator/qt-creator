@@ -101,7 +101,7 @@ FetchContext::FetchContext(const std::shared_ptr<GerritChange> &change,
         VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
     });
     m_process.setWorkingDirectory(repository);
-    m_process.setEnvironment(gitClient().processEnvironment());
+    m_process.setEnvironment(gitClient().processEnvironment(repository));
 }
 
 void FetchContext::start()
@@ -279,7 +279,7 @@ QString GerritPlugin::branch(const FilePath &repository)
 void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
 {
     // Locate git.
-    const Utils::FilePath git = gitClient().vcsBinary();
+    const Utils::FilePath git = gitClient().vcsBinary(m_dialog->repositoryPath());
     if (git.isEmpty()) {
         VcsBase::VcsOutputWindow::appendError(Git::Tr::tr("Git is not available."));
         return;

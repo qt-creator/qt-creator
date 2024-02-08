@@ -41,7 +41,7 @@ public:
     explicit VcsBaseClientImpl(VcsBaseSettings *baseSettings);
     ~VcsBaseClientImpl() override = default;
 
-    virtual Utils::FilePath vcsBinary() const;
+    virtual Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const;
     int vcsTimeoutS() const;
 
     static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
@@ -59,10 +59,12 @@ public:
                       const Utils::FilePath &workingDirectory,
                       const QStringList &args) const;
 
-    void enqueueJob(VcsCommand *cmd, const QStringList &args,
+    void enqueueJob(VcsCommand *cmd,
+                    const QStringList &args,
+                    const Utils::FilePath &forDirectory,
                     const ExitCodeInterpreter &interpreter = {}) const;
 
-    virtual Utils::Environment processEnvironment() const;
+    virtual Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const;
 
     // VCS functionality:
     virtual void annotate(const Utils::FilePath &workingDir, const QString &file,

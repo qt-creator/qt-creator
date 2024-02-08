@@ -134,8 +134,8 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
                        const GitGrepParameters &gitParameters)
 {
     const auto setupProcess = [&parameters, gitParameters](Process &process) {
-        const FilePath vcsBinary = gitClient().vcsBinary();
-        const Environment environment = gitClient().processEnvironment();
+        const FilePath vcsBinary = gitClient().vcsBinary(parameters.searchDir);
+        const Environment environment = gitClient().processEnvironment(vcsBinary);
 
         QStringList arguments = {
             "-c", "color.grep.match=bold red",

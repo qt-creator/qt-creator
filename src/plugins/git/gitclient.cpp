@@ -827,15 +827,12 @@ FilePath GitClient::findRepositoryForDirectory(const FilePath &directory) const
 {
     if (directory.isEmpty() || directory.endsWith("/.git") || directory.path().contains("/.git/"))
         return {};
-    // QFileInfo is outside loop, because it is faster this way
-    QFileInfo fileInfo;
     FilePath parent;
     for (FilePath dir = directory; !dir.isEmpty(); dir = dir.parentDir()) {
         const FilePath gitName = dir.pathAppended(GIT_DIRECTORY);
         if (!gitName.exists())
             continue; // parent might exist
-        fileInfo.setFile(gitName.toString());
-        if (fileInfo.isFile())
+        if (gitName.isFile())
             return dir;
         if (gitName.pathAppended("config").exists())
             return dir;
@@ -929,8 +926,8 @@ void GitClient::requestReload(const QString &documentId, const FilePath &source,
     QTC_ASSERT(document, return);
     GitBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
-    controller->setVcsBinary(settings().gitExecutable().value_or(FilePath{}));
-    controller->setProcessEnvironment(processEnvironment());
+    controller->setVcsBinary(vcsBinary(workingDirectory));
+    controller->setProcessEnvironment(processEnvironment(workingDirectory));
     controller->setWorkingDirectory(workingDirectory);
 
     using namespace std::placeholders;
@@ -1047,9 +1044,8 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     const QString title = Tr::tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
-    GitEditorWidget *editor = static_cast<GitEditorWidget *>(
-                createVcsEditor(editorId, title, sourceFile,
-                                encoding(EncodingLogOutput), "logTitle", msgArg));
+    GitEditorWidget *editor = static_cast<GitEditorWidget *>(createVcsEditor(
+        editorId, title, sourceFile, encoding(EncodingLogOutput, sourceFile), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitLogArgumentsWidget(!fileName.isEmpty(), editor);
@@ -2089,9 +2085,9 @@ bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
     return false;
 }
 
-Environment GitClient::processEnvironment() const
+Environment GitClient::processEnvironment(const FilePath &appliedTo) const
 {
-    Environment environment = VcsBaseClientImpl::processEnvironment();
+    Environment environment;
     environment.prependOrSetPath(settings().path());
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment()) {
         QString homePath;
@@ -2103,7 +2099,7 @@ Environment GitClient::processEnvironment() const
         environment.set("HOME", homePath);
     }
     environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
-    return environment;
+    return environment.appliedToEnvironment(appliedTo.deviceEnvironment());
 }
 
 bool GitClient::beginStashScope(const FilePath &workingDirectory, const QString &command,
@@ -2387,7 +2383,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
 void GitClient::launchGitK(const FilePath &workingDirectory, const QString &fileName) const
 {
-    tryLaunchingGitK(processEnvironment(), workingDirectory, fileName);
+    tryLaunchingGitK(processEnvironment(workingDirectory), workingDirectory, fileName);
 }
 
 void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
@@ -2420,7 +2416,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
                                  const QString &fileName,
                                  GitClient::GitKLaunchTrial trial) const
 {
-    const FilePath gitBinDirectory = gitBinDir(trial, vcsBinary().parentDir());
+    const FilePath gitBinDirectory = gitBinDir(trial, vcsBinary(workingDirectory).parentDir());
     FilePath binary = gitBinDirectory.pathAppended("gitk").withExecutableSuffix();
     QStringList arguments;
     if (HostOsInfo::isWindowsHost()) {
@@ -2469,7 +2465,7 @@ void GitClient::handleGitKFailedToStart(const Environment &env,
 
     GitKLaunchTrial nextTrial = None;
 
-    if (oldTrial == Bin && vcsBinary().parentDir().fileName() == "bin") {
+    if (oldTrial == Bin && vcsBinary(workingDirectory).parentDir().fileName() == "bin") {
         nextTrial = ParentOfBin;
     } else if (oldTrial != SystemPath
                && !Environment::systemEnvironment().searchInPath("gitk").isEmpty()) {
@@ -2486,7 +2482,7 @@ void GitClient::handleGitKFailedToStart(const Environment &env,
 
 bool GitClient::launchGitGui(const FilePath &workingDirectory) {
     bool success = true;
-    FilePath gitBinary = vcsBinary();
+    FilePath gitBinary = vcsBinary(workingDirectory);
     if (gitBinary.isEmpty()) {
         success = false;
     } else {
@@ -2501,7 +2497,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory) {
 
 FilePath GitClient::gitBinDirectory() const
 {
-    const QString git = vcsBinary().toString();
+    const QString git = vcsBinary({}).toString();
     if (git.isEmpty())
         return {};
 
@@ -2529,7 +2525,7 @@ FilePath GitClient::gitBinDirectory() const
 bool GitClient::launchGitBash(const FilePath &workingDirectory)
 {
     bool success = true;
-    const FilePath git = vcsBinary();
+    const FilePath git = vcsBinary(workingDirectory);
 
     if (git.isEmpty()) {
         success = false;
@@ -2544,8 +2540,18 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
     return success;
 }
 
-FilePath GitClient::vcsBinary() const
+FilePath GitClient::vcsBinary(const FilePath &forDirectory) const
 {
+    if (forDirectory.needsDevice()) {
+        auto it = m_gitExecutableCache.find(forDirectory.withNewPath({}));
+        if (it == m_gitExecutableCache.end()) {
+            const FilePath gitBin = forDirectory.withNewPath("git").searchInPath();
+            it = m_gitExecutableCache.insert(forDirectory.withNewPath({}),
+                                             gitBin.isExecutableFile() ? gitBin : FilePath{});
+        }
+
+        return it.value();
+    }
     return settings().gitExecutable().value_or(FilePath{});
 }
 
@@ -2753,7 +2759,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
                              CommitType commitType,
                              const QString &amendSHA1,
-                             const QString &messageFile,
+                             const FilePath &messageFile,
                              SubmitFileModel *model)
 {
     const QString renameSeparator = " -> ";
@@ -2817,7 +2823,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     if (commitType == FixupCommit) {
         arguments << "--fixup" << amendSHA1;
     } else {
-        arguments << "-F" << QDir::toNativeSeparators(messageFile);
+        arguments << "-F" << messageFile.nativePath();
         if (commitType == AmendCommit)
             arguments << "--amend";
         const QString &authorString =  data.authorString();
@@ -3243,7 +3249,7 @@ void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QString
     command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
-    command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
+    command->addJob({vcsBinary(workingDirectory), arguments}, isRebase ? 0 : vcsTimeoutS());
     const QObject *actualContext = context ? context : this;
     connect(command, &VcsCommand::done, actualContext, [=] {
         const CommandResult result = CommandResult(*command);
@@ -3461,7 +3467,7 @@ QFuture<QVersionNumber> GitClient::gitVersion() const
 
     // Do not execute repeatedly if that fails (due to git
     // not being installed) until settings are changed.
-    const FilePath newGitBinary = vcsBinary();
+    const FilePath newGitBinary = vcsBinary({});
     const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
     if (needToRunGit) {
         auto proc = new Process(const_cast<GitClient *>(this));
@@ -3476,7 +3482,7 @@ QFuture<QVersionNumber> GitClient::gitVersion() const
             proc->deleteLater();
         });
 
-        proc->setEnvironment(processEnvironment());
+        proc->setEnvironment(processEnvironment(newGitBinary));
         proc->setCommand({newGitBinary, {"--version"}});
         proc->start();
     } else {

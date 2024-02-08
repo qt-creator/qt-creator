@@ -808,7 +808,7 @@ bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool FossilPluginPrivate::isConfigured() const
 {
-    const FilePath binary = fossilClient().vcsBinary();
+    const FilePath binary = fossilClient().vcsBinary({});
     if (binary.isEmpty())
         return false;
 
@@ -927,7 +927,8 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = VcsBaseClient::createVcsCommand(checkoutPath, fossilClient().processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(checkoutPath,
+                                                   fossilClient().processEnvironment(checkoutPath));
 
     if (!isLocalRepository
         && !cloneRepository.exists()) {
@@ -963,7 +964,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
              << extraOptions
              << sourceUrl
              << fossilFileNative;
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;
@@ -972,20 +973,20 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     QStringList args({"open", fossilFileNative});
     if (!checkoutBranch.isEmpty())
         args << checkoutBranch;
-    command->addJob({fossilClient().vcsBinary(), args}, -1);
+    command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
 
     // set user default to admin user if specified
     if (!isLocalRepository
         && !adminUser.isEmpty()) {
         const QStringList args({ "user", "default", adminUser, "--user", adminUser});
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     // turn-off autosync if requested
     if (!isLocalRepository
         && disableAutosync) {
         const QStringList args({"settings", "autosync", "off"});
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     return command;

@@ -123,7 +123,7 @@ public:
     GitClient();
     ~GitClient();
 
-    Utils::FilePath vcsBinary() const override;
+    Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const override;
     QFuture<QVersionNumber> gitVersion() const;
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
@@ -295,7 +295,7 @@ public:
                       const GitSubmitEditorPanelData &data,
                       CommitType commitType,
                       const QString &amendSHA1,
-                      const QString &messageFile,
+                      const Utils::FilePath &messageFile,
                       VcsBase::SubmitFileModel *model);
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
@@ -318,7 +318,7 @@ public:
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const Utils::FilePath &workingDirectory = {}) const;
 
-    Utils::Environment processEnvironment() const override;
+    Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const override;
 
     bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
@@ -395,6 +395,7 @@ private:
 
     mutable Utils::FilePath m_gitVersionForBinary;
     mutable QVersionNumber m_cachedGitVersion;
+    mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
