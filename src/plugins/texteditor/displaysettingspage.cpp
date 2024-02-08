@@ -98,7 +98,7 @@ public:
         visualizeWhitespace = new QCheckBox(Tr::tr("&Visualize whitespace"));
         visualizeWhitespace->setToolTip(Tr::tr("Shows tabs and spaces."));
 
-        highlightSelection = new QCheckBox(Tr::tr("&Highlight Selection"));
+        highlightSelection = new QCheckBox(Tr::tr("&Highlight selection"));
         highlightSelection->setToolTip(Tr::tr("Adds a colored background and a marker to the "
                                               "scrollbar to occurrences of the selected text."));
 
