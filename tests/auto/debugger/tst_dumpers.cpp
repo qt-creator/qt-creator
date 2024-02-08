@@ -5313,8 +5313,8 @@ void tst_Dumpers::dumper_data()
 
                     "&view, &u16view, basicview, u16basicview")
 
-               + Check("view", "\"test\"", "std::string_view")
-               + Check("u16view", "\"test\"", "std::u16string_view")
+               + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
+               + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
                + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
                + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
 
