@@ -334,6 +334,8 @@ void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
     // contain only unworkable states.
     if (clearStacks)
         document->clearUndoRedoStacks();
+
+    m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
