@@ -5264,7 +5264,12 @@ void tst_Dumpers::dumper_data()
 
             << Data("#include <string>\n"
                     "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {};\n",
+                    "class myallocator : public std::allocator<T> {\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
+                    "};\n",
 
                     "std::basic_string<char, std::char_traits<char>, myallocator<char>> str(\"hello\");",
 
@@ -5418,6 +5423,10 @@ void tst_Dumpers::dumper_data()
                     "template<class T>\n"
                     "class myallocator : public std::allocator<T> {\n"
                     "using std::allocator<T>::allocator;\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
                     "};\n",
 
                     "std::vector<double> v0, v1;\n"
