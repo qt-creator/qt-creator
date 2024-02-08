@@ -344,8 +344,11 @@ void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QSt
 void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                           bool addToLibrary)
 {
-    if (!addToLibrary || !model() || fileInfo.path().contains(QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER)))
+    if (!addToLibrary || !model()
+        || fileInfo.path().contains(QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER))
+        || fileInfo.path().contains(QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER))) {
         return;
+    }
 
     QString componentName = fileInfo.baseName();
     const QString baseComponentName = componentName;

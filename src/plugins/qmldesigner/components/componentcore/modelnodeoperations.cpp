@@ -1654,7 +1654,8 @@ void openOldEffectMaker(const QString &filePath)
 
     Utils::FilePath projectPath = target->project()->projectDirectory();
     QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects/" + effectName;
+    QString effectResDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER)
+                           + "/" + effectName;
     Utils::FilePath effectResPath = projectPath.pathAppended(effectResDir);
     if (!effectResPath.exists())
         QDir().mkpath(effectResPath.toString());
@@ -1693,7 +1694,7 @@ void openOldEffectMaker(const QString &filePath)
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    QString defaultDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects";
+    QString defaultDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER);
     Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
 
