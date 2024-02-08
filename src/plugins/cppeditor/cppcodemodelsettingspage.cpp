@@ -18,11 +18,13 @@
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -36,6 +38,7 @@
 #include <QStringListModel>
 #include <QTextBlock>
 #include <QTextStream>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QVersionNumber>
 
@@ -220,6 +223,8 @@ signals:
 private:
     QCheckBox m_useClangdCheckBox;
     QComboBox m_indexingComboBox;
+    Utils::FancyLineEdit m_projectIndexPathTemplateLineEdit;
+    Utils::FancyLineEdit m_sessionIndexPathTemplateLineEdit;
     QComboBox m_headerSourceSwitchComboBox;
     QComboBox m_completionRankingModelComboBox;
     QCheckBox m_autoIncludeHeadersCheckBox;
@@ -249,6 +254,12 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "cores unused.</p>"
         "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
         "<p>Low Priority: Same priority as other clangd work.</p>");
+    const QString projectIndexPathToolTip = Tr::tr(
+        "The location of the per-project clangd index.<p>"
+        "This is also where the compile_commands.json file will go.");
+    const QString sessionIndexPathToolTip = Tr::tr(
+        "The location of the per-session clangd index.<p>"
+        "This is also where the compile_commands.json file will go.");
     const QString headerSourceSwitchToolTip = Tr::tr(
         "<p>The C/C++ backend to use for switching between header and source files.</p>"
         "<p>While the clangd implementation has more capabilities than the built-in "
@@ -296,6 +307,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             m_indexingComboBox.setCurrentIndex(m_indexingComboBox.count() - 1);
     }
     m_indexingComboBox.setToolTip(indexingToolTip);
+    m_projectIndexPathTemplateLineEdit.setText(settings.data().projectIndexPathTemplate);
+    m_sessionIndexPathTemplateLineEdit.setText(settings.data().sessionIndexPathTemplate);
     using SwitchMode = ClangdSettings::HeaderSourceSwitchMode;
     for (SwitchMode mode : {SwitchMode::BuiltinOnly, SwitchMode::ClangdOnly, SwitchMode::Both}) {
         m_headerSourceSwitchComboBox.addItem(
@@ -359,6 +372,33 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto indexingPriorityLabel = new QLabel(Tr::tr("Background indexing:"));
     indexingPriorityLabel->setToolTip(indexingToolTip);
     formLayout->addRow(indexingPriorityLabel, indexingPriorityLayout);
+
+    for (const auto &[text, edit, toolTip, defaultValue] :
+         {std::make_tuple(Tr::tr("Per-project index location:"),
+                          &m_projectIndexPathTemplateLineEdit,
+                          projectIndexPathToolTip,
+                          ClangdSettings::defaultProjectIndexPathTemplate()),
+          std::make_tuple(Tr::tr("Per-session index location:"),
+                          &m_sessionIndexPathTemplateLineEdit,
+                          sessionIndexPathToolTip,
+                          ClangdSettings::defaultSessionIndexPathTemplate())}) {
+        if (isForProject && edit == &m_sessionIndexPathTemplateLineEdit)
+            continue;
+
+        const auto chooser = new Utils::VariableChooser(edit);
+        chooser->addSupportedWidget(edit);
+        chooser->addMacroExpanderProvider([] { return Utils::globalMacroExpander(); });
+
+        const auto resetButton = new QPushButton(Tr::tr("Reset"));
+        connect(resetButton, &QPushButton::clicked, [e = edit, v = defaultValue] { e->setText(v); });
+        const auto layout = new QHBoxLayout;
+        const auto label = new QLabel(text);
+        label->setToolTip(toolTip);
+        edit->setToolTip(toolTip);
+        layout->addWidget(edit);
+        layout->addWidget(resetButton);
+        formLayout->addRow(label, layout);
+    }
 
     const auto headerSourceSwitchLayout = new QHBoxLayout;
     headerSourceSwitchLayout->addWidget(&m_headerSourceSwitchComboBox);
@@ -530,6 +570,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_indexingComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&m_projectIndexPathTemplateLineEdit, &QLineEdit::textChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&m_sessionIndexPathTemplateLineEdit, &QLineEdit::textChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_completionRankingModelComboBox, &QComboBox::currentIndexChanged,
@@ -559,6 +603,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.executableFilePath = m_clangdChooser.filePath();
     data.indexingPriority = ClangdSettings::IndexingPriority(
         m_indexingComboBox.currentData().toInt());
+    data.projectIndexPathTemplate = m_projectIndexPathTemplateLineEdit.text();
+    data.sessionIndexPathTemplate = m_sessionIndexPathTemplateLineEdit.text();
     data.headerSourceSwitchMode = ClangdSettings::HeaderSourceSwitchMode(
         m_headerSourceSwitchComboBox.currentData().toInt());
     data.completionRankingModel = ClangdSettings::CompletionRankingModel(
@@ -641,9 +687,14 @@ public:
                         m_settings.setSettings(m_widget.settingsData());
                 });
 
-        connect(&m_widget, &ClangdSettingsWidget::settingsDataChanged, this, [this] {
+        const auto timer = new QTimer(this);
+        timer->setSingleShot(true);
+        timer->setInterval(5000);
+        connect(timer, &QTimer::timeout, this, [this] {
             m_settings.setSettings(m_widget.settingsData());
         });
+        connect(&m_widget, &ClangdSettingsWidget::settingsDataChanged,
+                timer, qOverload<>(&QTimer::start));
     }
 
 private:

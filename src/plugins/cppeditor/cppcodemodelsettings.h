@@ -17,6 +17,7 @@
 #include <QVersionNumber>
 
 namespace ProjectExplorer { class Project; }
+namespace Utils { class MacroExpander; }
 
 namespace CppEditor {
 
@@ -92,6 +93,8 @@ public:
     static QString headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode);
     static QString rankingModelToCmdLineString(CompletionRankingModel model);
     static QString rankingModelToDisplayString(CompletionRankingModel model);
+    static QString defaultProjectIndexPathTemplate();
+    static QString defaultSessionIndexPathTemplate();
 
     class CPPEDITOR_EXPORT Data
     {
@@ -103,6 +106,8 @@ public:
         {
             return s1.useClangd == s2.useClangd
                     && s1.executableFilePath == s2.executableFilePath
+                    && s1.projectIndexPathTemplate == s2.projectIndexPathTemplate
+                    && s1.sessionIndexPathTemplate == s2.sessionIndexPathTemplate
                     && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
                     && s1.customDiagnosticConfigs == s2.customDiagnosticConfigs
                     && s1.diagnosticConfigId == s2.diagnosticConfigId
@@ -119,12 +124,27 @@ public:
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
-        static int defaultCompletionResults();
-
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         ClangDiagnosticConfigs customDiagnosticConfigs;
         Utils::Id diagnosticConfigId;
+
+        int workerThreadLimit = DefaultWorkerThreadLimit;
+        int documentUpdateThreshold = DefaultDocumentUpdateThreshold;
+        qint64 sizeThresholdInKb = DefaultSizeThresholdInKb;
+        bool useClangd = DefaultUseClangd;
+        IndexingPriority indexingPriority = DefaultIndexingPriority;
+        QString projectIndexPathTemplate = defaultProjectIndexPathTemplate();
+        QString sessionIndexPathTemplate = defaultSessionIndexPathTemplate();
+        HeaderSourceSwitchMode headerSourceSwitchMode = DefaultHeaderSourceSwitchMode;
+        CompletionRankingModel completionRankingModel = DefaultCompletionRankingModel;
+        bool autoIncludeHeaders = DefaultAutoIncludeHeaders;
+        bool sizeThresholdEnabled = DefaultSizeThresholdEnabled;
+        bool haveCheckedHardwareReqirements = false;
+        int completionResults = defaultCompletionResults();
+
+    private:
+        static int defaultCompletionResults();
 
         static constexpr auto DefaultWorkerThreadLimit = 0;
         static constexpr auto DefaultDocumentUpdateThreshold = 500;
@@ -135,18 +155,6 @@ public:
         static constexpr auto DefaultCompletionRankingModel = CompletionRankingModel::Default;
         static constexpr auto DefaultAutoIncludeHeaders = false;
         static constexpr auto DefaultSizeThresholdEnabled = false;
-
-        int workerThreadLimit = DefaultWorkerThreadLimit;
-        int documentUpdateThreshold = DefaultDocumentUpdateThreshold;
-        qint64 sizeThresholdInKb = DefaultSizeThresholdInKb;
-        bool useClangd = DefaultUseClangd;
-        IndexingPriority indexingPriority = DefaultIndexingPriority;
-        HeaderSourceSwitchMode headerSourceSwitchMode = DefaultHeaderSourceSwitchMode;
-        CompletionRankingModel completionRankingModel = DefaultCompletionRankingModel;
-        bool autoIncludeHeaders = DefaultAutoIncludeHeaders;
-        bool sizeThresholdEnabled = DefaultSizeThresholdEnabled;
-        bool haveCheckedHardwareReqirements = false;
-        int completionResults = defaultCompletionResults();
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}
@@ -163,6 +171,8 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     Utils::FilePath clangdFilePath() const;
     IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
+    Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
+    Utils::FilePath sessionIndexPath(const Utils::MacroExpander &expander) const;
     HeaderSourceSwitchMode headerSourceSwitchMode() const { return m_data.headerSourceSwitchMode; }
     CompletionRankingModel completionRankingModel() const { return m_data.completionRankingModel; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }

@@ -45,6 +45,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/infobar.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -472,17 +473,15 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
     }
 }
 
-static FilePath getJsonDbDir(const Project *project)
+static FilePath getJsonDbDir(Project *project)
 {
-    static const QString dirName(".qtc_clangd");
-    if (!project) {
-        const QString sessionDirName = FileUtils::fileSystemFriendlyName(
-                    SessionManager::activeSession());
-        return ICore::userResourcePath() / dirName / sessionDirName; // TODO: Make configurable?
-    }
-    if (const Target * const target = project->activeTarget()) {
-        if (const BuildConfiguration * const bc = target->activeBuildConfiguration())
-            return bc->buildDirectory() / dirName;
+    if (!project)
+        return ClangdSettings::instance().sessionIndexPath(*globalMacroExpander());
+    if (const Target *const target = project->activeTarget()) {
+        if (const BuildConfiguration *const bc = target->activeBuildConfiguration()) {
+            return ClangdSettings(ClangdProjectSettings(project).settings())
+                .projectIndexPath(*bc->macroExpander());
+        }
     }
     return {};
 }
@@ -696,7 +695,7 @@ ClangdClient *ClangModelManagerSupport::clientWithProject(const Project *project
 void ClangModelManagerSupport::updateStaleIndexEntries()
 {
     QHash<FilePath, QDateTime> lastModifiedCache;
-    for (const Project * const project : ProjectManager::projects()) {
+    for (Project * const project : ProjectManager::projects()) {
         const FilePath jsonDbDir = getJsonDbDir(project);
         if (jsonDbDir.isEmpty())
             continue;

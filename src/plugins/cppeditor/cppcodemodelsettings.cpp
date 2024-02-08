@@ -15,10 +15,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
+#include <QDir>
 #include <QHash>
 #include <QPair>
 #include <QSettings>
@@ -45,6 +47,8 @@ static Key clangdSettingsKey() { return "ClangdSettings"; }
 static Key useClangdKey() { return "UseClangdV7"; }
 static Key clangdPathKey() { return "ClangdPath"; }
 static Key clangdIndexingKey() { return "ClangdIndexing"; }
+static Key clangdProjectIndexPathKey() { return "ClangdProjectIndexPath"; }
+static Key clangdSessionIndexPathKey() { return "ClangdSessionIndexPath"; }
 static Key clangdIndexingPriorityKey() { return "ClangdIndexingPriority"; }
 static Key clangdHeaderSourceSwitchModeKey() { return "ClangdHeaderSourceSwitchMode"; }
 static Key clangdCompletionRankingModelKey() { return "ClangdCompletionRankingModel"; }
@@ -248,6 +252,16 @@ QString ClangdSettings::rankingModelToDisplayString(CompletionRankingModel model
     QTC_ASSERT(false, return {});
 }
 
+QString ClangdSettings::defaultProjectIndexPathTemplate()
+{
+    return QDir::toNativeSeparators("%{BuildConfig:BuildDirectory:FilePath}/.qtc_clangd");
+}
+
+QString ClangdSettings::defaultSessionIndexPathTemplate()
+{
+    return QDir::toNativeSeparators("%{IDE:UserResourcePath}/.qtc_clangd/%{Session:FileBaseName}");
+}
+
 ClangdSettings &ClangdSettings::instance()
 {
     static ClangdSettings settings;
@@ -316,6 +330,16 @@ FilePath ClangdSettings::clangdFilePath() const
     if (!m_data.executableFilePath.isEmpty())
         return m_data.executableFilePath;
     return fallbackClangdFilePath();
+}
+
+FilePath ClangdSettings::projectIndexPath(const Utils::MacroExpander &expander) const
+{
+    return FilePath::fromUserInput(expander.expand(m_data.projectIndexPathTemplate));
+}
+
+FilePath ClangdSettings::sessionIndexPath(const Utils::MacroExpander &expander) const
+{
+    return FilePath::fromUserInput(expander.expand(m_data.sessionIndexPathTemplate));
 }
 
 bool ClangdSettings::sizeIsOkay(const Utils::FilePath &fp) const
@@ -559,6 +583,10 @@ Store ClangdSettings::Data::toMap() const
     map.insertValueWithDefault(clangdIndexingPriorityKey(),
                                int(indexingPriority),
                                int(DefaultIndexingPriority));
+    map.insertValueWithDefault(clangdProjectIndexPathKey(), projectIndexPathTemplate,
+                               defaultProjectIndexPathTemplate());
+    map.insertValueWithDefault(clangdSessionIndexPathKey(), sessionIndexPathTemplate,
+                               defaultSessionIndexPathTemplate());
 
     map.insertValueWithDefault(clangdHeaderSourceSwitchModeKey(),
                                int(headerSourceSwitchMode),
@@ -610,6 +638,10 @@ void ClangdSettings::Data::fromMap(const Store &map)
     const auto it = map.find(clangdIndexingKey());
     if (it != map.end() && !it->toBool())
         indexingPriority = IndexingPriority::Off;
+    projectIndexPathTemplate
+        = map.value(clangdProjectIndexPathKey(), defaultProjectIndexPathTemplate()).toString();
+    sessionIndexPathTemplate
+        = map.value(clangdSessionIndexPathKey(), defaultSessionIndexPathTemplate()).toString();
     headerSourceSwitchMode = HeaderSourceSwitchMode(
         map.value(clangdHeaderSourceSwitchModeKey(), int(DefaultHeaderSourceSwitchMode)).toInt());
     completionRankingModel = CompletionRankingModel(
