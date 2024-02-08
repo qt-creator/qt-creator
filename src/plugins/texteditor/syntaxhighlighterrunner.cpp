@@ -185,7 +185,7 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
 
         result.copyToBlock(docBlock);
 
-        if (!result.m_formatRanges.empty()) {
+        if (result.m_formatRanges != docBlock.layout()->formats()) {
             TextDocumentLayout::FoldValidator foldValidator;
             foldValidator.setup(qobject_cast<TextDocumentLayout *>(m_document->documentLayout()));
             docBlock.layout()->setFormats(result.m_formatRanges);
