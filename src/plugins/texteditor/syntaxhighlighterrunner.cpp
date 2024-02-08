@@ -27,16 +27,11 @@ class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    SyntaxHighlighterRunnerPrivate(SyntaxHighlighterRunner::SyntaxHighlighterCreator creator,
+    SyntaxHighlighterRunnerPrivate(SyntaxHighlighter *highlighter,
                                    QTextDocument *document,
-                                   bool async,
-                                   const QString &mimeType,
-                                   FontSettings fontSettings)
+                                   bool async)
+        : m_highlighter(highlighter)
     {
-        m_highlighter = creator();
-        m_highlighter->setFontSettings(fontSettings);
-        m_highlighter->setMimeType(mimeType);
-
         if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
@@ -111,12 +106,10 @@ signals:
 
 };
 
-SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
+SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                                                  QTextDocument *document,
-                                                 bool async,
-                                                 const QString &mimeType,
-                                                 const TextEditor::FontSettings &fontSettings)
-    : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, mimeType, fontSettings))
+                                                 bool async)
+    : d(new SyntaxHighlighterRunnerPrivate(highlighter, document, async))
     , m_document(document)
 {
     m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter);

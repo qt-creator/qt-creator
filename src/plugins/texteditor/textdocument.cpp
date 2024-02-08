@@ -921,10 +921,12 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
         = qtcEnvironmentVariable("QTC_USE_THREADED_HIGHLIGHTER", "TRUE").toUpper()
           == QLatin1String("TRUE");
 
-    d->m_highlighterRunner = new SyntaxHighlighterRunner(creator,
+    SyntaxHighlighter *highlighter = creator();
+    highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    highlighter->setMimeType(mimeType());
+    d->m_highlighterRunner = new SyntaxHighlighterRunner(highlighter,
                                                          document(),
-                                                         threaded && envValue,
-                                                         mimeType());
+                                                         threaded && envValue);
 }
 
 void TextDocument::cleanWhitespace(const QTextCursor &cursor)
