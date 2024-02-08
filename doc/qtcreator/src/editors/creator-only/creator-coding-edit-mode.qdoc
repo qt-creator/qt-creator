@@ -65,7 +65,11 @@
     The editor toolbar is context sensitive and shows items relevant to the file
     currently open in the editor.
 
-    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+    \image qtcreator-editor-toolbar.webp {Editor toolbar for a C++ source file}
+    \caption Editor toolbar when a C++ source file is open
+
+    \image qtcreator-editor-toolbar-qml.webp {Editor toolbar for a QML file}
+    \caption Editor toolbar when a QML file is open
 
     \table
     \header
@@ -104,6 +108,10 @@
             between \QC and language servers, view server capabilities, and set
             language server preferences.
         \li \l {Language Servers}
+    \row
+        \li \inlineimage icons/live-preview.png
+        \li Preview changes to QML code live in your application.
+        \li \l {Previewing on Desktop}
     \row
         \li \inlineimage icons/debugger_singleinstructionmode.png
         \li Run Clang-Tidy or Clazy to analyze the currently open file.

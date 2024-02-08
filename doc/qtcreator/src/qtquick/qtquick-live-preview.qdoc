@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -12,38 +12,35 @@
 
     \title Validating with Target Hardware
 
-    You can use the live preview feature to preview a UI file or the entire
-    UI on the desktop, as well as on embedded Linux
-    devices. The changes you make to the UI are instantly visible
-    to you in the preview. While the preview is available on Android devices,
-    it does not instantly reflect the changes made to the UI in the editor. It
-    shows the snapshot of your project from the moment you start the preview on
-    the device.
+    Preview a UI file or the entire UI on the desktop, as well as on embedded
+    Linux devices to instantly view the changes you make to the UI. On Android
+    devices, the preview shows the snapshot of your project from the moment
+    you start the preview on the device, not your changes.
 
-    In addition, you can use \QDV to run
+    \if defined(qtcreator)
+    \image qtcreator-live-preview.webp {Application running on top of the editor}
+    \else
+    \image studio-live-preview.webp
+    \endif
+
+    Or, use \QDV to run
     \if defined(qtcreator)
     \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects}
     \else
     applications
     \endif
-    in most widely-used web browsers on the desktop and in mobile devices This
-    enables you to easily share your designs with reviewers who don't have \QC.
-
-    \if defined(qtcreator)
-    \image qtcreator-live-preview.png
-    \else
-    \image studio-live-preview.webp
-    \endif
+    in most widely-used web browsers on the desktop and in mobile devices and
+    share your designs with reviewers who don't have \QC.
 
     \list
         \li \l{Previewing on Desktop}
 
-            You can preview individual QML files or the whole UI.
+            Preview individual QML files or the whole UI.
         \li \l{Previewing on Devices}
 
             \if defined(qtcreator)
-            You can preview Qt Quick applications on devices that you have
-            connected to the development PC. For more information, see
+            Preview Qt Quick applications on devices that you
+            connect to the development PC. For more information, see
             \l {Connecting Devices}.
             \else
             When you install \QDS, everything you need for previewing on
@@ -54,17 +51,16 @@
         \if defined(qtdesignstudio)
         \li \l{Previewing Android applications}
 
-            You can preview Android applications live using an Android
-            emulator.
+            Preview Android applications live using an Android emulator.
 
         \li \l{Sharing Applications Online}
 
-            You can share applications online and view them in a web browser.
+            Share applications online and view them in a web browser.
 
         \else
         \li \l{Previewing in Browsers}
 
-            You can open \l{https://designviewer.qt.io/}{\QDV}
+            Open \l{https://designviewer.qt.io/}{\QDV}
             in a browser and load applications to it.
         \endif
     \endlist
