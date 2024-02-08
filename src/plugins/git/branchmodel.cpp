@@ -914,7 +914,7 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
     process->setEnvironment(gitClient().processEnvironment());
     QStringList parameters = {"rev-list", "--no-color", "--count"};
     if (node->tracking.isEmpty())
-        parameters += {"HEAD", "--not", "--remotes"};
+        parameters += {node->fullRef(), "--not", "--remotes"};
     else
         parameters += {"--left-right", node->fullRef() + "..." + node->tracking};
     process->setCommand({gitClient().vcsBinary(), parameters});
