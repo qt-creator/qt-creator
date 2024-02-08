@@ -929,7 +929,7 @@ void GitClient::requestReload(const QString &documentId, const FilePath &source,
     QTC_ASSERT(document, return);
     GitBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
-    controller->setVcsBinary(settings().gitExecutable());
+    controller->setVcsBinary(settings().gitExecutable().value_or(FilePath{}));
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 
@@ -2546,11 +2546,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
 
 FilePath GitClient::vcsBinary() const
 {
-    bool ok;
-    Utils::FilePath binary = settings().gitExecutable(&ok);
-    if (!ok)
-        return {};
-    return binary;
+    return settings().gitExecutable().value_or(FilePath{});
 }
 
 // returns first line from log and removes it

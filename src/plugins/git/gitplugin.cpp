@@ -409,11 +409,9 @@ void GitPluginPrivate::onApplySettings()
 {
     emit configurationChanged();
     updateRepositoryBrowserAction();
-    bool gitFoundOk;
-    QString errorMessage;
-    settings().gitExecutable(&gitFoundOk, &errorMessage);
-    if (!gitFoundOk) {
-        QTimer::singleShot(0, this, [errorMessage] {
+    const expected_str<FilePath> result = settings().gitExecutable();
+    if (!result) {
+        QTimer::singleShot(0, this, [errorMessage = result.error()] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);
         });
     }

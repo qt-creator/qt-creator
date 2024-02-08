@@ -164,14 +164,8 @@ GitSettings::GitSettings()
     readSettings();
 }
 
-FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
+expected_str<FilePath> GitSettings::gitExecutable() const
 {
-    // Locate binary in path if one is specified, otherwise default to pathless binary.
-    if (ok)
-        *ok = true;
-    if (errorMessage)
-        errorMessage->clear();
-
     if (tryResolve) {
         resolvedBinPath = binaryPath();
         if (!resolvedBinPath.isAbsolutePath())
@@ -180,11 +174,8 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     }
 
     if (resolvedBinPath.isEmpty()) {
-        if (ok)
-            *ok = false;
-        if (errorMessage)
-            *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
-                .arg(binaryPath().toUserOutput(), path());
+        return make_unexpected(Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
+                                   .arg(binaryPath().toUserOutput(), path()));
     }
     return resolvedBinPath;
 }
