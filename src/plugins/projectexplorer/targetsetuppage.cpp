@@ -304,6 +304,8 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
     for (Kit *k : KitManager::sortedKits()) {
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
+        if (m_importer && !m_importer->filter(k))
+            continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);
         connect(widget, &TargetSetupWidget::selectedToggled,
                 this, &TargetSetupPagePrivate::kitSelectionChanged);
@@ -568,10 +570,6 @@ void TargetSetupPagePrivate::doInitializePage()
     reset();
     setupWidgets();
     setupImports();
-
-    const QString filterText = m_importer ? m_importer->kitFilterText() : QString{};
-    kitFilterLineEdit->setText(filterText);
-    kitFilterLineEdit->filterChanged(filterText);
 
     selectAtLeastOneEnabledKit();
     updateVisibility();
