@@ -95,7 +95,7 @@ T.SpinBox {
             control.focus = false
     }
 
-    validator: DoubleValidator {
+    DoubleValidator {
         id: doubleValidator
         locale: control.locale.name
         notation: DoubleValidator.StandardNotation
@@ -103,6 +103,15 @@ T.SpinBox {
         bottom: Math.min(control.realFrom, control.realTo)
         top: Math.max(control.realFrom, control.realTo)
     }
+
+    IntValidator {
+        id: intValidator
+        locale: control.locale.name
+        bottom: Math.round(Math.min(control.realFrom, control.realTo))
+        top: Math.round(Math.max(control.realFrom, control.realTo))
+    }
+
+    validator: control.decimals === 0 ? intValidator : doubleValidator
 
     ActionIndicator {
         id: actionIndicator
@@ -153,7 +162,7 @@ T.SpinBox {
         id: spinBoxInput
         style: control.style
         __parentControl: control
-        validator: doubleValidator
+        validator: control.validator
 
         function handleEditingFinished() {
             control.checkAndClearFocus()
