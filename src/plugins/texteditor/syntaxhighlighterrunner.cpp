@@ -33,20 +33,21 @@ public:
                                    const QString &mimeType,
                                    FontSettings fontSettings)
     {
+        m_highlighter = creator();
+        m_highlighter->setFontSettings(fontSettings);
+        m_highlighter->setMimeType(mimeType);
+
         if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
+            m_highlighter->setParent(m_document);
         } else {
             m_document = document;
         }
 
-        m_highlighter.reset(creator());
-        m_highlighter->setFontSettings(fontSettings);
         m_highlighter->setDocument(m_document);
-        m_highlighter->setMimeType(mimeType);
-        m_highlighter->setParent(m_document);
 
-        connect(m_highlighter.get(),
+        connect(m_highlighter,
                 &SyntaxHighlighter::resultsReady,
                 this,
                 &SyntaxHighlighterRunnerPrivate::resultsReady);
@@ -102,7 +103,7 @@ public:
 
     void rehighlight() { m_highlighter->rehighlight(); }
 
-    std::unique_ptr<SyntaxHighlighter> m_highlighter;
+    SyntaxHighlighter *m_highlighter = nullptr;
     QTextDocument *m_document = nullptr;
 
 signals:
@@ -118,7 +119,7 @@ SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighterCreator creato
     : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, mimeType, fontSettings))
     , m_document(document)
 {
-    m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter.get());
+    m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter);
 
     if (async) {
         m_thread.emplace();
@@ -163,6 +164,7 @@ SyntaxHighlighterRunner::~SyntaxHighlighterRunner()
         m_thread->quit();
         m_thread->wait();
     } else {
+        delete d->m_highlighter;
         delete d;
     }
 }
