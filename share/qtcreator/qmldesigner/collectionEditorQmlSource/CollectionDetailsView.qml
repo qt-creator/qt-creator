@@ -357,6 +357,15 @@ Rectangle {
                             onTriggered: root.model.removeRows(root.model.selectedRow, 1)
                         }
                     }
+
+                    Connections {
+                        target: tableView.model
+
+                        function onModelReset() {
+                            tableView.clearColumnWidths()
+                            tableView.clearRowHeights()
+                        }
+                    }
                 }
 
                 HoverHandler { id: hoverHandler }
