@@ -224,17 +224,48 @@
 */
 
 /*!
-    \page creator-how-to-jump-to-functions-in-qml-code.html
+    \page creator-how-to-navigate-qml-code.html
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-edit
 
-    \title Jump to a function in QML code
+    \title Move in QML code
 
-    Open the \uicontrol Locator with \key {Ctrl+K} and type m, followed by a space.
-    You can now go directly to any QML method in the file.
+    Find QML methods and types, and move to the C++ implementation of a QML type.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \section1 Locate QML methods
+
+    To locate a QML method:
+
+    \list 1
+        \li Press \key {Ctrl+K} to activate the locator.
+        \li Type m, followed by a space.
+            \image qtcreator-locator-m-filter.webp {The m filter in the locator}
+        \li Double-click a QML method in the list to move to it in the editor.
+    \endlist
+
+    \section1 Find QML types
+
+    To find instances of a QML type in a project, place the cursor on
+    the type and and do one of the following:
+
+    \list
+        \li Press \key {Ctrl+Shift+U}.
+        \li Go to \uicontrol Tools > \uicontrol {QML/JS} >
+            \uicontrol {Find References to Symbol Under Cursor}.
+    \endlist
+
+    \section1 Move between QML and C++
+
+    To move to the C++ implementation of a QML type in the code editor, place the
+    cursor on the type and do one of the following:
+
+    \list
+        \li Press \key F2.
+        \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu.
+    \endlist
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Searching with the Locator}
 */
 
 /*!

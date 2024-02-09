@@ -51,13 +51,6 @@
     \image qtcreator-search-cpp-symbols.png
     \endif
 
-    \section1 Finding QML Types
-
-    To find instances of a specific QML type in a project, place the cursor on
-    the type and select \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Find References to Symbol Under Cursor} or press
-    \key {Ctrl+Shift+U}.
-
     \section1 Viewing Search Results
 
     \QC searches from the following locations:
