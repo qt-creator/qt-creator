@@ -34,11 +34,11 @@ public:
         QByteArray editorDefines;
         QString preferredProjectPartId;
 
-        bool operator==(const Configuration &other)
+        friend bool operator==(const Configuration &left, const Configuration &right)
         {
-            return usePrecompiledHeaders == other.usePrecompiledHeaders
-                    && editorDefines == other.editorDefines
-                    && preferredProjectPartId == other.preferredProjectPartId;
+            return left.usePrecompiledHeaders == right.usePrecompiledHeaders
+                && left.editorDefines == right.editorDefines
+                && left.preferredProjectPartId == right.preferredProjectPartId;
         }
     };
 
