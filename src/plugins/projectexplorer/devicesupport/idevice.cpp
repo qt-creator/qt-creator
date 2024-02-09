@@ -593,7 +593,7 @@ QString IDevice::deviceStateToString() const
 
 QPixmap IDevice::deviceStateIcon() const
 {
-    switch (d->deviceState) {
+    switch (deviceState()) {
     case IDevice::DeviceReadyToUse: return Icons::DEVICE_READY_INDICATOR.pixmap();
     case IDevice::DeviceConnected: return Icons::DEVICE_CONNECTED_INDICATOR.pixmap();
     case IDevice::DeviceDisconnected: return Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap();

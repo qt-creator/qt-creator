@@ -105,7 +105,7 @@ public:
 
     virtual ~IDevice();
 
-    Ptr clone() const;
+    virtual Ptr clone() const;
 
     DeviceSettings *settings() const;
 
@@ -154,9 +154,9 @@ public:
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
-    DeviceState deviceState() const;
+    virtual DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
-    QString deviceStateToString() const;
+    virtual QString deviceStateToString() const;
     QPixmap deviceStateIcon() const;
 
     static Utils::Id typeFromMap(const Utils::Store &map);
