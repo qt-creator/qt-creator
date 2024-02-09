@@ -746,14 +746,10 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
 bool MiniProjectTargetSelector::event(QEvent *event)
 {
-    if (event->type() == QEvent::LayoutRequest) {
-        doLayout(true);
+    if (event->type() == QEvent::ShortcutOverride
+        && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+        event->accept();
         return true;
-    } else if (event->type() == QEvent::ShortcutOverride) {
-        if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
-            event->accept();
-            return true;
-        }
     }
     return QWidget::event(event);
 }
@@ -856,7 +852,7 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
     }
 }
 
-void MiniProjectTargetSelector::doLayout(bool keepSize)
+void MiniProjectTargetSelector::doLayout()
 {
     // An unconfigured project shows empty build/deploy/run sections
     // if there's a configured project in the seesion
@@ -867,15 +863,12 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
     m_kitAreaWidget->move(0, 0);
 
-    int oldSummaryLabelY = m_summaryLabel->y();
-
     int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this) ? m_kitAreaWidget->sizeHint().height() : 0;
 
     // 1. Calculate the summary label height
     int summaryLabelY = 1 + kitAreaHeight;
 
     int summaryLabelHeight = 0;
-    int oldSummaryLabelHeight = m_summaryLabel->height();
     bool onlySummary = false;
     // Count the number of lines
     int visibleLineCount = m_projectListWidget->isVisibleTo(this) ? 0 : 1;
@@ -893,9 +886,6 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         if (visibleLineCount)
             summaryLabelHeight = m_summaryLabel->sizeHint().height();
     }
-
-    if (keepSize && oldSummaryLabelHeight > summaryLabelHeight)
-        summaryLabelHeight = oldSummaryLabelHeight;
 
     m_summaryLabel->move(0, summaryLabelY);
 
@@ -915,16 +905,13 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             maxItemCount = qMax(maxItemCount, m_listWidgets[i]->maxCount());
 
         int titleWidgetsHeight = m_titleWidgets.first()->height();
-        if (keepSize) {
-            heightWithoutKitArea = height() - oldSummaryLabelY + 1;
-        } else {
-            // Clamp the size of the listwidgets to be at least as high as the sidebar button
-            // and at most half the height of the entire Qt Creator window.
-            heightWithoutKitArea = summaryLabelHeight
-                    + qBound(alignedWithActionHeight,
-                             maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
-                             Core::ICore::mainWindow()->height() / 2);
-        }
+
+        // Clamp the size of the listwidgets to be at least as high as the sidebar button
+        // and at most half the height of the entire Qt Creator window.
+        heightWithoutKitArea = summaryLabelHeight
+                               + qBound(alignedWithActionHeight,
+                                        maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
+                                        Core::ICore::mainWindow()->height() / 2);
 
         int titleY = summaryLabelY + summaryLabelHeight;
         int listY = titleY + titleWidgetsHeight;
@@ -933,15 +920,6 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         // list widget widths
         int minWidth = qMax(m_summaryLabel->sizeHint().width(), 250);
         minWidth = qMax(minWidth, m_kitAreaWidget->sizeHint().width());
-        if (keepSize) {
-            // Do not make the widget smaller then it was before
-            int oldTotalListWidgetWidth = m_projectListWidget->isVisibleTo(this) ?
-                    m_projectListWidget->width() : 0;
-            for (int i = TARGET; i < LAST; ++i)
-                oldTotalListWidgetWidth += m_listWidgets[i]->width();
-            minWidth = qMax(minWidth, oldTotalListWidgetWidth);
-        }
-
         QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
@@ -969,10 +947,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);
         newGeometry.setSize({x, heightWithoutKitArea + kitAreaHeight});
     } else {
-        if (keepSize)
-            heightWithoutKitArea = height() - oldSummaryLabelY + 1;
-        else
-            heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
+        heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
         m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
         m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
         newGeometry.setSize({m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight});
@@ -1359,7 +1334,7 @@ void MiniProjectTargetSelector::activeRunConfigurationChanged(RunConfiguration *
 
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
-    doLayout(false);
+    doLayout();
     QWidget::setVisible(visible);
     m_projectAction->setChecked(visible);
     if (visible) {
@@ -1554,7 +1529,7 @@ void MiniProjectTargetSelector::updateSummary()
     }
     if (summary != m_summaryLabel->text()) {
         m_summaryLabel->setText(summary);
-        doLayout(false);
+        doLayout();
     }
 }
 
