@@ -56,13 +56,13 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
 
         if (document.isObject()) {
             const QJsonObject sourceObject = document.object();
-            collectionsList->setStringList(sourceObject.toVariantMap().keys());
+            collectionsList->resetModelData(sourceObject.toVariantMap().keys());
         }
     } else if (sourceNode.type() == CSVCOLLECTIONMODEL_TYPENAME) {
         QmlDesigner::VariantProperty collectionNameProperty = sourceNode.variantProperty(
             "objectName");
         setupCollectionList();
-        collectionsList->setStringList({collectionNameProperty.value().toString()});
+        collectionsList->resetModelData({collectionNameProperty.value().toString()});
     }
     return collectionsList;
 }
@@ -209,7 +209,7 @@ void CollectionSourceModel::setSources(const ModelNodes &sources)
         auto loadedCollection = loadCollection(collectionSource);
         m_collectionList.append(loadedCollection);
 
-        registerCollection(loadedCollection);
+        registerCollectionList(loadedCollection);
     }
 
     updateEmpty();
@@ -242,7 +242,7 @@ void CollectionSourceModel::addSource(const ModelNode &node)
     auto loadedCollection = loadCollection(node);
     m_collectionList.append(loadedCollection);
 
-    registerCollection(loadedCollection);
+    registerCollectionList(loadedCollection);
 
     updateEmpty();
     endInsertRows();
@@ -353,6 +353,26 @@ CollectionListModel *CollectionSourceModel::selectedCollectionList()
     return idx.data(CollectionsRole).value<CollectionListModel *>();
 }
 
+QString CollectionSourceModel::generateCollectionName(const ModelNode &node,
+                                                      const QString &baseCollectionName) const
+{
+    int idx = sourceIndex(node);
+    if (idx < 0)
+        return {};
+
+    auto collections = m_collectionList.at(idx);
+    if (collections.isNull())
+        return {};
+
+    const int maxNumber = std::numeric_limits<int>::max();
+    for (int i = 1; i < maxNumber; ++i) {
+        const QString name = QLatin1String("%1_%2").arg(baseCollectionName).arg(i);
+        if (!collections->contains(name))
+            return name;
+    }
+    return {};
+}
+
 void CollectionSourceModel::selectSourceIndex(int idx, bool selectAtLeastOne)
 {
     int collectionCount = m_collectionSources.size();
@@ -365,6 +385,21 @@ void CollectionSourceModel::selectSourceIndex(int idx, bool selectAtLeastOne)
     }
 
     setSelectedIndex(preferredIndex);
+}
+
+void CollectionSourceModel::selectCollection(const QVariant &node, const QString &collectionName)
+{
+    const ModelNode sourceNode = node.value<ModelNode>();
+    const QModelIndex index = indexOfNode(sourceNode);
+    if (!index.isValid())
+        return;
+
+    selectSource(sourceNode);
+    auto collections = m_collectionList.at(index.row());
+    if (collections.isNull())
+        return;
+
+    collections->selectCollectionName(collectionName);
 }
 
 void CollectionSourceModel::deselect()
@@ -416,7 +451,8 @@ void CollectionSourceModel::onSelectedCollectionChanged(CollectionListModel *col
 }
 
 void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collectionList,
-                                                    const QString &oldName, const QString &newName)
+                                                    const QString &oldName,
+                                                    const QString &newName)
 {
     using Utils::FilePath;
     using Utils::FileReader;
@@ -657,13 +693,14 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
     if (oldList != newList) {
         m_collectionList.replace(index.row(), newList);
         emit dataChanged(index, index, {CollectionsRole});
-        registerCollection(newList);
+        registerCollectionList(newList);
     }
 }
 
-void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionListModel> &collection)
+void CollectionSourceModel::registerCollectionList(
+    const QSharedPointer<CollectionListModel> &sharedCollectionList)
 {
-    CollectionListModel *collectionList = collection.data();
+    CollectionListModel *collectionList = sharedCollectionList.data();
     if (collectionList == nullptr)
         return;
 
@@ -688,10 +725,14 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
                 [this, collectionList](const QStringList &removedCollections) {
                     onCollectionsRemoved(collectionList, removedCollections);
                 });
+
+        connect(collectionList, &CollectionListModel::modelReset, this, [this, collectionList]() {
+            emit collectionNamesInitialized(collectionList->collections());
+        });
     }
 
     if (collectionList->sourceNode().isValid())
-        emit collectionNamesInitialized(collection->stringList());
+        emit collectionNamesInitialized(collectionList->collections());
 }
 
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const

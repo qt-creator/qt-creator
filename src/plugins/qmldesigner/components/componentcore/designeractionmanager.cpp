@@ -840,16 +840,22 @@ public:
                                      {},
                                      ComponentCoreConstants::rootCategory,
                                      QKeySequence("Alt+e"),
-                                     1001,
+                                     ComponentCoreConstants::Priorities::EditListModel,
                                      &openDialog,
-                                     &isListViewInBaseState,
-                                     &isListViewInBaseState)
+                                     &isListViewInBaseStateAndHasListModel,
+                                     &isListViewInBaseStateAndHasListModel)
     {}
 
-    static bool isListViewInBaseState(const SelectionContext &selectionState)
+    static bool isListViewInBaseStateAndHasListModel(const SelectionContext &selectionState)
     {
-        return selectionState.isInBaseState() && selectionState.singleNodeIsSelected()
-               && selectionState.currentSingleSelectedNode().metaInfo().isListOrGridView();
+        if (!selectionState.isInBaseState() || !selectionState.singleNodeIsSelected())
+            return false;
+
+        const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
+
+        return singleSelectedNode.metaInfo().isListOrGridView()
+               && singleSelectedNode.property("model").toNodeProperty().modelNode().type()
+                      == "QtQml.Models.ListModel";
     }
 
     bool isEnabled(const SelectionContext &) const override { return true; }
@@ -1976,6 +1982,16 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ChangeStyleAction());
 
     addDesignerAction(new EditListModelAction);
+
+    addDesignerAction(new ModelNodeContextMenuAction(editCollectionCommandId,
+                                                     editCollectionDisplayName,
+                                                     contextIcon(DesignerIcons::EditIcon),
+                                                     rootCategory,
+                                                     QKeySequence("Alt+e"),
+                                                     ComponentCoreConstants::Priorities::EditCollection,
+                                                     &editCollection,
+                                                     &hasCollectionAsModel,
+                                                     &hasCollectionAsModel));
 
     addDesignerAction(new ModelNodeContextMenuAction(openSignalDialogCommandId,
                                                      openSignalDialogDisplayName,

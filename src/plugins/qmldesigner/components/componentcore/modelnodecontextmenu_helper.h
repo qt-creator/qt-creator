@@ -69,6 +69,18 @@ inline bool modelHasMaterial(const SelectionContext &selectionState)
     return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveToModelNodeList().empty());
 }
 
+inline bool hasCollectionAsModel(const SelectionContext &selectionState)
+{
+    if (!selectionState.isInBaseState() || !selectionState.singleNodeIsSelected())
+        return false;
+
+    const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
+
+    return singleSelectedNode.metaInfo().isQtQuickListView()
+           && singleSelectedNode.property("model").toBindingProperty().expression().startsWith(
+               "DataStore.");
+}
+
 inline bool selectionEnabled(const SelectionContext &selectionState)
 {
     return selectionState.showSelectionTools();

@@ -166,6 +166,7 @@ public:
     bool isQtQuick3DLight() const;
     bool isQtQuickListElement() const;
     bool isQtQuickListModel() const;
+    bool isQtQuickListView() const;
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;

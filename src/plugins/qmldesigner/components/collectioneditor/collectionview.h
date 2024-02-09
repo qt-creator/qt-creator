@@ -41,20 +41,29 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
+
     void addResource(const QUrl &url, const QString &name, const QString &type);
 
+    void assignCollectionToNode(const QString &collectionName, const ModelNode &node);
     void assignCollectionToSelectedNode(const QString &collectionName);
 
     static void registerDeclarativeType();
 
     void resetDataStoreNode();
     ModelNode dataStoreNode() const;
+    void ensureDataStoreExists();
+    QString collectionNameFromDataStoreChildren(const PropertyName &childPropertyName) const;
 
 private:
     void refreshModel();
     NodeMetaInfo jsonCollectionMetaInfo() const;
     NodeMetaInfo csvCollectionMetaInfo() const;
     void ensureStudioModelImport();
+    void onItemLibraryNodeCreated(const ModelNode &node);
 
     QPointer<CollectionWidget> m_widget;
     std::unique_ptr<DataStoreModelNode> m_dataStore;

@@ -12,6 +12,7 @@
 #include "designmodecontext.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
+#include "nodeproperty.h"
 #include "qmldesignerplugin.h"
 #include "variantproperty.h"
 
@@ -192,6 +193,17 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     }
 }
 
+void CollectionView::customNotification(const AbstractView *,
+                                        const QString &identifier,
+                                        const QList<ModelNode> &nodeList,
+                                        const QList<QVariant> &data)
+{
+    if (identifier == QLatin1String("item_library_created_by_drop") && !nodeList.isEmpty())
+        onItemLibraryNodeCreated(nodeList.first());
+    else if (identifier == QLatin1String("open_collection_by_id") && !data.isEmpty())
+        m_widget->openCollection(collectionNameFromDataStoreChildren(data.first().toByteArray()));
+}
+
 void CollectionView::addResource(const QUrl &url, const QString &name, const QString &type)
 {
     executeInTransaction(Q_FUNC_INFO, [this, &url, &name, &type]() {
@@ -221,12 +233,11 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
     });
 }
 
-void CollectionView::assignCollectionToSelectedNode(const QString &collectionName)
+void CollectionView::assignCollectionToNode(const QString &collectionName, const ModelNode &node)
 {
-    QTC_ASSERT(dataStoreNode() && hasSingleSelectedModelNode(), return);
     m_dataStore->assignCollectionToNode(
         this,
-        singleSelectedModelNode(),
+        node,
         collectionName,
         [&](const QString &collectionName, const QString &columnName) -> bool {
             const CollectionReference reference{dataStoreNode(), collectionName};
@@ -236,6 +247,12 @@ void CollectionView::assignCollectionToSelectedNode(const QString &collectionNam
             const CollectionReference reference{dataStoreNode(), collectionName};
             return m_widget->collectionDetailsModel()->getFirstColumnName(reference);
         });
+}
+
+void CollectionView::assignCollectionToSelectedNode(const QString &collectionName)
+{
+    QTC_ASSERT(dataStoreNode() && hasSingleSelectedModelNode(), return);
+    assignCollectionToNode(collectionName, singleSelectedModelNode());
 }
 
 void CollectionView::registerDeclarativeType()
@@ -253,6 +270,25 @@ void CollectionView::resetDataStoreNode()
 ModelNode CollectionView::dataStoreNode() const
 {
     return m_dataStore->modelNode();
+}
+
+void CollectionView::ensureDataStoreExists()
+{
+    bool filesJustCreated = false;
+    bool filesExist = CollectionEditorUtils::ensureDataStoreExists(filesJustCreated);
+    if (filesExist && filesJustCreated)
+        resetDataStoreNode();
+}
+
+QString CollectionView::collectionNameFromDataStoreChildren(const PropertyName &childPropertyName) const
+{
+    return dataStoreNode()
+        .nodeProperty(childPropertyName)
+        .modelNode()
+        .property(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)
+        .toVariantProperty()
+        .value()
+        .toString();
 }
 
 void CollectionView::refreshModel()
@@ -290,6 +326,22 @@ void CollectionView::ensureStudioModelImport()
             QTC_ASSERT(false, return);
         }
     });
+}
+
+void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
+{
+    ensureDataStoreExists();
+    CollectionSourceModel *sourceModel = m_widget->sourceModel();
+
+    if (node.metaInfo().isQtQuickListView()) {
+        const QString newCollectionName = sourceModel->generateCollectionName(dataStoreNode(),
+                                                                              "ListModel");
+        sourceModel->addCollectionToSource(dataStoreNode(),
+                                           newCollectionName,
+                                           CollectionEditorUtils::defaultColorCollection());
+        assignCollectionToNode(newCollectionName, node);
+        m_widget->openCollection(newCollectionName);
+    }
 }
 
 } // namespace QmlDesigner

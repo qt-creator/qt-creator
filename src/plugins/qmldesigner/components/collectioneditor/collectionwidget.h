@@ -43,7 +43,7 @@ public:
     Q_INVOKABLE bool importFile(const QString &collectionName, const QUrl &url);
     Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
     Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
-    Q_INVOKABLE void ensureDataStoreExists();
+    Q_INVOKABLE void openCollection(const QString &collectionName);
     Q_INVOKABLE ModelNode dataStoreNode() const;
 
     void warn(const QString &title, const QString &body);

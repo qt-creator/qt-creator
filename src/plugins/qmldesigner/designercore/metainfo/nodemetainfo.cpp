@@ -2766,6 +2766,16 @@ bool NodeMetaInfo::isQtQuickListModel() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickListView() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, ListView>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && (isSubclassOf("QtQuick.ListView"));
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {

@@ -59,8 +59,10 @@ public:
 
     ModelNode sourceNodeAt(int idx);
     CollectionListModel *selectedCollectionList();
+    QString generateCollectionName(const ModelNode &node, const QString &baseCollectionName) const;
 
     Q_INVOKABLE void selectSourceIndex(int idx, bool selectAtLeastOne = false);
+    Q_INVOKABLE void selectCollection(const QVariant &node, const QString &collectionName);
     Q_INVOKABLE void deselect();
     Q_INVOKABLE void updateSelectedSource(bool selectAtLeastOne = false);
     Q_INVOKABLE bool collectionExists(const QVariant &node, const QString &collectionName) const;
@@ -90,7 +92,7 @@ private:
     void setSelectedCollectionName(const QString &collectionName);
     void updateEmpty();
     void updateCollectionList(QModelIndex index);
-    void registerCollection(const QSharedPointer<CollectionListModel> &collection);
+    void registerCollectionList(const QSharedPointer<CollectionListModel> &collectionList);
     QModelIndex indexOfNode(const ModelNode &node) const;
 
     using Super = QAbstractListModel;

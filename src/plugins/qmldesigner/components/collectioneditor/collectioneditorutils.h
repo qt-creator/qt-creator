@@ -43,6 +43,8 @@ bool hasTextRoleProperty(const ModelNode &node);
 
 QJsonObject defaultCollection();
 
+QJsonObject defaultColorCollection();
+
 QString dataTypeToString(CollectionDetails::DataType dataType);
 
 CollectionDetails::DataType dataTypeFromString(const QString &dataType);

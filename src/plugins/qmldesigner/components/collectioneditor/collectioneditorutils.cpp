@@ -381,6 +381,29 @@ QJsonObject defaultCollection()
     return collectionObject;
 }
 
+QJsonObject defaultColorCollection()
+{
+    using Utils::FilePath;
+    using Utils::FileReader;
+    const FilePath templatePath = findFile(Core::ICore::resourcePath(), "Colors.json.tpl");
+
+    FileReader fileReader;
+    if (!fileReader.fetch(templatePath)) {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Can't read the content of the file" << templatePath;
+        return {};
+    }
+
+    QJsonParseError parseError;
+    const CollectionDetails collection = CollectionDetails::fromImportedJson(fileReader.data(),
+                                                                             &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Error in template file" << parseError.errorString();
+        return {};
+    }
+
+    return collection.toLocalJson();
+}
+
 QString dataTypeToString(CollectionDetails::DataType dataType)
 {
     static const QHash<DataType, QString> typeStringHash = CollectionDataTypeHelper::typeToStringHash();

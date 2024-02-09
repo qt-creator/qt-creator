@@ -796,8 +796,10 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                 moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
             }
 
-            if (newQmlObjectNode.isValid())
+            if (newQmlObjectNode.isValid()) {
                 m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
+                m_view->emitCustomNotification("item_library_created_by_drop", {newQmlObjectNode});
+            }
         }
     }
 }
