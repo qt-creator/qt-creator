@@ -6846,7 +6846,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                 if (cursorWithinSnippet)
                     m_snippetOverlay->accept();
                 cursorWithinSnippet = false;
-                q->unindent();
+                c = m_document->unindent(MultiTextCursor({c})).mainCursor();
             }
             handled = true;
         }
