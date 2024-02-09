@@ -178,7 +178,7 @@ private:
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
-    bool m_isEmpty = true;
+    bool m_isEmpty = false;  // Init to false to force initial bake after setup
     bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
