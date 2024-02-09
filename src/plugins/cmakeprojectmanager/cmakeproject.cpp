@@ -89,6 +89,21 @@ PresetsData CMakeProject::presetsData() const
     return m_presetsData;
 }
 
+template<typename T>
+static QStringList recursiveInheritsList(const T &presetsHash, const QStringList &inheritsList)
+{
+    QStringList result;
+    for (const QString &inheritFrom : inheritsList) {
+        result << inheritFrom;
+        if (presetsHash.contains(inheritFrom)) {
+            auto item = presetsHash[inheritFrom];
+            if (item.inherits)
+                result << recursiveInheritsList(presetsHash, item.inherits.value());
+        }
+    }
+    return result;
+}
+
 Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakePresetsData,
                                                    Internal::PresetsData &cmakeUserPresetsData)
 {
@@ -135,12 +150,14 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                 if (!p.inherits)
                     continue;
 
-                for (const QString &inheritFromName : p.inherits.value()) {
-                    if (presetsHash.contains(inheritFromName)) {
-                        p.inheritFrom(presetsHash[inheritFromName]);
+                const QStringList inheritsList = recursiveInheritsList(presetsHash,
+                                                                       p.inherits.value());
+                Utils::reverseForeach(inheritsList, [&presetsHash, &p](const QString &inheritFrom) {
+                    if (presetsHash.contains(inheritFrom)) {
+                        p.inheritFrom(presetsHash[inheritFrom]);
                         presetsHash[p.name] = p;
                     }
-                }
+                });
             }
         };
 
