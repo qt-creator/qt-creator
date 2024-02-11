@@ -73,8 +73,8 @@ public:
     UpstreamStatus() = default;
     UpstreamStatus(int ahead, int behind) : ahead(ahead), behind(behind) {}
 
-    int ahead = 0;
-    int behind = 0;
+    int ahead = -1;
+    int behind = -1;
 };
 
 struct Author {
