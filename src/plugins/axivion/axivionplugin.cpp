@@ -169,7 +169,7 @@ public:
         setLineAnnotation(markText);
         setActionsProvider([id] {
             auto action = new QAction;
-            action->setIcon(Utils::Icons::INFO.icon());
+            action->setIcon(Icons::INFO.icon());
             action->setToolTip(Tr::tr("Show rule details"));
             QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
             return QList{action};
@@ -480,7 +480,7 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
-Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler)
+Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?

@@ -35,6 +35,8 @@
 
 #include <map>
 
+using namespace Core;
+using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 
@@ -199,11 +201,11 @@ public:
         if (role == BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
             // TODO for now only simple - just the first..
             Link link = m_links.first();
-            ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+            Project *project = ProjectManager::startupProject();
             FilePath baseDir = project ? project->projectDirectory() : FilePath{};
             link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
             if (link.targetFilePath.exists())
-                Core::EditorManager::openEditorAt(link);
+                EditorManager::openEditorAt(link);
             return true;
         }
         return StaticTreeItem::setData(column, value, role);
@@ -591,7 +593,7 @@ void IssuesWidget::fetchMoreIssues()
 }
 
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
-    : Core::IOutputPane(parent)
+    : IOutputPane(parent)
 {
     setId("Axivion");
     setDisplayName(Tr::tr("Axivion"));
@@ -702,7 +704,7 @@ void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
         browser->setText(ruleHtml);
         if (!ruleHtml.isEmpty()) {
             m_outputWidget->setCurrentIndex(2);
-            popup(Core::IOutputPane::NoModeSwitch);
+            popup(IOutputPane::NoModeSwitch);
         }
     }
 }
