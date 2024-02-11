@@ -319,35 +319,31 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
     return recipe;
 }
 
-template<typename SerializableType>
-static Group fetchDataRecipe(const QUrl &url,
-                             const std::function<void(const SerializableType &)> &handler)
+template <typename DtoType>
+struct GetDtoStorage
 {
-    struct StorageData
-    {
-        QByteArray credentials;
-        QByteArray serializableData;
-    };
+    QByteArray credential;
+    QUrl url;
+    std::optional<DtoType> dtoData;
+};
 
-    const Storage<StorageData> storage;
+template <typename DtoType>
+static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
+{
+    const Storage<QByteArray> storage;
 
-    const auto onCredentialSetup = [storage] {
-        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
-    };
-
-    const auto onNetworkQuerySetup = [storage, url](NetworkQuery &query) {
-        QNetworkRequest request(url);
+    const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
+        QNetworkRequest request(dtoStorage->url);
         request.setRawHeader("Accept", s_jsonContentType);
-        request.setRawHeader("Authorization", storage->credentials);
+        request.setRawHeader("Authorization", dtoStorage->credential);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
                               "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
         request.setRawHeader("X-Axivion-User-Agent", ua);
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
-        return SetupResult::Continue;
     };
 
-    const auto onNetworkQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onNetworkQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -359,7 +355,7 @@ static Group fetchDataRecipe(const QUrl &url,
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
             && contentType == s_jsonContentType) {
-            storage->serializableData = reply->readAll();
+            *storage = reply->readAll();
             return DoneResult::Success;
         }
 
@@ -385,25 +381,49 @@ static Group fetchDataRecipe(const QUrl &url,
         return DoneResult::Error;
     };
 
-    const auto onDeserializeSetup = [storage](Async<SerializableType> &task) {
-        const auto deserialize = [](QPromise<SerializableType> &promise, const QByteArray &input) {
-            promise.addResult(SerializableType::deserialize(input));
+    const auto onDeserializeSetup = [storage](Async<DtoType> &task) {
+        const auto deserialize = [](QPromise<DtoType> &promise, const QByteArray &input) {
+            promise.addResult(DtoType::deserialize(input));
         };
         task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        task.setConcurrentCallData(deserialize, storage->serializableData);
+        task.setConcurrentCallData(deserialize, *storage);
     };
 
-    const auto onDeserializeDone = [handler](const Async<SerializableType> &task,
-                                             DoneWith doneWith) {
+    const auto onDeserializeDone = [dtoStorage](const Async<DtoType> &task, DoneWith doneWith) {
         if (doneWith == DoneWith::Success)
-            handler(task.future().result());
+            dtoStorage->dtoData = task.future().result();
     };
 
     const Group recipe {
         storage,
-        Sync(onCredentialSetup),
         NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
-        AsyncTask<SerializableType>(onDeserializeSetup, onDeserializeDone)
+        AsyncTask<DtoType>(onDeserializeSetup, onDeserializeDone)
+    };
+    return recipe;
+};
+
+template<typename DtoType>
+static Group fetchDataRecipe(const QUrl &url, const std::function<void(const DtoType &)> &handler)
+{
+    const Storage<GetDtoStorage<DtoType>> dtoStorage;
+
+    const auto onCredentialSetup = [dtoStorage, url] {
+        dtoStorage->credential = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
+        dtoStorage->url = url;
+    };
+
+    const auto onDtoDone = [dtoStorage, handler] {
+        if (dtoStorage->dtoData)
+            handler(*dtoStorage->dtoData);
+    };
+
+    const Group recipe {
+        dtoStorage,
+        Sync(onCredentialSetup),
+        Group {
+            getDtoRecipe(dtoStorage),
+            onGroupDone(onDtoDone)
+        }
     };
 
     return recipe;
