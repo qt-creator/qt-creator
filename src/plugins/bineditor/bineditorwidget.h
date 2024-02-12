@@ -79,7 +79,7 @@ public:
     void setReadOnly(bool);
     bool isReadOnly() const;
 
-    int find(const QByteArray &pattern, qint64 from = 0, QTextDocument::FindFlags findFlags = {});
+    qint64 find(const QByteArray &pattern, qint64 from = 0, QTextDocument::FindFlags findFlags = {});
 
     void selectAll();
     void clear();
@@ -90,8 +90,8 @@ public:
     Core::IEditor *editor() const { return m_ieditor; }
     void setEditor(Core::IEditor *ieditor) { m_ieditor = ieditor; }
 
-    int selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
-    int selectionEnd() const { return qMax(m_anchorPosition, m_cursorPosition); }
+    qint64 selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
+    qint64 selectionEnd() const { return qMax(m_anchorPosition, m_cursorPosition); }
 
     bool event(QEvent*) override;
 
@@ -146,8 +146,8 @@ private:
     QByteArray m_lowerBlock;
     qint64 m_size = 0;
 
-    int dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
-    int dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
+    qint64 dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
+    qint64 dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
 
     bool requestDataAt(qint64 pos) const;
     bool requestOldDataAt(qint64 pos) const;
@@ -202,10 +202,10 @@ private:
     void ensureCursorVisible();
     void setBlinkingCursorEnabled(bool enable);
 
-    void changeData(int position, uchar character, bool highNibble = false);
+    void changeData(qint64 position, uchar character, bool highNibble = false);
 
-    int findPattern(const QByteArray &data, const QByteArray &dataHex,
-        int from, int offset, int *match);
+    qint64 findPattern(const QByteArray &data, const QByteArray &dataHex,
+                       qint64 from, qint64 offset, qint64 *match);
     void drawItems(QPainter *painter, int x, int y, const QString &itemString);
     void drawChanges(QPainter *painter, int x, int y, const char *changes);
 

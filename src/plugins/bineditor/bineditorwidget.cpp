@@ -592,9 +592,9 @@ void BinEditorWidget::updateLines(qint64 fromPosition, qint64 toPosition)
     viewport()->update(0, y, viewport()->width(), h);
 }
 
-int BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
+qint64 BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
 {
-    int trailing = pattern.size();
+    qint64 trailing = pattern.size();
     if (trailing > m_blockSize)
         return -1;
 
@@ -603,7 +603,7 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool ca
     QByteArrayMatcher matcher(pattern);
 
     qint64 block = from / m_blockSize;
-    const int end = qMin<qint64>(from + SearchStride, m_size);
+    const qint64 end = qMin<qint64>(from + SearchStride, m_size);
     while (from < end) {
         if (!requestDataAt(block * m_blockSize))
             return -1;
@@ -615,7 +615,7 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool ca
         if (!caseSensitive)
             buffer = buffer.toLower();
 
-        int pos = matcher.indexIn(buffer, from - (block * m_blockSize) + trailing);
+        qint64 pos = matcher.indexIn(buffer, from - (block * m_blockSize) + trailing);
         if (pos >= 0)
             return pos + block * m_blockSize - trailing;
         ++block;
@@ -624,9 +624,9 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool ca
     return end == m_size ? -1 : -2;
 }
 
-int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
+qint64 BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
 {
-    int trailing = pattern.size();
+    qint64 trailing = pattern.size();
     if (trailing > m_blockSize)
         return -1;
 
@@ -635,10 +635,10 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, boo
 
     if (from == -1)
         from = m_size;
-    int block = from / m_blockSize;
-    const int lowerBound = qMax(qint64(0), from - SearchStride);
+    qint64 block = from / m_blockSize;
+    const qint64 lowerBound = qMax<qint64>(0, from - SearchStride);
     while (from > lowerBound) {
-        if (!requestDataAt(qint64(block) * m_blockSize))
+        if (!requestDataAt(block * m_blockSize))
             return -1;
         QByteArray data = blockData(block);
         char *b = buffer.data();
@@ -648,18 +648,19 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, boo
         if (!caseSensitive)
             buffer = buffer.toLower();
 
-        int pos = buffer.lastIndexOf(pattern, from - (block * m_blockSize));
+        qint64 pos = buffer.lastIndexOf(pattern, from - (block * m_blockSize));
         if (pos >= 0)
             return pos + block * m_blockSize;
         --block;
-        from = qint64(block) * m_blockSize + (m_blockSize-1) + trailing;
+        from = block * m_blockSize + (m_blockSize-1) + trailing;
     }
     return lowerBound == 0 ? -1 : -2;
 }
 
 
-int BinEditorWidget::find(const QByteArray &pattern_arg, qint64 from,
-                    QTextDocument::FindFlags findFlags)
+qint64 BinEditorWidget::find(const QByteArray &pattern_arg,
+                             qint64 from,
+                             QTextDocument::FindFlags findFlags)
 {
     if (pattern_arg.isEmpty())
         return 0;
@@ -672,14 +673,14 @@ int BinEditorWidget::find(const QByteArray &pattern_arg, qint64 from,
         pattern = pattern.toLower();
 
     bool backwards = (findFlags & QTextDocument::FindBackward);
-    int found = backwards ? dataLastIndexOf(pattern, from, caseSensitiveSearch)
-                : dataIndexOf(pattern, from, caseSensitiveSearch);
+    qint64 found = backwards ? dataLastIndexOf(pattern, from, caseSensitiveSearch)
+                             : dataIndexOf(pattern, from, caseSensitiveSearch);
 
-    int foundHex = -1;
+    qint64 foundHex = -1;
     QByteArray hexPattern = calculateHexPattern(pattern_arg);
     if (!hexPattern.isEmpty()) {
         foundHex = backwards ? dataLastIndexOf(hexPattern, from)
-                   : dataIndexOf(hexPattern, from);
+                             : dataIndexOf(hexPattern, from);
     }
 
     qint64 pos = foundHex == -1 || (found >= 0 && (foundHex == -2 || found < foundHex))
@@ -695,15 +696,16 @@ int BinEditorWidget::find(const QByteArray &pattern_arg, qint64 from,
     return pos;
 }
 
-int BinEditorWidget::findPattern(const QByteArray &data, const QByteArray &dataHex,
-    int from, int offset, int *match)
+qint64 BinEditorWidget::findPattern(const QByteArray &data, const QByteArray &dataHex,
+                                    qint64 from, qint64 offset, qint64 *match)
 {
     if (m_searchPattern.isEmpty())
         return -1;
-    int normal = m_searchPattern.isEmpty()
-        ? -1 : data.indexOf(m_searchPattern, from - offset);
-    int hex = m_searchPatternHex.isEmpty()
-        ? -1 : dataHex.indexOf(m_searchPatternHex, from - offset);
+
+    qint64 normal = m_searchPattern.isEmpty()
+                        ? -1 : data.indexOf(m_searchPattern, from - offset);
+    qint64 hex = m_searchPatternHex.isEmpty()
+                     ? -1 : dataHex.indexOf(m_searchPatternHex, from - offset);
 
     if (normal >= 0 && (hex < 0 || normal < hex)) {
         if (match)
@@ -787,10 +789,10 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         painter.fillRect(e->rect() & r, palette().alternateBase());
     }
 
-    int matchLength = 0;
+    qint64 matchLength = 0;
 
     QByteArray patternData, patternDataHex;
-    int patternOffset = qMax(0, topLine*m_bytesPerLine - m_searchPattern.size());
+    qint64 patternOffset = qMax(0, topLine * m_bytesPerLine - m_searchPattern.size());
     if (!m_searchPattern.isEmpty()) {
         patternData = dataMid(patternOffset, m_numVisibleLines * m_bytesPerLine + (topLine*m_bytesPerLine - patternOffset));
         patternDataHex = patternData;
@@ -798,7 +800,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
             patternData = patternData.toLower();
     }
 
-    int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
+    qint64 foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
 
     qint64 selStart, selEnd;
     if (m_cursorPosition >= m_anchorPosition) {
@@ -817,13 +819,13 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
     painter.setPen(palette().text().color());
     const QFontMetrics &fm = painter.fontMetrics();
-    for (int i = 0; i <= m_numVisibleLines; ++i) {
+    for (qint64 i = 0; i <= m_numVisibleLines; ++i) {
         qint64 line = topLine + i;
         if (line >= m_numLines)
             break;
 
         const quint64 lineAddress = m_baseAddr + line * m_bytesPerLine;
-        int y = i * m_lineHeight + m_ascent;
+        qint64 y = i * m_lineHeight + m_ascent;
         if (y - m_ascent > e->rect().bottom())
             break;
         if (y + m_descent < e->rect().top())
@@ -1377,33 +1379,34 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_PageUp:
     case Qt::Key_PageDown: {
-        int line = qMax(qint64(0), m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
+        qint64 line = qMax(qint64(0), m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
         verticalScrollBar()->triggerAction(e->key() == Qt::Key_PageUp ?
                                            QScrollBar::SliderPageStepSub : QScrollBar::SliderPageStepAdd);
         if (!ctrlPressed)
             setCursorPosition((verticalScrollBar()->value() + line) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine, moveMode);
-    } break;
-
+        break;
+    }
     case Qt::Key_Home: {
-        int pos;
+        qint64 pos;
         if (ctrlPressed)
             pos = 0;
         else
-            pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine;
+            pos = m_cursorPosition / m_bytesPerLine * m_bytesPerLine;
         setCursorPosition(pos, moveMode);
-    } break;
+        break;
+    }
     case Qt::Key_End: {
-        int pos;
+        qint64 pos;
         if (ctrlPressed)
             pos = m_size;
         else
-            pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine + 15;
+            pos = m_cursorPosition / m_bytesPerLine * m_bytesPerLine + 15;
         setCursorPosition(pos, moveMode);
-    } break;
-    default:
+        break;
+    }
+    default: {
         if (m_readOnly)
             break;
-        {
         QString text = e->text();
         for (int i = 0; i < text.length(); ++i) {
             QChar c = text.at(i);
@@ -1499,7 +1502,7 @@ void BinEditorWidget::highlightSearchResults(const QByteArray &pattern, QTextDoc
     viewport()->update();
 }
 
-void BinEditorWidget::changeData(int position, uchar character, bool highNibble)
+void BinEditorWidget::changeData(qint64 position, uchar character, bool highNibble)
 {
     if (!requestDataAt(position))
         return;
