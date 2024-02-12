@@ -1,4 +1,5 @@
 [General]
+Includes=light.figmatokens
 ThemeName=Flat
 PreferredStyles=
 
@@ -404,39 +405,6 @@ Debugger_WatchItem_ValueInvalid=textDisabled
 Debugger_WatchItem_ValueChanged=ffbf0303
 
 Debugger_Breakpoint_TextMarkColor=ffff4040
-
-; Qt Creator Color Tokens - light mode
-Token_Basic_Black=ff131313
-Token_Basic_White=fff2f2f2
-Token_Accent_Default=ff23b26a
-Token_Accent_Muted=ff1f9b5d
-Token_Accent_Subtle=ff1a8550
-Token_Background_Default=ffe3e3e3
-Token_Background_Muted=ffeeeeee
-Token_Background_Subtle=fffbfbfb
-Token_Foreground_Default=ffcdcdcd
-Token_Foreground_Muted=ffd5d5d5
-Token_Foreground_Subtle=ffdddddd
-Token_Text_Default=ff393939
-Token_Text_Muted=ff7c7c7c
-Token_Text_Subtle=ffbebebe
-Token_Stroke_Strong=ff464646
-Token_Stroke_Muted=ff727272
-Token_Stroke_Subtle=ffcdcdcd
-Token_Notification_Alert=ffeb991f
-Token_Notification_Success=ff23b26a
-Token_Notification_Neutral=ff0e7887
-Token_Notification_Danger=ffdc1343
-
-Welcome_TextColor=ff000000
-Welcome_ForegroundPrimaryColor=shadowBackground
-Welcome_ForegroundSecondaryColor=ff939393
-Welcome_BackgroundPrimaryColor=fffafafa
-Welcome_BackgroundSecondaryColor=ffffffff
-Welcome_HoverColor=ffefefef
-Welcome_AccentColor=ff45ce55
-Welcome_LinkColor=ff20a020
-Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text
 Timeline_BackgroundColor1=normalBackground

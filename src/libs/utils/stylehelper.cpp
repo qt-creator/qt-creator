@@ -933,7 +933,17 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
     return foreground;
 }
 
-static QStringList brandFontFamilies()
+static const QStringList &applicationFontFamilies()
+{
+    const static QStringList families = [] {
+        constexpr QLatin1String familyName("Inter");
+        // Font is either installed in the system, or was loaded from share/qtcreator/fonts/
+        return QFontDatabase::hasFamily(familyName) ? QStringList(familyName) : QStringList();
+    }();
+    return families;
+}
+
+static const QStringList &brandFontFamilies()
 {
     const static QStringList families = []{
         const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
@@ -959,10 +969,14 @@ static const UiFontMetrics& uiFontMetrics(StyleHelper::UiElement element)
         {StyleHelper::UiElementH5,                  {14, 16, QFont::DemiBold}},
         {StyleHelper::UiElementH6,                  {12, 14, QFont::DemiBold}},
         {StyleHelper::UiElementH6Capital,           {12, 14, QFont::DemiBold}},
+        {StyleHelper::UiElementBody1,               {14, 20, QFont::Light}},
+        {StyleHelper::UiElementBody2,               {12, 20, QFont::Light}},
+        {StyleHelper::UiElementButtonMedium,        {12, 16, QFont::Bold}},
+        {StyleHelper::UiElementButtonSmall,         {10, 12, QFont::Bold}},
         {StyleHelper::UiElementCaptionStrong,       {10, 12, QFont::DemiBold}},
         {StyleHelper::UiElementCaption,             {10, 12, QFont::Normal}},
-        {StyleHelper::UIElementIconStandard,        {12, 16, QFont::Normal}},
-        {StyleHelper::UIElementIconActive,          {12, 16, QFont::DemiBold}},
+        {StyleHelper::UiElementIconStandard,        {12, 16, QFont::Medium}},
+        {StyleHelper::UiElementIconActive,          {12, 16, QFont::DemiBold}},
     };
     QTC_ASSERT(metrics.count(element) > 0, return metrics.at(StyleHelper::UiElementCaptionStrong));
     return metrics.at(element);
@@ -983,8 +997,10 @@ QFont StyleHelper::uiFont(UiElement element)
     case UiElementH3:
     case UiElementH6Capital:
         font.setCapitalization(QFont::AllUppercase);
-        break;
+        [[fallthrough]];
     default:
+        if (!applicationFontFamilies().isEmpty())
+            font.setFamilies(applicationFontFamilies());
         break;
     }
 

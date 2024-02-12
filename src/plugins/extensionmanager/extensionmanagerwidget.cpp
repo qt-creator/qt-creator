@@ -29,14 +29,6 @@ using namespace Utils;
 
 namespace ExtensionManager::Internal {
 
-static QWidget *createVr(QWidget *parent = nullptr)
-{
-    auto vr = new QWidget(parent);
-    vr->setFixedWidth(1);
-    setBackgroundColor(vr, Theme::Token_Stroke_Subtle);
-    return vr;
-}
-
 class CollapsingWidget : public QWidget
 {
 public:
@@ -79,13 +71,13 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     using namespace Layouting;
     Row {
-        createVr(),
+        WelcomePageHelpers::createRule(Qt::Vertical),
         m_secondaryDescription,
         noMargin(), spacing(0),
     }.attachTo(m_secondarDescriptionWidget);
 
     Row {
-        createVr(),
+        WelcomePageHelpers::createRule(Qt::Vertical),
         Row {
             m_primaryDescription,
             noMargin(),
@@ -95,13 +87,13 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(descriptionColumns);
 
     Row {
-        Space(WelcomePageHelpers::HSpacing),
-            m_leftColumn,
+        Space(StyleHelper::SpacingTokens::ExVPaddingGapXl),
+        m_leftColumn,
         descriptionColumns,
         noMargin(), spacing(0),
     }.attachTo(this);
 
-    setBackgroundColor(this, Theme::Token_Background_Default);
+    WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
 
     connect(m_leftColumn, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
@@ -132,7 +124,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
                                                   "margin-left: %3px; margin-right: %3px;")
                                   .arg(creatorTheme()->color(Theme::Token_Text_Default).name())
                                   .arg(creatorTheme()->color(Theme::Token_Background_Muted).name())
-                                  .arg(WelcomePageHelpers::HSpacing);
+                                  .arg(StyleHelper::SpacingTokens::ExVPaddingGapXl);
     const QString htmlStart = QString(R"(
         <html>
         <body style="%1">

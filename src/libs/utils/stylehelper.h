@@ -42,15 +42,15 @@ constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 constexpr char C_QT_SCALE_FACTOR_ROUNDING_POLICY[] = "QT_SCALE_FACTOR_ROUNDING_POLICY";
 
 namespace SpacingTokens {
-    constexpr int VPaddingXXS = 4;   // Top and bottom padding within the component
-    constexpr int HPaddingXXS = 4;   // Left and right padding within the component
-    constexpr int VGapXXS = 4;       // Vertical Space between TEXT LINE within the Component
-    constexpr int HGapXXS = 4;       // Horizontal Space between elements within the Component
+    constexpr int VPaddingXxs = 4;   // Top and bottom padding within the component
+    constexpr int HPaddingXxs = 4;   // Left and right padding within the component
+    constexpr int VGapXxs = 4;       // Vertical Space between TEXT LINE within the Component
+    constexpr int HGapXxs = 4;       // Horizontal Space between elements within the Component
 
-    constexpr int VPaddingXS = 8;
-    constexpr int HPaddingXS = 8;
-    constexpr int VGapXS = 4;
-    constexpr int HGapXS = 8;
+    constexpr int VPaddingXs = 8;
+    constexpr int HPaddingXs = 8;
+    constexpr int VGapXs = 4;
+    constexpr int HGapXs = 8;
 
     constexpr int VPaddingS = 8;
     constexpr int HPaddingS = 16;
@@ -62,10 +62,15 @@ namespace SpacingTokens {
     constexpr int VGapM = 4;
     constexpr int HGapM = 16;
 
-    constexpr int VPaddingL = 12;
+    constexpr int VPaddingL = 16;
     constexpr int HPaddingL = 24;
     constexpr int VGapL = 8;
     constexpr int HGapL = 16;
+
+    constexpr int ExPaddingGapS = 2;
+    constexpr int ExPaddingGapM = 6;
+    constexpr int ExPaddingGapL = 12;
+    constexpr int ExVPaddingGapXl = 24;
 }
 
 enum ToolbarStyle {
@@ -82,10 +87,14 @@ enum UiElement {
     UiElementH5,
     UiElementH6,
     UiElementH6Capital,
+    UiElementBody1,
+    UiElementBody2,
+    UiElementButtonMedium,
+    UiElementButtonSmall,
     UiElementCaptionStrong,
     UiElementCaption,
-    UIElementIconStandard,
-    UIElementIconActive,
+    UiElementIconStandard,
+    UiElementIconActive,
 };
 
 // Height of the project explorer navigation bar

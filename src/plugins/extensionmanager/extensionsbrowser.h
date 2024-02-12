@@ -10,18 +10,15 @@
 
 QT_BEGIN_NAMESPACE
 class QItemSelectionModel;
+class QLineEdit;
 class QListView;
+class QPushButton;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem
 {
 class PluginSpec;
-}
-
-namespace Core {
-class SearchBox;
-class WelcomePageButton;
 }
 
 namespace ExtensionManager::Internal {
@@ -42,7 +39,6 @@ struct ItemData {
 };
 
 ItemData itemData(const QModelIndex &index);
-void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);
 
 class ExtensionsBrowser final : public QWidget
 {
@@ -61,8 +57,8 @@ private:
     int extraListViewWidth() const; // Space for scrollbar, etc.
 
     QScopedPointer<QStandardItemModel> m_model;
-    Core::SearchBox *m_searchBox;
-    Core::WelcomePageButton *m_updateButton;
+    QLineEdit *m_searchBox;
+    QPushButton *m_updateButton;
     QListView *m_extensionsView;
     QItemSelectionModel *m_selectionModel = nullptr;
     QSortFilterProxyModel *m_filterProxyModel;
