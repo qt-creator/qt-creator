@@ -53,21 +53,6 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-class Issue
-{
-public:
-    QString id;
-    QString state;
-    QString errorNumber;
-    QString message;
-    QString entity;
-    QString filePath;
-    QString severity;
-    int lineNumber = 0;
-};
-
-using Issues = QList<Issue>;
-
 QIcon iconForIssue(const QString &prefix)
 {
     static QHash<QString, QIcon> prefixToIcon;
@@ -154,7 +139,7 @@ public:
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
-    void handleIssuesForFile(const Issues &issues);
+    void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void fetchIssueInfo(const QString &id);
 
     NetworkAccessManager m_networkAccessManager;
@@ -173,16 +158,16 @@ static AxivionPluginPrivate *dd = nullptr;
 class AxivionTextMark : public TextMark
 {
 public:
-    AxivionTextMark(const FilePath &filePath, const Issue &issue)
-        : TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
+    AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue)
+        : TextMark(filePath, issue.startLine, {Tr::tr("Axivion"), AxivionTextMarkId})
     {
-        const QString markText = issue.entity.isEmpty() ? issue.message
-                                                        : issue.entity + ": " + issue.message;
-        setToolTip(issue.errorNumber + " " + markText);
-        setIcon(iconForIssue("SV")); // FIXME adapt to the issue
+        const QString markText = issue.description;
+        const QString id = issue.kind + QString::number(issue.id.value_or(-1));
+        setToolTip(id + markText);
+        setIcon(iconForIssue(issue.kind));
         setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
-        setActionsProvider([id = issue.id] {
+        setActionsProvider([id] {
             auto action = new QAction;
             action->setIcon(Utils::Icons::INFO.icon());
             action->setToolTip(Tr::tr("Show rule details"));
@@ -495,6 +480,17 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
+Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler)
+{
+    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+    QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
+
+    const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
+    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("files?filename=" + fileName));
+    return fetchDataRecipe<Dto::FileViewDto>(url, handler);
+}
+
 Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
@@ -569,7 +565,7 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
         dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(fixedHtml));
     };
 
-    m_issueInfoRunner.start(issueHtmlRecipe(QString("SV") + id, ruleHandler));
+    m_issueInfoRunner.start(issueHtmlRecipe(id, ruleHandler));
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()
@@ -591,41 +587,16 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (!doc || !m_currentProjectInfo || !m_project || !m_project->isKnownFile(doc->filePath()))
         return;
 
-    IssueListSearch search;
-    search.kind = "SV";
-    search.filter_path = doc->filePath().relativeChildPath(m_project->projectDirectory()).path();
-    search.limit = 0;
+    const FilePath filePath = doc->filePath().relativeChildPath(m_project->projectDirectory());
+    QTC_ASSERT(!filePath.isEmpty(), return);
 
-    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) {
-        Issues issues;
-        const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
-        for (const auto &row : rows) {
-            Issue issue;
-            for (auto it = row.cbegin(); it != row.cend(); ++it) {
-                if (it->first == "id")
-                    issue.id = anyToSimpleString(it->second);
-                else if (it->first == "state")
-                    issue.state = anyToSimpleString(it->second);
-                else if (it->first == "errorNumber")
-                    issue.errorNumber = anyToSimpleString(it->second);
-                else if (it->first == "message")
-                    issue.message = anyToSimpleString(it->second);
-                else if (it->first == "entity")
-                    issue.entity = anyToSimpleString(it->second);
-                else if (it->first == "path")
-                    issue.filePath = anyToSimpleString(it->second);
-                else if (it->first == "severity")
-                    issue.severity = anyToSimpleString(it->second);
-                else if (it->first == "line")
-                    issue.lineNumber = anyToSimpleString(it->second).toInt();
-            }
-            issues << issue;
-        }
-        handleIssuesForFile(issues);
+    const auto handler = [this](const Dto::FileViewDto &data) {
+        if (data.lineMarkers.empty())
+            return;
+        handleIssuesForFile(data);
     };
-
     TaskTree *taskTree = new TaskTree;
-    taskTree->setRecipe(issueTableRecipe(search, issuesHandler));
+    taskTree->setRecipe(lineMarkerRecipe(filePath, handler));
     m_docMarksTrees.insert_or_assign(doc, std::unique_ptr<TaskTree>(taskTree));
     connect(taskTree, &TaskTree::done, this, [this, doc] {
         const auto it = m_docMarksTrees.find(doc);
@@ -653,24 +624,22 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     }
 }
 
-void AxivionPluginPrivate::handleIssuesForFile(const Issues &issues)
+void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
 {
-    if (issues.isEmpty())
+    if (fileView.lineMarkers.empty())
         return;
 
     Project *project = ProjectManager::startupProject();
     if (!project)
         return;
 
-    const FilePath filePath = project->projectDirectory()
-            .pathAppended(issues.first().filePath);
+    const FilePath filePath = project->projectDirectory().pathAppended(fileView.fileName);
 
-    const Id axivionId(AxivionTextMarkId);
-    for (const Issue &issue : issues) {
+    for (const Dto::LineMarkerDto &marker : std::as_const(fileView.lineMarkers)) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
-        new AxivionTextMark(filePath, issue);
+        new AxivionTextMark(filePath, marker);
     }
 }
 
