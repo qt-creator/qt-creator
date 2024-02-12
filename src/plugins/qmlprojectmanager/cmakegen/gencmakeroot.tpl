@@ -19,14 +19,14 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.3)
     qt_standard_project_setup()
 endif()
 
-qt_add_executable(%1 %2)
+qt_add_executable(${CMAKE_PROJECT_NAME} %2)
 
-qt_add_resources(%1 "configuration"
+qt_add_resources(${CMAKE_PROJECT_NAME} "configuration"
     PREFIX "/"
 %3
 )
 
-target_link_libraries(%1 PRIVATE
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Quick
@@ -44,7 +44,7 @@ if (LINK_INSIGHT)
 endif ()
 
 include(GNUInstallDirs)
-install(TARGETS %1
+install(TARGETS ${CMAKE_PROJECT_NAME}
   BUNDLE DESTINATION .
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

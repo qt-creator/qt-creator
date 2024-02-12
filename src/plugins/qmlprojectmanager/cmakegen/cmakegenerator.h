@@ -17,11 +17,6 @@ class QmlBuildSystem;
 
 namespace GenerateCmake {
 
-// TODO:
-// - Create "module" for src dir
-// - Replace AppName in templates with ${CMAKE_PROJECT_NAME}
-// - Introduce Blacklist (designer)
-
 class CMakeGenerator : public QObject
 {
     Q_OBJECT
@@ -53,15 +48,15 @@ private:
     };
 
     using NodePtr = std::shared_ptr<Node>;
+    using FileGetter = std::function<std::vector<Utils::FilePath>(const NodePtr &)>;
 
+    std::vector<Utils::FilePath> files(const NodePtr &node, const FileGetter &getter) const;
     std::vector<Utils::FilePath> qmlFiles(const NodePtr &node) const;
     std::vector<Utils::FilePath> singletons(const NodePtr &node) const;
     std::vector<Utils::FilePath> resources(const NodePtr &node) const;
     std::vector<Utils::FilePath> sources(const NodePtr &node) const;
 
     void createCMakeFiles(const NodePtr &node) const;
-
-    void createQmlModuleFile(const NodePtr &node) const;
     void createMainCMakeFile(const NodePtr &node) const;
     void createModuleCMakeFile(const NodePtr &node) const;
 
@@ -69,7 +64,12 @@ private:
     void createMainCppFile(const NodePtr &node) const;
     void writeFile(const Utils::FilePath &path, const QString &content) const;
 
+    QString makeRelative(const NodePtr &node, const Utils::FilePath &path) const;
     QString makeEnvironmentVariable(const QString &key) const;
+    QString makeSingletonBlock(const NodePtr &node) const;
+    QString makeSubdirectoriesBlock(const NodePtr &node) const;
+    QString makeQmlFilesBlock(const NodePtr &node) const;
+    std::tuple<QString, QString> makeResourcesBlocks(const NodePtr &node) const;
 
     QString readTemplate(const QString &templatePath) const;
     void readQmlDir(const Utils::FilePath &filePath, NodePtr &node) const;
@@ -81,9 +81,11 @@ private:
     void insertFile(NodePtr &node, const Utils::FilePath &path) const;
     void removeFile(NodePtr &node, const Utils::FilePath &path) const;
 
+    bool isRootNode(const NodePtr &node) const;
     bool hasChildModule(const NodePtr &node) const;
     bool isResource(const Utils::FilePath &path) const;
 
+    void printModules(const NodePtr &generatorNode) const;
     void printNodeTree(const NodePtr &generatorNode, size_t indent = 0) const;
 
     void parseNodeTree(NodePtr &generatorNode, const ProjectExplorer::FolderNode *folderNode);
