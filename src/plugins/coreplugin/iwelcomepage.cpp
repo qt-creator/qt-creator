@@ -175,7 +175,6 @@ void WelcomePageButton::setSize(Size size)
     const int hMargin = size == SizeSmall ? 12 : 26;
     const int vMargin = size == SizeSmall ? 2 : 4;
     d->m_layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
-    d->m_label->setFont(size == SizeSmall ? font() : StyleHelper::uiFont(StyleHelper::UiElementH2));
 }
 
 void WelcomePageButton::setWithAccentColor(bool withAccent)
