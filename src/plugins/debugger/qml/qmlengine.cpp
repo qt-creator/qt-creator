@@ -208,7 +208,6 @@ public:
     bool unpausedEvaluate = false;
     bool contextEvaluate = false;
     bool supportChangeBreakpoint = false;
-    bool hasQuit = false;
 
     QTimer connectionTimer;
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
@@ -380,7 +379,7 @@ void QmlEngine::beginConnection()
 
 void QmlEngine::connectionStartupFailed()
 {
-    if (d->hasQuit)
+    if (isDying())
         return;
 
     if (d->retryOnConnectFail) {
@@ -502,8 +501,7 @@ void QmlEngine::startProcess()
 
 void QmlEngine::stopProcess()
 {
-    if (d->process.isRunning())
-        d->process.close();
+    d->process.close();
 }
 
 void QmlEngine::shutdownInferior()
@@ -935,15 +933,6 @@ bool QmlEngine::hasCapability(unsigned cap) const
         | CreateFullBacktraceCapability
         | WatchpointCapability
         | AddWatcherCapability;*/
-}
-
-void QmlEngine::quitDebugger()
-{
-    d->automaticConnect = false;
-    d->retryOnConnectFail = false;
-    d->hasQuit = true;
-    stopProcess();
-    closeConnection();
 }
 
 void QmlEngine::doUpdateLocals(const UpdateParameters &params)
