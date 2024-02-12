@@ -6,6 +6,9 @@
 #include "collectioneditorutils.h"
 
 #include <utils/span.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsdocument.h>
 #include <qqml.h>
 
 #include <QJsonArray>
@@ -260,6 +263,47 @@ inline static bool isEmptyJsonValue(const QJsonValue &value)
 {
     return value.isNull() || value.isUndefined() || (value.isString() && value.toString().isEmpty());
 }
+
+class PropertyOrderFinder : public QmlJS::AST::Visitor
+{
+public:
+    static QStringList parse(const QString &jsonContent)
+    {
+        PropertyOrderFinder finder;
+        QmlJS::Document::MutablePtr jsonDoc = QmlJS::Document::create(Utils::FilePath::fromString(
+                                                                          "<expression>"),
+                                                                      QmlJS::Dialect::Json);
+
+        jsonDoc->setSource(jsonContent);
+        jsonDoc->parseJavaScript();
+
+        if (!jsonDoc->isParsedCorrectly())
+            return {};
+
+        jsonDoc->ast()->accept(&finder);
+        return finder.m_orderedList;
+    }
+
+protected:
+    bool visit(QmlJS::AST::PatternProperty *patternProperty) override
+    {
+        const QString propertyName = patternProperty->name->asString();
+        if (!m_propertySet.contains(propertyName)) {
+            m_propertySet.insert(propertyName);
+            m_orderedList.append(propertyName);
+        }
+        return true;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Recursion depth error";
+    };
+
+private:
+    QSet<QString> m_propertySet;
+    QStringList m_orderedList;
+};
 
 QString CollectionParseError::errorString() const
 {
@@ -690,7 +734,7 @@ CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document)
     return fromImportedJson(importedArray);
 }
 
-CollectionDetails CollectionDetails::fromImportedJson(const QJsonDocument &document)
+CollectionDetails CollectionDetails::fromImportedJson(const QByteArray &json, QJsonParseError *error)
 {
     QJsonArray importedCollection;
     auto refineJsonArray = [](const QJsonArray &array) -> QJsonArray {
@@ -709,6 +753,14 @@ CollectionDetails CollectionDetails::fromImportedJson(const QJsonDocument &docum
         }
         return resultArray;
     };
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(json, &parseError);
+    if (error)
+        *error = parseError;
+
+    if (parseError.error != QJsonParseError::NoError)
+        return CollectionDetails{};
 
     if (document.isArray()) {
         importedCollection = refineJsonArray(document.array());
@@ -738,7 +790,7 @@ CollectionDetails CollectionDetails::fromImportedJson(const QJsonDocument &docum
         }
     }
 
-    return fromImportedJson(importedCollection);
+    return fromImportedJson(importedCollection, PropertyOrderFinder::parse(QLatin1String(json)));
 }
 
 CollectionDetails CollectionDetails::fromLocalJson(const QJsonDocument &document,
@@ -803,9 +855,24 @@ void CollectionDetails::insertRecords(const QJsonArray &record, int idx, int cou
     d->dataRecords.insert(idx, count, localRecord);
 }
 
-CollectionDetails CollectionDetails::fromImportedJson(const QJsonArray &importedArray)
+CollectionDetails CollectionDetails::fromImportedJson(const QJsonArray &importedArray,
+                                                      const QStringList &propertyPriority)
 {
-    const QList<CollectionProperty> columnData = getColumnsFromImportedJsonArray(importedArray);
+    QList<CollectionProperty> columnData = getColumnsFromImportedJsonArray(importedArray);
+    if (!propertyPriority.isEmpty()) {
+        QMap<QString, int> priorityMap;
+        for (const QString &propertyName : propertyPriority) {
+            if (!priorityMap.contains(propertyName))
+                priorityMap.insert(propertyName, priorityMap.size());
+        }
+        const int lowestPriority = priorityMap.size();
+
+        Utils::sort(columnData, [&](const CollectionProperty &a, const CollectionProperty &b) {
+            return priorityMap.value(a.name, lowestPriority)
+                   < priorityMap.value(b.name, lowestPriority);
+        });
+    }
+
     QList<QJsonArray> localJsonArray;
     for (const QJsonValue &importedRowValue : importedArray) {
         QJsonObject importedRowObject = importedRowValue.toObject();

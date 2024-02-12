@@ -306,13 +306,11 @@ bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url
             return false;
 
         QJsonParseError parseError;
-        QJsonDocument document = QJsonDocument::fromJson(fileContent, &parseError);
+        loadedCollection = CollectionDetails::fromImportedJson(fileContent, &parseError);
         if (parseError.error != QJsonParseError::NoError) {
             warn(tr("Json file Import error"),
                  tr("Cannot parse json content\n%1").arg(parseError.errorString()));
         }
-
-        loadedCollection = CollectionDetails::fromImportedJson(document);
     } else if (fileInfo.suffix() == "csv") {
         if (!loadUrlContent())
             return false;

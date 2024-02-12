@@ -9,6 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 class QJsonObject;
+struct QJsonParseError;
 class QVariant;
 QT_END_NAMESPACE
 
@@ -125,7 +126,8 @@ public:
     static void registerDeclarativeType();
 
     static CollectionDetails fromImportedCsv(const QByteArray &document);
-    static CollectionDetails fromImportedJson(const QJsonDocument &document);
+    static CollectionDetails fromImportedJson(const QByteArray &json,
+                                              QJsonParseError *error = nullptr);
     static CollectionDetails fromLocalJson(const QJsonDocument &document,
                                            const QString &collectionName,
                                            CollectionParseError *error = nullptr);
@@ -136,7 +138,8 @@ private:
     void markChanged();
     void insertRecords(const QJsonArray &record, int idx = -1, int count = 1);
 
-    static CollectionDetails fromImportedJson(const QJsonArray &importedArray);
+    static CollectionDetails fromImportedJson(const QJsonArray &importedArray,
+                                              const QStringList &propertyPriority = {});
     static CollectionDetails fromLocalCollection(const QJsonObject &localCollection,
                                                  CollectionParseError *error = nullptr);
 
