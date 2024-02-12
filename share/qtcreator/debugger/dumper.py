@@ -3041,7 +3041,7 @@ class DumperBase():
                 or self.type.name.startswith('unsigned ') \
                 or self.type.name.find(' unsigned ') != -1
             if bitsize is None:
-                bitsize = self.type.bitsize()
+                bitsize = self.type.lbitsize
             return self.extractInteger(bitsize, unsigned)
 
         def floatingPoint(self):
@@ -3512,26 +3512,40 @@ class DumperBase():
             tdata.moduleName = self.moduleName
             return tdata
 
+        @property
+        def bitsize(self):
+            if callable(self.lbitsize):
+                self.lbitsize = self.lbitsize()
+            return self.lbitsize
+
     class Type():
         def __init__(self, dumper, typeId):
-            self.typeId = typeId
+            self.typeId = typeId.replace('@', dumper.qtNamespace())
             self.dumper = dumper
-            self.tdata = dumper.typeData.get(typeId, None)
-            if self.tdata is None:
-                #DumperBase.warn('USING : %s' % self.typeId)
-                self.dumper.lookupType(self.typeId)
-                self.tdata = self.dumper.typeData.get(self.typeId)
+            self.initialized = False
 
         def __str__(self):
             #return self.typeId
             return self.stringify()
 
         @property
+        def tdata(self):
+            if not self.initialized:
+                self.initialized = True
+                self.data = self.dumper.typeData.get(self.typeId, None)
+                if self.data is None:
+                    #DumperBase.warn('USING : %s' % self.typeId)
+                    self.dumper.lookupType(self.typeId)
+                    self.data = self.dumper.typeData.get(self.typeId)
+            return self.data
+
+        def setTdata(self, tdata):
+            self.initialized = True
+            self.data = tdata
+
+        @property
         def name(self):
-            tdata = self.dumper.typeData.get(self.typeId)
-            if tdata is None:
-                return self.typeId
-            return tdata.name
+            return self.typeId if self.tdata is None else self.tdata.name
 
         @property
         def code(self):
@@ -3539,7 +3553,7 @@ class DumperBase():
 
         @property
         def lbitsize(self):
-            return self.tdata.lbitsize
+            return self.tdata.bitsize
 
         @property
         def lbitpos(self):
@@ -3547,15 +3561,25 @@ class DumperBase():
 
         @property
         def ltarget(self):
+            if isinstance(self.tdata.ltarget, str):
+                self.tdata.ltarget = self.dumper.createType(self.tdata.ltarget)
             return self.tdata.ltarget
 
         @property
+        def targetName(self):
+            if self.tdata.ltarget is None:
+                return ''
+            return self.tdata.ltarget if isinstance(self.tdata.ltarget, str) else self.tdata.ltarget.name
+
+        @property
         def moduleName(self):
+            if callable(self.tdata.moduleName):
+                self.tdata.moduleName = self.tdata.moduleName()
             return self.tdata.moduleName
 
         def stringify(self):
             return 'Type(name="%s",bsize=%s,code=%s)' \
-                % (self.tdata.name, self.tdata.lbitsize, self.tdata.code)
+                % (self.tdata.name, self.lbitsize, self.tdata.code)
 
         def __getitem__(self, index):
             if self.dumper.isInt(index):
@@ -3659,7 +3683,7 @@ class DumperBase():
 
         def alignment(self):
             if self.tdata.code == TypeCode.Typedef:
-                return self.tdata.ltarget.alignment()
+                return self.ltarget.alignment()
             if self.tdata.code in (TypeCode.Integral, TypeCode.Float, TypeCode.Enum):
                 if self.tdata.name in ('double', 'long long', 'unsigned long long'):
                     # Crude approximation.
@@ -3678,7 +3702,7 @@ class DumperBase():
             return self.dumper.createPointerType(self)
 
         def target(self):
-            return self.tdata.ltarget
+            return self.ltarget
 
         def stripTypedefs(self):
             if isinstance(self, self.dumper.Type) and self.code != TypeCode.Typedef:
@@ -3687,7 +3711,7 @@ class DumperBase():
             return self.ltarget
 
         def size(self):
-            bs = self.bitsize()
+            bs = self.lbitsize
             if bs % 8 != 0:
                 DumperBase.warn('ODD SIZE: %s' % self)
             return (7 + bs) >> 3
@@ -3797,12 +3821,12 @@ class DumperBase():
         return val
 
     def createPointerType(self, targetType):
-        if not isinstance(targetType, self.Type):
-            raise RuntimeError('Expected type in createPointerType(), got %s'
+        if not isinstance(targetType, (str, self.Type)):
+            raise RuntimeError('Expected type or str in createPointerType(), got %s'
                                % type(targetType))
-        typeId = targetType.typeId + ' *'
+        typeId = (targetType if isinstance(targetType, str) else targetType.typeId) + ' *'
         tdata = self.TypeData(self, typeId)
-        tdata.name = targetType.name + '*'
+        tdata.name = (targetType if isinstance(targetType, str) else targetType.name) + '*'
         tdata.lbitsize = 8 * self.ptrSize()
         tdata.code = TypeCode.Pointer
         tdata.ltarget = targetType
@@ -3927,7 +3951,7 @@ class DumperBase():
             tdata = self.typeData.get(typish, None)
             if tdata is not None:
                 if tdata.lbitsize is not None:
-                    if tdata.lbitsize > 0:
+                    if callable(tdata.lbitsize) or tdata.lbitsize > 0:
                         return self.Type(self, typish)
 
             knownType = self.lookupType(typish)
@@ -3944,7 +3968,7 @@ class DumperBase():
             if typish.endswith('*'):
                 tdata.code = TypeCode.Pointer
                 tdata.lbitsize = 8 * self.ptrSize()
-                tdata.ltarget = self.createType(typish[:-1].strip())
+                tdata.ltarget = typish[:-1].strip()
 
             typeobj = self.Type(self, tdata.typeId)
             #DumperBase.warn('CREATE TYPE: %s' % typeobj.stringify())
