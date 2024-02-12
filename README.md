@@ -107,6 +107,33 @@ get LLVM.
     cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja "-DCMAKE_PREFIX_PATH=/path/to/Qt;/path/to/llvm" /path/to/qtcreator_sources
     cmake --build .
 
+#### Troubleshooting: libxcb plugin not found while using Qt libraries built locally from source
+
+Ensure all prerequisites for building Qt are installed:
+https://doc.qt.io/qt-6/linux.html
+https://doc.qt.io/qt-6/linux-requirements.html
+
+If they were installed before building Qt and xcb plugin is missing try reinstall them with
+
+```sh
+    sudo apt-get --reinstall <package_name>
+```
+
+Reset building configuration for Qt libraries at '/path/to/qt_sources'
+
+```sh
+    cmake --build . --target=clean
+```
+
+and remove CMakeCache.txt
+
+```sh
+    rm CMakeCache.txt
+```
+
+Try building Qt source again.
+
+
 ### Windows
 
 These instructions assume that Ninja is installed and in the `PATH`, Qt Creator
