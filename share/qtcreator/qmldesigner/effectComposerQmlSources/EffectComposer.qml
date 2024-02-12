@@ -65,6 +65,11 @@ ColumnLayout {
         }
     }
 
+    ConfirmClearAllDialog {
+        id: confirmClearAllDialog
+        anchors.centerIn: parent
+    }
+
     EffectComposerTopBar {
         Layout.fillWidth: true
 
@@ -157,7 +162,12 @@ ColumnLayout {
                     tooltip: qsTr("Remove all effect nodes.")
                     enabled: !root.backendModel.isEmpty
 
-                    onClicked: root.backendModel.clear()
+                    onClicked: {
+                        if (root.backendModel.hasUnsavedChanges)
+                            confirmClearAllDialog.open()
+                        else
+                            root.backendModel.clear()
+                    }
                 }
 
                 HelperWidgets.AbstractButton {
