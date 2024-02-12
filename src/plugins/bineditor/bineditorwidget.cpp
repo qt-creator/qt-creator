@@ -581,13 +581,13 @@ void BinEditorWidget::updateLines()
     updateLines(m_cursorPosition, m_cursorPosition);
 }
 
-void BinEditorWidget::updateLines(int fromPosition, int toPosition)
+void BinEditorWidget::updateLines(qint64 fromPosition, qint64 toPosition)
 {
-    int topLine = verticalScrollBar()->value();
-    int firstLine = qMin(fromPosition, toPosition) / m_bytesPerLine;
-    int lastLine = qMax(fromPosition, toPosition) / m_bytesPerLine;
-    int y = (firstLine - topLine) * m_lineHeight;
-    int h = (lastLine - firstLine + 1 ) * m_lineHeight;
+    const qint64 topLine = verticalScrollBar()->value();
+    const qint64 firstLine = qMin(fromPosition, toPosition) / m_bytesPerLine;
+    const qint64 lastLine = qMax(fromPosition, toPosition) / m_bytesPerLine;
+    const int y = (firstLine - topLine) * m_lineHeight;
+    const int h = (lastLine - firstLine + 1 ) * m_lineHeight;
 
     viewport()->update(0, y, viewport()->width(), h);
 }
@@ -800,7 +800,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
     int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
 
-    int selStart, selEnd;
+    qint64 selStart, selEnd;
     if (m_cursorPosition >= m_anchorPosition) {
         selStart = m_anchorPosition;
         selEnd = m_cursorPosition;
@@ -1006,7 +1006,7 @@ qint64 BinEditorWidget::cursorPosition() const
 void BinEditorWidget::setCursorPosition(qint64 pos, MoveMode moveMode)
 {
     pos = qMin(m_size - 1, qMax(qint64(0), pos));
-    int oldCursorPosition = m_cursorPosition;
+    qint64 oldCursorPosition = m_cursorPosition;
 
     m_lowNibble = false;
     m_cursorPosition = pos;
