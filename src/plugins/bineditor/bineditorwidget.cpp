@@ -238,16 +238,16 @@ bool BinEditorWidget::requestOldDataAt(qint64 pos) const
 
 char BinEditorWidget::dataAt(qint64 pos, bool old) const
 {
-    qint64 block = pos / m_blockSize;
-    int offset = static_cast<int>(pos - block * m_blockSize);
+    const qint64 block = pos / m_blockSize;
+    const qint64 offset = pos - block * m_blockSize;
     return blockData(block, old).at(offset);
 }
 
 void BinEditorWidget::changeDataAt(qint64 pos, char c)
 {
-    qint64 block = pos / m_blockSize;
+    const qint64 block = pos / m_blockSize;
     BlockMap::iterator it = m_modifiedData.find(block);
-    int offset = static_cast<int>(pos - block * m_blockSize);
+    const qint64 offset = pos - block * m_blockSize;
     if (it != m_modifiedData.end()) {
         it.value()[offset] = c;
     } else {
@@ -262,7 +262,7 @@ void BinEditorWidget::changeDataAt(qint64 pos, char c)
     d->announceChangedData(m_baseAddr + pos, QByteArray(1, c));
 }
 
-QByteArray BinEditorWidget::dataMid(qint64 from, int length, bool old) const
+QByteArray BinEditorWidget::dataMid(qint64 from, qint64 length, bool old) const
 {
     qint64 end = from + length;
     qint64 block = from / m_blockSize;
@@ -1464,9 +1464,9 @@ void BinEditorWidget::zoomF(float delta)
 
 void BinEditorWidget::copy(bool raw)
 {
-    int selStart = selectionStart();
-    int selEnd = selectionEnd();
-    const int selectionLength = selEnd - selStart + 1;
+    const qint64 selStart = selectionStart();
+    const qint64 selEnd = selectionEnd();
+    const qint64 selectionLength = selEnd - selStart + 1;
     if (selectionLength >> 22) {
         QMessageBox::warning(this, Tr::tr("Copying Failed"),
                              Tr::tr("You cannot copy more than 4 MB of binary data."));
@@ -1482,7 +1482,7 @@ void BinEditorWidget::copy(bool raw)
     QString hexString;
     const char * const hex = "0123456789abcdef";
     hexString.reserve(3 * data.size());
-    for (int i = 0; i < data.size(); ++i) {
+    for (qint64 i = 0; i < data.size(); ++i) {
         const uchar val = static_cast<uchar>(data[i]);
         hexString.append(QLatin1Char(hex[val >> 4])).append(QLatin1Char(hex[val & 0xf])).append(QLatin1Char(' '));
     }
@@ -1575,8 +1575,8 @@ void BinEditorWidget::redo()
 
 void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    const int selStart = selectionStart();
-    const int byteCount = selectionEnd() - selStart + 1;
+    const qint64 selStart = selectionStart();
+    const qint64 byteCount = selectionEnd() - selStart + 1;
 
     QPointer<QMenu> contextMenu(new QMenu(this));
 
@@ -1720,12 +1720,12 @@ void BinEditorWidget::asDouble(qint64 offset, double &value, bool old) const
     value = *f;
 }
 
-void BinEditorWidget::asIntegers(qint64 offset, int count, quint64 &bigEndianValue,
-    quint64 &littleEndianValue, bool old) const
+void BinEditorWidget::asIntegers(qint64 offset, qint64 count, quint64 &bigEndianValue,
+                                 quint64 &littleEndianValue, bool old) const
 {
     bigEndianValue = littleEndianValue = 0;
     const QByteArray &data = dataMid(offset, count, old);
-    for (int pos = 0; pos < data.size(); ++pos) {
+    for (qint64 pos = 0; pos < data.size(); ++pos) {
         const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
         littleEndianValue += val << (pos * 8);
         bigEndianValue += val << ((count - pos - 1) * 8);

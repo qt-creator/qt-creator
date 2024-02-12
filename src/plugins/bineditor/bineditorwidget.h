@@ -154,12 +154,12 @@ private:
     char dataAt(qint64 pos, bool old = false) const;
     char oldDataAt(qint64 pos) const;
     void changeDataAt(qint64 pos, char c);
-    QByteArray dataMid(qint64 from, int length, bool old = false) const;
+    QByteArray dataMid(qint64 from, qint64 length, bool old = false) const;
     QByteArray blockData(qint64 block, bool old = false) const;
 
     QPoint offsetToPos(qint64 offset) const;
-    void asIntegers(qint64 offset, int count, quint64 &bigEndianValue, quint64 &littleEndianValue,
-        bool old = false) const;
+    void asIntegers(qint64 offset, qint64 count, quint64 &bigEndianValue, quint64 &littleEndianValue,
+                    bool old = false) const;
     void asFloat(qint64 offset, float &value, bool old) const;
     void asDouble(qint64 offset, double &value, bool old) const;
     QString toolTip(const QHelpEvent *helpEvent) const;
