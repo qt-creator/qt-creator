@@ -222,18 +222,6 @@ template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent>
 template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
-namespace {
-TraceFile<tracingStatus()> globalTraceFile{"global.json"};
-thread_local EventQueueData<StringTraceEvent, 1000, tracingStatus()> globalEventQueueData{
-    globalTraceFile};
-thread_local EventQueue s_globalEventQueue = globalEventQueueData.createEventQueue();
-} // namespace
-
-EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue()
-{
-    return s_globalEventQueue;
-}
-
 template<typename TraceEvent>
 EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
                                                        TraceEventsSpan eventsOne,

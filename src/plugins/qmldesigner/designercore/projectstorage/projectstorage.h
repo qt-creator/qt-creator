@@ -31,7 +31,7 @@ using namespace NanotraceHR::Literals;
 constexpr NanotraceHR::Tracing projectStorageTracingStatus()
 {
 #ifdef ENABLE_PROJECT_STORAGE_TRACING
-    return NanotraceHR::tracingStatus();
+    return NanotraceHR::Tracing::IsEnabled;
 #else
     return NanotraceHR::Tracing::IsDisabled;
 #endif

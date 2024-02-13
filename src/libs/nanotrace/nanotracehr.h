@@ -32,15 +32,6 @@ static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
 
 enum class Tracing { IsDisabled, IsEnabled };
 
-constexpr Tracing tracingStatus()
-{
-#ifdef NANOTRACEHR_ENABLED
-    return Tracing::IsEnabled;
-#else
-    return Tracing::IsDisabled;
-#endif
-}
-
 #if __cplusplus >= 202002L && __has_cpp_attribute(msvc::no_unique_address)
 #  define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
 #elif __cplusplus >= 202002L && __has_cpp_attribute(no_unique_address) >= 201803L
@@ -235,7 +226,6 @@ void convertToString(String &string, const Container<Arguments...> &container)
 template<typename String, typename... Arguments>
 String toArguments(Arguments &&...arguments)
 {
-    if constexpr (tracingStatus() == Tracing::IsEnabled) {
         String text;
         constexpr auto argumentCount = sizeof...(Arguments);
         text.append("{");
@@ -246,9 +236,6 @@ String toArguments(Arguments &&...arguments)
         text.append("}");
 
         return text;
-    } else {
-        return {};
-    }
 }
 
 inline std::string_view toArguments(std::string_view arguments)
@@ -532,8 +519,6 @@ public:
     TraceEvents eventsOne;
     TraceEvents eventsTwo;
 };
-
-NANOTRACE_EXPORT EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue();
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -1568,52 +1553,5 @@ private:
 template<typename Category, typename... Arguments>
 Tracer(typename Category::ArgumentType name, Category &category, Arguments &&...)
     -> Tracer<Category, typename Category::IsActive>;
-
-#ifdef NANOTRACEHR_ENABLED
-class GlobalTracer
-{
-public:
-    template<typename... Arguments>
-    [[nodiscard]] GlobalTracer(std::string name, std::string category, Arguments &&...arguments)
-        : m_name{std::move(name)}
-        , m_category{std::move(category)}
-    {
-        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments(m_arguments, std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
-    }
-
-    ~GlobalTracer()
-    {
-        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
-            auto duration = Clock::now() - m_start;
-            auto &traceEvent = getTraceEvent(globalEventQueue());
-            traceEvent.name = std::move(m_name);
-            traceEvent.category = std::move(m_category);
-            traceEvent.arguments = std::move(m_arguments);
-            traceEvent.time = std::move(m_start);
-            traceEvent.duration = std::move(duration);
-            traceEvent.type = 'X';
-        }
-    }
-
-private:
-    TimePoint m_start;
-    std::string m_name;
-    std::string m_category;
-    std::string m_arguments;
-};
-#else
-class GlobalTracer
-{
-public:
-    GlobalTracer(std::string_view, std::string_view, std::string_view) {}
-
-    GlobalTracer(std::string_view, std::string_view) {}
-
-    ~GlobalTracer() {}
-};
-#endif
 
 } // namespace NanotraceHR

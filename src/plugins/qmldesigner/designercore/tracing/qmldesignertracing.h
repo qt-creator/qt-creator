@@ -13,7 +13,7 @@ namespace Tracing {
 constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_QMLDESIGNER_TRACING
-    return NanotraceHR::tracingStatus();
+    return NanotraceHR::Tracing::IsEnabled;
 #else
     return NanotraceHR::Tracing::IsDisabled;
 #endif
@@ -31,7 +31,7 @@ namespace ModelTracing {
 constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_MODEL_TRACING
-    return NanotraceHR::tracingStatus();
+    return NanotraceHR::Tracing::IsEnabled;
 #else
     return NanotraceHR::Tracing::IsDisabled;
 #endif

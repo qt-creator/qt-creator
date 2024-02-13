@@ -27,8 +27,6 @@ env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
 option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
 add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
 
-
-
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate Core
@@ -94,7 +92,7 @@ add_qtc_library(QmlDesignerCore STATIC
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION TARGET Nanotrace
+  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING

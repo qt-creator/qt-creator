@@ -20,7 +20,7 @@ namespace ImageCache {
 constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_IMAGE_CACHE_TRACING
-    return NanotraceHR::tracingStatus();
+    return NanotraceHR::Tracing::IsEnabled;
 #else
     return NanotraceHR::Tracing::IsDisabled;
 #endif
