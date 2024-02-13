@@ -40,7 +40,7 @@
         \li \inlineimage numbers/03.png
         \li Run button
         \li Run the application on the selected target platform.
-        \li \l{Running on Multiple Platforms}
+        \li \l{Run on many platforms}
     \row
         \li \inlineimage numbers/04.png
         \li Debug button

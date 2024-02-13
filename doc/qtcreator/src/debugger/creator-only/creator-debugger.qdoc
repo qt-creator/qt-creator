@@ -1985,7 +1985,7 @@
 
         \li Select the \inlineimage icons/run_small.png
             (\uicontrol Run) button to verify that the
-            \l {Running on Multiple Platforms}{build and run kit selector}
+            \l {Run on many platforms}{build and run kit selector}
             picked a runnable target and you can run the application.
 
         \li Make sure the debugger is \l{Setting Up Debugger}{set up properly}.

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,68 +9,76 @@
 
 /*!
     \page creator-running-targets.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-live-preview.html
-    \else
-    \previouspage creator-building-targets.html
-    \endif
-    \nextpage creator-deployment.html
+    \previouspage creator-how-tos.html
 
-    \title Running on Multiple Platforms
+    \ingroup creator-how-to-run
+
+    \title Run on many platforms
 
     By default, running an application also builds it and deploys it to a
-    location from where it can be run on the desktop, on a device emulator or
+    location from where it can run on the desktop, on a device emulator or
     simulator, or on a \l{glossary-device}{device} that is connected to
-    the development PC.
+    the computer.
 
-    To run executable files without deploying them first, select \uicontrol Build >
-    \uicontrol {Run Without Deployment}. To make this the default option, deselect the
-    \preferences > \uicontrol {Build & Run} >
-    \uicontrol General > \uicontrol {Always deploy project before running it}
-    check box.
+    \section1 Run applications
 
     To run applications:
 
     \list 1
 
-        \li Click the \uicontrol {Build and Run Kit Selector} icon (1) or select
+        \li Select the \uicontrol {Build and Run Kit Selector} icon or go to
             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
             build and run \l{glossary-buildandrun-kit}{kit}.
 
-            \image qtcreator-kit-selector.png "Kit selector"
+            \image qtcreator-kit-selector.webp {Kit selector}
 
-        \li Click the \uicontrol Run button (2).
+        \li Select \inlineimage icons/run_small.png (\uicontrol Run).
 
     \endlist
+
+    \section1 Run on mobile and embedded devices
+
+    If you have connected \l{Mobile Platforms}{mobile devices} or
+    \l{Embedded Platforms}{embedded devices} to the computer
+    or added virtual devices, such as \l{Managing Android Virtual Devices (AVD)}
+    {Android Virtual Devices (AVD)}, you can select them in the kit selector.
+
+    Select \uicontrol Manage to manage device settings. For example, you can add
+    AVDs or manually start disconnected AVDs.
+
+    \section1 Select run targets
 
     If your project has several run targets defined, such as
     \l{Running Autotests}{tests}, you can select them in the kit selector.
 
-    \image qtcreator-kit-selector-run-targets.png "Run targets in the kit selector"
+    \image qtcreator-kit-selector-run-targets.png {Run targets in the kit selector}
 
-    If you have connected \l{Mobile Platforms}{mobile devices} or
-    \l{Embedded Platforms}{embedded devices} to the development PC
-    or added virtual devices, such as \l{Managing Android Virtual Devices (AVD)}
-    {Android Virtual Devices (AVD)}, you can select them in the kit selector.
-    Select \uicontrol Manage to manage device settings. For example, you can add
-    AVDs or manually start disconnected AVDs.
+    \section1 Run without deploying
 
-    \l {Application Output} displays the status of the
-    application while it is running. You can select the \uicontrol Run button
-    to re-run applications without building them first. This is
-    useful when developing Qt Quick applications because the QML files are
-    interpreted at runtime. Therefore, the application does not need to be
+    To run executable files without deploying them first, select \uicontrol Build >
+    \uicontrol {Run Without Deployment}.
+
+    To make this the default option, go to \preferences >
+    \uicontrol {Build & Run} > \uicontrol General, and clear
+    \uicontrol {Always deploy project before running it}.
+
+    \section1 Run without building
+
+    \l {Application Output} displays the status of the application while it is
+    running.
+
+    \image qtcreator-application-output.webp {Application Output view}
+
+    Select \inlineimage icons/run_small.png (\uicontrol Run)
+    to re-run applications without building them first.
+
+    This is useful when developing Qt Quick applications because the QML files
+    are interpreted at runtime. Therefore, the application does not need to be
     built again if you edited only QML files. This saves time especially if
     the application has large image files that would need to be bundled
     into the resource file before running the application.
 
-    \image qtcreator-application-output.webp {Application Output view}
-
-    \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
-
-    \if defined(qtcreator)
-
-    \include qnx/creator-projects-running-qnx.qdocinc running on qnx
-    \sa {Configure projects for running}, {Run Python applications}
-    \endif
+    \sa {Configure projects for running}, {Customizing the Build Process},
+    {Run on QNX devices}, {Run on remote Linux devices},
+    {Run Python applications}, {Supported Platforms}
 */
