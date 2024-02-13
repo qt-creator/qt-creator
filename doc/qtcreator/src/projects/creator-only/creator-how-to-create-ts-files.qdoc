@@ -1,0 +1,30 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-add-ts-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-files
+
+    \title Add translation files
+
+    When you \l{Creating Projects}{create a new project}, you can automatically
+    generate a translation source file (TS) for one language. To add other
+    languages later, use a file wizard.
+
+    To create a translation source (TS) file for a language:
+
+    \list 1
+        \li Go to \uicontrol File > \uicontrol {New File}.
+        \li Select \uicontrol Qt > \uicontrol {Qt Translation File} >
+            \uicontrol Choose.
+        \li In \uicontrol Language, select a language and territory (\e locale).
+            \image qtcreator-new-file-ts.webp {Select language for a TS file}
+    \endlist
+
+    You can see the file name in \uicontrol {Translation file}.
+
+    \sa {Create files}, {Use project wizards}, {Use Qt Linguist},
+    {Internationalization with Qt}, {Qt Linguist Manual}
+*/

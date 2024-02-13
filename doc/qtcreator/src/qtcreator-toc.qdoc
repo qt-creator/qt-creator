@@ -157,7 +157,7 @@
                 \list
                     \li Create Projects
                         \generatelist creator-how-to-projects-create
-                    \li Create Files
+                    \li Add Files
                         \generatelist creator-how-to-projects-files
                     \li Configure Projects
                         \generatelist creator-how-to-projects-configure

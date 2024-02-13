@@ -134,18 +134,30 @@
 
     \title Use Qt Linguist
 
+    Most of the text to translate in an application consists of either single
+    words or short phrases. These typically appear as window titles, menu items,
+    tooltips, and labels to buttons, checkboxes, and radio buttons.
+
+    You mark the phrases as translatable in the QML and C++ source code. Qt
+    localization tools provide context information for each of the phrases to
+    help the translator understand their meaning. You can add comments to the
+    phrases.
+
+    Translation files contain all the user-visible text and keyboard shortcuts
+    in an application and translations of that text.
+
     When you \l{Creating Projects}{create a new project}, you can automatically
-    generate a translation source file (TS) for one language. You can add other
-    languages later by editing the project file.
+    generate a translation source file (TS) for one language. To add other
+    languages, edit the project file or go to \uicontrol File >
+    \uicontrol {New File}.
 
     To open TS files in Qt Linguist, right-click a TS file in the
-    \uicontrol Projects or \uicontrol {File System} view and select
+    \uicontrol Projects or \uicontrol {File System} view and go to
     \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
-    For more information about Qt Linguist, see \l{Qt Linguist Manual}.
 
     \section1 Use lupdate and lrelease
 
-    You can use the Qt Linguist release manager tools, lupdate and lrelease,
+    Use the Qt Linguist release manager tools, lupdate and lrelease,
     directly from \QC. The lupdate tool synchronizes source
     code and translations. The lrelease tool creates run-time
     translation files for use by the released application.
@@ -156,22 +168,27 @@
     {Qt6::LinguistTools}.
 
     By default, the project .pro file is passed to the tools as an argument. To
-    specify other command-line arguments for the tools, select \uicontrol Tools >
+    specify other command-line arguments for the tools, go to \uicontrol Tools >
     \uicontrol External > \uicontrol Configure.
 
     \section2 Synchronize TS files
 
     To synchronize TS files from a translator with the
-    application code, select \uicontrol Tools > \uicontrol External >
+    application code, go to \uicontrol Tools > \uicontrol External >
     \uicontrol Linguist > \uicontrol {Update Translations (lupdate)}.
 
     \section2 Generate QM files
 
     To generate from the TS files Qt message (QM) files that can be used by an
-    application, select \uicontrol Tools > \uicontrol External >
+    application, go to \uicontrol Tools > \uicontrol External >
     \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
 
-    \sa {Use external tools}
+    \if defined(qtcreator)
+    \sa {Add translation files}
+    \endif
+
+    \sa {Use external tools}, {Internationalization with Qt},
+    {Qt Linguist Manual}
 */
 
 /*!
