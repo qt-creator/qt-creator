@@ -323,6 +323,10 @@ void CppEditorPlugin::addPerSymbolActions()
     switchDeclDef.setTouchBarText(Tr::tr("Decl/Def", "text on macOS touch bar"));
     switchDeclDef.addToContainers(menus, Constants::G_SYMBOL);
     switchDeclDef.addToContainer(Core::Constants::TOUCH_BAR, Core::Constants::G_TOUCHBAR_NAVIGATION);
+    switchDeclDef.addOnTriggered(this, [] {
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
+    });
 
     ActionBuilder openDeclDefSplit(this, Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT);
     openDeclDefSplit.setText(Tr::tr("Open Function Declaration/Definition in Next Split"));
