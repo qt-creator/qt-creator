@@ -68,7 +68,6 @@
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
             \endlist
-            \li \l{Customizing the Build Process}
         \endlist
         \li \l{Testing}
         \list

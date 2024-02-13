@@ -37,15 +37,6 @@
             the sources into binaries. Build configurations use the tools and settings
             defined in their corresponding kit.
 
-        \li \l{Run on many platforms}
-
-            \e {Run configurations} start the application in the location
-            where it was copied by the \e{deploy configuration}. By default,
-            when you select the \uicontrol Run function, \QC builds the project,
-            deploys it to the device defined in the kit, and runs it there. However,
-            if you have not made any changes to the project since you last
-            built and deployed it, \QC simply runs it again.
-
         \li \l{Deploying to Devices}
 
             \e {Deploy configurations} handle the packaging and copying of
@@ -63,16 +54,5 @@
 
     \endlist
 
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Customizing the Build Process}
-
-            By default, running an application also builds it and deploys it to
-            a location from where it can be run on the device. You can change
-            the relationship between the build, run, and deploy configurations.
-
-    \endlist
-
+    \sa {Build and Run}{How To: Build and Run}
 */

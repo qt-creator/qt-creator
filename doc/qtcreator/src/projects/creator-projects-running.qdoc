@@ -78,7 +78,7 @@
     the application has large image files that would need to be bundled
     into the resource file before running the application.
 
-    \sa {Configure projects for running}, {Customizing the Build Process},
+    \sa {Configure projects for running}, {Customize the build process},
     {Run on QNX devices}, {Run on remote Linux devices},
     {Run Python applications}, {Supported Platforms}
 */
