@@ -1007,7 +1007,7 @@ LinuxDevice::LinuxDevice()
 
     setOpenTerminal([this](const Environment &env,
                            const FilePath &workingDir) -> expected_str<void> {
-        Process proc;
+        Process *proc = new Process;
 
         // If we will not set any environment variables, we can leave out the shell executable
         // as the "ssh ..." call will automatically launch the default shell if there are
@@ -1015,11 +1015,19 @@ LinuxDevice::LinuxDevice()
         // specify the shell executable.
         const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
 
-        proc.setCommand({filePath(shell), {}});
-        proc.setTerminalMode(TerminalMode::Detached);
-        proc.setEnvironment(env);
-        proc.setWorkingDirectory(workingDir);
-        proc.start();
+        proc->setCommand({filePath(shell), {}});
+        proc->setTerminalMode(TerminalMode::Run);
+        proc->setEnvironment(env);
+        proc->setWorkingDirectory(workingDir);
+        proc->start();
+
+        QObject::connect(proc, &Process::done, proc, [proc](){
+            if (proc->exitCode() != 0){
+                qCWarning(linuxDeviceLog) << proc->exitMessage();
+                Core::MessageManager::writeFlashing(proc->exitMessage());
+            }
+            proc->deleteLater();
+        });
 
         return {};
     });
