@@ -1,92 +1,29 @@
 Language:        Cpp
 AccessModifierOffset: -4
-AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: DontAlign
-AlignOperands:   true
-AlignTrailingComments: true
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
-AllowShortLambdasOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: true
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
   AfterClass:      true
-  AfterControlStatement: false
-  AfterEnum:       false
   AfterFunction:   true
-  AfterNamespace:  false
-  AfterObjCDeclaration: false
   AfterStruct:     true
-  AfterUnion:      false
-  BeforeCatch:     false
-  BeforeElse:      false
-  IndentBraces:    false
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
-BreakAfterAttributes: Never
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Custom
-BreakBeforeConceptDeclarations: Always
-BreakBeforeInheritanceComma: false
-BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeComma
-BreakAfterJavaFieldAnnotations: false
 BreakInheritanceList: AfterComma
-BreakStringLiterals: true
 ColumnLimit:    100
-CommentPragmas:  '^ IWYU pragma:'
-CompactNamespaces: false
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
-DerivePointerAlignment: false
-DisableFormat:   false
-EmptyLineAfterAccessModifier: Never
-EmptyLineBeforeAccessModifier: LogicalBlock
-ExperimentalAutoDetectBinPacking: false
-FixNamespaceComments: true
-ForEachMacros:
-  - forever # avoids { wrapped to next line
-  - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
-#IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<Q.*'
     Priority:        200
-IncludeIsMainRegex: '(Test)?$'
-IndentCaseBlocks: false
-IndentCaseLabels: false
 IndentPPDirectives: AfterHash
-IndentRequiresClause: true
 IndentWidth:     4
-IndentWrappedFunctionNames: false
-InsertBraces : false
-JavaScriptQuotes: Leave
-JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 # Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
-LambdaBodyIndentation: Signature
-MacroBlockBegin: ""
-MacroBlockEnd:   ""
-MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
 ObjCBlockIndentWidth: 4
-ObjCSpaceAfterProperty: false
-ObjCSpaceBeforeProtocolList: true
 PPIndentWidth: 2
 PackConstructorInitializers: Never
 PenaltyBreakAssignment: 500
@@ -96,40 +33,15 @@ PenaltyBreakFirstLessLess: 400
 PenaltyBreakString: 600
 PenaltyExcessCharacter: 7
 PenaltyReturnTypeOnItsOwnLine: 300
-PointerAlignment: Right
 QualifierAlignment: Custom
 QualifierOrder: ['friend', 'inline', 'static', 'constexpr', 'const', 'type']
-ReflowComments:  false
 ReferenceAlignment: Right
-RequiresClausePosition: OwnLine
+ReflowComments:  false
 SeparateDefinitionBlocks: Always
-ShortNamespaceLines: 1
-SortIncludes: CaseInsensitive
 SortUsingDeclarations: Lexicographic
 SpaceAfterCStyleCast: true
-SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
-SpaceBeforeAssignmentOperators: true
-SpaceInEmptyParentheses: false
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatementsExceptControlMacros
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceBeforeSquareBrackets: false
-SpaceInEmptyBlock: false
-SpacesBeforeTrailingComments: 1
-SpacesInAngles:  Never
-SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
-SpacesInLineCommentPrefix:
-  Minimum: 1
-  Maximum: -1
-SpacesInCStyleCastParentheses: false
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-Standard:        Latest
 StatementAttributeLikeMacros: [emit]
-StatementMacros: [Q_UNUSED]
 TabWidth:        4
-UseTab:          Never
