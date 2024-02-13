@@ -106,7 +106,8 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
         }
     }
 
-    if (parametersCopy.workingDirectory->needsDevice() && !parametersCopy.shellCommand) {
+    if (parametersCopy.workingDirectory && parametersCopy.workingDirectory->needsDevice()
+        && !parametersCopy.shellCommand) {
         const FilePath shell = parametersCopy.workingDirectory->withNewPath(
             parametersCopy.environment
                 .value_or(parametersCopy.workingDirectory->deviceEnvironment())
