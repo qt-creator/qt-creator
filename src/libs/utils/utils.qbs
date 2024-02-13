@@ -101,8 +101,6 @@ QtcLibrary {
         "environment.h",
         "environmentdialog.cpp",
         "environmentdialog.h",
-        "environmentmodel.cpp",
-        "environmentmodel.h",
         "execmenu.cpp",
         "execmenu.h",
         "externalterminalprocessimpl.cpp",

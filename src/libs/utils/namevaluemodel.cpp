@@ -4,6 +4,7 @@
 #include "namevaluemodel.h"
 
 #include "algorithm.h"
+#include "environment.h"
 #include "hostosinfo.h"
 #include "namevaluedictionary.h"
 #include "namevalueitem.h"
@@ -20,7 +21,7 @@ namespace Utils {
 
 namespace Internal {
 
-class NameValueModelPrivate
+class EnvironmentModelPrivate
 {
 public:
     void updateResultNameValueDictionary()
@@ -78,21 +79,22 @@ public:
 
 } // namespace Internal
 
-NameValueModel::NameValueModel(QObject *parent)
+EnvironmentModel::EnvironmentModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , d(std::make_unique<Internal::NameValueModelPrivate>())
+    , d(std::make_unique<Internal::EnvironmentModelPrivate>())
 {}
 
-NameValueModel::~NameValueModel() = default;
+EnvironmentModel::~EnvironmentModel() = default;
 
-QString NameValueModel::indexToVariable(const QModelIndex &index) const
+QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
 {
     const auto it = std::next(d->m_resultNameValueDictionary.constBegin(), index.row());
     return d->m_resultNameValueDictionary.key(it);
 }
 
-void NameValueModel::setBaseNameValueDictionary(const NameValueDictionary &dictionary)
+void EnvironmentModel::setBaseEnvironment(const Environment &env)
 {
+    const NameValueDictionary dictionary = env.toDictionary();
     if (d->m_baseNameValueDictionary == dictionary)
         return;
     beginResetModel();
@@ -101,14 +103,14 @@ void NameValueModel::setBaseNameValueDictionary(const NameValueDictionary &dicti
     endResetModel();
 }
 
-int NameValueModel::rowCount(const QModelIndex &parent) const
+int EnvironmentModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
 
     return d->m_resultNameValueDictionary.size();
 }
-int NameValueModel::columnCount(const QModelIndex &parent) const
+int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -116,17 +118,17 @@ int NameValueModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-bool NameValueModel::changes(const QString &name) const
+bool EnvironmentModel::changes(const QString &name) const
 {
     return d->findInChanges(name) >= 0;
 }
 
-const NameValueDictionary &NameValueModel::baseNameValueDictionary() const
+Environment EnvironmentModel::baseEnvironment() const
 {
-    return d->m_baseNameValueDictionary;
+    return Environment(d->m_baseNameValueDictionary);
 }
 
-QVariant NameValueModel::data(const QModelIndex &index, int role) const
+QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -176,13 +178,13 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-Qt::ItemFlags NameValueModel::flags(const QModelIndex &index) const
+Qt::ItemFlags EnvironmentModel::flags(const QModelIndex &index) const
 {
     Q_UNUSED(index)
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
-QVariant NameValueModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant EnvironmentModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
@@ -192,7 +194,7 @@ QVariant NameValueModel::headerData(int section, Qt::Orientation orientation, in
 /// *****************
 /// Utility functions
 /// *****************
-QModelIndex NameValueModel::variableToIndex(const QString &name) const
+QModelIndex EnvironmentModel::variableToIndex(const QString &name) const
 {
     int row = d->findInResult(name);
     if (row == -1)
@@ -200,7 +202,7 @@ QModelIndex NameValueModel::variableToIndex(const QString &name) const
     return index(row, 0);
 }
 
-bool NameValueModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || role != Qt::EditRole)
         return false;
@@ -262,12 +264,12 @@ bool NameValueModel::setData(const QModelIndex &index, const QVariant &value, in
     return false;
 }
 
-QModelIndex NameValueModel::addVariable()
+QModelIndex EnvironmentModel::addVariable()
 {
     return addVariable(NameValueItem("NEWVAR", "VALUE"));
 }
 
-QModelIndex NameValueModel::addVariable(const NameValueItem &item)
+QModelIndex EnvironmentModel::addVariable(const NameValueItem &item)
 {
     // Return existing index if the name is already in the result set:
     int pos = d->findInResult(item.name);
@@ -298,7 +300,7 @@ QModelIndex NameValueModel::addVariable(const NameValueItem &item)
     return index(insertPos, 0, QModelIndex());
 }
 
-void NameValueModel::resetVariable(const QString &name)
+void EnvironmentModel::resetVariable(const QString &name)
 {
     int rowInChanges = d->findInChanges(name);
     if (rowInChanges < 0)
@@ -323,7 +325,7 @@ void NameValueModel::resetVariable(const QString &name)
     }
 }
 
-void NameValueModel::unsetVariable(const QString &name)
+void EnvironmentModel::unsetVariable(const QString &name)
 {
     // This does not change the number of rows as we will display a <UNSET>
     // in place of the original variable!
@@ -347,7 +349,7 @@ void NameValueModel::unsetVariable(const QString &name)
     emit userChangesChanged();
 }
 
-void NameValueModel::toggleVariable(const QModelIndex &idx)
+void EnvironmentModel::toggleVariable(const QModelIndex &idx)
 {
     const QString name = indexToVariable(idx);
     const auto newIt = d->m_resultNameValueDictionary.constFind(name);
@@ -371,28 +373,28 @@ void NameValueModel::toggleVariable(const QModelIndex &idx)
     emit userChangesChanged();
 }
 
-bool NameValueModel::isUnset(const QString &name)
+bool EnvironmentModel::isUnset(const QString &name)
 {
     const int pos = d->findInChanges(name);
     return pos == -1 ? false : d->m_items.at(pos).operation == NameValueItem::Unset;
 }
 
-bool NameValueModel::isEnabled(const QString &name) const
+bool EnvironmentModel::isEnabled(const QString &name) const
 {
     return d->m_resultNameValueDictionary.isEnabled(d->m_resultNameValueDictionary.constFind(name));
 }
 
-bool NameValueModel::canReset(const QString &name)
+bool EnvironmentModel::canReset(const QString &name)
 {
     return d->m_baseNameValueDictionary.hasKey(name);
 }
 
-NameValueItems NameValueModel::userChanges() const
+NameValueItems EnvironmentModel::userChanges() const
 {
     return d->m_items;
 }
 
-void NameValueModel::setUserChanges(const NameValueItems &items)
+void EnvironmentModel::setUserChanges(const NameValueItems &items)
 {
     NameValueItems filtered = Utils::filtered(items, [](const NameValueItem &i) {
         return i.name != "export " && !i.name.contains('=');
@@ -421,7 +423,7 @@ void NameValueModel::setUserChanges(const NameValueItems &items)
     emit userChangesChanged();
 }
 
-bool NameValueModel::currentEntryIsPathList(const QModelIndex &current) const
+bool EnvironmentModel::currentEntryIsPathList(const QModelIndex &current) const
 {
     if (!current.isValid())
         return false;

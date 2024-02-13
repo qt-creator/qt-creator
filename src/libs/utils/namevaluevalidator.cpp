@@ -10,7 +10,7 @@
 namespace Utils {
 
 NameValueValidator::NameValueValidator(QWidget *parent,
-                                       NameValueModel *model,
+                                       EnvironmentModel *model,
                                        QTreeView *view,
                                        const QModelIndex &index,
                                        const QString &toolTipText)

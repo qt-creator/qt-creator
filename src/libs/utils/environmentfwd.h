@@ -19,7 +19,4 @@ class PreprocessorMacroDictionary;
 using PreprocessorMacroItem = NameValueItem;
 using PreprocessorMacroItems = NameValueItems;
 
-class NameValueModel;
-class EnvironmentModel;
-
 } // namespace Utils

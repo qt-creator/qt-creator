@@ -44,7 +44,6 @@ add_qtc_library(Utils
     environment.cpp environment.h
     environmentdialog.cpp environmentdialog.h
     environmentfwd.h
-    environmentmodel.cpp environmentmodel.h
     execmenu.cpp execmenu.h
     expected.h
     externalterminalprocessimpl.cpp externalterminalprocessimpl.h

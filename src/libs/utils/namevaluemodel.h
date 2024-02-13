@@ -13,17 +13,15 @@
 
 namespace Utils {
 
-namespace Internal {
-class NameValueModelPrivate;
-}
+namespace Internal { class EnvironmentModelPrivate; }
 
-class QTCREATOR_UTILS_EXPORT NameValueModel : public QAbstractTableModel
+class QTCREATOR_UTILS_EXPORT EnvironmentModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit NameValueModel(QObject *parent = nullptr);
-    ~NameValueModel() override;
+    explicit EnvironmentModel(QObject *parent = nullptr);
+    ~EnvironmentModel() override;
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -33,6 +31,9 @@ public:
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
+    Environment baseEnvironment() const;
+    void setBaseEnvironment(const Environment &env);
 
     QModelIndex addVariable();
     QModelIndex addVariable(const NameValueItem &item);
@@ -45,8 +46,6 @@ public:
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
-    const NameValueDictionary &baseNameValueDictionary() const;
-    void setBaseNameValueDictionary(const NameValueDictionary &dictionary);
     NameValueItems userChanges() const;
     void setUserChanges(const NameValueItems &items);
     bool currentEntryIsPathList(const QModelIndex &current) const;
@@ -59,7 +58,7 @@ signals:
     void focusIndex(const QModelIndex &index);
 
 private:
-    std::unique_ptr<Internal::NameValueModelPrivate> d;
+    std::unique_ptr<Internal::EnvironmentModelPrivate> d;
 };
 
 } // namespace Utils

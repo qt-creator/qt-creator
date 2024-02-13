@@ -12,7 +12,7 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
-#include <utils/environmentmodel.h>
+#include <utils/namevaluemodel.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
