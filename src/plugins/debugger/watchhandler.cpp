@@ -818,14 +818,24 @@ static QString formattedValue(const WatchItem *item)
             return reformatInteger(integer, format, item->size, false);
     }
 
-    if (item->elided) {
-        QString v = item->value;
-        v.chop(1);
-        QString len = item->elided > 0 ? QString::number(item->elided) : "unknown length";
-        return quoteUnprintable(v) + "\"... (" + len  + ')';
+    const int maxLength = settings().displayStringLimit();
+    QString v = quoteUnprintable(item->value);
+
+    if (v.endsWith('"')) {
+        if (item->elided) {
+            v.chop(1);
+            v.append("...\"");
+        }
+        int len = item->elided ? item->elided : item->value.length() - 2;
+        v += QString(" (%1)").arg(len > 0 ? QString::number(len) : "unknown length");
+        return v;
     }
 
-    return quoteUnprintable(item->value);
+    if (v.size() > maxLength) {
+        v.truncate(maxLength);
+        v += QLatin1String("...");
+    }
+    return v;
 }
 
 // Get a pointer address from pointer values reported by the debugger.
@@ -886,18 +896,6 @@ QVariant WatchItem::editValue() const
     return QVariant(quoteUnprintable(stringValue));
 }
 
-// Truncate value for item view, maintaining quotes.
-static QString truncateValue(QString v)
-{
-    enum { maxLength = 512 };
-    if (v.size() < maxLength)
-        return v;
-    const bool isQuoted = v.endsWith('"'); // check for 'char* "Hallo"'
-    v.truncate(maxLength);
-    v += QLatin1String(isQuoted ? "...\"" : "...");
-    return v;
-}
-
 static QString displayName(const WatchItem *item)
 {
     QString result;
@@ -939,13 +937,9 @@ static QString displayName(const WatchItem *item)
     return result;
 }
 
-
 void WatchItem::updateValueCache() const
 {
-    QString formatted = truncateValue(formattedValue(this));
-    if (formatted.endsWith('"'))
-        formatted.append(QString(" (%1)").arg(this->value.length() - 2));
-    valueCache = formatted;
+    valueCache = formattedValue(this);
     valueCache = watchModel(this)->removeNamespaces(valueCache);
     if (valueCache.isEmpty() && this->address)
         valueCache += QString::fromLatin1("@0x" + QByteArray::number(this->address, 16));
