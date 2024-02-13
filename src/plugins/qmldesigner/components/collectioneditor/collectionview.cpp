@@ -37,6 +37,22 @@ inline bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
            || node.metaInfo().typeName() == CSVCOLLECTIONMODEL_TYPENAME;
 }
 
+inline void setVariantPropertyValue(const QmlDesigner::ModelNode &node,
+                                    const QmlDesigner::PropertyName &propertyName,
+                                    const QVariant &value)
+{
+    QmlDesigner::VariantProperty property = node.variantProperty(propertyName);
+    property.setValue(value);
+}
+
+inline void setBindingPropertyExpression(const QmlDesigner::ModelNode &node,
+                                         const QmlDesigner::PropertyName &propertyName,
+                                         const QString &expression)
+{
+    QmlDesigner::BindingProperty property = node.bindingProperty(propertyName);
+    property.setExpression(expression);
+}
+
 } // namespace
 
 namespace QmlDesigner {
@@ -235,18 +251,50 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
 
 void CollectionView::assignCollectionToNode(const QString &collectionName, const ModelNode &node)
 {
-    m_dataStore->assignCollectionToNode(
-        this,
-        node,
-        collectionName,
-        [&](const QString &collectionName, const QString &columnName) -> bool {
-            const CollectionReference reference{dataStoreNode(), collectionName};
-            return m_widget->collectionDetailsModel()->collectionHasColumn(reference, columnName);
-        },
-        [&](const QString &collectionName) -> QString {
-            const CollectionReference reference{dataStoreNode(), collectionName};
-            return m_widget->collectionDetailsModel()->getFirstColumnName(reference);
-        });
+    using DataType = CollectionDetails::DataType;
+    executeInTransaction("CollectionView::assignCollectionToNode", [&]() {
+        m_dataStore->assignCollectionToNode(
+            this,
+            node,
+            collectionName,
+            [&](const QString &collectionName, const QString &columnName) -> bool {
+                const CollectionReference reference{dataStoreNode(), collectionName};
+                return m_widget->collectionDetailsModel()->collectionHasColumn(reference, columnName);
+            },
+            [&](const QString &collectionName) -> QString {
+                const CollectionReference reference{dataStoreNode(), collectionName};
+                return m_widget->collectionDetailsModel()->getFirstColumnName(reference);
+            });
+
+        // Create and assign a delegate to the list view item
+        if (node.metaInfo().isQtQuickListView()) {
+            CollectionDetails collection = m_widget->collectionDetailsModel()->upToDateConstCollection(
+                {dataStoreNode(), collectionName});
+
+            ModelNode rowItem(createModelNode("QtQuick.Row"));
+            ::setVariantPropertyValue(rowItem, "spacing", 5);
+
+            const int columnsCount = collection.columns();
+            for (int column = 0; column < columnsCount; ++column) {
+                const DataType dataType = collection.typeAt(column);
+                const QString columnName = collection.propertyAt(column);
+                ModelNode cellItem;
+                if (dataType == DataType::Color) {
+                    cellItem = createModelNode("QtQuick.Rectangle");
+                    ::setBindingPropertyExpression(cellItem, "color", columnName);
+                    ::setVariantPropertyValue(cellItem, "height", 20);
+                } else {
+                    cellItem = createModelNode("QtQuick.Text");
+                    ::setBindingPropertyExpression(cellItem, "text", columnName);
+                }
+                ::setVariantPropertyValue(cellItem, "width", 100);
+                rowItem.defaultNodeAbstractProperty().reparentHere(cellItem);
+            }
+
+            NodeProperty delegateProperty = node.nodeProperty("delegate");
+            delegateProperty.setModelNode(rowItem);
+        }
+    });
 }
 
 void CollectionView::assignCollectionToSelectedNode(const QString &collectionName)
