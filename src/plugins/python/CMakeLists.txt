@@ -4,16 +4,18 @@ add_qtc_plugin(Python
   SOURCES
     pipsupport.cpp pipsupport.h
     pyside.cpp pyside.h
-    pysidebuildconfiguration.cpp pysidebuildconfiguration.h
+    pythonbuildconfiguration.cpp pythonbuildconfiguration.h
     pysideuicextracompiler.cpp pysideuicextracompiler.h
     python.qrc
+    pythonbuildsystem.cpp pythonbuildsystem.h
     pythonconstants.h
     pythoneditor.cpp pythoneditor.h
     pythonformattoken.h
     pythonhighlighter.cpp pythonhighlighter.h
     pythonindenter.cpp pythonindenter.h
+    pythonkitaspect.h pythonkitaspect.cpp
     pythonlanguageclient.cpp pythonlanguageclient.h
-    pythonplugin.cpp pythonplugin.h
+    pythonplugin.cpp
     pythonproject.cpp pythonproject.h
     pythonrunconfiguration.cpp pythonrunconfiguration.h
     pythonscanner.cpp pythonscanner.h

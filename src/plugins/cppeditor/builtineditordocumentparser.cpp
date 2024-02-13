@@ -80,7 +80,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     }
 
     if (const ProjectPart::ConstPtr part = baseState.projectPartInfo.projectPart) {
-        configFile += ProjectExplorer::Macro::toByteArray(part->toolChainMacros);
+        configFile += ProjectExplorer::Macro::toByteArray(part->toolchainMacros);
         configFile += overwrittenToolchainDefines(*part.data());
         configFile += ProjectExplorer::Macro::toByteArray(part->projectMacros);
         if (!part->projectConfigFile.isEmpty())

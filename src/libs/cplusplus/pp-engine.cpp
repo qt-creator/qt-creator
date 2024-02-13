@@ -740,6 +740,7 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
     , m_expandFunctionlikeMacros(true)
     , m_keepComments(false)
 {
+    m_scratchBuffer.reserve(256);
 }
 
 QByteArray Preprocessor::run(const Utils::FilePath &filePath,

@@ -14,7 +14,7 @@ env:
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.6
+  CCACHE_VERSION: 4.9
   QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
 
 jobs:
@@ -49,7 +49,8 @@ jobs:
           }
         - {
             name: "macOS Latest Clang", artifact: "macos-universal",
-            os: macos-latest,
+            # TODO: move back to macos-latest when macos-latest is 13 or higher
+            os: macos-13,
             cc: "clang", cxx: "clang++"
           }
 
@@ -437,15 +438,32 @@ jobs:
     - name: Download ccache
       shell: cmake -P {0}
       run: |
-        set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
-        foreach(retry RANGE 10)
-          file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
-          file(SIZE ./ccache.tar.xz fileSize)
-          if (fileSize GREATER 0)
-            break()
-          endif()
-        endforeach()
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-windows-x86_64")
+          set(ccache_archive "${ccache_dir}.zip")
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
+          set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-linux-x86_64")
+          set(ccache_archive "${ccache_dir}.tar.xz")
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
+          set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-darwin")
+          set(ccache_archive "${ccache_dir}.tar.gz")
+        endif()
+
+        set(ccache_url "https://github.com/ccache/ccache/releases/download/v$ENV{CCACHE_VERSION}/${ccache_archive}")
+        file(DOWNLOAD "${ccache_url}" ./${ccache_archive} SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./${ccache_archive})
+
+        # Add to PATH environment variable
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${ccache_dir}" ccache_dir)
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${ccache_dir}")
+
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x ${ccache_dir}/ccache)
+        endif()
 
     - name: Prepare ccache archive name
       id: ccache
@@ -586,6 +604,14 @@ jobs:
             endif()
         endif()
 
+        find_program(llvm_link_exe llvm-link PATHS "${{ steps.libclang.outputs.libclang_dir }}/bin")
+        set(WITH_LLVM_LINK --add-config=-DCMAKE_LINKER=${llvm_link_exe})
+
+        # Not for MSVC
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+            unset(WITH_LLVM_LINK)
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -600,6 +626,7 @@ jobs:
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}
             ${NO_DMG}
+            ${WITH_LLVM_LINK}
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
             --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}

@@ -50,7 +50,7 @@ signals:
     void logMessageReceived(const QByteArray &);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void valgrindStarted(qint64 pid);
-    void done(bool success);
+    void done(Tasking::DoneResult result);
 
     // Parser's signals
     void status(const Valgrind::XmlProtocol::Status &status);

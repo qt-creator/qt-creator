@@ -942,7 +942,10 @@ static QString displayName(const WatchItem *item)
 
 void WatchItem::updateValueCache() const
 {
-    valueCache = truncateValue(formattedValue(this));
+    QString formatted = truncateValue(formattedValue(this));
+    if (formatted.endsWith('"'))
+        formatted.append(QString(" (%1)").arg(this->value.length() - 2));
+    valueCache = formatted;
     valueCache = watchModel(this)->removeNamespaces(valueCache);
     if (valueCache.isEmpty() && this->address)
         valueCache += QString::fromLatin1("@0x" + QByteArray::number(this->address, 16));

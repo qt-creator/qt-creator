@@ -53,7 +53,7 @@ static QString asDisplayName() { return Tr::tr("Artistic Style"); }
 
 const char SETTINGS_NAME[]            = "artisticstyle";
 
-class ArtisticStyleSettings : public AbstractSettings
+class ArtisticStyleSettings final : public AbstractSettings
 {
 public:
     ArtisticStyleSettings()
@@ -93,12 +93,12 @@ public:
         read();
     }
 
-    void createDocumentationFile() const override
+    void createDocumentationFile() const final
     {
         Process process;
-        process.setTimeoutS(2);
         process.setCommand({command(), {"-h"}});
-        process.runBlocking();
+        using namespace std::chrono_literals;
+        process.runBlocking(2s);
         if (process.result() != ProcessResult::FinishedWithSuccess)
             return;
 
@@ -180,7 +180,7 @@ static ArtisticStyleSettings &settings()
     return theSettings;
 }
 
-// ArtisticStyleOptionsPage
+// ArtisticStyleSettingsPage
 
 class ArtisticStyleSettingsPageWidget : public Core::IOptionsPageWidget
 {
@@ -232,110 +232,117 @@ public:
     }
 };
 
-// Style
+// ArtisticStyle
 
-ArtisticStyle::ArtisticStyle()
+class ArtisticStyle final : public BeautifierTool
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
-    menu->menu()->setTitle(Tr::tr("&Artistic Style"));
+public:
+    ArtisticStyle()
+    {
+        const Id menuId = "ArtisticStyle.Menu";
+        Core::MenuBuilder(menuId)
+            .setTitle(Tr::tr("&Artistic Style"))
+            .addToContainer(Constants::MENU_ID);
 
-    m_formatFile = new QAction(msgFormatCurrentFile(), this);
-    menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
-    connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
+        Core::ActionBuilder(this, "ArtisticStyle.FormatFile")
+            .setText(msgFormatCurrentFile())
+            .bindContextAction(&m_formatFile)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ArtisticStyle::formatFile);
 
-    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
+                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+    }
 
-    connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
-            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
-}
+    QString id() const final
+    {
+        return "Artistic Style";
+    }
 
-QString ArtisticStyle::id() const
-{
-    return "Artistic Style";
-}
+    void updateActions(Core::IEditor *editor) final
+    {
+        m_formatFile->setEnabled(editor && settings().isApplicable(editor->document()));
+    }
 
-void ArtisticStyle::updateActions(Core::IEditor *editor)
-{
-    m_formatFile->setEnabled(editor && settings().isApplicable(editor->document()));
-}
+    Command textCommand() const final
+    {
+        const FilePath cfgFile = configurationFile();
+        return cfgFile.isEmpty() ? Command() : textCommand(cfgFile.toFSPathString());
+    }
 
-void ArtisticStyle::formatFile()
-{
-    const FilePath cfgFileName = configurationFile();
-    if (cfgFileName.isEmpty())
-        showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
-    else
-        formatCurrentFile(textCommand(cfgFileName.toFSPathString()));
-}
+    bool isApplicable(const Core::IDocument *document) const final
+    {
+        return settings().isApplicable(document);
+    }
 
-FilePath ArtisticStyle::configurationFile() const
-{
-    if (settings().useCustomStyle())
-        return settings().styleFileName(settings().customStyle());
+    void formatFile()
+    {
+        const FilePath cfgFileName = configurationFile();
+        if (cfgFileName.isEmpty())
+            showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
+        else
+            formatCurrentFile(textCommand(cfgFileName.toFSPathString()));
+    }
 
-    if (settings().useOtherFiles()) {
-        if (const ProjectExplorer::Project *project
+    FilePath configurationFile() const
+    {
+        if (settings().useCustomStyle())
+            return settings().styleFileName(settings().customStyle());
+
+        if (settings().useOtherFiles()) {
+            if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const FilePaths astyleRcfiles = project->files(
-                [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".astylerc"); });
-            for (const FilePath &file : astyleRcfiles) {
-                if (file.isReadableFile())
-                    return file;
+                const FilePaths astyleRcfiles = project->files(
+                    [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".astylerc"); });
+                for (const FilePath &file : astyleRcfiles) {
+                    if (file.isReadableFile())
+                        return file;
+                }
             }
         }
+
+        if (settings().useSpecificConfigFile()) {
+            const FilePath file = settings().specificConfigFile();
+            if (file.exists())
+                return file;
+        }
+
+        if (settings().useHomeFile()) {
+            const FilePath homeDirectory = FileUtils::homePath();
+            FilePath file = homeDirectory / ".astylerc";
+            if (file.exists())
+                return file;
+            file = homeDirectory / "astylerc";
+            if (file.exists())
+                return file;
+        }
+
+        return {};
     }
 
-    if (settings().useSpecificConfigFile()) {
-        const FilePath file = settings().specificConfigFile();
-        if (file.exists())
-            return file;
+    Command textCommand(const QString &cfgFile) const
+    {
+        Command cmd;
+        cmd.setExecutable(settings().command());
+        cmd.addOption("-q");
+        cmd.addOption("--options=" + cfgFile);
+
+        const QVersionNumber version = settings().version();
+        if (version > QVersionNumber(2, 3)) {
+            cmd.setProcessing(Command::PipeProcessing);
+            if (version == QVersionNumber(2, 4))
+                cmd.setPipeAddsNewline(true);
+            cmd.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
+            cmd.addOption("-z2");
+        } else {
+            cmd.addOption("%file");
+        }
+
+        return cmd;
     }
 
-    if (settings().useHomeFile()) {
-        const FilePath homeDirectory = FileUtils::homePath();
-        FilePath file = homeDirectory / ".astylerc";
-        if (file.exists())
-            return file;
-        file = homeDirectory / "astylerc";
-        if (file.exists())
-            return file;
-    }
-
-    return {};
-}
-
-Command ArtisticStyle::textCommand() const
-{
-    const FilePath cfgFile = configurationFile();
-    return cfgFile.isEmpty() ? Command() : textCommand(cfgFile.toFSPathString());
-}
-
-bool ArtisticStyle::isApplicable(const Core::IDocument *document) const
-{
-    return settings().isApplicable(document);
-}
-
-Command ArtisticStyle::textCommand(const QString &cfgFile) const
-{
-    Command cmd;
-    cmd.setExecutable(settings().command());
-    cmd.addOption("-q");
-    cmd.addOption("--options=" + cfgFile);
-
-    const QVersionNumber version = settings().version();
-    if (version > QVersionNumber(2, 3)) {
-        cmd.setProcessing(Command::PipeProcessing);
-        if (version == QVersionNumber(2, 4))
-            cmd.setPipeAddsNewline(true);
-        cmd.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
-        cmd.addOption("-z2");
-    } else {
-        cmd.addOption("%file");
-    }
-
-    return cmd;
-}
-
+    QAction *m_formatFile = nullptr;
+};
 
 //  ArtisticStyleSettingsPage
 
@@ -352,5 +359,10 @@ public:
 };
 
 const ArtisticStyleSettingsPage settingsPage;
+
+void setupArtisticStyle()
+{
+    static ArtisticStyle theArtisticStyle;
+}
 
 } // Beautifier::Internal

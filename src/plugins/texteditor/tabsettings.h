@@ -5,10 +5,13 @@
 
 #include "texteditor_global.h"
 
-#include <utils/store.h>
+#include <utils/filepath.h>
 #include <utils/qtcsettings.h>
+#include <utils/store.h>
 
 #include <QTextBlock>
+
+#include <functional>
 
 namespace TextEditor {
 
@@ -71,6 +74,10 @@ public:
     ContinuationAlignBehavior m_continuationAlignBehavior = ContinuationAlignWithSpaces;
 
     bool equals(const TabSettings &ts) const;
+
+    using Retriever = std::function<TabSettings(const Utils::FilePath &)>;
+    static void setRetriever(const Retriever &retriever);
+    static TabSettings settingsForFile(const Utils::FilePath &filePath);
 };
 
 } // namespace TextEditor

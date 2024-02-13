@@ -17,8 +17,7 @@
 
 namespace Utils { class Process; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidDevice final : public ProjectExplorer::IDevice
 {
@@ -70,15 +69,6 @@ private:
     std::unique_ptr<QSettings> m_avdSettings;
 };
 
-class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    AndroidDeviceFactory();
-
-private:
-    const AndroidConfig &m_androidConfig;
-};
-
 class AndroidDeviceManager : public QObject
 {
 public:
@@ -97,8 +87,9 @@ public:
     QString getRunningAvdsSerialNumber(const QString &name) const;
 
 private:
-    AndroidDeviceManager(QObject *parent = nullptr);
+    explicit AndroidDeviceManager(QObject *parent);
     ~AndroidDeviceManager();
+
     void HandleDevicesListChange(const QString &serialNumber);
     void HandleAvdsListChange();
 
@@ -108,11 +99,12 @@ private:
     std::unique_ptr<Utils::Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-    AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
 
-    friend class AndroidPluginPrivate;
+    friend void setupAndroidDeviceManager(QObject *guard);
 };
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidDevice();
+void setupAndroidDeviceManager(QObject *guard);
+
+} // Android::Internal

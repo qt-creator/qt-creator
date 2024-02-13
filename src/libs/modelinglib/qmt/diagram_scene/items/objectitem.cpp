@@ -574,14 +574,13 @@ void ObjectItem::updateNameItem(const Style *style)
             textOption.setAlignment(Qt::AlignHCenter);
             m_nameItem->document()->setDefaultTextOption(textOption);
             QObject::connect(m_nameItem->document(), &QTextDocument::contentsChanged, m_nameItem,
-                             [=]()
-            {
+                             [this] {
                 this->m_nameItem->setTextWidth(-1);
                 this->m_nameItem->setTextWidth(m_nameItem->boundingRect().width());
                 this->setFromDisplayName(m_nameItem->toPlainText());
             });
             QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
-                             [=]() { this->m_nameItem->clearFocus(); });
+                             [this] { this->m_nameItem->clearFocus(); });
         }
         if (style->headerFont() != m_nameItem->font())
             m_nameItem->setFont(style->headerFont());

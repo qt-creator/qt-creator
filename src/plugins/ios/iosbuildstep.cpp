@@ -100,20 +100,23 @@ QWidget *IosBuildStep::createConfigWidget()
 
     updateDetails();
 
-    connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this, [=] {
+    connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this,
+            [this, buildArgumentsTextEdit, resetDefaultsButton, updateDetails] {
         setBaseArguments(ProcessArgs::splitArgs(buildArgumentsTextEdit->toPlainText(),
                                                 HostOsInfo::hostOs()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
         updateDetails();
     });
 
-    connect(resetDefaultsButton, &QAbstractButton::clicked, this, [=] {
+    connect(resetDefaultsButton, &QAbstractButton::clicked, this,
+            [this, buildArgumentsTextEdit, resetDefaultsButton] {
         setBaseArguments(defaultArguments());
         buildArgumentsTextEdit->setPlainText(ProcessArgs::joinArgs(baseArguments()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
     });
 
-    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this, [=] {
+    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this,
+            [this, extraArgumentsLineEdit] {
         setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text(),
                                                  HostOsInfo::hostOs()));
     });
@@ -148,7 +151,7 @@ bool IosBuildStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     if (!tc) {
         emit addTask(Task::compilerMissingTask());
         emitFaultyConfigurationMessage();
@@ -195,7 +198,7 @@ QStringList IosBuildStep::defaultArguments() const
 {
     QStringList res;
     Kit *kit = target()->kit();
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
     switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
         res << "-configuration" << "Debug";
@@ -211,7 +214,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        auto gtc = static_cast<GccToolChain *>(tc);
+        auto gtc = static_cast<GccToolchain *>(tc);
         res << gtc->platformCodeGenFlags();
     }
     if (!SysRootKitAspect::sysRoot(kit).isEmpty())

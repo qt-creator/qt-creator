@@ -8,14 +8,18 @@
 #include "texteditortr.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
-#include <utils/qtcsettings.h>
+#include <texteditor/texteditoractionhandler.h>
+
+#include <utils/action.h>
+#include <utils/ranges.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -26,6 +30,7 @@
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 
 #include <optional>
@@ -52,11 +57,23 @@ const char TOGGLEEDITOR_ACTION[] = "Markdown.ToggleEditor";
 const char TOGGLEPREVIEW_ACTION[] = "Markdown.TogglePreview";
 const char SWAPVIEWS_ACTION[] = "Markdown.SwapViews";
 
+class MarkdownEditorWidget : public TextEditorWidget
+{
+    Q_OBJECT
+public:
+    using TextEditorWidget::TextEditorWidget;
+
+    void findLinkAt(const QTextCursor &cursor,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+};
+
 class MarkdownEditor : public IEditor
 {
     Q_OBJECT
 public:
-    MarkdownEditor()
+    MarkdownEditor(const TextEditor::TextEditorActionHandler *actionHandler)
         : m_document(new TextDocument(MARKDOWNVIEWER_ID))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
@@ -90,7 +107,8 @@ public:
         });
 
         // editor
-        m_textEditorWidget = new TextEditorWidget;
+        m_textEditorWidget = new MarkdownEditorWidget;
+        m_textEditorWidget->setOptionalActions(actionHandler->optionalActions());
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
@@ -119,33 +137,31 @@ public:
         }
         agg->add(m_widget.get());
 
-        m_togglePreviewVisible = new CommandButton(TOGGLEPREVIEW_ACTION);
-        m_togglePreviewVisible->setText(m_togglePreviewVisible->toolTipBase());
+        m_togglePreviewVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEPREVIEW_ACTION);
         m_togglePreviewVisible->setCheckable(true);
         m_togglePreviewVisible->setChecked(showPreview);
         m_previewWidget->setVisible(showPreview);
 
-        m_toggleEditorVisible = new CommandButton(TOGGLEEDITOR_ACTION);
-        m_toggleEditorVisible->setText(m_toggleEditorVisible->toolTipBase());
+        m_toggleEditorVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEEDITOR_ACTION);
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
-        auto button = new CommandButton(EMPHASIS_ACTION);
-        button->setText("i");
+        auto button = Command::createToolButtonWithShortcutToolTip(EMPHASIS_ACTION);
+        button->defaultAction()->setIconText("i");
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
         m_markDownButtons.append(button);
-        button = new CommandButton(STRONG_ACTION);
-        button->setText("b");
+        button = Command::createToolButtonWithShortcutToolTip(STRONG_ACTION);
+        button->defaultAction()->setIconText("b");
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
         m_markDownButtons.append(button);
-        button = new CommandButton(INLINECODE_ACTION);
-        button->setText("`");
+        button = Command::createToolButtonWithShortcutToolTip(INLINECODE_ACTION);
+        button->defaultAction()->setIconText("`");
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
         m_markDownButtons.append(button);
-        button = new CommandButton(LINK_ACTION);
+        button = Command::createToolButtonWithShortcutToolTip(LINK_ACTION);
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
         m_markDownButtons.append(button);
@@ -155,20 +171,15 @@ public:
                 button->setVisible(false);
         }
 
-        m_swapViews = new CommandButton(SWAPVIEWS_ACTION);
-        m_swapViews->setText(m_swapViews->toolTipBase());
+        for (auto button : m_markDownButtons | Utils::views::reverse)
+            m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, button);
+
+        m_swapViews = Command::createToolButtonWithShortcutToolTip(SWAPVIEWS_ACTION);
         m_swapViews->setEnabled(showEditor && showPreview);
 
-        m_toolbarLayout = new QHBoxLayout(&m_toolbar);
-        m_toolbarLayout->setSpacing(0);
-        m_toolbarLayout->setContentsMargins(0, 0, 0, 0);
-        for (auto button : m_markDownButtons)
-            m_toolbarLayout->addWidget(button);
-        m_toolbarLayout->addStretch();
-        m_toolbarLayout->addWidget(m_togglePreviewVisible);
-        m_toolbarLayout->addWidget(m_toggleEditorVisible);
-        m_toolbarLayout->addWidget(m_swapViews);
-
+        m_swapViewsAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_swapViews);
+        m_toggleEditorVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_toggleEditorVisible);
+        m_togglePreviewVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_togglePreviewVisible);
         setWidgetOrder(textEditorRight);
 
         connect(m_document.data(),
@@ -347,14 +358,13 @@ public:
         m_splitter->insertWidget(0, left);
         m_splitter->insertWidget(1, right);
         // buttons
-        QWidget *leftButton = textEditorRight ? m_togglePreviewVisible : m_toggleEditorVisible;
-        QWidget *rightButton = textEditorRight ? m_toggleEditorVisible : m_togglePreviewVisible;
-        const int rightIndex = m_toolbarLayout->count() - 2;
-        m_toolbarLayout->insertWidget(rightIndex, leftButton);
-        m_toolbarLayout->insertWidget(rightIndex, rightButton);
+        const auto leftAction = textEditorRight ? m_togglePreviewVisibleAction : m_toggleEditorVisibleAction;
+        const auto rightAction = textEditorRight ? m_toggleEditorVisibleAction : m_togglePreviewVisibleAction;
+        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, leftAction);
+        m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, rightAction);
     }
 
-    QWidget *toolBar() override { return &m_toolbar; }
+    QWidget *toolBar() override { return m_textEditorWidget->toolBarWidget(); }
 
     IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
@@ -475,19 +485,36 @@ private:
     QTextBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
-    QWidget m_toolbar;
-    QHBoxLayout *m_toolbarLayout;
     QList<QToolButton *> m_markDownButtons;
-    CommandButton *m_toggleEditorVisible;
-    CommandButton *m_togglePreviewVisible;
-    CommandButton *m_swapViews;
+    QToolButton *m_toggleEditorVisible;
+    QToolButton *m_togglePreviewVisible;
+    QToolButton *m_swapViews;
+    QAction *m_toggleEditorVisibleAction;
+    QAction *m_togglePreviewVisibleAction;
+    QAction *m_swapViewsAction;
     std::optional<QPoint> m_previewRestoreScrollPosition;
+};
+
+class MarkdownEditorFactory final : public IEditorFactory
+{
+public:
+    MarkdownEditorFactory();
+
+private:
+    TextEditorActionHandler m_actionHandler;
+    Action m_emphasisAction;
+    Action m_strongAction;
+    Action m_inlineCodeAction;
+    Action m_linkAction;
+    Action m_toggleEditorAction;
+    Action m_togglePreviewAction;
+    Action m_swapAction;
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
     : m_actionHandler(MARKDOWNVIEWER_ID,
                       MARKDOWNVIEWER_TEXT_CONTEXT,
-                      TextEditor::TextEditorActionHandler::None,
+                      TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor,
                       [](IEditor *editor) {
                           return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
                       })
@@ -495,61 +522,170 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setId(MARKDOWNVIEWER_ID);
     setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
-    setEditorCreator([] { return new MarkdownEditor; });
+    setEditorCreator([this] { return new MarkdownEditor{&m_actionHandler}; });
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
     const auto context = Context(MARKDOWNVIEWER_ID);
-    Command *cmd = nullptr;
-    cmd = ActionManager::registerAction(&m_emphasisAction, EMPHASIS_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Emphasis"));
-    QObject::connect(&m_emphasisAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerEmphasis();
-    });
-    cmd = ActionManager::registerAction(&m_strongAction, STRONG_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Strong"));
-    QObject::connect(&m_strongAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerStrong();
-    });
-    cmd = ActionManager::registerAction(&m_inlineCodeAction, INLINECODE_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Inline Code"));
-    QObject::connect(&m_inlineCodeAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerInlineCode();
-    });
-    cmd = ActionManager::registerAction(&m_linkAction, LINK_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Hyperlink"));
-    QObject::connect(&m_linkAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->triggerLink();
-    });
 
-    cmd = ActionManager::registerAction(&m_toggleEditorAction, TOGGLEEDITOR_ACTION, context);
-    cmd->setDescription(Tr::tr("Show Editor"));
-    QObject::connect(&m_toggleEditorAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->toggleEditor();
-    });
-    cmd = ActionManager::registerAction(&m_togglePreviewAction, TOGGLEPREVIEW_ACTION, context);
-    cmd->setDescription(Tr::tr("Show Preview"));
-    QObject::connect(&m_togglePreviewAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->togglePreview();
-    });
-    cmd = ActionManager::registerAction(&m_swapAction, SWAPVIEWS_ACTION, context);
-    cmd->setDescription(Tr::tr("Swap Views"));
-    QObject::connect(&m_swapAction, &QAction::triggered, EditorManager::instance(), [] {
-        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
-        if (editor)
-            editor->swapViews();
-    });
+    ActionBuilder(nullptr, EMPHASIS_ACTION)
+        .adopt(&m_emphasisAction)
+        .setText(Tr::tr("Emphasis"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerEmphasis();
+        });
+
+    ActionBuilder(nullptr, STRONG_ACTION)
+        .adopt(&m_strongAction)
+        .setText("Strong")
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerStrong();
+        });
+
+    ActionBuilder(nullptr, INLINECODE_ACTION)
+        .adopt(&m_inlineCodeAction)
+        .setText(Tr::tr("Inline Code"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerInlineCode();
+        });
+
+    ActionBuilder(nullptr, LINK_ACTION)
+        .adopt(&m_linkAction)
+        .setText(Tr::tr("Hyperlink"))
+        .setContext(textContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->triggerLink();
+        });
+
+    ActionBuilder(nullptr, TOGGLEEDITOR_ACTION)
+        .adopt(&m_toggleEditorAction)
+        .setText(Tr::tr("Show Editor"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->toggleEditor();
+        });
+
+    ActionBuilder(nullptr, TOGGLEPREVIEW_ACTION)
+        .adopt(&m_togglePreviewAction)
+        .setText(Tr::tr("Show Preview"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->togglePreview();
+        });
+
+    ActionBuilder(nullptr, SWAPVIEWS_ACTION)
+        .adopt(&m_swapAction)
+        .setText(Tr::tr("Swap Views"))
+        .setContext(context)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->swapViews();
+        });
+}
+
+void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                      const LinkHandler &processLinkCallback,
+                                      bool /*resolveTarget*/,
+                                      bool /*inNextSplit*/)
+{
+    static const QStringView CAPTURE_GROUP_LINK   = u"link";
+    static const QStringView CAPTURE_GROUP_ANCHOR = u"anchor";
+    static const QStringView CAPTURE_GROUP_RAWURL = u"rawurl";
+
+    static const QRegularExpression markdownLink{
+        R"(\[[^[\]]*\]\((?<link>.+?)\))"
+        R"(|(?<anchor>\[\^[^\]]+\])(?:[^:]|$))"
+        R"(|(?<rawurl>(?:https?|ftp)\://[^">)\s]+))"
+    };
+
+    QTC_ASSERT(markdownLink.isValid(), return);
+
+    const int blockOffset = cursor.block().position();
+    const QString &currentBlock = cursor.block().text();
+
+    for (const QRegularExpressionMatch &match : markdownLink.globalMatch(currentBlock)) {
+        // Ignore matches outside of the current cursor position.
+        if (cursor.positionInBlock() < match.capturedStart())
+            break;
+        if (cursor.positionInBlock() >= match.capturedEnd())
+            continue;
+
+        if (const QStringView link = match.capturedView(CAPTURE_GROUP_LINK); !link.isEmpty()) {
+            // Process regular Markdown links of the form `[description](link)`.
+
+            const QUrl url = link.toString();
+            const auto linkedPath = [this, url] {
+                if (url.isRelative())
+                    return textDocument()->filePath().parentDir().resolvePath(url.path());
+                else if (url.isLocalFile())
+                    return FilePath::fromString(url.toLocalFile());
+                else if (!url.scheme().isEmpty())
+                    return FilePath::fromString(url.toString());
+                else
+                    return FilePath{};
+            }();
+
+            if (!linkedPath.isFile() && url.scheme().isEmpty())
+                continue;
+
+            Link result = linkedPath;
+            result.linkTextStart = match.capturedStart() + blockOffset;
+            result.linkTextEnd = match.capturedEnd() + blockOffset;
+            processLinkCallback(result);
+            break;
+        } else if (const QStringView anchor = match.capturedView(CAPTURE_GROUP_ANCHOR);
+                   !anchor.isEmpty()) {
+            // Process local anchor links of the form `[^footnote]` that point
+            // to anchors in the current document: `[^footnote]: Description`.
+
+            const QTextCursor target = cursor.document()->find(anchor + u':');
+
+            if (target.isNull())
+                continue;
+
+            int line = 0;
+            int column = 0;
+
+            convertPosition(target.position(), &line, &column);
+            Link result{textDocument()->filePath(), line, column};
+            result.linkTextStart = match.capturedStart(CAPTURE_GROUP_ANCHOR) + blockOffset;
+            result.linkTextEnd = match.capturedEnd(CAPTURE_GROUP_ANCHOR) + blockOffset;
+            processLinkCallback(result);
+            break;
+        } else if (const QStringView rawurl = match.capturedView(CAPTURE_GROUP_RAWURL);
+                   !rawurl.isEmpty()) {
+            // Process raw links starting with "http://", "https://", or "ftp://".
+
+            Link result{FilePath::fromString(rawurl.toString())};
+            result.linkTextStart = match.capturedStart() + blockOffset;
+            result.linkTextEnd = match.capturedEnd() + blockOffset;
+            processLinkCallback(result);
+            break;
+        } else {
+            QTC_ASSERT_STRING("This line should not be reached unless 'markdownLink' is wrong");
+            return;
+        }
+    }
+}
+
+void setupMarkdownEditor()
+{
+    static MarkdownEditorFactory theMarkdownEditorFactory;
 }
 
 } // namespace TextEditor::Internal

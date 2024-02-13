@@ -18,7 +18,7 @@
 
     To be able to run and debug applications on Boot2Qt devices,
     you must add devices and select them in the \QC
-    \l{Kits}{kit}.
+    \l{kits-tab}{kit}.
 
     \section1 Enabling the Boot2Qt Plugin
 
@@ -146,6 +146,6 @@
             When you run the project, \QC deploys the application as
             specified by the deploy steps. By default, \QC copies the
             application files to the device. For more information, see
-            \l{Specifying Run Settings for Boot2Qt Devices}.
+            \l{Boot2Qt Run Settings}.
     \endlist
 */

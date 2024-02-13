@@ -69,6 +69,7 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/savefile.h>
+#include <utils/synchronizedvalue.h>
 #include <utils/temporarydirectory.h>
 
 #include <QAction>
@@ -169,16 +170,20 @@ public:
     Snapshot m_snapshot;
 
     // Project integration
-    QReadWriteLock m_projectLock;
-    QHash<Project *, ProjectData> m_projectData;
-    QMap<FilePath, QList<ProjectPart::ConstPtr> > m_fileToProjectParts;
-    QMap<QString, ProjectPart::ConstPtr> m_projectPartIdToProjectProjectPart;
+    struct SyncedProjectData
+    {
+        QHash<Project *, ProjectData> m_projectData;
+        QMap<FilePath, QList<ProjectPart::ConstPtr>> m_fileToProjectParts;
+        QMap<QString, ProjectPart::ConstPtr> m_projectPartIdToProjectProjectPart;
 
-    // The members below are cached/(re)calculated from the projects and/or their project parts
-    bool m_dirty;
-    FilePaths m_projectFiles;
-    HeaderPaths m_headerPaths;
-    Macros m_definedMacros;
+        // The members below are cached/(re)calculated from the projects and/or their project parts
+        bool m_dirty{true};
+        FilePaths m_projectFiles;
+        HeaderPaths m_headerPaths;
+        Macros m_definedMacros;
+    };
+
+    Utils::SynchronizedValue<SyncedProjectData> m_lockedProjectData;
 
     // Editor integration
     mutable QMutex m_cppEditorDocumentsMutex;
@@ -215,6 +220,12 @@ public:
     std::unique_ptr<ILocatorFilter> m_currentDocumentFilter;
 
     QList<Document::DiagnosticMessage> m_diagnosticMessages;
+
+    static void recalculateProjectPartMappings(SyncedProjectData &ld);
+    static void ensureUpdated(SyncedProjectData &ld);
+    static Utils::FilePaths internalProjectFiles(SyncedProjectData &ld);
+    static ProjectExplorer::HeaderPaths internalHeaderPaths(SyncedProjectData &ld);
+    static ProjectExplorer::Macros internalDefinedMacros(SyncedProjectData &ld);
 };
 
 static CppModelManagerPrivate *d;
@@ -409,19 +420,19 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         return;
     }
 
-    const ToolChain * tc = nullptr;
+    const Toolchain * tc = nullptr;
     const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toString()));
     if (classifier.isC()) {
-        tc = ToolChainKitAspect::cToolChain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cToolchain(project->activeTarget()->kit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
-        tc = ToolChainKitAspect::cxxToolChain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cxxToolchain(project->activeTarget()->kit());
     } else {
         showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
         return;
     }
 
-    const bool isGcc = dynamic_cast<const GccToolChain *>(tc);
+    const bool isGcc = dynamic_cast<const GccToolchain *>(tc);
     const bool isMsvc = !isGcc
             && (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID);
@@ -464,7 +475,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
             return;
         }
         if (isMsvc)
-            saveAndOpen(outFilePath, compiler->readAllRawStandardOutput(), inNextSplit);
+            saveAndOpen(outFilePath, compiler->rawStdOut(), inNextSplit);
         else
             openEditor(outFilePath, inNextSplit, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     });
@@ -989,8 +1000,6 @@ CppModelManager::CppModelManager()
     d->m_findReferences = new CppFindReferences(this);
     d->m_indexerEnabled = qtcEnvironmentVariable("QTC_NO_CODE_INDEXER") != "1";
 
-    d->m_dirty = true;
-
     d->m_delayedGcTimer.setObjectName(QLatin1String("CppModelManager::m_delayedGcTimer"));
     d->m_delayedGcTimer.setSingleShot(true);
     connect(&d->m_delayedGcTimer, &QTimer::timeout, this, &CppModelManager::GC);
@@ -1008,7 +1017,7 @@ CppModelManager::CppModelManager()
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &CppModelManager::onCurrentEditorChanged);
 
-    connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::filesRenamed,
             this, &CppModelManager::renameIncludes);
 
     connect(ICore::instance(), &ICore::coreAboutToClose,
@@ -1071,22 +1080,21 @@ bool CppModelManager::replaceDocument(Document::Ptr newDoc)
     return true;
 }
 
-/// Make sure that m_projectLock is locked for writing when calling this.
-void CppModelManager::ensureUpdated()
+void CppModelManagerPrivate::ensureUpdated(SyncedProjectData &ld)
 {
-    if (!d->m_dirty)
+    if (!ld.m_dirty)
         return;
 
-    d->m_projectFiles = internalProjectFiles();
-    d->m_headerPaths = internalHeaderPaths();
-    d->m_definedMacros = internalDefinedMacros();
-    d->m_dirty = false;
+    ld.m_projectFiles = internalProjectFiles(ld);
+    ld.m_headerPaths = internalHeaderPaths(ld);
+    ld.m_definedMacros = internalDefinedMacros(ld);
+    ld.m_dirty = false;
 }
 
-FilePaths CppModelManager::internalProjectFiles()
+FilePaths CppModelManagerPrivate::internalProjectFiles(SyncedProjectData &ld)
 {
     FilePaths files;
-    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectFile &file : part->files)
                 files += file.path;
@@ -1096,10 +1104,10 @@ FilePaths CppModelManager::internalProjectFiles()
     return files;
 }
 
-HeaderPaths CppModelManager::internalHeaderPaths()
+HeaderPaths CppModelManagerPrivate::internalHeaderPaths(SyncedProjectData &ld)
 {
     HeaderPaths headerPaths;
-    for (const ProjectData &projectData: std::as_const(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const HeaderPath &path : part->headerPaths) {
                 HeaderPath hp(QDir::cleanPath(path.path), path.type);
@@ -1120,13 +1128,13 @@ static void addUnique(const Macros &newMacros, Macros &macros,
     }
 }
 
-Macros CppModelManager::internalDefinedMacros()
+Macros CppModelManagerPrivate::internalDefinedMacros(SyncedProjectData &ld)
 {
     Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
-            addUnique(part->toolChainMacros, macros, alreadyIn);
+            addUnique(part->toolchainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
         }
     }
@@ -1351,15 +1359,19 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
 
 ProjectInfoList CppModelManager::projectInfos()
 {
-    QReadLocker locker(&d->m_projectLock);
-    return Utils::transform<QList<ProjectInfo::ConstPtr>>(d->m_projectData,
-            [](const ProjectData &d) { return d.projectInfo; });
+    return Utils::transform<QList<ProjectInfo::ConstPtr>>(d->m_lockedProjectData.readLocked()
+                                                              ->m_projectData,
+                                                          [](const ProjectData &d) {
+                                                              return d.projectInfo;
+                                                          });
 }
 
 ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 {
-    QReadLocker locker(&d->m_projectLock);
-    return d->m_projectData.value(project).projectInfo;
+    return d->m_lockedProjectData.get<ProjectInfo::ConstPtr>(
+        [project](const CppModelManagerPrivate::SyncedProjectData &ld) {
+            return ld.m_projectData.value(project).projectInfo;
+        });
 }
 
 /// \brief Remove all files and their includes (recursively) of given ProjectInfo from the snapshot.
@@ -1460,18 +1472,17 @@ private:
     const QSet<FilePath> m_newSourceFiles;
 };
 
-/// Make sure that m_projectLock is locked for writing when calling this.
-void CppModelManager::recalculateProjectPartMappings()
+void CppModelManagerPrivate::recalculateProjectPartMappings(SyncedProjectData &ld)
 {
-    d->m_projectPartIdToProjectProjectPart.clear();
-    d->m_fileToProjectParts.clear();
-    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
+    ld.m_projectPartIdToProjectProjectPart.clear();
+    ld.m_fileToProjectParts.clear();
+    for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
-            d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
+            ld.m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files) {
-                d->m_fileToProjectParts[cxxFile.path].append(projectPart);
+                ld.m_fileToProjectParts[cxxFile.path].append(projectPart);
                 if (FilePath canonical = cxxFile.path.canonicalPath(); canonical != cxxFile.path)
-                    d->m_fileToProjectParts[canonical].append(projectPart);
+                    ld.m_fileToProjectParts[canonical].append(projectPart);
             }
         }
     }
@@ -1483,12 +1494,15 @@ void CppModelManagerPrivate::setupWatcher(const QFuture<void> &future, Project *
                                           ProjectData *projectData, CppModelManager *q)
 {
     projectData->indexer = new QFutureWatcher<void>(q);
-    const auto handleFinished = [this, project, watcher = projectData->indexer, q] {
-        if (const auto it = m_projectData.find(project);
-                it != m_projectData.end() && it->indexer == watcher) {
-            it->indexer = nullptr;
-            it->fullyIndexed = !watcher->isCanceled();
-        }
+    const auto handleFinished = [project, watcher = projectData->indexer, q] {
+        d->m_lockedProjectData.write([watcher, project](auto &ld) {
+            const auto it = ld.m_projectData.find(project);
+            if (it != ld.m_projectData.end() && it->indexer == watcher) {
+                it->indexer = nullptr;
+                it->fullyIndexed = !watcher->isCanceled();
+            }
+        });
+
         watcher->disconnect(q);
         watcher->deleteLater();
     };
@@ -1542,17 +1556,21 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
         return {};
 
     ProjectData *projectData = nullptr;
-    { // Only hold the lock for a limited scope, so the dumping afterwards does not deadlock.
-        QWriteLocker projectLocker(&d->m_projectLock);
 
+    d->m_lockedProjectData.write([&newProjectInfo,
+                                  project,
+                                  &filesToReindex,
+                                  &removedProjectParts,
+                                  &filesRemoved,
+                                  &projectData](auto &ld) {
         const QSet<FilePath> newSourceFiles = newProjectInfo->sourceFiles();
 
         // Check if we can avoid a full reindexing
-        const auto it = d->m_projectData.find(project);
-        if (it != d->m_projectData.end() && it->projectInfo && it->fullyIndexed) {
+        const auto it = ld.m_projectData.find(project);
+        if (it != ld.m_projectData.end() && it->projectInfo && it->fullyIndexed) {
             ProjectInfoComparer comparer(*it->projectInfo, *newProjectInfo);
             if (comparer.configurationOrFilesChanged()) {
-                d->m_dirty = true;
+                ld.m_dirty = true;
 
                 // If the project configuration changed, do a full reindexing
                 if (comparer.configurationChanged()) {
@@ -1587,22 +1605,22 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
         // A new project was opened/created, do a full indexing
         } else {
-            d->m_dirty = true;
+            ld.m_dirty = true;
             filesToReindex.unite(newSourceFiles);
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
-        if (it != d->m_projectData.end()) {
+        if (it != ld.m_projectData.end()) {
             if (it->indexer)
                 it->indexer->cancel();
             it->projectInfo = newProjectInfo;
             it->fullyIndexed = false;
         }
-        projectData = it == d->m_projectData.end()
-                ? &(d->m_projectData[project] = ProjectData{newProjectInfo, nullptr, false})
-                : &(*it);
-        recalculateProjectPartMappings();
-    } // Locker scope
+        projectData = it == ld.m_projectData.end() ? &(
+                          ld.m_projectData[project] = ProjectData{newProjectInfo, nullptr, false})
+                                                   : &(*it);
+        CppModelManagerPrivate::recalculateProjectPartMappings(ld);
+    });
 
     // If requested, dump everything we got
     if (DumpProjectInfo)
@@ -1639,25 +1657,38 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
 ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPartId)
 {
-    QReadLocker locker(&d->m_projectLock);
-    return d->m_projectPartIdToProjectProjectPart.value(projectPartId);
+    return d->m_lockedProjectData.get<ProjectPart::ConstPtr>(
+        [projectPartId](const CppModelManagerPrivate::SyncedProjectData &ld) {
+            return ld.m_projectPartIdToProjectProjectPart.value(projectPartId);
+        });
 }
 
 QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const FilePath &fileName)
 {
-    {
-        QReadLocker locker(&d->m_projectLock);
-        auto it = d->m_fileToProjectParts.constFind(fileName);
-        if (it != d->m_fileToProjectParts.constEnd())
-            return it.value();
-    }
+    std::optional<QList<ProjectPart::ConstPtr>> result;
+
+    d->m_lockedProjectData.read(
+        [&fileName, &result](const CppModelManagerPrivate::SyncedProjectData &sd) {
+            const auto it = sd.m_fileToProjectParts.constFind(fileName);
+            if (it != sd.m_fileToProjectParts.constEnd())
+                result = *it;
+        });
+
+    if (result)
+        return *result;
+
     const FilePath canonicalPath = fileName.canonicalPath();
-    QWriteLocker locker(&d->m_projectLock);
-    const auto it = d->m_fileToProjectParts.constFind(canonicalPath);
-    if (it == d->m_fileToProjectParts.constEnd())
-        return {};
-    d->m_fileToProjectParts.insert(fileName, it.value());
-    return it.value();
+
+    d->m_lockedProjectData.write(
+        [&fileName, &canonicalPath, &result](CppModelManagerPrivate::SyncedProjectData &sd) {
+            const auto it = sd.m_fileToProjectParts.constFind(canonicalPath);
+            if (it == sd.m_fileToProjectParts.constEnd())
+                return;
+            sd.m_fileToProjectParts.insert(fileName, it.value());
+            result = it.value();
+        });
+
+    return result.value_or(QList<ProjectPart::ConstPtr>{});
 }
 
 QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
@@ -1713,8 +1744,7 @@ void CppModelManager::emitAbstractEditorSupportRemoved(const QString &filePath)
 
 void CppModelManager::onProjectAdded(Project *)
 {
-    QWriteLocker locker(&d->m_projectLock);
-    d->m_dirty = true;
+    d->m_lockedProjectData.writeLocked()->m_dirty = true;
 }
 
 void CppModelManager::delayedGC()
@@ -1735,17 +1765,17 @@ void CppModelManager::onAboutToRemoveProject(Project *project)
 {
     QStringList idsOfRemovedProjectParts;
 
-    {
-        QWriteLocker locker(&d->m_projectLock);
-        d->m_dirty = true;
-        const QStringList projectPartsIdsBefore = d->m_projectPartIdToProjectProjectPart.keys();
+    d->m_lockedProjectData.write([project, &idsOfRemovedProjectParts](
+                                     CppModelManagerPrivate::SyncedProjectData &sd) {
+        sd.m_dirty = true;
+        const QStringList projectPartsIdsBefore = sd.m_projectPartIdToProjectProjectPart.keys();
 
-        d->m_projectData.remove(project);
-        recalculateProjectPartMappings();
+        sd.m_projectData.remove(project);
+        CppModelManagerPrivate::recalculateProjectPartMappings(sd);
 
-        const QStringList projectPartsIdsAfter = d->m_projectPartIdToProjectProjectPart.keys();
+        const QStringList projectPartsIdsAfter = sd.m_projectPartIdToProjectProjectPart.keys();
         idsOfRemovedProjectParts = removedProjectParts(projectPartsIdsBefore, projectPartsIdsAfter);
-    }
+    });
 
     if (!idsOfRemovedProjectParts.isEmpty())
         emit m_instance->projectPartsRemoved(idsOfRemovedProjectParts);
@@ -1758,11 +1788,8 @@ void CppModelManager::onActiveProjectChanged(Project *project)
     if (!project)
         return; // Last project closed.
 
-    {
-        QReadLocker locker(&d->m_projectLock);
-        if (!d->m_projectData.contains(project))
-            return; // Not yet known to us.
-    }
+    if (!d->m_lockedProjectData.readLocked()->m_projectData.contains(project))
+        return; // Not yet known to us.
 
     updateCppEditorDocuments();
 }
@@ -1833,59 +1860,70 @@ QSet<QString> CppModelManager::internalTargets(const FilePath &filePath)
     return targets;
 }
 
-void CppModelManager::renameIncludes(const FilePath &oldFilePath, const FilePath &newFilePath)
+// Note: This function assumes that neither the project tree nor the code model are aware of
+//       the renamings yet, i.e. they still refer to the old file paths.
+void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> &oldAndNewPaths)
 {
-    if (oldFilePath.isEmpty() || newFilePath.isEmpty())
-        return;
-
-    // We just want to handle renamings so return when the file was actually moved.
-    if (oldFilePath.absolutePath() != newFilePath.absolutePath())
-        return;
-
-    const TextEditor::RefactoringChanges changes;
-
-    QString oldFileName = oldFilePath.fileName();
-    QString newFileName = newFilePath.fileName();
-    const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
-    if (isUiFile) {
-        oldFileName = "ui_" + oldFilePath.baseName() + ".h";
-        newFileName = "ui_" + newFilePath.baseName() + ".h";
-    }
-    static const auto getProductNode = [](const FilePath &filePath) -> const Node * {
-        const Node * const fileNode = ProjectTree::nodeForFile(filePath);
-        if (!fileNode)
-            return nullptr;
-        const ProjectNode *productNode = fileNode->parentProjectNode();
-        while (productNode && !productNode->isProduct())
-            productNode = productNode->parentProjectNode();
-        if (!productNode)
-            productNode = fileNode->getProject()->rootProjectNode();
-        return productNode;
-    };
-    const Node * const productNodeForUiFile = isUiFile ? getProductNode(oldFilePath) : nullptr;
-    if (isUiFile && !productNodeForUiFile)
-        return;
-
-    const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
-        isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
-    for (const Snapshot::IncludeLocation &loc : locations) {
-        const FilePath filePath = loc.first->filePath();
-
-        // Larger projects can easily have more than one ui file with the same name.
-        // Replace only if ui file and including source file belong to the same product.
-        if (isUiFile && getProductNode(filePath) != productNodeForUiFile)
+    for (const auto &[oldFilePath, newFilePath] : oldAndNewPaths) {
+        if (oldFilePath.isEmpty() || newFilePath.isEmpty())
             continue;
 
-        TextEditor::RefactoringFilePtr file = changes.file(filePath);
-        const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-        const int replaceStart = block.text().indexOf(oldFileName);
-        if (replaceStart > -1) {
-            ChangeSet changeSet;
-            changeSet.replace(block.position() + replaceStart,
-                              block.position() + replaceStart + oldFileName.length(),
-                              newFileName);
-            file->setChangeSet(changeSet);
-            file->apply();
+        // We just want to handle renamings so return when the file was actually moved.
+        if (oldFilePath.absolutePath() != newFilePath.absolutePath())
+            continue;
+
+        const TextEditor::PlainRefactoringFileFactory changes;
+
+        QString oldFileName = oldFilePath.fileName();
+        QString newFileName = newFilePath.fileName();
+        const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+        if (isUiFile) {
+            oldFileName = "ui_" + oldFilePath.baseName() + ".h";
+            newFileName = "ui_" + newFilePath.baseName() + ".h";
+        }
+        static const auto getProductNode = [](const FilePath &filePath) -> const Node * {
+            const Node * const fileNode = ProjectTree::nodeForFile(filePath);
+            if (!fileNode)
+                return nullptr;
+            const ProjectNode *productNode = fileNode->parentProjectNode();
+            while (productNode && !productNode->isProduct())
+                productNode = productNode->parentProjectNode();
+            if (!productNode)
+                productNode = fileNode->getProject()->rootProjectNode();
+            return productNode;
+        };
+        const Node * const productNodeForUiFile = isUiFile ? getProductNode(oldFilePath) : nullptr;
+        if (isUiFile && !productNodeForUiFile)
+            continue;
+
+        const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
+            isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
+        for (const Snapshot::IncludeLocation &loc : locations) {
+            const FilePath includingFileOld = loc.first->filePath();
+            FilePath includingFileNew = includingFileOld;
+            for (const auto &pathPair : oldAndNewPaths) {
+                if (includingFileNew == pathPair.first) {
+                    includingFileNew = pathPair.second;
+                    break;
+                }
+            }
+
+            // Larger projects can easily have more than one ui file with the same name.
+            // Replace only if ui file and including source file belong to the same product.
+            if (isUiFile && getProductNode(includingFileOld) != productNodeForUiFile)
+                continue;
+
+            TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
+            const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
+            const int replaceStart = block.text().indexOf(oldFileName);
+            if (replaceStart > -1) {
+                ChangeSet changeSet;
+                changeSet.replace(block.position() + replaceStart,
+                                  block.position() + replaceStart + oldFileName.length(),
+                                  newFileName);
+                file->setChangeSet(changeSet);
+                file->apply();
+            }
         }
     }
 }
@@ -1954,7 +1992,7 @@ void CppModelManager::onCoreAboutToClose()
 
 void CppModelManager::setupFallbackProjectPart()
 {
-    ToolChainInfo tcInfo;
+    ToolchainInfo tcInfo;
     RawProjectPart rpp;
     rpp.setMacros(definedMacros());
     rpp.setHeaderPaths(headerPaths());
@@ -1967,17 +2005,17 @@ void CppModelManager::setupFallbackProjectPart()
 
     // TODO: Use different fallback toolchain for different kinds of files?
     const Kit * const defaultKit = KitManager::isLoaded() ? KitManager::defaultKit() : nullptr;
-    const ToolChain * const defaultTc = defaultKit
-            ? ToolChainKitAspect::cxxToolChain(defaultKit) : nullptr;
+    const Toolchain * const defaultTc = defaultKit
+            ? ToolchainKitAspect::cxxToolchain(defaultKit) : nullptr;
     if (defaultKit && defaultTc) {
         FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
         if (sysroot.isEmpty())
             sysroot = FilePath::fromString(defaultTc->sysRoot());
         Utils::Environment env = defaultKit->buildEnvironment();
-        tcInfo = ToolChainInfo(defaultTc, sysroot, env);
+        tcInfo = ToolchainInfo(defaultTc, sysroot, env);
         const auto macroInspectionWrapper = [runner = tcInfo.macroInspectionRunner](
                 const QStringList &flags) {
-            ToolChain::MacroInspectionReport report = runner(flags);
+            Toolchain::MacroInspectionReport report = runner(flags);
             report.languageVersion = LanguageVersion::LatestCxx;
             return report;
         };
@@ -2068,10 +2106,11 @@ TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler()
 
 void CppModelManager::followSymbol(const CursorInEditor &data,
                                    const LinkHandler &processLinkCallback,
-                                   bool resolveTarget, bool inNextSplit, Backend backend)
+                                   bool resolveTarget, bool inNextSplit,
+                                   FollowSymbolMode mode, Backend backend)
 {
-    modelManagerSupport(backend)->followSymbol(data, processLinkCallback,
-                                                           resolveTarget, inNextSplit);
+    modelManagerSupport(backend)->followSymbol(data, processLinkCallback, mode,
+                                               resolveTarget, inNextSplit);
 }
 
 void CppModelManager::followSymbolToType(const CursorInEditor &data,
@@ -2102,32 +2141,33 @@ CppIndexingSupport *CppModelManager::indexingSupport()
 
 FilePaths CppModelManager::projectFiles()
 {
-    QWriteLocker locker(&d->m_projectLock);
-    ensureUpdated();
-
-    return d->m_projectFiles;
+    return d->m_lockedProjectData.update<FilePaths>(
+        [](CppModelManagerPrivate::SyncedProjectData &sd) {
+            CppModelManagerPrivate::ensureUpdated(sd);
+            return sd.m_projectFiles;
+        });
 }
 
 HeaderPaths CppModelManager::headerPaths()
 {
-    QWriteLocker locker(&d->m_projectLock);
-    ensureUpdated();
-
-    return d->m_headerPaths;
+    return d->m_lockedProjectData.update<HeaderPaths>(
+        [](CppModelManagerPrivate::SyncedProjectData &sd) {
+            CppModelManagerPrivate::ensureUpdated(sd);
+            return sd.m_headerPaths;
+        });
 }
 
 void CppModelManager::setHeaderPaths(const HeaderPaths &headerPaths)
 {
-    QWriteLocker locker(&d->m_projectLock);
-    d->m_headerPaths = headerPaths;
+    d->m_lockedProjectData.writeLocked()->m_headerPaths = headerPaths;
 }
 
 Macros CppModelManager::definedMacros()
 {
-    QWriteLocker locker(&d->m_projectLock);
-    ensureUpdated();
-
-    return d->m_definedMacros;
+    return d->m_lockedProjectData.update<Macros>([](CppModelManagerPrivate::SyncedProjectData &sd) {
+        CppModelManagerPrivate::ensureUpdated(sd);
+        return sd.m_definedMacros;
+    });
 }
 
 void CppModelManager::enableGarbageCollector(bool enable)

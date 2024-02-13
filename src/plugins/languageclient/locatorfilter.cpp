@@ -48,8 +48,8 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<QList<SymbolInformation>> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<QList<SymbolInformation>> resultStorage;
 
     const auto onQuerySetup = [storage, client, maxResultCount](ClientWorkspaceSymbolRequest &request) {
         request.setClient(client);
@@ -69,15 +69,15 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     const auto onFilterSetup = [storage, resultStorage, client, filter](Async<void> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterResults, *storage, client, results, filter);
         return SetupResult::Continue;
     };
 
     const Group root {
-        Tasking::Storage(resultStorage),
-        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone),
+        resultStorage,
+        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
@@ -119,8 +119,8 @@ LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<CurrentDocumentSymbolsData> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<CurrentDocumentSymbolsData> resultStorage;
 
     const auto onQuerySetup = [](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)
@@ -135,8 +135,8 @@ LocatorMatcherTask currentDocumentMatcher()
     };
 
     const Group root {
-        Tasking::Storage(resultStorage),
-        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone),
+        resultStorage,
+        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};

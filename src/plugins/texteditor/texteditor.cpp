@@ -6,6 +6,7 @@
 #include "autocompleter.h"
 #include "basehoverhandler.h"
 #include "behaviorsettings.h"
+#include "bookmarkmanager.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
 #include "codeassist/assistinterface.h"
@@ -17,13 +18,13 @@
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "highlighter.h"
+#include "highlighterhelper.h"
 #include "highlightersettings.h"
 #include "icodestylepreferences.h"
 #include "marginsettings.h"
 #include "refactoroverlay.h"
 #include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
-#include "syntaxhighlighter.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
@@ -33,6 +34,7 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "typingsettings.h"
+#include "syntaxhighlighterrunner.h"
 
 #include <aggregation/aggregate.h>
 
@@ -148,114 +150,121 @@ using ListTransformationMethod = void(QStringList &);
 
 static constexpr char dropProperty[] = "dropProp";
 
-class LineColumnButton : public QToolButton
+class LineColumnButtonPrivate
 {
-    Q_OBJECT
 public:
-    LineColumnButton(TextEditorWidget *parent)
-        : QToolButton(parent)
-        , m_editor(parent)
-    {
-        connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
-        connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
-            emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
-            QMetaObject::invokeMethod(ActionManager::instance(), [] {
+    QSize m_maxSize;
+    TextEditorWidget *m_editor;
+};
+
+} // namespace Internal
+
+LineColumnButton::LineColumnButton(TextEditorWidget *parent)
+    : QToolButton(parent)
+    , m_d(new LineColumnButtonPrivate)
+{
+    m_d->m_editor = parent;
+    connect(m_d->m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
+    connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
+        m_d->m_editor->setFocus();
+        QMetaObject::invokeMethod(
+            ActionManager::instance(),
+            [] {
                 if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
                     if (QAction *act = cmd->action())
                         act->trigger();
                 }
-            }, Qt::QueuedConnection);
-        });
+            },
+            Qt::QueuedConnection);
+    });
+}
+
+LineColumnButton::~LineColumnButton() = default;
+
+void LineColumnButton::update()
+{
+    const Utils::MultiTextCursor &cursors = m_d->m_editor->multiTextCursor();
+    QString text;
+    if (cursors.hasMultipleCursors()) {
+        text = Tr::tr("Cursors: %2").arg(cursors.cursorCount());
+    } else {
+        const QTextCursor cursor = cursors.mainCursor();
+        const QTextBlock block = cursor.block();
+        const int line = block.blockNumber() + 1;
+        const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+        const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
+        text = Tr::tr("Line: %1, Col: %2").arg(line).arg(column);
+        const QString toolTipText = Tr::tr("Cursor position: %1");
+        setToolTip(toolTipText.arg(cursor.position()));
     }
+    int selection = 0;
+    for (const QTextCursor &cursor : cursors)
+        selection += cursor.selectionEnd() - cursor.selectionStart();
+    if (selection > 0)
+        text += " " + Tr::tr("(Sel: %1)").arg(selection);
+    setText(text);
+}
 
-private:
-    void update()
-    {
-        const Utils::MultiTextCursor &cursors = m_editor->multiTextCursor();
-        QString text;
-        if (cursors.hasMultipleCursors()) {
-            text = Tr::tr("Cursors: %2").arg(cursors.cursorCount());
-        } else {
-            const QTextCursor cursor = cursors.mainCursor();
-            const QTextBlock block = cursor.block();
-            const int line = block.blockNumber() + 1;
-            const TabSettings &tabSettings = m_editor->textDocument()->tabSettings();
-            const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
-            text = Tr::tr("Line: %1, Col: %2").arg(line).arg(column);
-            const QString toolTipText = Tr::tr("Cursor position: %1");
-            setToolTip(toolTipText.arg(cursor.position()));
-        }
-        int selection = 0;
-        for (const QTextCursor &cursor : cursors)
-            selection += cursor.selectionEnd() - cursor.selectionStart();
-        if (selection > 0)
-            text += " " + Tr::tr("(Sel: %1)").arg(selection);
-        setText(text);
-    }
+bool LineColumnButton::event(QEvent *event)
+{
+    if (event->type() == QEvent::Leave)
+        ToolTip::hideImmediately();
 
-    bool event(QEvent *event) override
-    {
-        if (event->type() != QEvent::ToolTip)
-            return QToolButton::event(event);
+    if (event->type() != QEvent::ToolTip)
+        return QToolButton::event(event);
 
-        QString tooltipText = "<table cellpadding='2'>\n";
+    QString tooltipText = "<table cellpadding='2'>\n";
 
-        const MultiTextCursor multiCursor = m_editor->multiTextCursor();
-        const QList<QTextCursor> cursors = multiCursor.cursors().mid(0, 15);
+    const MultiTextCursor multiCursor = m_d->m_editor->multiTextCursor();
+    const QList<QTextCursor> cursors = multiCursor.cursors().mid(0, 15);
 
+    tooltipText += "<tr>";
+    tooltipText += QString("<th align='left'>%1</th>").arg(Tr::tr("Cursors:"));
+    tooltipText += QString("<td>%1</td>").arg(multiCursor.cursorCount());
+    tooltipText += "</tr>\n";
+
+    auto addRow = [&](const QString header, auto cellText) {
         tooltipText += "<tr>";
-        tooltipText += QString("<th align='left'>%1</th>").arg(Tr::tr("Cursors:"));
-        tooltipText += QString("<td>%1</td>").arg(multiCursor.cursorCount());
+        tooltipText += QString("<th align='left'>%1</th>").arg(header);
+        for (const QTextCursor &c : cursors)
+            tooltipText += QString("<td>%1</td>").arg(cellText(c));
+        if (multiCursor.cursorCount() > cursors.count())
+            tooltipText += QString("<td>...</td>");
         tooltipText += "</tr>\n";
+    };
 
-        auto addRow = [&](const QString header, auto cellText) {
-            tooltipText += "<tr>";
-            tooltipText += QString("<th align='left'>%1</th>").arg(header);
-            for (const QTextCursor &c : cursors)
-                tooltipText += QString("<td>%1</td>").arg(cellText(c));
-            if (multiCursor.cursorCount() > cursors.count())
-                tooltipText += QString("<td>...</td>");
-            tooltipText += "</tr>\n";
-        };
+    addRow(Tr::tr("Line:"), [](const QTextCursor &c) { return c.blockNumber() + 1; });
 
-        addRow(Tr::tr("Line:"), [](const QTextCursor &c) { return c.blockNumber() + 1; });
+    const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+    addRow(Tr::tr("Column:"), [&](const QTextCursor &c) {
+        return tabSettings.columnAt(c.block().text(), c.positionInBlock()) + 1;
+    });
 
-        const TabSettings &tabSettings = m_editor->textDocument()->tabSettings();
-        addRow(Tr::tr("Column:"), [&](const QTextCursor &c) {
-            return tabSettings.columnAt(c.block().text(), c.positionInBlock()) + 1;
-        });
+    addRow(Tr::tr("Selection length:"),
+           [](const QTextCursor &c) { return c.selectionEnd() - c.selectionStart(); });
 
-        addRow(Tr::tr("Selection length:"),
-               [](const QTextCursor &c) { return c.selectionEnd() - c.selectionStart(); });
+    addRow(Tr::tr("Position in document:"), [](const QTextCursor &c) { return c.position(); });
 
-        addRow(Tr::tr("Position in document:"), [](const QTextCursor &c) { return c.position(); });
+    addRow(Tr::tr("Anchor:"), [](const QTextCursor &c) { return c.anchor(); });
 
-        addRow(Tr::tr("Anchor:"), [](const QTextCursor &c) { return c.anchor(); });
+    tooltipText += "</table>\n";
 
-        tooltipText += "</table>\n";
+    ToolTip::show(static_cast<const QHelpEvent *>(event)->globalPos(), tooltipText, Qt::RichText);
+    event->accept();
+    return true;
+}
 
-        ToolTip::show(static_cast<const QHelpEvent *>(event)->globalPos(),
-                      tooltipText,
-                      Qt::RichText);
-        event->accept();
-        return true;
-    }
+QSize LineColumnButton::sizeHint() const
+{
+    const QSize size = QToolButton::sizeHint();
+    auto wider = [](const QSize &left, const QSize &right) { return left.width() < right.width(); };
+    if (m_d->m_editor->multiTextCursor().hasSelection())
+        return std::max(m_d->m_maxSize, size, wider); // do not save the size if we have a selection
+    m_d->m_maxSize = std::max(m_d->m_maxSize, size, wider);
+    return m_d->m_maxSize;
+}
 
-    QSize sizeHint() const override
-    {
-        const QSize size = QToolButton::sizeHint();
-        auto wider = [](const QSize &left, const QSize &right) {
-            return left.width() < right.width();
-        };
-        if (m_editor->multiTextCursor().hasSelection())
-            return std::max(m_maxSize, size, wider); // do not save the size if we have a selection
-        m_maxSize = std::max(m_maxSize, size, wider);
-        return m_maxSize;
-    }
-
-    mutable QSize m_maxSize;
-    TextEditorWidget *m_editor;
-};
+namespace Internal {
 
 class TextEditorAnimator : public QObject
 {
@@ -617,6 +626,7 @@ public:
     void paintRightMarginLine(const PaintEventData &data, QPainter &painter) const;
     void paintBlockHighlight(const PaintEventData &data, QPainter &painter) const;
     void paintSearchResultOverlay(const PaintEventData &data, QPainter &painter) const;
+    void paintSelectionOverlay(const PaintEventData &data, QPainter &painter) const;
     void paintIfDefedOutBlocks(const PaintEventData &data, QPainter &painter) const;
     void paintFindScope(const PaintEventData &data, QPainter &painter) const;
     void paintCurrentLineHighlight(const PaintEventData &data, QPainter &painter) const;
@@ -679,8 +689,6 @@ public:
 
     void transformSelection(TransformationMethod method);
 
-    void transformSelectedLines(ListTransformationMethod method);
-
     void slotUpdateExtraAreaWidth(std::optional<int> width = {});
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
@@ -702,6 +710,7 @@ public:
         int length;
     };
     void addSearchResultsToScrollBar(const QVector<SearchResult> &results);
+    void addSelectionHighlightToScrollBar(const QVector<SearchResult> &selections);
     void adjustScrollBarRanges();
 
     void setFindScope(const MultiTextCursor &scope);
@@ -720,7 +729,7 @@ public:
     void updateFileLineEndingVisible();
 
     void reconfigure();
-    void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
+    void updateSyntaxInfoBar(const HighlighterHelper::Definitions &definitions, const QString &fileName);
     void removeSyntaxInfoBar();
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
     void setupFromDefinition(const KSyntaxHighlighting::Definition &definition);
@@ -778,6 +787,7 @@ public:
     TextEditorOverlay *m_overlay = nullptr;
     SnippetOverlay *m_snippetOverlay = nullptr;
     TextEditorOverlay *m_searchResultOverlay = nullptr;
+    TextEditorOverlay *m_selectionHighlightOverlay = nullptr;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
 
@@ -823,6 +833,7 @@ public:
     QString m_findText;
     FindFlags m_findFlags;
     void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
+    void highlightSelection(const QTextBlock &block) const;
     QTimer m_delayedUpdateTimer;
 
     void setExtraSelections(Utils::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
@@ -877,13 +888,13 @@ public:
     TextMark* m_dragMark = nullptr;
     QTextCursor m_dndCursor;
 
-    QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
-
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
     QFuture<SearchResultItems> m_searchFuture;
+    QFuture<SearchResultItems> m_selectionHighlightFuture;
     QVector<SearchResult> m_searchResults;
+    QVector<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
     bool m_scrollBarUpdateScheduled = false;
@@ -1007,6 +1018,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_overlay(new TextEditorOverlay(q))
     , m_snippetOverlay(new SnippetOverlay(q))
     , m_searchResultOverlay(new TextEditorOverlay(q))
+    , m_selectionHighlightOverlay(new TextEditorOverlay(q))
     , m_refactorOverlay(new RefactorOverlay(q))
     , m_marksVisible(false)
     , m_codeFoldingVisible(false)
@@ -1019,9 +1031,9 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_maybeFakeTooltipEvent(false)
     , m_codeAssistant(parent)
     , m_hoverHandlerRunner(parent, m_hoverHandlers)
-    , m_clipboardAssistProvider(new ClipboardAssistProvider)
     , m_autoCompleter(new AutoCompleter)
 {
+    m_selectionHighlightOverlay->show();
     auto aggregate = new Aggregation::Aggregate;
     m_find = new TextEditorWidgetFind(q);
     connect(m_find, &BaseTextFind::highlightAllRequested,
@@ -1067,7 +1079,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&m_codeAssistant, &CodeAssistant::finished,
             q, &TextEditorWidget::assistFinished);
 
-    connect(q, &QPlainTextEdit::blockCountChanged, this, [this]() { slotUpdateExtraAreaWidth(); });
+    connect(q, &QPlainTextEdit::blockCountChanged, this, [this] { slotUpdateExtraAreaWidth(); });
 
     connect(q, &QPlainTextEdit::modificationChanged,
             m_extraArea, QOverload<>::of(&QWidget::update));
@@ -1149,6 +1161,8 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     delete m_highlightScrollBarController;
     if (m_searchFuture.isRunning())
         m_searchFuture.cancel();
+    if (m_selectionHighlightFuture.isRunning())
+        m_selectionHighlightFuture.cancel();
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -1399,13 +1413,13 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     else
         m_document->setTabSettings(tabSettings); // also set through code style ???
 
-    q->setTypingSettings(TextEditorSettings::typingSettings());
-    q->setStorageSettings(TextEditorSettings::storageSettings());
-    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+    q->setTypingSettings(globalTypingSettings());
+    q->setStorageSettings(globalStorageSettings());
+    q->setBehaviorSettings(globalBehaviorSettings());
     q->setMarginSettings(TextEditorSettings::marginSettings());
     q->setDisplaySettings(TextEditorSettings::displaySettings());
     q->setCompletionSettings(TextEditorSettings::completionSettings());
-    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    q->setExtraEncodingSettings(globalExtraEncodingSettings());
     q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();
@@ -1801,22 +1815,22 @@ void TextEditorWidgetPrivate::clearCurrentSuggestion()
 void TextEditorWidget::selectEncoding()
 {
     TextDocument *doc = d->m_document.data();
-    CodecSelector codecSelector(this, doc);
-
-    switch (codecSelector.exec()) {
-    case CodecSelector::Reload: {
+    const CodecSelectorResult result = Core::askForCodec(Core::ICore::dialogParent(), doc);
+    switch (result.action) {
+    case Core::CodecSelectorResult::Reload: {
         QString errorString;
-        if (!doc->reload(&errorString, codecSelector.selectedCodec())) {
+        if (!doc->reload(&errorString, result.codec)) {
             QMessageBox::critical(this, Tr::tr("File Error"), errorString);
             break;
         }
-        break; }
-    case CodecSelector::Save:
-        doc->setCodec(codecSelector.selectedCodec());
+        break;
+    }
+    case Core::CodecSelectorResult::Save:
+        doc->setCodec(result.codec);
         EditorManager::saveDocument(textDocument());
         updateTextCodecLabel();
         break;
-    case CodecSelector::Cancel:
+    case Core::CodecSelectorResult::Cancel:
         break;
     }
 }
@@ -1920,9 +1934,11 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             const QString trimmedText = text.trimmed();
             QStringList commentMarker;
             QStringList docMarker;
-            if (auto highlighter = qobject_cast<Highlighter *>(
-                    q->textDocument()->syntaxHighlighter())) {
-                const Highlighter::Definition def = highlighter->definition();
+            HighlighterHelper::Definition def;
+            if (SyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
+                def = HighlighterHelper::definitionForName(highlighter->definitionName());
+
+            if (def.isValid()) {
                 for (const QString &marker :
                      {def.singleLineCommentMarker(), def.multiLineCommentMarker().first}) {
                     if (!marker.isEmpty())
@@ -2429,9 +2445,72 @@ void TextEditorWidget::lowercaseSelection()
     d->transformSelection([](const QString &str) { return str.toLower(); });
 }
 
-void TextEditorWidget::sortSelectedLines()
+void TextEditorWidget::sortLines()
 {
-    d->transformSelectedLines([](QStringList &list) { list.sort(); });
+    if (d->m_cursors.hasMultipleCursors())
+        return;
+
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection()) {
+        // try to get a sensible scope for the sort
+        const QTextBlock currentBlock = cursor.block();
+        QString text = currentBlock.text();
+        if (text.simplified().isEmpty())
+            return;
+        const TabSettings ts = textDocument()->tabSettings();
+        const int currentIndent = ts.columnAt(text, TabSettings::firstNonSpace(text));
+
+        int anchor = currentBlock.position();
+        for (auto block = currentBlock.previous(); block.isValid(); block = block.previous()) {
+            text = block.text();
+            if (text.simplified().isEmpty()
+                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                break;
+            }
+            anchor = block.position();
+        }
+
+        int pos = currentBlock.position();
+        for (auto block = currentBlock.next(); block.isValid(); block = block.next()) {
+            text = block.text();
+            if (text.simplified().isEmpty()
+                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                break;
+            }
+            pos = block.position();
+        }
+        if (anchor == pos)
+            return;
+
+        cursor.setPosition(anchor);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    }
+
+    const bool downwardDirection = cursor.anchor() < cursor.position();
+    int startPosition = cursor.selectionStart();
+    int endPosition = cursor.selectionEnd();
+
+    cursor.setPosition(startPosition);
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    startPosition = cursor.position();
+
+    cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+    if (cursor.positionInBlock() == 0)
+        cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    endPosition = qMax(cursor.position(), endPosition);
+
+    const QString text = cursor.selectedText();
+    QStringList lines = text.split(QChar::ParagraphSeparator);
+    lines.sort();
+    cursor.insertText(lines.join(QChar::ParagraphSeparator));
+
+    // (re)select the changed lines
+    // Note: this assumes the transformation did not change the length
+    cursor.setPosition(downwardDirection ? startPosition : endPosition);
+    cursor.setPosition(downwardDirection ? endPosition : startPosition, QTextCursor::KeepAnchor);
+    setTextCursor(cursor);
 }
 
 void TextEditorWidget::indent()
@@ -3365,10 +3444,12 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     m_overlay->clear();
     m_snippetOverlay->clear();
     m_searchResultOverlay->clear();
+    m_selectionHighlightOverlay->clear();
     m_refactorOverlay->clear();
 
     // clear search results
     m_searchResults.clear();
+    m_selectionResults.clear();
 }
 
 void TextEditorWidgetPrivate::documentReloadFinished(bool success)
@@ -3573,7 +3654,7 @@ void TextEditorWidgetPrivate::reconfigure()
     q->configureGenericHighlighter();
 }
 
-void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions &definitions,
+void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Definitions &definitions,
                                                   const QString &fileName)
 {
     Id missing(Constants::INFO_MISSING_SYNTAX_DEFINITION);
@@ -3588,7 +3669,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
                           InfoBarEntry::GlobalSuppression::Enabled);
         info.addCustomButton(Tr::tr("Download Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
-            Highlighter::downloadDefinitions();
+            HighlighterHelper::downloadDefinitions();
         });
 
         infoBar->removeInfo(multiple);
@@ -3597,9 +3678,9 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
         InfoBarEntry info(multiple,
                           Tr::tr("More than one highlight definition was found for this file. "
                                  "Which one should be used to highlight this file?"));
-        info.setComboInfo(Utils::transform(definitions, &Highlighter::Definition::name),
+        info.setComboInfo(Utils::transform(definitions, &HighlighterHelper::Definition::name),
                           [this](const InfoBarEntry::ComboInfo &info) {
-            this->configureGenericHighlighter(Highlighter::definitionForName(info.displayText));
+            this->configureGenericHighlighter(HighlighterHelper::definitionForName(info.displayText));
         });
 
         info.addCustomButton(Tr::tr("Remember My Choice"), [multiple, this]() {
@@ -3625,15 +3706,18 @@ void TextEditorWidgetPrivate::removeSyntaxInfoBar()
 void TextEditorWidgetPrivate::configureGenericHighlighter(
     const KSyntaxHighlighting::Definition &definition)
 {
-    auto highlighter = new Highlighter();
-    m_document->setSyntaxHighlighter(highlighter);
-
     if (definition.isValid()) {
-        highlighter->setDefinition(definition);
         setupFromDefinition(definition);
     } else {
         q->setCodeFoldingSupported(false);
     }
+
+    const QString definitionFilesPath
+        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
+    m_document->resetSyntaxHighlighter([definitionFilesPath] {
+        return new Highlighter(definitionFilesPath);
+    });
+    m_document->syntaxHighlighterRunner()->setDefinitionName(definition.name());
 
     m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
@@ -3658,16 +3742,16 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
-    if (auto highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter()))
-        return highlighter->definition();
+    if (SyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
+        return HighlighterHelper::definitionForName(highlighter->definitionName());
     return {};
 }
 
 void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
 {
-    const Highlighter::Definition &definition = currentDefinition();
+    const HighlighterHelper::Definition &definition = currentDefinition();
     if (definition.isValid())
-        Highlighter::rememberDefinitionForDocument(definition, m_document.data());
+        HighlighterHelper::rememberDefinitionForDocument(definition, m_document.data());
 }
 
 void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit)
@@ -4089,6 +4173,35 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     }
 }
 
+void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block) const
+{
+    if (!m_displaySettings.m_highlightSelection || m_cursors.hasMultipleCursors())
+        return;
+    const QString selection = m_cursors.selectedText();
+    if (selection.trimmed().isEmpty())
+        return;
+
+    const int blockPosition = block.position();
+
+    QString text = block.text();
+    text.replace(QChar::Nbsp, QLatin1Char(' '));
+    const int l = selection.length();
+
+    for (int idx = text.indexOf(selection, 0, Qt::CaseInsensitive);
+         idx >= 0;
+         idx = text.indexOf(selection, idx + 1, Qt::CaseInsensitive)) {
+        const int start = blockPosition + idx;
+        const int end = start + l;
+        if (!Utils::contains(m_selectionHighlightOverlay->selections(),
+                             [&](const OverlaySelection &selection) {
+                                 return selection.m_cursor_begin.position() == start
+                                        && selection.m_cursor_end.position() == end;
+                             })) {
+            m_selectionHighlightOverlay->addOverlaySelection(start, end, {}, {});
+        }
+    }
+}
+
 void TextEditorWidgetPrivate::startCursorFlashTimer()
 {
     const int flashTime = QApplication::cursorFlashTime();
@@ -4127,6 +4240,44 @@ void TextEditorWidgetPrivate::updateCursorSelections()
             selections << QTextEdit::ExtraSelection{cursor, selectionFormat};
     }
     q->setExtraSelections(TextEditorWidget::CursorSelection, selections);
+
+    m_selectionHighlightOverlay->clear();
+
+    if (m_selectionHighlightFuture.isRunning())
+        m_selectionHighlightFuture.cancel();
+
+    m_selectionResults.clear();
+    if (!m_highlightScrollBarController)
+        return;
+    m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SELECTION);
+
+    if (!m_displaySettings.m_highlightSelection || m_cursors.hasMultipleCursors())
+        return;
+
+    const QString txt = m_cursors.selectedText();
+    if (txt.trimmed().isEmpty())
+        return;
+
+    m_selectionHighlightFuture = Utils::asyncRun(Utils::searchInContents,
+                                                 txt,
+                                                 FindFlags{},
+                                                 m_document->filePath(),
+                                                 m_document->plainText());
+
+    Utils::onResultReady(m_selectionHighlightFuture,
+                         this,
+                         [this](const SearchResultItems &resultList) {
+                             QList<SearchResult> results;
+                             for (const SearchResultItem &item : resultList) {
+                                 int start = item.mainRange().begin.positionInDocument(
+                                     m_document->document());
+                                 int end = item.mainRange().end.positionInDocument(
+                                     m_document->document());
+                                 results << SearchResult{start, end - start};
+                             }
+                             m_selectionResults = results;
+                             addSelectionHighlightToScrollBar(results);
+                         });
 }
 
 void TextEditorWidgetPrivate::moveCursor(QTextCursor::MoveOperation operation,
@@ -4506,6 +4657,40 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
     m_searchResultOverlay->fill(&painter,
                                 data.searchResultFormat.background().color(),
                                 data.eventRect);
+}
+
+void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
+                                                    QPainter &painter) const
+{
+    if (m_cursors.hasMultipleCursors())
+        return;
+    const QString expr = m_cursors.selectedText();
+    if (expr.isEmpty())
+        return;
+
+    const int margin = 5;
+    QTextBlock block = data.block;
+    QPointF offset = data.offset;
+    while (block.isValid()) {
+        QRectF blockBoundingRect = q->blockBoundingRect(block).translated(offset);
+
+        if (blockBoundingRect.bottom() >= data.eventRect.top() - margin
+            && blockBoundingRect.top() <= data.eventRect.bottom() + margin) {
+            highlightSelection(block);
+        }
+        offset.ry() += blockBoundingRect.height();
+
+        if (offset.y() > data.viewportRect.height() + margin)
+            break;
+
+        block = TextEditor::nextVisibleBlock(block, data.doc);
+    }
+
+    QColor selection = m_document->fontSettings().toTextCharFormat(C_SELECTION).background().color();
+    const QColor text = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
+    selection.setAlphaF(StyleHelper::luminance(text) > 0.5 ? 0.25 : 0.5);
+
+    m_selectionHighlightOverlay->fill(&painter, selection, data.eventRect);
 }
 
 void TextEditorWidgetPrivate::paintIfDefedOutBlocks(const PaintEventData &data,
@@ -5095,6 +5280,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         d->paintFindScope(data, painter);
         // paint search results on top of the find scope
         d->paintSearchResultOverlay(data, painter);
+        // paint selection highlights
+        d->paintSelectionOverlay(data, painter);
     }
 
     while (data.block.isValid()) {
@@ -6054,8 +6241,7 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             if (self && self->openLink(symbolLink, inNextSplit))
                 self->d->clearLink();
         }, true, inNextSplit);
-    } else if (button == Qt::MiddleButton
-               && !isReadOnly()
+    } else if (button == Qt::MiddleButton && !isReadOnly()
                && QGuiApplication::clipboard()->supportsSelection()) {
         if (!(e->modifiers() & Qt::AltModifier))
             doSetTextCursor(cursorForPosition(e->pos()));
@@ -6134,12 +6320,10 @@ void TextEditorWidget::keyReleaseEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Control) {
         d->clearLink();
-    } else if (e->key() == Qt::Key_Shift
-             && d->m_behaviorSettings.m_constrainHoverTooltips
-             && ToolTip::isVisible()) {
+    } else if (e->key() == Qt::Key_Shift && d->m_behaviorSettings.m_constrainHoverTooltips
+               && ToolTip::isVisible()) {
         ToolTip::hide();
-    } else if (e->key() == Qt::Key_Alt
-               && d->m_maybeFakeTooltipEvent) {
+    } else if (e->key() == Qt::Key_Alt && d->m_maybeFakeTooltipEvent) {
         d->m_maybeFakeTooltipEvent = false;
         d->processTooltipRequest(textCursor());
     }
@@ -6245,6 +6429,9 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
     if (d->m_marksVisible) {
         QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
         auto contextMenu = new QMenu(this);
+        bookmarkManager().requestContextMenu(textDocument()->filePath(),
+                                             cursor.blockNumber() + 1,
+                                             contextMenu);
         emit markContextMenuRequested(this, cursor.blockNumber() + 1, contextMenu);
         if (!contextMenu->isEmpty())
             contextMenu->exec(e->globalPos());
@@ -6437,13 +6624,12 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 }
             }
             int line = n + 1;
-            TextMarkRequestKind kind;
-            if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                kind = BookmarkRequest;
-            else
-                kind = BreakpointRequest;
-
-            emit markRequested(this, line, kind);
+            if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+                if (!textDocument()->isTemporary())
+                    bookmarkManager().toggleBookmark(textDocument()->filePath(), line);
+            } else {
+                emit markRequested(this, line, BreakpointRequest);
+            }
         }
     }
 }
@@ -6744,11 +6930,10 @@ void TextEditorWidget::findTypeAt(const QTextCursor &cursor,
 bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 {
 #ifdef WITH_TESTS
-    struct Signaller { ~Signaller() { emit EditorManager::instance()->linkOpened(); } } s;
+    struct Signaller {
+        ~Signaller() { emit EditorManager::instance()->linkOpened(); }
+    } s;
 #endif
-
-    if (!link.hasValidTarget())
-        return false;
 
     QString url = link.targetFilePath.toString();
     if (url.startsWith(u"https://"_qs) || url.startsWith(u"http://"_qs)) {
@@ -6762,6 +6947,8 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
         setFocus();
         return true;
     }
+    if (!link.hasValidTarget())
+        return false;
     EditorManager::OpenEditorFlags flags;
     if (inNextSplit)
         flags |= EditorManager::OpenInOtherSplit;
@@ -6975,6 +7162,33 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QVector<SearchRe
     }
 }
 
+void TextEditorWidgetPrivate::addSelectionHighlightToScrollBar(
+    const QVector<SearchResult> &selections)
+{
+    if (!m_highlightScrollBarController)
+        return;
+    for (const SearchResult &result : selections) {
+        const QTextBlock &block = q->document()->findBlock(result.start);
+        if (block.isValid() && block.isVisible()) {
+            if (q->lineWrapMode() == QPlainTextEdit::WidgetWidth) {
+                const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
+                const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
+                for (int line = firstLine; line <= lastLine; ++line) {
+                    m_highlightScrollBarController->addHighlight(
+                        {Constants::SCROLL_BAR_SELECTION, block.firstLineNumber() + line,
+                         Theme::TextEditor_Selection_ScrollBarColor, Highlight::NormalPriority});
+                }
+            } else {
+                m_highlightScrollBarController->addHighlight(
+                    {Constants::SCROLL_BAR_SELECTION,
+                     block.blockNumber(),
+                     Theme::TextEditor_Selection_ScrollBarColor,
+                     Highlight::NormalPriority});
+            }
+        }
+    }
+}
+
 Highlight markToHighlight(TextMark *mark, int lineNumber)
 {
     return Highlight(mark->category().id,
@@ -6995,6 +7209,9 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
 
     // update search results
     addSearchResultsToScrollBar(m_searchResults);
+
+    // update search selection
+    addSelectionHighlightToScrollBar(m_selectionResults);
 
     // update text marks
     const TextMarks marks = m_document->marks();
@@ -7613,10 +7830,13 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
         }
         m_overlay->setVisible(!m_overlay->isEmpty());
     } else {
-        QList<QTextEdit::ExtraSelection> all;
+        QList<QTextEdit::ExtraSelection> all = m_extraSelections.value(
+            TextEditorWidget::OtherSelection);
+
         for (auto i = m_extraSelections.constBegin(); i != m_extraSelections.constEnd(); ++i) {
             if (i.key() == TextEditorWidget::CodeSemanticsSelection
-                || i.key() == TextEditorWidget::SnippetPlaceholderSelection)
+                || i.key() == TextEditorWidget::SnippetPlaceholderSelection
+                || i.key() == TextEditorWidget::OtherSelection)
                 continue;
             all += i.value();
         }
@@ -7911,7 +8131,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
     if (optionFlags != currentOptionFlags) {
-        if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
+        if (SyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
             highlighter->rehighlight();
         QTextOption option = document()->defaultTextOption();
         option.setFlags(optionFlags);
@@ -7928,6 +8148,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     d->updateFileLineEndingVisible();
     d->updateHighlights();
     d->setupScrollBar();
+    d->updateCursorSelections();
     viewport()->update();
     extraArea()->update();
 }
@@ -8108,11 +8329,11 @@ void TextEditorWidget::circularPaste()
     }
 
     if (circularClipBoard->size() > 1) {
-        invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
+        invokeAssist(QuickFix, &clipboardAssistProvider());
         return;
     }
 
-    if (const QMimeData *mimeData = circularClipBoard->next().data()) {
+    if (const QMimeData *mimeData = circularClipBoard->next().get()) {
         QApplication::clipboard()->setMimeData(TextEditorWidget::duplicateMimeData(mimeData));
         paste();
     }
@@ -8543,7 +8764,7 @@ IDocument *BaseTextEditor::document() const
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return editorWidget()->d->m_toolBarWidget;
+    return editorWidget()->toolBarWidget();
 }
 
 QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
@@ -8704,7 +8925,12 @@ void TextEditorWidget::setCursorPosition(int pos)
     setTextCursor(tc);
 }
 
-QToolBar *TextEditorWidget::toolBar()
+QWidget *TextEditorWidget::toolBarWidget() const
+{
+    return d->m_toolBarWidget;
+}
+
+QToolBar *TextEditorWidget::toolBar() const
 {
     return d->m_toolBar;
 }
@@ -8923,41 +9149,6 @@ void TextEditorWidgetPrivate::transformSelection(TransformationMethod method)
     q->setMultiTextCursor(cursor);
 }
 
-void TextEditorWidgetPrivate::transformSelectedLines(ListTransformationMethod method)
-{
-    if (!method || m_cursors.hasMultipleCursors())
-        return;
-
-    QTextCursor cursor = q->textCursor();
-    if (!cursor.hasSelection())
-        return;
-
-    const bool downwardDirection = cursor.anchor() < cursor.position();
-    int startPosition = cursor.selectionStart();
-    int endPosition = cursor.selectionEnd();
-
-    cursor.setPosition(startPosition);
-    cursor.movePosition(QTextCursor::StartOfBlock);
-    startPosition = cursor.position();
-
-    cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-    if (cursor.positionInBlock() == 0)
-        cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
-    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    endPosition = qMax(cursor.position(), endPosition);
-
-    const QString text = cursor.selectedText();
-    QStringList lines = text.split(QChar::ParagraphSeparator);
-    method(lines);
-    cursor.insertText(lines.join(QChar::ParagraphSeparator));
-
-    // (re)select the changed lines
-    // Note: this assumes the transformation did not change the length
-    cursor.setPosition(downwardDirection ? startPosition : endPosition);
-    cursor.setPosition(downwardDirection ? endPosition : startPosition, QTextCursor::KeepAnchor);
-    q->setTextCursor(cursor);
-}
-
 void TextEditorWidget::inSnippetMode(bool *active)
 {
     *active = d->m_snippetOverlay->isVisible();
@@ -9084,23 +9275,23 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    Highlighter::Definitions definitions = Highlighter::definitionsForDocument(textDocument());
-    d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
+    const HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForDocument(textDocument());
+    d->configureGenericHighlighter(definitions.isEmpty() ? HighlighterHelper::Definition()
                                                          : definitions.first());
     d->updateSyntaxInfoBar(definitions, textDocument()->filePath().fileName());
 }
 
 void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeType)
 {
-    Highlighter::Definitions definitions = Highlighter::definitionsForMimeType(mimeType.name());
-    d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
+    const HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForMimeType(mimeType.name());
+    d->configureGenericHighlighter(definitions.isEmpty() ? HighlighterHelper::Definition()
                                                          : definitions.first());
     d->removeSyntaxInfoBar();
 }
 
 expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
 {
-    Highlighter::Definition definition = TextEditor::Highlighter::definitionForName(definitionName);
+    const HighlighterHelper::Definition definition = TextEditor::HighlighterHelper::definitionForName(definitionName);
     if (!definition.isValid())
         return make_unexpected(Tr::tr("Could not find definition."));
 
@@ -9233,7 +9424,7 @@ public:
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
-    CompletionAssistProvider * m_completionAssistProvider = nullptr; // owned
+    std::unique_ptr<CompletionAssistProvider> m_completionAssistProvider; // owned
     std::unique_ptr<TextEditorActionHandler> m_textEditorActionHandler;
     bool m_useGenericHighlighter = false;
     bool m_duplicatedSupported = true;
@@ -9253,7 +9444,6 @@ TextEditorFactory::TextEditorFactory()
 TextEditorFactory::~TextEditorFactory()
 {
     qDeleteAll(d->m_hoverHandlers);
-    delete d->m_completionAssistProvider;
     delete d;
 }
 
@@ -9278,10 +9468,11 @@ void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
             doc->setIndenter(d->m_indenterCreator(doc->document()));
 
         if (d->m_syntaxHighlighterCreator)
-            doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
+            doc->resetSyntaxHighlighter(d->m_syntaxHighlighterCreator);
 
-        doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
-                                                                       : &basicSnippetProvider);
+        doc->setCompletionAssistProvider(d->m_completionAssistProvider
+                                             ? d->m_completionAssistProvider.get()
+                                             : &basicSnippetProvider);
 
         return d->createEditorHelper(doc);
     });
@@ -9319,7 +9510,7 @@ void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
 
 void TextEditorFactory::setCompletionAssistProvider(CompletionAssistProvider *provider)
 {
-    d->m_completionAssistProvider = provider;
+    d->m_completionAssistProvider.reset(provider);
 }
 
 void TextEditorFactory::setCommentDefinition(CommentDefinition definition)

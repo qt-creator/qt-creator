@@ -98,6 +98,10 @@ public:
         visualizeWhitespace = new QCheckBox(Tr::tr("&Visualize whitespace"));
         visualizeWhitespace->setToolTip(Tr::tr("Shows tabs and spaces."));
 
+        highlightSelection = new QCheckBox(Tr::tr("&Highlight selection"));
+        highlightSelection->setToolTip(Tr::tr("Adds a colored background and a marker to the "
+                                              "scrollbar to occurrences of the selected text."));
+
         leftAligned = new QRadioButton(Tr::tr("Next to editor content"));
         atMargin = new QRadioButton(Tr::tr("Next to right margin"));
         rightAligned = new QRadioButton(Tr::tr("Aligned at right side"));
@@ -143,6 +147,7 @@ public:
                         autoFoldFirstComment,
                         scrollBarHighlights,
                         animateNavigationWithinFile,
+                        highlightSelection,
                     },
                     Column {
                         highlightCurrentLine,
@@ -195,6 +200,7 @@ public:
     QCheckBox *openLinksInNextSplit;
     QCheckBox *highlightMatchingParentheses;
     QCheckBox *visualizeWhitespace;
+    QCheckBox *highlightSelection;
     QGroupBox *displayAnnotations;
     QRadioButton *leftAligned;
     QRadioButton *atMargin;
@@ -238,6 +244,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_scrollBarHighlights = scrollBarHighlights->isChecked();
     displaySettings.m_animateNavigationWithinFile = animateNavigationWithinFile->isChecked();
     displaySettings.m_displayAnnotations = displayAnnotations->isChecked();
+    displaySettings.m_highlightSelection = highlightSelection->isChecked();
     if (leftAligned->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::NextToContent;
     else if (atMargin->isChecked())
@@ -276,6 +283,7 @@ void DisplaySettingsWidget::settingsToUI()
     scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
     animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
     displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
+    highlightSelection->setChecked(displaySettings.m_highlightSelection);
     switch (displaySettings.m_annotationAlignment) {
     case AnnotationAlignment::NextToContent: leftAligned->setChecked(true); break;
     case AnnotationAlignment::NextToMargin: atMargin->setChecked(true); break;

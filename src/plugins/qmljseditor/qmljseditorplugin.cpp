@@ -1,16 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmljseditorplugin.h"
+
 #include "qmljseditingsettingspage.h"
-#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmltaskmanager.h"
-#include "quicktoolbar.h"
 
 #include <qmljs/jsoncheck.h>
 #include <qmljs/qmljsicons.h>
@@ -28,6 +27,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
@@ -42,19 +43,18 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>
 #include <QMenu>
 #include <QAction>
 
-using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlJSEditorPluginPrivate : public QObject
 {
@@ -69,9 +69,7 @@ public:
     Command *addToolAction(QAction *a, Context &context, Id id,
                            ActionContainer *c1, const QString &keySequence);
 
-    void renameUsages();
     void reformatFile();
-    void showContextPane();
 
     QmlJSQuickFixAssistProvider m_quickFixAssistProvider;
     QmlTaskManager m_qmlTaskManager;
@@ -83,37 +81,14 @@ public:
     QmlJS::JsonSchemaManager m_jsonManager{
         {ICore::userResourcePath("json/").toString(),
          ICore::resourcePath("json/").toString()}};
-    QmlJSEditorFactory m_qmlJSEditorFactory;
     QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
-static QmlJSEditorPlugin *m_instance = nullptr;
-
-QmlJSEditorPlugin::QmlJSEditorPlugin()
-{
-    m_instance = this;
-}
-
-QmlJSEditorPlugin::~QmlJSEditorPlugin()
-{
-    delete QmlJS::Icons::instance(); // delete object held by singleton
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
-}
-
-void QmlJSEditorPlugin::initialize()
-{
-    d = new QmlJSEditorPluginPrivate;
-}
+static QmlJSEditorPluginPrivate *dd = nullptr;
 
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
-    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
-                                               Tr::tr("QML", "SnippetProvider"),
-                                               &QmlJSEditorFactory::decorateEditor);
-
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     QmllsSettingsManager::instance();
 
@@ -168,17 +143,15 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     cmd = ActionManager::registerAction(inspectElementAction,
                                         Id("QmlJSEditor.InspectElementUnderCursor"),
                                         context);
-    connect(inspectElementAction, &QAction::triggered, [] {
-        if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
-            widget->inspectElementUnderCursor();
-    });
+    connect(inspectElementAction, &QAction::triggered, &Internal::inspectElement);
+
     qmlToolsMenu->addAction(cmd);
 
     QAction *showQuickToolbar = new QAction(Tr::tr("Show Qt Quick Toolbar"), this);
     cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(useMacShortcuts ? QKeySequence(Qt::META | Qt::ALT | Qt::Key_Space)
                                                : QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Space));
-    connect(showQuickToolbar, &QAction::triggered, this, &QmlJSEditorPluginPrivate::showContextPane);
+    connect(showQuickToolbar, &QAction::triggered, this, &showContextPane);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -202,30 +175,9 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
             this, &QmlJSEditorPluginPrivate::autoFormatOnSave);
 }
 
-void QmlJSEditorPlugin::extensionsInitialized()
+QmlJS::JsonSchemaManager *jsonManager()
 {
-    FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
-                                                     "application/x-qt.ui+qml");
-
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
-                          Tr::tr("QML"),
-                          Tr::tr("Issues that the QML code parser found.")});
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
-                          Tr::tr("QML Analysis"),
-                          Tr::tr("Issues that the QML static analyzer found."),
-                          false});
-    QmllsSettingsManager::instance()->setupAutoupdate();
-}
-
-QmlJS::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
-{
-    return &m_instance->d->m_jsonManager;
-}
-
-void QmlJSEditorPluginPrivate::renameUsages()
-{
-    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->renameSymbolUnderCursor();
+    return &dd->m_jsonManager;
 }
 
 void QmlJSEditorPluginPrivate::reformatFile()
@@ -296,12 +248,6 @@ void QmlJSEditorPluginPrivate::reformatFile()
     }
 }
 
-void QmlJSEditorPluginPrivate::showContextPane()
-{
-    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->showContextPane();
-}
-
 Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
                                                  Context &context, Id id,
                                                  ActionContainer *c1, const QString &keySequence)
@@ -313,9 +259,9 @@ Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
     return command;
 }
 
-QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider()
+QmlJSQuickFixAssistProvider *quickFixAssistProvider()
 {
-    return &m_instance->d->m_quickFixAssistProvider;
+    return &dd->m_quickFixAssistProvider;
 }
 
 void QmlJSEditorPluginPrivate::currentEditorChanged(IEditor *editor)
@@ -368,5 +314,41 @@ void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
     reformatFile();
 }
 
-} // namespace Internal
-} // namespace QmlJSEditor
+class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSEditor.json")
+
+    ~QmlJSEditorPlugin() final
+    {
+        delete QmlJS::Icons::instance(); // delete object held by singleton
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new QmlJSEditorPluginPrivate;
+
+        setupQmlJSEditor();
+    }
+
+    void extensionsInitialized() final
+    {
+        FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
+                                                         Utils::Constants::QMLUI_MIMETYPE);
+
+        TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
+                              Tr::tr("QML"),
+                              Tr::tr("Issues that the QML code parser found.")});
+        TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
+                              Tr::tr("QML Analysis"),
+                              Tr::tr("Issues that the QML static analyzer found."),
+                              false});
+        QmllsSettingsManager::instance()->setupAutoupdate();
+    }
+};
+
+} // QmlJSEditor::Internal
+
+#include "qmljseditorplugin.moc"

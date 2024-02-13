@@ -20,7 +20,7 @@
 
 #include <functional>
 
-namespace CppEditor { class CppProjectUpdater; }
+namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -130,13 +130,12 @@ private:
     QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
 
     QbsProjectParser *m_qbsProjectParser = nullptr;
-    QFutureInterface<bool> *m_qbsUpdateFutureInterface = nullptr;
     using TreeCreationWatcher = QFutureWatcher<QbsProjectNode *>;
     TreeCreationWatcher *m_treeCreationWatcher = nullptr;
     Utils::Environment m_lastParseEnv;
     std::unique_ptr<QbsRequest> m_parseRequest;
 
-    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     QHash<ProjectExplorer::ExtraCompilerFactory *, QStringList> m_sourcesForGeneratedFiles;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;

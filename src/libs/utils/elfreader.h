@@ -11,7 +11,6 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QList>
-#include <QSharedPointer>
 
 namespace Utils {
 
@@ -141,7 +140,7 @@ public:
     enum Result { Ok, NotElf, Corrupt };
 
     ElfData readHeaders();
-    QSharedPointer<ElfMapper> readSection(const QByteArray &sectionName);
+    std::shared_ptr<ElfMapper> readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
     QByteArray readCoreName(bool *isCore);
 

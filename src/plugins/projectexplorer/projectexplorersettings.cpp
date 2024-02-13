@@ -11,6 +11,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 
+#include <utils/environmentdialog.h>
 #include <utils/layoutbuilder.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -20,6 +21,7 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QLabel>
+#include <QPushButton>
 #include <QRadioButton>
 
 using namespace Core;
@@ -52,8 +54,10 @@ public:
 
 private:
     void slotDirectoryButtonGroupChanged();
+    void updateAppEnvChangesLabel();
 
     mutable ProjectExplorerSettings m_settings;
+    Utils::EnvironmentItems m_appEnvChanges;
     QRadioButton *m_currentDirectoryRadioButton;
     QRadioButton *m_directoryRadioButton;
     PathChooser *m_projectsDirectoryPathChooser;
@@ -70,6 +74,7 @@ private:
     QComboBox *m_stopBeforeBuildComboBox;
     QComboBox *m_terminalModeComboBox;
     QCheckBox *m_jomCheckbox;
+    Utils::ElidingLabel *m_appEnvLabel;
 
     QButtonGroup *m_directoryButtonGroup;
 };
@@ -122,6 +127,25 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                                "Disable it if you experience problems with your builds.");
     jomLabel->setWordWrap(true);
 
+    const QString appEnvToolTip = Tr::tr("Environment changes to apply to run configurations, "
+                                         "but not build configurations.");
+    const auto appEnvDescriptionLabel = new QLabel(Tr::tr("Application environment:"));
+    appEnvDescriptionLabel->setToolTip(appEnvToolTip);
+    m_appEnvLabel = new Utils::ElidingLabel;
+    m_appEnvLabel->setElideMode(Qt::ElideRight);
+    m_appEnvLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    const auto appEnvButton = new QPushButton(Tr::tr("Change..."));
+    appEnvButton->setSizePolicy(QSizePolicy::Fixed, appEnvButton->sizePolicy().verticalPolicy());
+    appEnvButton->setToolTip(appEnvToolTip);
+    connect(appEnvButton, &QPushButton::clicked, this, [appEnvButton, this] {
+        std::optional<EnvironmentItems> changes
+            = EnvironmentDialog::getEnvironmentItems(appEnvButton, m_appEnvChanges);
+        if (!changes)
+            return;
+        m_appEnvChanges = *changes;
+        updateAppEnvChangesLabel();
+    });
+
     using namespace Layouting;
     Column {
         Group {
@@ -149,6 +173,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                 m_abortBuildAllOnErrorCheckBox,
                 m_lowBuildPriorityCheckBox,
                 Form {
+                    appEnvDescriptionLabel, Row{m_appEnvLabel, appEnvButton, st}, br,
                     Tr::tr("Build before deploying:"), m_buildBeforeDeployComboBox, br,
                     Tr::tr("Stop applications before building:"), m_stopBeforeBuildComboBox, br,
                     Tr::tr("Default for \"Run in terminal\":"), m_terminalModeComboBox, br,
@@ -174,6 +199,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     setSettings(ProjectExplorerPlugin::projectExplorerSettings());
     setProjectsDirectory(DocumentManager::projectsDirectory());
     setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
+    updateAppEnvChangesLabel();
 }
 
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
@@ -193,12 +219,14 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.clearIssuesOnRebuild = m_clearIssuesCheckBox->isChecked();
     m_settings.abortBuildAllOnError = m_abortBuildAllOnErrorCheckBox->isChecked();
     m_settings.lowBuildPriority = m_lowBuildPriorityCheckBox->isChecked();
+    m_settings.appEnvChanges = m_appEnvChanges;
     return m_settings;
 }
 
 void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes)
 {
     m_settings = pes;
+    m_appEnvChanges = pes.appEnvChanges;
     m_buildBeforeDeployComboBox->setCurrentIndex(
                 m_buildBeforeDeployComboBox->findData(int(m_settings.buildBeforeDeploy)));
     m_deployProjectBeforeRunCheckBox->setChecked(m_settings.deployBeforeRun);
@@ -243,6 +271,13 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 {
     bool enable = useProjectsDirectory();
     m_projectsDirectoryPathChooser->setEnabled(enable);
+}
+
+void ProjectExplorerSettingsWidget::updateAppEnvChangesLabel()
+{
+    const QString shortSummary = EnvironmentItem::toStringList(m_appEnvChanges).join("; ");
+    m_appEnvLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
+                                                  : shortSummary);
 }
 
 // ProjectExplorerSettingsPage

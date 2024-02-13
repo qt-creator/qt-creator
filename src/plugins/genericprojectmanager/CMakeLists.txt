@@ -4,13 +4,12 @@ add_qtc_plugin(GenericProjectManager
   PLUGIN_TEST_DEPENDS CppEditor
   PLUGIN_RECOMMENDS CppEditor
   SOURCES ${TEST_SOURCES}
-    filesselectionwizardpage.cpp filesselectionwizardpage.h
     genericbuildconfiguration.cpp genericbuildconfiguration.h
     genericmakestep.cpp genericmakestep.h
     genericproject.cpp genericproject.h
     genericprojectconstants.h
     genericprojectfileseditor.cpp genericprojectfileseditor.h
     genericprojectmanagertr.h
-    genericprojectplugin.cpp genericprojectplugin.h
+    genericprojectplugin.cpp
     genericprojectwizard.cpp genericprojectwizard.h
 )

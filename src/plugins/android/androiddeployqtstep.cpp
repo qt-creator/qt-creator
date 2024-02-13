@@ -53,6 +53,8 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
@@ -216,7 +218,7 @@ bool AndroidDeployQtStep::init()
 
     if (!info.isValid()) {
         const auto dev =
-                static_cast<const AndroidDevice *>(DeviceKitAspect::device(kit()).data());
+                static_cast<const AndroidDevice *>(DeviceKitAspect::device(kit()).get());
         if (!dev) {
             reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
             return false;
@@ -286,7 +288,7 @@ bool AndroidDeployQtStep::init()
         m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = FilePath::fromString(node->data(Constants::AndroidManifest).toString());
-            m_command = AndroidConfigurations::currentConfig().adbToolPath();
+            m_command = androidConfig().adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
             QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
@@ -324,13 +326,13 @@ bool AndroidDeployQtStep::init()
         }
     } else {
         m_uninstallPreviousPackageRun = true;
-        m_command = AndroidConfigurations::currentConfig().adbToolPath();
+        m_command = androidConfig().adbToolPath();
         m_apkPath = AndroidManager::packagePath(target());
         m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Environment();
 
-    m_adbPath = AndroidConfigurations::currentConfig().adbToolPath();
+    m_adbPath = androidConfig().adbToolPath();
 
     AndroidAvdManager avdManager;
     // Start the AVD if not running.
@@ -398,7 +400,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
 
     emit addOutput(Tr::tr("Starting: \"%1\"").arg(cmd.toUserOutput()), OutputFormat::NormalMessage);
 
-    while (!process.waitForFinished(200)) {
+    while (!process.waitForFinished(200ms)) {
         if (process.state() == QProcess::NotRunning)
             break;
 
@@ -572,12 +574,11 @@ Tasking::GroupItem AndroidDeployQtStep::runRecipe()
 void AndroidDeployQtStep::runCommand(const CommandLine &command)
 {
     Process buildProc;
-    buildProc.setTimeoutS(2 * 60);
     emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.runBlocking(EventLoopMode::On);
+    buildProc.runBlocking(2min, EventLoopMode::On);
     if (buildProc.result() != ProcessResult::FinishedWithSuccess)
         reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }
@@ -660,13 +661,22 @@ void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::Tas
 
 // AndroidDeployQtStepFactory
 
-AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
+class AndroidDeployQtStepFactory final : public BuildStepFactory
 {
-    registerStep<AndroidDeployQtStep>(Constants::ANDROID_DEPLOY_QT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
-    setRepeatable(false);
-    setDisplayName(Tr::tr("Deploy to Android device"));
+public:
+    AndroidDeployQtStepFactory()
+    {
+        registerStep<AndroidDeployQtStep>(Constants::ANDROID_DEPLOY_QT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Deploy to Android device"));
+    }
+};
+
+void setupAndroidDeployQtStep()
+{
+    static AndroidDeployQtStepFactory theAndroidDeployQtStepFactory;
 }
 
 } // Android::Internal

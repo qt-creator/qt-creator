@@ -28,7 +28,7 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, icon = m_icon] {
         if (!storage->input().isEmpty())

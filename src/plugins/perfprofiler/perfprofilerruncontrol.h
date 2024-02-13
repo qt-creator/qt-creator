@@ -3,30 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace PerfProfiler::Internal {
 
-class PerfParserWorker;
-class PerfRecordWorker;
-
-class PerfProfilerRunner : public ProjectExplorer::RunWorker
-{
-    Q_OBJECT
-public:
-    explicit PerfProfilerRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() override;
-
-private:
-    PerfParserWorker *m_perfParserWorker = nullptr;
-    ProjectExplorer::RunWorker *m_perfRecordWorker = nullptr;
-};
-
-class PerfProfilerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    PerfProfilerRunWorkerFactory();
-};
+void setupPerfProfilerRunWorker();
 
 } // PerfProfiler::Internal

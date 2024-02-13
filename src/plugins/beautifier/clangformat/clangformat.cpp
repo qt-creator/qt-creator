@@ -92,19 +92,19 @@ public:
         read();
     }
 
-    void createDocumentationFile() const override;
+    void createDocumentationFile() const final;
 
-    QStringList completerWords() override;
+    QStringList completerWords() final;
 
     BoolAspect usePredefinedStyle{this};
     SelectionAspect predefinedStyle{this};
     SelectionAspect fallbackStyle{this};
     StringAspect customStyle{this};
 
-    Utils::FilePath styleFileName(const QString &key) const override;
+    Utils::FilePath styleFileName(const QString &key) const final;
 
 private:
-    void readStyles() override;
+    void readStyles() final;
 };
 
 void ClangFormatSettings::createDocumentationFile() const
@@ -310,51 +310,76 @@ public:
 
 // ClangFormat
 
-ClangFormat::ClangFormat()
+class ClangFormat final : public BeautifierTool
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
-    menu->menu()->setTitle(Tr::tr("&ClangFormat"));
+public:
+    ClangFormat()
+    {
+        const Id menuId = "ClangFormat.Menu";
+        Core::MenuBuilder(menuId)
+            .setTitle(Tr::tr("&ClangFormat"))
+            .addToContainer(Constants::MENU_ID);
 
-    m_formatFile = new QAction(msgFormatCurrentFile(), this);
-    Core::Command *cmd
-            = Core::ActionManager::registerAction(m_formatFile, "ClangFormat.FormatFile");
-    menu->addAction(cmd);
-    connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
+        Core::ActionBuilder(this, "ClangFormat.FormatFile")
+            .setText(msgFormatCurrentFile())
+            .bindContextAction(&m_formatFile)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatFile);
 
-    m_formatLines = new QAction(msgFormatLines(), this);
-    cmd = Core::ActionManager::registerAction(m_formatLines, "ClangFormat.FormatLines");
-    menu->addAction(cmd);
-    connect(m_formatLines, &QAction::triggered, this, &ClangFormat::formatLines);
+        Core::ActionBuilder(this, "ClangFormat.FormatLines")
+            .setText(msgFormatLines())
+            .bindContextAction(&m_formatLines)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatLines);
 
-    m_formatRange = new QAction(msgFormatAtCursor(), this);
-    cmd = Core::ActionManager::registerAction(m_formatRange, "ClangFormat.FormatAtCursor");
-    menu->addAction(cmd);
-    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
+        Core::ActionBuilder(this, "ClangFormat.FormatAtCursor")
+            .setText(msgFormatAtCursor())
+            .bindContextAction(&m_formatRange)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatAtCursor);
 
-    m_disableFormattingSelectedText = new QAction(msgDisableFormattingSelectedText(), this);
-    cmd = Core::ActionManager::registerAction(
-        m_disableFormattingSelectedText, "ClangFormat.DisableFormattingSelectedText");
-    menu->addAction(cmd);
-    connect(m_disableFormattingSelectedText, &QAction::triggered,
-            this, &ClangFormat::disableFormattingSelectedText);
+        Core::ActionBuilder(this, "ClangFormat.DisableFormattingSelectedText")
+            .setText(msgDisableFormattingSelectedText())
+            .bindContextAction(&m_disableFormattingSelectedText)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::disableFormattingSelectedText);
 
-    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        connect(&settings().supportedMimeTypes, &BaseAspect::changed,
+                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+    }
 
-    connect(&settings().supportedMimeTypes, &BaseAspect::changed,
-            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
-}
+    QString id() const final
+    {
+        return "ClangFormat";
+    }
 
-QString ClangFormat::id() const
-{
-    return "ClangFormat";
-}
+    void updateActions(Core::IEditor *editor) final
+    {
+        const bool enabled = editor && settings().isApplicable(editor->document());
+        m_formatFile->setEnabled(enabled);
+        m_formatRange->setEnabled(enabled);
+    }
 
-void ClangFormat::updateActions(Core::IEditor *editor)
-{
-    const bool enabled = editor && settings().isApplicable(editor->document());
-    m_formatFile->setEnabled(enabled);
-    m_formatRange->setEnabled(enabled);
-}
+    TextEditor::Command textCommand() const final;
+
+    bool isApplicable(const Core::IDocument *document) const final
+    {
+        return settings().isApplicable(document);
+    }
+
+private:
+    void formatFile();
+    void formatAtPosition(const int pos, const int length);
+    void formatAtCursor();
+    void formatLines();
+    void disableFormattingSelectedText();
+    TextEditor::Command textCommand(int offset, int length) const;
+
+    QAction *m_formatFile = nullptr;
+    QAction *m_formatLines = nullptr;
+    QAction *m_formatRange = nullptr;
+    QAction *m_disableFormattingSelectedText = nullptr;
+};
 
 void ClangFormat::formatFile()
 {
@@ -486,11 +511,6 @@ Command ClangFormat::textCommand() const
     return cmd;
 }
 
-bool ClangFormat::isApplicable(const Core::IDocument *document) const
-{
-    return settings().isApplicable(document);
-}
-
 Command ClangFormat::textCommand(int offset, int length) const
 {
     Command cmd = textCommand();
@@ -498,7 +518,6 @@ Command ClangFormat::textCommand(int offset, int length) const
     cmd.addOption("-length=" + QString::number(length));
     return cmd;
 }
-
 
 // ClangFormatSettingsPage
 
@@ -515,5 +534,10 @@ public:
 };
 
 const ClangFormatSettingsPage settingsPage;
+
+void setupClangFormat()
+{
+    static ClangFormat theClangFormat;
+}
 
 } // Beautifier::Internal

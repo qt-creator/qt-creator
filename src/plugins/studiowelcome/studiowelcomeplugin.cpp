@@ -7,7 +7,6 @@
 #include "qdsnewdialog.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
@@ -172,9 +171,7 @@ public:
 
         Core::ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
 
-        const QString restartText = tr("The change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("The change will take effect after restart."));
 
         setupModel();
     }
@@ -188,9 +185,7 @@ public:
 
         settings->setValue(STATISTICS_COLLECTION_MODE, b ? DETAILED_USAGE_STATISTICS : NO_TELEMETRY);
 
-        const QString restartText = tr("The change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("The change will take effect after restart."));
 
         setupModel();
     }
@@ -244,7 +239,7 @@ public:
         const FilePath projectFile = FilePath::fromVariant(
             data(index(row, 0), ProjectModel::FilePathRole));
         if (projectFile.exists()) {
-            const ProjectExplorerPlugin::OpenProjectResult result
+            const OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
             if (!result && !result.alreadyOpen().isEmpty()) {
                 const auto fileToOpen = getMainUiFileWithFallback();
@@ -502,7 +497,7 @@ void ProjectModel::resetProjects()
 
 void ProjectModel::delayedResetProjects()
 {
-    QTimer::singleShot(2000, this, [this]() {
+    QTimer::singleShot(2000, this, [this] {
         beginResetModel();
         endResetModel();
         m_blockOpenRecent = false;
@@ -762,7 +757,7 @@ WelcomeMode::WelcomeMode()
         m_modeWidget->layout()->addWidget(m_quickWidget);
     });
 
-    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this]() {
+    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this] {
         m_quickWidget->setEnabled(true);
     });
 

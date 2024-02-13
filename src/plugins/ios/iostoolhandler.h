@@ -3,8 +3,12 @@
 
 #pragma once
 
+#include "iossimulator.h"
+
 #include <utils/filepath.h>
 #include <utils/port.h>
+
+#include <solutions/tasking/tasktree.h>
 
 #include <QObject>
 #include <QMap>
@@ -66,5 +70,30 @@ private:
     friend class Ios::Internal::IosToolHandlerPrivate;
     Ios::Internal::IosToolHandlerPrivate *d;
 };
+
+// for Tasking:
+
+class IosToolRunner
+{
+public:
+    using StartHandler = std::function<void(IosToolHandler *)>;
+    void setStartHandler(const StartHandler &startHandler);
+    void setDeviceType(const Internal::IosDeviceType &type);
+
+private:
+    friend class IosToolTaskAdapter;
+    IosToolHandler *m_iosToolHandler = nullptr;
+    StartHandler m_startHandler;
+    Internal::IosDeviceType m_deviceType = Internal::IosDeviceType::IosDevice;
+};
+
+class IosToolTaskAdapter : public Tasking::TaskAdapter<IosToolRunner>
+{
+public:
+    IosToolTaskAdapter();
+    void start() final;
+};
+
+using IosToolTask = Tasking::CustomTask<IosToolTaskAdapter>;
 
 } // namespace Ios

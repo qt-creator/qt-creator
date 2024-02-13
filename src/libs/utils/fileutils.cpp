@@ -239,6 +239,11 @@ bool FileSaver::finalize()
 
 TempFileSaver::TempFileSaver(const QString &templ)
 {
+    initFromString(templ);
+}
+
+void TempFileSaver::initFromString(const QString &templ)
+{
     m_file.reset(new QTemporaryFile{});
     auto tempFile = static_cast<QTemporaryFile *>(m_file.get());
     if (!templ.isEmpty())
@@ -251,6 +256,29 @@ TempFileSaver::TempFileSaver(const QString &templ)
         m_hasError = true;
     }
     m_filePath = FilePath::fromString(tempFile->fileName());
+}
+
+TempFileSaver::TempFileSaver(const FilePath &templ)
+{
+    if (templ.isEmpty() || !templ.needsDevice()) {
+        initFromString(templ.path());
+    } else {
+        expected_str<FilePath> result = templ.createTempFile();
+        if (!result) {
+            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(templ.toUserOutput(), result.error());
+            m_hasError = true;
+            return;
+        }
+
+        m_file.reset(new QFile(result->toFSPathString()));
+        if (!m_file->open(QIODevice::WriteOnly)) {
+            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(result->toUserOutput(), m_file->errorString());
+            m_hasError = true;
+        }
+        m_filePath = *result;
+    }
 }
 
 TempFileSaver::~TempFileSaver()
@@ -397,19 +425,12 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
-static FilePath qUrlToFilePath(const QUrl &url)
-{
-    if (url.isLocalFile())
-        return FilePath::fromString(url.toLocalFile());
-    return FilePath::fromParts(url.scheme(), url.host(), url.path());
-}
-
 static QUrl filePathToQUrl(const FilePath &filePath)
 {
     return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
-void prepareNonNativeDialog(QFileDialog &dialog)
+static void prepareNonNativeDialog(QFileDialog &dialog)
 {
     const auto isValidSideBarPath = [](const FilePath &fp) {
         return !fp.needsDevice() || fp.hasFileAccess();
@@ -422,7 +443,7 @@ void prepareNonNativeDialog(QFileDialog &dialog)
 
         // Check existing urls, remove paths that need a device and are no longer valid.
         for (const QUrl &url : dialog.sidebarUrls()) {
-            FilePath path = qUrlToFilePath(url);
+            FilePath path = FilePath::fromUrl(url);
             if (isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
@@ -467,7 +488,7 @@ FilePaths getFilePaths(QWidget *parent,
     if (dialog.exec() == QDialog::Accepted) {
         if (selectedFilter)
             *selectedFilter = dialog.selectedNameFilter();
-        return Utils::transform(dialog.selectedUrls(), &qUrlToFilePath);
+        return Utils::transform(dialog.selectedUrls(), &FilePath::fromUrl);
     }
     return {};
 }

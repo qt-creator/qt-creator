@@ -19,7 +19,6 @@
 
 #include "projectexplorer/devicesupport/idevice.h"
 #include "qmlprojectconstants.h"
-#include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "utils/algorithm.h"
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -28,6 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -44,7 +44,7 @@ using namespace Utils;
 namespace QmlProjectManager {
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
-    : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
+    : Project(Utils::Constants::QMLPROJECT_MIMETYPE, fileName)
 {
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
@@ -177,13 +177,13 @@ Tasks QmlProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (dev.isNull())
+    if (!dev)
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 
     if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
 
-    if (dev.isNull() || !version)
+    if (!dev || !version)
         return result; // No need to check deeper than this
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {

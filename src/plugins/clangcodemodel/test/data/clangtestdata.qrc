@@ -29,7 +29,6 @@
         <file>completion/classAndConstructorCompletion.cpp</file>
         <file>completion/completionWithProject.cpp</file>
         <file>completion/constructorCompletion.cpp</file>
-        <file>completion/doxygenKeywordsCompletion.cpp</file>
         <file>completion/functionCompletion.cpp</file>
         <file>completion/functionCompletionFiltered.cpp</file>
         <file>completion/functionCompletionFiltered2.cpp</file>

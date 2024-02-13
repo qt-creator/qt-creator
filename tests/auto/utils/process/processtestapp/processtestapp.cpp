@@ -25,6 +25,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 static QHash<const char *, ProcessTestApp::SubProcessMain> s_subProcesses = {};
 
 ProcessTestApp::ProcessTestApp() = default;
@@ -97,9 +99,38 @@ static void doCrash()
     qFatal("The application has crashed purposefully!");
 }
 
+static int envVarIntWithDefault(const char *varName, int defaultValue)
+{
+    bool ok = false;
+    const int result = qEnvironmentVariableIntValue(varName, &ok);
+    return ok ? result : defaultValue;
+}
+
 int ProcessTestApp::SimpleTest::main()
 {
-    std::cout << s_simpleTestData << std::endl;
+    const QProcess::ProcessChannel processChannel
+        = QProcess::ProcessChannel(envVarIntWithDefault(envVar(), 0));
+    if (processChannel == QProcess::StandardOutput)
+        std::cout << s_outputData << std::endl;
+    else
+        std::cerr << s_errorData << std::endl;
+    return 0;
+}
+
+int ProcessTestApp::ChannelEchoer::main()
+{
+    const QProcess::ProcessChannel processChannel
+        = QProcess::ProcessChannel(envVarIntWithDefault(envVar(), 0));
+    while (true) {
+        std::string input;
+        std::cin >> input;
+        if (input == "exit")
+            return 0;
+        if (processChannel == QProcess::StandardOutput)
+            std::cout << input << std::flush;
+        else
+            std::cerr << input << std::flush;
+    }
     return 0;
 }
 
@@ -114,13 +145,12 @@ int ProcessTestApp::RunBlockingStdOut::main()
 {
     std::cout << "Wait for the Answer to the Ultimate Question of Life, "
                  "The Universe, and Everything..." << std::endl;
-    QThread::msleep(300);
     std::cout << s_runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
     if (qEnvironmentVariable(envVar()) == "true")
         std::cout << std::endl;
     else
         std::cout << std::flush; // otherwise it won't reach the original process (will be buffered)
-    QThread::msleep(5000);
+    QThread::msleep(3000);
     return 0;
 }
 
@@ -260,12 +290,12 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
     process.setProcessChannelMode(QProcess::ForwardedChannels);
     process.start();
     while (true) {
-        if (process.waitForFinished(10))
+        if (process.waitForFinished(10ms))
             return 0;
 #ifndef Q_OS_WIN
         if (s_terminate.load()) {
             process.terminate();
-            process.waitForFinished(-1);
+            process.waitForFinished(QDeadlineTimer::Forever);
             break;
         }
 #endif

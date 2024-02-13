@@ -25,15 +25,13 @@ class PerfTimelineModelManager : public Timeline::TimelineModelAggregator
 {
     Q_OBJECT
 public:
-    explicit PerfTimelineModelManager(PerfProfilerTraceManager *traceManager);
+    PerfTimelineModelManager();
     ~PerfTimelineModelManager();
 
     void loadEvent(const PerfEvent &event, const PerfEventType &type);
     void initialize();
     void finalize();
     void clear();
-
-    const PerfProfilerTraceManager *traceManager() const { return m_traceManager.data(); }
 
     PerfResourceCounter<>::Container *resourceContainer(quint32 pid)
     {
@@ -48,9 +46,10 @@ private:
         = typename std::unordered_map<quint32, std::unique_ptr<PerfResourceCounter<>::Container>>;
 
     QHash<quint32, PerfTimelineModel *> m_unfinished;
-    QPointer<PerfProfilerTraceManager> m_traceManager;
     ContainerMap m_resourceContainers;
 };
+
+PerfTimelineModelManager &modelManager();
 
 } // namespace Internal
 } // namespace PerfProfiler

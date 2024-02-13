@@ -31,6 +31,7 @@ public:
     QString displayName() const;
     QIcon displayIcon() const;
 
+    void setFocusToName();
     void apply();
     void discard();
     bool isDirty() const;

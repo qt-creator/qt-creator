@@ -15,7 +15,7 @@ class PerfProfilerFlameGraphView : public QQuickWidget
 {
     Q_OBJECT
 public:
-    PerfProfilerFlameGraphView(QWidget *parent, PerfProfilerTool *tool);
+    PerfProfilerFlameGraphView(QWidget *parent);
     ~PerfProfilerFlameGraphView();
 
     void selectByTypeId(int typeId);

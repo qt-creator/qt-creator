@@ -7,13 +7,15 @@
 #include "gitconstants.h"
 #include "gittr.h"
 
-#include <vcsbase/vcscommand.h>
-#include <vcsbase/vcsoutputwindow.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -228,7 +230,7 @@ public:
     QString currentSha;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
-    std::unique_ptr<TaskTree> refreshTask;
+    TaskTreeRunner taskTreeRunner;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -254,6 +256,7 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the sha field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
+    connect(&d->taskTreeRunner, &TaskTreeRunner::done, this, &BranchModel::endResetModel);
 }
 
 BranchModel::~BranchModel()
@@ -312,9 +315,15 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case ColumnBranch: {
             res = node->name;
-            if (!node->tracking.isEmpty()) {
+            if (!node->isLocal() || !node->isLeaf())
+                break;
+
+            if (node->status.ahead >= 0)
                 res += ' ' + arrowUp + QString::number(node->status.ahead);
-                res += ' ' + arrowDown + QString::number(node->status.behind);
+
+            if (!node->tracking.isEmpty()) {
+                if (node->status.behind >= 0)
+                    res += ' ' + arrowDown + QString::number(node->status.behind);
                 res += " [" + node->tracking + ']';
             }
             break;
@@ -391,7 +400,7 @@ void BranchModel::clear()
         d->rootNode->children.takeLast();
 
     d->currentSha.clear();
-    d->currentDateTime = QDateTime();
+    d->currentDateTime = {};
     d->currentBranch = nullptr;
     d->headNode = nullptr;
     d->obsoleteLocalBranches.clear();
@@ -399,9 +408,9 @@ void BranchModel::clear()
 
 void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 {
-    if (d->refreshTask) {
+    if (d->taskTreeRunner.isRunning()) {
         endResetModel(); // for the running task tree.
-        d->refreshTask.reset(); // old running tree is reset, no handlers are being called
+        d->taskTreeRunner.reset(); // old running tree is reset, no handlers are being called
     }
     beginResetModel();
     clear();
@@ -410,14 +419,13 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         return;
     }
 
-    const ProcessTask topRevisionProc =
-        gitClient().topRevision(workingDirectory,
-                               [=](const QString &ref, const QDateTime &dateTime) {
-                                   d->currentSha = ref;
-                                   d->currentDateTime = dateTime;
-                               });
+    const GroupItem topRevisionProc = gitClient().topRevision(workingDirectory,
+        [this](const QString &ref, const QDateTime &dateTime) {
+            d->currentSha = ref;
+            d->currentDateTime = dateTime;
+        });
 
-    const auto setupForEachRef = [=](Process &process) {
+    const auto onForEachRefSetup = [this, workingDirectory](Process &process) {
         d->workingDirectory = workingDirectory;
         QStringList args = {"for-each-ref",
                             "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
@@ -429,7 +437,18 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         gitClient().setupCommand(process, workingDirectory, args);
     };
 
-    const auto forEachRefDone = [=](const Process &process) {
+    const auto onForEachRefDone = [this, workingDirectory, showError](const Process &process,
+                                                                      DoneWith result) {
+        if (result != DoneWith::Success) {
+            if (showError == ShowError::No)
+                return;
+            const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
+                                        .arg("git for-each-ref")
+                                        .arg(workingDirectory.toUserOutput())
+                                        .arg(process.cleanedStdErr());
+            VcsBase::VcsOutputWindow::appendError(message);
+            return;
+        }
         const QString output = process.stdOut();
         const QStringList lines = output.split('\n');
         for (const QString &l : lines)
@@ -450,29 +469,11 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const auto forEachRefError = [=](const Process &process) {
-        if (showError == ShowError::No)
-            return;
-        const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
-                                    .arg("git for-each-ref")
-                                    .arg(workingDirectory.toUserOutput())
-                                    .arg(process.cleanedStdErr());
-        VcsBase::VcsOutputWindow::appendError(message);
-    };
-
-    const auto finalize = [this] {
-        endResetModel();
-        d->refreshTask.release()->deleteLater();
-    };
-
     const Group root {
         topRevisionProc,
-        ProcessTask(setupForEachRef, forEachRefDone, forEachRefError),
-        onGroupDone(finalize),
-        onGroupError(finalize)
+        ProcessTask(onForEachRefSetup, onForEachRefDone)
     };
-    d->refreshTask.reset(new TaskTree(root));
-    d->refreshTask->start();
+    d->taskTreeRunner.start(root);
 }
 
 void BranchModel::setCurrentBranch()
@@ -759,7 +760,7 @@ std::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
     if (!node)
         return std::nullopt;
     if (node == remotesNode)
-        return {};
+        return QString(); // keep QString() as {} might convert to std::nullopt
     if (node->parent == remotesNode)
         return node->name;
     return std::nullopt;
@@ -909,13 +910,17 @@ void BranchModel::removeNode(const QModelIndex &idx)
 
 void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
-    if (node->tracking.isEmpty())
+    if (!node->isLocal())
         return;
 
     Process *process = new Process(node);
-    process->setEnvironment(gitClient().processEnvironment());
-    process->setCommand({gitClient().vcsBinary(), {"rev-list", "--no-color", "--left-right",
-                         "--count", node->fullRef() + "..." + node->tracking}});
+    process->setEnvironment(gitClient().processEnvironment(d->workingDirectory));
+    QStringList parameters = {"rev-list", "--no-color", "--count"};
+    if (node->tracking.isEmpty())
+        parameters += {node->fullRef(), "--not", "--remotes"};
+    else
+        parameters += {"--left-right", node->fullRef() + "..." + node->tracking};
+    process->setCommand({gitClient().vcsBinary(d->workingDirectory), parameters});
     process->setWorkingDirectory(d->workingDirectory);
     connect(process, &Process::done, this, [this, process, node] {
         process->deleteLater();
@@ -925,9 +930,13 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         if (text.isEmpty())
             return;
         const QStringList split = text.trimmed().split('\t');
-        QTC_ASSERT(split.size() == 2, return);
+        if (node->tracking.isEmpty()) {
+            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), 0));
+        } else {
+            QTC_ASSERT(split.size() == 2, return);
 
-        node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+        }
         const QModelIndex idx = nodeToIndex(node, ColumnBranch);
         emit dataChanged(idx, idx);
     });

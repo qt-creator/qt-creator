@@ -28,7 +28,7 @@ class FileInProjectFinder;
 
 namespace ProjectExplorer {
 class Kit;
-class ToolChain;
+class Toolchain;
 class Target;
 } // ProjectExplorer
 
@@ -38,7 +38,7 @@ class QtConfigWidget;
 class QtVersion;
 
 namespace Internal {
-class QtOptionsPageWidget;
+class QtSettingsPageWidget;
 class QtVersionPrivate;
 }
 
@@ -86,8 +86,6 @@ public:
 
     // source path defined by qmake property QT_INSTALL_PREFIX/src or by qmake.stash QT_SOURCE_TREE
     Utils::FilePath sourcePath() const;
-    // returns source path for installed qt packages and empty string for self build qt
-    Utils::FilePath qtPackageSourcePath() const;
     bool isInQtSourceDirectory(const Utils::FilePath &filePath) const;
     bool isQtSubProject(const Utils::FilePath &filePath) const;
 
@@ -114,7 +112,7 @@ public:
 
     /// @returns the name of the mkspec
     QString mkspec() const;
-    QString mkspecFor(ProjectExplorer::ToolChain *tc) const;
+    QString mkspecFor(ProjectExplorer::Toolchain *tc) const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     Utils::FilePath mkspecPath() const;
@@ -222,7 +220,7 @@ private:
     friend class QtVersionFactory;
     friend class QtVersionManager;
     friend class Internal::QtVersionPrivate;
-    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSettingsPageWidget;
 
     void setId(int id);
     QtVersion *clone(bool forceRefreshCache = false) const;
@@ -231,6 +229,10 @@ private:
 };
 
 using QtVersions = QList<QtVersion *>;
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQtBuildStringParserTest(); }
+#endif
 
 } // QtSupport
 

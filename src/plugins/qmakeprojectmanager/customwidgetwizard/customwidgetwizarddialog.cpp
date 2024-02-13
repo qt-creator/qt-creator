@@ -57,9 +57,9 @@ void CustomWidgetWizardDialog::slotCurrentIdChanged(int id)
         m_pluginPage->init(m_widgetsPage);
 }
 
-QSharedPointer<PluginOptions> CustomWidgetWizardDialog::pluginOptions() const
+std::shared_ptr<PluginOptions> CustomWidgetWizardDialog::pluginOptions() const
 {
-    QSharedPointer<PluginOptions> rc = m_pluginPage->basicPluginOptions();
+    std::shared_ptr<PluginOptions> rc = m_pluginPage->basicPluginOptions();
     rc->widgetOptions = m_widgetsPage->widgetOptions();
     return rc;
 }

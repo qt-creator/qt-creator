@@ -11,7 +11,7 @@ namespace Internal {
 struct RepositorySettings;
 class ConfigureDialogPrivate;
 
-class ConfigureDialog : public QDialog
+class ConfigureDialog final : public QDialog
 {
     Q_OBJECT
 

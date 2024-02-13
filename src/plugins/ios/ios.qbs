@@ -17,6 +17,8 @@ QtcPlugin {
     files: [
         "createsimulatordialog.cpp",
         "createsimulatordialog.h",
+        "devicectlutils.cpp",
+        "devicectlutils.h",
         "ios.qrc",
         "iosbuildconfiguration.cpp",
         "iosbuildconfiguration.h",
@@ -32,7 +34,6 @@ QtcPlugin {
         "iosdsymbuildstep.cpp",
         "iosdsymbuildstep.h",
         "iosplugin.cpp",
-        "iosplugin.h",
         "iosprobe.cpp",
         "iosprobe.h",
         "iosqtversion.cpp",

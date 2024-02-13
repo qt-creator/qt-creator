@@ -4,7 +4,6 @@
 #include "pyside.h"
 
 #include "pipsupport.h"
-#include "pythonplugin.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -36,19 +35,17 @@ namespace Python::Internal {
 
 const char installPySideInfoBarId[] = "Python::InstallPySide";
 
-PySideInstaller *PySideInstaller::instance()
-{
-    static PySideInstaller *instance = new PySideInstaller; // FIXME: Leaks.
-    return instance;
-}
-
 void PySideInstaller::checkPySideInstallation(const FilePath &python,
                                               TextEditor::TextDocument *document)
 {
     document->infoBar()->removeInfo(installPySideInfoBarId);
+    if (QPointer<QFutureWatcher<bool>> watcher = pySideInstaller().m_futureWatchers.value(document))
+        watcher->cancel();
+    if (!python.exists())
+        return;
     const QString pySide = importedPySide(document->plainText());
     if (pySide == "PySide2" || pySide == "PySide6")
-        instance()->runPySideChecker(python, pySide, document);
+        pySideInstaller().runPySideChecker(python, pySide, document);
 }
 
 bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
@@ -76,9 +73,7 @@ QString PySideInstaller::importedPySide(const QString &text)
     return match.captured(2);
 }
 
-PySideInstaller::PySideInstaller()
-    : QObject(PythonPlugin::instance())
-{}
+PySideInstaller::PySideInstaller() = default;
 
 void PySideInstaller::installPyside(const FilePath &python,
                                     const QString &pySide,
@@ -119,7 +114,7 @@ void PySideInstaller::installPyside(const FilePath &python,
 
     auto install = new PipInstallTask(python);
     connect(install, &PipInstallTask::finished, install, &QObject::deleteLater);
-    connect(install, &PipInstallTask::finished, this, [=](bool success){
+    connect(install, &PipInstallTask::finished, this, [this, python, pySide](bool success) {
         if (success)
             emit pySideInstalled(python, pySide);
     });
@@ -189,7 +184,7 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     const QString message = Tr::tr("%1 installation missing for %2 (%3)")
                                 .arg(pySide, pythonName(python), python.toUserOutput());
     InfoBarEntry info(installPySideInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    auto installCallback = [=]() { installPyside(python, pySide, document); };
+    auto installCallback = [this, python, pySide, document] { installPyside(python, pySide, document); };
     const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
     info.addCustomButton(Tr::tr("Install"), installCallback, installTooltip);
@@ -206,20 +201,26 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
 
     // cancel and delete watcher after a 10 second timeout
     QTimer::singleShot(10000, this, [watcher]() {
-        if (watcher) {
+        if (watcher)
             watcher->cancel();
-            watcher->deleteLater();
-        }
     });
-    connect(watcher,
-            &CheckPySideWatcher::resultReadyAt,
-            this,
-            [=, document = QPointer<TextEditor::TextDocument>(document)]() {
+    connect(watcher, &CheckPySideWatcher::resultReadyAt, this,
+            [this, watcher, python, pySide, document = QPointer<TextEditor::TextDocument>(document)] {
                 if (watcher->result())
                     handlePySideMissing(python, pySide, document);
-                watcher->deleteLater();
             });
+    connect(watcher, &CheckPySideWatcher::finished, watcher, &CheckPySideWatcher::deleteLater);
+    connect(watcher, &CheckPySideWatcher::finished, this, [this, document]{
+        m_futureWatchers.remove(document);
+    });
     watcher->setFuture(Utils::asyncRun(&missingPySideInstallation, python, pySide));
+    m_futureWatchers[document] = watcher;
+}
+
+PySideInstaller &pySideInstaller()
+{
+    static PySideInstaller thePySideInstaller;
+    return thePySideInstaller;
 }
 
 } // Python::Internal

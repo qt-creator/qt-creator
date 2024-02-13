@@ -59,12 +59,12 @@ public:
         connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
 
-    bool isEnabled() const override
+    bool isEnabled(Utils::Id runMode) const override
     {
         if (disabled)
             return false;
 
-        return RunConfiguration::isEnabled();
+        return RunConfiguration::isEnabled(runMode);
     }
 
     static bool disabled;

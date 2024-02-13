@@ -22,7 +22,6 @@ class TestCodeParser;
 } // namespace Internal
 
 class TestParseResult;
-using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
 class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<Utils::TreeItem, ITestTreeItem>
 {
@@ -78,7 +77,7 @@ signals:
 #endif
 
 private:
-    void onParseResultReady(const TestParseResultPtr result);
+    void onParseResultsReady(const QList<TestParseResultPtr> &results);
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                        const QVector<int> &roles);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
@@ -114,7 +113,6 @@ public:
 
     explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = nullptr);
     void setSortMode(ITestTreeItem::SortMode sortMode);
-    void setFilterMode(FilterMode filterMode);
     void toggleFilter(FilterMode filterMode);
     static FilterMode toFilterMode(int f);
 

@@ -485,7 +485,8 @@ void SideDiffEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QPointer<QMenu> menu = createStandardContextMenu();
+    QMenu *menu = createStandardContextMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const QTextCursor tc = textCursor();
     QTextCursor start = tc;
@@ -526,9 +527,7 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                               m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber),
                               selection);
 
-    connect(this, &SideDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
-    delete menu;
 }
 
 void SideDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)

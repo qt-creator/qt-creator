@@ -37,6 +37,7 @@
 const int chunkSize = 10000;
 
 using namespace Utils;
+using namespace std::chrono_literals;
 
 namespace Core {
 
@@ -89,7 +90,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     d->formatter.setPlainTextEdit(this);
 
     d->queueTimer.setSingleShot(true);
-    d->queueTimer.setInterval(10);
+    d->queueTimer.setInterval(10ms);
     connect(&d->queueTimer, &QTimer::timeout, this, &OutputWindow::handleNextOutputChunk);
 
     d->settingsKey = settingsKey;
@@ -149,7 +150,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     cutAction->setEnabled(false);
     copyAction->setEnabled(false);
 
-    d->scrollTimer.setInterval(10);
+    d->scrollTimer.setInterval(10ms);
     d->scrollTimer.setSingleShot(true);
     connect(&d->scrollTimer, &QTimer::timeout,
             this, &OutputWindow::scrollToBottom);

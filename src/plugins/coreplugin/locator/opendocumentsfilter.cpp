@@ -72,7 +72,7 @@ static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
 
 LocatorMatcherTasks OpenDocumentsFilter::matchers()
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage](Async<void> &async) {
         const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),

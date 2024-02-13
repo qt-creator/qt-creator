@@ -23,6 +23,7 @@
 #include <QMenu>
 
 using namespace Core;
+using namespace Utils;
 
 namespace CompilerExplorer::Internal {
 
@@ -36,28 +37,27 @@ public:
     {
         static CompilerExplorer::EditorFactory ceEditorFactory;
 
-        auto action = new QAction(Tr::tr("Open Compiler Explorer"), this);
-        connect(action, &QAction::triggered, this, [] {
-            QString name("Compiler Explorer $");
-            Core::EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID,
-                                                        &name,
-                                                        settings().defaultDocument().toUtf8());
-        });
-
-        Utils::FileIconProvider::registerIconForMimeType(QIcon(":/compilerexplorer/logos/ce.ico"),
-                                                         "application/compiler-explorer");
+        FileIconProvider::registerIconForMimeType(QIcon(":/compilerexplorer/logos/ce.ico"),
+                                                  "application/compiler-explorer");
 
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/compilerexplorer/wizard/");
 
+        const Id menuId = "Tools.CompilerExplorer";
         ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-        ActionContainer *mCompilerExplorer = ActionManager::createMenu("Tools.CompilerExplorer");
+        ActionContainer *mCompilerExplorer = ActionManager::createMenu(menuId);
         QMenu *menu = mCompilerExplorer->menu();
         menu->setTitle(Tr::tr("Compiler Explorer"));
         mtools->addMenu(mCompilerExplorer);
 
-        Command *cmd = ActionManager::registerAction(action,
-                                                     "CompilerExplorer.CompilerExplorerAction");
-        mCompilerExplorer->addAction(cmd);
+        ActionBuilder openAction(this, "CompilerExplorer.CompilerExplorerAction");
+        openAction.setText(Tr::tr("Open Compiler Explorer"));
+        openAction.addToContainer(menuId);
+        openAction.addOnTriggered(this, [] {
+            QString name = "Compiler Explorer $";
+            Core::EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID,
+                                                        &name,
+                                                        settings().defaultDocument().toUtf8());
+        });
     }
 };
 

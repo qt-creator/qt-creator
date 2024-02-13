@@ -7,6 +7,8 @@
 #include "bookmarkmanager.h"
 #include "texteditortr.h"
 
+#include <coreplugin/locator/ilocatorfilter.h>
+
 #include <utils/algorithm.h>
 
 using namespace Core;
@@ -14,34 +16,42 @@ using namespace Utils;
 
 namespace TextEditor::Internal {
 
-BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
-    : m_manager(manager)
+class BookmarkFilter final : public ILocatorFilter
 {
-    setId("Bookmarks");
-    setDisplayName(Tr::tr("Bookmarks"));
-    setDescription(Tr::tr("Locates bookmarks. Filter by file name, by the text on the line of the "
-                          "bookmark, or by the bookmark's note text."));
-    setPriority(Medium);
-    setDefaultShortcutString("b");
-}
+public:
+    BookmarkFilter()
+    {
+        setId("Bookmarks");
+        setDisplayName(Tr::tr("Bookmarks"));
+        setDescription(Tr::tr("Locates bookmarks. Filter by file name, by the text on the line of the "
+                              "bookmark, or by the bookmark's note text."));
+        setPriority(Medium);
+        setDefaultShortcutString("b");
+    }
+
+private:
+    LocatorMatcherTasks matchers() final;
+    LocatorFilterEntries match(const QString &input) const;
+};
 
 LocatorMatcherTasks BookmarkFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
-    const auto onSetup = [=] { storage->reportOutput(match(storage->input())); };
+    const auto onSetup = [this, storage] { storage->reportOutput(match(storage->input())); };
     return {{Sync(onSetup), storage}};
 }
 
 LocatorFilterEntries BookmarkFilter::match(const QString &input) const
 {
-    if (m_manager->rowCount() == 0)
+    if (bookmarkManager().rowCount() == 0)
         return {};
-    const auto match = [this](const QString &name, BookmarkManager::Roles role) {
-        return m_manager->match(m_manager->index(0, 0), role, name, -1,
-                                Qt::MatchContains | Qt::MatchWrap);
+
+    const auto match = [](const QString &name, BookmarkManager::Roles role) {
+        const BookmarkManager &manager = bookmarkManager();
+        return manager.match(manager.index(0, 0), role, name, -1, Qt::MatchContains | Qt::MatchWrap);
     };
 
     const int colonIndex = input.lastIndexOf(':');
@@ -62,8 +72,9 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
                                                    + match(input, BookmarkManager::Note)
                                                    + match(input, BookmarkManager::LineText));
     LocatorFilterEntries entries;
+    BookmarkManager &manager = bookmarkManager();
     for (const QModelIndex &idx : matches) {
-        const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
+        const Bookmark *bookmark = manager.bookmarkForIndex(idx);
         const QString filename = bookmark->filePath().fileName();
         LocatorFilterEntry entry;
         entry.displayName = QString("%1:%2").arg(filename).arg(bookmark->lineNumber());
@@ -71,9 +82,10 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
         // Model indexes should be used immediately and then discarded.
         // You should not rely on indexes to remain valid after calling model functions
         // that change the structure of the model or delete items.
-        entry.acceptor = [manager = m_manager, idx] {
-            if (Bookmark *bookmark = manager->bookmarkForIndex(idx))
-                manager->gotoBookmark(bookmark);
+        entry.acceptor = [idx] {
+            const BookmarkManager &manager = bookmarkManager();
+            if (Bookmark *bookmark = manager.bookmarkForIndex(idx))
+                manager.gotoBookmark(bookmark);
             return AcceptResult();
         };
         if (!bookmark->note().isEmpty())
@@ -110,6 +122,11 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
         entries.append(entry);
     }
     return entries;
+}
+
+void setupBookmarkFilter()
+{
+    static BookmarkFilter theBookmarkFilter;
 }
 
 } // TextEditor::Internal

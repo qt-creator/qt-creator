@@ -5,7 +5,10 @@
 
 #include "languageclienttr.h"
 
+#include <QLocalSocket>
 #include <QLoggingCategory>
+
+#include <memory>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -168,6 +171,57 @@ void StdIOClientInterface::readOutput()
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
     qCDebug(LOGLSPCLIENTV).noquote() << out;
     parseData(out);
+}
+
+class LocalSocketClientInterface::Private
+{
+public:
+    Private(LocalSocketClientInterface *q, const QString &serverName)
+        : q(q), serverName(serverName) {}
+
+    void discardSocket();
+
+    LocalSocketClientInterface * const q;
+    const QString serverName;
+    std::unique_ptr<QLocalSocket> socket;
+};
+
+LocalSocketClientInterface::LocalSocketClientInterface(const QString &serverName)
+    : d(new Private(this, serverName))
+{
+}
+
+LocalSocketClientInterface::~LocalSocketClientInterface()
+{
+    d->discardSocket();
+    delete d;
+}
+
+void LocalSocketClientInterface::startImpl()
+{
+    d->discardSocket();
+    d->socket.reset(new QLocalSocket);
+    d->socket->setServerName(d->serverName); // TODO: Map path?
+    connect(d->socket.get(), &QLocalSocket::errorOccurred, this,
+            [this] { emit error(d->socket->errorString()); });
+    connect(d->socket.get(), &QLocalSocket::readyRead, this,
+            [this] { parseData(d->socket->readAll()); });
+    connect(d->socket.get(), &QLocalSocket::connected, this, &LocalSocketClientInterface::started);
+    connect(d->socket.get(), &QLocalSocket::disconnected, this, &LocalSocketClientInterface::finished);
+    d->socket->connectToServer();
+}
+
+void LocalSocketClientInterface::sendData(const QByteArray &data)
+{
+    d->socket->write(data);
+}
+
+void LocalSocketClientInterface::Private::discardSocket()
+{
+    if (socket) {
+        socket->disconnect(q);
+        socket->disconnectFromServer();
+    }
 }
 
 } // namespace LanguageClient

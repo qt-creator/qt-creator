@@ -3,16 +3,23 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 namespace Python::Internal {
 
-class PythonEditorFactory : public TextEditor::TextEditorFactory
+class PythonDocument : public TextEditor::TextDocument
 {
+    Q_OBJECT
 public:
-    PythonEditorFactory();
-private:
-    QObject m_guard;
+    PythonDocument();
+
+    void updateCurrentPython();
+    void updatePython(const Utils::FilePath &python);
+
+signals:
+    void pythonUpdated(const Utils::FilePath &python);
 };
+
+void setupPythonEditorFactory(QObject *guard);
 
 } // Python::Internal

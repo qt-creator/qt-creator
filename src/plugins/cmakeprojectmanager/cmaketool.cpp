@@ -169,14 +169,12 @@ bool CMakeTool::isValid(bool ignoreCache) const
 void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
 {
     const FilePath executable = cmakeExecutable();
-    cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
     Environment env = executable.deviceEnvironment();
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
-    cmake.setTimeOutMessageBoxEnabled(false);
     cmake.setCommand({executable, args});
-    cmake.runBlocking();
+    cmake.runBlocking(std::chrono::seconds(timeoutS));
 }
 
 Store CMakeTool::toMap() const

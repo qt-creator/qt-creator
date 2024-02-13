@@ -4,9 +4,11 @@
 #include "bookmarkmanager.h"
 
 #include "bookmark.h"
+#include "texteditor.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -15,11 +17,12 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
+#include <utils/dropsupport.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/theme/theme.h>
-#include <utils/dropsupport.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -174,7 +177,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 class BookmarkView final : public Utils::ListView
 {
 public:
-    explicit BookmarkView(BookmarkManager *manager);
+    BookmarkView();
 
     QList<QToolButton *> createToolBarWidgets();
 
@@ -191,12 +194,10 @@ protected:
 private:
     Core::IContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
-    BookmarkManager *m_manager;
 };
 
-BookmarkView::BookmarkView(BookmarkManager *manager)  :
-    m_bookmarkContext(new IContext(this)),
-    m_manager(manager)
+BookmarkView::BookmarkView()
+    : m_bookmarkContext(new IContext(this))
 {
     setWindowTitle(Tr::tr("Bookmarks"));
 
@@ -205,13 +206,13 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
 
     ICore::addContextObject(m_bookmarkContext);
 
-    ListView::setModel(manager);
+    ListView::setModel(&bookmarkManager());
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAttribute(Qt::WA_MacShowFocusRect, false);
-    setSelectionModel(manager->selectionModel());
+    setSelectionModel(bookmarkManager().selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setDragEnabled(true);
@@ -257,11 +258,12 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     if (model()->rowCount() == 0)
         removeAll->setEnabled(false);
 
-    connect(moveUp, &QAction::triggered, m_manager, &BookmarkManager::moveUp);
-    connect(moveDown, &QAction::triggered, m_manager, &BookmarkManager::moveDown);
+    BookmarkManager *manager = &bookmarkManager();
+    connect(moveUp, &QAction::triggered, manager, &BookmarkManager::moveUp);
+    connect(moveDown, &QAction::triggered, manager, &BookmarkManager::moveDown);
     connect(remove, &QAction::triggered, this, &BookmarkView::removeFromContextMenu);
     connect(removeAll, &QAction::triggered, this, &BookmarkView::removeAll);
-    connect(edit, &QAction::triggered, m_manager, &BookmarkManager::edit);
+    connect(edit, &QAction::triggered, manager, &BookmarkManager::edit);
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -273,8 +275,8 @@ void BookmarkView::removeFromContextMenu()
 
 void BookmarkView::removeBookmark(const QModelIndex& index)
 {
-    Bookmark *bm = m_manager->bookmarkForIndex(index);
-    m_manager->deleteBookmark(bm);
+    Bookmark *bm = bookmarkManager().bookmarkForIndex(index);
+    bookmarkManager().deleteBookmark(bm);
 }
 
 void BookmarkView::keyPressEvent(QKeyEvent *event)
@@ -298,31 +300,124 @@ void BookmarkView::removeAll()
         return;
 
     // The performance of this function could be greatly improved.
-    while (m_manager->rowCount()) {
-        QModelIndex index = m_manager->index(0, 0);
+    BookmarkManager *manager = &bookmarkManager();
+    while (manager->rowCount()) {
+        QModelIndex index = manager->index(0, 0);
         removeBookmark(index);
     }
 }
 
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
-    Bookmark *bk = m_manager->bookmarkForIndex(index);
-    if (!m_manager->gotoBookmark(bk))
-        m_manager->deleteBookmark(bk);
+    BookmarkManager *manager = &bookmarkManager();
+    Bookmark *bk = manager->bookmarkForIndex(index);
+    if (bk && !manager->gotoBookmark(bk))
+        manager->deleteBookmark(bk);
 }
 
 ////
 // BookmarkManager
 ////
 
-BookmarkManager::BookmarkManager() :
-    m_selectionModel(new QItemSelectionModel(this, this))
+BookmarkManager::BookmarkManager(QObject *parent)
+    : QAbstractItemModel(parent), m_selectionModel(new QItemSelectionModel(this, this))
 {
+    m_editBookmarkAction.setText(Tr::tr("Edit Bookmark"));
+    m_bookmarkMarginAction.setText(Tr::tr("Toggle Bookmark"));
+
     connect(ICore::instance(), &ICore::contextChanged,
             this, &BookmarkManager::updateActionStatus);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &BookmarkManager::loadBookmarks);
+
+    const Id bookmarkMenuId = "Bookmarks.Menu";
+    const Context editorManagerContext(Core::Constants::C_EDITORMANAGER);
+
+    MenuBuilder bookmarkMenu(bookmarkMenuId);
+    bookmarkMenu.setTitle(Tr::tr("&Bookmarks"));
+    bookmarkMenu.addToContainer(Core::Constants::M_TOOLS);
+
+    connect(&m_editBookmarkAction, &QAction::triggered, this, [this] {
+            editByFileAndLine(m_marginActionFileName, m_marginActionLineNumber);
+    });
+
+    connect(&m_bookmarkMarginAction, &QAction::triggered, this, [this] {
+            toggleBookmark(m_marginActionFileName, m_marginActionLineNumber);
+    });
+
+    ActionBuilder toggleAction(this, "Bookmarks.Toggle");
+    toggleAction.setContext(editorManagerContext);
+    toggleAction.setText(Tr::tr("Toggle Bookmark"));
+    toggleAction.setDefaultKeySequence(Tr::tr("Meta+M"), Tr::tr("Ctrl+M"));
+    toggleAction.setTouchBarIcon(Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
+    toggleAction.addToContainer(bookmarkMenuId);
+    toggleAction.bindContextAction(&m_toggleAction);
+    toggleAction.addOnTriggered(this, [this] {
+        IEditor *editor = EditorManager::currentEditor();
+        auto widget = TextEditorWidget::fromEditor(editor);
+        if (widget && editor && !editor->document()->isTemporary())
+            toggleBookmark(editor->document()->filePath(), editor->currentLine());
+    });
+
+    ActionBuilder editAction(this, "Bookmarks.Edit");
+    editAction.setContext(editorManagerContext);
+    editAction.setText(Tr::tr("Edit Bookmark"));
+    editAction.setDefaultKeySequence(Tr::tr("Meta+Shift+M"), Tr::tr("Ctrl+Shift+M"));
+    editAction.addToContainer(bookmarkMenuId);
+    editAction.bindContextAction(&m_editAction);
+    editAction.addOnTriggered(this, [this] {
+        IEditor *editor = EditorManager::currentEditor();
+        auto widget = TextEditorWidget::fromEditor(editor);
+        if (widget && editor && !editor->document()->isTemporary()) {
+            const FilePath filePath = editor->document()->filePath();
+            const int line = editor->currentLine();
+            if (!hasBookmarkInPosition(filePath, line))
+                toggleBookmark(filePath, line);
+            editByFileAndLine(filePath, line);
+        }
+    });
+
+    bookmarkMenu.addSeparator();
+
+    ActionBuilder prevAction(this, Constants::BOOKMARKS_PREV_ACTION);
+    prevAction.setContext(editorManagerContext);
+    prevAction.setText(Tr::tr("Previous Bookmark"));
+    prevAction.setDefaultKeySequence(Tr::tr("Meta+,"), Tr::tr("Ctrl+,"));
+    prevAction.addToContainer(bookmarkMenuId);
+    prevAction.setIcon(Icons::PREV_TOOLBAR.icon());
+    prevAction.setIconVisibleInMenu(false);
+    prevAction.bindContextAction(&m_prevAction);
+    prevAction.addOnTriggered(this, [this] { prev(); });
+
+    ActionBuilder nextAction(this, Constants::BOOKMARKS_NEXT_ACTION);
+    nextAction.setContext(editorManagerContext);
+    nextAction.setText(Tr::tr("Next Bookmark"));
+    nextAction.setIcon(Icons::NEXT_TOOLBAR.icon());
+    nextAction.setIconVisibleInMenu(false);
+    nextAction.setDefaultKeySequence(Tr::tr("Meta+."), Tr::tr("Ctrl+."));
+    nextAction.addToContainer(bookmarkMenuId);
+    nextAction.bindContextAction(&m_nextAction);
+    nextAction.addOnTriggered(this, [this] { next(); });
+
+    bookmarkMenu.addSeparator();
+
+    ActionBuilder docPrevAction(this, "Bookmarks.PreviousDocument");
+    docPrevAction.setContext(editorManagerContext);
+    docPrevAction.setText(Tr::tr("Previous Bookmark in Document"));
+    docPrevAction.addToContainer(bookmarkMenuId);
+    docPrevAction.bindContextAction(&m_docPrevAction);
+    docPrevAction.addOnTriggered(this, [this] { prevInDocument(); });
+
+    ActionBuilder docNextAction(this, "Bookmarks.NextDocument");
+    docNextAction.setContext(Core::Constants::C_EDITORMANAGER);
+    docNextAction.setText(Tr::tr("Next Bookmark in Document"));
+    docNextAction.addToContainer(bookmarkMenuId);
+    docNextAction.bindContextAction(&m_docNextAction);
+    docNextAction.addOnTriggered(this, [this] { nextInDocument(); });
+
+    ActionContainer *touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
+    touchBar->addAction(toggleAction.command(), Core::Constants::G_TOUCHBAR_EDITOR);
 
     updateActionStatus();
 }
@@ -552,11 +647,22 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 
 bool BookmarkManager::gotoBookmark(const Bookmark *bookmark) const
 {
+    QTC_ASSERT(bookmark, return false);
     if (IEditor *editor = EditorManager::openEditorAt(
             Utils::Link(bookmark->filePath(), bookmark->lineNumber()))) {
         return editor->currentLine() == bookmark->lineNumber();
     }
     return false;
+}
+
+void BookmarkManager::requestContextMenu(const FilePath &filePath, int lineNumber, QMenu *menu)
+{
+    m_marginActionLineNumber = lineNumber;
+    m_marginActionFileName = filePath;
+
+    menu->addAction(&m_bookmarkMarginAction);
+    if (hasBookmarkInPosition(m_marginActionFileName, m_marginActionLineNumber))
+        menu->addAction(&m_editBookmarkAction);
 }
 
 void BookmarkManager::nextInDocument()
@@ -677,7 +783,15 @@ void BookmarkManager::updateActionStatus()
     IEditor *editor = EditorManager::currentEditor();
     const bool enableToggle = editor && !editor->document()->isTemporary();
 
-    emit updateActions(enableToggle, state());
+    const bool hasbm    = state() >= BookmarkManager::HasBookMarks;
+    const bool hasdocbm = state() == BookmarkManager::HasBookmarksInDocument;
+
+    m_toggleAction->setEnabled(enableToggle);
+    m_editAction->setEnabled(enableToggle);
+    m_prevAction->setEnabled(hasbm);
+    m_nextAction->setEnabled(hasbm);
+    m_docPrevAction->setEnabled(hasdocbm);
+    m_docNextAction->setEnabled(hasdocbm);
 }
 
 void BookmarkManager::move(Bookmark* mark, int newRow)
@@ -881,22 +995,45 @@ bool BookmarkManager::isAtCurrentBookmark() const
            && currentEditor->currentLine() == bk->lineNumber();
 }
 
-// BookmarkViewFactory
+static BookmarkManager *s_bookmarkManager;
 
-BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
-    : m_manager(bm)
+void setupBookmarkManager(QObject *guard)
 {
-    setDisplayName(Tr::tr("Bookmarks"));
-    setPriority(300);
-    setId("Bookmarks");
-    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Alt+Meta+M") : Tr::tr("Alt+M")));
+    QTC_CHECK(!s_bookmarkManager);
+    s_bookmarkManager = new BookmarkManager(guard);
 }
 
-NavigationView BookmarkViewFactory::createWidget()
+BookmarkManager &bookmarkManager()
 {
-    auto view = new BookmarkView(m_manager);
-    view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
-    return {view, view->createToolBarWidgets()};
+    QTC_CHECK(s_bookmarkManager);
+    return *s_bookmarkManager;
+}
+
+// BookmarkViewFactory
+
+class BookmarkViewFactory final : public INavigationWidgetFactory
+{
+public:
+    BookmarkViewFactory()
+    {
+        setDisplayName(Tr::tr("Bookmarks"));
+        setPriority(300);
+        setId("Bookmarks");
+        setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Alt+Meta+M") : Tr::tr("Alt+M")));
+    }
+
+private:
+    NavigationView createWidget() final
+    {
+        auto view = new BookmarkView;
+        view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
+        return {view, view->createToolBarWidgets()};
+    }
+};
+
+void setupBookmarkView()
+{
+    static BookmarkViewFactory theBookmarkViewFactory;
 }
 
 } // TextEditor::Internal

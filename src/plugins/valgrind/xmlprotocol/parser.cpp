@@ -25,6 +25,7 @@
 #include <QWaitCondition>
 #include <QXmlStreamReader>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Valgrind::XmlProtocol {
@@ -710,7 +711,7 @@ public:
                 m_errorString = data.m_internalError;
         });
         QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, q, [this] {
-            emit q->done(!m_errorString, m_errorString.value_or(QString()));
+            emit q->done(toDoneResult(!m_errorString), m_errorString.value_or(QString()));
             m_watcher.release()->deleteLater();
             m_thread.reset();
             m_socket.reset();
@@ -786,8 +787,8 @@ bool Parser::runBlocking()
     bool ok = false;
     QEventLoop loop;
 
-    const auto finalize = [&loop, &ok](bool success) {
-        ok = success;
+    const auto finalize = [&loop, &ok](DoneResult result) {
+        ok = result == DoneResult::Success;
         // Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     };

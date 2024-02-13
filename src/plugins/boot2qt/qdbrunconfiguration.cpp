@@ -109,7 +109,7 @@ private:
 
 QdbRunConfigurationFactory::QdbRunConfigurationFactory()
 {
-    registerRunConfiguration<QdbRunConfiguration>("QdbLinuxRunConfiguration:");
+    registerRunConfiguration<QdbRunConfiguration>(Constants::QdbRunConfigurationId);
     addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
 }
 

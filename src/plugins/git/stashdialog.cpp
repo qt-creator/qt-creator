@@ -165,12 +165,11 @@ void StashDialog::refresh(const FilePath &repository, bool force)
         return;
     // Refresh
     m_repository = repository;
-    m_repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
+    m_repositoryLabel->setText(msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
-        m_model->setStashes(QList<Stash>());
+        m_model->setStashes({});
     } else {
-        QList<Stash> stashes;
-        gitClient().synchronousStashList(m_repository, &stashes);
+        const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
         m_model->setStashes(stashes);
         if (!stashes.isEmpty()) {
             for (int c = 0; c < ColumnCount; c++)

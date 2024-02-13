@@ -7,10 +7,6 @@
 
 namespace Qdb::Internal {
 
-class QdbQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    QdbQtVersionFactory();
-};
+void setupQdbQtVersion();
 
 } // Qdb::Internal

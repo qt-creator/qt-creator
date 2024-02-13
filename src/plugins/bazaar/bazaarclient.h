@@ -31,7 +31,7 @@ public:
 
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
     QString vcsCommandString(VcsCommandTag cmd) const override;
-    Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
+    VcsBase::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
     QStringList revisionSpec(const QString &revision) const override;
     StatusItem parseStatusLine(const QString &line) const override;
 

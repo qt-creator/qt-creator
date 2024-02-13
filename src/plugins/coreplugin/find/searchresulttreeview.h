@@ -22,6 +22,7 @@ public:
     explicit SearchResultTreeView(QWidget *parent = nullptr);
 
     void setAutoExpandResults(bool expand);
+    void setRelativePaths(bool relative);
     void setTextEditorFont(const QFont &font, const Utils::SearchResultColors &colors);
     void setTabWidth(int tabWidth);
 

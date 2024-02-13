@@ -93,7 +93,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
             this, &PerfConfigWidget::readTracePoints);
 
     auto addEventButton = new QPushButton(Tr::tr("Add Event"), this);
-    connect(addEventButton, &QPushButton::pressed, this, [this]() {
+    connect(addEventButton, &QPushButton::pressed, this, [this] {
         auto model = eventsView->model();
         model->insertRow(model->rowCount());
     });
@@ -127,7 +127,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     if (target)
         device = DeviceKitAspect::device(target->kit());
 
-    if (device.isNull()) {
+    if (!device) {
         useTracePointsButton->setEnabled(false);
         return;
     }
@@ -165,9 +165,8 @@ void PerfConfigWidget::handleProcessDone()
         useTracePointsButton->setEnabled(true);
         return;
     }
-    const QList<QByteArray> lines =
-            m_process->readAllRawStandardOutput().append(m_process->readAllRawStandardError())
-            .split('\n');
+    const QList<QByteArray> lines
+        = m_process->rawStdOut().append(m_process->rawStdErr()).split('\n');
     auto model = eventsView->model();
     const int previousRows = model->rowCount();
     QHash<QByteArray, QByteArray> tracePoints;

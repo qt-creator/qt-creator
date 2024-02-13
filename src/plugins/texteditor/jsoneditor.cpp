@@ -5,14 +5,16 @@
 
 #include "autocompleter.h"
 #include "textdocument.h"
+#include "texteditor.h"
 #include "texteditoractionhandler.h"
 #include "texteditortr.h"
 #include "textindenter.h"
 
+#include <utils/mimeconstants.h>
+
 namespace TextEditor::Internal {
 
 const char JSON_EDITOR_ID[] = "Editors.Json";
-const char JSON_MIME_TYPE[] = "application/json";
 
 static int startsWith(const QString &line, const QString &closingChars)
 {
@@ -148,19 +150,28 @@ public:
     }
 };
 
-JsonEditorFactory::JsonEditorFactory()
+class JsonEditorFactory final : public TextEditorFactory
 {
-    setId(JSON_EDITOR_ID);
-    setDisplayName(Tr::tr("JSON Editor"));
-    addMimeType(JSON_MIME_TYPE);
+public:
+    JsonEditorFactory()
+    {
+        setId(JSON_EDITOR_ID);
+        setDisplayName(Tr::tr("JSON Editor"));
+        addMimeType(Utils::Constants::JSON_MIMETYPE);
 
-    setEditorCreator([] { return new BaseTextEditor; });
-    setEditorWidgetCreator([] { return new TextEditorWidget; });
-    setDocumentCreator([] { return new TextDocument(JSON_EDITOR_ID); });
-    setAutoCompleterCreator([] { return new JsonAutoCompleter; });
-    setIndenterCreator([](QTextDocument *doc) { return new JsonIndenter(doc); });
-    setEditorActionHandlers(TextEditorActionHandler::Format);
-    setUseGenericHighlighter(true);
+        setEditorCreator([] { return new BaseTextEditor; });
+        setEditorWidgetCreator([] { return new TextEditorWidget; });
+        setDocumentCreator([] { return new TextDocument(JSON_EDITOR_ID); });
+        setAutoCompleterCreator([] { return new JsonAutoCompleter; });
+        setIndenterCreator([](QTextDocument *doc) { return new JsonIndenter(doc); });
+        setEditorActionHandlers(TextEditorActionHandler::Format);
+        setUseGenericHighlighter(true);
+    }
+};
+
+void setupJsonEditor()
+{
+    static JsonEditorFactory theJsonEditorFactory;
 }
 
-} // namespace TextEditor::Internal
+} // TextEditor::Internal

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
+#include <QObject>
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
 #define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+?"
@@ -12,14 +12,12 @@
 #define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[((?<file>.+)(?|\\((?<line>\\d+)\\)|:(?<line>\\d+)))\\]$"
 #define QT_TEST_FAIL_WIN_REGEXP "^((?<file>.+)\\((?<line>\\d+)\\)) : failure location\\s*$"
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
-class QtOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    QtOutputFormatterFactory();
-};
+void setupQtOutputFormatter();
 
-} // namespace Internal
-} // namespace QtSupport
+#ifdef WITH_TESTS
+QObject *createQtOutputFormatterTest();
+#endif
+
+} // QtSupport::Internal

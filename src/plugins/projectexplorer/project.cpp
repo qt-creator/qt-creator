@@ -50,6 +50,7 @@
 #include <limits>
 
 #ifdef WITH_TESTS
+#include "projectexplorer_test.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/temporarydirectory.h>
 
@@ -195,6 +196,8 @@ public:
     mutable QVector<const Node *> m_sortedNodeList;
 
     Store m_extraData;
+
+    QList<Store> m_vanishedTargets;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -442,6 +445,54 @@ void Project::setActiveTarget(Target *target, SetActive cascade)
     }
 }
 
+QList<Store> Project::vanishedTargets() const
+{
+    return d->m_vanishedTargets;
+}
+
+void Project::removeVanishedTarget(int index)
+{
+    QTC_ASSERT(index >= 0 && index < d->m_vanishedTargets.size(), return);
+    d->m_vanishedTargets.removeAt(index);
+    emit vanishedTargetsChanged();
+}
+
+void Project::removeAllVanishedTargets()
+{
+    d->m_vanishedTargets.clear();
+    emit vanishedTargetsChanged();
+}
+
+Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
+{
+    const Id id = idFromMap(store);
+    Id deviceTypeId = Id::fromSetting(store.value(Target::deviceTypeKey()));
+    if (!deviceTypeId.isValid())
+        deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+    const QString formerKitName = store.value(Target::displayNameKey()).toString();
+    Kit *k = KitManager::registerKit(
+        [deviceTypeId, &formerKitName](Kit *kit) {
+            const QString kitName = makeUniquelyNumbered(formerKitName,
+                                                         transform(KitManager::kits(),
+                                                                   &Kit::unexpandedDisplayName));
+            kit->setUnexpandedDisplayName(kitName);
+            DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
+            kit->setup();
+        },
+        id);
+    QTC_ASSERT(k, return nullptr);
+    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+    if (!t->fromMap(store))
+        return nullptr;
+
+    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+        return nullptr;
+
+    auto pointer = t.get();
+    addTarget(std::move(t));
+    return pointer;
+}
+
 Tasks Project::projectIssues(const Kit *k) const
 {
     Tasks result;
@@ -564,6 +615,23 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     }
 
     return !fatalError;
+}
+
+bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
+{
+    Target *t = target(targetKit->id());
+    if (!t) {
+        auto t = std::make_unique<Target>(this, targetKit, Target::_constructor_tag{});
+        if (!t->fromMap(store))
+            return false;
+
+        if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+            return false;
+
+        addTarget(std::move(t));
+        return true;
+    }
+    return t->addConfigurationsFromMap(store, /*setActiveConfigurations=*/false);
 }
 
 bool Project::setupTarget(Target *t)
@@ -700,11 +768,19 @@ FilePaths Project::files(const NodeMatcher &filter) const
 void Project::toMap(Store &map) const
 {
     const QList<Target *> ts = targets();
+    const QList<Store> vts = vanishedTargets();
 
     map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
-    map.insert(TARGET_COUNT_KEY, ts.size());
-    for (int i = 0; i < ts.size(); ++i)
-        map.insert(numberedKey(TARGET_KEY_PREFIX, i), variantFromStore(ts.at(i)->toMap()));
+    map.insert(TARGET_COUNT_KEY, ts.size() + vts.size());
+    int index = 0;
+    for (Target *t : ts) {
+        map.insert(numberedKey(TARGET_KEY_PREFIX, index), variantFromStore(t->toMap()));
+        ++index;
+    }
+    for (const Store &store : vts) {
+        map.insert(numberedKey(TARGET_KEY_PREFIX, index), variantFromStore(store));
+        ++index;
+    }
 
     map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
@@ -826,33 +902,15 @@ void Project::createTargetFromMap(const Store &map, int index)
         if (ICore::isQtDesignStudio())
             return;
 
-        Id deviceTypeId = Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
-        if (!deviceTypeId.isValid())
-            deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+        d->m_vanishedTargets.append(targetMap);
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
-        k = KitManager::registerKit(
-            [deviceTypeId, &formerKitName](Kit *kit) {
-                const QString kitNameSuggestion
-                    = formerKitName.contains(::PE::Tr::tr("Replacement for"))
-                          ? formerKitName
-                          : ::PE::Tr::tr("Replacement for \"%1\"").arg(formerKitName);
-                const QString tempKitName = makeUniquelyNumbered(kitNameSuggestion,
-                        transform(KitManager::kits(), &Kit::unexpandedDisplayName));
-                kit->setUnexpandedDisplayName(tempKitName);
-                DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
-                kit->makeReplacementKit();
-                kit->setup();
-            },
-            id);
-        QTC_ASSERT(k, return);
         TaskHub::addTask(BuildSystemTask(
             Task::Warning,
             ::PE::Tr::tr(
                 "Project \"%1\" was configured for "
-                "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
-                "created in its place, in an attempt not to lose custom project settings.")
-                .arg(displayName(), formerKitName, id.toString(), k->displayName())));
-    } else {
+                "kit \"%2\" with id %3, which does not exist anymore. You can create a new kit "
+                "or copy the steps of the vanished kit to another kit in %4 mode.")
+                .arg(displayName(), formerKitName, id.toString(), Tr::tr("Projects"))));
         return;
     }
 
@@ -1035,31 +1093,36 @@ bool Project::hasMakeInstallEquivalent() const
 
 void Project::setup(const QList<BuildInfo> &infoList)
 {
-    std::vector<std::unique_ptr<Target>> toRegister;
-    for (const BuildInfo &info : infoList) {
-        Kit *k = KitManager::kit(info.kitId);
-        if (!k)
-            continue;
-        Target *t = target(k);
-        if (!t)
-            t = findOrDefault(toRegister, equal(&Target::kit, k));
-        if (!t) {
-            auto newTarget = std::make_unique<Target>(this, k, Target::_constructor_tag{});
-            t = newTarget.get();
-            toRegister.emplace_back(std::move(newTarget));
-        }
+    for (const BuildInfo &info : infoList)
+        setup(info);
+}
 
-        if (!info.factory)
-            continue;
+BuildConfiguration *Project::setup(const BuildInfo &info)
+{
+    Kit *k = KitManager::kit(info.kitId);
+    if (!k)
+        return nullptr;
+    Target *t = target(k);
+    std::unique_ptr<Target> newTarget;
+    if (!t) {
+        newTarget = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+        t = newTarget.get();
+    }
 
-        if (BuildConfiguration *bc = info.factory->create(t, info))
+    QTC_ASSERT(t, return nullptr);
+
+    BuildConfiguration *bc = nullptr;
+    if (info.factory) {
+        bc = info.factory->create(t, info);
+        if (bc)
             t->addBuildConfiguration(bc);
     }
-    for (std::unique_ptr<Target> &t : toRegister) {
-        t->updateDefaultDeployConfigurations();
-        t->updateDefaultRunConfigurations();
-        addTarget(std::move(t));
+    if (newTarget) {
+        newTarget->updateDefaultDeployConfigurations();
+        newTarget->updateDefaultRunConfigurations();
+        addTarget(std::move(newTarget));
     }
+    return bc;
 }
 
 MacroExpander *Project::macroExpander() const
@@ -1296,7 +1359,11 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
 }
 
-#if defined(WITH_TESTS)
+} // ProjectExplorer
+
+#ifdef WITH_TESTS
+
+namespace ProjectExplorer::Internal {
 
 static FilePath constructTestPath(const QString &basePath)
 {
@@ -1343,7 +1410,7 @@ public:
     Target *target = nullptr;
 };
 
-void ProjectExplorerPlugin::testProject_setup()
+void ProjectExplorerTest::testProject_setup()
 {
     TestProject project;
 
@@ -1371,7 +1438,7 @@ void ProjectExplorerPlugin::testProject_setup()
     QVERIFY(!project.target->buildSystem()->hasParsingData());
 }
 
-void ProjectExplorerPlugin::testProject_changeDisplayName()
+void ProjectExplorerTest::testProject_changeDisplayName()
 {
     TestProject project;
 
@@ -1387,7 +1454,7 @@ void ProjectExplorerPlugin::testProject_changeDisplayName()
     QCOMPARE(spy.count(), 0);
 }
 
-void ProjectExplorerPlugin::testProject_parsingSuccess()
+void ProjectExplorerTest::testProject_parsingSuccess()
 {
     TestProject project;
 
@@ -1413,7 +1480,7 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
     QVERIFY(project.target->buildSystem()->hasParsingData());
 }
 
-void ProjectExplorerPlugin::testProject_parsingFail()
+void ProjectExplorerTest::testProject_parsingFail()
 {
     TestProject project;
 
@@ -1450,7 +1517,7 @@ std::unique_ptr<ProjectNode> createFileTree(Project *project)
     return root;
 }
 
-void ProjectExplorerPlugin::testProject_projectTree()
+void ProjectExplorerTest::testProject_projectTree()
 {
     TestProject project;
     QSignalSpy fileSpy(&project, &Project::fileListChanged);
@@ -1492,7 +1559,7 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QVERIFY(!project.rootProjectNode());
 }
 
-void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
+void ProjectExplorerTest::testProject_multipleBuildConfigs()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -1513,7 +1580,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
-    const auto theProject = openProject(projectDir.pathAppended("generic-project.creator"));
+    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
     QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
     theProject.project()->configureAsExampleProject(kit);
     QCOMPARE(theProject.project()->targets().size(), 1);
@@ -1544,21 +1611,21 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
 }
 
-void ProjectExplorerPlugin::testSourceToBinaryMapping()
+void ProjectExplorerTest::testSourceToBinaryMapping()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && ToolChainKitAspect::cxxToolChain(k);
+        return k->isValid() && ToolchainKitAspect::cxxToolchain(k);
     });
     if (!kit)
         QSKIP("The test requires at least one kit with a toolchain.");
 
-    const auto toolchain = ToolChainKitAspect::cxxToolChain(kit);
+    const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
     QVERIFY(toolchain);
-    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolChain *>(toolchain)) {
+    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolchain *>(toolchain)) {
         while (!msvcToolchain->environmentInitialized()) {
-            QSignalSpy parsingFinishedSpy(ToolChainManager::instance(),
-                                          &ToolChainManager::toolChainUpdated);
+            QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
+                                          &ToolchainManager::toolchainUpdated);
             QVERIFY(parsingFinishedSpy.wait(10000));
         }
     }
@@ -1580,7 +1647,7 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
 
     // Load Project.
     QFETCH(QString, projectFileName);
-    const auto theProject = openProject(projectDir.pathAppended(projectFileName));
+    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
     if (theProject.errorMessage().contains("text/")) {
         QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
               "to be fully functional");
@@ -1620,7 +1687,7 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
 }
 
-void ProjectExplorerPlugin::testSourceToBinaryMapping_data()
+void ProjectExplorerTest::testSourceToBinaryMapping_data()
 {
     QTest::addColumn<QString>("projectFileName");
     QTest::addRow("cmake") << "CMakeLists.txt";
@@ -1628,6 +1695,6 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping_data()
     QTest::addRow("qmake") << "multi-target-project.pro";
 }
 
-#endif // WITH_TESTS
+} // ProjectExplorer::Internal
 
-} // namespace ProjectExplorer
+#endif // WITH_TESTS

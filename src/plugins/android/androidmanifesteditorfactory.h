@@ -3,21 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+namespace Android::Internal {
 
-#include <texteditor/texteditoractionhandler.h>
+void setupAndroidManifestEditor();
 
-namespace Android {
-namespace Internal {
-
-class AndroidManifestEditorFactory final : public Core::IEditorFactory
-{
-public:
-    AndroidManifestEditorFactory();
-
-private:
-    TextEditor::TextEditorActionHandler m_actionHandler;
-};
-
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

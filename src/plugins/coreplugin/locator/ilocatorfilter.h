@@ -142,7 +142,7 @@ public:
     Tasking::GroupItem task = Tasking::Group{};
 
     // When constructing the task, don't place the storage inside the task above.
-    Tasking::TreeStorage<LocatorStorage> storage;
+    Tasking::Storage<LocatorStorage> storage;
 };
 
 using LocatorMatcherTasks = QList<LocatorMatcherTask>;
@@ -167,7 +167,6 @@ public:
     void setInputData(const QString &inputData);
     void setParallelLimit(int limit); // by default 0 = parallel
     void start();
-    void stop();
 
     bool isRunning() const;
     // Total data collected so far, even when running.

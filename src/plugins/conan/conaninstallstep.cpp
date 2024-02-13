@@ -9,6 +9,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitaspects.h>
@@ -104,9 +105,9 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     });
 
     setSummaryUpdater([this]() -> QString {
-        QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(target()->kit());
+        QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(target()->kit());
         if (tcList.isEmpty())
-            return "<b>" + ToolChainKitAspect::msgNoToolChainInTarget() + "</b>";
+            return "<b>" + ToolchainKitAspect::msgNoToolchainInTarget() + "</b>";
         ProcessParameters param;
         setupProcessParameters(&param);
         return param.summary(displayName());
@@ -124,7 +125,7 @@ bool ConanInstallStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    const QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(target()->kit());
+    const QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(target()->kit());
     if (tcList.isEmpty()) {
         emit addTask(Task::compilerMissingTask());
         emitFaultyConfigurationMessage();
@@ -144,10 +145,19 @@ void ConanInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 
 // ConanInstallStepFactory
 
-ConanInstallStepFactory::ConanInstallStepFactory()
+class ConanInstallStepFactory final : public BuildStepFactory
 {
-    registerStep<ConanInstallStep>(Constants::INSTALL_STEP);
-    setDisplayName(Tr::tr("Run conan install"));
+public:
+    ConanInstallStepFactory()
+    {
+        registerStep<ConanInstallStep>(Constants::INSTALL_STEP);
+        setDisplayName(Tr::tr("Run conan install"));
+    }
+};
+
+void setupConanInstallStep()
+{
+    static ConanInstallStepFactory theConanInstallStepFactory;
 }
 
 } // Conan::Internal

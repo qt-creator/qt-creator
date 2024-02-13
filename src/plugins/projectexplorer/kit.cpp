@@ -42,6 +42,7 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 const char DEVICE_TYPE_FOR_ICON_KEY[] = "PE.Profile.DeviceTypeForIcon";
 const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
+const char RELEVANT_ASPECTS_KEY[] = "PE.Kit.RelevantAspects";
 const char IRRELEVANT_ASPECTS_KEY[] = "PE.Kit.IrrelevantAspects";
 
 namespace ProjectExplorer {
@@ -104,6 +105,7 @@ public:
     QSet<Id> m_sticky;
     QSet<Id> m_mutable;
     std::optional<QSet<Id>> m_irrelevantAspects;
+    std::optional<QSet<Id>> m_relevantAspects;
     MacroExpander m_macroExpander;
 };
 
@@ -142,8 +144,9 @@ Kit::Kit(const Store &data)
     d->m_fileSystemFriendlyName = data.value(FILESYSTEMFRIENDLYNAME_KEY).toString();
     d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toString()).toString());
     d->m_deviceTypeForIcon = Id::fromSetting(data.value(DEVICE_TYPE_FOR_ICON_KEY));
-    const auto it = data.constFind(IRRELEVANT_ASPECTS_KEY);
-    if (it != data.constEnd())
+    if (const auto it = data.constFind(RELEVANT_ASPECTS_KEY); it != data.constEnd())
+        d->m_relevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
+    if (const auto it = data.constFind(IRRELEVANT_ASPECTS_KEY); it != data.constEnd())
         d->m_irrelevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
 
     Store extra = storeFromVariant(data.value(DATA_KEY));
@@ -187,6 +190,7 @@ void Kit::copyKitCommon(Kit *target, const Kit *source)
     target->d->m_cachedIcon = source->d->m_cachedIcon;
     target->d->m_sticky = source->d->m_sticky;
     target->d->m_mutable = source->d->m_mutable;
+    target->d->m_relevantAspects = source->d->m_relevantAspects;
     target->d->m_irrelevantAspects = source->d->m_irrelevantAspects;
     target->d->m_hasValidityInfo = false;
 }
@@ -209,6 +213,7 @@ void Kit::copyFrom(const Kit *k)
 {
     copyKitCommon(this, k);
     d->m_autodetected = k->d->m_autodetected;
+    d->m_sdkProvided = k->d->m_sdkProvided;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
@@ -236,8 +241,10 @@ bool Kit::hasWarning() const
 Tasks Kit::validate() const
 {
     Tasks result;
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
-        result.append(factory->validate(this));
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (isAspectRelevant(factory->id()))
+            result.append(factory->validate(this));
+    }
 
     d->m_hasError = containsType(result, Task::TaskType::Error);
     d->m_hasWarning = containsType(result, Task::TaskType::Warning);
@@ -481,6 +488,7 @@ bool Kit::isEqual(const Kit *other) const
             && d->m_deviceTypeForIcon == other->d->m_deviceTypeForIcon
             && d->m_unexpandedDisplayName == other->d->m_unexpandedDisplayName
             && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
+            && d->m_relevantAspects == other->d->m_relevantAspects
             && d->m_irrelevantAspects == other->d->m_irrelevantAspects
             && d->m_mutable == other->d->m_mutable;
 }
@@ -510,6 +518,10 @@ Store Kit::toMap() const
         stickyInfo << id.toString();
     data.insert(STICKY_INFO_KEY, stickyInfo);
 
+    if (d->m_relevantAspects) {
+        data.insert(RELEVANT_ASPECTS_KEY, transform<QVariantList>(d->m_relevantAspects.value(),
+                                                                  &Id::toSetting));
+    }
     if (d->m_irrelevantAspects) {
         data.insert(IRRELEVANT_ASPECTS_KEY, transform<QVariantList>(d->m_irrelevantAspects.value(),
                                                                     &Id::toSetting));
@@ -576,6 +588,8 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
 
     str << "<dl style=\"white-space:pre\">";
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (!isAspectRelevant(factory->id()))
+            continue;
         const KitAspectFactory::ItemList list = factory->toUserOutput(this);
         for (const KitAspectFactory::Item &j : list) {
             QString contents = j.second;
@@ -660,7 +674,21 @@ void Kit::setMutable(Id id, bool b)
 
 bool Kit::isMutable(Id id) const
 {
+    if (id == DeviceKitAspect::id())
+        return DeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
     return d->m_mutable.contains(id);
+}
+
+void Kit::setRelevantAspects(const QSet<Utils::Id> &relevant)
+{
+    d->m_relevantAspects = relevant;
+}
+
+QSet<Id> Kit::relevantAspects() const
+{
+    if (d->m_relevantAspects)
+        return *d->m_relevantAspects;
+    return {};
 }
 
 void Kit::setIrrelevantAspects(const QSet<Id> &irrelevant)
@@ -671,6 +699,12 @@ void Kit::setIrrelevantAspects(const QSet<Id> &irrelevant)
 QSet<Id> Kit::irrelevantAspects() const
 {
     return d->m_irrelevantAspects.value_or(KitManager::irrelevantAspects());
+}
+
+bool Kit::isAspectRelevant(const Utils::Id &aspect) const
+{
+    return d->m_relevantAspects ? d->m_relevantAspects->contains(aspect)
+                                : !irrelevantAspects().contains(aspect);
 }
 
 QSet<Id> Kit::supportedPlatforms() const
@@ -691,8 +725,10 @@ QSet<Id> Kit::supportedPlatforms() const
 QSet<Id> Kit::availableFeatures() const
 {
     QSet<Id> features;
-    for (const KitAspectFactory *factory : KitManager::kitAspectFactories())
-        features |= factory->availableFeatures(this);
+    for (const KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (relevantAspects().isEmpty() || relevantAspects().contains(factory->id()))
+            features |= factory->availableFeatures(this);
+    }
     return features;
 }
 
@@ -733,11 +769,6 @@ void Kit::kitUpdated()
 
 
 static Id replacementKey() { return "IsReplacementKit"; }
-
-void ProjectExplorer::Kit::makeReplacementKit()
-{
-    setValueSilently(replacementKey(), true);
-}
 
 bool Kit::isReplacementKit() const
 {

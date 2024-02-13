@@ -146,27 +146,24 @@ LookupContext::LookupContext()
     : m_expandTemplates(false)
 { }
 
-LookupContext::LookupContext(Document::Ptr thisDocument,
-                             const Snapshot &snapshot)
+LookupContext::LookupContext(Document::Ptr thisDocument, const Snapshot &snapshot)
     : _expressionDocument(Document::create(FilePath::fromPathPart(u"<LookupContext>")))
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)
     , _bindings(new CreateBindings(thisDocument, snapshot))
     , m_expandTemplates(false)
-{
-}
+{}
 
 LookupContext::LookupContext(Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
                              const Snapshot &snapshot,
-                             QSharedPointer<CreateBindings> bindings)
+                             std::shared_ptr<CreateBindings> bindings)
     : _expressionDocument(expressionDocument)
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)
     , _bindings(bindings)
     , m_expandTemplates(false)
-{
-}
+{}
 
 LookupContext::LookupContext(const LookupContext &other)
     : _expressionDocument(other._expressionDocument)
@@ -174,7 +171,7 @@ LookupContext::LookupContext(const LookupContext &other)
     , _snapshot(other._snapshot)
     , _bindings(other._bindings)
     , m_expandTemplates(other.m_expandTemplates)
-{ }
+{}
 
 LookupContext &LookupContext::operator=(const LookupContext &other)
 {
@@ -1155,8 +1152,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                 return newSpecialization;
             }
         } else {
-            QMap<const TemplateNameId *, ClassOrNamespace *>::const_iterator citInstantiation
-                    = reference->_instantiations.constFind(templId);
+            const auto citInstantiation = reference->_instantiations.constFind(templId);
             if (citInstantiation != reference->_instantiations.constEnd())
                 return citInstantiation.value();
 
@@ -1270,13 +1266,13 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
             const int argumentCountOfSpecialization
                     = templateSpecialization->templateParameterCount();
 
-            Subst subst(_control.data());
+            Subst subst(_control.get());
             if (_factory->expandTemplates()) {
                 const TemplateNameId *templSpecId
                         = templateSpecialization->name()->asTemplateNameId();
                 const int templSpecArgumentCount = templSpecId ?
                             templSpecId->templateArgumentCount() : 0;
-                Clone cloner(_control.data());
+                Clone cloner(_control.get());
                 for (int i = 0; i < argumentCountOfSpecialization; ++i) {
                     const TypenameArgument *tParam
                             = templateSpecialization->templateParameterAt(i)->asTypenameArgument();
@@ -1395,7 +1391,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                     SubstitutionEnvironment env;
                     env.enter(&map);
 
-                    baseName = rewriteName(baseName, &env, _control.data());
+                    baseName = rewriteName(baseName, &env, _control.get());
 
                     if (const TemplateNameId *baseTemplId = baseName->asTemplateNameId()) {
                         // Another template that uses the dependent name.
@@ -1631,7 +1627,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
 
 CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot)
     : _snapshot(snapshot)
-    , _control(QSharedPointer<Control>(new Control))
+    , _control(std::shared_ptr<Control>(new Control))
     , _expandTemplates(false)
 {
     _globalNamespace = allocClassOrNamespace(/*parent = */ nullptr);
@@ -2037,8 +2033,8 @@ Symbol *CreateBindings::instantiateTemplateFunction(const Name *instantiationNam
 
     const int argumentCountOfSpecialization = specialization->templateParameterCount();
 
-    Clone cloner(_control.data());
-    Subst subst(_control.data());
+    Clone cloner(_control.get());
+    Subst subst(_control.get());
     for (int i = 0; i < argumentCountOfSpecialization; ++i) {
         const TypenameArgument *tParam
                 = specialization->templateParameterAt(i)->asTypenameArgument();

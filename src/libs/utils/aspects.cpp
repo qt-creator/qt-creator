@@ -7,6 +7,7 @@
 #include "checkablemessagebox.h"
 #include "environment.h"
 #include "fancylineedit.h"
+#include "guard.h"
 #include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "passworddialog.h"
@@ -22,7 +23,6 @@
 #include <QAction>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QComboBox>
 #include <QCompleter>
 #include <QDebug>
 #include <QGroupBox>
@@ -284,6 +284,11 @@ void BaseAspect::setIcon(const QIcon &icon)
     d->m_icon = icon;
     if (d->m_action)
         d->m_action->setIcon(icon);
+}
+
+QIcon BaseAspect::icon() const
+{
+    return d->m_icon;
 }
 
 /*!
@@ -694,6 +699,17 @@ class BoolAspectPrivate
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     UndoableValue<bool> m_undoable;
+};
+
+class ToggleAspectPrivate
+{
+public:
+    struct Data
+    {
+        QIcon icon;
+        QString tooltip;
+        QString text;
+    } on, off;
 };
 
 class ColorAspectPrivate
@@ -1108,7 +1124,8 @@ void StringAspect::addToLayout(LayoutItem &parent)
         chooser->addMacroExpanderProvider(d->m_expanderProvider);
     };
 
-    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
+    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(volatileValue())
+                                                       : volatileValue();
 
     switch (d->m_displayStyle) {
     case PasswordLineEditDisplay:
@@ -1141,7 +1158,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             connect(d->m_checkerImpl.m_checked.get(),
                     &BoolAspect::volatileValueChanged,
                     lineEditDisplay,
-                    [this, lineEditDisplay]() {
+                    [this, lineEditDisplay] {
                         d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
                     });
         }
@@ -1165,15 +1182,14 @@ void StringAspect::addToLayout(LayoutItem &parent)
         connect(lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
         bufferToGui();
         if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-            connect(lineEditDisplay,
-                    &FancyLineEdit::editingFinished,
-                    this,
-                    [this, lineEditDisplay]() {
-                        d->undoable.set(undoStack(), lineEditDisplay->text());
-                        handleGuiChanged();
-                    });
+            connect(lineEditDisplay, &FancyLineEdit::editingFinished, this, [this, lineEditDisplay] {
+                if (lineEditDisplay->text() != d->undoable.get()) {
+                    d->undoable.set(undoStack(), lineEditDisplay->text());
+                    handleGuiChanged();
+                }
+            });
         } else {
-            connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay]() {
+            connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay] {
                 d->undoable.set(undoStack(), lineEditDisplay->text());
                 handleGuiChanged();
             });
@@ -1218,7 +1234,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             connect(d->m_checkerImpl.m_checked.get(),
                     &BoolAspect::volatileValueChanged,
                     textEditDisplay,
-                    [this, textEditDisplay]() {
+                    [this, textEditDisplay] {
                         d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
                     });
         }
@@ -1235,7 +1251,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 textEditDisplay,
                 &QTextEdit::setPlaceholderText);
 
-        connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay]() {
+        connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay] {
             if (textEditDisplay->toPlainText() != d->undoable.get()) {
                 d->undoable.set(undoStack(), textEditDisplay->toPlainText());
                 handleGuiChanged();
@@ -1274,7 +1290,8 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 QString StringAspect::expandedValue() const
 {
-    // FIXME: Use macroexpander here later.
+    if (!m_internal.isEmpty() && d->m_expanderProvider)
+        return d->m_expanderProvider()->expand(m_internal);
     return m_internal;
 }
 
@@ -1288,6 +1305,7 @@ bool StringAspect::bufferToInternal()
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
            return updateStorage(m_internal, *tmp);
+        return false;
     }
     return updateStorage(m_internal, m_buffer);
 }
@@ -1368,6 +1386,8 @@ public:
     bool m_autoApplyOnEditingFinished = false;
     bool m_allowPathFromDevice = true;
     bool m_validatePlaceHolder = false;
+
+    Guard m_editFinishedGuard;
 };
 
 FilePathAspect::FilePathAspect(AspectContainer *container)
@@ -1426,6 +1446,11 @@ void FilePathAspect::setDefaultValue(const QString &filePath)
     TypedAspect::setDefaultValue(filePath);
 }
 
+void FilePathAspect::setDefaultPathValue(const FilePath &filePath)
+{
+    TypedAspect::setDefaultValue(filePath.toUserOutput());
+}
+
 /*!
     Adds a check box with a \a checkerLabel according to \a checkBoxPlacement
     to the line edit.
@@ -1467,6 +1492,7 @@ bool FilePathAspect::bufferToInternal()
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
            return updateStorage(m_internal, *tmp);
+        return false;
     }
     return updateStorage(m_internal, m_buffer);
 }
@@ -1535,8 +1561,12 @@ void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
     connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
     bufferToGui();
     if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-        connect(d->m_pathChooserDisplay, &PathChooser::editingFinished,
-                this, &FilePathAspect::handleGuiChanged);
+        connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, [this] {
+            if (d->m_editFinishedGuard.isLocked())
+                return;
+            GuardLocker lk(d->m_editFinishedGuard);
+            handleGuiChanged();
+        });
         connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished,
                 this, &FilePathAspect::handleGuiChanged);
     } else {
@@ -1728,6 +1758,130 @@ void ColorAspect::bufferToGui()
 {
     if (d->m_colorButton)
         d->m_colorButton->setColor(m_buffer);
+}
+
+static void updateToggleAction(ToggleAspect &aspect,
+                               const std::unique_ptr<Internal::ToggleAspectPrivate> &d)
+{
+    if (!aspect.hasAction())
+        return;
+
+    QAction *action = aspect.action();
+
+    Internal::ToggleAspectPrivate::Data data = aspect.value() ? d->on : d->off;
+    if (data.icon.isNull())
+        data.icon = aspect() ? aspect.icon() : d->on.icon;
+    if (data.text.isEmpty())
+        data.text = aspect() ? aspect.toolTip() : d->on.text;
+    if (data.tooltip.isEmpty())
+        data.tooltip = aspect() ? aspect.toolTip() : d->on.tooltip;
+
+    action->setIcon(data.icon);
+    action->setText(data.text);
+    action->setToolTip(data.tooltip);
+}
+
+/*!
+    \class Utils::ToggleAspect
+    \inmodule QtCreator
+
+    \brief A toggle aspect is a boolean property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting. It also contains independent tooltips, icons and text for the action()
+    according to the on / off state of the aspect.
+
+    The aspect is displayed using a QCheckBox.
+
+    The visual representation often contains a label in front or after
+    the display of the actual checkmark.
+*/
+
+ToggleAspect::ToggleAspect(AspectContainer *container)
+    : BoolAspect(container)
+    , d(std::make_unique<Internal::ToggleAspectPrivate>())
+{}
+
+ToggleAspect::~ToggleAspect() {}
+
+void ToggleAspect::setOffIcon(const QIcon &icon)
+{
+    d->off.icon = icon;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOffTooltip(const QString &tooltip)
+{
+    d->off.tooltip = tooltip;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOnTooltip(const QString &tooltip)
+{
+    d->on.tooltip = tooltip;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOnIcon(const QIcon &icon)
+{
+    d->on.icon = icon;
+    updateToggleAction(*this, d);
+}
+
+QString ToggleAspect::onTooltip() const
+{
+    return d->on.tooltip;
+}
+
+QIcon ToggleAspect::onIcon() const
+{
+    return d->on.icon;
+}
+
+QString ToggleAspect::offTooltip() const
+{
+    return d->off.tooltip;
+}
+
+QIcon ToggleAspect::offIcon() const
+{
+    return d->off.icon;
+}
+
+void ToggleAspect::setOnText(const QString &text)
+{
+    d->on.text = text;
+}
+
+QString ToggleAspect::onText() const
+{
+    return d->on.text;
+}
+
+void ToggleAspect::setOffText(const QString &text)
+{
+    d->off.text = text;
+}
+QString ToggleAspect::offText() const
+{
+    return d->off.text;
+}
+
+void ToggleAspect::announceChanges(Changes changes, Announcement howToAnnounce)
+{
+    if (changes.internalFromBuffer || changes.internalFromOutside)
+        updateToggleAction(*this, d);
+    BoolAspect::announceChanges(changes, howToAnnounce);
+}
+
+QAction *ToggleAspect::action()
+{
+    if (hasAction())
+        return BoolAspect::action();
+
+    QAction *a = BoolAspect::action();
+    updateToggleAction(*this, d);
+
+    return a;
 }
 
 /*!
@@ -3226,7 +3380,7 @@ public:
         : QWidget(parent)
         , m_index(idx)
     {}
-    void paintEvent(QPaintEvent *event)
+    void paintEvent(QPaintEvent *event) override
     {
         QPainter p(this);
         QPalette pal = palette();
@@ -3250,7 +3404,7 @@ void AspectList::addToLayout(Layouting::LayoutItem &parent)
     scrollArea->setMinimumHeight(100);
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    auto fill = [this, scrollArea]() mutable {
+    auto fill = [this, scrollArea] {
         if (scrollArea->widget())
             delete scrollArea->takeWidget();
 
@@ -3384,6 +3538,7 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     comboBox->setModel(m_model);
+    setWheelScrollingWithoutFocusBlocked(comboBox);
 
     connect(m_selectionModel,
             &QItemSelectionModel::currentChanged,
@@ -3406,7 +3561,7 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         bufferToGui();
     });
 
-    connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox]() {
+    connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox] {
         auto item = itemById(m_undoable.get());
         if (item)
             m_selectionModel->setCurrentIndex(item->index(), QItemSelectionModel::ClearAndSelect);

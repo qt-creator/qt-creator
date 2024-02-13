@@ -19,8 +19,9 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
         Process getConf;
         getConf.setCommand({"getconf", {"ARG_MAX"}});
         getConf.start();
-        getConf.waitForFinished(2000);
-        const QByteArray argMax = getConf.readAllRawStandardOutput().replace("\n", "");
+        using namespace std::chrono_literals;
+        getConf.waitForFinished(2s);
+        const QByteArray argMax = getConf.rawStdOut().replace("\n", "");
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
     }
 

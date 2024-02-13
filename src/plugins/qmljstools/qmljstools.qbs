@@ -48,14 +48,16 @@ QtcPlugin {
         "qmljstools_global.h", "qmljstoolstr.h",
         "qmljstoolsconstants.h",
         "qmljstoolsplugin.cpp",
-        "qmljstoolsplugin.h",
         "qmljstoolssettings.cpp",
         "qmljstoolssettings.h",
         "qmljstools.qrc"
     ]
 
     QtcTestFiles {
-        files: ["qmljstools_test.cpp"]
+        files: [
+            "qmljstools_test.cpp",
+            "qmljstools_test.h",
+        ]
     }
 
     Export {

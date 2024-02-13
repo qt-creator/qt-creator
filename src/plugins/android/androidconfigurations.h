@@ -23,10 +23,7 @@ namespace ProjectExplorer { class Abi; }
 
 namespace Android {
 
-namespace Internal {
-class AndroidSdkManager;
-class AndroidPluginPrivate;
-}
+namespace Internal { class AndroidSdkManager; }
 
 class CreateAvdInfo
 {
@@ -178,20 +175,21 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
+AndroidConfig &androidConfig();
+
 class AndroidConfigurations : public QObject
 {
     Q_OBJECT
 
 public:
-    static AndroidConfig &currentConfig();
     static Internal::AndroidSdkManager *sdkManager();
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 
-    static void registerNewToolChains();
-    static void registerCustomToolChainsAndDebuggers();
+    static void registerNewToolchains();
+    static void registerCustomToolchainsAndDebuggers();
     static void removeUnusedDebuggers();
-    static void removeOldToolChains();
+    static void removeOldToolchains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
 
@@ -200,17 +198,21 @@ signals:
     void updated();
 
 private:
-    friend class Android::Internal::AndroidPluginPrivate;
+    friend void setupAndroidConfigurations();
     AndroidConfigurations();
-    ~AndroidConfigurations() override;
+
     void load();
     void save();
 
     static void updateAndroidDevice();
-    static AndroidConfigurations *m_instance;
-    AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
+
+#ifdef WITH_TESTS
+QObject *createAndroidConfigurationsTest();
+#endif
+
+void setupAndroidConfigurations();
 
 } // namespace Android
 

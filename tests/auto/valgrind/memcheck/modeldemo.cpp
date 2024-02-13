@@ -5,6 +5,7 @@
 #include <utils/launcherinterface.h>
 #include <utils/temporarydirectory.h>
 
+#include <valgrind/valgrindprocess.h>
 #include <valgrind/xmlprotocol/frame.h>
 #include <valgrind/xmlprotocol/parser.h>
 #include <valgrind/xmlprotocol/stack.h>
@@ -32,12 +33,12 @@ int main(int argc, char *argv[])
     ValgrindProcess runner;
     runner.setValgrindCommand({VALGRIND_FAKE_PATH,
                               {"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"}});
-    ModelDemo demo(&runner);
+    ModelDemo demo;
     QObject::connect(&runner, &ValgrindProcess::processErrorReceived, &app, [](const QString &err) {
         qDebug() << err;
     });
-    QObject::connect(&runner, &ValgrindProcess::done, &app, [](bool success) {
-        qApp->exit(success ? 0 : 1);
+    QObject::connect(&runner, &ValgrindProcess::done, &app, [](Tasking::DoneResult result) {
+        qApp->exit(result == Tasking::DoneResult::Success ? 0 : 1);
     });
     ErrorListModel model;
     QObject::connect(&runner, &ValgrindProcess::error, &model, &ErrorListModel::addError,

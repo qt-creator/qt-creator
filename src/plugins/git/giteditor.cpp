@@ -117,9 +117,9 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
     return {};
 }
 
-BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighterCreator() const
 {
-    return new GitAnnotationHighlighter(changes);
+    return VcsBase::getAnnotationHighlighterCreator<GitAnnotationHighlighter>();
 }
 
 /* Remove the date specification from annotation, which is tabular:
@@ -246,9 +246,11 @@ void GitEditorWidget::init()
         return;
     const QChar commentChar = gitClient().commentChar(source());
     if (isCommitEditor)
-        textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter(commentChar));
+        textDocument()->resetSyntaxHighlighter(
+            [commentChar] { return new GitSubmitHighlighter(commentChar); });
     else if (isRebaseEditor)
-        textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter(commentChar));
+        textDocument()->resetSyntaxHighlighter(
+            [commentChar] { return new GitRebaseHighlighter(commentChar); });
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)

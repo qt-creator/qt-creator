@@ -32,7 +32,7 @@
         { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('ProjectName') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "TargetInstallPath", "value": "%{JS: value('IsShared') === 'true' ? '/usr/lib' : (value('IsQtPlugin') && value('PluginTargetPath') ? '$$[QT_INSTALL_PLUGINS]/' + value('PluginTargetPath') : '')}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName')))}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" }
     ],

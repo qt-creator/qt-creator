@@ -7,10 +7,10 @@ def verifyProjectsMode(expectedKits):
     treeView = waitForObject(":Projects.ProjectNavigationTreeView")
     bAndRIndex = getQModelIndexStr("text='Build & Run'",
                                    ":Projects.ProjectNavigationTreeView")
-    test.compare(len(dumpItems(treeView.model(), waitForObject(bAndRIndex))),
-                 len(expectedKits), "Verify number of listed kits.")
-    test.compare(set(dumpItems(treeView.model(), waitForObject(bAndRIndex))),
-                 set(expectedKits), "Verify if expected kits are listed.")
+    foundKits = dumpItems(treeView.model(), waitForObject(bAndRIndex))
+    relevantKits = list(filter(lambda x: 'Python' not in x,foundKits)) # ignore Python kits
+    test.compare(len(relevantKits), len(expectedKits), "Verify number of listed kits.")
+    test.compare(set(relevantKits), set(expectedKits), "Verify if expected kits are listed.")
     hasKits = len(expectedKits) > 0
     test.verify(checkIfObjectExists(":scrollArea.Edit build configuration:_QLabel", hasKits),
                 "Verify if build settings are being displayed.")
@@ -22,6 +22,8 @@ kitNameTemplate = "Manual.%s"
 
 def __removeKit__(_, kitName):
     global kitNameTemplate
+    if 'Python' in kitName: # ignore Python kits
+        return
     item = kitNameTemplate % kitName.replace(".", "\\.")
     if kitName == Targets.getStringForTarget(Targets.getDefaultKit()):
         item += " (default)"

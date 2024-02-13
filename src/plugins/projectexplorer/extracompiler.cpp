@@ -13,6 +13,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
@@ -48,7 +50,7 @@ public:
 
     QTimer timer;
 
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
@@ -154,13 +156,7 @@ void ExtraCompiler::compileContent(const QByteArray &content)
 
 void ExtraCompiler::compileImpl(const ContentProvider &provider)
 {
-    const auto finalize = [=] {
-        d->m_taskTree.release()->deleteLater();
-    };
-    d->m_taskTree.reset(new TaskTree({taskItemImpl(provider)}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, finalize);
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
-    d->m_taskTree->start();
+    d->m_taskTreeRunner.start({taskItemImpl(provider)});
 }
 
 void ExtraCompiler::compileIfDirty()
@@ -328,14 +324,14 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePat
 
 GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 {
-    const auto setupTask = [=](Async<FileNameToContentsHash> &async) {
+    const auto onSetup = [this, provider](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
         // The passed synchronizer has cancelOnWait set to true by default.
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
     };
-    const auto taskDone = [=](const Async<FileNameToContentsHash> &async) {
+    const auto onDone = [this](const Async<FileNameToContentsHash> &async) {
         if (!async.isResultAvailable())
             return;
         const FileNameToContentsHash data = async.result();
@@ -345,7 +341,7 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
             setContent(it.key(), it.value());
         updateCompileTime();
     };
-    return AsyncTask<FileNameToContentsHash>(setupTask, taskDone);
+    return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneIf::Success);
 }
 
 FilePath ProcessExtraCompiler::workingDirectory() const
@@ -394,7 +390,8 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
         return;
 
     while (!promise.isCanceled()) {
-        if (process.waitForFinished(200))
+        using namespace std::chrono_literals;
+        if (process.waitForFinished(200ms))
             break;
     }
 

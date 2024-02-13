@@ -1,8 +1,6 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qdbplugin.h"
-
 #include "device-detection/devicedetector.h"
 #include "qdbconstants.h"
 #include "qdbdevice.h"
@@ -18,10 +16,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -30,12 +28,10 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/process.h>
 
-#include <QAction>
-
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -80,21 +76,16 @@ void registerFlashAction(QObject *parentForAction)
     }
 
     const char flashActionId[] = "Qdb.FlashAction";
-    if (Core::ActionManager::command(flashActionId))
+    if (ActionManager::command(flashActionId))
         return; // The action has already been registered.
 
-    Core::ActionContainer *toolsContainer =
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, flashActionId);
 
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
-
-    QAction *flashAction = new QAction(Tr::tr("Flash Boot to Qt Device"), parentForAction);
-    Core::Command *flashCommand = Core::ActionManager::registerAction(flashAction,
-                                                                      flashActionId,
-                                                                      globalContext);
-    QObject::connect(flashAction, &QAction::triggered, startFlashingWizard);
-    toolsContainer->addAction(flashCommand, flashActionId);
+    ActionBuilder flashAction(parentForAction, flashActionId);
+    flashAction.setText(Tr::tr("Flash Boot to Qt Device"));
+    flashAction.addToContainer(Core::Constants::M_TOOLS, flashActionId);
+    flashAction.addOnTriggered(&startFlashingWizard);
 }
 
 class QdbDeployStepFactory : public BuildStepFactory
@@ -103,8 +94,8 @@ public:
     explicit QdbDeployStepFactory(Id existingStepId)
     {
         cloneStepCreator(existingStepId);
-        setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::QdbLinuxOsType);
     }
 };
 
@@ -132,13 +123,11 @@ public:
     }
 };
 
-class QdbPluginPrivate : public QObject
+class QdbPluginPrivate final : public QObject
 {
 public:
-    void setupDeviceDetection();
+    void setupDeviceDetection() { m_deviceDetector.start(); }
 
-    QdbLinuxDeviceFactory m_qdbDeviceFactory;
-    QdbQtVersionFactory m_qtVersionFactory;
     QdbDeployConfigurationFactory m_deployConfigFactory;
     QdbRunConfigurationFactory m_runConfigFactory;
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
@@ -148,52 +137,50 @@ public:
     QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
     QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
-    const QList<Id> supportedRunConfigs {
-        m_runConfigFactory.runConfigurationId(),
-        "QmlProjectManager.QmlRunConfiguration"
-    };
-
-    QdbRunWorkerFactory runWorkerFactory{supportedRunConfigs};
-    QdbDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
-    QdbQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
-    QdbPerfProfilerWorkerFactory perfRecorderWorkerFactory;
-
     DeviceDetector m_deviceDetector;
 };
 
-QdbPlugin::~QdbPlugin()
+class QdbPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Boot2Qt.json")
 
-void QdbPlugin::initialize()
-{
-    d = new QdbPluginPrivate;
+public:
+    ~QdbPlugin() final { delete d; }
 
-    registerFlashAction(this);
-}
+private:
+    void initialize() final
+    {
+        setupQdbLinuxDevice();
+        setupQdbQtVersion();
+        setupQdbRunWorkers();
 
-void QdbPlugin::extensionsInitialized()
-{
-    DeviceManager * const dm = DeviceManager::instance();
-    if (dm->isLoaded()) {
-        d->setupDeviceDetection();
-    } else {
-        connect(dm, &DeviceManager::devicesLoaded,
-                d, &QdbPluginPrivate::setupDeviceDetection);
+        d = new QdbPluginPrivate;
+
+        registerFlashAction(this);
     }
-}
 
-ExtensionSystem::IPlugin::ShutdownFlag QdbPlugin::aboutToShutdown()
-{
-    d->m_deviceDetector.stop();
+    void extensionsInitialized() final
+    {
+        DeviceManager * const dm = DeviceManager::instance();
+        if (dm->isLoaded()) {
+            d->setupDeviceDetection();
+        } else {
+            connect(dm, &DeviceManager::devicesLoaded,
+                    d, &QdbPluginPrivate::setupDeviceDetection);
+        }
+    }
 
-    return SynchronousShutdown;
-}
+    ShutdownFlag aboutToShutdown() final
+    {
+        d->m_deviceDetector.stop();
 
-void QdbPluginPrivate::setupDeviceDetection()
-{
-    m_deviceDetector.start();
-}
+        return SynchronousShutdown;
+    }
+
+    class QdbPluginPrivate *d = nullptr;
+};
 
 } // Qdb::Internal
+
+#include "qdbplugin.moc"

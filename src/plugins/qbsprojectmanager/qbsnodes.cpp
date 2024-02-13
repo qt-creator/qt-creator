@@ -102,8 +102,8 @@ QbsProductNode::QbsProductNode(const QJsonObject &prd) : ProjectNode(FilePath())
 
 void QbsProductNode::build()
 {
-    QbsProjectManagerPlugin::buildNamedProduct(static_cast<QbsProject *>(getProject()),
-                                               m_productData.value("full-display-name").toString());
+    buildNamedProduct(static_cast<QbsProject *>(getProject()),
+                      m_productData.value("full-display-name").toString());
 }
 
 QStringList QbsProductNode::targetApplications() const
@@ -219,6 +219,22 @@ QVariant QbsProductNode::data(Id role) const
             qbsAbis << archToAbi[architecture];
         return qbsAbis;
     }
+
+    if (role == Android::Constants::AndroidPackageSourceDir) {
+        return m_productData.value("properties").toObject()
+            .value("sourceDirectory").toString();
+    }
+
+    if (role == Android::Constants::AndroidClassPaths) {
+        QStringList paths;
+        for (const auto &p : m_productData.value("module-properties").toObject()
+            .value(Constants::JAVA_ADDITIONAL_CLASSPATHS).toArray()) {
+            if (p.isString())
+                paths << p.toString();
+        }
+        return paths;
+    }
+
     return {};
 }
 

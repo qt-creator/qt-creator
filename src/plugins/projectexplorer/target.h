@@ -147,6 +147,7 @@ signals:
 
 private:
     bool fromMap(const Utils::Store &map);
+    bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
 
     void updateDeviceState();
 

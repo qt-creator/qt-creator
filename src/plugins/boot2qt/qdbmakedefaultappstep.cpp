@@ -38,7 +38,7 @@ public:
 private:
     GroupItem deployRecipe() final
     {
-        const auto setupHandler = [this](Process &process) {
+        const auto onSetup = [this](Process &process) {
             QString remoteExe;
             if (RunConfiguration *rc = target()->activeRunConfiguration()) {
                 if (auto exeAspect = rc->aspect<ExecutableAspect>())
@@ -55,16 +55,15 @@ private:
                 handleStdErrData(proc->readAllStandardError());
             });
         };
-        const auto doneHandler = [this](const Process &) {
-            if (selection() == 0)
+        const auto onDone = [this](const Process &process, DoneWith result) {
+            if (result != DoneWith::Success)
+                addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
+            else if (selection() == 0)
                 addProgressMessage(Tr::tr("Application set as the default one."));
             else
                 addProgressMessage(Tr::tr("Reset the default application."));
         };
-        const auto errorHandler = [this](const Process &process) {
-            addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
-        };
-        return ProcessTask(setupHandler, doneHandler, errorHandler);
+        return ProcessTask(onSetup, onDone);
     }
 
     SelectionAspect selection{this};

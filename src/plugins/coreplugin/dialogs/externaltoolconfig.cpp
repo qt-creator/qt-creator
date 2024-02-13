@@ -322,7 +322,7 @@ void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
     ExternalTool *tool = toolForIndex(modelIndex);
     QTC_ASSERT(tool, return);
     QTC_ASSERT(tool->preset() && !tool->preset()->filePath().isEmpty(), return);
-    auto resetTool = new ExternalTool(tool->preset().data());
+    auto resetTool = new ExternalTool(tool->preset().get());
     resetTool->setPreset(tool->preset());
     (*tool) = (*resetTool);
     delete resetTool;

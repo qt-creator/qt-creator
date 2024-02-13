@@ -14,19 +14,26 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fancymainwindow.h>
+
+#include <aggregation/aggregate.h>
+
 #include <QDebug>
 #include <QPointer>
 #include <QStackedWidget>
 #include <QStringList>
 
+using namespace Utils;
+
 namespace Core {
 
 struct DesignEditorInfo
 {
-    int widgetIndex;
+    int widgetIndex = -1;
     QStringList mimeTypes;
     Context context;
-    QWidget *widget;
+    QWidget *widget = nullptr;
+    FancyMainWindow *mainWindow = nullptr;
 };
 
 class DesignModePrivate
@@ -103,16 +110,17 @@ void DesignMode::setDesignModeIsRequired()
   */
 void DesignMode::registerDesignWidget(QWidget *widget,
                                       const QStringList &mimeTypes,
-                                      const Context &context)
+                                      const Context &context,
+                                      Utils::FancyMainWindow *mainWindow)
 {
     setDesignModeIsRequired();
     int index = d->m_stackWidget->addWidget(widget);
-
     auto info = new DesignEditorInfo;
     info->mimeTypes = mimeTypes;
     info->context = context;
     info->widgetIndex = index;
     info->widget = widget;
+    info->mainWindow = mainWindow;
     d->m_editors.append(info);
 }
 
@@ -143,6 +151,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
                 for (const QString &mime : editorInfo->mimeTypes) {
                     if (mime == mimeType) {
                         d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
+                        setMainWindow(editorInfo->mainWindow);
                         setActiveContext(editorInfo->context);
                         mimeEditorAvailable = true;
                         setEnabled(true);

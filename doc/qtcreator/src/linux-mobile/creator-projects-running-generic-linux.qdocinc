@@ -28,7 +28,7 @@
     In the \uicontrol {Projects} mode, select the remote Linux kit and then
     select \uicontrol {Run} to view the settings for deploying the application
     to the connected device. For more information, see
-    \l{Specifying Run Settings for Linux-Based Devices}.
+    \l{Remote Linux Run Settings}.
 
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.

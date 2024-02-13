@@ -4,9 +4,9 @@
 #pragma once
 
 #include "vcsbase_global.h"
-#include "vcsenums.h"
-
 #include "vcsbaseclientsettings.h"
+#include "vcscommand.h"
+#include "vcsenums.h"
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
@@ -32,7 +32,6 @@ namespace VcsBase {
 class CommandResult;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
-class VcsCommand;
 
 using CommandHandler = std::function<void(const CommandResult &)>;
 
@@ -42,7 +41,7 @@ public:
     explicit VcsBaseClientImpl(VcsBaseSettings *baseSettings);
     ~VcsBaseClientImpl() override = default;
 
-    virtual Utils::FilePath vcsBinary() const;
+    virtual Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const;
     int vcsTimeoutS() const;
 
     static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
@@ -60,10 +59,12 @@ public:
                       const Utils::FilePath &workingDirectory,
                       const QStringList &args) const;
 
-    void enqueueJob(VcsCommand *cmd, const QStringList &args,
-                    const Utils::ExitCodeInterpreter &interpreter = {}) const;
+    void enqueueJob(VcsCommand *cmd,
+                    const QStringList &args,
+                    const Utils::FilePath &forDirectory,
+                    const ExitCodeInterpreter &interpreter = {}) const;
 
-    virtual Utils::Environment processEnvironment() const;
+    virtual Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const;
 
     // VCS functionality:
     virtual void annotate(const Utils::FilePath &workingDir, const QString &file,
@@ -146,9 +147,7 @@ public:
     void annotate(const Utils::FilePath &workingDir, const QString &file,
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;
-    virtual void diff(const Utils::FilePath &workingDir,
-                      const QStringList &files = {},
-                      const QStringList &extraOptions = {});
+    void diff(const Utils::FilePath &workingDir, const QStringList &files = {});
     virtual void log(const Utils::FilePath &workingDir,
                      const QStringList &files = {},
                      const QStringList &extraOptions = {},
@@ -209,7 +208,7 @@ public:
 protected:
     virtual QString vcsCommandString(VcsCommandTag cmd) const;
     virtual Utils::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
-    virtual Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;
+    virtual ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag) const { return {}; }
 
     virtual QStringList revisionSpec(const QString &/*revision*/) const { return {}; }
 

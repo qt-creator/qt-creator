@@ -4,7 +4,6 @@
 #include "cppquickfix_test.h"
 
 #include "cppcodestylepreferences.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppquickfixassistant.h"
@@ -192,6 +191,9 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
                                              const QByteArray &clangFormatSettings)
     : BaseQuickFixTestCase(testDocuments, headerPaths, clangFormatSettings)
 {
+    if (factory->hasClangdReplacement() && CppModelManager::isClangCodeModelActive())
+        return;
+
     QVERIFY(succeededSoFar());
 
     // Perform operation if there is one
@@ -268,7 +270,7 @@ public:
     AddIncludeForUndefinedIdentifierTestFactory(const QString &include)
         : m_include(include) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
+    void doMatch(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include);
     }
@@ -283,7 +285,7 @@ public:
     AddForwardDeclForUndefinedIdentifierTestFactory(const QString &className, int symbolPos)
         : m_className(className), m_symbolPos(symbolPos) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
+    void doMatch(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddForwardDeclForUndefinedIdentifierOp(cppQuickFixInterface, 0,
                                                              m_className, m_symbolPos);
@@ -1734,12 +1736,12 @@ void QuickfixTest::testGeneric_data()
     QTest::newRow("AddLocalDeclaration_QTCREATORBUG-26004")
         << CppQuickFixFactoryPtr(new AddDeclarationForUndeclaredIdentifier)
         << _("void func() {\n"
-             "  QStringList list;\n"
-             "  @it = list.cbegin();\n"
+             "    QStringList list;\n"
+             "    @it = list.cbegin();\n"
              "}\n")
         << _("void func() {\n"
-             "  QStringList list;\n"
-             "  auto it = list.cbegin();\n"
+             "    QStringList list;\n"
+             "    auto it = list.cbegin();\n"
              "}\n");
 }
 
@@ -4999,6 +5001,67 @@ void QuickfixTest::testInsertDefFromDeclTemplateFunction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void QuickfixTest::testInsertDefFromDeclTemplateClassAndTemplateFunction()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "T Foo<T>::func(U u)\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefFromDeclTemplateClassAndFunctionInsideNamespace()
+{
+    QByteArray original =
+        "namespace N {\n"
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n"
+        "}\n";
+    QByteArray expected =
+        "namespace N {\n"
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "T Foo<T>::func(U u)\n"
+        "{\n"
+        "\n"
+        "}\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void QuickfixTest::testInsertDefFromDeclFunctionWithSignedUnsignedArgument()
 {
     QByteArray original;
@@ -5396,6 +5459,115 @@ SpaceBeforeParens: Always
     prefs->setCodeStyleSettings(tempSettings);
     QuickFixOperationTest(testDocuments, &factory, {}, {}, {}, clangFormatSettings);
     prefs->setCodeStyleSettings(settings);
+}
+
+QList<TestDocumentPtr> singleHeader(const QByteArray &original, const QByteArray &expected)
+{
+    return {CppTestDocument::create("file.h", original, expected)};
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateClassAndTemplateFunction()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "inline void Foo<T>::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateClass()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "inline void Foo<T>::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class U>\n"
+        "inline void Foo::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "inline void Foo::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
 }
 
 // Function for one of InsertDeclDef section cases
@@ -6283,6 +6455,44 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifier_data()
         ;
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
     QTest::newRow("inserting_std::string")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "";
+    testDocuments.clear();
+
+    original = "class A{};";
+    testDocuments << CppTestDocument::create("a.h", original, original);
+    original = "class B{};";
+    testDocuments << CppTestDocument::create("b.h", original, original);
+    original =
+            "#include \"b.h\"\n"
+            "@A a;\n"
+            "B b;";
+    expected =
+            "#include \"b.h\"\n\n"
+            "#include \"a.h\"\n"
+            "A a;\n"
+            "B b;";
+    testDocuments << CppTestDocument::create("b.cpp", original, expected);
+    QTest::newRow("preserve first header")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "";
+    testDocuments.clear();
+
+    original = "class C{};";
+    testDocuments << CppTestDocument::create("c.h", original, original);
+    original = "class B{};";
+    testDocuments << CppTestDocument::create("b.h", original, original);
+    original =
+            "#include \"c.h\"\n"
+            "C c;\n"
+            "@B b;";
+    expected =
+            "#include \"b.h\"\n"
+            "#include \"c.h\"\n"
+            "C c;\n"
+            "B b;";
+    testDocuments << CppTestDocument::create("x.cpp", original, expected);
+    QTest::newRow("do not preserve first header")
             << TestIncludePaths::globalIncludePath()
             << testDocuments << firstRefactoringOperation << "";
     testDocuments.clear();
@@ -7244,44 +7454,37 @@ void QuickfixTest::testMoveFuncDefOutsideUnnamedTemplate()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
-/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
-void QuickfixTest::testMoveFuncDefToDeclMemberFunc()
+void QuickfixTest::testMoveFuncDefToDecl_data()
 {
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
 
-    // Header File
-    original =
+    QByteArray originalHeader;
+    QByteArray expectedHeader;
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    originalHeader =
         "class Foo {\n"
-        "    inline int number() const;\n"
+        "    inline int @number() const;\n"
         "};\n";
-    expected =
+    expectedHeader =
         "class Foo {\n"
         "    inline int number() const {return 5;}\n"
         "};\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "\n"
         "int Foo::num@ber() const {return 5;}\n";
-    expected =
+    expectedSource =
         "#include \"file.h\"\n"
         "\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("member function, two files") << QByteArrayList{originalHeader, expectedHeader}
+                                                << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
-void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutside()
-{
-    QByteArray original =
+    originalSource =
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "\n"
         "int Foo::num@ber() const\n"
@@ -7289,33 +7492,23 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutside()
         "    return 5;\n"
         "}\n";
 
-    QByteArray expected =
+    expectedSource =
         "class Foo {\n"
         "    inline int number() const\n"
         "    {\n"
         "        return 5;\n"
         "    }\n"
         "};\n\n\n";
+    QTest::newRow("member function, one file") << QByteArrayList()
+                                               << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
-void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNS()
-{
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
+    originalHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "}\n";
-    expected =
+    expectedHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
         "    inline int number() const\n"
@@ -7324,38 +7517,25 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNS()
         "    }\n"
         "};\n"
         "}\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "\n"
         "int MyNs::Foo::num@ber() const\n"
         "{\n"
         "    return 5;\n"
         "}\n";
-    expected = "#include \"file.h\"\n\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    expectedSource = "#include \"file.h\"\n\n\n";
+    QTest::newRow("member function, two files, namespace")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
-void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNSUsing()
-{
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
+    originalHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int numbe@r() const;\n"
         "};\n"
         "}\n";
-    expected =
+    expectedHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
         "    inline int number() const\n"
@@ -7364,10 +7544,7 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNSUsing()
         "    }\n"
         "};\n"
         "}\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
         "\n"
@@ -7375,23 +7552,18 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncToCppNSUsing()
         "{\n"
         "    return 5;\n"
         "}\n";
-    expected =
+    expectedSource =
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
         "\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("member function, two files, namespace with using-directive")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
-void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutsideWithNs()
-{
-    QByteArray original =
+    originalSource =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "\n"
         "int Foo::numb@er() const\n"
@@ -7399,7 +7571,7 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutsideWithNs()
         "    return 5;\n"
         "}"
         "\n}\n";
-    QByteArray expected =
+    expectedSource =
         "namespace MyNs {\n"
         "class Foo {\n"
         "    inline int number() const\n"
@@ -7408,28 +7580,16 @@ void QuickfixTest::testMoveFuncDefToDeclMemberFuncOutsideWithNs()
         "    }\n"
         "};\n\n\n}\n";
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
-}
+    QTest::newRow("member function, one file, namespace")
+            << QByteArrayList() << QByteArrayList{originalSource, expectedSource};
 
-/// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
-void QuickfixTest::testMoveFuncDefToDeclFreeFuncToCpp()
-{
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original = "int number() const;\n";
-    expected =
+    originalHeader = "int nu@mber() const;\n";
+    expectedHeader =
         "inline int number() const\n"
         "{\n"
         "    return 5;\n"
         "}\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "\n"
         "\n"
@@ -7437,68 +7597,43 @@ void QuickfixTest::testMoveFuncDefToDeclFreeFuncToCpp()
         "{\n"
         "    return 5;\n"
         "}\n";
-    expected = "#include \"file.h\"\n\n\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    expectedSource = "#include \"file.h\"\n\n\n\n";
+    QTest::newRow("free function") << QByteArrayList{originalHeader, expectedHeader}
+                                   << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
-void QuickfixTest::testMoveFuncDefToDeclFreeFuncToCppNS()
-{
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
+    originalHeader =
         "namespace MyNamespace {\n"
-        "int number() const;\n"
+        "int n@umber() const;\n"
         "}\n";
-    expected =
+    expectedHeader =
         "namespace MyNamespace {\n"
         "inline int number() const\n"
         "{\n"
         "    return 5;\n"
         "}\n"
         "}\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "\n"
         "int MyNamespace::nu@mber() const\n"
         "{\n"
         "    return 5;\n"
         "}\n";
-    expected =
+    expectedSource =
         "#include \"file.h\"\n"
         "\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("free function, namespace") << QByteArrayList{originalHeader, expectedHeader}
+                                              << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: revert test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
-void QuickfixTest::testMoveFuncDefToDeclCtorWithInitialization()
-{
-    QList<TestDocumentPtr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
+    originalHeader =
         "class Foo {\n"
         "public:\n"
-        "    Foo();\n"
+        "    Fo@o();\n"
         "private:\n"
         "    int a;\n"
         "    float b;\n"
         "};\n";
-    expected =
+    expectedHeader =
         "class Foo {\n"
         "public:\n"
         "    Foo() : a(42), b(3.141) {}\n"
@@ -7506,35 +7641,25 @@ void QuickfixTest::testMoveFuncDefToDeclCtorWithInitialization()
         "    int a;\n"
         "    float b;\n"
         "};\n";
-    testDocuments << CppTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
+    originalSource =
         "#include \"file.h\"\n"
         "\n"
         "Foo::F@oo() : a(42), b(3.141) {}"
         ;
-    expected ="#include \"file.h\"\n\n";
-    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    expectedSource ="#include \"file.h\"\n\n";
+    QTest::newRow("constructor") << QByteArrayList{originalHeader, expectedHeader}
+                                 << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Check: Definition should not be placed behind the variable. QTCREATORBUG-10303
-void QuickfixTest::testMoveFuncDefToDeclStructWithAssignedVariable()
-{
-    QByteArray original =
+    originalSource =
         "struct Foo\n"
         "{\n"
-        "    void foo();\n"
+        "    void f@oo();\n"
         "} bar;\n"
         "void Foo::fo@o()\n"
         "{\n"
         "    return;\n"
         "}";
-
-    QByteArray expected =
+    expectedSource =
         "struct Foo\n"
         "{\n"
         "    void foo()\n"
@@ -7542,9 +7667,98 @@ void QuickfixTest::testMoveFuncDefToDeclStructWithAssignedVariable()
         "        return;\n"
         "    }\n"
         "} bar;\n";
+    QTest::newRow("QTCREATORBUG-10303") << QByteArrayList()
+                                        << QByteArrayList{originalSource, expectedSource};
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
+    originalSource =
+        "struct Base {\n"
+        "    virtual int foo() = 0;\n"
+        "};\n"
+        "struct Derived : Base {\n"
+        "    int @foo() override;\n"
+        "};\n"
+        "\n"
+        "int Derived::fo@o()\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n";
+    expectedSource =
+        "struct Base {\n"
+        "    virtual int foo() = 0;\n"
+        "};\n"
+        "struct Derived : Base {\n"
+        "    int foo() override\n"
+        "    {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n\n\n";
+    QTest::newRow("overridden virtual") << QByteArrayList()
+                                        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource =
+        "template<class T>\n"
+        "class Foo { void @func(); };\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo<T>::fu@nc() {}\n";
+    expectedSource =
+        "template<class T>\n"
+        "class Foo { void fu@nc() {} };\n\n\n";
+    QTest::newRow("class template") << QByteArrayList()
+                                    << QByteArrayList{originalSource, expectedSource};
+
+    originalSource =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void @func();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::fu@nc() {}\n";
+    expectedSource =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void func() {}\n"
+        "};\n\n\n";
+    QTest::newRow("function template") << QByteArrayList()
+                                       << QByteArrayList{originalSource, expectedSource};
+}
+
+void QuickfixTest::testMoveFuncDefToDecl()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+
+    QVERIFY(headers.isEmpty() || headers.size() == 2);
+    QVERIFY(sources.size() == 2);
+
+    QByteArray &declDoc = !headers.empty() ? headers.first() : sources.first();
+    const int declCursorPos = declDoc.indexOf('@');
+    QVERIFY(declCursorPos != -1);
+    const int defCursorPos = sources.first().lastIndexOf('@');
+    QVERIFY(defCursorPos != -1);
+    QVERIFY(declCursorPos != defCursorPos);
+
+    declDoc.remove(declCursorPos, 1);
+    QList<TestDocumentPtr> testDocuments;
+    if (!headers.isEmpty())
+        testDocuments << CppTestDocument::create("file.h", headers.first(), headers.last());
+    testDocuments << CppTestDocument::create("file.cpp", sources.first(), sources.last());
+
+    MoveFuncDefToDeclPush pushFactory;
+    QuickFixOperationTest(testDocuments, &pushFactory);
+
+    declDoc.insert(declCursorPos, '@');
+    sources.first().remove(defCursorPos, 1);
+    testDocuments.clear();
+    if (!headers.isEmpty())
+        testDocuments << CppTestDocument::create("file.h", headers.first(), headers.last());
+    testDocuments << CppTestDocument::create("file.cpp", sources.first(), sources.last());
+
+    MoveFuncDefToDeclPull pullFactory;
+    QuickFixOperationTest(testDocuments, &pullFactory);
 }
 
 void QuickfixTest::testMoveFuncDefToDeclMacroUses()
@@ -7573,79 +7787,9 @@ void QuickfixTest::testMoveFuncDefToDeclMacroUses()
         "    }\n"
         "};\n\n\n\n";
 
-    MoveFuncDefToDecl factory;
+    MoveFuncDefToDeclPush factory;
     QuickFixOperationTest(singleDocument(original, expected), &factory,
                           ProjectExplorer::HeaderPaths(), 0, "QTCREATORBUG-12314");
-}
-
-void QuickfixTest::testMoveFuncDefToDeclOverride()
-{
-    QByteArray original =
-        "struct Base {\n"
-        "    virtual int foo() = 0;\n"
-        "};\n"
-        "struct Derived : Base {\n"
-        "    int foo() override;\n"
-        "};\n"
-        "\n"
-        "int Derived::fo@o()\n"
-        "{\n"
-        "    return 5;\n"
-        "}\n";
-
-    QByteArray expected =
-        "struct Base {\n"
-        "    virtual int foo() = 0;\n"
-        "};\n"
-        "struct Derived : Base {\n"
-        "    int foo() override\n"
-        "    {\n"
-        "        return 5;\n"
-        "    }\n"
-        "};\n\n\n";
-
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
-}
-
-void QuickfixTest::testMoveFuncDefToDeclTemplate()
-{
-    QByteArray original =
-        "template<class T>\n"
-        "class Foo { void func(); };\n"
-        "\n"
-        "template<class T>\n"
-        "void Foo<T>::fu@nc() {}\n";
-
-    QByteArray expected =
-        "template<class T>\n"
-        "class Foo { void fu@nc() {} };\n\n\n";
-
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
-}
-
-void QuickfixTest::testMoveFuncDefToDeclTemplateFunction()
-{
-    QByteArray original =
-        "class Foo\n"
-        "{\n"
-        "    template<class T>\n"
-        "    void func();\n"
-        "};\n"
-        "\n"
-        "template<class T>\n"
-        "void Foo::fu@nc() {}\n";
-
-    QByteArray expected =
-        "class Foo\n"
-        "{\n"
-        "    template<class T>\n"
-        "    void func() {}\n"
-        "};\n\n\n";
-
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
 /// Check: Move all definitions from header to cpp.

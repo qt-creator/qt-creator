@@ -14,12 +14,11 @@ namespace Utils { class Id; }
 
 namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
-class IDevice;
+
 class DeviceManager;
 
 class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
     explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = nullptr);
     ~DeviceManagerModel() override;

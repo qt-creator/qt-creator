@@ -74,4 +74,6 @@ private:
     QMenu *m_filterMenu;
 };
 
+void setupSquishOutputPane(QObject *guard);
+
 } // namespace Squish::Internal

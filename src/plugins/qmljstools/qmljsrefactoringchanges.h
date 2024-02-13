@@ -34,21 +34,22 @@ public:
     bool isCursorOn(QmlJS::AST::UiQualifiedId *ast) const;
     bool isCursorOn(QmlJS::SourceLocation loc) const;
 
-protected:
+private:
     QmlJSRefactoringFile(const Utils::FilePath &filePath,
-                         const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+                         const QSharedPointer<QmlJSRefactoringChangesData> &data);
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
-    QmlJSRefactoringChangesData *data() const;
     void fileChanged() override;
+    Utils::Id indenterId() const override;
 
     mutable QmlJS::Document::Ptr m_qmljsDocument;
+    QSharedPointer<QmlJSRefactoringChangesData> m_data;
 
     friend class QmlJSRefactoringChanges;
 };
 
 
-class QMLJSTOOLS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
+class QMLJSTOOLS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringFileFactory
 {
 public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,
@@ -56,12 +57,14 @@ public:
 
     static QmlJSRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                         const QmlJS::Document::Ptr &document);
-    QmlJSRefactoringFilePtr file(const Utils::FilePath &filePath) const;
+    TextEditor::RefactoringFilePtr file(const Utils::FilePath &filePath) const;
+
+    QmlJSRefactoringFilePtr qmlJSFile(const Utils::FilePath &filePath) const;
 
     const QmlJS::Snapshot &snapshot() const;
 
 private:
-    QmlJSRefactoringChangesData *data() const;
+    const QSharedPointer<QmlJSRefactoringChangesData> m_data;
 };
 
 } // namespace QmlJSTools

@@ -24,6 +24,7 @@
 #include <QLoggingCategory>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Autotest {
@@ -55,6 +56,17 @@ TestCodeParser::TestCodeParser()
     });
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
+    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+        if (m_withTaskProgress) {
+            auto progress = new TaskProgress(taskTree);
+            progress->setDisplayName(Tr::tr("Scanning for Tests"));
+            progress->setId(Constants::TASK_PARSE);
+        }
+        emit parsingStarted();
+    });
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+        onFinished(result == DoneWith::Success);
+    });
 }
 
 TestCodeParser::~TestCodeParser() = default;
@@ -213,7 +225,7 @@ void TestCodeParser::aboutToShutdown(bool isFinal)
     qCDebug(LOG) << "Disabling (immediately) -"
                  << (isFinal ? "shutting down" : "disabled temporarily");
     m_parserState = isFinal ? Shutdown : DisabledTemporarily;
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     m_futureSynchronizer.waitForFinished();
     if (!isFinal)
         onFinished(false);
@@ -365,42 +377,36 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                   return true;
               return cppSnapshot.contains(fn);
           });
+    m_withTaskProgress = filteredFiles.size() > 5;
 
     qCDebug(LOG) << "Starting scan of" << filteredFiles.size() << "(" << files.size() << ")"
                  << "files with" << codeParsers.size() << "parsers";
-
-    using namespace Tasking;
 
     int limit = testSettings().scanThreadLimit();
     if (limit == 0)
         limit = std::max(QThread::idealThreadCount() / 4, 1);
     qCDebug(LOG) << "Using" << limit << "threads for scan.";
-    QList<GroupItem> tasks{parallelLimit(limit)};
-    for (const FilePath &file : filteredFiles) {
-        const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
-            async.setConcurrentCallData(parseFileForTests, codeParsers, file);
-            async.setPriority(QThread::LowestPriority);
-            async.setFutureSynchronizer(&m_futureSynchronizer);
-        };
-        const auto onDone = [this](const Async<TestParseResultPtr> &async) {
-            const QList<TestParseResultPtr> results = async.results();
-            for (const TestParseResultPtr &result : results)
-                emit testParseResultReady(result);
-        };
-        tasks.append(AsyncTask<TestParseResultPtr>(setup, onDone));
-    }
-    m_taskTree.reset(new TaskTree{tasks});
-    const auto onDone = [this] { m_taskTree.release()->deleteLater(); onFinished(true); };
-    const auto onError = [this] { m_taskTree.release()->deleteLater(); onFinished(false); };
-    connect(m_taskTree.get(), &TaskTree::started, this, &TestCodeParser::parsingStarted);
-    connect(m_taskTree.get(), &TaskTree::done, this, onDone);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onError);
-    if (filteredFiles.size() > 5) {
-        auto progress = new TaskProgress(m_taskTree.get());
-        progress->setDisplayName(Tr::tr("Scanning for Tests"));
-        progress->setId(Constants::TASK_PARSE);
-    }
-    m_taskTree->start();
+
+    const Storage<QSet<FilePath>::const_iterator> storage;
+    const auto onSetup = [this, codeParsers, storage](Async<TestParseResultPtr> &async) {
+        async.setConcurrentCallData(parseFileForTests, codeParsers, **storage);
+        async.setPriority(QThread::LowestPriority);
+        async.setFutureSynchronizer(&m_futureSynchronizer);
+        ++*storage;
+    };
+    const auto onDone = [this](const Async<TestParseResultPtr> &async) {
+        const QList<TestParseResultPtr> &results = async.results();
+        if (!results.isEmpty())
+            emit testParseResultsReady(results);
+    };
+    const Group root {
+        parallelLimit(limit),
+        storage,
+        onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
+        LoopRepeat(filteredFiles.size()),
+        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success)
+    };
+    m_taskTreeRunner.start(root);
 }
 
 void TestCodeParser::onTaskStarted(Id type)

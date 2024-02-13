@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,27 +8,33 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-build-settings.html
     \page creator-run-settings.html
-    \nextpage creator-editor-settings.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Run Settings
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-run
 
-    The run settings to specify depend on the type of the project and on the
-    \l{glossary-buildandrun-kit}{kit} that you build and run the project with.
+    \title Configure projects for running
 
-    \QC automatically creates run configurations for your project.
-    To view and modify them, select \uicontrol Projects >
-    \uicontrol {Build & Run} > \uicontrol Run.
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtcreator-settings-run.webp {Run Settings}
+    \image qtcreator-settings-run-desktop.webp {Run Settings}
 
-    To prevent \QC from automatically creating run configurations, select
-    \preferences > \uicontrol {Build & Run},
-    and then deselect the \uicontrol {Create suitable run configurations
-    automatically} check box.
+    The available build settings depend on the build system that you selected
+    for the project and the device type:
 
-    \section1 Managing Run Configurations
+    \list
+        \li \l {Android Run Settings}{Android}
+        \li \l {Boot2Qt Run Settings}{Boot2Qt}
+        \li \l {Desktop Device Run Settings}{Desktop}
+        \li \l {Python Run Settings}{Python}
+        \li \l {QNX Run Settings}{QNX}
+        \li \l {Remote Linux Run Settings}{Remote Linux}
+    \endlist
+
+    \section1 Manage run configurations
 
     The available run configurations are listed in the
     \uicontrol {Run configuration} field.
@@ -40,16 +46,18 @@
 
     To remove the current run configuration, select \uicontrol Remove.
 
+    \section2 qmake run configurations
+
     The run configurations for qmake projects derive their executable from the
     parsed .pro files. For more information on how the commands are constructed,
-    see \l{Starting External Processes}.
+    see \l{Start external processes}.
 
-    \section1 Selecting Default Run Target
+    \section1 Select the default run target
 
     If a project has multiple executables, you need to tell \QC which one it
     should run.
 
-    \section2 CMake Run Targets
+    \section2 CMake run targets
 
     When using CMake, you can filter the run target list by setting
     \c qtc_runnable as the value of the \c FOLDER property
@@ -62,7 +70,7 @@
     If you do not specify \c qtc_runnable for any project, \QC automatically
     adds run configurations for all targets specified in \c {CMakeLists.txt}.
 
-    \section2 qmake Run Targets
+    \section2 qmake run targets
 
     When using qmake, you can prevent \QC from automatically creating run
     configurations for subprojects by specifying the \c qtc_runnable
@@ -82,32 +90,40 @@
 
     For more information about qmake project templates, see \l {TEMPLATE}.
 
-    \section2 Meson Run Targets
+    \section2 Meson run targets
 
     \QC automatically adds run configurations for all targets declared with
     \c {executable()} function in Meson build descriptions.
 
-    \include creator-projects-settings-run-desktop.qdocinc run settings desktop
-    \include creator-projects-settings-run-analyze.qdocinc settings valgrind
-    \include creator-projects-settings-run-debug.qdocinc run settings debugger
-    \include creator-projects-settings-run-android.qdocinc run settings android
-    \include creator-projects-settings-run-linux.qdocinc run settings linux
-    \include creator-projects-settings-run-qnx.qdocinc run settings qnx
-    \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings boot2qt
+    \sa {Enable debugging}, {Configuring Projects},
+    {Specify a custom executable to run},
+    {Specify Valgrind settings for a project},
+    {Run Configurations}{Reference: Run Configurations}
+*/
 
-    \section1 Specifying a Custom Executable to Run
+/*!
+    \page creator-how-to-run-custom-executables.html
+    \previouspage creator-how-tos.html
 
-    If you use CMake, Meson or the generic project type in \QC, or want
-    to run a custom desktop executable, create a \uicontrol {Custom Executable}
-    run configuration for your project. For example, when working on a library,
-    you can run a test application that links against the library.
+    \ingroup creator-how-to-run
 
-    Specify the executable to run, command-line arguments, working directory,
-    and environment variables to use.
+    \title Specify a custom executable to run
 
-    \image qmldesigner-run-custom-exe.png {Run settings for custom executables}
+    If you use \l{Meson} or the \l{Import an existing project}
+    {generic project type}, or want to run a custom desktop executable,
+    create a \uicontrol {Custom Executable} run configuration for your
+    project. For example, when working on a library, you can run a test
+    application that links against the library.
 
-    \include qtquick/creator-projects-settings-run-qtquick.qdocinc run settings qt quick ui
-    \include python/creator-python-run.qdocinc run settings python
+    To specify a custom executable to run:
 
+        \list 1
+        \li Select \uicontrol Add > \uicontrol {Custom Executable}.
+            \image qtcreator-run-settings-custom-executable.webp {Run settings for custom executables}
+        \li In \uicontrol Executable, specify the path to the executable.
+        \li In \uicontrol {Command line arguments}, enter the path to the
+            file to run.
+    \endlist
+
+    \sa {Configure projects for running}, {Import an existing project}
 */

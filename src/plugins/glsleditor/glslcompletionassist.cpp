@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glslcompletionassist.h"
-#include "glsleditorconstants.h"
-#include "glsleditorplugin.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glsllexer.h>
@@ -13,24 +11,21 @@
 #include <glsl/glslastdump.h>
 
 #include <coreplugin/idocument.h>
+
 #include <texteditor/completionsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/functionhintproposal.h>
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 
 #include <utils/icon.h>
-#include <utils/faketooltip.h>
 
 #include <QIcon>
-#include <QPainter>
-#include <QLabel>
-#include <QToolButton>
-#include <QApplication>
-#include <QDebug>
 
 using namespace TextEditor;
 
@@ -164,21 +159,6 @@ static QIcon glslIcon(IconTypes iconType)
 // ----------------------------
 // GlslCompletionAssistProvider
 // ----------------------------
-IAssistProcessor *GlslCompletionAssistProvider::createProcessor(const AssistInterface *) const
-{
-    return new GlslCompletionAssistProcessor;
-}
-
-int GlslCompletionAssistProvider::activationCharSequenceLength() const
-{
-    return 1;
-}
-
-bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
-{
-    return isActivationChar(sequence.at(0));
-}
-
 struct FunctionItem
 {
     FunctionItem() = default;
@@ -278,7 +258,18 @@ int GlslFunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 // GLSLCompletionAssistProcessor
 // -----------------------------
-GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor() = default;
+
+class GlslCompletionAssistProcessor final : public TextEditor::AsyncProcessor
+{
+public:
+    TextEditor::IAssistProposal *performAsync() final;
+
+private:
+    TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
+    bool acceptsIdleEditor() const;
+
+    int m_startPosition = 0;
+};
 
 static AssistProposalItem *createCompletionItem(const QString &text, const QIcon &icon, int order = 0)
 {
@@ -531,6 +522,37 @@ GlslCompletionAssistInterface::GlslCompletionAssistInterface(const QTextCursor &
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {
+}
+
+// GlslCompletionAssistProvider
+
+class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+{
+public:
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
+
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+};
+
+IAssistProcessor *GlslCompletionAssistProvider::createProcessor(const AssistInterface *) const
+{
+    return new GlslCompletionAssistProcessor;
+}
+
+int GlslCompletionAssistProvider::activationCharSequenceLength() const
+{
+    return 1;
+}
+
+bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+{
+    return isActivationChar(sequence.at(0));
+}
+
+CompletionAssistProvider *createGlslCompletionAssistProvider()
+{
+    return new GlslCompletionAssistProvider;
 }
 
 } // namespace Internal

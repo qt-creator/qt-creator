@@ -11,7 +11,6 @@ QtcPlugin {
 
     files: [
         "cocoplugin.cpp",
-        "cocoplugin.h",
         "cocolanguageclient.cpp",
         "cocolanguageclient.h",
     ]

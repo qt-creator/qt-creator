@@ -40,7 +40,7 @@ public:
         QString stdError;
     };
 
-    explicit AndroidSdkManager(const AndroidConfig &config);
+    AndroidSdkManager();
     ~AndroidSdkManager() override;
 
     SdkPlatformList installedSdkPlatforms();

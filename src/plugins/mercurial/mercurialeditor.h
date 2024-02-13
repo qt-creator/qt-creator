@@ -9,25 +9,20 @@
 
 namespace Mercurial::Internal {
 
-class MercurialClient;
-
 class MercurialEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
 public:
-    explicit MercurialEditorWidget(MercurialClient *client);
+    MercurialEditorWidget();
 
 private:
     QString changeUnderCursor(const QTextCursor &cursor) const override;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
-            const QSet<QString> &changes) const override;
+    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override;
     QString decorateVersion(const QString &revision) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
 
     const QRegularExpression exactIdentifier12;
     const QRegularExpression exactIdentifier40;
     const QRegularExpression changesetIdentifier40;
-
-    MercurialClient *m_client;
 };
 
 } // Mercurial::Internal

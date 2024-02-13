@@ -369,12 +369,6 @@ QVariant QmakeProFileNode::data(Id role) const
     if (role == Android::Constants::AndroidApk)
         return {};
 
-    // We can not use AppMan headers even at build time.
-    if (role == "AppmanPackageDir")
-        return singleVariableValue(Variable::AppmanPackageDir);
-    if (role == "AppmanManifest")
-        return singleVariableValue(Variable::AppmanManifest);
-
     if (role == Ios::Constants::IosTarget) {
         const TargetInformation info = targetInformation();
         if (info.valid)

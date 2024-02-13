@@ -72,7 +72,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
 
     m_kitChooser = new KitChooser(this);
     m_kitChooser->setKitPredicate([](const Kit *k) {
-        return ToolChainKitAspect::targetAbi(k).os() == Abi::hostAbi().os();
+        return ToolchainKitAspect::targetAbi(k).os() == Abi::hostAbi().os();
     });
     m_kitChooser->setShowIcons(true);
     m_kitChooser->populate();

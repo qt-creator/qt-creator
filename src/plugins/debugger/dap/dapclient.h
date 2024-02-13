@@ -52,6 +52,8 @@ enum class DapResponseType
     StepOver,
     Pause,
     Evaluate,
+    SetBreakpoints,
+    SetFunctionBreakpoints,
     Unknown
 };
 
@@ -64,6 +66,50 @@ enum class DapEventType
     Output,
     DapBreakpoint,
     Unknown
+};
+
+struct Capabilities
+{
+    bool supportsConfigurationDoneRequest = false;
+    bool supportsFunctionBreakpoints = false;
+    bool supportsConditionalBreakpoints = false;
+    bool supportsHitConditionalBreakpoints = false;
+    bool supportsEvaluateForHovers = false;
+    bool supportsStepBack = false;
+    bool supportsSetVariable = false;
+    bool supportsRestartFrame = false;
+    bool supportsGotoTargetsRequest = false;
+    bool supportsStepInTargetsRequest = false;
+    bool supportsCompletionsRequest = false;
+    bool supportsModulesRequest = false;
+    bool supportsRestartRequest = false;
+    bool supportsExceptionOptions = false;
+    bool supportsValueFormattingOptions = false;
+    bool supportsExceptionInfoRequest = false;
+    bool supportTerminateDebuggee = false;
+    bool supportSuspendDebuggee = false;
+    bool supportsDelayedStackTraceLoading = false;
+    bool supportsLoadedSourcesRequest = false;
+    bool supportsLogPoints = false;
+    bool supportsTerminateThreadsRequest = false;
+    bool supportsSetExpression = false;
+    bool supportsTerminateRequest = false;
+    bool supportsDataBreakpoints = false;
+    bool supportsReadMemoryRequest = false;
+    bool supportsWriteMemoryRequest = false;
+    bool supportsDisassembleRequest = false;
+    bool supportsCancelRequest = false;
+    bool supportsBreakpointLocationsRequest = false;
+    bool supportsClipboardContext = false;
+    bool supportsSteppingGranularity = false;
+    bool supportsInstructionBreakpoints = false;
+    bool supportsExceptionFilterOptions = false;
+    bool supportsSingleThreadExecutionRequests = false;
+
+    // exceptionBreakpointFilters?: ExceptionBreakpointsFilter[];
+    // completionTriggerCharacters?: string[];
+    // additionalModuleColumns?: ColumnDescriptor[];
+    // supportedChecksumAlgorithms?: ChecksumAlgorithm[];
 };
 
 class DapClient : public QObject
@@ -101,8 +147,11 @@ public:
     void threads();
     void variables(int variablesReference);
     void setBreakpoints(const QJsonArray &breakpoints, const Utils::FilePath &fileName);
+    void setFunctionBreakpoints(const QJsonArray &breakpoints);
 
     void emitSignals(const QJsonDocument &doc);
+    void fillCapabilities(const QJsonObject &response);
+    Capabilities capabilities() const { return m_capabilities; }
 
 signals:
     void started();
@@ -124,6 +173,7 @@ private:
 
     IDataProvider *m_dataProvider = nullptr;
     QByteArray m_inbuffer;
+    Capabilities m_capabilities;
 };
 
 } // namespace Debugger::Internal

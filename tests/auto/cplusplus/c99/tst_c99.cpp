@@ -51,10 +51,10 @@ class tst_c99: public QObject
         {
         }
 
-        virtual void report(int level,
-                            const StringLiteral *fileName,
-                            int line, int column,
-                            const char *format, va_list ap)
+        void report(int level,
+                    const StringLiteral *fileName,
+                    int line, int column,
+                    const char *format, va_list ap) override
         {
             if (! errors)
                 return;

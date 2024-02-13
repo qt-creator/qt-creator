@@ -38,7 +38,6 @@ public:
     }
 
 private:
-    bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
     GroupItem deployRecipe() final;
 
     FilePath m_remoteExecutable;
@@ -46,31 +45,40 @@ private:
 
 GroupItem KillAppStep::deployRecipe()
 {
-    const auto setupHandler = [this](DeviceProcessKiller &killer) {
+    const auto onSetup = [this](DeviceProcessKiller &killer) {
+        if (m_remoteExecutable.isEmpty()) {
+            addSkipDeploymentMessage();
+            return SetupResult::StopWithSuccess;
+        }
         killer.setProcessPath(m_remoteExecutable);
         addProgressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
                                   .arg(m_remoteExecutable.path()));
+        return SetupResult::Continue;
     };
-    const auto doneHandler = [this](const DeviceProcessKiller &) {
-        addProgressMessage(Tr::tr("Remote application killed."));
+    const auto onDone = [this](DoneWith result) {
+        const QString message = result == DoneWith::Success ? Tr::tr("Remote application killed.")
+            : Tr::tr("Failed to kill remote application. Assuming it was not running.");
+        addProgressMessage(message);
+        return DoneResult::Success;
     };
-    const auto errorHandler = [this](const DeviceProcessKiller &) {
-        addProgressMessage(Tr::tr("Failed to kill remote application. "
-                                    "Assuming it was not running."));
-    };
-    const Group root {
-        finishAllAndDone,
-        DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler)
-    };
-    return root;
+    return DeviceProcessKillerTask(onSetup, onDone);
 }
 
-KillAppStepFactory::KillAppStepFactory()
+class KillAppStepFactory final : public BuildStepFactory
 {
-    registerStep<KillAppStep>(Constants::KillAppStepId);
-    setDisplayName(Tr::tr("Kill current application instance"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    KillAppStepFactory()
+    {
+        registerStep<KillAppStep>(Constants::KillAppStepId);
+        setDisplayName(Tr::tr("Kill current application instance"));
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupKillAppStep()
+{
+    static KillAppStepFactory theKillAppStepFactory;
 }
 
 } // RemoteLinux::Internal

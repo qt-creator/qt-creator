@@ -336,7 +336,10 @@ def __checkParentAccess__(filePath):
 def getConfiguredKits():
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         mouseClick(waitForObjectItem(":BuildAndRun_QTreeView", kit))
-        qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
+        if "Python" in kitName:
+            qtVersionStr = __PYKIT__
+        else:
+            qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
         invalid = qtVersionStr.endswith(" (invalid)")
         if invalid:
             qtVersionStr = qtVersionStr[:-10]
@@ -353,7 +356,7 @@ def getConfiguredKits():
     for kit, qtVersion in kitsWithQtVersionName.items():
         if qtVersion in qtVersionNames:
             result.append(kit)
-        else:
+        elif qtVersion != __PYKIT__: # ignore e.g. Python kits
             test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
                       % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
@@ -366,19 +369,6 @@ def enabledCheckBoxExists(text):
         return True
     except:
         return False
-
-# this function verifies if the text matches the given
-# regex inside expectedTexts
-# param text must be a single str
-# param expectedTexts can be str/list/tuple
-def regexVerify(text, expectedTexts):
-    if isString(expectedTexts):
-        expectedTexts = [expectedTexts]
-    for curr in expectedTexts:
-        pattern = re.compile(curr)
-        if pattern.match(text):
-            return True
-    return False
 
 
 # function that opens Options Dialog and parses the configured Qt versions

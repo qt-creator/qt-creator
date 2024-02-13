@@ -494,10 +494,6 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
         return;
     }
 
-    const QString prefix = Utils::Text::textAt(QTextCursor(document()),
-                                               m_basePos,
-                                               m_pos - m_basePos);
-
     QList<CompletionItem> items;
     if (std::holds_alternative<CompletionList>(*result)) {
         const auto &list = std::get<CompletionList>(*result);

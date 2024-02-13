@@ -41,8 +41,7 @@ namespace {
 static Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.androiddevice", QtWarningMsg)
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static constexpr char ipRegexStr[] = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
 static const QRegularExpression ipRegex = QRegularExpression(ipRegexStr);
@@ -64,7 +63,7 @@ public:
 AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device)
 {
-    const auto dev = qSharedPointerCast<AndroidDevice>(device);
+    const auto dev = std::static_pointer_cast<AndroidDevice>(device);
     const auto formLayout = new QFormLayout(this);
     formLayout->setFormAlignment(Qt::AlignLeft);
     formLayout->setContentsMargins(0, 0, 0, 0);
@@ -245,7 +244,7 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
 QString AndroidDevice::displayNameFromInfo(const AndroidDeviceInfo &info)
 {
     return info.type == IDevice::Hardware
-            ? AndroidConfigurations::currentConfig().getProductModel(info.serialNumber)
+            ? androidConfig().getProductModel(info.serialNumber)
             : info.avdName;
 }
 
@@ -384,7 +383,7 @@ IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 
 IDeviceWidget *AndroidDevice::createWidget()
 {
-    return new AndroidDeviceWidget(sharedFromThis());
+    return new AndroidDeviceWidget(shared_from_this());
 }
 
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
@@ -413,7 +412,7 @@ void AndroidDevice::initAvdSettings()
 
 void AndroidDeviceManager::updateAvdsList()
 {
-    if (!m_avdsFutureWatcher.isRunning() && m_androidConfig.adbToolPath().exists())
+    if (!m_avdsFutureWatcher.isRunning() && androidConfig().adbToolPath().exists())
         m_avdsFutureWatcher.setFuture(m_avdManager.avdList());
 }
 
@@ -432,7 +431,7 @@ IDevice::DeviceState AndroidDeviceManager::getDeviceState(const QString &serial,
 
 void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device)
 {
-    const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.data());
+    const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.get());
     const QString serial = dev->serialNumber();
     DeviceManager *const devMgr = DeviceManager::instance();
     const Id id = dev->id();
@@ -445,7 +444,7 @@ void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Con
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
 {
     Q_UNUSED(parent)
-    const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
+    const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.get());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
     auto future = Utils::asyncRun([this, name, device] {
@@ -461,13 +460,13 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
 
 void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 {
-    if (device.isNull())
+    if (!device)
         return;
 
     if (device->machineType() == IDevice::Hardware)
         return;
 
-    const QString name = static_cast<const AndroidDevice *>(device.data())->avdName();
+    const QString name = static_cast<const AndroidDevice *>(device.get())->avdName();
     const QString question
         = Tr::tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
     if (!AndroidDeviceWidget::questionDialog(question, parent))
@@ -475,11 +474,9 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
     m_removeAvdProcess.reset(new Process);
-    const AndroidConfig &config = m_avdManager.config();
-    const CommandLine command(config.avdManagerToolPath(), {"delete", "avd", "-n", name});
+    const CommandLine command(androidConfig().avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(androidDeviceLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    m_removeAvdProcess->setTimeoutS(5);
-    m_removeAvdProcess->setEnvironment(config.toolsEnvironment());
+    m_removeAvdProcess->setEnvironment(androidConfig().toolsEnvironment());
     m_removeAvdProcess->setCommand(command);
     connect(m_removeAvdProcess.get(), &Process::done, this, [this, device] {
         const QString name = device->displayName();
@@ -506,7 +503,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         return;
     }
 
-    const auto androidDev = static_cast<const AndroidDevice *>(device.data());
+    const auto androidDev = static_cast<const AndroidDevice *>(device.get());
     const QStringList adbSelector = AndroidDeviceInfo::adbSelector(androidDev->serialNumber());
     // prepare port
     QStringList args = adbSelector;
@@ -574,7 +571,7 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     dialog.setLabelText(Tr::tr("Emulator command-line startup options "
                                           "(<a href=\"%1\">Help Web Page</a>):")
                             .arg(helpUrl));
-    dialog.setTextValue(m_androidConfig.emulatorArgs());
+    dialog.setTextValue(androidConfig().emulatorArgs());
 
     if (auto label = dialog.findChild<QLabel*>()) {
         label->setOpenExternalLinks(true);
@@ -584,12 +581,12 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    m_androidConfig.setEmulatorArgs(dialog.textValue());
+    androidConfig().setEmulatorArgs(dialog.textValue());
 }
 
 QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) const
 {
-    for (const AndroidDeviceInfo &dev : m_androidConfig.connectedDevices()) {
+    for (const AndroidDeviceInfo &dev : androidConfig().connectedDevices()) {
         if (!dev.serialNumber.startsWith("emulator"))
             continue;
         const QString stdOut = emulatorName(dev.serialNumber);
@@ -605,7 +602,7 @@ QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) co
 
 void AndroidDeviceManager::setupDevicesWatcher()
 {
-    if (!m_androidConfig.adbToolPath().exists()) {
+    if (!androidConfig().adbToolPath().exists()) {
         qCDebug(androidDeviceLog) << "Cannot start ADB device watcher"
                                   <<  "because adb path does not exist.";
         return;
@@ -637,10 +634,10 @@ void AndroidDeviceManager::setupDevicesWatcher()
         HandleDevicesListChange(output);
     });
 
-    const CommandLine command = CommandLine(m_androidConfig.adbToolPath(), {"track-devices"});
+    const CommandLine command = CommandLine(androidConfig().adbToolPath(), {"track-devices"});
     m_adbDeviceWatcherProcess->setCommand(command);
     m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
-    m_adbDeviceWatcherProcess->setEnvironment(m_androidConfig.toolsEnvironment());
+    m_adbDeviceWatcherProcess->setEnvironment(androidConfig().toolsEnvironment());
     m_adbDeviceWatcherProcess->start();
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
@@ -682,8 +679,8 @@ void AndroidDeviceManager::HandleAvdsListChange()
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = AndroidDevice::displayNameFromInfo(item);
         IDevice::ConstPtr dev = devMgr->find(deviceId);
-        if (!dev.isNull()) {
-            const auto androidDev = static_cast<const AndroidDevice *>(dev.data());
+        if (dev) {
+            const auto androidDev = static_cast<const AndroidDevice *>(dev.get());
             // DeviceManager doens't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
             // Also account for the case of an AVD registered through old QC which might have
@@ -774,7 +771,7 @@ void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
         devMgr->setDeviceState(avdId, state);
     } else {
         const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + serial);
-        QString displayName = AndroidConfigurations::currentConfig().getProductModel(serial);
+        QString displayName = androidConfig().getProductModel(serial);
         // Check if the device is connected via WiFi. A sample serial of such devices can be
         // like: "192.168.1.190:5555"
         static const auto ipRegex = QRegularExpression(ipRegexStr + QStringLiteral(":(\\d{1,5})"));
@@ -796,8 +793,8 @@ void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
             newDev->setDeviceState(state);
 
             newDev->setExtraData(Constants::AndroidSerialNumber, serial);
-            newDev->setExtraData(Constants::AndroidCpuAbi, m_androidConfig.getAbis(serial));
-            newDev->setExtraData(Constants::AndroidSdk, m_androidConfig.getSDKVersion(serial));
+            newDev->setExtraData(Constants::AndroidCpuAbi, androidConfig().getAbis(serial));
+            newDev->setExtraData(Constants::AndroidSdk, androidConfig().getSDKVersion(serial));
 
             qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                     newDev->id().toString().toUtf8().data());
@@ -814,9 +811,7 @@ AndroidDeviceManager *AndroidDeviceManager::instance()
 }
 
 AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
-    : QObject(parent),
-      m_androidConfig(AndroidConfigurations::currentConfig()),
-      m_avdManager(m_androidConfig)
+    : QObject(parent)
 {
     QTC_ASSERT(!s_instance, return);
     s_instance = this;
@@ -831,33 +826,45 @@ AndroidDeviceManager::~AndroidDeviceManager()
 
 // Factory
 
-AndroidDeviceFactory::AndroidDeviceFactory()
-    : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    setDisplayName(Tr::tr("Android Device"));
-    setCombinedIcon(":/android/images/androiddevicesmall.png",
-                    ":/android/images/androiddevice.png");
-    setConstructionFunction(&AndroidDevice::create);
-    if (m_androidConfig.sdkToolsOk()) {
-        setCreator([this] {
-            AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
-            if (dialog.exec() != QDialog::Accepted)
-                return IDevice::Ptr();
+public:
+    AndroidDeviceFactory()
+        : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE)
+    {
+        setDisplayName(Tr::tr("Android Device"));
+        setCombinedIcon(":/android/images/androiddevicesmall.png",
+                        ":/android/images/androiddevice.png");
+        setConstructionFunction(&AndroidDevice::create);
+        if (androidConfig().sdkToolsOk()) {
+            setCreator([] {
+                AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
+                if (dialog.exec() != QDialog::Accepted)
+                    return IDevice::Ptr();
 
-            const IDevice::Ptr dev = dialog.device();
-            if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
-                qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
-                        qPrintable(androidDev->avdName()));
-            } else {
-                AndroidDeviceWidget::criticalDialog(
+                const IDevice::Ptr dev = dialog.device();
+                if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
+                    qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                            qPrintable(androidDev->avdName()));
+                } else {
+                    AndroidDeviceWidget::criticalDialog(
                         Tr::tr("The device info returned from AvdDialog is invalid."));
-            }
+                }
 
-            return IDevice::Ptr(dev);
-        });
+                return IDevice::Ptr(dev);
+            });
+        }
     }
+};
+
+void setupAndroidDevice()
+{
+    static AndroidDeviceFactory theAndroidDeviceFactory;
 }
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidDeviceManager(QObject *guard)
+{
+    (void) new AndroidDeviceManager(guard);
+}
+
+} // Android::Internal

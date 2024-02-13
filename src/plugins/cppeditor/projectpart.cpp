@@ -69,7 +69,7 @@ static Macros getProjectMacros(const RawProjectPart &rpp)
 
 static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
                                   const RawProjectPartFlags &flags,
-                                  const ProjectExplorer::ToolChainInfo &tcInfo)
+                                  const ProjectExplorer::ToolchainInfo &tcInfo)
 {
     HeaderPaths headerPaths;
 
@@ -96,10 +96,10 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
     return headerPaths;
 }
 
-static ToolChain::MacroInspectionReport getToolchainMacros(
-        const RawProjectPartFlags &flags, const ToolChainInfo &tcInfo, Utils::Language language)
+static Toolchain::MacroInspectionReport getToolchainMacros(
+        const RawProjectPartFlags &flags, const ToolchainInfo &tcInfo, Utils::Language language)
 {
-    ToolChain::MacroInspectionReport report;
+    Toolchain::MacroInspectionReport report;
     if (tcInfo.macroInspectionRunner) {
         report = tcInfo.macroInspectionRunner(flags.commandLineFlags);
     } else if (language == Utils::Language::C) { // No compiler set in kit.
@@ -122,7 +122,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
                          Utils::Language language,
                          Utils::LanguageExtensions languageExtensions,
                          const RawProjectPartFlags &flags,
-                         const ToolChainInfo &tcInfo)
+                         const ToolchainInfo &tcInfo)
     : topLevelProject(topLevelProject),
       displayName(displayName),
       projectFile(rpp.projectFile),
@@ -142,11 +142,11 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       buildTargetType(rpp.buildTargetType),
       selectedForBuilding(rpp.selectedForBuilding),
       toolchainType(tcInfo.type),
-      isMsvc2015Toolchain(tcInfo.isMsvc2015ToolChain),
-      toolChainTargetTriple(tcInfo.targetTriple),
+      isMsvc2015Toolchain(tcInfo.isMsvc2015Toolchain),
+      toolchainTargetTriple(tcInfo.targetTriple),
       targetTripleIsAuthoritative(tcInfo.targetTripleIsAuthoritative),
-      toolChainAbi(tcInfo.abi),
-      toolChainInstallDir(tcInfo.installDir),
+      toolchainAbi(tcInfo.abi),
+      toolchainInstallDir(tcInfo.installDir),
       compilerFilePath(tcInfo.compilerFilePath),
       warningFlags(flags.warningFlags),
       extraCodeModelFlags(tcInfo.extraCodeModelFlags),

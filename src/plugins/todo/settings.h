@@ -6,10 +6,7 @@
 
 #include "keyword.h"
 
-namespace Utils { class QtcSettings; }
-
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 enum ScanningScope {
     ScanningScopeCurrentFile,
@@ -25,16 +22,15 @@ public:
     ScanningScope scanningScope = ScanningScopeCurrentFile;
     bool keywordsEdited = false;
 
-    void save(Utils::QtcSettings *settings) const;
-    void load(Utils::QtcSettings *settings);
+    void save() const;
+    void load();
     void setDefault();
-    bool equals(const Settings &other) const;
 };
 
-bool operator ==(const Settings &s1, const Settings &s2);
-bool operator !=(const Settings &s1, const Settings &s2);
+Settings &todoSettings();
 
-} // namespace Internal
-} // namespace Todo
+void setupTodoSettingsPage();
+
+} // Todo::Internal
 
 Q_DECLARE_METATYPE(Todo::Internal::ScanningScope)

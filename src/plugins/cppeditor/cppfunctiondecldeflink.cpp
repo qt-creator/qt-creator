@@ -46,13 +46,13 @@ FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
 
 void FunctionDeclDefLinkFinder::onFutureDone()
 {
-    QSharedPointer<FunctionDeclDefLink> link = m_watcher->result();
+    std::shared_ptr<FunctionDeclDefLink> link = m_watcher->result();
     m_watcher.reset();
     if (link) {
         link->linkSelection = m_scannedSelection;
         link->nameSelection = m_nameSelection;
         if (m_nameSelection.selectedText() != link->nameInitial)
-            link.clear();
+            link.reset();
     }
     m_scannedSelection = QTextCursor();
     m_nameSelection = QTextCursor();
@@ -129,9 +129,9 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
     return nullptr;
 }
 
-static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppRefactoringChanges changes)
+static std::shared_ptr<FunctionDeclDefLink> findLinkHelper(std::shared_ptr<FunctionDeclDefLink> link, CppRefactoringChanges changes)
 {
-    QSharedPointer<FunctionDeclDefLink> noResult;
+    std::shared_ptr<FunctionDeclDefLink> noResult;
     const Snapshot &snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
@@ -199,7 +199,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // find the start/end offsets
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->filePath());
+    CppRefactoringFilePtr sourceFile = refactoringChanges.cppFile(doc->filePath());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -225,7 +225,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_nameSelection.setKeepPositionOnInsert(true);
 
     // set up a base result
-    QSharedPointer<FunctionDeclDefLink> result(new FunctionDeclDefLink);
+    std::shared_ptr<FunctionDeclDefLink> result(new FunctionDeclDefLink);
     result->nameInitial = m_nameSelection.selectedText();
     result->sourceDocument = doc;
     result->sourceFunction = funcDecl->symbol;
@@ -233,7 +233,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     result->sourceFunctionDeclarator = funcDecl;
 
     // handle the rest in a thread
-    m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
+    m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
     connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
 }
@@ -259,7 +259,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
 
     // first verify the interesting region of the target file is unchanged
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->filePath());
+    CppRefactoringFilePtr newTargetFile = refactoringChanges.cppFile(targetFile->filePath());
     if (!newTargetFile->isValid())
         return;
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
@@ -568,7 +568,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.bindings()->control().data();
+        Control *control = sourceContext.bindings()->control().get();
 
         // get return type start position and declarator info from declaration
         DeclaratorAST *declarator = nullptr;
@@ -614,7 +614,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.bindings()->control().data();
+        Control *control = sourceContext.bindings()->control().get();
         Overview overview = overviewFromCurrentProjectStyle;
         overview.showReturnTypes = true;
         overview.showTemplateParameters = true;
@@ -863,6 +863,8 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             const QStringView docView = QStringView(content);
             for (auto it = renamedTargetParameters.cbegin();
                  it != renamedTargetParameters.cend(); ++it) {
+                if (!it.key()->name())
+                    continue;
                 const QString paramName = Overview().prettyName(it.key()->name());
                 for (const Token &tok : functionComments) {
                     const TranslationUnit * const tu = targetFile->cppDocument()->translationUnit();

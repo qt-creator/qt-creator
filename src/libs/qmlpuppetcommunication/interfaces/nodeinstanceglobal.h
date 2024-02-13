@@ -54,7 +54,7 @@ enum class View3DActionType {
 
 constexpr bool isNanotraceEnabled()
 {
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
     return true;
 #else
     return false;

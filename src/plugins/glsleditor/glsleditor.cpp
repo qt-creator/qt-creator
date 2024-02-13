@@ -3,7 +3,6 @@
 
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
-#include "glsleditorplugin.h"
 #include "glslhighlighter.h"
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
@@ -31,12 +30,14 @@
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
@@ -52,8 +53,7 @@
 using namespace TextEditor;
 using namespace GLSL;
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 static int versionFor(const QString &source)
 {
@@ -103,6 +103,93 @@ static int versionFor(const QString &source)
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
 };
+
+class InitFile final
+{
+public:
+    explicit InitFile(const QString &fileName) : m_fileName(fileName) {}
+
+    ~InitFile() { delete m_engine; }
+
+    GLSL::Engine *engine() const
+    {
+        if (!m_engine)
+            initialize();
+        return m_engine;
+    }
+
+    GLSL::TranslationUnitAST *ast() const
+    {
+        if (!m_ast)
+            initialize();
+        return m_ast;
+    }
+
+private:
+    void initialize() const
+    {
+        // Parse the builtins for any language variant so we can use all keywords.
+        const int variant = GLSL::Lexer::Variant_All;
+
+        QByteArray code;
+        QFile file(Core::ICore::resourcePath("glsl").pathAppended(m_fileName).toString());
+        if (file.open(QFile::ReadOnly))
+            code = file.readAll();
+
+        m_engine = new GLSL::Engine();
+        GLSL::Parser parser(m_engine, code.constData(), code.size(), variant);
+        m_ast = parser.parse();
+    }
+
+    QString m_fileName;
+    mutable GLSL::Engine *m_engine = nullptr;
+    mutable GLSL::TranslationUnitAST *m_ast = nullptr;
+};
+
+static const InitFile *fragmentShaderInit(int variant)
+{
+    static InitFile glsl_es_100_frag{"glsl_es_100.frag"};
+    static InitFile glsl_120_frag{"glsl_120.frag"};
+    static InitFile glsl_330_frag{"glsl_330.frag"};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_400)
+        return &glsl_330_frag;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return  &glsl_120_frag;
+
+    return &glsl_es_100_frag;
+}
+
+static const InitFile *vertexShaderInit(int variant)
+{
+    static InitFile glsl_es_100_vert{"glsl_es_100.vert"};
+    static InitFile glsl_120_vert{"glsl_120.vert"};
+    static InitFile glsl_330_vert{"glsl_330.vert"};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_400)
+        return &glsl_330_vert;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &glsl_120_vert;
+
+    return &glsl_es_100_vert;
+}
+
+static const InitFile *shaderInit(int variant)
+{
+    static InitFile glsl_es_100_common{"glsl_es_100_common.glsl"};
+    static InitFile glsl_120_common{"glsl_120_common.glsl"};
+    static InitFile glsl_330_common{"glsl_330_common.glsl"};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_400)
+        return &glsl_330_common;
+
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return &glsl_120_common;
+
+    return &glsl_es_100_common;
+}
 
 class CreateRanges: protected Visitor
 {
@@ -166,8 +253,7 @@ GlslEditorWidget::GlslEditorWidget()
     connect(&m_updateDocumentTimer, &QTimer::timeout,
             this, &GlslEditorWidget::updateDocumentNow);
 
-    connect(this, &QPlainTextEdit::textChanged,
-            [this]() { m_updateDocumentTimer.start(); });
+    connect(this, &QPlainTextEdit::textChanged, [this] { m_updateDocumentTimer.start(); });
 
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -241,14 +327,14 @@ void GlslEditorWidget::updateDocumentNow()
         Semantic sem;
         Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;
-        const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
+        const InitFile *file = shaderInit(variant);
         sem.translationUnit(file->ast(), globalScope, file->engine());
         if (variant & Lexer::Variant_VertexShader) {
-            file = GlslEditorPlugin::vertexShaderInit(variant);
+            file = vertexShaderInit(variant);
             sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         if (variant & Lexer::Variant_FragmentShader) {
-            file = GlslEditorPlugin::fragmentShaderInit(variant);
+            file = fragmentShaderInit(variant);
             sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         sem.translationUnit(ast, globalScope, doc->_engine);
@@ -317,19 +403,19 @@ int languageVariant(const QString &type)
         isVertex = true;
         isFragment = true;
     } else if (type == QLatin1String("text/x-glsl") ||
-               type == QLatin1String("application/x-glsl")) {
+               type == QLatin1String(Utils::Constants::GLSL_MIMETYPE)) {
         isVertex = true;
         isFragment = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-vert")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_VERT_MIMETYPE)) {
         isVertex = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-frag")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_FRAG_MIMETYPE)) {
         isFragment = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-es-vert")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_ES_VERT_MIMETYPE)) {
         isVertex = true;
-    } else if (type == QLatin1String("text/x-glsl-es-frag")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_ES_FRAG_MIMETYPE)) {
         isFragment = true;
     }
     if (isDesktop)
@@ -356,34 +442,39 @@ std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
                                                            m_glslDocument);
 }
 
-
-//
 //  GlslEditorFactory
-//
 
-GlslEditorFactory::GlslEditorFactory()
+class GlslEditorFactory final : public TextEditor::TextEditorFactory
 {
-    setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
-    addMimeType(Constants::GLSL_MIMETYPE);
-    addMimeType(Constants::GLSL_MIMETYPE_VERT);
-    addMimeType(Constants::GLSL_MIMETYPE_FRAG);
-    addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
-    addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
+public:
+    GlslEditorFactory()
+    {
+        setId(Constants::C_GLSLEDITOR_ID);
+        setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
+        addMimeType(Utils::Constants::GLSL_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_VERT_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_ES_VERT_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_ES_FRAG_MIMETYPE);
 
-    setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
-    setEditorWidgetCreator([]() { return new GlslEditorWidget; });
-    setIndenterCreator([](QTextDocument *doc) { return new GlslIndenter(doc); });
-    setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
-    setCommentDefinition(Utils::CommentDefinition::CppStyle);
-    setCompletionAssistProvider(new GlslCompletionAssistProvider);
-    setParenthesesMatchingEnabled(true);
-    setCodeFoldingSupported(true);
+        setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
+        setEditorWidgetCreator([]() { return new GlslEditorWidget; });
+        setIndenterCreator(&createGlslIndenter);
+        setSyntaxHighlighterCreator(&createGlslHighlighter);
+        setCommentDefinition(Utils::CommentDefinition::CppStyle);
+        setCompletionAssistProvider(createGlslCompletionAssistProvider());
+        setParenthesesMatchingEnabled(true);
+        setCodeFoldingSupported(true);
 
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                          | TextEditorActionHandler::UnCommentSelection
-                          | TextEditorActionHandler::UnCollapseAll);
+        setEditorActionHandlers(TextEditorActionHandler::Format
+                                | TextEditorActionHandler::UnCommentSelection
+                                | TextEditorActionHandler::UnCollapseAll);
+    }
+};
+
+void setupGlslEditorFactory()
+{
+    static GlslEditorFactory theGlslEditorFactory;
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+} // GlslEditor::Internal

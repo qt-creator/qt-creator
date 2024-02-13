@@ -39,17 +39,59 @@ constexpr char C_SHOW_BORDER[] = "showborder";
 constexpr char C_TOP_BORDER[] = "topBorder";
 constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 
+constexpr char C_QT_SCALE_FACTOR_ROUNDING_POLICY[] = "QT_SCALE_FACTOR_ROUNDING_POLICY";
+
+namespace SpacingTokens {
+    constexpr int VPaddingXXS = 4;   // Top and bottom padding within the component
+    constexpr int HPaddingXXS = 4;   // Left and right padding within the component
+    constexpr int VGapXXS = 4;       // Vertical Space between TEXT LINE within the Component
+    constexpr int HGapXXS = 4;       // Horizontal Space between elements within the Component
+
+    constexpr int VPaddingXS = 8;
+    constexpr int HPaddingXS = 8;
+    constexpr int VGapXS = 4;
+    constexpr int HGapXS = 8;
+
+    constexpr int VPaddingS = 8;
+    constexpr int HPaddingS = 16;
+    constexpr int VGapS = 4;
+    constexpr int HGapS = 8;
+
+    constexpr int VPaddingM = 16;
+    constexpr int HPaddingM = 24;
+    constexpr int VGapM = 4;
+    constexpr int HGapM = 16;
+
+    constexpr int VPaddingL = 12;
+    constexpr int HPaddingL = 24;
+    constexpr int VGapL = 8;
+    constexpr int HGapL = 16;
+}
+
 enum ToolbarStyle {
     ToolbarStyleCompact,
     ToolbarStyleRelaxed,
 };
 constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
 
+enum UiElement {
+    UiElementH1,
+    UiElementH2,
+    UiElementH3,
+    UiElementH4,
+    UiElementH5,
+    UiElementH6,
+    UiElementH6Capital,
+    UiElementCaptionStrong,
+    UiElementCaption,
+    UIElementIconStandard,
+    UIElementIconActive,
+};
+
 // Height of the project explorer navigation bar
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();
 QTCREATOR_UTILS_EXPORT void setToolbarStyle(ToolbarStyle style);
 QTCREATOR_UTILS_EXPORT ToolbarStyle toolbarStyle();
-QTCREATOR_UTILS_EXPORT qreal sidebarFontSize();
 QTCREATOR_UTILS_EXPORT QPalette sidebarFontPalette(const QPalette &original);
 
 // This is our color table, all colors derive from baseColor
@@ -70,6 +112,10 @@ QTCREATOR_UTILS_EXPORT QColor sidebarHighlight();
 QTCREATOR_UTILS_EXPORT QColor sidebarShadow();
 QTCREATOR_UTILS_EXPORT QColor toolBarDropShadowColor();
 QTCREATOR_UTILS_EXPORT QColor notTooBrightHighlightColor();
+
+QTCREATOR_UTILS_EXPORT QFont uiFont(UiElement element);
+QTCREATOR_UTILS_EXPORT int uiFontLineHeight(UiElement element);
+QTCREATOR_UTILS_EXPORT QString fontToCssProperties(const QFont &font);
 
 // Sets the base color and makes sure all top level widgets are updated
 QTCREATOR_UTILS_EXPORT void setBaseColor(const QColor &color);

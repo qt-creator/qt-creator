@@ -120,10 +120,10 @@ private:
 class CMakeKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory) : KitAspect(kit, factory),
-        m_comboBox(createSubWidget<QComboBox>()),
-        m_manageButton(createManageButton(Constants::Settings::TOOLS_ID))
+    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
+        : KitAspect(kit, factory), m_comboBox(createSubWidget<QComboBox>())
     {
+        setManagingPage(Constants::Settings::TOOLS_ID);
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
         m_comboBox->setToolTip(factory->description());
@@ -142,7 +142,6 @@ public:
     ~CMakeKitAspectImpl() override
     {
         delete m_comboBox;
-        delete m_manageButton;
     }
 
 private:
@@ -153,7 +152,6 @@ private:
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
-        builder.addItem(m_manageButton);
     }
 
     void refresh() override
@@ -213,7 +211,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_comboBox;
-    QWidget *m_manageButton;
 };
 
 CMakeKitAspectFactory::CMakeKitAspectFactory()
@@ -253,7 +250,7 @@ Id CMakeKitAspect::cmakeToolId(const Kit *k)
 
 CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
 {
-    return CMakeToolManager::findById(cmakeToolId(k));
+    return k->isAspectRelevant(id()) ? CMakeToolManager::findById(cmakeToolId(k)) : nullptr;
 }
 
 void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
@@ -684,7 +681,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
 
     if (tool->filePath().osType() == OsTypeWindows) {
         // *sigh* Windows with its zoo of incompatible stuff again...
-        ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+        Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
         if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
             it = std::find_if(known.constBegin(),
                               known.constEnd(),
@@ -791,7 +788,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
     } else {
-        const GeneratorInfo dv(isIos(k) ? QString("Xcode") : info.generator,
+        const GeneratorInfo dv(info.generator,
                                it->supportsPlatform ? info.platform : QString(),
                                it->supportsToolset ? info.toolset : QString());
         setGeneratorInfo(k, dv);
@@ -1138,8 +1135,8 @@ Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
         return Tasks();
 
     const QtSupport::QtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
-    const ToolChain *const tcC = ToolChainKitAspect::cToolChain(k);
-    const ToolChain *const tcCxx = ToolChainKitAspect::cxxToolChain(k);
+    const Toolchain *const tcC = ToolchainKitAspect::cToolchain(k);
+    const Toolchain *const tcCxx = ToolchainKitAspect::cxxToolchain(k);
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
     const bool isQt4 = version && version->qtVersion() < QVersionNumber(5, 0, 0);
@@ -1282,7 +1279,7 @@ KitAspect *CMakeConfigurationKitAspect::createKitAspect(Kit *k)
     return cmakeConfigurationKitAspectFactory().createKitAspect(k);
 }
 
-void CMakeKitAspect::createFactories()
+void Internal::setupCMakeKitAspects()
 {
     cmakeKitAspectFactory();
     cmakeGeneratorKitAspectFactory();

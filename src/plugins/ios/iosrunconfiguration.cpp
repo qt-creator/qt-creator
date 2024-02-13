@@ -15,6 +15,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -64,7 +65,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
 
     setUpdater([this, target] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
-        const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
+        const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
@@ -87,15 +88,23 @@ void IosDeviceTypeAspect::updateDeviceType()
         m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
 }
 
-bool IosRunConfiguration::isEnabled() const
+bool IosRunConfiguration::isEnabled(Id runMode) const
 {
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
+    if (devType == Constants::IOS_SIMULATOR_TYPE)
+        return true;
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
-    if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
+    if (!dev || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
+
+    IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
+    if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
+        && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        return false;
+    }
 
     return true;
 }
@@ -221,7 +230,7 @@ void IosDeviceTypeAspect::toMap(Store &map) const
     map.insert(deviceTypeKey, QVariant::fromValue(deviceType().toMap()));
 }
 
-QString IosRunConfiguration::disabledReason() const
+QString IosRunConfiguration::disabledReason(Id runMode) const
 {
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
@@ -233,7 +242,7 @@ QString IosRunConfiguration::disabledReason() const
         DeviceManager *dm = DeviceManager::instance();
         for (int idev = 0; idev < dm->deviceCount(); ++idev) {
             IDevice::ConstPtr availDev = dm->deviceAt(idev);
-            if (!availDev.isNull() && availDev->type() == Constants::IOS_DEVICE_TYPE) {
+            if (availDev && availDev->type() == Constants::IOS_DEVICE_TYPE) {
                 if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
                     validDevName += QLatin1Char(' ');
                     validDevName += availDev->displayName();
@@ -244,14 +253,14 @@ QString IosRunConfiguration::disabledReason() const
         }
     }
 
-    if (dev.isNull()) {
+    if (!dev) {
         if (!validDevName.isEmpty())
             return Tr::tr("No device chosen. Select %1.").arg(validDevName); // should not happen
         else if (hasConncetedDev)
             return Tr::tr("No device chosen. Enable developer mode on a device."); // should not happen
         else
             return Tr::tr("No device available.");
-    } else {
+    } else if (devType == Constants::IOS_DEVICE_TYPE) {
         switch (dev->deviceState()) {
         case IDevice::DeviceReadyToUse:
             break;
@@ -268,8 +277,14 @@ QString IosRunConfiguration::disabledReason() const
             else
                 return Tr::tr("%1 is not connected.").arg(dev->displayName());
         }
+        IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(dev);
+        if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl
+            && runMode != ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+            return Tr::tr("Debugging and profiling is currently not supported for devices with iOS "
+                          "17 and later.");
+        }
     }
-    return RunConfiguration::disabledReason();
+    return RunConfiguration::disabledReason(runMode);
 }
 
 IosDeviceType IosRunConfiguration::deviceType() const
@@ -398,11 +413,20 @@ FilePath IosDeviceTypeAspect::localExecutable() const
 
 // IosRunConfigurationFactory
 
-IosRunConfigurationFactory::IosRunConfigurationFactory()
+class IosRunConfigurationFactory final : public RunConfigurationFactory
 {
-    registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
-    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
-    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+public:
+    IosRunConfigurationFactory()
+    {
+        registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
+        addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+        addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    }
+};
+
+void setupIosRunConfiguration()
+{
+    static IosRunConfigurationFactory theIosRunConfigurationFactory;
 }
 
 } // Ios::Internal

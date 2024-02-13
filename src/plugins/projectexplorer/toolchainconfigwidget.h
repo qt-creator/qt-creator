@@ -15,20 +15,20 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class ToolChain;
+class Toolchain;
 
 // --------------------------------------------------------------------------
 // ToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QScrollArea
+class PROJECTEXPLORER_EXPORT ToolchainConfigWidget : public QScrollArea
 {
     Q_OBJECT
 
 public:
-    explicit ToolChainConfigWidget(ToolChain *tc);
+    explicit ToolchainConfigWidget(Toolchain *tc);
 
-    ToolChain *toolChain() const;
+    Toolchain *toolchain() const;
 
     void apply();
     void discard();
@@ -53,7 +53,7 @@ protected:
     QLineEdit *m_nameLineEdit;
 
 private:
-    ToolChain *m_toolChain;
+    Toolchain *m_toolChain;
     QLabel *m_errorLabel = nullptr;
 };
 

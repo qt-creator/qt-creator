@@ -476,6 +476,9 @@ void tst_Algorithm::findOr()
     std::vector<int> v1{1, 2, 3, 4};
     QCOMPARE(Utils::findOr(v1, 10, [](int i) { return i == 2; }), 2);
     QCOMPARE(Utils::findOr(v1, 10, [](int i) { return i == 5; }), 10);
+
+    QCOMPARE(Utils::findOr(v1, std::nullopt, [](int i) { return i == 5; }), std::nullopt);
+    QCOMPARE(Utils::findOr(v1, std::nullopt, [](int i) { return i == 3; }), 3);
 }
 
 void tst_Algorithm::findOrDefault()

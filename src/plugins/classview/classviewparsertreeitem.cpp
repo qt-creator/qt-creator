@@ -44,7 +44,7 @@ public:
 
 void ParserTreeItemPrivate::mergeWith(const ParserTreeItem::ConstPtr &target)
 {
-    if (target.isNull())
+    if (!target)
         return;
 
     m_symbolLocations.unite(target->d->m_symbolLocations);
@@ -56,11 +56,11 @@ void ParserTreeItemPrivate::mergeWith(const ParserTreeItem::ConstPtr &target)
         const ParserTreeItem::ConstPtr &targetChild = it.value();
 
         ParserTreeItem::ConstPtr child = m_symbolInformations.value(inf);
-        if (!child.isNull()) {
+        if (child) {
             child->d->mergeWith(targetChild);
         } else {
-            const ParserTreeItem::ConstPtr clone = targetChild.isNull() ? ParserTreeItem::ConstPtr()
-                                                                   : targetChild->d->cloneTree();
+            const ParserTreeItem::ConstPtr clone = targetChild ? targetChild->d->cloneTree()
+                                                               : ParserTreeItem::ConstPtr();
             m_symbolInformations.insert(inf, clone);
         }
     }
@@ -99,7 +99,7 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
     // Better to improve qHash timing
     ParserTreeItem::ConstPtr childItem = m_symbolInformations.value(information);
 
-    if (childItem.isNull())
+    if (!childItem)
         childItem = ParserTreeItem::ConstPtr(new ParserTreeItem());
 
     // locations have 1-based column in Symbol, use the same here.
@@ -139,7 +139,7 @@ ParserTreeItem::ConstPtr ParserTreeItemPrivate::cloneTree() const
 
     for (auto it = m_symbolInformations.cbegin(); it != m_symbolInformations.cend(); ++it) {
         ParserTreeItem::ConstPtr child = it.value();
-        if (child.isNull())
+        if (!child)
             continue;
         newItem->d->m_symbolInformations.insert(it.key(), child->d->cloneTree());
     }
@@ -281,7 +281,7 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
         add->setData(inf.type(), Constants::SymbolTypeRole);
         add->setData(inf.iconType(), Constants::IconTypeRole);
 
-        if (!ptr.isNull()) {
+        if (ptr) {
             // icon
             const Utils::FilePath &filePath = ptr->projectFilePath();
             if (!filePath.isEmpty()) {
@@ -311,8 +311,8 @@ void ParserTreeItem::debugDump(int indent) const
         const SymbolInformation &inf = it.key();
         const ConstPtr &child = it.value();
         qDebug() << QString(2 * indent, QLatin1Char(' ')) << inf.iconType() << inf.name()
-                 << inf.type() << child.isNull();
-        if (!child.isNull())
+                 << inf.type() << bool(child);
+        if (child)
             child->debugDump(indent + 1);
     }
 }

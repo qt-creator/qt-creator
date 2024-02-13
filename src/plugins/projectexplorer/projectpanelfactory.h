@@ -15,7 +15,6 @@
 namespace ProjectExplorer {
 
 class Project;
-class ProjectExplorerPlugin;
 
 class PROJECTEXPLORER_EXPORT ProjectPanelFactory
 {
@@ -42,9 +41,6 @@ public:
     using SupportsFunction = std::function<bool (Project *)>;
     void setSupportsFunction(std::function<bool (Project *)> function);
 
-    // This takes ownership.
-    static void registerFactory(ProjectPanelFactory *factory);
-
     static QList<ProjectPanelFactory *> factories();
 
     Utils::TreeItem *createPanelItem(Project *project);
@@ -53,9 +49,6 @@ public:
     ProjectSettingsWidget *createWidget(Project *project) const;
 
 private:
-    friend class ProjectExplorerPlugin;
-    static void destroyFactories();
-
     Utils::Id m_id;
     int m_priority = 0;
     QString m_displayName;

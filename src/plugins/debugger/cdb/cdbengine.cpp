@@ -214,16 +214,6 @@ void CdbEngine::init()
     m_symbolAddressCache.clear();
     m_coreStopReason.reset();
 
-    // Create local list of mappings in native separators
-    m_sourcePathMappings.clear();
-    const QString &packageSources = runParameters().qtPackageSourceLocation;
-    if (!packageSources.isEmpty()) {
-        for (const QString &buildPath : qtBuildPaths()) {
-            m_sourcePathMappings.push_back({QDir::toNativeSeparators(buildPath),
-                                            QDir::toNativeSeparators(packageSources)});
-        }
-    }
-
     const SourcePathMap &sourcePathMap
         = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
     if (!sourcePathMap.isEmpty()) {
@@ -374,7 +364,7 @@ void CdbEngine::setupEngine()
 
     debugger.addArgs({"-y", QChar('"') + s.cdbSymbolPaths().join(';') + '"'});
 
-    debugger.addArgs(expand(s.cdbAdditionalArguments()), CommandLine::Raw);
+    debugger.addArgs(s.cdbAdditionalArguments(), CommandLine::Raw);
 
     switch (sp.startMode) {
     case StartInternal:
@@ -420,11 +410,10 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    const QString pSep = OsSpecificAspects::pathListSeparator(Utils::OsTypeWindows);
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), pSep);
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath());
     const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
     if (!oldCdbExtensionPath.isEmpty())
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath, pSep);
+        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
 
     m_process.setEnvironment(inferiorEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())
@@ -484,6 +473,7 @@ void CdbEngine::handleInitialSessionIdle()
     runCommand({QString(".sympath \"") + symbolPaths.join(';') + '"'});
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
+    runCommand({"sxn 0x40010005", NoFlags}); // Do not break on Ctrl+C exceptions. QTCREATORBUG-28279
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
     runCommand({m_extensionCommandPrefix
@@ -771,8 +761,6 @@ void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
         showMessage(errorMessage, LogError);
         notifyInferiorStopFailed();
     }
-    m_signalOperation->disconnect(this);
-    m_signalOperation.clear();
 }
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
@@ -792,17 +780,6 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
         return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
 
-    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
-    if (m_effectiveStartMode != AttachToRemoteServer && device()) {
-        m_signalOperation = device()->signalOperation();
-        if (m_signalOperation) {
-            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-                    this, &CdbEngine::handleDoInterruptInferior);
-            m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
-            m_signalOperation->interruptProcess(inferiorPid());
-            return;
-        }
-    }
     m_process.interrupt();
 }
 
@@ -1420,7 +1397,7 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
     StringInputStream str(args);
     str << address << ' ' << length;
     cmd.args = args;
-    cmd.callback = [=](const DebuggerResponse &response) {
+    cmd.callback = [this, agent, length, address](const DebuggerResponse &response) {
         if (!agent)
             return;
         if (response.resultClass == ResultDone) {
@@ -2261,10 +2238,10 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
                  "symbols for the debugger.")
                   .arg(qtName);
 
-        CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                         Tr::tr("Missing Qt Debug Information"),
-                                         message,
-                                         Key("CdbQtSdkPdbHint"));
+        CheckableMessageBox::information_async(Core::ICore::dialogParent(),
+                                               Tr::tr("Missing Qt Debug Information"),
+                                               message,
+                                               Key("CdbQtSdkPdbHint"));
 
         showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
     };
@@ -3083,7 +3060,8 @@ void CdbEngine::watchPoint(const QPoint &p)
     m_watchPointX = p.x();
     m_watchPointY = p.y();
     DebuggerCommand cmd("widgetat", ExtensionCommand);
-    cmd.args = QString("%1 %2").arg(p.x(), p.y());
+    // Keep 2 separate .arg(), since we pass ints there.
+    cmd.args = QString("%1 %2").arg(p.x()).arg(p.y());
     runCommand(cmd);
 }
 

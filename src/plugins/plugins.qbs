@@ -37,6 +37,7 @@ Project {
         "designer/designer.qbs",
         "diffeditor/diffeditor.qbs",
         "docker/docker.qbs",
+        "extensionmanager/extensionmanager.qbs",
         "fakevim/fakevim.qbs",
         "fossil/fossil.qbs",
         "emacskeys/emacskeys.qbs",
@@ -91,5 +92,6 @@ Project {
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs",
+        "qtapplicationmanager/qtapplicationmanager.qbs",
     ].concat(project.additionalPlugins)
 }

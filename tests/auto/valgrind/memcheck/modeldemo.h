@@ -12,17 +12,14 @@
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
-#include <valgrind/valgrindprocess.h>
 
 class ModelDemo : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModelDemo(Valgrind::ValgrindProcess *r, QObject *parent = 0)
+    explicit ModelDemo(QObject *parent = 0)
         : QObject(parent)
-        , runner(r)
-    {
-    }
+    {}
 
     Valgrind::XmlProtocol::StackModel* stackModel;
 
@@ -35,7 +32,4 @@ public Q_SLOTS:
         qDebug() << idx.row() << err.what();
         stackModel->setError(err);
     }
-
-private:
-    Valgrind::ValgrindProcess *runner;
 };

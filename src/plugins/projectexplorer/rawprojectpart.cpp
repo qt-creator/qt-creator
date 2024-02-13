@@ -16,12 +16,12 @@
 
 namespace ProjectExplorer {
 
-RawProjectPartFlags::RawProjectPartFlags(const ToolChain *toolChain,
+RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
                                          const QStringList &commandLineFlags,
                                          const Utils::FilePath &includeFileBaseDir)
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
-    // operations are encapsulated in ToolChainInfo as "runners".
+    // operations are encapsulated in ToolchainInfo as "runners".
     this->commandLineFlags = commandLineFlags;
     if (toolChain) {
         warningFlags = toolChain->warningFlags(commandLineFlags);
@@ -142,8 +142,8 @@ KitInfo::KitInfo(Kit *kit)
 {
     // Toolchains
     if (kit) {
-        cToolChain = ToolChainKitAspect::cToolChain(kit);
-        cxxToolChain = ToolChainKitAspect::cxxToolChain(kit);
+        cToolchain = ToolchainKitAspect::cToolchain(kit);
+        cxxToolchain = ToolchainKitAspect::cxxToolchain(kit);
     }
 
     // Sysroot
@@ -155,14 +155,14 @@ bool KitInfo::isValid() const
     return kit;
 }
 
-ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
+ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
                              const Utils::FilePath &sysRootPath,
                              const Utils::Environment &env)
 {
     if (toolChain) {
         // Keep the following cheap/non-blocking for the ui thread...
         type = toolChain->typeId();
-        isMsvc2015ToolChain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
+        isMsvc2015Toolchain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
         abi = toolChain->targetAbi();
         targetTriple = toolChain->effectiveCodeModelTargetTriple();
         targetTripleIsAuthoritative = !toolChain->explicitCodeModelTargetTriple().isEmpty();
@@ -185,8 +185,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const RppGenerator &rppGenerator)
     : rawProjectParts(rawProjectParts)
     , rppGenerator(rppGenerator)
-    , cToolChainInfo(ToolChainInfo(kitInfo.cToolChain, kitInfo.sysRootPath, env))
-    , cxxToolChainInfo(ToolChainInfo(kitInfo.cxxToolChain, kitInfo.sysRootPath, env))
+    , cToolchainInfo(ToolchainInfo(kitInfo.cToolchain, kitInfo.sysRootPath, env))
+    , cxxToolchainInfo(ToolchainInfo(kitInfo.cxxToolchain, kitInfo.sysRootPath, env))
 {
     if (project) {
         projectName = project->displayName();

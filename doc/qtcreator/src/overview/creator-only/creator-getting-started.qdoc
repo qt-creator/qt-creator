@@ -17,6 +17,8 @@
     To learn the basics of \QC, take the \e {Getting Started with Qt Creator}
     course in \l{https://www.qt.io/courses/}{Qt Learning}.
 
+    For more information about installing \QC, see \l{Install \QC}.
+
     \table
         \row
             \li \inlineimage front-gs.png

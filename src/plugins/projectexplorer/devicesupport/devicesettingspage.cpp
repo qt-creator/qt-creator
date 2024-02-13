@@ -12,7 +12,6 @@
 #include "idevicefactory.h"
 #include "idevicewidget.h"
 #include "../projectexplorerconstants.h"
-#include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
@@ -190,7 +189,13 @@ DeviceSettingsWidget::DeviceSettingsWidget()
 
     addButton->setEnabled(hasDeviceFactories);
 
-    int lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
+    int lastIndex = -1;
+    if (const Id deviceToSelect = preselectedOptionsPageItem(Constants::DEVICE_SETTINGS_PAGE_ID);
+        deviceToSelect.isValid()) {
+        lastIndex = m_deviceManagerModel->indexForId(deviceToSelect);
+    }
+    if (lastIndex == -1)
+        lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
     if (lastIndex < m_configurationComboBox->count())
@@ -220,7 +225,7 @@ void DeviceSettingsWidget::addDevice()
     if (!factory)
         return;
     IDevice::Ptr device = factory->create();
-    if (device.isNull())
+    if (!device)
         return;
 
     Utils::asyncRun([device] { device->checkOsType(); });
@@ -249,20 +254,10 @@ void DeviceSettingsWidget::displayCurrent()
     m_autoDetectionLabel->setText(current->isAutoDetected()
             ? Tr::tr("Yes (id is \"%1\")").arg(current->id().toString()) : Tr::tr("No"));
     m_deviceStateIconLabel->show();
-    switch (current->deviceState()) {
-    case IDevice::DeviceReadyToUse:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_READY_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceConnected:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_CONNECTED_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceDisconnected:
-        m_deviceStateIconLabel->setPixmap(Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap());
-        break;
-    case IDevice::DeviceStateUnknown:
+    if (const QPixmap &icon = current->deviceStateIcon(); !icon.isNull())
+        m_deviceStateIconLabel->setPixmap(icon);
+    else
         m_deviceStateIconLabel->hide();
-        break;
-    }
     m_deviceStateTextLabel->setText(current->deviceStateToString());
 
     m_removeConfigButton->setEnabled(!current->isAutoDetected()
@@ -317,6 +312,9 @@ void DeviceSettingsWidget::testDevice()
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setModal(true);
     dlg->show();
+    connect(dlg, &QObject::destroyed, this, [this, id = device->id()] {
+        handleDeviceUpdated(id);
+    });
 }
 
 void DeviceSettingsWidget::handleDeviceUpdated(Id id)
@@ -333,7 +331,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     m_configWidget = nullptr;
     m_additionalActionButtons.clear();
     const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
-    if (device.isNull()) {
+    if (!device) {
         setDeviceInfoWidgetsEnabled(false);
         m_removeConfigButton->setEnabled(false);
         clearDetails();

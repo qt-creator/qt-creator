@@ -5,7 +5,6 @@
 
 #include "extensionsystemtr.h"
 #include "pluginmanager.h"
-#include "pluginspec.h"
 #include "pluginspec_p.h"
 
 #include <utils/algorithm.h>
@@ -55,8 +54,6 @@
     The settings for the plugin list entry corresponding to \a spec changed.
 */
 
-Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
-
 using namespace Utils;
 
 namespace ExtensionSystem {
@@ -99,9 +96,15 @@ public:
     {
         switch (column) {
         case NameColumn:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole) {
+                if (m_spec->isDeprecated()) {
+                    //: %1 is a plugin name
+                    return Tr::tr("%1 (deprecated)").arg(m_spec->name());
+                }
+                //: %1 is a plugin name
                 return m_spec->isExperimental() ? Tr::tr("%1 (experimental)").arg(m_spec->name())
                                                 : m_spec->name();
+            }
             if (role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {
@@ -237,9 +240,7 @@ public:
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
             const QVector<PluginSpec *> affectedPlugins
                 = Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
-            if (m_view->setPluginsEnabled(Utils::transform<QSet>(affectedPlugins,
-                                                                 [](PluginSpec *s) { return s; }),
-                                          data.toBool())) {
+            if (m_view->setPluginsEnabled(toSet(affectedPlugins), data.toBool())) {
                 update();
                 return true;
             }
@@ -419,8 +420,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         spec->d->setEnabledBySettings(enable);
         item->updateColumn(LoadedColumn);
         item->parent()->updateColumn(LoadedColumn);
-        emit pluginSettingsChanged(spec);
     }
+    emit pluginsChanged(affectedPlugins, enable);
     return true;
 }
 

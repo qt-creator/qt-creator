@@ -427,7 +427,12 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
 void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
     const bool enable = !preferences->isReadOnly() && (!preferences->isTemporarilyReadOnly()
-                                                       || preferences->isAdditionalTabDisabled());
+                                                       || !preferences->isAdditionalTabVisible());
+
+    d->m_categoryTab->setTabVisible(0, preferences->isAdditionalTabVisible());
+    for (int i = 1; i < d->m_categoryTab->count(); ++i)
+        d->m_categoryTab->setTabVisible(i, !preferences->isAdditionalTabVisible());
+
     for (QWidget *widget : d->m_controllers)
         widget->setEnabled(enable);
 
@@ -510,7 +515,7 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
     }
 }
 
-void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tabName)
+void CppCodeStylePreferencesWidget::addTab(TextEditor::CodeStyleEditorWidget *page, QString tabName)
 {
     if (!page)
         return;
@@ -518,27 +523,13 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
     d->m_categoryTab->insertTab(0, page, tabName);
     d->m_categoryTab->setCurrentIndex(0);
 
-    connect(page, &CppEditor::CppCodeStyleWidget::codeStyleSettingsChanged,
-            this, [this](const CppEditor::CppCodeStyleSettings &settings) {
-                setCodeStyleSettings(settings, true);
-            });
-
-    connect(page, &CppEditor::CppCodeStyleWidget::tabSettingsChanged,
-            this, &CppCodeStylePreferencesWidget::setTabSettings);
-
-    connect(this, &CppCodeStylePreferencesWidget::codeStyleSettingsChanged,
-            page, &CppCodeStyleWidget::setCodeStyleSettings);
-
-    connect(this, &CppCodeStylePreferencesWidget::tabSettingsChanged,
-            page, &CppCodeStyleWidget::setTabSettings);
-
     connect(this, &CppCodeStylePreferencesWidget::applyEmitted,
-            page, &CppCodeStyleWidget::apply);
+            page, &TextEditor::CodeStyleEditorWidget::apply);
 
     connect(this, &CppCodeStylePreferencesWidget::finishEmitted,
-            page, &CppCodeStyleWidget::finish);
+            page, &TextEditor::CodeStyleEditorWidget::finish);
 
-    page->synchronize();
+    slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
 }
 
 void CppCodeStylePreferencesWidget::apply()
@@ -616,12 +607,21 @@ public:
 
 // CppCodeStyleSettingsPage
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
+class CppCodeStyleSettingsPage : public Core::IOptionsPage
 {
-    setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(Tr::tr("Code Style"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
+public:
+    CppCodeStyleSettingsPage()
+    {
+        setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        setDisplayName(Tr::tr("Code Style"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
+    }
+};
+
+void setupCppCodeStyleSettings()
+{
+    static CppCodeStyleSettingsPage theCppCodeStyleSettingsPage;
 }
 
 } // namespace CppEditor::Internal

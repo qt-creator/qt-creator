@@ -667,16 +667,16 @@ class Dumper(DumperBase):
         return None if val is None else self.fromNativeValue(val)
 
     def isWindowsTarget(self):
-        return False
+        return 'windows' in self.target.triple
 
     def isQnxTarget(self):
         return False
 
     def isArmArchitecture(self):
-        return False
+        return 'arm' in self.target.triple
 
     def isMsvcTarget(self):
-        return False
+        return 'msvc' in self.target.triple
 
     def prettySymbolByAddress(self, address):
         try:
@@ -707,6 +707,8 @@ class Dumper(DumperBase):
     def fetchQtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
+            if name == None:
+                continue
             if name.endswith('()'):
                 name = name[:-2]
             if name.count(':') > 2:
@@ -743,7 +745,7 @@ class Dumper(DumperBase):
             return (qtNamespace, qtVersion)
 
         try:
-            versionValue = self.target.EvaluateExpression('qtHookData[2]')
+            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
             if versionValue.IsValid():
                 return ('', versionValue.unsigned)
         except:
@@ -1541,10 +1543,13 @@ class Dumper(DumperBase):
 
     def handleInferiorOutput(self, proc, channel):
         while True:
-            msg = proc(1024)
-            if msg == None or len(msg) == 0:
-                break
-            self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
+            try:
+                msg = proc(1024)
+                if msg == None or len(msg) == 0:
+                    break
+                self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
+            except SystemError as e:
+                self.warn('Error during reading of process output: %s' % e)
 
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
@@ -1995,7 +2000,7 @@ class Dumper(DumperBase):
 
 # Used in dumper auto test.
 class Tester(Dumper):
-    def __init__(self, binary, args):
+    def __init__(self, binary, frameLevel, args):
         Dumper.__init__(self)
         lldb.theDumper = self
         self.loadDumpers({'token': 1})
@@ -2006,11 +2011,11 @@ class Tester(Dumper):
             self.warn('ERROR: %s' % error)
             return
 
-        s = threading.Thread(target=self.testLoop, args=(args,))
+        s = threading.Thread(target=self.testLoop, args=[args, frameLevel])
         s.start()
         s.join(30)
 
-    def testLoop(self, args):
+    def testLoop(self, args, frameLevel):
         # Disable intermediate reporting.
         savedReport = self.report
         self.report = lambda stuff: 0
@@ -2048,10 +2053,11 @@ class Tester(Dumper):
                     if stoppedThread:
                         # This seems highly fragile and depending on the 'No-ops' in the
                         # event handling above.
-                        frame = stoppedThread.GetFrameAtIndex(0)
+                        frame = stoppedThread.GetFrameAtIndex(frameLevel)
                         line = frame.line_entry.line
                         if line != 0:
                             self.report = savedReport
+                            stoppedThread.SetSelectedFrame(frameLevel)
                             self.process.SetSelectedThread(stoppedThread)
                             self.fakeAddress_ = frame.GetPC()
                             self.fakeLAddress_ = frame.GetPCAddress()

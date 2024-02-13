@@ -9,24 +9,26 @@
 
 #include <QList>
 #include <QPair>
-#include <QSharedPointer>
+
+#include <memory>
 
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT DeprecatedGenTemplateInstance
 {
 public:
-    typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
+    using Substitution = QList<QPair<const Identifier *, FullySpecifiedType>>;
 
 public:
-    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, QSharedPointer<Control> control);
+    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate,
+                                          std::shared_ptr<Control> control);
 
 private:
-    DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution);
+    DeprecatedGenTemplateInstance(std::shared_ptr<Control> control, const Substitution &substitution);
     FullySpecifiedType gen(Symbol *symbol);
 
 private:
-    QSharedPointer<Control> _control;
+    std::shared_ptr<Control> _control;
     const Substitution _substitution;
 };
 

@@ -93,8 +93,8 @@
     fetches information about the \uicontrol {Device Environment} from the device.
     Usually, it does not make sense to edit the device environment.
 
-    \sa {Batch edit environment settings}, {Specifying Build Settings},
-    {Specifying Run Settings}, {Use Qt Creator variables}
+    \sa {Batch edit environment settings}, {Configure projects for building},
+    {Configure projects for running}, {Use Qt Creator variables}
 */
 
 /*!
@@ -144,6 +144,6 @@
     To temporarily disable a variable, add a hash character (#) to the beginning
     of the line.
 
-    \sa {Specify the environment for projects}, {Specifying Build Settings},
-    {Use Qt Creator variables}
+    \sa {Specify the environment for projects}, {Configure projects for building},
+    {Configure projects for running}, {Use Qt Creator variables}
 */

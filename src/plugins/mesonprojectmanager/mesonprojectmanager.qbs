@@ -12,7 +12,6 @@ Project {
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
-        Depends { name: "CppEditor" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QtSupport" }
 
@@ -36,7 +35,6 @@ Project {
             "buildsystemfilesparser.h",
             "common.h",
             "infoparser.h",
-            "targetparser.h",
             "target.h",
             "mesonpluginconstants.h",
             "mesonprojectplugin.cpp",

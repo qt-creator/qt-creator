@@ -3,6 +3,8 @@
 
 #include "behaviorsettings.h"
 
+#include "texteditorsettings.h"
+
 #include <coreplugin/icore.h>
 
 static const char mouseHidingKey[] = "MouseHiding";
@@ -62,6 +64,30 @@ bool BehaviorSettings::equals(const BehaviorSettings &ds) const
         && m_keyboardTooltips == ds.m_keyboardTooltips
         && m_smartSelectionChanging == ds.m_smartSelectionChanging
         ;
+}
+
+BehaviorSettings &globalBehaviorSettings()
+{
+    static BehaviorSettings theGlobalBehaviorSettings;
+    return theGlobalBehaviorSettings;
+}
+
+const char behaviorGroup[] = "textBehaviorSettings";
+
+void updateGlobalBehaviorSettings(const BehaviorSettings &newBehaviorSettings)
+{
+    if (newBehaviorSettings.equals(globalBehaviorSettings()))
+        return;
+
+    globalBehaviorSettings() = newBehaviorSettings;
+    storeToSettings(behaviorGroup, Core::ICore::settings(), globalBehaviorSettings().toMap());
+
+    emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
+}
+
+void setupBehaviorSettings()
+{
+    globalBehaviorSettings().fromMap(storeFromSettings(behaviorGroup, Core::ICore::settings()));
 }
 
 } // namespace TextEditor

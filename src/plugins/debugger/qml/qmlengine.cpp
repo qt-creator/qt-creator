@@ -141,7 +141,7 @@ public:
     void evaluate(const QString expr, qint64 context, const QmlCallback &cb);
     void lookup(const LookupItems &items);
     void backtrace();
-    void updateLocals();
+    void updateLocals(bool focusOnFrame = true);
     void scope(int number, int frameNumber = -1);
     void scripts(int types = 4, const QList<int> ids = QList<int>(),
                  bool includeSource = false, const QVariant filter = QVariant());
@@ -215,6 +215,8 @@ public:
     QHash<int, QmlCallback> callbackForToken;
 
     FileInProjectFinder fileFinder;
+
+    bool skipFocusOnNextHandleFrame = false;
 
 private:
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
@@ -377,6 +379,9 @@ void QmlEngine::beginConnection()
 
 void QmlEngine::connectionStartupFailed()
 {
+    if (isDying())
+        return;
+
     if (d->retryOnConnectFail) {
         // retry after 3 seconds ...
         QTimer::singleShot(3000, this, [this] { beginConnection(); });
@@ -403,7 +408,9 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
     QString error = Tr::tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
-    if (companionEngine()) {
+    if (companionEngines().isEmpty()) {
+        debuggerConsole()->printItem(ConsoleItem::WarningType, error);
+    } else {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
@@ -413,8 +420,6 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
         connect(infoBox, &QDialog::finished,
                 this, &QmlEngine::errorMessageBoxFinished);
         infoBox->show();
-    } else {
-        debuggerConsole()->printItem(ConsoleItem::WarningType, error);
     }
 
     notifyEngineRunFailed();
@@ -496,8 +501,7 @@ void QmlEngine::startProcess()
 
 void QmlEngine::stopProcess()
 {
-    if (d->process.isRunning())
-        d->process.close();
+    d->process.close();
 }
 
 void QmlEngine::shutdownInferior()
@@ -791,7 +795,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
             StackHandler *handler = stackHandler();
             QString exp = QString("%1 = %2;").arg(expression).arg(value.toString());
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-                d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(); });
+                d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(false); });
             } else {
                 showMessage(Tr::tr("Cannot evaluate %1 in current stack frame.")
                             .arg(expression), ConsoleOutput);
@@ -931,18 +935,9 @@ bool QmlEngine::hasCapability(unsigned cap) const
         | AddWatcherCapability;*/
 }
 
-void QmlEngine::quitDebugger()
-{
-    d->automaticConnect = false;
-    d->retryOnConnectFail = false;
-    stopProcess();
-    closeConnection();
-}
-
 void QmlEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    Q_UNUSED(params)
-    d->updateLocals();
+    d->updateLocals(params.qmlFocusOnFrame);
 }
 
 Context QmlEngine::languageContext() const
@@ -1028,7 +1023,7 @@ bool QmlEngine::companionPreventsActions() const
 {
     // We need a C++ Engine in a Running state to do anything sensible
     // as otherwise the debugger services in the debuggee are unresponsive.
-    if (DebuggerEngine *companion = companionEngine())
+    if (DebuggerEngine *companion = companionEngines().value(0))
         return companion->state() != InferiorRunOk;
 
     return false;
@@ -1292,13 +1287,14 @@ void QmlEnginePrivate::backtrace()
     runCommand(cmd, CB(handleBacktrace));
 }
 
-void QmlEnginePrivate::updateLocals()
+void QmlEnginePrivate::updateLocals(bool focusOnFrame)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
     //      "command"   : "frame",
     //      "arguments" : { "number" : <frame number> }
     //    }
+    skipFocusOnNextHandleFrame = focusOnFrame;
 
     DebuggerCommand cmd(FRAME);
     cmd.arg(NUMBER, stackIndexLookup.value(engine->stackHandler()->currentIndex()));
@@ -2136,7 +2132,9 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         currentFrameScopes.append(scopeIndex);
         this->scope(scopeIndex);
     }
-    engine->gotoLocation(stackHandler->currentFrame());
+
+    if (skipFocusOnNextHandleFrame)
+        engine->gotoLocation(stackHandler->currentFrame());
 
     // Send watchers list
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {

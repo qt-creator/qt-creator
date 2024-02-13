@@ -34,6 +34,8 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
@@ -56,7 +58,7 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolChainDescription> toolChains;
+    QVector<ToolchainDescription> toolchains;
 };
 
 static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
@@ -138,21 +140,37 @@ static QString fileNameToPresetName(const QString &fileName)
     return name;
 }
 
+static QString displayPresetName(const QString &presetName)
+{
+    return QString("%1 (CMake preset)").arg(presetName);
+}
+
 FilePaths CMakeProjectImporter::importCandidates()
 {
-    FilePaths candidates;
+    FilePaths candidates = presetCandidates();
 
-    candidates << scanDirectory(projectFilePath().absolutePath(), "build");
+    if (candidates.isEmpty()) {
+        candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
-    const QList<Kit *> kits = KitManager::kits();
-    for (const Kit *k : kits) {
-        FilePath shadowBuildDirectory
-            = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
-                                                            k,
-                                                            QString(),
-                                                            BuildConfiguration::Unknown);
-        candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        const QList<Kit *> kits = KitManager::kits();
+        for (const Kit *k : kits) {
+            FilePath shadowBuildDirectory
+                = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
+                                                                k,
+                                                                QString(),
+                                                                BuildConfiguration::Unknown);
+            candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        }
     }
+
+    const FilePaths finalists = Utils::filteredUnique(candidates);
+    qCInfo(cmInputLog) << "import candidates:" << finalists;
+    return finalists;
+}
+
+FilePaths CMakeProjectImporter::presetCandidates()
+{
+    FilePaths candidates;
 
     for (const auto &configPreset : m_project->presetsData().configurePresets) {
         if (configPreset.hidden.value())
@@ -183,9 +201,9 @@ FilePaths CMakeProjectImporter::importCandidates()
         }
     }
 
-    const FilePaths finalists = Utils::filteredUnique(candidates);
-    qCInfo(cmInputLog) << "import candidates:" << finalists;
-    return finalists;
+    m_hasCMakePresets = !candidates.isEmpty();
+
+    return candidates;
 }
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
@@ -203,19 +221,34 @@ Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
     return ProjectImporter::preferredTarget(possibleTargets);
 }
 
+bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
+{
+    if (!m_hasCMakePresets)
+        return true;
+
+    const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetConfigItem.isNull())
+        return false;
+
+    const QString presetName = presetConfigItem.expandedValue(k);
+    return std::find_if(m_project->presetsData().configurePresets.cbegin(),
+                        m_project->presetsData().configurePresets.cend(),
+                        [&presetName](const auto &preset) { return presetName == preset.name; })
+           != m_project->presetsData().configurePresets.cend();
+}
+
 static CMakeConfig configurationFromPresetProbe(
     const FilePath &importPath,
     const FilePath &sourceDirectory,
     const PresetsDetails::ConfigurePreset &configurePreset)
 {
-    const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
+    const FilePath cmakeListTxt = importPath / Constants::CMAKE_LISTS_TXT;
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
                                               "\n"
                                               "project(preset-probe)\n"
                                               "\n"));
 
     Process cmake;
-    cmake.setTimeoutS(30);
     cmake.setDisableUnixTerminal();
 
     const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
@@ -225,7 +258,6 @@ static CMakeConfig configurationFromPresetProbe(
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
-    cmake.setTimeOutMessageBoxEnabled(false);
 
     QStringList args;
     args.emplace_back("-S");
@@ -291,7 +323,7 @@ static CMakeConfig configurationFromPresetProbe(
     qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()
                         << args;
     cmake.setCommand({cmakeExecutable, args});
-    cmake.runBlocking();
+    cmake.runBlocking(30s);
 
     QString errorMessage;
     const CMakeConfig config = CMakeConfig::fromFile(importPath.pathAppended(
@@ -358,7 +390,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     // Run a CMake project that would do qmake probing
     TemporaryDirectory qtcQMakeProbeDir("qtc-cmake-qmake-probe-XXXXXXXX");
 
-    FilePath cmakeListTxt(qtcQMakeProbeDir.filePath("CMakeLists.txt"));
+    FilePath cmakeListTxt(qtcQMakeProbeDir.filePath(Constants::CMAKE_LISTS_TXT));
 
     cmakeListTxt.writeFileContents(QByteArray(R"(
         cmake_minimum_required(VERSION 3.15)
@@ -396,13 +428,11 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     )"));
 
     Process cmake;
-    cmake.setTimeoutS(5);
     cmake.setDisableUnixTerminal();
 
     Environment cmakeEnv(env);
     cmakeEnv.setupEnglishOutput();
     cmake.setEnvironment(cmakeEnv);
-    cmake.setTimeOutMessageBoxEnabled(false);
 
     QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
     QString cmakeGeneratorPlatform = config.stringValueOf(QByteArray("CMAKE_GENERATOR_PLATFORM"));
@@ -449,7 +479,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
     cmake.setCommand({cmakeExecutable, args});
-    cmake.runBlocking();
+    cmake.runBlocking(5s);
 
     const FilePath qmakeLocationTxt = qtcQMakeProbeDir.filePath("qmake-location.txt");
     const FilePath qmakeLocation = FilePath::fromUtf8(
@@ -464,9 +494,9 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
+static QVector<ToolchainDescription> extractToolchainsFromCache(const CMakeConfig &config)
 {
-    QVector<ToolChainDescription> result;
+    QVector<ToolchainDescription> result;
     bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
@@ -563,8 +593,8 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
             return ci.key == key;
         });
 
-        auto tcd = Utils::findOrDefault(data->toolChains,
-                                        [&language](const ToolChainDescription &t) {
+        auto tcd = Utils::findOrDefault(data->toolchains,
+                                        [&language](const ToolchainDescription &t) {
                                             return t.language == language;
                                         });
 
@@ -585,9 +615,9 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
                                   data->qt.qt->qmakeFilePath().toString().toUtf8());
 }
 
-ToolChain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
+Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
 {
-    // A compiler path example. Note that the compiler version is not the same version from MsvcToolChain
+    // A compiler path example. Note that the compiler version is not the same version from MsvcToolchain
     // ... \MSVC\14.29.30133\bin\Hostx64\x64\cl.exe
     //
     // And the CMakePresets.json
@@ -601,16 +631,16 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
     //      "strategy": "external"
     //  }
 
-    auto msvcToolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
+    auto msvcToolchains = ToolchainManager::toolchains([](const Toolchain *tc) {
         return  tc->typeId() ==  ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
     });
 
-    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const ToolChain *tc) {
+    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const Toolchain *tc) {
         return tc->targetAbi().osFlavor();
     }));
 
-    return ToolChainManager::toolChain(
-        [presetArchitecture, presetToolset, msvcFlavors](const ToolChain *tc) -> bool {
+    return ToolchainManager::toolchain(
+        [presetArchitecture, presetToolset, msvcFlavors](const Toolchain *tc) -> bool {
             if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
 
@@ -732,7 +762,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             data->toolset = configurePreset.toolset.value().value.value();
 
         if (architectureExternalStrategy && toolsetExternalStrategy) {
-            const ToolChain *tc
+            const Toolchain *tc
                 = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
                                         configurePreset.toolset->value.value_or(QString()));
             if (tc)
@@ -790,8 +820,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                       CMakeConfigItem::PATH,
                                       cmakePrefixPath.toUtf8());
 
-        // ToolChains:
-        data->toolChains = extractToolChainsFromCache(config);
+        // Toolchains:
+        data->toolchains = extractToolchainsFromCache(config);
 
         // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
         updateConfigWithDirectoryData(config, data);
@@ -831,7 +861,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         return result;
     }
 
-    const FilePath cacheFile = importPath.pathAppended("CMakeCache.txt");
+    const FilePath cacheFile = importPath.pathAppended(Constants::CMAKE_CACHE_TXT);
 
     if (!cacheFile.exists()) {
         qCDebug(cmInputLog) << cacheFile.toUserOutput() << "does not exist, returning.";
@@ -884,12 +914,12 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
         // Qt:
-        const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
-        if (!qmake.isEmpty())
-            data->qt = findOrCreateQtVersion(qmake);
+        const auto info = qtInfoFromCMakeCache(config, env);
+        if (!info.qmakePath.isEmpty())
+            data->qt = findOrCreateQtVersion(info.qmakePath);
 
-        // ToolChains:
-        data->toolChains = extractToolChainsFromCache(config);
+        // Toolchains:
+        data->toolchains = extractToolchainsFromCache(config);
 
         qCInfo(cmInputLog) << "Offering to import" << importPath.toUserOutput();
         result.push_back(static_cast<void *>(data.release()));
@@ -932,12 +962,12 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return false;
 
     const bool compilersMatch = [k, data] {
-        const QList<Id> allLanguages = ToolChainManager::allLanguages();
-        for (const ToolChainDescription &tcd : data->toolChains) {
+        const QList<Id> allLanguages = ToolchainManager::allLanguages();
+        for (const ToolchainDescription &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolchain(k, tcd.language);
             if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
                 return false;
             }
@@ -945,12 +975,12 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return true;
     }();
     const bool noCompilers = [k, data] {
-        const QList<Id> allLanguages = ToolChainManager::allLanguages();
-        for (const ToolChainDescription &tcd : data->toolChains) {
+        const QList<Id> allLanguages = ToolchainManager::allLanguages();
+        for (const ToolchainDescription &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolchain(k, tcd.language);
             if (tc && tc->matchesCompilerCommand(tcd.compilerPath)) {
                 return false;
             }
@@ -964,6 +994,9 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
         const QString presetName = presetConfigItem.expandedValue(k);
         if (data->cmakePreset != presetName)
+            return false;
+
+        if (!k->unexpandedDisplayName().contains(displayPresetName(data->cmakePresetDisplayname)))
             return false;
 
         ensureBuildDirectory(*data, k);
@@ -995,21 +1028,20 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
-        for (const ToolChainDescription &cmtcd : data->toolChains) {
-            const ToolChainData tcd = findOrCreateToolChains(cmtcd);
+        for (const ToolchainDescription &cmtcd : data->toolchains) {
+            const ToolchainData tcd = findOrCreateToolchains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
             if (tcd.areTemporary) {
-                for (ToolChain *tc : tcd.tcs)
-                    addTemporaryData(ToolChainKitAspect::id(), tc->id(), k);
+                for (Toolchain *tc : tcd.tcs)
+                    addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
             }
 
-            ToolChainKitAspect::setToolChain(k, tcd.tcs.at(0));
+            ToolchainKitAspect::setToolchain(k, tcd.tcs.at(0));
         }
 
         if (!data->cmakePresetDisplayname.isEmpty()) {
-            k->setUnexpandedDisplayName(
-                QString("%1 (CMake preset)").arg(data->cmakePresetDisplayname));
+            k->setUnexpandedDisplayName(displayPresetName(data->cmakePresetDisplayname));
 
             CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
         }
@@ -1103,14 +1135,23 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
 
 #ifdef WITH_TESTS
 
-#include "cmakeprojectplugin.h"
-
 #include <QTest>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
-void CMakeProjectPlugin::testCMakeProjectImporterQt_data()
+class CMakeProjectImporterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCMakeProjectImporterQt_data();
+    void testCMakeProjectImporterQt();
+
+    void testCMakeProjectImporterToolchain_data();
+    void testCMakeProjectImporterToolchain();
+};
+
+void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
 {
     QTest::addColumn<QStringList>("cache");
     QTest::addColumn<QString>("expectedQmake");
@@ -1125,7 +1166,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt_data()
     // Everything else will require Qt installations!
 }
 
-void CMakeProjectPlugin::testCMakeProjectImporterQt()
+void CMakeProjectImporterTest::testCMakeProjectImporterQt()
 {
     QFETCH(QStringList, cache);
     QFETCH(QString, expectedQmake);
@@ -1143,11 +1184,11 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt()
                                                              Environment::systemEnvironment());
     QCOMPARE(realQmake.path(), expectedQmake);
 }
-void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
+void CMakeProjectImporterTest::testCMakeProjectImporterToolchain_data()
 {
     QTest::addColumn<QStringList>("cache");
     QTest::addColumn<QByteArrayList>("expectedLanguages");
-    QTest::addColumn<QStringList>("expectedToolChains");
+    QTest::addColumn<QStringList>("expectedToolchains");
 
     QTest::newRow("Empty input")
             << QStringList() << QByteArrayList() << QStringList();
@@ -1180,13 +1221,13 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
             << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
 }
 
-void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
+void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
 {
     QFETCH(QStringList, cache);
     QFETCH(QByteArrayList, expectedLanguages);
-    QFETCH(QStringList, expectedToolChains);
+    QFETCH(QStringList, expectedToolchains);
 
-    QCOMPARE(expectedLanguages.count(), expectedToolChains.count());
+    QCOMPARE(expectedLanguages.count(), expectedToolchains.count());
 
     CMakeConfig config;
     for (const QString &c : std::as_const(cache)) {
@@ -1197,15 +1238,21 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolChainDescription> tcs = extractToolChainsFromCache(config);
+    const QVector<ToolchainDescription> tcs = extractToolchainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
-        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolChains.at(i));
+        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolchains.at(i));
     }
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+QObject *createCMakeProjectImporterTest()
+{
+    return new CMakeProjectImporterTest;
+}
+
+} // CMakeProjectManager::Internal
 
 #endif
+
+#include "cmakeprojectimporter.moc"

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-diff-editor.html
     \page creator-clang-codemodel.html
-    \nextpage creator-finding-overview.html
+    \previouspage creator-reference.html
 
-    \title Parsing C++ Files with the Clang Code Model
+    \ingroup creator-reference
+
+    \title Clang Code Model
+
+    \brief Offers code editing services for C++.
 
     The \e {code model} is the part of an IDE that understands the language you
     are using to write your application. It is the framework that allows \QC
@@ -20,12 +23,12 @@
 
     \list
 
-        \li \l{Completing Code}{Code completion}
+        \li \l{Complete code}{Code completion}
 
         \li Syntactic and \l{Semantic Highlighting}{semantic highlighting}
 
         \li Navigating in the code by using the \l{Searching with the Locator}
-            {locator}, \l{Moving to Symbol Definition or Declaration}
+            {locator}, \l{Move to symbol definition or declaration}
             {following symbols}, and so on
 
         \li Inspecting code by using the \l{Class View}{class browser}, the
@@ -37,7 +40,7 @@
 
         \li \l{Finding Symbols}{Finding and renaming symbols}
 
-        \li \l{Applying Refactoring Actions}{Refactoring actions}
+        \li \l{Apply quick fixes}{Quick fixes}
 
     \endlist
 
@@ -73,7 +76,7 @@
 
         \li Code completion
         \li Syntactic and semantic highlighting
-        \li \l{Using Clang Tools}{Diagnostics}
+        \li \l{Clang Checks}{Diagnostics}
         \li Outline of symbols
         \li Tooltips
         \li Following symbols
@@ -84,17 +87,57 @@
 
     To use the built-in code model instead, select \preferences >
     \uicontrol C++ > \uicontrol clangd, and deselect the \uicontrol {Use clangd} check box.
-    This setting also exists on the project level, so that you can have the clang-based
+    This setting also exists on the project level, so that you can have the Clang-based
     services generally enabled, but switch them off for certain projects, or vice versa.
 
-    You can configure Clang diagnostics either globally or separately for:
+    You can configure Clang diagnostics for:
 
     \list
-        \li Clang code model (globally or at project level)
-        \li \l{Using Clang Tools}{Clang tools} (globally or at project level)
+        \li \l{Clang Checks}{Clang code model} (globally or at project level)
+        \li \l{Configure Clang diagnostics}{Clang tools} (globally or at project
+            level)
     \endlist
 
-    \section1 Configuring Clang Code Model
+    \section1 Clangd Indexing
+
+    The clangd \e index provides exact and complete results for services such
+    as finding references, following symbols under cursor, and using the
+    locator, even for complex constructs. When you \l{Open projects}
+    {open a project}, clangd scans the source files to generate the index. For
+    large projects, this can take a while, but the index is persistent and
+    re-scanning is incremental, so nothing is lost by closing and re-starting
+    \QC.
+
+    To temporarily disable global indexing, select
+    \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
+    the progress bar.
+
+    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
+
+    By default, \QC runs one clangd process per project. If you have created
+    \l{Manage sessions}{sessions} that have related projects, you can
+    specify that the projects in the session should be managed by a single
+    clangd process.
+
+    The document outline in the \l{Outline} view is backed by clangd's document
+    symbol support, which makes the results more reliable than before.
+
+    \sa {Code Model}, {Clangd}, {Specify clangd settings},
+    {Speficy Clang tools settings}, {Use compilation databases}
+*/
+
+/*!
+    \page creator-preferences-cpp-code-model.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences-cpp
+
+    \title Code Model
+
+    \brief Sets global preferences for the code model.
+
+    The Clang code model offers services such as code completion, syntactic and
+    semantic highlighting, and diagnostics.
 
     To configure the Clang code model globally:
 
@@ -132,36 +175,29 @@
 
     \endlist
 
-    \section1 Configuring clangd
+    \sa {Specify clangd settings}, {Clang Code Model}, {Clangd}
+*/
 
-    The clangd \e index provides exact and complete results for services such
-    as finding references, following symbols under cursor, and using the
-    locator, even for complex constructs. When you \l{Open projects}
-    {open a project}, clangd scans the source files to generate the index. For
-    large projects, this can take a while, but the index is persistent and
-    re-scanning is incremental, so nothing is lost by closing and re-starting
-    \QC.
+/*!
+    \page creator-preferences-cpp-clangd.html
+    \previouspage creator-reference.html
 
-    To temporarily disable global indexing, select
-    \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
-    the progress bar.
+    \ingroup creator-reference-preferences-cpp
 
-    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
+    \title Clangd
 
-    By default, \QC runs one clangd process per project. If you have created
-    \l{Manage sessions}{sessions} that have related projects, you can
-    specify that the projects in the session should be managed by a single
-    clangd process.
+    \brief Sets global preferences for the clangd code model.
 
-    The document outline in the \l{Outline} view is backed by clangd's document
-    symbol support, which makes the results more reliable than before.
+    The Clang project has libraries for parsing C language family source files
+    and providing you with detailed diagnostics. The clangd \e index provides
+    exact and complete results for services such as code completion.
 
-    To specify settings for clangd:
+    To set preferences for clangd:
 
     \list 1
         \li Select \preferences > \uicontrol C++ >
             \uicontrol Clangd > \uicontrol {Use clangd}.
-            \image qtcreator-preferences-clangd.webp "Clangd preferences"
+            \image qtcreator-preferences-clangd.webp {Clangd preferences}
         \li In \uicontrol {Path to executable}, enter the path to clangd
             version 14, or later.
         \li In the \uicontrol {Background indexing} field, select \uicontrol Off
@@ -195,24 +231,30 @@
             by ignoring big files. Specify the maximum size of files to parse in
             the field next to the check box.
         \li The \uicontrol {Diagnostic configuration} field shows the Clang
-            checks to perform. Click the value of the field to open the
-            \uicontrol {Diagnostic Configurations} dialog, where you can
-            select and edit the checks to perform.
+            checks to perform. Click the value of the field to select and edit
+            the checks to perform.
         \li Select \uicontrol Add to select sessions that should use a single
             clangd process for indexing.
     \endlist
 
     \section1 Clang Checks
 
+    Click the value of the \uicontrol {Diagnostic configuration} field to open
+    the \uicontrol {Diagnostic Configurations} dialog, where you can select and
+    edit the checks to perform.
+
+    \image qtcreator-clang-diagnostic-configurations.webp {Diagnostic Configurations dialog}
+
     In addition to using the built-in checks, you can select \uicontrol Copy to
     create copies of them and edit the copies to fit your needs.
 
-    \uicontrol {Build-system warnings} displays warnings as specified
-    by the build system.
-
-    \uicontrol {Checks for questionable constructs} combines the \c -Wall and
-    \c -Wextra checks for easily avoidable questionable constructions and some
-    additional issues.
+    \list
+        \li \uicontrol {Build-system warnings} shows warnings as specified
+            by the build system.
+        \li \uicontrol {Checks for questionable constructs} combines the \c -Wall
+            and \c -Wextra checks for easily avoidable questionable constructions
+            and some additional issues.
+    \endlist
 
     Clang checks begin with \c -W. Each check also has a negative version that
     begins with \c -Wno.
@@ -221,11 +263,27 @@
     see \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
     {Options to Request or Suppress Warnings} or the GCC or Clang manual pages.
 
-    \section1 Specifying Clang Code Model Settings at Project Level
+    \sa {Specify clangd settings}, {Clang Code Model}, {Code Model}
+*/
 
-    You can specify Clang code model settings at project level by selecting
-    \uicontrol Projects > \uicontrol {clangd}.
+/*!
+    \page creator-how-to-override-clangd-preferences.html
+    \previouspage creator-how-tos.html
 
-    \include creator-compilation-database.qdocinc using compilation databases
+    \ingroup creator-how-to-projects-configure
 
+    \title Specify clangd settings
+
+    To set clangd preferences for the current project:
+
+    \list 1
+        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {Clangd}.
+            \image qtcreator-projects-settings-clangd.webp {Clangd preferences for a project}
+        \li Deselect \uicontrol {Use global settings}.
+        \li Select \uicontrol {Use clangd}.
+        \li Specify \uicontrol Clangd preferences for the project.
+    \endlist
+
+    \sa {Clang Code Model}, {Clangd}, {Code Model}
 */

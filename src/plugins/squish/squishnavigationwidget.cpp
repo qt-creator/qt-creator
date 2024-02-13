@@ -10,11 +10,13 @@
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
 #include "squishtr.h"
+#include "suiteconf.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -30,12 +32,12 @@ namespace Squish::Internal {
 
 const int defaultSectionSize = 17;
 
-class SquishNavigationWidget : public QWidget
+class SquishNavigationWidget final : public QWidget
 {
 public:
-    explicit SquishNavigationWidget(QWidget *parent = nullptr);
-    ~SquishNavigationWidget() override;
-    void contextMenuEvent(QContextMenuEvent *event) override;
+    SquishNavigationWidget();
+
+    void contextMenuEvent(QContextMenuEvent *event) final;
     static QList<QToolButton *> createToolButtons();
 
 private:
@@ -44,6 +46,8 @@ private:
     void onCollapsed(const QModelIndex &idx);
     void onRowsInserted(const QModelIndex &parent, int, int);
     void onRowsRemoved(const QModelIndex &parent, int, int);
+    void onAddSharedFileTriggered(const QModelIndex &idx);
+    void onRemoveSharedFileTriggered(const QModelIndex &idx);
     void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
     void onRemoveAllSharedFolderTriggered();
     void onRecordTestCase(const QString &suiteName, const QString &testCase);
@@ -54,9 +58,7 @@ private:
     SquishTestTreeSortModel *m_sortModel;
 };
 
-
-SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
-    : QWidget(parent)
+SquishNavigationWidget::SquishNavigationWidget()
 {
     setWindowTitle(Tr::tr("Squish"));
     m_view = new SquishTestTreeView(this);
@@ -104,8 +106,6 @@ SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
             onExpanded(suitesIndex);
     });
 }
-
-SquishNavigationWidget::~SquishNavigationWidget() {}
 
 void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -162,11 +162,17 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             case SquishTestTreeItem::SquishSharedFile: {
                 QAction *deleteSharedFile = new QAction(Tr::tr("Delete Shared File"), &menu);
                 menu.addAction(deleteSharedFile);
+                connect(deleteSharedFile, &QAction::triggered, this, [this, idx] {
+                    onRemoveSharedFileTriggered(idx);
+                });
                 break;
             }
             case SquishTestTreeItem::SquishSharedFolder: {
                 QAction *addSharedFile = new QAction(Tr::tr("Add Shared File"), &menu);
                 menu.addAction(addSharedFile);
+                connect(addSharedFile, &QAction::triggered, this, [this, idx] {
+                    onAddSharedFileTriggered(idx);
+                });
                 // only add the action 'Remove Shared Folder' for top-level shared folders, not
                 // to their recursively added sub-folders
                 if (idx.parent().data(TypeRole).toInt() == SquishTestTreeItem::Root) {
@@ -293,6 +299,61 @@ void SquishNavigationWidget::onRowsRemoved(const QModelIndex &parent, int, int)
             m_view->header()->setDefaultSectionSize(0);
 }
 
+void SquishNavigationWidget::onAddSharedFileTriggered(const QModelIndex &idx)
+{
+    const auto folder = FilePath::fromVariant(idx.data(LinkRole));
+    QTC_ASSERT(!folder.isEmpty(), return);
+
+    const SquishTestTreeItem *anySuiteItem = m_model->findNonRootItem(
+        [](SquishTestTreeItem *it) { return it->type() == SquishTestTreeItem::SquishSuite; });
+    QString extension(".js");
+    if (anySuiteItem) {
+        const SuiteConf conf = SuiteConf::readSuiteConf(anySuiteItem->filePath());
+        extension = conf.scriptExtension();
+    }
+
+    const QString tmpl("script");
+    FilePath scriptFile = folder.pathAppended(tmpl + extension);
+    int i = 1;
+    while (scriptFile.exists())
+        scriptFile = folder.pathAppended(tmpl + QString::number(++i) + extension);
+    SquishTestTreeItem *item = new SquishTestTreeItem(scriptFile.fileName(),
+                                                      SquishTestTreeItem::SquishSharedFile);
+    item->setFilePath(scriptFile);
+    item->setParentName(idx.data().toString());
+    m_model->addTreeItem(item);
+
+    m_view->expand(idx);
+    QModelIndex added = m_model->indexForItem(item);
+    QTC_ASSERT(added.isValid(), return);
+    m_view->edit(m_sortModel->mapFromSource(added));
+}
+
+void SquishNavigationWidget::onRemoveSharedFileTriggered(const QModelIndex &idx)
+{
+    const auto scriptFile = FilePath::fromVariant(idx.data(LinkRole));
+    QTC_ASSERT(!scriptFile.isEmpty(), return);
+
+    const QString detail = Tr::tr("Do you really want to delete \"%1\" permanently?")
+            .arg(scriptFile.toUserOutput());
+    const QMessageBox::StandardButton pressed
+        = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                        Tr::tr("Remove Shared File"),
+                                        detail,
+                                        Key("RemoveSharedSquishScript"));
+    if (pressed != QMessageBox::Yes)
+        return;
+
+    const QModelIndex &realIdx = m_sortModel->mapToSource(idx);
+    // close document silently if open
+    if (Core::IDocument *doc = Core::DocumentModel::documentForFilePath(scriptFile))
+        Core::EditorManager::closeDocuments({doc}, false);
+    if (scriptFile.removeFile())
+        m_model->removeTreeItem(realIdx.row(), realIdx.parent());
+    else
+        SquishMessages::criticalMessage(Tr::tr("Failed to remove \"%1\"."));
+}
+
 void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModelIndex &parent)
 {
     const auto folder = Utils::FilePath::fromVariant(m_sortModel->index(row, 0, parent).data(LinkRole));
@@ -356,20 +417,29 @@ void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
     m_view->edit(m_sortModel->mapFromSource(added));
 }
 
-SquishNavigationWidgetFactory::SquishNavigationWidgetFactory()
+class SquishNavigationWidgetFactory final : public Core::INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Squish"));
-    setId(Squish::Constants::SQUISH_ID);
-    setPriority(777);
-}
+public:
+    SquishNavigationWidgetFactory()
+    {
+        setDisplayName(Tr::tr("Squish"));
+        setId(Squish::Constants::SQUISH_ID);
+        setPriority(777);
+    }
 
-Core::NavigationView SquishNavigationWidgetFactory::createWidget()
+    Core::NavigationView createWidget() final
+    {
+        SquishNavigationWidget *squishNavigationWidget = new SquishNavigationWidget;
+        Core::NavigationView view;
+        view.widget = squishNavigationWidget;
+        view.dockToolBarWidgets = squishNavigationWidget->createToolButtons();
+        return view;
+    }
+};
+
+void setupSquishNavigationWidgetFactory()
 {
-    SquishNavigationWidget *squishNavigationWidget = new SquishNavigationWidget;
-    Core::NavigationView view;
-    view.widget = squishNavigationWidget;
-    view.dockToolBarWidgets = squishNavigationWidget->createToolButtons();
-    return view;
+    static SquishNavigationWidgetFactory squishNavigationWidgetFactory;
 }
 
 } // Squish::Internal

@@ -68,7 +68,7 @@ CopilotSettings::CopilotSettings()
     const FilePath distFromVim = findOrDefault(searchDirs, &FilePath::exists);
 
     nodeJsPath.setExpectedKind(PathChooser::ExistingCommand);
-    nodeJsPath.setDefaultValue(nodeFromPath.toUserOutput());
+    nodeJsPath.setDefaultPathValue(nodeFromPath);
     nodeJsPath.setSettingsKey("Copilot.NodeJsPath");
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
@@ -79,7 +79,7 @@ CopilotSettings::CopilotSettings()
                               .arg("https://nodejs.org/en/download/"));
 
     distPath.setExpectedKind(PathChooser::File);
-    distPath.setDefaultValue(distFromVim.toUserOutput());
+    distPath.setDefaultPathValue(distFromVim);
     distPath.setSettingsKey("Copilot.DistPath");
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
     distPath.setHistoryCompleter("Copilot.DistPath.History");

@@ -34,8 +34,7 @@ namespace {
 static Q_LOGGING_CATEGORY(packageInstallationStepLog, "qtc.android.packageinstallationstep", QtWarningMsg)
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidPackageInstallationStep final : public AbstractProcessStep
 {
@@ -74,7 +73,7 @@ bool AndroidPackageInstallationStep::init()
         return false;
     }
 
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     QTC_ASSERT(tc, reportWarningOrError(Tr::tr("\"%1\" step has an invalid C++ toolchain.")
                                         .arg(displayName()), Task::TaskType::Error);
             return false);
@@ -128,7 +127,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
         if (AndroidManager::skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not running the "
                                         "Make install step."), Task::Warning);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         for (const QString &dir : std::as_const(m_androidDirsToClean)) {
@@ -182,18 +181,24 @@ void AndroidPackageInstallationStep::reportWarningOrError(const QString &message
     TaskHub::addTask(BuildSystemTask(type, message));
 }
 
-//
 // AndroidPackageInstallationStepFactory
-//
 
-AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
+class AndroidPackageInstallationStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
-    setRepeatable(false);
-    setDisplayName(Tr::tr("Deploy to device"));
+public:
+    AndroidPackageInstallationStepFactory()
+    {
+        registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Deploy to device"));
+    }
+};
+
+void setupAndroidPackageInstallationStep()
+{
+    static AndroidPackageInstallationStepFactory theAndroidPackageInstallationStepFactory;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

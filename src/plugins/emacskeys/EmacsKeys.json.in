@@ -3,6 +3,7 @@
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "SoftLoadable" : true,
     "Vendor" : "nsf",
     "Copyright" : "(C) 2016 nsf <no.smile.face@gmail.com>, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

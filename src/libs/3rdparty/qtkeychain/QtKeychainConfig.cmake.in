@@ -1,0 +1,28 @@
+# - Config file for the QtKeychain package
+# It defines the following variables
+#  QTKEYCHAIN_INCLUDE_DIRS - include directories for QtKeychain
+#  QTKEYCHAIN_LIBRARIES    - libraries to link against
+# as well as the following imported targets
+#  qt5keychain / qt6keychain
+#  Qt5Keychain::Qt5Keychain / Qt6Keychain::Qt6Keychain
+
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/QtKeychainLibraryDepends.cmake")
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Qt6Core)
+
+if(UNIX AND NOT APPLE AND NOT ANDROID)
+    find_dependency(Qt6DBus)
+endif()
+
+set(QTKEYCHAIN_LIBRARIES "@QTKEYCHAIN_TARGET_NAME@")
+get_target_property(QTKEYCHAIN_INCLUDE_DIRS "@QTKEYCHAIN_TARGET_NAME@" INTERFACE_INCLUDE_DIRECTORIES)
+
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18.0 AND NOT TARGET QtKeychain::QtKeychain)
+    add_library(QtKeychain::QtKeychain ALIAS qtkeychain)
+endif()
+
+check_required_components(QtKeychain)

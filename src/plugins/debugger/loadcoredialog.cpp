@@ -173,7 +173,7 @@ int AttachCoreDialog::exec()
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
     changed();
 
-    connect(&d->taskTree, &TaskTree::done, this, [&]() {
+    connect(&d->taskTree, &TaskTree::done, this, [this] {
         setEnabled(true);
         d->progressIndicator->setVisible(false);
         d->progressLabel->setVisible(false);
@@ -250,14 +250,16 @@ void AttachCoreDialog::accepted()
 
     const Group root = {
         parallel,
-        AsyncTask<ResultType>{[=](auto &task) {
-                              task.setConcurrentCallData(copyFileAsync, this->coreFile());
-                          },
-                          [=](const auto &task) { d->coreFileResult = task.result(); }},
-        AsyncTask<ResultType>{[=](auto &task) {
-                              task.setConcurrentCallData(copyFileAsync, this->symbolFile());
-                          },
-                          [=](const auto &task) { d->symbolFileResult = task.result(); }},
+        AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
+                                  task.setConcurrentCallData(copyFileAsync, coreFile());
+                              },
+                              [this](const Async<ResultType> &task) { d->coreFileResult = task.result(); },
+                              CallDoneIf::Success},
+        AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
+                                  task.setConcurrentCallData(copyFileAsync, symbolFile());
+                              },
+                              [this](const Async<ResultType> &task) { d->symbolFileResult = task.result(); },
+                              CallDoneIf::Success}
     };
 
     d->taskTree.setRecipe(root);

@@ -6,7 +6,6 @@
 #include "../utils/designerpaths.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -129,7 +128,7 @@ StudioSettingsPage::StudioSettingsPage()
     m_pathChooserExamples->setFilePath(Utils::FilePath::fromString(Paths::examplesPathSetting()));
     auto examplesResetButton = new QPushButton(tr("Reset Path"));
 
-    connect(examplesResetButton, &QPushButton::clicked, this, [this]() {
+    connect(examplesResetButton, &QPushButton::clicked, this, [this] {
         m_pathChooserExamples->setFilePath(Paths::defaultExamplesPath());
     });
 
@@ -148,7 +147,7 @@ StudioSettingsPage::StudioSettingsPage()
     m_pathChooserBundles->setFilePath(Utils::FilePath::fromString(Paths::bundlesPathSetting()));
     QPushButton *bundlesResetButton = new QPushButton(tr("Reset Path"));
 
-    connect(bundlesResetButton, &QPushButton::clicked, this, [this]() {
+    connect(bundlesResetButton, &QPushButton::clicked, this, [this] {
         m_pathChooserBundles->setFilePath(Paths::defaultBundlesPath());
     });
 
@@ -195,10 +194,8 @@ void StudioSettingsPage::apply()
     setSettingIfDifferent(experimentalFeatures, m_experimentalCheckBox->isChecked(), dirty);
 
     if (dirty) {
-        const QString restartText = tr(
-            "The menu visibility change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(
+            tr("The menu visibility change will take effect after restart."));
     }
 
     QtcSettings *s = Core::ICore::settings();
@@ -215,9 +212,7 @@ void StudioSettingsPage::apply()
         s->setValue(Paths::bundlesDownloadPath, bundlesPath);
         emit bundlesDownloadPathChanged(bundlesPath);
 
-        const QString restartText = tr("Changing bundle path will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+        Core::ICore::askForRestart(tr("Changing bundle path will take effect after restart."));
     }
 }
 

@@ -573,6 +573,8 @@ public:
 
     const CppComponentValue *asCppComponentValue() const override;
 
+    bool getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const override;
+
     void processMembers(MemberProcessor *processor) const override;
     const Value *valueForCppName(const QString &typeName) const;
 

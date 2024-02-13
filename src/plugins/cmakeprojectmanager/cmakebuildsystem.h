@@ -10,14 +10,14 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 
-#include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
-namespace CppEditor { class CppProjectUpdater; }
 namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
+    class ProjectUpdater;
 }
+
 namespace Utils {
     class Process;
     class Link;
@@ -146,6 +146,11 @@ private:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
+    bool addSrcFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                     Utils::FilePaths *);
+    bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                    Utils::FilePaths *);
+
     // Actually ask for parsing:
     enum ReparseParameters {
         REPARSE_DEFAULT = 0, // Nothing special:-)
@@ -225,7 +230,7 @@ private:
 
     ParseGuard m_currentGuard;
 
-    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;

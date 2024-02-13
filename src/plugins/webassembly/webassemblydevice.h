@@ -3,26 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/desktopdevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
+namespace WebAssembly::Internal {
 
-namespace WebAssembly {
-namespace Internal {
+void setupWebAssemblyDevice();
 
-class WebAssemblyDevice final : public ProjectExplorer::DesktopDevice
-{
-public:
-    static ProjectExplorer::IDevice::Ptr create();
-
-private:
-    WebAssemblyDevice();
-};
-
-class WebAssemblyDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    WebAssemblyDeviceFactory();
-};
-
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Interenal

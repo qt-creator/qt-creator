@@ -6,21 +6,19 @@
 #include "imacrohandler.h"
 
 #include <coreplugin/find/textfindconstants.h>
+
 #include <utils/filesearch.h>
 
 namespace Core { class IEditor; }
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal  {
 
 class FindMacroHandler : public IMacroHandler
 {
-    Q_OBJECT
-
 public:
     FindMacroHandler();
 
-    void startRecording(Macro* macro) override;
+    void startRecording(Macro *macro) override;
 
     bool canExecuteEvent(const MacroEvent &macroEvent) override;
     bool executeEvent(const MacroEvent &macroEvent) override;
@@ -36,5 +34,4 @@ private:
     void changeEditor(Core::IEditor *editor);
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

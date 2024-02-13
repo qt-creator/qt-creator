@@ -3,24 +3,20 @@
 
 #pragma once
 
-#include "perftimelinemodel.h"
-
-#include <utils/basetreeview.h>
-
 #include <QWidget>
 
 namespace PerfProfiler {
 namespace Internal {
 
-class PerfProfilerStatisticsMainModel;
-class PerfProfilerTool;
 class StatisticsView;
 
 class PerfProfilerStatisticsView : public QWidget
 {
     Q_OBJECT
+
 public:
-    PerfProfilerStatisticsView(QWidget *parent, PerfProfilerTool *tool);
+    PerfProfilerStatisticsView();
+
     bool focusedTableHasValidSelection() const;
 
     void selectByTypeId(int symbol);

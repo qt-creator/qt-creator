@@ -8,6 +8,7 @@
 
 #include <QElapsedTimer>
 #include <QListView>
+#include <QPen>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
@@ -35,15 +36,17 @@ constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
                                       - GridItemGap - 1        // Upper margin + 1 pixel
                                       - 67);                   // Bottom margin (for title + tags)
 
-CORE_EXPORT QFont brandFont();
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
+CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
+                                    const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
+                                    qreal rounding = 5.0);
 
 } // namespace WelcomePageHelpers
 
 class CORE_EXPORT SearchBox : public WelcomePageFrame
 {
 public:
-    explicit SearchBox(QWidget *parent);
+    explicit SearchBox(QWidget *parent = nullptr);
 
     Utils::FancyLineEdit *m_lineEdit = nullptr;
 };
@@ -228,6 +231,18 @@ private:
     QAbstractItemDelegate *m_itemDelegate = nullptr;
     QTimer m_searchTimer;
     QString m_delayedSearchString;
+};
+
+class CORE_EXPORT ResizeSignallingWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ResizeSignallingWidget(QWidget *parent = nullptr);
+    void resizeEvent(QResizeEvent *event) override;
+
+signals:
+    void resized(const QSize &size, const QSize &oldSize);
 };
 
 } // namespace Core

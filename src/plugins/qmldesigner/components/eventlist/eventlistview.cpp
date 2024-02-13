@@ -82,7 +82,7 @@ EventListModel *EventListView::eventListModel() const
 
 void EventListView::addEvent(const Event &event)
 {
-    executeInTransaction("EventListView::addEvent", [=]() {
+    executeInTransaction("EventListView::addEvent", [this, event] {
 
         QByteArray unqualifiedTypeName = "ListElement";
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -110,7 +110,7 @@ void EventListView::addEvent(const Event &event)
 
 void EventListView::removeEvent(const QString &eventId)
 {
-    executeInTransaction("EventListView::removeEvent", [=]() {
+    executeInTransaction("EventListView::removeEvent", [this, eventId] {
         for (auto node : rootModelNode().defaultNodeListProperty().toModelNodeList()) {
             if (node.variantProperty("eventId").value().toString() == eventId) {
                 node.destroy();
@@ -122,7 +122,7 @@ void EventListView::removeEvent(const QString &eventId)
 
 void EventListView::renameEvent(const QString &oldId, const QString &newId)
 {
-    executeInTransaction("EventListView::renameEvent", [=]() {
+    executeInTransaction("EventListView::renameEvent", [this, oldId, newId] {
         for (auto node : rootModelNode().defaultNodeListProperty().toModelNodeList()) {
             if (node.variantProperty("eventId").value().toString() == oldId) {
                 node.variantProperty("eventId").setValue(newId);
@@ -134,7 +134,7 @@ void EventListView::renameEvent(const QString &oldId, const QString &newId)
 
 void EventListView::setShortcut(const QString &id, const QString &text)
 {
-    executeInTransaction("EventListView::setShortcut", [=]() {
+    executeInTransaction("EventListView::setShortcut", [this, id, text] {
         for (auto node : rootModelNode().defaultNodeListProperty().toModelNodeList()) {
             if (node.variantProperty("eventId").value().toString() == id) {
                 node.variantProperty("shortcut").setValue(text);
@@ -146,7 +146,7 @@ void EventListView::setShortcut(const QString &id, const QString &text)
 
 void EventListView::setDescription(const QString &id, const QString &text)
 {
-    executeInTransaction("EventListView::setDescription", [=]() {
+    executeInTransaction("EventListView::setDescription", [this, id, text] {
         for (auto node : rootModelNode().defaultNodeListProperty().toModelNodeList()) {
             if (node.variantProperty("eventId").value().toString() == id) {
                 node.variantProperty("eventDescription").setValue(text);

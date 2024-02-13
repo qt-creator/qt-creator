@@ -50,7 +50,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
 
     Column {
         Grid {
-            Tr::tr("Current settings:"),
+            Tr::tr("Custom settings:"),
             m_delegateComboBox,
             copyButton,
             m_removeButton,
@@ -165,6 +165,7 @@ void CodeStyleSelectorWidget::slotCopyClicked()
     ICodeStylePreferences *copy = codeStylePool->cloneCodeStyle(currentPreferences);
     if (copy) {
         copy->setDisplayName(newName);
+        emit m_codeStyle->aboutToBeCopied(currentPreferences, copy);
         m_codeStyle->setCurrentDelegate(copy);
     }
 }
@@ -286,6 +287,9 @@ QString CodeStyleSelectorWidget::displayName(ICodeStylePreferences *codeStyle) c
         name = Tr::tr("%1 [proxy: %2]").arg(name).arg(codeStyle->currentDelegate()->displayName());
     if (codeStyle->isReadOnly())
         name = Tr::tr("%1 [built-in]").arg(name);
+    else
+        name = Tr::tr("%1 [customizable]").arg(name);
+
     return name;
 }
 

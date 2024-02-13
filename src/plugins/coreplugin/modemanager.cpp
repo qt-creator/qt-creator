@@ -70,9 +70,9 @@ struct ModeManagerPrivate
 
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
-    QMap<QAction*, int> m_actions;
-    QVector<IMode*> m_modes;
-    QVector<Command*> m_modeCommands;
+    QHash<QAction *, int> m_actions;
+    QVector<IMode *> m_modes;
+    QVector<Command *> m_modeCommands;
     Context m_addedContexts;
     int m_oldCurrent;
     ModeManager::Style m_modeStyle = ModeManager::Style::IconsAndText;
@@ -322,6 +322,7 @@ void ModeManager::currentTabChanged(int index)
         oldMode = d->m_modes.at(d->m_oldCurrent);
     d->m_oldCurrent = index;
     emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
+    emit currentMainWindowChanged();
 }
 
 /*!

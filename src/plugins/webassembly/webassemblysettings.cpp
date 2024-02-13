@@ -59,7 +59,7 @@ WebAssemblySettings::WebAssemblySettings()
     emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     emSdk.setDefaultValue(QDir::homePath());
 
-    connect(this, &Utils::AspectContainer::applied, &WebAssemblyToolChain::registerToolChains);
+    connect(this, &Utils::AspectContainer::applied, &registerToolChains);
 
     setLayouter([this] {
         auto instruction = new QLabel(
@@ -138,7 +138,7 @@ void WebAssemblySettings::updateStatus()
 
     if (sdkValid) {
         const QVersionNumber sdkVersion = WebAssemblyEmSdk::version(newEmSdk);
-        const QVersionNumber minVersion = WebAssemblyToolChain::minimumSupportedEmSdkVersion();
+        const QVersionNumber minVersion = minimumSupportedEmSdkVersion();
         const bool versionTooLow = sdkVersion < minVersion;
         m_emSdkVersionDisplay->setType(versionTooLow ? InfoLabel::NotOk : InfoLabel::Ok);
         auto bold = [](const QString &text) { return QString("<b>" + text + "</b>"); };

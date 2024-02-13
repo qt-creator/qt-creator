@@ -3,24 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/extracompiler.h>
+namespace QtSupport::Internal {
 
-#include <utils/filepath.h>
+void setupQScxmlcGenerator();
 
-namespace QtSupport {
-
-class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
-{
-public:
-    QScxmlcGeneratorFactory() = default;
-
-    ProjectExplorer::FileType sourceType() const override;
-
-    QString sourceTag() const override;
-
-    ProjectExplorer::ExtraCompiler *create(const ProjectExplorer::Project *project,
-                                           const Utils::FilePath &source,
-                                           const Utils::FilePaths &targets) override;
-};
-
-} // QtSupport
+} // QtSupport::Internal

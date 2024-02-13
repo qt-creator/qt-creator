@@ -80,6 +80,7 @@ public:
 
     QVariant variantValue() const override;
     QVariant volatileVariantValue() const override;
+    QVariant defaultVariantValue() const override;
 
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;
 

@@ -5,7 +5,7 @@
 
 #include "LookupContext.h"
 #include "ResolveExpression.h"
-#include "pp.h"
+#include "pp-engine.h"
 
 #include <cplusplus/AST.h>
 #include <cplusplus/Symbol.h>
@@ -27,21 +27,21 @@ TypeOfExpression::TypeOfExpression():
 }
 
 void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot,
-                            QSharedPointer<CreateBindings> bindings,
+                            std::shared_ptr<CreateBindings> bindings,
                             const QSet<const Declaration *> &autoDeclarationsBeingResolved)
 {
     m_thisDocument = thisDocument;
     m_snapshot = snapshot;
     m_ast = nullptr;
     m_scope = nullptr;
-    m_lookupContext = LookupContext();
+    m_lookupContext = {};
 
-    Q_ASSERT(m_bindings.isNull());
+    Q_ASSERT(!m_bindings);
     m_bindings = bindings;
-    if (m_bindings.isNull())
-        m_bindings = QSharedPointer<CreateBindings>(new CreateBindings(thisDocument, snapshot));
+    if (!m_bindings)
+        m_bindings.reset(new CreateBindings(thisDocument, snapshot));
 
-    m_environment.clear();
+    m_environment.reset();
     m_autoDeclarationsBeingResolved = autoDeclarationsBeingResolved;
 }
 
@@ -84,7 +84,7 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
 
     m_documents.append(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
-    Q_ASSERT(!m_bindings.isNull());
+    Q_ASSERT(m_bindings);
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
@@ -101,7 +101,7 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
 
     m_documents.append(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
-    Q_ASSERT(!m_bindings.isNull());
+    Q_ASSERT(m_bindings);
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
@@ -156,10 +156,10 @@ QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) 
 
         QSet<QString> processed;
         processEnvironment(m_thisDocument, env, &processed);
-        m_environment = QSharedPointer<Environment>(env);
+        m_environment.reset(env);
     }
 
-    Preprocessor preproc(nullptr, m_environment.data());
+    Preprocessor preproc(nullptr, m_environment.get());
     return preproc.run(Utils::FilePath::fromParts({}, {}, u"<expression>"), utf8code);
 }
 

@@ -80,6 +80,39 @@ static QList<JsonWizardGeneratorFactory *> &generatorFactories()
     return theGeneratorFactories;
 }
 
+namespace Internal {
+
+class JsonWizardFactoryJsExtension final : public QObject
+{
+    Q_OBJECT
+
+public:
+    JsonWizardFactoryJsExtension(Id platformId,
+                                 const QSet<Id> &availableFeatures,
+                                 const QSet<Id> &pluginFeatures)
+        : m_platformId(platformId)
+        , m_availableFeatures(availableFeatures)
+        , m_pluginFeatures(pluginFeatures)
+    {}
+
+    Q_INVOKABLE QVariant value(const QString &name) const
+    {
+        if (name == "Platform")
+            return m_platformId.toString();
+        if (name == "Features")
+            return Id::toStringList(m_availableFeatures);
+        if (name == "Plugins")
+            return Id::toStringList(m_pluginFeatures);
+        return {};
+    }
+
+private:
+    Id m_platformId;
+    QSet<Id> m_availableFeatures;
+    QSet<Id> m_pluginFeatures;
+};
+
+} // namespace Internal
 int JsonWizardFactory::m_verbose = 0;
 
 
@@ -402,8 +435,9 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 //FIXME: loadDefaultValues() has an almost identical loop. Make the loop return the results instead of
 //internal processing and create a separate function for it. Then process the results in
 //loadDefaultValues() and loadDefaultValues()
-void JsonWizardFactory::createWizardFactories()
+QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 {
+    QList<Core::IWizardFactory *> result;
     QString verboseLog;
     const QString wizardFileName = QLatin1String("wizard.json");
 
@@ -465,10 +499,16 @@ void JsonWizardFactory::createWizardFactories()
                 continue;
             }
 
-            IWizardFactory::registerFactoryCreator([data, currentFile] {
-                QString errorMessage;
-                return createWizardFactory(data, currentFile.parentDir(), &errorMessage);
-            });
+            QString errorMessage;
+            JsonWizardFactory *factory = createWizardFactory(data,
+                                                             currentFile.parentDir(),
+                                                             &errorMessage);
+            if (!factory) {
+                verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
+                continue;
+            }
+
+            result << factory;
         }
     }
 
@@ -476,6 +516,7 @@ void JsonWizardFactory::createWizardFactories()
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::writeDisrupting(verboseLog);
     }
+    return result;
 }
 
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data,
@@ -862,26 +903,6 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
     return errorMessage->isEmpty();
 }
 
-namespace Internal {
-
-JsonWizardFactoryJsExtension::JsonWizardFactoryJsExtension(Id platformId,
-                                                           const QSet<Id> &availableFeatures,
-                                                           const QSet<Id> &pluginFeatures)
-    : m_platformId(platformId)
-    , m_availableFeatures(availableFeatures)
-    , m_pluginFeatures(pluginFeatures)
-{}
-
-QVariant JsonWizardFactoryJsExtension::value(const QString &name) const
-{
-    if (name == "Platform")
-        return m_platformId.toString();
-    if (name == "Features")
-        return Id::toStringList(m_availableFeatures);
-    if (name == "Plugins")
-        return Id::toStringList(m_pluginFeatures);
-    return {};
-}
-
-} // namespace Internal
 } // namespace ProjectExplorer
+
+#include "jsonwizardfactory.moc"

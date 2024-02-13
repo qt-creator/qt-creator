@@ -223,6 +223,7 @@ class FileApiParser
 public:
     static FileApiData parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
                                  const Utils::FilePath &replyFilePath,
+                                 const Utils::FilePath &buildDir,
                                  const QString &cmakeBuildType,
                                  QString &errorMessage);
 

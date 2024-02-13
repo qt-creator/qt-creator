@@ -77,17 +77,14 @@ public:
 
     void setTestCases(const QStringList &testCases);
     void setProjectFile(const Utils::FilePath &projectFile);
-    void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setInternalTarget(const QString &target);
     void setInternalTargets(const QSet<QString> &targets);
     void setOriginalRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
 
-    ITestFramework *framework() const;
     QStringList testCases() const { return m_testCases; }
     Utils::FilePath buildDirectory() const { return m_buildDir; }
     Utils::FilePath projectFile() const { return m_projectFile; }
     QSet<QString> internalTargets() const { return m_buildTargets; }
-    ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
     Internal::TestRunConfiguration *runConfiguration() const { return m_runConfig; }
     bool isDeduced() const { return m_deducedConfiguration; }
     QString runConfigDisplayName() const { return m_deducedConfiguration ? m_deducedFrom
@@ -113,7 +110,6 @@ public:
         : TestConfiguration(framework), m_runMode(runMode) {}
 
     void setRunMode(TestRunMode mode) { m_runMode = mode; }
-    TestRunMode runMode() const { return m_runMode; }
     bool isDebugRunMode() const;
     void setMixedDebugging(bool enable) { m_mixedDebugging = enable; }
     bool mixedDebugging() const { return m_mixedDebugging; }
@@ -128,7 +124,7 @@ public:
     explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
     Utils::CommandLine commandLine() const { return m_commandLine; }
     void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
-    virtual Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
+    Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
 
 private:
     Utils::CommandLine m_commandLine;

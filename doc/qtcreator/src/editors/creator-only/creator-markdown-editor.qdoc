@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-editor-fakevim.html
     \page creator-markdown-editor.html
-    \nextpage creator-language-servers.html
+    \previouspage creator-how-tos.html
 
-    \title Editing Markdown Files
+    \ingroup creator-how-to-edit
 
-    Open \l{https://www.markdownguide.org/basic-syntax/}{markdown} (.md) files
+    \title Edit Markdown files
+
+    Open \l{https://www.markdownguide.org/basic-syntax/}{Markdown} (.md) files
     or select \uicontrol File > \uicontrol {New File} > \uicontrol {General} >
     \uicontrol {Markdown File} to create a new file.
 
@@ -20,7 +21,7 @@
     \uicontrol {Show Editor}. To swap the places of the views, select
     \uicontrol {Swap Views}.
 
-    \section1 Formatting Text
+    \section1 Format text
 
     Use the buttons on the editor toolbar to format text as italic (i), bold (b),
     or inline code (`), and to create links to web sites

@@ -37,7 +37,7 @@ QtcPlugin {
             "qmakeprojectmanager.qrc",
             "qmakeprojectmanager_global.h", "qmakeprojectmanagertr.h",
             "qmakeprojectmanagerconstants.h",
-            "qmakeprojectmanagerplugin.cpp", "qmakeprojectmanagerplugin.h",
+            "qmakeprojectmanagerplugin.cpp",
         ]
     }
 
@@ -61,7 +61,7 @@ QtcPlugin {
         name: "Wizards"
         prefix: "wizards/"
         files: [
-            "qtprojectparameters.cpp", "qtprojectparameters.h",
+            "qtprojectparameters.h",
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",

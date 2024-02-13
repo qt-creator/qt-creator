@@ -40,7 +40,7 @@ QtcPlugin {
             "qmlprofilereventtypes.h",
             "qmlprofilermodelmanager.cpp", "qmlprofilermodelmanager.h",
             "qmlprofilernotesmodel.cpp", "qmlprofilernotesmodel.h",
-            "qmlprofilerplugin.cpp", "qmlprofilerplugin.h",
+            "qmlprofilerplugin.cpp",
             "qmlprofilerrunconfigurationaspect.cpp", "qmlprofilerrunconfigurationaspect.h",
             "qmlprofilerrangemodel.cpp", "qmlprofilerrangemodel.h",
             "qmlprofilerruncontrol.cpp", "qmlprofilerruncontrol.h",

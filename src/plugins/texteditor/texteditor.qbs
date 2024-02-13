@@ -84,6 +84,8 @@ QtcPlugin {
         "formattexteditor.h",
         "highlighter.cpp",
         "highlighter.h",
+        "highlighterhelper.cpp",
+        "highlighterhelper.h",
         "highlightersettings.cpp",
         "highlightersettings.h",
         "highlightersettingspage.cpp",
@@ -122,6 +124,8 @@ QtcPlugin {
         "storagesettings.h",
         "syntaxhighlighter.cpp",
         "syntaxhighlighter.h",
+        "syntaxhighlighterrunner.cpp",
+        "syntaxhighlighterrunner.h",
         "tabsettings.cpp",
         "tabsettings.h",
         "tabsettingswidget.cpp",
@@ -141,7 +145,6 @@ QtcPlugin {
         "texteditoroverlay.cpp",
         "texteditoroverlay.h",
         "texteditorplugin.cpp",
-        "texteditorplugin.h",
         "texteditorsettings.cpp",
         "texteditorsettings.h",
         "textindenter.cpp",
@@ -234,6 +237,7 @@ QtcPlugin {
             "highlighter_test.cpp",
             "highlighter_test.h",
             "texteditor_test.cpp",
+            "texteditor_test.h",
         ]
     }
 }

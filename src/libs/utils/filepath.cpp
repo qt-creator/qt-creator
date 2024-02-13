@@ -182,6 +182,19 @@ FilePath FilePath::fromVariant(const QVariant &variant)
     return fromSettings(variant); // FIXME: Use variant.value<FilePath>()
 }
 
+/*!
+    Constructs a FilePath from \a url.
+
+    \sa toVariant()
+*/
+FilePath FilePath::fromUrl(const QUrl &url)
+{
+    FilePath result;
+    if (url.isLocalFile())
+        return FilePath::fromString(url.toLocalFile());
+    return FilePath::fromParts(url.scheme(), url.host(), url.path());
+}
+
 FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
     FilePath result;
@@ -226,6 +239,15 @@ bool FilePath::isRootPath() const
     }
 
     return *this == HostOsInfo::root();
+}
+
+bool FilePath::isResourceFile() const
+{
+    if (scheme() == u"qrc")
+        return true;
+    if (needsDevice())
+        return false;
+    return pathView().startsWith(':');
 }
 
 QString FilePath::encodedHost() const
@@ -453,7 +475,7 @@ QStringView FilePath::host() const
 
 QStringView FilePath::pathView() const
 {
-    return QStringView(m_data).left(m_pathLen);
+    return QStringView(m_data.constData(), m_pathLen);
 }
 
 QString FilePath::path() const
@@ -469,7 +491,17 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
         path = path.mid(3);
 
     m_hash = 0;
-    m_data = path.toString() + scheme.toString() + host.toString();
+
+    // The equivalent of:
+    //   m_data = path.toString() + scheme.toString() + host.toString();
+    // but with less copying.
+    // Note: The QStringBuilder optimization does not currently work in this case.
+    m_data.resize(0);
+    m_data.reserve(m_schemeLen + m_hostLen + m_pathLen);
+    m_data.append(path);
+    m_data.append(scheme);
+    m_data.append(host);
+
     m_schemeLen = scheme.size();
     m_hostLen = host.size();
     m_pathLen = path.size();
@@ -647,7 +679,7 @@ FileStreamHandle FilePath::asyncWrite(const QByteArray &data, QObject *context,
 
 bool FilePath::needsDevice() const
 {
-    return m_schemeLen != 0;
+    return m_schemeLen > 0 && scheme() != u"file";
 }
 
 bool FilePath::isSameDevice(const FilePath &other) const
@@ -1480,7 +1512,7 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
         absoluteAnchorPath = anchor.absoluteFilePath();
     else
         return {};
-    QString relativeFilePath = calcRelativePath(absPath.path(), absoluteAnchorPath.path());
+    QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
     if (!filename.isEmpty()) {
         if (relativeFilePath == ".")
             relativeFilePath.clear();
@@ -1505,14 +1537,14 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 
     \see FilePath::isRelativePath(), FilePath::relativePathFrom(), FilePath::relativeChildPath()
 */
-QString FilePath::calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath)
+QString FilePath::calcRelativePath(QStringView absolutePath, QStringView absoluteAnchorPath)
 {
     if (absolutePath.isEmpty() || absoluteAnchorPath.isEmpty())
         return QString();
     // TODO using split() instead of parsing the strings by char index is slow
     // and needs more memory (but the easiest implementation for now)
-    const QStringList splits1 = absolutePath.split('/');
-    const QStringList splits2 = absoluteAnchorPath.split('/');
+    const QList<QStringView> splits1 = absolutePath.split('/');
+    const QList<QStringView> splits2 = absoluteAnchorPath.split('/');
     int i = 0;
     while (i < splits1.count() && i < splits2.count() && splits1.at(i) == splits2.at(i))
         ++i;
@@ -1562,6 +1594,23 @@ FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
     FilePath res;
     res.setParts(scheme(), host(), fileAccess()->mapToDevicePath(newPath.path()));
+    return res;
+}
+
+/*!
+    Returns a path with the \a n characters of the local path removed.
+    Example usage:
+    \code
+        backup = FilePath("/tmp/example.txt.backup");
+        real = backup.chopped(7);
+        assert(real == FilePath("/tmp/example.txt"))
+    \endcode
+*/
+
+FilePath FilePath::chopped(int n) const
+{
+    FilePath res;
+    res.setParts(scheme(), host(), path().chopped(n));
     return res;
 }
 
@@ -2285,12 +2334,30 @@ QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT bool operator<(const FilePath &first, const FilePath &second)
 {
-    const int cmp = first.pathView().compare(second.pathView(), first.caseSensitivity());
-    if (cmp != 0)
-        return cmp < 0;
-    if (first.host() != second.host())
-        return first.host() < second.host();
-    return first.scheme() < second.scheme();
+    const bool firstNeedsDevice = first.needsDevice();
+    const bool secondNeedsDevice = second.needsDevice();
+
+    // If either needs a device, we have to compare host and scheme first.
+    if (firstNeedsDevice || secondNeedsDevice) {
+        // Paths needing a device are "larger" than those not needing one.
+        if (firstNeedsDevice < secondNeedsDevice)
+            return true;
+        else if (firstNeedsDevice > secondNeedsDevice)
+            return false;
+
+        // First we sort by scheme ...
+        const int s = first.scheme().compare(second.scheme());
+        if (s != 0)
+            return s < 0;
+
+        // than by host ...
+        const int h = first.host().compare(second.host());
+        if (h != 0)
+            return h < 0;
+    }
+
+    const int p = first.pathView().compare(second.pathView(), first.caseSensitivity());
+    return p < 0;
 }
 
 QTCREATOR_UTILS_EXPORT bool operator<=(const FilePath &first, const FilePath &second)

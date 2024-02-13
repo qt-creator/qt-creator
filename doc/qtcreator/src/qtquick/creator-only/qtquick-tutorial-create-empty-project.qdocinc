@@ -44,7 +44,7 @@
 
             \note The list shows kits that you specify in \preferences >
             \uicontrol Kits.
-            For more information, see \l {Add kits} and \l {Kits}.
+            For more information, see \l {Add kits} and \l {kits-tab}{Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -54,8 +54,8 @@
 
     \endlist
 
-    For more information about the settings that you skipped and the other
-    wizard templates available, see \l{Qt Quick Applications}.
+    For more information about the settings that you skipped, see
+    \l{Create Qt Quick Applications}.
 
 //! [qtquick empty application]
 */

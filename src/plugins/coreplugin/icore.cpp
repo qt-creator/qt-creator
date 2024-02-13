@@ -245,7 +245,7 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
 };
 
-} // Internal
+static QColor s_overrideColor;
 
 // The Core Singleton
 static ICore *m_core = nullptr;
@@ -254,9 +254,6 @@ static NewDialog *defaultDialogFactory(QWidget *parent)
 {
     return new NewDialogWidget(parent);
 }
-
-namespace Internal {
-
 class ICorePrivate : public QObject
 {
 public:
@@ -325,27 +322,15 @@ public:
     SystemEditor *m_systemEditor = nullptr;
 
     // actions
-    QAction *m_focusToEditor = nullptr;
-    QAction *m_newAction = nullptr;
-    QAction *m_openAction = nullptr;
-    QAction *m_openWithAction = nullptr;
-    QAction *m_openFromDeviceAction = nullptr;
-    QAction *m_saveAllAction = nullptr;
-    QAction *m_exitAction = nullptr;
-    QAction *m_optionsAction = nullptr;
-    QAction *m_loggerAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
     QAction *m_toggleMenubarAction = nullptr;
-    QAction *m_cycleModeSelectorStyleAction = nullptr;
     QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
     QAction *m_setModeSelectorStyleHiddenAction = nullptr;
     QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
-    QAction *m_themeAction = nullptr;
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
-    QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };
 
@@ -413,6 +398,10 @@ ICore::ICore()
     });
 
     Utils::FileUtils::setDialogParentGetter(&ICore::dialogParent);
+
+    d->m_progressManager->init(); // needs the status bar manager
+    MessageManager::init();
+    OutputPaneManager::create();
 }
 
 /*!
@@ -484,6 +473,24 @@ void ICore::showNewItemDialog(const QString &title,
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
     return executeSettingsDialog(parent ? parent : dialogParent(), page);
+}
+
+/*!
+    Opens the options dialog on the specified \a page. The dialog's \a parent
+    defaults to dialogParent(). If the dialog is already shown when this method
+    is called, it is just switched to the specified \a page.
+    Pre-selects some part of the dialog specified by \a item which the dialog
+    knows how to interpret.
+
+    Returns whether the user accepted the dialog.
+
+    \sa msgShowOptionsDialog()
+    \sa msgShowOptionsDialogToolTip()
+*/
+bool ICore::showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent)
+{
+    setPreselectedOptionsPageItem(page, item);
+    return showOptionsDialog(page, parent);
 }
 
 /*!
@@ -778,6 +785,14 @@ FilePath ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
     return clangBinary("clazy-standalone", clangBinDirectory);
 }
 
+/*!
+    \internal
+ */
+FilePath ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
+{
+    return clangBinary("lldb", lldbBinDirectory);
+}
+
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
@@ -814,20 +829,10 @@ QString ICore::versionString()
 {
     QString ideVersionDescription;
     if (QCoreApplication::applicationVersion() != appInfo().displayVersion)
-        ideVersionDescription = Tr::tr(" (%1)").arg(QCoreApplication::applicationVersion());
-    return Tr::tr("%1 %2%3").arg(QGuiApplication::applicationDisplayName(),
-                                 appInfo().displayVersion,
-                                 ideVersionDescription);
-}
-
-/*!
-    \internal
-*/
-QString ICore::buildCompatibilityString()
-{
-    return Tr::tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
-                                                 compilerString(),
-                                                 QSysInfo::buildCpuArchitecture());
+        ideVersionDescription = QString(" (%1)").arg(QCoreApplication::applicationVersion());
+    return QString("%1 %2%3").arg(QGuiApplication::applicationDisplayName(),
+                                  appInfo().displayVersion,
+                                  ideVersionDescription);
 }
 
 /*!
@@ -898,6 +903,24 @@ QStatusBar *ICore::statusBar()
 Utils::InfoBar *ICore::infoBar()
 {
     return d->m_modeStack->infoBar();
+}
+
+/*!
+    Shows a modal dialog that asks the user if they want to restart \QC.
+    Uses \a text as the main text in the dialog, and triggers a restart
+    of \QC if the user chooses that option.
+*/
+void ICore::askForRestart(const QString &text)
+{
+    QMessageBox mb(dialogParent());
+    mb.setWindowTitle(Tr::tr("Restart Required"));
+    mb.setText(text);
+    mb.setIcon(QMessageBox::Information);
+    mb.addButton(Tr::tr("Later"), QMessageBox::NoRole);
+    mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
+
+    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
+    mb.exec();
 }
 
 /*!
@@ -1016,15 +1039,7 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 */
 QString ICore::systemInformation()
 {
-    QString result = PluginManager::systemInformation() + '\n';
-    result += versionString() + '\n';
-    result += buildCompatibilityString() + '\n';
-    if (!Utils::appInfo().revision.isEmpty())
-        result += QString("From revision %1\n").arg(Utils::appInfo().revision.left(10));
-#ifdef QTC_SHOW_BUILD_DATE
-     result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
-#endif
-     return result;
+    return PluginManager::systemInformation() + '\n' + aboutInformationCompact() + '\n';
 }
 
 static const QString &screenShotsPath()
@@ -1097,6 +1112,25 @@ void ICore::restart()
 /*!
     \internal
 */
+void ICore::setRelativePathToProjectFunction(const std::function<FilePath(const FilePath &)> &func)
+{
+    m_core->m_relativePathToProject = func;
+}
+
+/*!
+    \internal
+*/
+FilePath ICore::pathRelativeToActiveProject(const FilePath &path)
+{
+    if (m_core->m_relativePathToProject)
+        return m_core->m_relativePathToProject(path);
+
+    return path;
+}
+
+/*!
+    \internal
+*/
 void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_core->saveSettingsRequested(reason);
@@ -1104,7 +1138,7 @@ void ICore::saveSettings(SaveSettingsReason reason)
     QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(settingsGroup);
 
-    if (!(d->m_overrideColor.isValid() && StyleHelper::baseColor() == d->m_overrideColor))
+    if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
         settings->setValueWithDefault(colorKey,
                                       StyleHelper::requestedBaseColor(),
                                       QColor(StyleHelper::DEFAULT_BASE_COLOR));
@@ -1154,6 +1188,79 @@ void ICore::clearAboutInformation()
 void ICore::appendAboutInformation(const QString &line)
 {
     d->m_aboutInformation.append(line);
+}
+
+/*!
+    \internal
+*/
+QString ICore::aboutInformationCompact()
+{
+    QString information = QString("Product: %1\n").arg(versionString());
+    information += QString("Based on: Qt %1 (%2, %3)\n")
+                       .arg(QLatin1String(qVersion()), compilerString(),
+                            QSysInfo::buildCpuArchitecture());
+#ifdef QTC_SHOW_BUILD_DATE
+    information += QString("Built on: %1 %2\n").arg(QLatin1String(__DATE__),
+                                                    QLatin1String(__TIME__));
+#endif
+    const AppInfo &appInfo = Utils::appInfo();
+    if (!appInfo.revision.isEmpty())
+        information += QString("From revision: %1\n").arg(appInfo.revision.left(10));
+
+    return information;
+}
+
+/*!
+    \internal
+*/
+QString ICore::aboutInformationHtml()
+{
+    const QString buildCompatibilityString = Tr::tr("Based on Qt %1 (%2, %3)")
+                                                 .arg(QLatin1String(qVersion()), compilerString(),
+                                                      QSysInfo::buildCpuArchitecture());
+    const AppInfo &appInfo = Utils::appInfo();
+    QString ideRev;
+    if (!appInfo.revision.isEmpty())
+        ideRev = Tr::tr("<br/>From revision %1<br/>")
+                     .arg(appInfo.revisionUrl.isEmpty()
+                              ? appInfo.revision
+                              : QString::fromLatin1("<a href=\"%1\">%2</a>")
+                                    .arg(appInfo.revisionUrl, appInfo.revision));
+    QString buildDateInfo;
+#ifdef QTC_SHOW_BUILD_DATE
+    buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__),
+                                                           QLatin1String(__TIME__));
+#endif
+
+    const QString br = QLatin1String("<br/>");
+    const QStringList additionalInfoLines = ICore::additionalAboutInformation();
+    const QString additionalInfo =
+        QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
+    const QString information
+        = Tr::tr("<h3>%1</h3>"
+                 "%2<br/>"
+                 "%3"
+                 "%4"
+                 "%5"
+                 "<br/>"
+                 "Copyright 2008-%6 %7. All rights reserved.<br/>"
+                 "<br/>"
+                 "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
+                 "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
+                 "PARTICULAR PURPOSE.<br/>")
+              .arg(ICore::versionString(),
+                   buildCompatibilityString,
+                   buildDateInfo,
+                   ideRev,
+                   additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
+                   appInfo.year,
+                   appInfo.author)
+          + "<br/>"
+          + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
+                   "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
+                   "registered trademarks of The Qt Company Ltd.");
+
+    return information;
 }
 
 void ICore::updateNewItemDialogState()
@@ -1272,7 +1379,8 @@ void ICorePrivate::init()
 
     if (HostOsInfo::isLinuxHost()) {
         m_trimTimer.setSingleShot(true);
-        m_trimTimer.setInterval(60000);
+        using namespace std::chrono_literals;
+        m_trimTimer.setInterval(60s);
         // glibc may not actually free memory in free().
 #ifdef Q_OS_LINUX
         connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
@@ -1289,8 +1397,7 @@ NavigationWidget *ICorePrivate::navigationWidget(Side side) const
 
 void ICorePrivate::setSidebarVisible(bool visible, Side side)
 {
-    if (NavigationWidgetPlaceHolder::current(side))
-        navigationWidget(side)->setShown(visible);
+    navigationWidget(side)->setShown(visible);
 }
 
 ICorePrivate::~ICorePrivate()
@@ -1346,13 +1453,6 @@ ICorePrivate::~ICorePrivate()
 }
 
 } // Internal
-
-void ICore::init()
-{
-    d->m_progressManager->init(); // needs the status bar manager
-    MessageManager::init();
-    OutputPaneManager::create();
-}
 
 void ICore::extensionsInitialized()
 {
@@ -1572,19 +1672,18 @@ void ICorePrivate::registerDefaultActions()
 
     // Return to editor shortcut: Note this requires Qt to fix up
     // handling of shortcut overrides in menus, item views, combos....
-    m_focusToEditor = new QAction(Tr::tr("Return to Editor"), this);
-    Command *cmd = ActionManager::registerAction(m_focusToEditor, Constants::S_RETURNTOEDITOR);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
-    connect(m_focusToEditor, &QAction::triggered, this, &ICorePrivate::setFocusToEditor);
+    ActionBuilder focusToEditor(this, Constants::S_RETURNTOEDITOR);
+    focusToEditor.setText(Tr::tr("Return to Editor"));
+    focusToEditor.setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
+    focusToEditor.addOnTriggered(this, [] { setFocusToEditor(); });
 
-    // New File Action
-    QIcon icon = Icon::fromTheme("document-new");
-
-    m_newAction = new QAction(icon, Tr::tr("&New Project..."), this);
-    cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
-    cmd->setDefaultKeySequence(QKeySequence("Ctrl+Shift+N"));
-    mfile->addAction(cmd, Constants::G_FILE_NEW);
-    connect(m_newAction, &QAction::triggered, this, [] {
+    // New Project Action
+    ActionBuilder newProjectAction(this, Constants::NEW);
+    newProjectAction.setText(Tr::tr("&New Project..."));
+    newProjectAction.setIcon(Icon::fromTheme("document-new"));
+    newProjectAction.setDefaultKeySequence(QKeySequence("Ctrl+Shift+N"));
+    newProjectAction.addToContainer(Constants::M_FILE, Constants::G_FILE_NEW);
+    newProjectAction.addOnTriggered(this, [] {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(
                 Tr::tr("New Project", "Title of dialog"),
@@ -1597,42 +1696,45 @@ void ICorePrivate::registerDefaultActions()
         }
     });
 
-    auto action = new QAction(icon, Tr::tr("New File..."), this);
-    cmd = ActionManager::registerAction(action, Constants::NEW_FILE);
-    cmd->setDefaultKeySequence(QKeySequence::New);
-    mfile->addAction(cmd, Constants::G_FILE_NEW);
-    connect(action, &QAction::triggered, this, [] {
+    // New File Action
+    ActionBuilder newFileAction(this, Constants::NEW_FILE);
+    newFileAction.setText(Tr::tr("New File..."));
+    newFileAction.setIcon(Icon::fromTheme("document-new"));
+    newFileAction.setDefaultKeySequence(QKeySequence::New);
+    newFileAction.addToContainer(Constants::M_FILE, Constants::G_FILE_NEW);
+    newFileAction.addOnTriggered(this, [] {
         if (!ICore::isNewItemDialogRunning()) {
-            ICore::showNewItemDialog(Tr::tr("New File", "Title of dialog"),
-                                     Utils::filtered(Core::IWizardFactory::allWizardFactories(),
-                                                     Utils::equal(&Core::IWizardFactory::kind,
-                                                                  Core::IWizardFactory::FileWizard)),
-                                     FilePath());
+            ICore::showNewItemDialog(
+                Tr::tr("New File", "Title of dialog"),
+                Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                Utils::equal(&Core::IWizardFactory::kind,
+                                             Core::IWizardFactory::FileWizard)),
+                FilePath());
         } else {
             ICore::raiseWindow(ICore::newItemDialog());
         }
     });
 
     // Open Action
-    icon = Icon::fromTheme("document-open");
-    m_openAction = new QAction(icon, Tr::tr("&Open File or Project..."), this);
-    cmd = ActionManager::registerAction(m_openAction, Constants::OPEN);
-    cmd->setDefaultKeySequence(QKeySequence::Open);
-    mfile->addAction(cmd, Constants::G_FILE_OPEN);
-    connect(m_openAction, &QAction::triggered, this, &ICorePrivate::openFile);
+    ActionBuilder openAction(this, Constants::OPEN);
+    openAction.setText(Tr::tr("&Open File or Project..."));
+    openAction.setIcon(Icon::fromTheme("document-open"));
+    openAction.setDefaultKeySequence(QKeySequence::Open);
+    openAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+    openAction.addOnTriggered(this, [] { openFile(); });
 
     // Open With Action
-    m_openWithAction = new QAction(Tr::tr("Open File &With..."), this);
-    cmd = ActionManager::registerAction(m_openWithAction, Constants::OPEN_WITH);
-    mfile->addAction(cmd, Constants::G_FILE_OPEN);
-    connect(m_openWithAction, &QAction::triggered, m_core, &ICore::openFileWith);
+    ActionBuilder openWithAction(this, Constants::OPEN_WITH);
+    openWithAction.setText(Tr::tr("Open File &With..."));
+    openWithAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+    openWithAction.addOnTriggered(this, &ICore::openFileWith);
 
     if (FSEngine::isAvailable()) {
         // Open From Device Action
-        m_openFromDeviceAction = new QAction(Tr::tr("Open From Device..."), this);
-        cmd = ActionManager::registerAction(m_openFromDeviceAction, Constants::OPEN_FROM_DEVICE);
-        mfile->addAction(cmd, Constants::G_FILE_OPEN);
-        connect(m_openFromDeviceAction, &QAction::triggered, this, &ICorePrivate::openFileFromDevice);
+        ActionBuilder openFromDeviceAction(this, Constants::OPEN_FROM_DEVICE);
+        openFromDeviceAction.setText(Tr::tr("Open From Device..."));
+        openFromDeviceAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+        openFromDeviceAction.addOnTriggered(this, [this] { openFileFromDevice(); });
     }
 
     // File->Recent Files Menu
@@ -1642,128 +1744,128 @@ void ICorePrivate::registerDefaultActions()
     ac->setOnAllDisabledBehavior(ActionContainer::Show);
 
     // Save Action
-    icon = Icon::fromTheme("document-save");
-    QAction *tmpaction = new QAction(icon, Tr::tr("&Save"), this);
-    tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SAVE);
-    cmd->setDefaultKeySequence(QKeySequence::Save);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(Tr::tr("Save"));
-    mfile->addAction(cmd, Constants::G_FILE_SAVE);
+    ActionBuilder saveAction(this, Constants::SAVE);
+    saveAction.setText(Tr::tr("&Save"));
+    saveAction.setIcon(Icon::fromTheme("document-save"));
+    saveAction.setEnabled(false);
+    saveAction.setDefaultKeySequence(QKeySequence::Save);
+    saveAction.setCommandAttribute(Command::CA_UpdateText);
+    saveAction.setCommandDescription(Tr::tr("Save"));
+    saveAction.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
 
     // Save As Action
-    icon = Icon::fromTheme("document-save-as");
-    tmpaction = new QAction(icon, Tr::tr("Save &As..."), this);
-    tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Shift+S") : QString()));
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(Tr::tr("Save As..."));
-    mfile->addAction(cmd, Constants::G_FILE_SAVE);
+    ActionBuilder saveAsAction(this, Constants::SAVEAS);
+    saveAsAction.setText(Tr::tr("Save &As..."));
+    saveAsAction.setIcon(Icon::fromTheme("document-save-as"));
+    saveAsAction.setEnabled(false);
+    saveAsAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+S"), QString());
+    saveAsAction.setCommandAttribute(Command::CA_UpdateText);
+    saveAsAction.setCommandDescription(Tr::tr("Save As..."));
+    saveAsAction.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
 
     // SaveAll Action
     DocumentManager::registerSaveAllAction();
 
     // Print Action
-    icon = Icon::fromTheme("document-print");
-    tmpaction = new QAction(icon, Tr::tr("&Print..."), this);
-    tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::PRINT);
-    cmd->setDefaultKeySequence(QKeySequence::Print);
-    mfile->addAction(cmd, Constants::G_FILE_PRINT);
+    ActionBuilder printAction(this, Constants::PRINT);
+    printAction.setText(Tr::tr("&Print..."));
+    printAction.setIcon(Icon::fromTheme("document-print"));
+    printAction.setEnabled(false);
+    printAction.setDefaultKeySequence(QKeySequence::Print);
+    printAction.addToContainer(Constants::M_FILE, Constants::G_FILE_PRINT);
 
     // Exit Action
-    icon = Icon::fromTheme("application-exit");
-    m_exitAction = new QAction(icon, Tr::tr("E&xit"), this);
-    m_exitAction->setMenuRole(QAction::QuitRole);
-    cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Q")));
-    mfile->addAction(cmd, Constants::G_FILE_OTHER);
-    connect(m_exitAction, &QAction::triggered, m_core, &ICore::exit);
+    ActionBuilder exitAction(this, Constants::EXIT);
+    exitAction.setText(Tr::tr("E&xit"));
+    exitAction.setIcon(Icon::fromTheme("application-exit"));
+    exitAction.setMenuRole(QAction::QuitRole);
+    exitAction.setDefaultKeySequence(Tr::tr("Ctrl+Q"));
+    exitAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OTHER);
+    exitAction.addOnTriggered(this, &ICore::exit);
 
     // Undo Action
-    icon = Icon::fromTheme("edit-undo");
-    tmpaction = new QAction(icon, Tr::tr("&Undo"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::UNDO);
-    cmd->setDefaultKeySequence(QKeySequence::Undo);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(Tr::tr("Undo"));
-    medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
-    tmpaction->setEnabled(false);
+    ActionBuilder undoAction(this, Constants::UNDO);
+    undoAction.setText(Tr::tr("&Undo"));
+    undoAction.setIcon(Icon::fromTheme("edit-undo"));
+    undoAction.setDefaultKeySequence(QKeySequence::Undo);
+    undoAction.setCommandAttribute(Command::CA_UpdateText);
+    undoAction.setCommandDescription(Tr::tr("Undo"));
+    undoAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
+    undoAction.setEnabled(false);
 
     // Redo Action
-    icon = Icon::fromTheme("edit-redo");
-    tmpaction = new QAction(icon, Tr::tr("&Redo"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::REDO);
-    cmd->setDefaultKeySequence(QKeySequence::Redo);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(Tr::tr("Redo"));
-    medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
-    tmpaction->setEnabled(false);
+    ActionBuilder redoAction(this, Constants::REDO);
+    redoAction.setIcon(Icon::fromTheme("edit-redo"));
+    redoAction.setText(Tr::tr("&Redo"));
+    redoAction.setDefaultKeySequence(QKeySequence::Redo);
+    redoAction.setCommandAttribute(Command::CA_UpdateText);
+    redoAction.setCommandDescription(Tr::tr("Redo"));
+    redoAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
+    redoAction.setEnabled(false);
 
     // Cut Action
-    icon = Icon::fromTheme("edit-cut");
-    tmpaction = new QAction(icon, Tr::tr("Cu&t"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::CUT);
-    cmd->setDefaultKeySequence(QKeySequence::Cut);
-    medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
-    tmpaction->setEnabled(false);
+    ActionBuilder cutAction(this, Constants::CUT);
+    cutAction.setText(Tr::tr("Cu&t"));
+    cutAction.setIcon(Icon::fromTheme("edit-cut"));
+    cutAction.setDefaultKeySequence(QKeySequence::Cut);
+    cutAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    cutAction.setEnabled(false);
 
     // Copy Action
-    icon = Icon::fromTheme("edit-copy");
-    tmpaction = new QAction(icon, Tr::tr("&Copy"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::COPY);
-    cmd->setDefaultKeySequence(QKeySequence::Copy);
-    medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
-    tmpaction->setEnabled(false);
+    ActionBuilder copyAction(this, Constants::COPY);
+    copyAction.setText(Tr::tr("&Copy"));
+    copyAction.setIcon(Icon::fromTheme("edit-copy"));
+    copyAction.setDefaultKeySequence(QKeySequence::Copy);
+    copyAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    copyAction.setEnabled(false);
 
     // Paste Action
-    icon = Icon::fromTheme("edit-paste");
-    tmpaction = new QAction(icon, Tr::tr("&Paste"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::PASTE);
-    cmd->setDefaultKeySequence(QKeySequence::Paste);
-    medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
-    tmpaction->setEnabled(false);
+    ActionBuilder pasteAction(this, Constants::PASTE);
+    pasteAction.setText(Tr::tr("&Paste"));
+    pasteAction.setIcon(Icon::fromTheme("edit-paste"));
+    pasteAction.setDefaultKeySequence(QKeySequence::Paste);
+    pasteAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    pasteAction.setEnabled(false);
 
     // Select All
-    icon = Icon::fromTheme("edit-select-all");
-    tmpaction = new QAction(icon, Tr::tr("Select &All"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SELECTALL);
-    cmd->setDefaultKeySequence(QKeySequence::SelectAll);
-    medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
-    tmpaction->setEnabled(false);
+    ActionBuilder selectAllAction(this, Constants::SELECTALL);
+    selectAllAction.setText(Tr::tr("Select &All"));
+    selectAllAction.setIcon(Icon::fromTheme("edit-select-all"));
+    selectAllAction.setDefaultKeySequence(QKeySequence::SelectAll);
+    selectAllAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_SELECTALL);
+    selectAllAction.setEnabled(false);
 
     // Goto Action
-    icon = Icon::fromTheme("go-jump");
-    tmpaction = new QAction(icon, Tr::tr("&Go to Line..."), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::GOTO);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+L")));
-    medit->addAction(cmd, Constants::G_EDIT_OTHER);
-    tmpaction->setEnabled(false);
+    ActionBuilder gotoLineAction(this, Constants::GOTO);
+    gotoLineAction.setText(Tr::tr("&Go to Line..."));
+    gotoLineAction.setIcon(Icon::fromTheme("go-jump"));
+    gotoLineAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+L")));
+    gotoLineAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_OTHER);
+    gotoLineAction.setEnabled(false);
 
     // Zoom In Action
-    icon = Icon::fromTheme("zoom-in");
-    tmpaction = new QAction(icon, Tr::tr("Zoom In"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_IN);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")));
-    tmpaction->setEnabled(false);
+    ActionBuilder zoomInAction(this, Constants::ZOOM_IN);
+    zoomInAction.setText(Tr::tr("Zoom In"));
+    zoomInAction.setIcon(Icon::fromTheme("zoom-in"));
+    zoomInAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")));
+    zoomInAction.setEnabled(false);
 
     // Zoom Out Action
-    icon = Icon::fromTheme("zoom-out");
-    tmpaction = new QAction(icon, Tr::tr("Zoom Out"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_OUT);
+    ActionBuilder zoomOutAction(this, Constants::ZOOM_OUT);
+    zoomOutAction.setText(Tr::tr("Zoom Out"));
+    zoomOutAction.setIcon(Icon::fromTheme("zoom-out"));
     if (useMacShortcuts)
-        cmd->setDefaultKeySequences({QKeySequence(Tr::tr("Ctrl+-")), QKeySequence(Tr::tr("Ctrl+Shift+-"))});
+        zoomOutAction.setDefaultKeySequences({QKeySequence(Tr::tr("Ctrl+-")), QKeySequence(Tr::tr("Ctrl+Shift+-"))});
     else
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+-")));
-    tmpaction->setEnabled(false);
+        zoomOutAction.setDefaultKeySequence(Tr::tr("Ctrl+-"));
+    zoomOutAction.setEnabled(false);
 
     // Zoom Reset Action
-    icon = Icon::fromTheme("zoom-original");
-    tmpaction = new QAction(icon, Tr::tr("Original Size"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_RESET);
-    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+0") : Tr::tr("Ctrl+0")));
-    tmpaction->setEnabled(false);
+    ActionBuilder zoomOriginalAction(this, Constants::ZOOM_RESET);
+    zoomOriginalAction.setText(Tr::tr("Original Size"));
+    zoomOriginalAction.setIcon(Icon::fromTheme("zoom-original"));
+    zoomOriginalAction.setDefaultKeySequence(Tr::tr("Meta+0"), Tr::tr("Ctrl+0"));
+    zoomOriginalAction.setEnabled(false);
 
     // Debug Qt Creator menu
     mtools->appendGroup(Constants::G_TOOLS_DEBUG);
@@ -1771,112 +1873,114 @@ void ICorePrivate::registerDefaultActions()
     mtoolsdebug->menu()->setTitle(Tr::tr("Debug %1").arg(QGuiApplication::applicationDisplayName()));
     mtools->addMenu(mtoolsdebug, Constants::G_TOOLS_DEBUG);
 
-    m_loggerAction = new QAction(Tr::tr("Show Logs..."), this);
-    cmd = ActionManager::registerAction(m_loggerAction, Constants::LOGGER);
-    mtoolsdebug->addAction(cmd);
-    connect(m_loggerAction, &QAction::triggered, this, [] { LoggingViewer::showLoggingView(); });
+    ActionBuilder loggerAction(this, Constants::LOGGER);
+    loggerAction.setText(Tr::tr("Show Logs..."));
+    loggerAction.addToContainer(Constants::M_TOOLS_DEBUG);
+    loggerAction.addOnTriggered(this, &LoggingViewer::showLoggingView);
 
     // Options Action
     medit->appendGroup(Constants::G_EDIT_PREFERENCES);
     medit->addSeparator(Constants::G_EDIT_PREFERENCES);
 
-    m_optionsAction = new QAction(Tr::tr("Pr&eferences..."), this);
-    m_optionsAction->setMenuRole(QAction::PreferencesRole);
-    cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
-    cmd->setDefaultKeySequence(QKeySequence::Preferences);
-    medit->addAction(cmd, Constants::G_EDIT_PREFERENCES);
-    connect(m_optionsAction, &QAction::triggered, this, [] { ICore::showOptionsDialog(Id()); });
+    ActionBuilder optionsAction(this, Constants::OPTIONS);
+    optionsAction.setText(Tr::tr("Pr&eferences..."));
+    optionsAction.setMenuRole(QAction::PreferencesRole);
+    optionsAction.setDefaultKeySequence(QKeySequence::Preferences);
+    optionsAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_PREFERENCES);
+    optionsAction.addOnTriggered(this, [] { ICore::showOptionsDialog(Id()); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
 
     if (useMacShortcuts) {
         // Minimize Action
-        QAction *minimizeAction = new QAction(Tr::tr("Minimize"), this);
-        minimizeAction->setEnabled(false); // actual implementation in WindowSupport
-        cmd = ActionManager::registerAction(minimizeAction, Constants::MINIMIZE_WINDOW);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+M")));
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder minimizeAction(this, Constants::MINIMIZE_WINDOW);
+        minimizeAction.setText(Tr::tr("Minimize"));
+        minimizeAction.setEnabled(false); // actual implementation in WindowSupport
+        minimizeAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+M")));
+        minimizeAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
         // Zoom Action
-        QAction *zoomAction = new QAction(Tr::tr("Zoom"), this);
-        zoomAction->setEnabled(false); // actual implementation in WindowSupport
-        cmd = ActionManager::registerAction(zoomAction, Constants::ZOOM_WINDOW);
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder zoomAction(this, Constants::ZOOM_WINDOW);
+        zoomAction.setText(Tr::tr("Zoom"));
+        zoomAction.setEnabled(false); // actual implementation in WindowSupport
+        zoomAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
     }
 
     // Full Screen Action
-    QAction *toggleFullScreenAction = new QAction(Tr::tr("Full Screen"), this);
-    toggleFullScreenAction->setCheckable(!HostOsInfo::isMacHost());
-    toggleFullScreenAction->setEnabled(false); // actual implementation in WindowSupport
-    cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+F") : Tr::tr("Ctrl+Shift+F11")));
+    ActionBuilder toggleFullScreenAction(this, Constants::TOGGLE_FULLSCREEN);
+    toggleFullScreenAction.setText(Tr::tr("Full Screen"));
+    toggleFullScreenAction.setCheckable(!HostOsInfo::isMacHost());
+    toggleFullScreenAction.setEnabled(false); // actual implementation in WindowSupport
+    toggleFullScreenAction.setDefaultKeySequence(Tr::tr("Ctrl+Meta+F"), Tr::tr("Ctrl+Shift+F11"));
     if (HostOsInfo::isMacHost())
-        cmd->setAttribute(Command::CA_UpdateText);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        toggleFullScreenAction.setCommandAttribute(Command::CA_UpdateText);
+    toggleFullScreenAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
     if (useMacShortcuts) {
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
 
-        QAction *closeAction = new QAction(Tr::tr("Close Window"), this);
-        closeAction->setEnabled(false);
-        cmd = ActionManager::registerAction(closeAction, Constants::CLOSE_WINDOW);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Meta+W")));
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder closeAction(this, Constants::CLOSE_WINDOW);
+        closeAction.setText(Tr::tr("Close Window"));
+        closeAction.setEnabled(false);
+        closeAction.setDefaultKeySequence(Tr::tr("Ctrl+Meta+W"));
+        closeAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
     }
 
     // Show Left Sidebar Action
-    m_toggleLeftSideBarAction = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR.icon(),
-                                            Tr::tr(Constants::TR_SHOW_LEFT_SIDEBAR),
-                                            this);
-    m_toggleLeftSideBarAction->setCheckable(true);
-    cmd = ActionManager::registerAction(m_toggleLeftSideBarAction, Constants::TOGGLE_LEFT_SIDEBAR);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+0") : Tr::tr("Alt+0")));
-    connect(m_toggleLeftSideBarAction, &QAction::triggered,
-            this, [this](bool visible) { setSidebarVisible(visible, Side::Left); });
-    ProxyAction *toggleLeftSideBarProxyAction =
-            ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon());
-    m_toggleLeftSideBarButton->setDefaultAction(toggleLeftSideBarProxyAction);
-    mview->addAction(cmd, Constants::G_VIEW_VIEWS);
-    m_toggleLeftSideBarAction->setEnabled(false);
+    ActionBuilder toggleLeftSideBarAction(this, Constants::TOGGLE_LEFT_SIDEBAR);
+    toggleLeftSideBarAction.setIcon(Utils::Icons::TOGGLE_LEFT_SIDEBAR.icon());
+    toggleLeftSideBarAction.setText(Tr::tr(Constants::TR_SHOW_LEFT_SIDEBAR));
+    toggleLeftSideBarAction.setCheckable(true);
+    toggleLeftSideBarAction.setCommandAttribute(Command::CA_UpdateText);
+    toggleLeftSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+0"), Tr::tr("Alt+0"));
+    toggleLeftSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleLeftSideBarAction.addOnTriggered(this,
+        [this](bool visible) { setSidebarVisible(visible, Side::Left); });
+
+    m_toggleLeftSideBarAction = toggleLeftSideBarAction.contextAction();
+    m_toggleLeftSideBarButton->setDefaultAction(ProxyAction::proxyActionWithIcon(
+        toggleLeftSideBarAction.commandAction(), Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon()));
+    m_toggleLeftSideBarButton->setEnabled(false);
 
     // Show Right Sidebar Action
-    m_toggleRightSideBarAction = new QAction(Utils::Icons::TOGGLE_RIGHT_SIDEBAR.icon(),
-                                             Tr::tr(Constants::TR_SHOW_RIGHT_SIDEBAR),
-                                             this);
-    m_toggleRightSideBarAction->setCheckable(true);
-    cmd = ActionManager::registerAction(m_toggleRightSideBarAction, Constants::TOGGLE_RIGHT_SIDEBAR);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Shift+0") : Tr::tr("Alt+Shift+0")));
-    connect(m_toggleRightSideBarAction, &QAction::triggered,
-            this, [this](bool visible) { setSidebarVisible(visible, Side::Right); });
-    ProxyAction *toggleRightSideBarProxyAction =
-            ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::TOGGLE_RIGHT_SIDEBAR_TOOLBAR.icon());
-    m_toggleRightSideBarButton->setDefaultAction(toggleRightSideBarProxyAction);
-    mview->addAction(cmd, Constants::G_VIEW_VIEWS);
-    m_toggleRightSideBarButton->setEnabled(false);
+    ActionBuilder toggleRightSideBarAction(this, Constants::TOGGLE_RIGHT_SIDEBAR);
+    toggleRightSideBarAction.setIcon(Utils::Icons::TOGGLE_RIGHT_SIDEBAR.icon());
+    toggleRightSideBarAction.setText(Tr::tr(Constants::TR_SHOW_RIGHT_SIDEBAR));
+    toggleRightSideBarAction.setCheckable(true);
+    toggleRightSideBarAction.setCommandAttribute(Command::CA_UpdateText);
+    toggleRightSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+0"), Tr::tr("Alt+Shift+0"));
+    toggleRightSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleRightSideBarAction.setEnabled(false);
+    toggleRightSideBarAction.addOnTriggered(this,
+        [this](bool visible) { setSidebarVisible(visible, Side::Right); });
+
+    m_toggleRightSideBarAction = toggleRightSideBarAction.contextAction();
+    m_toggleRightSideBarButton->setDefaultAction(ProxyAction::proxyActionWithIcon(
+        toggleRightSideBarAction.commandAction(), Utils::Icons::TOGGLE_RIGHT_SIDEBAR_TOOLBAR.icon()));
 
     // Show Menubar Action
     if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
-        m_toggleMenubarAction = new QAction(Tr::tr("Show Menu Bar"), this);
-        m_toggleMenubarAction->setCheckable(true);
-        cmd = ActionManager::registerAction(m_toggleMenubarAction, Constants::TOGGLE_MENUBAR);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+M")));
-        connect(m_toggleMenubarAction, &QAction::toggled, this, [cmd](bool visible) {
+        ActionBuilder toggleMenubarAction(this, Constants::TOGGLE_MENUBAR);
+        toggleMenubarAction.setText(Tr::tr("Show Menu Bar"));
+        toggleMenubarAction.bindContextAction(&m_toggleMenubarAction);
+        toggleMenubarAction.setCheckable(true);
+        toggleMenubarAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+M"));
+        toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+        toggleMenubarAction.addOnToggled(this, [](bool visible) {
             if (!visible) {
+                const QString keys = ActionManager::command(Constants::TOGGLE_MENUBAR)
+                                         ->keySequence().toString(QKeySequence::NativeText);
                 CheckableMessageBox::information(Core::ICore::dialogParent(),
                                                  Tr::tr("Hide Menu Bar"),
                                                  Tr::tr("This will hide the menu bar completely. "
                                                         "You can show it again by typing %1.")
-                                                     .arg(cmd->keySequence().toString(
-                                                         QKeySequence::NativeText)),
+                                                     .arg(keys),
                                                  Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });
-        mview->addAction(cmd, Constants::G_VIEW_VIEWS);
     }
 
     registerModeSelectorStyleActions();
@@ -1892,57 +1996,44 @@ void ICorePrivate::registerDefaultActions()
         mhelp->addSeparator(Constants::G_HELP_ABOUT);
 
     // About IDE Action
-    icon = Icon::fromTheme("help-about");
-    if (HostOsInfo::isMacHost())
-        tmpaction = new QAction(icon,
-                                Tr::tr("About &%1").arg(QGuiApplication::applicationDisplayName()),
-                                this); // it's convention not to add dots to the about menu
-    else
-        tmpaction
-            = new QAction(icon,
-                          Tr::tr("About &%1...").arg(QGuiApplication::applicationDisplayName()),
-                          this);
-    tmpaction->setMenuRole(QAction::AboutRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::aboutQtCreator);
+    ActionBuilder aboutIdeAction(this, Constants::ABOUT_QTCREATOR);
+    aboutIdeAction.setIcon(Icon::fromTheme("help-about"));
+    aboutIdeAction.setText(
+      (HostOsInfo::isMacHost() ? Tr::tr("About &%1") : Tr::tr("About &%1..."))
+          .arg(QGuiApplication::applicationDisplayName()));
+    aboutIdeAction.setMenuRole(QAction::AboutRole);
+    aboutIdeAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    aboutIdeAction.setEnabled(true);
+    aboutIdeAction.addOnTriggered(this, [this] { aboutQtCreator(); });
 
-    //About Plugins Action
-    tmpaction = new QAction(Tr::tr("About &Plugins..."), this);
-    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::aboutPlugins);
-    // About Qt Action
-    //    tmpaction = new QAction(Tr::tr("About &Qt..."), this);
-    //    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
-    //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    //    tmpaction->setEnabled(true);
-    //    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
+    // About Plugins Action
+    ActionBuilder aboutPluginsAction(this, Constants::ABOUT_PLUGINS);
+    aboutPluginsAction.setText(Tr::tr("About &Plugins..."));
+    aboutPluginsAction.setMenuRole(QAction::ApplicationSpecificRole);
+    aboutPluginsAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    aboutPluginsAction.setEnabled(true);
+    aboutPluginsAction.addOnTriggered(this, [this] { aboutPlugins(); });
 
     // Change Log Action
-    tmpaction = new QAction(Tr::tr("Change Log..."), this);
-    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::CHANGE_LOG);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::changeLog);
+    ActionBuilder changeLogAction(this, Constants::CHANGE_LOG);
+    changeLogAction.setText(Tr::tr("Change Log..."));
+    changeLogAction.setMenuRole(QAction::ApplicationSpecificRole);
+    changeLogAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    changeLogAction.setEnabled(true);
+    changeLogAction.addOnTriggered(this, [this] { changeLog(); });
 
     // Contact
-    tmpaction = new QAction(Tr::tr("Contact..."), this);
-    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Contact");
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::contact);
+    ActionBuilder contactAction(this, "QtCreator.Contact");
+    contactAction.setText(Tr::tr("Contact..."));
+    contactAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    contactAction.setEnabled(true);
+    contactAction.addOnTriggered(this, [this] { contact(); });
 
     // About sep
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
-        tmpaction = new QAction(this);
-        tmpaction->setSeparator(true);
-        cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About");
-        mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+        ActionBuilder tmpAction(this, "QtCreator.Help.Sep.About");
+        tmpAction.setSeperator(true);
+        tmpAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     }
 }
 
@@ -1951,12 +2042,12 @@ void ICorePrivate::registerModeSelectorStyleActions()
     ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
 
     // Cycle Mode Selector Styles
-    m_cycleModeSelectorStyleAction = new QAction(Tr::tr("Cycle Mode Selector Styles"), this);
-    ActionManager::registerAction(m_cycleModeSelectorStyleAction, Constants::CYCLE_MODE_SELECTOR_STYLE);
-    connect(m_cycleModeSelectorStyleAction, &QAction::triggered, this, [this] {
-        ModeManager::cycleModeStyle();
-        updateModeSelectorStyleMenu();
-    });
+    ActionBuilder(this, Constants::CYCLE_MODE_SELECTOR_STYLE)
+        .setText(Tr::tr("Cycle Mode Selector Styles"))
+        .addOnTriggered(this, [this] {
+            ModeManager::cycleModeStyle();
+            updateModeSelectorStyleMenu();
+        });
 
     // Mode Selector Styles
     ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);
@@ -2232,10 +2323,10 @@ void ICorePrivate::readSettings()
     QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(settingsGroup);
 
-    if (m_overrideColor.isValid()) {
-        StyleHelper::setBaseColor(m_overrideColor);
+    if (s_overrideColor.isValid()) {
+        StyleHelper::setBaseColor(s_overrideColor);
         // Get adapted base color.
-        m_overrideColor = StyleHelper::baseColor();
+        s_overrideColor = StyleHelper::baseColor();
     } else {
         StyleHelper::setBaseColor(settings->value(colorKey,
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
@@ -2545,7 +2636,7 @@ void ICorePrivate::restoreWindowState()
 
 void ICore::setOverrideColor(const QColor &color)
 {
-    d->m_overrideColor = color;
+    s_overrideColor = color;
 }
 
 } // namespace Core

@@ -5,13 +5,20 @@
 
 #include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
-#include "cppeditorconstants.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
-#include "editordocumenthandle.h"
 
 #include <coreplugin/icore.h>
+
+#include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/MatchingText.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/ResolveExpression.h>
+
 #include <cppeditor/cppeditorconstants.h>
+
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -21,16 +28,10 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
-
-#include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/MatchingText.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/ResolveExpression.h>
 
 #include <QDirIterator>
 #include <QLatin1String>
@@ -783,7 +784,7 @@ const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext 
     ClassOrNamespace *target = context.lookupType(targetScope);
     if (!target)
         target = context.globalNamespace();
-    return LookupContext::minimalName(symbol, target, context.bindings()->control().data());
+    return LookupContext::minimalName(symbol, target, context.bindings()->control().get());
 }
 
 } // Anonymous
@@ -1218,7 +1219,8 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
+    const QStringList suffixes =
+        Utils::mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE).suffixes();
 
     for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(headerPaths)) {
         QString realPath = headerPath.path;
@@ -1267,8 +1269,8 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
         return false;
 
     const Utils::MimeType mt = Utils::mimeTypeForFile(interface()->filePath());
-    return mt.matchesName(QLatin1String(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
-            || mt.matchesName(QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    return mt.matchesName(QLatin1String(Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
+            || mt.matchesName(QLatin1String(Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 int InternalCppCompletionAssistProcessor::startCompletionInternal(const Utils::FilePath &filePath,
@@ -2038,7 +2040,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                     targetCoN = context.globalNamespace();
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = context.bindings()->control().data();
+                Control *control = context.bindings()->control().get();
 
                 // set up signature autocompletion
                 for (Function *f : std::as_const(functions)) {

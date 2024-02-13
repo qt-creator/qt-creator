@@ -48,6 +48,10 @@ struct
     {
         FilePath script{":/terminal/shellintegrations/shellintegration-clink.lua"};
     } clink;
+    struct
+    {
+        FilePath script{":/terminal/shellintegrations/shellintegration.fish"};
+    } fish;
 
 } filesToCopy;
 // clang-format on
@@ -74,7 +78,34 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     if (cmdLine.executable().baseName() == "cmd")
         return true;
 
+    if (cmdLine.executable().baseName() == "fish")
+        return true;
+
     return false;
+}
+
+static QString unescape(QStringView str)
+{
+    QString result;
+    result.reserve(str.length());
+    for (int i = 0; i < str.length(); ++i) {
+        if (str[i] == '\\' && str.length() > i + 1) {
+            if (str[i + 1] == '\\') {
+                // e.g. \\ -> "\"
+                result.append('\\');
+                i++;
+                continue;
+            } else if (str[i + 1] == 'x' && str.length() > i + 3) {
+                // e.g.: \x5c -> \ (0x5c is the ASCII code for \)
+                result.append(QChar(str.sliced(i + 2, 2).toUShort(nullptr, 16)));
+                i += 3;
+                continue;
+            }
+        }
+
+        result.append(str[i]);
+    }
+    return result;
 }
 
 void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool final)
@@ -109,7 +140,7 @@ void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool f
         } else if (command[0] == 'P') {
             const auto [key, value] = Utils::splitAtFirst(data, '=');
             if (key == QStringView(u"Cwd"))
-                emit currentDirChanged(value.toString());
+                emit currentDirChanged(unescape(value.toString()));
         }
     }
 }
@@ -168,7 +199,9 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
             m_tempDir.filePath(filesToCopy.pwsh.script.fileName()));
         rcPath.copyFile(tmpRc);
 
-        cmd.addArgs(QString("-noexit -command try { . \"%1\" } catch {}{1}").arg(tmpRc.nativePath()),
+        cmd.addArgs(QString("-noexit -command try { . '%1' } catch {Write-Host \"Shell "
+                            "integration error:\" $_}")
+                        .arg(tmpRc.nativePath()),
                     CommandLine::Raw);
     } else if (cmd.executable().baseName() == "cmd") {
         const FilePath rcPath = filesToCopy.clink.script;
@@ -177,7 +210,13 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         rcPath.copyFile(tmpRc);
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
-        env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath(), ";");
+        env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath());
+    } else if (cmd.executable().baseName() == "fish") {
+        FilePath xdgDir = FilePath::fromUserInput(m_tempDir.filePath("fish_xdg_data"));
+        FilePath subDir = xdgDir.resolvePath(QString("fish/vendor_conf.d"));
+        QTC_ASSERT(subDir.createDir(), return);
+        filesToCopy.fish.script.copyFile(subDir.resolvePath(filesToCopy.fish.script.fileName()));
+        env.appendOrSet("XDG_DATA_DIRS", xdgDir.toUserOutput());
     }
 
     process.setCommand(cmd);

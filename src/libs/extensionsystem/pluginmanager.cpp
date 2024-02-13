@@ -55,7 +55,7 @@ Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem", QtWarningMsg)
 
 const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
-const int DELAYED_INITIALIZE_INTERVAL = 20; // ms
+const std::chrono::milliseconds DELAYED_INITIALIZE_INTERVAL{20};
 
 enum { debugLeaks = 0 };
 
@@ -320,6 +320,11 @@ QReadWriteLock *PluginManager::listLock()
 void PluginManager::loadPlugins()
 {
     d->loadPlugins();
+}
+
+void PluginManager::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
+{
+    d->loadPluginsAtRuntime(plugins);
 }
 
 /*!
@@ -859,7 +864,7 @@ bool PluginManager::finishScenario()
     if (d->m_isScenarioFinished.exchange(true))
         return false; // Finish was already called before. We return false, as we didn't finish it right now.
 
-    QMetaObject::invokeMethod(d, []() { emit m_instance->scenarioFinished(0); });
+    QMetaObject::invokeMethod(d, [] { emit m_instance->scenarioFinished(0); });
     return true; // Finished successfully.
 }
 
@@ -970,7 +975,7 @@ void PluginManagerPrivate::startDelayedInitialize()
                 const QString info = QString("Successfully started scenario \"%1\"...").arg(d->m_requestedScenario);
                 qInfo("%s", qPrintable(info));
             } else {
-                QMetaObject::invokeMethod(this, []() { emit m_instance->scenarioFinished(1); });
+                QMetaObject::invokeMethod(this, [] { emit m_instance->scenarioFinished(1); });
             }
         }
 #endif
@@ -1053,9 +1058,39 @@ void PluginManagerPrivate::deleteAll()
     });
 }
 
+void PluginManagerPrivate::checkForDuplicatePlugins()
+{
+    QHash<QString, PluginSpec *> seen;
+    for (PluginSpec *spec : pluginSpecs) {
+        if (PluginSpec *other = seen.value(spec->name())) {
+            // Plugin with same name already there. We do not know, which version is the right one,
+            // keep it simple and fail both (if enabled).
+            if (spec->isEffectivelyEnabled() && other->isEffectivelyEnabled()) {
+                const QString error = Tr::tr(
+                    "Multiple versions of the same plugin have been found.");
+                spec->d->hasError = true;
+                spec->d->errorString = error;
+                other->d->hasError = true;
+                other->d->errorString = error;
+            }
+        } else {
+            seen.insert(spec->name(), spec);
+        }
+    }
+}
+
+static QHash<IPlugin *, QList<TestCreator>> g_testCreators;
+
+void PluginManagerPrivate::addTestCreator(IPlugin *plugin, const TestCreator &testCreator)
+{
+#ifdef WITH_TESTS
+    g_testCreators[plugin].append(testCreator);
+#endif
+}
+
 #ifdef WITH_TESTS
 
-using TestPlan = QMap<QObject *, QStringList>; // Object -> selected test functions
+using TestPlan = QHash<QObject *, QStringList>; // Object -> selected test functions
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {
@@ -1263,7 +1298,8 @@ void PluginManagerPrivate::startTests()
         if (!plugin)
             continue; // plugin not loaded
 
-        const QVector<QObject *> testObjects = plugin->createTestObjects();
+        const QList<TestCreator> testCreators = g_testCreators[plugin];
+        const QVector<QObject *> testObjects = Utils::transform(testCreators, &TestCreator::operator());
         const QScopeGuard cleanup([&] { qDeleteAll(testObjects); });
 
         const bool hasDuplicateTestObjects = testObjects.size()
@@ -1278,7 +1314,7 @@ void PluginManagerPrivate::startTests()
         failedTests += executeTestPlan(testPlan);
     }
 
-    QTimer::singleShot(0, this, [failedTests]() { emit m_instance->testsFinished(failedTests); });
+    QTimer::singleShot(0, this, [failedTests] { emit m_instance->testsFinished(failedTests); });
 }
 #endif
 
@@ -1380,6 +1416,33 @@ void PluginManagerPrivate::loadPlugins()
             this,
             &PluginManagerPrivate::startDelayedInitialize);
     delayedInitializeTimer.start();
+}
+
+void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
+{
+    QTC_CHECK(allOf(plugins, [](PluginSpec *spec) { return spec->isSoftLoadable(); }));
+    // load the plugins ordered by dependency
+    const QList<PluginSpec *> queue = filtered(loadQueue(), [&plugins](PluginSpec *spec) {
+        return plugins.contains(spec);
+    });
+    std::queue<PluginSpec *> localDelayedInitializeQueue;
+    for (PluginSpec *spec : queue)
+        loadPlugin(spec, PluginSpec::Loaded);
+    for (PluginSpec *spec : queue)
+        loadPlugin(spec, PluginSpec::Initialized);
+    Utils::reverseForeach(queue,
+                          [this](PluginSpec *spec) { loadPlugin(spec, PluginSpec::Running); });
+    Utils::reverseForeach(queue, [](PluginSpec *spec) {
+        if (spec->state() == PluginSpec::Running) {
+            const bool delay = spec->d->delayedInitialize();
+            if (delay)
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        } else {
+            // Plugin initialization failed, so cleanup after it
+            spec->d->kill();
+        }
+    });
+    emit q->pluginsChanged();
 }
 
 /*!
@@ -1616,17 +1679,19 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         break;
     }
     // check if dependencies have loaded without error
-    const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
-    for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
-        if (it.key().type != PluginDependency::Required)
-            continue;
-        PluginSpec *depSpec = it.value();
-        if (depSpec->state() != destState) {
-            spec->d->hasError = true;
-            spec->d->errorString =
-                Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
-                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
-            return;
+    if (!spec->isSoftLoadable()) {
+        const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
+        for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
+            if (it.key().type != PluginDependency::Required)
+                continue;
+            PluginSpec *depSpec = it.value();
+            if (depSpec->state() != destState) {
+                spec->d->hasError = true;
+                spec->d->errorString =
+                    Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                        .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
+                return;
+            }
         }
     }
     switch (destState) {
@@ -1732,6 +1797,7 @@ void PluginManagerPrivate::readPluginPaths()
     }
     resolveDependencies();
     enableDependenciesIndirectly();
+    checkForDuplicatePlugins();
     // ensure deterministic plugin load order by sorting
     Utils::sort(pluginSpecs, &PluginSpec::name);
     emit q->pluginsChanged();
@@ -1882,7 +1948,7 @@ bool PluginManager::isInitializationDone()
 
 bool PluginManager::isShuttingDown()
 {
-    return d->m_isShuttingDown;
+    return !d || d->m_isShuttingDown;
 }
 
 /*!

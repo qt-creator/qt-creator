@@ -245,9 +245,9 @@ void FileExtractor::extract()
         emit detailedTextChanged();
     });
 
-    QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this](bool success) {
+    QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this](Tasking::DoneResult result) {
         m_unarchiver.release()->deleteLater();
-        m_finished = success;
+        m_finished = result == Tasking::DoneResult::Success;
         m_timer.stop();
 
         m_progress = 100;
@@ -255,7 +255,7 @@ void FileExtractor::extract()
 
         emit targetFolderExistsChanged();
         emit finishedChanged();
-        QTC_CHECK(success);
+        QTC_CHECK(m_finished);
     });
     m_unarchiver->start();
 }

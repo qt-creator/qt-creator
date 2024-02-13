@@ -90,7 +90,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
         m_cmakeGen->initialize(qmlProject());
         updateMcuBuildStep(target, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, this, [this]() {
+    connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         m_cmakeGen->initialize(qmlProject());
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
@@ -239,9 +239,9 @@ void QmlBuildSystem::parseProjectFiles()
     }
 
 
-    Utils::FilePath mainFilePath{Utils::FilePath::fromString(m_projectItem->mainFile())};
-    if (!mainFilePath.isEmpty()) {
-        mainFilePath = canonicalProjectDir().resolvePath(m_projectItem->mainFile());
+    const QString mainFileName = m_projectItem->mainFile();
+    if (!mainFileName.isEmpty()) {
+        Utils::FilePath mainFilePath = canonicalProjectDir().resolvePath(mainFileName);
         Utils::FileReader reader;
         QString errorMessage;
         if (!reader.fetch(mainFilePath, &errorMessage)) {

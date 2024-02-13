@@ -7,21 +7,26 @@
 #include "haskelltr.h"
 #include "haskellsettings.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/processinterface.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Haskell::Internal {
 
-class HaskellRunConfiguration : public RunConfiguration
+class HaskellRunConfiguration final : public RunConfiguration
 {
 public:
     HaskellRunConfiguration(Target *target, Id id)
@@ -46,7 +51,7 @@ public:
     }
 
 private:
-    Utils::ProcessRunData runnable() const final
+    ProcessRunData runnable() const final
     {
         const FilePath projectDirectory = project()->projectDirectory();
         ProcessRunData r;
@@ -75,11 +80,22 @@ private:
 
 // Factory
 
-HaskellRunConfigurationFactory::HaskellRunConfigurationFactory()
+class HaskellRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
-    registerRunConfiguration<HaskellRunConfiguration>(Constants::C_HASKELL_RUNCONFIG_ID);
-    addSupportedProjectType(Constants::C_HASKELL_PROJECT_ID);
-    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+public:
+    HaskellRunConfigurationFactory()
+    {
+        registerRunConfiguration<HaskellRunConfiguration>(Constants::C_HASKELL_RUNCONFIG_ID);
+        addSupportedProjectType(Constants::C_HASKELL_PROJECT_ID);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    }
+};
+
+void setupHaskellRunSupport()
+{
+    static HaskellRunConfigurationFactory runConfigFactory;
+    static SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
+    static SimpleDebugRunnerFactory debugWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 }
 
 } // Haskell::Internal

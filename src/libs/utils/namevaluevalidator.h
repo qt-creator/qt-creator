@@ -5,14 +5,13 @@
 
 #include "utils_global.h"
 
-#include "environmentfwd.h"
-
 #include <QPersistentModelIndex>
 #include <QTimer>
 #include <QValidator>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace Utils {

@@ -2,5 +2,17 @@
     <qresource prefix="/axivion">
         <file>images/axivion.png</file>
         <file>images/axivion@2x.png</file>
+        <file>images/button-av.png</file>
+        <file>images/button-av@2x.png</file>
+        <file>images/button-cl.png</file>
+        <file>images/button-cl@2x.png</file>
+        <file>images/button-cy.png</file>
+        <file>images/button-cy@2x.png</file>
+        <file>images/button-de.png</file>
+        <file>images/button-de@2x.png</file>
+        <file>images/button-mv.png</file>
+        <file>images/button-mv@2x.png</file>
+        <file>images/button-sv.png</file>
+        <file>images/button-sv@2x.png</file>
     </qresource>
 </RCC>

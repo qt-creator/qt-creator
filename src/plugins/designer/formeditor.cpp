@@ -27,10 +27,13 @@
 #include <coreplugin/outputpane.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+
+#include <aggregation/aggregate.h>
 
 #include <abstractobjectinspector.h>
 #include <QDesignerActionEditorInterface>
@@ -208,10 +211,7 @@ public:
     QWidget *m_modeWidget = nullptr;
     EditorWidget *m_editorWidget = nullptr;
 
-    QWidget *m_editorToolBar = nullptr;
-    EditorToolBar *m_toolBar = nullptr;
-
-    QMap<Command *, QAction *> m_commandToDesignerAction;
+    QHash<Command *, QAction *> m_commandToDesignerAction;
     FormWindowEditorFactory *m_xmlEditorFactory = nullptr;
 };
 
@@ -347,12 +347,6 @@ void FormEditorData::setupViewActions()
     Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), m_contexts, "FormEditor.SeparatorLock", viewMenu);
     cmd->setAttribute(Command::CA_Hide);
 
-    cmd = addToolAction(m_editorWidget->autoHideTitleBarsAction(), m_contexts, "FormEditor.Locked", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = addToolAction(m_editorWidget->menuSeparator2(), m_contexts, "FormEditor.SeparatorReset", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
     cmd = addToolAction(m_editorWidget->resetLayoutAction(), m_contexts, "FormEditor.ResetToDefaultLayout", viewMenu);
 
     QObject::connect(m_editorWidget, &EditorWidget::resetLayout,
@@ -406,25 +400,25 @@ void FormEditorData::fullInit()
             m_editorWidget->removeFormWindowEditor(editor);
     });
 
+    QWidget *editorToolBar = createEditorToolBar();
+    auto toolBar = new EditorToolBar;
+    toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
+    toolBar->setNavigationVisible(false);
+    toolBar->addCenterToolBar(editorToolBar);
+
     // Nest toolbar and editor widget
-    m_editorWidget = new EditorWidget;
+    m_editorWidget = new EditorWidget(toolBar);
+    m_editorWidget->showCentralWidgetAction()->setVisible(false);
     QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroupC);
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
-
-    m_editorToolBar = createEditorToolBar();
-    m_toolBar = new EditorToolBar;
-    m_toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
-    m_toolBar->setNavigationVisible(false);
-    m_toolBar->addCenterToolBar(m_editorToolBar);
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
     auto layout = new QVBoxLayout(m_modeWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(m_toolBar);
     // Avoid mode switch to 'Edit' mode when the application started by
     // 'Run' in 'Design' mode emits output.
     auto splitter = new MiniSplitter(Qt::Vertical);
@@ -438,7 +432,10 @@ void FormEditorData::fullInit()
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
     ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, this));
 
-    DesignMode::registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
+    DesignMode::registerDesignWidget(m_modeWidget,
+                                     QStringList(Utils::Constants::FORM_MIMETYPE),
+                                     m_contexts,
+                                     m_editorWidget);
 
     setupViewActions();
 
@@ -811,7 +808,6 @@ IEditor *FormEditorData::createEditor()
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
 
     m_editorWidget->add(widgetHost, formWindowEditor);
-    m_toolBar->addEditor(formWindowEditor);
 
     if (formWindowEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "dockersettings.h"
-
 #include <coreplugin/documentmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -42,8 +40,8 @@ public:
 class DockerDevice : public ProjectExplorer::IDevice
 {
 public:
-    using Ptr = QSharedPointer<DockerDevice>;
-    using ConstPtr = QSharedPointer<const DockerDevice>;
+    using Ptr = std::shared_ptr<DockerDevice>;
+    using ConstPtr = std::shared_ptr<const DockerDevice>;
 
     explicit DockerDevice(std::unique_ptr<DockerDeviceSettings> settings);
     ~DockerDevice();
@@ -104,7 +102,7 @@ public:
 
 private:
     QMutex m_deviceListMutex;
-    std::vector<QWeakPointer<DockerDevice>> m_existingDevices;
+    std::vector<std::weak_ptr<DockerDevice>> m_existingDevices;
 };
 
 } // namespace Docker::Internal

@@ -141,12 +141,12 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     qCDebug(qbsPmLog) << "matching kit" << k->displayName() << "against imported build"
                       << bgData->bgFilePath.toUserOutput();
-    if (ToolChainKitAspect::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
+    if (ToolchainKitAspect::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
             && bgData->cxxCompilerPath.isEmpty()) {
         return true;
     }
-    const ToolChain * const cToolchain = ToolChainKitAspect::cToolChain(k);
-    const ToolChain * const cxxToolchain = ToolChainKitAspect::cxxToolChain(k);
+    const Toolchain * const cToolchain = ToolchainKitAspect::cToolchain(k);
+    const Toolchain * const cxxToolchain = ToolchainKitAspect::cxxToolchain(k);
     if (!bgData->cCompilerPath.isEmpty()) {
         if (!cToolchain)
             return false;
@@ -183,14 +183,14 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
         qtVersionData = findOrCreateQtVersion(qmakeFilePath);
     }
     return createTemporaryKit(qtVersionData,[this, bgData](Kit *k) -> void {
-        QList<ToolChainData> tcData;
+        QList<ToolchainData> tcData;
         if (!bgData->cxxCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cxxCompilerPath, PEConstants::CXX_LANGUAGE_ID});
+            tcData << findOrCreateToolchains({bgData->cxxCompilerPath, PEConstants::CXX_LANGUAGE_ID});
         if (!bgData->cCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
-        for (const ToolChainData &tc : std::as_const(tcData)) {
+            tcData << findOrCreateToolchains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
+        for (const ToolchainData &tc : std::as_const(tcData)) {
             if (!tc.tcs.isEmpty())
-                ToolChainKitAspect::setToolChain(k, tc.tcs.first());
+                ToolchainKitAspect::setToolchain(k, tc.tcs.first());
         }
         SysRootKitAspect::setSysRoot(k, bgData->sysroot);
     });
@@ -205,9 +205,9 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) co
             ? BuildConfiguration::Profile : bgData->buildVariant == QbsConstants::QBS_VARIANT_RELEASE
             ? BuildConfiguration::Release : BuildConfiguration::Debug;
     info.buildDirectory = bgData->bgFilePath.parentDir().parentDir();
-    QVariantMap config = bgData->overriddenProperties;
+    Store config = storeFromMap(bgData->overriddenProperties);
     config.insert("configName", info.displayName);
-    info.extraInfo = config;
+    info.extraInfo = variantFromStore(config);
     qCDebug(qbsPmLog) << "creating build info for " << info.displayName << ' ' << bgData->buildVariant;
     return {info};
 }

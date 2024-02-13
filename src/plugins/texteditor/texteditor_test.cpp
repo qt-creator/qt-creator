@@ -4,14 +4,13 @@
 #ifdef WITH_TESTS
 
 #include "tabsettings.h"
-#include "texteditorplugin.h"
 
 #include <QTextDocument>
 #include <QtTest/QtTest>
 
-namespace TextEditor {
+namespace TextEditor::Internal {
 
-QString tabPolicyToString(TabSettings::TabPolicy policy)
+static QString tabPolicyToString(TabSettings::TabPolicy policy)
 {
     switch (policy) {
     case TabSettings::SpacesOnlyTabPolicy:
@@ -24,7 +23,7 @@ QString tabPolicyToString(TabSettings::TabPolicy policy)
     return QString();
 }
 
-QString continuationAlignBehaviorToString(TabSettings::ContinuationAlignBehavior behavior)
+static QString continuationAlignBehaviorToString(TabSettings::ContinuationAlignBehavior behavior)
 {
     switch (behavior) {
     case TabSettings::NoContinuationAlign:
@@ -37,13 +36,15 @@ QString continuationAlignBehaviorToString(TabSettings::ContinuationAlignBehavior
     return QString();
 }
 
-struct TabSettingsFlags{
+struct TabSettingsFlags
+{
     TabSettings::TabPolicy policy;
     TabSettings::ContinuationAlignBehavior behavior;
 };
 
 using IsClean = std::function<bool (TabSettingsFlags)>;
-void generateTestRows(const QLatin1String &name, const QString &text, IsClean isClean)
+
+static void generateTestRows(const QLatin1String &name, const QString &text, IsClean isClean)
 {
     const QVector<TabSettings::TabPolicy> allPolicies = {
         TabSettings::SpacesOnlyTabPolicy,
@@ -74,7 +75,16 @@ void generateTestRows(const QLatin1String &name, const QString &text, IsClean is
     }
 }
 
-void Internal::TextEditorPlugin::testIndentationClean_data()
+class TextEditorTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testIndentationClean_data();
+    void testIndentationClean();
+};
+
+void TextEditorTest::testIndentationClean_data()
 {
     QTest::addColumn<TabSettings::TabPolicy>("policy");
     QTest::addColumn<TabSettings::ContinuationAlignBehavior>("behavior");
@@ -126,7 +136,7 @@ void Internal::TextEditorPlugin::testIndentationClean_data()
     });
 }
 
-void Internal::TextEditorPlugin::testIndentationClean()
+void TextEditorTest::testIndentationClean()
 {
     // fetch test data
     QFETCH(TabSettings::TabPolicy, policy);
@@ -142,6 +152,13 @@ void Internal::TextEditorPlugin::testIndentationClean()
     QCOMPARE(settings.isIndentationClean(block, indentSize), clean);
 }
 
-} // namespace TextEditor
+QObject *createTextEditorTest()
+{
+    return new TextEditorTest;
+}
 
-#endif // ifdef WITH_TESTS
+} // TextEditor::Internal
+
+#include "texteditor_test.moc"
+
+#endif // WITH_TESTS

@@ -5,16 +5,8 @@
 
 #include "codeassist/iassistprovider.h"
 
+namespace TextEditor::Internal {
 
-namespace TextEditor {
-namespace Internal {
+IAssistProvider &clipboardAssistProvider();
 
-class ClipboardAssistProvider: public IAssistProvider
-{
-public:
-    ClipboardAssistProvider(QObject *parent = nullptr) : IAssistProvider(parent) {}
-    IAssistProcessor *createProcessor(const AssistInterface *) const override;
-};
-
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

@@ -1,9 +1,8 @@
 // Copyright (C) 2016 Lorenz Haas
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "beautifierplugin.h"
-
 #include "beautifierconstants.h"
+#include "beautifiertool.h"
 #include "beautifiertr.h"
 #include "generalsettings.h"
 
@@ -20,6 +19,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -30,17 +31,17 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/mimeutils.h>
 
 #include <QMenu>
 
+using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Beautifier::Internal {
 
-bool isAutoFormatApplicable(const Core::IDocument *document,
-                            const QList<Utils::MimeType> &allowedMimeTypes)
+static bool isAutoFormatApplicable(const IDocument *document,
+                                   const QList<MimeType> &allowedMimeTypes)
 {
     if (!document)
         return false;
@@ -48,106 +49,90 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
     if (allowedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
-    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
+    const MimeType documentMimeType = mimeTypeForName(document->mimeType());
+    return anyOf(allowedMimeTypes, [&documentMimeType](const MimeType &mime) {
         return documentMimeType.inherits(mime.name());
     });
 }
 
-class BeautifierPluginPrivate : public QObject
+class BeautifierPlugin final : public ExtensionSystem::IPlugin
 {
-public:
-    BeautifierPluginPrivate();
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
 
-    void updateActions(Core::IEditor *editor = nullptr);
+    void initialize() final
+    {
+        MenuBuilder(Constants::MENU_ID)
+            .setTitle(Tr::tr("Bea&utifier"))
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
 
-    void autoFormatOnSave(Core::IDocument *document);
+        setupArtisticStyle();
+        setupClangFormat();
+        setupUncrustify();
+    }
 
-    ArtisticStyle artisticStyleBeautifier;
-    ClangFormat clangFormatBeautifier;
-    Uncrustify uncrustifyBeautifier;
-};
+    void extensionsInitialized() final
+    {
+        for (BeautifierTool *tool : BeautifierTool::allTools())
+            generalSettings().autoFormatTools.addOption(tool->id());
 
-static BeautifierPluginPrivate *dd = nullptr;
+        updateActions();
 
-void BeautifierPlugin::initialize()
-{
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(Tr::tr("Bea&utifier"));
-    menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
-    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-}
+        const EditorManager *editorManager = EditorManager::instance();
+        connect(editorManager, &EditorManager::currentEditorChanged,
+                this, &BeautifierPlugin::updateActions);
+        connect(editorManager, &EditorManager::aboutToSave,
+                this, &BeautifierPlugin::autoFormatOnSave);
+    }
 
-void BeautifierPlugin::extensionsInitialized()
-{
-    dd = new BeautifierPluginPrivate;
-}
+    void updateActions(IEditor *editor = nullptr)
+    {
+        for (BeautifierTool *tool : BeautifierTool::allTools())
+            tool->updateActions(editor);
+    }
 
-ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
-{
-    delete dd;
-    dd = nullptr;
-    return SynchronousShutdown;
-}
-
-BeautifierPluginPrivate::BeautifierPluginPrivate()
-{
-    for (BeautifierTool *tool : BeautifierTool::allTools())
-        generalSettings().autoFormatTools.addOption(tool->id());
-
-    updateActions();
-
-    const Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &BeautifierPluginPrivate::updateActions);
-    connect(editorManager, &Core::EditorManager::aboutToSave,
-            this, &BeautifierPluginPrivate::autoFormatOnSave);
-}
-
-void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
-{
-    for (BeautifierTool *tool : BeautifierTool::allTools())
-        tool->updateActions(editor);
-}
-
-void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
-{
-    if (!generalSettings().autoFormatOnSave())
-        return;
-
-    if (!isAutoFormatApplicable(document, generalSettings().allowedMimeTypes()))
-        return;
-
-    // Check if file is contained in the current project (if wished)
-    if (generalSettings().autoFormatOnlyCurrentProject()) {
-        const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro
-            || pro->files([document](const ProjectExplorer::Node *n) {
-                      return ProjectExplorer::Project::SourceFiles(n)
-                             && n->filePath() == document->filePath();
-                  })
-                   .isEmpty()) {
+    void autoFormatOnSave(IDocument *document)
+    {
+        if (!generalSettings().autoFormatOnSave())
             return;
+
+        if (!isAutoFormatApplicable(document, generalSettings().allowedMimeTypes()))
+            return;
+
+        // Check if file is contained in the current project (if wished)
+        if (generalSettings().autoFormatOnlyCurrentProject()) {
+            const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
+            if (!pro
+                || pro->files([document](const ProjectExplorer::Node *n) {
+                          return ProjectExplorer::Project::SourceFiles(n)
+                                 && n->filePath() == document->filePath();
+                      })
+                       .isEmpty()) {
+                return;
+            }
+        }
+
+        // Find tool to use by id and format file!
+        const QString id = generalSettings().autoFormatTools.stringValue();
+        const QList<BeautifierTool *> &tools = BeautifierTool::allTools();
+        auto tool = std::find_if(std::begin(tools), std::end(tools),
+                                 [&id](const BeautifierTool *t){return t->id() == id;});
+        if (tool != std::end(tools)) {
+            if (!(*tool)->isApplicable(document))
+                return;
+            const TextEditor::Command command = (*tool)->textCommand();
+            if (!command.isValid())
+                return;
+            const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
+            if (editors.isEmpty())
+                return;
+            if (auto widget = TextEditorWidget::fromEditor(editors.first()))
+                TextEditor::formatEditor(widget, command);
         }
     }
-
-    // Find tool to use by id and format file!
-    const QString id = generalSettings().autoFormatTools.stringValue();
-    const QList<BeautifierTool *> &tools = BeautifierTool::allTools();
-    auto tool = std::find_if(std::begin(tools), std::end(tools),
-                             [&id](const BeautifierTool *t){return t->id() == id;});
-    if (tool != std::end(tools)) {
-        if (!(*tool)->isApplicable(document))
-            return;
-        const TextEditor::Command command = (*tool)->textCommand();
-        if (!command.isValid())
-            return;
-        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
-        if (editors.isEmpty())
-            return;
-        if (auto widget = TextEditorWidget::fromEditor(editors.first()))
-            TextEditor::formatEditor(widget, command);
-    }
-}
+};
 
 } // Beautifier::Internal
+
+#include "beautifierplugin.moc"

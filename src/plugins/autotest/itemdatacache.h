@@ -45,7 +45,6 @@ public:
     };
 
     void clear() { m_cache.clear(); }
-    bool isEmpty() const { return m_cache.isEmpty(); }
 
     QVariantMap toSettings(const T &valueToIgnore) const
     {

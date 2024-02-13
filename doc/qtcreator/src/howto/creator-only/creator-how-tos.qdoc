@@ -37,6 +37,14 @@
 
     \generatelist creator-how-to-build-with-qmake
 
+    \section2 Run applications
+
+    \generatelist creator-how-to-run
+
+    \section1 Create Models and Diagrams
+
+    \generatelist creator-how-to-models
+
     \section1 Debug
 
     \generatelist creator-how-to-debug
@@ -48,6 +56,14 @@
     \section1 Edit Code
 
     \generatelist creator-how-to-edit
+
+    \section2 Configure Editors
+
+    \generatelist creator-how-to-configure-editors
+
+    \section2 Manage Language Servers
+
+    \generatelist creator-how-to-lsp
 
     \section1 Manage Kits
 
@@ -83,26 +99,6 @@
 */
 
 /*!
-    \page creator-how-to-move-between-open-files.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-edit
-
-    \title Move between open files
-
-    To quickly move between currently open files, press
-    \key Ctrl+Tab.
-
-    To move forward in the location history, press \key {Alt+Right}
-    (\key {Cmd+Opt+Right} on \macos).
-
-    To move backward, press \key {Alt+Left} (\key {Cmd+Opt+Left} on \macos).
-    For example, if you use the \uicontrol Locator
-    to jump to a symbol in the same file, you can jump back to your original
-    location in that file by pressing \key {Alt+Left}.
-*/
-
-/*!
     \page creator-how-to-switch-to-edit-mode.html
     \previouspage creator-how-tos.html
 
@@ -122,6 +118,8 @@
         \li The second press closes secondary windows
 
     \endlist
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -184,29 +182,6 @@
 */
 
 /*!
-    \page creator-how-to-move-to-symbols.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-edit
-
-    \title Move to symbols
-
-    To move straight to a symbol used in a project, select the symbol in the
-    \uicontrol Editor toolbar drop-down menu. For more information on the editor
-    toolbar, see \l {Using the Editor Toolbar}.
-
-    To jump to a symbol in the current file, press \key {Ctrl+K} to open the
-    \uicontrol Locator, enter a period (.), and start typing the symbol name. Then
-    select the symbol in the list. For more information on using the locator,
-    see \l{Searching with the Locator}.
-
-    Press \key Ctrl (\key Cmd on \macos) and click a symbol to move directly to
-    the definition or the declaration of the symbol. You can also move the
-    cursor on the symbol and press \key {F2}. For more information, see
-    \l{Moving to Symbol Definition or Declaration}.
-*/
-
-/*!
     \page creator-how-to-locate-files-using-keyboard.html
     \previouspage creator-how-tos.html
 
@@ -228,7 +203,7 @@
 
     \image qtcreator-locator-customize.webp "Locator preferences"
 
-    For more information, see \l{Creating Locator Filters}.
+    \sa {Creating Locator Filters}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -245,7 +220,7 @@
 
     \image qtcreator-locator.webp "List of locator filters"
 
-    For more information, see \l{Executing JavaScript}.
+    \sa {Executing JavaScript}
 */
 
 /*!
@@ -258,6 +233,8 @@
 
     Open the \uicontrol Locator with \key {Ctrl+K} and type m, followed by a space.
     You can now go directly to any QML method in the file.
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -301,19 +278,8 @@
     \QC stores copied text in clipboard history. To retrieve clips from the
     history, press \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
-*/
 
-/*!
-    \page creator-how-to-sort-lines-alphabetically.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-edit
-
-    \title Sort lines alphabetically
-
-    To sort selected lines alphabetically, select \uicontrol Edit >
-    \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
-    \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -322,16 +288,18 @@
 
     \ingroup creator-how-to-edit
 
-    \title Enclose selected code in curly braces, parentheses, or double quotes
+    \title Enclose code in brackets or quotes
 
-    When you have selected code and enter one of the following opening
-    characters, the matching closing character is added automatically
-    at the end of the selection:
+    Select code and enter one of the following opening characters to add
+    the matching closing character at the end of the selection:
 
     \list
-        \li {
         \li (
+        \li {
+        \li [
+        \li <
         \li "
+        \li '
     \endlist
 
     To specify whether to automatically insert matching characters,
@@ -339,7 +307,7 @@
 
     \image qtcreator-preferences-texteditor-completion.webp "Completion preferences"
 
-    \sa {Completing Code}
+    \sa {Completion}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -351,23 +319,8 @@
     \title Select the enclosing block in C++
 
     Press \key {Ctrl+U}.
-*/
 
-/*!
-    \page creator-how-to-add-code-snippets.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-edit
-
-    \title Add code snippets to the auto-complete menu
-
-    Add, modify, and remove snippets in the snippet editor.
-    To open the editor, select \preferences > \uicontrol {Text Editor} >
-    \uicontrol Snippets.
-
-    \image qtcreator-snippet-modifiers.png "Snippets preferences"
-
-    For more information, see \l {Adding and Editing Snippets}.
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
 /*!
@@ -449,5 +402,5 @@
     \li Press \uicontrol Replace to replace all instances of the text.
     \endlist
 
-    For more information, see \l {Advanced Search}.
+    \sa {Advanced Search}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */

@@ -88,7 +88,7 @@ Tasking::GroupItem ConfigureStep::runRecipe()
 
         if (!m_runConfigure) {
             emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         ProcessParameters *param = processParameters();
@@ -98,9 +98,12 @@ Tasking::GroupItem ConfigureStep::runRecipe()
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] { m_runConfigure = false; };
 
-    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
+    return Group {
+        onGroupSetup(onSetup),
+        onGroupDone([this] { m_runConfigure = false; }, CallDoneIf::Success),
+        defaultProcessTask()
+    };
 }
 
 // ConfigureStepFactory

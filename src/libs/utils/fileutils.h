@@ -222,9 +222,13 @@ class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
 {
 public:
     explicit TempFileSaver(const QString &templ = QString());
+    explicit TempFileSaver(const FilePath &templ);
     ~TempFileSaver() override;
 
     void setAutoRemove(bool on) { m_autoRemove = on; }
+
+protected:
+    void initFromString(const QString &templ);
 
 private:
     bool m_autoRemove = true;

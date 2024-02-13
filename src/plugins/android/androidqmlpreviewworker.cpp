@@ -19,10 +19,10 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -112,7 +112,6 @@ private:
     Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
 
     RunControl *m_rc = nullptr;
-    const AndroidConfig &m_androidConfig;
     QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;
@@ -193,7 +192,7 @@ void AndroidQmlPreviewWorker::startLogcat()
     QString args = QString("logcat --pid=%1").arg(m_viewerPid);
     if (!m_logcatStartTimeStamp.isEmpty())
         args += QString(" -T '%1'").arg(m_logcatStartTimeStamp);
-    CommandLine cmd(AndroidConfigurations::currentConfig().adbToolPath());
+    CommandLine cmd(androidConfig().adbToolPath());
     cmd.setArguments(args);
     m_logcatProcess.setCommand(cmd);
     m_logcatProcess.setUseCtrlCStub(true);
@@ -218,8 +217,7 @@ void AndroidQmlPreviewWorker::filterLogcatAndAppendMessage(const QString &stdOut
 
 AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
     : RunWorker(runControl),
-      m_rc(runControl),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+      m_rc(runControl)
 {
     connect(this, &RunWorker::started, this, &AndroidQmlPreviewWorker::startPidWatcher);
     connect(this, &RunWorker::stopped, &m_pidFutureWatcher, &QFutureWatcher<void>::cancel);
@@ -264,14 +262,14 @@ void AndroidQmlPreviewWorker::stop()
 
 bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 {
-    AndroidAvdManager avdMananager(m_androidConfig);
+    AndroidAvdManager avdMananager;
     QString devSN = AndroidManager::deviceSerialNumber(m_rc->target());
 
     if (devSN.isEmpty())
         devSN = m_serialNumber;
 
     if (!avdMananager.isAvdBooted(devSN)) {
-        const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
+        const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).get();
         if (!dev) {
             appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
             return false;
@@ -291,7 +289,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
                 appendMessage(Tr::tr("Could not start AVD."), ErrorMessageFormat);
             } else {
                 m_serialNumber = devInfoLocal.serialNumber;
-                m_avdAbis = m_androidConfig.getAbis(m_serialNumber);
+                m_avdAbis = androidConfig().getAbis(m_serialNumber);
             }
             return !devInfoLocal.serialNumber.isEmpty();
         } else {
@@ -299,7 +297,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         }
         return false;
     }
-    m_avdAbis = m_androidConfig.getAbis(m_serialNumber);
+    m_avdAbis = androidConfig().getAbis(m_serialNumber);
     return true;
 }
 
@@ -489,13 +487,22 @@ bool AndroidQmlPreviewWorker::stopPreviewApp()
 
 // AndroidQmlPreviewWorkerFactory
 
-AndroidQmlPreviewWorkerFactory::AndroidQmlPreviewWorkerFactory()
+class AndroidQmlPreviewWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidQmlPreviewWorker>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-    addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration.Qml");
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
-    addSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+public:
+    AndroidQmlPreviewWorkerFactory()
+    {
+        setProduct<AndroidQmlPreviewWorker>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration.Qml");
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+        addSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    }
+};
+
+void setupAndroidQmlPreviewWorker()
+{
+    static AndroidQmlPreviewWorkerFactory theAndroidQmlPreviewWorkerFactory;
 }
 
 } // Android::Internal

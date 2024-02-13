@@ -4,18 +4,15 @@ add_qtc_plugin(ClangFormat
   PLUGIN_DEPENDS Core TextEditor CppEditor ProjectExplorer
   SOURCES
     clangformatbaseindenter.cpp clangformatbaseindenter.h
-    clangformatchecks.cpp clangformatchecks.h
     clangformatconfigwidget.cpp clangformatconfigwidget.h
     clangformatglobalconfigwidget.cpp clangformatglobalconfigwidget.h
     clangformatconstants.h
     clangformatfile.cpp clangformatfile.h
     clangformatindenter.cpp clangformatindenter.h
-    clangformatplugin.cpp clangformatplugin.h
+    clangformatplugin.cpp
     clangformatsettings.cpp clangformatsettings.h
     clangformattr.h
     clangformatutils.cpp clangformatutils.h
-  EXPLICIT_MOC
-    clangformatconfigwidget.cpp clangformatconfigwidget.h
 )
 
 if(TARGET ClangFormat)
@@ -39,5 +36,4 @@ extend_qtc_plugin(ClangFormat
     tests/clangformat-test.h
   DEFINES
     TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
-  EXPLICIT_MOC tests/clangformat-test.h
 )

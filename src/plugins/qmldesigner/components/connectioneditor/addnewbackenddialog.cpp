@@ -16,7 +16,7 @@ AddNewBackendDialog::AddNewBackendDialog(QWidget *parent) :
 
     connect(m_ui->comboBox, &QComboBox::currentTextChanged, this, &AddNewBackendDialog::invalidate);
 
-    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, [this]() {
+    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, [this] {
         m_applied = true;
         close();
     });

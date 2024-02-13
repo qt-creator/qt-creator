@@ -417,18 +417,6 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
         EditorManager::openEditorAt(Link{testResult.fileName(), testResult.line(), 0});
 }
 
-void TestResultsPane::onRunAllTriggered()
-{
-    TestRunner *runner = TestRunner::instance();
-    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getAllTestCases());
-}
-
-void TestResultsPane::onRunSelectedTriggered()
-{
-    TestRunner *runner = TestRunner::instance();
-    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getSelectedTests());
-}
-
 void TestResultsPane::initializeFilterMenu()
 {
     const bool omitIntern = testSettings().omitInternalMsg();
@@ -525,7 +513,7 @@ void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
     m_stopTestRun->setEnabled(true);
-    AutotestPlugin::updateMenuItemsEnabledState();
+    updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }
 
@@ -541,7 +529,7 @@ void TestResultsPane::onTestRunFinished()
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 
-    AutotestPlugin::updateMenuItemsEnabledState();
+    updateMenuItemsEnabledState();
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();

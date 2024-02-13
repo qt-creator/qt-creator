@@ -86,7 +86,7 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
     m_modelManager->replayQmlEvents(filter(std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
                                                      std::placeholders::_1, std::placeholders::_2)),
                                     std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
-                                    [this]() {
+                                    [this] {
         finalize();
         notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
     }, [this](const QString &message) {

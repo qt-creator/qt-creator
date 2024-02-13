@@ -13,11 +13,12 @@ Q_LOGGING_CATEGORY(terminalSearchLog, "qtc.terminal.search", QtWarningMsg)
 
 using namespace Utils;
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 
 namespace Core {
 
-constexpr std::chrono::milliseconds debounceInterval = 100ms;
+constexpr milliseconds debounceInterval = 100ms;
 
 TerminalSearch::TerminalSearch(TerminalSolution::TerminalSurface *surface)
     : m_surface(surface)

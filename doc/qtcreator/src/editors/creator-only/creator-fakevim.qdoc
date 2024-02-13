@@ -1,24 +1,46 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-editor-options-text.html
+    \page creator-how-to-edit-vim-style.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-configure-editors
+
+    \title Edit like in Vim
+
+    To run the main editor in a manner similar to the Vim editor, go to
+    \uicontrol Edit > \uicontrol Advanced and select \uicontrol {Use FakeVim},
+    or press \key {Alt+Y,Alt+Y}.
+
+    \section1 Escape FakeVim mode
+
+    To temporarily escape FakeVim mode to access the normal \QC keyboard
+    shortcuts like \key {Ctrl-R} for \uicontrol Run, press the comma
+    key (\key {,}) before pressing the shortcut.
+
+    \section1 Quit FakeVim mode
+
+    To quit the FakeVim mode, go to \uicontrol Edit > \uicontrol Advanced and
+    clear \uicontrol {Use FakeVim}, or press \key {Alt+Y,Alt+Y}.
+
+    \sa {FakeVim Modes and Commands}, {FakeVim}, {Change editor colors}
+*/
+
+/*!
     \page creator-editor-fakevim.html
-    \nextpage creator-markdown-editor.html
+    \previouspage creator-reference.html
 
-    \title Using FakeVim Mode
+    \ingroup creator-reference
 
-    In the \uicontrol FakeVim mode, you can run the main editor in a manner
-    similar to the Vim editor. To run the editor in the \uicontrol FakeVim
-    mode, select \uicontrol Edit > \uicontrol Advanced >
-    \uicontrol {Use Vim-style Editing} or press \key {Alt+V,Alt+V}.
+    \title FakeVim Modes and Commands
 
-    \section1 Supported Modes and Commands
+    \brief Supported Vim modes and emulated commands.
 
-    In the \uicontrol FakeVim mode, most keystrokes in the main editor will be
+    In the \uicontrol FakeVim mode, most keystrokes in the main editor are
     intercepted and interpreted in a way that resembles Vim. Most of the
     supported commands can be followed by a motion command or executed in visual
-    mode, or they work with registers or can be prefixed with a number of
+    mode, or they work with registers, or can be prefixed with a number of
     repetitions.
 
     The following sections describe the commands emulated in the supported modes
@@ -31,10 +53,10 @@
         \li Insert and replace
     \endlist
 
-    For more information on using Vim, see \l{http://www.vim.org/docs.php}
+    For more information about using Vim, see \l{http://www.vim.org/docs.php}
     {Documentation} on the Vim web site.
 
-    \section2 Normal and Visual Modes
+    \section1 Normal and Visual Modes
 
     \list
         \li Basic movement, such as \c h/j/k/l, \c <C-U>, \c <C-D>, \c <C-F>,
@@ -66,7 +88,7 @@
         \li Wrap line movement, such as \c gj, \c gk, \c g0, \c g^, \c g$
     \endlist
 
-    \section2 Command-Line Mode
+    \section1 Command-Line Mode
 
     \list
         \li \c :map, \c :unmap, \c :inoremap, and so on
@@ -90,34 +112,7 @@
             Currently supported letters: \c fo-j
     \endlist
 
-    \section2 Plugin Emulation
-
-    FakeVim also emulates some popular vim plugins. To enable plugin emulation
-    for particular plugins, select \preferences >
-    \uicontrol FakeVim > \uicontrol General > \uicontrol {Plugin Emulation}.
-
-    \image qtcreator-fakevim-options-general-plugin-emulation.png "FakeVim Plugin Emulation preferences"
-
-    Currently emulated plugins:
-    \list
-        \li \l{https://github.com/tpope/vim-commentary}{vim-commentary}: \c gc
-        action to comment code regions. For example, \c gcc, \c gc2j, \c gcip
-        \li
-        \l{https://github.com/vim-scripts/ReplaceWithRegister}{ReplaceWithRegister}:
-        \list
-            \li \c [count]["x]gr{motion} to replace \c {motion} with the contents of
-        register \c x.
-            \li ["x]grr to replace the current line.
-        \endlist
-        \li \l{https://github.com/vim-scripts/argtextobj.vim}{argtextobj.vim}:
-        Defines the \c ia and \c aa text objects for function parameters.
-        \li \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}:
-        A text exchange operator for vim.
-        \li \l{https://github.com/tpope/vim-surround}{vim-surround}:
-        Adds mappings for deleting, adding and changing surroundings.
-    \endlist
-
-    \section2 Insert Mode
+    \section1 Insert Mode
 
     \list
         \li \c <C-O> executes a single command and returns to insert mode
@@ -125,7 +120,7 @@
         \li \c <insert> toggles replace mode
     \endlist
 
-    \section2 Options
+    \section1 Options
 
     Use \c {:set ...} to set the options listed in the following table:
 
@@ -221,7 +216,7 @@
         \li
     \endtable
 
-    \section2 Vimrc Example
+    \section1 Vimrc Example
 
     \code
     " highlight matched
@@ -266,54 +261,107 @@
     vnoremap <C-S-K> :m-2<CR>gv=gv
     \endcode
 
+    \sa {Edit like in Vim}, {FakeVim}
+*/
+
+/*!
+    \page creator-reference-preferences-fakevim.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title FakeVim
+
+    \brief Set indentation for Vim-style editing and map vim commands
+    to \QC functions.
+
+    To set prerences for Vim-style editing, go to \preferences >
+    \uicontrol FakeVim.
+
+    \section1 Setting Vim Behavior
+
+    To set Vim behavior, go to \preferences > \uicontrol FakeVim >
+    \uicontrol General.
+
+    \image qtcreator-preferences-fakevim-general.webp {FakeVim General preferences}
+
+    To use presets:
+
+     \list
+        \li To preselect the indentation settings specified for the text editor,
+            select \uicontrol {Copy Text Editor Settings}.
+        \li To preselect the Qt coding style, select \uicontrol {Set Qt Style}.
+        \li To preselect a simple indentation style, select
+            \uicontrol {Set Plain Style}.
+    \endlist
+
+    Then change the preselected settings.
+
+    \section1 Emulating Plugins
+
+    Select popular vim plugins to emulate in \uicontrol {Plugin Emulation}.
+
+    The following table describes the available plugins with links to them.
+
+    \table
+    \header
+        \li Vim Plugin
+        \li Description
+    \row
+        \li \l{https://github.com/tpope/vim-commentary}{vim-commentary}
+        \li \c gc action to comment code regions. For example, \c gcc, \c gc2j,
+            \c gcip
+    \row
+        \li \l{https://github.com/vim-scripts/ReplaceWithRegister}
+            {ReplaceWithRegister}
+        \li
+            \list
+                \li \c [count]["x]gr{motion} to replace \c {motion} with the
+                contents of register \c x.
+                \li ["x]grr to replace the current line.
+            \endlist
+    \row
+        \li \l{https://github.com/vim-scripts/argtextobj.vim}{argtextobj.vim}
+        \li Defines the \c ia and \c aa text objects for function parameters.
+    \row
+        \li \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
+        \li A text exchange operator for vim.
+    \row
+        \li \l{https://github.com/tpope/vim-surround}{vim-surround}
+        \li Adds mappings for deleting, adding, and changing surroundings.
+    \endtable
+
     \section1 Mapping FakeVim Commands
 
     To map commands entered on the \uicontrol FakeVim command line to
-    \QC functions, select \preferences > \uicontrol FakeVim >
-    \uicontrol {Ex Command Mapping}.
-    Enter a string in the \uicontrol Filter field to search for a specific
-    \QC function.
+    \QC functions:
 
-    \image qtcreator-fakevim-options-ex-command-mapping.png "FakeVim Ex Command Mapping preferences"
+    \list 1
+        \li Go to \preferences > \uicontrol FakeVim >
+            \uicontrol {Ex Command Mapping}.
+        \li Enter a string in the \uicontrol Filter field to find a \QC function.
+            \image qtcreator-fakevim-options-ex-command-mapping.png {FakeVim Ex Command Mapping preferences}
+        \li Select a function in the list
+        \li In the \uicontrol {Regular expression} field, nter a string that will
+            trigger the function.
 
-    Select a function in the list, and enter a string that will trigger the
-    function in the \uicontrol {Regular expression} field. You can view the
-    trigger expression in the \uicontrol {Ex Trigger Expression} field. To
-    remove the trigger expression, select \uicontrol Reset.
+            You can see the trigger expression in the
+            \uicontrol {Ex Trigger Expression} field.
+    \endlist
+
+    To remove the selected trigger expression, select \uicontrol Reset.
 
     To reset the trigger expressions for all functions, select
     \uicontrol {Reset All}.
 
-    To map \e {user commands} to keyboard shortcuts, select \preferences >
+    \section1 Mapping User Commands
+
+    To map \e {user commands} to keyboard shortcuts, go to \preferences >
     \uicontrol FakeVim > \uicontrol {User Command Mapping}. The user command
     mapped to the shortcut is executed by FakeVim as if you were typing it
     (as when replaying a macro).
 
-    \image qtcreator-fakevim-options-user-command-mapping.png "FakeVim User Command Mapping preferences"
+    \image qtcreator-fakevim-options-user-command-mapping.png {FakeVim User Command Mapping preferences}
 
-    \section1 Setting FakeVim Preferences
-
-    To make changes to the Vim-style settings, select \preferences >
-    \uicontrol FakeVim > \uicontrol General.
-
-    \image qtcreator-fakevim-options.png "FakeVim preferences"
-
-    To preselect the indentation settings specified for the text editor, select
-    \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style,
-    select \uicontrol {Set Qt Style}. To preselect a simple indentation style,
-    select \uicontrol {Set Plain Style}. You can then change any of the
-    preselected settings.
-
-    To use a Vim-style color scheme, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
-    In the \uicontrol {Color Scheme} list, select \uicontrol {Vim (dark)}.
-
-    \section1 Quitting FakeVim Mode
-
-    To quit the FakeVim mode, deselect \preferences >
-    \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
-
-    You can temporarily escape FakeVim mode to access the normal \QC keyboard
-    shortcuts like \key {Ctrl-R} for \uicontrol Run by first pressing the comma
-    key (\key {,}).
+    \sa {Edit like in Vim}, {FakeVim Modes and Commands}
 */

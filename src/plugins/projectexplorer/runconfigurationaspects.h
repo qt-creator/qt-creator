@@ -134,6 +134,8 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
 
 public:
     UseLibraryPathsAspect(Utils::AspectContainer *container = nullptr);
+
+    bool operator()() const { return isEnabled() && Utils::BoolAspect::operator()(); }
 };
 
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
@@ -223,36 +225,6 @@ public:
     Utils::FilePath command;
     bool autoDetected = true;
     QString detectionSource;
-};
-
-class PROJECTEXPLORER_EXPORT InterpreterAspect : public Utils::BaseAspect
-{
-    Q_OBJECT
-
-public:
-    InterpreterAspect(Utils::AspectContainer *container = nullptr);
-
-    Interpreter currentInterpreter() const;
-    void updateInterpreters(const QList<Interpreter> &interpreters);
-    void setDefaultInterpreter(const Interpreter &interpreter);
-    void setCurrentInterpreter(const Interpreter &interpreter);
-    void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
-
-    void fromMap(const Utils::Store &) override;
-    void toMap(Utils::Store &) const override;
-    void addToLayout(Layouting::LayoutItem &parent) override;
-
-    struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };
-
-private:
-    void setCurrentInterpreterId(const QString &id);
-    void updateCurrentInterpreter();
-    void updateComboBox();
-    QList<Interpreter> m_interpreters;
-    QPointer<QComboBox> m_comboBox;
-    QString m_defaultId;
-    QString m_currentId;
-    Utils::Id m_settingsDialogId;
 };
 
 class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::FilePathAspect

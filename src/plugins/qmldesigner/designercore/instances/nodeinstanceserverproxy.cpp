@@ -172,7 +172,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
     if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
         SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
         NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",

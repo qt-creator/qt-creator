@@ -26,7 +26,7 @@ public:
     const Valgrind::Callgrind::Function *function() const;
 
 private:
-    bool addToolTipContent(QLayout *target) const;
+    bool addToolTipContent(QLayout *target) const override;
     qreal costs() const;
 
     QPersistentModelIndex m_modelIndex;

@@ -19,8 +19,6 @@ namespace Utils {
 
 enum class StreamMode { Reader, Writer, Transfer };
 
-enum class StreamResult { FinishedWithSuccess, FinishedWithError };
-
 class QTCREATOR_UTILS_EXPORT FileStreamer final : public QObject
 {
     Q_OBJECT
@@ -38,7 +36,7 @@ public:
     // Only for Writer mode
     void setWriteData(const QByteArray &writeData);
 
-    StreamResult result() const;
+    Tasking::DoneResult result() const;
 
     void start();
     void stop();
@@ -53,8 +51,9 @@ private:
 class FileStreamerTaskAdapter : public Tasking::TaskAdapter<FileStreamer>
 {
 public:
-    FileStreamerTaskAdapter() { connect(task(), &FileStreamer::done, this,
-                [this] { emit done(task()->result() == StreamResult::FinishedWithSuccess); }); }
+    FileStreamerTaskAdapter() {
+        connect(task(), &FileStreamer::done, this, [this] { emit done(task()->result()); });
+    }
     void start() override { task()->start(); }
 };
 

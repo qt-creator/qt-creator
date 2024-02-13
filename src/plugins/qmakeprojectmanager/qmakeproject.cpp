@@ -17,7 +17,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/generatedcodemodelsupport.h>
 #include <cppeditor/projectinfo.h>
 
@@ -31,6 +30,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -50,6 +50,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 
 #include <QDebug>
@@ -89,7 +90,7 @@ public:
         IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
-        setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
+        setMimeType(Utils::Constants::PROFILE_MIMETYPE);
         setFilePath(filePath);
         Core::DocumentManager::addDocument(this);
     }
@@ -153,7 +154,7 @@ private:
   */
 
 QmakeProject::QmakeProject(const FilePath &fileName) :
-    Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName)
+    Project(Utils::Constants::PROFILE_MIMETYPE, fileName)
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -202,7 +203,7 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     : BuildSystem(bc)
     , m_qmakeVfs(new QMakeVfs)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     setParseDelay(0);
 
@@ -235,9 +236,9 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     connect(bc, &BuildConfiguration::environmentChanged,
             this, &QmakeBuildSystem::scheduleUpdateAllNowOrLater);
 
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
-            this, [this](ToolChain *tc) {
-        if (ToolChainKitAspect::cxxToolChain(kit()) == tc)
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
+            this, [this](Toolchain *tc) {
+        if (ToolchainKitAspect::cxxToolchain(kit()) == tc)
             scheduleUpdateAllNowOrLater();
     });
 
@@ -361,8 +362,8 @@ void QmakeBuildSystem::updateCppCodeModel()
             return pro->variableValue(Variable::IosDeploymentTarget).join(QString());
         });
 
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxArgs, includeFileBaseDir});
-        rpp.setFlagsForC({kitInfo.cToolChain, cArgs, includeFileBaseDir});
+        rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxArgs, includeFileBaseDir});
+        rpp.setFlagsForC({kitInfo.cToolchain, cArgs, includeFileBaseDir});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
@@ -756,7 +757,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
-    if (!ToolChainKitAspect::cxxToolChain(k))
+    if (!ToolchainKitAspect::cxxToolchain(k))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
 
     // A project can be considered part of more than one Qt version, for instance if it is an
@@ -1307,7 +1308,7 @@ static FilePath destDirFor(const TargetInformation &ti)
 
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());
     if (!toolchain)
         return {};
 
@@ -1422,7 +1423,7 @@ static FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
     return bc->environment().searchInPath(exe);
 }
 
-void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
+void QmakeBuildSystem::testToolChain(Toolchain *tc, const FilePath &path) const
 {
     if (!tc || path.isEmpty())
         return;
@@ -1466,14 +1467,14 @@ QString QmakeBuildSystem::deviceRoot() const
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 {
     const BuildConfiguration *bc = buildConfiguration();
-    testToolChain(ToolChainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolChainKitAspect::cxxToolChain(kit()),
+    testToolChain(ToolchainKitAspect::cToolchain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
+    testToolChain(ToolchainKitAspect::cxxToolchain(kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
-    const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const tc = ToolchainKitAspect::cxxToolchain(kit());
     if (!tc)
         return {};
 

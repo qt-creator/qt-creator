@@ -13,7 +13,8 @@ ignorewords += \
     MinGW
 
 headerdirs =
-sourcedirs = ../src
+sourcedirs = ../src \
+    $$GENERATED_ATTRIBUTIONS_DIR
 
 imagedirs = ../images
 
@@ -27,6 +28,7 @@ depends +=    qtwidgets \
               qtcore \
               qtqml \
               qtquick \
+              qtquickcontrols \
               qmake \
               qtdesigner \
               qtdoc \

@@ -6,7 +6,7 @@
    height="600"
    id="svg2"
    version="1.1"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    sodipodi:docname="qtcreatoricons.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -521,9 +521,9 @@
          result="offset"
          id="feOffset7108" />
       <feComposite
-         in="offset"
-         in2="SourceGraphic"
-         operator="destination-over"
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
          result="composite2"
          id="feComposite7110" />
     </filter>
@@ -550,7 +550,10 @@
        snapvisiblegridlinesonly="true"
        dotted="true"
        spacingx="0.5px"
-       spacingy="0.5px" />
+       spacingy="0.5px"
+       originx="0"
+       originy="0"
+       units="px" />
     <sodipodi:guide
        orientation="0,1"
        position="0,32"
@@ -645,6 +648,14 @@
      width="16"
      id="backgroundRect"
      style="display:inline;fill:#ffffff" />
+  <use
+     x="0"
+     y="0"
+     xlink:href="#backgroundRect"
+     id="backgroundRect_32"
+     width="100%"
+     height="100%"
+     transform="matrix(2,0,0,2,0,-492)" />
   <use
      x="0"
      y="0"
@@ -3740,6 +3751,204 @@
          inkscape:connector-curvature="0"
          d="m 550,427 v 28 h 32 v -28 z m 18,15.388 V 447 h -4 v -4.612 c -1.172,-0.7 -2,-1.92 -2,-3.388 0,-2.212 1.792,-4 4,-4 2.208,0 4,1.788 4,4 0,1.464 -0.828,2.688 -2,3.388 z"
          id="lockbody-1" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/packsmall">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use2597"
+         transform="translate(32,28)"
+         width="100%"
+         height="100%" />
+      <path
+         id="path6795"
+         d="m 16,423.5 v 11 M 26,418 16,423.5 6,418 m 0,11.5 10,5.5 10,-5.5 v -11 L 16,413 6,418.5 Z"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         sodipodi:nodetypes="cccccccccccc" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/extensionsmall">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use2600"
+         transform="translate(64,28)"
+         width="100%"
+         height="100%" />
+      <path
+         id="path4530"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         d="M 49.5,422 H 56 Z M 38,424 h 5.5 z m 11.5,2 H 56 Z"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         d="m 50,420 h -3.5 c -1.5,0 -4,0.5 -4,4 0,3.5 2.5,4 4,4 H 50 c 1.5,0 2,-1 2,-1.5 v -5 C 52,421 51.5,420 50,420 Z"
+         id="path4682"
+         sodipodi:nodetypes="cczccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/eyeoverlay">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use3"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path5"
+         style="fill:none;stroke:#000000;stroke-linejoin:miter;stroke-dasharray:none"
+         d="m 2023.5,580 c 2,3.33 6,3.33 8,0 -2.5,-3.35 -5.5,-3.32 -8,0 z"
+         sodipodi:nodetypes="ccc" />
+      <circle
+         style="fill:#000000;fill-opacity:1;stroke:none"
+         id="path6"
+         cy="579.5"
+         cx="2027.5"
+         r="1.5" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-av"
+       transform="translate(17)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use12"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path3"
+         d="m 2031,569 -3.5,3.5 v 5 l -5,-5 v 6 l -4,4 m 0,-3.5 v 3.5 h 3.5"
+         style="fill:none;stroke:#000000" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-cl"
+       transform="translate(34)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use11"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:#ffffff;stroke:#000000"
+         id="rect4"
+         width="9"
+         height="9"
+         x="2018.5"
+         y="573.5"
+         ry="2.5" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect4"
+         id="use6"
+         transform="translate(4,-4)"
+         style="fill:none;stroke:#ffffff" />
+      <path
+         id="path7-8"
+         style="display:inline;fill:none;stroke:#ffffff"
+         d="m 2027.5,579 v 1 m -6,-7 v 1" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-cy"
+       transform="translate(51)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use5"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path2"
+         style="fill:none;stroke:#000000"
+         d="m 2025,569 2.5,2.5 -2.5,2.5 M 2018.5,581 v -7 c 0,-1.5 1,-2.5 2.5,-2.5 h 6.5" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path2"
+         id="use4"
+         transform="rotate(180,2025,576)" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-de"
+       transform="translate(68)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use10"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path17-1"
+         style="fill:none;stroke:#000000"
+         d="m 2023,579.5 h 4 m -7.5,-6 v 2.5 l 2,2.5 v 2.5 c 0,0.5 1,1.5 1.5,1.5 h 4 c 0.5,0 1.5,-1 1.5,-1.5 v -2.5 l 2,-2.5 v -2.5 c 0,-5.5 -11,-5.5 -11,0 z"
+         sodipodi:nodetypes="ccsccssssccss" />
+      <circle
+         style="display:inline;stroke:none"
+         id="path18-1"
+         cx="2023.25"
+         cy="575.25"
+         r="1.25" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path18-1"
+         id="use18-9"
+         transform="translate(3.541748,0.125)"
+         style="display:inline" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-mv"
+       transform="translate(85)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use8"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path15"
+         style="fill:none;stroke:#000000"
+         d="m 2020,573.5 h -1 m 1,3 h -1 m 1,3 h -1 m 2.5,-3 v 3 h 3 z m -3,6 h 13 l -13,-13 z" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/button-sv"
+       transform="translate(102)">
+      <use
+         style="display:inline"
+         transform="translate(2033,132)"
+         height="100%"
+         width="100%"
+         id="use7"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path1"
+         style="fill:none;stroke:#000000"
+         d="m 2031.5,571.5 c 0,0 0.6,1.18 0.14,2.44 -0.38,1.06 -2.64,1.56 -3.39,3.95 M 2021,582.5 h 10 m -9.5,-5 -1.5,3.5 3.5,-1.5 v 0 m 6,-10 2,2 -8,8 -2,-2 z"
+         sodipodi:nodetypes="cscccccccccccc" />
     </g>
   </g>
   <g
@@ -8500,6 +8709,48 @@
          id="big_helpquestionmark"
          d="m 359,45 c -5.522,0 -10,4.478 -10,10 0,5.522 4.478,10 10,10 5.522,0 10,-4.478 10,-10 0,-5.522 -4.478,-10 -10,-10 z m 1.136,16.182 c -0.274,0.269 -0.604,0.402 -0.989,0.402 -0.187,0 -0.364,-0.035 -0.533,-0.105 -0.169,-0.07 -0.318,-0.163 -0.446,-0.28 -0.129,-0.117 -0.23,-0.257 -0.307,-0.42 -0.076,-0.163 -0.113,-0.338 -0.113,-0.525 0,-0.373 0.137,-0.694 0.411,-0.962 0.273,-0.268 0.603,-0.402 0.988,-0.402 0.374,0 0.7,0.128 0.98,0.385 0.28,0.257 0.42,0.572 0.42,0.945 0,0.372 -0.138,0.693 -0.411,0.962 z m 2.738,-7.98 c -0.104,0.292 -0.245,0.56 -0.42,0.805 -0.175,0.245 -0.376,0.479 -0.604,0.7 -0.228,0.222 -0.47,0.455 -0.727,0.7 -0.163,0.151 -0.303,0.286 -0.42,0.402 -0.116,0.117 -0.213,0.236 -0.288,0.359 -0.076,0.122 -0.132,0.262 -0.167,0.42 -0.034,0.157 -0.052,0.347 -0.052,0.569 v 0.665 h -2.101 V 56.86 c 0,-0.256 0.015,-0.475 0.044,-0.656 0.029,-0.181 0.081,-0.344 0.157,-0.49 0.076,-0.146 0.175,-0.286 0.298,-0.42 0.122,-0.134 0.271,-0.295 0.446,-0.481 l 1.348,-1.365 c 0.291,-0.292 0.438,-0.67 0.438,-1.137 0,-0.455 -0.149,-0.825 -0.446,-1.111 -0.298,-0.286 -0.674,-0.429 -1.129,-0.429 -0.49,0 -0.893,0.166 -1.208,0.499 -0.314,0.333 -0.495,0.738 -0.542,1.216 l -2.24,-0.175 c 0.07,-0.56 0.216,-1.059 0.438,-1.496 0.222,-0.438 0.511,-0.808 0.866,-1.111 0.355,-0.303 0.768,-0.534 1.234,-0.691 0.466,-0.158 0.979,-0.236 1.54,-0.236 0.524,0 1.012,0.076 1.461,0.228 0.449,0.152 0.84,0.371 1.172,0.656 0.333,0.286 0.593,0.642 0.779,1.067 0.186,0.426 0.28,0.913 0.28,1.461 10e-4,0.382 -0.052,0.721 -0.157,1.013 z"
          inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/mode_extensionmanager_mask">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2"
+         transform="matrix(2.125,0,0,2.125,102,-552.5)"
+         width="100%"
+         height="100%" />
+      <g
+         id="g12500"
+         style="fill:none;stroke:#000000;stroke-width:2"
+         transform="translate(1,1)">
+        <rect
+           id="rect5239"
+           width="6"
+           height="6"
+           x="75"
+           y="381"
+           ry="1.5" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect5239"
+           id="use6202"
+           transform="translate(12)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect5239"
+           id="use6284"
+           transform="translate(0,12)"
+           width="100%"
+           height="100%" />
+        <path
+           id="path12068"
+           d="m 90,392 v 8 m -4,-4 h 8" />
+      </g>
     </g>
     <g
        transform="translate(-595,297)"

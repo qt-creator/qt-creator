@@ -36,7 +36,6 @@
 #include <texteditor/texteditor.h>
 
 #include <projectexplorer/kitaspects.h>
-#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -51,13 +50,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 
 namespace ClangTools::Internal {
-
-static ProjectPanelFactory *m_projectPanelFactoryInstance = nullptr;
-
-ProjectPanelFactory *projectPanelFactory()
-{
-    return m_projectPanelFactoryInstance;
-}
 
 class ClangToolsPluginPrivate
 {
@@ -79,7 +71,7 @@ public:
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
     ClangToolsOptionsPage optionsPage;
-    QMap<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
+    QHash<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
 
@@ -102,13 +94,7 @@ void ClangToolsPlugin::initialize()
 
     registerAnalyzeActions();
 
-    auto panelFactory = m_projectPanelFactoryInstance = new ProjectPanelFactory;
-    panelFactory->setPriority(100);
-    panelFactory->setId(Constants::PROJECT_PANEL_ID);
-    panelFactory->setDisplayName(Tr::tr("Clang Tools"));
-    panelFactory->setCreateWidgetFunction(
-        [](Project *project) { return new ClangToolsProjectSettingsWidget(project); });
-    ProjectPanelFactory::registerFactory(panelFactory);
+    setupClangToolsProjectPanel();
 
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::currentEditorChanged,

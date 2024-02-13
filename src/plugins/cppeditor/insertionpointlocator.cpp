@@ -256,7 +256,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     AccessSpec xsSpec,
     ForceAccessSpec forceAccessSpec) const
 {
-    const Document::Ptr doc = m_refactoringChanges.file(filePath)->cppDocument();
+    const Document::Ptr doc = m_refactoringChanges.cppFile(filePath)->cppDocument();
     if (doc) {
         FindInClass find(doc->translationUnit(), clazz);
         ClassSpecifierAST *classAST = find();
@@ -599,7 +599,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         targetDoc->translationUnit()->getPosition(definitionFunction->endOffset(), &line, &column);
     } else {
         // we don't have an offset to the start of the function definition, so we need to manually find it...
-        CppRefactoringFilePtr targetFile = changes.file(definitionFunction->filePath());
+        CppRefactoringFilePtr targetFile = changes.cppFile(definitionFunction->filePath());
         if (!targetFile->isValid())
             return noResult;
 
@@ -653,7 +653,7 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
             target = candidate;
     }
 
-    CppRefactoringFilePtr targetFile = m_refactoringChanges.file(target);
+    CppRefactoringFilePtr targetFile = m_refactoringChanges.cppFile(target);
     Document::Ptr doc = targetFile->cppDocument();
     if (doc.isNull())
         return result;
@@ -761,7 +761,7 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
 {
     QTC_ASSERT(symbol, return InsertionLocation());
 
-    CppRefactoringFilePtr file = refactoring.file(filePath);
+    CppRefactoringFilePtr file = refactoring.cppFile(filePath);
     QStringList requiredNamespaces;
     if (namespaceHandling == NamespaceHandling::CreateMissing) {
         requiredNamespaces = getNamespaceNames(symbol);

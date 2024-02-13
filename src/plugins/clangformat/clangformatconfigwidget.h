@@ -3,49 +3,24 @@
 
 #pragma once
 
-#include <cppeditor/cppcodestylesettingspage.h>
+#include <QtGlobal>
 
-#include <memory>
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
+namespace TextEditor {
+class ICodeStylePreferences;
+class CodeStyleEditorWidget;
+} // namespace TextEditor
 
 namespace ProjectExplorer { class Project; }
-namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
 
-class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
-{
-    Q_OBJECT
-
-public:
-    explicit ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
-                                     ProjectExplorer::Project *project = nullptr,
-                                     QWidget *parent = nullptr);
-    ~ClangFormatConfigWidget() override;
-    void apply() override;
-    void finish() override;
-    void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings) override;
-    void setTabSettings(const TextEditor::TabSettings &settings) override;
-    void synchronize() override;
-
-private:
-    bool eventFilter(QObject *object, QEvent *event) override;
-
-    Utils::FilePath globalPath();
-    Utils::FilePath projectPath();
-    void createStyleFileIfNeeded(bool isGlobal);
-    void showOrHideWidgets();
-    void initChecksAndPreview();
-    void connectChecks();
-
-    void fillTable();
-    std::string readFile(const QString &path);
-    void saveChanges(QObject *sender);
-
-    void updatePreview();
-    void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
-
-    class Private;
-    Private * const d;
-};
+TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
+    TextEditor::ICodeStylePreferences *codeStyle,
+    ProjectExplorer::Project *project,
+    QWidget *parent);
 
 } // ClangFormat

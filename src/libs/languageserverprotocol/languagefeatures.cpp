@@ -125,7 +125,7 @@ QHash<QString, DocumentFormattingProperty> FormattingOptions::properties() const
     for (const QString &key : keys()) {
         if (key == tabSizeKey || key == insertSpaceKey)
             continue;
-        QJsonValue property = value(key.toStdString());
+        QJsonValue property = value(key);
         if (property.isBool())
             ret[key] = property.toBool();
         if (property.isDouble())
@@ -136,7 +136,7 @@ QHash<QString, DocumentFormattingProperty> FormattingOptions::properties() const
     return ret;
 }
 
-void FormattingOptions::setProperty(const std::string_view key, const DocumentFormattingProperty &property)
+void FormattingOptions::setProperty(const Key key, const DocumentFormattingProperty &property)
 {
     using namespace std;
     if (auto val = get_if<double>(&property))

@@ -67,6 +67,7 @@ public:
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void addPackage(const PipPackage &package);
     void setPackages(const QList<PipPackage> &packages);
+    void setTargetPath(const Utils::FilePath &targetPath);
     void run();
 
 signals:
@@ -83,10 +84,13 @@ private:
     const Utils::FilePath m_python;
     QList<PipPackage> m_packages;
     Utils::FilePath m_requirementsFile;
+    Utils::FilePath m_targetPath;
     Utils::Process m_process;
     QFutureInterface<void> m_future;
     QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;
 };
+
+void setupPipSupport(QObject *guard);
 
 } // Python::Internal

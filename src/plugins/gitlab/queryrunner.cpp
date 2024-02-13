@@ -83,8 +83,7 @@ QString Query::toString() const
 QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
     : QObject(parent)
 {
-    const GitLabParameters *p = GitLabPlugin::globalParameters();
-    const auto server = p->serverForId(id);
+    const auto server = gitLabParameters().serverForId(id);
     QStringList args = server.curlArguments();
     if (query.hasPaginatedResults())
         args << "-i";
@@ -95,13 +94,13 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
         url.append(':' + QString::number(server.port));
     url += query.toString();
     args << url;
-    m_process.setCommand({p->curl, args});
+    m_process.setCommand({gitLabParameters().curl, args});
     connect(&m_process, &Process::done, this, [this, id] {
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();
             if (m_process.exitStatus() == QProcess::NormalExit
                     && (exitCode == 35 || exitCode == 60) // common ssl certificate issues
-                    && GitLabPlugin::handleCertificateIssue(id)) {
+                    && handleCertificateIssue(id)) {
                 // prepend -k for re-requesting the same query
                 CommandLine cmdline = m_process.commandLine();
                 cmdline.prependArgs({"-k"});
@@ -111,7 +110,7 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
             }
             VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
         } else {
-            emit resultRetrieved(m_process.readAllRawStandardOutput());
+            emit resultRetrieved(m_process.rawStdOut());
         }
         emit finished();
     });

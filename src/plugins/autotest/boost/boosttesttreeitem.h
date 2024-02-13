@@ -44,7 +44,6 @@ public:
     void setFullName(const QString &fullName) { m_fullName = fullName; }
     QString fullName() const { return m_fullName; }
     void setStates(TestStates states) { m_state = states; }
-    void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
 
     QList<ITestConfiguration *> getAllTestConfigurations() const override;

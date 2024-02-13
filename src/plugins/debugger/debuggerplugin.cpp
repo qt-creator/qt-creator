@@ -1,20 +1,18 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "debuggerplugin.h"
-
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
-#include "debuggeritem.h"
 #include "debuggeritemmanager.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggerkitaspect.h"
+#include "debuggertest.h"
 #include "debuggertr.h"
 #include "breakhandler.h"
 #include "enginemanager.h"
@@ -25,7 +23,6 @@
 #include "sourceutils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
-#include "commonoptionspage.h"
 
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
@@ -47,7 +44,9 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
+#include <coreplugin/session.h>
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -112,29 +111,11 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
-#include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTextBlock>
 #include <QToolButton>
-#include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QVariant>
-
-#ifdef WITH_TESTS
-
-#include <cppeditor/cpptoolstestcase.h>
-#include <cppeditor/projectinfo.h>
-
-#include <QTest>
-#include <QSignalSpy>
-#include <QTestEventLoop>
-
-//#define WITH_BENCHMARK
-#ifdef WITH_BENCHMARK
-#include <valgrind/callgrind.h>
-#endif
-
-#endif // WITH_TESTS
 
 #include <climits>
 
@@ -352,6 +333,8 @@ using namespace Utils;
 namespace CC = Core::Constants;
 namespace PE = ProjectExplorer::Constants;
 
+Q_DECLARE_METATYPE(QString *)
+
 namespace Debugger {
 namespace Internal {
 
@@ -512,6 +495,7 @@ public:
         mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         setWidget(splitter);
+        setMainWindow(mainWindow);
 
         setMenu(DebuggerMainWindow::perspectiveMenu());
     }
@@ -533,7 +517,7 @@ static Kit::Predicate cdbPredicate(char wordWidth = 0)
             return false;
         }
         if (wordWidth)
-            return ToolChainKitAspect::targetAbi(k).wordWidth() == wordWidth;
+            return ToolchainKitAspect::targetAbi(k).wordWidth() == wordWidth;
         return true;
     };
 }
@@ -555,6 +539,7 @@ static Kit *findUniversalCdbKit()
 //
 ///////////////////////////////////////////////////////////////////////
 
+class DebuggerPlugin;
 static DebuggerPlugin *m_instance = nullptr;
 static DebuggerPluginPrivate *dd = nullptr;
 
@@ -581,7 +566,6 @@ public:
     ~DebuggerPluginPrivate() override;
 
     void extensionsInitialized();
-    void aboutToShutdown();
 
     RunControl *attachToRunningProcess(Kit *kit, const ProcessInfo &process, bool contAfterAttach);
 
@@ -712,16 +696,6 @@ public:
 //            return isDebuggableScript;
 };
 
-static void addLabel(QWidget *widget, const QString &text)
-{
-    auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
-    QTC_ASSERT(vbox, return);
-    auto label = new QLabel(widget);
-    label->setText(text);
-    label->setContentsMargins(6, 6, 6, 6);
-    vbox->insertWidget(0, label);
-};
-
 void DebuggerPluginPrivate::addFontSizeAdaptation(QWidget *widget)
 {
     QObject::connect(TextEditorSettings::instance(),
@@ -759,7 +733,6 @@ QWidget *DebuggerPluginPrivate::createBreakpointManagerWindow(BaseTreeView *brea
     auto breakpointManagerWindow = addSearch(breakpointManagerView);
     breakpointManagerWindow->setWindowTitle(title);
     breakpointManagerWindow->setObjectName(objectName);
-    addLabel(breakpointManagerWindow, breakpointManagerWindow->windowTitle());
     addFontSizeAdaptation(breakpointManagerWindow);
     return breakpointManagerWindow;
 }
@@ -785,7 +758,6 @@ QWidget *DebuggerPluginPrivate::createEngineManagerWindow(BaseTreeView *engineMa
     auto engineManagerWindow = addSearch(engineManagerView);
     engineManagerWindow->setWindowTitle(title);
     engineManagerWindow->setObjectName(objectName);
-    addLabel(engineManagerWindow, engineManagerWindow->windowTitle());
     addFontSizeAdaptation(engineManagerWindow);
     return engineManagerWindow;
 }
@@ -816,9 +788,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     ICore::addAdditionalContext(debuggerNotRunning);
 
     m_arguments = arguments;
-    if (!m_arguments.isEmpty())
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,
+    if (!m_arguments.isEmpty()) {
+        connect(SessionManager::instance(), &SessionManager::startupSessionRestored,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
+    }
 
     // Menus
     m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
@@ -1323,13 +1296,13 @@ static Kit *guessKitFromAbis(const Abis &abis)
     if (!abis.isEmpty()) {
         // Try exact abis.
         kit = KitManager::kit([abis](const Kit *k) {
-            const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+            const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
             return abis.contains(tcAbi) && !DebuggerKitAspect::configurationErrors(k);
         });
         if (!kit) {
             // Or something compatible.
             kit = KitManager::kit([abis](const Kit *k) {
-                const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+                const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
                 return !DebuggerKitAspect::configurationErrors(k)
                         && Utils::contains(abis, [tcAbi](const Abi &a) { return a.isCompatibleWith(tcAbi); });
             });
@@ -1779,7 +1752,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
         return nullptr;
     }
 
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(kit);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(kit);
     const bool isWindows = (tcAbi.os() == Abi::WindowsOS);
     if (isWindows && isWinProcessBeingDebugged(processInfo.processId)) {
         AsynchronousMessageBox::warning(
@@ -1811,76 +1784,6 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->startRunControl();
 
     return debugger->runControl();
-}
-
-void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
-{
-    ProcessInfo processInfo;
-    processInfo.processId = processId;
-    processInfo.executable = executable.toString();
-
-    auto kitChooser = new KitChooser;
-    kitChooser->setShowIcons(true);
-    kitChooser->populate();
-    Kit *kit = kitChooser->currentKit();
-
-    dd->attachToRunningProcess(kit, processInfo, false);
-}
-
-void DebuggerPlugin::attachExternalApplication(RunControl *rc)
-{
-    ProcessHandle pid = rc->applicationProcessHandle();
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setTarget(rc->target());
-    runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
-    auto debugger = new DebuggerRunTool(runControl);
-    debugger->setInferiorExecutable(rc->targetFilePath());
-    debugger->setAttachPid(pid);
-    debugger->setStartMode(AttachToLocalProcess);
-    debugger->setCloseMode(DetachAtClose);
-    debugger->startRunControl();
-}
-
-void DebuggerPlugin::getEnginesState(QByteArray *json) const
-{
-    QTC_ASSERT(json, return);
-    QVariantMap result {
-        {"version", 1}
-    };
-    QVariantMap states;
-
-    int i = 0;
-    DebuggerEngine *currentEngine = EngineManager::currentEngine();
-    for (DebuggerEngine *engine : EngineManager::engines()) {
-        states[QString::number(i)] = QVariantMap({
-                   {"current", engine == currentEngine},
-                   {"pid", engine->inferiorPid()},
-                   {"state", engine->state()}
-        });
-        ++i;
-    }
-
-    if (!states.isEmpty())
-        result["states"] = states;
-
-    *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
-}
-
-void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
-                                                  const QString &detectionSource,
-                                                  QString *logMessage)
-{
-    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
-}
-
-void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
-}
-
-void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
@@ -2117,30 +2020,6 @@ void DebuggerPluginPrivate::dumpLog()
     saver.finalize(ICore::dialogParent());
 }
 
-void DebuggerPluginPrivate::aboutToShutdown()
-{
-    disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, nullptr);
-
-    m_shutdownTimer.setInterval(0);
-    m_shutdownTimer.setSingleShot(true);
-
-    connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
-        DebuggerMainWindow::doShutdown();
-
-        m_shutdownTimer.stop();
-
-        delete m_mode;
-        m_mode = nullptr;
-        emit m_instance->asynchronousShutdownFinished();
-    });
-
-    if (EngineManager::shutDown()) {
-        // If any engine is aborting we give them extra three seconds.
-        m_shutdownTimer.setInterval(3000);
-    }
-    m_shutdownTimer.start();
-}
-
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
 {
     if (options.isEmpty())
@@ -2221,14 +2100,39 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
 //
 ///////////////////////////////////////////////////////////////////////
 
-/*!
-    \class Debugger::DebuggerPlugin
+class DebuggerPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Debugger.json")
 
-    This is the "external" interface of the debugger plugin that's visible
-    from Qt Creator core. The internal interface to global debugger
-    functionality that is used by debugger views and debugger engines
-    is DebuggerCore, implemented in DebuggerPluginPrivate.
-*/
+public:
+    DebuggerPlugin();
+    ~DebuggerPlugin() final;
+
+private:
+    // IPlugin implementation.
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    QObject *remoteCommand(const QStringList &options,
+                           const QString &workingDirectory,
+                           const QStringList &arguments) final;
+    ShutdownFlag aboutToShutdown() final;
+    void extensionsInitialized() final;
+
+    // Called from AppOutputPane::attachToRunControl().
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+
+    // Called from GammaRayIntegration
+    Q_SLOT void getEnginesState(QByteArray *json) const;
+
+    // Called from DockerDevice
+    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
+                                             const QString &detectionId,
+                                             QString *logMessage);
+    Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
+    Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
+
+    Q_SLOT void attachToProcess(const qint64 processId, const Utils::FilePath &executable);
+};
 
 DebuggerPlugin::DebuggerPlugin()
 {
@@ -2248,7 +2152,28 @@ DebuggerPlugin::~DebuggerPlugin()
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(this);
-    dd->aboutToShutdown();
+
+    disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, dd, nullptr);
+
+    dd->m_shutdownTimer.setInterval(0);
+    dd->m_shutdownTimer.setSingleShot(true);
+
+    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, [this] {
+        DebuggerMainWindow::doShutdown();
+
+        dd->m_shutdownTimer.stop();
+
+        delete dd->m_mode;
+        dd->m_mode = nullptr;
+        emit asynchronousShutdownFinished();
+    });
+
+    if (EngineManager::shutDown()) {
+        // If any engine is aborting we give them extra three seconds.
+        dd->m_shutdownTimer.setInterval(3000);
+    }
+    dd->m_shutdownTimer.start();
+
     return AsynchronousShutdown;
 }
 
@@ -2398,210 +2323,6 @@ void showPermanentStatusMessage(const QString &message)
 
 namespace Internal {
 
-static bool s_testRun = false;
-bool isTestRun() { return s_testRun; }
-
-#ifdef WITH_TESTS
-
-class DebuggerUnitTests : public QObject
-{
-    Q_OBJECT
-
-public:
-    DebuggerUnitTests() = default;
-
-private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
-    void testDebuggerMatching_data();
-    void testDebuggerMatching();
-
-    void testBenchmark();
-    void testStateMachine();
-
-private:
-    CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
-};
-
-void DebuggerUnitTests::initTestCase()
-{
-//    const QList<Kit *> allKits = KitManager::kits();
-//    if (allKits.count() != 1)
-//        QSKIP("This test requires exactly one kit to be present");
-//    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(allKits.first());
-//    if (!toolchain)
-//        QSKIP("This test requires that there is a kit with a toolchain.");
-//    bool hasClangExecutable;
-//    clangExecutableFromSettings(toolchain->typeId(), &hasClangExecutable);
-//    if (!hasClangExecutable)
-//        QSKIP("No clang suitable for analyzing found");
-
-    s_testRun = true;
-    m_tmpDir = new CppEditor::Tests::TemporaryCopiedDir(":/debugger/unit-tests");
-    QVERIFY(m_tmpDir->isValid());
-}
-
-void DebuggerUnitTests::cleanupTestCase()
-{
-    delete m_tmpDir;
-}
-
-void DebuggerUnitTests::testStateMachine()
-{
-    FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
-
-    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
-    QVERIFY(projectManager.open(proFile, true));
-
-    QEventLoop loop;
-    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-            &loop, &QEventLoop::quit);
-    BuildManager::buildProjectWithDependencies(ProjectManager::startupProject());
-    loop.exec();
-
-    const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
-
-    RunConfiguration *rc = ProjectManager::startupRunConfiguration();
-    QVERIFY(rc);
-
-    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->copyDataFromRunConfiguration(rc);
-    auto debugger = new DebuggerRunTool(runControl);
-
-    debugger->setInferior(rc->runnable());
-    debugger->setTestCase(TestNoBoundsOfCurrentFunction);
-
-    connect(debugger, &DebuggerRunTool::stopped,
-            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
-
-    debugger->startRunControl();
-
-    QTestEventLoop::instance().enterLoop(5);
-}
-
-
-enum FakeEnum { FakeDebuggerCommonSettingsId };
-
-void DebuggerUnitTests::testBenchmark()
-{
-#ifdef WITH_BENCHMARK
-    CALLGRIND_START_INSTRUMENTATION;
-    volatile Id id1 = Id(DEBUGGER_COMMON_SETTINGS_ID);
-    CALLGRIND_STOP_INSTRUMENTATION;
-    CALLGRIND_DUMP_STATS;
-
-    CALLGRIND_START_INSTRUMENTATION;
-    volatile FakeEnum id2 = FakeDebuggerCommonSettingsId;
-    CALLGRIND_STOP_INSTRUMENTATION;
-    CALLGRIND_DUMP_STATS;
-#endif
-}
-
-void DebuggerUnitTests::testDebuggerMatching_data()
-{
-    QTest::addColumn<QStringList>("debugger");
-    QTest::addColumn<QString>("target");
-    QTest::addColumn<int>("result");
-
-    QTest::newRow("Invalid data")
-            << QStringList()
-            << QString()
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Invalid debugger")
-            << QStringList()
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Invalid target")
-            << QStringList("x86-linux-generic-elf-32bit")
-            << QString()
-            << int(DebuggerItem::DoesNotMatch);
-
-    QTest::newRow("Fuzzy match 1")
-            << QStringList("unknown-unknown-unknown-unknown-0bit")
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
-    QTest::newRow("Fuzzy match 2")
-            << QStringList("unknown-unknown-unknown-unknown-0bit")
-            << QString::fromLatin1("arm-windows-msys-pe-64bit")
-            << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
-
-    QTest::newRow("Architecture mismatch")
-            << QStringList("x86-linux-generic-elf-32bit")
-            << QString::fromLatin1("arm-linux-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("OS mismatch")
-            << QStringList("x86-linux-generic-elf-32bit")
-            << QString::fromLatin1("x86-macosx-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Format mismatch")
-            << QStringList("x86-linux-generic-elf-32bit")
-            << QString::fromLatin1("x86-linux-generic-pe-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-
-    QTest::newRow("Linux perfect match")
-            << QStringList("x86-linux-generic-elf-32bit")
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesWell);
-    QTest::newRow("Linux match")
-            << QStringList("x86-linux-generic-elf-64bit")
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-
-    QTest::newRow("Windows perfect match 1")
-            << QStringList("x86-windows-msvc2013-pe-64bit")
-            << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
-            << int(DebuggerItem::MatchesWell);
-    QTest::newRow("Windows perfect match 2")
-            << QStringList("x86-windows-msvc2013-pe-64bit")
-            << QString::fromLatin1("x86-windows-msvc2012-pe-64bit")
-            << int(DebuggerItem::MatchesWell);
-    QTest::newRow("Windows match 1")
-            << QStringList("x86-windows-msvc2013-pe-64bit")
-            << QString::fromLatin1("x86-windows-msvc2013-pe-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-    QTest::newRow("Windows match 2")
-            << QStringList("x86-windows-msvc2013-pe-64bit")
-            << QString::fromLatin1("x86-windows-msvc2012-pe-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-    QTest::newRow("Windows mismatch on word size")
-            << QStringList("x86-windows-msvc2013-pe-32bit")
-            << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Windows mismatch on osflavor 1")
-            << QStringList("x86-windows-msvc2013-pe-32bit")
-            << QString::fromLatin1("x86-windows-msys-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Windows mismatch on osflavor 2")
-            << QStringList("x86-windows-msys-pe-32bit")
-            << QString::fromLatin1("x86-windows-msvc2010-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-}
-
-void DebuggerUnitTests::testDebuggerMatching()
-{
-    QFETCH(QStringList, debugger);
-    QFETCH(QString, target);
-    QFETCH(int, result);
-
-    auto expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
-
-    Abis debuggerAbis;
-    for (const QString &abi : std::as_const(debugger))
-        debuggerAbis << Abi::fromString(abi);
-
-    DebuggerItem item;
-    item.setAbis(debuggerAbis);
-
-    DebuggerItem::MatchLevel level = item.matchTarget(Abi::fromString(target));
-    if (level == DebuggerItem::MatchesPerfectly)
-        level = DebuggerItem::MatchesWell;
-
-    QCOMPARE(expectedLevel, level);
-}
-
-#endif // ifdef  WITH_TESTS
-
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -2612,10 +2333,80 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     dd = new DebuggerPluginPrivate(arguments);
 
 #ifdef WITH_TESTS
-    addTest<DebuggerUnitTests>();
+    addTestCreator(createDebuggerTest);
 #endif
 
     return true;
+}
+
+void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
+{
+    ProcessInfo processInfo;
+    processInfo.processId = processId;
+    processInfo.executable = executable.toString();
+
+    auto kitChooser = new KitChooser;
+    kitChooser->setShowIcons(true);
+    kitChooser->populate();
+    Kit *kit = kitChooser->currentKit();
+
+    dd->attachToRunningProcess(kit, processInfo, false);
+}
+
+void DebuggerPlugin::attachExternalApplication(RunControl *rc)
+{
+    ProcessHandle pid = rc->applicationProcessHandle();
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setTarget(rc->target());
+    runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
+    auto debugger = new DebuggerRunTool(runControl);
+    debugger->setInferiorExecutable(rc->targetFilePath());
+    debugger->setAttachPid(pid);
+    debugger->setStartMode(AttachToLocalProcess);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->startRunControl();
+}
+
+void DebuggerPlugin::getEnginesState(QByteArray *json) const
+{
+    QTC_ASSERT(json, return);
+    QVariantMap result {
+        {"version", 1}
+    };
+    QVariantMap states;
+
+    int i = 0;
+    DebuggerEngine *currentEngine = EngineManager::currentEngine();
+    for (DebuggerEngine *engine : EngineManager::engines()) {
+        states[QString::number(i)] = QVariantMap({
+                   {"current", engine == currentEngine},
+                   {"pid", engine->inferiorPid()},
+                   {"state", engine->state()}
+        });
+        ++i;
+    }
+
+    if (!states.isEmpty())
+        result["states"] = states;
+
+    *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
+}
+
+void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
+                                                  const QString &detectionSource,
+                                                  QString *logMessage)
+{
+    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
+}
+
+void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
+}
+
+void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
+{
+    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
 }
 
 } // Internal

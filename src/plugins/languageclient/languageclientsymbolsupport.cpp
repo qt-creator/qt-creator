@@ -157,7 +157,6 @@ static MessageId sendGotoRequest(TextEditor::TextDocument *document,
         handleGotoResponse<Request>(response, callback, linkUnderCursor, client);
     });
     return sendTextDocumentPositionParamsRequest(client, request, member);
-    return request.id();
 }
 
 bool SymbolSupport::supportsFindLink(TextEditor::TextDocument *document, LinkTarget target) const

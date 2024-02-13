@@ -22,7 +22,7 @@
 #include <coreplugin/modemanager.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <coreplugin/icore.h>
 

@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormEditorInterface;
+class QObject;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -62,6 +63,8 @@ QList<Core::IOptionsPage *> optionsPages();
 
 void setQtPluginPath(const QString &qtPluginPath);
 void addPluginPath(const QString &pluginPath);
+
+QObject *createGoToSlotTest();
 
 } // namespace Internal
 } // namespace Designer

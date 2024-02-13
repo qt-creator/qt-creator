@@ -62,7 +62,7 @@ public:
     void itemChanged(IDocument *document);
 
     QList<DocumentModel::Entry *> m_entries;
-    QMap<IDocument *, QList<IEditor *> > m_editors;
+    QHash<IDocument *, QList<IEditor *>> m_editors;
     QHash<Utils::FilePath, DocumentModel::Entry *> m_entryByFixedPath;
 };
 

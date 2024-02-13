@@ -11,6 +11,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;
@@ -34,6 +35,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
             askBeforePresetsReload,
             showSourceSubFolders,
             showAdvancedOptionsByDefault,
+            useJunctionsForSourceAndBuildDirectories,
             st
         };
     });
@@ -86,6 +88,21 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     showAdvancedOptionsByDefault.setDefaultValue(false);
     showAdvancedOptionsByDefault.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
+
+    useJunctionsForSourceAndBuildDirectories.setSettingsKey(
+        "UseJunctionsForSourceAndBuildDirectories");
+    useJunctionsForSourceAndBuildDirectories.setDefaultValue(false);
+    useJunctionsForSourceAndBuildDirectories.setLabelText(::CMakeProjectManager::Tr::tr(
+        "Use Junctions for CMake configuration and build operations"));
+    useJunctionsForSourceAndBuildDirectories.setVisible(Utils::HostOsInfo().isWindowsHost());
+    useJunctionsForSourceAndBuildDirectories.setToolTip(::CMakeProjectManager::Tr::tr(
+        "Create and use junctions for the source and build directories. This helps to overcome "
+        "issues with long paths on Windows.<br><br>"
+        "They are stored under <tt>C:\\ProgramData\\QtCreator\\Links</tt> (overridable via "
+        "<tt>QTC_CMAKE_JUNCTIONS_DIR</tt> environment variable).<br><br>"
+        "With <tt>QTC_CMAKE_JUNCTIONS_HASH_LENGTH</tt> the MD5 hash key length can be shortened "
+        "to a value smaller than the default length value of 32.<br><br>"
+        "They are used for CMake configure, build and install operations."));
 
     readSettings();
 }

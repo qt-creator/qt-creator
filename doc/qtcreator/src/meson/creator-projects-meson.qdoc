@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Setting Up Meson
+    \title Meson
 
     \brief Use Meson to build native desktop applications.
 
@@ -54,7 +54,7 @@
 
     \image qtcreator-kits-meson.png "Setting Meson executable in Kit preferences"
 
-    For more information, see \l {Kits}.
+    For more information, see \l {kits-tab}{Kits}.
 
     \section1 Editing Meson Build Descriptions
 

@@ -8,13 +8,13 @@
 #include "ieditor.h"
 #include "../actionmanager/command.h"
 #include "../coreplugintr.h"
+#include "../inavigationwidgetfactory.h"
 #include "../opendocumentstreeview.h"
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractProxyModel>
-#include <QApplication>
 #include <QMenu>
 
 using namespace Utils;
@@ -53,11 +53,11 @@ private:
 
 // OpenEditorsWidget
 
-class OpenEditorsWidget : public OpenDocumentsTreeView
+class OpenEditorsWidget final : public OpenDocumentsTreeView
 {
 public:
     OpenEditorsWidget();
-    ~OpenEditorsWidget() override;
+    ~OpenEditorsWidget() final;
 
 private:
     void handleActivated(const QModelIndex &);
@@ -150,23 +150,6 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
     contextMenu.addSeparator();
     EditorManager::addNativeDirAndOpenWithActions(&contextMenu, entry);
     contextMenu.exec(mapToGlobal(pos));
-}
-
-///
-// OpenEditorsViewFactory
-///
-
-OpenEditorsViewFactory::OpenEditorsViewFactory()
-{
-    setId("Open Documents");
-    setDisplayName(Tr::tr("Open Documents"));
-    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+O") : Tr::tr("Alt+O")));
-    setPriority(200);
-}
-
-NavigationView OpenEditorsViewFactory::createWidget()
-{
-    return {new OpenEditorsWidget, {}};
 }
 
 ProxyModel::ProxyModel(QObject *parent) : QAbstractProxyModel(parent)
@@ -311,6 +294,30 @@ void ProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &parent, int star
     int realStart = parent.isValid() || start == 0 ? start : start - 1;
     int realEnd = parent.isValid() || end == 0 ? end : end - 1;
     beginInsertRows(parent, realStart, realEnd);
+}
+
+// OpenEditorsViewFactory
+
+class OpenEditorsViewFactory final : public INavigationWidgetFactory
+{
+public:
+    OpenEditorsViewFactory()
+    {
+        setId("Open Documents");
+        setDisplayName(Tr::tr("Open Documents"));
+        setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+O") : Tr::tr("Alt+O")));
+        setPriority(200);
+    }
+
+    NavigationView createWidget() final
+    {
+        return {new OpenEditorsWidget, {}};
+    }
+};
+
+void createOpenEditorsViewFactory()
+{
+    static OpenEditorsViewFactory theOpenEditorsViewFactory;
 }
 
 } // Core::Internal

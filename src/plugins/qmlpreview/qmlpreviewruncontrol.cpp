@@ -235,9 +235,12 @@ public:
 
 LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
+    setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
     setProduct<LocalQmlPreviewSupport>();
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+
+    addSupportForLocalRunConfigs();
 }
 
 } // QmlPreview

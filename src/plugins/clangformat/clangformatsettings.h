@@ -15,8 +15,8 @@ public:
     ClangFormatSettings();
     void write() const;
 
-    void setOverrideDefaultFile(bool enable);
-    bool overrideDefaultFile() const;
+    void setUseCustomSettings(bool enable);
+    bool useCustomSettings() const;
 
     enum Mode {
         Indenting = 0,
@@ -38,7 +38,7 @@ public:
 
 private:
     Mode m_mode;
-    bool m_overrideDefaultFile = false;
+    bool m_useCustomSettings = false;
     bool m_formatWhileTyping = false;
     bool m_formatOnSave = false;
     int m_fileSizeThreshold = 200;

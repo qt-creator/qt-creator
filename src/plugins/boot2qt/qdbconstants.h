@@ -10,6 +10,7 @@ namespace Constants {
 
 const char QdbLinuxOsType[] = "QdbLinuxOsType";
 
+const char QdbRunConfigurationId[] = "QdbLinuxRunConfiguration:";
 const char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfiguration";
 
 const char QdbStopApplicationStepId[] = "Qdb.StopApplicationStep";

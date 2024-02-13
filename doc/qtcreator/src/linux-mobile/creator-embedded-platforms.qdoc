@@ -5,7 +5,7 @@
     \page creator-embedded-platforms.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference
+    \ingroup creator-reference-platforms
 
     \title Embedded Platforms
 
@@ -58,7 +58,7 @@
         \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
             {Boot2Qt: Installation Guides}
         \li \l{Connecting Boot2Qt Devices}
-        \li \l{Specifying Run Settings for Boot2Qt Devices}
+        \li \l{Boot2Qt Run Settings}
         \li \l{Deploying to Boot2Qt}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
@@ -75,7 +75,7 @@
     \list
         \li \l{Connecting Remote Linux Devices}
         \li \l{Deploying to Remote Linux}
-        \li \l{Specifying Run Settings for Linux-Based Devices}
+        \li \l{Remote Linux Run Settings}
         \li \l{Running on Remote Linux Devices}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
@@ -109,7 +109,7 @@
     \list
         \li \l{Connecting QNX Devices}
         \li \l{Deploying to QNX Neutrino}
-        \li \l{Specifying Run Settings for QNX Devices}
+        \li \l{QNX Run Settings}
         \li \l{Running on QNX Devices}
         \li \l{Qt for QNX}
     \endlist

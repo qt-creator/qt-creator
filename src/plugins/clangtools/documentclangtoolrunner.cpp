@@ -4,7 +4,6 @@
 #include "documentclangtoolrunner.h"
 
 #include "clangtoolsconstants.h"
-#include "clangtoolslogfilereader.h"
 #include "clangtoolrunner.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
@@ -57,10 +56,14 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, &DocumentClangToolRunner::scheduleRun);
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
+    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
 }
 
-DocumentClangToolRunner::~DocumentClangToolRunner() = default;
+DocumentClangToolRunner::~DocumentClangToolRunner()
+{
+    qDeleteAll(m_marks);
+}
 
 FilePath DocumentClangToolRunner::filePath() const
 {
@@ -155,7 +158,7 @@ void DocumentClangToolRunner::run()
 {
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
     QScopeGuard cleanup([this] { finalize(); });
 
     auto isEditorForCurrentDocument = [this](const IEditor *editor) {
@@ -180,7 +183,7 @@ void DocumentClangToolRunner::run()
                                    : projectSettings->runSettings();
     m_suppressed = projectSettings->suppressedDiagnostics();
     m_lastProjectDirectory = project->projectDirectory();
-    m_projectSettingsUpdate = connect(projectSettings.data(), &ClangToolsProjectSettings::changed,
+    m_projectSettingsUpdate = connect(projectSettings.get(), &ClangToolsProjectSettings::changed,
                                       this, &DocumentClangToolRunner::run);
     if (!runSettings.analyzeOpenFiles())
         return;
@@ -200,7 +203,7 @@ void DocumentClangToolRunner::run()
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
-        const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
+        const AnalyzeUnits units{{m_fileInfo, includeDir, clangVersion}};
         auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
                                     const FilePath &path) { return path == mappedPath; };
         const AnalyzeInputData input{tool,
@@ -208,14 +211,13 @@ void DocumentClangToolRunner::run()
                                      config,
                                      m_temporaryDir.path(),
                                      env,
-                                     unit,
                                      vfso().overlayFilePath().toString(),
                                      diagnosticFilter};
-        const auto setupHandler = [this, executable] {
+        const auto setupHandler = [this, executable](const AnalyzeUnit &) {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{finishAllAndDone, clangToolTask(input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndSuccess, clangToolTask(units, input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);
@@ -223,10 +225,7 @@ void DocumentClangToolRunner::run()
         return;
 
     cleanup.dismiss();
-    m_taskTree.reset(new TaskTree(tasks));
-    connect(m_taskTree.get(), &TaskTree::done, this, &DocumentClangToolRunner::finalize);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &DocumentClangToolRunner::finalize);
-    m_taskTree->start();
+    m_taskTreeRunner.start(tasks);
 }
 
 static void updateLocation(Debugger::DiagnosticLocation &location)
@@ -302,8 +301,6 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 
 void DocumentClangToolRunner::finalize()
 {
-    if (m_taskTree)
-        m_taskTree.release()->deleteLater();
     // remove all disabled marks
     const auto [newMarks, toDelete] = Utils::partition(m_marks, &DiagnosticMark::enabled);
     m_marks = newMarks;

@@ -55,10 +55,12 @@ protected:
 };
 
 class PerfProfilerStatisticsRelativesModel;
-class PerfProfilerStatisticsMainModel : public PerfProfilerStatisticsModel {
+
+class PerfProfilerStatisticsMainModel : public PerfProfilerStatisticsModel
+{
     Q_OBJECT
 public:
-    PerfProfilerStatisticsMainModel(PerfProfilerTraceManager *parent);
+    PerfProfilerStatisticsMainModel(QObject *parent);
     ~PerfProfilerStatisticsMainModel() override;
     PerfProfilerStatisticsRelativesModel *children() const { return m_children; }
     PerfProfilerStatisticsRelativesModel *parents() const { return m_parents; }

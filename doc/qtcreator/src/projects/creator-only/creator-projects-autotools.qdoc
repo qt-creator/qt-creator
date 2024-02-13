@@ -7,14 +7,17 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Setting Up an Autotools Project
+    \title Autotools
 
-    \brief \QC can open projects that use the Autotools build system. You can
+    \brief With Autotools, you can create a portable, complete, and
+    self-contained GNU Build System from simple instructions.
+
+    \QC can open projects that use the Autotools build system. You can
     build and run the projects directly from \QC.
 
-    The AutotoolsProjectManager is a plugin for autotools support.
+    \note Enable the AutotoolsProjectManager plugin to use it.
 
-    \note Enable the Autotools plugin to use it.
+    \section1 Working with Autotools Projects
 
     To work with your Autotools project in \QC:
 
@@ -31,9 +34,9 @@
 
             \image qtcreator-autotools-buildrun.png
 
-        \li Select \uicontrol Run to build and run the application. The
-            predefined build steps (autogen.sh or autoreconf, configure, and
-            make) are executed.
+        \li Select \inlineimage icons/run_small.png (\uicontrol Run) to execute
+            the predefined build steps (\c autogen.sh or \c autoreconf,
+            \c configure, and \c make).
 
             The first time you run the application you must choose the
             executable.

@@ -12,11 +12,17 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
+#include <utils/environment.h>
+#include <utils/infobar.h>
+#include <utils/process.h>
 #include <utils/textutils.h>
 #include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
@@ -25,6 +31,7 @@
 #include <QFile>
 #include <QMenu>
 #include <QTextDocument>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -89,15 +96,8 @@ bool applyTextEdits(const Client *client,
 {
     if (edits.isEmpty())
         return true;
-    RefactoringChangesData * const backend = client->createRefactoringChangesBackend();
-    RefactoringChanges changes(backend);
-    RefactoringFilePtr file;
-    file = changes.file(filePath);
+    const RefactoringFilePtr file = client->createRefactoringFile(filePath);
     file->setChangeSet(editsToChangeSet(edits, file->document()));
-    if (backend) {
-        for (const TextEdit &edit : edits)
-            file->appendIndentRange(convertRange(file->document(), edit.range()));
-    }
     return file->apply();
 }
 
@@ -398,4 +398,227 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
     return false;
 }
 
+constexpr char installJsonLsInfoBarId[] = "LanguageClient::InstallJsonLs";
+constexpr char installYamlLsInfoBarId[] = "LanguageClient::InstallYamlLs";
+constexpr char installBashLsInfoBarId[] = "LanguageClient::InstallBashLs";
+
+const char npmInstallTaskId[] = "LanguageClient::npmInstallTask";
+
+class NpmInstallTask : public QObject
+{
+    Q_OBJECT
+public:
+    NpmInstallTask(const FilePath &npm,
+                   const FilePath &workingDir,
+                   const QString &package,
+                   QObject *parent = nullptr)
+        : QObject(parent)
+        , m_package(package)
+    {
+        m_process.setCommand(CommandLine(npm, {"install", package}));
+        m_process.setWorkingDirectory(workingDir);
+        m_process.setTerminalMode(TerminalMode::Run);
+        connect(&m_process, &Process::done, this, &NpmInstallTask::handleDone);
+        connect(&m_killTimer, &QTimer::timeout, this, &NpmInstallTask::cancel);
+        connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &NpmInstallTask::cancel);
+        m_watcher.setFuture(m_future.future());
+    }
+    void run()
+    {
+        const QString taskTitle = Tr::tr("Install npm Package");
+        Core::ProgressManager::addTask(m_future.future(), taskTitle, npmInstallTaskId);
+
+        m_process.start();
+
+        Core::MessageManager::writeSilently(
+            Tr::tr("Running \"%1\" to install %2.")
+                .arg(m_process.commandLine().toUserOutput(), m_package));
+
+        m_killTimer.setSingleShot(true);
+        m_killTimer.start(5 /*minutes*/ * 60 * 1000);
+    }
+
+signals:
+    void finished(bool success);
+
+private:
+    void cancel()
+    {
+        m_process.stop();
+        m_process.waitForFinished();
+        Core::MessageManager::writeFlashing(
+            m_killTimer.isActive()
+                ? Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(m_package)
+                : Tr::tr("The installation of \"%1\" was canceled by the user.")
+                      .arg(m_package));
+    }
+    void handleDone()
+    {
+        m_future.reportFinished();
+        const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
+        if (!success) {
+            Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed with exit code %2.")
+                                                    .arg(m_package)
+                                                    .arg(m_process.exitCode()));
+        }
+        emit finished(success);
+    }
+
+    QString m_package;
+    Utils::Process m_process;
+    QFutureInterface<void> m_future;
+    QFutureWatcher<void> m_watcher;
+    QTimer m_killTimer;
+};
+
+constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
+constexpr char SHELLSCRIPT_MIME_TYPE[]{"application/x-shellscript"};
+constexpr char JSON_MIME_TYPE[]{"application/json"};
+
+static void setupNpmServer(TextDocument *document,
+                           const Id &infoBarId,
+                           const QString &languageServer,
+                           const QString &languageServerArgs,
+                           const QString &language,
+                           const QStringList &serverMimeTypes)
+{
+    InfoBar *infoBar = document->infoBar();
+    if (!infoBar->canInfoBeAdded(infoBarId))
+        return;
+
+    // check if it is already configured
+    const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
+    for (BaseSettings *setting : settings) {
+        if (setting->isValid() && setting->m_languageFilter.isSupported(document))
+            return;
+    }
+
+    // check for npm
+    const FilePath npm = Environment::systemEnvironment().searchInPath("npm");
+    if (!npm.isExecutableFile())
+        return;
+
+    FilePath lsExecutable;
+
+    Process process;
+    process.setCommand(CommandLine(npm, {"list", "-g", languageServer}));
+    process.start();
+    process.waitForFinished();
+    if (process.exitCode() == 0) {
+        const FilePath lspath = FilePath::fromUserInput(process.stdOutLines().value(0));
+        lsExecutable = lspath.pathAppended(languageServer);
+        if (HostOsInfo::isWindowsHost())
+            lsExecutable = lsExecutable.stringAppended(".cmd");
+    }
+
+    const bool install = !lsExecutable.isExecutableFile();
+
+    const QString message = install ? Tr::tr("Install %1 language server via npm.").arg(language)
+                                    : Tr::tr("Setup %1 language server (%2).")
+                                          .arg(language)
+                                          .arg(lsExecutable.toUserOutput());
+    InfoBarEntry info(infoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
+    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
+        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+        for (Core::IDocument *doc : openedDocuments)
+            doc->infoBar()->removeInfo(infoBarId);
+
+        auto setupStdIOSettings = [=](const FilePath &executable) {
+            auto settings = new StdIOSettings();
+
+            settings->m_executable = executable;
+            settings->m_arguments = languageServerArgs;
+            settings->m_name = Tr::tr("%1 Language Server").arg(language);
+            settings->m_languageFilter.mimeTypes = serverMimeTypes;
+            LanguageClientSettings::addSettings(settings);
+            LanguageClientManager::applySettings();
+        };
+
+        if (install) {
+            const FilePath lsPath = Core::ICore::userResourcePath(languageServer);
+            if (!lsPath.ensureWritableDir())
+                return;
+            auto install = new NpmInstallTask(npm,
+                                              lsPath,
+                                              languageServer,
+                                              LanguageClientManager::instance());
+
+            auto handleInstall = [=](const bool success) {
+                install->deleteLater();
+                if (!success)
+                    return;
+                FilePath relativePath = FilePath::fromPathPart(
+                    QString("node_modules/.bin/" + languageServer));
+                if (HostOsInfo::isWindowsHost())
+                    relativePath = relativePath.withSuffix(".cmd");
+                FilePath lsExecutable = lsPath.resolvePath(relativePath);
+                if (lsExecutable.isExecutableFile()) {
+                    setupStdIOSettings(lsExecutable);
+                    return;
+                }
+                Process process;
+                process.setCommand(CommandLine(npm, {"list", languageServer}));
+                process.setWorkingDirectory(lsPath);
+                process.start();
+                process.waitForFinished();
+                const QStringList output = process.stdOutLines();
+                // we are expecting output in the form of:
+                // tst@ C:\tmp\tst
+                // `-- vscode-json-languageserver@1.3.4
+                for (const QString &line : output) {
+                    const qsizetype splitIndex = line.indexOf('@');
+                    if (splitIndex == -1)
+                        continue;
+                    lsExecutable = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
+                                       .resolvePath(relativePath);
+                    if (lsExecutable.isExecutableFile()) {
+                        setupStdIOSettings(lsExecutable);
+                        return;
+                    }
+                }
+            };
+
+            QObject::connect(install,
+                             &NpmInstallTask::finished,
+                             LanguageClientManager::instance(),
+                             handleInstall);
+
+            install->run();
+        } else {
+            setupStdIOSettings(lsExecutable);
+        }
+    });
+    infoBar->addInfo(info);
+}
+
+void autoSetupLanguageServer(TextDocument *document)
+{
+    const MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+
+    if (mimeType.inherits(JSON_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installJsonLsInfoBarId,
+                       "vscode-json-languageserver",
+                       "--stdio",
+                       QString("JSON"),
+                       {JSON_MIME_TYPE});
+    } else if (mimeType.inherits(YAML_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installYamlLsInfoBarId,
+                       "yaml-language-server",
+                       "--stdio",
+                       QString("YAML"),
+                       {YAML_MIME_TYPE});
+    } else if (mimeType.inherits(SHELLSCRIPT_MIME_TYPE)) {
+        setupNpmServer(document,
+                       installBashLsInfoBarId,
+                       "bash-language-server",
+                       "start",
+                       QString("Bash"),
+                       {SHELLSCRIPT_MIME_TYPE});
+    }
+}
+
 } // namespace LanguageClient
+
+#include "languageclientutils.moc"

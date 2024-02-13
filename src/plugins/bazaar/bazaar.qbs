@@ -20,7 +20,6 @@ QtcPlugin {
         "bazaareditor.cpp",
         "bazaareditor.h",
         "bazaarplugin.cpp",
-        "bazaarplugin.h",
         "bazaarsettings.cpp",
         "bazaarsettings.h",
         "bazaartr.h",

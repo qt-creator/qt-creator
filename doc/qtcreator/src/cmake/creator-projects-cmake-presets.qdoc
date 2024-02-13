@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings-cmake.html
     \page creator-build-settings-cmake-presets.html
-    \nextpage creator-build-settings-qmake.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title CMake Presets
+
+    \brief Examples of supported CMake presets.
 
     \c CMakePresets.json has options for project-wide builds, whereas
     \c CMakeUserPresets.json has options for your local builds.
@@ -224,4 +227,6 @@
       ]
     }
     \endcode
+
+    \sa {CMake Build Configuration}, {CMake}
 */

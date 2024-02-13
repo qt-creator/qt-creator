@@ -10,19 +10,28 @@
 #include "jsonprojectpage.h"
 #include "jsonsummarypage.h"
 #include "jsonwizardfactory.h"
+#include "jsonwizardpagefactory.h"
 #include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/wizardpage.h>
 
-#include <QVariant>
+using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // --------------------------------------------------------------------
 // FieldPageFactory:
 // --------------------------------------------------------------------
+
+class FieldPageFactory final : public JsonWizardPageFactory
+{
+public:
+    FieldPageFactory();
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final;
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final;
+};
 
 FieldPageFactory::FieldPageFactory()
 {
@@ -38,7 +47,7 @@ FieldPageFactory::FieldPageFactory()
     JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), []() { return new IconListField; });
 }
 
-Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
+WizardPage *FieldPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
 
@@ -54,7 +63,7 @@ Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Utils::Id typeId
     return page;
 }
 
-bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
+bool FieldPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
@@ -79,12 +88,21 @@ bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStr
 // FilePageFactory:
 // --------------------------------------------------------------------
 
+class FilePageFactory final : public JsonWizardPageFactory
+{
+public:
+    FilePageFactory();
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+};
+
 FilePageFactory::FilePageFactory()
 {
     setTypeIdsSuffix(QLatin1String("File"));
 }
 
-Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
+WizardPage *FilePageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -93,7 +111,7 @@ Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Utils::Id typeId,
     return new JsonFilePage;
 }
 
-bool FilePageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
+bool FilePageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.typeId() != QVariant::Map || !data.toMap().isEmpty())) {
@@ -112,12 +130,21 @@ const char KEY_PROJECT_FILE[] = "projectFilePath";
 const char KEY_REQUIRED_FEATURES[] = "requiredFeatures";
 const char KEY_PREFERRED_FEATURES[] = "preferredFeatures";
 
+class KitsPageFactory final : public JsonWizardPageFactory
+{
+public:
+    KitsPageFactory();
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+};
+
 KitsPageFactory::KitsPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Kits"));
 }
 
-Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
+WizardPage *KitsPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     QTC_ASSERT(canCreate(typeId), return nullptr);
@@ -143,7 +170,7 @@ static bool validateFeatureList(const QVariantMap &data, const QByteArray &key, 
     return true;
 }
 
-bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
+bool KitsPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
@@ -170,12 +197,21 @@ bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 static const char KEY_PROJECT_NAME_VALIDATOR[] = "projectNameValidator";
 static const char KEY_PROJECT_NAME_VALIDATOR_USER_MESSAGE[] = "trProjectNameValidatorUserMessage";
 
+class ProjectPageFactory final : public JsonWizardPageFactory
+{
+public:
+    ProjectPageFactory();
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+};
+
 ProjectPageFactory::ProjectPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Project"));
 }
 
-Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
+WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -201,7 +237,7 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Utils::Id type
     return page;
 }
 
-bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
+bool ProjectPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
@@ -232,12 +268,21 @@ bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
 
 static const char KEY_HIDE_PROJECT_UI[] = "hideProjectUi";
 
+class SummaryPageFactory final : public JsonWizardPageFactory
+{
+public:
+    SummaryPageFactory();
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+};
+
 SummaryPageFactory::SummaryPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Summary"));
 }
 
-Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
+WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -249,7 +294,7 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Utils::Id type
     return page;
 }
 
-bool SummaryPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
+bool SummaryPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.typeId() != QVariant::Map)) {
@@ -260,5 +305,15 @@ bool SummaryPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
     return true;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+// Setup
+
+void setupJsonWizardPages()
+{
+    static FieldPageFactory theFieldPageFactory;
+    static FilePageFactory theFilePageFactory;
+    static KitsPageFactory theKitsPageFactory;
+    static ProjectPageFactory theProjectPageFactory;
+    static SummaryPageFactory theSummaryPageFactory;
+}
+
+} // ProjectExplorer::Internal

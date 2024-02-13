@@ -201,7 +201,7 @@ public:
     virtual const CustomInspectorTabs createCustomInspectorTabs() { return {}; }
 
     // Caller takes ownership
-    virtual TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const;
+    virtual TextEditor::RefactoringFilePtr createRefactoringFile(const Utils::FilePath &filePath) const;
 
     void setCompletionResultsLimit(int limit);
     int completionResultsLimit() const;

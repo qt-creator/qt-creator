@@ -8,6 +8,7 @@ add_qtc_library(Utils
   SOURCES
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp
+    action.cpp action.h
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h
@@ -71,6 +72,7 @@ add_qtc_library(Utils
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h
     guard.cpp guard.h
+    guiutils.cpp guiutils.h
     headerviewstretcher.cpp headerviewstretcher.h
     highlightingitemdelegate.cpp highlightingitemdelegate.h
     historycompleter.cpp historycompleter.h
@@ -93,6 +95,7 @@ add_qtc_library(Utils
     listutils.h
     macroexpander.cpp macroexpander.h
     mathutils.cpp mathutils.h
+    mimeconstants.h
     mimeutils.h
     minimizableinfobars.cpp
     minimizableinfobars.h
@@ -116,7 +119,6 @@ add_qtc_library(Utils
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
     overridecursor.cpp overridecursor.h
-    parameteraction.cpp parameteraction.h
     passworddialog.cpp passworddialog.h
     pathchooser.cpp pathchooser.h
     pathlisteditor.cpp pathlisteditor.h
@@ -129,10 +131,10 @@ add_qtc_library(Utils
     process.cpp process.h
     processenums.h
     processhandle.cpp processhandle.h
+    processhelper.cpp processhelper.h
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
     processreaper.cpp processreaper.h
-    processutils.cpp processutils.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
@@ -171,6 +173,7 @@ add_qtc_library(Utils
     styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
+    synchronizedvalue.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h

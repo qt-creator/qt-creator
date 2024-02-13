@@ -1,8 +1,6 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "copilotplugin.h"
-
 #include "copilotclient.h"
 #include "copilotconstants.h"
 #include "copiloticons.h"
@@ -15,29 +13,29 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/statusbarmanager.h>
 
-#include <languageclient/languageclientmanager.h>
+#include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/projectpanelfactory.h>
+#include <languageclient/languageclientmanager.h>
 
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
 #include <QAction>
 #include <QToolButton>
+#include <QPointer>
 
 using namespace Utils;
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace Copilot {
-namespace Internal {
+namespace Copilot::Internal {
 
 enum Direction { Previous, Next };
 
-void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
+static void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 {
     QTextBlock block = editor->textCursor().block();
-    if (auto *suggestion = dynamic_cast<CopilotSuggestion *>(
+    if (auto suggestion = dynamic_cast<CopilotSuggestion *>(
             TextEditor::TextDocumentLayout::suggestion(block))) {
         int index = suggestion->currentCompletion();
         if (direction == Previous)
@@ -55,123 +53,119 @@ void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
     }
 }
 
-void CopilotPlugin::initialize()
+class CopilotPlugin final : public ExtensionSystem::IPlugin
 {
-    QAction *requestAction = new QAction(this);
-    requestAction->setText(Tr::tr("Request Copilot Suggestion"));
-    requestAction->setToolTip(
-        Tr::tr("Request Copilot suggestion at the current editor's cursor position."));
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Copilot.json")
 
-    connect(requestAction, &QAction::triggered, this, [this] {
-        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
-            if (m_client && m_client->reachable())
-                m_client->requestCompletions(editor);
-        }
-    });
+public:
+    void initialize() final
+    {
+        ActionBuilder requestAction(this,  Constants::COPILOT_REQUEST_SUGGESTION);
+        requestAction.setText(Tr::tr("Request Copilot Suggestion"));
+        requestAction.setToolTip(Tr::tr(
+            "Request Copilot suggestion at the current editor's cursor position."));
+        requestAction.addOnTriggered(this, [this] {
+            if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
+                if (m_client && m_client->reachable())
+                    m_client->requestCompletions(editor);
+            }
+        });
 
-    ActionManager::registerAction(requestAction, Constants::COPILOT_REQUEST_SUGGESTION);
+        ActionBuilder nextSuggestionAction(this, Constants::COPILOT_NEXT_SUGGESTION);
+        nextSuggestionAction.setText(Tr::tr("Show Next Copilot Suggestion"));
+        nextSuggestionAction.setToolTip(Tr::tr(
+            "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
+        nextSuggestionAction.addOnTriggered(this, [] {
+            if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
+                cycleSuggestion(editor, Next);
+        });
 
-    QAction *nextSuggestionAction = new QAction(this);
-    nextSuggestionAction->setText(Tr::tr("Show Next Copilot Suggestion"));
-    nextSuggestionAction->setToolTip(Tr::tr(
-        "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
+        ActionBuilder previousSuggestionAction(this, Constants::COPILOT_PREVIOUS_SUGGESTION);
+        previousSuggestionAction.setText(Tr::tr("Show Previous Copilot Suggestion"));
+        previousSuggestionAction.setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
+                                                   "showing the previous available Suggestion."));
+        previousSuggestionAction.addOnTriggered(this, [] {
+            if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
+                cycleSuggestion(editor, Previous);
+        });
 
-    connect(nextSuggestionAction, &QAction::triggered, this, [] {
-        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
-            cycleSuggestion(editor, Next);
-    });
+        ActionBuilder disableAction(this, Constants::COPILOT_DISABLE);
+        disableAction.setText(Tr::tr("Disable Copilot"));
+        disableAction.setToolTip(Tr::tr("Disable Copilot."));
+        disableAction.addOnTriggered(this, [] {
+            settings().enableCopilot.setValue(true);
+            settings().apply();
+        });
 
-    ActionManager::registerAction(nextSuggestionAction, Constants::COPILOT_NEXT_SUGGESTION);
+        ActionBuilder enableAction(this, Constants::COPILOT_ENABLE);
+        enableAction.setText(Tr::tr("Enable Copilot"));
+        enableAction.setToolTip(Tr::tr("Enable Copilot."));
+        enableAction.addOnTriggered(this, [] {
+            settings().enableCopilot.setValue(false);
+            settings().apply();
+        });
 
-    QAction *previousSuggestionAction = new QAction(this);
-    previousSuggestionAction->setText(Tr::tr("Show Previous Copilot Suggestion"));
-    previousSuggestionAction->setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
-                                                "showing the previous available Suggestion."));
+        ActionBuilder toggleAction(this, Constants::COPILOT_TOGGLE);
+        toggleAction.setText(Tr::tr("Toggle Copilot"));
+        toggleAction.setCheckable(true);
+        toggleAction.setChecked(settings().enableCopilot());
+        toggleAction.setIcon(COPILOT_ICON.icon());
+        toggleAction.addOnTriggered(this, [](bool checked) {
+            settings().enableCopilot.setValue(checked);
+            settings().apply();
+        });
 
-    connect(previousSuggestionAction, &QAction::triggered, this, [] {
-        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
-            cycleSuggestion(editor, Previous);
-    });
+        QAction *toggleAct = toggleAction.contextAction();
+        QAction *requestAct = requestAction.contextAction();
+        auto updateActions = [toggleAct, requestAct] {
+            const bool enabled = settings().enableCopilot();
+            toggleAct->setToolTip(enabled ? Tr::tr("Disable Copilot.") : Tr::tr("Enable Copilot."));
+            toggleAct->setChecked(enabled);
+            requestAct->setEnabled(enabled);
+        };
 
-    ActionManager::registerAction(previousSuggestionAction, Constants::COPILOT_PREVIOUS_SUGGESTION);
+        connect(&settings().enableCopilot, &BaseAspect::changed, this, updateActions);
 
-    QAction *disableAction = new QAction(this);
-    disableAction->setText(Tr::tr("Disable Copilot"));
-    disableAction->setToolTip(Tr::tr("Disable Copilot."));
-    connect(disableAction, &QAction::triggered, this, [] {
-        settings().enableCopilot.setValue(true);
-        settings().apply();
-    });
-    ActionManager::registerAction(disableAction, Constants::COPILOT_DISABLE);
+        updateActions();
 
-    QAction *enableAction = new QAction(this);
-    enableAction->setText(Tr::tr("Enable Copilot"));
-    enableAction->setToolTip(Tr::tr("Enable Copilot."));
-    connect(enableAction, &QAction::triggered, this, [] {
-        settings().enableCopilot.setValue(false);
-        settings().apply();
-    });
-    ActionManager::registerAction(enableAction, Constants::COPILOT_ENABLE);
+        auto toggleButton = new QToolButton;
+        toggleButton->setDefaultAction(toggleAction.contextAction());
+        StatusBarManager::addStatusBarWidget(toggleButton, StatusBarManager::RightCorner);
 
-    QAction *toggleAction = new QAction(this);
-    toggleAction->setText(Tr::tr("Toggle Copilot"));
-    toggleAction->setCheckable(true);
-    toggleAction->setChecked(settings().enableCopilot());
-    toggleAction->setIcon(COPILOT_ICON.icon());
-    connect(toggleAction, &QAction::toggled, this, [](bool checked) {
-        settings().enableCopilot.setValue(checked);
-        settings().apply();
-    });
+        setupCopilotProjectPanel();
+    }
 
-    ActionManager::registerAction(toggleAction, Constants::COPILOT_TOGGLE);
+    bool delayedInitialize() final
+    {
+        restartClient();
 
-    auto updateActions = [toggleAction, requestAction] {
-        const bool enabled = settings().enableCopilot();
-        toggleAction->setToolTip(enabled ? Tr::tr("Disable Copilot.") : Tr::tr("Enable Copilot."));
-        toggleAction->setChecked(enabled);
-        requestAction->setEnabled(enabled);
-    };
+        connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
 
-    connect(&settings().enableCopilot, &BaseAspect::changed, this, updateActions);
+        return true;
+    }
 
-    updateActions();
+    void restartClient()
+    {
+        LanguageClient::LanguageClientManager::shutdownClient(m_client);
 
-    auto toggleButton = new QToolButton;
-    toggleButton->setDefaultAction(toggleAction);
-    StatusBarManager::addStatusBarWidget(toggleButton, StatusBarManager::RightCorner);
+        if (!settings().nodeJsPath().isExecutableFile())
+            return;
+        m_client = new CopilotClient(settings().nodeJsPath(), settings().distPath());
+    }
 
-    auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(1000);
-    panelFactory->setDisplayName(Tr::tr("Copilot"));
-    panelFactory->setCreateWidgetFunction(&Internal::createCopilotProjectPanel);
-    ProjectPanelFactory::registerFactory(panelFactory);
-}
+    ShutdownFlag aboutToShutdown() final
+    {
+        if (!m_client)
+            return SynchronousShutdown;
+        connect(m_client, &QObject::destroyed, this, &IPlugin::asynchronousShutdownFinished);
+        return AsynchronousShutdown;
+    }
 
-bool CopilotPlugin::delayedInitialize()
-{
-    restartClient();
+private:
+    QPointer<CopilotClient> m_client;
+};
 
-    connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
+} // Copilot::Internal
 
-    return true;
-}
-
-void CopilotPlugin::restartClient()
-{
-    LanguageClient::LanguageClientManager::shutdownClient(m_client);
-
-    if (!settings().nodeJsPath().isExecutableFile())
-        return;
-    m_client = new CopilotClient(settings().nodeJsPath(), settings().distPath());
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag CopilotPlugin::aboutToShutdown()
-{
-    if (!m_client)
-        return SynchronousShutdown;
-    connect(m_client, &QObject::destroyed, this, &IPlugin::asynchronousShutdownFinished);
-    return AsynchronousShutdown;
-}
-
-} // namespace Internal
-} // namespace Copilot
+#include "copilotplugin.moc"

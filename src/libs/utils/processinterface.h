@@ -9,6 +9,7 @@
 #include "commandline.h"
 #include "processenums.h"
 
+#include <QDeadlineTimer>
 #include <QProcess>
 #include <QSize>
 
@@ -54,7 +55,7 @@ public:
 
 private:
     QSize m_size{80, 60};
-    QSharedPointer<SharedData> m_data;
+    std::shared_ptr<SharedData> m_data;
 };
 
 } // namespace Pty
@@ -85,7 +86,7 @@ public:
     QString m_standardInputFile;
     QString m_nativeArguments; // internal, dependent on specific code path
 
-    int m_reaperTimeout = 500; // in ms
+    std::chrono::milliseconds m_reaperTimeout{500};
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
     bool m_lowPriority = false;
@@ -102,7 +103,6 @@ public:
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QString m_errorString;
-    bool m_canceledByUser = false;
 };
 
 enum class ControlSignal {
@@ -126,7 +126,7 @@ private:
     // - Started is being called only in Starting state.
     // - ReadyRead is being called in Starting or Running state.
     // - Done is being called in Starting or Running state.
-    virtual bool waitForSignal(ProcessSignalType signalType, int msecs) = 0;
+    virtual bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout) = 0;
 
     friend class Internal::ProcessPrivate;
 };

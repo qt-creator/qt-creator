@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
-
 namespace Android::Internal {
 
-class JavaEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    JavaEditorFactory();
-};
+void setupJavaEditor();
 
 } // Android::Internal

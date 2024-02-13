@@ -5,7 +5,27 @@
 
 #include "modemanager.h"
 
+#include <utils/fancymainwindow.h>
+
+#include <aggregation/aggregate.h>
+
 namespace Core {
+
+namespace Internal {
+
+class IModePrivate
+{
+public:
+    QString m_displayName;
+    QIcon m_icon;
+    QMenu *m_menu = nullptr;
+    Utils::FancyMainWindow *m_mainWindow = nullptr;
+    int m_priority = -1;
+    Utils::Id m_id;
+    bool m_isEnabled = true;
+};
+
+} // namespace Internal
 
 /*!
     \class Core::IMode
@@ -98,22 +118,89 @@ namespace Core {
 
     Registers the mode in \QC.
 */
-IMode::IMode(QObject *parent) : IContext(parent)
+IMode::IMode(QObject *parent)
+    : IContext(parent)
+    , m_d(new Internal::IModePrivate)
 {
     ModeManager::addMode(this);
 }
 
+IMode::~IMode() = default;
+
+QString IMode::displayName() const
+{
+    return m_d->m_displayName;
+}
+
+QIcon IMode::icon() const
+{
+    return m_d->m_icon;
+}
+
+int IMode::priority() const
+{
+    return m_d->m_priority;
+}
+
+Utils::Id IMode::id() const
+{
+    return m_d->m_id;
+}
+
 void IMode::setEnabled(bool enabled)
 {
-    if (m_isEnabled == enabled)
+    if (m_d->m_isEnabled == enabled)
         return;
-    m_isEnabled = enabled;
-    emit enabledStateChanged(m_isEnabled);
+    m_d->m_isEnabled = enabled;
+    emit enabledStateChanged(m_d->m_isEnabled);
+}
+
+void IMode::setDisplayName(const QString &displayName)
+{
+    m_d->m_displayName = displayName;
+}
+
+void IMode::setIcon(const QIcon &icon)
+{
+    m_d->m_icon = icon;
+}
+
+void IMode::setPriority(int priority)
+{
+    m_d->m_priority = priority;
+}
+
+void IMode::setId(Utils::Id id)
+{
+    m_d->m_id = id;
+}
+
+void IMode::setMenu(QMenu *menu)
+{
+    m_d->m_menu = menu;
+}
+
+Utils::FancyMainWindow *IMode::mainWindow()
+{
+    if (m_d->m_mainWindow)
+        return m_d->m_mainWindow;
+    return qobject_cast<Utils::FancyMainWindow *>(widget());
+}
+
+void IMode::setMainWindow(Utils::FancyMainWindow *mw)
+{
+    m_d->m_mainWindow = mw;
+    emit ModeManager::instance()->currentMainWindowChanged();
 }
 
 bool IMode::isEnabled() const
 {
-    return m_isEnabled;
+    return m_d->m_isEnabled;
+}
+
+QMenu *IMode::menu() const
+{
+    return m_d->m_menu;
 }
 
 } // namespace Core

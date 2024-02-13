@@ -8,6 +8,7 @@
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
 #include "projectconfigurationmodel.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "target.h"
@@ -15,9 +16,10 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/infolabel.h>
+#include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -41,6 +43,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     Q_ASSERT(m_target);
 
     m_deployConfigurationCombo = new QComboBox(this);
+    Utils::setWheelScrollingWithoutFocusBlocked(m_deployConfigurationCombo);
     m_addDeployToolButton = new QPushButton(Tr::tr("Add"), this);
     m_removeDeployToolButton = new QPushButton(Tr::tr("Remove"), this);
     m_renameDeployButton = new QPushButton(Tr::tr("Rename..."), this);
@@ -50,6 +53,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo = new QComboBox(this);
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_runConfigurationCombo->setMinimumContentsLength(15);
+    Utils::setWheelScrollingWithoutFocusBlocked(m_runConfigurationCombo);
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(Tr::tr("Remove"), this);
@@ -69,10 +73,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     runLabel->setBuddy(m_runConfigurationCombo);
 
-    QFont f = runLabel->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
-
+    const QFont f = Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH4);
     runTitle->setFont(f);
     deployTitle->setFont(f);
 
@@ -501,10 +502,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
     widget->setContentsMargins({});
 
-    QFont f = label->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
-    label->setFont(f);
+    label->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH4));
 
     label->setContentsMargins(0, 18, 0, 0);
 
@@ -526,8 +524,12 @@ void RunSettingsWidget::removeSubWidgets()
 
 void RunSettingsWidget::updateEnabledState()
 {
-    const bool enable = m_runConfiguration ? m_runConfiguration->isEnabled() : false;
-    const QString reason = m_runConfiguration ? m_runConfiguration->disabledReason() : QString();
+    const bool enable = m_runConfiguration
+                            ? m_runConfiguration->isEnabled(Constants::NORMAL_RUN_MODE)
+                            : false;
+    const QString reason = m_runConfiguration
+                               ? m_runConfiguration->disabledReason(Constants::NORMAL_RUN_MODE)
+                               : QString();
 
     m_runConfigurationWidget->setEnabled(enable);
 

@@ -45,7 +45,7 @@ public:
     { accept(ast); }
 
 protected:
-    virtual bool visit(ClassSpecifierAST *ast)
+    bool visit(ClassSpecifierAST *ast) override
     {
         Class *classSymbol = ast->symbol;
         Q_ASSERT(classSymbol != 0);

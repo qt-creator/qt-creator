@@ -3,6 +3,7 @@
 
 #include "devicecheckbuildstep.h"
 
+#include "../buildstep.h"
 #include "../kitaspects.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
@@ -16,7 +17,7 @@
 
 namespace ProjectExplorer {
 
-class DeviceCheckBuildStep : public BuildStep
+class DeviceCheckBuildStep final : public BuildStep
 {
 public:
     DeviceCheckBuildStep(BuildStepList *bsl, Utils::Id id)
@@ -25,7 +26,7 @@ public:
         setWidgetExpandedByDefault(false);
     }
 
-    bool init() override
+    bool init() final
     {
         IDevice::ConstPtr device = DeviceKitAspect::device(kit());
         if (device)
@@ -48,7 +49,7 @@ public:
         }
 
         IDevice::Ptr newDevice = factory->create();
-        if (newDevice.isNull()) {
+        if (!newDevice) {
             emit addOutput(Tr::tr("No device configured."), OutputFormat::ErrorMessage);
             return false;
         }
@@ -65,10 +66,19 @@ private:
 
 // Factory
 
-DeviceCheckBuildStepFactory::DeviceCheckBuildStepFactory()
+class DeviceCheckBuildStepFactory final : public BuildStepFactory
 {
-    registerStep<DeviceCheckBuildStep>(Constants::DEVICE_CHECK_STEP);
-    setDisplayName(Tr::tr("Check for a configured device"));
+public:
+    DeviceCheckBuildStepFactory()
+    {
+        registerStep<DeviceCheckBuildStep>(Constants::DEVICE_CHECK_STEP);
+        setDisplayName(Tr::tr("Check for a configured device"));
+    }
+};
+
+void setupDeviceCheckBuildStep()
+{
+    static DeviceCheckBuildStepFactory theDeviceCheckBuildStepFactory;
 }
 
 } // ProjectExplorer

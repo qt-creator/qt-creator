@@ -1,209 +1,572 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-editor-functions.html
     \page creator-coding-navigating.html
-    \nextpage creator-highlighting.html
+    \previouspage creator-reference.html
 
-    \title Working in Edit Mode
+    \ingroup creator-reference-editors
 
-    You can write code in the \uicontrol Edit mode.
+    \title Edit Mode
 
-    \section1 Using the Editor Toolbar
+    \brief Edit and navigate code and other resources in your projects.
 
-    The editor toolbar is located at the top of the editor view. It is context
-    sensitive and shows items relevant to the file currently open in the editor.
+    Write and navigate code in the \uicontrol Edit mode.
 
-    \image qtcreator-editortoolbar-symbols.webp {Edit mode toolbar}
+    \image qtcreator-spliteditorview.png {Code editor}
 
-    To add more space around the toolbar items, select \preferences >
+    \section1 Editing Code
+
+    The \QC code editor offers code editing services, such as:
+
+    \list
+        \li \l {Semantic Highlighting}{Semantic highlighting}
+
+            \QC helps you to write well formatted code by highlighting
+            code elements and blocks. You can use syntax highlighting
+            also for other types of files than C++ or QML.
+
+        \li \l {Checking Code Syntax}{Checking code syntax}
+
+            \QC checks for errors when you write code and displays inline
+            error and warning messages. Similarly, it checks the  data
+            structure of an instance of a JavaScript object notation (JSON)
+            entity. Run static checks on the QML and JavaScript code in your
+            project to find common problems.
+
+        \li \l {Complete code}{Code completion}
+
+            \QC anticipates what you are going to write and completes code
+            and code snippets for elements, properties, and IDs.
+
+        \li \l {Indent text or code}{Indenting text or code}
+
+            \QC indents text and code according to rules that you
+            specify separately for files that have C++, QML, or
+            Nim (experimental) code and for other text files.
+    \endlist
+
+    \section1 Navigating Code
+
+    Split the editor view to work on several files simultaneously and move
+    between files and symbols in the following ways:
+
+    \list
+        \li Locate them with the locator.
+        \li Use the \l{Sidebar Views}{views} in the sidebar.
+        \li Go to the \uicontrol Edit and \uicontrol Window menu.
+        \li Use keyboard shortcuts.
+        \li Bookmark code.
+        \li Select buttons on the editor toolbar.
+    \endlist
+
+    \section1 Editor Toolbar
+
+    The editor toolbar is context sensitive and shows items relevant to the file
+    currently open in the editor.
+
+    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+
+    \table
+    \header
+        \li Button or Field
+        \li Purpose
+        \li Read More
+    \row
+        \li \inlineimage icons/prev.png
+            \inlineimage icons/next.png
+        \li Browse backward or forward through your location history.
+        \li
+    \row
+        \li \inlineimage numbers/01.png
+        \li Shows the currently open file.
+        \li \l{Move between files}
+    \row
+        \li \inlineimage numbers/02.png
+        \li Shows the current symbol.
+        \li \l{Move to symbols}
+    \row
+        \li \uicontrol #
+        \li Change the active parse context.
+        \li \l {Parse files}
+    \row
+        \li \inlineimage numbers/03.png
+        \li Switch between Windows line endings (CRLF) and Unix line endings (LF).
+        \li \l{Select line ending style}
+    \row
+        \li \inlineimage numbers/04.png
+        \li Change the text encoding.
+        \li \l{Change text encoding}
+    \row
+        \li \inlineimage icons/languageclient.png
+        \li View the language server for the current project, restart it, select
+            another one, \l{Inspect language clients}{inspect the communication}
+            between \QC and language servers, view server capabilities, and set
+            language server preferences.
+        \li \l {Language Servers}
+    \row
+        \li \inlineimage icons/debugger_singleinstructionmode.png
+        \li Run Clang-Tidy or Clazy to analyze the currently open file.
+        \li \l{Analyze code with Clang-Tidy and Clazy}
+    \row
+        \li \inlineimage numbers/05.png
+        \li Jump to a line and column in the current file. The line and column
+            indicator shows information about the current cursor positions,
+            including the length of the selection for selected text.
+        \li
+
+    \endtable
+
+    \section1 Adding Space Around Toolbar Items
+
+    To add more space around the toolbar items, go to \preferences >
     \uicontrol Environment > \uicontrol Interface, and
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
 
     \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
-    \section2 Navigating Between Open Files and Symbols
+    \section1 Resizing Views
 
-    Use the toolbar, \uicontrol Window menu items, or
-    \l{General Keyboard Shortcuts}{keyboard shortcuts}
-    to navigate between open files and symbols in use.
+    To resize the editor views and splits, move the cursor to the edge of the
+    view or split. When the cursor changes, drag the edge of the view or split
+    to another position.
 
-    To browse backward or forward through your
-    location history, click \inlineimage icons/prev.png
-    (\uicontrol {Go Back}) and \inlineimage icons/next.png
-    (\uicontrol {Go Forward}).
+    If the cursor does not change, go to \preferences > \uicontrol Environment >
+    \uicontrol Interface and select \uicontrol {Override cursors for views}.
 
-    To return to the last location where you made a change, select
-    \uicontrol Window > \uicontrol {Go to Last Edit}.
+    \section1 Copying File Information
 
-    To go to any open file, select it from the \uicontrol {Open files} drop-down
-    menu (1). To open a context menu that has commands for managing open
-    files, right-click the file name or icon on the toolbar. In addition to the
-    commands also available in the \uicontrol File menu, you can copy the path
-    and name of the current file and the number of the line where the cursor is
-    currently located to the clipboard by selecting \uicontrol {Copy Full Path},
-    \uicontrol {Copy File Name}, or \uicontrol {Copy Path and Line Number}.
-
-    To jump to any symbol used in the current file, select it from the
-    \uicontrol Symbols drop-down menu (2). By default, the symbols are displayed
-    in the order in which they appear in the file. Right-click the menu title
-    and select \uicontrol {Sort Alphabetically} to arrange the symbols in
-    alphabetic order.
-
-    To jump to a line and column in the current file, select the line and column
-    indicator (3) or press \key {Ctrl+K} (or \key {Cmd+K} on \macos) to open the
-    \l{Searching with the Locator}{locator}. Enter the line number and column
-    number in the locator, separated by a colon (:).
-
-    The line and column indicator shows more information about the current
-    cursor positions, including the length of the selection for selected text.
-
-    \image qtcreator-editor-line-column.webp {Line and column indicator on the Edit mode toolbar}
-
-    \note You can also use the \l{Show and hide sidebars}{sidebars} to
-    move around in \QC.
-
-    \section2 Selecting Parse Context
-
-    Code might be interpreted differently in different contexts. A file can be
-    used by different projects or subprojects with different defines, or it can
-    be included in the context of C, C++, Objective-C, or Objective-C++. To
-    change the active parse context, select an available parse context in the
-    \uicontrol {Active Parse Context} menu (4). The menu is visible only when
-    several parse contexts are available. To reset the parse context,
-    right-click on the menu to open a context menu, and then select
-    \uicontrol {Clear Preferred Parse Context}.
-    If the information needed for parsing the project is still incomplete or
-    incorrect, select \uicontrol {Additional Preprocessor Directives} to
-    add preprocessor directives.
-
-    \section2 Changing Text Encoding
-
-    To show the file encoding of the current file on the editor toolbar (5),
-    select \preferences > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Display file encoding}.
-
-    To change the text encoding, click it on the toolbar and select new
-    encoding in the \uicontrol {Text Encoding} dialog:
-
-    \image qtcreator-text-encoding.png "Text Encoding dialog"
-
-    To reload the file with the selected encoding, select
-    \uicontrol {Reload with Encoding}. To save the file with
-    the new encoding, select \uicontrol {Save with Encoding}.
-
-    \section2 Selecting Line Ending Style
-
-    To switch between Windows line endings (CRLF) and Unix line endings (LF),
-    select the ending style on the editor toolbar (6). To hide this field,
-    select \preferences > \uicontrol {Text Editor}
-    > \uicontrol Display, and deselect \uicontrol {Display file line ending}.
-
-    To set the line endings to use for all projects by default, select
-    \preferences > \uicontrol {Text Editor} >
-    \uicontrol Behavior, and then select the ending style in the
-    \uicontrol {Default line endings} field.
-
-    To set the line endings to use for a project, select \uicontrol Projects >
-    \uicontrol {Project Settings} > \uicontrol Editor.
-
-    For more information, see \l {Specify editor settings}.
-
-    \section2 Managing Language Servers
-
-    Select the \inlineimage icons/languageclient.png
-    icon on the editor toolbar (7) to view the \l{Using Language Servers}
-    {language server} for the current project. You can restart the language
-    server or select another one in the menu. Also, you can
-    \l{Inspecting Language Clients}{inspect the communication} between \QC
-    and language servers and view server capabilities, as well as
-    \l{Specifying Settings for Language Clients}{set language server preferences}.
+    To open a context menu that has commands for managing open files, right-click
+    the file name or icon on the toolbar (1). It has the same commands as the
+    \uicontrol File menu, as well as commands that copy the path and name of the
+    current file and the number of the line where the cursor is
+    currently located to the clipboard: \uicontrol {Copy Full Path},
+    \uicontrol {Copy File Name}, and \uicontrol {Copy Path and Line Number}.
 
     \section1 Editing Selected Lines
 
-    The \uicontrol Edit > \uicontrol Advanced menu has options for editing
-    selected lines of text.
+    In the \uicontrol Edit mode, go to \uicontrol Edit > \uicontrol Advanced
+    to edit lines of text that you select in the editor:
 
-    To duplicate the selected lines, select \uicontrol {Duplicate Selection}.
-    To format the duplicated lines as a comment, select
-    \uicontrol {Duplicate Selection and Comment}.
+    \list
+        \li To duplicate the selected lines, go to
+            \uicontrol {Duplicate Selection}.
+        \li To format the duplicated lines as a comment, go to
+            \uicontrol {Duplicate Selection and Comment}.
+        \li To turn selected text into lowercase, go to
+            \uicontrol {Lowercase Selection} or press \key {Alt+U}.
+        \li To turn selected text into uppercase, go to
+            \uicontrol {Uppercase Selection} or press \key {Alt+Shift+U}.
+        \li To sort selected lines alphabetically, go to
+            \uicontrol {Sort Selected Lines} or press \key {Alt+Shift+S}.
+        \li To add a cursor at the next occurrence of selected text for multi-cursor
+            editing, go to \uicontrol {Add Next Occurrence to Selection} or press \key {Ctrl+D}
+    \endlist
 
-    To turn selected text into lowercase, select \uicontrol {Lowercase Selection}
-    or press \key {Alt+U}. To turn it into uppercase, select
-    \uicontrol {Uppercase Selection} or press \key {Alt+Shift+U}.
+    \sa {Edit Code}{How To: Edit Code},
+    {Manage Language Servers}{How To: Manage Language Servers},
+    {Searching with the Locator}, {Keyboard Shortcuts}, {Sidebar Views}
+*/
 
-    To sort selected lines alphabetically, select \uicontrol {Sort Selected Lines}
-    or press \key {Alt+Shift+S}.
+/*!
+    \page creator-how-to-move-between-open-files.html
+    \previouspage creator-how-tos.html
 
-    Select \uicontrol {Add Next Occurrence to Selection} or press \key {Ctrl+D}
-    to add a cursor at the next occurrence of selected text for multi-cursor
-    editing.
+    \ingroup creator-how-to-edit
 
-    \section1 Multi-Cursor Editing
+    \title Move between files
 
-    To apply a change to several places simultaneously, press and hold \key Alt,
-    and click to place cursors in several places. Any changes you make are
-    applied simultaneously at all the cursor positions.
+    The editor toolbar shows the file that is currently open (1) in the editor.
 
-    Use the arrow keys to move all the cursors up and down. The \key Home and
-    \key End key move all the cursors to the beginning or to the end of the
-    line.
+    \image qtcreator-editor-open-files.webp {Current file shown on Edit mode toolbar}
 
-    Press and hold \key Alt and double-click strings to select several strings
-    simultaneously.
+    Use the locator, \l{Sidebar Views}{sidebar views}, \uicontrol Window menu
+    items, \l{General Keyboard Shortcuts}{keyboard shortcuts}, or
+    \l{Editor Toolbar}{editor toolbar} to move between files.
 
-    Press \key {Alt+Shift+I} to create cursors at the ends of selected lines.
+    \section1 Locate files
 
-    Press \key Esc to remove all the cursors and selections.
+    Activate the locator to find files in the local file system or on connected
+    devices. By default, the locator shows open documents and all files from all
+    projects. The file system filter (\c f) shows all files in the same folder
+    as the currently open file, and you can navigate the file system from there.
+    Also, you can switch to another device root.
 
-    \section1 Splitting the Editor View
+    For example, to open a QML file called \e HelloWorld.qml in the currently
+    open project using the locator:
 
-    Split the editor view or open the editor in a new window when you want to
-    work on and view multiple files on the same screen or on multiple screens.
+    \list 1
+        \li Press \key {Ctrl+K} to activate the locator.
+        \li Start typing the filename.
+            \image qtcreator-locator-open.webp {List of files in the locator}
+        \li Use the arrow keys to move to the filename in the list and press
+            \key Enter.
 
-    \image qtcreator-spliteditorview.png
+            The file opens in the editor.
+        \li To move to a line in the file, enter the line number in the locator.
+    \endlist
 
-    You can view multiple files simultaneously in the following ways:
+    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
+    If the path to a file is very long, it might not fit into the locator
+    window. To view the full path, press \key Alt when the filename is selected
+    or drag the right edge of the locator to make it wider.
+
+    If the locator does not find some files, see \l{Specify project contents}
+    for how to make them known to the locator.
+
+    \section1 Locate files from global file system index
+
+    You can install tools such as Spotlight, Locate, or Everything and use them
+    to locate files from a global file system index. Use the \c md locator
+    filter to locate the files.
+
+    To use the sorting from the selected tool instead of from \QC,
+    deselect the \uicontrol {Sort results} check box in the \c md
+    locator filter configuration.
+
+    \image qtcreator-locator-filter-edit-md.webp {Filter Configuration dialog}
+
+    \section1 Browse location history
+
+    To browse backward or forward through your location history, click
+    \inlineimage icons/prev.png (\uicontrol {Go Back}) and
+    \inlineimage icons/next.png (\uicontrol {Go Forward}) on the editor toolbar.
+
+    To return to the last location where you made a change, go to
+    \uicontrol Window > \uicontrol {Go to Last Edit}.
+
+    \section1 Navigate with the keyboard
+
+    Use keyboard shortcuts:
+
+    \list
+        \li To quickly move between currently open files, press \key Ctrl+Tab.
+        \li To move forward in the location history, press \key {Alt+Right}
+            (\key {Cmd+Opt+Right} on \macos).
+        \li To move backward, press \key {Alt+Left} (\key {Cmd+Opt+Left} on \macos).
+            For example, after you use the \uicontrol Locator
+            to jump to a symbol in the same file, press \key {Alt+Left} to jump
+            back to your original location in that file.
+    \endlist
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode},
+    {Searching with the Locator}, {File System}, {Projects}
+*/
+
+/*!
+    \page creator-how-to-move-to-symbols.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Move to symbols
+
+    The editor toolbar shows the symbol currently under the cursor (1).
+
+    \image qtcreator-editor-symbols.webp {Symbol under the cursor shown on Edit mode toolbar}
+
+    By default, the list of symbols shows them in the order in which they appear
+    in the file. Right-click the field and go to \uicontrol {Sort Alphabetically}
+    to arrange the symbols in alphabetic order.
+
+    Use the locator, \l{Sidebar Views}{views}, \uicontrol Window menu items,
+    \l{General Keyboard Shortcuts} {keyboard shortcuts}, or \l{Editor Toolbar}
+    {editor toolbar}, to navigate between symbols in open files.
+
+    \section1 Locate symbols
+
+    To jump to a symbol in the current file, activate the locator,
+    enter a period (.) or colon (:), and start typing the symbol name. Then
+    select the symbol in the list.
+
+    For example, to locate symbols matching \c {QGuiApplication}:
+
+    \list 1
+
+        \li Press \key {Ctrl+K} to activate the locator.
+
+        \li Enter a colon (:) followed by a space and the upper case letters in
+            the symbol name (here, \c {QGuiApplication}):
+
+            \code
+            : qga
+            \endcode
+
+    \endlist
+
+    The locator lists the results.
+
+    \image qtcreator-locator-example.webp {List of files matching the locator filter}
+
+    Filters locating class and function definitions also accept namespaces,
+    such as \c {Utils::*View}.
+
+    \section1 Move to symbol definition or declaration
+
+    To move directly to the definition or declaration of a symbol in the
+    \uicontrol Edit mode, move the cursor on the symbol and press \key {F2}.
+
+    Or, hold the \key Ctrl key (\key Cmd on \macos) and click
+    the symbol. If you have multiple splits opened, open the link in the next
+    split by holding \key Ctrl and \key Alt while clicking the symbol.
+
+    To enable this moving function, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Behavior > \uicontrol {Enable mouse navigation}.
+
+    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+
+    \section2 Follow symbols
+
+    Go to the context menu or to \uicontrol Tools > \uicontrol C++ or
+    \uicontrol QML/JS for more ways to move to the definition or declaration
+    of a symbol in the current split or the next split:
+
+    \list
+        \li To follow namespaces, classes, functions, variables, include
+            statements, and macros, go to \uicontrol {Follow Symbol Under Cursor}
+            or \uicontrol {Follow Symbol Under Cursor in Next Split}.
+        \li To move to the type definition of a symbol, go to
+            \uicontrol {Follow Symbol Under Cursor to Type} (\key {Ctrl+Shift+F2})
+            or \uicontrol {Follow Symbol Under Cursor to Type in Next Split}
+            (\key {Ctrl+E, Ctrl+Shift+F2}).
+    \endlist
+
+    \section2 Switch between function definition and decalaration
+
+    To switch between the definition and declaration of a function, place the
+    cursor on either and press \key {Shift+F2} or right-click and go to
+    \uicontrol {Switch Between Function Declaration/Definition} or
+    \uicontrol {Open Function Declaration/Definition in Next Split}.
+    For example, this allows you to navigate from anywhere within a function
+    body directly to the function declaration.
+
+    To switch between C++ header and source files, right-click anywhere in a
+    file and go to \uicontrol {Switch Header/Source} (\key F4) or
+    \uicontrol {Open Corresponding Header/Source in Next Split}
+    (\key {Ctrl+E,F4}).
+
+    \section2 Open links in another split
+
+    Links open in the same split by default. To open them in the next
+    split, press \key {Ctrl+E} first. For example, press \key {Ctrl+E,F2} to
+    follow the symbol into the next split. If necessary, the view is
+    automatically split.
+
+    To change the default behavior, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol Display and select
+    \uicontrol {Always open links in another split}. The symbol,
+    definition, or declaration opens in another split. Also, the
+    shortcuts for opening link targets in the next split are used
+    to open them in the current split.
+
+    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+
+    \section1 Open resource files for editing
+
+    When the cursor is on a string literal and the string is a Qt resource file
+    (.qrc) path, following the symbol opens the specified resource file for
+    editing in the \uicontrol {Resource Browser}.
+
+    \image qtcreator-add-resource.png {Resource Browser}
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Editing Keyboard Shortcuts},
+    {Searching with the Locator}
+*/
+
+/*!
+    \page creator-how-to-change-text-encoding.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-configure-editors
+
+    \title Change text encoding
+
+    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+
+    To show the file encoding of the current file on the editor toolbar (4) in
+    the \uicontrol Edit mode, go to \preferences > \uicontrol {Text Editor} >
+    \uicontrol Display > \uicontrol {Display file encoding}.
+
+    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+
+    To change the text encoding, select it on the toolbar, and then select new
+    encoding in the \uicontrol {Text Encoding} dialog:
+
+    \image qtcreator-text-encoding.png {Text Encoding dialog}
+
+    To reload the file with the selected encoding, select
+    \uicontrol {Reload with Encoding}.
+
+    To save the file with the new encoding, go to
+    \uicontrol {Save with Encoding}.
+
+    \section1 Set default encoding
+
+    To define the default file encoding, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior, and
+    then select a suitable option in \uicontrol {Default encoding}.
+
+    \image qtcreator-options-texteditor-behavior-file-encodings.png {File encoding preferences}
+
+    Qt 5 and Qt 6 require UTF-8 encoded source files, and therefore the default
+    encoding is set to \uicontrol UTF-8.
+    Detecting the correct encoding is tricky, so \QC will not try to do so.
+    Instead, it displays the following error message when you try to edit a file
+    that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with
+    "UTF-8"-encoding. Editing not possible.}
+
+    To resolve the issue, use a file conversion tool to convert the file
+    encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
+    of string constants to QString might not work as expected.
+
+    If you develop only Qt 4 applications or other than Qt applications, you
+    can set other encoding options as the default encoding. Select the
+    \uicontrol System option to use the file encoding used by your system.
+
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Behavior}
+*/
+
+/*!
+    \page creator-how-to-select-line-endings.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-configure-editors
+
+    \title Select line ending style
+
+    To switch between Windows line endings (CRLF) and Unix line endings (LF),
+    select the ending style on the editor toolbar (3) in the \uicontrol Edit
+    mode.
+
+    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+
+    To hide this field, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display, and clear \uicontrol {Display file line ending}.
+
+    \section1 Set default style
+
+    To set the line endings to use for all projects by default, go to
+    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior and
+    select the ending style in \uicontrol {Default line endings}.
+
+    \image qtcreator-options-texteditor-behavior-file-encodings.png {Default file ending preferences}
+
+    To set the line endings to use for a project, go to \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol Editor.
+
+    \image qtcreator-editor-settings.webp {Editor settings for a project}
+
+    \sa {Edit Code}{How To: Edit Code}, {Specify editor settings}, {Edit Mode}
+*/
+
+/*!
+    \page creator-how-to.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Insert multiple cursors
+
+    To apply a change to several places simultaneously in the editor in the
+    \uicontrol Edit mode, press and hold \key Alt, and click to place cursors
+    in several places in the file. Any changes you make are applied
+    simultaneously at all the cursor positions.
+
+    \image qtcreator-editor-multicursor.webp {Multiple cursors in the editor}
+
+    To manage cursors:
+
+    \list
+        \li Press the arrow keys to move all the cursors up and down.
+        \li Press the \key Home and \key End key to move all the cursors
+            to the beginning or to the end of the line.
+        \li Press and hold \key Alt and double-click strings to select
+            several strings simultaneously.
+        \li Press \key {Alt+Shift+I} to create cursors at the ends of
+            selected lines.
+        \li Press \key Esc to remove all the cursors and selections.
+    \endlist
+
+    \sa {Edit Code}{How To: Edit Code}, {Editing Selected Lines}, {Edit Mode}
+*/
+
+/*!
+    \page creator-how-to-split-editor-views.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Split the editor view
+
+    Split the editor view or open the editor in a new window to work on
+    and view many files on the same screen or on many screens.
+
+    \image qtcreator-spliteditorview.png {Editor view split horizontally and vertically}
+
+    View many files at the same time:
 
     \list
 
-        \li To split the editor view into a top and bottom view, select
+        \li To split the editor view into a top and bottom view, go to
             \uicontrol Window > \uicontrol Split, press \key {Ctrl+E, 2}, or
             select the \inlineimage icons/splitbutton_horizontal.png
             (\uicontrol Split) button and then select \uicontrol Split.
 
-            Split command creates views below the currently active editor view.
+            The \uicontrol Split command creates views below the currently active
+            editor view.
 
-        \li To split the editor view into adjacent views, select
+        \li To split the editor view into adjacent views, go to
             \uicontrol Window > \uicontrol {Split Side by Side}, press
             \key {Ctrl+E, 3}, or select \uicontrol Split >
             \uicontrol {Split Side by Side}.
 
-           Side by side split command creates views to the right of the
-           currently active editor view.
+           The \uicontrol {Split Side by Side} command creates views to the right
+           of the currently active editor view.
 
         \li To open the editor in a detached window, press \key {Ctrl+E, 4}, or
-            select \uicontrol Window > \uicontrol {Open in New Window}.
+            go to \uicontrol Window > \uicontrol {Open in New Window}.
 
-            The new window behaves basically in the same way as the editor area
+            The new window behaves in the same way as the editor area
             in the main window. For example, you can split this window, as well.
             Documents are opened in the currently active editor window.
 
     \endlist
 
-    To move between split views and detached editor windows, select
+    \section1 Move between views and windows
+
+    To move between split views and detached editor windows, go to
     \uicontrol Window > \uicontrol {Go to Next Split or Window} or press
     \key {Ctrl+E, O}.
 
-    To remove a split view, place the cursor within the view you want to
-    remove and select \uicontrol Window > \uicontrol {Remove Current Split},
-    press \key {Ctrl+E, 0}, or select the \inlineimage icons/splitbutton_closetop.png
-    (\uicontrol {Remove Split}) button. To remove all but the currently selected
-    split view, select \uicontrol Window > \uicontrol {Remove All Splits} or
-    press \key {Ctrl+E, 1}.
+    \section1 Remove splits
 
-    \section1 Using Bookmarks
+    To remove a split view:
+
+    \list
+        \li Place the cursor within the view you want to remove and go to
+            \uicontrol Window > \uicontrol {Remove Current Split}.
+        \li Press \key {Ctrl+E, 0}.
+        \li Select the \inlineimage icons/splitbutton_closetop.png
+            (\uicontrol {Remove Split}) button.
+    \endlist
+
+    To remove all but the currently selected split view:
+
+    \list
+        \li Go to \uicontrol Window > \uicontrol {Remove All Splits}.
+        \li Press \key {Ctrl+E, 1}.
+    \endlist
+
+    \sa {Edit Code}{How To: Edit Code}, {Detach views}, {Edit Mode}
+*/
+
+/*!
+    \page creator-how-to-use-bookmarks.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Bookmark code
 
     To insert or delete a bookmark in the \uicontrol Edit mode:
 
@@ -219,30 +582,32 @@
 
     \image qtcreator-togglebookmark.png
 
-    \section2 Adding Notes to Bookmarks
+    \section1 Add notes to bookmarks
 
     To add a note to a bookmark:
 
     \list
-        \li Select \uicontrol Tools > \uicontrol Bookmarks >
+        \li Go to \uicontrol Tools > \uicontrol Bookmarks >
             \uicontrol {Edit Bookmark}.
         \li Press \key {Ctrl+Shift+M}.
-        \li Right-click a bookmark and select \uicontrol {Edit Bookmark}
+        \li Right-click a bookmark and go to \uicontrol {Edit Bookmark}
             in the context menu.
     \endlist
 
     To view the note, move the mouse pointer over the bookmark or open the
     \uicontrol Bookmarks view in the \l{Show and hide sidebars}{sidebar}.
 
-    \section2 Navigating Bookmarks
+    \section1 Navigate bookmarks
 
-    To go to the previous bookmark in the current session, select
+    To move to the previous bookmark in the current session, go to
     \uicontrol Tools > \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
     or press \key {Ctrl+,}.
 
-    To go to the next bookmark in the current session, select \uicontrol Tools >
+    To move to the next bookmark in the current session, go to \uicontrol Tools >
     \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
     \key {Ctrl+.}.
+
+    \section2 Locate bookmarks
 
     To use the locator to go to a bookmark, press \key {Ctrl+K} (or \key {Cmd+K}
     on \macos) to open the locator. Enter \e b and a space to display a list of
@@ -252,80 +617,66 @@
 
     \image qtcreator-locator-bookmark-filtering.png "Filtering bookmarks in locator"
 
-    \section2 Viewing Bookmarks
+    \section1 View bookmarks
 
-    Bookmarks are listed in the \uicontrol Bookmarks view in the sidebar. To
+    The \uicontrol Bookmarks view in the sidebar lists bookmarks. To
     move between bookmarks, select the \uicontrol {Previous Bookmark} or
     \uicontrol {Next Bookmark} button or use the keyboard shortcuts.
 
     \image qtcreator-bookmarks-view.png "Listing bookmarks in Bookmarks view"
 
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+*/
 
-    \section1 Moving to Symbol Definition or Declaration
+/*!
+    \page creator-how-to-reparse-files.html
+    \previouspage creator-how-tos.html
 
-    You can move directly to the definition or the declaration of a symbol
-    in the \uicontrol Edit mode by
-    holding the \key Ctrl key and clicking the symbol. If you have multiple
-    splits opened, you can open the link in the next split by holding \key Ctrl
-    and \key Alt while clicking the symbol.
+    \ingroup creator-how-to-edit
 
-    To enable this moving function, select \preferences > \uicontrol {Text Editor}
-    > \uicontrol Behavior > \uicontrol {Enable mouse navigation}.
+    \title Parse files
 
-    There are several additional ways of moving between symbol definitions and
-    declarations. All the functions described below are also available from the
-    \uicontrol Tools > \uicontrol C++ menu. The functions supported for QML and
-    JavaScript code are available from the \uicontrol Tools > \uicontrol QML/JS
-    menu.
+    When you open a project, \QC parses the source files in the project and
+    performs a semantic analysis to build up the information that it needs for
+    code editing services, such as navigation and finding usages.
 
-    You can select the symbol and press \key F2, or right-click the symbol
-    and select \uicontrol {Follow Symbol Under Cursor} to move to its definition
-    or declaration. To follow the symbol in the next split, select
-    \uicontrol {Follow Symbol Under Cursor in Next Split}. Following symbols is
-    supported for namespaces, classes, functions, variables, include statements,
-    and macros.
+    \section1 Select parse context
 
-    To move to the type definition of a symbol, select
-    \uicontrol {Follow Symbol Under Cursor to Type} or press
-    \key {Ctrl+Shift+F2}. To follow the symbol in the next split, select
-    \uicontrol {Follow Symbol Under Cursor to Type in Next Split} or
-    press \key {Ctrl+E, Ctrl+Shift+F2}.
+    Code might be interpreted differently in different contexts. A file can be
+    used by different projects or subprojects with different defines, or it can
+    be included in the context of C, C++, Objective-C, or Objective-C++.
 
-    When the cursor is on a string literal and the string is a QRC file path,
-    following the symbol opens the specified resource file for editing in the
-    \uicontrol {Resource Browser}.
+    To change the active parse context, select an available parse context on the
+    \uicontrol Edit mode toolbar in \uicontrol #. The button is visible only when
+    several parse contexts are available.
 
-    To switch between the definition and declaration of a function, place the
-    cursor on either and press \key {Shift+F2} or right-click and select
-    \uicontrol {Switch Between Function Declaration/Definition} or
-    \uicontrol {Open Function Declaration/Definition in Next Split}.
-    For example, this allows you to navigate from anywhere within a function
-    body directly to the function declaration.
+    \image qtcreator-editor-open-files.webp {Edit mode toolbar}
 
-    Links are opened in the same split by default. To open links in the next
-    split, prepend \key {Ctrl+E} to the shortcut. For example, press
-    \key {Ctrl+E,F2} to follow the symbol in the next split. If necessary, the
-    view is automatically split. To change the default behavior, select
-    \preferences > \uicontrol {Text Editor} > \uicontrol Display >
-    \uicontrol {Always open links in another split}.
-    Additional symbols are
-    displayed and switching between definition and declaration is done in
-    another split. If you change the default behavior, the shortcuts for opening
-    link targets in the next split are used to open them in the current split.
+    To reset the parse context, go to \uicontrol # >
+    \uicontrol {Clear Preferred Parse Context}.
 
-    To switch between C++ header and source files, right-click anywhere in a
-    file and select \uicontrol {Switch Header/Source} or
-    \uicontrol {Open Corresponding Header/Source in Next Split}. You can also
-    press \key F4 or \key {Ctrl+E,F4}, respectively.
+    If the information needed for parsing the project is still incomplete or
+    incorrect, go to \uicontrol {Additional Preprocessor Directives} to
+    add preprocessor directives.
 
-    \section1 Reparsing Externally Changed Files
+    \section1 Reparse externally changed files
 
-    If source files are modified from outside \QC, the opened files will be
-    reparsed automatically. For all other files, you can use \uicontrol Tools >
+    If source files are modified from outside \QC, the open files (1) are
+    reparsed automatically. To update other files, go to \uicontrol Tools >
     \uicontrol {C++} > \uicontrol {Reparse Externally Changed Files} to update
     the code model.
 
-    \section1 Inspecting the Code Model
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Clang Code Model},
+    {Code Model}
+*/
+
+/*!
+    \page creator-how-to-inspect-code-model.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Inspect the code model
 
     When you \l{https://bugreports.qt.io/}{report a bug} that is related to the
     C++ code model, the \QC developers might ask you to write information about
@@ -337,11 +688,15 @@
     select \uicontrol Tools > \uicontrol {Debug \QC } >
     \uicontrol {Inspect C++ Code Model} or press \key {Ctrl+Shift+F12}.
 
+    \image qtcreator-code-model-inspector.webp {Code Model Inspector dialog}
+
     \QC generates the code model inspection log file in a temporary folder.
 
-    \QC underlines semantic errors in olive in the C++ code editor. To check the
-    correct paths for includes that are not resolved or that are resolved to the
-    wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
+    \QC underlines semantic errors in olive in the C++ code editor in the
+    \uicontrol Edit mode. To check the correct paths for includes that are not
+    resolved or that are resolved to the wrong file,
+    go to \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 
-    \sa {Detach views}
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Clang Code Model},
+    {Code Model}
 */

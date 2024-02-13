@@ -3,11 +3,9 @@
 
 #include "cppprojectfile.h"
 
-#include "cppeditorconstants.h"
-
-#include <coreplugin/icore.h>
 #include <utils/filepath.h>
 #include <utils/mimeutils.h>
+#include <utils/mimeconstants.h>
 
 #include <QDebug>
 
@@ -29,25 +27,26 @@ bool ProjectFile::operator==(const ProjectFile &other) const
 
 ProjectFile::Kind ProjectFile::classifyByMimeType(const QString &mt)
 {
-    if (mt == CppEditor::Constants::C_SOURCE_MIMETYPE)
+    using namespace Utils::Constants;
+    if (mt == C_SOURCE_MIMETYPE)
         return CSource;
-    if (mt == CppEditor::Constants::C_HEADER_MIMETYPE)
+    if (mt == C_HEADER_MIMETYPE)
         return CHeader;
-    if (mt == CppEditor::Constants::CPP_SOURCE_MIMETYPE)
+    if (mt == CPP_SOURCE_MIMETYPE)
         return CXXSource;
-    if (mt == CppEditor::Constants::CPP_HEADER_MIMETYPE)
+    if (mt == CPP_HEADER_MIMETYPE)
         return CXXHeader;
-    if (mt == CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+    if (mt == OBJECTIVE_C_SOURCE_MIMETYPE)
         return ObjCSource;
-    if (mt == CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+    if (mt == OBJECTIVE_CPP_SOURCE_MIMETYPE)
         return ObjCXXSource;
-    if (mt == CppEditor::Constants::QDOC_MIMETYPE)
+    if (mt == QDOC_MIMETYPE)
         return CXXSource;
-    if (mt == CppEditor::Constants::MOC_MIMETYPE)
+    if (mt == MOC_MIMETYPE)
         return CXXSource;
-    if (mt == CppEditor::Constants::CUDA_SOURCE_MIMETYPE)
+    if (mt == CUDA_SOURCE_MIMETYPE)
         return CudaSource;
-    if (mt == CppEditor::Constants::AMBIGUOUS_HEADER_MIMETYPE)
+    if (mt == AMBIGUOUS_HEADER_MIMETYPE)
         return AmbiguousHeader;
     return Unsupported;
 }

@@ -28,9 +28,23 @@ static QTextBlock previousNonEmptyBlock(const QTextBlock &block)
     return result;
 }
 
-PythonIndenter::PythonIndenter(QTextDocument *doc)
-    : TextEditor::TextIndenter(doc)
-{}
+class PythonIndenter : public TextEditor::TextIndenter
+{
+public:
+    explicit PythonIndenter(QTextDocument *doc)
+        : TextEditor::TextIndenter(doc)
+    {}
+
+private:
+    bool isElectricCharacter(const QChar &ch) const override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
+
+    bool isElectricLine(const QString &line) const;
+    int getIndentDiff(const QString &previousLine,
+                      const TextEditor::TabSettings &tabSettings) const;
+};
 
 /**
  * @brief Does given character change indentation level?
@@ -100,6 +114,11 @@ int PythonIndenter::getIndentDiff(const QString &previousLine,
             break;
     }
     return 0;
+}
+
+TextEditor::TextIndenter *createPythonIndenter(QTextDocument *doc)
+{
+    return new PythonIndenter(doc);
 }
 
 } // namespace Python

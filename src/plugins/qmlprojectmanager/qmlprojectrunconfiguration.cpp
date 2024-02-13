@@ -1,18 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlprojectrunconfiguration.h"
+#include "buildsystem/qmlbuildsystem.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
-#include "qmlproject.h"
-#include "qmlprojectmanagerconstants.h"
+#include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
@@ -20,6 +21,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -55,8 +57,8 @@ public:
     QmlProjectRunConfiguration(Target *target, Id id);
 
 private:
-    QString disabledReason() const final;
-    bool isEnabled() const final;
+    QString disabledReason(Utils::Id runMode) const final;
+    bool isEnabled(Utils::Id) const final;
 
     FilePath mainScript() const;
     FilePath qmlRuntimeFilePath() const;
@@ -178,7 +180,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     update();
 }
 
-QString QmlProjectRunConfiguration::disabledReason() const
+QString QmlProjectRunConfiguration::disabledReason(Utils::Id runMode) const
 {
     if (mainScript().isEmpty())
         return Tr::tr("No script file to execute.");
@@ -191,7 +193,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     }
     if (viewer.isEmpty())
         return Tr::tr("No QML utility specified for target device.");
-    return RunConfiguration::disabledReason();
+    return RunConfiguration::disabledReason(runMode);
 }
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
@@ -211,7 +213,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
-    auto hasDeployStep = [this]() {
+    auto hasDeployStep = [this] {
         return target()->activeDeployConfiguration() &&
             !target()->activeDeployConfiguration()->stepList()->isEmpty();
     };
@@ -304,7 +306,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
     }
 }
 
-bool QmlProjectRunConfiguration::isEnabled() const
+bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
            && !commandLine().executable().isEmpty()
@@ -318,12 +320,20 @@ FilePath QmlProjectRunConfiguration::mainScript() const
 
 // QmlProjectRunConfigurationFactory
 
-QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
-    : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
+class QmlProjectRunConfigurationFactory final : public FixedRunConfigurationFactory
 {
-    registerRunConfiguration<QmlProjectRunConfiguration>
-            ("QmlProjectManager.QmlRunConfiguration.Qml");
-    addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
+public:
+    QmlProjectRunConfigurationFactory()
+        : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
+    {
+        registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RUNCONFIG_ID);
+        addSupportedProjectType(Constants::QML_PROJECT_ID);
+    }
+};
+
+void setupQmlProjectRunConfiguration()
+{
+    static QmlProjectRunConfigurationFactory theQmlProjectRunConfigurationFactory;
 }
 
 } // QmlProjectManager::Internal

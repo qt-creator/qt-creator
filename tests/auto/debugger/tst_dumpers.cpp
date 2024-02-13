@@ -1300,8 +1300,20 @@ void tst_Dumpers::initTestCase()
         qCDebug(lcDumpers) << "Lldb version       :" << output << ba << m_debuggerVersion;
         QVERIFY(m_debuggerVersion);
 
-        m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = "make";
+        QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
+        if (!envBat.isEmpty()) {
+            QMap <QString, QString> envPairs;
+            Utils::Environment env = Utils::Environment::systemEnvironment();
+            QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
+
+            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+
+            m_env = env.toProcessEnvironment();
+            m_makeBinary = env.searchInPath("nmake.exe").toString();
+        } else {
+            m_env = QProcessEnvironment::systemEnvironment();
+            m_makeBinary = "make";
+        }
     }
 }
 
@@ -1548,8 +1560,7 @@ void tst_Dumpers::dumper()
                 "\n#define NOMINMAX\n#include <windows.h>") +
             "\n#endif"
             "\n#if defined(_MSC_VER)"
-                "\nvoid qtcDebugBreakFunction() { return; }"
-                "\n#define BREAK qtcDebugBreakFunction();"
+                "\n#define BREAK DebugBreak();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
                 "\n#include <stdint.h>";
@@ -1780,8 +1791,7 @@ void tst_Dumpers::dumper()
              << "-G"
              << "-xn"
              << "0x4000001f"
-             << "-c"
-             << "bm doit!qtcDebugBreakFunction;g"
+             << "-g"
              << "doit.exe";
         cmds += ".symopt+0x8000\n"
                 "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
@@ -1802,11 +1812,19 @@ void tst_Dumpers::dumper()
         fullLldb.open(QIODevice::WriteOnly);
         fullLldb.write((exe + ' ' + args.join(' ') + '\n').toUtf8());
 
+#ifdef Q_OS_WIN
+        const QString exeSuffix(".exe");
+        const QString frameLevel("1");
+#else
+        const QString exeSuffix;
+        const QString frameLevel("0");
+#endif
         cmds = "sc import sys\n"
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
               // "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {" + dumperOptions +
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit" + exeSuffix + "', " + frameLevel
+               + ", {" + dumperOptions +
                     "'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"
@@ -5246,7 +5264,12 @@ void tst_Dumpers::dumper_data()
 
             << Data("#include <string>\n"
                     "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {};\n",
+                    "class myallocator : public std::allocator<T> {\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
+                    "};\n",
 
                     "std::basic_string<char, std::char_traits<char>, myallocator<char>> str(\"hello\");",
 
@@ -5282,6 +5305,25 @@ void tst_Dumpers::dumper_data()
                + Check("wstr", "\"eeee\"", "std::wstring");
 
 
+    QTest::newRow("StdStringView")
+            << Data("#include <string>\n"
+                    "#include <string_view>\n",
+
+                    "std::string str(\"test\");\n"
+                    "std::u16string u16str(u\"test\");\n"
+                    "std::string_view view = str;\n"
+                    "std::u16string_view u16view = u16str;\n"
+                    "std::basic_string_view<char, std::char_traits<char>> basicview = str;\n"
+                    "std::basic_string_view<char16_t, std::char_traits<char16_t>> u16basicview = u16str;\n",
+
+                    "&view, &u16view, basicview, u16basicview")
+
+               + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
+               + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
+               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
+               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
+
+
     QTest::newRow("StdStringQt")
             << Data("#include <string>\n"
                     "#include <vector>\n"
@@ -5304,6 +5346,18 @@ void tst_Dumpers::dumper_data()
                + Check("str", "\"foo\"", "std::string")
                + Check("v", "<2 items>", "std::vector<std::string>")
                + Check("v.0", "[0]", "\"foo\"", "std::string");
+
+
+    QTest::newRow("StdTuple")
+            << Data("#include <string>\n",
+
+                    "std::tuple<int, std::string, int> tuple = std::make_tuple(123, std::string(\"hello\"), 456);\n",
+
+                    "&tuple")
+
+               + Check("tuple.0", "[0]", "123", "int")
+               + Check("tuple.1", "[1]", "\"hello\"", "std::string")
+               + Check("tuple.2", "[2]", "456", "int");
 
 
     QTest::newRow("StdValArray")
@@ -5381,6 +5435,10 @@ void tst_Dumpers::dumper_data()
                     "template<class T>\n"
                     "class myallocator : public std::allocator<T> {\n"
                     "using std::allocator<T>::allocator;\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
                     "};\n",
 
                     "std::vector<double> v0, v1;\n"

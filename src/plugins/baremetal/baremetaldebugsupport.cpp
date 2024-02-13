@@ -36,10 +36,10 @@ namespace BareMetal::Internal {
 class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
 {
 public:
-    explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl)
+    explicit BareMetalDebugSupport(RunControl *runControl)
         : Debugger::DebuggerRunTool(runControl)
     {
-        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
         if (!dev) {
             reportFailure(Tr::tr("Cannot debug: Kit has no device."));
             return;
@@ -59,7 +59,7 @@ public:
 private:
     void start() final
     {
-        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
         QTC_ASSERT(dev, reportFailure(); return);
         IDebugServerProvider *p = DebugServerProviderManager::findProvider(
             dev->debugServerProviderId());
@@ -73,13 +73,22 @@ private:
     }
 };
 
-BareMetalDebugSupportFactory::BareMetalDebugSupportFactory()
+class BareMetalDebugSupportFactory final : public RunWorkerFactory
 {
-    setProduct<BareMetalDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(BareMetal::Constants::BAREMETAL_RUNCONFIG_ID);
-    addSupportedRunConfig(BareMetal::Constants::BAREMETAL_CUSTOMRUNCONFIG_ID);
+public:
+    BareMetalDebugSupportFactory()
+    {
+        setProduct<BareMetalDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(BareMetal::Constants::BAREMETAL_RUNCONFIG_ID);
+        addSupportedRunConfig(BareMetal::Constants::BAREMETAL_CUSTOMRUNCONFIG_ID);
+    }
+};
+
+void setupBareMetalDebugSupport()
+{
+    static BareMetalDebugSupportFactory theBareMetalDebugSupportFactory;
 }
 
 } // BareMetal::Internal

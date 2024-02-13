@@ -3,17 +3,15 @@
 
 #include "resourcenode.h"
 
-#include "resourceeditorconstants.h"
 #include "resourceeditortr.h"
 #include "qrceditor/resourcefile_p.h"
 
 #include <coreplugin/documentmanager.h>
 
-#include <qmljstools/qmljstoolsconstants.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/threadutils.h>
@@ -40,7 +38,7 @@ public:
         : IDocument(nullptr), m_node(node)
     {
         setId("ResourceNodeWatcher");
-        setMimeType(ResourceEditor::Constants::C_RESOURCE_MIMETYPE);
+        setMimeType(Utils::Constants::RESOURCE_MIMETYPE);
         setFilePath(node->filePath());
     }
 
@@ -106,9 +104,9 @@ static bool hasPriority(const FilePaths &files)
         return false;
     QString type = Utils::mimeTypeForFile(files.at(0)).name();
     if (type.startsWith(QLatin1String("image/"))
-            || type == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
-            || type == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE)
-            || type == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE))
+            || type == QLatin1String(Utils::Constants::QML_MIMETYPE)
+            || type == QLatin1String(Utils::Constants::QMLUI_MIMETYPE)
+            || type == QLatin1String(Utils::Constants::JS_MIMETYPE))
         return true;
     return false;
 }

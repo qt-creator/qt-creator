@@ -10,6 +10,7 @@
 
 using namespace Core;
 using namespace LanguageServerProtocol;
+using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -24,7 +25,7 @@ void CurrentDocumentSymbolsRequest::start()
     TextDocument *document = TextDocument::currentTextDocument();
     Client *client = LanguageClientManager::clientForDocument(document);
     if (!client) {
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
 
@@ -34,7 +35,7 @@ void CurrentDocumentSymbolsRequest::start()
 
     const auto reportFailure = [this] {
         clearConnections();
-        emit done(false);
+        emit done(DoneResult::Error);
     };
 
     const auto updateSymbols = [this, currentUri, pathMapper](const DocumentUri &uri,
@@ -46,7 +47,7 @@ void CurrentDocumentSymbolsRequest::start()
         const FilePath filePath = pathMapper ? currentUri.toFilePath(pathMapper) : FilePath();
         m_currentDocumentSymbolsData = {filePath, pathMapper, symbols};
         clearConnections();
-        emit done(true);
+        emit done(DoneResult::Success);
     };
 
     m_connections.append(connect(EditorManager::instance(), &EditorManager::currentEditorChanged,

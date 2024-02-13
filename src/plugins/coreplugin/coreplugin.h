@@ -7,6 +7,7 @@
 #include <qglobal.h>
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/environment.h>
 
 #include <memory>
@@ -50,18 +51,17 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) override;
 
-    static Utils::Environment startupSystemEnvironment();
     static Utils::EnvironmentItems environmentChanges();
     static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
     static QString msgCrashpadInformation();
+
+    static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin);
 
 public slots:
     void fileOpenRequest(const QString &);
 
 #if defined(WITH_TESTS)
 private slots:
-    void testVcsManager_data();
-    void testVcsManager();
     // Locator:
     void test_basefilefilter();
     void test_basefilefilter_data();
@@ -71,7 +71,6 @@ private slots:
 
 private:
     static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
-    static void setupSystemEnvironment();
     void checkSettings();
     void warnAboutCrashReporing();
 
@@ -80,7 +79,7 @@ private:
     Locator *m_locator = nullptr;
     std::unique_ptr<SessionManager> m_sessionManager;
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
-    Utils::Environment m_startupSystemEnvironment;
+    const Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
 };
 

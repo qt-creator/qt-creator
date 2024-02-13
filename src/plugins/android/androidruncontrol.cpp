@@ -19,8 +19,7 @@ namespace Android::Internal {
 class AndroidRunSupport final : public AndroidRunner
 {
 public:
-    explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
-                               const QString &intentName = QString());
+    explicit AndroidRunSupport(RunControl *runControl, const QString &intentName = QString());
     ~AndroidRunSupport() override;
 };
 
@@ -35,11 +34,20 @@ AndroidRunSupport::~AndroidRunSupport()
     stop();
 }
 
-AndroidRunWorkerFactory::AndroidRunWorkerFactory()
+class AndroidRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidRunSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+public:
+    AndroidRunWorkerFactory()
+    {
+        setProduct<AndroidRunSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidRunWorker()
+{
+    static AndroidRunWorkerFactory theAndroidRunWorkerFactory;
 }
 
 } // Android::Internal

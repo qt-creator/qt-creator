@@ -592,7 +592,7 @@ void AndroidManifestEditorWidget::postSave()
     const FilePath docPath = m_textEditorWidget->textDocument()->filePath();
     if (Target *target = androidTarget(docPath)) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(
+            QString androidNdkPlatform = androidConfig().bestNdkPlatformMatch(
                 AndroidManager::minimumSDK(target),
                 QtSupport::QtKitAspect::qtVersion(
                     androidTarget(m_textEditorWidget->textDocument()->filePath())->kit()));

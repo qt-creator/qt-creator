@@ -28,7 +28,6 @@ QtcPlugin {
             "buildconfiguration.cpp", "buildconfiguration.h",
             "buildinfo.cpp", "buildinfo.h",
             "buildmanager.cpp", "buildmanager.h",
-            "buildprogress.cpp", "buildprogress.h",
             "buildpropertiessettings.cpp", "buildpropertiessettings.h",
             "buildsettingspropertiespage.cpp", "buildsettingspropertiespage.h",
             "buildstep.cpp", "buildstep.h",
@@ -90,6 +89,7 @@ QtcPlugin {
             "makestep.cpp", "makestep.h",
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "msvcparser.cpp", "msvcparser.h",
+            "msvctoolchain.cpp", "msvctoolchain.h",
             "namedwidget.cpp", "namedwidget.h",
             "osparser.cpp", "osparser.h",
             "panelswidget.cpp", "panelswidget.h",
@@ -103,6 +103,7 @@ QtcPlugin {
             "projectexplorer.cpp", "projectexplorer.h",
             "projectexplorer.qrc",
             "projectexplorer_export.h",
+            "projectexplorer_test.h",
             "projectexplorerconstants.cpp",
             "projectexplorerconstants.h",
             "projectexplorericons.h", "projectexplorericons.cpp",
@@ -119,6 +120,7 @@ QtcPlugin {
             "projecttree.cpp",
             "projecttree.h",
             "projecttreewidget.cpp", "projecttreewidget.h",
+            "projectupdater.cpp", "projectupdater.h",
             "projectwindow.cpp", "projectwindow.h",
             "projectwizardpage.cpp", "projectwizardpage.h",
             "rawprojectpart.cpp", "rawprojectpart.h",
@@ -227,15 +229,6 @@ QtcPlugin {
         name: "Images"
         prefix: "images/"
         files: ["*.png"]
-    }
-
-    Group {
-        name: "WindowsToolChains"
-        condition: qbs.targetOS.contains("windows") || qtc.withPluginTests
-        files: [
-            "msvctoolchain.cpp",
-            "msvctoolchain.h",
-        ]
     }
 
     QtcTestFiles {

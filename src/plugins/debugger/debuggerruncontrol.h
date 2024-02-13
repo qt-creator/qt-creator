@@ -8,6 +8,7 @@
 #include "debuggerengine.h"
 #include "terminal.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
@@ -115,8 +116,7 @@ private:
     void handleEngineFinished(Internal::DebuggerEngine *engine);
 
     Internal::DebuggerRunToolPrivate *d;
-    QPointer<Internal::DebuggerEngine> m_engine;
-    QPointer<Internal::DebuggerEngine> m_engine2;
+    QList<QPointer<Internal::DebuggerEngine>> m_engines;
     Internal::DebuggerRunParameters m_runParameters;
 };
 
@@ -159,6 +159,19 @@ class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
     DebuggerRunWorkerFactory();
+};
+
+class SimpleDebugRunnerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    explicit SimpleDebugRunnerFactory(const QList<Utils::Id> &runConfigs, const QList<Utils::Id> &extraRunModes = {})
+    {
+        cloneProduct(Constants::DEBUGGER_RUN_FACTORY);
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        for (const Utils::Id &id : extraRunModes)
+            addSupportedRunMode(id);
+        setSupportedRunConfigs(runConfigs);
+    }
 };
 
 extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];

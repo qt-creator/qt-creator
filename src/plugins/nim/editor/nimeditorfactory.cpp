@@ -13,7 +13,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <utils/qtcassert.h>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -37,12 +36,8 @@ NimEditorFactory::NimEditorFactory()
     setDocumentCreator([]() {
         return new TextDocument(Constants::C_NIMEDITOR_ID);
     });
-    setIndenterCreator([](QTextDocument *doc) {
-        return new NimIndenter(doc);
-    });
-    setSyntaxHighlighterCreator([]() {
-        return new NimHighlighter;
-    });
+    setIndenterCreator(&createNimIndenter);
+    setSyntaxHighlighterCreator(&createNimHighlighter);
     setCompletionAssistProvider(new NimCompletionAssistProvider());
     setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
@@ -51,8 +46,8 @@ NimEditorFactory::NimEditorFactory()
 
 void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighter(new NimHighlighter());
-    editor->textDocument()->setIndenter(new NimIndenter(editor->textDocument()->document()));
+    editor->textDocument()->resetSyntaxHighlighter(&createNimHighlighter);
+    editor->textDocument()->setIndenter(createNimIndenter(editor->textDocument()->document()));
 }
 
 } // Nim

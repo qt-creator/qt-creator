@@ -4,7 +4,6 @@
 #include "terminalpane.h"
 
 #include "shellmodel.h"
-#include "shortcutmap.h"
 #include "terminalconstants.h"
 #include "terminalicons.h"
 #include "terminalsettings.h"
@@ -15,7 +14,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/locator/locatorconstants.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -57,13 +55,16 @@ TerminalPane::TerminalPane(QObject *parent)
             currentTerminal()->zoomOut();
     });
 
+    createShellMenu();
     initActions();
 
     m_newTerminalButton = new QToolButton();
-    m_newTerminalButton->setDefaultAction(&newTerminal);
+    m_newTerminalButton->setDefaultAction(m_newTerminalAction);
+    m_newTerminalButton->setMenu(&m_shellMenu);
+    m_newTerminalButton->setPopupMode(QToolButton::MenuButtonPopup);
 
     m_closeTerminalButton = new QToolButton();
-    m_closeTerminalButton->setDefaultAction(&closeTerminal);
+    m_closeTerminalButton->setDefaultAction(m_closeTerminalAction);
 
     m_openSettingsButton = new QToolButton();
     m_openSettingsButton->setToolTip(Tr::tr("Configure..."));
@@ -73,66 +74,11 @@ TerminalPane::TerminalPane(QObject *parent)
         ICore::showOptionsDialog("Terminal.General");
     });
 
-    const auto updateEscButton = [this] {
-        m_escSettingButton->setChecked(settings().sendEscapeToTerminal());
-        static const QString escKey
-            = QKeySequence(Qt::Key_Escape).toString(QKeySequence::NativeText);
-        static const QString shiftEsc = QKeySequence(
-                                            QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
-                                            .toString(QKeySequence::NativeText);
-        if (settings().sendEscapeToTerminal()) {
-            m_escSettingButton->setText(escKey);
-            //: %1 is the application name (Qt Creator)
-            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of %1.")
-                                               .arg(QGuiApplication::applicationDisplayName()));
-        } else {
-            m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(
-                Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
-        }
-    };
-
     m_escSettingButton = new QToolButton();
-    m_escSettingButton->setCheckable(true);
-
-    updateEscButton();
-
-    connect(m_escSettingButton, &QToolButton::toggled, this, [this, updateEscButton] {
-        settings().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
-        updateEscButton();
-    });
-
-    connect(&settings(), &TerminalSettings::applied, this, updateEscButton);
-
-    const auto updateLockButton = [this] {
-        m_lockKeyboardButton->setChecked(settings().lockKeyboard());
-        if (settings().lockKeyboard()) {
-            m_lockKeyboardButton->setIcon(LOCK_KEYBOARD_ICON.icon());
-            m_lockKeyboardButton->setToolTip(
-                //: %1 is the application name (Qt Creator)
-                Tr::tr("%1 shortcuts are blocked when focus is inside the terminal.")
-                    .arg(QGuiApplication::applicationDisplayName()));
-        } else {
-            m_lockKeyboardButton->setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            //: %1 is the application name (Qt Creator)
-            m_lockKeyboardButton->setToolTip(Tr::tr("%1 shortcuts take precedence.")
-                                                 .arg(QGuiApplication::applicationDisplayName()));
-        }
-    };
+    m_escSettingButton->setDefaultAction(settings().sendEscapeToTerminal.action());
 
     m_lockKeyboardButton = new QToolButton();
-    m_lockKeyboardButton->setCheckable(true);
-
-    updateLockButton();
-
-    connect(&toggleKeyboardLock, &QAction::triggered, m_lockKeyboardButton, &QToolButton::toggle);
-
-    connect(m_lockKeyboardButton, &QToolButton::toggled, this, [this, updateLockButton] {
-        settings().lockKeyboard.setValue(m_lockKeyboardButton->isChecked());
-        updateLockButton();
-    });
-
-    connect(&settings(), &TerminalSettings::applied, this, updateLockButton);
+    m_lockKeyboardButton->setDefaultAction(m_toggleKeyboardLockAction);
 }
 
 TerminalPane::~TerminalPane() {}
@@ -160,11 +106,22 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
         }
     }
 
+    if (parametersCopy.workingDirectory && parametersCopy.workingDirectory->needsDevice()
+        && !parametersCopy.shellCommand) {
+        const FilePath shell = parametersCopy.workingDirectory->withNewPath(
+            parametersCopy.environment
+                .value_or(parametersCopy.workingDirectory->deviceEnvironment())
+                .value_or("SHELL", "/bin/sh"));
+        if (!shell.isExecutableFile())
+            parametersCopy.workingDirectory.reset();
+        else
+            parametersCopy.shellCommand = CommandLine{shell, {}};
+    }
+
     const auto terminalWidget = new TerminalWidget(&m_tabWidget, parametersCopy);
 
     using namespace Constants;
     terminalWidget->unlockGlobalAction("Coreplugin.OutputPane.minmax");
-    terminalWidget->unlockGlobalAction(Core::Constants::LOCATE);
     terminalWidget->unlockGlobalAction(NEWTERMINAL);
     terminalWidget->unlockGlobalAction(NEXTTERMINAL);
     terminalWidget->unlockGlobalAction(PREVTERMINAL);
@@ -281,62 +238,65 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 
 void TerminalPane::initActions()
 {
-    createShellMenu();
-
-    newTerminal.setText(Tr::tr("New Terminal"));
-    newTerminal.setIcon(NEW_TERMINAL_ICON.icon());
-    newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
-    newTerminal.setMenu(&m_shellMenu);
-
-    nextTerminal.setText(Tr::tr("Next Terminal"));
-    prevTerminal.setText(Tr::tr("Previous Terminal"));
-
-    closeTerminal.setIcon(CLOSE_TERMINAL_ICON.icon());
-    closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
-
-    toggleKeyboardLock.setText(Tr::tr("Toggle Keyboard Lock"));
-
     using namespace Constants;
 
-    Command *cmd = ActionManager::registerAction(&newTerminal, NEWTERMINAL, m_selfContext);
-    cmd->setDefaultKeySequences({QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T"))});
+    ActionBuilder(this, NEWTERMINAL)
+        .setText(Tr::tr("New Terminal"))
+        .bindContextAction(&m_newTerminalAction)
+        .setIcon(NEW_TERMINAL_ICON.icon())
+        .setToolTip(Tr::tr("Create a new Terminal."))
+        .setContext(m_selfContext)
+        .setDefaultKeySequence("Ctrl+T", "Ctrl+Shift+T")
+        .addOnTriggered(this, [this] { openTerminal({}); });
 
-    ActionManager::registerAction(&nextTerminal, NEXTTERMINAL, m_selfContext)
-        ->setDefaultKeySequences(
+    ActionBuilder(this, CLOSETERMINAL)
+        .setText(Tr::tr("Close Terminal"))
+        .bindContextAction(&m_closeTerminalAction)
+        .setIcon(CLOSE_TERMINAL_ICON.icon())
+        .setToolTip(Tr::tr("Close the current Terminal."))
+        .setContext(m_selfContext)
+        .addOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
+
+    ActionBuilder(this, NEXTTERMINAL)
+        .setText(Tr::tr("Next Terminal"))
+        .setContext(m_selfContext)
+        .setDefaultKeySequences(
             {QKeySequence("Alt+Tab"),
              QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
-                                                  : QLatin1String("Ctrl+PgUp"))});
+                                                  : QLatin1String("Ctrl+PgUp"))})
+        .addOnTriggered(this, [this] {
+            if (canNavigate())
+                goToNext();
+        });
 
-    ActionManager::registerAction(&prevTerminal, PREVTERMINAL, m_selfContext)
-        ->setDefaultKeySequences(
+    ActionBuilder(this, PREVTERMINAL)
+        .setText(Tr::tr("Previous Terminal"))
+        .setContext(m_selfContext)
+        .setDefaultKeySequences(
             {QKeySequence("Alt+Shift+Tab"),
              QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
-                                                  : QLatin1String("Ctrl+PgDown"))});
+                                                  : QLatin1String("Ctrl+PgDown"))})
+        .addOnTriggered(this, [this] {
+            if (canPrevious())
+                goToPrev();
+        });
 
-    ActionManager::registerAction(&toggleKeyboardLock,
-                                  TOGGLE_KEYBOARD_LOCK,
-                                  m_selfContext);
+    Command *cmd = ActionManager::registerAction(settings().lockKeyboard.action(),
+                                                 TOGGLE_KEYBOARD_LOCK);
+    m_toggleKeyboardLockAction = cmd->action();
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateIcon);
+}
 
-    connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
-    connect(&closeTerminal, &QAction::triggered, this, [this] {
-        removeTab(m_tabWidget.currentIndex());
-    });
-    connect(&nextTerminal, &QAction::triggered, this, [this] {
-        if (canNavigate())
-            goToNext();
-    });
-    connect(&prevTerminal, &QAction::triggered, this, [this] {
-        if (canPrevious())
-            goToPrev();
-    });
+static Internal::ShellModel *shellModel()
+{
+    static Internal::ShellModel model;
+    return &model;
 }
 
 void TerminalPane::createShellMenu()
 {
-    const Internal::ShellModel *shellModel = new Internal::ShellModel(&m_shellMenu);
-
-    connect(&m_shellMenu, &QMenu::aboutToShow, &m_shellMenu, [shellModel, this] {
+    connect(&m_shellMenu, &QMenu::aboutToShow, &m_shellMenu, [this] {
         m_shellMenu.clear();
 
         const auto addItems = [this](const QList<Internal::ShellModelItem> &items) {
@@ -351,9 +311,9 @@ void TerminalPane::createShellMenu()
             }
         };
 
-        addItems(shellModel->local());
+        addItems(shellModel()->local());
         m_shellMenu.addSection(Tr::tr("Devices"));
-        addItems(shellModel->remote());
+        addItems(shellModel()->remote());
     });
 }
 

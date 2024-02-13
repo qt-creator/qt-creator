@@ -57,7 +57,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QString &commitMessageFile,
                                 const QStringList &extraOptions) const
 {
-    CommandLine args{vcsBinary()};
+    CommandLine args{vcsBinary(repositoryRoot)};
     args << vcsCommandString(CommitCommand)
          << extraOptions
          << AddAuthOptions()
@@ -117,7 +117,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
 {
     QStringList args;
 
-    QString svnVersionBinary = vcsBinary().toString();
+    QString svnVersionBinary = vcsBinary(repository).toString();
     int pos = svnVersionBinary.lastIndexOf('/');
     if (pos < 0)
         svnVersionBinary.clear();
@@ -163,11 +163,11 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<QString> diffInputStorage;
 
-    const auto setupDescription = [this](Process &process) {
+    const auto onDescriptionSetup = [this](Process &process) {
         if (m_changeNumber == 0)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
         CommandLine command = process.commandLine();
         command << SubversionClient::AddAuthOptions();
@@ -175,14 +175,11 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         setDescription(Tr::tr("Waiting for data..."));
         return SetupResult::Continue;
     };
-    const auto onDescriptionDone = [this](const Process &process) {
-        setDescription(process.cleanedStdOut());
-    };
-    const auto onDescriptionError = [this](const Process &) {
-        setDescription({});
+    const auto onDescriptionDone = [this](const Process &process, DoneWith result) {
+        setDescription(result == DoneWith::Success ? process.cleanedStdOut() : QString());
     };
 
-    const auto setupDiff = [this](Process &process) {
+    const auto onDiffSetup = [this](Process &process) {
         QStringList args = QStringList{"diff"} << "--internal-diff";
         if (ignoreWhitespace())
             args << "-x" << "-uw";
@@ -201,14 +198,14 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
     };
 
     const Group root {
-        Tasking::Storage(diffInputStorage),
+        diffInputStorage,
         parallel,
         Group {
-            finishAllAndDone,
-            ProcessTask(setupDescription, onDescriptionDone, onDescriptionError)
+            finishAllAndSuccess,
+            ProcessTask(onDescriptionSetup, onDescriptionDone)
         },
         Group {
-            ProcessTask(setupDiff, onDiffDone),
+            ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
             postProcessTask(diffInputStorage)
         }
     };
@@ -240,7 +237,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     if (!controller) {
         controller = new SubversionDiffEditorController(document);
         controller->setVcsBinary(settings().binaryPath());
-        controller->setProcessEnvironment(processEnvironment());
+        controller->setProcessEnvironment(processEnvironment(workingDirectory));
         controller->setWorkingDirectory(workingDirectory);
     }
     VcsBase::setSource(document, source);
@@ -248,11 +245,8 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     return controller;
 }
 
-void SubversionClient::diff(const FilePath &workingDirectory, const QStringList &files,
-                            const QStringList &extraOptions)
+void SubversionClient::showDiffEditor(const FilePath &workingDirectory, const QStringList &files)
 {
-    Q_UNUSED(extraOptions)
-
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
             + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
@@ -295,6 +289,12 @@ void SubversionClient::describe(const FilePath &workingDirectory, int changeNumb
                                     workingDirectory, title, workingDirectory);
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
+}
+
+SubversionClient &subversionClient()
+{
+    static SubversionClient theSubversionClient;
+    return theSubversionClient;
 }
 
 } // namespace Internal

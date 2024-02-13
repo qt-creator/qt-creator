@@ -162,7 +162,6 @@ void RecordOptionsDialog::updateCropScene()
 {
     const ScreenRecorderSettings::RecordSettings rs = ScreenRecorderSettings
         ::sanitizedRecordSettings({int(m_screenId()), screenCropRect(), int(m_recordFrameRate())});
-    const QList<QScreen*> screens = QGuiApplication::screens();
     m_thumbnail = QGuiApplication::screens().at(rs.screenId)->grabWindow().toImage();
     const qreal dpr = m_thumbnail.devicePixelRatio();
     m_thumbnail = m_thumbnail.scaled((m_thumbnail.deviceIndependentSize() / m_factor * dpr)
@@ -249,23 +248,24 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     connect(stopButton, &QToolButton::clicked, this, [this] {
         FFmpegUtils::sendQuitCommand(m_process);
     });
-    connect(m_process, &Process::started, this, [=] {
+    connect(m_process, &Process::started, this,
+            [this, progressLabel, recordButton, stopButton, settingsButton] {
         progressLabel->setEnabled(true);
         recordButton->setEnabled(false);
         stopButton->setEnabled(true);
         settingsButton->setEnabled(false);
-        m_openClipAction->setEnabled(false);
+        this->m_openClipAction->setEnabled(false);
         emit started();
     });
-    connect(m_process, &Process::done, this, [=] {
+    connect(m_process, &Process::done, this, [this, recordButton, stopButton, settingsButton] {
         recordButton->setEnabled(true);
         stopButton->setEnabled(false);
         settingsButton->setEnabled(true);
-        m_openClipAction->setEnabled(true);
-        if (m_process->exitCode() == 0)
-            emit finished(FFmpegUtils::clipInfo(m_clipInfo.file));
+        this->m_openClipAction->setEnabled(true);
+        if (this->m_process->exitCode() == 0)
+            emit finished(FFmpegUtils::clipInfo(this->m_clipInfo.file));
         else
-            FFmpegUtils::reportError(m_process->commandLine(), m_lastOutputChunk);
+            FFmpegUtils::reportError(this->m_process->commandLine(), this->m_lastOutputChunk);
     });
     connect(m_process, &Process::readyReadStandardError, this, [this, progressLabel] {
         m_lastOutputChunk = m_process->readAllRawStandardError();

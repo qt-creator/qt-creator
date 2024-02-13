@@ -21,7 +21,7 @@ class InfoLabel;
 
 namespace ProjectExplorer {
 class Kit;
-class ToolChain;
+class Toolchain;
 } // namespace ProjectExplorer
 
 namespace McuSupport {

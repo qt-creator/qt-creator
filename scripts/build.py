@@ -248,7 +248,10 @@ def build_qtcreatorcdbext(args, paths):
         return
     if not os.path.exists(paths.qtcreatorcdbext_build):
         os.makedirs(paths.qtcreatorcdbext_build)
-    prefix_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.prefix_paths]
+    prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths]
+    if paths.llvm:
+        prefix_paths += [paths.llvm]
+    prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
     cmake_args = ['-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.qtcreatorcdbext_install)]
     cmake_args += common_cmake_arguments(args)

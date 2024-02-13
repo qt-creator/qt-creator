@@ -43,13 +43,15 @@ public:
         SearchScope scope;
     };
 
-    SymbolSearcher(const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames);
+    SymbolSearcher(const SymbolSearcher::Parameters &parameters,
+                   const QSet<Utils::FilePath> &filePaths);
+
     void runSearch(QPromise<Utils::SearchResultItem> &promise);
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
     const Parameters m_parameters;
-    const QSet<QString> m_fileNames;
+    const QSet<Utils::FilePath> m_filePaths;
 };
 
 class CPPEDITOR_EXPORT CppIndexingSupport

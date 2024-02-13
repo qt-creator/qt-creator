@@ -5,12 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core { class IDocument; }
-namespace ProjectExplorer { class ProjectPanelFactory; }
-
 namespace ClangTools::Internal {
-
-ProjectExplorer::ProjectPanelFactory *projectPanelFactory();
 
 class ClangToolsPlugin final : public ExtensionSystem::IPlugin
 {

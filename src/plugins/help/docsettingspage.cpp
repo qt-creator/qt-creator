@@ -204,7 +204,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
             &QSortFilterProxyModel::setFilterFixedString);
 
     connect(addButton, &QAbstractButton::clicked, this, &DocSettingsPageWidget::addDocumentation);
-    connect(removeButton, &QAbstractButton::clicked, this, [this]() {
+    connect(removeButton, &QAbstractButton::clicked, this, [this] {
         removeDocumentation(currentSelection());
     });
 

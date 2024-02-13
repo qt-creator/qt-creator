@@ -41,6 +41,8 @@ This folder must contain a QtCreator repository (or source copy) of tag v6.0.1 n
 without any submodules initialized.
 
 Fourth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
+ * the compilers and debuggers of the toolchains listed in step 2
+ * git with globally configured user.name and user.email
  * cmake 3.14 or newer
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
@@ -61,10 +63,7 @@ started. On Windows, this has the following prerequisites:
 Either:
     * have no firewall at all enabled (sure that's a bad idea)
 Or:
-    * run Windows with English UI
-    * have the Windows Firewall enabled (no other firewalls are handled by the scripts)
-    * run the Squish tests with administrator privileges
-    * additionally the UAC should be disabled, too
+    * have notifications disabled for the firewall when an application tries to access network
 
 Otherwise you'll have some trouble with popping up dialogs from the firewall.
 If you're using a different firewall - try to figure out and add a rule for this.

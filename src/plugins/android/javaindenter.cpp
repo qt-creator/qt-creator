@@ -2,27 +2,34 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "javaindenter.h"
+
 #include <texteditor/tabsettings.h>
 
 #include <QTextDocument>
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android::Internal {
 
-JavaIndenter::JavaIndenter(QTextDocument *doc)
-    : TextEditor::TextIndenter(doc)
-{}
-
-JavaIndenter::~JavaIndenter() = default;
-
-bool JavaIndenter::isElectricCharacter(const QChar &ch) const
+class JavaIndenter final : public TextEditor::TextIndenter
 {
-    if (ch == QLatin1Char('{')
-            || ch == QLatin1Char('}')) {
-        return true;
+public:
+    explicit JavaIndenter(QTextDocument *doc)
+        : TextEditor::TextIndenter(doc)
+    {}
+
+    bool isElectricCharacter(const QChar &ch) const final
+    {
+        return ch == QLatin1Char('{') || ch == QLatin1Char('}');
     }
-    return false;
-}
+
+    void indentBlock(const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) final;
+
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) final;
+};
 
 void JavaIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
@@ -58,3 +65,10 @@ int JavaIndenter::indentFor(const QTextBlock &block,
 
     return qMax(0, indent + adjust);
 }
+
+TextEditor::TextIndenter *createJavaIndenter(QTextDocument *doc)
+{
+    return new JavaIndenter(doc);
+}
+
+} // Android::Internal

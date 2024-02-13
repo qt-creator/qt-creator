@@ -179,7 +179,7 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags NameValueModel::flags(const QModelIndex &index) const
 {
     Q_UNUSED(index)
-    return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 QVariant NameValueModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -264,10 +264,7 @@ bool NameValueModel::setData(const QModelIndex &index, const QVariant &value, in
 
 QModelIndex NameValueModel::addVariable()
 {
-    //: Name when inserting a new variable
-    return addVariable(NameValueItem(Tr::tr("<VARIABLE>"),
-                                     //: Value when inserting a new variable
-                                     Tr::tr("<VALUE>")));
+    return addVariable(NameValueItem("NEWVAR", "VALUE"));
 }
 
 QModelIndex NameValueModel::addVariable(const NameValueItem &item)

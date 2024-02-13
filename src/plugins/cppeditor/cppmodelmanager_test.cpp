@@ -1000,9 +1000,7 @@ void ModelManagerTest::testRenameIncludes()
     }
 
     // Renaming the header
-    QVERIFY(Core::FileUtils::renameFile(oldHeader,
-                                        newHeader,
-                                        Core::HandleIncludeGuards::Yes));
+    QVERIFY(ProjectExplorerPlugin::renameFile(oldHeader, newHeader));
 
     // Update the c++ model manager again and check for the new includes
     CppModelManager::updateSourceFiles(sourceFiles).waitForFinished();
@@ -1070,15 +1068,12 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QVERIFY(CppModelManager::workingCopy().get(mainFile));
 
     // Test the renaming of a header file where a pragma once guard is present
-    QVERIFY(Core::FileUtils::renameFile(headerWithPragmaOnce,
-                                        renamedHeaderWithPragmaOnce,
-                                        Core::HandleIncludeGuards::Yes));
+    QVERIFY(ProjectExplorerPlugin::renameFile(headerWithPragmaOnce, renamedHeaderWithPragmaOnce));
 
     // Test the renaming the header with include guard:
     // The contents should match the foobar2000.h in the testdata_project2 project
-    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithNormalGuard),
-                                        Utils::FilePath::fromString(renamedHeaderWithNormalGuard),
-                                        Core::HandleIncludeGuards::Yes));
+    QVERIFY(ProjectExplorerPlugin::renameFile(FilePath::fromString(headerWithNormalGuard),
+                                              FilePath::fromString(renamedHeaderWithNormalGuard)));
 
     const MyTestDataDir testDir2(_("testdata_project2"));
     QFile foobar2000Header(testDir2.file("foobar2000.h"));

@@ -436,16 +436,14 @@ void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 
 } // namespace Core
 
-#if defined(WITH_TESTS)
+
+#ifdef WITH_TESTS
 
 #include <QtTest>
 
-#include "coreplugin.h"
-
 #include <extensionsystem/pluginmanager.h>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 const char ID_VCS_A[] = "A";
 const char ID_VCS_B[] = "B";
@@ -471,7 +469,98 @@ static QString makeString(const QString &s)
     return QString::fromLatin1(TEST_PREFIX) + s;
 }
 
-void CorePlugin::testVcsManager_data()
+class TestVersionControl final : public IVersionControl
+{
+public:
+    TestVersionControl(Id id, const QString &name) :
+        m_id(id), m_displayName(name)
+    { }
+    ~TestVersionControl() final;
+
+    bool isVcsFileOrDirectory(const FilePath &filePath) const final
+    { Q_UNUSED(filePath) return false; }
+
+    void setManagedDirectories(const QHash<FilePath, FilePath> &dirs);
+    void setManagedFiles(const QSet<FilePath> &files);
+
+    int dirCount() const { return m_dirCount; }
+    int fileCount() const { return m_fileCount; }
+
+    // IVersionControl interface
+    QString displayName() const final { return m_displayName; }
+    Id id() const final { return m_id; }
+    bool managesDirectory(const FilePath &filePath, FilePath *topLevel) const final;
+    bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
+    bool isConfigured() const final { return true; }
+    bool supportsOperation(Operation) const final { return false; }
+    bool vcsOpen(const FilePath &) final { return false; }
+    bool vcsAdd(const FilePath &) final { return false; }
+    bool vcsDelete(const FilePath &) final { return false; }
+    bool vcsMove(const FilePath &, const FilePath &) final { return false; }
+    bool vcsCreateRepository(const FilePath &) final { return false; }
+    void vcsAnnotate(const FilePath &, int) final {}
+    void vcsDescribe(const FilePath &, const QString &) final {}
+
+private:
+    Id m_id;
+    QString m_displayName;
+    QHash<FilePath, FilePath> m_managedDirs;
+    QSet<FilePath> m_managedFiles;
+    mutable int m_dirCount = 0;
+    mutable int m_fileCount = 0;
+};
+
+TestVersionControl::~TestVersionControl()
+{
+    VcsManager::clearVersionControlCache();
+}
+
+void TestVersionControl::setManagedDirectories(const QHash<FilePath, FilePath> &dirs)
+{
+    m_managedDirs = dirs;
+    m_dirCount = 0;
+    VcsManager::clearVersionControlCache();
+}
+
+void TestVersionControl::setManagedFiles(const QSet<FilePath> &files)
+{
+    m_managedFiles = files;
+    m_fileCount = 0;
+    VcsManager::clearVersionControlCache();
+}
+
+bool TestVersionControl::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
+{
+    ++m_dirCount;
+
+    if (m_managedDirs.contains(filePath)) {
+        if (topLevel)
+            *topLevel = m_managedDirs.value(filePath);
+        return true;
+    }
+    return false;
+}
+
+bool TestVersionControl::managesFile(const FilePath &workingDirectory, const QString &fileName) const
+{
+    ++m_fileCount;
+
+    FilePath full = workingDirectory.pathAppended(fileName);
+    if (!managesDirectory(full.parentDir(), nullptr))
+        return false;
+    return m_managedFiles.contains(full.absoluteFilePath());
+}
+
+class VcsManagerTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testVcsManager_data();
+    void testVcsManager();
+};
+
+void VcsManagerTest::testVcsManager_data()
 {
     // avoid conflicts with real files and directories:
 
@@ -523,12 +612,12 @@ void CorePlugin::testVcsManager_data()
             << QStringList({"a/2:a:A:*"});
 }
 
-void CorePlugin::testVcsManager()
+void VcsManagerTest::testVcsManager()
 {
     // setup:
     QList<IVersionControl *> orig = Core::d->m_versionControlList;
-    TestVersionControl *vcsA(new TestVersionControl(ID_VCS_A, QLatin1String("A")));
-    TestVersionControl *vcsB(new TestVersionControl(ID_VCS_B, QLatin1String("B")));
+    TestVersionControl *vcsA = new TestVersionControl(ID_VCS_A, "A");
+    TestVersionControl *vcsB = new TestVersionControl(ID_VCS_B, "B");
 
     Core::d->m_versionControlList = {vcsA, vcsB};
 
@@ -578,7 +667,13 @@ void CorePlugin::testVcsManager()
     Core::d->m_versionControlList = orig;
 }
 
-} // namespace Internal
-} // namespace Core
+QObject *createVcsManagerTest()
+{
+    return new VcsManagerTest;
+}
+
+} // Core::Internal
 
 #endif
+
+#include "vcsmanager.moc"

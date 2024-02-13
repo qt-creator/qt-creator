@@ -1,19 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "textdocumentlayout.h"
 #include "fontsettings.h"
 #include "textdocument.h"
-#include "texteditorplugin.h"
+#include "textdocumentlayout.h"
 #include "texteditorsettings.h"
 
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDebug>
-#ifdef WITH_TESTS
-#include <QTest>
-#endif
 
 namespace TextEditor {
 
@@ -871,9 +867,24 @@ TextSuggestion::TextSuggestion()
 
 TextSuggestion::~TextSuggestion() = default;
 
+} // TextEditor
+
+
 #ifdef WITH_TESTS
 
-void Internal::TextEditorPlugin::testDeletingMarkOnReload()
+#include <QTest>
+
+namespace TextEditor::Internal {
+
+class TextDocumentLayoutTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDeletingMarkOnReload();
+};
+
+void TextDocumentLayoutTest::testDeletingMarkOnReload()
 {
     auto doc = new TextDocument();
     doc->setFilePath(Utils::TemporaryDirectory::masterDirectoryFilePath() / "TestMarkDoc.txt");
@@ -888,6 +899,13 @@ void Internal::TextEditorPlugin::testDeletingMarkOnReload()
     QVERIFY(!doc->marks().contains(mark));
 }
 
-#endif
+QObject *createTextDocumentTest()
+{
+    return new TextDocumentLayoutTest;
+}
 
-} // namespace TextEditor
+} // TextEditor::Internal
+
+#include "textdocumentlayout.moc"
+
+#endif // WITH_TESTS

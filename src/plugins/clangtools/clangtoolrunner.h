@@ -35,7 +35,6 @@ struct AnalyzeInputData
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;
-    AnalyzeUnit unit;
     QString overlayFilePath = {};
     AcceptDiagsFromFilePath diagnosticsFilter = {};
 };
@@ -51,10 +50,11 @@ struct AnalyzeOutputData
     QString errorDetails = {};
 };
 
-using AnalyzeSetupHandler = std::function<bool()>;
+using AnalyzeSetupHandler = std::function<bool(const AnalyzeUnit &)>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-Tasking::GroupItem clangToolTask(const AnalyzeInputData &input,
+Tasking::GroupItem clangToolTask(const AnalyzeUnits &units,
+                                 const AnalyzeInputData &input,
                                  const AnalyzeSetupHandler &setupHandler,
                                  const AnalyzeOutputHandler &outputHandler);
 

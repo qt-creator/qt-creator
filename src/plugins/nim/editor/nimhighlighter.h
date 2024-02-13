@@ -3,27 +3,10 @@
 
 #pragma once
 
-#include "../tools/nimlexer.h"
-
 #include <texteditor/syntaxhighlighter.h>
 
 namespace Nim {
 
-class NimHighlighter : public TextEditor::SyntaxHighlighter
-{
-    Q_OBJECT
+TextEditor::SyntaxHighlighter *createNimHighlighter();
 
-public:
-    NimHighlighter();
-
-protected:
-    void highlightBlock(const QString &text) override;
-
-private:
-    TextEditor::TextStyle styleForToken(const NimLexer::Token &token, const QString &tokenValue);
-    TextEditor::TextStyle styleForIdentifier(const NimLexer::Token &token, const QString &tokenValue);
-
-    int highlightLine(const QString &text, int initialState);
-};
-
-}
+} // Nim

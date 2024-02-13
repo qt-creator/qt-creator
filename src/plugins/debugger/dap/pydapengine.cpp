@@ -12,6 +12,7 @@
 #include <debugger/debuggertr.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -26,24 +27,29 @@
 using namespace Core;
 using namespace Utils;
 
+namespace {
+const char C_PY_MIMETYPE[] = "text/x-python";
+const char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
+const char C_PY3_MIMETYPE[] = "text/x-python3";
+const char C_PY_MIME_ICON[] = "text-x-python";
+} // namespace
+
 namespace Debugger::Internal {
 
 const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
-static bool missingPySideInstallation(const FilePath &pythonPath, const QString &packageName)
+static FilePath packageDir(const FilePath &python, const QString &packageName)
+{
+    expected_str<FilePath> baseDir = python.needsDevice() ? python.tmpDir()
+                                                          : Core::ICore::userResourcePath();
+    return baseDir ? baseDir->pathAppended(packageName) : FilePath();
+}
+
+static bool missingModuleInstallation(const FilePath &python, const QString &packageName)
 {
     QTC_ASSERT(!packageName.isEmpty(), return false);
-    static QMap<FilePath, QSet<QString>> pythonWithPyside;
-    if (pythonWithPyside[pythonPath].contains(packageName))
-        return false;
-
-    Process pythonProcess;
-    pythonProcess.setCommand({pythonPath, {"-c", "import " + packageName}});
-    pythonProcess.runBlocking();
-    const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;
-    if (!missing)
-        pythonWithPyside[pythonPath].insert(packageName);
-    return missing;
+    const FilePath dir = packageDir(python, packageName);
+    return !dir.isEmpty() && !dir.exists();
 }
 
 class TcpSocketDataProvider : public IDataProvider
@@ -74,7 +80,13 @@ public:
 
     void start() override
     {
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        Environment env = m_runParameters.debugger.environment;
+        const FilePath debugPyDir = packageDir(m_cmd.executable(), "debugpy");
+        if (QTC_GUARD(debugPyDir.isSameDevice(m_cmd.executable()))) {
+            env.appendOrSet("PYTHONPATH", debugPyDir.path());
+        }
+
+        m_proc.setEnvironment(env);
         m_proc.setCommand(m_cmd);
         // Workaround to have output for Python
         m_proc.setTerminalMode(TerminalMode::Run);
@@ -83,7 +95,7 @@ public:
         m_timer = new QTimer(this);
         m_timer->setInterval(100);
 
-        connect(m_timer, &QTimer::timeout, this, [this]() {
+        connect(m_timer, &QTimer::timeout, this, [this] {
             m_socket.connectToHost(m_hostName, m_port);
             m_socket.waitForConnected();
 
@@ -199,42 +211,6 @@ void PyDapEngine::quitDebugger()
     DebuggerEngine::quitDebugger();
 }
 
-bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
-{
-    return bp.fileName.endsWith(".py");
-}
-
-void PyDapEngine::insertBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::insertBreakpoint(bp);
-    notifyBreakpointInsertOk(bp); // Needed for Python support issue:1386
-}
-
-void PyDapEngine::removeBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::removeBreakpoint(bp);
-    notifyBreakpointRemoveOk(bp); // Needed for Python support issue:1386
-}
-
-void PyDapEngine::updateBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::updateBreakpoint(bp);
-
-    /* Needed for Python support issue:1386 */
-    BreakpointParameters parameters = bp->requestedParameters();
-    if (parameters.enabled != bp->isEnabled()) {
-        parameters.pending = false;
-        bp->setParameters(parameters);
-    }
-    notifyBreakpointChangeOk(bp);
-    /* Needed for Python support issue:1386 */
-}
-
-bool PyDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode == AttachToLocalProcess;
-}
-
 void PyDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -249,7 +225,7 @@ void PyDapEngine::setupEngine()
         return;
     }
 
-    if (missingPySideInstallation(interpreter, "debugpy")) {
+    if (missingModuleInstallation(interpreter, "debugpy")) {
         Utils::InfoBarEntry
             info(installDebugPyInfoBarId,
                  Tr::tr(
@@ -258,9 +234,17 @@ void PyDapEngine::setupEngine()
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
             Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
+            const FilePath target = packageDir(runParameters().interpreter, "dubugpy");
+            QTC_ASSERT(target.isSameDevice(runParameters().interpreter), return);
             m_installProcess.reset(new Process);
-            m_installProcess->setCommand({runParameters().interpreter,
-                                          {"-m", "pip", "install", "debugpy"}});
+            m_installProcess->setCommand(
+                {runParameters().interpreter,
+                 {"-m",
+                  "pip",
+                  "install",
+                  "-t",
+                  target.needsDevice() ? target.path() : target.toUserOutput(),
+                  "debugpy"}});
             m_installProcess->setTerminalMode(TerminalMode::Run);
             m_installProcess->start();
         });
@@ -289,6 +273,18 @@ void PyDapEngine::setupEngine()
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();
+}
+
+bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
+{
+    const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
+    return mimeType.matchesName(C_PY3_MIMETYPE) || mimeType.matchesName(C_PY_GUI_MIMETYPE)
+           || mimeType.matchesName(C_PY_MIMETYPE) || mimeType.matchesName(C_PY_MIME_ICON);
+}
+
+bool PyDapEngine::isLocalAttachEngine() const
+{
+    return runParameters().startMode == AttachToLocalProcess;
 }
 
 const QLoggingCategory &PyDapEngine::logCategory()

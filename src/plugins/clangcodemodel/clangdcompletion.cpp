@@ -12,7 +12,6 @@
 
 #include <cppeditor/cppcompletionassistprocessor.h>
 #include <cppeditor/cppcompletionassistprovider.h>
-#include <cppeditor/cppdoxygen.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
@@ -29,6 +28,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/mimeconstants.h>
 #include <utils/utilsicons.h>
 
 using namespace CppEditor;
@@ -44,7 +44,7 @@ namespace ClangCodeModel::Internal {
 static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
                           QtWarningMsg);
 
-enum class CustomAssistMode { Doxygen, Preprocessor, IncludePath };
+enum class CustomAssistMode { Preprocessor, IncludePath };
 
 class CustomAssistProcessor : public IAssistProcessor
 {
@@ -126,6 +126,12 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
                                  << interface->textAt(interface->position(), -10);
     qCDebug(clangdLogCompletion) << "text after cursor is"
                                  << interface->textAt(interface->position(), 10);
+
+    if (!interface->isBaseObject()) {
+        qCDebug(clangdLogCompletion) << "encountered assist interface for built-in code model";
+        return CppEditor::getCppCompletionAssistProcessor();
+    }
+
     ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
                                                    interface->position(), false, {});
     contextAnalyzer.analyze();
@@ -133,13 +139,6 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
         qCDebug(clangdLogCompletion) << "creating function hint processor";
         return new ClangdFunctionHintProcessor(m_client);
-    case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
-        qCDebug(clangdLogCompletion) << "creating doxygen processor";
-        return new CustomAssistProcessor(m_client,
-                                         contextAnalyzer.positionForProposal(),
-                                         contextAnalyzer.positionEndOfExpression(),
-                                         contextAnalyzer.completionOperator(),
-                                         CustomAssistMode::Doxygen);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
         qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
@@ -147,10 +146,6 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
                                          contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
-    case ClangCompletionContextAnalyzer::CompleteSignal:
-    case ClangCompletionContextAnalyzer::CompleteSlot:
-        if (!interface->isBaseObject())
-            return CppEditor::getCppCompletionAssistProcessor();
     default:
         break;
     }
@@ -415,12 +410,6 @@ IAssistProposal *CustomAssistProcessor::perform()
 {
     QList<AssistProposalItemInterface *> completions;
     switch (m_mode) {
-    case CustomAssistMode::Doxygen:
-        for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
-            completions << createItem(QLatin1String(doxygenTagSpell(i)),
-                                      CPlusPlus::Icons::keywordIcon());
-        }
-        break;
     case CustomAssistMode::Preprocessor: {
         static QIcon macroIcon = Utils::CodeModelIcon::iconForType(CodeModelIcon::Macro);
         for (const QString &completion
@@ -497,7 +486,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
     if (!allHeaderPaths.contains(currentFilePath))
         allHeaderPaths.append(currentFilePath);
 
-    const MimeType mimeType = mimeTypeForName("text/x-c++hdr");
+    const MimeType mimeType = mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE);
     const QStringList suffixes = mimeType.suffixes();
 
     QList<AssistProposalItemInterface *> completions;
@@ -635,7 +624,7 @@ IAssistProposal *ClangdFunctionHintProcessor::perform()
 ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)
     : TextDocumentClientCapabilities::CompletionCapabilities(object)
 {
-    insert("editsNearCursor", true); // For dot-to-arrow correction.
+    insert(LanguageServerProtocol::Key{"editsNearCursor"}, true); // For dot-to-arrow correction.
     if (std::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
         completionItemCaps->setSnippetSupport(false);
         setCompletionItem(*completionItemCaps);

@@ -114,7 +114,7 @@ CommonVcsSettings::CommonVcsSettings()
 
 // CommonVcsSettingsPage
 
-class CommonVcsSettingsPage final : public Core::IOptionsPage
+class CommonVcsSettingsPage final : public IOptionsPage
 {
 public:
     CommonVcsSettingsPage()

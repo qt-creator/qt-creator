@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerconstants.h"
-#include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"

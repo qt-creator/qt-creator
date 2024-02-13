@@ -3,6 +3,8 @@
 
 #include "gitlabparameters.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>
@@ -200,6 +202,12 @@ GitLabServer GitLabParameters::serverForId(const Utils::Id &id) const
     return Utils::findOrDefault(gitLabServers, [id](const GitLabServer &s) {
         return id == s.id;
     });
+}
+
+GitLabParameters &gitLabParameters()
+{
+    static GitLabParameters theGitLabParameters;
+    return theGitLabParameters;
 }
 
 } // namespace GitLab

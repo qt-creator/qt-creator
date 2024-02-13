@@ -479,8 +479,7 @@ bool PyType::resolve() const
                 result = symbols->GetTypeId(m_module, m_name.c_str(), &typeId);
             if (FAILED(result) || result == S_FALSE) {
                 ULONG64 module;
-                if (isIntegralType(m_name))
-                    result = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module);
+                result = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module);
                 if (FAILED(result) || result == S_FALSE) {
                     ULONG loaded = 0;
                     ULONG unloaded = 0;

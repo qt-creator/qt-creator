@@ -3,19 +3,10 @@
 
 #pragma once
 
-#include <projectexplorer/projectsettingswidget.h>
 #include <utils/id.h>
 
 #include <QDateTime>
 #include <QObject>
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QPushButton;
-QT_END_NAMESPACE
-
-#include <utility>
 
 namespace ProjectExplorer { class Project; }
 
@@ -56,32 +47,6 @@ private:
     bool m_linked = false;
 };
 
-class GitLabProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-    Q_OBJECT
-public:
-    explicit GitLabProjectSettingsWidget(ProjectExplorer::Project *project,
-                                         QWidget *parent = nullptr);
-
-private:
-    enum CheckMode { Connection, Link };
-
-    void unlink();
-    void checkConnection(CheckMode mode);
-    void onConnectionChecked(const Project &project, const Utils::Id &serverId,
-                             const QString &remote, const QString &projName);
-    void updateUi();
-    void updateEnabledStates();
-
-    GitLabProjectSettings *m_projectSettings = nullptr;
-    QComboBox *m_linkedGitLabServer = nullptr;
-    QComboBox *m_hostCB = nullptr;
-    QPushButton *m_linkWithGitLab = nullptr;
-    QPushButton *m_unlink = nullptr;
-    QPushButton *m_checkConnection = nullptr;
-    Utils::InfoLabel *m_infoLabel = nullptr;
-    CheckMode m_checkMode = Connection;
-};
+void setupGitlabProjectPanel();
 
 } // namespace GitLab
-

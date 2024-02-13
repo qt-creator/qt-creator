@@ -4,9 +4,12 @@
 #pragma once
 
 #include "extensionsystem_global.h"
+#include "pluginspec.h"
 
 #include <utils/treemodel.h>
 
+#include <QMetaType>
+#include <QSet>
 #include <QWidget>
 
 #include <unordered_map>
@@ -40,7 +43,7 @@ public:
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
     void pluginActivated(ExtensionSystem::PluginSpec *spec);
-    void pluginSettingsChanged(ExtensionSystem::PluginSpec *spec);
+    void pluginsChanged(const QSet<ExtensionSystem::PluginSpec *> &spec, bool enabled);
 
 private:
     PluginSpec *pluginForIndex(const QModelIndex &index) const;
@@ -56,4 +59,6 @@ private:
     friend class Internal::PluginItem;
 };
 
-} // namespae ExtensionSystem
+} // namespace ExtensionSystem
+
+Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec *)

@@ -13,9 +13,9 @@
 
 #include <aggregation/aggregate.h>
 
-using namespace Macros;
-using namespace Macros::Internal;
 using namespace Utils;
+
+namespace Macros::Internal {
 
 static const char EVENTNAME[] = "Find";
 static const quint8 TYPE = 0;
@@ -202,3 +202,5 @@ void FindMacroHandler::startRecording(Macro* macro)
     if (current)
         changeEditor(current);
 }
+
+} // namespace Macros::Internal

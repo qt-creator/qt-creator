@@ -3,7 +3,6 @@
 
 #include "abstracteditorsupport.h"
 
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
@@ -42,7 +41,7 @@ void AbstractEditorSupport::notifyAboutUpdatedContents() const
 QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project,
                                                const FilePath &filePath, const QString &className)
 {
-    const QString license = Internal::CppEditorPlugin::licenseTemplate(project);
+    const QString license = Internal::cppFileSettingsForProject(project).licenseTemplate();
     Utils::MacroExpander expander;
     expander.registerVariable("Cpp:License:FileName", Tr::tr("The file name."),
                               [filePath] { return filePath.fileName(); });
@@ -54,7 +53,7 @@ QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project
 
 bool AbstractEditorSupport::usePragmaOnce(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::usePragmaOnce(project);
+    return Internal::cppFileSettingsForProject(project).headerPragmaOnce;
 }
 
 } // CppEditor

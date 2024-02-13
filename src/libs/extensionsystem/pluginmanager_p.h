@@ -51,6 +51,7 @@ public:
     // Plugin operations
     void checkForProblematicPlugins();
     void loadPlugins();
+    void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     void shutdown();
     void setPluginPaths(const QStringList &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
@@ -122,6 +123,8 @@ public:
     static PluginSpec *createSpec();
     static PluginSpecPrivate *privateSpec(PluginSpec *spec);
 
+    static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
+
     mutable QReadWriteLock m_lock;
 
     bool m_isInitializationDone = false;
@@ -150,6 +153,7 @@ private:
                    QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);
     void stopAll();
     void deleteAll();
+    void checkForDuplicatePlugins();
 
 #ifdef WITH_TESTS
     void startTests();

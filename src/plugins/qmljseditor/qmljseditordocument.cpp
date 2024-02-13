@@ -820,9 +820,9 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     connect(this, &TextEditor::TextDocument::openFinishedSuccessfully,
             d, &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
-    setSyntaxHighlighter(new QmlJSHighlighter(document()));
+    resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
     setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
-    setIndenter(new Internal::Indenter(document()));
+    setIndenter(createQmlJsIndenter(document()));
 }
 
 bool QmlJSEditorDocument::supportsCodec(const QTextCodec *codec) const
@@ -859,7 +859,7 @@ TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
     if (const auto baseProvider = TextDocument::quickFixAssistProvider())
         return baseProvider;
-    return Internal::QmlJSEditorPlugin::quickFixAssistProvider();
+    return Internal::quickFixAssistProvider();
 }
 
 void QmlJSEditorDocument::setIsDesignModePreferred(bool value)

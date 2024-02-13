@@ -3,36 +3,75 @@
 
 #pragma once
 
-#include "dashboard/dashboardclient.h"
+#include "dashboard/dto.h"
 
-#include <extensionsystem/iplugin.h>
+#include <utils/expected.h>
 
-#include <memory>
+#include <QHash>
+#include <QUrl>
+#include <QVersionNumber>
+
+QT_BEGIN_NAMESPACE
+class QIcon;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
+namespace Tasking { class Group; }
+
+namespace Utils { class FilePath; }
+
 namespace Axivion::Internal {
 
-class AxivionProjectSettings;
-class ProjectInfo;
-
-class AxivionPlugin final : public ExtensionSystem::IPlugin
+struct IssueListSearch
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Axivion.json")
+    QString kind;
+    QString state;
+    QString versionStart;
+    QString versionEnd;
+    QString owner;
+    QString filter_path;
+    int offset = 0;
+    int limit = 150;
+    bool computeTotalRowCount = false;
 
-public:
-    AxivionPlugin() {}
-    ~AxivionPlugin() final;
-
-    static void fetchProjectInfo(const QString &projectName);
-    static std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo();
-    static bool handleCertificateIssue();
-
-private:
-    void initialize() final;
-    void extensionsInitialized() final {}
+    QString toQuery() const;
 };
+
+class DashboardInfo
+{
+public:
+    QUrl source;
+    QVersionNumber versionNumber;
+    QStringList projects;
+    QHash<QString, QUrl> projectUrls;
+    std::optional<QUrl> checkCredentialsUrl;
+};
+
+using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
+Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
+
+// TODO: Wrap into expected_str<>?
+using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
+Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler);
+
+// TODO: Wrap into expected_str<>?
+using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
+Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
+
+// TODO: Wrap into expected_str<>?
+using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
+Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
+
+using HtmlHandler = std::function<void(const QByteArray &)>;
+Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
+
+void fetchProjectInfo(const QString &projectName);
+std::optional<Dto::ProjectInfoDto> projectInfo();
+bool handleCertificateIssue();
+
+QIcon iconForIssue(const QString &prefix);
+QString anyToSimpleString(const Dto::Any &any);
 
 } // Axivion::Internal
 

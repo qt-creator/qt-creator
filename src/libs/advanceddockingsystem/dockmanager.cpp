@@ -339,7 +339,7 @@ DockManager::DockManager(QWidget *parent)
     : DockContainerWidget(this, parent)
     , d(new DockManagerPrivate(this))
 {
-    connect(this, &DockManager::workspaceListChanged, this, [=] {
+    connect(this, &DockManager::workspaceListChanged, this, [this] {
         d->m_workspaceOrderDirty = true;
     });
 

@@ -11,10 +11,13 @@
 #include "xmlprotocol/status.h"
 #include "xmlprotocol/suppression.h"
 
+#include <utils/process.h>
 #include <utils/processinterface.h>
 
 #include <QFileInfo>
+#include <QStringList>
 #include <QTcpServer>
+#include <QTcpSocket>
 #include <QTest>
 
 using namespace Utils;
@@ -24,14 +27,14 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<>
-inline bool qCompare(int const &t1, MemcheckError const &t2,
-                     char const *actual, char const *expected, char const *file, int line)
+bool qCompare(int const &t1, MemcheckError const &t2,
+              char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, int(t2), actual, expected, file, line);
 }
 
-inline bool qCompare(const QString &t1, char const *t2,
-                     char const *actual, char const *expected, char const *file, int line)
+bool qCompare(const QString &t1, char const *t2,
+              char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, QString::fromLatin1(t2), actual, expected, file, line);
 }
@@ -39,7 +42,37 @@ inline bool qCompare(const QString &t1, char const *t2,
 } // namespace QTest
 QT_END_NAMESPACE
 
-namespace Valgrind::Test {
+namespace Valgrind::Internal {
+
+class ValgrindMemcheckParserTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanup();
+
+    void testMemcheckSample1();
+    void testMemcheckSample2();
+    void testMemcheckSample3();
+    void testMemcheckCharm();
+    void testHelgrindSample1();
+
+    void testValgrindCrash();
+    void testValgrindGarbage();
+
+    void testParserStop();
+    void testRealValgrind();
+    void testValgrindStartError_data();
+    void testValgrindStartError();
+
+private:
+    void initTest(const QString &testfile, const QStringList &otherArgs = {});
+
+    QTcpServer *m_server = nullptr;
+    std::unique_ptr<Utils::Process> m_process;
+    std::unique_ptr<QTcpSocket> m_socket;
+};
 
 static void dumpError(const Error &e)
 {
@@ -159,7 +192,8 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
     m_process->setCommand({FilePath::fromString(fakeValgrind), args + otherArgs});
     m_process->start();
 
-    QVERIFY(m_process->waitForStarted(5000));
+    using namespace std::chrono_literals;
+    QVERIFY(m_process->waitForStarted(5s));
     QCOMPARE(m_process->state(), QProcess::Running);
     QVERIFY2(m_process->error() == QProcess::UnknownError, qPrintable(m_process->errorString()));
     QVERIFY(m_server->waitForNewConnection(5000));
@@ -555,4 +589,11 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     // just finish without deadlock and we are fine
 }
 
-} // namespace Valgrind::Test
+QObject *createValgrindMemcheckParserTest()
+{
+    return new ValgrindMemcheckParserTest;
+}
+
+} // namespace Valgrind::Internal
+
+#include "valgrindmemcheckparsertest.moc"

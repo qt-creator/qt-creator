@@ -63,7 +63,6 @@ const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 const char QTVERSIONDETECTIONSOURCE[] = "autodetectionSource";
 const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 const char QTVERSIONQMAKEPATH[] = "QMakePath";
-const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
 const char QTVERSION_ABIS[] = "Abis";
 
@@ -91,7 +90,6 @@ public:
     QString qtVersionString;
 
     FilePath sourcePath;
-    FilePath qtSources;
 
     Utils::FilePath prefix;
 
@@ -148,7 +146,6 @@ public:
 
         result.insert("QtVersionString", qtVersionString);
         result.insert("SourcePath", sourcePath.toSettings());
-        result.insert("QtSources", qtSources.toSettings());
         result.insert("Prefix", prefix.toSettings());
         result.insert("BinPath", binPath.toSettings());
         result.insert("LibExecPath", libExecPath.toSettings());
@@ -187,7 +184,6 @@ public:
         unexpandedDisplayName.fromMap(map, "UnexpandedDisplayName");
         qtVersionString = map.value("QtVersionString").toString();
         sourcePath = FilePath::fromSettings(map.value("SourcePath"));
-        qtSources = FilePath::fromSettings(map.value("QtSources"));
         prefix = FilePath::fromSettings(map.value("Prefix"));
         binPath = FilePath::fromSettings(map.value("BinPath"));
         libExecPath = FilePath::fromSettings(map.value("LibExecPath"));
@@ -386,9 +382,14 @@ QString QtVersion::defaultUnexpandedDisplayName() const
         }
     }
 
-    return detectionSource() == "PATH" ?
-        Tr::tr("Qt %{Qt:Version} in PATH (%2)").arg(location) :
-        Tr::tr("Qt %{Qt:Version} (%2)").arg(location);
+    QString result = detectionSource() == "PATH"
+                         ? Tr::tr("Qt %{Qt:Version} in PATH (%2)").arg(location)
+                         : Tr::tr("Qt %{Qt:Version} (%2)").arg(location);
+
+    if (qmakeFilePath().needsDevice())
+        result += QString(Tr::tr(" (on %1)")).arg(qmakeFilePath().host().toString());
+
+    return result;
 }
 
 QSet<Id> QtVersion::availableFeatures() const
@@ -545,7 +546,7 @@ Tasks QtVersion::validateKit(const Kit *k)
             result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
     }
 
-    if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(k)) {
         Abi targetAbi = tc->targetAbi();
         Abis supportedAbis = tc->supportedAbis();
         bool fuzzyMatch = false;
@@ -579,7 +580,7 @@ Tasks QtVersion::validateKit(const Kit *k)
                                   version->displayName(), qtAbiString);
             result << BuildSystemTask(fuzzyMatch ? Task::Warning : Task::Error, message);
         }
-    } else if (ToolChainKitAspect::cToolChain(k)) {
+    } else if (ToolchainKitAspect::cToolchain(k)) {
         const QString message = Tr::tr("The kit has a Qt version, but no C++ compiler.");
         result << BuildSystemTask(Task::Warning, message);
     }
@@ -772,8 +773,6 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
 
     if (persistentStore && !forceRefreshCache)
         d->m_data.fromMap(*persistentStore);
-    else
-        d->m_data.qtSources = FilePath::fromSettings(map.value(QTVERSIONSOURCEPATH));
 
     Store::const_iterator itQtAbis = map.find(QTVERSION_ABIS);
     if (itQtAbis != map.end()) {
@@ -1049,11 +1048,6 @@ FilePath QtVersion::sourcePath() const
     return d->m_data.sourcePath;
 }
 
-FilePath QtVersion::qtPackageSourcePath() const
-{
-    return d->m_data.qtSources;
-}
-
 FilePath QtVersion::designerFilePath() const
 {
     if (!isValid())
@@ -1294,7 +1288,7 @@ QString QtVersion::mkspec() const
     return d->m_mkspec.toFSPathString();
 }
 
-QString QtVersion::mkspecFor(ToolChain *tc) const
+QString QtVersion::mkspecFor(Toolchain *tc) const
 {
     QString versionSpec = mkspec();
     if (!tc)
@@ -1373,6 +1367,8 @@ void QtVersionPrivate::updateVersionInfo()
         m_qmakeIsExecutable = false;
         qWarning("Cannot update Qt version information from %s: %s.",
                  qPrintable(m_qmakeCommand.displayName()), qPrintable(error));
+        qWarning("If this appears when running Qt Creator in Qt Creator make "
+                 "sure to disable \"Add build library search path to LD_LIBRARY_PATH\"");
         return;
     }
     m_qmakeIsExecutable = true;
@@ -1826,7 +1822,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
         return {};
     }
 
-    const QByteArray out = process.readAllRawStandardOutput();
+    const QByteArray out = process.rawStdOut();
     if (out.isEmpty()) {
         *error = Tr::tr("\"%1\" produced no output: %2.")
                 .arg(binary.displayName(), process.cleanedStdErr());
@@ -1869,10 +1865,10 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
         const Abis abiList = Abi::abisOfBinary(binary);
-        const Toolchains tcList = ToolChainManager::toolchains([&abiList](const ToolChain *t) {
+        const Toolchains tcList = ToolchainManager::toolchains([&abiList](const Toolchain *t) {
             return abiList.contains(t->targetAbi());
         });
-        for (ToolChain *tc : tcList) {
+        for (Toolchain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
             output = runQmakeQuery(binary, realEnv, error);
@@ -2515,12 +2511,18 @@ void QtVersionFactory::setPriority(int priority)
 
 #include <QTest>
 
-#include "qtsupportplugin.h"
+namespace QtSupport::Internal {
 
-namespace QtSupport {
-namespace Internal {
+class QtBuildStringParserTest final : public QObject
+{
+    Q_OBJECT
 
-void QtSupportPlugin::testQtBuildStringParsing_data()
+private slots:
+    void testQtBuildStringParsing_data();
+    void testQtBuildStringParsing();
+};
+
+void QtBuildStringParserTest::testQtBuildStringParsing_data()
 {
     QTest::addColumn<QByteArray>("buildString");
     QTest::addColumn<QString>("expected");
@@ -2553,7 +2555,7 @@ void QtSupportPlugin::testQtBuildStringParsing_data()
             << "5.7.1;x86_64;little;lp64;;eabi-softfloat;shared;release;GCC 6.2.1 20160830";
 }
 
-void QtSupportPlugin::testQtBuildStringParsing()
+void QtBuildStringParserTest::testQtBuildStringParsing()
 {
     QFETCH(QByteArray, buildString);
     QFETCH(QString, expected);
@@ -2566,7 +2568,13 @@ void QtSupportPlugin::testQtBuildStringParsing()
     QCOMPARE(expectedList, actual);
 }
 
-} // Internal
-} // QtSupport
+QObject *createQtBuildStringParserTest()
+{
+    return new QtBuildStringParserTest;
+}
+
+} // QtSupport::Internal
+
+#include "baseqtversion.moc"
 
 #endif // WITH_TESTS

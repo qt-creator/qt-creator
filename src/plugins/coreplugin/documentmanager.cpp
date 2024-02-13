@@ -3,9 +3,7 @@
 
 #include "documentmanager.h"
 
-#include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
-#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "diffservice.h"
@@ -14,8 +12,6 @@
 #include "dialogs/saveitemsdialog.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/editormanager_p.h"
-#include "editormanager/editorview.h"
-#include "editormanager/ieditor.h"
 #include "editormanager/ieditorfactory.h"
 #include "icore.h"
 #include "idocument.h"
@@ -135,28 +131,25 @@ struct FileStateItem
 struct FileState
 {
     FilePath watchedFilePath;
-    QMap<IDocument *, FileStateItem> lastUpdatedState;
+    QHash<IDocument *, FileStateItem> lastUpdatedState;
     FileStateItem expected;
 };
 
-
-class DocumentManagerPrivate : public QObject
+class DocumentManagerPrivate final : public QObject
 {
-    Q_OBJECT
 public:
     DocumentManagerPrivate();
+
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
 
     void checkOnNextFocusChange();
     void onApplicationFocusChange();
 
-    void registerSaveAllAction();
-
     QMap<FilePath, FileState> m_states; // filePathKey -> FileState
     QSet<FilePath> m_changedFiles; // watched file paths collected from file watcher notifications
     QList<IDocument *> m_documentsWithoutWatch;
-    QMap<IDocument *, FilePaths> m_documentsWithWatch; // document -> list of filePathKeys
+    QHash<IDocument *, FilePaths> m_documentsWithWatch; // document -> list of filePathKeys
     QSet<FilePath> m_expectedFileNames; // set of file paths without normalization
 
     QList<DocumentManager::RecentFile> m_recentFiles;
@@ -177,7 +170,7 @@ public:
     // That makes the code easier
     IDocument *m_blockedIDocument = nullptr;
 
-    QAction *m_saveAllAction;
+    QAction *m_saveAllAction = nullptr;
     QString fileDialogFilterOverride;
 };
 
@@ -222,20 +215,7 @@ void DocumentManagerPrivate::onApplicationFocusChange()
     m_instance->checkForReload();
 }
 
-void DocumentManagerPrivate::registerSaveAllAction()
-{
-    ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
-    Command *cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : Tr::tr("Ctrl+Shift+S")));
-    mfile->addAction(cmd, Constants::G_FILE_SAVE);
-    m_saveAllAction->setEnabled(false);
-    connect(m_saveAllAction, &QAction::triggered, [] {
-        DocumentManager::saveAllModifiedDocumentsSilently();
-    });
-}
-
-DocumentManagerPrivate::DocumentManagerPrivate() :
-    m_saveAllAction(new QAction(Tr::tr("Save A&ll"), this))
+DocumentManagerPrivate::DocumentManagerPrivate()
 {
     // we do not want to do too much directly in the focus change event, so queue the connection
     connect(qApp,
@@ -387,9 +367,10 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
 static void removeFileInfo(IDocument *document)
 {
     QTC_ASSERT(isMainThread(), return);
-    if (!d->m_documentsWithWatch.contains(document))
+    const auto it = d->m_documentsWithWatch.constFind(document);
+    if (it == d->m_documentsWithWatch.constEnd())
         return;
-    const FilePaths filePaths = d->m_documentsWithWatch.value(document);
+    const FilePaths filePaths = *it;
     for (const FilePath &filePath : filePaths) {
         if (!d->m_states.contains(filePath))
             continue;
@@ -413,7 +394,7 @@ static void removeFileInfo(IDocument *document)
             d->m_states.remove(filePath);
         }
     }
-    d->m_documentsWithWatch.remove(document);
+    d->m_documentsWithWatch.erase(it);
 }
 
 /// Dumps the state of the file manager's map
@@ -468,9 +449,8 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
 
     // gather the list of IDocuments
     QList<IDocument *> documentsToRename;
-    for (auto it = d->m_documentsWithWatch.cbegin(), end = d->m_documentsWithWatch.cend();
-            it != end; ++it) {
-        if (it.value().contains(fromKey))
+    for (auto it = d->m_documentsWithWatch.cbegin(); it != d->m_documentsWithWatch.cend(); ++it) {
+        if (it->contains(fromKey))
             documentsToRename.append(it.key());
     }
 
@@ -487,6 +467,7 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
 
 void DocumentManager::updateSaveAll()
 {
+    QTC_ASSERT(d->m_saveAllAction, return);
     d->m_saveAllAction->setEnabled(!modifiedDocuments().empty());
 }
 
@@ -563,9 +544,8 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 {
     QList<IDocument *> modified;
 
-    const auto docEnd = d->m_documentsWithWatch.keyEnd();
-    for (auto docIt = d->m_documentsWithWatch.keyBegin(); docIt != docEnd; ++docIt) {
-        IDocument *document = *docIt;
+    for (auto it = d->m_documentsWithWatch.cbegin(); it != d->m_documentsWithWatch.cend(); ++it) {
+        IDocument *document = it.key();
         if (document->isModified())
             modified << document;
     }
@@ -870,6 +850,10 @@ FilePath DocumentManager::getSaveAsFileName(const IDocument *document)
         const FilePath defaultPath = document->fallbackSaveAsPath();
         if (!defaultPath.isEmpty() && !suggestedName.isEmpty())
             fileDialogPath = defaultPath / suggestedName;
+        else if (!suggestedName.isEmpty())
+            fileDialogPath = FilePath::fromUserInput(suggestedName);
+        else if (!defaultPath.isEmpty())
+            fileDialogPath = defaultPath;
     }
     if (selectedFilter.isEmpty())
         selectedFilter = Utils::mimeTypeForName(document->mimeType()).filterString();
@@ -1109,9 +1093,9 @@ void DocumentManager::checkForReload()
         }
         currentStates.insert(fileKey, state);
         changeTypes.insert(fileKey, type);
-        QList<IDocument *> documents = d->m_states.value(fileKey).lastUpdatedState.keys();
-        for (IDocument *document : documents)
-            changedIDocuments.insert(document);
+        const auto docs = d->m_states.value(fileKey).lastUpdatedState;
+        for (auto it = docs.begin(); it != docs.end(); ++it)
+            changedIDocuments.insert(it.key());
     }
 
     // clean up. do this before we may enter the main loop, otherwise we would
@@ -1548,7 +1532,13 @@ void DocumentManager::setFileDialogFilter(const QString &filter)
 
 void DocumentManager::registerSaveAllAction()
 {
-    d->registerSaveAllAction();
+    ActionBuilder saveAll(d, Constants::SAVEALL);
+    saveAll.setText(Tr::tr("Save A&ll"));
+    saveAll.bindContextAction(&d->m_saveAllAction);
+    saveAll.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
+    saveAll.setDefaultKeySequence(QString(), Tr::tr("Ctrl+Shift+S"));
+    saveAll.setEnabled(false);
+    saveAll.addOnTriggered([] { DocumentManager::saveAllModifiedDocumentsSilently(); });
 }
 
 // -------------- FileChangeBlocker
@@ -1577,5 +1567,3 @@ FileChangeBlocker::~FileChangeBlocker()
 }
 
 } // namespace Core
-
-#include "documentmanager.moc"

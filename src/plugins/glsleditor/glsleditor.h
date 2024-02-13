@@ -3,18 +3,12 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
+#include <QString>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 int languageVariant(const QString &mimeType);
 
-class GlslEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    GlslEditorFactory();
-};
+void setupGlslEditorFactory();
 
-} // namespace Internal
-} // namespace GlslEditor
+} // GlslEditor::Internal

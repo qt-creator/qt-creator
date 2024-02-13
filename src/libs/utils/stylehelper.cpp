@@ -37,10 +37,10 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
-static StyleHelper::ToolbarStyle m_toolbarStyle = StyleHelper::defaultToolbarStyle;
+static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::defaultToolbarStyle;
 // Invalid by default, setBaseColor needs to be called at least once
-static QColor m_baseColor;
-static QColor m_requestedBaseColor;
+static QColor s_baseColor;
+static QColor s_requestedBaseColor;
 
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {
@@ -81,22 +81,17 @@ QColor StyleHelper::toolBarDropShadowColor()
 
 int StyleHelper::navigationWidgetHeight()
 {
-    return m_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+    return s_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
 }
 
 void StyleHelper::setToolbarStyle(ToolbarStyle style)
 {
-    m_toolbarStyle = style;
+    s_toolbarStyle = style;
 }
 
 StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
 {
-    return m_toolbarStyle;
-}
-
-qreal StyleHelper::sidebarFontSize()
-{
-    return HostOsInfo::isMacHost() ? 10 : 7.5;
+    return s_toolbarStyle;
 }
 
 QColor StyleHelper::notTooBrightHighlightColor()
@@ -130,12 +125,12 @@ QColor StyleHelper::baseColor(bool lightColored)
     static const QColor windowColor = QApplication::palette().color(QPalette::Window);
     static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
 
-    return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
+    return (lightColored || windowColorAsBase) ? windowColor : s_baseColor;
 }
 
 QColor StyleHelper::requestedBaseColor()
 {
-    return m_requestedBaseColor;
+    return s_requestedBaseColor;
 }
 
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
@@ -196,7 +191,7 @@ QColor StyleHelper::buttonTextColor()
 // from the users request.
 void StyleHelper::setBaseColor(const QColor &newcolor)
 {
-    m_requestedBaseColor = newcolor;
+    s_requestedBaseColor = newcolor;
 
     const QColor themeBaseColor = creatorTheme()->color(Theme::PanelStatusBarBackgroundColor);
     const QColor defaultBaseColor = QColor(DEFAULT_BASE_COLOR);
@@ -213,8 +208,8 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
                      value);
     }
 
-    if (color.isValid() && color != m_baseColor) {
-        m_baseColor = color;
+    if (color.isValid() && color != s_baseColor) {
+        s_baseColor = color;
         const QWidgetList widgets = QApplication::allWidgets();
         for (QWidget *w : widgets)
             w->update();
@@ -936,6 +931,108 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
             return desiredForeground;
     }
     return foreground;
+}
+
+static QStringList brandFontFamilies()
+{
+    const static QStringList families = []{
+        const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+        return id >= 0 ? QFontDatabase::applicationFontFamilies(id) : QStringList();
+    }();
+    return families;
+}
+
+struct UiFontMetrics {
+    // Original "text token" values are defined in pixels
+    const int pixelSize = -1;
+    const int lineHeight = -1;
+    const QFont::Weight weight = QFont::Normal;
+};
+
+static const UiFontMetrics& uiFontMetrics(StyleHelper::UiElement element)
+{
+    static const std::map<StyleHelper::UiElement, UiFontMetrics> metrics {
+        {StyleHelper::UiElementH1,                  {36, 54, QFont::DemiBold}},
+        {StyleHelper::UiElementH2,                  {28, 44, QFont::DemiBold}},
+        {StyleHelper::UiElementH3,                  {16, 20, QFont::Bold}},
+        {StyleHelper::UiElementH4,                  {16, 20, QFont::Bold}},
+        {StyleHelper::UiElementH5,                  {14, 16, QFont::DemiBold}},
+        {StyleHelper::UiElementH6,                  {12, 14, QFont::DemiBold}},
+        {StyleHelper::UiElementH6Capital,           {12, 14, QFont::DemiBold}},
+        {StyleHelper::UiElementCaptionStrong,       {10, 12, QFont::DemiBold}},
+        {StyleHelper::UiElementCaption,             {10, 12, QFont::Normal}},
+        {StyleHelper::UIElementIconStandard,        {12, 16, QFont::Normal}},
+        {StyleHelper::UIElementIconActive,          {12, 16, QFont::DemiBold}},
+    };
+    QTC_ASSERT(metrics.count(element) > 0, return metrics.at(StyleHelper::UiElementCaptionStrong));
+    return metrics.at(element);
+}
+
+QFont StyleHelper::uiFont(UiElement element)
+{
+    QFont font;
+
+    switch (element) {
+    case UiElementH1:
+        font.setFamilies(brandFontFamilies());
+        font.setWordSpacing(2);
+        break;
+    case UiElementH2:
+        font.setFamilies(brandFontFamilies());
+        break;
+    case UiElementH3:
+    case UiElementH6Capital:
+        font.setCapitalization(QFont::AllUppercase);
+        break;
+    default:
+        break;
+    }
+
+    const UiFontMetrics &metrics = uiFontMetrics(element);
+
+    // On macOS, by default 72 dpi are assumed for conversion between point and pixel size.
+    // For non-macOS, it is 96 dpi.
+    constexpr qreal defaultDpi = HostOsInfo::isMacHost() ? 72.0 : 96.0;
+    constexpr qreal pixelsToPointSizeFactor = 72.0 / defaultDpi;
+    const qreal qrealPointSize = metrics.pixelSize * pixelsToPointSizeFactor;
+    font.setPointSizeF(qrealPointSize);
+
+    font.setWeight(metrics.weight);
+
+    return font;
+}
+
+int StyleHelper::uiFontLineHeight(UiElement element)
+{
+    const UiFontMetrics &metrics = uiFontMetrics(element);
+    const qreal lineHeightToPixelSizeRatio = qreal(metrics.lineHeight) / metrics.pixelSize;
+    const QFontInfo fontInfo(uiFont(element));
+    return qCeil(fontInfo.pixelSize() * lineHeightToPixelSizeRatio);
+}
+
+QString StyleHelper::fontToCssProperties(const QFont &font)
+{
+    const QString fontSize = font.pixelSize() != -1 ? QString::number(font.pixelSize()) + "px"
+                                                    : QString::number(font.pointSizeF()) + "pt";
+    const QString fontStyle = QLatin1String(font.style() == QFont::StyleNormal
+                                                ? "normal" : font.style() == QFont::StyleItalic
+                                                      ? "italic" : "oblique");
+    const QString fontShorthand = fontStyle + " " + QString::number(font.weight()) + " "
+                                  + fontSize + " '" + font.family() + "'";
+    const QString textDecoration = QLatin1String(font.underline() ? "underline" : "none");
+    const QString textTransform = QLatin1String(font.capitalization() == QFont::AllUppercase
+                                                    ? "uppercase"
+                                                    : font.capitalization() == QFont::AllLowercase
+                                                          ? "lowercase" : "none");
+    const QString propertyTemplate = "%1: %2";
+    const QStringList cssProperties = {
+        propertyTemplate.arg("font").arg(fontShorthand),
+        propertyTemplate.arg("text-decoration").arg(textDecoration),
+        propertyTemplate.arg("text-transform").arg(textTransform),
+        propertyTemplate.arg("word-spacing").arg(font.wordSpacing()),
+    };
+    const QString fontCssStyle = cssProperties.join("; ");
+    return fontCssStyle;
 }
 
 } // namespace Utils

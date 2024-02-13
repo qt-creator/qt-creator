@@ -5,9 +5,10 @@
 
 #include "tasking_global.h"
 
-#include <QHash>
 #include <QObject>
-#include <QSharedPointer>
+#include <QList>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 template <class T>
@@ -18,8 +19,65 @@ namespace Tasking {
 
 Q_NAMESPACE_EXPORT(TASKING_EXPORT)
 
-class ExecutionContextActivator;
-class TaskContainer;
+// WorkflowPolicy:
+// 1. When all children finished with success -> report success, otherwise:
+//    a) Report error on first error and stop executing other children (including their subtree).
+//    b) On first error - continue executing all children and report error afterwards.
+// 2. When all children finished with error -> report error, otherwise:
+//    a) Report success on first success and stop executing other children (including their subtree).
+//    b) On first success - continue executing all children and report success afterwards.
+// 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
+//    Useful only in parallel mode.
+// 4. Always run all children, let them finish, ignore their results and report success afterwards.
+// 5. Always run all children, let them finish, ignore their results and report error afterwards.
+
+enum class WorkflowPolicy
+{
+    StopOnError,          // 1a - Reports error on first child error, otherwise success (if all children were success).
+    ContinueOnError,      // 1b - The same, but children execution continues. Reports success when no children.
+    StopOnSuccess,        // 2a - Reports success on first child success, otherwise error (if all children were error).
+    ContinueOnSuccess,    // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnSuccessOrError, // 3  - Stops on first finished child and report its result.
+    FinishAllAndSuccess,  // 4  - Reports success after all children finished.
+    FinishAllAndError     // 5  - Reports error after all children finished.
+};
+Q_ENUM_NS(WorkflowPolicy);
+
+enum class SetupResult
+{
+    Continue,
+    StopWithSuccess,
+    StopWithError
+};
+Q_ENUM_NS(SetupResult);
+
+enum class DoneResult
+{
+    Success,
+    Error
+};
+Q_ENUM_NS(DoneResult);
+
+enum class DoneWith
+{
+    Success,
+    Error,
+    Cancel
+};
+Q_ENUM_NS(DoneWith);
+
+enum class CallDoneIf
+{
+    SuccessOrError,
+    Success,
+    Error
+};
+Q_ENUM_NS(CallDoneIf);
+
+TASKING_EXPORT DoneResult toDoneResult(bool success);
+
+class LoopData;
+class StorageData;
 class TaskTreePrivate;
 
 class TASKING_EXPORT TaskInterface : public QObject
@@ -27,11 +85,11 @@ class TASKING_EXPORT TaskInterface : public QObject
     Q_OBJECT
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
 
 private:
-    template <typename Task> friend class TaskAdapter;
-    friend class TaskNode;
+    template <typename Task, typename Deleter> friend class TaskAdapter;
+    friend class TaskTreePrivate;
     TaskInterface() = default;
 #ifdef Q_QDOC
 protected:
@@ -39,52 +97,89 @@ protected:
     virtual void start() = 0;
 };
 
-class TASKING_EXPORT TreeStorageBase
+class TASKING_EXPORT Loop
 {
 public:
-    bool isValid() const;
+    using Condition = std::function<bool(int)>; // Takes iteration, called prior to each iteration.
+    using ValueGetter = std::function<const void *(int)>; // Takes iteration, returns ptr to ref.
 
+    int iteration() const;
+
+protected:
+    Loop(); // LoopForever
+    Loop(int count, const ValueGetter &valueGetter = {}); // LoopRepeat, LoopList
+    Loop(const Condition &condition); // LoopUntil
+
+    const void *valuePtr() const;
+
+private:
+    friend class ExecutionContextActivator;
+    friend class TaskTreePrivate;
+    std::shared_ptr<LoopData> m_loopData;
+};
+
+class TASKING_EXPORT LoopForever final : public Loop
+{
+public:
+    LoopForever() : Loop() {}
+};
+
+class TASKING_EXPORT LoopRepeat final : public Loop
+{
+public:
+    LoopRepeat(int count) : Loop(count) {}
+};
+
+class TASKING_EXPORT LoopUntil final : public Loop
+{
+public:
+    LoopUntil(const Condition &condition) : Loop(condition) {}
+};
+
+template <typename T>
+class LoopList final : public Loop
+{
+public:
+    LoopList(const QList<T> &list) : Loop(list.size(), [list](int i) { return &list.at(i); }) {}
+    const T *operator->() const { return static_cast<const T *>(valuePtr()); }
+    const T &operator*() const { return *static_cast<const T *>(valuePtr()); }
+};
+
+class TASKING_EXPORT StorageBase
+{
 private:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
+    using StorageHandler = std::function<void(void *)>;
 
-    TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
+    StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor);
+
     void *activeStorageVoid() const;
 
-    int createStorage() const;
-    void deleteStorage(int id) const;
-    void activateStorage(int id) const;
-
-    friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
+    friend bool operator==(const StorageBase &first, const StorageBase &second)
     { return first.m_storageData == second.m_storageData; }
 
-    friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
+    friend bool operator!=(const StorageBase &first, const StorageBase &second)
     { return first.m_storageData != second.m_storageData; }
 
-    friend size_t qHash(const TreeStorageBase &storage, uint seed = 0)
+    friend size_t qHash(const StorageBase &storage, uint seed = 0)
     { return size_t(storage.m_storageData.get()) ^ seed; }
 
-    struct StorageData {
-        ~StorageData();
-        StorageConstructor m_constructor = {};
-        StorageDestructor m_destructor = {};
-        QHash<int, void *> m_storageHash = {};
-        int m_activeStorage = 0; // 0 means no active storage
-        int m_storageCounter = 0;
-    };
-    QSharedPointer<StorageData> m_storageData;
+    std::shared_ptr<StorageData> m_storageData;
 
-    template <typename StorageStruct> friend class TreeStorage;
-    friend ExecutionContextActivator;
-    friend TaskContainer;
-    friend TaskTreePrivate;
+    template <typename StorageStruct> friend class Storage;
+    friend class ExecutionContextActivator;
+    friend class StorageData;
+    friend class RuntimeContainer;
+    friend class TaskTree;
+    friend class TaskTreePrivate;
 };
 
 template <typename StorageStruct>
-class TreeStorage final : public TreeStorageBase
+class Storage final : public StorageBase
 {
 public:
-    TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
+    Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
@@ -98,77 +193,55 @@ private:
     }
 };
 
-// WorkflowPolicy:
-// 1. When all children finished with done -> report done, otherwise:
-//    a) Report error on first error and stop executing other children (including their subtree).
-//    b) On first error - continue executing all children and report error afterwards.
-// 2. When all children finished with error -> report error, otherwise:
-//    a) Report done on first done and stop executing other children (including their subtree).
-//    b) On first done - continue executing all children and report done afterwards.
-// 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
-//    Useful only in parallel mode.
-// 4. Always run all children, let them finish, ignore their results and report done afterwards.
-// 5. Always run all children, let them finish, ignore their results and report error afterwards.
-
-enum class WorkflowPolicy {
-    StopOnError,      // 1a - Reports error on first child error, otherwise done (if all children were done).
-    ContinueOnError,  // 1b - The same, but children execution continues. Reports done when no children.
-    StopOnDone,       // 2a - Reports done on first child done, otherwise error (if all children were error).
-    ContinueOnDone,   // 2b - The same, but children execution continues. Reports error when no children.
-    StopOnFinished,   // 3  - Stops on first finished child and report its result.
-    FinishAllAndDone, // 4  - Reports done after all children finished.
-    FinishAllAndError // 5  - Reports error after all children finished.
-};
-Q_ENUM_NS(WorkflowPolicy);
-
-enum class SetupResult
-{
-    Continue,
-    StopWithDone,
-    StopWithError
-};
-Q_ENUM_NS(SetupResult);
-
 class TASKING_EXPORT GroupItem
 {
 public:
-    // Internal, provided by QTC_DECLARE_CUSTOM_TASK
-    using TaskCreateHandler = std::function<TaskInterface *(void)>;
-    // Called prior to task start, just after createHandler
-    using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
-    // Called on task done / error
-    using TaskEndHandler = std::function<void(const TaskInterface &)>;
-    // Called when group entered
+    // Called when group entered, after group's storages are created
     using GroupSetupHandler = std::function<SetupResult()>;
-    // Called when group done / error
-    using GroupEndHandler = std::function<void()>;
+    // Called when group done, before group's storages are deleted
+    using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
+
+    template <typename StorageStruct>
+    GroupItem(const Storage<StorageStruct> &storage)
+        : m_type(Type::Storage)
+        , m_storageList{storage} {}
+
+    GroupItem(const Loop &loop) : GroupItem(GroupData{{}, {}, {}, loop}) {}
+
+    // TODO: Add tests.
+    GroupItem(const QList<GroupItem> &children) : m_type(Type::List) { addChildren(children); }
+    GroupItem(std::initializer_list<GroupItem> children) : m_type(Type::List) { addChildren(children); }
+
+protected:
+    // Internal, provided by CustomTask
+    using InterfaceCreateHandler = std::function<TaskInterface *(void)>;
+    // Called prior to task start, just after createHandler
+    using InterfaceSetupHandler = std::function<SetupResult(TaskInterface &)>;
+    // Called on task done, just before deleteLater
+    using InterfaceDoneHandler = std::function<DoneResult(const TaskInterface &, DoneWith)>;
 
     struct TaskHandler {
-        TaskCreateHandler m_createHandler;
-        TaskSetupHandler m_setupHandler = {};
-        TaskEndHandler m_doneHandler = {};
-        TaskEndHandler m_errorHandler = {};
+        InterfaceCreateHandler m_createHandler;
+        InterfaceSetupHandler m_setupHandler = {};
+        InterfaceDoneHandler m_doneHandler = {};
+        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
     };
 
     struct GroupHandler {
         GroupSetupHandler m_setupHandler;
-        GroupEndHandler m_doneHandler = {};
-        GroupEndHandler m_errorHandler = {};
+        GroupDoneHandler m_doneHandler = {};
+        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
     };
 
     struct GroupData {
         GroupHandler m_groupHandler = {};
         std::optional<int> m_parallelLimit = {};
         std::optional<WorkflowPolicy> m_workflowPolicy = {};
+        std::optional<Loop> m_loop = {};
     };
 
-    QList<GroupItem> children() const { return m_children; }
-    GroupData groupData() const { return m_groupData; }
-    QList<TreeStorageBase> storageList() const { return m_storageList; }
-    TaskHandler taskHandler() const { return m_taskHandler; }
-
-protected:
     enum class Type {
+        List,
         Group,
         GroupData,
         Storage,
@@ -176,87 +249,120 @@ protected:
     };
 
     GroupItem() = default;
+    GroupItem(Type type) : m_type(type) { }
     GroupItem(const GroupData &data)
         : m_type(Type::GroupData)
         , m_groupData(data) {}
-    GroupItem(const TreeStorageBase &storage)
-        : m_type(Type::Storage)
-        , m_storageList{storage} {}
     GroupItem(const TaskHandler &handler)
         : m_type(Type::TaskHandler)
         , m_taskHandler(handler) {}
     void addChildren(const QList<GroupItem> &children);
 
-    void setTaskSetupHandler(const TaskSetupHandler &handler);
-    void setTaskDoneHandler(const TaskEndHandler &handler);
-    void setTaskErrorHandler(const TaskEndHandler &handler);
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
     static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
-                                 const GroupEndHandler &handler = {});
+                                 const std::function<void()> &handler = {});
+
+    // Checks if Function may be invoked with Args and if Function's return type is Result.
+    template <typename Result, typename Function, typename ...Args,
+              typename DecayedFunction = std::decay_t<Function>>
+    static constexpr bool isInvocable()
+    {
+        // Note, that std::is_invocable_r_v doesn't check Result type properly.
+        if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
+            return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
+        return false;
+    }
 
 private:
+    friend class ContainerNode;
+    friend class TaskNode;
+    friend class TaskTreePrivate;
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
     GroupData m_groupData;
-    QList<TreeStorageBase> m_storageList;
+    QList<StorageBase> m_storageList;
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group final : public GroupItem
+class TASKING_EXPORT Group : public GroupItem
 {
 public:
     Group(const QList<GroupItem> &children) { addChildren(children); }
     Group(std::initializer_list<GroupItem> children) { addChildren(children); }
 
     // GroupData related:
-    template <typename SetupHandler>
-    static GroupItem onGroupSetup(SetupHandler &&handler) {
-        return groupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
+    template <typename Handler>
+    static GroupItem onGroupSetup(Handler &&handler) {
+        return groupHandler({wrapGroupSetup(std::forward<Handler>(handler))});
     }
-    static GroupItem onGroupDone(const GroupEndHandler &handler) {
-        return groupHandler({{}, handler});
-    }
-    static GroupItem onGroupError(const GroupEndHandler &handler) {
-        return groupHandler({{}, {}, handler});
+    template <typename Handler>
+    static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError) {
+        return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDoneIf});
     }
     using GroupItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
     using GroupItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const GroupEndHandler &handler = {}) const {
+                          const std::function<void()> &handler = {}) const {
         return GroupItem::withTimeout(*this, timeout, handler);
     }
 
 private:
-    template<typename SetupHandler>
-    static GroupSetupHandler wrapGroupSetup(SetupHandler &&handler)
+    template <typename Handler>
+    static GroupSetupHandler wrapGroupSetup(Handler &&handler)
     {
-        static constexpr bool isDynamic
-            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<SetupHandler>>>;
-        constexpr bool isVoid
-            = std::is_same_v<void, std::invoke_result_t<std::decay_t<SetupHandler>>>;
-        static_assert(isDynamic || isVoid,
-                      "Group setup handler needs to take no arguments and has to return "
-                      "void or SetupResult. The passed handler doesn't fulfill these requirements.");
-        return [=] {
-            if constexpr (isDynamic)
+        // R, V stands for: Setup[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<SetupResult, Handler>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isR || isV,
+            "Group setup handler needs to take no arguments and has to return void or SetupResult. "
+            "The passed handler doesn't fulfill these requirements.");
+        return [handler] {
+            if constexpr (isR)
                 return std::invoke(handler);
             std::invoke(handler);
             return SetupResult::Continue;
         };
     };
+    template <typename Handler>
+    static GroupDoneHandler wrapGroupDone(Handler &&handler)
+    {
+        // R, V, D stands for: Done[R]esult, [V]oid, [D]oneWith
+        static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isRD || isR || isVD || isV,
+            "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
+            "return void or DoneResult. The passed handler doesn't fulfill these requirements.");
+        return [handler](DoneWith result) {
+            if constexpr (isRD)
+                return std::invoke(handler, result);
+            if constexpr (isR)
+                return std::invoke(handler);
+            if constexpr (isVD)
+                std::invoke(handler, result);
+            else if constexpr (isV)
+                std::invoke(handler);
+            return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
+        };
+    };
 };
 
-template <typename SetupHandler>
-static GroupItem onGroupSetup(SetupHandler &&handler)
+template <typename Handler>
+static GroupItem onGroupSetup(Handler &&handler)
 {
-    return Group::onGroupSetup(std::forward<SetupHandler>(handler));
+    return Group::onGroupSetup(std::forward<Handler>(handler));
 }
 
-TASKING_EXPORT GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler);
-TASKING_EXPORT GroupItem onGroupError(const GroupItem::GroupEndHandler &handler);
+template <typename Handler>
+static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+{
+    return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
+}
+
 TASKING_EXPORT GroupItem parallelLimit(int limit);
 TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
@@ -265,122 +371,149 @@ TASKING_EXPORT extern const GroupItem parallel;
 
 TASKING_EXPORT extern const GroupItem stopOnError;
 TASKING_EXPORT extern const GroupItem continueOnError;
-TASKING_EXPORT extern const GroupItem stopOnDone;
-TASKING_EXPORT extern const GroupItem continueOnDone;
-TASKING_EXPORT extern const GroupItem stopOnFinished;
-TASKING_EXPORT extern const GroupItem finishAllAndDone;
+TASKING_EXPORT extern const GroupItem stopOnSuccess;
+TASKING_EXPORT extern const GroupItem continueOnSuccess;
+TASKING_EXPORT extern const GroupItem stopOnSuccessOrError;
+TASKING_EXPORT extern const GroupItem finishAllAndSuccess;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
 
-class TASKING_EXPORT Storage final : public GroupItem
+class TASKING_EXPORT Forever final : public Group
 {
 public:
-    Storage(const TreeStorageBase &storage) : GroupItem(storage) { }
+    Forever(const QList<GroupItem> &children) : Group({LoopForever(), children}) {}
+    Forever(std::initializer_list<GroupItem> children) : Group({LoopForever(), children}) {}
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
 class TASKING_EXPORT Sync final : public GroupItem
 {
 public:
-    template<typename Function>
-    Sync(Function &&function) { addChildren({init(std::forward<Function>(function))}); }
+    template <typename Handler>
+    Sync(Handler &&handler) {
+        addChildren({ onGroupSetup(wrapHandler(std::forward<Handler>(handler))) });
+    }
 
 private:
-    template<typename Function>
-    static GroupItem init(Function &&function) {
-        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
-        static_assert(isInvocable,
-                      "Sync element: The synchronous function can't take any arguments.");
-        constexpr bool isBool = std::is_same_v<bool, std::invoke_result_t<std::decay_t<Function>>>;
-        constexpr bool isVoid = std::is_same_v<void, std::invoke_result_t<std::decay_t<Function>>>;
-        static_assert(isBool || isVoid,
-                      "Sync element: The synchronous function has to return void or bool.");
-        if constexpr (isBool) {
-            return onGroupSetup([function] { return function() ? SetupResult::StopWithDone
-                                                               : SetupResult::StopWithError; });
-        }
-        return onGroupSetup([function] { function(); return SetupResult::StopWithDone; });
+    template <typename Handler>
+    static GroupSetupHandler wrapHandler(Handler &&handler) {
+        // R, V stands for: Done[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isR || isV,
+            "Sync handler needs to take no arguments and has to return void or DoneResult. "
+            "The passed handler doesn't fulfill these requirements.");
+        return [handler] {
+            if constexpr (isR) {
+                return std::invoke(handler) == DoneResult::Success ? SetupResult::StopWithSuccess
+                                                                   : SetupResult::StopWithError;
+            }
+            std::invoke(handler);
+            return SetupResult::StopWithSuccess;
+        };
     };
 };
 
-template <typename Task>
+template <typename Task, typename Deleter = std::default_delete<Task>>
 class TaskAdapter : public TaskInterface
 {
 protected:
-    using Type = Task;
-    TaskAdapter() = default;
-    Task *task() { return &m_task; }
-    const Task *task() const { return &m_task; }
+    TaskAdapter() : m_task(new Task) {}
+    Task *task() { return m_task.get(); }
+    const Task *task() const { return m_task.get(); }
 
 private:
+    using TaskType = Task;
+    using DeleterType = Deleter;
     template <typename Adapter> friend class CustomTask;
-    Task m_task;
+    std::unique_ptr<Task, Deleter> m_task;
 };
 
 template <typename Adapter>
 class CustomTask final : public GroupItem
 {
 public:
-    using Task = typename Adapter::Type;
-    static_assert(std::is_base_of_v<TaskAdapter<Task>, Adapter>,
+    using Task = typename Adapter::TaskType;
+    using Deleter = typename Adapter::DeleterType;
+    static_assert(std::is_base_of_v<TaskAdapter<Task, Deleter>, Adapter>,
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
-    using EndHandler = std::function<void(const Task &)>;
-    static Adapter *createAdapter() { return new Adapter; }
-    CustomTask() : GroupItem({&createAdapter}) {}
-    template <typename SetupHandler>
-    CustomTask(SetupHandler &&setup, const EndHandler &done = {}, const EndHandler &error = {})
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
-                     wrapEnd(done), wrapEnd(error)}) {}
+    using TaskSetupHandler = std::function<SetupResult(Task &)>;
+    using TaskDoneHandler = std::function<DoneResult(const Task &, DoneWith)>;
 
-    template <typename SetupHandler>
-    CustomTask &onSetup(SetupHandler &&handler) {
-        setTaskSetupHandler(wrapSetup(std::forward<SetupHandler>(handler)));
-        return *this;
-    }
-    CustomTask &onDone(const EndHandler &handler) {
-        setTaskDoneHandler(wrapEnd(handler));
-        return *this;
-    }
-    CustomTask &onError(const EndHandler &handler) {
-        setTaskErrorHandler(wrapEnd(handler));
-        return *this;
-    }
+    template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
+    CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
+               CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
+                     wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
+    {}
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const GroupEndHandler &handler = {}) const {
+                          const std::function<void()> &handler = {}) const
+    {
         return GroupItem::withTimeout(*this, timeout, handler);
     }
 
 private:
-    template<typename SetupHandler>
-    static GroupItem::TaskSetupHandler wrapSetup(SetupHandler &&handler) {
-        static constexpr bool isDynamic = std::is_same_v<SetupResult,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
-        constexpr bool isVoid = std::is_same_v<void,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
-        static_assert(isDynamic || isVoid,
-                "Task setup handler needs to take (Task &) as an argument and has to return "
-                "void or SetupResult. The passed handler doesn't fulfill these requirements.");
-        return [=](TaskInterface &taskInterface) {
+    static Adapter *createAdapter() { return new Adapter; }
+
+    template <typename Handler>
+    static InterfaceSetupHandler wrapSetup(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, TaskSetupHandler>)
+            return {}; // When user passed {} for the setup handler.
+        // R, V stands for: Setup[R]esult, [V]oid
+        static constexpr bool isR = isInvocable<SetupResult, Handler, Task &>();
+        static constexpr bool isV = isInvocable<void, Handler, Task &>();
+        static_assert(isR || isV,
+            "Task setup handler needs to take (Task &) as an argument and has to return void or "
+            "SetupResult. The passed handler doesn't fulfill these requirements.");
+        return [handler](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
-            if constexpr (isDynamic)
+            if constexpr (isR)
                 return std::invoke(handler, *adapter.task());
             std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
         };
     };
 
-    static TaskEndHandler wrapEnd(const EndHandler &handler) {
-        if (!handler)
-            return {};
-        return [handler](const TaskInterface &taskInterface) {
+    template <typename Handler>
+    static InterfaceDoneHandler wrapDone(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
+            return {}; // When user passed {} for the done handler.
+        // R, V, T, D stands for: Done[R]esult, [V]oid, [T]ask, [D]oneWith
+        static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
+        static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
+        static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+        static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isVTD = isInvocable<void, Handler, const Task &, DoneWith>();
+        static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isRTD || isRT || isRD || isR || isVTD || isVT || isVD || isV,
+            "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
+            "(DoneWith) or (void) as arguments and has to return void or DoneResult. "
+            "The passed handler doesn't fulfill these requirements.");
+        return [handler](const TaskInterface &taskInterface, DoneWith result) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            handler(*adapter.task());
+            if constexpr (isRTD)
+                return std::invoke(handler, *adapter.task(), result);
+            if constexpr (isRT)
+                return std::invoke(handler, *adapter.task());
+            if constexpr (isRD)
+                return std::invoke(handler, result);
+            if constexpr (isR)
+                return std::invoke(handler);
+            if constexpr (isVTD)
+                std::invoke(handler, *adapter.task(), result);
+            else if constexpr (isVT)
+                std::invoke(handler, *adapter.task());
+            else if constexpr (isVD)
+                std::invoke(handler, result);
+            else if constexpr (isV)
+                std::invoke(handler);
+            return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
     };
 };
-
-class TaskTreePrivate;
 
 class TASKING_EXPORT TaskTree final : public QObject
 {
@@ -394,64 +527,57 @@ public:
     void setRecipe(const Group &recipe);
 
     void start();
-    void stop();
+    void cancel();
     bool isRunning() const;
 
     // Helper methods. They execute a local event loop with ExcludeUserInputEvents.
     // The passed future is used for listening to the cancel event.
     // Don't use it in main thread. To be used in non-main threads or in auto tests.
-    bool runBlocking();
-    bool runBlocking(const QFuture<void> &future);
-    static bool runBlocking(const Group &recipe,
-                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
-    static bool runBlocking(const Group &recipe, const QFuture<void> &future,
-                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    DoneWith runBlocking();
+    DoneWith runBlocking(const QFuture<void> &future);
+    static DoneWith runBlocking(const Group &recipe,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
 
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
-    template <typename StorageStruct, typename StorageHandler>
-    void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
-                                                         StorageStruct &>;
-        static_assert(isInvokable,
+    template <typename StorageStruct, typename Handler>
+    void onStorageSetup(const Storage<StorageStruct> &storage, Handler &&handler) {
+        static_assert(std::is_invocable_v<std::decay_t<Handler>, StorageStruct &>,
                       "Storage setup handler needs to take (Storage &) as an argument. "
-                      "The passed handler doesn't fulfill these requirements.");
+                      "The passed handler doesn't fulfill this requirement.");
         setupStorageHandler(storage,
-                            wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
+                            wrapHandler<StorageStruct>(std::forward<Handler>(handler)), {});
     }
-    template <typename StorageStruct, typename StorageHandler>
-    void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
-                                                         const StorageStruct &>;
-        static_assert(isInvokable,
+    template <typename StorageStruct, typename Handler>
+    void onStorageDone(const Storage<StorageStruct> &storage, Handler &&handler) {
+        static_assert(std::is_invocable_v<std::decay_t<Handler>, const StorageStruct &>,
                       "Storage done handler needs to take (const Storage &) as an argument. "
-                      "The passed handler doesn't fulfill these requirements.");
-        setupStorageHandler(storage,
-                            {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
+                      "The passed handler doesn't fulfill this requirement.");
+        setupStorageHandler(storage, {},
+                            wrapHandler<const StorageStruct>(std::forward<Handler>(handler)));
     }
 
 signals:
     void started();
-    void done();
-    void errorOccurred();
+    void done(DoneWith result);
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:
-    using StorageVoidHandler = std::function<void(void *)>;
-    void setupStorageHandler(const TreeStorageBase &storage,
-                             StorageVoidHandler setupHandler,
-                             StorageVoidHandler doneHandler);
-    template <typename StorageStruct, typename StorageHandler>
-    StorageVoidHandler wrapHandler(StorageHandler &&handler) {
-        return [=](void *voidStruct) {
-            StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
+    void setupStorageHandler(const StorageBase &storage,
+                             StorageBase::StorageHandler setupHandler,
+                             StorageBase::StorageHandler doneHandler);
+    template <typename StorageStruct, typename Handler>
+    StorageBase::StorageHandler wrapHandler(Handler &&handler) {
+        return [handler](void *voidStruct) {
+            auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);
         };
     }
 
-    friend class TaskTreePrivate;
     TaskTreePrivate *d;
 };
 
@@ -459,6 +585,8 @@ class TASKING_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
 {
 public:
     TaskTreeTaskAdapter();
+
+private:
     void start() final;
 };
 
@@ -467,9 +595,9 @@ class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::millis
 public:
     TimeoutTaskAdapter();
     ~TimeoutTaskAdapter();
-    void start() final;
 
 private:
+    void start() final;
     std::optional<int> m_timerId;
 };
 

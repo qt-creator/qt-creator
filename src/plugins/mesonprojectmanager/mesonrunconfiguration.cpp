@@ -7,10 +7,14 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>
+
+#include <debugger/debuggerruncontrol.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -75,11 +79,29 @@ public:
     UseDyldSuffixAspect useDyldSuffix{this};
 };
 
-MesonRunConfigurationFactory::MesonRunConfigurationFactory()
+// MesonRunConfigurationFactory
+
+class MesonRunConfigurationFactory final : public RunConfigurationFactory
 {
-    registerRunConfiguration<MesonRunConfiguration>("MesonProjectManager.MesonRunConfiguration");
-    addSupportedProjectType(Constants::Project::ID);
-    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+public:
+    MesonRunConfigurationFactory()
+    {
+        registerRunConfiguration<MesonRunConfiguration>(Constants::MESON_RUNCONFIG_ID);
+        addSupportedProjectType(Constants::Project::ID);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    }
+};
+
+void setupMesonRunConfiguration()
+{
+    static MesonRunConfigurationFactory theMesonRunConfigurationFactory;
+}
+
+void setupMesonRunAndDebugWorkers()
+{
+    using namespace Debugger;
+    static SimpleTargetRunnerFactory theMesonRunWorkerFactory({Constants::MESON_RUNCONFIG_ID});
+    static SimpleDebugRunnerFactory theMesonDebugRunWorkerFactory({Constants::MESON_RUNCONFIG_ID});
 }
 
 } // MesonProjectManager::Internal

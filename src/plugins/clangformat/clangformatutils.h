@@ -26,8 +26,8 @@ QString projectUniqueId(ProjectExplorer::Project *project);
 
 bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project);
 
-bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
-bool getCurrentOverriddenSettings(const Utils::FilePath &filePath);
+bool getProjectCustomSettings(const ProjectExplorer::Project *project);
+bool getCurrentCustomSettings(const Utils::FilePath &filePath);
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
     const ProjectExplorer::Project *project);
@@ -40,11 +40,17 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
 void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
                               const CppEditor::CppCodeStyleSettings &settings);
 
-bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
+bool getProjectCustomSettings(const ProjectExplorer::Project *project);
 
 void addQtcStatementMacros(clang::format::FormatStyle &style);
 clang::format::FormatStyle qtcStyle();
 clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreferences *codeStyle);
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
-}
+
+Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+                                                    clang::format::FormatStyle &style);
+Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+                                                 clang::format::FormatStyle &style);
+
+} // ClangFormat

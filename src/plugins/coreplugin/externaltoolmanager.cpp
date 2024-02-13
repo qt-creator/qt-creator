@@ -6,7 +6,6 @@
 #include "externaltool.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
-#include "icontext.h"
 #include "icore.h"
 #include "messagemanager.h"
 #include "actionmanager/actionmanager.h"
@@ -114,7 +113,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
             if (isPreset) {
                 // preset that was changed
                 ExternalTool *other = tools->value(tool->id());
-                other->setPreset(QSharedPointer<ExternalTool>(tool));
+                other->setPreset(std::shared_ptr<ExternalTool>(tool));
             } else {
                 qWarning() << Tr::tr("Error: External tool in %1 has duplicate id").arg(fileName);
                 delete tool;
@@ -123,7 +122,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
         }
         if (isPreset) {
             // preset that wasn't changed --> save original values
-            tool->setPreset(QSharedPointer<ExternalTool>(new ExternalTool(tool)));
+            tool->setPreset(std::shared_ptr<ExternalTool>(new ExternalTool(tool)));
         }
         tools->insert(tool->id(), tool);
         (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
@@ -202,16 +201,16 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
                 action = d->m_actions.value(toolId);
                 command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
             } else {
-                action = new QAction(tool->displayName(), m_instance);
-                d->m_actions.insert(toolId, action);
-                connect(action, &QAction::triggered, tool, [tool] {
+                ActionBuilder external(m_instance, externalToolsPrefix.withSuffix(toolId));
+                external.setCommandAttribute(Command::CA_UpdateText);
+                external.addOnTriggered(tool, [tool] {
                     auto runner = new ExternalToolRunner(tool);
                     if (runner->hasError())
                         MessageManager::writeFlashing(runner->errorString());
                 });
-
-                command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId));
-                command->setAttribute(Command::CA_UpdateText);
+                action = external.contextAction();
+                d->m_actions.insert(toolId, action);
+                command = external.command();
             }
             action->setText(tool->displayName());
             action->setToolTip(tool->description());

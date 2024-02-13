@@ -44,6 +44,7 @@ public:
     // of the subprocess. The following subprocess classes are defined:
 
     SUB_PROCESS(SimpleTest);
+    SUB_PROCESS(ChannelEchoer);
     SUB_PROCESS(ExitCode);
     SUB_PROCESS(RunBlockingStdOut);
     SUB_PROCESS(LineCallback);
@@ -81,8 +82,7 @@ private:
     const Utils::Environment m_environment;
 };
 
-static const char s_simpleTestData[] = "Test process successfully executed.";
-static const char s_runBlockingStdOutSubProcessMagicWord[] = "42";
+static const char s_runBlockingStdOutSubProcessMagicWord[] = "MAGIC_WORD";
 
 // Expect ending lines detected at '|':
 static const char s_lineCallbackData[] =

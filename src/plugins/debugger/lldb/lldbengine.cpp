@@ -179,8 +179,8 @@ void LldbEngine::setupEngine()
 
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
     Environment environment = runParameters().debugger.environment;
-    environment.appendOrSet("QT_CREATOR_LLDB_PROCESS", "1");
-    environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
+    environment.set("QT_CREATOR_LLDB_PROCESS", "1");
+    environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
     DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
 
     if (lldbCmd.osType() == OsTypeLinux) {
@@ -213,7 +213,8 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::handleLldbStarted()
 {
-    m_lldbProc.waitForReadyRead(1000);
+    using namespace std::chrono_literals;
+    m_lldbProc.waitForReadyRead(1s);
 
     showStatusMessage(Tr::tr("Setting up inferior..."));
 
@@ -289,21 +290,23 @@ void LldbEngine::handleLldbStarted()
         cmd2.arg("attachpid", attachedPID);
     } else {
         cmd2.arg("startmode", rp.startMode);
-        // it is better not to check the start mode on the python sid (as we would have to duplicate the
-        // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-        QTC_CHECK(rp.attachPID.isValid() && (rp.startMode == AttachToRemoteProcess
-                                             || rp.startMode == AttachToLocalProcess
-                                             || rp.startMode == AttachToRemoteServer));
-        cmd2.arg("attachpid", rp.attachPID.pid());
-        cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
-                                                           : rp.deviceSymbolsRoot);
-        cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
-                                   || rp.startMode == AttachToRemoteServer)
-                                  ? rp.remoteChannel : QString()));
-        QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
-                                              || rp.startMode == AttachToLocalProcess
-                                              || rp.startMode == AttachToRemoteServer));
-        m_continueAtNextSpontaneousStop = false;
+        if (rp.startMode != StartInternal) {
+            // it is better not to check the start mode on the python sid (as we would have to duplicate the
+            // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
+            QTC_CHECK(rp.attachPID.isValid() && (rp.startMode == AttachToRemoteProcess
+                                                 || rp.startMode == AttachToLocalProcess
+                                                 || rp.startMode == AttachToRemoteServer));
+            cmd2.arg("attachpid", rp.attachPID.pid());
+            cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
+                                                               : rp.deviceSymbolsRoot);
+            cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
+                                       || rp.startMode == AttachToRemoteServer)
+                                      ? rp.remoteChannel : QString()));
+            QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
+                                                  || rp.startMode == AttachToLocalProcess
+                                                  || rp.startMode == AttachToRemoteServer));
+            m_continueAtNextSpontaneousStop = false;
+        }
     }
 
     cmd2.callback = [this](const DebuggerResponse &response) {

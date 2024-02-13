@@ -164,8 +164,8 @@ GroupItem AbstractProcessStep::defaultProcessTask()
     const auto onSetup = [this](Process &process) {
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
-    const auto onEnd = [this](const Process &process) { handleProcessDone(process); };
-    return ProcessTask(onSetup, onEnd, onEnd);
+    const auto onDone = [this](const Process &process) { handleProcessDone(process); };
+    return ProcessTask(onSetup, onDone);
 }
 
 bool AbstractProcessStep::setupProcess(Process &process)
@@ -190,6 +190,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
     envWithPwd.set("PWD", workingDir.path());
+    process.setProcessMode(d->m_param.processMode());
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
@@ -283,7 +284,7 @@ void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
 
 GroupItem AbstractProcessStep::runRecipe()
 {
-    return Group { ignoreReturnValue() ? finishAllAndDone : stopOnError, defaultProcessTask() };
+    return Group { ignoreReturnValue() ? finishAllAndSuccess : stopOnError, defaultProcessTask() };
 }
 
 } // namespace ProjectExplorer

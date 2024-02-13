@@ -885,10 +885,10 @@ QString PropertyListProxyModel::parentName() const
 
 PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m_model(parent)
 {
-    connect(&m_nameCombboBox, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_nameCombboBox, &StudioQmlComboBoxBackend::activated, this, [this] {
         handleNameChanged();
     });
-    connect(&m_idCombboBox, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_idCombboBox, &StudioQmlComboBoxBackend::activated, this, [this] {
         handleIdChanged();
     });
 

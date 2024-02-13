@@ -166,7 +166,7 @@ public:
         const bool reindent = true;
         const bool openEditor = false;
         const Utils::FilePath newFilePath = newFileName;
-        if (!refactoring.createFile(newFileName, newComponentSource, reindent, openEditor))
+        if (!refactoring.file(newFileName)->create(newComponentSource, reindent, openEditor))
             return;
 
         if (path.toString() == currentFileName.toFileInfo().path()) {
@@ -190,7 +190,6 @@ public:
         Utils::ChangeSet changes;
         changes.replace(start, end, replacement);
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(start, end + 1));
         currentFile->apply();
 
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
@@ -248,7 +247,7 @@ void performComponentFromObjectDef(QmlJSEditorWidget *editor,
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
-    QmlJSRefactoringFilePtr current = refactoring.file(Utils::FilePath::fromString(fileName));
+    QmlJSRefactoringFilePtr current = refactoring.qmlJSFile(Utils::FilePath::fromString(fileName));
 
     QmlJSQuickFixAssistInterface interface(editor, TextEditor::AssistReason::ExplicitlyInvoked);
     Operation operation(&interface, objDef);

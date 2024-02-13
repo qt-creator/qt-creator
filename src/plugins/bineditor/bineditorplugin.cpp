@@ -1,18 +1,29 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "bineditorplugin.h"
-
 #include "bineditorconstants.h"
 #include "bineditorservice.h"
 #include "bineditortr.h"
 #include "bineditorwidget.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/codecchooser.h>
+
+#include <utils/mimeconstants.h>
+#include <utils/reloadpromptutils.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -22,18 +33,6 @@
 #include <QRegularExpressionValidator>
 #include <QTextCodec>
 #include <QToolBar>
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/ifindsupport.h>
-#include <coreplugin/idocument.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/reloadpromptutils.h>
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 using namespace Core;
@@ -80,7 +79,7 @@ public:
         m_widget->highlightSearchResults(QByteArray());
     }
 
-    int find(const QByteArray &pattern, int pos, FindFlags findFlags, bool *wrapped)
+    qint64 find(const QByteArray &pattern, qint64 pos, FindFlags findFlags, bool *wrapped)
     {
         if (wrapped)
             *wrapped = false;
@@ -89,7 +88,7 @@ public:
             return pos;
         }
 
-        int res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
+        qint64 res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
         if (res < 0) {
             pos = (findFlags & FindBackward) ? -1 : 0;
             res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
@@ -112,7 +111,7 @@ public:
         if (m_contPos == -1)
             m_contPos = m_incrementalStartPos;
         bool wrapped;
-        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        qint64 found = find(pattern, m_contPos, findFlags, &wrapped);
         if (wrapped != m_incrementalWrappedState && (found >= 0)) {
             m_incrementalWrappedState = wrapped;
             showWrapIndicator(m_widget);
@@ -148,7 +147,7 @@ public:
                 m_contPos = m_widget->selectionStart()-1;
         }
         bool wrapped;
-        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        qint64 found = find(pattern, m_contPos, findFlags, &wrapped);
         if (wrapped)
             showWrapIndicator(m_widget);
         Result result;
@@ -189,7 +188,7 @@ public:
         IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
+        setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
         m_widget = parent;
         EditorService *es = m_widget->editorService();
         es->setFetchDataHandler([this](quint64 address) { provideData(address); });
@@ -324,11 +323,11 @@ private:
     BinEditorWidget *m_widget;
 };
 
-class BinEditor : public IEditor
+class BinEditorImpl: public IEditor
 {
     Q_OBJECT
 public:
-    BinEditor(BinEditorWidget *widget)
+    BinEditorImpl(BinEditorWidget *widget)
     {
         using namespace TextEditor;
         setWidget(widget);
@@ -354,9 +353,9 @@ public:
         widget->setEditor(this);
 
         connect(widget, &BinEditorWidget::cursorPositionChanged,
-                this, &BinEditor::updateCursorPosition);
+                this, &BinEditorImpl::updateCursorPosition);
         connect(m_addressEdit, &QLineEdit::editingFinished,
-                this, &BinEditor::jumpToAddress);
+                this, &BinEditorImpl::jumpToAddress);
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
@@ -367,7 +366,7 @@ public:
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditor() override
+    ~BinEditorImpl() override
     {
         delete m_widget;
     }
@@ -397,6 +396,33 @@ private:
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
     TextEditor::CodecChooser *m_codecChooser;
+};
+
+///////////////////////////////// BinEditor Services //////////////////////////////////
+
+class FactoryServiceImpl final : public QObject, public FactoryService
+{
+    Q_OBJECT
+    Q_INTERFACES(BinEditor::FactoryService)
+
+public:
+    EditorService *createEditorService(const QString &title0, bool wantsEditor) final
+    {
+        BinEditorWidget *widget = nullptr;
+        if (wantsEditor) {
+            QString title = title0;
+            IEditor *editor = EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
+            if (!editor)
+                return nullptr;
+            widget = qobject_cast<BinEditorWidget *>(editor->widget());
+            widget->setEditor(editor);
+        } else {
+            widget = new BinEditorWidget;
+            widget->setWindowTitle(title0);
+        }
+        return widget->editorService();
+    }
 };
 
 ///////////////////////////////// BinEditorPluginPrivate //////////////////////////////////
@@ -450,11 +476,11 @@ BinEditorFactory::BinEditorFactory()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setDisplayName(::Core::Tr::tr("Binary Editor"));
-    addMimeType(Constants::C_BINEDITOR_MIMETYPE);
+    addMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
 
     setEditorCreator([] {
         auto widget = new BinEditorWidget();
-        auto editor = new BinEditor(widget);
+        auto editor = new BinEditorImpl(widget);
 
         connect(dd->m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
         connect(dd->m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
@@ -479,38 +505,24 @@ BinEditorFactory::BinEditorFactory()
     });
 }
 
-///////////////////////////////// BinEditor Services //////////////////////////////////
-
-EditorService *FactoryServiceImpl::createEditorService(const QString &title0, bool wantsEditor)
-{
-    BinEditorWidget *widget = nullptr;
-    if (wantsEditor) {
-        QString title = title0;
-        IEditor *editor = EditorManager::openEditorWithContents(
-                    Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
-        if (!editor)
-            return nullptr;
-        widget = qobject_cast<BinEditorWidget *>(editor->widget());
-        widget->setEditor(editor);
-    } else {
-        widget = new BinEditorWidget;
-        widget->setWindowTitle(title0);
-    }
-    return widget->editorService();
-}
-
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin::~BinEditorPlugin()
+class BinEditorPlugin final : public ExtensionSystem::IPlugin
 {
-    delete dd;
-    dd = nullptr;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BinEditor.json")
 
-void BinEditorPlugin::initialize()
-{
-    dd = new BinEditorPluginPrivate;
-}
+    ~BinEditorPlugin() override
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new BinEditorPluginPrivate;
+    }
+};
 
 } // BinEditor::Internal
 

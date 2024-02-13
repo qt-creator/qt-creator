@@ -18,17 +18,64 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
-#include <stack>
+
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
 
+#include <QCryptographicHash>
+#include <QStandardPaths>
+#include <stack>
+
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#include <winioctl.h>
+
+// taken from qtbase/src/corelib/io/qfilesystemengine_win.cpp
+#if !defined(REPARSE_DATA_BUFFER_HEADER_SIZE)
+typedef struct _REPARSE_DATA_BUFFER {
+    ULONG  ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union {
+        struct {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            ULONG  Flags;
+            WCHAR  PathBuffer[1];
+        } SymbolicLinkReparseBuffer;
+        struct {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR  PathBuffer[1];
+        } MountPointReparseBuffer;
+        struct {
+            UCHAR  DataBuffer[1];
+        } GenericReparseBuffer;
+    };
+} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+#  define REPARSE_DATA_BUFFER_HEADER_SIZE  FIELD_OFFSET(REPARSE_DATA_BUFFER, GenericReparseBuffer)
+#endif // !defined(REPARSE_DATA_BUFFER_HEADER_SIZE)
+
+#ifndef FSCTL_SET_REPARSE_POINT
+#define FSCTL_SET_REPARSE_POINT CTL_CODE(FILE_DEVICE_FILE_SYSTEM,41,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#endif
+#endif
+
 using namespace Core;
 using namespace Utils;
 
 namespace CMakeProjectManager {
+
+#ifdef Q_OS_WIN
+static Q_LOGGING_CATEGORY(cmakeToolManagerLog, "qtc.cmake.toolmanager", QtWarningMsg);
+#endif
 
 class CMakeToolManagerPrivate
 {
@@ -36,6 +83,10 @@ public:
     Id m_defaultCMake;
     std::vector<std::unique_ptr<CMakeTool>> m_cmakeTools;
     Internal::CMakeToolSettingsAccessor m_accessor;
+    FilePath m_junctionsDir;
+    int m_junctionsHashLength = 32;
+
+    CMakeToolManagerPrivate();
 };
 
 class HtmlHandler : public rst::ContentHandler
@@ -170,13 +221,10 @@ public:
 };
 
 static CMakeToolManagerPrivate *d = nullptr;
-CMakeToolManager *CMakeToolManager::m_instance = nullptr;
+static CMakeToolManager *m_instance = nullptr;
 
 CMakeToolManager::CMakeToolManager()
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-
     qRegisterMetaType<QString *>();
 
     d = new CMakeToolManagerPrivate;
@@ -189,8 +237,6 @@ CMakeToolManager::CMakeToolManager()
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
-
-    CMakeKitAspect::createFactories();
 }
 
 CMakeToolManager::~CMakeToolManager()
@@ -224,7 +270,7 @@ bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
 
     d->m_cmakeTools.emplace_back(std::move(tool));
 
-    emit CMakeToolManager::m_instance->cmakeAdded(toolId);
+    emit m_instance->cmakeAdded(toolId);
 
     ensureDefaultCMakeToolIsValid();
 
@@ -316,6 +362,65 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
+static void createJunction(const FilePath &from, const FilePath &to)
+{
+#ifdef Q_OS_WIN
+    to.createDir();
+    const QString toString = to.path();
+
+    HANDLE handle = ::CreateFile((wchar_t *) toString.utf16(),
+                                 GENERIC_WRITE,
+                                 0,
+                                 nullptr,
+                                 OPEN_EXISTING,
+                                 FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+                                 nullptr);
+    if (handle == INVALID_HANDLE_VALUE) {
+        qCDebug(cmakeToolManagerLog())
+            << "Failed to open" << toString << "to create a junction." << ::GetLastError();
+        return;
+    }
+
+    QString fromString("\\??\\");
+    fromString.append(from.absoluteFilePath().nativePath());
+
+    auto fromStringLength = uint16_t(fromString.length() * sizeof(wchar_t));
+    auto toStringLength = uint16_t(toString.length() * sizeof(wchar_t));
+    auto reparseDataLength = fromStringLength + toStringLength + 12;
+
+    std::vector<char> buf(reparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, 0);
+    REPARSE_DATA_BUFFER &reparse = *reinterpret_cast<REPARSE_DATA_BUFFER *>(buf.data());
+
+    reparse.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+    reparse.ReparseDataLength = reparseDataLength;
+
+    reparse.MountPointReparseBuffer.SubstituteNameOffset = 0;
+    reparse.MountPointReparseBuffer.SubstituteNameLength = fromStringLength;
+    fromString.toWCharArray(reparse.MountPointReparseBuffer.PathBuffer);
+
+    reparse.MountPointReparseBuffer.PrintNameOffset = fromStringLength + sizeof(UNICODE_NULL);
+    reparse.MountPointReparseBuffer.PrintNameLength = toStringLength;
+    toString.toWCharArray(reparse.MountPointReparseBuffer.PathBuffer + fromString.length() + 1);
+
+    DWORD retsize = 0;
+    if (!::DeviceIoControl(handle,
+                           FSCTL_SET_REPARSE_POINT,
+                           &reparse,
+                           uint16_t(buf.size()),
+                           nullptr,
+                           0,
+                           &retsize,
+                           nullptr)) {
+        qCDebug(cmakeToolManagerLog()) << "Failed to create junction from" << fromString << "to"
+                                       << toString << "GetLastError:" << ::GetLastError();
+    }
+    ::CloseHandle(handle);
+#else
+    Q_UNUSED(from)
+    Q_UNUSED(to)
+#endif
+}
+
 QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
 {
     static QHash<FilePath, QString> map;
@@ -336,6 +441,32 @@ QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
 
     map[helpFile] = tooltip;
     return tooltip;
+}
+
+FilePath CMakeToolManager::mappedFilePath(const FilePath &path)
+{
+    if (!HostOsInfo::isWindowsHost())
+        return path;
+
+    if (path.needsDevice())
+        return path;
+
+    Internal::settings();
+    if (!Internal::settings().useJunctionsForSourceAndBuildDirectories())
+        return path;
+
+    if (!d->m_junctionsDir.isDir())
+        return path;
+
+    const auto hashPath = QString::fromUtf8(
+        QCryptographicHash::hash(path.path().toUtf8(), QCryptographicHash::Md5).toHex(0));
+    const auto fullHashPath = d->m_junctionsDir.pathAppended(
+        hashPath.left(d->m_junctionsHashLength));
+
+    if (!fullHashPath.exists())
+        createJunction(path, fullHashPath);
+
+    return fullHashPath.exists() ? fullHashPath : path;
 }
 
 QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
@@ -436,6 +567,36 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
     // signaling:
     if (oldId != d->m_defaultCMake)
         emit m_instance->defaultCMakeChanged();
+}
+
+void Internal::setupCMakeToolManager(QObject *guard)
+{
+    m_instance = new CMakeToolManager;
+    m_instance->setParent(guard);
+}
+
+CMakeToolManagerPrivate::CMakeToolManagerPrivate()
+{
+    if (HostOsInfo::isWindowsHost()) {
+        const QStringList locations = QStandardPaths::standardLocations(
+            QStandardPaths::GenericConfigLocation);
+        m_junctionsDir = FilePath::fromString(*std::min_element(locations.begin(), locations.end()))
+                             .pathAppended("QtCreator/Links");
+
+        if (Utils::qtcEnvironmentVariableIsSet("QTC_CMAKE_JUNCTIONS_DIR")) {
+            m_junctionsDir = FilePath::fromUserInput(
+                Utils::qtcEnvironmentVariable("QTC_CMAKE_JUNCTIONS_DIR"));
+        }
+        if (Utils::qtcEnvironmentVariableIsSet("QTC_CMAKE_JUNCTIONS_HASH_LENGTH")) {
+            bool ok = false;
+            const int hashLength
+                = Utils::qtcEnvironmentVariableIntValue("QTC_CMAKE_JUNCTIONS_HASH_LENGTH", &ok);
+            if (ok && hashLength >= 4 && hashLength < 32)
+                m_junctionsHashLength = hashLength;
+        }
+        if (!m_junctionsDir.exists())
+            m_junctionsDir.createDir();
+    }
 }
 
 } // CMakeProjectManager

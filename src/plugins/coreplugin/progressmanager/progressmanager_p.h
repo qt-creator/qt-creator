@@ -70,10 +70,11 @@ private:
     void removeOneOldTask();
     void removeTask(FutureProgress *task);
     void deleteTask(FutureProgress *task);
+    void updateApplicationLabelNow();
 
     QPointer<ProgressView> m_progressView;
     QList<FutureProgress *> m_taskList;
-    QMap<QFutureWatcher<void> *, Utils::Id> m_runningTasks;
+    QHash<QFutureWatcher<void> *, Utils::Id> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask = nullptr;
     StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
@@ -87,6 +88,8 @@ private:
     QPointer<QPropertyAnimation> m_opacityAnimation;
     bool m_progressViewPinned = false;
     bool m_hovered = false;
+    QTimer *m_appLabelUpdateTimer = nullptr;
+    QString m_appLabelText;
 };
 
 } // namespace Internal

@@ -253,6 +253,34 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
     return derivedStyle;
 }
 
+static bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole,
+                             DObject::VisualSecondaryRole rhsSecondaryRole,
+                             DObject::VisualPrimaryRole lhsPrimaryRole,
+                             DObject::VisualSecondaryRole lhsSecondaryRols)
+{
+    switch (rhsSecondaryRole) {
+    case DObject::SecondaryRoleNone:
+    case DObject::SecondaryRoleLighter:
+    case DObject::SecondaryRoleDarker:
+    case DObject::SecondaryRoleFlat:
+        switch (lhsSecondaryRols) {
+        case DObject::SecondaryRoleNone:
+        case DObject::SecondaryRoleLighter:
+        case DObject::SecondaryRoleDarker:
+        case DObject::SecondaryRoleFlat:
+            return lhsPrimaryRole == rhsPrimaryRole;
+        case DObject::SecondaryRoleSoften:
+        case DObject::SecondaryRoleOutline:
+            return false;
+        }
+        break;
+    case DObject::SecondaryRoleSoften:
+    case DObject::SecondaryRoleOutline:
+        return false;
+    }
+    return true;
+}
+
 const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject,
                                                   const Parameters *parameters)
 {
@@ -297,12 +325,10 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     }
     int depth = 0;
     if (!depths.isEmpty()) {
-        const QList<int> keys = Utils::sorted(depths.keys());
-        for (int d : keys) {
-            DepthProperties properties = depths.value(d);
-            if (properties.m_elementType == elementType
-                    && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole,
-                                        styledVisualPrimaryRole, styledVisualSecondaryRole)) {
+        for (auto it = depths.cbegin(); it != depths.cend(); ++it) {
+            if (it->m_elementType == elementType
+                && areStackingRoles(it->m_visualPrimaryRole, it->m_visualSecondaryRole,
+                                    styledVisualPrimaryRole, styledVisualSecondaryRole)) {
                 ++depth;
             } else {
                 depth = 0;
@@ -469,34 +495,6 @@ DefaultStyleEngine::ElementType DefaultStyleEngine::objectType(const DObject *ob
     else
         elementType = TypeOther;
     return elementType;
-}
-
-bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole,
-                                          DObject::VisualSecondaryRole rhsSecondaryRole,
-                                          DObject::VisualPrimaryRole lhsPrimaryRole,
-                                          DObject::VisualSecondaryRole lhsSecondaryRols)
-{
-    switch (rhsSecondaryRole) {
-    case DObject::SecondaryRoleNone:
-    case DObject::SecondaryRoleLighter:
-    case DObject::SecondaryRoleDarker:
-    case DObject::SecondaryRoleFlat:
-        switch (lhsSecondaryRols) {
-        case DObject::SecondaryRoleNone:
-        case DObject::SecondaryRoleLighter:
-        case DObject::SecondaryRoleDarker:
-        case DObject::SecondaryRoleFlat:
-            return lhsPrimaryRole == rhsPrimaryRole;
-        case DObject::SecondaryRoleSoften:
-        case DObject::SecondaryRoleOutline:
-            return false;
-        }
-        break;
-    case DObject::SecondaryRoleSoften:
-    case DObject::SecondaryRoleOutline:
-        return false;
-    }
-    return true;
 }
 
 QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals objectVisuals)

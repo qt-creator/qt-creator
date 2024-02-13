@@ -33,7 +33,6 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljstools/qmljstoolsconstants.h>
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
@@ -41,12 +40,19 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
+#include <texteditor/texteditor.h>
+
 #include <android/androidconstants.h>
+
+#include <utils/icon.h>
+#include <utils/mimeconstants.h>
+#include <utils/proxyaction.h>
 
 #include <QAction>
 #include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
+#include <QToolBar>
 
 using namespace ProjectExplorer;
 
@@ -108,7 +114,8 @@ public:
     void onEditorChanged(Core::IEditor *editor);
     void onEditorAboutToClose(Core::IEditor *editor);
     void setDirty();
-    void attachToEditor();
+    void attachToEditorManager();
+    void detachFromEditorManager();
     void checkEditor();
     void checkFile(const QString &fileName);
     void triggerPreview(const QString &changedFile, const QByteArray &contents);
@@ -154,12 +161,17 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
-    QAction *action = new QAction(Tr::tr("QML Preview"), this);
-    action->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
-    action->setEnabled(ProjectManager::startupProject() != nullptr);
-    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, action,
+    QAction *runPreviewAction = new QAction(Tr::tr("QML Preview"), this);
+    runPreviewAction->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
+    runPreviewAction->setEnabled(ProjectManager::startupProject() != nullptr);
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, runPreviewAction,
             &QAction::setEnabled);
-    connect(action, &QAction::triggered, this, [this]() {
+    connect(runPreviewAction, &QAction::triggered, this, [runPreviewAction, this] {
+        runPreviewAction->setEnabled(false);
+        attachToEditorManager();
+        setDirty();
+        onEditorChanged(Core::EditorManager::currentEditor());
+
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
@@ -170,19 +182,52 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(
-        Core::ActionManager::registerAction(action, "QmlPreview.RunPreview"),
+        Core::ActionManager::registerAction(runPreviewAction, "QmlPreview.RunPreview"),
         Constants::G_BUILD_RUN);
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
-    action = new QAction(Tr::tr("Preview File"), this);
-    connect(action, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
+    QAction *previewFileAction = new QAction(Tr::tr("Preview File"), this);
+    connect(previewFileAction, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
     menu->addAction(
-        Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
+        Core::ActionManager::registerAction(previewFileAction, "QmlPreview.PreviewFile",
+                                            Core::Context(Constants::C_PROJECT_TREE)),
         Constants::G_FILE_OTHER);
-    action->setVisible(false);
-    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action](Node *node) {
-        const FileNode *fileNode = node ? node->asFileNode() : nullptr;
-        action->setVisible(fileNode ? fileNode->fileType() == FileType::QML : false);
+    previewFileAction->setVisible(false);
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, previewFileAction,
+            [previewFileAction] (Node *node) {
+                const FileNode *fileNode = node ? node->asFileNode() : nullptr;
+                previewFileAction->setVisible(fileNode && fileNode->fileType() == FileType::QML);
+            });
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorOpened, this,
+            [runPreviewAction] (Core::IEditor *editor) {
+        if (!editor)
+            return;
+        if (!editor->document())
+            return;
+
+        if (const QString mimeType = editor->document()->mimeType();
+            mimeType != Utils::Constants::QML_MIMETYPE
+            && mimeType != Utils::Constants::QMLUI_MIMETYPE) {
+            return;
+        }
+
+        auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+        if (!textEditor)
+            return;
+        TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        if (!widget)
+            return;
+        QToolBar *toolBar = widget->toolBar();
+        if (!toolBar)
+            return;
+
+        const QIcon icon = Utils::Icon({
+            {":/utils/images/run_small.png", Utils::Theme::IconsRunToolBarColor},
+            {":/utils/images/eyeoverlay.png", Utils::Theme::IconsDebugColor}
+        }).icon();
+        Utils::ProxyAction *action =
+            Utils::ProxyAction::proxyActionWithIcon(runPreviewAction, icon);
+        toolBar->insertAction(nullptr, action);
     });
 
     m_parseThread.start();
@@ -192,8 +237,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     connect(q, &QmlPreviewPlugin::checkDocument, parser, &QmlPreviewParser::parse);
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
     connect(parser, &QmlPreviewParser::success, this, &QmlPreviewPluginPrivate::triggerPreview);
-
-    attachToEditor();
 }
 
 QmlPreviewPlugin::~QmlPreviewPlugin()
@@ -206,8 +249,8 @@ void QmlPreviewPlugin::initialize()
     d = new QmlPreviewPluginPrivate(this);
 
 #ifdef WITH_TESTS
-    addTest<QmlPreviewClientTest>();
-    addTest<QmlPreviewPluginTest>();
+    addTestCreator(createQmlPreviewClientTest);
+    addTestCreator(createQmlPreviewPluginTest);
 #endif
 }
 
@@ -400,9 +443,14 @@ void QmlPreviewPlugin::removePreview(RunControl *preview)
 {
     d->m_runningPreviews.removeOne(preview);
     emit runningPreviewsChanged(d->m_runningPreviews);
+    if (d->m_runningPreviews.isEmpty()) {
+        if (auto cmd = Core::ActionManager::command("QmlPreview.RunPreview"); cmd && cmd->action())
+            cmd->action()->setEnabled(true);
+        d->detachFromEditorManager();
+    }
 }
 
-void QmlPreviewPluginPrivate::attachToEditor()
+void QmlPreviewPluginPrivate::attachToEditorManager()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
@@ -411,31 +459,39 @@ void QmlPreviewPluginPrivate::attachToEditor()
             this, &QmlPreviewPluginPrivate::onEditorAboutToClose);
 }
 
+void QmlPreviewPluginPrivate::detachFromEditorManager()
+{
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    disconnect(editorManager, &Core::EditorManager::currentEditorChanged,
+               this, &QmlPreviewPluginPrivate::onEditorChanged);
+    disconnect(editorManager, &Core::EditorManager::editorAboutToClose,
+               this, &QmlPreviewPluginPrivate::onEditorAboutToClose);
+}
+
 void QmlPreviewPluginPrivate::checkEditor()
 {
-    if (m_runningPreviews.isEmpty())
-        return;
     QmlJS::Dialect::Enum dialect = QmlJS::Dialect::AnyLanguage;
     Core::IDocument *doc = m_lastEditor->document();
+    using namespace Utils::Constants;
     const QString mimeType = doc->mimeType();
-    if (mimeType == QmlJSTools::Constants::JS_MIMETYPE)
+    if (mimeType == JS_MIMETYPE)
         dialect = QmlJS::Dialect::JavaScript;
-    else if (mimeType == QmlJSTools::Constants::JSON_MIMETYPE)
+    else if (mimeType == JSON_MIMETYPE)
         dialect = QmlJS::Dialect::Json;
-    else if (mimeType == QmlJSTools::Constants::QML_MIMETYPE)
+    else if (mimeType == QML_MIMETYPE)
         dialect = QmlJS::Dialect::Qml;
 //  --- Can we detect those via mime types?
 //  else if (mimeType == ???)
 //      dialect = QmlJS::Dialect::QmlQtQuick1;
 //  else if (mimeType == ???)
 //      dialect = QmlJS::Dialect::QmlQtQuick2;
-    else if (mimeType == QmlJSTools::Constants::QBS_MIMETYPE)
+    else if (mimeType == QBS_MIMETYPE)
         dialect = QmlJS::Dialect::QmlQbs;
-    else if (mimeType == QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
+    else if (mimeType == QMLPROJECT_MIMETYPE)
         dialect = QmlJS::Dialect::QmlProject;
-    else if (mimeType == QmlJSTools::Constants::QMLTYPES_MIMETYPE)
+    else if (mimeType == QMLTYPES_MIMETYPE)
         dialect = QmlJS::Dialect::QmlTypeInfo;
-    else if (mimeType == QmlJSTools::Constants::QMLUI_MIMETYPE)
+    else if (mimeType == QMLUI_MIMETYPE)
         dialect = QmlJS::Dialect::QmlQtQuick2Ui;
     else
         dialect = QmlJS::Dialect::NoLanguage;

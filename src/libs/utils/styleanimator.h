@@ -99,7 +99,7 @@ public Q_SLOTS:
 
 protected:
     virtual bool isUpdateNeeded() const;
-    virtual void updateCurrentTime(int time) override;
+    void updateCurrentTime(int time) override;
 
 private:
     int m_delay;

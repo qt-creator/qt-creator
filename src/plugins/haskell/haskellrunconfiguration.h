@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace Haskell::Internal {
 
-class HaskellRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    HaskellRunConfigurationFactory();
-};
+void setupHaskellRunSupport();
 
 } // Haskell::Internal

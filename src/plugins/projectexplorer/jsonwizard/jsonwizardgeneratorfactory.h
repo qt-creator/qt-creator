@@ -69,33 +69,4 @@ private:
     QList<Utils::Id> m_typeIds;
 };
 
-namespace Internal {
-
-class FileGeneratorFactory : public JsonWizardGeneratorFactory
-{
-    Q_OBJECT
-
-public:
-    FileGeneratorFactory();
-
-    JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
-                                const QString &path, Utils::Id platform,
-                                const QVariantMap &variables) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-class ScannerGeneratorFactory : public JsonWizardGeneratorFactory
-{
-    Q_OBJECT
-
-public:
-    ScannerGeneratorFactory();
-
-    JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
-                                const QString &path, Utils::Id platform,
-                                const QVariantMap &variables) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

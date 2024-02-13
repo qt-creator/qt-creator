@@ -68,6 +68,11 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
+CppCodeModelSettings::CppCodeModelSettings()
+{
+    fromSettings(Core::ICore::settings());
+}
+
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
@@ -363,7 +368,7 @@ static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
     if (!clang.waitForFinished())
         return {};
     const FilePath resourceDir = FilePath::fromUserInput(QString::fromLocal8Bit(
-            clang.readAllRawStandardOutput().trimmed()));
+            clang.rawStdOut().trimmed()));
     if (resourceDir.isEmpty() || !resourceDir.exists())
         return {};
     const FilePath includeDir = resourceDir.pathAppended("include");
@@ -541,44 +546,81 @@ void ClangdProjectSettings::saveSettings()
 Store ClangdSettings::Data::toMap() const
 {
     Store map;
-    map.insert(useClangdKey(), useClangd);
-    map.insert(clangdPathKey(),
-               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
-                                                              : QString());
-    map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
-    map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
-    map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
-    map.insert(clangdCompletionRankingModelKey(), int(completionRankingModel));
-    map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
-    map.insert(clangdThreadLimitKey(), workerThreadLimit);
-    map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
-    map.insert(clangdSizeThresholdEnabledKey(), sizeThresholdEnabled);
-    map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
-    map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
-    map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
-    map.insert(checkedHardwareKey(), true);
-    map.insert(completionResultsKey(), completionResults);
+
+    map.insertValueWithDefault(useClangdKey(), useClangd, DefaultUseClangd);
+
+    const QString clangdPath = executableFilePath != fallbackClangdFilePath()
+                                   ? executableFilePath.toString()
+                                   : QString();
+
+    map.insertValueWithDefault(clangdPathKey(), clangdPath);
+
+    map.insertValueWithDefault(clangdIndexingKey(), indexingPriority != IndexingPriority::Off, true);
+    map.insertValueWithDefault(clangdIndexingPriorityKey(),
+                               int(indexingPriority),
+                               int(DefaultIndexingPriority));
+
+    map.insertValueWithDefault(clangdHeaderSourceSwitchModeKey(),
+                               int(headerSourceSwitchMode),
+                               int(DefaultHeaderSourceSwitchMode));
+
+    map.insertValueWithDefault(clangdCompletionRankingModelKey(),
+                               int(completionRankingModel),
+                               int(DefaultCompletionRankingModel));
+
+    map.insertValueWithDefault(clangdHeaderInsertionKey(),
+                               autoIncludeHeaders,
+                               DefaultAutoIncludeHeaders);
+
+    map.insertValueWithDefault(clangdThreadLimitKey(), workerThreadLimit, DefaultWorkerThreadLimit);
+
+    map.insertValueWithDefault(clangdDocumentThresholdKey(),
+                               documentUpdateThreshold,
+                               DefaultDocumentUpdateThreshold);
+
+    map.insertValueWithDefault(clangdSizeThresholdEnabledKey(),
+                               sizeThresholdEnabled,
+                               DefaultSizeThresholdEnabled);
+
+    map.insertValueWithDefault(clangdSizeThresholdKey(),
+                               sizeThresholdInKb,
+                               DefaultSizeThresholdInKb);
+
+    map.insertValueWithDefault(sessionsWithOneClangdKey(), sessionsWithOneClangd);
+
+    map.insertValueWithDefault(diagnosticConfigIdKey(),
+                               diagnosticConfigId.toSetting(),
+                               initialClangDiagnosticConfigId().toSetting());
+
+    if (haveCheckedHardwareReqirements != false)
+        map.insert(checkedHardwareKey(), true);
+
+    map.insertValueWithDefault(completionResultsKey(),
+                               completionResults,
+                               defaultCompletionResults());
     return map;
 }
 
 void ClangdSettings::Data::fromMap(const Store &map)
 {
-    useClangd = map.value(useClangdKey(), true).toBool();
+    useClangd = map.value(useClangdKey(), DefaultUseClangd).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
     indexingPriority = IndexingPriority(
-        map.value(clangdIndexingPriorityKey(), int(this->indexingPriority)).toInt());
+        map.value(clangdIndexingPriorityKey(), int(DefaultIndexingPriority)).toInt());
     const auto it = map.find(clangdIndexingKey());
     if (it != map.end() && !it->toBool())
         indexingPriority = IndexingPriority::Off;
-    headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
-                                                              int(headerSourceSwitchMode)).toInt());
-    completionRankingModel = CompletionRankingModel(map.value(clangdCompletionRankingModelKey(),
-                                                              int(completionRankingModel)).toInt());
-    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
-    workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
-    documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
-    sizeThresholdEnabled = map.value(clangdSizeThresholdEnabledKey(), false).toBool();
-    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), 1024).toLongLong();
+    headerSourceSwitchMode = HeaderSourceSwitchMode(
+        map.value(clangdHeaderSourceSwitchModeKey(), int(DefaultHeaderSourceSwitchMode)).toInt());
+    completionRankingModel = CompletionRankingModel(
+        map.value(clangdCompletionRankingModelKey(), int(DefaultCompletionRankingModel)).toInt());
+    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), DefaultAutoIncludeHeaders).toBool();
+    workerThreadLimit = map.value(clangdThreadLimitKey(), DefaultWorkerThreadLimit).toInt();
+    documentUpdateThreshold
+        = map.value(clangdDocumentThresholdKey(), DefaultDocumentUpdateThreshold).toInt();
+    sizeThresholdEnabled
+        = map.value(clangdSizeThresholdEnabledKey(), DefaultSizeThresholdEnabled).toBool();
+    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), DefaultSizeThresholdInKb).toLongLong();
     sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));
@@ -592,6 +634,12 @@ int ClangdSettings::Data::defaultCompletionResults()
     bool ok = false;
     const int userValue = qtcEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
     return ok ? userValue : 100;
+}
+
+CppCodeModelSettings &cppCodeModelSettings()
+{
+    static CppCodeModelSettings theCppCodeModelSettings;
+    return theCppCodeModelSettings;
 }
 
 } // namespace CppEditor

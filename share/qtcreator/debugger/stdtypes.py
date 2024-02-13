@@ -617,6 +617,35 @@ def qdumpHelper__std__string__MSVC(d, value, charType, format):
     d.putCharArrayHelper(data, size, charType, format)
 
 
+def qdump__std__basic_string_view(d, value):
+    innerType = value.type[0]
+    qdumpHelper_std__string_view(d, value, innerType, d.currentItemFormat())
+
+
+def qdump__std__string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char"), d.currentItemFormat())
+
+
+def qdump__std__u16string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char16_t"), d.currentItemFormat())
+
+
+def qdumpHelper_std__string_view(d, value, charType, format):
+    if d.isMsvcTarget():
+        qdumpHelper__std__string__view_MSVC(d, value, charType, format)
+        return
+
+    data = value["_M_str"].pointer()
+    size = int(value["_M_len"])
+    d.putCharArrayHelper(data, size, charType, format)
+
+
+def qdumpHelper__std__string__view_MSVC(d, value, charType, format):
+    data = value["_Mydata"].pointer()
+    size = int(value["_Mysize"])
+    d.putCharArrayHelper(data, size, charType, format)
+
+
 def qdump__std____weak_ptr(d, value):
     return qdump__std__shared_ptr(d, value)
 
@@ -666,6 +695,36 @@ def qdump__std__pair(d, value):
     key = key.value if key.encoding is None else "..."
     value = value.value if value.encoding is None else "..."
     d.putValue('(%s, %s)' % (key, value))
+
+
+def qdumpHelper_get_tuple_elements(d, tuple, value_typename, value_member):
+    """
+    Helper method that returns the elements of a tuple.
+    """
+    elems = []
+    other_members = []
+    for member in tuple.members(True):
+        if not member.type.templateArguments():
+            continue
+        if member.type.name.startswith(value_typename):
+            elems.append(member[value_member])
+        else:
+            other_members.append(member)
+    for member in other_members:
+        sub_elems = qdumpHelper_get_tuple_elements(d, member, value_typename, value_member)
+        elems = elems + sub_elems
+    return elems
+
+
+def qdump__std__tuple(d, value):
+    if d.isMsvcTarget():
+        elems = qdumpHelper_get_tuple_elements(d, value, "std::_Tuple_val", "_Val")
+    else:
+        elems = qdumpHelper_get_tuple_elements(d, value, "std::_Head_base", "_M_head_impl")
+    d.putItemCount(len(elems))
+    with Children(d):
+        for elem in elems:
+            d.putSubItem(0, elem)
 
 
 def qform__std__unordered_map():

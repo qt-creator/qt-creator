@@ -125,21 +125,21 @@ public:
     }
 };
 
-constexpr QmlDesigner::PropertyNameView linearX1Str = u8"x1";
-constexpr QmlDesigner::PropertyNameView linearX2Str = u8"x2";
-constexpr QmlDesigner::PropertyNameView linearY1Str = u8"y1";
-constexpr QmlDesigner::PropertyNameView linearY2Str = u8"y2";
+constexpr QmlDesigner::PropertyNameView linearX1Str = "x1";
+constexpr QmlDesigner::PropertyNameView linearX2Str = "x2";
+constexpr QmlDesigner::PropertyNameView linearY1Str = "y1";
+constexpr QmlDesigner::PropertyNameView linearY2Str = "y2";
 
-constexpr QmlDesigner::PropertyNameView radialCenterRadiusStr = u8"centerRadius";
-constexpr QmlDesigner::PropertyNameView radialCenterXStr = u8"centerX";
-constexpr QmlDesigner::PropertyNameView radialCenterYStr = u8"centerY";
-constexpr QmlDesigner::PropertyNameView radialFocalRadiusStr = u8"focalRadius";
-constexpr QmlDesigner::PropertyNameView radialFocalXStr = u8"focalX";
-constexpr QmlDesigner::PropertyNameView radialFocalYStr = u8"focalY";
+constexpr QmlDesigner::PropertyNameView radialCenterRadiusStr = "centerRadius";
+constexpr QmlDesigner::PropertyNameView radialCenterXStr = "centerX";
+constexpr QmlDesigner::PropertyNameView radialCenterYStr = "centerY";
+constexpr QmlDesigner::PropertyNameView radialFocalRadiusStr = "focalRadius";
+constexpr QmlDesigner::PropertyNameView radialFocalXStr = "focalX";
+constexpr QmlDesigner::PropertyNameView radialFocalYStr = "focalY";
 
-constexpr QmlDesigner::PropertyNameView conicalAngleStr = u8"angle";
-constexpr QmlDesigner::PropertyNameView conicalCenterXStr = u8"centerX";
-constexpr QmlDesigner::PropertyNameView conicalCenterYStr = u8"centerY";
+constexpr QmlDesigner::PropertyNameView conicalAngleStr = "angle";
+constexpr QmlDesigner::PropertyNameView conicalCenterXStr = "centerX";
+constexpr QmlDesigner::PropertyNameView conicalCenterYStr = "centerY";
 
 constexpr ShapeGradientPropertyData defaultLinearShapeGradients[] = {
     {linearX1Str,

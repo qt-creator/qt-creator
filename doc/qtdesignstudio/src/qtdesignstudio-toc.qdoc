@@ -204,7 +204,6 @@
                             \list
                                 \li \l{Semantic Highlighting}
                                 \li \l{Checking Code Syntax}
-                                \li \l{Completing Code}
                                 \li \l{Indent text or code}
                                 \li \l{Behavior}
                                 \li \l{Qt Quick Code Style}
@@ -218,10 +217,9 @@
                                 \li \l{Jump to the Code}
                             \endlist
                         \li \l{Refactoring}
-                        \li \l{Applying Refactoring Actions}
                         \li \l{Configuring the Editor}
                             \list
-                                \li \l{Specifying Code View Settings}
+                                \li \l{Font & Colors}
                             \endlist
                     \endlist
                 \li \l{Debugging and Profiling}

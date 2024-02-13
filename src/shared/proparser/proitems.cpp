@@ -223,14 +223,9 @@ ProString &ProString::append(const ProStringList &other, bool *pending, bool ski
         if (!m_length && sz == startIdx + 1) {
             *this = other.at(startIdx);
         } else {
-            int totalLength = sz - startIdx;
-            for (int i = startIdx; i < sz; ++i)
-                totalLength += other.at(i).size();
             bool putSpace = false;
             if (pending && !*pending && m_length)
                 putSpace = true;
-            else
-                totalLength--;
 
             m_string = toQString();
             m_offset = 0;

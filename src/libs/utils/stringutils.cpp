@@ -346,6 +346,18 @@ QString quoteAmpersands(const QString &text)
     return result.replace("&", "&&");
 }
 
+QString asciify(const QString &input)
+{
+    QString result;
+    for (const QChar &c : input) {
+        if (c.isPrint() && c.unicode() < 128)
+            result.append(c);
+        else
+            result.append(QString::fromLatin1("u%1").arg(c.unicode(), 4, 16, QChar('0')));
+    }
+    return result;
+}
+
 QString formatElapsedTime(qint64 elapsed)
 {
     elapsed += 500; // round up

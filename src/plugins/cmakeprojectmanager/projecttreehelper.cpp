@@ -4,6 +4,7 @@
 #include "projecttreehelper.h"
 
 #include "cmakeproject.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -98,7 +99,7 @@ void addCMakePresets(FolderNode *root, const Utils::FilePath &sourceDir)
     presetFileNames << "CMakeUserPresets.json";
 
     const CMakeProject *cp = static_cast<const CMakeProject *>(
-        ProjectManager::projectForFile(sourceDir.pathAppended("CMakeLists.txt")));
+        ProjectManager::projectForFile(sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT)));
 
     if (cp && cp->presetsData().include)
         presetFileNames.append(cp->presetsData().include.value());

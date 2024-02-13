@@ -24,6 +24,10 @@ tmpSettingsDir = ''
 testSettings.logScreenshotOnFail = True
 testSettings.logScreenshotOnError = True
 
+# internally used
+__PYKIT__ = "__SQUISH_MARKER_PYKIT__"
+# end of internally used
+
 source("../../shared/classes.py")
 source("../../shared/utils.py")
 source("../../shared/fs_utils.py")

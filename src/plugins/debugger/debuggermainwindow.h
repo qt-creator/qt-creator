@@ -7,6 +7,7 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/statuslabel.h>
+#include <utils/storekey.h>
 
 #include <QAction>
 #include <QPointer>
@@ -37,13 +38,33 @@ class PerspectiveState
 public:
     static const char *savesHeaderKey();
 
-    QByteArray mainWindowState;
+    bool hasWindowState() const;
+
+    bool restoreWindowState(FancyMainWindow *mainWindow);
+
+    Store mainWindowState;
     QVariantHash headerViewStates;
 
+    Store toSettings() const;
+    static PerspectiveState fromSettings(const Store &settings);
+
+    // legacy for up to QtC 12, operators for direct QVariant conversion
     friend QDataStream &operator>>(QDataStream &ds, PerspectiveState &state)
-        { return ds >> state.mainWindowState >> state.headerViewStates; }
+    {
+        QByteArray mainWindowStateLegacy;
+        ds >> mainWindowStateLegacy >> state.headerViewStates;
+        // the "legacy" state is just the QMainWindow::saveState(), which is
+        // saved under "State" in the FancyMainWindow state
+        state.mainWindowState.clear();
+        state.mainWindowState.insert("State", mainWindowStateLegacy);
+        return ds;
+    }
     friend QDataStream &operator<<(QDataStream &ds, const PerspectiveState &state)
-        { return ds << state.mainWindowState << state.headerViewStates; }
+    {
+        // the "legacy" state is just the QMainWindow::saveState(), which is
+        // saved under "State" in the FancyMainWindow state
+        return ds << state.mainWindowState.value("State") << state.headerViewStates;
+    }
 };
 
 class DEBUGGER_EXPORT Perspective : public QObject

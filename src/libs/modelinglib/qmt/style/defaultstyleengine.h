@@ -54,11 +54,6 @@ private:
 
     ElementType objectType(const DObject *object);
 
-    bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole,
-                          DObject::VisualSecondaryRole rhsSecondaryRole,
-                          DObject::VisualPrimaryRole lhsPrimaryRole,
-                          DObject::VisualSecondaryRole lhsSecondaryRols);
-
     QColor baseColor(ElementType elementType, ObjectVisuals objectVisuals);
     QColor lineColor(ElementType elementType, const ObjectVisuals &objectVisuals);
     QColor fillColor(ElementType elementType, const ObjectVisuals &objectVisuals);

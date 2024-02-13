@@ -7,7 +7,6 @@
 #include "cppchecksymbols.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditordocument.h"
-#include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
@@ -150,7 +149,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextD
 {
     using namespace Internal;
 
-    const CppCodeModelSettings *cms = CppEditorPlugin::instance()->codeModelSettings();
+    const CppCodeModelSettings *cms = &cppCodeModelSettings();
 
     BaseEditorDocumentParser::Configuration config = m_parser->configuration();
     config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;

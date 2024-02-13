@@ -36,7 +36,7 @@ def main():
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
                 verifyBuildConfig(kit, config, True, True, True)
-                # explicitly build before start debugging for adding the executable as allowed program to WinFW
+                # explicitly build before start debugging
                 selectFromLocator("t rebuild", "Rebuild All Projects")
                 waitForCompile(300000)
                 if not checkCompile():
@@ -52,7 +52,6 @@ def main():
                     buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
                                             "debug")
                     switchViewTo(ViewConstants.EDIT)
-                    allowAppThroughWinFW(buildDir, projectName, None)
                 if not doSimpleDebugging(kit, config, expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')
@@ -60,8 +59,6 @@ def main():
                             clickButton(stopB)
                     except:
                         pass
-                if platform.system() in ('Microsoft' 'Windows'):
-                    deleteAppFromWinFW(buildDir, projectName, None)
                 # close application output window of current run to avoid mixing older output on the next run
                 ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
                 clickButton(waitForObject("{type='CloseButton' unnamed='1' visible='1' "

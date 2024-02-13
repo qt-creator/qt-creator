@@ -59,6 +59,7 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/mimeconstants.h>
 #include <utils/itemviews.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -72,9 +73,7 @@
 #include <QRegularExpression>
 
 #include <cmath>
-#include <new>
 #include <optional>
-#include <set>
 #include <unordered_map>
 #include <utility>
 
@@ -89,6 +88,8 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
+using Key = LanguageServerProtocol::Key;
+
 Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
@@ -99,7 +100,7 @@ class SymbolDetails : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    static constexpr char usrKey[] = "usr";
+    static constexpr Key usrKey{"usr"};
 
     // the unqualified name of the symbol
     QString name() const { return typedValue<QString>(nameKey); }
@@ -230,15 +231,15 @@ class DiagnosticsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableCategorySupport() { insert("categorySupport", true); }
-    void enableCodeActionsInline() {insert("codeActionsInline", true);}
+    void enableCategorySupport() { insert(Key{"categorySupport"}, true); }
+    void enableCodeActionsInline() {insert(Key{"codeActionsInline"}, true);}
 };
 
 class InactiveRegionsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableInactiveRegionsSupport() { insert("inactiveRegions", true); }
+    void enableInactiveRegionsSupport() { insert(Key{"inactiveRegions"}, true); }
 };
 
 class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
@@ -247,9 +248,9 @@ public:
     using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
 
     void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
-    { insert("publishDiagnostics", caps); }
+    { insert(Key{"publishDiagnostics"}, caps); }
     void setInactiveRegionsCapabilities(const InactiveRegionsCapabilities &caps)
-    { insert("inactiveRegionsCapabilities", caps); }
+    { insert(Key{"inactiveRegionsCapabilities"}, caps); }
 };
 
 static qint64 getRevision(const TextDocument *doc)
@@ -397,7 +398,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
 {
     setName(Tr::tr("clangd"));
     LanguageFilter langFilter;
-    using namespace CppEditor::Constants;
+    using namespace Utils::Constants;
     langFilter.mimeTypes = QStringList{C_HEADER_MIMETYPE, C_SOURCE_MIMETYPE,
             CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
             OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};
@@ -769,10 +770,9 @@ QList<Text::Range> ClangdClient::additionalDocumentHighlights(
         qobject_cast<CppEditor::CppEditorWidget *>(editorWidget), cursor);
 }
 
-RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
+RefactoringFilePtr ClangdClient::createRefactoringFile(const FilePath &filePath) const
 {
-    return new CppEditor::CppRefactoringChangesData(
-                CppEditor::CppModelManager::snapshot());
+    return CppEditor::CppRefactoringChanges(CppEditor::CppModelManager::snapshot()).file(filePath);
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -1596,7 +1596,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
-    auto actions = optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+    auto actions = optionalArray<LanguageServerProtocol::CodeAction>(Key{"codeActions"});
     if (!actions)
         return actions;
     static const QStringList badCodeActions{
@@ -1613,7 +1613,7 @@ std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 
 QString ClangdDiagnostic::category() const
 {
-    return typedValue<QString>("category");
+    return typedValue<QString>(Key{"category"});
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,

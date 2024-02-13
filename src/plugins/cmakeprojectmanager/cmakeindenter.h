@@ -3,21 +3,10 @@
 
 #pragma once
 
-#include "cmake_global.h"
-
 #include <texteditor/textindenter.h>
 
 namespace CMakeProjectManager::Internal {
 
-class CMAKE_EXPORT CMakeIndenter : public TextEditor::TextIndenter
-{
-public:
-    explicit CMakeIndenter(QTextDocument *doc);
-    bool isElectricCharacter(const QChar &ch) const override;
-
-    int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
-                  int cursorPositionInEditor = -1) override;
-};
+TextEditor::Indenter *createCMakeIndenter(QTextDocument *doc);
 
 } // CMakeProjectManager::Internal

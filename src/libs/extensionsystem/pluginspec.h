@@ -94,12 +94,14 @@ public:
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;
     bool isExperimental() const;
+    bool isDeprecated() const;
     bool isEnabledByDefault() const;
     bool isEnabledBySettings() const;
     bool isEffectivelyEnabled() const;
     bool isEnabledIndirectly() const;
     bool isForceEnabled() const;
     bool isForceDisabled() const;
+    bool isSoftLoadable() const;
     QVector<PluginDependency> dependencies() const;
     QJsonObject metaData() const;
     const PerformanceData &performanceData() const;

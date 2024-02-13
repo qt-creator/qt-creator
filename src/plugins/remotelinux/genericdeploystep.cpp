@@ -48,7 +48,8 @@ public:
         method.setSettingsKey("RemoteLinux.RsyncDeployStep.TransferMethod");
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         method.setDisplayName(Tr::tr("Transfer method:"));
-        method.addOption(Tr::tr("Use rsync if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use rsync or sftp if available, but prefer rsync. "
+                                "Otherwise use default transfer."));
         method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));
         method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
@@ -64,36 +65,22 @@ public:
     }
 
 private:
-    bool isDeploymentNecessary() const final;
     GroupItem deployRecipe() final;
-    GroupItem mkdirTask();
-    GroupItem transferTask();
+    GroupItem mkdirTask(const Storage<FilesToTransfer> &storage);
+    GroupItem transferTask(const Storage<FilesToTransfer> &storage);
 
     StringAspect flags{this};
     BoolAspect ignoreMissingFiles{this};
     SelectionAspect method{this};
-
-    mutable FilesToTransfer m_files;
 };
 
-bool GenericDeployStep::isDeploymentNecessary() const
-{
-    const QList<DeployableFile> files = target()->deploymentData().allFiles();
-    m_files.clear();
-    for (const DeployableFile &f : files)
-        m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-    if (ignoreMissingFiles())
-        Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
-    return !m_files.empty();
-}
-
-GroupItem GenericDeployStep::mkdirTask()
+GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
 {
     using ResultType = expected_str<void>;
 
-    const auto onSetup = [this](Async<ResultType> &async) {
+    const auto onSetup = [storage](Async<ResultType> &async) {
         FilePaths remoteDirs;
-        for (const FileToTransfer &file : std::as_const(m_files))
+        for (const FileToTransfer &file : *storage)
             remoteDirs << file.m_target.parentDir();
 
         FilePath::sort(remoteDirs);
@@ -124,62 +111,55 @@ GroupItem GenericDeployStep::mkdirTask()
         }
     };
 
-    return AsyncTask<ResultType>(onSetup, {}, onError);
+    return AsyncTask<ResultType>(onSetup, onError, CallDoneIf::Error);
 }
 
-static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileToTransfer)
+static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileToTransfer,
+                                                      FileTransferMethod preferred)
 {
     auto sourceDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_source);
     auto targetDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_target);
+    if (!sourceDevice || !targetDevice)
+        return FileTransferMethod::GenericCopy;
 
-    if (sourceDevice && targetDevice) {
-        // TODO: Check if the devices can reach each other via their ip
-        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()
-            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()) {
-            return FileTransferMethod::Rsync;
-        }
-
-        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()
-            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()) {
-            return FileTransferMethod::Sftp;
-        }
+    const auto devicesSupportMethod = [&](Id method) {
+        return sourceDevice->extraData(method).toBool() && targetDevice->extraData(method).toBool();
+    };
+    if (preferred == FileTransferMethod::Rsync
+        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_RSYNC)) {
+        preferred = FileTransferMethod::Sftp;
     }
-
-    return FileTransferMethod::GenericCopy;
+    if (preferred == FileTransferMethod::Sftp
+        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_SFTP)) {
+        preferred = FileTransferMethod::GenericCopy;
+    }
+    return preferred;
 }
 
-GroupItem GenericDeployStep::transferTask()
+GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storage)
 {
-    const auto setupHandler = [this](FileTransfer &transfer) {
-        FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
+    const auto onSetup = [this, storage](FileTransfer &transfer) {
+        FileTransferMethod preferredTransferMethod = FileTransferMethod::GenericCopy;
         if (method() == 0)
             preferredTransferMethod = FileTransferMethod::Rsync;
         else if (method() == 1)
             preferredTransferMethod = FileTransferMethod::Sftp;
-        else
-            preferredTransferMethod = FileTransferMethod::GenericCopy;
 
         FileTransferMethod transferMethod = preferredTransferMethod;
-
         if (transferMethod != FileTransferMethod::GenericCopy) {
-            for (const FileToTransfer &fileToTransfer : m_files) {
-                const FileTransferMethod supportedMethod = supportedTransferMethodFor(
-                    fileToTransfer);
-
-                if (supportedMethod != preferredTransferMethod) {
-                    transferMethod = FileTransferMethod::GenericCopy;
+            for (const FileToTransfer &fileToTransfer : *storage) {
+                transferMethod = effectiveTransferMethodFor(fileToTransfer, transferMethod);
+                if (transferMethod == FileTransferMethod::GenericCopy)
                     break;
-                }
             }
         }
-
         transfer.setTransferMethod(transferMethod);
 
         transfer.setRsyncFlags(flags());
-        transfer.setFilesToTransfer(m_files);
+        transfer.setFilesToTransfer(*storage);
         connect(&transfer, &FileTransfer::progress, this, &GenericDeployStep::handleStdOutData);
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
+    const auto onError = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
         if (result.m_error == QProcess::FailedToStart) {
             addErrorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
@@ -190,12 +170,37 @@ GroupItem GenericDeployStep::transferTask()
                             + "\n" + result.m_errorString);
         }
     };
-    return FileTransferTask(setupHandler, {}, errorHandler);
+    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem GenericDeployStep::deployRecipe()
 {
-    return Group { mkdirTask(), transferTask() };
+    const Storage<FilesToTransfer> storage;
+
+    const auto onSetup = [this, storage] {
+        const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
+        FilesToTransfer &files = *storage;
+        for (const DeployableFile &file : deployableFiles) {
+            if (!ignoreMissingFiles() || file.localFilePath().exists()) {
+                const FilePermissions permissions = file.isExecutable()
+                    ? FilePermissions::ForceExecutable : FilePermissions::Default;
+                files.append({file.localFilePath(),
+                              deviceConfiguration()->filePath(file.remoteFilePath()), permissions});
+            }
+        }
+        if (files.isEmpty()) {
+            addSkipDeploymentMessage();
+            return SetupResult::StopWithSuccess;
+        }
+        return SetupResult::Continue;
+    };
+
+    return Group {
+        storage,
+        onGroupSetup(onSetup),
+        mkdirTask(storage),
+        transferTask(storage)
+    };
 }
 
 // Factory

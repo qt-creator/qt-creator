@@ -9,7 +9,7 @@
 #include <QVersionNumber>
 
 namespace ProjectExplorer {
-class ToolChain;
+class Toolchain;
 }
 
 namespace Utils {
@@ -19,7 +19,7 @@ class InfoLabel;
 
 namespace McuSupport::Internal {
 
-class McuToolChainPackage;
+class McuToolchainPackage;
 
 class McuTarget : public QObject
 {
@@ -41,13 +41,13 @@ public:
               const Platform &platform,
               OS os,
               const Packages &packages,
-              const McuToolChainPackagePtr &toolChainPackage,
+              const McuToolchainPackagePtr &toolChainPackage,
               const McuPackagePtr &toolChainFilePackage,
               int colorDepth = UnspecifiedColorDepth);
 
     QVersionNumber qulVersion() const;
     Packages packages() const;
-    McuToolChainPackagePtr toolChainPackage() const;
+    McuToolchainPackagePtr toolChainPackage() const;
     McuPackagePtr toolChainFilePackage() const;
     Platform platform() const;
     OS os() const;
@@ -67,7 +67,7 @@ private:
     const Platform m_platform;
     const OS m_os;
     const Packages m_packages;
-    McuToolChainPackagePtr m_toolChainPackage;
+    McuToolchainPackagePtr m_toolChainPackage;
     McuPackagePtr m_toolChainFilePackage;
     const int m_colorDepth;
 }; // class McuTarget

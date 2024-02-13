@@ -4,6 +4,7 @@
 #include "qttestoutputreader.h"
 
 #include "qttestresult.h"
+#include "qttestframework.h"
 #include "../autotesttr.h"
 #include "../testtreeitem.h"
 
@@ -17,6 +18,12 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
+static QRegularExpression userFileLocation()
+{
+    static const QRegularExpression regex("^.*\\bfile://((?<file>\\S+))(:(?<line>\\d+))\\b.*$",
+                                          QRegularExpression::DotMatchesEverythingOption);
+    return regex;
+}
 static QString decode(const QString& original)
 {
     QString result(original);
@@ -110,6 +117,7 @@ QtTestOutputReader::QtTestOutputReader(Process *testApplication,
     , m_mode(mode)
     , m_testType(type)
 {
+    m_parseMessages = theQtTestFramework().parseMessages();
 }
 
 void QtTestOutputReader::processOutputLine(const QByteArray &outputLine)
@@ -277,6 +285,14 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             } else if (currentTag == QStringLiteral("TestCase")) {
                 sendFinishMessage(false);
             } else if (validEndTags.contains(currentTag.toString())) {
+                if (m_parseMessages && isTestMessage(m_result)) {
+                    const QRegularExpressionMatch match = userFileLocation().match(m_description);
+                    if (match.hasMatch()) {
+                        // we need to handle possible automatic masking done by qDebug()
+                        processLocationOutput(match.captured("file").replace("\\\\", "\\"),
+                                              match.captured("line"));
+                    }
+                }
                 sendCompleteInformation();
                 if (currentTag == QStringLiteral("Incident"))
                     m_dataTag.clear();
@@ -350,10 +366,15 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
 
     if (hasMatch(result)) {
         processResultOutput(match.captured(1).toLower().trimmed(), match.captured(2));
+        if (m_parseMessages && isTestMessage(m_result) && hasMatch(userFileLocation())) {
+            // we need to handle possible automatic masking done by qDebug()
+            processLocationOutput(match.captured("file").replace("\\\\", "\\"),
+                                  match.captured("line"));
+        }
     } else if (hasMatch(locationUnix)) {
-        processLocationOutput(match.captured(1));
+        processLocationOutput(match.captured("file"), match.captured("line"));
     } else if (hasMatch(locationWin)) {
-        processLocationOutput(match.captured(1));
+        processLocationOutput(match.captured("file"), match.captured("line"));
     } else if (hasMatch(benchDetails)) {
         m_description = match.captured(1);
     } else if (hasMatch(config)) {
@@ -412,15 +433,11 @@ void QtTestOutputReader::processResultOutput(const QString &result, const QStrin
     m_formerTestCase = m_testCase;
 }
 
-void QtTestOutputReader::processLocationOutput(const QString &fileWithLine)
+void QtTestOutputReader::processLocationOutput(const QStringView file, const QStringView line)
 {
-    QTC_ASSERT(fileWithLine.endsWith(')'), return);
-    int openBrace = fileWithLine.lastIndexOf('(');
-    QTC_ASSERT(openBrace != -1, return);
-    m_file = constructSourceFilePath(m_buildDir, fileWithLine.left(openBrace));
-    QString numberStr = fileWithLine.mid(openBrace + 1);
-    numberStr.chop(1);
-    m_lineNumber = numberStr.toInt();
+    QTC_ASSERT(!file.isEmpty(), return);
+    m_file = constructSourceFilePath(m_buildDir, file.toString());
+    m_lineNumber = m_file.isEmpty() ? 0 : line.toInt();
 }
 
 void QtTestOutputReader::processSummaryFinishOutput()

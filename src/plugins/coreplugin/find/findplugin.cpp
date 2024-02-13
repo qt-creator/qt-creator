@@ -267,20 +267,20 @@ void FindPrivate::setupMenu()
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
-    Command *cmd;
     mfind->addSeparator(Constants::G_FIND_FLAGS);
     mfind->addSeparator(Constants::G_FIND_ACTIONS);
 
     ActionContainer *mfindadvanced = ActionManager::createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(Tr::tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
-    m_openFindDialog = new QAction(Tr::tr("Open Advanced Find..."), this);
-    m_openFindDialog->setIconText(Tr::tr("Advanced..."));
-    cmd = ActionManager::registerAction(m_openFindDialog, Constants::ADVANCED_FIND);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+F")));
-    mfindadvanced->addAction(cmd);
-    connect(m_openFindDialog, &QAction::triggered,
-            this, [] { Find::openFindDialog(nullptr); });
+
+    ActionBuilder openFindDialog(this, Constants::ADVANCED_FIND);
+    openFindDialog.setText(Tr::tr("Open Advanced Find..."));
+    openFindDialog.setIconText(Tr::tr("Advanced..."));
+    openFindDialog.bindContextAction(&m_openFindDialog);
+    openFindDialog.setDefaultKeySequence(Tr::tr("Ctrl+Shift+F"));
+    openFindDialog.addToContainer(Constants::M_FIND_ADVANCED);
+    openFindDialog.addOnTriggered(this, [] { Find::openFindDialog(nullptr); });
 }
 
 static QString filterActionName(const IFindFilter *filter)
@@ -290,30 +290,30 @@ static QString filterActionName(const IFindFilter *filter)
 
 void FindPrivate::setupFilterMenuItems()
 {
-    Command *cmd;
-
-    ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
     const QList<IFindFilter *> sortedFilters = Utils::sorted(IFindFilter::allFindFilters(),
                                                              &IFindFilter::displayName);
     for (IFindFilter *filter : sortedFilters) {
-        QAction *action = new QAction(filterActionName(filter), this);
+        ActionBuilder findScope(this, base.withSuffix(filter->id()));
+        findScope.setText(filterActionName(filter));
         bool isEnabled = filter->isEnabled();
         if (isEnabled)
             haveEnabledFilters = true;
-        action->setEnabled(isEnabled);
-        cmd = ActionManager::registerAction(action, base.withSuffix(filter->id()));
-        cmd->setDefaultKeySequence(filter->defaultShortcut());
-        cmd->setAttribute(Command::CA_UpdateText);
-        mfindadvanced->addAction(cmd);
-        connect(action, &QAction::triggered, this, [filter] { Find::openFindDialog(filter); });
-        connect(filter, &IFindFilter::enabledChanged, this, [filter, action] {
-            action->setEnabled(filter->isEnabled());
+        findScope.setEnabled(isEnabled);
+        findScope.setDefaultKeySequence(filter->defaultShortcut());
+        findScope.setCommandAttribute(Command::CA_UpdateText);
+        findScope.addToContainer(Constants::M_FIND_ADVANCED);
+        findScope.addOnTriggered(this, [filter] { Find::openFindDialog(filter); });
+
+        QAction *findScopeAction = findScope.contextAction();
+        connect(filter, &IFindFilter::enabledChanged, this, [filter, findScopeAction] {
+            findScopeAction->setEnabled(filter->isEnabled());
             d->m_openFindDialog->setEnabled(d->isAnyFilterEnabled());
         });
-        connect(filter, &IFindFilter::displayNameChanged,
-                this, [filter, action] { action->setText(filterActionName(filter)); });
+        connect(filter, &IFindFilter::displayNameChanged, this, [filter, findScopeAction] {
+            findScopeAction->setText(filterActionName(filter));
+        });
     }
     d->m_findDialog->setFindFilters(sortedFilters);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);

@@ -12,7 +12,6 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppsemanticinfo.h>
@@ -55,8 +54,6 @@
 #include <QUrl>
 
 #include <memory>
-
-enum { indentation = 4 };
 
 Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
 
@@ -625,12 +622,23 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         Overview o;
         const QString className = o.prettyName(cl->name());
         const QString definition = location.prefix() + "void " + className + "::"
-            + functionNameWithParameterNames + "\n{\n" + QString(indentation, ' ') + "\n}\n"
+            + functionNameWithParameterNames + "\n{\n\n}\n"
             + location.suffix();
-        editor->insert(definition);
-        Core::EditorManager::openEditorAt({location.filePath(),
-                                           int(location.line() + location.prefix().count('\n') + 2),
-                                           indentation});
+        const RefactoringFilePtr file = refactoring.file(location.filePath());
+        const int insertionPos = Utils::Text::positionInText(file->document(),
+                                                             location.line(), location.column());
+        ChangeSet changeSet;
+        changeSet.insert(insertionPos, definition);
+        file->setChangeSet(changeSet);
+        file->apply();
+        const int indentationPos = file->document()->toPlainText().indexOf('}', insertionPos) - 1;
+        QTextCursor cursor(editor->textDocument()->document());
+        cursor.setPosition(indentationPos);
+        editor->textDocument()->autoIndent(cursor);
+        const int openPos = file->document()->toPlainText().indexOf('}', indentationPos) - 1;
+        int line, column;
+        Utils::Text::convertPosition(file->document(), openPos, &line, &column);
+        Core::EditorManager::openEditorAt({location.filePath(), line, column});
         return true;
     }
 

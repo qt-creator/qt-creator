@@ -6,16 +6,20 @@
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
 
-#include <QToolButton>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/inavigationwidgetfactory.h>
+
 #include <languageserverprotocol/callhierarchy.h>
+
 #include <texteditor/texteditor.h>
+
 #include <utils/delegates.h>
 #include <utils/navigationtreeview.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
 #include <QLayout>
+#include <QToolButton>
 
 using namespace Utils;
 using namespace TextEditor;
@@ -219,7 +223,7 @@ void CallHierarchy::updateHierarchyAtCursorPosition()
     if (!client)
         return;
 
-    if (!CallHierarchyFactory::supportsCallHierarchy(client, document))
+    if (!supportsCallHierarchy(client, document))
         return;
 
     TextDocumentPositionParams params;
@@ -258,14 +262,36 @@ void CallHierarchy::handlePrepareResponse(Client *client,
     }
 }
 
-CallHierarchyFactory::CallHierarchyFactory()
+class CallHierarchyFactory final : public Core::INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Call Hierarchy"));
-    setPriority(650);
-    setId(Constants::CALL_HIERARCHY_FACTORY_ID);
+public:
+    CallHierarchyFactory()
+    {
+        setDisplayName(Tr::tr("Call Hierarchy"));
+        setPriority(650);
+        setId(Constants::CALL_HIERARCHY_FACTORY_ID);
+    }
+
+    Core::NavigationView createWidget() final
+    {
+        auto h = new CallHierarchy;
+        h->updateHierarchyAtCursorPosition();
+
+        Icons::RELOAD_TOOLBAR.icon();
+        auto button = new QToolButton;
+        button->setIcon(Icons::RELOAD_TOOLBAR.icon());
+        button->setToolTip(Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
+        connect(button, &QToolButton::clicked, this, [h] { h->updateHierarchyAtCursorPosition(); });
+        return {h, {button}};
+    }
+};
+
+void setupCallHierarchyFactory()
+{
+    static CallHierarchyFactory theCallHierarchyFactory;
 }
 
-bool CallHierarchyFactory::supportsCallHierarchy(Client *client, const Core::IDocument *document)
+bool supportsCallHierarchy(Client *client, const Core::IDocument *document)
 {
     const QString methodName = PrepareCallHierarchyRequest::methodName;
     std::optional<bool> registered = client->dynamicCapabilities().isRegistered(methodName);
@@ -281,19 +307,6 @@ bool CallHierarchyFactory::supportsCallHierarchy(Client *client, const Core::IDo
         supported = client->capabilities().callHierarchyProvider().has_value();
     }
     return supported;
-}
-
-Core::NavigationView CallHierarchyFactory::createWidget()
-{
-    auto h = new CallHierarchy;
-    h->updateHierarchyAtCursorPosition();
-
-    Icons::RELOAD_TOOLBAR.icon();
-    auto button = new QToolButton;
-    button->setIcon(Icons::RELOAD_TOOLBAR.icon());
-    button->setToolTip(Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
-    connect(button, &QToolButton::clicked, this, [h] { h->updateHierarchyAtCursorPosition(); });
-    return {h, {button}};
 }
 
 } // namespace LanguageClient

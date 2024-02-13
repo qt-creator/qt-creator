@@ -76,7 +76,7 @@ void QmlEngineControlClient::messageReceived(const QByteArray &data)
 
     switch (message) {
     case EngineAboutToBeAdded:
-        handleWaiting(StartWaitingEngine, [&](){
+        handleWaiting(StartWaitingEngine, [this, id, name] {
             emit engineAboutToBeAdded(id, name);
         });
         break;
@@ -84,7 +84,7 @@ void QmlEngineControlClient::messageReceived(const QByteArray &data)
         emit engineAdded(id, name);
         break;
     case EngineAboutToBeRemoved:
-        handleWaiting(StopWaitingEngine, [&](){
+        handleWaiting(StopWaitingEngine, [this, id, name] {
             emit engineAboutToBeRemoved(id, name);
         });
         break;

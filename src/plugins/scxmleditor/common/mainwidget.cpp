@@ -346,7 +346,7 @@ void MainWidget::init()
 
     // Connect alignment change
     alignToolButton->setProperty("currentAlignment", ActionAlignLeft);
-    connect(alignToolButton, &QToolButton::clicked, this, [=] {
+    connect(alignToolButton, &QToolButton::clicked, this, [this, alignToolButton] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->alignStates(alignToolButton->property("currentAlignment").toInt());
@@ -354,7 +354,7 @@ void MainWidget::init()
 
     // Connect alignment change
     adjustToolButton->setProperty("currentAdjustment", ActionAdjustWidth);
-    connect(adjustToolButton, &QToolButton::clicked, this, [=] {
+    connect(adjustToolButton, &QToolButton::clicked, this, [this, adjustToolButton] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->adjustStates(adjustToolButton->property("currentAdjustment").toInt());
@@ -479,7 +479,7 @@ void MainWidget::addStateView(BaseItem *item)
     view->scene()->setWarningModel(m_errorPane->warningModel());
     view->setUiFactory(m_uiFactory);
 
-    connect(view, &QObject::destroyed, this, [=] {
+    connect(view, &QObject::destroyed, this, [this, view] {
         // TODO: un-lambdafy
         m_views.removeAll(view);
         m_document->popRootTag();

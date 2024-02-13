@@ -10,12 +10,16 @@
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
+
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitaspect.h>
+
 #include <utils/environment.h>
+#include <utils/mimeconstants.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 #include <utils/variablechooser.h>
@@ -80,7 +84,7 @@ JLSSettings::JLSSettings()
     m_settingsTypeId = Constants::JLS_SETTINGS_ID;
     m_name = "Java Language Server";
     m_startBehavior = RequiresProject;
-    m_languageFilter.mimeTypes = QStringList(Constants::JAVA_MIMETYPE);
+    m_languageFilter.mimeTypes = QStringList(Utils::Constants::JAVA_MIMETYPE);
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
         m_executable = javaPath;
@@ -291,16 +295,29 @@ void JLSClient::updateProjectFiles()
                 return;
             const FilePath packageSourceDir = FilePath::fromVariant(
                 node->data(Constants::AndroidPackageSourceDir));
-            FilePath sourceDir = packageSourceDir.pathAppended("src");
-            if (!sourceDir.exists())
-                return;
+
+            FilePath sourceDir = packageSourceDir.pathAppended("src/main/java");
+            if (!sourceDir.exists()) {
+                sourceDir = packageSourceDir.pathAppended("src");
+                if (!sourceDir.exists()) {
+                    return;
+                }
+            }
+
             sourceDir = sourceDir.relativeChildPath(projectDir);
-            const FilePath &sdkLocation = AndroidConfigurations::currentConfig().sdkLocation();
+
+            const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
+
+            const FilePath &sdkLocation = androidConfig().sdkLocation();
             const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
             const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                            .arg(targetSDK);
             FilePaths libs = {androidJar};
             libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
+
+            for (const QString &path : classPaths)
+                libs << FilePath::fromString(path);
+
             generateProjectFile(projectDir, qtSrc, project()->displayName());
             generateClassPathFile(projectDir, sourceDir, libs);
         }

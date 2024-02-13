@@ -91,7 +91,6 @@ private:
     void onCurrentTabChanged(int index);
     void onAutoHideButtonClicked();
     void onAutoHideDockAreaActionClicked();
-    void onAutoHideToActionClicked();
 
 protected:
     /**

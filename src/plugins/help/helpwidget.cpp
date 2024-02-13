@@ -240,7 +240,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
         connect(m_toggleSideBarAction, &QAction::triggered, m_sideBar, &Core::SideBar::setVisible);
-        connect(m_sideBar, &Core::SideBar::sideBarClosed, m_toggleSideBarAction, [this]() {
+        connect(m_sideBar, &Core::SideBar::sideBarClosed, m_toggleSideBarAction, [this] {
             m_toggleSideBarAction->setChecked(false);
         });
         if (style == ExternalWindow) {
@@ -386,7 +386,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_printAction = new QAction(this);
     Core::ActionManager::registerAction(m_printAction, Core::Constants::PRINT, context);
-    connect(m_printAction, &QAction::triggered, this, [this]() { print(currentViewer()); });
+    connect(m_printAction, &QAction::triggered, this, [this] { print(currentViewer()); });
 
     m_copy = new QAction(this);
     Core::ActionManager::registerAction(m_copy, Core::Constants::COPY, context);
@@ -426,20 +426,20 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         openMenu->addAction(m_switchToHelp);
     if (style != SideBarWidget) {
         QAction *openSideBySide = openMenu->addAction(Tr::tr("Open in Edit Mode"));
-        connect(openSideBySide, &QAction::triggered, this, [this]() {
+        connect(openSideBySide, &QAction::triggered, this, [this] {
             postRequestShowHelpUrl(Core::HelpManager::SideBySideAlways);
         });
     }
     if (supportsPages()) {
         QAction *openPage = openMenu->addAction(Tr::tr("Open in New Page"));
-        connect(openPage, &QAction::triggered, this, [this]() {
+        connect(openPage, &QAction::triggered, this, [this] {
             if (HelpViewer *viewer = currentViewer())
                 openNewPage(viewer->source());
         });
     }
     if (style != ExternalWindow) {
         QAction *openExternal = openMenu->addAction(Tr::tr("Open in Window"));
-        connect(openExternal, &QAction::triggered, this, [this]() {
+        connect(openExternal, &QAction::triggered, this, [this] {
             postRequestShowHelpUrl(Core::HelpManager::ExternalHelpAlways);
         });
     }
@@ -458,7 +458,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->addWidget(button);
 
     QAction *reload = openMenu->addAction(Tr::tr("Reload"));
-    connect(reload, &QAction::triggered, this, [this]() {
+    connect(reload, &QAction::triggered, this, [this] {
         const int index = m_viewerStack->currentIndex();
         HelpViewer *previous = currentViewer();
         insertViewer(index, previous->source());
@@ -621,20 +621,20 @@ void HelpWidget::addSideBar()
     m_sideBar->readSettings(Core::ICore::settings(), sideBarSettingsKey());
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 
-    connect(m_contentsAction, &QAction::triggered, m_sideBar, [this]() {
+    connect(m_contentsAction, &QAction::triggered, m_sideBar, [this] {
         m_sideBar->activateItem(Constants::HELP_CONTENTS);
     });
-    connect(m_indexAction, &QAction::triggered, m_sideBar, [this]() {
+    connect(m_indexAction, &QAction::triggered, m_sideBar, [this] {
         m_sideBar->activateItem(Constants::HELP_INDEX);
     });
-    connect(m_bookmarkAction, &QAction::triggered, m_sideBar, [this]() {
+    connect(m_bookmarkAction, &QAction::triggered, m_sideBar, [this] {
         m_sideBar->activateItem(Constants::HELP_BOOKMARKS);
     });
-    connect(m_searchAction, &QAction::triggered, m_sideBar, [this]() {
+    connect(m_searchAction, &QAction::triggered, m_sideBar, [this] {
         m_sideBar->activateItem(Constants::HELP_SEARCH);
     });
     if (m_openPagesAction) {
-        connect(m_openPagesAction, &QAction::triggered, m_sideBar, [this]() {
+        connect(m_openPagesAction, &QAction::triggered, m_sideBar, [this] {
             m_sideBar->activateItem(Constants::HELP_OPENPAGES);
         });
     }
@@ -686,7 +686,7 @@ HelpViewer *HelpWidget::addViewer(const QUrl &url)
 HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
 {
     m_model.beginInsertRows({}, index, index);
-    HelpViewer *viewer = HelpPlugin::createHelpViewer();
+    HelpViewer *viewer = createHelpViewer();
     m_viewerStack->insertWidget(index, viewer);
     viewer->setFocus(Qt::OtherFocusReason);
     viewer->setActionVisible(HelpViewer::Action::NewPage, supportsPages());

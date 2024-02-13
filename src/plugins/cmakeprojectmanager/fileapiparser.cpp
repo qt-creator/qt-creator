@@ -4,6 +4,7 @@
 #include "fileapiparser.h"
 
 #include "cmakeprocess.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -230,7 +231,7 @@ static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesF
 
         info.isCMake = input.value("isCMake").toBool();
         const QString filename = info.path.fileName();
-        info.isCMakeListsDotTxt = (filename.compare("CMakeLists.txt",
+        info.isCMakeListsDotTxt = (filename.compare(Constants::CMAKE_LISTS_TXT,
                                                     HostOsInfo::fileNameCaseSensitivity())
                                    == 0);
 
@@ -838,6 +839,7 @@ static QStringList uniqueTargetFiles(const Configuration &config)
 
 FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
                                      const FilePath &replyFilePath,
+                                     const Utils::FilePath &buildDir,
                                      const QString &cmakeBuildType,
                                      QString &errorMessage)
 {
@@ -857,7 +859,11 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
     result.replyFile = readReplyFile(replyFilePath, errorMessage);
     if (cancelCheck())
         return {};
-    result.cache = readCacheFile(result.replyFile.jsonFile("cache", replyDir), errorMessage);
+    const FilePath cachePathFromReply = result.replyFile.jsonFile("cache", replyDir);
+    if (cachePathFromReply.isEmpty())
+        result.cache = CMakeConfig::fromFile(buildDir / Constants::CMAKE_CACHE_TXT, &errorMessage);
+    else
+        result.cache = readCacheFile(cachePathFromReply, errorMessage);
     if (cancelCheck())
         return {};
     result.cmakeFiles = readCMakeFilesFile(result.replyFile.jsonFile("cmakeFiles", replyDir),

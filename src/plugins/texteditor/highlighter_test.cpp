@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "syntaxhighlighter.h"
+#include "syntaxhighlighterrunner.h"
 
 #include "highlighter_test.h"
 
@@ -12,6 +12,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
 #include <QtTest/QtTest>
@@ -32,6 +34,22 @@ constexpr auto json = R"(
 }
 )";
 
+class GenerigHighlighterTests final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void testHighlight_data();
+    void testHighlight();
+    void testChange();
+    void testPreeditText();
+    void cleanupTestCase();
+
+private:
+    BaseTextEditor *m_editor = nullptr;
+};
+
 void GenerigHighlighterTests::initTestCase()
 {
     QString title = "test.json";
@@ -40,9 +58,10 @@ void GenerigHighlighterTests::initTestCase()
         Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, json);
     QVERIFY(editor);
     m_editor = qobject_cast<BaseTextEditor *>(editor);
-    m_editor->editorWidget()->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
+    m_editor->editorWidget()->configureGenericHighlighter(
+        Utils::mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     QVERIFY(m_editor);
-    m_editor->textDocument()->syntaxHighlighter()->rehighlight();
+    m_editor->textDocument()->syntaxHighlighterRunner()->rehighlight();
 }
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
@@ -156,9 +175,9 @@ void GenerigHighlighterTests::testHighlight()
     QTextBlock block = m_editor->textDocument()->document()->findBlockByNumber(blockNumber);
     QVERIFY(block.isValid());
 
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
@@ -178,9 +197,9 @@ void GenerigHighlighterTests::testChange()
 
     const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
                                        {4, 1, toFormat(C_TEXT)}};
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
@@ -190,8 +209,12 @@ void GenerigHighlighterTests::testPreeditText()
     QTextBlock block = m_editor->textDocument()->document()->findBlockByNumber(2);
     QVERIFY(block.isValid());
 
+    QTextCursor c(block);
+    c.beginEditBlock();
     block.layout()->setPreeditArea(7, "uaf");
-    m_editor->textDocument()->syntaxHighlighter()->rehighlight();
+    c.endEditBlock();
+
+    m_editor->textDocument()->syntaxHighlighterRunner()->rehighlight();
 
     const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
                                        {4, 3, toFormat(C_TYPE)},
@@ -200,9 +223,9 @@ void GenerigHighlighterTests::testPreeditText()
                                        {14, 1, toFormat(C_VISUAL_WHITESPACE)},
                                        {15, 6, toFormat(C_STRING)},
                                        {21, 1, toFormat(C_FUNCTION)}};
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
@@ -214,4 +237,11 @@ void GenerigHighlighterTests::cleanupTestCase()
     QVERIFY(Core::EditorManager::currentEditor() == nullptr);
 }
 
+QObject *createGenericHighlighterTests()
+{
+    return new GenerigHighlighterTests;
+}
+
 } // namespace TextEditor::Internal
+
+#include "highlighter_test.moc"

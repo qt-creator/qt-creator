@@ -10,6 +10,7 @@
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
 #include <utils/processhandle.h>
+#include <utils/processenums.h>
 #include <utils/qtcassert.h>
 
 #include <QHash>
@@ -106,11 +107,14 @@ public:
 protected:
     template <typename Worker>
     void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
+    void setId(Utils::Id id) { m_id = id; }
     void setProducer(const WorkerCreator &producer);
     void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
+    void addSupportForLocalRunConfigs();
+    void cloneProduct(Utils::Id exitstingStepId, Utils::Id overrideId = Utils::Id());
 
 private:
     friend class RunControl;
@@ -121,6 +125,7 @@ private:
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
     QList<Utils::Id> m_supportedDeviceTypes;
+    Utils::Id m_id;
 };
 
 /**
@@ -265,6 +270,7 @@ protected:
 
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void setProcessMode(Utils::ProcessMode processMode);
 
     void forceRunOnHost();
 
@@ -284,22 +290,10 @@ public:
     explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
-class PROJECTEXPLORER_EXPORT OutputFormatterFactory
-{
-protected:
-    OutputFormatterFactory();
 
-public:
-    virtual ~OutputFormatterFactory();
+PROJECTEXPLORER_EXPORT
+void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &);
 
-    static QList<Utils::OutputLineParser *> createFormatters(Target *target);
-
-protected:
-    using FormatterCreator = std::function<QList<Utils::OutputLineParser *>(Target *)>;
-    void setFormatterCreator(const FormatterCreator &creator);
-
-private:
-    FormatterCreator m_creator;
-};
+PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Target *target);
 
 } // namespace ProjectExplorer

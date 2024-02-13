@@ -5,10 +5,10 @@
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
 #include <qtsupport/qtkitaspect.h>
+
 #include <utils/fileutils.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -24,7 +24,7 @@ using namespace ScxmlEditor::Internal;
 ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *parent)
     : m_designWidget(designWidget)
 {
-    setMimeType(QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE));
+    setMimeType(Utils::Constants::SCXML_MIMETYPE);
     setParent(parent);
     setId(Utils::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
 

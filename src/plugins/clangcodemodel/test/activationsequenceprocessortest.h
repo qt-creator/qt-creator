@@ -5,33 +5,8 @@
 
 #include <QObject>
 
-namespace ClangCodeModel::Internal::Tests {
+namespace ClangCodeModel::Internal {
 
-class ActivationSequenceProcessorTest : public QObject
-{
-    Q_OBJECT
+QObject *createActivationSequenceProcessorTest();
 
-private slots:
-    void testCouldNotProcesseRandomCharacters();
-    void testCouldNotProcesseEmptyString();
-    void testDot();
-    void testComma();
-    void testLeftParenAsFunctionCall();
-    void testLeftParenNotAsFunctionCall();
-    void testColonColon();
-    void testArrow();
-    void testDotStar();
-    void testArrowStar();
-    void testDoxyGenCommentBackSlash();
-    void testDoxyGenCommentAt();
-    void testAngleStringLiteral();
-    void testStringLiteral();
-    void testSlash();
-    void testPound();
-    void testPositionIsOne();
-    void testPositionIsTwo();
-    void testPositionIsTwoWithASingleSign();
-    void testPositionIsThree();
-};
-
-} // namespace ClangCodeModel::Internal::Tests
+} // ClangCodeModel::Internal

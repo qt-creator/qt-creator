@@ -139,6 +139,7 @@ public:
 
 private:
     QString m_className;
+    QString m_filePath;
     QList<Export> m_exports;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
@@ -159,6 +160,9 @@ public:
 
     QString className() const;
     void setClassName(const QString &name);
+
+    QString filePath() const;
+    void setFilePath(const QString &path);
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
     void setExportMetaObjectRevision(int exportIndex, int metaObjectRevision);

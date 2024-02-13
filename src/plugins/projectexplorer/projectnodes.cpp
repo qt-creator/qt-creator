@@ -15,6 +15,7 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -301,22 +302,21 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
     m_parentFolderNode = parentFolder;
 }
 
-FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
+FileType Node::fileTypeForMimeType(const MimeType &mt)
 {
+    using namespace Utils::Constants;
     FileType type = FileType::Source;
     if (mt.isValid()) {
         const QString mtName = mt.name();
-        if (mtName == Constants::C_HEADER_MIMETYPE
-                || mtName == Constants::CPP_HEADER_MIMETYPE)
+        if (mtName == C_HEADER_MIMETYPE || mtName == CPP_HEADER_MIMETYPE)
             type = FileType::Header;
-        else if (mtName == Constants::FORM_MIMETYPE)
+        else if (mtName == FORM_MIMETYPE)
             type = FileType::Form;
-        else if (mtName == Constants::RESOURCE_MIMETYPE)
+        else if (mtName == RESOURCE_MIMETYPE)
             type = FileType::Resource;
-        else if (mtName == Constants::SCXML_MIMETYPE)
+        else if (mtName == SCXML_MIMETYPE)
             type = FileType::StateChart;
-        else if (mtName == Constants::QML_MIMETYPE
-                 || mtName == Constants::QMLUI_MIMETYPE)
+        else if (mtName == QML_MIMETYPE || mtName == QMLUI_MIMETYPE)
             type = FileType::QML;
     } else {
         type = FileType::Unknown;
@@ -392,7 +392,9 @@ FileNode::FileNode(const Utils::FilePath &filePath, const FileType fileType) :
     m_fileType(fileType)
 {
     setFilePath(filePath);
-    setUseUnavailableMarker(!filePath.needsDevice() && !filePath.exists());
+    const bool ignored = (fileType == FileType::Project || fileType == FileType::App
+                          || fileType == FileType::Lib);
+    setUseUnavailableMarker(!ignored && !filePath.needsDevice() && !filePath.exists());
     setListInProject(true);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
@@ -675,28 +677,31 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
 // files.
 void FolderNode::compress()
 {
-    if (auto subFolder = m_nodes.size() == 1 ? m_nodes.at(0)->asFolderNode() : nullptr) {
-        const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
-                || (isProjectNodeType() && subFolder->isProjectNodeType())
-                || (isVirtualFolderType() && subFolder->isVirtualFolderType());
-        if (!sameType)
-            return;
+    // Child nodes need to be compressed first.
+    forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
 
-        // Only one subfolder: Compress!
-        setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
-        for (Node *n : subFolder->nodes()) {
-            std::unique_ptr<Node> toMove = subFolder->takeNode(n);
-            toMove->setParentFolderNode(nullptr);
-            addNode(std::move(toMove));
-        }
-        setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
+    // There must be exactly one child node, which has to be of the same type as this node.
+    if (m_nodes.size() != 1)
+        return;
+    const auto subFolder = m_nodes.front()->asFolderNode();
+    if (!subFolder)
+        return;
+    const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
+                          || (isProjectNodeType() && subFolder->isProjectNodeType())
+                          || (isVirtualFolderType() && subFolder->isVirtualFolderType());
+    if (!sameType)
+        return;
 
-        takeNode(subFolder);
-
-        compress();
-    } else {
-        forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
+    // Now do the compression by moving the child node's children into this node
+    // and removing the child node.
+    for (Node *n : subFolder->nodes()) {
+        std::unique_ptr<Node> toMove = subFolder->takeNode(n);
+        toMove->setParentFolderNode(nullptr);
+        addNode(std::move(toMove));
     }
+    setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
+    setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
+    takeNode(subFolder);
 }
 
 bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)

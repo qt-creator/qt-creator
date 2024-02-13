@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace Qnx::Internal {
 
-class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    QnxRunConfigurationFactory();
-};
+void setupQnxRunnning();
 
 } // Qnx::Internal

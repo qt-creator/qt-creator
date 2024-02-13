@@ -2,23 +2,28 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings-cmake-presets.html
     \page creator-build-settings-qmake.html
-    \nextpage creator-build-settings-qbs.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title qmake Build Configuration
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}
-    {build and run kit} in \uicontrol Projects > \uicontrol {Build & Run}
+    \brief Settings for building applications with qmake.
+
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit}
+    in \uicontrol Projects > \uicontrol {Build & Run}
     > \uicontrol Build > \uicontrol {Build Settings}.
 
     \image qtcreator-projectpane.webp {qmake build settings}
 
-    By default, \QC builds qmake projects in a separate directory from the
-    source directory, as \l{glossary-shadow-build} {shadow builds}. This
-    keeps the files generated for each kit separate. If you only build and
-    run with a single kit, you can deselect the \uicontrol {Shadow build}
-    checkbox.
+    \section1 Build Directory
+
+    By default, \QC builds qmake projects (that have .pro files) in a separate
+    directory from the source directory, as \l{glossary-shadow-build}
+    {shadow builds}. This keeps the files generated for each kit separate. If
+    you only build and run with a single kit, you can deselect the
+    \uicontrol {Shadow build} checkbox.
 
     Select the build directory in the \uicontrol {Build Directory} field. You
     can use the \l{Use Qt Creator variables}{variables} that are listed when
@@ -30,6 +35,8 @@
     \uicontrol {Default Build Properties}, and enter a period (.) in the
     \uicontrol {Default build directory} field.
 
+    \section1 Tooltips in Kit Selector
+
     In the \uicontrol {Tooltip in target selector} field, you can enter text
     that is displayed as a tooltip when you hover the mouse over the build
     configuration in the \l{Building for Multiple Platforms}{kit selector}.
@@ -39,36 +46,13 @@
     {scopes} to select the file to process depending on which platform qmake is
     run on.
 
+    \section1 Separating Debug Info
+
     If debug info is being generated, you can have it placed into separate
     files, rather than embedded into the binary, by selecting
     \uicontrol Enable in the \uicontrol {Separate debug info} field. For
     more information, see \l{Using the Performance Analyzer}. To use default
     settings, select \uicontrol {Leave at Default}.
-
-    In the \uicontrol {qmake system() behavior when parsing} field, you can
-    select whether processes are run via qmake's \c system() function or
-    ignored. Setting this option to \uicontrol Ignore might help if opening
-    or closing projects takes too long, but it might produce inexact parsing
-    results.
-
-    \section1 Global qmake Settings
-
-    To specify settings for all qmake builds, select \preferences >
-    \uicontrol {Build & Run} > \uicontrol Qmake.
-
-    \image qtcreator-preferences-build-run-qmake.png "Qmake tab in Build & Run Preferences"
-
-    To set the default build properties, select \preferences >
-    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
-
-    \image qtcreator-build-settings-default.webp {Default Build Properties tab in Build & Run Preferences}
-
-    In the \uicontrol {Default build directory} field, you can use the variables
-    that are listed when you select \inlineimage icons/replace.png, as well as
-    variables that are available for a particular kit. Those you can see when
-    you select the button in the \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Build > \uicontrol {Build Settings} > \uicontrol {Build Directory}
-    field for a kit.
 
     \section1 Compiling QML
 
@@ -85,12 +69,39 @@
     You can specify default behavior for compiling QML code in \preferences >
     \uicontrol {Build & Run} > \uicontrol Qmake > \uicontrol {Use qmlcachegen}.
 
+    \section1 Parsing Project Contents
+
+    In the \uicontrol {qmake system() behavior when parsing} field, you can
+    select whether processes are run via qmake's \c system() function or
+    ignored. Setting this option to \uicontrol Ignore might help if opening
+    or closing projects takes too long, but it might produce inexact parsing
+    results.
+
+    \section1 Global qmake Settings
+
+    To specify settings for all qmake builds, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol Qmake.
+
+    \image qtcreator-preferences-build-run-qmake.png {Qmake tab in Build & Run Preferences}
+
+    To set the default build properties, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
+
+    \image qtcreator-build-settings-default.webp {Default Build Properties tab in Build & Run Preferences}
+
+    In the \uicontrol {Default build directory} field, you can use the variables
+    that are listed when you select \inlineimage icons/replace.png, as well as
+    variables that are available for a particular kit. Those you can see when
+    you select the button in the \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Build > \uicontrol {Build Settings} > \uicontrol {Build Directory}
+    field for a kit.
+
     \section1 qmake Build Steps
 
     \QC builds qmake projects by running the \c make or \c nmake command from
     the Qt version defined for the current build configuration.
 
-    \image qtcreator-build-steps.png "Build steps"
+    \image qtcreator-build-steps.png {qmake build steps}
 
     To override the shell command that \QC constructs by default, disable or
     remove the build step and add a custom build step that specifies another
@@ -111,4 +122,8 @@
 
     Select \uicontrol {Add Build Step} > \uicontrol {Run Conan Install} to use
     the \l{Conan Build Configuration}{Conan} package manager with qmake
+
+    \sa {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects}
+
 */

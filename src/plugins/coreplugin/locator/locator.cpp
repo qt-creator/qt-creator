@@ -35,7 +35,10 @@
 
 #include <QMainWindow>
 
+using namespace Tasking;
 using namespace Utils;
+
+using namespace std::chrono;
 
 namespace Core {
 namespace Internal {
@@ -150,7 +153,7 @@ bool Locator::delayedInitialize()
 void Locator::aboutToShutdown()
 {
     m_refreshTimer.stop();
-    m_taskTree.reset();
+    m_taskTreeRunner.reset();
 }
 
 void Locator::loadSettings()
@@ -162,7 +165,7 @@ void Locator::loadSettings()
                                                                 : QString("QuickOpen");
     const Settings def;
     DB::beginGroup(settingsGroup);
-    m_refreshTimer.setInterval(DB::value("RefreshInterval", 60).toInt() * 60000);
+    m_refreshTimer.setInterval(minutes(DB::value("RefreshInterval", 60).toInt()));
     m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
@@ -358,7 +361,7 @@ void Locator::setRefreshInterval(int interval)
         m_refreshTimer.setInterval(0);
         return;
     }
-    m_refreshTimer.setInterval(interval * 60000);
+    m_refreshTimer.setInterval(minutes(interval));
     m_refreshTimer.start();
 }
 
@@ -377,10 +380,18 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
-    m_taskTree.reset(); // Superfluous, just for clarity. The next reset() below is enough.
+    m_taskTreeRunner.reset(); // Superfluous, just for clarity. The start() below is enough.
     m_refreshingFilters = Utils::filteredUnique(m_refreshingFilters + filters);
 
-    using namespace Tasking;
+    const auto onTreeSetup = [](TaskTree *taskTree) {
+        auto progress = new TaskProgress(taskTree);
+        progress->setDisplayName(Tr::tr("Updating Locator Caches"));
+    };
+    const auto onTreeDone = [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            saveSettings();
+    };
+
     QList<GroupItem> tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
         const auto task = filter->refreshRecipe();
@@ -388,24 +399,13 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
             continue;
 
         const Group group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             *task,
-            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); })
+            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); }, CallDoneIf::Success)
         };
         tasks.append(group);
     }
-
-    m_taskTree.reset(new TaskTree{tasks});
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        saveSettings();
-        m_taskTree.release()->deleteLater();
-    });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        m_taskTree.release()->deleteLater();
-    });
-    auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(Tr::tr("Updating Locator Caches"));
-    m_taskTree->start();
+    m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone);
 }
 
 void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)

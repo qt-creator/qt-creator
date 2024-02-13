@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "internalproperty.h"
-#include "internalbindingproperty.h"
-#include "internalvariantproperty.h"
-#include "internalnodelistproperty.h"
-#include "internalnodeproperty.h"
-#include "internalsignalhandlerproperty.h"
 #include "internalnode_p.h"
 
-namespace QmlDesigner {
+namespace QmlDesigner::Internal {
 
-namespace Internal {
+static auto traceTokenInitArg(const QByteArray &name)
+{
+    return ModelTracing::category().beginObject("InternalProperty"_t, keyValue("name", name));
+}
 
 // Creates invalid InternalProperty
-InternalProperty::InternalProperty() = default;
+InternalProperty::InternalProperty()
+    : traceToken(traceTokenInitArg(m_name))
+{}
 
 InternalProperty::~InternalProperty() = default;
 
@@ -23,9 +23,9 @@ InternalProperty::InternalProperty(const PropertyName &name,
                                    PropertyType propertyType)
     : m_name(name)
     , m_propertyOwner(propertyOwner)
-    , m_propertyType{propertyType}
-{
-}
+    , m_propertyType(propertyType)
+    , traceToken(traceTokenInitArg(m_name))
+{}
 
 bool InternalProperty::isValid() const
 {
@@ -52,7 +52,5 @@ void InternalProperty::resetDynamicTypeName()
    m_dynamicType.clear();
 }
 
-
-} //namespace Internal
-} //namespace QmlDesigner
+} //namespace QmlDesigner::Internal
 

@@ -33,10 +33,6 @@ class LANGUAGECLIENT_EXPORT LanguageClientManager : public QObject
     Q_DISABLE_COPY_MOVE(LanguageClientManager)
 
 public:
-    ~LanguageClientManager() override;
-
-    static void init();
-
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
@@ -81,6 +77,13 @@ public:
 
     static void showInspector();
 
+public slots:
+    // These slots are called automatically if the a file is opened via the usual EditorManager
+    // methods. If you create an editor manually, you need to call these slots manually as well.
+    void editorOpened(Core::IEditor *editor);
+    void documentOpened(Core::IDocument *document);
+    void documentClosed(Core::IDocument *document);
+
 signals:
     void clientAdded(Client *client);
     void clientInitialized(Client *client);
@@ -89,11 +92,10 @@ signals:
     void openCallHierarchy();
 
 private:
-    LanguageClientManager(QObject *parent);
+    explicit LanguageClientManager(QObject *parent);
+    ~LanguageClientManager() override;
 
-    void editorOpened(Core::IEditor *editor);
-    void documentOpened(Core::IDocument *document);
-    void documentClosed(Core::IDocument *document);
+    friend void setupLanguageClientManager(QObject *guard);
 
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);
@@ -118,5 +120,7 @@ template<typename T> bool LanguageClientManager::hasClients()
         return qobject_cast<const T* >(c);
     });
 }
+
+void setupLanguageClientManager(QObject *guard);
 
 } // namespace LanguageClient

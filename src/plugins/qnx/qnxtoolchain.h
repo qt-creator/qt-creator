@@ -7,12 +7,12 @@
 
 namespace Qnx::Internal {
 
-class QnxToolChain : public ProjectExplorer::GccToolChain
+class QnxToolchain : public ProjectExplorer::GccToolchain
 {
 public:
-    QnxToolChain();
+    QnxToolchain();
 
-    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override;
+    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
@@ -20,23 +20,12 @@ public:
     Utils::FilePathAspect sdpPath{this};
     Utils::StringAspect cpuDir{this};
 
-    bool operator ==(const ToolChain &) const override;
+    bool operator ==(const Toolchain &) const override;
 
 protected:
     DetectedAbisResult detectSupportedAbis() const override;
 };
 
-// --------------------------------------------------------------------------
-// QnxToolChainFactory
-// --------------------------------------------------------------------------
-
-class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
-{
-public:
-    QnxToolChainFactory();
-
-    ProjectExplorer::Toolchains autoDetect(
-            const ProjectExplorer::ToolchainDetector &detector) const final;
-};
+void setupQnxToolchain();
 
 } // Qnx::Internal

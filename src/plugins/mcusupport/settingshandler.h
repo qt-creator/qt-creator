@@ -5,7 +5,6 @@
 #include <utils/storekey.h>
 
 #include <QSettings>
-#include <QSharedPointer>
 
 namespace Utils { class FilePath; }
 
@@ -14,7 +13,7 @@ namespace McuSupport::Internal {
 class SettingsHandler
 {
 public:
-    using Ptr = QSharedPointer<SettingsHandler>;
+    using Ptr = std::shared_ptr<SettingsHandler>;
     virtual ~SettingsHandler() = default;
     virtual Utils::FilePath getPath(const Utils::Key &settingsKey,
                                     QSettings::Scope scope,

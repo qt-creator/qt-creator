@@ -5,6 +5,7 @@
 
 #include "cppeditor_global.h"
 
+#include "cpptoolsreuse.h"
 #include "cursorineditor.h"
 #include "projectinfo.h"
 #include "projectpart.h"
@@ -21,6 +22,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace Core {
 class IDocument;
@@ -174,7 +176,8 @@ public:
     enum class Backend { Builtin, Best };
     static void followSymbol(const CursorInEditor &data,
                              const Utils::LinkHandler &processLinkCallback,
-                             bool resolveTarget, bool inNextSplit, Backend backend = Backend::Best);
+                             bool resolveTarget, bool inNextSplit,
+                             FollowSymbolMode mode, Backend backend = Backend::Best);
     static void followSymbolToType(const CursorInEditor &data,
                                    const Utils::LinkHandler &processLinkCallback, bool inNextSplit,
                                    Backend backend = Backend::Best);
@@ -242,8 +245,6 @@ public:
 
     static QSet<QString> internalTargets(const Utils::FilePath &filePath);
 
-    static void renameIncludes(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
-
     // for VcsBaseSubmitEditor
     Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;
 
@@ -288,7 +289,6 @@ private:
     static void setupFallbackProjectPart();
 
     static void delayedGC();
-    static void recalculateProjectPartMappings();
 
     static void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     static void removeFilesFromSnapshot(const QSet<Utils::FilePath> &removedFiles);
@@ -296,13 +296,11 @@ private:
 
     static WorkingCopy buildWorkingCopyList();
 
-    static void ensureUpdated();
-    static Utils::FilePaths internalProjectFiles();
-    static ProjectExplorer::HeaderPaths internalHeaderPaths();
-    static ProjectExplorer::Macros internalDefinedMacros();
-
     static void dumpModelManagerConfiguration(const QString &logFileId);
     static void initCppTools();
+
+    static void renameIncludes(const QList<std::pair<Utils::FilePath,
+                                                     Utils::FilePath>> &oldAndNewPaths);
 };
 
 } // CppEditor

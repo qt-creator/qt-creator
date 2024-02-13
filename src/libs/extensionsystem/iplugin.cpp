@@ -3,6 +3,8 @@
 
 #include "iplugin.h"
 
+#include "pluginmanager_p.h"
+
 #include <utils/algorithm.h>
 
 /*!
@@ -159,32 +161,16 @@
 */
 
 namespace ExtensionSystem {
-namespace Internal {
-
-class IPluginPrivate
-{
-public:
-    QList<TestCreator> testCreators;
-};
-
-} // Internal
 
 /*!
     \internal
 */
-IPlugin::IPlugin()
-    : d(new Internal::IPluginPrivate())
-{
-}
+IPlugin::IPlugin() = default;
 
 /*!
     \internal
 */
-IPlugin::~IPlugin()
-{
-    delete d;
-    d = nullptr;
-}
+IPlugin::~IPlugin() = default;
 
 bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -208,15 +194,8 @@ bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
 
 void IPlugin::addTestCreator(const TestCreator &creator)
 {
-    d->testCreators.append(creator);
+    Internal::PluginManagerPrivate::addTestCreator(this, creator);
 }
 
-/*!
-    \deprecated [10.0] Use \c addTest() instead.
-*/
-QVector<QObject *> IPlugin::createTestObjects() const
-{
-    return Utils::transform(d->testCreators, &TestCreator::operator());
-}
 
 } // ExtensionSystem

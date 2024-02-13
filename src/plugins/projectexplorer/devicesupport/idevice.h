@@ -19,13 +19,12 @@
 #include <QCoreApplication>
 #include <QList>
 #include <QObject>
-#include <QSharedPointer>
 #include <QUrl>
 
 #include <functional>
-#include <memory>
 
 QT_BEGIN_NAMESPACE
+class QPixmap;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -57,7 +56,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
 public:
-    using Ptr = QSharedPointer<DeviceProcessSignalOperation>;
+    using Ptr = std::shared_ptr<DeviceProcessSignalOperation>;
 
     virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
@@ -93,7 +92,7 @@ public:
 };
 
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
+class PROJECTEXPLORER_EXPORT IDevice : public std::enable_shared_from_this<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:
@@ -106,7 +105,7 @@ public:
 
     virtual ~IDevice();
 
-    Ptr clone() const;
+    virtual Ptr clone() const;
 
     DeviceSettings *settings() const;
 
@@ -155,9 +154,10 @@ public:
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
-    DeviceState deviceState() const;
+    virtual DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
-    QString deviceStateToString() const;
+    virtual QString deviceStateToString() const;
+    QPixmap deviceStateIcon() const;
 
     static Utils::Id typeFromMap(const Utils::Store &map);
     static Utils::Id idFromMap(const Utils::Store &map);
@@ -279,7 +279,7 @@ public:
     QString errorString() const { return m_errorString; }
 
 signals:
-    void done(bool success);
+    void done(Tasking::DoneResult result);
 
 private:
     Utils::FilePath m_processPath;

@@ -4,13 +4,14 @@
 #include "clientrequest.h"
 
 using namespace LanguageServerProtocol;
+using namespace Tasking;
 
 namespace LanguageClient {
 
 ClientWorkspaceSymbolRequestTaskAdapter::ClientWorkspaceSymbolRequestTaskAdapter()
 {
     task()->setResponseCallback([this](const WorkspaceSymbolRequest::Response &response){
-        emit done(response.result().has_value());
+        emit done(toDoneResult(response.result().has_value()));
     });
 }
 

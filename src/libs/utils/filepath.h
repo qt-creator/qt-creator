@@ -68,6 +68,7 @@ public:
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
     [[nodiscard]] static FilePath fromSettings(const QVariant &variant);
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
+    [[nodiscard]] static FilePath fromUrl(const QUrl &url);
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
     [[nodiscard]] static FilePath fromPathPart(const QStringView path);
 
@@ -121,6 +122,7 @@ public:
     bool isSymLink() const;
     bool hasHardLinks() const;
     bool isRootPath() const;
+    bool isResourceFile() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
@@ -168,6 +170,7 @@ public:
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
+    [[nodiscard]] FilePath chopped(int n) const;
 
     using IterateDirCallback
         = std::variant<
@@ -258,7 +261,7 @@ public:
     [[nodiscard]] static int rootLength(const QStringView path); // Assumes no scheme and host
     [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
-    static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
+    static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAnchorPath);
     //! Returns a filepath the represents the same file on a local drive
     expected_str<FilePath> localSource() const;
 

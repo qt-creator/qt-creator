@@ -84,13 +84,13 @@ public:
     }
 };
 
-class CallgrindToolPrivate final : public QObject
+class CallgrindTool final : public QObject
 {
     Q_OBJECT
 
 public:
-    CallgrindToolPrivate();
-    ~CallgrindToolPrivate() override;
+    explicit CallgrindTool(QObject *parent);
+    ~CallgrindTool() final;
 
     void setupRunner(CallgrindToolRunner *runner);
 
@@ -197,7 +197,8 @@ public:
     CallgrindToolRunnerFactory callgrindRunWorkerFactory;
 };
 
-CallgrindToolPrivate::CallgrindToolPrivate()
+CallgrindTool::CallgrindTool(QObject *parent)
+    : QObject(parent)
 {
     setObjectName("CallgrindTool");
 
@@ -211,12 +212,12 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     connect(&m_stackBrowser, &StackBrowser::currentChanged,
-            this, &CallgrindToolPrivate::stackBrowserChanged);
+            this, &CallgrindTool::stackBrowserChanged);
     connect(&m_updateTimer, &QTimer::timeout,
-            this, &CallgrindToolPrivate::updateFilterString);
+            this, &CallgrindTool::updateFilterString);
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-            this, &CallgrindToolPrivate::editorOpened);
+            this, &CallgrindTool::editorOpened);
 
     m_startAction = Debugger::createStartAction();
     m_stopAction = Debugger::createStopAction();
@@ -273,7 +274,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         auto action = new QAction(Tr::tr("Profile Costs of This Function and Its Callees"), this);
         action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL.icon());
         connect(action, &QAction::triggered, this,
-                &CallgrindToolPrivate::handleShowCostsOfFunction);
+                &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
         editorContextMenu->addAction(cmd);
@@ -292,7 +293,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_visualization->setWindowTitle(Tr::tr("Visualization"));
     m_visualization->setModel(&m_dataModel);
     connect(m_visualization, &Visualization::functionActivated,
-            this, &CallgrindToolPrivate::visualisationFunctionSelected);
+            this, &CallgrindTool::visualisationFunctionSelected);
 
     m_callersView = new CostView;
     m_callersView->setObjectName("Valgrind.CallgrindTool.CallersView");
@@ -305,7 +306,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_callersView->setModel(&m_callersProxy);
     m_callersView->hideColumn(CallModel::CalleeColumn);
     connect(m_callersView, &QAbstractItemView::activated,
-            this, &CallgrindToolPrivate::callerFunctionSelected);
+            this, &CallgrindTool::callerFunctionSelected);
 
     m_calleesView = new CostView;
     m_calleesView->setObjectName("Valgrind.CallgrindTool.CalleesView");
@@ -318,7 +319,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_calleesView->setModel(&m_calleesProxy);
     m_calleesView->hideColumn(CallModel::CallerColumn);
     connect(m_calleesView, &QAbstractItemView::activated,
-            this, &CallgrindToolPrivate::calleeFunctionSelected);
+            this, &CallgrindTool::calleeFunctionSelected);
 
     m_flatView = new CostView;
     m_flatView->setObjectName("Valgrind.CallgrindTool.FlatView");
@@ -329,7 +330,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_flatView->setModel(&m_proxyModel);
     connect(m_flatView, &QAbstractItemView::activated,
-            this, &CallgrindToolPrivate::dataFunctionSelected);
+            this, &CallgrindTool::dataFunctionSelected);
 
     updateCostFormat();
 
@@ -341,7 +342,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action = m_loadExternalLogFile = new QAction(this);
     action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
     action->setToolTip(Tr::tr("Load External Log File"));
-    connect(action, &QAction::triggered, this, &CallgrindToolPrivate::loadExternalLogFile);
+    connect(action, &QAction::triggered, this, &CallgrindTool::loadExternalLogFile);
 
     action = m_startKCachegrind = new QAction(this);
     action->setEnabled(false);
@@ -359,7 +360,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(Utils::Icons::REDO.icon());
     //action->setText(Tr::tr("Dump"));
     action->setToolTip(Tr::tr("Request the dumping of profile information. This will update the Callgrind visualization."));
-    connect(action, &QAction::triggered, this, &CallgrindToolPrivate::slotRequestDump);
+    connect(action, &QAction::triggered, this, &CallgrindTool::slotRequestDump);
 
     // reset action
     m_resetAction = action = new QAction(this);
@@ -367,7 +368,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     //action->setText(Tr::tr("Reset"));
     action->setToolTip(Tr::tr("Reset all event counters."));
-    connect(action, &QAction::triggered, this, &CallgrindToolPrivate::resetRequested);
+    connect(action, &QAction::triggered, this, &CallgrindTool::resetRequested);
 
     // pause action
     m_pauseAction = action = new QAction(this);
@@ -375,7 +376,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(Utils::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     //action->setText(Tr::tr("Ignore"));
     action->setToolTip(Tr::tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
-    connect(action, &QAction::toggled, this, &CallgrindToolPrivate::pauseToggled);
+    connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
 
     // discard data action
     m_discardAction = action = new QAction(this);
@@ -405,7 +406,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_eventCombo = new QComboBox;
     m_eventCombo->setToolTip(Tr::tr("Selects which events from the profiling data are shown and visualized."));
     connect(m_eventCombo, &QComboBox::currentIndexChanged,
-            this, &CallgrindToolPrivate::setCostEvent);
+            this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 
     m_perspective.addToolBarAction(m_startAction);
@@ -431,21 +432,21 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_costAbsolute->setToolTip(Tr::tr("Show costs as absolute numbers."));
     m_costAbsolute->setCheckable(true);
     m_costAbsolute->setChecked(true);
-    connect(m_costAbsolute, &QAction::toggled, this, &CallgrindToolPrivate::updateCostFormat);
+    connect(m_costAbsolute, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costAbsolute);
 
     // Show costs in percentages
     m_costRelative = new QAction(Tr::tr("Relative Costs"), this);
     m_costRelative->setToolTip(Tr::tr("Show costs relative to total inclusive cost."));
     m_costRelative->setCheckable(true);
-    connect(m_costRelative, &QAction::toggled, this, &CallgrindToolPrivate::updateCostFormat);
+    connect(m_costRelative, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelative);
 
     // Show costs relative to parent
     m_costRelativeToParent = new QAction(Tr::tr("Relative Costs to Parent"), this);
     m_costRelativeToParent->setToolTip(Tr::tr("Show costs relative to parent function's inclusive cost."));
     m_costRelativeToParent->setCheckable(true);
-    connect(m_costRelativeToParent, &QAction::toggled, this, &CallgrindToolPrivate::updateCostFormat);
+    connect(m_costRelativeToParent, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelativeToParent);
 
     auto button = new QToolButton;
@@ -458,7 +459,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
 
     // Filtering
     action = m_filterProjectCosts = globalSettings().filterExternalIssues.action();
-    connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);
+    connect(action, &QAction::toggled, this, &CallgrindTool::handleFilterProjectCosts);
 
     // Filter
     m_searchFilter = new QLineEdit;
@@ -480,10 +481,10 @@ CallgrindToolPrivate::CallgrindToolPrivate()
                            false, Qt::RightDockWidgetArea);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
-            this, &CallgrindToolPrivate::updateRunActions);
+            this, &CallgrindTool::updateRunActions);
 }
 
-CallgrindToolPrivate::~CallgrindToolPrivate()
+CallgrindTool::~CallgrindTool()
 {
     qDeleteAll(m_textMarks);
     delete m_flatView;
@@ -492,7 +493,7 @@ CallgrindToolPrivate::~CallgrindToolPrivate()
     delete m_visualization;
 }
 
-void CallgrindToolPrivate::doClear(bool clearParseData)
+void CallgrindTool::doClear(bool clearParseData)
 {
     if (clearParseData) // Crashed when done from destructor.
         setParseData(nullptr);
@@ -506,7 +507,7 @@ void CallgrindToolPrivate::doClear(bool clearParseData)
     m_proxyModel.setFilterRegularExpression(QRegularExpression());
 }
 
-void CallgrindToolPrivate::setBusyCursor(bool busy)
+void CallgrindTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_flatView->setCursor(cursor);
@@ -515,7 +516,7 @@ void CallgrindToolPrivate::setBusyCursor(bool busy)
     m_visualization->setCursor(cursor);
 }
 
-void CallgrindToolPrivate::selectFunction(const Function *func)
+void CallgrindTool::selectFunction(const Function *func)
 {
     if (!func) {
         if (m_flatView)
@@ -554,7 +555,7 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
     }
 }
 
-void CallgrindToolPrivate::stackBrowserChanged()
+void CallgrindTool::stackBrowserChanged()
 {
     m_goBack->setEnabled(m_stackBrowser.hasPrevious());
     m_goNext->setEnabled(m_stackBrowser.hasNext());
@@ -562,12 +563,12 @@ void CallgrindToolPrivate::stackBrowserChanged()
     selectFunction(item);
 }
 
-void CallgrindToolPrivate::updateFilterString()
+void CallgrindTool::updateFilterString()
 {
     m_proxyModel.setFilterRegularExpression(QRegularExpression::escape(m_searchFilter->text()));
 }
 
-void CallgrindToolPrivate::setCostFormat(CostDelegate::CostFormat format)
+void CallgrindTool::setCostFormat(CostDelegate::CostFormat format)
 {
     switch (format) {
         case CostDelegate::FormatAbsolute:
@@ -582,7 +583,7 @@ void CallgrindToolPrivate::setCostFormat(CostDelegate::CostFormat format)
     }
 }
 
-void CallgrindToolPrivate::setCostEvent(int index)
+void CallgrindTool::setCostEvent(int index)
 {
     // prevent assert in model, don't try to set event to -1
     // happens when we clear the eventcombo
@@ -596,7 +597,7 @@ void CallgrindToolPrivate::setCostEvent(int index)
 
 // Following functions can be called with actions=0 or widgets=0
 // depending on initialization sequence (whether callgrind was current).
-CostDelegate::CostFormat CallgrindToolPrivate::costFormat() const
+CostDelegate::CostFormat CallgrindTool::costFormat() const
 {
     if (m_costRelativeToParent && m_costRelativeToParent->isChecked())
         return CostDelegate::FormatRelativeToParent;
@@ -605,7 +606,7 @@ CostDelegate::CostFormat CallgrindToolPrivate::costFormat() const
     return CostDelegate::FormatAbsolute;
 }
 
-void CallgrindToolPrivate::updateCostFormat()
+void CallgrindTool::updateCostFormat()
 {
     const CostDelegate::CostFormat format = costFormat();
     if (m_flatView)
@@ -617,7 +618,7 @@ void CallgrindToolPrivate::updateCostFormat()
     globalSettings().costFormat.setValue(format);
 }
 
-void CallgrindToolPrivate::handleFilterProjectCosts()
+void CallgrindTool::handleFilterProjectCosts()
 {
     Project *pro = ProjectTree::currentProject();
 
@@ -629,7 +630,7 @@ void CallgrindToolPrivate::handleFilterProjectCosts()
     }
 }
 
-void CallgrindToolPrivate::dataFunctionSelected(const QModelIndex &index)
+void CallgrindTool::dataFunctionSelected(const QModelIndex &index)
 {
     auto func = index.data(DataModel::FunctionRole).value<const Function *>();
     QTC_ASSERT(func, return);
@@ -637,7 +638,7 @@ void CallgrindToolPrivate::dataFunctionSelected(const QModelIndex &index)
     selectFunction(func);
 }
 
-void CallgrindToolPrivate::calleeFunctionSelected(const QModelIndex &index)
+void CallgrindTool::calleeFunctionSelected(const QModelIndex &index)
 {
     auto call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
     QTC_ASSERT(call, return);
@@ -645,7 +646,7 @@ void CallgrindToolPrivate::calleeFunctionSelected(const QModelIndex &index)
     selectFunction(call->callee());
 }
 
-void CallgrindToolPrivate::callerFunctionSelected(const QModelIndex &index)
+void CallgrindTool::callerFunctionSelected(const QModelIndex &index)
 {
     auto call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
     QTC_ASSERT(call, return);
@@ -653,7 +654,7 @@ void CallgrindToolPrivate::callerFunctionSelected(const QModelIndex &index)
     selectFunction(call->caller());
 }
 
-void CallgrindToolPrivate::visualisationFunctionSelected(const Function *function)
+void CallgrindTool::visualisationFunctionSelected(const Function *function)
 {
     if (function && function == m_visualization->function())
         // up-navigation when the initial function was activated
@@ -662,7 +663,7 @@ void CallgrindToolPrivate::visualisationFunctionSelected(const Function *functio
         selectFunction(function);
 }
 
-void CallgrindToolPrivate::setParseData(ParseData *data)
+void CallgrindTool::setParseData(ParseData *data)
 {
     // we have new parse data, invalidate filters in the proxy model
     if (m_visualization)
@@ -692,7 +693,7 @@ void CallgrindToolPrivate::setParseData(ParseData *data)
     //setBusy(false);
 }
 
-void CallgrindToolPrivate::updateEventCombo()
+void CallgrindTool::updateEventCombo()
 {
     QTC_ASSERT(m_eventCombo, return);
 
@@ -710,16 +711,16 @@ void CallgrindToolPrivate::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
+void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 {
     RunControl *runControl = toolRunner->runControl();
 
-    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindToolPrivate::takeParserDataFromRunControl);
-    connect(runControl, &RunControl::stopped, this, &CallgrindToolPrivate::engineFinished);
+    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
+    connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
 
-    connect(this, &CallgrindToolPrivate::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
-    connect(this, &CallgrindToolPrivate::resetRequested, toolRunner, &CallgrindToolRunner::reset);
-    connect(this, &CallgrindToolPrivate::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
+    connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
+    connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
+    connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
 
     connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->initiateStop(); });
 
@@ -750,7 +751,7 @@ void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
     doClear(true);
 }
 
-void CallgrindToolPrivate::updateRunActions()
+void CallgrindTool::updateRunActions()
 {
     if (m_toolBusy) {
         m_startAction->setEnabled(false);
@@ -765,13 +766,13 @@ void CallgrindToolPrivate::updateRunActions()
         m_stopAction->setEnabled(false);
     }
 }
-void CallgrindToolPrivate::clearTextMarks()
+void CallgrindTool::clearTextMarks()
 {
     qDeleteAll(m_textMarks);
     m_textMarks.clear();
 }
 
-void CallgrindToolPrivate::engineFinished()
+void CallgrindTool::engineFinished()
 {
     m_toolBusy = false;
     updateRunActions();
@@ -790,7 +791,7 @@ void CallgrindToolPrivate::engineFinished()
     setBusyCursor(false);
 }
 
-void CallgrindToolPrivate::showParserResults(const ParseData *data)
+void CallgrindTool::showParserResults(const ParseData *data)
 {
     QString msg;
     if (data) {
@@ -808,15 +809,15 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     Debugger::showPermanentStatusMessage(msg);
 }
 
-void CallgrindToolPrivate::editorOpened(IEditor *editor)
+void CallgrindTool::editorOpened(IEditor *editor)
 {
     if (auto widget = TextEditorWidget::fromEditor(editor)) {
         connect(widget, &TextEditorWidget::markContextMenuRequested,
-                this, &CallgrindToolPrivate::requestContextMenu);
+                this, &CallgrindTool::requestContextMenu);
     }
 }
 
-void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
+void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
 {
     // Find callgrind text mark that corresponds to this editor's file and line number
     for (CallgrindTextMark *textMark : std::as_const(m_textMarks)) {
@@ -829,7 +830,7 @@ void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line
     }
 }
 
-void CallgrindToolPrivate::handleShowCostsOfFunction()
+void CallgrindTool::handleShowCostsOfFunction()
 {
     CPlusPlus::Symbol *symbol = AnalyzerUtils::findSymbolUnderCursor();
     if (!symbol)
@@ -845,14 +846,14 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
     m_startAction->trigger();
 }
 
-void CallgrindToolPrivate::slotRequestDump()
+void CallgrindTool::slotRequestDump()
 {
     //setBusy(true);
     m_visualization->setText(Tr::tr("Populating..."));
     emit dumpRequested();
 }
 
-void CallgrindToolPrivate::loadExternalLogFile()
+void CallgrindTool::loadExternalLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
                 nullptr,
@@ -879,12 +880,12 @@ void CallgrindToolPrivate::loadExternalLogFile()
     takeParserData(parser.takeData());
 }
 
-void CallgrindToolPrivate::takeParserDataFromRunControl(CallgrindToolRunner *rc)
+void CallgrindTool::takeParserDataFromRunControl(CallgrindToolRunner *rc)
 {
     takeParserData(rc->takeParserData());
 }
 
-void CallgrindToolPrivate::takeParserData(ParseData *data)
+void CallgrindTool::takeParserData(ParseData *data)
 {
     showParserResults(data);
 
@@ -903,7 +904,7 @@ void CallgrindToolPrivate::takeParserData(ParseData *data)
     createTextMarks();
 }
 
-void CallgrindToolPrivate::createTextMarks()
+void CallgrindTool::createTextMarks()
 {
     QList<QString> locations;
     for (int row = 0; row < m_dataModel.rowCount(); ++row) {
@@ -940,21 +941,16 @@ void CallgrindToolPrivate::createTextMarks()
 
 // CallgrindTool
 
-static CallgrindToolPrivate *dd = nullptr;
+static CallgrindTool *dd = nullptr;
 
 void setupCallgrindRunner(CallgrindToolRunner *toolRunner)
 {
     dd->setupRunner(toolRunner);
 }
 
-CallgrindTool::CallgrindTool()
+void setupCallgrindTool(QObject *guard)
 {
-    dd = new CallgrindToolPrivate;
-}
-
-CallgrindTool::~CallgrindTool()
-{
-    delete dd;
+    dd = new CallgrindTool(guard);
 }
 
 } // Valgrind::Internal

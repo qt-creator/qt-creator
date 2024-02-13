@@ -21,7 +21,6 @@
 #include <QTimer>
 #include <QUrl>
 #include <QVersionNumber>
-#include <QJsonDocument>
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -103,20 +102,6 @@ static bool findXcodePath(QString *xcodePath)
 
     *xcodePath = QString::fromLatin1(process.readAllStandardOutput()).trimmed();
     return (process.exitStatus() == QProcess::NormalExit && QFile::exists(*xcodePath));
-}
-
-static bool checkDevelopmentStatusViaDeviceCtl(const QString &deviceId)
-{
-    QProcess process;
-    process.start("/usr/bin/xcrun", QStringList({"devicectl",
-        "device", "info", "details", "--quiet", "--device", deviceId, "-j", "-"}));
-    if (!process.waitForFinished(3000)) {
-        qCWarning(loggingCategory) << "Failed to launch devicectl:" << process.errorString();
-        return false;
-    }
-
-    auto jsonOutput = QJsonDocument::fromJson(process.readAllStandardOutput());
-    return jsonOutput["result"]["deviceProperties"]["developerModeStatus"] == "enabled";
 }
 
 /*!
@@ -1685,17 +1670,10 @@ void DevInfoSession::deviceCallbackReturned()
             res[deviceNameKey] = getStringValue(device, nullptr, CFSTR("DeviceName"));
             res[uniqueDeviceId] = getStringValue(device, nullptr, CFSTR("UniqueDeviceID"));
             const QString productVersion = getStringValue(device, nullptr, CFSTR("ProductVersion"));
-
-            if (productVersion.startsWith("17.")) {
-                res[developerStatusKey] = checkDevelopmentStatusViaDeviceCtl(res[uniqueDeviceId])
-                    ? QLatin1String("Development") : QLatin1String("*off*");
-            } else {
-                res[developerStatusKey] = getStringValue(device,
+            res[developerStatusKey] = getStringValue(device,
                                                      CFSTR("com.apple.xcode.developerdomain"),
                                                      CFSTR("DeveloperStatus"),
                                                      "*off*");
-            }
-
             res[cpuArchitectureKey] = getStringValue(device, nullptr, CFSTR("CPUArchitecture"));
             const QString buildVersion = getStringValue(device, nullptr, CFSTR("BuildVersion"));
             if (!productVersion.isEmpty() && !buildVersion.isEmpty())

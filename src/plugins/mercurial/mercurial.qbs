@@ -26,7 +26,6 @@ QtcPlugin {
         "mercurialeditor.cpp",
         "mercurialeditor.h",
         "mercurialplugin.cpp",
-        "mercurialplugin.h",
         "mercurialsettings.cpp",
         "mercurialsettings.h",
         "mercurialtr.h",

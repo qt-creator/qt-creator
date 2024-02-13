@@ -31,7 +31,10 @@ if (WIN32)
 
   if (NOT BUILD_WITH_PCH)
     list(APPEND DEFAULT_DEFINES
-      WIN32_LEAN_AND_MEAN)
+      WIN32_LEAN_AND_MEAN
+      WINVER=0x0A00
+      _WIN32_WINNT=0x0A00
+    )
   endif()
 endif()
 
@@ -137,6 +140,15 @@ function(qtc_handle_compiler_cache_support)
     if(CCACHE_PROGRAM)
       set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}" CACHE STRING "CXX compiler launcher" FORCE)
       set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}" CACHE STRING "C compiler launcher" FORCE)
+    endif()
+  endif()
+endfunction()
+
+function(qtc_handle_llvm_linker)
+  if (QTC_USE_LLVM_LINKER)
+    find_program(LLVM_LINK_PROGRAM llvm-link)
+    if(LLVM_LINK_PROGRAM)
+      set(CMAKE_LINKER "${LLVM_LINK_PROGRAM}" CACHE STRING "LLVM linker" FORCE)
     endif()
   endif()
 endfunction()

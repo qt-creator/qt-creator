@@ -99,7 +99,7 @@ bool TaskModel::compareTasks(const Task &task1, const Task &task2)
 
 void TaskModel::addTask(const Task &task)
 {
-    Q_ASSERT(m_categories.keys().contains(task.category));
+    Q_ASSERT(m_categories.contains(task.category));
     CategoryData &data = m_categories[task.category];
     CategoryData &global = m_categories[Utils::Id()];
 

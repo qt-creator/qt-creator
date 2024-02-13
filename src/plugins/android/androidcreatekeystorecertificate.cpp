@@ -262,7 +262,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!m_stateNameLineEdit->text().isEmpty())
         distinguishedNames += QLatin1String(", S=") + m_stateNameLineEdit->text().replace(',', QLatin1String("\\,"));
 
-    const CommandLine command(AndroidConfigurations::currentConfig().keytoolPath(),
+    const CommandLine command(androidConfig().keytoolPath(),
                             { "-genkey", "-keyalg", "RSA",
                               "-keystore",  m_keystoreFilePath.toString(),
                               "-storepass", keystorePassword(),
@@ -273,9 +273,9 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
                               "-dname", distinguishedNames});
 
     Process genKeyCertProc;
-    genKeyCertProc.setTimeoutS(15);
     genKeyCertProc.setCommand(command);
-    genKeyCertProc.runBlocking(EventLoopMode::On);
+    using namespace std::chrono_literals;
+    genKeyCertProc.runBlocking(15s, EventLoopMode::On);
 
     if (genKeyCertProc.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::critical(this, Tr::tr("Error"),

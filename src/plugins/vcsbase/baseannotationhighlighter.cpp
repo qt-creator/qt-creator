@@ -8,10 +8,10 @@
 
 #include <utils/algorithm.h>
 
-#include <QDebug>
 #include <QColor>
-#include <QTextDocument>
+#include <QDebug>
 #include <QTextCharFormat>
+#include <QTextDocument>
 
 typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 
@@ -37,8 +37,10 @@ public:
     BaseAnnotationHighlighterPrivate(BaseAnnotationHighlighter *q_) : q(q_) { }
 
     void updateOtherFormats();
+    QSet<QString> annotationChanges() const;
 
     ChangeNumberFormatMap m_changeNumberMap;
+    Annotation m_annotation;
     QColor m_background;
     BaseAnnotationHighlighter *const q;
 };
@@ -52,20 +54,69 @@ void BaseAnnotationHighlighterPrivate::updateOtherFormats()
     q->setChangeNumbers(Utils::toSet(m_changeNumberMap.keys()));
 }
 
-BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                     QTextDocument *document) :
-    TextEditor::SyntaxHighlighter(document),
-    d(new BaseAnnotationHighlighterPrivate(this))
+
+QSet<QString> BaseAnnotationHighlighterPrivate::annotationChanges() const
+{
+    if (!q->document())
+        return {};
+
+    QSet<QString> changes;
+    const QString text = q->document()->toPlainText();
+    QStringView txt = QStringView(text);
+    if (txt.isEmpty())
+        return changes;
+    if (!m_annotation.separatorPattern.pattern().isEmpty()) {
+        const QRegularExpressionMatch match = m_annotation.separatorPattern.match(txt);
+        if (match.hasMatch())
+            txt.truncate(match.capturedStart());
+    }
+    QRegularExpressionMatchIterator i = m_annotation.entryPattern.globalMatch(txt);
+    while (i.hasNext()) {
+        const QRegularExpressionMatch match = i.next();
+        changes.insert(match.captured(1));
+    }
+    return changes;
+}
+
+BaseAnnotationHighlighter::BaseAnnotationHighlighter(const Annotation &annotation)
+    : TextEditor::SyntaxHighlighter()
+    , d(new BaseAnnotationHighlighterPrivate(this))
 {
     setDefaultTextFormatCategories();
-    d->updateOtherFormats();
 
-    setChangeNumbers(changeNumbers);
+    d->m_annotation = annotation;
+    d->updateOtherFormats();
 }
 
 BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 {
+    // The destructor of the base class indirectly triggers a QTextDocument::contentsChang signal
+    // which is still connected to setChangeNumbersForAnnotation. The connection is guarded by
+    // 'this', but since it was not fully destructed it still calls the function. Explicitly set
+    // a null document here to disconnect that connection and correctly reset all highlights.
+    setDocument(nullptr);
     delete d;
+}
+
+void BaseAnnotationHighlighter::documentChanged(QTextDocument *oldDoc, QTextDocument *newDoc)
+{
+    if (oldDoc)
+        disconnect(oldDoc,
+                   &QTextDocument::contentsChange,
+                   this,
+                   &BaseAnnotationHighlighter::setChangeNumbersForAnnotation);
+
+    if (newDoc)
+        connect(newDoc,
+                &QTextDocument::contentsChange,
+                this,
+                &BaseAnnotationHighlighter::setChangeNumbersForAnnotation);
+}
+
+void BaseAnnotationHighlighter::setChangeNumbersForAnnotation()
+{
+    setChangeNumbers(d->annotationChanges());
+    d->updateOtherFormats();
 }
 
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
@@ -103,6 +154,16 @@ void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettings &
 {
     SyntaxHighlighter::setFontSettings(fontSettings);
     d->updateOtherFormats();
+}
+
+void BaseAnnotationHighlighter::rehighlight()
+{
+    const QSet<QString> changes = d->annotationChanges();
+    if (changes.isEmpty())
+        return;
+
+    setChangeNumbers(changes);
+    TextEditor::SyntaxHighlighter::rehighlight();
 }
 
 } // namespace VcsBase

@@ -97,7 +97,7 @@ public:
         m_fileWatcherTimer.setInterval(2000);
         connect(&m_fileWatcherTimer, &QTimer::timeout, this, [this] { updateFromInstaller(); });
 
-        connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsLoaded,
                 this, &QtVersionManagerImpl::triggerQtVersionRestore);
     }
 
@@ -143,8 +143,8 @@ QtVersionManagerImpl &qtVersionManagerImpl()
 void QtVersionManagerImpl::triggerQtVersionRestore()
 {
     NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::triggerQtVersionRestore");
-    disconnect(ToolChainManager::instance(),
-               &ToolChainManager::toolChainsLoaded,
+    disconnect(ToolchainManager::instance(),
+               &ToolchainManager::toolchainsLoaded,
                this,
                &QtVersionManagerImpl::triggerQtVersionRestore);
 
@@ -163,8 +163,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::qtVersionsLoaded");
         emit QtVersionManager::instance()->qtVersionsLoaded();
     }
-    emit QtVersionManager::instance()->qtVersionsChanged(
-        m_versions.keys(), QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
 
     const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
@@ -411,7 +410,7 @@ QList<QByteArray> QtVersionManagerImpl::runQtChooser(const QString &qtchooser, c
     p.start();
     p.waitForFinished();
     const bool success = p.exitCode() == 0;
-    return success ? p.readAllRawStandardOutput().split('\n') : QList<QByteArray>();
+    return success ? p.rawStdOut().split('\n') : QList<QByteArray>();
 }
 
 // Asks qtchooser for the qmake path of a given version
@@ -478,7 +477,7 @@ void QtVersionManager::addVersion(QtVersion *version)
     int uniqueId = version->uniqueId();
     m_versions.insert(uniqueId, version);
 
-    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged({uniqueId});
     qtVersionManagerImpl().saveQtVersions();
 }
 
@@ -486,7 +485,7 @@ void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version, return);
     m_versions.remove(version->uniqueId());
-    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged({}, {version->uniqueId()});
     qtVersionManagerImpl().saveQtVersions();
     delete version;
 }

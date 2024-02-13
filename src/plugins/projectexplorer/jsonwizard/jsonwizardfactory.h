@@ -17,6 +17,7 @@ namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
 class ProjectExplorerPluginPrivate;
+namespace Internal { class ProjectExplorerTest; }
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
@@ -63,7 +64,7 @@ private:
 
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.
-    static void createWizardFactories();
+    static QList<IWizardFactory *> createWizardFactories();
     static JsonWizardFactory *createWizardFactory(const QVariantMap &data,
                                                   const Utils::FilePath &baseDir,
                                                   QString *errorMessage);
@@ -93,25 +94,7 @@ private:
 
     friend class ProjectExplorerPlugin;
     friend class ProjectExplorerPluginPrivate;
+    friend class Internal::ProjectExplorerTest;
 };
 
-namespace Internal {
-
-class JsonWizardFactoryJsExtension : public QObject
-{
-    Q_OBJECT
-public:
-    JsonWizardFactoryJsExtension(Utils::Id platformId,
-                                 const QSet<Utils::Id> &availableFeatures,
-                                 const QSet<Utils::Id> &pluginFeatures);
-
-    Q_INVOKABLE QVariant value(const QString &name) const;
-
-private:
-    Utils::Id m_platformId;
-    QSet<Utils::Id> m_availableFeatures;
-    QSet<Utils::Id> m_pluginFeatures;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

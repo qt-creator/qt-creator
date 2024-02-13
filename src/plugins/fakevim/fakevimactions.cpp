@@ -190,7 +190,7 @@ FakeVimSettings::FakeVimSettings()
                     text(Tr::tr("Copy Text Editor Settings")),
                     onClicked([this] {
                         TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
-                        TypingSettings tps = TextEditorSettings::typingSettings();
+                        TypingSettings tps = globalTypingSettings();
                         expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
                         tabStop.setValue(ts.m_tabSize);
                         shiftWidth.setValue(ts.m_indentSize);

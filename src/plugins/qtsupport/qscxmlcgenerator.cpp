@@ -5,6 +5,8 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
+
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
@@ -16,7 +18,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
+namespace QtSupport::Internal {
 
 static QLoggingCategory log("qtc.qscxmlcgenerator", QtWarningMsg);
 
@@ -85,12 +87,9 @@ Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 
 FilePath QScxmlcGenerator::command() const
 {
-    QtSupport::QtVersion *version = nullptr;
-    Target *target;
-    if ((target = project()->activeTarget()))
-        version = QtSupport::QtKitAspect::qtVersion(target->kit());
-    else
-        version = QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
+    Target *target = project()->activeTarget();
+    Kit *kit = target ? target->kit() : KitManager::defaultKit();
+    QtVersion *version = QtKitAspect::qtVersion(kit);
 
     if (!version)
         return {};
@@ -125,21 +124,28 @@ FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(Process *process)
     return result;
 }
 
-FileType QScxmlcGeneratorFactory::sourceType() const
+// QScxmlcGeneratorFactory
+
+class QScxmlcGeneratorFactory final : public ExtraCompilerFactory
 {
-    return FileType::StateChart;
+public:
+    QScxmlcGeneratorFactory() = default;
+
+    FileType sourceType() const final { return FileType::StateChart; }
+
+    QString sourceTag() const final { return QStringLiteral("scxml"); }
+
+    ExtraCompiler *create(const Project *project,
+                          const FilePath &source,
+                          const FilePaths &targets) final
+    {
+        return new QScxmlcGenerator(project, source, targets, this);
+    }
+};
+
+void setupQScxmlcGenerator()
+{
+    static QScxmlcGeneratorFactory theQScxmlcGeneratorFactory;
 }
 
-QString QScxmlcGeneratorFactory::sourceTag() const
-{
-    return QStringLiteral("scxml");
-}
-
-ExtraCompiler *QScxmlcGeneratorFactory::create(
-        const Project *project, const FilePath &source,
-        const FilePaths &targets)
-{
-    return new QScxmlcGenerator(project, source, targets, this);
-}
-
-} // namespace QtSupport
+} // QtSupport::Internal

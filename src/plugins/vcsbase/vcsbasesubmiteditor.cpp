@@ -16,12 +16,20 @@
 
 #include <aggregation/aggregate.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -32,12 +40,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
-
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
 
 #include <QAction>
 #include <QApplication>
@@ -101,6 +103,7 @@ static bool acceptsWordForCompletion(const QString &word)
 
 namespace VcsBase {
 
+using namespace Core;
 using namespace Internal;
 using namespace Utils;
 
@@ -144,10 +147,10 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
 {
     d->m_parameters = parameters;
     d->m_file.setId(parameters.id);
-    d->m_file.setMimeType(QLatin1String(parameters.mimeType));
+    d->m_file.setMimeType(parameters.mimeType);
 
     setWidget(d->m_widget);
-    document()->setPreferredDisplayName(Tr::tr(d->m_parameters.displayName));
+    document()->setPreferredDisplayName(d->m_parameters.displayName);
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();
@@ -201,19 +204,17 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     slotUpdateEditorSettings();
     connect(&settings, &CommonVcsSettings::changed,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, [this] {
-                if (Core::EditorManager::currentEditor() == this)
-                    updateFileModel();
-            });
-    connect(qApp, &QApplication::applicationStateChanged,
-            this, [this](Qt::ApplicationState state) {
-                if (state == Qt::ApplicationActive)
-                    updateFileModel();
-            });
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this] {
+        if (EditorManager::currentEditor() == this)
+            updateFileModel();
+    });
+    connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive)
+            updateFileModel();
+    });
 
     auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(new Core::BaseTextFind(descriptionEdit));
+    aggregate->add(new BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
 
@@ -245,7 +246,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::dialogParent()))
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, ICore::dialogParent()))
         return;
 
     // Parse into fields
@@ -314,7 +315,7 @@ void VcsBaseSubmitEditor::setLineWrapWidth(int w)
     d->m_widget->setLineWrapWidth(w);
 }
 
-Core::IDocument *VcsBaseSubmitEditor::document() const
+IDocument *VcsBaseSubmitEditor::document() const
 {
     return &d->m_file;
 }
@@ -437,11 +438,11 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
-void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
+void VcsBaseSubmitEditor::accept(VersionControlBase *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
-    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(this, EditorManager::IgnoreNavigationHistory);
 
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
@@ -455,21 +456,21 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
 void VcsBaseSubmitEditor::close()
 {
     d->m_disablePrompt = true;
-    Core::EditorManager::closeDocuments({document()});
+    EditorManager::closeDocuments({document()});
 }
 
-bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
+bool VcsBaseSubmitEditor::promptSubmit(VersionControlBase *plugin)
 {
     if (d->m_disablePrompt)
         return true;
 
-    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(this, EditorManager::IgnoreNavigationHistory);
 
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
     if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return true;
 
-    QMessageBox mb(Core::ICore::dialogParent());
+    QMessageBox mb(ICore::dialogParent());
     mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
     mb.setText(plugin->commitAbortMessage());
@@ -597,6 +598,67 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const FilePath &reposito
         else
             it = untrackedFiles->erase(it);
     }
+}
+
+// Factories
+
+const char SUBMIT[] = "Vcs.Submit";
+const char DIFF_SELECTED[] = "Vcs.DiffSelectedFiles";
+
+class VcsSubmitEditorFactory final : public IEditorFactory
+{
+public:
+    VcsSubmitEditorFactory(VersionControlBase *versionControl,
+                           const VcsBaseSubmitEditorParameters &parameters)
+    {
+        QAction *submitAction = nullptr;
+        QAction *diffAction = nullptr;
+        QAction *undoAction = nullptr;
+        QAction *redoAction = nullptr;
+
+        const Context context(parameters.id);
+
+        ActionBuilder(versionControl, Core::Constants::UNDO)
+            .setText(Tr::tr("&Undo"))
+            .setContext(context)
+            .bindContextAction(&undoAction);
+
+        ActionBuilder(versionControl, Core::Constants::REDO)
+            .setText(Tr::tr("&Redo"))
+            .setContext(context)
+            .bindContextAction(&redoAction);
+
+        ActionBuilder(versionControl, SUBMIT)
+            .setText(versionControl->commitDisplayName())
+            .setIcon(VcsBaseSubmitEditor::submitIcon())
+            .setContext(context)
+            .bindContextAction(&submitAction)
+            .setCommandAttribute(Command::CA_UpdateText)
+            .addOnTriggered(versionControl, &VersionControlBase::commitFromEditor);
+
+        ActionBuilder(versionControl, DIFF_SELECTED)
+            .setText(Tr::tr("Diff &Selected Files"))
+            .setIcon(VcsBaseSubmitEditor::diffIcon())
+            .setContext(context)
+            .bindContextAction(&diffAction);
+
+        setId(parameters.id);
+        setDisplayName(parameters.displayName);
+        addMimeType(parameters.mimeType);
+        setEditorCreator([parameters, submitAction, diffAction, undoAction, redoAction] {
+            VcsBaseSubmitEditor *editor = parameters.editorCreator();
+            editor->setParameters(parameters);
+            editor->registerActions(undoAction, redoAction, submitAction, diffAction);
+            return editor;
+        });
+    }
+};
+
+void setupVcsSubmitEditor(VersionControlBase *versionControl,
+                          const VcsBaseSubmitEditorParameters &parameters)
+{
+    auto factory = new VcsSubmitEditorFactory(versionControl, parameters);
+    QObject::connect(versionControl, &QObject::destroyed, [factory] { delete factory; });
 }
 
 } // namespace VcsBase

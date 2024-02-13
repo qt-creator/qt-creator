@@ -254,8 +254,8 @@ void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> 
 RawProjectPart MesonProjectParser::buildRawPart(
     const Target &target,
     const Target::SourceGroup &sources,
-    const ToolChain *cxxToolChain,
-    const ToolChain *cToolChain)
+    const Toolchain *cxxToolchain,
+    const Toolchain *cToolchain)
 {
     RawProjectPart part;
     part.setDisplayName(target.name);
@@ -266,24 +266,24 @@ RawProjectPart MesonProjectParser::buildRawPart(
     part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
     part.setProjectFileLocation(target.definedIn);
     if (sources.language == "cpp")
-        part.setFlagsForCxx({cxxToolChain, flags.args, {}});
+        part.setFlagsForCxx({cxxToolchain, flags.args, {}});
     else if (sources.language == "c")
-        part.setFlagsForC({cToolChain, flags.args, {}});
+        part.setFlagsForC({cToolchain, flags.args, {}});
     part.setQtVersion(m_qtVersion);
     return part;
 }
 
 RawProjectParts MesonProjectParser::buildProjectParts(
-    const ToolChain *cxxToolChain, const ToolChain *cToolChain)
+    const Toolchain *cxxToolchain, const Toolchain *cToolchain)
 {
     RawProjectParts parts;
     for_each_source_group(m_parserResult.targets,
                           [&parts,
-                           &cxxToolChain,
-                           &cToolChain,
+                           &cxxToolchain,
+                           &cToolchain,
                            this](const Target &target, const Target::SourceGroup &sourceList) {
                               parts.push_back(
-                                  buildRawPart(target, sourceList, cxxToolChain, cToolChain));
+                                  buildRawPart(target, sourceList, cxxToolchain, cToolchain));
                           });
     return parts;
 }
@@ -377,7 +377,6 @@ void MesonProjectParser::setupProcess(const Command &command, const Environment 
     MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
                                   .arg(command.toUserOutput(), command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
-    m_process->setTimeoutS(10);
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }

@@ -45,7 +45,7 @@ signals:
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
     void announceThread(const AnnounceThread &announceThread);
-    void done(bool success, const QString &errorString);
+    void done(Tasking::DoneResult result, const QString &errorString);
 
 private:
     std::unique_ptr<ParserPrivate> d;

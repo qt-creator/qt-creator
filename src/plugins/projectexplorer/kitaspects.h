@@ -12,7 +12,7 @@
 
 namespace ProjectExplorer {
 
-class ToolChain;
+class Toolchain;
 
 // SysRootKitAspect
 
@@ -24,23 +24,23 @@ public:
     static void setSysRoot(Kit *k, const Utils::FilePath &v);
 };
 
-// ToolChainKitAspect
+// ToolchainKitAspect
 
-class PROJECTEXPLORER_EXPORT ToolChainKitAspect
+class PROJECTEXPLORER_EXPORT ToolchainKitAspect
 {
 public:
     static Utils::Id id();
-    static QByteArray toolChainId(const Kit *k, Utils::Id language);
-    static ToolChain *toolChain(const Kit *k, Utils::Id language);
-    static ToolChain *cToolChain(const Kit *k);
-    static ToolChain *cxxToolChain(const Kit *k);
-    static QList<ToolChain *> toolChains(const Kit *k);
-    static void setToolChain(Kit *k, ToolChain *tc);
-    static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);
-    static void clearToolChain(Kit *k, Utils::Id language);
+    static QByteArray toolchainId(const Kit *k, Utils::Id language);
+    static Toolchain *toolchain(const Kit *k, Utils::Id language);
+    static Toolchain *cToolchain(const Kit *k);
+    static Toolchain *cxxToolchain(const Kit *k);
+    static QList<Toolchain *> toolChains(const Kit *k);
+    static void setToolchain(Kit *k, Toolchain *tc);
+    static void setAllToolchainsToMatch(Kit *k, Toolchain *tc);
+    static void clearToolchain(Kit *k, Utils::Id language);
     static Abi targetAbi(const Kit *k);
 
-    static QString msgNoToolChainInTarget();
+    static QString msgNoToolchainInTarget();
 };
 
 // DeviceTypeKitAspect

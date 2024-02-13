@@ -90,13 +90,16 @@ Tasking::GroupItem AutogenStep::runRecipe()
         if (!m_runAutogen) {
             emit addOutput(Tr::tr("Configuration unchanged, skipping autogen step."),
                            OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] { m_runAutogen = false; };
 
-    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
+    return Group {
+        onGroupSetup(onSetup),
+        onGroupDone([this] { m_runAutogen = false; }, CallDoneIf::Success),
+        defaultProcessTask()
+    };
 }
 
 // AutogenStepFactory

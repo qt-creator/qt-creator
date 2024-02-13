@@ -133,9 +133,9 @@ void AbstractRemoteLinuxDeployStep::handleStdErrData(const QString &data)
     emit addOutput(data, OutputFormat::Stderr, DontAppendNewline);
 }
 
-bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
+void AbstractRemoteLinuxDeployStep::addSkipDeploymentMessage()
 {
-    return true;
+    addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
 }
 
 GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
@@ -146,23 +146,18 @@ GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
             addErrorMessage(canDeploy.error());
             return SetupResult::StopWithError;
         }
-        if (!isDeploymentNecessary()) {
-            addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
-            return SetupResult::StopWithDone;
-        }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] {
-        emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
-    };
-    const auto onError = [this] {
-        emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
+    const auto onDone = [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
+        else
+            emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
     };
     return Group {
         onGroupSetup(onSetup),
         deployRecipe(),
-        onGroupDone(onDone),
-        onGroupError(onError)
+        onGroupDone(onDone)
     };
 }
 

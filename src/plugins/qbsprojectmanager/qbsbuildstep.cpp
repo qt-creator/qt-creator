@@ -124,7 +124,7 @@ public:
 
 private:
     void updateState();
-    void updatePropertyEdit(const QVariantMap &data);
+    void updatePropertyEdit(const Store &data);
 
     void changeUseDefaultInstallDir(bool useDefault);
     void changeInstallDir();
@@ -172,7 +172,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
     setDisplayName(QbsProjectManager::Tr::tr("Qbs Build"));
     setSummaryText(QbsProjectManager::Tr::tr("<b>Qbs:</b> %1").arg("build"));
 
-    setQbsConfiguration(QVariantMap());
+    setQbsConfiguration(Store());
 
     auto qbsBuildConfig = qobject_cast<QbsBuildConfiguration *>(buildConfiguration());
     QTC_CHECK(qbsBuildConfig);
@@ -273,13 +273,13 @@ QWidget *QbsBuildStep::createConfigWidget()
     return new QbsBuildStepConfigWidget(this);
 }
 
-QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
+Store QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
 {
-    QVariantMap config = m_qbsConfiguration;
+    Store config = m_qbsConfiguration;
     const auto qbsBuildConfig = qbsBuildConfiguration();
     config.insert(Constants::QBS_FORCE_PROBES_KEY, forceProbes());
 
-    const auto store = [&config](TriState ts, const QString &key) {
+    const auto store = [&config](TriState ts, const Key &key) {
         if (ts == TriState::Enabled)
             config.insert(key, true);
         else if (ts == TriState::Disabled)
@@ -308,9 +308,9 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
     return config;
 }
 
-void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
+void QbsBuildStep::setQbsConfiguration(const Store &config)
 {
-    QVariantMap tmp = config;
+    Store tmp = config;
     tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, qbsBuildSystem()->profile());
     QString buildVariant = tmp.value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
     if (buildVariant.isEmpty()) {
@@ -355,13 +355,13 @@ void QbsBuildStep::fromMap(const Store &map)
     BuildStep::fromMap(map);
     if (hasError())
         return;
-    setQbsConfiguration(mapEntryFromStoreEntry(map.value(QBS_CONFIG)).toMap());
+    setQbsConfiguration(storeFromVariant(map.value(QBS_CONFIG)));
 }
 
 void QbsBuildStep::toMap(Store &map) const
 {
     ProjectExplorer::BuildStep::toMap(map);
-    map.insert(QBS_CONFIG, m_qbsConfiguration);
+    map.insert(QBS_CONFIG, variantFromStore(m_qbsConfiguration));
 }
 
 QString QbsBuildStep::buildVariant() const
@@ -579,9 +579,9 @@ void QbsBuildStepConfigWidget::updateState()
 }
 
 
-void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
+void QbsBuildStepConfigWidget::updatePropertyEdit(const Store &data)
 {
-    QVariantMap editable = data;
+    Store editable = data;
 
     // remove data that is edited with special UIs:
     editable.remove(Constants::QBS_CONFIG_PROFILE_KEY);
@@ -596,8 +596,8 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
         editable.remove(Constants::QBS_ARCHITECTURES);
 
     QStringList propertyList;
-    for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
-        propertyList.append(i.key() + ':' + i.value().toString());
+    for (Store::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
+        propertyList.append(QString::fromUtf8(i.key().toByteArray()) + ':' + i.value().toString());
 
     propertyEdit->setText(ProcessArgs::joinArgs(propertyList));
 }
@@ -605,7 +605,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
 {
     const GuardLocker locker(m_ignoreChanges);
-    QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    Store config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     installDirChooser->setEnabled(!useDefault);
     if (useDefault)
         config.remove(Constants::QBS_INSTALL_ROOT_KEY);
@@ -619,29 +619,29 @@ void QbsBuildStepConfigWidget::changeInstallDir()
     if (!m_qbsStep->hasCustomInstallRoot())
         return;
     const GuardLocker locker(m_ignoreChanges);
-    QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    Store config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawFilePath().toString());
     m_qbsStep->setQbsConfiguration(config);
 }
 
 void QbsBuildStepConfigWidget::applyCachedProperties()
 {
-    QVariantMap data;
-    const QVariantMap tmp = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    Store data;
+    const Store tmp = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
 
     // Insert values set up with special UIs:
     data.insert(Constants::QBS_CONFIG_PROFILE_KEY,
                 tmp.value(Constants::QBS_CONFIG_PROFILE_KEY));
     data.insert(Constants::QBS_CONFIG_VARIANT_KEY,
                 tmp.value(Constants::QBS_CONFIG_VARIANT_KEY));
-    QStringList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
-                                             Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
-                                             Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
-                                             Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
-                                             Constants::QBS_INSTALL_ROOT_KEY});
+    KeyList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
+                                   Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
+                                   Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
+                                   Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
+                                   Constants::QBS_INSTALL_ROOT_KEY});
     if (m_qbsStep->selectedAbis.isManagedByTarget())
         additionalSpecialKeys << Constants::QBS_ARCHITECTURES;
-    for (const QString &key : std::as_const(additionalSpecialKeys)) {
+    for (const Key &key : std::as_const(additionalSpecialKeys)) {
         const auto it = tmp.constFind(key);
         if (it != tmp.cend())
             data.insert(key, it.value());
@@ -649,7 +649,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         const Property &property = m_propertyCache.at(i);
-        data.insert(property.name, property.value);
+        data.insert(property.name.toUtf8(), property.value);
     }
 
     const GuardLocker locker(m_ignoreChanges);

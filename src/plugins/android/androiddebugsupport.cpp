@@ -111,8 +111,7 @@ void AndroidDebugSupport::start()
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!HostOsInfo::isWindowsHost()
         && (qtVersion
-            && AndroidConfigurations::currentConfig().ndkVersion(qtVersion)
-                   >= QVersionNumber(11, 0, 0))) {
+            && androidConfig().ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
         qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
         setUseTargetAsync(true);
     }
@@ -166,8 +165,7 @@ void AndroidDebugSupport::start()
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
         if (qtVersion) {
-            const FilePath ndkLocation =
-                    AndroidConfigurations::currentConfig().ndkLocation(qtVersion);
+            const FilePath ndkLocation = androidConfig().ndkLocation(qtVersion);
             FilePath sysRoot = ndkLocation
                     / "platforms"
                     / QString("android-%1").arg(sdkVersion)
@@ -200,11 +198,20 @@ void AndroidDebugSupport::stop()
 
 // AndroidDebugWorkerFactory
 
-AndroidDebugWorkerFactory::AndroidDebugWorkerFactory()
+class AndroidDebugWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+public:
+    AndroidDebugWorkerFactory()
+    {
+        setProduct<AndroidDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidDebugWorker()
+{
+    static AndroidDebugWorkerFactory theAndroidDebugWorkerFactory;
 }
 
 } // Android::Internal

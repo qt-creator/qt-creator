@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,27 +8,27 @@
 // **********************************************************************
 
 /*!
-    \page creator-editor-options-text.html
-    \previouspage creator-editor-options.html
+    \page creator-preferences-text-editor-font-colors.html
     \if defined(qtdesignstudio)
+    \previouspage creator-editor-options.html
     \nextpage studio-debugging.html
     \else
-    \nextpage creator-editor-fakevim.html
+    \previouspage creator-reference.html
     \endif
 
-    \if defined(qtdesignstudio)
-    \title Specifying Code View Settings
-    \else
-    \title Specifying Text Editor Settings
-    \endif
+    \ingroup creator-reference-preferences-text-editor
 
-    Set the font preferences and apply color schemes for syntax highlighting,
-    diff editor, and code analysis results in \preferences >
+    \title Font & Colors
+
+    \brief Set the font preferences and apply color schemes for syntax
+    highlighting, diff editor, and code analysis results.
+
+    To set editor font and colors, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
-    \image qtcreator-font-colors.png "Text editor preferences"
+    \image qtcreator-font-colors.png {Font & Colors tab in Text Editor preferences}
 
-    \section2 Configuring Fonts
+    \section1 Configuring Fonts
 
     You can select the font family and size. You can specify a zoom setting in
     percentage for viewing the text. You can also zoom in or out by pressing
@@ -44,17 +44,33 @@
     on the screen. Deselect the \uicontrol Antialias check box to turn off
     antialiasing.
 
-    \section2 Defining Color Schemes
+    \sa {Behavior}, {Change editor colors}
+*/
 
-    You can select one of the predefined color schemes or create customized
-    color schemes.
+/*!
+    \page creator-how-to-change-editor-colors.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-options.html
+    \nextpage studio-debugging.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-configure-editors
+
+    \title Change editor colors
+
+    You can select one of the predefined color schemes for the text editor
+    or create customized color schemes.
+
+    \image qtcreator-font-colors.png {Font & Colors tab in Text Editor preferences}
 
     To create a color scheme:
 
     \list 1
 
         \li Select \preferences > \uicontrol {Text Editor} >
-            \uicontrol {Fonts & Color} > \uicontrol Copy.
+            \uicontrol {Font & Colors} > \uicontrol Copy.
 
         \li Enter a name for the color scheme and click \uicontrol OK.
 
@@ -80,11 +96,11 @@
     format. The latter makes sure that syntax highlighting is preserved when
     pasting to a rich-text editor.
 
-    \section2 Exporting and Importing Color Schemes
+    \section1 Export and import color schemes
 
     To share color schemes with others, export and import them as XML files.
     To export a color scheme, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Fonts & Color} > \uicontrol Export,
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors} > \uicontrol Export,
     and then select the filename and location for the XML file.
 
     To import a color scheme, select \uicontrol Import, and then select the XML
@@ -94,29 +110,7 @@
     \image qtcreator-import-color-scheme.png "Import Color Scheme dialog"
 
     When you select \uicontrol OK, the color scheme is added to the list of
-    color schemes in the \uicontrol {Fonts & Color} tab.
+    color schemes in the \uicontrol {Font & Colors} tab.
 
-    \section2 File Encoding
-
-    To define the default file encoding, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol Behavior, and
-    then select a suitable option in \uicontrol {Default encoding}.
-
-    \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding preferences"
-
-    Qt 5 and Qt 6 require UTF-8 encoded source files, and therefore the default
-    encoding is set to \uicontrol UTF-8.
-    Detecting the correct encoding is tricky, so \QC will not try to do so.
-    Instead, it displays the following error message when you try to edit a file
-    that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with
-    "UTF-8"-encoding. Editing not possible.}
-
-    To resolve the issue, use a file conversion tool to convert the file
-    encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
-    of string constants to QString might not work as expected.
-
-    If you develop only Qt 4 applications or other than Qt applications, you
-    can set other encoding options as the default encoding. Select the
-    \uicontrol System option to use the file encoding used by your system.
-
+    \sa {Behavior}, {Font & Colors}
 */

@@ -7,8 +7,6 @@
 
 #include "filepath.h"
 
-#include <QSharedPointer>
-#include <QString>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -34,8 +32,8 @@ public:
         QList<Utils::FilePath> sourceFiles;
     };
 
-    typedef QSharedPointer<QrcParser> Ptr;
-    typedef QSharedPointer<const QrcParser> ConstPtr;
+    using Ptr = std::shared_ptr<QrcParser>;
+    using ConstPtr = std::shared_ptr<const QrcParser>;
     ~QrcParser();
     bool parseFile(const QString &path, const QString &contents);
     QString firstFileAtPath(const QString &path, const QLocale &locale) const;

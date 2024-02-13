@@ -6,9 +6,14 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <solutions/tasking/tasktree.h>
+
+#include <QMessageBox>
+#include <QPointer>
 #include <QTimer>
+
+#include <unordered_map>
 
 namespace Ios {
 class IosConfigurations;
@@ -20,8 +25,10 @@ class IosDevice final : public ProjectExplorer::IDevice
 {
 public:
     using Dict = QMap<QString, QString>;
-    using ConstPtr = QSharedPointer<const IosDevice>;
-    using Ptr = QSharedPointer<IosDevice>;
+    using ConstPtr = std::shared_ptr<const IosDevice>;
+    using Ptr = std::shared_ptr<IosDevice>;
+
+    enum class Handler { IosTool, DeviceCtl };
 
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
@@ -32,6 +39,7 @@ public:
     QString osVersion() const;
     QString cpuArchitecture() const;
     Utils::Port nextPort() const;
+    Handler handler() const;
 
     static QString name();
 
@@ -48,16 +56,9 @@ protected:
     IosDevice(CtorHelper);
 
     Dict m_extraInfo;
+    Handler m_handler = Handler::IosTool;
     bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
-};
-
-class IosDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    IosDeviceFactory();
-
-    bool canRestore(const Utils::Store &map) const override;
 };
 
 class IosDeviceManager : public QObject
@@ -73,17 +74,21 @@ public:
     void deviceDisconnected(const QString &uid);
     friend class IosConfigurations;
     void updateInfo(const QString &devId);
-    void deviceInfo(Ios::IosToolHandler *gatherer, const QString &deviceId,
+    void deviceInfo(const QString &deviceId,
+                    IosDevice::Handler handler,
                     const Ios::IosToolHandler::Dict &info);
-    void infoGathererFinished(Ios::IosToolHandler *gatherer);
     void monitorAvailableDevices();
 
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
+    std::unordered_map<QString, std::unique_ptr<Tasking::TaskTree>> m_updateTasks; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
+    QPointer<QMessageBox> m_devModeDialog;
 };
+
+void setupIosDevice();
 
 } // namespace Internal
 } // namespace Ios

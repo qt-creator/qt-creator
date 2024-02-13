@@ -1,65 +1,63 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "languageclientplugin.h"
-
-#include "client.h"
+#include "callhierarchy.h"
 #include "languageclientmanager.h"
+#include "languageclientoutline.h"
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
+#include "snippet.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
-#include <projectexplorer/projectpanelfactory.h>
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QAction>
 #include <QMenu>
 
 namespace LanguageClient {
 
-static LanguageClientPlugin *m_instance = nullptr;
-
-LanguageClientPlugin::LanguageClientPlugin()
+class LanguageClientPlugin final : public ExtensionSystem::IPlugin
 {
-    m_instance = this;
-    qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "LanguageClient.json")
 
-LanguageClientPlugin::~LanguageClientPlugin()
-{
-    m_instance = nullptr;
-}
+public:
+    LanguageClientPlugin()
+    {
+        qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
+    }
 
-LanguageClientPlugin *LanguageClientPlugin::instance()
-{
-    return m_instance;
-}
+private:
+    void initialize() final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
+
+    LanguageClientOutlineWidgetFactory m_outlineFactory;
+};
 
 void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(35);
-    panelFactory->setDisplayName(Tr::tr("Language Server"));
-    panelFactory->setCreateWidgetFunction(
-        [](ProjectExplorer::Project *project) { return new ProjectSettingsWidget(project); });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    setupCallHierarchyFactory();
+    setupLanguageClientProjectPanel();
+    setupLanguageClientManager(this);
 
-    LanguageClientManager::init();
+#ifdef WITH_TESTS
+    addTestCreator(&createSnippetParsingTest);
+#endif
+
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
                                                 Tr::tr("Generic StdIO Language Server"),
                                                 []() { return new StdIOSettings; }});
 
-    //register actions
-    ActionContainer *toolsDebugContainer = ActionManager::actionContainer(
-        Core::Constants::M_TOOLS_DEBUG);
-
-    auto inspectAction = new QAction(Tr::tr("Inspect Language Clients..."), this);
-    connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
-    toolsDebugContainer->addAction(
-        ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));
+    ActionBuilder inspectAction(this, "LanguageClient.InspectLanguageClients");
+    inspectAction.setText(Tr::tr("Inspect Language Clients..."));
+    inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
+    inspectAction.addOnTriggered(this, &LanguageClientManager::showInspector);
 }
 
 void LanguageClientPlugin::extensionsInitialized()
@@ -80,3 +78,5 @@ ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
 }
 
 } // namespace LanguageClient
+
+#include "languageclientplugin.moc"

@@ -10,6 +10,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
@@ -30,7 +31,7 @@ SemanticTokenSupport::SemanticTokenSupport(Client *client)
     QObject::connect(TextEditorSettings::instance(),
                      &TextEditorSettings::fontSettingsChanged,
                      client,
-                     [this]() { updateFormatHash(); });
+                     [this] { updateFormatHash(); });
     QObject::connect(Core::EditorManager::instance(),
                      &Core::EditorManager::currentEditorChanged,
                      this,
@@ -182,15 +183,15 @@ void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
 void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
 {
     if (m_tokens.contains(doc->filePath())){
-        if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
+        if (TextEditor::SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner())
             highlighter->clearAllExtraFormats();
     }
 }
 
 void SemanticTokenSupport::rehighlight()
 {
-    for (const Utils::FilePath &filePath : m_tokens.keys())
-        highlight(filePath, true);
+    for (auto it = m_tokens.cbegin(); it != m_tokens.cend(); ++it)
+        highlight(it.key(), true);
 }
 
 void addModifiers(int key,
@@ -412,7 +413,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
         return;
-    SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
+    SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner();
     if (!highlighter)
         return;
     const VersionedTokens versionedTokens = m_tokens.value(filePath);

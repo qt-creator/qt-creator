@@ -73,18 +73,6 @@ const char G_FILE_OPEN[]          = "ProjectFile.Group.Open";
 const char G_FILE_OTHER[]         = "ProjectFile.Group.Other";
 const char G_FILE_CONFIG[]        = "ProjectFile.Group.Config";
 
-// Mime types
-const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";
-const char C_HEADER_MIMETYPE[]    = "text/x-chdr";
-const char CPP_SOURCE_MIMETYPE[]  = "text/x-c++src";
-const char CPP_HEADER_MIMETYPE[]  = "text/x-c++hdr";
-const char LINGUIST_MIMETYPE[]    = "text/vnd.trolltech.linguist";
-const char FORM_MIMETYPE[]        = "application/x-designer";
-const char QML_MIMETYPE[]         = "text/x-qml"; // separate def also in qmljstoolsconstants.h
-const char QMLUI_MIMETYPE[]       = "application/x-qt.ui+qml";
-const char RESOURCE_MIMETYPE[]    = "application/vnd.qt.xml.resource";
-const char SCXML_MIMETYPE[]       = "application/scxml+xml";
-
 // Kits settings category
 const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
 
@@ -187,6 +175,16 @@ const char QML_PREVIEW_RUN_MODE[]="RunConfiguration.QmlPreviewRunMode";
 const char QML_PREVIEW_RUNNER[]="RunConfiguration.QmlPreviewRunner";
 const char PERFPROFILER_RUN_MODE[]="PerfProfiler.RunMode";
 const char PERFPROFILER_RUNNER[]="PerfProfiler.Runner";
+
+// RunWorkerFactory
+const char QML_PROFILER_RUN_FACTORY[] = "RunWorkerFactory.LocalQmlProfilerSupport";
+const char QML_PREVIEW_RUN_FACTORY[] = "RunWorkerFactory.LocalQmlPreviewSupport";
+
+// RunConfig
+const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
+const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
+const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
+const char CUSTOM_EXECUTABLE_RUNCONFIG_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";

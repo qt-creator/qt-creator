@@ -14,11 +14,12 @@
 namespace Copilot {
 
 using SignInInitiateParams = LanguageServerProtocol::JsonObject;
+using Key = LanguageServerProtocol::Key;
 
 class SignInInitiateResponse : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char verificationUriKey[] = "verificationUri";
-    static constexpr char userCodeKey[] = "userCode";
+    static constexpr Key verificationUriKey{"verificationUri"};
+    static constexpr Key userCodeKey{"userCode"};
 
 public:
     using JsonObject::JsonObject;
@@ -37,7 +38,7 @@ public:
         : Request(methodName, {})
     {}
     using Request::Request;
-    constexpr static const char methodName[] = "signInInitiate";
+    constexpr static const Key methodName{"signInInitiate"};
 };
 
 } // namespace Copilot

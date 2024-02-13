@@ -50,15 +50,6 @@ bool KitSettingsSortModel::lessThan(const QModelIndex &source_left,
 
 namespace Internal {
 
-// Page pre-selection
-
-static Id selectedKitId;
-
-void setSelectectKitId(const Id &kitId)
-{
-    selectedKitId = kitId;
-}
-
 class KitManagerConfigWidget;
 
 class KitNode : public TreeItem
@@ -595,7 +586,8 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
 void KitOptionsPageWidget::scrollToSelectedKit()
 {
-    QModelIndex index = m_sortModel->mapFromSource(m_model->indexOf(selectedKitId));
+    QModelIndex index = m_sortModel->mapFromSource(
+        m_model->indexOf(Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID)));
     m_selectionModel->select(index,
                              QItemSelectionModel::Clear
                                  | QItemSelectionModel::SelectCurrent
@@ -632,6 +624,9 @@ void KitOptionsPageWidget::addNewKit()
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    if (m_currentWidget)
+        m_currentWidget->setFocusToName();
 }
 
 Kit *KitOptionsPageWidget::currentKit() const
@@ -652,6 +647,9 @@ void KitOptionsPageWidget::cloneKit()
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    if (m_currentWidget)
+        m_currentWidget->setFocusToName();
 }
 
 void KitOptionsPageWidget::removeKit()
@@ -677,7 +675,7 @@ void KitOptionsPageWidget::updateState()
 
     if (Kit *k = currentKit()) {
         canCopy = true;
-        canDelete = !k->isAutoDetected();
+        canDelete = !k->isSdkProvided();
         canMakeDefault = !m_model->isDefaultKit(k);
     }
 

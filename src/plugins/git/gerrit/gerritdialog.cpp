@@ -44,8 +44,8 @@ namespace Internal {
 
 static const int maxTitleWidth = 350;
 
-GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
-                           const QSharedPointer<GerritServer> &s,
+GerritDialog::GerritDialog(const std::shared_ptr<GerritParameters> &p,
+                           const std::shared_ptr<GerritServer> &s,
                            const FilePath &repository,
                            QWidget *parent)
     : QDialog(parent)
@@ -194,7 +194,7 @@ void GerritDialog::setCurrentPath(const FilePath &path)
     if (path == m_repository)
         return;
     m_repository = path;
-    m_repositoryLabel->setText(Git::Internal::GitPlugin::msgRepositoryLabel(path));
+    m_repositoryLabel->setText(Git::Internal::msgRepositoryLabel(path));
     updateRemotes();
 }
 
@@ -286,7 +286,7 @@ void GerritDialog::showEvent(QShowEvent *event)
 void GerritDialog::remoteChanged()
 {
     const GerritServer server = m_remoteComboBox->currentServer();
-    if (QSharedPointer<GerritServer> modelServer = m_model->server()) {
+    if (std::shared_ptr<GerritServer> modelServer = m_model->server()) {
         if (*modelServer == server)
            return;
     }
@@ -335,7 +335,7 @@ void GerritDialog::slotCurrentChanged()
     updateButtons();
 }
 
-void GerritDialog::fetchStarted(const QSharedPointer<GerritChange> &change)
+void GerritDialog::fetchStarted(const std::shared_ptr<GerritChange> &change)
 {
     // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
     m_fetchRunning = true;

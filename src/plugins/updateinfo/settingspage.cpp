@@ -17,6 +17,7 @@
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
+#include <QPointer>
 #include <QPushButton>
 
 namespace UpdateInfo {

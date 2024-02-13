@@ -1,11 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmljstoolsplugin.h"
-
-#include <QLatin1String>
-
 #include <coreplugin/icore.h>
+
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -14,10 +11,17 @@
 
 using namespace QmlJS;
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
-void QmlJSToolsPlugin::test_basic()
+class QmlJSToolsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_basic();
+};
+
+void QmlJSToolsTest::test_basic()
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -34,7 +38,7 @@ void QmlJSToolsPlugin::test_basic()
     QVERIFY(context);
 
     const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(
-                QLatin1String("QtQuick"), QLatin1String("QDeclarativeRectangle"), LanguageUtils::ComponentVersion(2, 15));
+                QLatin1String("QtQuick"), QLatin1String("QDeclarativeRectangle"), LanguageUtils::ComponentVersion());
     QVERIFY(rectangleValue);
     QVERIFY(!rectangleValue->isWritable(QLatin1String("border")));
     QVERIFY(rectangleValue->hasProperty(QLatin1String("border")));
@@ -66,5 +70,11 @@ void QmlJSToolsPlugin::test_basic()
     QCOMPARE(qmlImageValue->propertyType(QLatin1String("source")), QLatin1String("QUrl"));
 }
 
-} // namespace Internal
-} // namespace QmlJSTools
+QObject *createQmlJSToolsTest()
+{
+    return new QmlJSToolsTest;
+}
+
+} // QmlJSTools::Internal
+
+#include "qmljstools_test.moc"

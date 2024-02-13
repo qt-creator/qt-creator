@@ -50,14 +50,6 @@
             can easily find and rename symbols and apply predefined actions to
             refactor code.
 
-        \if defined(qtcreator)
-        \li \l{Beautifying Source Code}
-
-            Beautifying code means applying indentation and style to source
-            code files. You can use the Artistic Style, ClangFormat, or
-            Uncrustify tool to format source files.
-       \endif
-
         \li \l{Configuring the Editor}
 
             You can change the fonts, colors, highlighting, and indentation.
@@ -69,48 +61,6 @@
     \endlist
 
     \if defined(qtcreator)
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Editing Markdown Files}
-
-            Edit and preview markdown (.md) files.
-
-        \li \l{Using Language Servers}
-
-            The language client offers code completion, highlighting of the
-            symbol under cursor, and jumping to the symbol definition for other
-            programming languages besides C++. In addition, it integrates
-            diagnostics from the language server.
-
-        \li \l {Using GitHub Copilot}
-
-            The Copilot plugin (disabled by default) integrates
-            \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
-            You can view suggestions from Copilot in the code editor.
-
-        \li \l{Editing MIME Types}
-
-            \QC uses the MIME type of a file to determine which mode and editor
-            to use for opening the file. If your files do not match the
-            predefined MIME types, you can edit the MIME types.
-
-        \li \l{Modeling}
-
-            You can use the model editor to create Universal Modeling Language
-            (UML) style models with structured and behavioral diagrams that
-            show your system in many ways and store them in XML format.
-
-       \li \l{Editing State Charts}
-
-            You can use \QC to create applications that embed state machines. A
-            project wizard creates \l{https://www.w3.org/TR/scxml/}
-            {State Chart XML (SCXML)} files with boilerplate code that you can
-            edit using an SCXML editor. You can use the classes in
-            the Qt SCXML module to embed state machines created from the files
-            in Qt applications.
-
-    \endlist
+    \sa {Using GitHub Copilot}
     \endif
 */

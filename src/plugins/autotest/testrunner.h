@@ -7,6 +7,8 @@
 
 #include "autotestconstants.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QDialog>
 #include <QList>
 #include <QTimer>
@@ -19,7 +21,6 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace Tasking { class TaskTree; }
 
 namespace Autotest {
 
@@ -44,7 +45,10 @@ public:
 
     void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests);
     void runTest(TestRunMode mode, const ITestTreeItem *item);
-    bool isTestRunning() const { return m_buildConnect || m_stopDebugConnect || m_taskTree.get(); }
+    bool isTestRunning() const
+    {
+        return m_buildConnect || m_stopDebugConnect || m_taskTreeRunner.isRunning();
+    }
 
 signals:
     void testRunStarted();
@@ -70,7 +74,7 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 
     QList<ITestConfiguration *> m_selectedTests;
     TestRunMode m_runMode = TestRunMode::None;

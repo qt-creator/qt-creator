@@ -7,10 +7,10 @@
 #include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
-#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/templateengine.h>
@@ -885,10 +885,10 @@ void CustomWizardContext::reset()
     const QTime currentTime = QTime::currentTime();
     baseReplacements.clear();
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
-                            Utils::mimeTypeForName(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE))
+                            Utils::mimeTypeForName(QLatin1String(Utils::Constants::CPP_SOURCE_MIMETYPE))
                             .preferredSuffix());
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
-                            Utils::mimeTypeForName(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE))
+                            Utils::mimeTypeForName(QLatin1String(Utils::Constants::CPP_HEADER_MIMETYPE))
                             .preferredSuffix());
     baseReplacements.insert(QLatin1String("CurrentDate"),
                             currentDate.toString(Qt::ISODate));

@@ -141,6 +141,12 @@ QIcon KitManagerConfigWidget::displayIcon() const
     return m_modifiedKit->displayIcon();
 }
 
+void KitManagerConfigWidget::setFocusToName()
+{
+    m_nameEdit->selectAll();
+    m_nameEdit->setFocus();
+}
+
 void KitManagerConfigWidget::apply()
 {
     // TODO: Rework the mechanism so this won't be necessary.
@@ -210,20 +216,14 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &paren
 
 void KitManagerConfigWidget::updateVisibility()
 {
-    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
-        const KitAspectFactory *factory = aspect->factory();
-        const bool visibleInKit = factory->isApplicableToKit(m_modifiedKit.get());
-        const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(factory->id());
-        aspect->setVisible(visibleInKit && !irrelevant);
-    }
+    for (KitAspect *aspect : std::as_const(m_kitAspects))
+        aspect->setVisible(m_modifiedKit->isAspectRelevant(aspect->factory()->id()));
 }
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
-        if (aspect->kit()->isSticky(aspect->factory()->id()))
-            aspect->makeReadOnly();
-    }
+    for (KitAspect *aspect : std::as_const(m_kitAspects))
+        aspect->makeStickySubWidgetsReadOnly();
 }
 
 Kit *KitManagerConfigWidget::workingCopy() const

@@ -2,11 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings-qmake.html
     \page creator-build-settings-qbs.html
-    \nextpage creator-build-settings-meson.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title Qbs Build Configuration
+
+    \brief Settings for building applications with Qbs.
+
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
 
     \image qtcreator-build-settings-qbs.png {Qbs build settings}
 
@@ -29,7 +36,8 @@
     For more information about the QML debugging options, see
     \l{Setting Up QML Debugging}.
 
-    For more information about configuring Qbs, see \l{Setting Up Qbs}.
+    For more information about configuring Qbs, see \l{qbs-preferences}
+    {Preferences: Qbs}.
 
     \section1 Qbs Build Steps
 
@@ -129,4 +137,7 @@
 
     The \uicontrol {Equivalent command line} field displays the clean command
     that is constructed based on the selected options.
+
+    \sa {qbs-build-system}{Build Systems: Qbs},
+    {qbs-preferences}{Preferences: Qbs}
 */

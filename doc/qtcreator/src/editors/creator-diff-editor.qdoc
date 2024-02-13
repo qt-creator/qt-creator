@@ -55,7 +55,7 @@
 
     If \QC cannot detect the encoding of the files to compare, an info bar
     appears that displays the option to reload the document using some other
-    encoding. For more information, see \l {File Encoding}.
+    encoding. For more information, see \l {Change text encoding}.
 
     \section1 Viewing the Changes
 

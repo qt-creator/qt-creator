@@ -22,7 +22,7 @@
     \brief The Abi class represents the Application Binary Interface (ABI) of
     a target platform.
 
-    \sa ProjectExplorer::ToolChain
+    \sa ProjectExplorer::Toolchain
 */
 
 namespace ProjectExplorer {
@@ -1234,14 +1234,16 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 #   include <QTest>
 #   include <QFileInfo>
 
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
+
+namespace ProjectExplorer::Internal {
 
 static bool isGenericFlavor(ProjectExplorer::Abi::OSFlavor f)
 {
     return f == ProjectExplorer::Abi::GenericFlavor;
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
+void ProjectExplorerTest::testAbiRoundTrips()
 {
     for (int i = 0; i <= Abi::UnknownArchitecture; ++i) {
         const QString string = Abi::toString(static_cast<Abi::Architecture>(i));
@@ -1278,7 +1280,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
     }
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
+void ProjectExplorerTest::testAbiOfBinary_data()
 {
     QTest::addColumn<QString>("file");
     QTest::addColumn<QStringList>("abis");
@@ -1415,7 +1417,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
+void ProjectExplorerTest::testAbiOfBinary()
 {
     QFETCH(QString, file);
     QFETCH(QStringList, abis);
@@ -1431,7 +1433,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
         QCOMPARE(result.at(i).toString(), abis.at(i));
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
+void ProjectExplorerTest::testAbiFromTargetTriplet_data()
 {
     QTest::addColumn<int>("architecture");
     QTest::addColumn<int>("os");
@@ -1548,7 +1550,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
                                               << int(Abi::EmscriptenFormat) << 32;
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
+void ProjectExplorerTest::testAbiFromTargetTriplet()
 {
     QFETCH(int, architecture);
     QFETCH(int, os);
@@ -1564,7 +1566,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
     QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiUserOsFlavor_data()
+void ProjectExplorerTest::testAbiUserOsFlavor_data()
 {
     QTest::addColumn<int>("os");
     QTest::addColumn<QString>("osFlavorName");
@@ -1592,7 +1594,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiUserOsFlavor_data()
             << int(Abi::UnixOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
 }
 
-void ProjectExplorer::ProjectExplorerPlugin::testAbiUserOsFlavor()
+void ProjectExplorerTest::testAbiUserOsFlavor()
 {
     QFETCH(int, os);
     QFETCH(QString, osFlavorName);
@@ -1624,5 +1626,6 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiUserOsFlavor()
      }
 }
 
+} // ProjectExplorer::Internal
 
-#endif
+#endif // WITH_TESTS

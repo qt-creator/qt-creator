@@ -116,7 +116,7 @@ private:
             {settings().dockerBinaryPath(), {"container", "start", "-i", "-a", m_containerId}});
     }
 
-    CommandLine createFallbackCommand(const CommandLine &cmdLine)
+    CommandLine createFallbackCommand(const CommandLine &cmdLine) override
     {
         CommandLine result = cmdLine;
         result.setExecutable(m_devicePath.withNewPath(cmdLine.executable().path()));
@@ -534,7 +534,7 @@ CommandLine DockerDevice::createCommandLine() const
 
 IDeviceWidget *DockerDevice::createWidget()
 {
-    return new DockerDeviceWidget(sharedFromThis());
+    return new DockerDeviceWidget(shared_from_this());
 }
 
 Tasks DockerDevice::validate() const
@@ -979,7 +979,7 @@ Store DockerDevice::toMap() const
 
 ProcessInterface *DockerDevice::createProcessInterface() const
 {
-    return new DockerProcessImpl(this->sharedFromThis(), d);
+    return new DockerProcessImpl(shared_from_this(), d);
 }
 
 DeviceTester *DockerDevice::createDeviceTester() const
@@ -1051,7 +1051,7 @@ expected_str<Environment> DockerDevice::systemEnvironmentWithError() const
 
 void DockerDevice::aboutToBeRemoved() const
 {
-    KitDetector detector(sharedFromThis());
+    KitDetector detector(shared_from_this());
     detector.undoAutoDetect(id().toString());
 }
 
@@ -1305,7 +1305,7 @@ void DockerDeviceFactory::shutdownExistingDevices()
 {
     QMutexLocker lk(&m_deviceListMutex);
     for (const auto &weakDevice : m_existingDevices) {
-        if (QSharedPointer<DockerDevice> device = weakDevice.lock())
+        if (std::shared_ptr<DockerDevice> device = weakDevice.lock())
             device->shutdown();
     }
 }

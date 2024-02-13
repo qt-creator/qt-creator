@@ -40,7 +40,6 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-#include "cppeditorplugin.h"
 #include "cppquickfix_test.h"
 #include <QtTest>
 #endif
@@ -763,7 +762,7 @@ public:
         Utils::ChangeSet headerChangeSet;
         const CppRefactoringChanges refactoring(snapshot());
         const Utils::FilePath filePath = currentFile()->filePath();
-        const CppRefactoringFilePtr headerFile = refactoring.file(filePath);
+        const CppRefactoringFilePtr headerFile = refactoring.cppFile(filePath);
         const LookupContext targetContext(headerFile->cppDocument(), snapshot());
 
         const Class *targetClass = m_classAST->symbol;
@@ -771,7 +770,7 @@ public:
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);
-        Control *control = context().bindings()->control().data();
+        Control *control = context().bindings()->control().get();
         QList<const Function *> insertedFunctions;
         for (ClassItem *classItem : std::as_const(m_factory->classFunctionModel->classes)) {
             if (classItem->checkState() == Qt::Unchecked)
@@ -864,8 +863,6 @@ public:
         // Write header file
         if (!headerChangeSet.isEmpty()) {
             headerFile->setChangeSet(headerChangeSet);
-            headerFile->appendIndentRange(Utils::ChangeSet::Range(m_insertPosDecl,
-                                                                  m_insertPosDecl + 1));
             headerFile->setOpenEditor(true, m_insertPosDecl);
             headerFile->apply();
         }
@@ -881,7 +878,7 @@ public:
             if (!clazz)
                 return;
 
-            CppRefactoringFilePtr implementationFile = refactoring.file(m_cppFilePath);
+            CppRefactoringFilePtr implementationFile = refactoring.cppFile(m_cppFilePath);
             Utils::ChangeSet implementationChangeSet;
             const int insertPos = qMax(0, implementationFile->document()->characterCount() - 1);
 
@@ -907,7 +904,7 @@ public:
                 env.switchScope(decl->enclosingScope());
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = context().bindings()->control().data();
+                Control *control = context().bindings()->control().get();
 
                 // rewrite the function type and name + create definition
                 const FullySpecifiedType type = rewriteType(decl->type(), &env, control);
@@ -920,8 +917,6 @@ public:
 
             if (!implementationChangeSet.isEmpty()) {
                 implementationFile->setChangeSet(implementationChangeSet);
-                implementationFile->appendIndentRange(Utils::ChangeSet::Range(insertPos,
-                                                                              insertPos + 1));
                 implementationFile->apply();
             }
         }
@@ -1240,8 +1235,8 @@ InsertVirtualMethods::~InsertVirtualMethods()
     m_dialog->deleteLater();
 }
 
-void InsertVirtualMethods::match(const CppQuickFixInterface &interface,
-                                 QuickFixOperations &result)
+void InsertVirtualMethods::doMatch(const CppQuickFixInterface &interface,
+                                   QuickFixOperations &result)
 {
     QSharedPointer<InsertVirtualMethodsOp> op(new InsertVirtualMethodsOp(interface, m_dialog));
     if (op->isValid())
@@ -1270,8 +1265,8 @@ public:
         m_settings->overrideReplacement = QLatin1String("override");
     }
 
-    bool gather() { return true; }
-    void saveSettings() { }
+    bool gather() override { return true; }
+    void saveSettings() override { }
 };
 
 void InsertVirtualMethodsTest::test_data()

@@ -60,17 +60,16 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol {Test Project} > \uicontrol {Qt Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
-            Qt test or a Qt Quick test.
+            Qt test, or \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Test Project} > \uicontrol {Qt Quick Test Project} >
+            \uicontrol Choose to create a Qt Quick test.
 
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
 
             \list 1
-
-                \li In the \uicontrol {Test framework} field, select
-                    \uicontrol {Qt Test} or \uicontrol {Qt Quick Test}.
 
                 \li For a Qt test, select the \uicontrol {GUI Application} check
                     box to create a Qt application.
@@ -115,7 +114,7 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol {Test Project} > \uicontrol {Google Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Google test.
 
@@ -125,7 +124,9 @@
             \list 1
 
                 \li In the \uicontrol {Test framework} field, select
-                    \uicontrol {Google Test}.
+                    \uicontrol {Google Test (shared libraries)} to link against
+                    Google Test, or \uicontrol {Google Test (headers only)} to
+                    include necessary Google Test sources into the project.
 
                 \li In the \uicontrol {Test suite name} field, enter a name for
                     the test suite.
@@ -169,14 +170,16 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol {Test Project} > \uicontrol {Boost Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Boost test.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
             \list 1
                 \li In the \uicontrol {Test framework} field, select
-                    \uicontrol {Boost Test}.
+                    \uicontrol {Boost Test (headers only)} to include needed
+                    headers, or \uicontrol {Boost Test (shared libraries)}
+                    to link against Boost Test.
                 \li In the \uicontrol {Test suite name} field, enter a name for
                     the test suite.
                 \li In the \uicontrol {Test case name} field, enter a name for
@@ -209,14 +212,17 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol {Test Project} > \uicontrol {Catch2 Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Catch2 test.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
             \list 1
                 \li In the \uicontrol {Test framework} field, select
-                    \uicontrol {Catch2}.
+                    \uicontrol {Catch2 v3 (shared libraries)} to link against
+                    Catch2 (recommended for version 3), or
+                    \uicontrol {Catch2 v2 (header only)} to use a single header
+                    include (recommended for version 2).
                 \li In the \uicontrol {Test case name} field, specify a name
                     for the test case file.
                 \li Select the \uicontrol {Use Qt libraries} check box
@@ -253,6 +259,28 @@
     For detailed information on how to use CTest see
     \l{https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest}
     {Testing with CTest}.
+
+    \section1 Adding Tests To Existing Test Projects
+
+    Use a wizard to add a new file containing additional tests for projects
+    containing a test project.
+
+    Select \uicontrol File > \uicontrol {New File} > \uicontrol {Test Case} >
+    \uicontrol Choose to add a new test case.
+
+    \note This is only supported for code based test frameworks except for
+    Qt Tests. There is no official support for having multiple test cases
+    inside a single Qt test application and it is better to create
+    a separate test sub project for each test case.
+
+    In \uicontrol {Test framework}, select the test framework in use.
+    This has to match the test framework you are using inside the project
+    you want to add this file to.
+
+    Depending on the chosen test framework, you can specify the test case
+    name, test suite name, the used filename, or further options. For a
+    detailed explanation, see the general information provided for each
+    test framework on its own in \l {Creating Tests}.
 
     \section1 Setting Up the Google C++ Testing Framework
 
@@ -438,7 +466,7 @@
     or select \uicontrol {Reset Cached Choices}.
 
     Select the \uicontrol {Process arguments} check box to pass arguments to the
-    test executable that you specify in the \l {Managing Run Configurations}
+    test executable that you specify in the \l {Configure projects for running}
     {run configuration}. This is an experimental feature that might cause the
     execution of the test executable to fail.
 

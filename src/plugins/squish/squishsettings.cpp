@@ -160,7 +160,7 @@ SquishServerSettings::SquishServerSettings()
     responseTimeout.setSuffix("s");
 
     postMortemWaitTime.setLabel(Tr::tr("Maximum post-mortem wait time:"));
-    postMortemWaitTime.setToolTip(Tr::tr("Specifies how many seconds Squish should wait after the the "
+    postMortemWaitTime.setToolTip(Tr::tr("Specifies how many seconds Squish should wait after the "
                                      "first AUT process has exited."));
     postMortemWaitTime.setRange(1, 65535);
     postMortemWaitTime.setDefaultValue(1500);

@@ -5,18 +5,13 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ProjectExplorer { class ToolChain; }
+namespace ProjectExplorer { class Toolchain; }
 
 namespace Qnx::Internal {
 
-class QnxSettingsPage final : public Core::IOptionsPage
-{
-public:
-    QnxSettingsPage();
-    ~QnxSettingsPage();
+QList<ProjectExplorer::Toolchain *> autoDetectHelper(
+    const QList<ProjectExplorer::Toolchain *> &alreadyKnown);
 
-    static QList<ProjectExplorer::ToolChain *> autoDetect(
-        const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
-};
+void setupQnxSettingsPage(QObject *guard);
 
 } // Qnx::Internal

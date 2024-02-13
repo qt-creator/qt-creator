@@ -21,8 +21,6 @@ QtcPlugin {
     ]
 
     files: [
-        "filesselectionwizardpage.cpp",
-        "filesselectionwizardpage.h",
         "genericbuildconfiguration.cpp",
         "genericbuildconfiguration.h",
         "genericmakestep.cpp",
@@ -34,7 +32,6 @@ QtcPlugin {
         "genericprojectfileseditor.h",
         "genericprojectmanagertr.h",
         "genericprojectplugin.cpp",
-        "genericprojectplugin.h",
         "genericprojectwizard.cpp",
         "genericprojectwizard.h",
     ]

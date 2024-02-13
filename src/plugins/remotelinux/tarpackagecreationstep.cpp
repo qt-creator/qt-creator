@@ -145,7 +145,7 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
         if (!m_packagingNeeded) {
             emit addOutput(Tr::tr("Tarball up to date, skipping packaging."),
                            OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         async.setConcurrentCallData(&TarPackageCreationStep::doPackage, this,
@@ -153,17 +153,18 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
         async.setFutureSynchronizer(&m_synchronizer);
         return SetupResult::Continue;
     };
-    const auto onDone = [this](const Async<void> &) {
+    const auto onDone = [this](DoneWith result) {
+        if (result != DoneWith::Success) {
+            emit addOutput(Tr::tr("Packaging failed."), OutputFormat::ErrorMessage);
+            return;
+        }
         m_deploymentDataModified = false;
         emit addOutput(Tr::tr("Packaging finished successfully."), OutputFormat::NormalMessage);
         // TODO: Should it be the next task in sequence?
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &TarPackageCreationStep::deployFinished);
     };
-    const auto onError = [this](const Async<void> &) {
-        emit addOutput(Tr::tr("Packaging failed."), OutputFormat::ErrorMessage);
-    };
-    return AsyncTask<void>(onSetup, onDone, onError);
+    return AsyncTask<void>(onSetup, onDone);
 }
 
 void TarPackageCreationStep::fromMap(const Store &map)
@@ -445,13 +446,22 @@ bool TarPackageCreationStep::appendFile(QPromise<void> &promise,
     return true;
 }
 
-TarPackageCreationStepFactory::TarPackageCreationStepFactory()
+class TarPackageCreationStepFactory final : public BuildStepFactory
 {
-    registerStep<TarPackageCreationStep>(Constants::TarPackageCreationStepId);
-    setDisplayName(Tr::tr("Create tarball"));
+public:
+    TarPackageCreationStepFactory()
+    {
+        registerStep<TarPackageCreationStep>(Constants::TarPackageCreationStepId);
+        setDisplayName(Tr::tr("Create tarball"));
 
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupTarPackageCreationStep()
+{
+    static TarPackageCreationStepFactory theTarPackageCreationStepFactory;
 }
 
 } // RemoteLinux::Internal

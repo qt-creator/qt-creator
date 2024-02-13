@@ -34,7 +34,7 @@
 
     You can use the icons in the tooltip popup to copy the error or
     warning message to the clipboard, to hide messages of a particular type,
-    or to \l{Configuring clangd}{change the diagnostics settings}. Select
+    or to \l{Clangd}{change the diagnostics settings}. Select
     the \uicontrol {Annotation Settings} link to specify the position
     of the line annotations.
 
@@ -662,7 +662,7 @@
         \li M325
         \li Warning
         \li Logical value does not depend on actual values
-        \li
+        \li Removed: This warning is no longer being used since Qt Creator version 12.
 
     \row
         \li M326
@@ -712,7 +712,9 @@
     \uicontrol {Disable messages for non Qt Quick UI}. You cannot
     enable messages just for non-Qt Quick UI files.
 
-    \sa {QML Language Server}
+    \if defined(qtcreator)
+    \sa {Turn on QML language server}
+    \endif
 
     \section1 Resetting the Code Model
 

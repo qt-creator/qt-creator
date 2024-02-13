@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qtsupportplugin.h"
-
 #include "codegenerator.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
@@ -11,7 +9,10 @@
 #include "qtkitaspect.h"
 #include "qtoptionspage.h"
 #include "qtoutputformatter.h"
+#include "qtparser.h"
+#include "qtprojectimporter.h"
 #include "qtsupporttr.h"
+#include "qttestparser.h"
 #include "qtversionmanager.h"
 #include "qtversions.h"
 #include "translationwizardpage.h"
@@ -19,6 +20,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/buildpropertiessettings.h>
@@ -40,35 +43,7 @@ using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace QtSupport {
-namespace Internal {
-
-class QtSupportPluginPrivate
-{
-public:
-    DesktopQtVersionFactory desktopQtVersionFactory;
-    EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
-
-    QtOptionsPage qtOptionsPage;
-
-    ExamplesWelcomePage examplesPage{true};
-    ExamplesWelcomePage tutorialPage{false};
-
-    QtOutputFormatterFactory qtOutputFormatterFactory;
-
-    UicGeneratorFactory uicGeneratorFactory;
-    QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
-
-    DesignerExternalEditor designerEditor;
-    LinguistEditor linguistEditor;
-
-    TranslationWizardPageFactory translationWizardPageFactory;
-};
-
-QtSupportPlugin::~QtSupportPlugin()
-{
-    delete d;
-}
+namespace QtSupport::Internal {
 
 static void processRunnerCallback(ProcessData *data)
 {
@@ -84,12 +59,43 @@ static void processRunnerCallback(ProcessData *data)
 
     data->exitCode = proc.exitCode();
     data->exitStatus = proc.exitStatus();
-    data->stdErr = proc.readAllRawStandardError();
-    data->stdOut = proc.readAllRawStandardOutput();
+    data->stdErr = proc.rawStdErr();
+    data->stdOut = proc.rawStdOut();
 }
+
+class QtSupportPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QtSupport.json")
+
+    void initialize() final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
+};
 
 void QtSupportPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQtOutputFormatterTest);
+    addTestCreator(createQtBuildStringParserTest);
+    addTestCreator(createQtOutputParserTest);
+    addTestCreator(createQtTestParserTest);
+    addTestCreator(createQtProjectImporterTest);
+#endif
+
+    setupDesktopQtVersion();
+    setupEmbeddedLinuxQtVersion();
+    setupGettingStartedWelcomePage();
+    setupQtSettingsPage();
+    setupQtOutputFormatter();
+    setupUicGenerator();
+    setupQScxmlcGenerator();
+
+    setupExternalDesigner(this);
+    setupExternalLinguist();
+
+    setupTranslationWizardPage();
+
     theProcessRunner() = processRunnerCallback;
 
     thePrompter() = [this](const QString &msg, const QStringList &context) -> std::optional<QString> {
@@ -129,8 +135,6 @@ void QtSupportPlugin::initialize()
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
 
     BuildPropertiesSettings::showQtSettings();
-
-    d = new QtSupportPluginPrivate;
 
     QtVersionManager::initialized();
 }
@@ -288,5 +292,6 @@ void QtSupportPlugin::extensionsInitialized()
     askAboutQtInstallation();
 }
 
-} // Internal
-} // QtSupport
+} // QtSupport::Internal
+
+#include "qtsupportplugin.moc"

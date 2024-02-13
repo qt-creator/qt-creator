@@ -18,10 +18,12 @@
 using namespace Utils;
 using namespace Tasking;
 
+using namespace std::chrono;
+
 namespace Core {
 
 static const int ProgressResolution = 100; // 100 discrete values
-static const int TimerInterval = 20; // 20 ms = 50 Hz
+static const milliseconds TimerInterval{20}; // 20 ms = 50 Hz
 
 class TaskProgressPrivate : public QObject
 {
@@ -44,7 +46,7 @@ public:
     QPointer<FutureProgress> m_futureProgress;
     Id m_id;
     bool m_isAutoStopOnCancel = true;
-    int m_halfLifeTimePerTask = 1000; // 1000 ms
+    milliseconds m_halfLifeTimePerTask{1000};
     QString m_displayName;
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
     bool m_isSubtitleVisibleInStatusBar = false;
@@ -83,7 +85,8 @@ void TaskProgressPrivate::advanceProgress(int newValue)
 
 void TaskProgressPrivate::updateProgress()
 {
-    const int halfLife = qRound(double(m_halfLifeTimePerTask) / TimerInterval);
+    using double_millis = duration<double, std::milli>;
+    const int halfLife = qRound(m_halfLifeTimePerTask / double_millis(TimerInterval));
     const int pMin = ProgressResolution * m_currentProgress;
     const int pMax = ProgressResolution * (m_currentProgress + 1);
     const int newValue = MathUtils::interpolateExponential(m_currentTick, halfLife, pMin, pMax);
@@ -107,7 +110,7 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
         emit canceled();
         if (d->m_isAutoStopOnCancel)
-            d->m_taskTree->stop();
+            d->m_taskTree->cancel();
     });
     connect(d->m_taskTree, &TaskTree::started, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
@@ -128,13 +131,10 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     connect(d->m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
         d->advanceProgress(value);
     });
-    connect(d->m_taskTree, &TaskTree::done, this, [this] {
+    connect(d->m_taskTree, &TaskTree::done, this, [this](DoneWith result) {
         d->m_timer.stop();
-        d->m_futureInterface.reportFinished();
-    });
-    connect(d->m_taskTree, &TaskTree::errorOccurred, this, [this] {
-        d->m_timer.stop();
-        d->m_futureInterface.reportCanceled();
+        if (result != DoneWith::Success)
+            d->m_futureInterface.reportCanceled();
         d->m_futureInterface.reportFinished();
     });
 }
@@ -151,9 +151,9 @@ void TaskProgress::setAutoStopOnCancel(bool enable)
     d->m_isAutoStopOnCancel = enable;
 }
 
-void TaskProgress::setHalfLifeTimePerTask(int msecs)
+void TaskProgress::setHalfLifeTimePerTask(milliseconds duration)
 {
-    d->m_halfLifeTimePerTask = msecs;
+    d->m_halfLifeTimePerTask = duration;
 }
 
 void TaskProgress::setDisplayName(const QString &name)

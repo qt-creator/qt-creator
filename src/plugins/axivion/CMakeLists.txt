@@ -7,11 +7,9 @@ add_qtc_plugin(Axivion
     axivionoutputpane.cpp axivionoutputpane.h
     axivionplugin.cpp axivionplugin.h
     axivionprojectsettings.h axivionprojectsettings.cpp
-    axivionquery.h axivionquery.cpp
-    axivionresultparser.h axivionresultparser.cpp
     axivionsettings.cpp axivionsettings.h
     axiviontr.h
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h
-    dashboard/dashboardclient.cpp dashboard/dashboardclient.h
+    dashboard/error.h dashboard/error.cpp
 )

@@ -38,4 +38,8 @@ private:
     QStringList m_descriptionParts;
 };
 
+#ifdef WITH_TESTS
+QObject *createIarParserTest();
+#endif // WITH_TESTS
+
 } // BareMetal::Internal

@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 namespace Core {
 
 class ICore;
+class IOutputPane;
 
 namespace Internal {
 
@@ -50,6 +51,7 @@ public slots:
 
 protected:
     void focusInEvent(QFocusEvent *e) override;
+    bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
     // the only class that is allowed to create and destroy
@@ -71,10 +73,12 @@ private:
     void setCurrentIndex(int idx);
     void buttonTriggered(int idx);
     void readSettings();
+    void updateActions(IOutputPane *pane);
 
     QLabel *m_titleLabel = nullptr;
     OutputPaneManageButton *m_manageButton = nullptr;
 
+    QAction *m_clearAction = nullptr;
     QAction *m_minMaxAction = nullptr;
     QAction *m_nextAction = nullptr;
     QAction *m_prevAction = nullptr;

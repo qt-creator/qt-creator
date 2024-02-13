@@ -3,6 +3,7 @@
 
 #include "terminalsettings.h"
 
+#include "terminalicons.h"
 #include "terminaltr.h"
 
 #include <coreplugin/icore.h>
@@ -19,6 +20,7 @@
 #include <utils/theme/theme.h>
 
 #include <QFontComboBox>
+#include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
@@ -486,11 +488,33 @@ TerminalSettings::TerminalSettings()
                                            "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
+    static const QString escKey = QKeySequence(Qt::Key_Escape).toString(QKeySequence::NativeText);
+    static const QString shiftEsc = QKeySequence(QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
+                                        .toString(QKeySequence::NativeText);
+    sendEscapeToTerminal.setOnText(escKey);
+    sendEscapeToTerminal.setOffText(shiftEsc);
+    sendEscapeToTerminal.setOnTooltip(Tr::tr("Sends Esc to terminal instead of %1.")
+                                          .arg(QGuiApplication::applicationDisplayName()));
+    sendEscapeToTerminal.setOffTooltip(Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
+    QObject::connect(&sendEscapeToTerminal,
+                     &ToggleAspect::changed,
+                     this,
+                     &TerminalSettings::writeSettings);
+
     lockKeyboard.setSettingsKey("LockKeyboard");
     lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
     lockKeyboard.setToolTip(
         Tr::tr("Keeps Qt Creator shortcuts from interfering with the terminal."));
-    lockKeyboard.setDefaultValue(true);
+    lockKeyboard.setDefaultValue(false);
+
+    lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
+    lockKeyboard.setOffIcon(UNLOCK_KEYBOARD_ICON.icon());
+    lockKeyboard.setOnTooltip(Tr::tr("%1 shortcuts are blocked when focus is inside the terminal.")
+                                  .arg(qApp->applicationDisplayName()));
+    lockKeyboard.setOffTooltip(
+        Tr::tr("%1 shortcuts take precedence.").arg(qApp->applicationDisplayName()));
+
+    QObject::connect(&lockKeyboard, &ToggleAspect::changed, this, &TerminalSettings::writeSettings);
 
     audibleBell.setSettingsKey("AudibleBell");
     audibleBell.setLabelText(Tr::tr("Audible bell"));

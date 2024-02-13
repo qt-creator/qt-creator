@@ -201,4 +201,24 @@ if (_library_enabled)
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${deployPythonFiles} "${output_binary_dir}/lib/qtcreatorcdbext${ArchSuffix}/"
     VERBATIM
   )
+
+  # Deploy lldb.exe and its Python dependency
+  find_package(Clang QUIET)
+  if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
+    foreach(lldb_file lldb.exe lldb-vscode.exe liblldb.dll python311.zip python311.dll)
+      if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
+        install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
+                DESTINATION bin/clang/bin
+                COMPONENT qtcreatorcdbext)
+      endif()
+    endforeach()
+
+    if (EXISTS ${LLVM_LIBRARY_DIRS}/site-packages)
+      install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
+              DESTINATION bin/clang/lib
+              COMPONENT qtcreatorcdbext
+              PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+    endif()
+  endif()
+
 endif()

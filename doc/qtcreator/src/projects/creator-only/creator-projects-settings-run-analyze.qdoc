@@ -1,0 +1,48 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-run-settings-valgrind.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-analyze
+
+    \title Specify Valgrind settings for a project
+
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    \QC integrates \l{Analyzing Code}{Valgrind code analysis tools} for
+    detecting memory leaks and profiling function execution.
+
+    To specify Valgrind settings for the current project:
+
+    \list 1
+
+        \li In the \uicontrol {Valgrind Settings} section, select \uicontrol Custom.
+
+        \li Specify Valgrind settings for the project.
+
+            \image qtcreator-analyzer-settings.png {Valgrind Settings}
+
+        \li In \uicontrol {Valgrind executable}, specify the path to the
+            Valgrind executable.
+
+        \li In \uicontrol {Valgrind arguments}, specify additional arguments
+            for Valgrind.
+
+        \li In \uicontrol {Detect self-modifying code}, select whether to
+            detect self-modifying code and where to detect it: only on stack,
+            everywhere, or everywhere except in file-backend mappings.
+
+    \endlist
+
+    Click \uicontrol {Restore Global} to revert to the global settings.
+
+    To specify global Valgrind settings, select \preferences >
+    \uicontrol Analyzer.
+
+    \sa {Configuring Projects}, {Selecting Options for Memory Analysis},
+    {Selecting Profiling Options}, {Using Valgrind Code Analysis Tools}
+*/

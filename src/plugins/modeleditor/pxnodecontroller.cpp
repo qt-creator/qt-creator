@@ -152,7 +152,8 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
             }
         }
         connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
-        connect(menu, &QMenu::triggered, this, [=](QAction *action) {
+        connect(menu, &QMenu::triggered, this, [this, filePath, topMostElementAtPos, pos, diagram](
+                                                   QAction *action) {
             // TODO potential risk if topMostElementAtPos or diagram is deleted in between
             onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
@@ -175,7 +176,8 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
         action->packageStereotype = stereotype;
         menu->addAction(action);
         connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
-        connect(menu, &QMenu::triggered, this, [=](QAction *action) {
+        connect(menu, &QMenu::triggered, this, [this, filePath, topMostElementAtPos, pos, diagram](
+                                                   QAction *action) {
             onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
         });

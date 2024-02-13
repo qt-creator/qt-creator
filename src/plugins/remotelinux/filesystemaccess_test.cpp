@@ -79,7 +79,7 @@ void FileSystemAccessTest::initTestCase()
 
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
-        QVERIFY(!device.isNull());
+        QVERIFY(device);
         DeviceManager *deviceManager = DeviceManager::instance();
         deviceManager->addDevice(device);
         m_device = deviceManager->find(device->id());
@@ -443,32 +443,32 @@ void FileSystemAccessTest::testFileStreamer()
         return FileStreamerTask(setup);
     };
     const auto localReader = [&] {
-        const auto setup = [&](FileStreamer &streamer) {
+        const auto onSetup = [&](FileStreamer &streamer) {
             streamer.setStreamMode(StreamMode::Reader);
             streamer.setSource(localSourcePath);
         };
         const auto onDone = [&](const FileStreamer &streamer) {
             localData = streamer.readData();
         };
-        return FileStreamerTask(setup, onDone);
+        return FileStreamerTask(onSetup, onDone, CallDoneIf::Success);
     };
     const auto remoteReader = [&] {
-        const auto setup = [&](FileStreamer &streamer) {
+        const auto onSetup = [&](FileStreamer &streamer) {
             streamer.setStreamMode(StreamMode::Reader);
             streamer.setSource(remoteSourcePath);
         };
         const auto onDone = [&](const FileStreamer &streamer) {
             remoteData = streamer.readData();
         };
-        return FileStreamerTask(setup, onDone);
+        return FileStreamerTask(onSetup, onDone, CallDoneIf::Success);
     };
     const auto transfer = [](const FilePath &source, const FilePath &dest,
                              std::optional<QByteArray> *result) {
-        const auto setupTransfer = [=](FileStreamer &streamer) {
+        const auto onTransferSetup = [=](FileStreamer &streamer) {
             streamer.setSource(source);
             streamer.setDestination(dest);
         };
-        const auto setupReader = [=](FileStreamer &streamer) {
+        const auto onReaderSetup = [=](FileStreamer &streamer) {
             streamer.setStreamMode(StreamMode::Reader);
             streamer.setSource(dest);
         };
@@ -476,8 +476,8 @@ void FileSystemAccessTest::testFileStreamer()
             *result = streamer.readData();
         };
         const Group root {
-            FileStreamerTask(setupTransfer),
-            FileStreamerTask(setupReader, onReaderDone)
+            FileStreamerTask(onTransferSetup),
+            FileStreamerTask(onReaderSetup, onReaderDone, CallDoneIf::Success)
         };
         return root;
     };
@@ -504,7 +504,7 @@ void FileSystemAccessTest::testFileStreamer()
     };
 
     using namespace std::chrono_literals;
-    QVERIFY(TaskTree::runBlocking(root, 10000ms));
+    QCOMPARE(TaskTree::runBlocking(root, 10000ms), DoneWith::Success);
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);

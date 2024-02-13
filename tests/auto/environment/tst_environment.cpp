@@ -363,12 +363,10 @@ void tst_Environment::pathChanges()
     QFETCH(QString, value);
     QFETCH(Environment, expected);
 
-    const QString sep = OsSpecificAspects::pathListSeparator(environment.osType());
-
     if (prepend)
-        environment.prependOrSet(variable, value, sep);
+        environment.prependOrSet(variable, value);
     else
-        environment.appendOrSet(variable, value, sep);
+        environment.appendOrSet(variable, value);
 
     qDebug() << "Actual  :" << environment.toStringList();
     qDebug() << "Expected:" << expected.toStringList();

@@ -46,7 +46,6 @@ QtcPlugin {
         "languageclientoutline.cpp",
         "languageclientoutline.h",
         "languageclientplugin.cpp",
-        "languageclientplugin.h",
         "languageclientquickfix.cpp",
         "languageclientquickfix.h",
         "languageclientsettings.cpp",

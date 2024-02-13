@@ -67,8 +67,7 @@ class AndroidSdkManagerWidget : public QDialog
     };
 
 public:
-    AndroidSdkManagerWidget(AndroidConfig &config, AndroidSdkManager *sdkManager,
-                            QWidget *parent = nullptr);
+    AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
     void installEssentials();
@@ -96,7 +95,6 @@ private:
     void switchView(View view);
     void runPendingCommand();
 
-    AndroidConfig &m_androidConfig;
     AndroidSdkManager::CommandType m_pendingCommand = AndroidSdkManager::None;
     View m_currentView = PackageListing;
     AndroidSdkManager *m_sdkManager = nullptr;

@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
+    Depends { name: "clang_defines" }
 
     pluginRecommends: ["BinEditor"]
     pluginTestDepends: ["QmakeProjectManager"]
@@ -41,11 +42,12 @@ QtcPlugin {
             "debuggeritemmanager.cpp", "debuggeritemmanager.h",
             "debuggerkitaspect.cpp", "debuggerkitaspect.h",
             "debuggermainwindow.cpp", "debuggermainwindow.h",
-            "debuggerplugin.cpp", "debuggerplugin.h",
+            "debuggerplugin.cpp",
             "debuggerprotocol.cpp", "debuggerprotocol.h",
             "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",
             "debuggerruncontrol.cpp", "debuggerruncontrol.h",
             "debuggersourcepathmappingwidget.cpp", "debuggersourcepathmappingwidget.h",
+            "debuggertest.cpp", "debuggertest.h",
             "debuggertooltipmanager.cpp", "debuggertooltipmanager.h",
             "disassembleragent.cpp", "disassembleragent.h",
             "disassemblerlines.cpp", "disassemblerlines.h",

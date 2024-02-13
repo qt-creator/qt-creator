@@ -150,22 +150,23 @@ void WinDebugInterface::dispatchDebugOutput()
     QTC_ASSERT(Utils::isMainThread(), return);
 
     static size_t maxMessagesToSend = 100;
-    std::vector<std::pair<qint64, QString>> output;
+    std::map<qint64, QList<QString>> output;
     bool hasMoreOutput = false;
 
     m_outputMutex.lock();
     for (auto &entry : m_debugOutput) {
-        std::vector<QString> &src = entry.second;
-        if (src.empty())
-            continue;
-        QString dst;
-        size_t n = std::min(maxMessagesToSend, src.size());
-        for (size_t i = 0; i < n; ++i)
-            dst += src.at(i);
-        src.erase(src.begin(), std::next(src.begin(), n));
-        if (!src.empty())
+        auto it = entry.second.begin();
+        for (; it != entry.second.end(); ++it) {
+            output[entry.first].push_back(*it);
+            if (output.size() >= maxMessagesToSend)
+                break;
+        }
+        if (it != entry.second.begin())
+            it = entry.second.erase(entry.second.begin(), it);
+        if (it != entry.second.end()) {
             hasMoreOutput = true;
-        output.emplace_back(entry.first, std::move(dst));
+            break;
+        }
     }
     if (!hasMoreOutput)
         m_readySignalEmitted = false;

@@ -6,6 +6,8 @@
 #include "project.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
+#include "projectpanelfactory.h"
+#include "projectsettingswidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
@@ -14,32 +16,44 @@
 #include <utils/detailswidget.h>
 #include <utils/fsengine/fileiconprovider.h>
 
-#include <QDebug>
-#include <QSize>
-#include <QCoreApplication>
-
+#include <QAbstractListModel>
 #include <QCheckBox>
 #include <QGridLayout>
-#include <QTreeView>
-#include <QSpacerItem>
 #include <QMessageBox>
+#include <QSize>
+#include <QSpacerItem>
+#include <QTreeView>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
-DependenciesModel::DependenciesModel(Project *project, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_project(project)
+class DependenciesModel : public QAbstractListModel
 {
-    resetModel();
+public:
+    explicit DependenciesModel(Project *project)
+        : m_project(project)
+    {
+        resetModel();
 
-    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-            this, &DependenciesModel::resetModel);
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
-            this, &DependenciesModel::resetModel);
-    connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
-            this, &DependenciesModel::resetModel);
-}
+        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+                this, &DependenciesModel::resetModel);
+        connect(ProjectManager::instance(), &ProjectManager::projectAdded,
+                this, &DependenciesModel::resetModel);
+        connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
+                this, &DependenciesModel::resetModel);
+    }
+
+    int rowCount(const QModelIndex &index) const override;
+    int columnCount(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+private:
+    void resetModel();
+
+    Project *m_project;
+    QList<Project *> m_projects;
+};
 
 void DependenciesModel::resetModel()
 {
@@ -124,6 +138,21 @@ Qt::ItemFlags DependenciesModel::flags(const QModelIndex &index) const
 //
 // DependenciesView
 //
+
+class DependenciesView : public QTreeView
+{
+public:
+    explicit DependenciesView(QWidget *parent);
+
+    QSize sizeHint() const override;
+    void setModel(QAbstractItemModel *model) override;
+
+private:
+    void updateSizeHint();
+
+    QSize m_sizeHint;
+};
+
 DependenciesView::DependenciesView(QWidget *parent)
     : QTreeView(parent)
 {
@@ -190,36 +219,59 @@ void DependenciesView::updateSizeHint()
 // DependenciesWidget
 //
 
-DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : ProjectSettingsWidget(parent),
-    m_project(project),
-    m_model(new DependenciesModel(project, this))
+class DependenciesWidget : public ProjectSettingsWidget
 {
-    setUseGlobalSettingsCheckBoxVisible(false);
-    setUseGlobalSettingsLabelVisible(false);
-    auto vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(0, 0, 0, 0);
-    m_detailsContainer = new Utils::DetailsWidget(this);
-    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-    vbox->addWidget(m_detailsContainer);
+public:
+    explicit DependenciesWidget(Project *project)
+        : m_model(project)
+    {
+        setUseGlobalSettingsCheckBoxVisible(false);
+        setUseGlobalSettingsLabelVisible(false);
+        auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(0, 0, 0, 0);
+        m_detailsContainer = new Utils::DetailsWidget(this);
+        m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+        vbox->addWidget(m_detailsContainer);
 
-    auto detailsWidget = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(detailsWidget);
-    auto layout = new QGridLayout(detailsWidget);
-    layout->setContentsMargins(0, -1, 0, -1);
-    auto treeView = new DependenciesView(this);
-    treeView->setModel(m_model);
-    treeView->setHeaderHidden(true);
-    layout->addWidget(treeView, 0 ,0);
-    layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
+        auto detailsWidget = new QWidget(m_detailsContainer);
+        m_detailsContainer->setWidget(detailsWidget);
+        auto layout = new QGridLayout(detailsWidget);
+        layout->setContentsMargins(0, -1, 0, -1);
+        auto treeView = new DependenciesView(this);
+        treeView->setModel(&m_model);
+        treeView->setHeaderHidden(true);
+        layout->addWidget(treeView, 0 ,0);
+        layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
 
-    m_cascadeSetActiveCheckBox = new QCheckBox;
-    m_cascadeSetActiveCheckBox->setText(Tr::tr("Synchronize configuration"));
-    m_cascadeSetActiveCheckBox->setToolTip(Tr::tr("Synchronize active kit, build, and deploy configuration between projects."));
-    m_cascadeSetActiveCheckBox->setChecked(ProjectManager::isProjectConfigurationCascading());
-    connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
-            ProjectManager::instance(), &ProjectManager::setProjectConfigurationCascading);
-    layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
+        m_cascadeSetActiveCheckBox = new QCheckBox;
+        m_cascadeSetActiveCheckBox->setText(Tr::tr("Synchronize configuration"));
+        m_cascadeSetActiveCheckBox->setToolTip(Tr::tr("Synchronize active kit, build, and deploy configuration between projects."));
+        m_cascadeSetActiveCheckBox->setChecked(ProjectManager::isProjectConfigurationCascading());
+        connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
+                ProjectManager::instance(), &ProjectManager::setProjectConfigurationCascading);
+        layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
+    }
+
+private:
+    DependenciesModel m_model;
+    Utils::DetailsWidget *m_detailsContainer;
+    QCheckBox *m_cascadeSetActiveCheckBox;
+};
+
+class DependenciesProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    DependenciesProjectPanelFactory()
+    {
+        setPriority(50);
+        setDisplayName(Tr::tr("Dependencies"));
+        setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
+    }
+};
+
+void setupDependenciesProjectPanel()
+{
+    static DependenciesProjectPanelFactory theDependenciesProjectPanelFactory;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

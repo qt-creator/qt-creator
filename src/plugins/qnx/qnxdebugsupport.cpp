@@ -252,11 +252,20 @@ void showAttachToProcessDialog()
 
 // QnxDebugWorkerFactory
 
-QnxDebugWorkerFactory::QnxDebugWorkerFactory()
+class QnxDebugWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QnxDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+public:
+    QnxDebugWorkerFactory()
+    {
+        setProduct<QnxDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+    }
+};
+
+void setupQnxDebugging()
+{
+    static QnxDebugWorkerFactory theQnxDebugWorkerFactory;
 }
 
 } // Qnx::Internal

@@ -8,8 +8,11 @@
 #include "formeditor.h"
 
 #include <coreplugin/coreconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 
 using namespace Core;
 using namespace Designer::Constants;
@@ -22,7 +25,7 @@ FormEditorFactory::FormEditorFactory()
 {
     setId(K_DESIGNER_XML_EDITOR_ID);
     setDisplayName(Tr::tr(C_DESIGNER_XML_DISPLAY_NAME));
-    addMimeType(FORM_MIMETYPE);
+    addMimeType(Utils::Constants::FORM_MIMETYPE);
     setEditorCreator([] { return Designer::Internal::createEditor(); });
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_UI, "ui");

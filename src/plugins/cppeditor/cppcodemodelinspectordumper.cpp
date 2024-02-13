@@ -515,9 +515,9 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
             m_out << i3 << "Project Name           : " << projectName << "\n";
             m_out << i3 << "Project File           : " << projectFilePath << "\n";
             m_out << i3 << "ToolChain Type         : " << part->toolchainType.toString() << "\n";
-            m_out << i3 << "ToolChain Target Triple: " << part->toolChainTargetTriple << "\n";
-            m_out << i3 << "ToolChain Word Width   : " << part->toolChainAbi.wordWidth() << "\n";
-            m_out << i3 << "ToolChain Install Dir  : " << part->toolChainInstallDir << "\n";
+            m_out << i3 << "ToolChain Target Triple: " << part->toolchainTargetTriple << "\n";
+            m_out << i3 << "ToolChain Word Width   : " << part->toolchainAbi.wordWidth() << "\n";
+            m_out << i3 << "ToolChain Install Dir  : " << part->toolchainInstallDir << "\n";
             m_out << i3 << "Compiler Flags         : " << part->compilerFlags.join(", ") << "\n";
             m_out << i3 << "Selected For Building  : " << part->selectedForBuilding << "\n";
             m_out << i3 << "Build System Target    : " << part->buildSystemTarget << "\n";
@@ -537,10 +537,10 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
                 }
             }
 
-            if (!part->toolChainMacros.isEmpty()) {
+            if (!part->toolchainMacros.isEmpty()) {
                 m_out << i3 << "Toolchain Defines:{{{4\n";
                 const QList<QByteArray> defineLines =
-                        ProjectExplorer::Macro::toByteArray(part->toolChainMacros).split('\n');
+                        ProjectExplorer::Macro::toByteArray(part->toolchainMacros).split('\n');
                 for (const QByteArray &defineLine : defineLines)
                     m_out << i4 << defineLine << "\n";
             }

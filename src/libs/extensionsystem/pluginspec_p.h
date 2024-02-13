@@ -45,6 +45,7 @@ public:
     void setEnabledByDefault(bool value);
     void setForceEnabled(bool value);
     void setForceDisabled(bool value);
+    void setSoftLoadable(bool value);
 
     std::optional<QPluginLoader> loader;
     std::optional<QStaticPlugin> staticPlugin;
@@ -55,6 +56,7 @@ public:
     bool required = false;
     bool experimental = false;
     bool enabledByDefault = true;
+    bool deprecated = false;
     QString vendor;
     QString copyright;
     QString license;
@@ -69,6 +71,7 @@ public:
     bool enabledIndirectly = false;
     bool forceEnabled = false;
     bool forceDisabled = false;
+    bool softLoadable = false;
 
     QString location;
     QString filePath;

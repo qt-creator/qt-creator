@@ -83,8 +83,6 @@ enum class Variable {
     AndroidExtraLibs,
     AndroidApplicationArgs,
     IosDeploymentTarget,
-    AppmanPackageDir,
-    AppmanManifest,
     IsoIcons,
     QmakeProjectName,
     QmakeCc,

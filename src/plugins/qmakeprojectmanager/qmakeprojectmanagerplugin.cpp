@@ -1,14 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmakeprojectmanagerplugin.h"
-
 #include "addlibrarywizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
+#include "makefileparse.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakemakestep.h"
 #include "qmakenodes.h"
+#include "qmakeparser.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
@@ -22,6 +22,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -37,21 +39,17 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/action.h>
 #include <utils/hostosinfo.h>
-#include <utils/parameteraction.h>
+#include <utils/mimeconstants.h>
 #include <utils/utilsicons.h>
-
-#ifdef WITH_TESTS
-#    include <QTest>
-#endif
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeProjectManagerPluginPrivate : public QObject
 {
@@ -83,15 +81,15 @@ public:
 
     QAction *m_runQMakeAction = nullptr;
     QAction *m_runQMakeActionContextMenu = nullptr;
-    ParameterAction *m_buildSubProjectContextMenu = nullptr;
+    Action *m_buildSubProjectContextMenu = nullptr;
     QAction *m_subProjectRebuildSeparator = nullptr;
     QAction *m_rebuildSubProjectContextMenu = nullptr;
     QAction *m_cleanSubProjectContextMenu = nullptr;
     QAction *m_buildFileContextMenu = nullptr;
-    ParameterAction *m_buildSubProjectAction = nullptr;
+    Action *m_buildSubProjectAction = nullptr;
     QAction *m_rebuildSubProjectAction = nullptr;
     QAction *m_cleanSubProjectAction = nullptr;
-    ParameterAction *m_buildFileAction = nullptr;
+    Action *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
 
@@ -111,20 +109,37 @@ public:
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
 };
 
-QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
+
+class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeProjectManager.json")
+
+public:
+    ~QmakeProjectManagerPlugin() final
+    {
+        delete d;
+    }
+
+    void initialize() final;
+
+    class QmakeProjectManagerPluginPrivate *d = nullptr;
+};
 
 void QmakeProjectManagerPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQmakeOutputParserTest);
+    addTestCreator(createQmakeMakeFileParserTest);
+#endif
+
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
     d = new QmakeProjectManagerPluginPrivate;
 
     //create and register objects
-    ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    ProjectManager::registerProjectType<QmakeProject>(Utils::Constants::PROFILE_MIMETYPE);
 
     IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
     IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });
@@ -142,8 +157,8 @@ void QmakeProjectManagerPlugin::initialize()
     //register actions
     Command *command = nullptr;
 
-    d->m_buildSubProjectContextMenu = new ParameterAction(Tr::tr("Build"), Tr::tr("Build \"%1\""),
-                                                              ParameterAction::AlwaysEnabled/*handled manually*/,
+    d->m_buildSubProjectContextMenu = new Action(Tr::tr("Build"), Tr::tr("Build \"%1\""),
+                                                              Action::AlwaysEnabled/*handled manually*/,
                                                               this);
     command = ActionManager::registerAction(d->m_buildSubProjectContextMenu, Constants::BUILDSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
@@ -188,8 +203,8 @@ void QmakeProjectManagerPlugin::initialize()
     connect(d->m_buildFileContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildFileContextMenu);
 
-    d->m_buildSubProjectAction = new ParameterAction(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
-                                                         ParameterAction::AlwaysEnabled, this);
+    d->m_buildSubProjectAction = new Action(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
+                                                         Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
@@ -225,8 +240,8 @@ void QmakeProjectManagerPlugin::initialize()
     connect(d->m_cleanSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
-    d->m_buildFileAction = new ParameterAction(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
-                                                   ParameterAction::AlwaysEnabled, this);
+    d->m_buildFileAction = new Action(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
+                                                   Action::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
@@ -573,5 +588,6 @@ void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const FilePath &file
     m_buildFileContextMenu->setEnabled(visible && enabled);
 }
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal
+
+#include "qmakeprojectmanagerplugin.moc"

@@ -19,7 +19,7 @@ public:
     QString buildKey() const;
     void setBuildKey(const QString &buildKey);
 
-    void accept();
+    void accept() override;
     bool copyGradle();
 
     void setDirectory(const Utils::FilePath &directory);

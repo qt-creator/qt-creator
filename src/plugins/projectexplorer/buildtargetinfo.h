@@ -25,6 +25,8 @@ public:
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 
+    QVariant additionalData;
+
     size_t runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
 
     std::function<void(Utils::Environment &, bool)> runEnvModifier;
@@ -38,7 +40,8 @@ public:
             && ti1.workingDirectory == ti2.workingDirectory
             && ti1.isQtcRunnable == ti2.isQtcRunnable
             && ti1.usesTerminal == ti2.usesTerminal
-            && ti1.runEnvModifierHash == ti2.runEnvModifierHash;
+            && ti1.runEnvModifierHash == ti2.runEnvModifierHash
+            && ti1.additionalData == ti2.additionalData;
     }
 
     friend bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)

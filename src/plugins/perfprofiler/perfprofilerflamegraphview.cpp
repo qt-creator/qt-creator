@@ -3,8 +3,6 @@
 
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
-#include "perfprofilertool.h"
-#include "perftimelinemodel.h"
 
 #include <tracing/flamegraph.h>
 #include <tracing/timelinetheme.h>
@@ -16,12 +14,12 @@
 namespace PerfProfiler {
 namespace Internal {
 
-PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent, PerfProfilerTool *tool) :
-    QQuickWidget(parent)
+PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent)
+    : QQuickWidget(parent)
 {
     setObjectName(QLatin1String("PerfProfilerFlameGraphView"));
 
-    PerfProfilerTraceManager *manager = tool->traceManager();
+    PerfProfilerTraceManager *manager = &traceManager();
     m_model = new PerfProfilerFlameGraphModel(manager);
 
     engine()->addImportPath(":/qt/qml/");

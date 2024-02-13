@@ -40,12 +40,11 @@ private:
     {
         addMutableAction(m_toolsComboBox);
         parent.addItem(m_toolsComboBox);
-        parent.addItem(m_manageButton);
     }
 
     void refresh() override
     {
-        const auto id = [this]() {
+        const auto id = [this] {
             if (m_type == ToolType::Meson)
                 return MesonToolKitAspect::mesonToolId(m_kit);
             return NinjaToolKitAspect::ninjaToolId(m_kit);
@@ -58,7 +57,6 @@ private:
     }
 
     QComboBox *m_toolsComboBox;
-    QWidget *m_manageButton;
     ToolType m_type;
 };
 

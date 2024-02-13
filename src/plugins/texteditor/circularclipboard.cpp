@@ -3,6 +3,8 @@
 
 #include "circularclipboard.h"
 
+#include <utils/algorithm.h>
+
 using namespace TextEditor::Internal;
 
 static const int kMaxSize = 10;
@@ -19,28 +21,25 @@ CircularClipboard *CircularClipboard::instance()
 
 void CircularClipboard::collect(const QMimeData *mimeData)
 {
-    collect(QSharedPointer<const QMimeData>(mimeData));
+    collect(std::shared_ptr<const QMimeData>(mimeData));
 }
 
-void CircularClipboard::collect(const QSharedPointer<const QMimeData> &mimeData)
+void CircularClipboard::collect(const std::shared_ptr<const QMimeData> &mimeData)
 {
     //Avoid duplicates
     const QString text = mimeData->text();
-    for (QList< QSharedPointer<const QMimeData> >::iterator i = m_items.begin(); i != m_items.end(); ++i) {
-        if (mimeData == *i || text == (*i)->text()) {
-            m_items.erase(i);
-            break;
-        }
-    }
+    Utils::eraseOne(m_items, [&](const std::shared_ptr<const QMimeData> &it) {
+        return mimeData == it || text == it->text();
+    });
     if (m_items.size() >= kMaxSize)
         m_items.removeLast();
     m_items.prepend(mimeData);
 }
 
-QSharedPointer<const QMimeData> CircularClipboard::next() const
+std::shared_ptr<const QMimeData> CircularClipboard::next() const
 {
     if (m_items.isEmpty())
-        return QSharedPointer<const QMimeData>();
+        return {};
 
     if (m_current == m_items.length() - 1)
         m_current = 0;

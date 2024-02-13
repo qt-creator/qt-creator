@@ -299,35 +299,53 @@ ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
     updateExamples();
 }
 
-static bool isValidExampleOrDemo(ExampleItem *item)
+static std::function<bool(ExampleItem *)> isValidExampleOrDemo(
+    const QSet<QString> &instructionalsModules)
 {
-    QTC_ASSERT(item, return false);
-    if (item->type == Tutorial)
-        return true;
-    static QString invalidPrefix = QLatin1String("qthelp:////"); /* means that the qthelp url
+    return [instructionalsModules](ExampleItem *item) -> bool {
+        QTC_ASSERT(item, return false);
+        if (item->type == Tutorial)
+            return true;
+        static QString invalidPrefix = QLatin1String("qthelp:////"); /* means that the qthelp url
                                                                     doesn't have any namespace */
-    QString reason;
-    bool ok = true;
-    if (!item->hasSourceCode || !item->projectPath.exists()) {
-        ok = false;
-        reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist")
-                     .arg(item->projectPath.toUserOutput());
-    } else if (item->imageUrl.startsWith(invalidPrefix) || !QUrl(item->imageUrl).isValid()) {
-        ok = false;
-        reason = QString::fromLatin1("imageUrl \"%1\" not valid").arg(item->imageUrl);
-    } else if (!item->docUrl.isEmpty()
-               && (item->docUrl.startsWith(invalidPrefix) || !QUrl(item->docUrl).isValid())) {
-        ok = false;
-        reason = QString::fromLatin1("docUrl \"%1\" non-empty but not valid").arg(item->docUrl);
-    }
-    if (!ok) {
-        item->tags.append(QLatin1String("broken"));
-        qCDebug(log) << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item->name, reason);
-    }
-    if (item->description.isEmpty())
-        qCDebug(log) << QString::fromLatin1("WARNING: Item \"%1\" has no description")
-                            .arg(item->name);
-    return ok || debugExamples();
+        QString reason;
+        bool ok = true;
+        if (!item->hasSourceCode || !item->projectPath.exists()) {
+            ok = false;
+            reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist")
+                         .arg(item->projectPath.toUserOutput());
+        } else if (item->imageUrl.startsWith(invalidPrefix) || !QUrl(item->imageUrl).isValid()) {
+            ok = false;
+            reason = QString::fromLatin1("imageUrl \"%1\" not valid").arg(item->imageUrl);
+        } else if (!item->docUrl.isEmpty()
+                   && (item->docUrl.startsWith(invalidPrefix) || !QUrl(item->docUrl).isValid())) {
+            ok = false;
+            reason = QString::fromLatin1("docUrl \"%1\" non-empty but not valid").arg(item->docUrl);
+        }
+        if (!ok) {
+            item->tags.append(QLatin1String("broken"));
+            qCDebug(log) << QString::fromLatin1("ERROR: Item \"%1\" broken: %2")
+                                .arg(item->name, reason);
+        }
+        if (item->description.isEmpty())
+            qCDebug(log) << QString::fromLatin1("WARNING: Item \"%1\" has no description")
+                                .arg(item->name);
+        // a single docdependencies entry is a string of items concatenated with ','
+        // the collected meta data can be a list of this
+        for (const QString &entry : item->metaData.value("docdependencies")) {
+            const QStringList deps = entry.split(',');
+            for (const QString &dep : deps) {
+                if (!instructionalsModules.contains(dep)) {
+                    item->tags.append("unresolvedDependency");
+                    qCDebug(log) << QLatin1String("INFO: Item \"%1\" requires \"%2\"")
+                                        .arg(item->name, dep);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+        return ok || debugExamples();
+    };
 }
 
 // ordered list of "known" categories
@@ -365,6 +383,7 @@ void ExamplesViewController::updateExamples()
                                                                   &demosInstallPath,
                                                                   &qtVersion,
                                                                   m_isExamples);
+    QSet<QString> instructionalsModules;
     QStringList categoryOrder;
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
@@ -382,10 +401,12 @@ void ExamplesViewController::updateExamples()
                          << result.error();
             continue;
         }
-        items += filtered(result->items, isValidExampleOrDemo);
+        instructionalsModules.insert(result->instructionalsModule);
+        items += result->items;
         if (categoryOrder.isEmpty())
             categoryOrder = result->categoryOrder;
     }
+    items = filtered(items, isValidExampleOrDemo(instructionalsModules));
 
     if (m_isExamples) {
         if (m_exampleSetModel->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)) {

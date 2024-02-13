@@ -104,11 +104,9 @@ void QtProjectImporter::persistTemporaryQt(Kit *k, const QVariantList &vl)
         QtVersionManager::removeVersion(tmpVersion);
 }
 
-#if WITH_TESTS
 } // namespace QtSupport
 
-#include "qtsupportplugin.h"
-#include "qtversions.h"
+#if WITH_TESTS
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
@@ -117,8 +115,7 @@ void QtProjectImporter::persistTemporaryQt(Kit *k, const QVariantList &vl)
 
 #include <QTest>
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 struct DirectoryData {
     DirectoryData(const QString &ip,
@@ -294,7 +291,16 @@ static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
     return target.pathAppended(qmakeFile);
 }
 
-void QtSupportPlugin::testQtProjectImporter_oneProject_data()
+class QtProjectImporterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testQtProjectImporter_oneProject_data();
+    void testQtProjectImporter_oneProject();
+};
+
+void QtProjectImporterTest::testQtProjectImporter_oneProject_data()
 {
     // In the next two lists: 0 is the defaultKit/Qt, anything > 0 is a new kit/Qt
     QTest::addColumn<QList<int>>("kitIndexList"); // List of indices from the kitTemplate below.
@@ -369,7 +375,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject_data()
             << QList<bool>({true, true}) << QList<bool>({true, true});
 }
 
-void QtSupportPlugin::testQtProjectImporter_oneProject()
+void QtProjectImporterTest::testQtProjectImporter_oneProject()
 {
     // --------------------------------------------------------------------
     // Setup:
@@ -621,7 +627,13 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     qDeleteAll(kitTemplates);
 }
 
-} // namespace Internal
-#endif // WITH_TESTS
+QObject *createQtProjectImporterTest()
+{
+    return new QtProjectImporterTest;
+}
 
-} // namespace QtSupport
+} // QtSupport::Internal
+
+#include "qtprojectimporter.moc"
+
+#endif // WITH_TESTS

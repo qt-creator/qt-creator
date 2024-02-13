@@ -269,6 +269,11 @@ QString FakeMetaObject::className() const
 void FakeMetaObject::setClassName(const QString &name)
 { m_className = name; }
 
+QString FakeMetaObject::filePath() const
+{ return m_filePath; }
+void FakeMetaObject::setFilePath(const QString &path)
+{ m_filePath = path; }
+
 void FakeMetaObject::addExport(const QString &name, const QString &package, ComponentVersion version)
 {
     Export exp;

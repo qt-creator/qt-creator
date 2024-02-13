@@ -136,6 +136,8 @@ private slots:
     void testInsertDefFromDeclTemplateClass();
     void testInsertDefFromDeclTemplateClassWithValueParam();
     void testInsertDefFromDeclTemplateFunction();
+    void testInsertDefFromDeclTemplateClassAndTemplateFunction();
+    void testInsertDefFromDeclTemplateClassAndFunctionInsideNamespace();
     void testInsertDefFromDeclFunctionWithSignedUnsignedArgument();
     void testInsertDefFromDeclNotTriggeredForFriendFunc();
     void testInsertDefFromDeclMinimalFunctionParameterType();
@@ -143,6 +145,11 @@ private slots:
     void testInsertDefsFromDecls_data();
     void testInsertDefsFromDecls();
     void testInsertAndFormatDefsFromDecls();
+
+    void testInsertDefOutsideFromDeclTemplateClassAndTemplateFunction();
+    void testInsertDefOutsideFromDeclTemplateClass();
+    void testInsertDefOutsideFromDeclTemplateFunction();
+    void testInsertDefOutsideFromDeclFunction();
 
     void testInsertDeclFromDef();
     void testInsertDeclFromDefTemplateFuncTypename();
@@ -186,19 +193,10 @@ private slots:
     void testMoveAllFuncDefOutsideClassWithBaseClass();
     void testMoveAllFuncDefOutsideIgnoreMacroCode();
 
-    void testMoveFuncDefToDeclMemberFunc();
-    void testMoveFuncDefToDeclMemberFuncOutside();
-    void testMoveFuncDefToDeclMemberFuncToCppNS();
-    void testMoveFuncDefToDeclMemberFuncToCppNSUsing();
-    void testMoveFuncDefToDeclMemberFuncOutsideWithNs();
-    void testMoveFuncDefToDeclFreeFuncToCpp();
-    void testMoveFuncDefToDeclFreeFuncToCppNS();
-    void testMoveFuncDefToDeclCtorWithInitialization();
-    void testMoveFuncDefToDeclStructWithAssignedVariable();
+    void testMoveFuncDefToDecl_data();
+    void testMoveFuncDefToDecl();
+
     void testMoveFuncDefToDeclMacroUses();
-    void testMoveFuncDefToDeclOverride();
-    void testMoveFuncDefToDeclTemplate();
-    void testMoveFuncDefToDeclTemplateFunction();
 
     void testAssignToLocalVariableTemplates();
 

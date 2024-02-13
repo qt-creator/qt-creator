@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findinfilessilversearcher.h"
+
 #include "silversearcherparser.h"
 #include "silversearchertr.h"
 
@@ -16,12 +17,10 @@
 #include <QLabel>
 #include <QLineEdit>
 
-using namespace Core;
-using namespace SilverSearcher;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace {
+namespace SilverSearcher {
 
 const char s_searchOptionsString[] = "SearchOptionsString";
 
@@ -52,7 +51,8 @@ static bool isSilverSearcherAvailable()
     Process silverSearcherProcess;
     silverSearcherProcess.setCommand({"ag", {"--version"}});
     silverSearcherProcess.start();
-    return silverSearcherProcess.waitForFinished(1000)
+    using namespace std::chrono_literals;
+    return silverSearcherProcess.waitForFinished(1s)
         && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 
@@ -99,65 +99,61 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
     TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
 }
 
-} // namespace
-
-namespace SilverSearcher {
-
-FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
-    : SearchEngine(parent)
-    , m_path("ag")
-    , m_toolName("SilverSearcher")
+class FindInFilesSilverSearcher final : public SearchEngine
 {
-    m_widget = new QWidget;
-    auto layout = new QHBoxLayout(m_widget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    m_searchOptionsLineEdit = new QLineEdit;
-    m_searchOptionsLineEdit->setPlaceholderText(Tr::tr("Search Options (optional)"));
-    layout->addWidget(m_searchOptionsLineEdit);
+public:
+    FindInFilesSilverSearcher()
+    {
+        m_widget = new QWidget;
+        auto layout = new QHBoxLayout(m_widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        m_searchOptionsLineEdit = new QLineEdit;
+        m_searchOptionsLineEdit->setPlaceholderText(Tr::tr("Search Options (optional)"));
+        layout->addWidget(m_searchOptionsLineEdit);
 
-    FindInFiles *findInFiles = FindInFiles::instance();
-    QTC_ASSERT(findInFiles, return);
-    findInFiles->addSearchEngine(this);
+        FindInFiles *findInFiles = FindInFiles::instance();
+        QTC_ASSERT(findInFiles, return);
+        findInFiles->addSearchEngine(this);
 
-    // TODO: Make disabled by default and run isSilverSearcherAvailable asynchronously
-    setEnabled(isSilverSearcherAvailable());
-    if (!isEnabled()) {
-        QLabel *label = new QLabel(Tr::tr("Silver Searcher is not available on the system."));
-        label->setStyleSheet("QLabel { color : red; }");
-        layout->addWidget(label);
+        // TODO: Make disabled by default and run isSilverSearcherAvailable asynchronously
+        setEnabled(isSilverSearcherAvailable());
+        if (!isEnabled()) {
+            QLabel *label = new QLabel(Tr::tr("Silver Searcher is not available on the system."));
+            label->setStyleSheet("QLabel { color : red; }");
+            layout->addWidget(label);
+        }
     }
-}
 
-QString FindInFilesSilverSearcher::title() const
-{
-    return "Silver Searcher";
-}
+    QString title() const final { return "Silver Searcher"; }
+    QString toolTip() const final { return {}; }
+    QWidget *widget() const final { return m_widget; }
 
-QString FindInFilesSilverSearcher::toolTip() const
-{
-    return {};
-}
+    void readSettings(QtcSettings *settings) final
+    {
+        m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());
+    }
 
-QWidget *FindInFilesSilverSearcher::widget() const
-{
-    return m_widget;
-}
+    void writeSettings(QtcSettings *settings) const final
+    {
+        settings->setValue(s_searchOptionsString, m_searchOptionsLineEdit->text());
+    }
 
-void FindInFilesSilverSearcher::writeSettings(QtcSettings *settings) const
-{
-    settings->setValue(s_searchOptionsString, m_searchOptionsLineEdit->text());
-}
+    SearchExecutor searchExecutor() const final
+    {
+        return [searchOptions = m_searchOptionsLineEdit->text()](const FileFindParameters &parameters) {
+            return Utils::asyncRun(runSilverSeacher, parameters, searchOptions);
+        };
+    }
 
-SearchExecutor FindInFilesSilverSearcher::searchExecutor() const
-{
-    return [searchOptions = m_searchOptionsLineEdit->text()](const FileFindParameters &parameters) {
-        return Utils::asyncRun(runSilverSeacher, parameters, searchOptions);
-    };
-}
+private:
+    FilePath m_directorySetting;
+    QPointer<QWidget> m_widget;
+    QPointer<QLineEdit> m_searchOptionsLineEdit;
+};
 
-void FindInFilesSilverSearcher::readSettings(QtcSettings *settings)
+void setupFindInFilesSilverSearcher()
 {
-    m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());
+    static FindInFilesSilverSearcher theFindInFilesSilverSearcher;
 }
 
 } // namespace SilverSearcher

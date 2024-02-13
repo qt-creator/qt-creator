@@ -82,6 +82,10 @@ template<typename T, typename R, typename S>
 Q_REQUIRED_RESULT typename T::value_type findOr(const T &container,
                                                 typename T::value_type other,
                                                 R S::*member);
+template<typename T, typename F>
+Q_REQUIRED_RESULT std::optional<typename T::value_type> findOr(const T &container,
+                                                               std::nullopt_t,
+                                                               F function);
 
 /////////////////////////
 // findOrDefault
@@ -249,7 +253,7 @@ template<template<typename> class C, // result container type
          typename SC,                // input container type
          typename F,                 // function type
          typename Value = typename std::decay_t<SC>::value_type,
-         typename Result = std::decay_t<std::result_of_t<F(Value &)>>,
+         typename Result = std::decay_t<std::invoke_result_t<F, Value&>>,
          typename ResultContainer = C<Result>>
 Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function);
 #ifdef Q_CC_CLANG
@@ -266,7 +270,7 @@ template<template<typename, typename> class C, // result container type
          typename SC,                          // input container type
          typename F,                           // function type
          typename Value = typename std::decay_t<SC>::value_type,
-         typename Result = std::decay_t<std::result_of_t<F(Value &)>>,
+         typename Result = std::decay_t<std::invoke_result_t<F, Value&>>,
          typename ResultContainer = C<Result, std::allocator<Result>>>
 Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function);
 #endif
@@ -391,6 +395,12 @@ bool allOf(const T &container, F predicate)
     return std::all_of(std::begin(container), std::end(container), predicate);
 }
 
+template<typename T, typename F>
+bool allOf(const std::initializer_list<T> &initializerList, F predicate)
+{
+    return std::all_of(std::begin(initializerList), std::end(initializerList), predicate);
+}
+
 // allOf taking a member function pointer
 template<typename T, typename R, typename S>
 bool allOf(const T &container, R (S::*predicate)() const)
@@ -471,6 +481,21 @@ Q_REQUIRED_RESULT
 typename T::value_type findOr(const T &container, typename T::value_type other, R S::*member)
 {
     return findOr(container, other, std::mem_fn(member));
+}
+
+template<typename C, typename F>
+Q_REQUIRED_RESULT typename std::optional<typename C::value_type> findOr(const C &container,
+                                                                        std::nullopt_t,
+                                                                        F function)
+{
+    typename C::const_iterator begin = std::begin(container);
+    typename C::const_iterator end = std::end(container);
+
+    typename C::const_iterator it = std::find_if(begin, end, function);
+    if (it == end)
+        return std::nullopt;
+
+    return *it;
 }
 
 //////////////////
@@ -880,7 +905,7 @@ template<template<typename...> class C, // container type
          typename F, // function type
          typename... CArgs> // Arguments to SC
 Q_REQUIRED_RESULT
-decltype(auto) transform(C<CArgs...> &container, F function)
+auto transform(C<CArgs...> &container, F function) -> decltype(auto)
 {
     return transform<C, C<CArgs...> &>(container, function);
 }
@@ -912,7 +937,7 @@ decltype(auto) transform(C<CArgs...> &container, R S::*p)
 template<template<typename...> class C = QList, // result container
          typename F> // Arguments to C
 Q_REQUIRED_RESULT
-decltype(auto) transform(const QStringList &container, F function)
+auto transform(const QStringList &container, F function)
 {
     return transform<C, const QList<QString> &>(static_cast<QList<QString>>(container), function);
 }

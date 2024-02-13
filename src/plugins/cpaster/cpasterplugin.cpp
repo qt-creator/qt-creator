@@ -1,8 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cpasterplugin.h"
-
+#include "codepasterservice.h"
 #include "cpastertr.h"
 #include "dpastedotcomprotocol.h"
 #include "fileshareprotocol.h"
@@ -19,6 +18,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -40,15 +41,39 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CodePaster {
+
+class CodePasterPluginPrivate;
+
+enum PasteSource {
+    PasteEditor = 0x1,
+    PasteClipboard = 0x2
+};
+
+class CodePasterServiceImpl final : public QObject, public CodePaster::Service
+{
+    Q_OBJECT
+    Q_INTERFACES(CodePaster::Service)
+
+public:
+    explicit CodePasterServiceImpl(CodePasterPluginPrivate *d);
+
+private:
+    void postText(const QString &text, const QString &mimeType) final;
+    void postCurrentEditor() final;
+    void postClipboard() final;
+
+    CodePasterPluginPrivate *d = nullptr;
+};
 
 class CodePasterPluginPrivate : public QObject
 {
 public:
     CodePasterPluginPrivate();
 
-    void post(CodePasterPlugin::PasteSources pasteSources);
+    void post(PasteSource pasteSources);
     void post(QString data, const QString &mimeType);
 
     void pasteSnippet();
@@ -59,10 +84,6 @@ public:
                      bool error);
 
     void fetchUrl();
-
-    QAction *m_postEditorAction = nullptr;
-    QAction *m_fetchAction = nullptr;
-    QAction *m_fetchUrlAction = nullptr;
 
     PasteBinDotComProtocol pasteBinProto;
     FileShareProtocol fileShareProto;
@@ -98,25 +119,15 @@ void CodePasterServiceImpl::postText(const QString &text, const QString &mimeTyp
 
 void CodePasterServiceImpl::postCurrentEditor()
 {
-    d->post(CodePasterPlugin::PasteEditor);
+    d->post(PasteEditor);
 }
 
 void CodePasterServiceImpl::postClipboard()
 {
-    d->post(CodePasterPlugin::PasteClipboard);
+    d->post(PasteClipboard);
 }
 
-// ---------- CodepasterPlugin
-
-CodePasterPlugin::~CodePasterPlugin()
-{
-    delete d;
-}
-
-void CodePasterPlugin::initialize()
-{
-    d = new CodePasterPluginPrivate;
-}
+// CodepasterPlugin
 
 CodePasterPluginPrivate::CodePasterPluginPrivate()
 {
@@ -139,39 +150,27 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
 
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    ActionContainer *cpContainer = ActionManager::createMenu("CodePaster");
+    const Id menu = "CodePaster";
+    ActionContainer *cpContainer = ActionManager::createMenu(menu);
     cpContainer->menu()->setTitle(Tr::tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
-    Command *command;
+    ActionBuilder(this, "CodePaster.Post")
+        .setText(Tr::tr("Paste Snippet..."))
+        .setDefaultKeySequence(Tr::tr("Meta+C,Meta+P"), Tr::tr("Alt+C,Alt+P"))
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::pasteSnippet);
 
-    m_postEditorAction = new QAction(Tr::tr("Paste Snippet..."), this);
-    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+P") : Tr::tr("Alt+C,Alt+P")));
-    connect(m_postEditorAction, &QAction::triggered, this, &CodePasterPluginPrivate::pasteSnippet);
-    cpContainer->addAction(command);
+    ActionBuilder(this, "CodePaster.Fetch")
+        .setText(Tr::tr("Fetch Snippet..."))
+        .setDefaultKeySequence(Tr::tr("Meta+C,Meta+F"), Tr::tr("Alt+C,Alt+F"))
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::fetch);
 
-    m_fetchAction = new QAction(Tr::tr("Fetch Snippet..."), this);
-    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+F") : Tr::tr("Alt+C,Alt+F")));
-    connect(m_fetchAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetch);
-    cpContainer->addAction(command);
-
-    m_fetchUrlAction = new QAction(Tr::tr("Fetch from URL..."), this);
-    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl");
-    connect(m_fetchUrlAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetchUrl);
-    cpContainer->addAction(command);
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag CodePasterPlugin::aboutToShutdown()
-{
-    // Delete temporary, fetched files
-    for (const QString &fetchedSnippet : std::as_const(d->m_fetchedSnippets)) {
-        QFile file(fetchedSnippet);
-        if (file.exists())
-            file.remove();
-    }
-    return SynchronousShutdown;
+    ActionBuilder(this, "CodePaster.FetchUrl")
+        .setText(Tr::tr("Fetch from URL..."))
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::fetchUrl);
 }
 
 static inline void textFromCurrentEditor(QString *text, QString *mimeType)
@@ -220,13 +219,13 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
-void CodePasterPluginPrivate::post(CodePasterPlugin::PasteSources pasteSources)
+void CodePasterPluginPrivate::post(PasteSource pasteSources)
 {
     QString data;
     QString mimeType;
-    if (pasteSources & CodePasterPlugin::PasteEditor)
+    if (pasteSources & PasteEditor)
         textFromCurrentEditor(&data, &mimeType);
-    if (data.isEmpty() && (pasteSources & CodePasterPlugin::PasteClipboard)) {
+    if (data.isEmpty() && (pasteSources & PasteClipboard)) {
         QString subType = "plain";
         data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
@@ -268,7 +267,7 @@ void CodePasterPluginPrivate::fetchUrl()
 
 void CodePasterPluginPrivate::pasteSnippet()
 {
-    post(CodePasterPlugin::PasteEditor | CodePasterPlugin::PasteClipboard);
+    post(PasteSource(PasteEditor | PasteClipboard));
 }
 
 void CodePasterPluginPrivate::fetch()
@@ -379,4 +378,39 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
     editor->document()->setPreferredDisplayName(titleDescription);
 }
 
+// CodePasterPlugin
+
+class CodePasterPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CodePaster.json")
+
+public:
+    ~CodePasterPlugin() final
+    {
+        delete d;
+    }
+
+private:
+    void initialize() final
+    {
+        d = new CodePasterPluginPrivate;
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        // Delete temporary, fetched files
+        for (const QString &fetchedSnippet : std::as_const(d->m_fetchedSnippets)) {
+            QFile file(fetchedSnippet);
+            if (file.exists())
+                file.remove();
+        }
+        return SynchronousShutdown;
+    }
+
+    CodePasterPluginPrivate *d = nullptr;
+};
+
 } // namespace CodePaster
+
+#include "cpasterplugin.moc"

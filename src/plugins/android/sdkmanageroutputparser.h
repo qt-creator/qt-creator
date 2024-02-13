@@ -4,12 +4,7 @@
 
 #include "androidsdkpackage.h"
 
-#include <utils/filepath.h>
-
-#include <QVersionNumber>
-
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 /*!
     \class SdkManagerOutputParser
     \brief The SdkManagerOutputParser class is a helper class to parse the output of the \c sdkmanager
@@ -17,17 +12,6 @@ namespace Internal {
  */
 class SdkManagerOutputParser
 {
-    class GenericPackageData
-    {
-    public:
-        bool isValid() const { return !revision.isNull() && !description.isNull(); }
-        QStringList headerParts;
-        QVersionNumber revision;
-        QString description;
-        Utils::FilePath installedLocation;
-        QMap<QString, QString> extraData;
-    };
-
 public:
     enum MarkerTag
     {
@@ -57,23 +41,20 @@ public:
 private:
     void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
-    bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
-                           const QString &logStrTag,
-                           const QStringList &extraKeys = QStringList()) const;
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
-    BuildTools *parseBuildToolsPackage(const QStringList &data) const;
-    SdkTools *parseSdkToolsPackage(const QStringList &data) const;
-    PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
-    EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
-    Ndk *parseNdkPackage(const QStringList &data) const;
-    ExtraTools *parseExtraToolsPackage(const QStringList &data) const;
-    GenericSdkPackage *parseGenericTools(const QStringList &data) const;
+    AndroidSdkPackage *parseBuildToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseSdkToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parsePlatformToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseEmulatorToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseNdkPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseExtraToolsPackage(const QStringList &data) const;
+    AndroidSdkPackage *parseGenericTools(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
     QHash<AndroidSdkPackage *, int> m_systemImages;
     friend class SdkManagerOutputParserTest;
 };
-} // namespace Internal
-} // namespace Android
+
+} // namespace Android::Internal

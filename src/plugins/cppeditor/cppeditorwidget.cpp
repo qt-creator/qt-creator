@@ -8,16 +8,15 @@
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditoroutline.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cppfunctiondecldeflink.h"
+#include "cppfunctionparamrenaminghandler.h"
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
 #include "cppselectionchanger.h"
 #include "cppsemanticinfo.h"
-#include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
 #include "doxygengenerator.h"
 
@@ -389,13 +388,14 @@ public:
     SemanticInfo m_lastSemanticInfo;
 
     FunctionDeclDefLinkFinder *m_declDefLinkFinder;
-    QSharedPointer<FunctionDeclDefLink> m_declDefLink;
+    std::shared_ptr<FunctionDeclDefLink> m_declDefLink;
 
     QAction *m_parseContextAction = nullptr;
     ParseContextWidget *m_parseContextWidget = nullptr;
     QToolButton *m_preprocessorButton = nullptr;
 
     CppLocalRenaming m_localRenaming;
+    CppFunctionParamRenamingHandler m_paramRenamingHandler;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
     bool inTestMode = false;
@@ -405,6 +405,7 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
+    , m_paramRenamingHandler(*q, m_localRenaming)
     , m_useSelectionsUpdater(q)
     , m_cppSelectionChanger()
 {}
@@ -615,17 +616,21 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         cursor = textCursor();
 
     // First check if the symbol to be renamed comes from a generated file.
-    LinkHandler continuation = [=, self = QPointer(this)](const Link &link) {
+    LinkHandler continuation = [this, cursor, replacement, self = QPointer(this)](const Link &link) {
         if (!self)
             return;
         showRenameWarningIfFileIsGenerated(link.targetFilePath);
-        CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
-        QPointer<CppEditorWidget> cppEditorWidget = this;
+        const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         CppModelManager::globalRename(cursorInEditor, replacement);
     };
-    CppModelManager::followSymbol(
-                CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
-                continuation, false, false);
+    CppModelManager::followSymbol(CursorInEditor{cursor,
+                                                 textDocument()->filePath(),
+                                                 this,
+                                                 textDocument()},
+                                  continuation,
+                                  false,
+                                  false,
+                                  FollowSymbolMode::Exact);
 }
 
 void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QString &replacement,
@@ -841,7 +846,8 @@ void CppEditorWidget::renameSymbolUnderCursor()
 
     QPointer<CppEditorWidget> cppEditorWidget = this;
 
-    auto renameSymbols = [=](const QString &symbolName, const Links &links, int revision) {
+    auto renameSymbols = [this, cppEditorWidget](const QString &symbolName, const Links &links,
+                                                 int revision) {
         if (cppEditorWidget) {
             viewport()->setCursor(Qt::IBeamCursor);
 
@@ -986,7 +992,8 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     CppModelManager::followSymbol(CursorInEditor{cursor, filePath, this, textDocument()},
                                   callbackWrapper,
                                   resolveTarget,
-                                  inNextSplit);
+                                  inNextSplit,
+                                  FollowSymbolMode::Fuzzy);
 }
 
 void CppEditorWidget::findTypeAt(const QTextCursor &cursor,
@@ -1114,8 +1121,8 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
             auto *progressIndicatorMenuItem = new ProgressIndicatorMenuItem(menu);
             menu->addAction(progressIndicatorMenuItem);
 
-            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
-                    menu, [=] (SemanticInfo::LocalUseMap, bool success) {
+            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, menu,
+                    [this, menu, progressIndicatorMenuItem] (SemanticInfo::LocalUseMap, bool success) {
                 QTC_CHECK(success);
                 menu->removeAction(progressIndicatorMenuItem);
                 addRefactoringActions(menu);
@@ -1281,7 +1288,8 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
         if (cap)
             return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
 
-        if (isOldStyleSignalOrSlot()) {
+        if (isOldStyleSignalOrSlot()
+            || isInCommentOrString(textCursor(), LanguageFeatures::defaultFeatures())) {
             return CppModelManager::completionAssistProvider()
                 ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         }
@@ -1291,7 +1299,7 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
     return TextEditorWidget::createAssistInterface(kind, reason);
 }
 
-QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
+std::shared_ptr<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
 {
     return d->m_declDefLink;
 }
@@ -1349,7 +1357,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);
 }
 
-void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
+void CppEditorWidget::onFunctionDeclDefLinkFound(std::shared_ptr<FunctionDeclDefLink> link)
 {
     abortDeclDefLink();
     d->m_declDefLink = link;
@@ -1397,7 +1405,7 @@ void CppEditorWidget::abortDeclDefLink()
     }
 
     d->m_declDefLink->hideMarker(this);
-    d->m_declDefLink.clear();
+    d->m_declDefLink.reset();
 }
 
 void CppEditorWidget::showPreProcessorWidget()

@@ -33,10 +33,11 @@ Q_LOGGING_CATEGORY(paintLog, "qtc.terminal.paint", QtWarningMsg)
 
 namespace TerminalSolution {
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 
 // Minimum time between two refreshes. (30fps)
-static constexpr std::chrono::milliseconds minRefreshInterval = 33ms;
+static constexpr milliseconds minRefreshInterval = 33ms;
 
 class TerminalViewPrivate
 {
@@ -77,8 +78,8 @@ public:
 
     std::array<QColor, 20> m_currentColors;
 
-    std::chrono::system_clock::time_point m_lastFlush{std::chrono::system_clock::now()};
-    std::chrono::system_clock::time_point m_lastDoubleClick{std::chrono::system_clock::now()};
+    system_clock::time_point m_lastFlush{system_clock::now()};
+    system_clock::time_point m_lastDoubleClick{system_clock::now()};
     bool m_selectLineMode{false};
     Cursor m_cursor;
     QTimer m_cursorBlinkTimer;
@@ -119,7 +120,7 @@ TerminalView::TerminalView(QWidget *parent)
     setupSurface();
     setFont(QFont(defaultFontFamily(), defaultFontSize()));
 
-    connect(&d->m_cursorBlinkTimer, &QTimer::timeout, this, [this]() {
+    connect(&d->m_cursorBlinkTimer, &QTimer::timeout, this, [this] {
         if (hasFocus())
             d->m_cursorBlinkState = !d->m_cursorBlinkState;
         else
@@ -140,7 +141,7 @@ TerminalView::TerminalView(QWidget *parent)
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this]() { flushVTerm(true); });
+    connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this] { flushVTerm(true); });
 
     connect(&d->m_scrollTimer, &QTimer::timeout, this, [this] {
         if (d->m_scrollDirection < 0)
@@ -324,6 +325,11 @@ void TerminalView::clearSelection()
     //d->m_surface->sendKey(Qt::Key_Escape);
 }
 
+void TerminalView::selectAll()
+{
+    setSelection(Selection{0, d->m_surface->fullSize().width() * d->m_surface->fullSize().height()});
+}
+
 void TerminalView::zoomIn()
 {
     QFont f = font();
@@ -361,9 +367,8 @@ void TerminalView::writeToTerminal(const QByteArray &data, bool forceFlush)
 
 void TerminalView::flushVTerm(bool force)
 {
-    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    const std::chrono::milliseconds timeSinceLastFlush
-        = std::chrono::duration_cast<std::chrono::milliseconds>(now - d->m_lastFlush);
+    const system_clock::time_point now = system_clock::now();
+    const milliseconds timeSinceLastFlush = duration_cast<milliseconds>(now - d->m_lastFlush);
 
     const bool shouldFlushImmediately = timeSinceLastFlush > minRefreshInterval;
     if (force || shouldFlushImmediately) {
@@ -376,7 +381,7 @@ void TerminalView::flushVTerm(bool force)
     }
 
     if (!d->m_flushDelayTimer.isActive()) {
-        const std::chrono::milliseconds timeToNextFlush = (minRefreshInterval - timeSinceLastFlush);
+        const milliseconds timeToNextFlush = (minRefreshInterval - timeSinceLastFlush);
         d->m_flushDelayTimer.start(timeToNextFlush.count());
     }
 }
@@ -1073,7 +1078,7 @@ void TerminalView::mousePressEvent(QMouseEvent *event)
     }
 
     if (event->button() == Qt::LeftButton) {
-        if (d->m_selection && std::chrono::system_clock::now() - d->m_lastDoubleClick < 500ms) {
+        if (d->m_selection && system_clock::now() - d->m_lastDoubleClick < 500ms) {
             d->m_selectLineMode = true;
             const Selection newSelection{d->m_surface->gridToPos(
                                              {0,
@@ -1134,7 +1139,7 @@ void TerminalView::mouseMoveEvent(QMouseEvent *event)
         d->m_scrollDirection = scrollVelocity;
 
         if (d->m_scrollTimer.isActive() && scrollVelocity != 0) {
-            const std::chrono::milliseconds scrollInterval = 1000ms / qAbs(scrollVelocity);
+            const milliseconds scrollInterval = 1000ms / qAbs(scrollVelocity);
             if (d->m_scrollTimer.intervalAsDuration() != scrollInterval)
                 d->m_scrollTimer.setInterval(scrollInterval);
         }
@@ -1204,7 +1209,7 @@ void TerminalView::mouseDoubleClickEvent(QMouseEvent *event)
 
     setSelection(Selection{hit.start, hit.end, true});
 
-    d->m_lastDoubleClick = std::chrono::system_clock::now();
+    d->m_lastDoubleClick = system_clock::now();
 
     event->accept();
 }

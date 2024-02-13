@@ -99,9 +99,9 @@
     generic files.
 
     To change the color scheme, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
-    For more information, see \l{Defining Color Schemes}.
+    For more information, see \l{Change editor colors}.
 
     \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
     {KSyntaxHighlighting} offers generic highlighting. It is the syntax
@@ -123,7 +123,7 @@
     To open the snippet editor, select \preferences >
     \uicontrol {Text Editor} > \uicontrol Snippets.
 
-    For more information, see \l{Editing Code Snippets}.
+    For more information, see \l{Snippets}.
 
     \section1 Configuring Version Control Systems
 

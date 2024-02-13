@@ -34,15 +34,15 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
 static TestTreeModel *s_instance = nullptr;
 
-TestTreeModel::TestTreeModel(TestCodeParser *parser) :
-    m_parser(parser)
+TestTreeModel::TestTreeModel(TestCodeParser *parser)
+    : m_parser(parser)
 {
     s_instance = this;
 
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::testParseResultReady,
-            this, &TestTreeModel::onParseResultReady);
+    connect(m_parser, &TestCodeParser::testParseResultsReady,
+            this, &TestTreeModel::onParseResultsReady);
     connect(m_parser, &TestCodeParser::parsingFinished,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
@@ -80,8 +80,7 @@ void TestTreeModel::setupParsingConnections()
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
         synchronizeTestTools();
-        m_checkStateCache = project ? AutotestPlugin::projectSettings(project)->checkStateCache()
-                                    : nullptr;
+        m_checkStateCache = project ? projectSettings(project)->checkStateCache() : nullptr;
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
@@ -251,7 +250,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     if (!testTool)
         return;
     // FIXME
-    const TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(bs->project());
+    const TestProjectSettings *projectSettings = Internal::projectSettings(bs->project());
     if ((projectSettings->useGlobalSettings() && !testTool->active())
             || !projectSettings->activeTestTools().contains(testTool)) {
         return;
@@ -303,7 +302,7 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 
 void TestTreeModel::synchronizeTestFrameworks()
 {
-    const TestFrameworks sorted = AutotestPlugin::activeTestFrameworks();
+    const TestFrameworks sorted = activeTestFrameworks();
     qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
     const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
     // pre-check to avoid further processing when frameworks are unchanged
@@ -339,12 +338,12 @@ void TestTreeModel::synchronizeTestTools()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestTools tools;
-    if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
+    if (!project || Internal::projectSettings(project)->useGlobalSettings()) {
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 &ITestFramework::active);
         qCDebug(LOG) << "Active test tools" << tools; // FIXME tools aren't sorted
     } else { // we've got custom project settings
-        const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
+        const TestProjectSettings *settings = Internal::projectSettings(project);
         const QHash<ITestTool *, bool> active = settings->activeTestTools();
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 [active](ITestTool *testTool) {
@@ -679,13 +678,15 @@ void TestTreeModel::revalidateCheckState(ITestTreeItem *item)
     }
 }
 
-void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
+void TestTreeModel::onParseResultsReady(const QList<TestParseResultPtr> &results)
 {
-    ITestFramework *framework = result->framework;
-    QTC_ASSERT(framework, return);
-    TestTreeItem *rootNode = framework->rootNode();
-    QTC_ASSERT(rootNode, return);
-    handleParseResult(result.data(), rootNode);
+    for (const auto &result : results) {
+        ITestFramework *framework = result->framework;
+        QTC_ASSERT(framework, return);
+        TestTreeItem *rootNode = framework->rootNode();
+        QTC_ASSERT(rootNode, return);
+        handleParseResult(result.get(), rootNode);
+    }
 }
 
 void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
@@ -898,12 +899,6 @@ void TestTreeSortFilterModel::setSortMode(ITestTreeItem::SortMode sortMode)
 {
     m_sortMode = sortMode;
     invalidate();
-}
-
-void TestTreeSortFilterModel::setFilterMode(FilterMode filterMode)
-{
-    m_filterMode = filterMode;
-    invalidateFilter();
 }
 
 void TestTreeSortFilterModel::toggleFilter(FilterMode filterMode)

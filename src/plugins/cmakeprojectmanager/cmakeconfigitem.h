@@ -6,6 +6,7 @@
 #include "cmake_global.h"
 
 #include <QByteArray>
+#include <QObject>
 #include <QStringList>
 
 #include <optional>
@@ -77,5 +78,9 @@ public:
     Utils::FilePath filePathValueOf(const QByteArray &key) const;
     QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key) const;
 };
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createCMakeConfigTest(); }
+#endif
 
 } // namespace CMakeProjectManager

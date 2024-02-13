@@ -33,12 +33,12 @@ Project {
 
         // Font properties for "Spark"
         // These properties are in effect only if the "Spark" font engine is used
-        complexTextRendering: true // Set this to false if complex scripts are not needed (Arabic scripts, Indic scripts, etc.)
-        fontCachePriming: false // Set to true to decrease application startup time. Only applies to fonts configured with unicode ranges (font.unicodeCoverage).
-        fontCacheSize: 0 // If this is needed, use a suitable number. Setting this to a sensible value will improve performance, the global default is 104800.
-        fontHeapSize: -1 // Set to sufficient value to improve performance. -1 means no restrictions to heap allocation.
-        fontHeapPrealloc: true
-        fontCachePrealloc: true
+        // complexTextRendering: true // Set this to false if complex scripts are not needed (Arabic scripts, Indic scripts, etc.)
+        // fontCachePriming: false // Set to true to decrease application startup time. Only applies to fonts configured with unicode ranges (font.unicodeCoverage).
+        // fontCacheSize: 0 // If this is needed, use a suitable number. Setting this to a sensible value will improve performance, the global default is 104800.
+        // fontHeapSize: -1 // Set to sufficient value to improve performance. -1 means no restrictions to heap allocation.
+        // fontHeapPrealloc: true
+        // fontCachePrealloc: true
     }
 
     QmlFiles {

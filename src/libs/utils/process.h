@@ -14,6 +14,7 @@
 
 #include <solutions/tasking/tasktree.h>
 
+#include <QDeadlineTimer>
 #include <QProcess>
 
 QT_BEGIN_NAMESPACE
@@ -73,9 +74,9 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
-    bool waitForStarted(int msecs = 30000);
-    bool waitForReadyRead(int msecs = 30000);
-    bool waitForFinished(int msecs = 30000);
+    bool waitForStarted(QDeadlineTimer timeout = std::chrono::seconds(30));
+    bool waitForReadyRead(QDeadlineTimer timeout = std::chrono::seconds(30));
+    bool waitForFinished(QDeadlineTimer timeout = std::chrono::seconds(30));
 
     // ProcessSetupData related
 
@@ -126,8 +127,8 @@ public:
     void setExtraData(const QVariantHash &extraData);
     QVariantHash extraData() const;
 
-    void setReaperTimeout(int msecs);
-    int reaperTimeout() const;
+    void setReaperTimeout(std::chrono::milliseconds timeout);
+    std::chrono::milliseconds reaperTimeout() const;
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 
@@ -144,17 +145,12 @@ public:
 
     // Starts the command and waits for finish.
     // User input processing is enabled when EventLoopMode::On was passed.
-    void runBlocking(EventLoopMode eventLoopMode = EventLoopMode::Off);
-
-    /* Timeout for hanging processes (triggers after no more output
-     * occurs on stderr/stdout). */
-    void setTimeoutS(int timeoutS);
-    int timeoutS() const;
+    void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
+                     EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
     void setTimeOutMessageBoxEnabled(bool);
-    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
 
     void setStdOutCallback(const TextChannelCallback &callback);
     void setStdOutLineCallback(const TextChannelCallback &callback);
@@ -172,6 +168,7 @@ public:
     QString allOutput() const;
 
     QByteArray rawStdOut() const;
+    QByteArray rawStdErr() const;
 
     QString stdOut() const; // possibly with CR
     QString stdErr() const; // possibly with CR
@@ -182,7 +179,10 @@ public:
     const QStringList stdOutLines() const; // split, CR removed
     const QStringList stdErrLines() const; // split, CR removed
 
+    static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
+                               std::chrono::milliseconds duration);
     QString exitMessage() const;
+    std::chrono::milliseconds processDuration() const;
 
     QString toStandaloneCommandLine() const;
 

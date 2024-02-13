@@ -10,20 +10,17 @@
 #include <utils/id.h>
 #include <utils/proxyaction.h>
 
-#include <QList>
-#include <QMultiMap>
-#include <QPointer>
-#include <QMap>
 #include <QKeySequence>
+#include <QList>
+#include <QMap>
+#include <QPointer>
 
 #include <memory>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class CommandPrivate : public QObject
 {
-    Q_OBJECT
 public:
     CommandPrivate(Command *parent);
 
@@ -50,11 +47,10 @@ public:
     mutable std::unique_ptr<Utils::ProxyAction> m_touchBarAction;
     QString m_toolTip;
 
-    QMap<Utils::Id, QPointer<QAction> > m_contextActionMap;
-    QMap<QAction*, bool> m_scriptableMap;
+    QMap<Utils::Id, QPointer<QAction>> m_contextActionMap;
+    QHash<QAction *, bool> m_scriptableHash;
     bool m_active = false;
     bool m_contextInitialized = false;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

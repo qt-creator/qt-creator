@@ -267,7 +267,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
            st}
         .attachTo(this);
 
-    connect(m_designerEnableDebuggerCheckBox, &QCheckBox::toggled, [=](bool checked) {
+    connect(m_designerEnableDebuggerCheckBox, &QCheckBox::toggled, [this](bool checked) {
         if (checked && ! m_designerShowDebuggerCheckBox->isChecked())
             m_designerShowDebuggerCheckBox->setChecked(true);
         }
@@ -288,7 +288,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
         m_puppetBuildPathLineEdit, &QLineEdit::setEnabled);
     connect(resetStyle, &QPushButton::clicked,
         m_styleLineEdit, &QLineEdit::clear);
-    connect(m_controls2StyleComboBox, &QComboBox::currentTextChanged, [=]() {
+    connect(m_controls2StyleComboBox, &QComboBox::currentTextChanged, [this] {
         m_styleLineEdit->setText(m_controls2StyleComboBox->currentText());
     });
 

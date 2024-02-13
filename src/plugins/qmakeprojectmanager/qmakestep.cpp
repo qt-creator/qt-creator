@@ -149,7 +149,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     Kit *kit = target()->kit();
     QMakeStepConfig config;
     Abi targetAbi;
-    if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit)) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
@@ -267,22 +267,22 @@ Tasking::GroupItem QMakeStep::runRecipe()
 
     const auto onSetup = [this] {
         if (m_scriptTemplate)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         if (m_needToRunQMake)
             return SetupResult::Continue;
         emit addOutput(Tr::tr("Configuration unchanged, skipping qmake step."),
                        OutputFormat::NormalMessage);
-        return SetupResult::StopWithDone;
+        return SetupResult::StopWithSuccess;
     };
 
-    const auto setupQMake = [this](Process &process) {
+    const auto onQMakeSetup = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
-    const auto setupMakeQMake = [this](Process &process) {
+    const auto onMakeQMakeSetup = [this](Process &process) {
         auto *parser = new GnuMakeParser;
         parser->addSearchDir(processParameters()->workingDirectory());
         m_outputFormatter->setLineParsers({parser});
@@ -299,10 +299,10 @@ Tasking::GroupItem QMakeStep::runRecipe()
     };
 
     QList<GroupItem> processList = {onGroupSetup(onSetup),
-                                    onGroupDone(onDone),
-                                    ProcessTask(setupQMake, onProcessDone, onProcessDone)};
+                                    onGroupDone(onDone, CallDoneIf::Success),
+                                    ProcessTask(onQMakeSetup, onProcessDone)};
     if (m_runMakeQmake)
-        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessDone);
+        processList << ProcessTask(onMakeQMakeSetup, onProcessDone);
 
     return Group(processList);
 }

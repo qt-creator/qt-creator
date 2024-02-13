@@ -75,6 +75,7 @@ public:
 
     std::optional<Selection> selection() const;
     void clearSelection();
+    void selectAll();
 
     void zoomIn();
     void zoomOut();

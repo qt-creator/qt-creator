@@ -64,7 +64,7 @@ TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEdito
 
 TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new QmlJSEditor::Internal::Indenter(doc);
+    return QmlJSEditor::createQmlJsIndenter(doc);
 }
 
 QString QmlJSCodeStylePreferencesFactory::snippetProviderGroupId() const

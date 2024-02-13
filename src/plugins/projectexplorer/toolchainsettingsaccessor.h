@@ -9,21 +9,21 @@
 
 namespace ProjectExplorer {
 
-class ToolChain;
+class Toolchain;
 
 namespace Internal {
 
-class ToolChainSettingsAccessor : public Utils::UpgradingSettingsAccessor
+class ToolchainSettingsAccessor : public Utils::UpgradingSettingsAccessor
 {
 public:
-    ToolChainSettingsAccessor();
+    ToolchainSettingsAccessor();
 
-    QList<ToolChain *> restoreToolChains(QWidget *parent) const;
+    QList<Toolchain *> restoreToolchains(QWidget *parent) const;
 
-    void saveToolChains(const QList<ToolChain *> &toolchains, QWidget *parent);
+    void saveToolchains(const QList<Toolchain *> &toolchains, QWidget *parent);
 
 private:
-    QList<ToolChain *> toolChains(const Utils::Store &data) const;
+    QList<Toolchain *> toolChains(const Utils::Store &data) const;
 };
 
 } // namespace Internal

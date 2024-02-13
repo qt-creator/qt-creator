@@ -57,6 +57,8 @@ signals:
     // the default argument '=0' is important for connects without the oldMode argument.
     void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
 
+    void currentMainWindowChanged();
+
 private:
     explicit ModeManager(Internal::FancyTabWidget *modeStack);
     ~ModeManager() override;

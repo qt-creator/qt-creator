@@ -4,13 +4,14 @@
 #include "axivionprojectsettings.h"
 
 #include "axivionplugin.h"
-#include "axivionquery.h"
-#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
@@ -20,6 +21,7 @@
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -31,7 +33,7 @@ const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
 class AxivionProjectSettingsHandler : public QObject
 {
 public:
-    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project)
+    AxivionProjectSettings *projectSettings(Project *project)
     {
         auto &settings = m_axivionProjectSettings[project];
         if (!settings)
@@ -45,7 +47,7 @@ public:
         m_axivionProjectSettings.clear();
     }
 
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
+    QHash<Project *, AxivionProjectSettings *> m_axivionProjectSettings;
 };
 
 static AxivionProjectSettingsHandler &projectSettingsHandler()
@@ -56,17 +58,15 @@ static AxivionProjectSettingsHandler &projectSettingsHandler()
 
 // AxivionProjectSettings
 
-AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project)
+AxivionProjectSettings::AxivionProjectSettings(Project *project)
     : m_project{project}
 {
     load();
-    connect(project, &ProjectExplorer::Project::settingsLoaded,
-            this, &AxivionProjectSettings::load);
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
-            this, &AxivionProjectSettings::save);
+    connect(project, &Project::settingsLoaded, this, &AxivionProjectSettings::load);
+    connect(project, &Project::aboutToSaveSettings, this, &AxivionProjectSettings::save);
 }
 
-AxivionProjectSettings *AxivionProjectSettings::projectSettings(ProjectExplorer::Project *project)
+AxivionProjectSettings *AxivionProjectSettings::projectSettings(Project *project)
 {
     return projectSettingsHandler().projectSettings(project);
 }
@@ -88,14 +88,13 @@ void AxivionProjectSettings::save()
 
 // AxivionProjectSettingsWidget
 
-class AxivionProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+class AxivionProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
-    explicit AxivionProjectSettingsWidget(ProjectExplorer::Project *project);
+    explicit AxivionProjectSettingsWidget(Project *project);
 
 private:
     void fetchProjects();
-    void onDashboardInfoReceived(const DashboardInfo &info);
     void onSettingsChanged();
     void linkProject();
     void unlinkProject();
@@ -108,10 +107,11 @@ private:
     QPushButton *m_fetchProjects = nullptr;
     QPushButton *m_link = nullptr;
     QPushButton *m_unlink = nullptr;
-    Utils::InfoLabel *m_infoLabel = nullptr;
+    InfoLabel *m_infoLabel = nullptr;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
-AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project)
+AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
     : m_projectSettings(projectSettingsHandler().projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
@@ -130,7 +130,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
     verticalLayout->addWidget(new QLabel(Tr::tr("Dashboard projects:")));
     verticalLayout->addWidget(m_dashboardProjects);
 
-    m_infoLabel = new Utils::InfoLabel(this);
+    m_infoLabel = new InfoLabel(this);
     m_infoLabel->setVisible(false);
     verticalLayout->addWidget(m_infoLabel);
 
@@ -165,30 +165,20 @@ void AxivionProjectSettingsWidget::fetchProjects()
     m_dashboardProjects->clear();
     m_fetchProjects->setEnabled(false);
     m_infoLabel->setVisible(false);
-    // TODO perform query and populate m_dashboardProjects
-    const AxivionQuery query(AxivionQuery::DashboardInfo);
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved,
-            this, [this](const QByteArray &result){
-        onDashboardInfoReceived(ResultParser::parseDashboardInfo(result));
-    });
-    connect(runner, &AxivionQueryRunner::finished, this, [runner]{ runner->deleteLater(); });
-    runner->start();
-}
 
-void AxivionProjectSettingsWidget::onDashboardInfoReceived(const DashboardInfo &info)
-{
-    if (!info.error.isEmpty()) {
-        m_infoLabel->setText(info.error);
-        m_infoLabel->setType(Utils::InfoLabel::Error);
-        m_infoLabel->setVisible(true);
+    const auto onDashboardInfo = [this](const expected_str<DashboardInfo> &info) {
+        if (!info) {
+            m_infoLabel->setText(info.error());
+            m_infoLabel->setType(InfoLabel::Error);
+            m_infoLabel->setVisible(true);
+        } else {
+            for (const QString &project : info->projects)
+                new QTreeWidgetItem(m_dashboardProjects, {project});
+        }
         updateEnabledStates();
-        return;
-    }
+    };
 
-    for (const Project &project : info.projects)
-        new QTreeWidgetItem(m_dashboardProjects, {project.name});
-    updateEnabledStates();
+    m_taskTreeRunner.start(dashboardInfoRecipe(onDashboardInfo));
 }
 
 void AxivionProjectSettingsWidget::onSettingsChanged()
@@ -206,7 +196,7 @@ void AxivionProjectSettingsWidget::linkProject()
     const QString projectName = selected.first()->text(0);
     m_projectSettings->setDashboardProjectName(projectName);
     updateUi();
-    AxivionPlugin::fetchProjectInfo(projectName);
+    fetchProjectInfo(projectName);
 }
 
 void AxivionProjectSettingsWidget::unlinkProject()
@@ -215,7 +205,7 @@ void AxivionProjectSettingsWidget::unlinkProject()
 
     m_projectSettings->setDashboardProjectName({});
     updateUi();
-    AxivionPlugin::fetchProjectInfo({});
+    fetchProjectInfo({});
 }
 
 void AxivionProjectSettingsWidget::updateUi()
@@ -230,8 +220,7 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = settings().curl().isExecutableFile()
-            && !settings().server.dashboard.isEmpty()
+    const bool hasDashboardSettings = !settings().server.dashboard.isEmpty()
             && !settings().server.token.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()
@@ -243,14 +232,27 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
 
     if (!hasDashboardSettings) {
         m_infoLabel->setText(Tr::tr("Incomplete or misconfigured settings."));
-        m_infoLabel->setType(Utils::InfoLabel::NotOk);
+        m_infoLabel->setType(InfoLabel::NotOk);
         m_infoLabel->setVisible(true);
     }
 }
 
-ProjectSettingsWidget *AxivionProjectSettings::createSettingsWidget(ProjectExplorer::Project *project)
+class AxivionProjectPanelFactory : public ProjectPanelFactory
 {
-   return new AxivionProjectSettingsWidget(project);
+public:
+    AxivionProjectPanelFactory()
+    {
+        setPriority(250);
+        setDisplayName(Tr::tr("Axivion"));
+        setCreateWidgetFunction([](Project *project) {
+            return new AxivionProjectSettingsWidget(project);
+        });
+    }
+};
+
+void AxivionProjectSettings::setupProjectPanel()
+{
+    static AxivionProjectPanelFactory theAxivionProjectPanelFactory;
 }
 
 } // Axivion::Internal

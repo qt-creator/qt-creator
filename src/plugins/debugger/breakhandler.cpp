@@ -1241,7 +1241,7 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
 
 void BreakpointItem::gotoState(BreakpointState target, BreakpointState assumedCurrent)
 {
-    QTC_ASSERT(m_state == assumedCurrent, qDebug() << m_state);
+    QTC_ASSERT(m_state == assumedCurrent, qDebug() << target << m_state);
     setState(target);
 }
 
@@ -1940,10 +1940,13 @@ QString BreakpointItem::toolTip() const
         << "<tr><td>" << Tr::tr("Marker File:")
         << "</td><td>" << markerFileName().toUserOutput() << "</td></tr>"
         << "<tr><td>" << Tr::tr("Marker Line:")
-        << "</td><td>" << markerLineNumber() << "</td></tr>"
-        << "<tr><td>" << Tr::tr("Hit Count:")
-        << "</td><td>" << m_parameters.hitCount << "</td></tr>"
-        << "</table><br><table>"
+        << "</td><td>" << markerLineNumber() << "</td></tr>";
+    if (m_parameters.hitCount) {
+        str << "<tr><td>" << Tr::tr("Hit Count:")
+            << "</td><td>" << *m_parameters.hitCount << "</td></tr>";
+    }
+
+    str << "</table><br><table>"
         << "<tr><th>" << Tr::tr("Property")
         << "</th><th>" << Tr::tr("Requested")
         << "</th><th>" << Tr::tr("Obtained") << "</th></tr>";

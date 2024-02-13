@@ -268,10 +268,10 @@ void CppHighlighter::highlightBlock(const QString &text)
                                                    tokenize.expectedRawStringSuffix());
 }
 
-void CppHighlighter::setLanguageFeatures(const LanguageFeatures &languageFeatures)
+void CppHighlighter::setLanguageFeaturesFlags(unsigned int flags)
 {
-    if (languageFeatures != m_languageFeatures) {
-        m_languageFeatures = languageFeatures;
+    if (flags != m_languageFeatures.flags) {
+        m_languageFeatures.flags = flags;
         rehighlight();
     }
 }

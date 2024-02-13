@@ -11,6 +11,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
+#include "cmaketoolmanager.h"
 
 #include <android/androidconstants.h>
 
@@ -68,10 +69,12 @@ public:
     void start() final {
         Target *target = *task();
         if (!target) {
-            emit done(false);
+            emit done(DoneResult::Error);
             return;
         }
-        connect(target, &Target::parsingFinished, this, &TaskInterface::done);
+        connect(target, &Target::parsingFinished, this, [this](bool success) {
+            emit done(toDoneResult(success));
+        });
     }
 };
 
@@ -231,7 +234,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     stagingDir.setExpectedKind(PathChooser::Kind::Directory);
 
     Kit *kit = buildConfiguration()->kit();
-    if (CMakeBuildConfiguration::isIos(kit)) {
+    if (CMakeBuildConfiguration::isIos(kit) && CMakeGeneratorKitAspect::generator(kit) == "Xcode") {
         useiOSAutomaticProvisioningUpdates.setDefaultValue(true);
         useiOSAutomaticProvisioningUpdates.setSettingsKey(
                   IOS_AUTOMATIC_PROVISIONG_UPDATES_ARGUMENTS_KEY);
@@ -334,7 +337,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     formatter->addLineParser(progressParser);
     cmakeParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;
@@ -361,24 +364,20 @@ GroupItem CMakeBuildStep::runRecipe()
         else if (bs->isWaitingForParse())
             message = Tr::tr("Running CMake in preparation to build...");
         else
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         emit addOutput(message, OutputFormat::NormalMessage);
         parseTarget = target();
         return SetupResult::Continue;
     };
-    const auto onParserError = [this](const QPointer<Target> &) {
+    const auto onParserError = [this] {
         emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
                        OutputFormat::ErrorMessage);
     };
-    const auto onEnd = [this] {
-        updateDeploymentData();
-    };
     Group root {
-        ignoreReturnValue() ? finishAllAndDone : stopOnError,
-        ProjectParserTask(onParserSetup, {}, onParserError),
+        ignoreReturnValue() ? finishAllAndSuccess : stopOnError,
+        ProjectParserTask(onParserSetup, onParserError, CallDoneIf::Error),
         defaultProcessTask(),
-        onGroupDone(onEnd),
-        onGroupError(onEnd)
+        onGroupDone([this] { updateDeploymentData(); })
     };
     return root;
 }
@@ -440,7 +439,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (buildConfiguration())
         buildDirectory = buildConfiguration()->buildDirectory();
 
-    cmd.addArgs({"--build", buildDirectory.path()});
+    cmd.addArgs({"--build", CMakeToolManager::mappedFilePath(buildDirectory).path()});
 
     cmd.addArg("--target");
     cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {
@@ -805,11 +804,20 @@ void CMakeBuildStep::updateDeploymentData()
 
 // CMakeBuildStepFactory
 
-CMakeBuildStepFactory::CMakeBuildStepFactory()
+class CMakeBuildStepFactory final : public BuildStepFactory
 {
-    registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
-    setDisplayName(Tr::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
-    setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
+public:
+    CMakeBuildStepFactory()
+    {
+        registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
+        setDisplayName(Tr::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
+        setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
+    }
+};
+
+void setupCMakeBuildStep()
+{
+    static CMakeBuildStepFactory theCMakeBuildStepFactory;
 }
 
 } // CMakeProjectManager::Internal

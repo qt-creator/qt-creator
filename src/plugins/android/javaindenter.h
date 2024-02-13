@@ -5,24 +5,8 @@
 
 #include <texteditor/textindenter.h>
 
-namespace Android {
-namespace Internal {
-class JavaIndenter : public TextEditor::TextIndenter
-{
-public:
-    explicit JavaIndenter(QTextDocument *doc);
-    ~JavaIndenter() override;
+namespace Android::Internal {
 
-    bool isElectricCharacter(const QChar &ch) const override;
+TextEditor::TextIndenter *createJavaIndenter(QTextDocument *doc);
 
-    void indentBlock(const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
-                     int cursorPositionInEditor = -1) override;
-
-    int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
-                  int cursorPositionInEditor = -1) override;
-};
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

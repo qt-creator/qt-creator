@@ -16,9 +16,12 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -131,7 +134,7 @@ BranchView::BranchView()
             this, &BranchView::expandAndResize);
 
     m_branchView->selectionModel()->clear();
-    m_repository = GitPlugin::currentState().topLevel();
+    m_repository = currentState().topLevel();
 }
 
 void BranchView::refreshIfSame(const FilePath &repository)
@@ -156,7 +159,7 @@ void BranchView::refresh(const FilePath &repository, bool force)
         m_branchView->setEnabled(false);
     } else {
         m_repositoryLabel->setText(m_repository.toUserOutput());
-        m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+        m_repositoryLabel->setToolTip(msgRepositoryLabel(m_repository));
         m_addAction->setToolTip(Tr::tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
@@ -228,12 +231,14 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
-    std::unique_ptr<TaskTree> taskTree;
+    TaskTreeRunner taskTreeRunner;
     QAction *mergeAction = nullptr;
 
     SetInContext block(m_blockRefresh);
     QMenu contextMenu;
-    contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
+    if (isLocal)
+        contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
+
     const std::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
         contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote] {
@@ -246,9 +251,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             });
             contextMenu.addSeparator();
         }
-        contextMenu.addAction(Tr::tr("Manage &Remotes..."), this, [] {
-            GitPlugin::manageRemotes();
-        });
+        contextMenu.addAction(Tr::tr("Manage &Remotes..."), this, &manageRemotes);
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
@@ -276,7 +279,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                                                     .arg(indexName, currentName),
                                                 this,
                                                 [this] { merge(false); });
-            taskTree.reset(onFastForwardMerge([&] {
+            taskTreeRunner.start(fastForwardMergeRecipe([&] {
                 auto ffMerge = new QAction(
                     Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)").arg(indexName, currentName));
                 connect(ffMerge, &QAction::triggered, this, [this] { merge(true); });
@@ -284,7 +287,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
             }));
-            connect(mergeAction, &QObject::destroyed, taskTree.get(), &TaskTree::stop);
+            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &TaskTreeRunner::reset);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),
@@ -340,7 +343,7 @@ QModelIndex BranchView::selectedIndex()
 bool BranchView::add()
 {
     if (m_repository.isEmpty()) {
-        GitPlugin::initRepository();
+        initRepository();
         return true;
     }
 
@@ -398,9 +401,8 @@ bool BranchView::checkout()
     if (gitClient().gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != GitClient::StatusChanged)
         branchCheckoutDialog.foundNoLocalChanges();
 
-    QList<Stash> stashes;
-    gitClient().synchronousStashList(m_repository, &stashes);
-    for (const Stash &stash : std::as_const(stashes)) {
+    const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
+    for (const Stash &stash : stashes) {
         if (stash.message.startsWith(popMessageStart)) {
             branchCheckoutDialog.foundStashForNextBranch();
             break;
@@ -424,16 +426,17 @@ bool BranchView::checkout()
                 return false;
         }
 
-        const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
-        const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
-        const auto commandHandler = [=](const CommandResult &) {
+        const auto commandHandler = [this,
+                                     moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch(),
+                                     popStash = branchCheckoutDialog.popStashOfNextBranch(),
+                                     popMessageStart
+                                    ](const CommandResult &) {
             if (moveChanges) {
                 gitClient().endStashScope(m_repository);
             } else if (popStash) {
-                QList<Stash> stashes;
                 QString stashName;
-                gitClient().synchronousStashList(m_repository, &stashes);
-                for (const Stash &stash : std::as_const(stashes)) {
+                const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
+                for (const Stash &stash : stashes) {
                     if (stash.message.startsWith(popMessageStart)) {
                         stashName = stash.name;
                         break;
@@ -531,7 +534,7 @@ bool BranchView::reset(const QByteArray &resetType)
     return false;
 }
 
-TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
+Group BranchView::fastForwardMergeRecipe(const std::function<void()> &callback)
 {
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
@@ -544,34 +547,32 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         QString topRevision;
     };
 
-    const TreeStorage<FastForwardStorage> storage;
+    const Storage<FastForwardStorage> storage;
 
-    const auto setupMergeBase = [=](Process &process) {
-        gitClient().setupCommand(process, m_repository, {"merge-base", "HEAD", branch});
+    const auto onMergeBaseSetup = [repository = m_repository, branch](Process &process) {
+        gitClient().setupCommand(process, repository, {"merge-base", "HEAD", branch});
     };
     const auto onMergeBaseDone = [storage](const Process &process) {
         storage->mergeBase = process.cleanedStdOut().trimmed();
     };
 
-    const ProcessTask topRevisionProc = gitClient().topRevision(
+    const GroupItem topRevisionProc = gitClient().topRevision(
         m_repository,
         [storage](const QString &revision, const QDateTime &) {
             storage->topRevision = revision;
         });
 
     const Group root {
-        Tasking::Storage(storage),
+        storage,
         parallel,
-        ProcessTask(setupMergeBase, onMergeBaseDone),
+        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDoneIf::Success),
         topRevisionProc,
         onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)
                 callback();
-        })
+        }, CallDoneIf::Success)
     };
-    auto taskTree = new TaskTree(root);
-    taskTree->start();
-    return taskTree;
+    return root;
 }
 
 bool BranchView::merge(bool allowFastForward)

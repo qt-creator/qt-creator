@@ -15,6 +15,7 @@
 #include <QString>
 
 #include <utils/appinfo.h>
+#include <utils/mimeconstants.h>
 
 static Q_LOGGING_CATEGORY(apiLog, "qtc.compilerexplorer.api", QtWarningMsg);
 
@@ -48,7 +49,7 @@ template<typename Result>
 QFuture<Result> request(
     QNetworkAccessManager *networkManager,
     QNetworkRequest &req,
-    std::function<void(const QByteArray &, QSharedPointer<QPromise<Result>>)> callback,
+    std::function<void(const QByteArray &, std::shared_ptr<QPromise<Result>>)> callback,
     QNetworkAccessManager::Operation op = QNetworkAccessManager::GetOperation,
     const QByteArray &payload = {})
 {
@@ -59,7 +60,7 @@ QFuture<Result> request(
                                             .toUtf8();
     req.setRawHeader("User-Agent", userAgent);
 
-    QSharedPointer<QPromise<Result>> p(new QPromise<Result>);
+    std::shared_ptr<QPromise<Result>> p(new QPromise<Result>);
     p->start();
 
     // For logging purposes only
@@ -131,8 +132,8 @@ QFuture<Result> jsonRequest(QNetworkAccessManager *networkManager,
                             const QByteArray &payload = {})
 {
     QNetworkRequest req(url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    req.setRawHeader("Accept", "application/json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, Utils::Constants::JSON_MIMETYPE);
+    req.setRawHeader("Accept", Utils::Constants::JSON_MIMETYPE);
 
     return request<Result>(
         networkManager,

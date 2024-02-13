@@ -42,10 +42,12 @@ static Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerwor
 static const int GdbTempFileMaxCounter = 20;
 }
 
-using namespace std;
-using namespace std::placeholders;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+using namespace std;
+using namespace std::chrono_literals;
+using namespace std::placeholders;
 
 namespace Android {
 namespace Internal {
@@ -53,7 +55,7 @@ namespace Internal {
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
 
-static const int s_jdbTimeout = 5000;
+static const std::chrono::milliseconds s_jdbTimeout = 5s;
 
 static int APP_START_TIMEOUT = 45000;
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
@@ -92,7 +94,7 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
     static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
                                                     "do cat <$p/cmdline && echo :${p##*/}; done");
     QStringList args = {selector};
-    FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
+    FilePath adbPath = androidConfig().adbToolPath();
     args.append("shell");
     args.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
 
@@ -168,7 +170,7 @@ static FilePath debugServer(bool useLldb, const Target *target)
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
 
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = androidConfig();
 
     if (useLldb) {
         // Search suitable lldb-server binary.
@@ -510,12 +512,12 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     }
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
+    const FilePath adb = androidConfig().adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->setCommand({adb, logcatArgs});
     m_adbLogcatProcess->start();
-    if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
+    if (m_adbLogcatProcess->waitForStarted(500ms) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
 }
 
@@ -740,7 +742,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    const FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
+    const FilePath jdbPath = androidConfig().openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");
@@ -766,7 +768,7 @@ void AndroidRunnerWorker::handleJdbSettled()
     qCDebug(androidRunWorkerLog) << "Handle JDB settled";
     auto waitForCommand = [this] {
         for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
-            m_jdbProcess->waitForReadyRead(500);
+            m_jdbProcess->waitForReadyRead(500ms);
             const QByteArray lines = m_jdbProcess->readAllRawStandardOutput();
             const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {

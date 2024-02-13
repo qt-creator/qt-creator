@@ -5,6 +5,7 @@
 
 namespace Terminal::Constants {
 constexpr char NEWTERMINAL[] = "Terminal.NewTerminal";
+constexpr char CLOSETERMINAL[] = "Terminal.CloseTerminal";
 constexpr char NEXTTERMINAL[] = "Terminal.NextTerminal";
 constexpr char PREVTERMINAL[] = "Terminal.PrevTerminal";
 constexpr char MINMAX[] = "Terminal.MinMax";
@@ -16,5 +17,6 @@ constexpr char MOVECURSORWORDLEFT[] = "Terminal.MoveCursorWordLeft";
 constexpr char MOVECURSORWORDRIGHT[] = "Terminal.MoveCursorWordRight";
 constexpr char CLEAR_TERMINAL[] = "Terminal.ClearTerminal";
 constexpr char TOGGLE_KEYBOARD_LOCK[] = "Terminal.ToggleKeyboardLock";
+constexpr char SELECTALL[] = "Terminal.SelectAll";
 
 } // namespace Terminal::Constants

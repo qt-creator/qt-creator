@@ -885,11 +885,11 @@ QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
     }
 }
 
-#if defined(WITH_TESTS)
+#ifdef WITH_TESTS
 
 #include <QTest>
 
-#include "projectexplorer.h"
+#include "projectexplorer_test.h"
 
 namespace {
 
@@ -921,7 +921,7 @@ public:
 
 } // namespace
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettings()
+void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettings()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -935,7 +935,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettings()
     QCOMPARE(result, data);
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVersion()
+void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettingsObsoleteVersion()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -951,7 +951,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVe
     QCOMPARE(result.value("Version"), data.value("ProjectExplorer.Project.Updater.FileVersion"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion()
+void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -968,7 +968,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVe
     QCOMPARE(result.value("Version"), data.value("Version"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
+void ProjectExplorerTest::testUserFileAccessor_prepareToWriteSettings()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -990,7 +990,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
 
     QCOMPARE(result.count(), data.count() + 3);
     QCOMPARE(result.value("EnvironmentId").toByteArray(),
-             projectExplorerSettings().environmentId.toByteArray());
+             ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
     QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
     QCOMPARE(result.value("ProjectExplorer.Project.Updater.FileVersion").toInt(), accessor.currentVersion());
@@ -999,7 +999,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
     QCOMPARE(result.value("unique1"), data.value("unique1"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
+void ProjectExplorerTest::testUserFileAccessor_mergeSettings()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -1013,7 +1013,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
 
     Store data;
     data.insert("Version", accessor.currentVersion());
-    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
@@ -1025,7 +1025,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
     QCOMPARE(result.data.count(), data.count() + 1);
     // mergeSettings does not run updateSettings, so no OriginalVersion will be set
     QCOMPARE(result.data.value("EnvironmentId").toByteArray(),
-             projectExplorerSettings().environmentId.toByteArray()); // unchanged
+             ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray()); // unchanged
     QCOMPARE(result.data.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
     QCOMPARE(result.data.value("Version").toInt(), accessor.currentVersion()); // forced
     QCOMPARE(result.data.value("shared1"), data.value("shared1")); // from data
@@ -1034,7 +1034,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
     QCOMPARE(result.data.value("unique1"), data.value("unique1"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyUser()
+void ProjectExplorerTest::testUserFileAccessor_mergeSettingsEmptyUser()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -1055,7 +1055,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyUser()
     QCOMPARE(result.data, sharedData);
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
+void ProjectExplorerTest::testUserFileAccessor_mergeSettingsEmptyShared()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -1066,7 +1066,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
     Store data;
     data.insert("Version", accessor.currentVersion());
     data.insert("OriginalVersion", accessor.currentVersion());
-    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);

@@ -66,15 +66,11 @@
 
     \image qtcreator-application-output.webp {Application Output view}
 
-    \if defined(qtcreator)
-    For more information on the options you have, see
-    \l{Specifying Run Settings}.
-    \endif
-
     \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
 
     \if defined(qtcreator)
+
     \include qnx/creator-projects-running-qnx.qdocinc running on qnx
-    \include python/creator-python-run.qdocinc running python
+    \sa {Configure projects for running}, {Run Python applications}
     \endif
 */

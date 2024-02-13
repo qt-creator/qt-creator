@@ -304,6 +304,8 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
     for (Kit *k : KitManager::sortedKits()) {
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
+        if (m_importer && !m_importer->filter(k))
+            continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);
         connect(widget, &TargetSetupWidget::selectedToggled,
                 this, &TargetSetupPagePrivate::kitSelectionChanged);
@@ -368,8 +370,21 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
     if (d->m_widgetsWereSetUp)
         d->reset(); // Reset before changing the importer!
 
+    if (d->m_importer) {
+        disconnect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+                   this, &TargetSetupPage::initializePage);
+    }
+
+
     d->m_importer = importer;
     d->m_importWidget->setVisible(d->m_importer);
+
+    if (d->m_importer) {
+        // FIXME: Needed for the refresh of CMake preset kits created by
+        // CMakeProjectImporter
+        connect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+                this, &TargetSetupPage::initializePage);
+    }
 
     if (d->m_widgetsWereSetUp)
         initializePage();
@@ -557,7 +572,6 @@ void TargetSetupPagePrivate::doInitializePage()
     setupImports();
 
     selectAtLeastOneEnabledKit();
-
     updateVisibility();
 }
 

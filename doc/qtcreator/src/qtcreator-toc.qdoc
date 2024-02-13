@@ -16,62 +16,25 @@
         \li \l{Getting Started}
         \list
             \li \l{IDE Overview}
+        \list
+            \li \l{Creating Projects}
+            \li \l{Configuring Projects}
+        \endlist
             \li \l{User Interface}
             \li \l{Configuring Qt Creator}
             \li \l{Building and Running an Example}
             \li \l{Tutorials}
         \endlist
-        \li \l{Managing Projects}
-        \list
-            \li \l{Creating Projects}
-            \li \l{Configuring Projects}
-            \list
-                \li \l{Specifying Build Settings}
-                    \list
-                        \li \l{Cmake Build Configuration}
-                        \list
-                            \li \l{CMake Presets}
-                        \endlist
-                        \li \l{qmake Build Configuration}
-                        \li \l{Qbs Build Configuration}
-                        \li \l{Meson Build Configuration}
-                        \li \l{IncrediBuild Build Configuration}
-                        \li \l{Conan Build Configuration}
-                    \endlist
-                \li \l{Specifying Run Settings}
-                \li \l{Using Custom Output Parsers}
-                \li \l{Sharing Project Settings}
-            \endlist
-        \endlist
-        \li \l{Designing User Interfaces}
-        \list
-            \li \l{Developing Qt Quick Applications}
-            \list
-                \li \l {Creating Qt Quick Projects}
-                \li \l {Using \QMLD}
-                \li \l {Converting UI Projects to Applications}
-                \li \l {UI Files}
-                \li \l {Using QML Modules with Plugins}
-            \endlist
-            \li \l{Developing Widget Based Applications}
-            \list
-                \li  \l{Adding Qt Designer Plugins}
-            \endlist
-            \li \l{Optimizing Applications for Mobile Devices}
-        \endlist
         \li \l{Coding}
         \list
         \li \l{Writing Code}
             \list
-                \li \l{Working in Edit Mode}
                 \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
-                \li \l{Completing Code}
                 \li \l{Using Qt Quick Toolbars}
                 \li \l{Pasting and Fetching Code Snippets}
                 \li \l{Using Text Editing Macros}
                 \li \l{Comparing Files}
-                \li \l{Parsing C++ Files with the Clang Code Model}
             \endlist
             \li \l{Finding}
             \list
@@ -79,20 +42,8 @@
                 \li \l{Searching with the Locator}
             \endlist
             \li \l{Refactoring}
-            \li \l{Applying Refactoring Actions}
-            \li \l{Beautifying Source Code}
             \li \l{Configuring the Editor}
-            \list
-                \li \l{Specifying Text Editor Settings}
-                \li \l{Using FakeVim Mode}
-            \endlist
-            \li \l{Editing Markdown Files}
-            \li \l{Using Language Servers}
             \li \l{Using GitHub Copilot}
-            \li \l{Editing MIME Types}
-            \li \l{Modeling}
-            \li \l{Editing State Charts}
-
         \endlist
         \li \l{Building and Running}
         \list
@@ -165,7 +116,6 @@
                     \li \l{Profiling Function Execution}
                     \li \l{Running Valgrind Tools on External Applications}
                 \endlist
-                \li \l{Using Clang Tools}
                 \li \l{Detecting Memory Leaks with Heob}
                 \li \l{Analyzing CPU Usage}
                 \li \l{Analyzing Code with Cppcheck}
@@ -184,12 +134,22 @@
                 \generatelist creator-how-to-build-with-cmake
             \li Build with qmake
                 \generatelist creator-how-to-build-with-qmake
+            \li Run applications
+                \generatelist creator-how-to-run
+            \li Create Models and Diagrams
+                \generatelist creator-how-to-models
             \li Debug
                 \generatelist creator-how-to-debug
             \li Design UIs
                 \generatelist creator-how-to-design
             \li Edit Code
                 \generatelist creator-how-to-edit
+                \list
+                    \li Configure Editors
+                        \generatelist creator-how-to-configure-editors
+                    \li Manage Language Servers
+                        \generatelist creator-how-to-lsp
+                \endlist
             \li Manage Kits
                 \generatelist creator-how-to-manage-kits
             \li Manage Projects
@@ -214,14 +174,30 @@
                 \list
                     \li Build Systems
                         \generatelist creator-reference-build-systems
+                        \list
+                            \li Build Configurations
+                                \generatelist creator-reference-build-configurations
+                            \li Run Configurations
+                                \generatelist creator-reference-run-configurations
+                        \endlist
+                    \li Editors
+                        \generatelist creator-reference-editors
+                    \li Platforms
+                        \generatelist creator-reference-platforms
                     \li Preferences
                         \generatelist creator-reference-preferences
                         \list
+                            \li Analyzer
+                                \generatelist creator-reference-preferences-analyzer
                             \li C++
                                 \generatelist creator-reference-preferences-cpp
+                            \li Kits
+                                \generatelist creator-reference-preferences-kits
                             \li Text editor
                                 \generatelist creator-reference-preferences-text-editor
                         \endlist
+                    \li UI Design
+                        \generatelist creator-reference-ui-design
                     \li Version Control Systems
                         \generatelist creator-reference-vcs
                     \li Views

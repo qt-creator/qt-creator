@@ -7,6 +7,7 @@
 #include "xmlprotocol/parser.h"
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/process.h>
 #include <utils/processinterface.h>
@@ -62,7 +63,11 @@ class ValgrindProcessPrivate : public QObject
 public:
     ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
-    {}
+    {
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+            emit q->done(toDoneResult(result == DoneWith::Success));
+        });
+    }
 
     void setupValgrindProcess(Process *process, const CommandLine &command) const {
         CommandLine cmd = command;
@@ -93,7 +98,7 @@ public:
             const bool success = process->result() == ProcessResult::FinishedWithSuccess;
             if (!success)
                 emit q->processErrorReceived(process->errorString(), process->error());
-            emit q->done(success);
+            emit q->done(toDoneResult(success));
         });
         connect(process, &Process::readyReadStandardOutput, this, [this, process] {
             emit q->appendMessage(process->readAllStandardOutput(), StdOutFormat);
@@ -115,7 +120,7 @@ public:
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
 
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 Group ValgrindProcessPrivate::runRecipe() const
@@ -127,7 +132,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         std::unique_ptr<QTcpSocket> m_xmlSocket;
     };
 
-    TreeStorage<ValgrindStorage> storage;
+    Storage<ValgrindStorage> storage;
     SingleBarrier xmlBarrier;
 
     const auto onSetup = [this, storage, xmlBarrier] {
@@ -181,7 +186,7 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
 
     const auto onParserGroupSetup = [this] {
-        return m_localServerAddress.isNull() ? SetupResult::StopWithDone : SetupResult::Continue;
+        return m_localServerAddress.isNull() ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
 
     const auto onParserSetup = [this, storage](Parser &parser) {
@@ -196,14 +201,14 @@ Group ValgrindProcessPrivate::runRecipe() const
 
     const Group root {
         parallel,
-        Storage(storage),
-        Storage(xmlBarrier),
+        storage,
+        xmlBarrier,
         onGroupSetup(onSetup),
         ProcessTask(onProcessSetup),
         Group {
             onGroupSetup(onParserGroupSetup),
             waitForBarrierTask(xmlBarrier),
-            ParserTask(onParserSetup, {}, onParserError)
+            ParserTask(onParserSetup, onParserError, CallDoneIf::Error)
         }
     };
     return root;
@@ -211,16 +216,8 @@ Group ValgrindProcessPrivate::runRecipe() const
 
 bool ValgrindProcessPrivate::run()
 {
-    m_taskTree.reset(new TaskTree);
-    m_taskTree->setRecipe(runRecipe());
-    const auto finalize = [this](bool success) {
-        m_taskTree.release()->deleteLater();
-        emit q->done(success);
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, [finalize] { finalize(true); });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [finalize] { finalize(false); });
-    m_taskTree->start();
-    return bool(m_taskTree);
+    m_taskTreeRunner.start(runRecipe());
+    return m_taskTreeRunner.isRunning();
 }
 
 ValgrindProcess::ValgrindProcess(QObject *parent)
@@ -262,7 +259,7 @@ bool ValgrindProcess::start()
 
 void ValgrindProcess::stop()
 {
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.reset();
 }
 
 bool ValgrindProcess::runBlocking()
@@ -270,8 +267,8 @@ bool ValgrindProcess::runBlocking()
     bool ok = false;
     QEventLoop loop;
 
-    const auto finalize = [&loop, &ok](bool success) {
-        ok = success;
+    const auto finalize = [&loop, &ok](DoneResult result) {
+        ok = result == DoneResult::Success;
         // Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     };

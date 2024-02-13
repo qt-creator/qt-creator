@@ -30,30 +30,74 @@
     To specify build or run settings for a kit, select \uicontrol Build or
     \uicontrol Run below the kit name.
 
+    \section1 Specifying Build Settings
+
+    \image qtcreator-build-configurations.png {Build configurations}
+
+    Different build configurations allow you to quickly switch between
+    different build settings. By default, \QC creates the following
+    configurations:
+
+    \list
+        \li Debug
+        \li Release
+        \li Profile
+    \endlist
+
+    A debug build has debug symbols that you need for debugging the application
+    but that you can leave out from the release version. Generally, you use the
+    debug configuration for testing and the release configuration for creating
+    the final installation binary package.
+
+    If you selected CMake as the build system for the project, you can
+    use a \e {minimum size release} build configuration to create the
+    final installation binary package. It is a release build that makes the size
+    of the binary package as small as possible, even if this makes the
+    application slower.
+
+    A profile build (which is called \e {release with debug information}
+    when using CMake) is an optimized release build that is delivered
+    with separate debug information. It is best suited for analyzing
+    applications.
+
+    \section1 Specifying Run Settings
+
+    The run settings to specify depend on the type of the project and on the
+    \l{kits-tab}{Run device} that you select for the kit.
+
+    \QC automatically creates deploy and run configurations for your project.
+
+    \image qtcreator-settings-run-desktop.webp {Run Settings}
+
+    To prevent \QC from automatically creating run configurations, select
+    \preferences > \uicontrol {Build & Run}, and then deselect the
+    \uicontrol {Create suitable run configurations automatically} check box.
+
     \section1 Overriding Global Preferences
 
     In \uicontrol {Project Settings}, you can override global preferences for
     the project:
 
             \list
-                \li \l{Parsing C++ Files with the Clang Code Model}{Clangd}
-                \li \l{Using Clang Tools}{Clang Tools}
+                \li \l{Specify clangd settings}{Clangd}
+                \li \l{Speficy Clang tools settings}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
-                \li \l{Using Custom Output Parsers}{Custom Output Parsers}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specify the environment for projects}{Environment}
-                \li \l{Applying Refactoring Actions}{Quick Fixes}
-                \li \l{To-Do Entries}{To-Do} (experimental)
+                \li \l{Configure language server workspace}{Language Server}
+                \li \l{Specify settings for quick fixes}{Quick Fixes}
+                \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
     If you have multiple projects open in \QC, select the project to configure
     in \uicontrol {Active Project}.
 
-    \sa {Activate kits for a project}, {Open projects},
-    {Specifying Build Settings}, {Specifying Run Settings}
+    \sa {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects},
+    {Activate custom output parsers}
 */
 
 /*!
@@ -68,20 +112,12 @@
     lists the kits that are compatible with your project. To activate one or more
     kits, click them.
 
-    \image qtcreator-project-kits.png {List of kits in Projects mode sidebar}
+    \image qtcreator-projects-kits.webp {List of kits in Projects mode sidebar}
 
     The list displays kits from \preferences >
     \uicontrol Kits. Warning and error icons indicate that the kit configuration
     is not suitable for the project type. To view the warning and error messages,
     move the mouse pointer over the kit name.
-
-    In the list of kits, you may see entries described as \e {Replacement for
-    <kit-name>}. \QC generates them to save your project-specific settings,
-    such as custom build flags or run configuration arguments that would
-    disappear if the corresponding kits were simply removed when you remove
-    Qt versions while updating your Qt installation. You can modify the kit
-    configuration to use a currently installed Qt version and save the kit
-    under a new name.
 
     \section1 Manage kits
 
@@ -90,10 +126,11 @@
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, \l{Add compilers}{compiler},
-    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}.
+    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}, as well
+    as steps for building, deploying, and running applications.
 
-    To copy the build and run settings for a kit to another kit, select
-    \uicontrol {Copy Steps from Other Kit} in the context menu.
+    To copy the build, deploy, and run steps from another kit, select
+    \uicontrol {Copy Steps from Another Kit} in the context menu.
 
     To deactivate a kit, select \uicontrol {Disable Kit for Project} in the
     context menu.
@@ -104,5 +141,32 @@
     To import an existing build for the project, select
     \uicontrol {Import Existing Build}.
 
-    \sa {Add kits}, {Configuring Projects}, {Kits}
+    \section1 Copy custom settings from vanished targets
+
+    \QC creates a list of \uicontrol {Vanished Targets} to save project-specific
+    settings, such as custom build flags or run configuration arguments, that
+    would disappear if \QOI removes the corresponding kits when you update your
+    Qt installation.
+
+    \image qtcreator-projects-vanished-targets.webp {Vanished Targets in Projects}
+
+    Go to one of the following options in the context menu to restore the
+    project's settings:
+
+    \list
+        \li \uicontrol {Create a New Kit} creates a new kit with the same name
+            for the same device type, with the original build, deploy, and run
+            steps. Other kit settings are not restored.
+        \li \uicontrol {Copy Steps to Another Kit} copies the build, deploy, and
+            run steps to another kit.
+    \endlist
+
+    To remove vanished targets, go to \uicontrol {Remove Vanished Target} or
+    \uicontrol {Remove All Vanished Targets} in the context menu.
+
+    \note Since version 13.0, \QC does not create \e {replacement kits}, but you
+    might still see them listed for existing projects. You can copy the build,
+    deploy, and run steps from them to other kits.
+
+    \sa {Add kits}, {Configuring Projects}, {kits-tab}{Kits}
 */

@@ -24,7 +24,7 @@
     \endlist
 
     To specify the color scheme to use for semantic highlighting, select
-    \preferences > \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
+    \preferences > \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
     \QC supports syntax highlighting also for other types of files than C++,
     QML, or JavaScript.

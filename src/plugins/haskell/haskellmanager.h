@@ -5,17 +5,13 @@
 
 #include <QObject>
 
-#include <utils/fileutils.h>
+namespace Utils { class FilePath; }
 
 namespace Haskell::Internal {
 
-class HaskellManager
-{
-public:
-    static HaskellManager *instance();
+Utils::FilePath findProjectDirectory(const Utils::FilePath &filePath);
+void openGhci(const Utils::FilePath &haskellFile);
 
-    static Utils::FilePath findProjectDirectory(const Utils::FilePath &filePath);
-    static void openGhci(const Utils::FilePath &haskellFile);
-};
+void setupHaskellActions(QObject *guard);
 
 } // Haskell::Internal

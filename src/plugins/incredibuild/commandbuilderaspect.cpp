@@ -13,6 +13,7 @@
 #include <projectexplorer/project.h>
 
 #include <utils/environment.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -122,6 +123,7 @@ void CommandBuilderAspect::addToLayout(Layouting::LayoutItem &parent)
                 d->m_activeCommandBuilder = d->m_commandBuilders[idx];
             updateGui();
         });
+        setWheelScrollingWithoutFocusBlocked(d->commandBuilder);
     }
 
     if (!d->makePathChooser) {

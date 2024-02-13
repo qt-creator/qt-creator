@@ -48,12 +48,16 @@ private:
     FileContainerProvider fileContainerProvider() const override;
     void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
+    void currentEditorChanged(Core::IEditor *editor);
 
     QPointer<QWidget> m_configWidget;
     QPointer<Utils::PathChooser> m_directory;
+    QAbstractButton *m_currentDirectory;
     QStackedWidget *m_searchEngineWidget = nullptr;
     QComboBox *m_searchEngineCombo = nullptr;
     bool m_isValid = false;
 };
+
+namespace Internal { void setupFindInFiles(QObject *guard); }
 
 } // namespace TextEditor

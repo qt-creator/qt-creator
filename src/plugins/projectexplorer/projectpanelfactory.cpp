@@ -4,6 +4,7 @@
 #include "projectpanelfactory.h"
 
 #include "project.h"
+#include "projectsettingswidget.h"
 #include "projectwindow.h"
 
 #include <utils/layoutbuilder.h>
@@ -14,10 +15,14 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 static QList<ProjectPanelFactory *> s_factories;
+bool s_sorted = false;
 
 ProjectPanelFactory::ProjectPanelFactory()
     : m_supportsFunction([] (Project *) { return true; })
-{ }
+{
+    s_factories.append(this);
+    s_sorted = false;
+}
 
 int ProjectPanelFactory::priority() const
 {
@@ -39,33 +44,24 @@ void ProjectPanelFactory::setDisplayName(const QString &name)
     m_displayName = name;
 }
 
-void ProjectPanelFactory::registerFactory(ProjectPanelFactory *factory)
-{
-    auto it = std::lower_bound(s_factories.begin(), s_factories.end(), factory,
-        [](ProjectPanelFactory *a, ProjectPanelFactory *b)  {
-            return (a->priority() == b->priority() && a < b) || a->priority() < b->priority();
-        });
-
-    s_factories.insert(it, factory);
-}
-
 QList<ProjectPanelFactory *> ProjectPanelFactory::factories()
 {
+    if (!s_sorted) {
+        s_sorted = true;
+        std::sort(s_factories.begin(), s_factories.end(),
+                  [](ProjectPanelFactory *a, ProjectPanelFactory *b)  {
+            return (a->priority() == b->priority() && a < b) || a->priority() < b->priority();
+        });
+    }
     return s_factories;
 }
 
-void ProjectPanelFactory::destroyFactories()
-{
-    qDeleteAll(s_factories);
-    s_factories.clear();
-}
-
-Utils::Id ProjectPanelFactory::id() const
+Id ProjectPanelFactory::id() const
 {
     return m_id;
 }
 
-void ProjectPanelFactory::setId(Utils::Id id)
+void ProjectPanelFactory::setId(Id id)
 {
     m_id = id;
 }

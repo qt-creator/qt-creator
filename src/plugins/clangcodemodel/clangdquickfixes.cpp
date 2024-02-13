@@ -17,8 +17,8 @@ namespace Internal {
 
 ClangdQuickFixFactory::ClangdQuickFixFactory() = default;
 
-void ClangdQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterface &interface,
-                                  QuickFixOperations &result)
+void ClangdQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                                    QuickFixOperations &result)
 {
     const auto client = ClangModelManagerSupport::clientForFile(interface.filePath());
     if (!client)
@@ -60,7 +60,7 @@ private:
     TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
     {
         auto toOperation =
-            [=](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+            [this](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
             if (auto action = std::get_if<CodeAction>(&item)) {
                 const std::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
                 if (!diagnostics.has_value() || diagnostics->isEmpty())

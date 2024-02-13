@@ -16,7 +16,7 @@
     \title Setting Up Debugger
 
     The main debugger preferences are associated with the
-    \l{Kits}{kit} you build and run your project with. To
+    \l{kits-tab}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
     \preferences > \uicontrol Kits.
 

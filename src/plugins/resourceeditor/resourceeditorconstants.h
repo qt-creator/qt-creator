@@ -14,8 +14,6 @@ const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Res
 
 const char REFRESH[] = "ResourceEditor.Refresh";
 
-const char C_RESOURCE_MIMETYPE[] = "application/vnd.qt.xml.resource";
-
 const char C_ADD_PREFIX[] = "ResourceEditor.AddPrefix";
 const char C_REMOVE_PREFIX[] = "ResourceEditor.RemovePrefix";
 const char C_RENAME_PREFIX[] = "ResourceEditor.RenamePrefix";

@@ -35,7 +35,7 @@ bool ChangeSet::hasOverlap(int pos, int length) const
 {
     for (const EditOp &cmd : m_operationList) {
 
-        switch (cmd.type) {
+        switch (cmd.type()) {
         case EditOp::Replace:
             if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
@@ -71,9 +71,6 @@ bool ChangeSet::hasOverlap(int pos, int length) const
             if (cmd.pos2 > pos && cmd.pos2 < pos + length)
                 return true;
             break;
-
-        case EditOp::Unset:
-            break;
         }
     }
 
@@ -86,6 +83,11 @@ bool ChangeSet::isEmpty() const
 }
 
 QList<ChangeSet::EditOp> ChangeSet::operationList() const
+{
+    return const_cast<ChangeSet *>(this)->operationList();
+}
+
+QList<ChangeSet::EditOp> &ChangeSet::operationList()
 {
     return m_operationList;
 }
@@ -103,10 +105,9 @@ bool ChangeSet::replace_helper(int pos, int length, const QString &replacement)
     if (hasOverlap(pos, length))
         m_error = true;
 
-    EditOp cmd(EditOp::Replace);
+    EditOp cmd(EditOp::Replace, replacement);
     cmd.pos1 = pos;
     cmd.length1 = length;
-    cmd.text = replacement;
     m_operationList += cmd;
 
     return !m_error;
@@ -136,9 +137,8 @@ bool ChangeSet::insert(int pos, const QString &text)
     if (hasOverlap(pos, 0))
         m_error = true;
 
-    EditOp cmd(EditOp::Insert);
+    EditOp cmd(EditOp::Insert, text);
     cmd.pos1 = pos;
-    cmd.text = text;
     m_operationList += cmd;
 
     return !m_error;
@@ -224,78 +224,89 @@ bool ChangeSet::copy_helper(int pos, int length, int to)
 
 void ChangeSet::doReplace(const EditOp &op, QList<EditOp> *replaceList)
 {
-    Q_ASSERT(op.type == EditOp::Replace);
+    Q_ASSERT(op.type() == EditOp::Replace);
 
     {
         for (EditOp &c : *replaceList) {
             if (op.pos1 <= c.pos1)
-                c.pos1 += op.text.size();
+                c.pos1 += op.text().size();
             if (op.pos1 < c.pos1)
                 c.pos1 -= op.length1;
         }
     }
 
     if (m_string) {
-        m_string->replace(op.pos1, op.length1, op.text);
+        m_string->replace(op.pos1, op.length1, op.text());
     } else if (m_cursor) {
         m_cursor->setPosition(op.pos1);
         m_cursor->setPosition(op.pos1 + op.length1, QTextCursor::KeepAnchor);
-        m_cursor->insertText(op.text);
+        m_cursor->insertText(op.text());
     }
 }
 
 void ChangeSet::convertToReplace(const EditOp &op, QList<EditOp> *replaceList)
 {
-    EditOp replace1(EditOp::Replace);
-    EditOp replace2(EditOp::Replace);
 
-    switch (op.type) {
+    switch (op.type()) {
     case EditOp::Replace:
         replaceList->append(op);
         break;
-
-    case EditOp::Move:
+    case EditOp::Move: {
+        EditOp replace1(EditOp::Replace);
         replace1.pos1 = op.pos1;
         replace1.length1 = op.length1;
+        if (op.hasFormat1())
+            replace1.setFormat1(op.format1());
         replaceList->append(replace1);
 
+        EditOp replace2(EditOp::Replace, textAt(op.pos1, op.length1));
         replace2.pos1 = op.pos2;
-        replace2.text = textAt(op.pos1, op.length1);
+        if (op.hasFormat2())
+            replace2.setFormat1(op.format2());
         replaceList->append(replace2);
         break;
-
-    case EditOp::Insert:
-        replace1.pos1 = op.pos1;
-        replace1.text = op.text;
-        replaceList->append(replace1);
+    }
+    case EditOp::Insert: {
+        EditOp replace(EditOp::Replace, op.text());
+        replace.pos1 = op.pos1;
+        if (op.hasFormat1())
+            replace.setFormat1(op.format1());
+        replaceList->append(replace);
         break;
-
-    case EditOp::Remove:
+    }
+    case EditOp::Remove: {
+        EditOp replace(EditOp::Replace);
+        replace.pos1 = op.pos1;
+        replace.length1 = op.length1;
+        if (op.hasFormat1())
+            replace.setFormat1(op.format1());
+        replaceList->append(replace);
+        break;
+    }
+    case EditOp::Flip: {
+        EditOp replace1(EditOp::Replace, textAt(op.pos2, op.length2));
         replace1.pos1 = op.pos1;
         replace1.length1 = op.length1;
-        replaceList->append(replace1);
-        break;
-
-    case EditOp::Flip:
-        replace1.pos1 = op.pos1;
-        replace1.length1 = op.length1;
-        replace1.text = textAt(op.pos2, op.length2);
+        if (op.hasFormat1())
+            replace1.setFormat1(op.format1());
         replaceList->append(replace1);
 
+        EditOp replace2(EditOp::Replace, textAt(op.pos1, op.length1));
         replace2.pos1 = op.pos2;
         replace2.length1 = op.length2;
-        replace2.text = textAt(op.pos1, op.length1);
+        if (op.hasFormat2())
+            replace2.setFormat1(op.format2());
         replaceList->append(replace2);
         break;
-
-    case EditOp::Copy:
-        replace1.pos1 = op.pos2;
-        replace1.text = textAt(op.pos1, op.length1);
-        replaceList->append(replace1);
+    }
+    case EditOp::Copy: {
+        EditOp replace(EditOp::Replace, textAt(op.pos1, op.length1));
+        replace.pos1 = op.pos2;
+        if (op.hasFormat2())
+            replace.setFormat1(op.format2());
+        replaceList->append(replace);
         break;
-
-    case EditOp::Unset:
-        break;
+    }
     }
 }
 
@@ -354,4 +365,32 @@ void ChangeSet::apply_helper()
         m_cursor->endEditBlock();
 }
 
+ChangeSet::EditOp::EditOp(Type t, const QString &text) : m_type(t), m_text(text)
+{
+    // The formatting default values are derived as follows:
+    //   1) Inserted code generally needs to be formatted, because indentation etc is
+    //      context-dependent.
+    //   2) Removed code should not be formatted, as it is gone.
+    //   3) Copied code needs to be formatted at the insertion site as per 1).
+    //   4) Moved code needs to be formatted at the insertion site as per 1) and 2).
+    //   5) Replaced code generally does not need to be formatted, as it's typically just a name
+    //      change. Exception: The new text contains newlines, in which case we do want to format.
+    //   6) Flipped may or may be formatted at either side, as per 5).
+    switch (t) {
+    case Insert:
+        m_format1 = true;
+        break;
+    case Remove:
+        break;
+    case Copy:
+    case Move:
+        m_format2 = true;
+        break;
+    case Replace:
+        m_format1 = text.contains('\n') || text.contains(QChar::ParagraphSeparator);
+        break;
+    case Flip:
+        break; // Default will be set at conversion to Replace.
+    }
+}
 } // end namespace Utils

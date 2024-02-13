@@ -12,8 +12,7 @@ class ClearCaseAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:
-    explicit ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                            QTextDocument *document = nullptr);
+    explicit ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const override;
@@ -21,4 +20,4 @@ private:
     const QChar m_separator = QLatin1Char('|');
 };
 
-} // ClearCase::Internal
+} // namespace ClearCase::Internal

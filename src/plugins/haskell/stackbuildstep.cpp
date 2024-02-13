@@ -7,6 +7,7 @@
 #include "haskellsettings.h"
 #include "haskelltr.h"
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
@@ -14,43 +15,54 @@
 
 using namespace ProjectExplorer;
 
-namespace Haskell {
-namespace Internal {
+namespace Haskell::Internal {
 
-StackBuildStep::StackBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
-    : AbstractProcessStep(bsl, id)
-{
-    setDefaultDisplayName(trDisplayName());
-}
-
-QWidget *StackBuildStep::createConfigWidget()
-{
-    return new QWidget;
-}
-
-QString StackBuildStep::trDisplayName()
+static QString trDisplayName()
 {
     return Tr::tr("Stack Build");
 }
 
-bool StackBuildStep::init()
+class StackBuildStep final : public AbstractProcessStep
 {
-    if (AbstractProcessStep::init()) {
-        const auto projectDir = QDir(project()->projectDirectory().toString());
-        processParameters()->setCommandLine(
-            {settings().stackPath(),
-             {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toString())}});
-        processParameters()->setEnvironment(buildEnvironment());
+public:
+    StackBuildStep(BuildStepList *bsl, Utils::Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        setDefaultDisplayName(trDisplayName());
     }
-    return true;
-}
 
-StackBuildStepFactory::StackBuildStepFactory()
+    QWidget *createConfigWidget() final
+    {
+        return new QWidget;
+    }
+
+    bool init() final
+    {
+        if (AbstractProcessStep::init()) {
+            const auto projectDir = QDir(project()->projectDirectory().toString());
+            processParameters()->setCommandLine(
+                {settings().stackPath(),
+                 {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toString())}});
+            processParameters()->setEnvironment(buildEnvironment());
+        }
+        return true;
+    }
+};
+
+class StackBuildStepFactory final : public BuildStepFactory
 {
-    registerStep<StackBuildStep>(Constants::C_STACK_BUILD_STEP_ID);
-    setDisplayName(StackBuildStep::StackBuildStep::trDisplayName());
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+public:
+    StackBuildStepFactory()
+    {
+        registerStep<StackBuildStep>(Constants::C_STACK_BUILD_STEP_ID);
+        setDisplayName(trDisplayName());
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    }
+};
+
+void setupHaskellStackBuildStep()
+{
+    static StackBuildStepFactory theStackBuildStepFactory;
 }
 
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal

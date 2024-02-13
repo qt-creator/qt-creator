@@ -5,21 +5,8 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
-class GlslHighlighter : public TextEditor::SyntaxHighlighter
-{
-    Q_OBJECT
+TextEditor::SyntaxHighlighter *createGlslHighlighter();
 
-public:
-    GlslHighlighter();
-
-protected:
-    void highlightBlock(const QString &text) override;
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(QStringView text) const;
-};
-
-} // namespace Internal
-} // namespace GlslEditor
+} // GlslEditor::Internal

@@ -1,6 +1,6 @@
 add_qtc_plugin(AutotoolsProjectManager
   PLUGIN_CLASS AutotoolsProjectPlugin
-  PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     autogenstep.cpp autogenstep.h
     autoreconfstep.cpp autoreconfstep.h

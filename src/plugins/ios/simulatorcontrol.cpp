@@ -14,7 +14,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include <chrono>
 #include <memory>
 
 #include <QJsonArray>
@@ -23,7 +22,9 @@
 #include <QLoggingCategory>
 
 using namespace Utils;
+
 using namespace std;
+using namespace std::chrono;
 
 namespace {
 static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
@@ -31,7 +32,7 @@ static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 
 namespace Ios::Internal {
 
-const std::chrono::seconds simulatorStartTimeout = std::chrono::seconds(60);
+const seconds simulatorStartTimeout = seconds(60);
 
 // simctl Json Tags and tokens.
 const char deviceTypeTag[] = "devicetypes";
@@ -61,7 +62,7 @@ static expected_str<void> runCommand(
         return make_unexpected(Tr::tr("Failed to start process."));
 
     forever {
-        if (shouldStop() || p.waitForFinished(1000))
+        if (shouldStop() || p.waitForFinished(seconds(1)))
             break;
     }
 
@@ -213,8 +214,6 @@ static void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
                           const QString &filePath);
 
 static QList<SimulatorInfo> s_availableDevices;
-static QList<DeviceTypeInfo> s_availableDeviceTypes;
-static QList<RuntimeInfo> s_availableRuntimes;
 
 QList<SimulatorInfo> SimulatorControl::availableSimulators()
 {
@@ -257,27 +256,14 @@ static QList<SimulatorInfo> getAvailableSimulators()
     return availableDevices;
 }
 
-QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes(QObject *context)
+QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes()
 {
-    QFuture<QList<DeviceTypeInfo>> future = Utils::asyncRun(getAvailableDeviceTypes);
-    Utils::onResultReady(future, context, [](const QList<DeviceTypeInfo> &deviceTypes) {
-        s_availableDeviceTypes = deviceTypes;
-    });
-    return future;
+    return Utils::asyncRun(getAvailableDeviceTypes);
 }
 
-QList<RuntimeInfo> SimulatorControl::availableRuntimes()
+QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes()
 {
-    return s_availableRuntimes;
-}
-
-QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes(QObject *context)
-{
-    QFuture<QList<RuntimeInfo>> future = Utils::asyncRun(getAvailableRuntimes);
-    Utils::onResultReady(future, context, [](const QList<RuntimeInfo> &runtimes) {
-        s_availableRuntimes = runtimes;
-    });
-    return future;
+    return Utils::asyncRun(getAvailableRuntimes);
 }
 
 QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators(QObject *context)

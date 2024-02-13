@@ -7,6 +7,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
@@ -322,7 +324,7 @@ class ResultsCollectorTaskAdapter : public TaskAdapter<ResultsCollector>
 {
 public:
     ResultsCollectorTaskAdapter() {
-        connect(task(), &ResultsCollector::done, this, [this] { emit done(true); });
+        connect(task(), &ResultsCollector::done, this, [this] { emit done(DoneResult::Success); });
     }
     void start() final { task()->start(); }
 };
@@ -396,11 +398,12 @@ public:
     QString m_input;
     LocatorFilterEntries m_output;
     int m_parallelLimit = 0;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 LocatorMatcher::LocatorMatcher()
-    : d(new LocatorMatcherPrivate) {}
+    : d(new LocatorMatcherPrivate)
+{}
 
 LocatorMatcher::~LocatorMatcher() = default;
 
@@ -423,13 +426,12 @@ void LocatorMatcher::start()
 {
     QTC_ASSERT(!isRunning(), return);
     d->m_output = {};
-    d->m_taskTree.reset(new TaskTree);
 
     struct CollectorStorage
     {
         ResultsCollector *m_collector = nullptr;
     };
-    TreeStorage<CollectorStorage> collectorStorage;
+    Storage<CollectorStorage> collectorStorage;
 
     const int filterCount = d->m_tasks.size();
     const auto onCollectorSetup = [this, filterCount, collectorStorage](ResultsCollector &collector) {
@@ -441,14 +443,13 @@ void LocatorMatcher::start()
             emit serialOutputDataReady(serialOutputData);
         });
     };
-    const auto onCollectorDone = [collectorStorage](const ResultsCollector &collector) {
-        Q_UNUSED(collector)
+    const auto onCollectorDone = [collectorStorage] {
         collectorStorage->m_collector = nullptr;
     };
 
     QList<GroupItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
 
-    const auto onSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
+    const auto onSetup = [this, collectorStorage](const Storage<LocatorStorage> &storage,
                                                     int index) {
         return [this, collectorStorage, storage, index] {
             ResultsCollector *collector = collectorStorage->m_collector;
@@ -458,19 +459,14 @@ void LocatorMatcher::start()
         };
     };
 
-    const auto onDone = [](const TreeStorage<LocatorStorage> &storage) {
-        return [storage] { storage->finalize(); };
-    };
-
     int index = 0;
     for (const LocatorMatcherTask &task : std::as_const(d->m_tasks)) {
         const auto storage = task.storage;
         const Group group {
-            finishAllAndDone,
-            Storage(storage),
+            finishAllAndSuccess,
+            storage,
             onGroupSetup(onSetup(storage, index)),
-            onGroupDone(onDone(storage)),
-            onGroupError(onDone(storage)),
+            onGroupDone([storage] { storage->finalize(); }),
             task.task
         };
         parallelTasks << group;
@@ -479,38 +475,20 @@ void LocatorMatcher::start()
 
     const Group root {
         parallel,
-        Storage(collectorStorage),
-        ResultsCollectorTask(onCollectorSetup, onCollectorDone, onCollectorDone),
+        collectorStorage,
+        ResultsCollectorTask(onCollectorSetup, onCollectorDone),
         Group {
             parallelTasks
         }
     };
-
-    d->m_taskTree->setRecipe(root);
-
-    const auto onFinish = [this](bool success) {
-        return [this, success] {
-            emit done(success);
-            d->m_taskTree.release()->deleteLater();
-        };
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, this, onFinish(true));
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, onFinish(false));
-    d->m_taskTree->start();
-}
-
-void LocatorMatcher::stop()
-{
-    if (!isRunning())
-        return;
-
-    d->m_taskTree->stop();
-    d->m_taskTree.reset();
+    d->m_taskTreeRunner.start(root, {}, [this](DoneWith result) {
+        emit done(result == DoneWith::Success);
+    });
 }
 
 bool LocatorMatcher::isRunning() const
 {
-    return d->m_taskTree.get() && d->m_taskTree->isRunning();
+    return d->m_taskTreeRunner.isRunning();
 }
 
 LocatorFilterEntries LocatorMatcher::outputData() const
@@ -1493,16 +1471,16 @@ static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStor
 */
 LocatorMatcherTask LocatorFileCache::matcher() const
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 
     const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
 
         if (!that->ensureValidated())
-            return SetupResult::StopWithDone; // The cache is invalid and
+            return SetupResult::StopWithSuccess; // The cache is invalid and
                                              // no provider is set or it returned empty generator
         that->bumpExecutionId();
 
@@ -1527,7 +1505,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
         that->update(async.result());
     };
 
-    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone), storage};
+    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDoneIf::Success), storage};
 }
 
 } // Core

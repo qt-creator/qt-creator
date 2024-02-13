@@ -4,8 +4,6 @@
 #pragma once
 
 #include <QObject>
-#include <QScopedPointer>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;

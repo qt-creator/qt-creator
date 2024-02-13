@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
 #include <QMenu>
@@ -60,7 +61,7 @@ public:
         autoFormatOnlyCurrentProject.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
         autoFormatMime.setSettingsKey("autoFormatMime");
-        autoFormatMime.setDefaultValue("text/x-cmake");
+        autoFormatMime.setDefaultValue(Utils::Constants::CMAKE_MIMETYPE);
         autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
         autoFormatMime.setDisplayStyle(StringAspect::LineEditDisplay);
 
@@ -91,11 +92,11 @@ public:
             };
         });
 
-        ActionContainer *menu = ActionManager::createMenu(Constants::CMAKEFORMATTER_MENU_ID);
-        menu->menu()->setTitle(Tr::tr("CMakeFormatter"));
-        menu->menu()->setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon());
-        menu->setOnAllDisabledBehavior(ActionContainer::Show);
-        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+        MenuBuilder(Constants::CMAKEFORMATTER_MENU_ID)
+            .setTitle(Tr::tr("CMakeFormatter"))
+            .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
+            .setOnAllDisabledBehavior(ActionContainer::Show)
+            .addToContainer(Core::Constants::M_TOOLS);
 
         Core::Command *cmd = ActionManager::registerAction(&formatFile, Constants::CMAKEFORMATTER_ACTION_ID);
         connect(&formatFile, &QAction::triggered, this, [this] {
@@ -270,11 +271,11 @@ public:
     }
 };
 
-const CMakeFormatterSettingsPage settingsPage;
-
-CMakeFormatter::CMakeFormatter()
+void setupCMakeFormatter()
 {
+    static const CMakeFormatterSettingsPage theCMakeFormatterSettingsPage;
+
     formatterSettings();
-}
+};
 
 } // CMakeProjectManager::Internal

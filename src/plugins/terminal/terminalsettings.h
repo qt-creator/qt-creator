@@ -28,9 +28,9 @@ public:
 
     Utils::BoolAspect allowBlinkingCursor{this};
 
-    Utils::BoolAspect sendEscapeToTerminal{this};
+    Utils::ToggleAspect sendEscapeToTerminal{this};
     Utils::BoolAspect audibleBell{this};
-    Utils::BoolAspect lockKeyboard{this};
+    Utils::ToggleAspect lockKeyboard{this};
 
     Utils::BoolAspect enableMouseTracking{this};
 };

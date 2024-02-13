@@ -4,14 +4,8 @@
 
 #pragma once
 
-namespace Core { class IDocument; }
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeFormatter
-{
-public:
-    CMakeFormatter();
-};
+void setupCMakeFormatter();
 
 } // CMakeProjectManager::Internal

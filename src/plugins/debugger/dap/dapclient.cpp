@@ -154,6 +154,11 @@ void DapClient::setBreakpoints(const QJsonArray &breakpoints, const FilePath &fi
                             {"breakpoints", breakpoints}});
 }
 
+void DapClient::setFunctionBreakpoints(const QJsonArray &breakpoints)
+{
+    postRequest("setFunctionBreakpoints", QJsonObject{{"breakpoints", breakpoints}});
+}
+
 void DapClient::readOutput()
 {
     m_inbuffer.append(m_dataProvider->readAllStandardOutput());
@@ -205,6 +210,7 @@ void DapClient::emitSignals(const QJsonDocument &doc)
         const QString command = ob.value("command").toString();
         if (command == "initialize") {
             type = DapResponseType::Initialize;
+            fillCapabilities(ob);
         } else if (command == "configurationDone") {
             type = DapResponseType::ConfigurationDone;
         } else if (command == "continue") {
@@ -227,6 +233,10 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::Pause;
         } else if (command == "evaluate") {
             type = DapResponseType::Evaluate;
+        } else if (command == "setBreakpoints") {
+            type = DapResponseType::SetBreakpoints;
+        } else if (command == "setFunctionBreakpoints") {
+            type = DapResponseType::SetFunctionBreakpoints;
         }
         emit responseReady(type, ob);
         return;
@@ -251,6 +261,60 @@ void DapClient::emitSignals(const QJsonDocument &doc)
         }
         emit eventReady(type, ob);
     }
+}
+
+void DapClient::fillCapabilities(const QJsonObject &response)
+{
+    QJsonObject body = response.value("body").toObject();
+
+    m_capabilities.supportsConfigurationDoneRequest
+        = body.value("supportsConfigurationDoneRequest").toBool();
+    m_capabilities.supportsFunctionBreakpoints = body.value("supportsFunctionBreakpoints").toBool();
+    m_capabilities.supportsConditionalBreakpoints
+        = body.value("supportsConditionalBreakpoints").toBool();
+    m_capabilities.supportsHitConditionalBreakpoints
+        = body.value("supportsHitConditionalBreakpoints").toBool();
+    m_capabilities.supportsEvaluateForHovers = body.value("supportsEvaluateForHovers").toBool();
+    m_capabilities.supportsStepBack = body.value("supportsStepBack").toBool();
+    m_capabilities.supportsSetVariable = body.value("supportsSetVariable").toBool();
+    m_capabilities.supportsRestartFrame = body.value("supportsRestartFrame").toBool();
+    m_capabilities.supportsGotoTargetsRequest = body.value("supportsGotoTargetsRequest").toBool();
+    m_capabilities.supportsStepInTargetsRequest
+        = body.value("supportsStepInTargetsRequest").toBool();
+    m_capabilities.supportsCompletionsRequest = body.value("supportsCompletionsRequest").toBool();
+    m_capabilities.supportsModulesRequest = body.value("supportsModulesRequest").toBool();
+    m_capabilities.supportsRestartRequest = body.value("supportsRestartRequest").toBool();
+    m_capabilities.supportsExceptionOptions = body.value("supportsExceptionOptions").toBool();
+    m_capabilities.supportsValueFormattingOptions
+        = body.value("supportsValueFormattingOptions").toBool();
+    m_capabilities.supportsExceptionInfoRequest
+        = body.value("supportsExceptionInfoRequest").toBool();
+    m_capabilities.supportTerminateDebuggee = body.value("supportTerminateDebuggee").toBool();
+    m_capabilities.supportSuspendDebuggee = body.value("supportSuspendDebuggee").toBool();
+    m_capabilities.supportsDelayedStackTraceLoading
+        = body.value("supportsDelayedStackTraceLoading").toBool();
+    m_capabilities.supportsLoadedSourcesRequest
+        = body.value("supportsLoadedSourcesRequest").toBool();
+    m_capabilities.supportsLogPoints = body.value("supportsLogPoints").toBool();
+    m_capabilities.supportsTerminateThreadsRequest
+        = body.value("supportsTerminateThreadsRequest").toBool();
+    m_capabilities.supportsSetExpression = body.value("supportsSetExpression").toBool();
+    m_capabilities.supportsTerminateRequest = body.value("supportsTerminateRequest").toBool();
+    m_capabilities.supportsDataBreakpoints = body.value("supportsDataBreakpoints").toBool();
+    m_capabilities.supportsReadMemoryRequest = body.value("supportsReadMemoryRequest").toBool();
+    m_capabilities.supportsWriteMemoryRequest = body.value("supportsWriteMemoryRequest").toBool();
+    m_capabilities.supportsDisassembleRequest = body.value("supportsDisassembleRequest").toBool();
+    m_capabilities.supportsCancelRequest = body.value("supportsCancelRequest").toBool();
+    m_capabilities.supportsBreakpointLocationsRequest
+        = body.value("supportsBreakpointLocationsRequest").toBool();
+    m_capabilities.supportsClipboardContext = body.value("supportsClipboardContext").toBool();
+    m_capabilities.supportsSteppingGranularity = body.value("supportsSteppingGranularity").toBool();
+    m_capabilities.supportsInstructionBreakpoints
+        = body.value("supportsInstructionBreakpoints").toBool();
+    m_capabilities.supportsExceptionFilterOptions
+        = body.value("supportsExceptionFilterOptions").toBool();
+    m_capabilities.supportsSingleThreadExecutionRequests
+        = body.value("supportsSingleThreadExecutionRequests").toBool();
 }
 
 } // namespace Debugger::Internal

@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -68,8 +69,8 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
               absolute.path = sfn;
 
               const auto mimeType = Utils::mimeTypeForFile(info.path);
-              if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
-                  || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
+              if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
+                  || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
                   expected_str<QByteArray> fileContent = sfn.fileContents();
                   std::string errorString;
                   if (fileContent) {
@@ -181,8 +182,7 @@ static QVector<FolderNode::LocationInfo> extractBacktraceInformation(
 
         const size_t fileIndex = static_cast<size_t>(btNode.file);
         QTC_ASSERT(fileIndex < backtraces.files.size(), break);
-        const FilePath path = sourceDir.pathAppended(backtraces.files[fileIndex]).absoluteFilePath();
-
+        const FilePath path = sourceDir.resolvePath(backtraces.files[fileIndex]);
         if (btNode.command < 0) {
             // No command, skip: The file itself is already covered:-)
             continue;
@@ -257,6 +257,10 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
     for (const InstallDestination &id : t.installDestination) {
         ct.installDefinitions.append(
             extractBacktraceInformation(t.backtraceGraph, sourceDirectory, id.backtrace, 500));
+    }
+
+    for (const SourceInfo &si : t.sources) {
+        ct.sourceFiles.append(sourceDirectory.resolvePath(si.path));
     }
 
     if (ct.targetType == ExecutableType) {
@@ -410,7 +414,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             }
 
             RawProjectPart rpp;
-            rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
+            rpp.setProjectFileLocation(
+                t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT).toString());
             rpp.setBuildSystemTarget(t.name);
             const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
                                                 : QString();
@@ -445,9 +450,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             const QString headerMimeType = [&]() -> QString {
                 if (ci.language == "C") {
-                    return CppEditor::Constants::C_HEADER_MIMETYPE;
+                    return Utils::Constants::C_HEADER_MIMETYPE;
                 } else if (ci.language == "CXX") {
-                    return CppEditor::Constants::CPP_HEADER_MIMETYPE;
+                    return Utils::Constants::CPP_HEADER_MIMETYPE;
                 }
                 return {};
             }();

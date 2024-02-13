@@ -385,4 +385,10 @@ void SquishOutputPane::enableAllFiltersTriggered()
     m_filterModel->enableAllResultTypes();
 }
 
+void setupSquishOutputPane(QObject *guard)
+{
+    m_instance = new SquishOutputPane;
+    m_instance->setParent(guard);
+}
+
 } // namespace Squish::Internal

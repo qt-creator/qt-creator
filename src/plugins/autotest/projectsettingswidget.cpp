@@ -9,25 +9,44 @@
 #include "testprojectsettings.h"
 #include "testtreemodel.h"
 
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
+#include <QTimer>
 #include <QTreeWidget>
 
-namespace Autotest {
-namespace Internal {
+using namespace ProjectExplorer;
+
+namespace Autotest::Internal {
 
 enum ItemDataRole  {
     BaseIdRole = Qt::UserRole + 1,
     BaseTypeRole
 };
 
-ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *project,
-                                                     QWidget *parent)
-    : ProjectExplorer::ProjectSettingsWidget(parent)
-    , m_projectSettings(AutotestPlugin::projectSettings(project))
+class ProjectTestSettingsWidget : public ProjectSettingsWidget
+{
+public:
+    explicit ProjectTestSettingsWidget(Project *project);
+
+private:
+    void populateFrameworks(const QHash<Autotest::ITestFramework *, bool> &frameworks,
+                            const QHash<Autotest::ITestTool *, bool> &testTools);
+    void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
+    TestProjectSettings *m_projectSettings;
+    QTreeWidget *m_activeFrameworks = nullptr;
+    QComboBox *m_runAfterBuild = nullptr;
+    QTimer m_syncTimer;
+    int m_syncType = 0;
+};
+
+ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
+    : m_projectSettings(projectSettings(project))
 {
     setGlobalSettingsId(Constants::AUTOTEST_SETTINGS_ID);
 
@@ -131,5 +150,23 @@ void ProjectTestSettingsWidget::onActiveFrameworkChanged(QTreeWidgetItem *item, 
     m_syncType |= type;
 }
 
-} // namespace Internal
-} // namespace Autotest
+class AutotestProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    AutotestProjectPanelFactory()
+    {
+        setPriority(666);
+        //    setIcon();  // TODO ?
+        setDisplayName(Tr::tr("Testing"));
+        setCreateWidgetFunction([](Project *project) {
+            return new ProjectTestSettingsWidget(project);
+        });
+    }
+};
+
+void setupAutotestProjectPanel()
+{
+    static AutotestProjectPanelFactory theAutotestProjectPanelFactory;
+}
+
+} // Autotest::Internal

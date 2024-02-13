@@ -3,8 +3,6 @@
 
 #include "snippet.h"
 
-#include "languageclientplugin.h"
-
 #ifdef WITH_TESTS
 #include <QtTest>
 #endif
@@ -201,8 +199,20 @@ struct SnippetPart
 };
 Q_DECLARE_METATYPE(SnippetPart);
 
+namespace LanguageClient {
+
 using Parts = QList<SnippetPart>;
-void LanguageClient::LanguageClientPlugin::testSnippetParsing_data()
+
+class SnippetParsingTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testSnippetParsing_data();
+    void testSnippetParsing();
+};
+
+void SnippetParsingTest::testSnippetParsing_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<bool>("success");
@@ -234,7 +244,7 @@ void LanguageClient::LanguageClientPlugin::testSnippetParsing_data()
         << Parts{SnippetPart("foo", 1), SnippetPart("bar", 1)};
 }
 
-void LanguageClient::LanguageClientPlugin::testSnippetParsing()
+void SnippetParsingTest::testSnippetParsing()
 {
     QFETCH(QString, input);
     QFETCH(bool, success);
@@ -259,4 +269,14 @@ void LanguageClient::LanguageClientPlugin::testSnippetParsing()
     for (int i = 0; i < parts.count(); ++i)
         rangesCompare(snippet.parts.at(i), parts.at(i));
 }
+
+QObject *createSnippetParsingTest()
+{
+    return new SnippetParsingTest;
+}
+
+} // namespace LanguageClient
+
+#include "snippet.moc"
+
 #endif

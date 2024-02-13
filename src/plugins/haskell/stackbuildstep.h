@@ -3,31 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
+namespace Haskell::Internal {
 
-namespace Haskell {
-namespace Internal {
+void setupHaskellStackBuildStep();
 
-class StackBuildStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    StackBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    QWidget *createConfigWidget() override;
-
-    static QString trDisplayName();
-
-protected:
-    bool init() override;
-};
-
-class StackBuildStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    StackBuildStepFactory();
-};
-
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal

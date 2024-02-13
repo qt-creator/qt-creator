@@ -11,12 +11,37 @@
 #include <utils/itemviews.h>
 
 #include <QDebug>
-#include <QTextCodec>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QListWidget>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
 namespace Core {
+namespace Internal {
+
+class CodecSelector : public QDialog
+{
+public:
+    CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
+    ~CodecSelector() override;
+
+    QTextCodec *selectedCodec() const;
+
+private:
+    void updateButtons();
+    void buttonClicked(QAbstractButton *button);
+
+    bool m_hasDecodingError;
+    bool m_isModified;
+    QLabel *m_label;
+    Utils::ListWidget *m_listWidget;
+    QDialogButtonBox *m_dialogButtonBox;
+    QAbstractButton *m_reloadButton;
+    QAbstractButton *m_saveButton;
+};
 
 /* custom class to make sure the width is wide enough for the
  * contents. Should be easier with Qt. */
@@ -132,12 +157,21 @@ QTextCodec *CodecSelector::selectedCodec() const
 
 void CodecSelector::buttonClicked(QAbstractButton *button)
 {
-    Result result =  Cancel;
+    CodecSelectorResult::Action result = CodecSelectorResult::Cancel;
     if (button == m_reloadButton)
-        result = Reload;
+        result = CodecSelectorResult::Reload;
     if (button == m_saveButton)
-        result = Save;
+        result = CodecSelectorResult::Save;
     done(result);
+}
+
+} // namespace Internal
+
+CodecSelectorResult askForCodec(QWidget *parent, BaseTextDocument *doc)
+{
+    Internal::CodecSelector dialog(parent, doc);
+    const CodecSelectorResult::Action result = CodecSelectorResult::Action(dialog.exec());
+    return {result, dialog.selectedCodec()};
 }
 
 } // namespace Core

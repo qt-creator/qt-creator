@@ -109,7 +109,7 @@ private:
             Diagnostic() : errorCount(0) {}
 
             void report(int /*level*/, const StringLiteral *fileName, int line,
-                        int column, const char *format, va_list ap)
+                        int column, const char *format, va_list ap) override
             {
                 ++errorCount;
                 qDebug() << fileName->chars() << ':' << line << ':' << column

@@ -43,7 +43,7 @@ StateItem::StateItem(const QPointF &pos, BaseItem *parent)
 
     checkWarningItems();
 
-    connect(m_stateNameItem, &TextItem::selected, this, [=](bool sel){
+    connect(m_stateNameItem, &TextItem::selected, this, [this](bool sel) {
         setItemSelected(sel);
     });
     connect(m_stateNameItem, &TextItem::textChanged, this, &StateItem::updateTextPositions);

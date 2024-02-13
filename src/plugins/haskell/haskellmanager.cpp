@@ -3,24 +3,27 @@
 
 #include "haskellmanager.h"
 
+#include "haskellconstants.h"
 #include "haskellsettings.h"
 #include "haskelltr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
-#include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
-#include <utils/processenums.h>
 
 #include <QDir>
 #include <QFileInfo>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Haskell::Internal {
 
-FilePath HaskellManager::findProjectDirectory(const FilePath &filePath)
+FilePath findProjectDirectory(const FilePath &filePath)
 {
     if (filePath.isEmpty())
         return {};
@@ -36,7 +39,7 @@ FilePath HaskellManager::findProjectDirectory(const FilePath &filePath)
     return {};
 }
 
-void HaskellManager::openGhci(const FilePath &haskellFile)
+void openGhci(const FilePath &haskellFile)
 {
     const QList<MimeType> mimeTypes = mimeTypesForFileName(haskellFile.toString());
     const bool isHaskell = Utils::anyOf(mimeTypes, [](const MimeType &mt) {
@@ -49,6 +52,16 @@ void HaskellManager::openGhci(const FilePath &haskellFile)
     p.setCommand({settings().stackPath(), args});
     p.setWorkingDirectory(haskellFile.absolutePath());
     p.start();
+}
+
+void setupHaskellActions(QObject *guard)
+{
+    ActionBuilder runGhci(guard, Haskell::Constants::A_RUN_GHCI);
+    runGhci.setText(Tr::tr("Run GHCi"));
+    runGhci.addOnTriggered(guard, [] {
+        if (IDocument *doc = EditorManager::currentDocument())
+            openGhci(doc->filePath());
+    });
 }
 
 } // Haskell::Internal

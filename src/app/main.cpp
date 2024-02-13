@@ -46,10 +46,6 @@
 #include <string>
 #include <vector>
 
-#ifdef ENABLE_QT_BREAKPAD
-#include <qtsystemexceptionhandler.h>
-#endif
-
 #ifdef ENABLE_CRASHPAD
 #define NOMINMAX
 #include "client/crashpad_client.h"
@@ -284,7 +280,7 @@ static void setHighDpiEnvironmentVariable()
 {
     if (Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
             == Qt::HighDpiScaleFactorRoundingPolicy::Unset
-        || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
+        || qEnvironmentVariableIsSet(Utils::StyleHelper::C_QT_SCALE_FACTOR_ROUNDING_POLICY))
         return;
 
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
@@ -698,13 +694,11 @@ int main(int argc, char **argv)
 
     const QString libexecPath = QCoreApplication::applicationDirPath()
             + '/' + RELATIVE_LIBEXEC_PATH;
-#ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler(libexecPath);
-#else
+
     // Display a backtrace once a serious signal is delivered (Linux only).
     CrashHandlerSetup setupCrashHandler(Core::Constants::IDE_DISPLAY_NAME,
-                                        CrashHandlerSetup::EnableRestart, libexecPath);
-#endif
+                                        CrashHandlerSetup::EnableRestart,
+                                        libexecPath);
 
 #ifdef ENABLE_CRASHPAD
     bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
@@ -733,7 +727,9 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages = QLocale::system().uiLanguages();
-    QString overrideLanguage = settings->value("General/OverrideLanguage").toString();
+    const QString overrideLanguage = options.hasTestOption
+                                         ? QString("C") // force built-in when running tests
+                                         : settings->value("General/OverrideLanguage").toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     if (!options.uiLanguage.isEmpty())

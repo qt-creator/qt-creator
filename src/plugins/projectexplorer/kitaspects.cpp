@@ -19,6 +19,7 @@
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
@@ -160,7 +161,7 @@ FilePath SysRootKitAspect::sysRoot(const Kit *k)
     if (!k->value(SysRootKitAspect::id()).toString().isEmpty())
         return FilePath::fromSettings(k->value(SysRootKitAspect::id()));
 
-    for (ToolChain *tc : ToolChainKitAspect::toolChains(k)) {
+    for (Toolchain *tc : ToolchainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty())
             return FilePath::fromString(tc->sysRoot());
     }
@@ -172,7 +173,7 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
     if (!k)
         return;
 
-    for (ToolChain *tc : ToolChainKitAspect::toolChains(k)) {
+    for (Toolchain *tc : ToolchainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty()) {
             // It's the sysroot from toolchain, don't set it.
             if (tc->sysRoot() == v.toString())
@@ -188,14 +189,14 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
 const SysRootKitAspectFactory theSyRootKitAspectFactory;
 
 // --------------------------------------------------------------------------
-// ToolChainKitAspect:
+// ToolchainKitAspect:
 // --------------------------------------------------------------------------
 
 namespace Internal {
-class ToolChainKitAspectImpl final : public KitAspect
+class ToolchainKitAspectImpl final : public KitAspect
 {
 public:
-    ToolChainKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
+    ToolchainKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
     {
         m_mainWidget = createSubWidget<QWidget>();
         m_mainWidget->setContentsMargins(0, 0, 0, 0);
@@ -204,36 +205,36 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        const QList<Id> languageList = sorted(ToolChainManager::allLanguages(), [](Id l1, Id l2) {
-            return ToolChainManager::displayNameOfLanguageId(l1)
-                    < ToolChainManager::displayNameOfLanguageId(l2);
+        const QList<Id> languageList = sorted(ToolchainManager::allLanguages(), [](Id l1, Id l2) {
+            return ToolchainManager::displayNameOfLanguageId(l1)
+                    < ToolchainManager::displayNameOfLanguageId(l2);
         });
         QTC_ASSERT(!languageList.isEmpty(), return);
         int row = 0;
         for (Id l : std::as_const(languageList)) {
-            layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
+            layout->addWidget(new QLabel(ToolchainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
             cb->setToolTip(factory->description());
+            setWheelScrollingWithoutFocusBlocked(cb);
 
             m_languageComboboxMap.insert(l, cb);
             layout->addWidget(cb, row, 1);
             ++row;
 
             connect(cb, &QComboBox::currentIndexChanged, this, [this, l](int idx) {
-                currentToolChainChanged(l, idx);
+                currentToolchainChanged(l, idx);
             });
         }
 
         refresh();
 
-        m_manageButton = createManageButton(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
+        setManagingPage(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
     }
 
-    ~ToolChainKitAspectImpl() override
+    ~ToolchainKitAspectImpl() override
     {
         delete m_mainWidget;
-        delete m_manageButton;
     }
 
 private:
@@ -241,7 +242,6 @@ private:
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
-        builder.addItem(m_manageButton);
     }
 
     void refresh() override
@@ -249,32 +249,32 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
 
         const GuardLocker locker(m_ignoreChanges);
-        const QList<Id> keys = m_languageComboboxMap.keys();
-        for (const Id l : keys) {
-            const Toolchains ltcList = ToolChainManager::toolchains(equal(&ToolChain::language, l));
+        for (auto it = m_languageComboboxMap.cbegin(); it != m_languageComboboxMap.cend(); ++it) {
+            const Id l = it.key();
+            const Toolchains ltcList = ToolchainManager::toolchains(equal(&Toolchain::language, l));
 
-            QComboBox *cb = m_languageComboboxMap.value(l);
+            QComboBox *cb = *it;
             cb->clear();
             cb->addItem(Tr::tr("<No compiler>"), QByteArray());
 
-            const QList<ToolChain *> same = Utils::filtered(ltcList, [device](ToolChain *tc) {
+            const QList<Toolchain *> same = Utils::filtered(ltcList, [device](Toolchain *tc) {
                 return tc->compilerCommand().isSameDevice(device->rootPath());
             });
-            const QList<ToolChain *> other = Utils::filtered(ltcList, [device](ToolChain *tc) {
+            const QList<Toolchain *> other = Utils::filtered(ltcList, [device](Toolchain *tc) {
                 return !tc->compilerCommand().isSameDevice(device->rootPath());
             });
 
-            for (ToolChain *item : same)
+            for (Toolchain *item : same)
                 cb->addItem(item->displayName(), item->id());
 
             if (!same.isEmpty() && !other.isEmpty())
                 cb->insertSeparator(cb->count());
 
-            for (ToolChain *item : other)
+            for (Toolchain *item : other)
                 cb->addItem(item->displayName(), item->id());
 
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
-            const int index = indexOf(cb, ToolChainKitAspect::toolChain(m_kit, l));
+            const int index = indexOf(cb, ToolchainKitAspect::toolchain(m_kit, l));
             cb->setCurrentIndex(index);
         }
     }
@@ -282,27 +282,25 @@ private:
     void makeReadOnly() override
     {
         m_isReadOnly = true;
-        const QList<Id> keys = m_languageComboboxMap.keys();
-        for (const Id l : keys) {
-            m_languageComboboxMap.value(l)->setEnabled(false);
-        }
+        for (QComboBox *cb : std::as_const(m_languageComboboxMap))
+            cb->setEnabled(false);
     }
 
-    void currentToolChainChanged(Id language, int idx)
+    void currentToolchainChanged(Id language, int idx)
     {
         if (m_ignoreChanges.isLocked() || idx < 0)
             return;
 
         const QByteArray id = m_languageComboboxMap.value(language)->itemData(idx).toByteArray();
-        ToolChain *tc = ToolChainManager::findToolChain(id);
+        Toolchain *tc = ToolchainManager::findToolchain(id);
         QTC_ASSERT(!tc || tc->language() == language, return);
         if (tc)
-            ToolChainKitAspect::setToolChain(m_kit, tc);
+            ToolchainKitAspect::setToolchain(m_kit, tc);
         else
-            ToolChainKitAspect::clearToolChain(m_kit, language);
+            ToolchainKitAspect::clearToolchain(m_kit, language);
     }
 
-    int indexOf(QComboBox *cb, const ToolChain *tc)
+    int indexOf(QComboBox *cb, const Toolchain *tc)
     {
         const QByteArray id = tc ? tc->id() : QByteArray();
         for (int i = 0; i < cb->count(); ++i) {
@@ -313,17 +311,16 @@ private:
     }
 
     QWidget *m_mainWidget = nullptr;
-    QWidget *m_manageButton = nullptr;
     QHash<Id, QComboBox *> m_languageComboboxMap;
     Guard m_ignoreChanges;
     bool m_isReadOnly = false;
 };
 } // namespace Internal
 
-class ToolChainKitAspectFactory : public KitAspectFactory
+class ToolchainKitAspectFactory : public KitAspectFactory
 {
 public:
-    ToolChainKitAspectFactory();
+    ToolchainKitAspectFactory();
 
 private:
     Tasks validate(const Kit *k) const override;
@@ -345,13 +342,13 @@ private:
 
     void onKitsLoaded() override;
 
-    void toolChainUpdated(ToolChain *tc);
-    void toolChainRemoved(ToolChain *tc);
+    void toolChainUpdated(Toolchain *tc);
+    void toolChainRemoved(Toolchain *tc);
 };
 
-ToolChainKitAspectFactory::ToolChainKitAspectFactory()
+ToolchainKitAspectFactory::ToolchainKitAspectFactory()
 {
-    setId(ToolChainKitAspect::id());
+    setId(ToolchainKitAspect::id());
     setDisplayName(Tr::tr("Compiler"));
     setDescription(Tr::tr("The compiler to use for building.<br>"
                       "Make sure the compiler will produce binaries compatible "
@@ -364,16 +361,16 @@ static QMap<Id, QByteArray> defaultToolChainIds()
 {
     QMap<Id, QByteArray> toolChains;
     const Abi abi = Abi::hostAbi();
-    const Toolchains tcList = ToolChainManager::toolchains(equal(&ToolChain::targetAbi, abi));
-    const QList<Id> languages = ToolChainManager::allLanguages();
+    const Toolchains tcList = ToolchainManager::toolchains(equal(&Toolchain::targetAbi, abi));
+    const QList<Id> languages = ToolchainManager::allLanguages();
     for (Id l : languages) {
-        ToolChain *tc = findOrDefault(tcList, equal(&ToolChain::language, l));
+        Toolchain *tc = findOrDefault(tcList, equal(&Toolchain::language, l));
         toolChains.insert(l, tc ? tc->id() : QByteArray());
     }
     return toolChains;
 }
 
-static Store defaultToolChainValue()
+static Store defaultToolchainValue()
 {
     const QMap<Id, QByteArray> toolChains = defaultToolChainIds();
     Store result;
@@ -383,16 +380,16 @@ static Store defaultToolChainValue()
     return result;
 }
 
-Tasks ToolChainKitAspectFactory::validate(const Kit *k) const
+Tasks ToolchainKitAspectFactory::validate(const Kit *k) const
 {
     Tasks result;
 
-    const QList<ToolChain*> tcList = ToolChainKitAspect::toolChains(k);
+    const QList<Toolchain*> tcList = ToolchainKitAspect::toolChains(k);
     if (tcList.isEmpty()) {
-        result << BuildSystemTask(Task::Warning, ToolChainKitAspect::msgNoToolChainInTarget());
+        result << BuildSystemTask(Task::Warning, ToolchainKitAspect::msgNoToolchainInTarget());
     } else {
         QSet<Abi> targetAbis;
-        for (const ToolChain *tc : tcList) {
+        for (const Toolchain *tc : tcList) {
             targetAbis.insert(tc->targetAbi());
             result << tc->validateKit(k);
         }
@@ -405,17 +402,17 @@ Tasks ToolChainKitAspectFactory::validate(const Kit *k) const
     return result;
 }
 
-void ToolChainKitAspectFactory::fix(Kit *k)
+void ToolchainKitAspectFactory::fix(Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QList<Id> languages = ToolChainManager::allLanguages();
+    QTC_ASSERT(ToolchainManager::isLoaded(), return);
+    const QList<Id> languages = ToolchainManager::allLanguages();
     for (const Id l : languages) {
-        const QByteArray tcId = ToolChainKitAspect::toolChainId(k, l);
-        if (!tcId.isEmpty() && !ToolChainManager::findToolChain(tcId)) {
+        const QByteArray tcId = ToolchainKitAspect::toolchainId(k, l);
+        if (!tcId.isEmpty() && !ToolchainManager::findToolchain(tcId)) {
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
                      qPrintable(k->displayName()),
-                     qPrintable(ToolChainManager::displayNameOfLanguageId(l)));
-            ToolChainKitAspect::clearToolChain(k, l); // make sure to clear out no longer known tool chains
+                     qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
+            ToolchainKitAspect::clearToolchain(k, l); // make sure to clear out no longer known tool chains
         }
     }
 }
@@ -423,19 +420,19 @@ void ToolChainKitAspectFactory::fix(Kit *k)
 static Id findLanguage(const QString &ls)
 {
     QString lsUpper = ls.toUpper();
-    return Utils::findOrDefault(ToolChainManager::allLanguages(),
+    return Utils::findOrDefault(ToolchainManager::allLanguages(),
                          [lsUpper](Id l) { return lsUpper == l.toString().toUpper(); });
 }
 
-void ToolChainKitAspectFactory::setup(Kit *k)
+void ToolchainKitAspectFactory::setup(Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::isLoaded(), return);
+    QTC_ASSERT(ToolchainManager::isLoaded(), return);
     QTC_ASSERT(k, return);
 
     Store value = storeFromVariant(k->value(id()));
     bool lockToolchains = k->isSdkProvided() && !value.isEmpty();
     if (value.empty())
-        value = defaultToolChainValue();
+        value = defaultToolchainValue();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
         Id l = findLanguage(stringFromKey(i.key()));
@@ -446,158 +443,158 @@ void ToolChainKitAspectFactory::setup(Kit *k)
         }
 
         const QByteArray id = i.value().toByteArray();
-        ToolChain *tc = ToolChainManager::findToolChain(id);
+        Toolchain *tc = ToolchainManager::findToolchain(id);
         if (tc)
             continue;
 
         // ID is not found: Might be an ABI string...
         lockToolchains = false;
         const QString abi = QString::fromUtf8(id);
-        const Toolchains possibleTcs = ToolChainManager::toolchains([abi, l](const ToolChain *t) {
+        const Toolchains possibleTcs = ToolchainManager::toolchains([abi, l](const Toolchain *t) {
             return t->targetAbi().toString() == abi && t->language() == l;
         });
-        ToolChain *bestTc = nullptr;
-        for (ToolChain *tc : possibleTcs) {
+        Toolchain *bestTc = nullptr;
+        for (Toolchain *tc : possibleTcs) {
             if (!bestTc || tc->priority() > bestTc->priority())
                 bestTc = tc;
         }
         if (bestTc)
-            ToolChainKitAspect::setToolChain(k, bestTc);
+            ToolchainKitAspect::setToolchain(k, bestTc);
         else
-            ToolChainKitAspect::clearToolChain(k, l);
+            ToolchainKitAspect::clearToolchain(k, l);
     }
 
     k->setSticky(id(), lockToolchains);
 }
 
-KitAspect *ToolChainKitAspectFactory::createKitAspect(Kit *k) const
+KitAspect *ToolchainKitAspectFactory::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
-    return new Internal::ToolChainKitAspectImpl(k, this);
+    return new Internal::ToolchainKitAspectImpl(k, this);
 }
 
-QString ToolChainKitAspectFactory::displayNamePostfix(const Kit *k) const
+QString ToolchainKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
     return tc ? tc->displayName() : QString();
 }
 
-KitAspectFactory::ItemList ToolChainKitAspectFactory::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList ToolchainKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
     return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None")}};
 }
 
-void ToolChainKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
+void ToolchainKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
     if (tc)
         tc->addToEnvironment(env);
 }
 
-void ToolChainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
 
     // Compatibility with Qt Creator < 4.2:
     expander->registerVariable("Compiler:Name", Tr::tr("Compiler"),
                                [kit] {
-                                   const ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit);
+                                   const Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
                                    return tc ? tc->displayName() : Tr::tr("None");
                                });
 
     expander->registerVariable("Compiler:Executable", Tr::tr("Path to the compiler executable"),
                                [kit] {
-                                   const ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit);
+                                   const Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit);
                                    return tc ? tc->compilerCommand().path() : QString();
                                });
 
     // After 4.2
     expander->registerPrefix("Compiler:Name", Tr::tr("Compiler for different languages"),
                              [kit](const QString &ls) {
-                                 const ToolChain *tc = ToolChainKitAspect::toolChain(kit, findLanguage(ls));
+                                 const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
                                  return tc ? tc->displayName() : Tr::tr("None");
                              });
     expander->registerPrefix("Compiler:Executable", Tr::tr("Compiler executable for different languages"),
                              [kit](const QString &ls) {
-                                 const ToolChain *tc = ToolChainKitAspect::toolChain(kit, findLanguage(ls));
+                                 const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
                                  return tc ? tc->compilerCommand().path() : QString();
                              });
 }
 
-QList<OutputLineParser *> ToolChainKitAspectFactory::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> ToolchainKitAspectFactory::createOutputParsers(const Kit *k) const
 {
     for (const Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
-        if (const ToolChain * const tc = ToolChainKitAspect::toolChain(k, langId))
+        if (const Toolchain * const tc = ToolchainKitAspect::toolchain(k, langId))
             return tc->createOutputParsers();
     }
     return {};
 }
 
-QSet<Id> ToolChainKitAspectFactory::availableFeatures(const Kit *k) const
+QSet<Id> ToolchainKitAspectFactory::availableFeatures(const Kit *k) const
 {
     QSet<Id> result;
-    for (ToolChain *tc : ToolChainKitAspect::toolChains(k))
+    for (Toolchain *tc : ToolchainKitAspect::toolChains(k))
         result.insert(tc->typeId().withPrefix("ToolChain."));
     return result;
 }
 
-Id ToolChainKitAspect::id()
+Id ToolchainKitAspect::id()
 {
     // "PE.Profile.ToolChain" until 4.2
     // "PE.Profile.ToolChains" temporarily before 4.3 (May 2017)
     return "PE.Profile.ToolChainsV3";
 }
 
-QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Id language)
+QByteArray ToolchainKitAspect::toolchainId(const Kit *k, Id language)
 {
-    QTC_ASSERT(ToolChainManager::isLoaded(), return nullptr);
+    QTC_ASSERT(ToolchainManager::isLoaded(), return nullptr);
     if (!k)
         return {};
-    Store value = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
     return value.value(language.toKey(), QByteArray()).toByteArray();
 }
 
-ToolChain *ToolChainKitAspect::toolChain(const Kit *k, Id language)
+Toolchain *ToolchainKitAspect::toolchain(const Kit *k, Id language)
 {
-    return ToolChainManager::findToolChain(toolChainId(k, language));
+    return ToolchainManager::findToolchain(toolchainId(k, language));
 }
 
-ToolChain *ToolChainKitAspect::cToolChain(const Kit *k)
+Toolchain *ToolchainKitAspect::cToolchain(const Kit *k)
 {
-    return ToolChainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::C_LANGUAGE_ID));
+    return ToolchainManager::findToolchain(toolchainId(k, ProjectExplorer::Constants::C_LANGUAGE_ID));
 }
 
-ToolChain *ToolChainKitAspect::cxxToolChain(const Kit *k)
+Toolchain *ToolchainKitAspect::cxxToolchain(const Kit *k)
 {
-    return ToolChainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    return ToolchainManager::findToolchain(toolchainId(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
 
-QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
+QList<Toolchain *> ToolchainKitAspect::toolChains(const Kit *k)
 {
     QTC_ASSERT(k, return {});
 
-    const Store value = storeFromVariant(k->value(ToolChainKitAspect::id()));
-    const QList<ToolChain *> tcList
-            = transform<QList>(ToolChainManager::allLanguages(), [&value](Id l) {
-                return ToolChainManager::findToolChain(value.value(l.toKey()).toByteArray());
+    const Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
+    const QList<Toolchain *> tcList
+            = transform<QList>(ToolchainManager::allLanguages(), [&value](Id l) {
+                return ToolchainManager::findToolchain(value.value(l.toKey()).toByteArray());
             });
-    return filtered(tcList, [](ToolChain *tc) { return tc; });
+    return filtered(tcList, [](Toolchain *tc) { return tc; });
 }
 
-void ToolChainKitAspect::setToolChain(Kit *k, ToolChain *tc)
+void ToolchainKitAspect::setToolchain(Kit *k, Toolchain *tc)
 {
     QTC_ASSERT(tc, return);
     QTC_ASSERT(k, return);
-    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    Store result = storeFromVariant(k->value(ToolchainKitAspect::id()));
     result.insert(tc->language().toKey(), tc->id());
 
     k->setValue(id(), variantFromStore(result));
 }
 
 /**
- * @brief ToolChainKitAspect::setAllToolChainsToMatch
+ * @brief ToolchainKitAspect::setAllToolchainsToMatch
  *
  * Set up all toolchains to be similar to the one toolchain provided. Similar ideally means
  * that all toolchains use the "same" compiler from the same installation, but we will
@@ -606,24 +603,24 @@ void ToolChainKitAspect::setToolChain(Kit *k, ToolChain *tc)
  * @param k The kit to set up
  * @param tc The toolchain to match other languages for.
  */
-void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
+void ToolchainKitAspect::setAllToolchainsToMatch(Kit *k, Toolchain *tc)
 {
     QTC_ASSERT(tc, return);
     QTC_ASSERT(k, return);
 
-    const Toolchains allTcList = ToolChainManager::toolchains();
+    const Toolchains allTcList = ToolchainManager::toolchains();
     QTC_ASSERT(allTcList.contains(tc), return);
 
-    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    Store result = storeFromVariant(k->value(ToolchainKitAspect::id()));
     result.insert(tc->language().toKey(), tc->id());
 
-    for (const Id l : ToolChainManager::allLanguages()) {
+    for (const Id l : ToolchainManager::allLanguages()) {
         if (l == tc->language())
             continue;
 
-        ToolChain *match = nullptr;
-        ToolChain *bestMatch = nullptr;
-        for (ToolChain *other : allTcList) {
+        Toolchain *match = nullptr;
+        Toolchain *bestMatch = nullptr;
+        for (Toolchain *other : allTcList) {
             if (!other->isValid() || other->language() != l)
                 continue;
             if (other->targetAbi() == tc->targetAbi())
@@ -645,23 +642,23 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
     k->setValue(id(), variantFromStore(result));
 }
 
-void ToolChainKitAspect::clearToolChain(Kit *k, Id language)
+void ToolchainKitAspect::clearToolchain(Kit *k, Id language)
 {
     QTC_ASSERT(language.isValid(), return);
     QTC_ASSERT(k, return);
 
-    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    Store result = storeFromVariant(k->value(ToolchainKitAspect::id()));
     result.insert(language.toKey(), QByteArray());
     k->setValue(id(), variantFromStore(result));
 }
 
-Abi ToolChainKitAspect::targetAbi(const Kit *k)
+Abi ToolchainKitAspect::targetAbi(const Kit *k)
 {
-    const QList<ToolChain *> tcList = toolChains(k);
+    const QList<Toolchain *> tcList = toolChains(k);
     // Find the best possible ABI for all the tool chains...
     Abi cxxAbi;
     QHash<Abi, int> abiCount;
-    for (ToolChain *tc : tcList) {
+    for (Toolchain *tc : tcList) {
         Abi ta = tc->targetAbi();
         if (tc->language() == Id(Constants::CXX_LANGUAGE_ID))
             cxxAbi = tc->targetAbi();
@@ -688,38 +685,38 @@ Abi ToolChainKitAspect::targetAbi(const Kit *k)
     return candidates.at(0); // Use basically a random Abi...
 }
 
-QString ToolChainKitAspect::msgNoToolChainInTarget()
+QString ToolchainKitAspect::msgNoToolchainInTarget()
 {
     return Tr::tr("No compiler set in kit.");
 }
 
-void ToolChainKitAspectFactory::onKitsLoaded()
+void ToolchainKitAspectFactory::onKitsLoaded()
 {
     for (Kit *k : KitManager::kits())
         fix(k);
 
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
-            this, &ToolChainKitAspectFactory::toolChainRemoved);
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
-            this, &ToolChainKitAspectFactory::toolChainUpdated);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainRemoved,
+            this, &ToolchainKitAspectFactory::toolChainRemoved);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
+            this, &ToolchainKitAspectFactory::toolChainUpdated);
 }
 
-void ToolChainKitAspectFactory::toolChainUpdated(ToolChain *tc)
+void ToolchainKitAspectFactory::toolChainUpdated(Toolchain *tc)
 {
     for (Kit *k : KitManager::kits()) {
-        if (ToolChainKitAspect::toolChain(k, tc->language()) == tc)
+        if (ToolchainKitAspect::toolchain(k, tc->language()) == tc)
             notifyAboutUpdate(k);
     }
 }
 
-void ToolChainKitAspectFactory::toolChainRemoved(ToolChain *tc)
+void ToolchainKitAspectFactory::toolChainRemoved(Toolchain *tc)
 {
     Q_UNUSED(tc)
     for (Kit *k : KitManager::kits())
         fix(k);
 }
 
-const ToolChainKitAspectFactory thsToolChainKitAspectFactory;
+const ToolchainKitAspectFactory thsToolChainKitAspectFactory;
 
 // --------------------------------------------------------------------------
 // DeviceTypeKitAspect:
@@ -869,11 +866,11 @@ public:
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
+        setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
         m_comboBox->setSizePolicy(QSizePolicy::Preferred,
                                   m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setModel(m_model);
         m_comboBox->setMinimumContentsLength(16); // Don't stretch too much for Kit Page
-        m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
         m_comboBox->setToolTip(factory->description());
 
@@ -889,7 +886,6 @@ public:
     {
         delete m_comboBox;
         delete m_model;
-        delete m_manageButton;
     }
 
 private:
@@ -897,10 +893,11 @@ private:
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
-        builder.addItem(m_manageButton);
     }
 
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
+
+    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(m_kit); }
 
     void refresh() override
     {
@@ -929,7 +926,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_comboBox;
-    QWidget *m_manageButton;
     DeviceManagerModel *m_model;
     Id m_selectedId;
 };
@@ -990,7 +986,7 @@ Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     Tasks result;
-    if (dev.isNull())
+    if (!dev)
         result.append(BuildSystemTask(Task::Warning, Tr::tr("No device set.")));
     else if (!dev->isCompatibleWith(k))
         result.append(BuildSystemTask(Task::Error, Tr::tr("Device is incompatible with this kit.")));
@@ -1004,7 +1000,7 @@ Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 void DeviceKitAspectFactory::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (!dev.isNull() && !dev->isCompatibleWith(k)) {
+    if (dev && !dev->isCompatibleWith(k)) {
         qWarning("Device is no longer compatible with kit \"%s\", removing it.",
                  qPrintable(k->displayName()));
         DeviceKitAspect::setDeviceId(k, Id());
@@ -1015,7 +1011,7 @@ void DeviceKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    if (!dev.isNull() && dev->isCompatibleWith(k))
+    if (dev && dev->isCompatibleWith(k))
         return;
 
     DeviceKitAspect::setDeviceId(k, Id::fromSetting(defaultValue(k)));
@@ -1030,13 +1026,13 @@ KitAspect *DeviceKitAspectFactory::createKitAspect(Kit *k) const
 QString DeviceKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    return dev.isNull() ? QString() : dev->displayName();
+    return dev ? dev->displayName() : QString();
 }
 
 KitAspectFactory::ItemList DeviceKitAspectFactory::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    return {{Tr::tr("Device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Device"), dev ? dev->displayName() : Tr::tr("Unconfigured") }};
 }
 
 void DeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
@@ -1153,9 +1149,9 @@ public:
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
+        setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setModel(m_model);
-        m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
         m_comboBox->setToolTip(factory->description());
 
@@ -1171,7 +1167,6 @@ public:
     {
         delete m_comboBox;
         delete m_model;
-        delete m_manageButton;
     }
 
 private:
@@ -1179,7 +1174,6 @@ private:
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
-        builder.addItem(m_manageButton);
     }
 
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
@@ -1219,7 +1213,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_comboBox;
-    QWidget *m_manageButton;
     DeviceManagerModel *m_model;
     Id m_selectedId;
 };
@@ -1265,7 +1258,7 @@ void BuildDeviceKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return );
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    if (!dev.isNull())
+    if (dev)
         return;
 
     dev = defaultDevice();
@@ -1276,7 +1269,7 @@ Tasks BuildDeviceKitAspectFactory::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
     Tasks result;
-    if (dev.isNull())
+    if (!dev)
         result.append(BuildSystemTask(Task::Warning, Tr::tr("No build device set.")));
 
     return result;
@@ -1291,13 +1284,13 @@ KitAspect *BuildDeviceKitAspectFactory::createKitAspect(Kit *k) const
 QString BuildDeviceKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    return dev.isNull() ? QString() : dev->displayName();
+    return dev ? dev->displayName() : QString();
 }
 
 KitAspectFactory::ItemList BuildDeviceKitAspectFactory::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    return {{Tr::tr("Build device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Build device"), dev ? dev->displayName() : Tr::tr("Unconfigured")}};
 }
 
 void BuildDeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
@@ -1487,8 +1480,7 @@ private:
         if (HostOsInfo::isWindowsHost())
             changes.removeAll(forceMSVCEnglishItem());
 
-        return sorted(std::move(changes), [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
-        { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
+        return changes;
     }
 
     void initMSVCOutputSwitch(QVBoxLayout *layout)

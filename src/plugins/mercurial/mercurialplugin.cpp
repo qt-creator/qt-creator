@@ -1,8 +1,6 @@
 // Copyright (C) 2016 Brian McGillion
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "mercurialplugin.h"
-
 #include "commiteditor.h"
 #include "constants.h"
 #include "mercurialclient.h"
@@ -23,15 +21,16 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <extensionsystem/iplugin.h>
+
+#include <utils/action.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -52,55 +51,7 @@ using namespace std::placeholders;
 
 namespace Mercurial::Internal {
 
-class MercurialTopicCache : public Core::IVersionControl::TopicCache
-{
-public:
-    MercurialTopicCache(MercurialClient *client) : m_client(client) {}
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        return repository.pathAppended(".hg/branch");
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        return m_client->branchQuerySync(repository.toString());
-    }
-
-private:
-    MercurialClient *m_client;
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::LOGAPP
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    Constants::ANNOTATELOG_ID,
-    Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
-
-const VcsBaseSubmitEditorParameters submitEditorParameters {
-    Constants::COMMITMIMETYPE,
-    Constants::COMMIT_ID,
-    Constants::COMMIT_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
-class MercurialPluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
     MercurialPluginPrivate();
@@ -120,7 +71,10 @@ public:
     bool vcsMove(const FilePath &from, const FilePath &to) final;
     bool vcsCreateRepository(const FilePath &directory) final;
     void vcsAnnotate(const FilePath &filePath, int line) final;
-    void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source, id); }
+    void vcsDescribe(const FilePath &source, const QString &id) final
+    {
+        mercurialClient().view(source, id);
+    }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
                                              const Utils::FilePath &baseDirectory,
@@ -135,7 +89,7 @@ public:
     void changed(const QVariant&);
 
 private:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
+    void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
 
     // File menu action slots
@@ -169,21 +123,19 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    MercurialClient m_client;
-
     Core::CommandLocator *m_commandLocator = nullptr;
     Core::ActionContainer *m_mercurialContainer = nullptr;
 
     QList<QAction *> m_repositoryActionList;
 
     // Menu items (file actions)
-    ParameterAction *m_addAction = nullptr;
-    ParameterAction *m_deleteAction = nullptr;
-    ParameterAction *annotateFile = nullptr;
-    ParameterAction *diffFile = nullptr;
-    ParameterAction *logFile = nullptr;
-    ParameterAction *revertFile = nullptr;
-    ParameterAction *statusFile = nullptr;
+    Action *m_addAction = nullptr;
+    Action *m_deleteAction = nullptr;
+    Action *annotateFile = nullptr;
+    Action *diffFile = nullptr;
+    Action *logFile = nullptr;
+    Action *revertFile = nullptr;
+    Action *statusFile = nullptr;
 
     QAction *m_createRepositoryAction = nullptr;
     QAction *m_menuAction = nullptr;
@@ -191,60 +143,60 @@ private:
     FilePath m_submitRepository;
 
 public:
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitEditorParameters,
-        [] { return new CommitEditor; },
-        this
-    };
-
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
-        [this] { return new MercurialEditorWidget(&m_client); },
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Constants::FILELOG_ID,
+        VcsBase::Tr::tr("Mercurial File Log Editor"),
+        Constants::LOGAPP,
+        [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
-        [this] { return new MercurialEditorWidget(&m_client); },
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        VcsBase::Tr::tr("Mercurial Annotation Editor"),
+        Constants::ANNOTATEAPP,
+        [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
-        [this] { return new MercurialEditorWidget(&m_client); },
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        VcsBase::Tr::tr("Mercurial Diff Editor"),
+        Constants::DIFFAPP,
+        [this] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static MercurialPluginPrivate *dd = nullptr;
 
-MercurialPlugin::~MercurialPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void MercurialPlugin::initialize()
-{
-    dd = new MercurialPluginPrivate;
-}
-
-void MercurialPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-}
-
 MercurialPluginPrivate::MercurialPluginPrivate()
-    : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::MERCURIAL_CONTEXT))
+    : VcsBase::VersionControlBase(Core::Context(Constants::MERCURIAL_CONTEXT))
 {
     dd = this;
 
-    setTopicCache(new MercurialTopicCache(&m_client));
+    setupVcsSubmitEditor(this, {
+        Constants::COMMITMIMETYPE,
+        Constants::COMMIT_ID,
+        VcsBase::Tr::tr("Mercurial Commit Log Editor"),
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CommitEditor; }
+    });
+
+    setTopicFileTracker([](const FilePath &repository) {
+        return repository.pathAppended(".hg/branch");
+    });
+    setTopicRefresher([](const FilePath &repository) {
+        return mercurialClient().branchQuerySync(repository.toString());
+    });
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
-    connect(&m_client, &VcsBaseClient::changed, this, &MercurialPluginPrivate::changed);
-    connect(&m_client, &MercurialClient::needUpdate, this, &MercurialPluginPrivate::update);
+    connect(&mercurialClient(), &VcsBaseClient::changed, this, &MercurialPluginPrivate::changed);
+    connect(&mercurialClient(), &MercurialClient::needUpdate, this, &MercurialPluginPrivate::update);
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix, this);
@@ -279,14 +231,14 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
 {
     Core::Command *command;
 
-    annotateFile = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    annotateFile = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(annotateFile, Utils::Id(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, &QAction::triggered, this, &MercurialPluginPrivate::annotateCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    diffFile = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    diffFile = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(diffFile, Utils::Id(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+D") : Tr::tr("Alt+G,Alt+D")));
@@ -294,7 +246,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    logFile = new ParameterAction(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
+    logFile = new Action(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(logFile, Utils::Id(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+L") : Tr::tr("Alt+G,Alt+L")));
@@ -302,7 +254,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    statusFile = new ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
+    statusFile = new Action(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(statusFile, Utils::Id(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+H,Meta+S") : Tr::tr("Alt+G,Alt+S")));
@@ -312,21 +264,21 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
 
     m_mercurialContainer->addSeparator(context);
 
-    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, Utils::Id(Constants::ADD), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &MercurialPluginPrivate::addCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_deleteAction, Utils::Id(Constants::DELETE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &MercurialPluginPrivate::promptToDeleteCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    revertFile = new ParameterAction(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    revertFile = new Action(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(revertFile, Utils::Id(Constants::REVERT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(revertFile, &QAction::triggered, this, &MercurialPluginPrivate::revertCurrentFile);
@@ -338,7 +290,7 @@ void MercurialPluginPrivate::addCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
+    mercurialClient().synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPluginPrivate::annotateCurrentFile()
@@ -348,21 +300,21 @@ void MercurialPluginPrivate::annotateCurrentFile()
         currentLine = editor->currentLine();
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), currentLine);
+    mercurialClient().annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), currentLine);
 }
 
 void MercurialPluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    mercurialClient().showDiffEditor(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void MercurialPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {}, true);
+    mercurialClient().log(state.currentFileTopLevel(), {state.relativeCurrentFile()}, {}, true);
 }
 
 void MercurialPluginPrivate::revertCurrentFile()
@@ -373,14 +325,14 @@ void MercurialPluginPrivate::revertCurrentFile()
     RevertDialog reverter(Core::ICore::dialogParent());
     if (reverter.exec() != QDialog::Accepted)
         return;
-    m_client.revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
+    mercurialClient().revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
 }
 
 void MercurialPluginPrivate::statusCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.status(state.currentFileTopLevel(), state.relativeCurrentFile());
+    mercurialClient().status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPluginPrivate::createDirectoryActions(const Core::Context &context)
@@ -418,14 +370,14 @@ void MercurialPluginPrivate::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.diff(state.topLevel());
+    mercurialClient().showDiffEditor(state.topLevel());
 }
 
 void MercurialPluginPrivate::logRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.log(state.topLevel());
+    mercurialClient().log(state.topLevel());
 }
 
 void MercurialPluginPrivate::revertMulti()
@@ -436,7 +388,7 @@ void MercurialPluginPrivate::revertMulti()
     RevertDialog reverter(Core::ICore::dialogParent());
     if (reverter.exec() != QDialog::Accepted)
         return;
-    m_client.revertAll(state.topLevel(), reverter.revision());
+    mercurialClient().revertAll(state.topLevel(), reverter.revision());
 }
 
 void MercurialPluginPrivate::statusMulti()
@@ -444,7 +396,7 @@ void MercurialPluginPrivate::statusMulti()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    m_client.status(state.topLevel());
+    mercurialClient().status(state.topLevel());
 }
 
 void MercurialPluginPrivate::createRepositoryActions(const Core::Context &context)
@@ -514,7 +466,7 @@ void MercurialPluginPrivate::pull()
     dialog.setWindowTitle(Tr::tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client.synchronousPull(dialog.workingDir(), dialog.getRepositoryString());
+    mercurialClient().synchronousPull(dialog.workingDir(), dialog.getRepositoryString());
 }
 
 void MercurialPluginPrivate::push()
@@ -526,7 +478,7 @@ void MercurialPluginPrivate::push()
     dialog.setWindowTitle(Tr::tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client.synchronousPush(dialog.workingDir(), dialog.getRepositoryString());
+    mercurialClient().synchronousPush(dialog.workingDir(), dialog.getRepositoryString());
 }
 
 void MercurialPluginPrivate::update()
@@ -538,7 +490,7 @@ void MercurialPluginPrivate::update()
     updateDialog.setWindowTitle(Tr::tr("Update"));
     if (updateDialog.exec() != QDialog::Accepted)
         return;
-    m_client.update(state.topLevel(), updateDialog.revision());
+    mercurialClient().update(state.topLevel(), updateDialog.revision());
 }
 
 void MercurialPluginPrivate::import()
@@ -554,7 +506,7 @@ void MercurialPluginPrivate::import()
         return;
 
     const QStringList fileNames = importDialog.selectedFiles();
-    m_client.import(state.topLevel(), fileNames);
+    mercurialClient().import(state.topLevel(), fileNames);
 }
 
 void MercurialPluginPrivate::incoming()
@@ -566,14 +518,14 @@ void MercurialPluginPrivate::incoming()
     dialog.setWindowTitle(Tr::tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client.incoming(state.topLevel(), dialog.getRepositoryString());
+    mercurialClient().incoming(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPluginPrivate::outgoing()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.outgoing(state.topLevel());
+    mercurialClient().outgoing(state.topLevel());
 }
 
 void MercurialPluginPrivate::commit()
@@ -589,14 +541,17 @@ void MercurialPluginPrivate::commit()
 
     m_submitRepository = state.topLevel();
 
-    connect(&m_client, &MercurialClient::parsedStatus, this, &MercurialPluginPrivate::showCommitWidget);
-    m_client.emitParsedStatus(m_submitRepository);
+    connect(&mercurialClient(), &MercurialClient::parsedStatus,
+            this, &MercurialPluginPrivate::showCommitWidget);
+
+    mercurialClient().emitParsedStatus(m_submitRepository);
 }
 
 void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(&m_client, &MercurialClient::parsedStatus, this, &MercurialPluginPrivate::showCommitWidget);
+    disconnect(&mercurialClient(), &MercurialClient::parsedStatus,
+               this, &MercurialPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
         VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
@@ -637,7 +592,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
 
 void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
 {
-    m_client.diff(m_submitRepository, files);
+    mercurialClient().showDiffEditor(m_submitRepository, files);
 }
 
 bool MercurialPluginPrivate::activateCommit()
@@ -656,13 +611,13 @@ bool MercurialPluginPrivate::activateCommit()
         QStringList extraOptions;
         if (!commitEditor->committerInfo().isEmpty())
             extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
-        m_client.commit(m_submitRepository, files, editorFile->filePath().toString(),
-                        extraOptions);
+        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toString(),
+                                 extraOptions);
     }
     return true;
 }
 
-void MercurialPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void MercurialPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
@@ -696,12 +651,12 @@ Utils::Id MercurialPluginPrivate::id() const
 
 bool MercurialPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    return m_client.isVcsDirectory(filePath);
+    return mercurialClient().isVcsDirectory(filePath);
 }
 
 bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = m_client.findTopLevelForFile(filePath);
+    const FilePath topLevelFound = mercurialClient().findTopLevelForFile(filePath);
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
@@ -709,7 +664,7 @@ bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath
 
 bool MercurialPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory, fileName);
+    return mercurialClient().managesFile(workingDirectory, fileName);
 }
 
 bool MercurialPluginPrivate::isConfigured() const
@@ -747,31 +702,31 @@ bool MercurialPluginPrivate::vcsOpen(const FilePath &filePath)
 
 bool MercurialPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    return m_client.synchronousAdd(filePath.parentDir(), filePath.fileName());
+    return mercurialClient().synchronousAdd(filePath.parentDir(), filePath.fileName());
 }
 
 bool MercurialPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    return m_client.synchronousRemove(filePath.parentDir(), filePath.fileName());
+    return mercurialClient().synchronousRemove(filePath.parentDir(), filePath.fileName());
 }
 
 bool MercurialPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(from.parentDir(),
+    return mercurialClient().synchronousMove(from.parentDir(),
                                     fromInfo.absoluteFilePath(),
                                     toInfo.absoluteFilePath());
 }
 
 bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory);
+    return mercurialClient().synchronousCreateRepository(directory);
 }
 
 void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.parentDir(), filePath.fileName(), line);
+    mercurialClient().annotate(filePath.parentDir(), filePath.fileName(), line);
 }
 
 VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
@@ -781,7 +736,9 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
 {
     QStringList args;
     args << QLatin1String("clone") << extraArgs << url << localName;
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_client.processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
+                                                   mercurialClient().processEnvironment(
+                                                       baseDirectory));
     command->addJob({settings().binaryPath(), args}, -1);
     return command;
 }
@@ -794,7 +751,7 @@ bool MercurialPluginPrivate::sccManaged(const QString &filename)
     if (!managed || topLevel.isEmpty())
         return false;
     const QDir topLevelDir(topLevel.toString());
-    return m_client.manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
+    return mercurialClient().manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
 }
 
 void MercurialPluginPrivate::changed(const QVariant &v)
@@ -813,7 +770,17 @@ void MercurialPluginPrivate::changed(const QVariant &v)
 
 #ifdef WITH_TESTS
 
-void MercurialPlugin::testDiffFileResolving_data()
+class MercurialTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+};
+
+void MercurialTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -840,12 +807,12 @@ void MercurialPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/mercurial/mercurialeditor.cpp");
 }
 
-void MercurialPlugin::testDiffFileResolving()
+void MercurialTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void MercurialPlugin::testLogResolving()
+void MercurialTest::testLogResolving()
 {
     QByteArray data(
                 "changeset:   18473:692cbda1eb50\n"
@@ -866,4 +833,31 @@ void MercurialPlugin::testLogResolving()
 }
 #endif
 
+class MercurialPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Mercurial.json")
+
+    ~MercurialPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new MercurialPluginPrivate;
+#ifdef WITH_TESTS
+        addTest<MercurialTest>();
+#endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
 } // Mercurial::Internal
+
+#include "mercurialplugin.moc"

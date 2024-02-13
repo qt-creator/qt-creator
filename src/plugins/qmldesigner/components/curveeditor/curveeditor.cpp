@@ -57,7 +57,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(m_statusLine);
     setLayout(box);
 
-    connect(m_toolbar, &CurveEditorToolBar::unifyClicked, [this]() {
+    connect(m_toolbar, &CurveEditorToolBar::unifyClicked, [this] {
         m_view->toggleUnified();
     });
 

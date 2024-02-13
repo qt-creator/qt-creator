@@ -1,0 +1,79 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-run-python-apps.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-run
+
+    \title Run Python applications
+
+    You can execute Qt for Python applications directly from \QC. If you
+    use the new project wizard to create the application project, the
+    \c main.py file is automatically executed when you select the
+    \uicontrol Run button.
+
+    You can specify another file to execute in the run settings of the project.
+
+    \sa {Configure projects for running}, {Create Qt for Python applications},
+    {Develop Qt for Python applications}, {Python Run Settings}
+*/
+
+/*!
+    \page creator-run-settings-python.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-run-configurations
+
+    \title Python Run Settings
+
+    \brief Settings for running Qt for Python applications.
+
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    \image qtcreator-python-run-settings.png {Python run settings}
+
+    The following table summarizes the settings for running Qt for Python
+    applications.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol Interpreter
+        \li Path to the Python executable.
+    \row
+        \li \uicontrol {Buffered output}
+        \li Stores the output in a buffer. This improves output performance,
+            but causes delays in output.
+    \row
+        \li \uicontrol Script
+        \li Shows the path to the main file of the project that will be run.
+    \row
+        \li \uicontrol {Command line arguments}
+        \li Command-line arguments to pass to the executable.
+    \endtable
+
+    \section1 Custom Executable Run Configuration
+
+    To run some other Python file than \c main.py, create a custom
+    executable run configuration:
+
+    \image qtcreator-python-run-settings-custom-executable.png {Python custom executable run configuration}
+
+    \list 1
+        \li Select \uicontrol Add > \uicontrol {Custom Executable}.
+        \li In the \uicontrol Executable field, specify the path to the
+            Python executable.
+        \li In the \uicontrol {Command line arguments} field, select
+            the Python file to run.
+    \endlist
+
+    \sa {Activate kits for a project}, {Configure projects for running},
+    {Create Qt for Python applications}, {Develop Qt for Python applications}
+*/

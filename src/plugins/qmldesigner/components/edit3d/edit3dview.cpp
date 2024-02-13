@@ -643,11 +643,10 @@ void Edit3DView::createSeekerSliderAction()
     m_seekerAction->action()->setEnabled(false);
     m_seekerAction->action()->setToolTip(QLatin1String("Seek particle system time when paused."));
 
-    connect(m_seekerAction->seekerAction(),
-            &SeekerSliderAction::valueChanged,
-            this, [=] (int value) {
-        this->emitView3DAction(View3DActionType::ParticlesSeek, value);
-            });
+    connect(m_seekerAction->seekerAction(), &SeekerSliderAction::valueChanged, this,
+            [this] (int value) {
+        emitView3DAction(View3DActionType::ParticlesSeek, value);
+    });
 }
 
 QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
@@ -1054,7 +1053,7 @@ void Edit3DView::createEdit3DActions()
         if (!m_snapConfiguration) {
             m_snapConfiguration = new SnapConfiguration(this);
             connect(m_snapConfiguration.data(), &SnapConfiguration::posIntChanged,
-                    this, [this]() {
+                    this, [this] {
                 // Notify every change of position interval as that causes visible changes in grid
                 rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
                                                  m_snapConfiguration->posInt());

@@ -1,5 +1,4 @@
 add_qtc_library(Nanotrace
-  BUILD_DEFAULT OFF
   PUBLIC_DEFINES NANOTRACE_ENABLED
   SOURCES
     nanotraceglobals.h
@@ -9,4 +8,11 @@ add_qtc_library(Nanotrace
   PROPERTIES
     CXX_VISIBILITY_PRESET default
     VISIBILITY_INLINES_HIDDEN OFF
+)
+
+option(DESIGNSTUDIO_USE_NANOTRACE
+       "Enables collecting performance data with nanotrace for Design Studio" OFF)
+extend_qtc_library(Nanotrace
+  CONDITION DESIGN_STUDIO_USE_NANOTRACE
+  PUBLIC_DEFINES NANOTRACE_DESIGNSTUDIO_ENABLED
 )

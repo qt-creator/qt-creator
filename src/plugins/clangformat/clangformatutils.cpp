@@ -19,6 +19,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/expected.h>
 
 #include <QCryptographicHash>
 
@@ -287,24 +288,25 @@ bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project)
     return projectUseGlobalSettings.isValid() ? projectUseGlobalSettings.toBool() : true;
 }
 
-bool getProjectOverriddenSettings(const ProjectExplorer::Project *project)
+bool getProjectCustomSettings(const ProjectExplorer::Project *project)
 {
-    const QVariant projectOverride = project ? project->namedSettings(Constants::OVERRIDE_FILE_ID)
-                                             : QVariant();
+    const QVariant projectCustomSettings = project ? project->namedSettings(
+                                               Constants::USE_CUSTOM_SETTINGS_ID)
+                                                   : QVariant();
 
-    return projectOverride.isValid()
-               ? projectOverride.toBool()
-               : ClangFormatSettings::instance().overrideDefaultFile();
+    return projectCustomSettings.isValid()
+               ? projectCustomSettings.toBool()
+               : ClangFormatSettings::instance().useCustomSettings();
 }
 
-bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
+bool getCurrentCustomSettings(const Utils::FilePath &filePath)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
     return getProjectUseGlobalSettings(project)
-               ? ClangFormatSettings::instance().overrideDefaultFile()
-               : getProjectOverriddenSettings(project);
+               ? ClangFormatSettings::instance().useCustomSettings()
+               : getProjectCustomSettings(project);
 }
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
@@ -348,7 +350,7 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
 
 Utils::FilePath configForFile(const Utils::FilePath &fileName)
 {
-    if (!getCurrentOverriddenSettings(fileName))
+    if (!getCurrentCustomSettings(fileName))
         return findConfig(fileName);
 
     const ProjectExplorer::Project *projectForFile
@@ -415,4 +417,34 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
+
+static QString s_errorMessage;
+Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+                                                    clang::format::FormatStyle &style)
+{
+    auto diagHandler = [](const llvm::SMDiagnostic &diag, void * /*context*/) {
+        s_errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                         + QString::number(diag.getLineNo()) + ":"
+                         + QString::number(diag.getColumnNo());
+    };
+
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = parseConfiguration(llvm::MemoryBufferRef(fileContent, "YAML"),
+                                                     &style,
+                                                     false,
+                                                     diagHandler,
+                                                     nullptr);
+
+    if (error)
+        return make_unexpected(s_errorMessage);
+    return {};
+}
+
+Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+                                                 clang::format::FormatStyle &style)
+{
+    return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),
+                                     style);
+}
+
 } // namespace ClangFormat

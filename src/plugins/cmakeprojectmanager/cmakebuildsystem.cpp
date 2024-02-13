@@ -13,6 +13,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
+#include "cmaketoolmanager.h"
 #include "projecttreehelper.h"
 
 #include <android/androidconstants.h>
@@ -23,14 +24,12 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppprojectupdater.h>
-
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -39,15 +38,15 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <qmljstools/qmljstoolsconstants.h>
+#include <qtapplicationmanager/appmanagerconstants.h>
 
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -72,7 +71,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 
 CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     : BuildSystem(bc)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     // TreeScanner:
     connect(&m_treeScanner, &TreeScanner::finished,
@@ -101,8 +100,8 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
         if (type == FileType::Unknown) {
             if (mimeType.isValid()) {
                 const QString mt = mimeType.name();
-                if (mt == CMakeProjectManager::Constants::CMAKE_PROJECT_MIMETYPE
-                    || mt == CMakeProjectManager::Constants::CMAKE_MIMETYPE)
+                if (mt == Utils::Constants::CMAKE_PROJECT_MIMETYPE
+                    || mt == Utils::Constants::CMAKE_MIMETYPE)
                     type = FileType::Project;
             }
         }
@@ -178,7 +177,7 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Parse called with flags:"
                                  << reparseParametersString(reparseParameters);
 
-    const FilePath cache = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
+    const FilePath cache = m_parameters.buildDirectory.pathAppended(Constants::CMAKE_CACHE_TXT);
     if (!cache.exists()) {
         reparseParameters |= REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         qCDebug(cmakeBuildSystemLog)
@@ -217,41 +216,50 @@ void CMakeBuildSystem::requestDebugging()
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     const auto cmakeTarget = dynamic_cast<CMakeTargetNode *>(context);
-    if (cmakeTarget && cmakeTarget->productType() != ProductType::Other)
-        return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
-               || action == ProjectAction::AddExistingDirectory || action == ProjectAction::Rename
-               || action == ProjectAction::RemoveFile;
+    if (cmakeTarget) {
+        const auto buildTarget = Utils::findOrDefault(m_buildTargets,
+                                                      [cmakeTarget](const CMakeBuildTarget &bt) {
+                                                          return bt.title
+                                                                 == cmakeTarget->buildKey();
+                                                      });
+        if (buildTarget.targetType != UtilityType)
+            return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
+                   || action == ProjectAction::AddExistingDirectory
+                   || action == ProjectAction::Rename || action == ProjectAction::RemoveFile;
+    }
 
     return BuildSystem::supportsAction(context, action, node);
 }
+
+static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &projectDir)
+{
+    return Utils::transform(filePaths, [projectDir](const FilePath &path) {
+        return path.canonicalPath().relativePathFrom(projectDir).cleanPath().toString();
+    }).join(' ');
+};
 
 static QString newFilesForFunction(const std::string &cmakeFunction,
                                    const FilePaths &filePaths,
                                    const FilePath &projDir)
 {
-    auto relativeFilePaths = [projDir](const FilePaths &filePaths) {
-        return Utils::transform(filePaths, [projDir](const FilePath &path) {
-            return path.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
-        });
-    };
-
     if (cmakeFunction == "qt_add_qml_module" || cmakeFunction == "qt6_add_qml_module") {
         FilePaths sourceFiles;
         FilePaths resourceFiles;
         FilePaths qmlFiles;
 
         for (const auto &file : filePaths) {
+            using namespace Utils::Constants;
             const auto mimeType = Utils::mimeTypeForFile(file);
-            if (mimeType.matchesName(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
+            if (mimeType.matchesName(CPP_SOURCE_MIMETYPE)
+                || mimeType.matchesName(CPP_HEADER_MIMETYPE)
+                || mimeType.matchesName(OBJECTIVE_C_SOURCE_MIMETYPE)
+                || mimeType.matchesName(OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
                 sourceFiles << file;
-            } else if (mimeType.matchesName(QmlJSTools::Constants::QML_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::QMLUI_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::JS_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::JSON_MIMETYPE)) {
+            } else if (mimeType.matchesName(QML_MIMETYPE)
+                       || mimeType.matchesName(QMLUI_MIMETYPE)
+                       || mimeType.matchesName(QMLPROJECT_MIMETYPE)
+                       || mimeType.matchesName(JS_MIMETYPE)
+                       || mimeType.matchesName(JSON_MIMETYPE)) {
                 qmlFiles << file;
             } else {
                 resourceFiles << file;
@@ -260,175 +268,34 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
 
         QStringList result;
         if (!sourceFiles.isEmpty())
-            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles).join(" "));
+            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles, projDir));
         if (!resourceFiles.isEmpty())
-            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles).join(" "));
+            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles, projDir));
         if (!qmlFiles.isEmpty())
-            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles).join(" "));
+            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles, projDir));
 
         return result.join("\n");
     }
 
-    return relativeFilePaths(filePaths).join(" ");
+    return relativeFilePaths(filePaths, projDir);
 }
 
-bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+static std::optional<Link> cmakeFileForBuildKey(const QString &buildKey,
+                                                const QList<CMakeBuildTarget> &targets)
 {
-    if (notAdded)
-        *notAdded = filePaths;
-    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
-        const QString targetName = n->buildKey();
-        auto target = Utils::findOrDefault(buildTargets(),
-                                           [targetName](const CMakeBuildTarget &target) {
-                                               return target.title == targetName;
-                                           });
-
-        if (target.backtrace.isEmpty()) {
-            qCCritical(cmakeBuildSystemLog) << "target.backtrace for" << targetName << "is empty. "
-                                            << "The location where to add the files is unknown.";
-            return false;
-        }
-
-        const FilePath targetCMakeFile = target.backtrace.last().path;
-        const int targetDefinitionLine = target.backtrace.last().line;
-
-        // Have a fresh look at the CMake file, not relying on a cached value
-        Core::DocumentManager::saveModifiedDocumentSilently(
-            Core::DocumentModel::documentForFilePath(targetCMakeFile));
-        expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
-        cmListFile cmakeListFile;
-        std::string errorString;
-        if (fileContent) {
-            fileContent = fileContent->replace("\r\n", "\n");
-            if (!cmakeListFile.ParseString(fileContent->toStdString(),
-                                           targetCMakeFile.fileName().toStdString(),
-                                           errorString)) {
-                qCCritical(cmakeBuildSystemLog).noquote()
-                    << targetCMakeFile.path() << "failed to parse! Error:"
-                    << QString::fromStdString(errorString);
-                return false;
-            }
-        }
-
-        auto function = std::find_if(cmakeListFile.Functions.begin(),
-                                     cmakeListFile.Functions.end(),
-                                     [targetDefinitionLine](const auto &func) {
-                                         return func.Line() == targetDefinitionLine;
-                                     });
-
-        if (function == cmakeListFile.Functions.end()) {
-            qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
-                                            << "could not be found at" << targetDefinitionLine;
-            return false;
-        }
-
-        // Special case: when qt_add_executable and qt_add_qml_module use the same target name
-        // then qt_add_qml_module function should be used
-        const std::string target_name = targetName.toStdString();
-        auto add_qml_module_func
-            = std::find_if(cmakeListFile.Functions.begin(),
-                           cmakeListFile.Functions.end(),
-                           [target_name](const auto &func) {
-                               return (func.LowerCaseName() == "qt_add_qml_module"
-                                       || func.LowerCaseName() == "qt6_add_qml_module")
-                                      && func.Arguments().front().Value == target_name;
-                           });
-        if (add_qml_module_func != cmakeListFile.Functions.end())
-            function = add_qml_module_func;
-
-        const QString newSourceFiles = newFilesForFunction(function->LowerCaseName(),
-                                                           filePaths,
-                                                           n->filePath().canonicalPath());
-
-        static QSet<std::string> knownFunctions{"add_executable",
-                                                "add_library",
-                                                "qt_add_executable",
-                                                "qt_add_library",
-                                                "qt6_add_executable",
-                                                "qt6_add_library",
-                                                "qt_add_qml_module",
-                                                "qt6_add_qml_module"};
-
-        int line = 0;
-        int column = 0;
-        int extraChars = 0;
-        QString snippet;
-
-        auto afterFunctionLastArgument =
-            [&line, &column, &snippet, &extraChars, newSourceFiles](const auto &f) {
-                auto lastArgument = f->Arguments().back();
-
-                line = lastArgument.Line;
-                column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
-                snippet = QString("\n%1").arg(newSourceFiles);
-
-                // Take into consideration the quotes
-                if (lastArgument.Delim == cmListFileArgument::Quoted)
-                    extraChars = 2;
-            };
-
-        if (knownFunctions.contains(function->LowerCaseName())) {
-            afterFunctionLastArgument(function);
-        } else {
-            auto targetSourcesFunc = std::find_if(cmakeListFile.Functions.begin(),
-                                                  cmakeListFile.Functions.end(),
-                                                  [target_name](const auto &func) {
-                                                      return func.LowerCaseName()
-                                                                 == "target_sources"
-                                                             && func.Arguments().front().Value
-                                                                    == target_name;
-                                                  });
-
-            if (targetSourcesFunc == cmakeListFile.Functions.end()) {
-                line = function->LineEnd() + 1;
-                column = 0;
-                snippet = QString("\ntarget_sources(%1\n  PRIVATE\n    %2\n)\n")
-                              .arg(targetName)
-                              .arg(newSourceFiles);
-            } else {
-                afterFunctionLastArgument(targetSourcesFunc);
-            }
-        }
-
-        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-            Core::EditorManager::openEditorAt({targetCMakeFile, line, column + extraChars},
-                                              Constants::CMAKE_EDITOR_ID,
-                                              Core::EditorManager::DoNotMakeVisible));
-        if (!editor) {
-            qCCritical(cmakeBuildSystemLog).noquote()
-                << "BaseTextEditor cannot be obtained for" << targetCMakeFile.path() << line
-                << int(column + extraChars);
-            return false;
-        }
-
-        editor->insert(snippet);
-        editor->editorWidget()->autoIndent();
-        if (!Core::DocumentManager::saveDocument(editor->document())) {
-            qCCritical(cmakeBuildSystemLog).noquote()
-                << "Changes to" << targetCMakeFile.path() << "could not be saved.";
-            return false;
-        }
-
-        if (notAdded)
-            notAdded->clear();
-        return true;
-    }
-
-    return BuildSystem::addFiles(context, filePaths, notAdded);
-}
-
-std::optional<CMakeBuildSystem::ProjectFileArgumentPosition>
-CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
-{
-    auto target = Utils::findOrDefault(buildTargets(), [targetName](const CMakeBuildTarget &target) {
-        return target.title == targetName;
+    auto target = Utils::findOrDefault(targets, [buildKey](const CMakeBuildTarget &target) {
+        return target.title == buildKey;
     });
-
-    if (target.backtrace.isEmpty())
+    if (target.backtrace.isEmpty()) {
+        qCCritical(cmakeBuildSystemLog) << "target.backtrace for" << buildKey << "is empty."
+                                        << "The location where to add the files is unknown.";
         return std::nullopt;
+    }
+    return std::make_optional(Link(target.backtrace.last().path, target.backtrace.last().line));
+}
 
-    const FilePath targetCMakeFile = target.backtrace.last().path;
-
+static std::optional<cmListFile> getUncachedCMakeListFile(const FilePath &targetCMakeFile)
+{
     // Have a fresh look at the CMake file, not relying on a cached value
     Core::DocumentManager::saveModifiedDocumentSilently(
         Core::DocumentModel::documentForFilePath(targetCMakeFile));
@@ -439,39 +306,451 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         fileContent = fileContent->replace("\r\n", "\n");
         if (!cmakeListFile.ParseString(fileContent->toStdString(),
                                        targetCMakeFile.fileName().toStdString(),
-                                       errorString))
+                                       errorString)) {
+            qCCritical(cmakeBuildSystemLog).noquote() << targetCMakeFile.toUserOutput()
+                                                      << "failed to parse! Error:"
+                                                      << QString::fromStdString(errorString);
             return std::nullopt;
+        }
+    }
+    return std::make_optional(cmakeListFile);
+}
+
+static std::optional<cmListFileFunction> findFunction(
+        const cmListFile &cmakeListFile, std::function<bool(const cmListFileFunction &)> pred,
+        bool reverse = false)
+{
+    if (reverse) {
+        auto function = std::find_if(cmakeListFile.Functions.rbegin(),
+                                     cmakeListFile.Functions.rend(), pred);
+        if (function == cmakeListFile.Functions.rend())
+            return std::nullopt;
+        return std::make_optional(*function);
+    }
+    auto function
+            = std::find_if(cmakeListFile.Functions.begin(), cmakeListFile.Functions.end(), pred);
+    if (function == cmakeListFile.Functions.end())
+        return std::nullopt;
+    return std::make_optional(*function);
+}
+
+struct SnippetAndLocation
+{
+    QString snippet;
+    long line = -1;
+    long column = -1;
+};
+
+static SnippetAndLocation generateSnippetAndLocationForSources(
+        const QString &newSourceFiles,
+        const cmListFile &cmakeListFile,
+        const cmListFileFunction &function,
+        const QString &targetName)
+{
+    static QSet<std::string> knownFunctions{"add_executable",
+                                            "add_library",
+                                            "qt_add_executable",
+                                            "qt_add_library",
+                                            "qt6_add_executable",
+                                            "qt6_add_library",
+                                            "qt_add_qml_module",
+                                            "qt6_add_qml_module"};
+    SnippetAndLocation result;
+    int extraChars = 0;
+    auto afterFunctionLastArgument =
+        [&result, &extraChars, newSourceFiles](const auto &f) {
+            auto lastArgument = f.Arguments().back();
+            result.line = lastArgument.Line;
+            result.column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
+            result.snippet = QString("\n%1").arg(newSourceFiles);
+            // Take into consideration the quotes
+            if (lastArgument.Delim == cmListFileArgument::Quoted)
+                extraChars = 2;
+        };
+    if (knownFunctions.contains(function.LowerCaseName())) {
+        afterFunctionLastArgument(function);
+    } else {
+        const std::string target_name = targetName.toStdString();
+        auto targetSources = [target_name](const auto &func) {
+            return func.LowerCaseName() == "target_sources"
+                    && func.Arguments().size() && func.Arguments().front().Value == target_name;
+        };
+        std::optional<cmListFileFunction> targetSourcesFunc = findFunction(cmakeListFile,
+                                                                           targetSources);
+        if (!targetSourcesFunc.has_value()) {
+            result.line = function.LineEnd() + 1;
+            result.column = 0;
+            result.snippet = QString("\ntarget_sources(%1\n  PRIVATE\n    %2\n)\n")
+                                 .arg(targetName)
+                                 .arg(newSourceFiles);
+        } else {
+            afterFunctionLastArgument(*targetSourcesFunc);
+        }
+    }
+    if (extraChars)
+        result.line += extraChars;
+    return result;
+}
+static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
+                                                const SnippetAndLocation &snippetLocation)
+{
+    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+        Core::EditorManager::openEditorAt({cmakeFile,
+                                           int(snippetLocation.line),
+                                           int(snippetLocation.column)},
+                                          Constants::CMAKE_EDITOR_ID,
+                                          Core::EditorManager::DoNotMakeVisible));
+    if (!editor) {
+        return make_unexpected("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
+                               + ":" + QString::number(snippetLocation.line) + ":"
+                               + QString::number(snippetLocation.column));
+    }
+    editor->insert(snippetLocation.snippet);
+    editor->editorWidget()->autoIndent();
+    if (!Core::DocumentManager::saveDocument(editor->document()))
+        return make_unexpected("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
+    return true;
+}
+
+static void findLastRelevantArgument(const cmListFileFunction &function,
+                                     int minimumArgPos,
+                                     const QSet<QString> &lowerCaseStopParams,
+                                     QString *lastRelevantArg,
+                                     int *lastRelevantPos)
+{
+    const std::vector<cmListFileArgument> args = function.Arguments();
+    *lastRelevantPos = int(args.size()) - 1;
+    for (int i = minimumArgPos, end = int(args.size()); i < end; ++i) {
+        const QString lowerArg = QString::fromStdString(args.at(i).Value).toLower();
+        if (lowerCaseStopParams.contains(lowerArg)) {
+            *lastRelevantPos = i - 1;
+            break;
+        }
+        *lastRelevantArg = lowerArg;
+    }
+}
+
+static std::optional<cmListFileFunction> findSetFunctionFor(const cmListFile &cmakeListFile,
+                                                            const QString &lowerVariableName)
+{
+    auto findSetFunc = [lowerVariableName](const auto &func) {
+        if (func.LowerCaseName() != "set")
+            return false;
+        std::vector<cmListFileArgument> args = func.Arguments();
+        return args.size()
+                && QString::fromStdString(args.front().Value).toLower() == lowerVariableName;
+    };
+    return findFunction(cmakeListFile, findSetFunc);
+}
+
+static std::optional<cmListFileFunction> handleTSAddVariant(const cmListFile &cmakeListFile,
+                                                            const QSet<QString> &lowerFunctionNames,
+                                                            std::optional<QString> targetName,
+                                                            const QSet<QString> &stopParams,
+                                                            int *lastArgumentPos)
+{
+    std::optional<cmListFileFunction> function;
+    auto currentFunc = findFunction(cmakeListFile, [lowerFunctionNames, targetName](const auto &func) {
+        auto lower = QString::fromStdString(func.LowerCaseName());
+        if (lowerFunctionNames.contains(lower)) {
+            if (!targetName)
+                return true;
+            const std::vector<cmListFileArgument> args = func.Arguments();
+            if (args.size())
+                return *targetName == QString::fromStdString(args.front().Value);
+        }
+        return false;
+    });
+    if (currentFunc) {
+        QString lastRelevant;
+        const int argsMinimumPos = targetName.has_value() ? 2 : 1;
+
+        findLastRelevantArgument(*currentFunc, argsMinimumPos, stopParams,
+                                 &lastRelevant, lastArgumentPos);
+        // handle argument
+        if (!lastRelevant.isEmpty() && lastRelevant.startsWith('$')) {
+            QString var = lastRelevant.mid(1);
+            if (var.startsWith('{') && var.endsWith('}'))
+                var = var.mid(1, var.size() - 2);
+            if (!var.isEmpty()) {
+                std::optional<cmListFileFunction> setFunc = findSetFunctionFor(cmakeListFile, var);
+                if (setFunc) {
+                    function = *setFunc;
+                    *lastArgumentPos = int(function->Arguments().size()) - 1;
+                }
+            }
+        }
+        if (!function.has_value()) // no variable used or we failed to find respective SET()
+            function = currentFunc;
+    }
+    return function;
+}
+
+static std::optional<cmListFileFunction> handleQtAddTranslations(const cmListFile &cmakeListFile,
+                                                                 std::optional<QString> targetName,
+                                                                 int *lastArgumentPos)
+{
+    const QSet<QString> stopParams{"resource_prefix", "output_targets",
+                                   "qm_files_output_variable", "sources", "include_directories",
+                                   "lupdate_options", "lrelease_options"};
+    return handleTSAddVariant(cmakeListFile, {"qt6_add_translations", "qt_add_translations"},
+                              targetName, stopParams, lastArgumentPos);
+}
+
+static std::optional<cmListFileFunction> handleQtAddLupdate(const cmListFile &cmakeListFile,
+                                                            std::optional<QString> targetName,
+                                                            int *lastArgumentPos)
+{
+    const QSet<QString> stopParams{"sources", "include_directories", "no_global_target", "options"};
+    return handleTSAddVariant(cmakeListFile, {"qt6_add_lupdate", "qt_add_lupdate"},
+                              targetName, stopParams, lastArgumentPos);
+}
+
+static std::optional<cmListFileFunction> handleQtCreateTranslation(const cmListFile &cmakeListFile,
+                                                                   int *lastArgumentPos)
+{
+    return handleTSAddVariant(cmakeListFile, {"qt_create_translation", "qt5_create_translation"},
+                              std::nullopt, {"options"}, lastArgumentPos);
+}
+
+
+static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
+                                                  const FilePath &targetCmakeFile,
+                                                  const QString &targetName,
+                                                  int targetDefinitionLine,
+                                                  const QString &filesToAdd,
+                                                  int qtMajorVersion,
+                                                  bool addLinguist)
+{
+    std::optional<cmListFileFunction> function
+        = findFunction(cmakeListFile, [targetDefinitionLine](const auto &func) {
+              return func.Line() == targetDefinitionLine;
+          });
+    if (!function.has_value())
+        return false;
+
+    // FIXME: room for improvement
+    // * this just updates "the current cmake path" for e.g. conditional setups like
+    //   differentiating between desktop and device build config we do not update all
+    QString snippet;
+    if (qtMajorVersion == 5)
+        snippet = QString("\nqt_create_translation(QM_FILES %1)\n").arg(filesToAdd);
+    else
+        snippet = QString("\nqt_add_translations(%1 TS_FILES %2)\n").arg(targetName, filesToAdd);
+
+    const int insertionLine = function->LineEnd() + 1;
+    expected_str<bool> inserted = insertSnippetSilently(targetCmakeFile,
+                                                        {snippet, insertionLine, 0});
+    if (!inserted || !addLinguist)
+        return inserted;
+
+    function = findFunction(cmakeListFile, [](const auto &func) {
+        return func.LowerCaseName() == "find_package";
+    }, /* reverse = */ true);
+    if (!function.has_value()) {
+        qCCritical(cmakeBuildSystemLog) << "Failed to find a find_package().";
+        return inserted; // we just fail to insert LinguistTool, but otherwise succeeded
+    }
+    if (insertionLine < function->LineEnd() + 1) {
+        qCCritical(cmakeBuildSystemLog) << "find_package() calls after old insertion. "
+                                           "Refusing to process.";
+        return inserted; // we just fail to insert LinguistTool, but otherwise succeeded
     }
 
-    const int targetDefinitionLine = target.backtrace.last().line;
+    snippet = QString("find_package(Qt%1 REQUIRED COMPONENTS LinguistTools)\n").arg(qtMajorVersion);
+    return insertSnippetSilently(targetCmakeFile, {snippet, function->LineEnd() + 1, 0});
+}
 
-    auto function = std::find_if(cmakeListFile.Functions.begin(),
-                                 cmakeListFile.Functions.end(),
-                                 [targetDefinitionLine](const auto &func) {
-                                     return func.Line() == targetDefinitionLine;
-                                 });
+bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    if (notAdded)
+        notAdded->append(filePaths);
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const QString targetName = n->buildKey();
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+        if (!cmakeFile.has_value())
+            return false;
+
+        const FilePath targetCMakeFile = cmakeFile->targetFilePath;
+        std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+        if (!cmakeListFile.has_value())
+            return false;
+
+        int lastArgumentPos = -1;
+        std::optional<cmListFileFunction> function
+                = handleQtAddTranslations(*cmakeListFile, targetName, &lastArgumentPos);
+        if (!function.has_value())
+            function = handleQtAddLupdate(*cmakeListFile, targetName, &lastArgumentPos);
+        if (!function.has_value())
+            function = handleQtCreateTranslation(*cmakeListFile, &lastArgumentPos);
+
+        const QString filesToAdd = relativeFilePaths(filePaths, n->filePath().canonicalPath());
+        bool linguistToolsMissing = false;
+        int qtMajorVersion = -1;
+        if (!function.has_value()) {
+            if (auto qt = m_findPackagesFilesHash.value("Qt6Core"); qt.hasValidTarget())
+                qtMajorVersion = 6;
+            else if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
+                qtMajorVersion = 5;
+
+            if (qtMajorVersion != -1) {
+                const QString linguistTools = QString("Qt%1LinguistTools").arg(qtMajorVersion);
+                auto linguist = m_findPackagesFilesHash.value(linguistTools);
+                linguistToolsMissing = !linguist.hasValidTarget();
+            }
+
+            // we failed to find any pre-existing, add one ourself
+            expected_str<bool> inserted = insertQtAddTranslations(*cmakeListFile,
+                                                                  targetCMakeFile,
+                                                                  targetName,
+                                                                  cmakeFile->targetLine,
+                                                                  filesToAdd,
+                                                                  qtMajorVersion,
+                                                                  linguistToolsMissing);
+            if (!inserted)
+                qCCritical(cmakeBuildSystemLog) << inserted.error();
+            else if (notAdded)
+                notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+
+            return inserted.value_or(false);
+        }
+
+        auto lastArgument = function->Arguments().at(lastArgumentPos);
+        const int lastArgLength = static_cast<int>(lastArgument.Value.size()) - 1;
+        SnippetAndLocation snippetLocation{QString("\n%1").arg(filesToAdd),
+                                           lastArgument.Line, lastArgument.Column + lastArgLength};
+        // Take into consideration the quotes
+        if (lastArgument.Delim == cmListFileArgument::Quoted)
+            snippetLocation.column += 2;
+
+        expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        if (!inserted) {
+            qCCritical(cmakeBuildSystemLog) << inserted.error();
+            return false;
+        }
+
+        if (notAdded)
+            notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+        return true;
+    }
+    return false;
+}
+
+bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    if (notAdded)
+        notAdded->append(filePaths);
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const QString targetName = n->buildKey();
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+        if (!cmakeFile)
+            return false;
+
+        const FilePath targetCMakeFile = cmakeFile->targetFilePath;
+        const int targetDefinitionLine = cmakeFile->targetLine;
+
+        std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+        if (!cmakeListFile)
+            return false;
+
+        std::optional<cmListFileFunction> function
+                = findFunction(*cmakeListFile, [targetDefinitionLine](const auto &func) {
+            return func.Line() == targetDefinitionLine;
+        });
+        if (!function.has_value()) {
+            qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
+                                            << "could not be found at" << targetDefinitionLine;
+            return false;
+        }
+
+        const std::string target_name = function->Arguments().front().Value;
+        auto qtAddModule = [target_name](const auto &func) {
+            return (func.LowerCaseName() == "qt_add_qml_module"
+                    || func.LowerCaseName() == "qt6_add_qml_module")
+                    && func.Arguments().front().Value == target_name;
+        };
+        // Special case: when qt_add_executable and qt_add_qml_module use the same target name
+        // then qt_add_qml_module function should be used
+        function = findFunction(*cmakeListFile, qtAddModule).value_or(*function);
+
+        const QString newSourceFiles = newFilesForFunction(function->LowerCaseName(),
+                                                           filePaths,
+                                                           n->filePath().canonicalPath());
+
+        const SnippetAndLocation snippetLocation = generateSnippetAndLocationForSources(
+                    newSourceFiles, *cmakeListFile, *function, targetName);
+        expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        if (!inserted) {
+            qCCritical(cmakeBuildSystemLog) << inserted.error();
+            return false;
+        }
+
+        if (notAdded)
+            notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+        return true;
+    }
+
+    return false;
+}
+
+bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    FilePaths tsFiles, srcFiles;
+    std::tie(tsFiles, srcFiles) = Utils::partition(filePaths, [](const FilePath &fp) {
+        return Utils::mimeTypeForFile(fp.toString()).name() == Utils::Constants::LINGUIST_MIMETYPE;
+    });
+    bool success = true;
+    if (!srcFiles.isEmpty())
+        success = addSrcFiles(context, srcFiles, notAdded);
+
+    if (!tsFiles.isEmpty())
+        success = addTsFiles(context, tsFiles, notAdded) || success;
+
+    if (success)
+        return true;
+    return BuildSystem::addFiles(context, filePaths, notAdded);
+}
+
+std::optional<CMakeBuildSystem::ProjectFileArgumentPosition>
+CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
+{
+    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+    if (!cmakeFile)
+        return std::nullopt;
+
+    const FilePath targetCMakeFile = cmakeFile->targetFilePath;
+    const int targetDefinitionLine = cmakeFile->targetLine;
+
+    std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+    if (!cmakeListFile)
+        return std::nullopt;
+
+    std::optional<cmListFileFunction> function
+            = findFunction(*cmakeListFile, [targetDefinitionLine](const auto &func) {
+        return func.Line() == targetDefinitionLine;
+    });
+    if (!function.has_value()) {
+        qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
+                                        << "could not be found at" << targetDefinitionLine;
+        return std::nullopt;
+    }
 
     const std::string target_name = targetName.toStdString();
-    auto targetSourcesFunc = std::find_if(cmakeListFile.Functions.begin(),
-                                          cmakeListFile.Functions.end(),
-                                          [target_name](const auto &func) {
-                                              return func.LowerCaseName() == "target_sources"
-                                                     && func.Arguments().size() > 1
-                                                     && func.Arguments().front().Value
-                                                            == target_name;
-                                          });
-    auto addQmlModuleFunc = std::find_if(cmakeListFile.Functions.begin(),
-                                         cmakeListFile.Functions.end(),
-                                         [target_name](const auto &func) {
-                                             return (func.LowerCaseName() == "qt_add_qml_module"
-                                                     || func.LowerCaseName() == "qt6_add_qml_module")
-                                                    && func.Arguments().size() > 1
-                                                    && func.Arguments().front().Value
-                                                           == target_name;
-                                         });
+    auto targetSourcesFunc = findFunction(*cmakeListFile, [target_name](const auto &func) {
+        return func.LowerCaseName() == "target_sources" && func.Arguments().size() > 1
+               && func.Arguments().front().Value == target_name;
+    });
+
+    auto addQmlModuleFunc = findFunction(*cmakeListFile, [target_name](const auto &func) {
+        return (func.LowerCaseName() == "qt_add_qml_module"
+                || func.LowerCaseName() == "qt6_add_qml_module")
+               && func.Arguments().size() > 1 && func.Arguments().front().Value == target_name;
+    });
 
     for (const auto &func : {function, targetSourcesFunc, addQmlModuleFunc}) {
-        if (func == cmakeListFile.Functions.end())
+        if (!func.has_value())
             continue;
         auto filePathArgument = Utils::findOrDefault(func->Arguments(),
                                                      [file_name = fileName.toStdString()](
@@ -484,7 +763,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         } else {
             // Check if the filename is part of globbing variable result
             const auto globFunctions = std::get<0>(
-                Utils::partition(cmakeListFile.Functions, [](const auto &f) {
+                Utils::partition(cmakeListFile->Functions, [](const auto &f) {
                     return f.LowerCaseName() == "file" && f.Arguments().size() > 2
                            && (f.Arguments().front().Value == "GLOB"
                                || f.Arguments().front().Value == "GLOB_RECURSE");
@@ -508,7 +787,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
 
             // Check if the filename is part of a variable set by the user
             const auto setFunctions = std::get<0>(
-                Utils::partition(cmakeListFile.Functions, [](const auto &f) {
+                Utils::partition(cmakeListFile->Functions, [](const auto &f) {
                     return f.LowerCaseName() == "set" && f.Arguments().size() > 1;
                 }));
 
@@ -701,7 +980,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     FilePath baseDirectory = sourceFile.parentDir();
 
     while (baseDirectory.isChildOf(project)) {
-        const FilePath cmakeListsTxt = baseDirectory.pathAppended("CMakeLists.txt");
+        const FilePath cmakeListsTxt = baseDirectory.pathAppended(Constants::CMAKE_LISTS_TXT);
         if (cmakeListsTxt.exists())
             break;
         baseDirectory = baseDirectory.parentDir();
@@ -906,8 +1185,8 @@ void CMakeBuildSystem::clearCMakeCache()
     stopParsingAndClearState();
 
     const FilePath pathsToDelete[] = {
-        m_parameters.buildDirectory / "CMakeCache.txt",
-        m_parameters.buildDirectory / "CMakeCache.txt.prev",
+        m_parameters.buildDirectory / Constants::CMAKE_CACHE_TXT,
+        m_parameters.buildDirectory / Constants::CMAKE_CACHE_TXT_PREV,
         m_parameters.buildDirectory / "CMakeFiles",
         m_parameters.buildDirectory / ".cmake/api/v1/reply",
         m_parameters.buildDirectory / ".cmake/api/v1/reply.prev",
@@ -1082,10 +1361,10 @@ void CMakeBuildSystem::updateProjectData()
         addTargetFlagForIos(cFlags, cxxFlags, this, [this] {
             return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
         });
-        if (kitInfo.cxxToolChain)
-            rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxFlags, includeFileBaseDir});
-        if (kitInfo.cToolChain)
-            rpp.setFlagsForC({kitInfo.cToolChain, cFlags, includeFileBaseDir});
+        if (kitInfo.cxxToolchain)
+            rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxFlags, includeFileBaseDir});
+        if (kitInfo.cToolchain)
+            rpp.setFlagsForC({kitInfo.cToolchain, cFlags, includeFileBaseDir});
     }
 
     m_cppCodeModelUpdater->update({p, kitInfo, buildConfiguration()->environment(), rpps},
@@ -1188,6 +1467,52 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
                 cmakeConfig.append(ci);
         }
     }
+
+    const bool hasAndroidTargetBuildDirSupport
+        = CMakeConfigItem::toBool(
+              cmakeConfig.stringValueOf("QT_INTERNAL_ANDROID_TARGET_BUILD_DIR_SUPPORT"))
+              .value_or(false);
+
+    const bool useAndroidTargetBuildDir
+        = CMakeConfigItem::toBool(cmakeConfig.stringValueOf("QT_USE_TARGET_ANDROID_BUILD_DIR"))
+              .value_or(false);
+
+    project()->setExtraData(Android::Constants::AndroidBuildTargetDirSupport,
+                            QVariant::fromValue(hasAndroidTargetBuildDirSupport));
+    project()->setExtraData(Android::Constants::UseAndroidBuildTargetDir,
+                            QVariant::fromValue(useAndroidTargetBuildDir));
+
+    QVariantList packageTargets;
+    for (const CMakeBuildTarget &buildTarget : buildTargets()) {
+        bool isBuiltinPackage = false;
+        bool isInstallablePackage = false;
+        for (const ProjectExplorer::FolderNode::LocationInfo &bs : buildTarget.backtrace) {
+            if (bs.displayName == "qt6_am_create_builtin_package")
+                isBuiltinPackage = true;
+            else if (bs.displayName == "qt6_am_create_installable_package")
+                isInstallablePackage = true;
+        }
+
+        if (!isBuiltinPackage && !isInstallablePackage)
+            continue;
+
+        QVariantMap packageTarget;
+        for (const FilePath &sourceFile : buildTarget.sourceFiles) {
+            if (sourceFile.fileName() == "info.yaml") {
+                packageTarget.insert("manifestFilePath", QVariant::fromValue(sourceFile.absoluteFilePath()));
+                packageTarget.insert("cmakeTarget", buildTarget.title);
+                packageTarget.insert("isBuiltinPackage", isBuiltinPackage);
+                for (const FilePath &osf : buildTarget.sourceFiles) {
+                    if (osf.fileName().endsWith(".ampkg.rule")) {
+                        packageTarget.insert("packageFilePath", QVariant::fromValue(osf.absoluteFilePath().chopped(5)));
+                    }
+                }
+            }
+        }
+        packageTargets.append(packageTarget);
+    }
+    project()->setExtraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS, packageTargets);
+
     setConfigurationFromCMake(cmakeConfig);
 }
 
@@ -1283,7 +1608,8 @@ void CMakeBuildSystem::wireUpConnections()
         // No CMakeCache? Run with initial arguments!
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
         const BuildDirParameters parameters(this);
-        const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended("CMakeCache.txt");
+        const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended(
+            Constants::CMAKE_CACHE_TXT);
         const bool hasCMakeCache = cmakeCacheTxt.exists();
         const auto options = ReparseParameters(
                     hasCMakeCache
@@ -1574,8 +1900,7 @@ void CMakeBuildSystem::runCTest()
     m_ctestProcess->setCommand({m_ctestPath, { "-N", "--show-only=json-v1"}});
     connect(m_ctestProcess.get(), &Process::done, this, [this] {
         if (m_ctestProcess->result() == ProcessResult::FinishedWithSuccess) {
-            const QJsonDocument json
-                = QJsonDocument::fromJson(m_ctestProcess->readAllRawStandardOutput());
+            const QJsonDocument json = QJsonDocument::fromJson(m_ctestProcess->rawStdOut());
             if (!json.isEmpty() && json.isObject()) {
                 const QJsonObject jsonObj = json.object();
                 const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();
@@ -1967,7 +2292,7 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
         buildDirectory = bc->buildDirectory();
 
     cmd.command.addArg("--build");
-    cmd.command.addArg(buildDirectory.path());
+    cmd.command.addArg(CMakeToolManager::mappedFilePath(buildDirectory).path());
     cmd.command.addArg("--target");
     cmd.command.addArg(installTarget);
 

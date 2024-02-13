@@ -26,7 +26,7 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
 
     setModel(model);
 
-    auto expandItems = [this]() { expandAll(); };
+    auto expandItems = [this] { expandAll(); };
     connect(model, &QAbstractItemModel::modelReset, expandItems);
 
     setItemDelegate(new TreeItemDelegate(model->style(), this));

@@ -6,8 +6,6 @@
 namespace CMakeProjectManager {
 namespace Constants {
 
-const char CMAKE_MIMETYPE[] = "text/x-cmake";
-const char CMAKE_PROJECT_MIMETYPE[] = "text/x-cmake-project";
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
 const char RUN_CMAKE[] = "CMakeProject.RunCMake";
 const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
@@ -28,6 +26,10 @@ const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
 const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
 const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
+
+const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
+const char CMAKE_CACHE_TXT[] = "CMakeCache.txt";
+const char CMAKE_CACHE_TXT_PREV[] = "CMakeCache.txt.prev";
 
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";

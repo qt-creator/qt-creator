@@ -21,11 +21,13 @@ add_qtc_plugin(QmlJSTools
     qmljstools_global.h
     qmljstoolstr.h
     qmljstoolsconstants.h
-    qmljstoolsplugin.cpp qmljstoolsplugin.h
+    qmljstoolsplugin.cpp
     qmljstoolssettings.cpp qmljstoolssettings.h
 )
 
 extend_qtc_plugin(QmlJSTools
   CONDITION WITH_TESTS
-  SOURCES qmljstools_test.cpp
+  SOURCES
+    qmljstools_test.cpp
+    qmljstools_test.h
 )

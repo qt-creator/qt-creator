@@ -3,6 +3,8 @@ add_qtc_plugin(Debugger
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport TextEditor
   PLUGIN_RECOMMENDS QmakeProjectManager
   PLUGIN_TEST_DEPENDS QmakeProjectManager
+  DEFINES
+    CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   SOURCES
     analyzer/analyzerbase.qrc
     analyzer/analyzerconstants.h
@@ -45,11 +47,12 @@ add_qtc_plugin(Debugger
     debuggeritemmanager.cpp debuggeritemmanager.h
     debuggerkitaspect.cpp debuggerkitaspect.h
     debuggermainwindow.cpp debuggermainwindow.h
-    debuggerplugin.cpp debuggerplugin.h
+    debuggerplugin.cpp
     debuggerprotocol.cpp debuggerprotocol.h
     debuggerrunconfigurationaspect.cpp debuggerrunconfigurationaspect.h
     debuggerruncontrol.cpp debuggerruncontrol.h
     debuggersourcepathmappingwidget.cpp debuggersourcepathmappingwidget.h
+    debuggertest.cpp debuggertest.h
     debuggertooltipmanager.cpp debuggertooltipmanager.h
     debuggertr.h
     disassembleragent.cpp disassembleragent.h

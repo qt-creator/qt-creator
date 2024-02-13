@@ -49,7 +49,7 @@ CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
 
 Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new NimIndenter(doc);
+    return createNimIndenter(doc);
 }
 
 QString NimCodeStylePreferencesFactory::snippetProviderGroupId() const

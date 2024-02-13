@@ -5,23 +5,8 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+namespace Android::Internal {
 
-namespace Android {
-namespace Internal {
+QObject *createAndroidSdkManagerTest();
 
-class AndroidSdkManagerTest : public QObject
-{
-    Q_OBJECT
-public:
-    AndroidSdkManagerTest(QObject *parent = nullptr);
-    ~AndroidSdkManagerTest();
-
-private slots:
-    void testAndroidSdkManagerProgressParser_data();
-    void testAndroidSdkManagerProgressParser();
-};
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

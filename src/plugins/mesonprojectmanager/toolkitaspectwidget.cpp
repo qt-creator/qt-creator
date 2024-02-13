@@ -17,9 +17,10 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
                                          ToolType type)
     : ProjectExplorer::KitAspect(kit, factory)
     , m_toolsComboBox(createSubWidget<QComboBox>())
-    , m_manageButton(createManageButton(Constants::SettingsPage::TOOLS_ID))
     , m_type{type}
 {
+    setManagingPage(Constants::SettingsPage::TOOLS_ID);
+
     m_toolsComboBox->setSizePolicy(QSizePolicy::Ignored,
                                    m_toolsComboBox->sizePolicy().verticalPolicy());
     m_toolsComboBox->setEnabled(false);
@@ -37,7 +38,6 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
 ToolKitAspectWidget::~ToolKitAspectWidget()
 {
     delete m_toolsComboBox;
-    delete m_manageButton;
 }
 
 void ToolKitAspectWidget::addTool(const MesonTools::Tool_t &tool)
@@ -96,7 +96,7 @@ void ToolKitAspectWidget::loadTools()
 
 void ToolKitAspectWidget::setToDefault()
 {
-    const MesonTools::Tool_t autoDetected = [this]() {
+    const MesonTools::Tool_t autoDetected = [this] {
         if (m_type == ToolType::Meson)
             return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::mesonWrapper());
         return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::ninjaWrapper());

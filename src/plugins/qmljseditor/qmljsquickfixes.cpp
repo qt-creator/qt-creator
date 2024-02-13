@@ -71,8 +71,6 @@ public:
                        QLatin1String("\n"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(currentFile->startOf(_objectInitializer->lbraceToken),
-                                             currentFile->startOf(_objectInitializer->rbraceToken)));
         currentFile->apply();
     }
 };
@@ -123,7 +121,6 @@ public:
         const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;
         changes.insert(insertLoc, QString::fromLatin1("// %1\n").arg(_message.suppressionString()));
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(insertLoc, insertLoc + 1));
         currentFile->apply();
     }
 };

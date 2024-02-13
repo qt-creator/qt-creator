@@ -6,13 +6,8 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <QDir>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
@@ -32,7 +27,7 @@ public:
     QStringList sourceSearchPaths = {QDir::toNativeSeparators("../src"),
                                      QDir::toNativeSeparators("../Src"),
                                      ".."};
-    QString licenseTemplatePath;
+    Utils::FilePath licenseTemplatePath;
     bool headerPragmaOnce = false;
     bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 
@@ -49,40 +44,10 @@ public:
     bool operator!=(const CppFileSettings &s) const { return !equals(s); }
 };
 
-class CppFileSettingsForProject
-{
-public:
-    CppFileSettingsForProject(ProjectExplorer::Project *project);
+CppFileSettings &globalCppFileSettings();
 
-    CppFileSettings settings() const;
-    void setSettings(const CppFileSettings &settings);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobal);
+CppFileSettings cppFileSettingsForProject(ProjectExplorer::Project *project);
 
-private:
-    void loadSettings();
-    void saveSettings();
-
-    ProjectExplorer::Project * const m_project;
-    CppFileSettings m_customSettings;
-    bool m_useGlobalSettings = true;
-};
-
-class CppFileSettingsPage : public Core::IOptionsPage
-{
-public:
-    explicit CppFileSettingsPage(CppFileSettings *settings);
-};
-
-class CppFileSettingsForProjectWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-public:
-    CppFileSettingsForProjectWidget(const CppFileSettingsForProject &settings);
-    ~CppFileSettingsForProjectWidget();
-
-private:
-    class Private;
-    Private * const d;
-};
+void setupCppFileSettings();
 
 } // namespace CppEditor::Internal

@@ -21,7 +21,7 @@ public:
 
 private:
     Utils::ProcessRunData runnable() const override;
-    bool isEnabled() const override;
+    bool isEnabled(Utils::Id) const override;
     Tasks checkForIssues() const override;
 
     void configurationDialogFinished();

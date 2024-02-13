@@ -41,6 +41,8 @@ public:
     DebuggerKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
         : KitAspect(workingCopy, factory)
     {
+        setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
+
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(true);
@@ -56,13 +58,11 @@ public:
             m_kit->setValue(DebuggerKitAspect::id(), id);
         });
 
-        m_manageButton = createManageButton(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
     }
 
     ~DebuggerKitAspectImpl() override
     {
         delete m_comboBox;
-        delete m_manageButton;
     }
 
 private:
@@ -70,12 +70,11 @@ private:
     {
         addMutableAction(m_comboBox);
         parent.addItem(m_comboBox);
-        parent.addItem(m_manageButton);
     }
 
     void makeReadOnly() override
     {
-        m_manageButton->setEnabled(false);
+        KitAspect::makeReadOnly();
         m_comboBox->setEnabled(false);
     }
 
@@ -124,7 +123,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_comboBox;
-    QWidget *m_manageButton;
 };
 } // namespace Internal
 
@@ -150,7 +148,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     if (!debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
 
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
@@ -305,7 +303,7 @@ public:
         //  </valuemap>
         const QVariant rawId = k->value(DebuggerKitAspectFactory::id());
 
-        const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+        const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
 
         // Get the best of the available debugger matching the kit's toolchain.
         // The general idea is to find an item that exactly matches what

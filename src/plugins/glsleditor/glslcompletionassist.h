@@ -7,12 +7,8 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/asyncprocessor.h>
-#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-
-#include <QScopedPointer>
-#include <QSharedPointer>
 
 namespace GLSL {
 class Engine;
@@ -21,7 +17,7 @@ class TranslationUnitAST;
 class Scope;
 } // namespace GLSL
 
-namespace TextEditor { class AssistProposalItem; }
+namespace TextEditor { class CompletionAssistProvider; }
 
 namespace GlslEditor {
 namespace Internal {
@@ -29,7 +25,7 @@ namespace Internal {
 class Document
 {
 public:
-    using Ptr = QSharedPointer<Document>;
+    using Ptr = std::shared_ptr<Document>;
 
     ~Document();
 
@@ -54,33 +50,6 @@ private:
     friend class GlslEditorWidget;
 };
 
-class GlslCompletionAssistInterface;
-
-class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-};
-
-class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
-{
-public:
-    ~GlslCompletionAssistProcessor() override;
-
-    TextEditor::IAssistProposal *performAsync() override;
-
-private:
-    TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
-    bool acceptsIdleEditor() const;
-
-    int m_startPosition = 0;
-};
-
 class GlslCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
@@ -97,6 +66,8 @@ private:
     QString m_mimeType;
     Document::Ptr m_glslDoc;
 };
+
+TextEditor::CompletionAssistProvider *createGlslCompletionAssistProvider();
 
 } // namespace Internal
 } // namespace GlslEditor

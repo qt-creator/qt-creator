@@ -17,6 +17,7 @@ class QModelIndex;
 class QPlainTextEdit;
 class QSortFilterProxyModel;
 class QTabWidget;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace CppEditor::Internal {

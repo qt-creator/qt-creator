@@ -8,30 +8,10 @@
 #include <texteditor/textindenter.h>
 
 namespace QmlJSEditor {
-namespace Internal {
 
-class QMLJSTOOLS_EXPORT Indenter : public TextEditor::TextIndenter
-{
-public:
-    explicit Indenter(QTextDocument *doc);
-    ~Indenter() override;
+QMLJSTOOLS_EXPORT TextEditor::TextIndenter *createQmlJsIndenter(QTextDocument *doc);
 
-    bool isElectricCharacter(const QChar &ch) const override;
-    void indentBlock(const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
-                     int cursorPositionInEditor = -1) override;
-    void invalidateCache() override;
+QMLJSTOOLS_EXPORT void indentQmlJs(QTextDocument *doc, int startLine, int endLine,
+                                   const TextEditor::TabSettings &tabSettings);
 
-    int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
-                  int cursorPositionInEditor = -1) override;
-    int visualIndentFor(const QTextBlock &block,
-                        const TextEditor::TabSettings &tabSettings) override;
-    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings,
-                                                         int cursorPositionInEditor = -1) override;
-};
-
-} // Internal
 } // QmlJSEditor

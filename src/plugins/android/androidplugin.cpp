@@ -1,8 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidplugin.h"
-
 #include "androidconfigurations.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
@@ -34,7 +32,8 @@
 #endif
 
 #include <coreplugin/icore.h>
-#include <utils/infobar.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <languageclient/languageclientsettings.h>
 
@@ -52,6 +51,8 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <utils/infobar.h>
+
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -61,7 +62,7 @@ const char kSetupAndroidSetting[] = "ConfigureAndroid";
 
 namespace Android::Internal {
 
-class AndroidDeployConfigurationFactory : public DeployConfigurationFactory
+class AndroidDeployConfigurationFactory final : public DeployConfigurationFactory
 {
 public:
     AndroidDeployConfigurationFactory()
@@ -73,91 +74,104 @@ public:
     }
 };
 
-class AndroidPluginPrivate : public QObject
+void setupAndroidDeployConfiguration()
 {
-public:
-    AndroidConfigurations androidConfiguration;
-    AndroidSettingsPage settingsPage;
-    AndroidDeployQtStepFactory deployQtStepFactory;
-    AndroidQtVersionFactory qtVersionFactory;
-    AndroidToolChainFactory toolChainFactory;
-    AndroidDeployConfigurationFactory deployConfigurationFactory;
-    AndroidDeviceFactory deviceFactory;
-    AndroidPotentialKit potentialKit;
-    JavaEditorFactory javaEditorFactory;
-    AndroidPackageInstallationFactory packackeInstallationFactory;
-    AndroidManifestEditorFactory manifestEditorFactory;
-    AndroidRunConfigurationFactory runConfigFactory;
-    AndroidRunWorkerFactory runWorkerFactory;
-    AndroidDebugWorkerFactory debugWorkerFactory;
-    AndroidQmlToolingSupportFactory profilerWorkerFactory;
-    AndroidQmlPreviewWorkerFactory qmlPreviewWorkerFactory;
-    AndroidBuildApkStepFactory buildApkStepFactory;
-    AndroidDeviceManager deviceManager;
-};
-
-AndroidPlugin::~AndroidPlugin()
-{
-    delete d;
+    static AndroidDeployConfigurationFactory theAndroidDeployConfigurationFactory;
 }
 
-void AndroidPlugin::initialize()
+class AndroidPlugin final : public ExtensionSystem::IPlugin
 {
-    d = new AndroidPluginPrivate;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Android.json")
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &AndroidPlugin::kitsRestored);
+    void initialize() final
+    {
+        setupAndroidConfigurations();
 
-    LanguageClient::LanguageClientSettings::registerClientType(
-        {Android::Constants::JLS_SETTINGS_ID,
-         Tr::tr("Java Language Server"),
-         [] { return new JLSSettings; }});
+        setupAndroidPotentialKit();
+        setupAndroidDevice();
+        setupAndroidQtVersion();
+        setupAndroidToolchain();
+
+        setupAndroidDeviceManager(this);
+
+        setupAndroidSettingsPage();
+
+        setupAndroidPackageInstallationStep();
+        setupAndroidBuildApkStep();
+
+        setupAndroidDeployConfiguration();
+        setupAndroidDeployQtStep();
+
+        setupAndroidRunConfiguration();
+        setupAndroidRunWorker();
+        setupAndroidDebugWorker();
+        setupAndroidQmlToolingSupport();
+        setupAndroidQmlPreviewWorker();
+
+        setupJavaEditor();
+        setupAndroidManifestEditor();
+
+        connect(KitManager::instance(), &KitManager::kitsLoaded,
+                this, &AndroidPlugin::kitsRestored);
+
+        LanguageClient::LanguageClientSettings::registerClientType(
+            {Android::Constants::JLS_SETTINGS_ID,
+             Tr::tr("Java Language Server"),
+             [] { return new JLSSettings; }});
 
 #ifdef WITH_TESTS
-    addTest<AndroidSdkManagerTest>();
-    addTest<SdkManagerOutputParserTest>();
+        addTestCreator(createAndroidSdkManagerTest);
+        addTestCreator(createAndroidSdkManagerOutputParserTest);
+        addTestCreator(createAndroidQtVersionTest);
+        addTestCreator(createAndroidConfigurationsTest);
 #endif
-}
+    }
 
-void AndroidPlugin::kitsRestored()
-{
-    const bool qtForAndroidInstalled
-        = !QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *v) {
-               return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
-           }).isEmpty();
+    void kitsRestored()
+    {
+        const bool qtForAndroidInstalled
+            = !QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *v) {
+                   return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
+               }).isEmpty();
 
-    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured() && qtForAndroidInstalled)
-        askUserAboutAndroidSetup();
+        if (!androidConfig().sdkFullyConfigured() && qtForAndroidInstalled)
+            askUserAboutAndroidSetup();
 
-    AndroidConfigurations::registerNewToolChains();
-    AndroidConfigurations::updateAutomaticKitList();
-    connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
-            AndroidConfigurations::instance(), [] {
-        AndroidConfigurations::registerNewToolChains();
+        AndroidConfigurations::registerNewToolchains();
         AndroidConfigurations::updateAutomaticKitList();
-    });
-    disconnect(KitManager::instance(), &KitManager::kitsLoaded,
-               this, &AndroidPlugin::kitsRestored);
-}
+        connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
+                AndroidConfigurations::instance(), [] {
+                    AndroidConfigurations::registerNewToolchains();
+                    AndroidConfigurations::updateAutomaticKitList();
+                });
+        disconnect(KitManager::instance(), &KitManager::kitsLoaded,
+                   this, &AndroidPlugin::kitsRestored);
+    }
 
-void AndroidPlugin::askUserAboutAndroidSetup()
-{
-    NANOTRACE_SCOPE("Android", "AndroidPlugin::askUserAboutAndroidSetup");
-    if (!Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
-        return;
+    void askUserAboutAndroidSetup()
+    {
+        NANOTRACE_SCOPE("Android", "AndroidPlugin::askUserAboutAndroidSetup");
+        if (!Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
+            return;
 
-    Utils::InfoBarEntry
+        Utils::InfoBarEntry
             info(kSetupAndroidSetting,
                  Tr::tr("Would you like to configure Android options? This will ensure "
                         "Android kits can be usable and all essential packages are installed. "
                         "To do it later, select Edit > Preferences > Devices > Android."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(Tr::tr("Configure Android"), [this] {
-        Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
-        Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
-        QTimer::singleShot(0, this, [this] { d->potentialKit.executeFromMenu(); });
-    });
-    Core::ICore::infoBar()->addInfo(info);
-}
+        info.addCustomButton(Tr::tr("Configure Android"), [this] {
+            Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
+            Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
+            QTimer::singleShot(0, this, [] {
+                Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
+            });
+        });
+        Core::ICore::infoBar()->addInfo(info);
+    }
+};
 
 } // Android::Internal
+
+#include "androidplugin.moc"

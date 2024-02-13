@@ -9,6 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace ClangTools {

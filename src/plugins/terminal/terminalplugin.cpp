@@ -44,7 +44,7 @@ public:
         m_terminalPane = new TerminalPane;
         ExtensionSystem::PluginManager::addObject(m_terminalPane);
 
-        TerminalWidget::initActions();
+        TerminalWidget::initActions(this);
 
         auto enable = [this] {
             Utils::Terminal::Hooks::instance()

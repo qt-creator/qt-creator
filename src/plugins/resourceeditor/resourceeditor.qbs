@@ -14,12 +14,14 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "resource_global.h",
+            "resourceeditor.cpp",
+            "resourceeditor.h",
             "resourceeditorconstants.h",
-            "resourceeditorfactory.cpp", "resourceeditorfactory.h",
-            "resourceeditorplugin.cpp", "resourceeditorplugin.h",
+            "resourceeditorplugin.cpp",
             "resourceeditortr.h",
-            "resourceeditorw.cpp", "resourceeditorw.h",
-            "resource_global.h", "resourcenode.cpp", "resourcenode.h"
+            "resourcenode.cpp",
+            "resourcenode.h"
         ]
     }
 

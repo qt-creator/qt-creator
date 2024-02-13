@@ -210,6 +210,7 @@ static QColor::Spec specForFunc(const QString &func)
     if ((func == QLatin1String("QColor"))
             || (func == QLatin1String("QRgb"))
             || (func == QLatin1String("rgb"))
+            || (func == QLatin1String("rgba"))
             || func.startsWith(QLatin1String("setRgb"))
             || func.startsWith(QLatin1String("setRgba"))){
         return QColor::Rgb;
@@ -218,11 +219,15 @@ static QColor::Spec specForFunc(const QString &func)
     if (func.startsWith(QLatin1String("setCmyk")))
         return QColor::Cmyk;
 
-    if (func.startsWith(QLatin1String("setHsv")))
+    if (func.startsWith(QLatin1String("hsva"))
+        || func.startsWith(QLatin1String("setHsv"))) {
         return QColor::Hsv;
+    }
 
-    if (func.startsWith(QLatin1String("setHsl")))
+    if (func.startsWith(QLatin1String("hsla"))
+        || func.startsWith(QLatin1String("setHsl"))) {
         return QColor::Hsv;
+    }
 
     return QColor::Invalid;
 }
@@ -311,6 +316,9 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
         if (func == QLatin1String("setNamedColor"))
             return QColor(arg0);
 
+        if (func == QLatin1String("color"))
+            return QColor(arg0);
+
         if (arg0.startsWith(QLatin1Char('#')))
             return QColor(arg0);
 
@@ -326,7 +334,7 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
     if (spec == QColor::Invalid)
         return QColor();
 
-    if (func.endsWith(QLatin1Char('F')))
+    if (func.endsWith(QLatin1Char('F')) || func == QLatin1String("rgba"))
         return colorFromArgsF(args, spec);
 
     return colorFromArgs(args, spec);

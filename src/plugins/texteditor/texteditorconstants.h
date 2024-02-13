@@ -157,7 +157,7 @@ const char INSERT_LINE_ABOVE[]     = "TextEditor.InsertLineAboveCurrentLine";
 const char INSERT_LINE_BELOW[]     = "TextEditor.InsertLineBelowCurrentLine";
 const char UPPERCASE_SELECTION[]   = "TextEditor.UppercaseSelection";
 const char LOWERCASE_SELECTION[]   = "TextEditor.LowercaseSelection";
-const char SORT_SELECTED_LINES[]   = "TextEditor.SortSelectedLines";
+const char SORT_LINES[]            = "TextEditor.SortSelectedLines";
 const char CUT_LINE[]              = "TextEditor.CutLine";
 const char COPY_LINE[]             = "TextEditor.CopyLine";
 const char ADD_SELECT_NEXT_FIND_MATCH[] = "TextEditor.AddSelectionNextFindMatch";
@@ -216,6 +216,7 @@ const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.JumpToFileUnderCursorInNextSplit";
 
 const char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchResult";
+const char SCROLL_BAR_SELECTION[] = "TextEditor.ScrollBarSelection";
 const char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
 
 const TEXTEDITOR_EXPORT char *nameForStyle(TextStyle style);

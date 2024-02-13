@@ -20,7 +20,6 @@ QtcPlugin {
         "webassemblyemsdk.cpp",
         "webassemblyemsdk.h",
         "webassemblyplugin.cpp",
-        "webassemblyplugin.h",
         "webassemblyqtversion.cpp",
         "webassemblyqtversion.h",
         "webassemblyrunconfiguration.cpp",

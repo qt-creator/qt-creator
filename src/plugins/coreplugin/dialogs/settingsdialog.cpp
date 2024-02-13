@@ -9,13 +9,17 @@
 #include "../iwizardfactory.h"
 
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
-#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
+#include <QAbstractSpinBox>
 #include <QApplication>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QEventLoop>
@@ -336,6 +340,14 @@ public:
 
 // ----------- SmartScrollArea
 
+template <typename T>
+void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
+{
+    const auto children = widget->findChildren<T>();
+    for (auto child : children)
+        setWheelScrollingWithoutFocusBlocked(child);
+}
+
 class SmartScrollArea : public QScrollArea
 {
 public:
@@ -352,6 +364,8 @@ private:
     {
         if (!widget()) {
             if (QWidget *inner = m_page->widget()) {
+                setWheelScrollingWithoutFocusBlockedForChildren<QComboBox *>(inner);
+                setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(inner);
                 setWidget(inner);
                 inner->setAutoFillBackground(false);
             } else {
@@ -569,14 +583,7 @@ void SettingsDialog::showPage(const Id pageId)
 
 void SettingsDialog::createGui()
 {
-    // Header label with large font and a bit of spacing (align with group boxes)
-    QFont headerLabelFont = m_headerLabel->font();
-    headerLabelFont.setBold(true);
-    // Paranoia: Should a font be set in pixels...
-    const int pointSize = headerLabelFont.pointSize();
-    if (pointSize > 0)
-        headerLabelFont.setPointSize(pointSize + 2);
-    m_headerLabel->setFont(headerLabelFont);
+    m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     auto headerHLayout = new QHBoxLayout;
     const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);

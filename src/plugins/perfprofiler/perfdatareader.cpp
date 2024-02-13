@@ -64,7 +64,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     });
 
     connect(&m_input, &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
-    connect(&m_input, &QProcess::started, this, [this]() {
+    connect(&m_input, &QProcess::started, this, [this] {
         emit processStarted();
         if (m_input.isWritable()) {
             writeChunk();
@@ -109,7 +109,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     });
 
     connect(&m_input, &QProcess::readyReadStandardOutput, this, &PerfDataReader::readFromDevice);
-    connect(&m_input, &QProcess::readyReadStandardError, this, [this]() {
+    connect(&m_input, &QProcess::readyReadStandardError, this, [this] {
         Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_input.readAllStandardError()));
     });
 
@@ -188,9 +188,11 @@ void PerfDataReader::triggerRecordingStateChange(bool recording)
                         qMin(delay(currentTime) / (1000ll * million),
                              static_cast<qint64>(std::numeric_limits<int>::max())));
 
-            Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
-                        future(), Tr::tr("Skipping Processing Delay"),
-                        Constants::PerfProfilerTaskSkipDelay, seconds);
+            Core::FutureProgress *fp
+                = Core::ProgressManager::addTimedTask(future(),
+                                                      Tr::tr("Skipping Processing Delay"),
+                                                      Constants::PerfProfilerTaskSkipDelay,
+                                                      std::chrono::seconds(seconds));
             fp->setToolTip(recording ?
                                Tr::tr("Cancel this to ignore the processing delay and immediately "
                                       "start recording.") :
@@ -288,7 +290,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
                      .arg(cmd->executable().osType() == OsTypeWindows ? u';' : u':'));
     }
 
-    if (auto toolChain = ToolChainKitAspect::cxxToolChain(kit)) {
+    if (auto toolChain = ToolchainKitAspect::cxxToolchain(kit)) {
         Abi::Architecture architecture = toolChain->targetAbi().architecture();
         if (architecture == Abi::ArmArchitecture && toolChain->targetAbi().wordWidth() == 64) {
             cmd->addArg("--arch");

@@ -6,21 +6,18 @@
 #include "cppeditor_global.h"
 
 #include "cppmodelmanager.h"
-#include "cppworkingcopy.h"
 
 #include <cplusplus/CppDocument.h>
 
 #include <texteditor/refactoringchanges.h>
 
-#include <optional>
-
 namespace CppEditor {
-
 class CppRefactoringChanges;
 class CppRefactoringFile;
-class CppRefactoringChangesData;
 using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
 using CppRefactoringFileConstPtr = QSharedPointer<const CppRefactoringFile>;
+
+namespace Internal { class CppRefactoringChangesData; }
 
 class CPPEDITOR_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
@@ -51,56 +48,42 @@ public:
     using TextEditor::RefactoringFile::textOf;
     QString textOf(const CPlusPlus::AST *ast) const;
 
-protected:
-    CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+private:
+    CppRefactoringFile(const Utils::FilePath &filePath,
+                       const QSharedPointer<Internal::CppRefactoringChangesData> &data);
     CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
-    CppRefactoringChangesData *data() const;
     void fileChanged() override;
+    Utils::Id indenterId() const override;
 
     int tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens, int pos,
                               int startIndex) const;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
+    QSharedPointer<Internal::CppRefactoringChangesData> m_data;
 
     friend class CppRefactoringChanges; // for access to constructor
 };
 
-class CPPEDITOR_EXPORT CppRefactoringChangesData : public TextEditor::RefactoringChangesData
-{
-public:
-    explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);
-
-    void indentSelection(const QTextCursor &selection,
-                         const Utils::FilePath &filePath,
-                         const TextEditor::TextDocument *textDocument) const override;
-
-    void reindentSelection(const QTextCursor &selection,
-                           const Utils::FilePath &filePath,
-                           const TextEditor::TextDocument *textDocument) const override;
-
-    void fileChanged(const Utils::FilePath &filePath) override;
-
-    CPlusPlus::Snapshot m_snapshot;
-    WorkingCopy m_workingCopy;
-};
-
-class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
+class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringFileFactory
 {
 public:
     explicit CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
 
     static CppRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                       const CPlusPlus::Document::Ptr &document);
-    CppRefactoringFilePtr file(const Utils::FilePath &filePath) const;
+    TextEditor::RefactoringFilePtr file(const Utils::FilePath &filePath) const override;
+
+    CppRefactoringFilePtr cppFile(const Utils::FilePath &filePath) const;
+
     // safe to use from non-gui threads
     CppRefactoringFileConstPtr fileNoEditor(const Utils::FilePath &filePath) const;
 
     const CPlusPlus::Snapshot &snapshot() const;
 
 private:
-    CppRefactoringChangesData *data() const;
+    const QSharedPointer<Internal::CppRefactoringChangesData> m_data;
 };
 
 } // namespace CppEditor

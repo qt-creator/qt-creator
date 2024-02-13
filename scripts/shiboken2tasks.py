@@ -16,6 +16,7 @@ if __name__ == '__main__':
     # qt.shiboken: (<module>) <file>:<line>:[<column>:] text
     # file might be c:\ on Windows
     pattern = re.compile(r'^qt\.shiboken: \(([^)]+)\) (..[^:]+):(\d+):(?:\d+:)? (.*)$')
+    n = 0
     while True:
         line = sys.stdin.readline()
         if not line:
@@ -26,6 +27,7 @@ if __name__ == '__main__':
             file_name = match.group(2).replace('\\', '/')
             line_number = match.group(3)
             text = match.group(4)
-            output = "{}\t{}\twarn\t{}: {}".format(file_name, line_number,
-                                                   module, text)
-            print(output)
+            print(f"{file_name}\t{line_number}\twarn\t{module}: {text}")
+            n += 1
+    if n:
+        print(f"{n} issue(s) found.", file=sys.stderr)

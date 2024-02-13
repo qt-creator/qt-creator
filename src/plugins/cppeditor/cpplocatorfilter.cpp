@@ -4,7 +4,6 @@
 #include "cpplocatorfilter.h"
 
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cpplocatordata.h"
 #include "cppmodelmanager.h"
@@ -106,7 +105,7 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
@@ -304,7 +303,7 @@ LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());

@@ -119,14 +119,14 @@ private:
     McuPackagePtr freeRtosPackagePtr{freeRtosPackage};
     McuPackagePtr sdkPackagePtr{sdkPackage};
 
-    QSharedPointer<SettingsHandlerMock> settingsMockPtr{new SettingsHandlerMock};
+    std::shared_ptr<SettingsHandlerMock> settingsMockPtr{new SettingsHandlerMock};
     McuTargetFactory targetFactory;
     PackageDescription compilerDescription;
     PackageDescription toochainFileDescription;
     McuTargetDescription targetDescription;
-    McuToolChainPackagePtr toolchainPackagePtr;
-    McuToolChainPackagePtr armGccToolchainPackagePtr;
-    McuToolChainPackagePtr iarToolchainPackagePtr;
+    McuToolchainPackagePtr toolchainPackagePtr;
+    McuToolchainPackagePtr armGccToolchainPackagePtr;
+    McuToolchainPackagePtr iarToolchainPackagePtr;
     PackageMock *armGccToolchainFilePackage{new PackageMock};
     McuPackagePtr armGccToolchainFilePackagePtr{armGccToolchainFilePackage};
     McuTarget::Platform platform;

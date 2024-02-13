@@ -7,5 +7,6 @@ Project {
         "layoutbuilder/layoutbuilder.qbs",
         "manhattanstyle/manhattanstyle.qbs",
         "tracing/tracing.qbs",
+        "uifonts/uifonts.qbs",
     ]
 }

@@ -7,6 +7,8 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
@@ -14,7 +16,6 @@
 #include <QTimer>
 
 namespace Core { class IDocument; }
-namespace Tasking { class TaskTree; }
 namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangTools {
@@ -51,7 +52,7 @@ private:
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

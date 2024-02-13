@@ -13,13 +13,13 @@
 #include <utils/theme/theme.h>
 
 #include <QEasingCurve>
-#include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QHoverEvent>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QScrollArea>
 #include <QTimer>
@@ -46,21 +46,6 @@ static QFont sizedFont(int size, const QWidget *widget)
 
 namespace WelcomePageHelpers {
 
-QFont brandFont()
-{
-    const static QFont f = []{
-        const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
-        QFont result;
-        result.setPixelSize(16);
-        if (id >= 0) {
-            const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(id);
-            result.setFamilies(fontFamilies);
-        }
-        return result;
-    }();
-    return f;
-}
-
 QWidget *panelBar(QWidget *parent)
 {
     auto frame = new QWidget(parent);
@@ -73,6 +58,25 @@ QWidget *panelBar(QWidget *parent)
     return frame;
 }
 
+void drawCardBackground(QPainter *painter, const QRectF &rect,
+                        const QBrush &fill, const QPen &pen, qreal rounding)
+{
+    const qreal strokeWidth = pen.style() == Qt::NoPen ? 0 : pen.widthF();
+    const qreal strokeShrink = strokeWidth / 2;
+    const QRectF itemRectAdjusted = rect.adjusted(strokeShrink, strokeShrink,
+                                                  -strokeShrink, -strokeShrink);
+    const qreal roundingAdjusted = rounding - strokeShrink;
+    QPainterPath itemOutlinePath;
+    itemOutlinePath.addRoundedRect(itemRectAdjusted, roundingAdjusted, roundingAdjusted);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(fill);
+    painter->setPen(pen);
+    painter->drawPath(itemOutlinePath);
+    painter->restore();
+}
+
 } // namespace WelcomePageHelpers
 
 SearchBox::SearchBox(QWidget *parent)
@@ -83,7 +87,6 @@ SearchBox::SearchBox(QWidget *parent)
     m_lineEdit = new FancyLineEdit;
     m_lineEdit->setFiltering(true);
     m_lineEdit->setFrame(false);
-    m_lineEdit->setFont(WelcomePageHelpers::brandFont());
     m_lineEdit->setMinimumHeight(33);
     m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -660,7 +663,8 @@ void ListItemDelegate::goon()
 SectionedGridView::SectionedGridView(QWidget *parent)
     : QStackedWidget(parent)
 {
-    m_searchTimer.setInterval(320);
+    using namespace std::chrono_literals;
+    m_searchTimer.setInterval(320ms);
     m_searchTimer.setSingleShot(true);
     connect(&m_searchTimer, &QTimer::timeout, this, [this] {
         setSearchString(m_delayedSearchString);
@@ -801,7 +805,6 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     }.emerge();
     m_sectionLabels.append(sectionLabel);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
 
@@ -872,7 +875,6 @@ void SectionedGridView::zoomInSection(const Section &section)
         noMargin
     }.emerge();
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
 
     auto gridView = new GridView(zoomedInWidget);
     gridView->setItemDelegate(m_itemDelegate);
@@ -897,5 +899,15 @@ Section::Section(const QString &name, int priority, std::optional<int> maxRows)
     , priority(priority)
     , maxRows(maxRows)
 {}
+
+ResizeSignallingWidget::ResizeSignallingWidget(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
+void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
+{
+    emit resized(event->size(), event->oldSize());
+}
 
 } // namespace Core

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -13,14 +13,18 @@
     \previouspage studio-simulink.html
     \nextpage qtquick-adding-dynamics.html
     \else
-    \previouspage creator-quick-ui-forms.html
-    \nextpage creator-using-qt-designer.html
+    \previouspage creator-reference.html
     \endif
+
+    \ingroup creator-reference-ui-design
 
     \title Using QML Modules with Plugins
 
+    \brief Using C++ plugins to expose custom components to Qt Quick
+    applications.
+
     \l{Defining a QML Module}{QML modules} may use \l{Creating C++ Plugins for QML}
-    {C++ plugins} to expose components defined in C++ to QML applications.
+    {C++ plugins} to expose components defined in C++ to Qt Quick applications.
 
     To create a QML
     \if defined(qtdesignstudio)
@@ -35,7 +39,7 @@
            directory dedicated to your module. For example:
            \c {imports\asset_imports}.
 
-        \li For Qt Quick UI projects (.qmlproject), specify the path to
+        \li For Qt Quick UI Prototype projects (.qmlproject), specify the path to
             the directory that has the module in the .qmlproject file
             of the application where you want to use the module
             as a value of the \c importPaths variable. For example

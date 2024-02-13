@@ -65,11 +65,11 @@ public:
     static QList<ProjectPart::ConstPtr> createCAndCxxProjectParts()
     {
         QList<ProjectPart::ConstPtr> projectParts;
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
 
         // Create project part for C
         tcInfo.macroInspectionRunner = [](const QStringList &) {
-            return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::C11};
+            return Toolchain::MacroInspectionReport{{}, Utils::LanguageVersion::C11};
         };
         const ProjectPart::ConstPtr cprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                   tcInfo);
@@ -77,7 +77,7 @@ public:
 
         // Create project part for CXX
         tcInfo.macroInspectionRunner = [](const QStringList &) {
-            return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::CXX98};
+            return Toolchain::MacroInspectionReport{{}, Utils::LanguageVersion::CXX98};
         };
         const ProjectPart::ConstPtr cxxprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                     tcInfo);
@@ -330,10 +330,10 @@ void ProjectPartChooserTest::testDoNotIndicateFromDependencies()
 }
 
 namespace {
-class TestToolchain : public ToolChain
+class TestToolchain : public Toolchain
 {
 public:
-    TestToolchain() : ToolChain("dummy") {}
+    TestToolchain() : Toolchain("dummy") {}
 
 private:
     MacroInspectionRunner createMacroInspectionRunner() const override { return {}; }
@@ -344,7 +344,7 @@ private:
     void addToEnvironment(Utils::Environment &) const override {}
     Utils::FilePath makeCommand(const Utils::Environment &) const override { return {}; }
     QList<Utils::OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override
     {
         return {};
     };
@@ -355,9 +355,9 @@ class ProjectInfoGeneratorTestHelper
 public:
     ProjectInfoGeneratorTestHelper()
     {
-        TestToolchain aToolChain;
-        projectUpdateInfo.cxxToolChainInfo = {&aToolChain, {}, {}};
-        projectUpdateInfo.cToolChainInfo = {&aToolChain, {}, {}};
+        TestToolchain toolchain;
+        projectUpdateInfo.cxxToolchainInfo = {&toolchain, {}, {}};
+        projectUpdateInfo.cToolchainInfo = {&toolchain, {}, {}};
     }
 
     ProjectInfo::ConstPtr generate()
@@ -426,7 +426,7 @@ void ProjectInfoGeneratorTest::testProjectPartHasLatestLanguageVersionByDefault(
 void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
+    t.projectUpdateInfo.cxxToolchainInfo.macroInspectionRunner = [](const QStringList &) {
         return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
     t.rawProjectPart.files = QStringList{ "foo.cpp" };
@@ -484,7 +484,7 @@ public:
     {
         RawProjectPart rpp;
         rpp.setHeaderPaths(headerPaths);
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
         tcInfo.type = toolchainType;
         tcInfo.targetTriple = targetTriple;
         tcInfo.installDir = toolchainInstallDir;

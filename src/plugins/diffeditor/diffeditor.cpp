@@ -93,7 +93,7 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     context->setContext(Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
     ICore::addContextObject(context);
 
-    textDocument()->setSyntaxHighlighter(new SyntaxHighlighter);
+    textDocument()->resetSyntaxHighlighter([] { return new SyntaxHighlighter(); });
 }
 
 QSize DescriptionEditorWidget::sizeHint() const
@@ -221,24 +221,24 @@ DiffEditor::DiffEditor()
     connect(m_viewSwitcherAction, &QAction::triggered, this, [this] { showDiffView(nextView()); });
 }
 
-void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument> doc)
+void DiffEditor::setDocument(std::shared_ptr<DiffEditorDocument> doc)
 {
-    QTC_ASSERT(m_document.isNull(), return);
+    QTC_ASSERT(!m_document, return);
     QTC_ASSERT(doc, return);
 
     m_document = doc;
 
-    connect(m_document.data(), &DiffEditorDocument::documentChanged,
+    connect(m_document.get(), &DiffEditorDocument::documentChanged,
             this, &DiffEditor::documentHasChanged);
-    connect(m_document.data(), &DiffEditorDocument::descriptionChanged,
+    connect(m_document.get(), &DiffEditorDocument::descriptionChanged,
             this, &DiffEditor::updateDescription);
-    connect(m_document.data(), &DiffEditorDocument::aboutToReload,
+    connect(m_document.get(), &DiffEditorDocument::aboutToReload,
             this, &DiffEditor::prepareForReload);
-    connect(m_document.data(), &DiffEditorDocument::reloadFinished,
+    connect(m_document.get(), &DiffEditorDocument::reloadFinished,
             this, &DiffEditor::reloadHasFinished);
 
     connect(m_reloadAction, &QAction::triggered, this, [this] { m_document->reload(); });
-    connect(m_document.data(), &DiffEditorDocument::temporaryStateChanged,
+    connect(m_document.get(), &DiffEditorDocument::temporaryStateChanged,
             this, &DiffEditor::documentStateChanged);
 
     m_contextSpinBox->setValue(m_document->contextLineCount());
@@ -251,7 +251,7 @@ void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument> doc)
 DiffEditor::DiffEditor(DiffEditorDocument *doc) : DiffEditor()
 {
     GuardLocker guard(m_ignoreChanges);
-    setDocument(QSharedPointer<DiffEditorDocument>(doc));
+    setDocument(std::shared_ptr<DiffEditorDocument>(doc));
     setupView(loadSettings());
 }
 
@@ -284,7 +284,7 @@ IEditor *DiffEditor::duplicate()
 
 IDocument *DiffEditor::document() const
 {
-    return m_document.data();
+    return m_document.get();
 }
 
 QWidget *DiffEditor::toolBar()
@@ -594,7 +594,7 @@ void DiffEditor::setupView(IDiffView *view)
         m_toggleSyncAction->setChecked(m_sync);
     }
 
-    view->setDocument(m_document.data());
+    view->setDocument(m_document.get());
     view->setSync(m_sync);
     view->setCurrentDiffFileIndex(m_currentDiffFileIndex);
 

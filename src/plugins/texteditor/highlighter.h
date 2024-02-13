@@ -8,7 +8,8 @@
 #include <utils/fileutils.h>
 
 #include <KSyntaxHighlighting/AbstractHighlighter>
-#include <KSyntaxHighlighting/Definition>
+
+namespace KSyntaxHighlighting { class Repository; }
 
 namespace TextEditor {
 class TextDocument;
@@ -18,30 +19,18 @@ class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::Abstra
     Q_OBJECT
     Q_INTERFACES(KSyntaxHighlighting::AbstractHighlighter)
 public:
-    using Definition = KSyntaxHighlighting::Definition;
-    using Definitions = QList<Definition>;
-    Highlighter();
+    Highlighter(const QString &definitionFilesPath);
+    ~Highlighter() override;
 
-    static Definition definitionForName(const QString &name);
-
-    static Definitions definitionsForDocument(const TextDocument *document);
-    static Definitions definitionsForMimeType(const QString &mimeType);
-    static Definitions definitionsForFileName(const Utils::FilePath &fileName);
-
-    static void rememberDefinitionForDocument(const Definition &definition,
-                                              const TextDocument *document);
-    static void clearDefinitionForDocumentCache();
-
-    static void addCustomHighlighterPath(const Utils::FilePath &path);
-    static void downloadDefinitions(std::function<void()> callback = nullptr);
-    static void reload();
-
-    static void handleShutdown();
+    void setDefinitionName(const QString &name) override;
 
 protected:
     void highlightBlock(const QString &text) override;
     void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override;
     void applyFolding(int offset, int length, KSyntaxHighlighting::FoldingRegion region) override;
+
+private:
+    std::unique_ptr<KSyntaxHighlighting::Repository> m_repository;
 };
 
 } // namespace TextEditor

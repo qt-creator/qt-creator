@@ -102,11 +102,11 @@ bool PerfProfilerEventStorage::replay(
     return false;
 }
 
-PerfProfilerTraceManager::PerfProfilerTraceManager(QObject *parent)
+PerfProfilerTraceManager::PerfProfilerTraceManager()
     : Timeline::TimelineTraceManager(
           std::make_unique<PerfProfilerEventStorage>(
               std::bind(&PerfProfilerTraceManager::error, this, std::placeholders::_1)),
-          std::make_unique<PerfProfilerEventTypeStorage>(), parent)
+          std::make_unique<PerfProfilerEventTypeStorage>())
 {
     m_reparseTimer.setInterval(100);
     m_reparseTimer.setSingleShot(true);
@@ -119,14 +119,12 @@ PerfProfilerTraceManager::PerfProfilerTraceManager(QObject *parent)
             &m_reparseTimer, QOverload<>::of(&QTimer::start));
 
     connect(&m_reparseTimer, &QTimer::timeout,
-            this, [this]() { restrictByFilter(rangeAndThreadFilter(traceStart(), traceEnd())); });
+            this, [this] { restrictByFilter(rangeAndThreadFilter(traceStart(), traceEnd())); });
 
     resetAttributes();
 }
 
-PerfProfilerTraceManager::~PerfProfilerTraceManager()
-{
-}
+PerfProfilerTraceManager::~PerfProfilerTraceManager() = default;
 
 void PerfProfilerTraceManager::registerFeatures(quint64 features, PerfEventLoader eventLoader,
                                                 Initializer initializer, Finalizer finalizer,
@@ -607,9 +605,11 @@ void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
     const int fileMegabytes = static_cast<int>(
                 qMin(filePath.fileSize() >> 20,
                      static_cast<qint64>(std::numeric_limits<int>::max())));
-    Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
-                reader->future(), Tr::tr("Loading Trace Data"), Constants::PerfProfilerTaskLoadPerf,
-                fileMegabytes);
+    Core::FutureProgress *fp
+        = Core::ProgressManager::addTimedTask(reader->future(),
+                                              Tr::tr("Loading Trace Data"),
+                                              Constants::PerfProfilerTaskLoadPerf,
+                                              std::chrono::seconds(fileMegabytes));
 
     connect(fp, &Core::FutureProgress::canceled, reader, [reader]() {
         reader->stopParser();
@@ -619,6 +619,12 @@ void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
     reader->future().reportStarted();
     initialize();
     reader->loadFromFile(filePath, executableDirPath, kit);
+}
+
+PerfProfilerTraceManager &traceManager()
+{
+    static PerfProfilerTraceManager thePerfProfilerTraceManager;
+    return thePerfProfilerTraceManager;
 }
 
 } // namespace Internal

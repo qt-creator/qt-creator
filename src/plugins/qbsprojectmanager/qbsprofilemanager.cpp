@@ -229,15 +229,16 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     Utils::Process qbsConfig;
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
-    if (!qbsConfig.waitForFinished(5000)) {
+    using namespace std::chrono_literals;
+    if (!qbsConfig.waitForFinished(5s)) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1")
-                .arg(QString::fromLocal8Bit(qbsConfig.readAllRawStandardError())));
+                .arg(QString::fromLocal8Bit(qbsConfig.rawStdErr())));
     }
-    return QString::fromLocal8Bit(qbsConfig.readAllRawStandardOutput()).trimmed();
+    return QString::fromLocal8Bit(qbsConfig.rawStdOut()).trimmed();
 }
 
 QVariant fromJSLiteral(const QString &str)

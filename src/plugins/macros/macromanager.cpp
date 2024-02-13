@@ -10,32 +10,35 @@
 #include "macroevent.h"
 #include "macrosconstants.h"
 #include "macrostr.h"
-#include "savedialog.h"
 #include "texteditormacrohandler.h"
+
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 #include <texteditor/texteditorconstants.h>
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
-#include <QList>
-
-#include <QAction>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QLineEdit>
+#include <QList>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QRegularExpressionValidator>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 /*!
     \namespace Macros
@@ -202,9 +205,52 @@ bool MacroManagerPrivate::executeMacro(Macro *macro)
     return !error;
 }
 
+class SaveDialog : public QDialog
+{
+public:
+    SaveDialog()
+        : QDialog(Core::ICore::dialogParent())
+    {
+        resize(219, 91);
+        setWindowTitle(Tr::tr("Save Macro"));
+
+        m_name = new QLineEdit;
+        m_name->setValidator(new QRegularExpressionValidator(QRegularExpression("\\w+"), this));
+
+        m_description = new QLineEdit;
+
+        auto buttonBox = new QDialogButtonBox;
+        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
+        auto saveButton = buttonBox->button(QDialogButtonBox::Save);
+        saveButton->setEnabled(false);
+        connect(m_name, &QLineEdit::textChanged, [saveButton, this]() {
+            saveButton->setEnabled(m_name->hasAcceptableInput());
+        });
+
+        using namespace Layouting;
+
+        Form {
+            Tr::tr("Name:"), m_name, br,
+            Tr::tr("Description:"), m_description, br,
+            buttonBox
+        }.attachTo(this);
+
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    }
+
+    QString name() const { return m_name->text(); }
+
+    QString description() const { return m_description->text(); }
+
+private:
+    QLineEdit *m_name;
+    QLineEdit *m_description;
+};
+
 void MacroManagerPrivate::showSaveDialog()
 {
-    SaveDialog dialog(Core::ICore::dialogParent());
+    SaveDialog dialog;
     if (dialog.exec()) {
         if (dialog.name().isEmpty())
             return;
@@ -376,5 +422,4 @@ QString MacroManager::macrosDirectory()
     return QString();
 }
 
-} // Internal
-} // Macros
+} // Macros::Internal

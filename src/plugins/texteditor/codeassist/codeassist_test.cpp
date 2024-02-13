@@ -43,10 +43,10 @@ public:
     quint64 hash() const override { return 0; } // used to remove duplicates
 };
 
-class OpenEditorItem : public TestProposalItem
+class OpenEditorItem final : public TestProposalItem
 {
 public:
-    void apply(TextDocumentManipulatorInterface &, int) const override
+    void apply(TextDocumentManipulatorInterface &, int) const final
     {
         m_openedEditor = Core::EditorManager::openEditor(m_filePath,
                                                          Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
@@ -56,10 +56,10 @@ public:
     Utils::FilePath m_filePath;
 };
 
-class TestProposalWidget : public GenericProposalWidget
+class TestProposalWidget final : public GenericProposalWidget
 {
 public:
-    void showProposal(const QString &prefix) override
+    void showProposal(const QString &prefix) final
     {
         GenericProposalModelPtr proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
@@ -71,35 +71,57 @@ public:
     }
 };
 
-class TestProposal : public GenericProposal
+class TestProposal final : public GenericProposal
 {
 public:
     TestProposal(int pos, const QList<AssistProposalItemInterface *> &items)
         : GenericProposal(pos, items)
     {}
-    IAssistProposalWidget *createWidget() const override { return new TestProposalWidget; }
+    IAssistProposalWidget *createWidget() const final { return new TestProposalWidget; }
 };
 
-class TestProcessor : public AsyncProcessor
+class TestProcessor final : public AsyncProcessor
 {
 public:
     TestProcessor(const QList<AssistProposalItemInterface *> &items)
         : m_items(items)
     {}
-    IAssistProposal *performAsync() override
-    { return new TestProposal(interface()->position(), m_items); }
+
+    IAssistProposal *performAsync() final
+    {
+        return new TestProposal(interface()->position(), m_items);
+    }
+
     QList<AssistProposalItemInterface *> m_items;
 };
 
-class TestProvider : public CompletionAssistProvider
+class TestProvider final : public CompletionAssistProvider
 {
 public:
-    IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const override
+    IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const final
     {
         Q_UNUSED(assistInterface);
         return new TestProcessor(m_items);
     }
     QList<AssistProposalItemInterface *> m_items;
+};
+
+
+class CodeAssistTests final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+
+    void testFollowSymbolBigFile();
+
+    void cleanupTestCase();
+
+private:
+    TextEditor::BaseTextEditor *m_editor = nullptr;
+    QList<Core::IEditor *> m_editorsToClose;
+    TestProvider *m_testProvider = nullptr;
 };
 
 void CodeAssistTests::initTestCase()
@@ -147,6 +169,13 @@ void CodeAssistTests::cleanupTestCase()
     QVERIFY(Core::EditorManager::currentEditor() == nullptr);
 }
 
+QObject *createCodeAssistTests()
+{
+    return new CodeAssistTests;
+}
+
 } // namespace TextEditor::Internal
+
+#include "codeassist_test.moc"
 
 #endif // ifdef WITH_TESTS

@@ -36,8 +36,8 @@
 
     \if defined(qtcreator)
     The process of setting up debugging for Qt Quick projects depends on the
-    \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
-    Application, and the Qt version used.
+    \e type of the project: \uicontrol {Qt Quick UI Prototype} or
+    \uicontrol {Qt Quick Application}, and the Qt version.
 
     \section2 Debugging Qt Quick UI Projects
     \endif

@@ -6,11 +6,15 @@
 
 #include "constants.h"
 #include "todoitemsmodel.h"
+#include "todoitemsprovider.h"
 #include "todooutputtreeview.h"
 #include "todotr.h"
 
 #include <aggregation/aggregate.h>
+
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
 
 #include <QIcon>
 #include <QHeaderView>
@@ -18,13 +22,11 @@
 #include <QButtonGroup>
 #include <QSortFilterProxyModel>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
-TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent) :
+TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) :
     IOutputPane(parent),
-    m_todoItemsModel(todoItemsModel),
-    m_settings(settings)
+    m_todoItemsModel(todoItemsModel)
 {
     setId("To-DoEntries");
     setDisplayName(Tr::tr("To-Do Entries"));
@@ -32,7 +34,9 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *s
 
     createTreeView();
     createScopeButtons();
-    setScanningScope(ScanningScopeCurrentFile); // default
+
+    setScanningScope(todoSettings().scanningScope);
+
     connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
             this, &TodoOutputPane::navigateStateUpdate);
     connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
@@ -126,15 +130,30 @@ void TodoOutputPane::setScanningScope(ScanningScope scanningScope)
         Q_ASSERT_X(false, "Updating scanning scope buttons", "Unknown scanning scope enum value");
 }
 
+void TodoOutputPane::todoItemClicked(const TodoItem &item)
+{
+    if (item.file.exists())
+        Core::EditorManager::openEditorAt(Utils::Link(item.file, item.line));
+}
+
 void TodoOutputPane::scopeButtonClicked(QAbstractButton *button)
 {
     if (button == m_currentFileButton)
-        emit scanningScopeChanged(ScanningScopeCurrentFile);
+        scanningScopeChanged(ScanningScopeCurrentFile);
     else if (button == m_subProjectButton)
-        emit scanningScopeChanged(ScanningScopeSubProject);
+        scanningScopeChanged(ScanningScopeSubProject);
     else if (button == m_wholeProjectButton)
-        emit scanningScopeChanged(ScanningScopeProject);
+        scanningScopeChanged(ScanningScopeProject);
     emit setBadgeNumber(m_todoTreeView->model()->rowCount());
+}
+
+void TodoOutputPane::scanningScopeChanged(ScanningScope scanningScope)
+{
+    todoSettings().scanningScope = scanningScope;
+    todoSettings().save();
+
+    todoItemsProvider().settingsChanged();
+    setScanningScope(todoSettings().scanningScope);
 }
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
@@ -247,7 +266,7 @@ void TodoOutputPane::createScopeButtons()
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
 
     QString tooltip = Tr::tr("Show \"%1\" entries");
-    for (const Keyword &keyword: m_settings->keywords) {
+    for (const Keyword &keyword: todoSettings().keywords) {
         QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -296,5 +315,16 @@ QModelIndex TodoOutputPane::previousModelIndex()
         return indexToBeSelected;
 }
 
-} // namespace Internal
-} // namespace Todo
+static TodoOutputPane *s_instance = nullptr;
+
+TodoOutputPane &todoOutputPane()
+{
+    return *s_instance;
+}
+
+void setupTodoOutputPane(QObject *guard)
+{
+    s_instance = new TodoOutputPane(todoItemsProvider().todoItemsModel(), guard);
+}
+
+} // Todo::Internal

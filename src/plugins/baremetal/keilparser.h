@@ -35,4 +35,8 @@ private:
     QStringList m_snippets;
 };
 
+#ifdef WITH_TESTS
+QObject *createKeilParserTest();
+#endif // WITH_TESTS
+
 } // BareMetal::Internal

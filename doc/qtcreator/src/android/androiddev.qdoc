@@ -19,7 +19,7 @@
 
     To enable helpful code editing features for Java, such as code completion,
     highlighting, function tooltips, and navigating in code, add a
-    \l{Java Language Server}{Java language server}.
+    \l{Add a Java language server}{Java language server}.
 
     \QC integrates the Android Debug Bridge (\c adb) command-line tool for
     deploying applications to Android devices, running them, and reading their

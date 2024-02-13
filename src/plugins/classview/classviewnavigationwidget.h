@@ -7,7 +7,6 @@
 
 #include <QList>
 #include <QPointer>
-#include <QSharedPointer>
 #include <QStandardItem>
 #include <QToolButton>
 #include <QWidget>
@@ -42,7 +41,7 @@ public:
     void onItemActivated(const QModelIndex &index);
     void onItemDoubleClicked(const QModelIndex &index);
 
-    void onDataUpdate(QSharedPointer<QStandardItem> result);
+    void onDataUpdate(std::shared_ptr<QStandardItem> result);
 
     void onFullProjectsModeToggled(bool state);
 

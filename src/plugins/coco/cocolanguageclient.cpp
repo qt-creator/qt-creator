@@ -26,6 +26,8 @@ using namespace Core;
 
 namespace Coco {
 
+using Key = LanguageServerProtocol::Key;
+
 CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csmes)
     : Client(clientInterface(coco, csmes))
 {
@@ -239,7 +241,7 @@ public:
     void enableCodecoverageSupport()
     {
         JsonObject coverageSupport(QJsonObject{{"codeCoverageSupport", true}});
-        insert("publishDiagnostics", coverageSupport);
+        insert(Key("publishDiagnostics"), coverageSupport);
     }
 };
 

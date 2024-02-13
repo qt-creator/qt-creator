@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Android::Internal {
 
-class AndroidRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AndroidRunWorkerFactory();
-};
+void setupAndroidRunWorker();
 
 } // Android::Internal

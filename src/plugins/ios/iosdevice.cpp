@@ -3,6 +3,7 @@
 
 #include "iosdevice.h"
 
+#include "devicectlutils.h"
 #include "iosconfigurations.h"
 #include "iosconstants.h"
 #include "iossimulator.h"
@@ -10,15 +11,21 @@
 #include "iostr.h"
 
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitaspects.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
+#include <utils/process.h>
 
-#include <QFormLayout>
-#include <QLabel>
+#include <solutions/tasking/tasktree.h>
+
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QMessageBox>
 
 #ifdef Q_OS_MAC
@@ -71,13 +78,26 @@ static QString CFStringRef2QString(CFStringRef s)
 
 namespace Ios::Internal {
 
-const char kDeviceName[] = "deviceName";
-const char kUniqueDeviceId[] = "uniqueDeviceId";
+const char kHandler[] = "Handler";
 
-class IosDeviceInfoWidget : public IDeviceWidget
+class IosDeviceInfoWidget final : public IDeviceWidget
 {
 public:
-    IosDeviceInfoWidget(const ProjectExplorer::IDevice::Ptr &device);
+    IosDeviceInfoWidget(const IDevice::Ptr &device)
+        : IDeviceWidget(device)
+    {
+        const auto iosDevice = std::static_pointer_cast<IosDevice>(device);
+        using namespace Layouting;
+        // clang-format off
+        Form {
+            Tr::tr("Device name:"), iosDevice->deviceName(), br,
+            Tr::tr("Identifier:"), iosDevice->uniqueInternalDeviceId(), br,
+            Tr::tr("OS Version:"), iosDevice->osVersion(), br,
+            Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(),
+            noMargin
+        }.attachTo(this);
+        // clang-format on
+    }
 
     void updateDeviceFromUi() final {}
 };
@@ -123,7 +143,7 @@ IDevice::DeviceInfo IosDevice::deviceInformation() const
 
 IDeviceWidget *IosDevice::createWidget()
 {
-    return new IosDeviceInfoWidget(sharedFromThis());
+    return new IosDeviceInfoWidget(shared_from_this());
 }
 
 void IosDevice::fromMap(const Store &map)
@@ -134,6 +154,7 @@ void IosDevice::fromMap(const Store &map)
     const Store vMap = storeFromVariant(map.value(Constants::EXTRA_INFO_KEY));
     for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
         m_extraInfo.insert(stringFromKey(i.key()), i.value().toString());
+    m_handler = Handler(map.value(kHandler).toInt());
 }
 
 Store IosDevice::toMap() const
@@ -143,6 +164,7 @@ Store IosDevice::toMap() const
     for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
         vMap.insert(keyFromString(i.key()), i.value());
     res.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
+    res.insert(kHandler, int(m_handler));
     return res;
 }
 
@@ -168,12 +190,12 @@ QString IosDevice::name()
 
 QString IosDevice::osVersion() const
 {
-    return m_extraInfo.value(QLatin1String("osVersion"));
+    return m_extraInfo.value(kOsVersion);
 }
 
 QString IosDevice::cpuArchitecture() const
 {
-    return m_extraInfo.value("cpuArchitecture");
+    return m_extraInfo.value(kCpuArchitecture);
 }
 
 Utils::Port IosDevice::nextPort() const
@@ -182,6 +204,11 @@ Utils::Port IosDevice::nextPort() const
     if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
         m_lastPort = Constants::IOS_DEVICE_PORT_START;
     return Utils::Port(m_lastPort);
+}
+
+IosDevice::Handler IosDevice::handler() const
+{
+    return m_handler;
 }
 
 // IosDeviceManager
@@ -194,13 +221,12 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
     TranslationMap &tMap = *new TranslationMap;
     tMap[kDeviceName] = Tr::tr("Device name");
     //: Whether the device is in developer mode.
-    tMap[QLatin1String("developerStatus")] = Tr::tr("Developer status");
-    tMap[QLatin1String("deviceConnected")] = Tr::tr("Connected");
-    tMap[QLatin1String("YES")]             = Tr::tr("yes");
+    tMap[kDeveloperStatus]                 = Tr::tr("Developer status");
+    tMap[kDeviceConnected]                 = Tr::tr("Connected");
+    tMap[vYes]                             = Tr::tr("yes");
     tMap[QLatin1String("NO")]              = Tr::tr("no");
-    tMap[QLatin1String("YES")]             = Tr::tr("yes");
     tMap[QLatin1String("*unknown*")]       = Tr::tr("unknown");
-    tMap[QLatin1String("osVersion")]       = Tr::tr("OS version");
+    tMap[kOsVersion]                       = Tr::tr("OS version");
     translationMap = &tMap;
     return tMap;
 }
@@ -212,7 +238,7 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (dev.isNull()) {
+    if (!dev) {
         auto newDev = new IosDevice(uid);
         if (!name.isNull())
             newDev->settings()->displayName.setValue(name);
@@ -232,15 +258,18 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 void IosDeviceManager::deviceDisconnected(const QString &uid)
 {
     qCDebug(detectLog) << "detected disconnection of ios device " << uid;
+    // if an update is currently still running for the device being connected, cancel that
+    // erasing deletes the unique_ptr which deletes the TaskTree which stops it
+    m_updateTasks.erase(uid);
     DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (dev.isNull() || dev->type() != devType) {
+    if (!dev || dev->type() != devType) {
         qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (iosDev->m_extraInfo.isEmpty()
             || iosDev->m_extraInfo.value(kDeviceName) == QLatin1String("*unknown*")) {
             devManager->removeDevice(iosDev->id());
@@ -253,15 +282,56 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 
 void IosDeviceManager::updateInfo(const QString &devId)
 {
-    IosToolHandler *requester = new IosToolHandler(IosDeviceType(IosDeviceType::IosDevice), this);
-    connect(requester, &IosToolHandler::deviceInfo,
-            this, &IosDeviceManager::deviceInfo, Qt::QueuedConnection);
-    connect(requester, &IosToolHandler::finished,
-            this, &IosDeviceManager::infoGathererFinished);
-    requester->requestDeviceInfo(devId);
+    using namespace Tasking;
+
+    const auto infoFromDeviceCtl = ProcessTask(
+        [](Process &process) {
+            process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
+                                {"devicectl", "list", "devices", "--quiet", "--json-output", "-"}});
+        },
+        [this, devId](const Process &process) {
+            const expected_str<QMap<QString, QString>> result = parseDeviceInfo(process.rawStdOut(),
+                                                                                devId);
+            if (!result) {
+                qCDebug(detectLog) << result.error();
+                return DoneResult::Error;
+            }
+            deviceInfo(devId, IosDevice::Handler::DeviceCtl, *result);
+            return DoneResult::Success;
+        },
+        CallDoneIf::Success);
+
+    const auto infoFromIosTool = IosToolTask([this, devId](IosToolRunner &runner) {
+        runner.setDeviceType(IosDeviceType::IosDevice);
+        runner.setStartHandler([this, devId](IosToolHandler *handler) {
+            connect(
+                handler,
+                &IosToolHandler::deviceInfo,
+                this,
+                [this](IosToolHandler *, const QString &uid, const Ios::IosToolHandler::Dict &info) {
+                    deviceInfo(uid, IosDevice::Handler::IosTool, info);
+                },
+                Qt::QueuedConnection);
+            handler->requestDeviceInfo(devId);
+        });
+    });
+
+    const Group root{sequential, stopOnSuccess, infoFromDeviceCtl, infoFromIosTool};
+
+    TaskTree *task = new TaskTree(root);
+    m_updateTasks[devId].reset(task); // cancels any existing update, not calling done handlers
+    connect(task, &TaskTree::done, this, [this, task, devId] {
+        const auto taskIt = m_updateTasks.find(devId);
+        QTC_ASSERT(taskIt != m_updateTasks.end(), return);
+        QTC_ASSERT(taskIt->second.get() == task, return);
+        taskIt->second.release()->deleteLater();
+        m_updateTasks.erase(taskIt);
+    });
+    task->start();
 }
 
-void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
+void IosDeviceManager::deviceInfo(const QString &uid,
+                                  IosDevice::Handler handler,
                                   const Ios::IosToolHandler::Dict &info)
 {
     DeviceManager *devManager = DeviceManager::instance();
@@ -271,9 +341,9 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
     IDevice::ConstPtr dev = devManager->find(devId);
     bool skipUpdate = false;
     IosDevice *newDev = nullptr;
-    if (!dev.isNull() && dev->type() == devType) {
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
-        if (iosDev->m_extraInfo == info) {
+    if (dev && dev->type() == devType) {
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
+        if (iosDev->m_handler == handler && iosDev->m_extraInfo == info) {
             skipUpdate = true;
             newDev = const_cast<IosDevice *>(iosDev);
         } else {
@@ -287,6 +357,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
         if (info.contains(kDeviceName))
             newDev->settings()->displayName.setValue(info.value(kDeviceName));
         newDev->m_extraInfo = info;
+        newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;
         dev = IDevice::ConstPtr(newDev);
         devManager->addDevice(dev);
@@ -294,34 +365,41 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
     QLatin1String devStatusKey = QLatin1String("developerStatus");
     if (info.contains(devStatusKey)) {
         QString devStatus = info.value(devStatusKey);
-        if (devStatus == QLatin1String("Development")) {
+        if (devStatus == vDevelopment) {
             devManager->setDeviceState(newDev->id(), IDevice::DeviceReadyToUse);
             m_userModeDeviceIds.removeOne(uid);
         } else {
             devManager->setDeviceState(newDev->id(), IDevice::DeviceConnected);
             bool shouldIgnore = newDev->m_ignoreDevice;
             newDev->m_ignoreDevice = true;
-            if (devStatus == QLatin1String("*off*")) {
-                if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
-                    QMessageBox mBox;
-                    mBox.setText(Tr::tr("An iOS device in user mode has been detected."));
-                    mBox.setInformativeText(Tr::tr("Do you want to see how to set it up for development?"));
-                    mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
-                    mBox.setDefaultButton(QMessageBox::Yes);
-                    int ret = mBox.exec();
-                    switch (ret) {
-                    case QMessageBox::Yes:
-                        Core::HelpManager::showHelpUrl(
-                                    QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
-                        break;
-                    case QMessageBox::No:
-                        break;
-                    case QMessageBox::NoAll:
-                        IosConfigurations::setIgnoreAllDevices(true);
-                        break;
-                    default:
-                        break;
-                    }
+            if (devStatus == vOff) {
+                if (!m_devModeDialog && !shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+                    m_devModeDialog = new QMessageBox(Core::ICore::dialogParent());
+                    m_devModeDialog->setText(
+                        Tr::tr("An iOS device in user mode has been detected."));
+                    m_devModeDialog->setInformativeText(
+                        Tr::tr("Do you want to see how to set it up for development?"));
+                    m_devModeDialog->setStandardButtons(QMessageBox::NoAll | QMessageBox::No
+                                                        | QMessageBox::Yes);
+                    m_devModeDialog->setDefaultButton(QMessageBox::Yes);
+                    m_devModeDialog->setAttribute(Qt::WA_DeleteOnClose);
+                    connect(m_devModeDialog, &QDialog::finished, this, [](int result) {
+                        switch (result) {
+                        case QMessageBox::Yes:
+                            Core::HelpManager::showHelpUrl(
+                                QLatin1String("qthelp://org.qt-project.qtcreator/doc/"
+                                              "creator-developing-ios.html"));
+                            break;
+                        case QMessageBox::No:
+                            break;
+                        case QMessageBox::NoAll:
+                            IosConfigurations::setIgnoreAllDevices(true);
+                            break;
+                        default:
+                            break;
+                        }
+                    });
+                    m_devModeDialog->show();
                 }
             }
             if (!m_userModeDeviceIds.contains(uid))
@@ -329,11 +407,6 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
             m_userModeDevicesTimer.start();
         }
     }
-}
-
-void IosDeviceManager::infoGathererFinished(IosToolHandler *gatherer)
-{
-    gatherer->deleteLater();
 }
 
 #ifdef Q_OS_MAC
@@ -520,9 +593,9 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
     for (int iDevice = 0; iDevice < devManager->deviceCount(); ++iDevice) {
         IDevice::ConstPtr dev = devManager->deviceAt(iDevice);
         Utils::Id devType(Constants::IOS_DEVICE_TYPE);
-        if (dev.isNull() || dev->type() != devType)
+        if (!dev || dev->type() != devType)
             continue;
-        auto iosDev = static_cast<const IosDevice *>(dev.data());
+        auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (devices.contains(iosDev->uniqueDeviceID()))
             continue;
         if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
@@ -534,35 +607,30 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
 
 // Factory
 
-IosDeviceFactory::IosDeviceFactory()
-    : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
+class IosDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(IosDevice::name());
-    setCombinedIcon(":/ios/images/iosdevicesmall.png",
-                     ":/ios/images/iosdevice.png");
-    setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
-}
+public:
+    IosDeviceFactory()
+        : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
+    {
+        setDisplayName(IosDevice::name());
+        setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                        ":/ios/images/iosdevice.png");
+        setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
+    }
 
-bool IosDeviceFactory::canRestore(const Store &map) const
-{
-    Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
-    if (vMap.isEmpty() || vMap.value(kDeviceName).toString() == QLatin1String("*unknown*"))
-        return false; // transient device (probably generated during an activation)
-    return true;
-}
+    bool canRestore(const Utils::Store &map) const override
+    {
+        Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
+        if (vMap.isEmpty() || vMap.value(kDeviceName).toString() == QLatin1String("*unknown*"))
+            return false; // transient device (probably generated during an activation)
+        return true;
+    }
+};
 
-IosDeviceInfoWidget::IosDeviceInfoWidget(const IDevice::Ptr &device)
-    : IDeviceWidget(device)
+void setupIosDevice()
 {
-    const auto iosDevice = qSharedPointerCast<IosDevice>(device);
-    const auto formLayout = new QFormLayout(this);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    setLayout(formLayout);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(Tr::tr("Device name:"), new QLabel(iosDevice->deviceName()));
-    formLayout->addRow(Tr::tr("Identifier:"), new QLabel(iosDevice->uniqueInternalDeviceId()));
-    formLayout->addRow(Tr::tr("OS Version:"), new QLabel(iosDevice->osVersion()));
-    formLayout->addRow(Tr::tr("CPU Architecture:"), new QLabel(iosDevice->cpuArchitecture()));
+    static IosDeviceFactory theIosDeviceFactory;
 }
 
 } // Ios::Internal

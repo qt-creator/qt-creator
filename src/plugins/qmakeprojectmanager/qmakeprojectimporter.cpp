@@ -97,7 +97,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         qCDebug(logs) << "  Parsing makefile" << file;
         // find interesting makefiles
         const FilePath makefile = importPath / file;
-        MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues);
+        MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues, projectFilePath());
         if (parse.makeFileState() != MakeFileParse::Okay) {
             qCDebug(logs) << "  Parsing the makefile failed" << makefile;
             continue;
@@ -108,7 +108,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         }
 
         data->canonicalQmakeBinary = parse.qmakePath().canonicalPath();
-        if (data->canonicalQmakeBinary.isEmpty()) {
+        if (!data->canonicalQmakeBinary.exists()) {
             qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
             continue;
         }
@@ -160,7 +160,7 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     QtVersion *kitVersion = QtKitAspect::qtVersion(k);
     QString kitSpec = QmakeKitAspect::mkspec(k);
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
     QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
@@ -215,19 +215,19 @@ static const Toolchains preferredToolChains(QtVersion *qtVersion, const QString 
 {
     const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
-    const Toolchains toolchains = ToolChainManager::toolchains();
+    const Toolchains toolchains = ToolchainManager::toolchains();
     const Abis qtAbis = qtVersion->qtAbis();
-    const auto matcher = [&](const ToolChain *tc) {
+    const auto matcher = [&](const Toolchain *tc) {
         return qtAbis.contains(tc->targetAbi()) && tc->suggestedMkspecList().contains(spec);
     };
-    ToolChain * const cxxToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
+    Toolchain * const cxxToolchain = findOrDefault(toolchains, [matcher](const Toolchain *tc) {
         return tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID && matcher(tc);
     });
-    ToolChain * const cToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
+    Toolchain * const cToolchain = findOrDefault(toolchains, [matcher](const Toolchain *tc) {
         return tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID && matcher(tc);
     });
     Toolchains chosenToolchains;
-    for (ToolChain * const tc : {cxxToolchain, cToolchain}) {
+    for (Toolchain * const tc : {cxxToolchain, cToolchain}) {
         if (tc)
             chosenToolchains << tc;
     };
@@ -240,8 +240,8 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
 {
     Q_UNUSED(osType) // TODO use this to select the right toolchain?
     return QtProjectImporter::createTemporaryKit(data, [&data, parsedSpec](Kit *k) -> void {
-        for (ToolChain *const tc : preferredToolChains(data.qt, parsedSpec))
-            ToolChainKitAspect::setToolChain(k, tc);
+        for (Toolchain *const tc : preferredToolChains(data.qt, parsedSpec))
+            ToolchainKitAspect::setToolchain(k, tc);
         if (parsedSpec != data.qt->mkspec())
             QmakeKitAspect::setMkspec(k, parsedSpec, QmakeKitAspect::MkspecSource::Code);
     });

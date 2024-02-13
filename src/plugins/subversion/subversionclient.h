@@ -29,9 +29,7 @@ public:
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = {}) override;
 
-    void diff(const Utils::FilePath &workingDirectory,
-              const QStringList &files,
-              const QStringList &extraOptions) override;
+    void showDiffEditor(const Utils::FilePath &workingDirectory, const QStringList &files = {});
 
     void log(const Utils::FilePath &workingDir,
              const QStringList &files = {},
@@ -60,6 +58,8 @@ private:
     mutable Utils::FilePath m_svnVersionBinary;
     mutable QString m_svnVersion;
 };
+
+SubversionClient &subversionClient();
 
 Utils::CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions);
 

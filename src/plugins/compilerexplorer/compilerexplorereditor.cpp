@@ -15,9 +15,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -54,6 +56,13 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace CompilerExplorer {
+
+enum {
+    LinkProperty = QTextFormat::UserProperty + 10,
+};
+
+constexpr char AsmEditorLinks[] = "AsmEditor.Links";
+constexpr char SourceEditorHoverLine[] = "SourceEditor.HoveredLine";
 
 CodeEditorWidget::CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                    QUndoStack *undoStack)
@@ -199,6 +208,11 @@ bool JsonSettingsDocument::setContents(const QByteArray &contents)
     return true;
 }
 
+QString JsonSettingsDocument::fallbackSaveAsFileName() const
+{
+    return preferredDisplayName() + ".qtce";
+}
+
 SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                        QUndoStack *undoStack)
     : m_sourceSettings(settings)
@@ -264,6 +278,57 @@ QString SourceEditorWidget::sourceCode()
     return {};
 }
 
+void SourceEditorWidget::markSourceLocation(
+    const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine)
+{
+    if (!assemblyLine || !assemblyLine->source) {
+        m_codeEditor->setExtraSelections(SourceEditorHoverLine, {});
+        return;
+    }
+
+    auto source = *assemblyLine->source;
+
+    // If this is a location in a different file we cannot highlight it
+    if (!source.file.isEmpty()) {
+        m_codeEditor->setExtraSelections(SourceEditorHoverLine, {});
+        return;
+    }
+
+    // Lines are 1-based, so if we get 0 it means we don't have a valid location
+    if (source.line == 0) {
+        m_codeEditor->setExtraSelections(SourceEditorHoverLine, {});
+        return;
+    }
+
+    QList<QTextEdit::ExtraSelection> selections;
+
+    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
+    QTextCharFormat background = fs.toTextCharFormat(TextEditor::C_CURRENT_LINE);
+    QTextCharFormat column = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
+
+    QTextBlock block = m_codeEditor->textDocument()->document()->findBlockByLineNumber(source.line
+                                                                                       - 1);
+
+    QTextEdit::ExtraSelection selection;
+    selection.cursor = QTextCursor(m_codeEditor->textDocument()->document());
+    selection.cursor.setPosition(block.position());
+    selection.cursor.setPosition(qMax(block.position(), block.position() + block.length() - 1),
+                                 QTextCursor::KeepAnchor);
+    selection.cursor.setKeepPositionOnInsert(true);
+    selection.format = background;
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selections.append(selection);
+
+    if (source.column) {
+        selection.cursor.setPosition(block.position() + *source.column - 1);
+        selection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        selection.format = column;
+        selections.append(selection);
+    }
+
+    m_codeEditor->setExtraSelections(SourceEditorHoverLine, selections);
+}
+
 CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
                                const std::shared_ptr<CompilerSettings> &compilerSettings,
                                QUndoStack *undoStack)
@@ -286,8 +351,14 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     auto toolBar = new StyledBar;
 
     m_asmEditor = new AsmEditorWidget(undoStack);
-    m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
+    m_asmDocument = QSharedPointer<AsmDocument>(new AsmDocument);
     m_asmEditor->setTextDocument(m_asmDocument);
+
+    connect(m_asmEditor,
+            &AsmEditorWidget::hoveredLineChanged,
+            this,
+            &CompilerWidget::hoveredLineChanged);
+
     QTC_ASSERT_EXPECTED(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
                         m_asmEditor->configureGenericHighlighter(
                             Utils::mimeTypeForName("text/x-asm")));
@@ -464,28 +535,9 @@ void CompilerWidget::doCompile()
                         m_resultTerminal->writeToTerminal((out + "\r\n").toUtf8(), false);
                 }
             }
-            qDeleteAll(m_marks);
-            m_marks.clear();
 
-            QString asmText;
-            for (auto l : r.assemblyLines)
-                asmText += l.text + "\n";
-
-            m_asmDocument->setPlainText(asmText);
-
-            int i = 0;
-            for (auto l : r.assemblyLines) {
-                i++;
-                if (l.opcodes.empty())
-                    continue;
-
-                auto mark = new TextMark(m_asmDocument.get(),
-                                         i,
-                                         TextMarkCategory{Tr::tr("Bytes"), "Bytes"});
-                m_asmDocument->addMark(mark);
-                mark->setLineAnnotation(l.opcodes.join(' '));
-                m_marks.append(mark);
-            }
+            const QList<QTextEdit::ExtraSelection> links = m_asmDocument->setCompileResult(r);
+            m_asmEditor->setExtraSelections(AsmEditorLinks, links);
         } catch (const std::exception &e) {
             Core::MessageManager::writeDisrupting(
                 Tr::tr("Failed to compile: \"%1\".").arg(QString::fromUtf8(e.what())));
@@ -495,7 +547,7 @@ void CompilerWidget::doCompile()
     m_compileWatcher->setFuture(f);
 }
 
-EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
+EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                            QUndoStack *undoStack,
                            TextEditorActionHandler &actionHandler,
                            QWidget *parent)
@@ -505,7 +557,6 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
     , m_actionHandler(actionHandler)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
-    setAutoHideTitleBars(false);
     setDockNestingEnabled(true);
     setDocumentMode(true);
     setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::TabPosition::South);
@@ -542,15 +593,14 @@ void EditorWidget::focusInEvent(QFocusEvent *event)
     FancyMainWindow::focusInEvent(event);
 }
 
-void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
-                               const std::shared_ptr<CompilerSettings> &compilerSettings,
-                               int idx,
-                               QDockWidget *parentDockWidget)
+CompilerWidget *EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
+                                          const std::shared_ptr<CompilerSettings> &compilerSettings,
+                                          int idx)
 {
     auto compiler = new CompilerWidget(sourceSettings, compilerSettings, m_undoStack);
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
-    QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
+    QDockWidget *dockWidget = addDockForWidget(compiler);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     m_compilerWidgets.append(dockWidget);
@@ -562,28 +612,30 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
                 sourceSettings->compilers.removeItem(compilerSettings->shared_from_this());
             });
 
-    connect(compiler, &CompilerWidget::gotFocus, this, [this]() {
+    connect(compiler, &CompilerWidget::gotFocus, this, [this] {
         m_actionHandler.updateCurrentEditor();
     });
+
+    return compiler;
 }
 
 QVariantMap EditorWidget::windowStateCallback()
 {
-    auto settings = saveSettings();
+    const auto settings = saveSettings();
     QVariantMap result;
 
-    for (const Key &key : settings.keys()) {
+    for (auto it = settings.begin(); it != settings.end(); ++it) {
         // QTBUG-116339
-        if (stringFromKey(key) != "State") {
-            result.insert(stringFromKey(key), settings.value(key));
+        const QString keyString = stringFromKey(it.key());
+        if (keyString != "State") {
+            result.insert(keyString, *it);
         } else {
             QVariantMap m;
             m["type"] = "Base64";
-            m["value"] = settings.value(key).toByteArray().toBase64();
-            result.insert(stringFromKey(key), m);
+            m["value"] = it->toByteArray().toBase64();
+            result.insert(keyString, m);
         }
     }
-
     return result;
 }
 
@@ -602,7 +654,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         setupHelpWidget();
     });
 
-    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this]() {
+    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this] {
         m_actionHandler.updateCurrentEditor();
     });
 
@@ -610,18 +662,27 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     sourceSettings->compilers.forEachItem<CompilerSettings>(
-        [this, sourceSettings, dockWidget](const std::shared_ptr<CompilerSettings> &compilerSettings,
-                                           int idx) {
-            addCompiler(sourceSettings, compilerSettings, idx + 1, dockWidget);
+        [this,
+         sourceEditor,
+         sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings, int idx) {
+            auto compilerWidget = addCompiler(sourceSettings, compilerSettings, idx + 1);
+            connect(compilerWidget,
+                    &CompilerWidget::hoveredLineChanged,
+                    sourceEditor,
+                    &SourceEditorWidget::markSourceLocation);
         });
 
     sourceSettings->compilers.setItemAddedCallback<CompilerSettings>(
-        [this, sourceSettings, dockWidget](
+        [this, sourceEditor, sourceSettings](
             const std::shared_ptr<CompilerSettings> &compilerSettings) {
-            addCompiler(sourceSettings->shared_from_this(),
-                        compilerSettings,
-                        sourceSettings->compilers.size(),
-                        dockWidget);
+            auto compilerWidget = addCompiler(sourceSettings->shared_from_this(),
+                                              compilerSettings,
+                                              sourceSettings->compilers.size());
+
+            connect(compilerWidget,
+                    &CompilerWidget::hoveredLineChanged,
+                    sourceEditor,
+                    &SourceEditorWidget::markSourceLocation);
         });
 
     sourceSettings->compilers.setItemRemovedCallback<CompilerSettings>(
@@ -674,28 +735,24 @@ void EditorWidget::recreateEditors()
     m_document->settings()->m_sources.forEachItem<SourceSettings>(
         [this](const auto &sourceSettings) { addSourceEditor(sourceSettings); });
 
-    Store windowState = m_document->settings()->windowState.value();
+    const Store windowState = m_document->settings()->windowState.value();
 
-    if (!windowState.isEmpty()) {
-        QHash<Key, QVariant> hashMap;
-        for (const auto &key : windowState.keys()) {
-            if (key.view() != "State")
-                hashMap.insert(key, windowState.value(key));
-            else {
-                QVariant v = windowState.value(key);
-                if (v.userType() == QMetaType::QByteArray) {
-                    hashMap.insert(key, v);
-                } else if (v.userType() == QMetaType::QVariantMap) {
-                    QVariantMap m = v.toMap();
-                    if (m.value("type") == "Base64") {
-                        hashMap.insert(key, QByteArray::fromBase64(m.value("value").toByteArray()));
-                    }
-                }
-            }
+    if (windowState.isEmpty())
+        return;
+
+    Store hashMap;
+    for (auto it = windowState.begin(); it != windowState.end(); ++it) {
+        const Key key = it.key();
+        const QVariant v = *it;
+        if (key.view() != "State" || v.userType() == QMetaType::QByteArray) {
+            hashMap.insert(key, v);
+        } else if (v.userType() == QMetaType::QVariantMap) {
+            const QVariantMap m = v.toMap();
+            if (m.value("type") == "Base64")
+                hashMap.insert(key, QByteArray::fromBase64(m.value("value").toByteArray()));
         }
-
-        restoreSettings(hashMap);
     }
+    restoreSettings(hashMap);
 }
 
 void EditorWidget::setupHelpWidget()
@@ -890,8 +947,128 @@ EditorFactory::EditorFactory()
     setEditorCreator([this]() { return new Editor(m_actionHandler); });
 }
 
+QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
+    const Api::CompileResult &compileResult)
+{
+    m_assemblyLines = compileResult.assemblyLines;
+
+    document()->clear();
+    qDeleteAll(m_marks);
+    m_marks.clear();
+
+    QTextCursor cursor(document());
+
+    QTextCharFormat linkFormat = TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(
+        TextEditor::C_LINK);
+
+    QList<QTextEdit::ExtraSelection> links;
+
+    auto labelRow = [&labels = std::as_const(compileResult.labelDefinitions)](
+                        const QString &labelName) -> std::optional<int> {
+        auto it = labels.find(labelName);
+        if (it != labels.end())
+            return *it;
+        return std::nullopt;
+    };
+
+    setPlainText(
+        Utils::transform(m_assemblyLines, [](const auto &line) { return line.text; }).join('\n'));
+
+    int currentLine = 0;
+    for (auto l : m_assemblyLines) {
+        currentLine++;
+
+        auto createLabelLink = [currentLine, &linkFormat, &cursor, labelRow](
+                                   const Api::CompileResult::AssemblyLine::Label &label) {
+            QTextEdit::ExtraSelection selection;
+            selection.cursor = cursor;
+            QTextBlock block = cursor.document()->findBlockByLineNumber(currentLine - 1);
+            selection.cursor.setPosition(block.position() + label.range.startCol - 1);
+            selection.cursor.setPosition(block.position() + label.range.endCol - 1,
+                                         QTextCursor::KeepAnchor);
+            selection.cursor.setKeepPositionOnInsert(true);
+            selection.format = linkFormat;
+
+            if (auto lRow = labelRow(label.name))
+                selection.format.setProperty(LinkProperty, *lRow);
+
+            return selection;
+        };
+
+        links.append(Utils::transform(l.labels, createLabelLink));
+
+        if (!l.opcodes.empty()) {
+            auto mark = new TextMark(this, currentLine, TextMarkCategory{Tr::tr("Bytes"), "Bytes"});
+            addMark(mark);
+            mark->setLineAnnotation(l.opcodes.join(' '));
+            m_marks.append(mark);
+        }
+    }
+
+    emit contentsChanged();
+
+    return links;
+}
+
 AsmEditorWidget::AsmEditorWidget(QUndoStack *stack)
     : m_undoStack(stack)
 {}
+
+void AsmEditorWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    const QTextCursor cursor = cursorForPosition(event->pos());
+
+    int line = cursor.block().blockNumber();
+    auto document = static_cast<AsmDocument *>(textDocument());
+
+    std::optional<Api::CompileResult::AssemblyLine> newLine;
+    if (line < document->asmLines().size())
+        newLine = document->asmLines()[line];
+
+    if (m_currentlyHoveredLine != newLine) {
+        m_currentlyHoveredLine = newLine;
+        emit hoveredLineChanged(newLine);
+    }
+
+    TextEditorWidget::mouseMoveEvent(event);
+}
+
+void AsmEditorWidget::leaveEvent(QEvent *event)
+{
+    if (m_currentlyHoveredLine) {
+        m_currentlyHoveredLine = std::nullopt;
+        emit hoveredLineChanged(std::nullopt);
+    }
+
+    TextEditorWidget::leaveEvent(event);
+}
+
+void AsmEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                 const Utils::LinkHandler &processLinkCallback,
+                                 bool,
+                                 bool)
+{
+    QList<QTextEdit::ExtraSelection> links = this->extraSelections(AsmEditorLinks);
+
+    auto contains = [cursor](const QTextEdit::ExtraSelection &selection) {
+        if (selection.format.hasProperty(LinkProperty)
+            && selection.cursor.selectionStart() <= cursor.position()
+            && selection.cursor.selectionEnd() >= cursor.position()) {
+            return true;
+        }
+        return false;
+    };
+
+    if (std::optional<QTextEdit::ExtraSelection> selection = Utils::findOr(links,
+                                                                           std::nullopt,
+                                                                           contains)) {
+        const int row = selection->format.property(LinkProperty).toInt();
+        Link link{{}, row, 0};
+        link.linkTextStart = selection->cursor.selectionStart();
+        link.linkTextEnd = selection->cursor.selectionEnd();
+
+        processLinkCallback(link);
+    }
+}
 
 } // namespace CompilerExplorer

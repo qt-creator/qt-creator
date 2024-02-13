@@ -704,8 +704,8 @@ Environment SquishTools::squishEnvironment()
 {
     Environment environment = Environment::systemEnvironment();
     if (!toolsSettings.licenseKeyPath.isEmpty())
-        environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
-    environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
+        environment.set("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
+    environment.set("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
     return environment;
 }
 
@@ -1325,6 +1325,12 @@ void SquishTools::setupRunnerForRun()
             this, &SquishTools::onRunnerStateChanged);
     connect(m_primaryRunner, &SquishRunnerProcess::logOutputReceived,
             this, &SquishTools::logOutputReceived);
+}
+
+void setupSquishTools(QObject *guard)
+{
+    s_instance = new SquishTools;
+    s_instance->setParent(guard);
 }
 
 } // namespace Squish::Internal

@@ -53,4 +53,8 @@ private:
     CallStackLine m_errorOrWarningLine;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createCMakeParserTest(); }
+#endif
+
 } // CMakeProjectManager

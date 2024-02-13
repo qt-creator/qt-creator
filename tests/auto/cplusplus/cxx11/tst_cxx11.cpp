@@ -54,10 +54,10 @@ class tst_cxx11: public QObject
         {
         }
 
-        virtual void report(int level,
-                            const StringLiteral *fileName,
-                            int line, int column,
-                            const char *format, va_list ap) override
+        void report(int level,
+                    const StringLiteral *fileName,
+                    int line, int column,
+                    const char *format, va_list ap) override
         {
             if (! errors)
                 return;
@@ -86,9 +86,9 @@ class tst_cxx11: public QObject
         }
 
     private:
-        bool preVisit(Symbol *) { return !m_function; }
+        bool preVisit(Symbol *) override { return !m_function; }
 
-        bool visit(Function *function)
+        bool visit(Function *function) override
         {
             if (function->name())
                 return true;
@@ -229,7 +229,7 @@ void tst_cxx11::inlineNamespaceLookup()
     snapshot.insert(doc);
 
     LookupContext context(doc, snapshot);
-    QSharedPointer<Control> control = context.bindings()->control();
+    std::shared_ptr<Control> control = context.bindings()->control();
 
     QList<LookupItem> results = context.lookup(control->identifier("foo"), doc->globalNamespace());
     QCOMPARE(results.size(), 1); // the symbol is visible from the global scope

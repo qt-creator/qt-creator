@@ -7,13 +7,13 @@
 #include "command_p.h"
 #include "../icore.h"
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
 
-#include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QMainWindow>
@@ -66,8 +66,390 @@ void PresentationModeHandler::showShortcutPopup(const QString &shortcut)
     Utils::FadingIndicator::showText(window, shortcut);
 }
 
+} // Core::Internal
+
+
+namespace Core {
+
+class ActionBuilderPrivate
+{
+public:
+    ActionBuilderPrivate(QObject *contextActionParent, const Id actionId)
+        : actionId(actionId)
+        , m_parent(contextActionParent)
+    {
+        command = ActionManager::createCommand(actionId);
+    }
+
+    void registerAction()
+    {
+        QTC_ASSERT(actionId.isValid(), return);
+        ActionManager::registerAction(contextAction(), actionId, context, scriptable);
+    }
+
+    Action *contextAction()
+    {
+        if (!m_contextAction) {
+            QTC_CHECK(m_parent);
+            m_contextAction = new Action(m_parent);
+        }
+        return m_contextAction;
+    }
+
+    void adopt(Action *action)
+    {
+        QTC_ASSERT(!m_contextAction,
+                   qWarning() << QLatin1String("Cannot adopt context action for \"%1\"after it "
+                                               "already has been created.")
+                                     .arg(actionId.toString());
+                   return);
+        QTC_ASSERT(action,
+                   qWarning() << QLatin1String("Adopt called with nullptr action for \"%1\".")
+                                     .arg(actionId.toString()));
+        m_contextAction = action;
+    }
+
+    Command *command = nullptr;
+
+    Id actionId;
+    Context context{Constants::C_GLOBAL};
+    bool scriptable = false;
+
+private:
+    QObject *m_parent = nullptr;
+    Action *m_contextAction = nullptr;
+};
+
+/*!
+    \class Core::ActionBuilder
+    \inheaderfile coreplugin/actionmanager/actionmanager.h
+    \inmodule QtCreator
+    \ingroup mainclasses
+
+    \brief The ActionBuilder class is convienience class to set up
+    \l{Core::Command}s.
+
+    An action builder specifies properties of a \c{Core::Command} and
+    a context action and uses \l{ActionManager::registerAction()} in its
+    destructor to actually register the action for a set \l{Core::Context}
+    for the Command.
+*/
+
+/*!
+    Constructs an action builder for an action with the Id \a actionId.
+
+    The \a contextActionParent is used to provide a QObject parent for the
+    internally constructed QAction object to control its life time.
+
+    This is typically the \c this pointer of the entity using \c ActionBuilder.
+ */
+ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
+    : d(new ActionBuilderPrivate(contextActionParent, actionId))
+{}
+
+/*!
+    Registers the created action with the set properties.
+
+    \sa ActionManager::registerAction()
+*/
+ActionBuilder::~ActionBuilder()
+{
+    d->registerAction();
+    delete d;
 }
 
+/*!
+    Uses the given \a action is the contextAction for this builder.
+    \a action must not be nullptr, and adopt() must be called before
+    setting any actual properties like setText() or setIcon().
+
+    Usually you should prefer passing a \c contextActionParent to the
+    ActionBuilder constructor, and binding a QAction to the automatically
+    created context action with bindContextAction().
+
+    This method is sometimes useful if the caller manages the action's
+    lifetime itself, and for example there is no QObject that can be
+    the parent of an automatically created context action.
+*/
+ActionBuilder &ActionBuilder::adopt(Utils::Action *action)
+{
+    d->adopt(action);
+    return *this;
+}
+
+/*!
+    Sets the \c text property of the action under construction to \a text.
+
+    \sa QAction::setText()
+*/
+ActionBuilder &ActionBuilder::setText(const QString &text)
+{
+    d->contextAction()->setText(text);
+    return *this;
+}
+
+/*!
+    Sets the \c iconText property of the action under construction to \a iconText.
+
+    \sa QAction::setIconText()
+*/
+ActionBuilder &ActionBuilder::setIconText(const QString &iconText)
+{
+    d->contextAction()->setIconText(iconText);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setToolTip(const QString &toolTip)
+{
+    d->contextAction()->setToolTip(toolTip);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
+{
+    d->command->setAttribute(attr);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setCommandDescription(const QString &desc)
+{
+    d->command->setDescription(desc);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist)
+{
+    QTC_ASSERT(containerId.isValid(), return *this);
+    if (ActionContainer *container = ActionManager::actionContainer(containerId)) {
+        container->addAction(d->command, groupId);
+        return *this;
+    }
+    QTC_CHECK(!needsToExist);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::addToContainers(QList<Id> containerIds, Id groupId, bool needsToExist)
+{
+    for (const Id &containerId : containerIds)
+        addToContainer(containerId, groupId, needsToExist);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::addOnTriggered(const std::function<void()> &func)
+{
+    QObject::connect(d->contextAction(), &QAction::triggered, d->contextAction(), func);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
+{
+    d->command->setDefaultKeySequence(seq);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setDefaultKeySequences(const QList<QKeySequence> &seqs)
+{
+    d->command->setDefaultKeySequences(seqs);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setDefaultKeySequence(const QString &mac, const QString &nonMac)
+{
+    d->command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? mac : nonMac));
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setIcon(const QIcon &icon)
+{
+    d->contextAction()->setIcon(icon);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setIconVisibleInMenu(bool on)
+{
+    d->contextAction()->setIconVisibleInMenu(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setTouchBarIcon(const QIcon &icon)
+{
+    d->command->setTouchBarIcon(icon);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setTouchBarText(const QString &text)
+{
+    d->command->setTouchBarText(text);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setEnabled(bool on)
+{
+    d->contextAction()->setEnabled(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setChecked(bool on)
+{
+    d->contextAction()->setChecked(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setVisible(bool on)
+{
+    d->contextAction()->setVisible(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setCheckable(bool on)
+{
+    d->contextAction()->setCheckable(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setSeperator(bool on)
+{
+    d->contextAction()->setSeparator(on);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setScriptable(bool on)
+{
+    d->scriptable = on;
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setMenuRole(QAction::MenuRole role)
+{
+    d->contextAction()->setMenuRole(role);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setParameterText(const QString &parameterText,
+                                     const QString &emptyText,
+                                     EnablingMode mode)
+{
+    QTC_CHECK(parameterText.contains("%1"));
+    QTC_CHECK(!emptyText.contains("%1"));
+
+    d->contextAction()->setEmptyText(emptyText);
+    d->contextAction()->setParameterText(parameterText);
+    d->contextAction()->setEnablingMode(mode == AlwaysEnabled
+                                            ? Action::AlwaysEnabled
+                                            : Action::EnabledWithParameter);
+    d->contextAction()->setText(emptyText);
+    return *this;
+}
+
+Id ActionBuilder::id() const
+{
+    return d->actionId;
+}
+
+Command *ActionBuilder::command() const
+{
+    return d->command;
+}
+
+QAction *ActionBuilder::commandAction() const
+{
+    return d->command->action();
+}
+
+Action *ActionBuilder::contextAction() const
+{
+    return d->contextAction();
+}
+
+ActionBuilder &ActionBuilder::bindContextAction(QAction **dest)
+{
+    QTC_ASSERT(dest, return *this);
+    *dest = d->contextAction();
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::bindContextAction(Utils::Action **dest)
+{
+    QTC_ASSERT(dest, return *this);
+    *dest = d->contextAction();
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::bindCommand(Command **dest)
+{
+    QTC_ASSERT(dest, return *this);
+    *dest = d->command;
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::augmentActionWithShortcutToolTip()
+{
+    d->command->augmentActionWithShortcutToolTip(d->contextAction());
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setContext(Id id)
+{
+    d->context = Context(id);
+    return *this;
+}
+
+ActionBuilder &ActionBuilder::setContext(const Context &context)
+{
+    QTC_ASSERT(!context.isEmpty(), return *this);
+    d->context = context;
+    return *this;
+}
+
+// Separator
+
+ActionSeparator::ActionSeparator(Id id)
+{
+    ActionContainer *container = ActionManager::actionContainer(id);
+    QTC_ASSERT(container, return);
+    container->addSeparator();
+}
+
+// MenuBuilder
+
+MenuBuilder::MenuBuilder(Id id)
+{
+    m_menu = ActionManager::createMenu(id);
+}
+
+MenuBuilder::~MenuBuilder() = default;
+
+MenuBuilder &MenuBuilder::setTitle(const QString &title)
+{
+    m_menu->menu()->setTitle(title);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::setIcon(const QIcon &icon)
+{
+    m_menu->menu()->setIcon(icon);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior)
+{
+    m_menu->setOnAllDisabledBehavior(behavior);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::addToContainer(Id containerId, Id groupId)
+{
+    ActionContainer *container = ActionManager::actionContainer(containerId);
+    if (QTC_GUARD(container))
+        container->addMenu(m_menu, groupId);
+    return *this;
+}
+
+MenuBuilder &MenuBuilder::addSeparator()
+{
+    m_menu->addSeparator();
+    return *this;
+}
 /*!
     \class Core::ActionManager
     \inheaderfile coreplugin/actionmanager/actionmanager.h
@@ -267,6 +649,21 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
         emit m_instance->commandAdded(id);
     }
     return cmd;
+}
+
+/*!
+    Creates a Command or returns an existing Command with the specified \a id.
+
+    The created command doesn't have any actions associated with it yet, so
+    it cannot actually be triggered.
+    But the system is aware of it, it appears in the keyboard shortcut
+    settings, and QActions can later be registered for it.
+    If you already have a QAction, ID and Context that you want to register,
+    there is no need to call this. Just directly call registerAction().
+*/
+Command *ActionManager::createCommand(Utils::Id id)
+{
+    return d->overridableAction(id);
 }
 
 /*!
@@ -536,3 +933,5 @@ void ActionManagerPrivate::saveSettings()
         saveSettings(j.value());
     }
 }
+
+} // Core

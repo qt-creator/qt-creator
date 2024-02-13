@@ -6,12 +6,10 @@
 using namespace Subversion;
 using namespace Subversion::Internal;
 
-SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                                 QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    m_blank(QLatin1Char(' '))
-{
-}
+SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
+    , m_blank(QLatin1Char(' '))
+{}
 
 QString SubversionAnnotationHighlighter::changeNumber(const QString &block) const
 {

@@ -9,6 +9,8 @@
 
 #include <debugger/debuggermainwindow.h>
 
+#include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -161,6 +163,16 @@ void GdbDapEngine::setupEngine()
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();
+}
+
+bool GdbDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
+{
+    const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
+    return mimeType.matchesName(Utils::Constants::C_HEADER_MIMETYPE)
+           || mimeType.matchesName(Utils::Constants::C_SOURCE_MIMETYPE)
+           || mimeType.matchesName(Utils::Constants::CPP_HEADER_MIMETYPE)
+           || mimeType.matchesName(Utils::Constants::CPP_SOURCE_MIMETYPE)
+           || bp.type == BreakpointByFunction;
 }
 
 const QLoggingCategory &GdbDapEngine::logCategory()

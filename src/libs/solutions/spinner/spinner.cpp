@@ -5,19 +5,21 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QHBoxLayout>
 #include <QIcon>
+#include <QLabel>
 #include <QPainter>
 #include <QTimer>
 #include <QWidget>
 
 namespace SpinnerSolution {
 
-class OverlayWidget : public QWidget
+class WidgetOverlay : public QWidget
 {
 public:
     using PaintFunction = std::function<void(QWidget *, QPainter &, QPaintEvent *)>;
 
-    explicit OverlayWidget(QWidget *parent = nullptr)
+    explicit WidgetOverlay(QWidget *parent = nullptr)
     {
         setAttribute(Qt::WA_TransparentForMouseEvents);
         if (parent)
@@ -151,11 +153,11 @@ void SpinnerPainter::paint(QPainter &painter, const QRect &rect) const
     painter.restore();
 }
 
-class SpinnerWidget : public OverlayWidget
+class SpinnerOverlay : public WidgetOverlay
 {
 public:
-    explicit SpinnerWidget(SpinnerSize size, QWidget *parent = nullptr)
-        : OverlayWidget(parent)
+    explicit SpinnerOverlay(SpinnerSize size, QWidget *parent = nullptr)
+        : WidgetOverlay(parent)
         , m_paint(size)
     {
         setPaintFunction(
@@ -219,7 +221,7 @@ private:
 */
 Spinner::Spinner(SpinnerSize size, QWidget *parent)
     : QObject(parent)
-    , m_widget(new SpinnerWidget(size, parent)) {}
+    , m_widget(new SpinnerOverlay(size, parent)) {}
 
 /*!
     Sets the size of the spinner to the given \a size.
@@ -261,6 +263,85 @@ bool Spinner::isVisible() const
 void Spinner::setVisible(bool visible)
 {
     m_widget->setVisible(visible);
+}
+
+static QString colorButtonStyleSheet(const QColor &bgColor)
+{
+    QString rc("border-width: 1px; border-radius: 1px; border-color: black; ");
+    rc += bgColor.isValid() ? "border-style: solid; background:" + bgColor.name() + ";"
+                            : QString("border-style: dotted;");
+    return rc;
+}
+
+static QColor stateToColor(SpinnerState state)
+{
+    switch (state) {
+    case SpinnerState::NotRunning: return Qt::gray;
+    case SpinnerState::Running: return Qt::yellow;
+    }
+    return {};
+}
+
+class SpinnerWidgetPrivate : public QLabel
+{
+public:
+    SpinnerWidgetPrivate(QWidget *parent = nullptr)
+        : QLabel(parent)
+        , m_spinner(new Spinner(SpinnerSize::Small, this))
+    {
+        updateState();
+    }
+
+    void setState(SpinnerState state)
+    {
+        if (m_state == state)
+            return;
+        m_state = state;
+        updateState();
+    }
+
+    void setDecorated(bool on)
+    {
+        if (m_decorated == on)
+            return;
+        m_decorated = on;
+        updateState();
+    }
+
+private:
+    void updateState()
+    {
+        const int size = m_decorated ? 26 : 24;
+        setFixedSize(size, size);
+        setStyleSheet(m_decorated ? colorButtonStyleSheet(stateToColor(m_state)) : QString());
+        if (m_state == SpinnerState::Running)
+            m_spinner->show();
+        else
+            m_spinner->hide();
+    }
+    bool m_decorated = true;
+    SpinnerState m_state = SpinnerState::NotRunning;
+    Spinner *m_spinner = nullptr;
+};
+
+SpinnerWidget::SpinnerWidget(QWidget *parent)
+    : QWidget(parent)
+    , d(new SpinnerWidgetPrivate(this))
+{
+    QBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(d);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+}
+
+void SpinnerWidget::setState(SpinnerState state)
+{
+    d->setState(state);
+}
+
+void SpinnerWidget::setDecorated(bool on)
+{
+    d->setDecorated(on);
 }
 
 } // namespace SpinnerSolution

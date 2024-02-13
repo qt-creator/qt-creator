@@ -36,6 +36,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
 enum { debug = 0 };
@@ -95,11 +96,11 @@ struct SubmitEditorWidgetPrivate
     // A pair of position/action to extend context menus
     typedef QPair<int, QPointer<QAction> > AdditionalContextMenuAction;
 
-    Core::MiniSplitter *splitter;
+    MiniSplitter *splitter;
     QGroupBox *descriptionBox;
     QVBoxLayout *descriptionLayout;
     QLabel *descriptionHint;
-    Utils::CompletingTextEdit *description;
+    CompletingTextEdit *description;
     QCheckBox *checkAllCheckBox;
     QTreeView *fileView;
     QHBoxLayout *buttonLayout;
@@ -175,7 +176,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     verticalLayout_2->addWidget(d->checkAllCheckBox);
     verticalLayout_2->addWidget(d->fileView);
 
-    d->splitter = new Core::MiniSplitter(scrollAreaWidgetContents);
+    d->splitter = new MiniSplitter(scrollAreaWidgetContents);
     d->splitter->setObjectName("splitter");
     d->splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     d->splitter->setOrientation(Qt::Horizontal);
@@ -186,9 +187,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
     QToolButton *openSettingsButton = new QToolButton;
     openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
-    openSettingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
+    openSettingsButton->setToolTip(ICore::msgShowOptionsDialog());
     connect(openSettingsButton, &QToolButton::clicked,  this, [] {
-        Core::ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
+        ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
     });
     d->buttonLayout->addWidget(openSettingsButton);
     d->buttonLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -733,7 +734,8 @@ void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
-    QScopedPointer<QMenu> menu(d->description->createStandardContextMenu());
+    QMenu *menu = d->description->createStandardContextMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
     // Extend
     for (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a :
          std::as_const(d->descriptionEditContextMenuActions)) {

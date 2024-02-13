@@ -22,6 +22,7 @@
 
 using namespace Utils;
 using namespace std;
+using namespace std::chrono_literals;
 
 namespace Android::Internal {
 
@@ -34,11 +35,11 @@ static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
+bool AndroidAvdManager::avdManagerCommand(const QStringList &args, QString *output)
 {
-    CommandLine cmd(config.avdManagerToolPath(), args);
+    CommandLine cmd(androidConfig().avdManagerToolPath(), args);
     Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
+    proc.setEnvironment(androidConfig().toolsEnvironment());
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
@@ -60,7 +61,7 @@ static bool checkForTimeout(const chrono::steady_clock::time_point &start,
     return timedOut;
 }
 
-static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateAvdInfo &info)
+static CreateAvdInfo createAvdCommand(const CreateAvdInfo &info)
 {
     CreateAvdInfo result = info;
 
@@ -71,7 +72,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         return result;
     }
 
-    CommandLine avdManager(config.avdManagerToolPath(), {"create", "avd", "-n", result.name});
+    CommandLine avdManager(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", result.name});
     avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
 
     if (result.sdcardSize > 0)
@@ -86,7 +87,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     Process proc;
     proc.setProcessMode(ProcessMode::Writer);
-    proc.setEnvironment(config.toolsEnvironment());
+    proc.setEnvironment(androidConfig().toolsEnvironment());
     proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
@@ -100,7 +101,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     QString errorOutput;
     QByteArray question;
     while (errorOutput.isEmpty()) {
-        proc.waitForReadyRead(500);
+        proc.waitForReadyRead(500ms);
         question += proc.readAllRawStandardOutput();
         if (question.endsWith(QByteArray("]:"))) {
             // truncate to last line
@@ -128,17 +129,13 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     return result;
 }
 
-AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config)
-    : m_config(config)
-{
-
-}
+AndroidAvdManager::AndroidAvdManager() = default;
 
 AndroidAvdManager::~AndroidAvdManager() = default;
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    return Utils::asyncRun(&createAvdCommand, m_config, info);
+    return Utils::asyncRun(&createAvdCommand, info);
 }
 
 static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
@@ -167,7 +164,7 @@ static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMo
     saver.finalize();
 }
 
-static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
+static AndroidDeviceInfoList listVirtualDevices()
 {
     QString output;
     AndroidDeviceInfoList avdList;
@@ -183,9 +180,9 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
     FilePaths avdErrorPaths;
 
     do {
-        if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
+        if (!AndroidAvdManager::avdManagerCommand({"list", "avd"}, &output)) {
             qCDebug(avdManagerLog)
-                << "Avd list command failed" << output << config.sdkToolsVersion();
+                << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
             return {};
         }
 
@@ -204,7 +201,7 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return Utils::asyncRun(listVirtualDevices, m_config);
+    return Utils::asyncRun(listVirtualDevices);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
@@ -220,9 +217,8 @@ static bool is32BitUserSpace()
     if (HostOsInfo::isLinuxHost()) {
         if (QSysInfo::WordSize == 32) {
             Process proc;
-            proc.setTimeoutS(3);
             proc.setCommand({"getconf", {"LONG_BIT"}});
-            proc.runBlocking();
+            proc.runBlocking(3s);
             if (proc.result() != ProcessResult::FinishedWithSuccess)
                 return true;
             return proc.allOutput().trimmed() == "32";
@@ -233,7 +229,7 @@ static bool is32BitUserSpace()
 
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
-    const FilePath emulator = m_config.emulatorToolPath();
+    const FilePath emulator = androidConfig().emulatorToolPath();
     if (!emulator.exists()) {
         QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulator] {
             QMessageBox::critical(Core::ICore::dialogParent(),
@@ -253,7 +249,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &Process::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
-            const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
+            const QString errorOutput = QString::fromLatin1(avdProcess->rawStdOut());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
                 const QString title = Tr::tr("AVD Start Error");
                 QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);
@@ -263,21 +259,21 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     });
 
     // start the emulator
-    CommandLine cmd(m_config.emulatorToolPath());
+    CommandLine cmd(androidConfig().emulatorToolPath());
     if (is32BitUserSpace())
         cmd.addArg("-force-32bit");
 
-    cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);
+    cmd.addArgs(androidConfig().emulatorArgs(), CommandLine::Raw);
     cmd.addArgs({"-avd", avdName});
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
     avdProcess->setCommand(cmd);
     avdProcess->start();
-    return avdProcess->waitForStarted(-1);
+    return avdProcess->waitForStarted(QDeadlineTimer::Forever);
 }
 
 QString AndroidAvdManager::findAvd(const QString &avdName) const
 {
-    const QVector<AndroidDeviceInfo> devices = m_config.connectedDevices();
+    const QVector<AndroidDeviceInfo> devices = androidConfig().connectedDevices();
     for (const AndroidDeviceInfo &device : devices) {
         if (device.type != ProjectExplorer::IDevice::Emulator)
             continue;
@@ -309,10 +305,9 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "init.svc.bootanim";
 
-    const CommandLine command({m_config.adbToolPath(), arguments});
+    const CommandLine command({androidConfig().adbToolPath(), arguments});
     qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
     Process adbProc;
-    adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
@@ -331,7 +326,7 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
         if (isAvdBooted(serialNumber))
             return true;
         QThread::sleep(2);
-        if (!m_config.isConnected(serialNumber)) // device was disconnected
+        if (!androidConfig().isConnected(serialNumber)) // device was disconnected
             return false;
     }
     return false;

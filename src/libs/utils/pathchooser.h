@@ -44,8 +44,8 @@ public:
     enum Kind {
         ExistingDirectory,
         Directory, // A directory, doesn't need to exist
-        File,
-        SaveFile,
+        File, // An existing file
+        SaveFile, // A file that does not need to exist
         ExistingCommand, // A command that must exist at the time of selection
         Command, // A command that may or may not exist at the time of selection (e.g. result of a build)
         Any

@@ -70,7 +70,12 @@ public:
     void setKeySequences(const QList<QKeySequence> &keys);
     QString stringWithAppendedShortcut(const QString &str) const;
     void augmentActionWithShortcutToolTip(QAction *action) const;
+
+    static QAction *createActionWithShortcutToolTip(Utils::Id commandId, QObject *parent);
+    static QToolButton *createToolButtonWithShortcutToolTip(Utils::Id commandId,
+                                                            QWidget *parent = nullptr);
     static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Command *cmd);
+    static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Utils::Id commandId);
 
     bool isScriptable() const;
     bool isScriptable(const Context &) const;

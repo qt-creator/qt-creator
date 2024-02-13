@@ -38,8 +38,7 @@
     \row
         \li \uicontrol {Modeling}
         \li State Chart XML (SCXML) files, Universal Modeling Language (UML)
-            style \l {Modeling}{models}, and scratch models that use a temporary
-            file.
+            style models, and scratch models that use a temporary file.
     \row
         \li \uicontrol {Qt}
         \li Source and header files for item, table,
@@ -67,13 +66,18 @@
         \li \uicontrol {vcpkg} (experimental)
         \li vcpkg package manager manifest files (vcpkg.json).
     \row
+        \li \uicontrol {Test Case}
+        \li Test framework specific file holding a new test case, to be
+            added to projects already using a test framework.
+    \row
         \li \uicontrol {Nim} (experimental)
         \li Empty Nim source and script files.
     \endtable
 
     \sa {Create compiler explorer sessions}, {Create C++ classes},
     {Create OpenGL fragment and vertex shaders}, {Create resource files},
-    {Create vcpkg manifest files}, {Use project wizards}
+    {Create UML-style models}, {Create vcpkg manifest files},
+    {Use project wizards}
 */
 
 /*!

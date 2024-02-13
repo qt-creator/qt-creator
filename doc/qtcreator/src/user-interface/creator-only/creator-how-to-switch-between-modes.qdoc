@@ -37,7 +37,7 @@
         \li \uicontrol Edit
         \li \key Ctrl+2
         \li Edit project and source files.
-        \li \l{Working in Edit Mode}
+        \li \l{Edit Mode}
     \row
         \li \uicontrol Design
         \li \key Ctrl+3
@@ -55,7 +55,7 @@
         \li \key Ctrl+5
         \li Configure how to build and run projects.
             This mode is available when a project is open.
-        \li \l{Specifying Build Settings}
+        \li \l{Configuring Projects}
     \row
         \li \uicontrol Help
         \li \key Ctrl+6

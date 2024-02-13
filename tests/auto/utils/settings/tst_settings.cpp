@@ -25,7 +25,7 @@ Store generateExtraData()
 // TestVersionUpgrader:
 // --------------------------------------------------------------------
 
-class TestVersionUpgrader : public Utils::VersionUpgrader
+class TestVersionUpgrader : public VersionUpgrader
 {
 public:
     TestVersionUpgrader(int version)
@@ -44,21 +44,21 @@ public:
 // BasicTestSettingsAccessor:
 // --------------------------------------------------------------------
 
-class BasicTestSettingsAccessor : public Utils::MergingSettingsAccessor
+class BasicTestSettingsAccessor : public MergingSettingsAccessor
 {
 public:
     BasicTestSettingsAccessor(const FilePath &baseName = "/foo/bar",
                               const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID));
 
-    using Utils::MergingSettingsAccessor::addVersionUpgrader;
+    using MergingSettingsAccessor::addVersionUpgrader;
 
-    QHash<Utils::FilePath, Store> files() const { return m_files; }
-    void addFile(const Utils::FilePath &path, const Store &data) const { m_files.insert(path, data); }
-    Utils::FilePaths fileNames() const { return m_files.keys(); }
-    Store fileContents(const Utils::FilePath &path) const { return m_files.value(path); }
+    QHash<FilePath, Store> files() const { return m_files; }
+    void addFile(const FilePath &path, const Store &data) const { m_files.insert(path, data); }
+    FilePaths fileNames() const { return m_files.keys(); }
+    Store fileContents(const FilePath &path) const { return m_files.value(path); }
 
 protected:
-    RestoreData readFile(const Utils::FilePath &path) const override
+    RestoreData readFile(const FilePath &path) const override
     {
         if (!m_files.contains(path))
             return RestoreData("File not found.", "File not found.", Issue::Type::ERROR);
@@ -85,7 +85,7 @@ protected:
         return qMakePair(key, secondary);
     }
 
-    std::optional<Issue> writeFile(const Utils::FilePath &path, const Store &data) const override
+    std::optional<Issue> writeFile(const FilePath &path, const Store &data) const override
     {
         if (data.isEmpty()) {
             return Issue("Failed to Write File", "There was nothing to write.",
@@ -97,7 +97,7 @@ protected:
     }
 
 private:
-    mutable QHash<Utils::FilePath, Store> m_files;
+    mutable QHash<FilePath, Store> m_files;
 };
 
 // --------------------------------------------------------------------
@@ -106,17 +106,17 @@ private:
 
 class BasicTestSettingsAccessor;
 
-class TestBackUpStrategy : public Utils::VersionedBackUpStrategy
+class TestBackUpStrategy : public VersionedBackUpStrategy
 {
 public:
     TestBackUpStrategy(BasicTestSettingsAccessor *accessor) :
         VersionedBackUpStrategy(accessor)
     { }
 
-    FilePaths readFileCandidates(const Utils::FilePath &baseFileName) const
+    FilePaths readFileCandidates(const FilePath &baseFileName) const override
     {
         return Utils::filtered(static_cast<const BasicTestSettingsAccessor *>(accessor())->fileNames(),
-                               [&baseFileName](const Utils::FilePath &f) {
+                               [&baseFileName](const FilePath &f) {
             return f.parentDir() == baseFileName.parentDir() && f.toString().startsWith(baseFileName.toString());
         });
     }
@@ -139,7 +139,7 @@ public:
     }
 
     // Make methods public for the tests:
-    using Utils::MergingSettingsAccessor::upgradeSettings;
+    using MergingSettingsAccessor::upgradeSettings;
 };
 
 BasicTestSettingsAccessor::BasicTestSettingsAccessor(const FilePath &baseName, const QByteArray &id)
@@ -211,16 +211,16 @@ static Store versionedMap(int version, const QByteArray &id = {}, const Store &e
     return result;
 }
 
-static Utils::SettingsAccessor::RestoreData restoreData(const Utils::FilePath &path,
+static SettingsAccessor::RestoreData restoreData(const FilePath &path,
                                                         const Store &data)
 {
-    return Utils::SettingsAccessor::RestoreData(path, data);
+    return SettingsAccessor::RestoreData(path, data);
 }
 
-//static Utils::SettingsAccessor::RestoreData restoreData(const QByteArray &path,
+//static SettingsAccessor::RestoreData restoreData(const QByteArray &path,
 //                                                        const Store &data)
 //{
-//    return restoreData(Utils::FilePath::fromUtf8(path), data);
+//    return restoreData(FilePath::fromUtf8(path), data);
 //}
 
 void tst_SettingsAccessor::addVersionUpgrader()
@@ -320,8 +320,8 @@ void tst_SettingsAccessor::RestoreDataCompare()
 {
     const TestSettingsAccessor accessor;
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, TESTACCESSOR_DEFAULT_ID));
 
     QCOMPARE(accessor.strategy()->compare(a, a), 0);
     QCOMPARE(accessor.strategy()->compare(a, b), 1);
@@ -332,8 +332,8 @@ void tst_SettingsAccessor::RestoreDataCompare_idMismatch()
 {
     const TestSettingsAccessor accessor;
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
 
     QCOMPARE(accessor.strategy()->compare(a, b), -1);
     QCOMPARE(accessor.strategy()->compare(b, a), 1);
@@ -343,8 +343,8 @@ void tst_SettingsAccessor::RestoreDataCompare_noId()
 {
     const TestSettingsAccessor accessor("/foo/baz", QByteArray());
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
 
     QCOMPARE(accessor.strategy()->compare(a, b), 1);
     QCOMPARE(accessor.strategy()->compare(b, a), -1);
@@ -354,8 +354,8 @@ void tst_SettingsAccessor::RestoreDataCompare_sameVersion()
 {
     const TestSettingsAccessor accessor;
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
 
     QCOMPARE(accessor.strategy()->compare(a, b), 0);
     QCOMPARE(accessor.strategy()->compare(b, a), 0);
@@ -365,8 +365,8 @@ void tst_SettingsAccessor::RestoreDataCompare_emptyMap()
 {
     const TestSettingsAccessor accessor;
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", Store());
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", Store());
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
 
     QCOMPARE(accessor.strategy()->compare(a, b), 1);
     QCOMPARE(accessor.strategy()->compare(b, a), -1);
@@ -376,8 +376,8 @@ void tst_SettingsAccessor::RestoreDataCompare_twoEmptyMaps()
 {
     const TestSettingsAccessor accessor;
 
-    Utils::SettingsAccessor::RestoreData a = restoreData("/foo/bar", Store());
-    Utils::SettingsAccessor::RestoreData b = restoreData("/foo/baz", Store());
+    SettingsAccessor::RestoreData a = restoreData("/foo/bar", Store());
+    SettingsAccessor::RestoreData b = restoreData("/foo/baz", Store());
 
     QCOMPARE(accessor.strategy()->compare(a, b), 0);
     QCOMPARE(accessor.strategy()->compare(b, a), 0);
@@ -387,11 +387,11 @@ void tst_SettingsAccessor::upgradeSettings_noUpgradeNecessary()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 8;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     QVERIFY(!result.hasIssue());
     for (auto it = result.data.cbegin(); it != result.data.cend(); ++it) {
@@ -409,12 +409,12 @@ void tst_SettingsAccessor::upgradeSettings_invalidId()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 8;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, "foo", generateExtraData()));
 
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     // Data is unchanged
     QVERIFY(result.hasWarning());
@@ -433,11 +433,11 @@ void tst_SettingsAccessor::upgradeSettings_tooOld()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 1;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     // Data is unchanged
     QVERIFY(result.hasIssue());
@@ -448,11 +448,11 @@ void tst_SettingsAccessor::upgradeSettings_tooNew()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 42;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     // Data is unchanged
     QVERIFY(result.hasIssue());
@@ -463,11 +463,11 @@ void tst_SettingsAccessor::upgradeSettings_oneStep()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 7;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     QVERIFY(!result.hasIssue());
     for (auto it = result.data.cbegin(); it != result.data.cend(); ++it) {
@@ -489,12 +489,12 @@ void tst_SettingsAccessor::upgradeSettings_twoSteps()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 6;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 8);
 
     QVERIFY(!result.hasIssue());
     for (auto it = result.data.cbegin(); it != result.data.cend(); ++it) {
@@ -518,11 +518,11 @@ void tst_SettingsAccessor::upgradeSettings_partialUpdate()
 {
     const TestSettingsAccessor accessor;
     const int startVersion = 6;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData()));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 7);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 7);
 
     QVERIFY(!result.hasIssue());
     for (auto it = result.data.cbegin(); it != result.data.cend(); ++it) {
@@ -545,11 +545,11 @@ void tst_SettingsAccessor::upgradeSettings_targetVersionTooOld()
     const TestSettingsAccessor accessor;
     const Store extra = generateExtraData();
     const int startVersion = 6;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, extra));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 2);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 2);
 
     // result is unchanged!
     QVERIFY(!result.hasIssue());
@@ -561,11 +561,11 @@ void tst_SettingsAccessor::upgradeSettings_targetVersionTooNew()
     const TestSettingsAccessor accessor;
     const Store extra = generateExtraData();
     const int startVersion = 6;
-    const Utils::SettingsAccessor::RestoreData input
+    const SettingsAccessor::RestoreData input
             = restoreData(accessor.baseFilePath(),
                           versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, extra));
 
-    const Utils::SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 42);
+    const SettingsAccessor::RestoreData result = accessor.upgradeSettings(input, 42);
 
     // result is unchanged!
     QVERIFY(!result.hasIssue());
@@ -578,9 +578,9 @@ void tst_SettingsAccessor::findIssues_ok()
 {
     const TestSettingsAccessor accessor;
     const Store data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = "/foo/baz.user";
+    const FilePath path = "/foo/baz.user";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(!info);
 }
@@ -589,9 +589,9 @@ void tst_SettingsAccessor::findIssues_emptyData()
 {
     const TestSettingsAccessor accessor;
     const Store data;
-    const Utils::FilePath path = "/foo/bar.user";
+    const FilePath path = "/foo/bar.user";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(bool(info));
 }
@@ -600,9 +600,9 @@ void tst_SettingsAccessor::findIssues_tooNew()
 {
     const TestSettingsAccessor accessor;
     const Store data = versionedMap(42, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = "/foo/bar.user";
+    const FilePath path = "/foo/bar.user";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(bool(info));
 }
@@ -611,9 +611,9 @@ void tst_SettingsAccessor::findIssues_tooOld()
 {
     const TestSettingsAccessor accessor;
     const Store data = versionedMap(2, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = "/foo/bar.user";
+    const FilePath path = "/foo/bar.user";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(bool(info));
 }
@@ -622,9 +622,9 @@ void tst_SettingsAccessor::findIssues_wrongId()
 {
     const TestSettingsAccessor accessor;
     const Store data = versionedMap(6, "foo");
-    const Utils::FilePath path = "/foo/bar.user";
+    const FilePath path = "/foo/bar.user";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(bool(info));
 }
@@ -633,9 +633,9 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 {
     const TestSettingsAccessor accessor;
     const Store data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FilePath path = "/foo/bar.user.foobar";
+    const FilePath path = "/foo/bar.user.foobar";
 
-    const std::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
+    const std::optional<SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
     QVERIFY(bool(info));
 }

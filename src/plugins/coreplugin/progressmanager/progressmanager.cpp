@@ -34,23 +34,27 @@
 #include <QTimer>
 #include <QVariant>
 
+using namespace Core::Internal;
+using namespace Utils;
+
+using namespace std::chrono;
+
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
 static const bool kDetailsPinnedDefault = true;
-static const int TimerInterval = 100; // 100 ms
-
-using namespace Core::Internal;
-using namespace Utils;
+static const milliseconds TimerInterval{100};
 
 namespace Core {
 
 class ProgressTimer : public QObject
 {
 public:
-    ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds, QObject *parent)
-        : QObject(parent),
-        m_futureInterface(futureInterface),
-        m_expectedTime(expectedSeconds)
+    ProgressTimer(const QFutureInterfaceBase &futureInterface,
+                  seconds expectedDuration,
+                  QObject *parent)
+        : QObject(parent)
+        , m_futureInterface(futureInterface)
+        , m_expectedDuration(expectedDuration)
     {
         m_futureInterface.setProgressRange(0, 100);
         m_futureInterface.setProgressValue(0);
@@ -64,13 +68,13 @@ private:
     void handleTimeout()
     {
         ++m_currentTime;
-        const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+        const int halfLife = m_expectedDuration / TimerInterval;
         const int progress = MathUtils::interpolateTangential(m_currentTime, halfLife, 0, 100);
         m_futureInterface.setProgressValue(progress);
     }
 
     QFutureInterfaceBase m_futureInterface;
-    int m_expectedTime;
+    seconds m_expectedDuration;
     int m_currentTime = 0;
     QTimer m_timer;
 };
@@ -261,6 +265,7 @@ public:
 
 ProgressManagerPrivate::ProgressManagerPrivate()
     : m_opacityEffect(new QGraphicsOpacityEffect(this))
+    , m_appLabelUpdateTimer(new QTimer(this))
 {
     m_opacityEffect->setOpacity(.999);
     m_instance = this;
@@ -268,6 +273,8 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView.data(), &ProgressView::hoveredChanged, this, &ProgressManagerPrivate::updateVisibilityWithDelay);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, &ProgressManagerPrivate::cancelAllRunningTasks);
+    m_appLabelUpdateTimer->setSingleShot(true);
+    m_appLabelUpdateTimer->callOnTimeout(this, &ProgressManagerPrivate::updateApplicationLabelNow);
 }
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
@@ -345,19 +352,19 @@ void ProgressManagerPrivate::init()
 void ProgressManagerPrivate::doCancelTasks(Id type)
 {
     bool found = false;
-    QMap<QFutureWatcher<void> *, Id>::iterator task = m_runningTasks.begin();
-    while (task != m_runningTasks.end()) {
-        if (task.value() != type) {
-            ++task;
+    auto it = m_runningTasks.cbegin();
+    while (it != m_runningTasks.cend()) {
+        if (it.value() != type) {
+            ++it;
             continue;
         }
         found = true;
-        if (m_applicationTask == task.key())
+        if (m_applicationTask == it.key())
             disconnectApplicationTask();
-        task.key()->disconnect();
-        task.key()->cancel();
-        delete task.key();
-        task = m_runningTasks.erase(task);
+        it.key()->disconnect();
+        it.key()->cancel();
+        delete it.key();
+        it = m_runningTasks.erase(it);
     }
     if (found) {
         updateSummaryProgressBar();
@@ -393,14 +400,12 @@ bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
 
 void ProgressManagerPrivate::cancelAllRunningTasks()
 {
-    QMap<QFutureWatcher<void> *, Id>::const_iterator task = m_runningTasks.constBegin();
-    while (task != m_runningTasks.constEnd()) {
-        if (m_applicationTask == task.key())
+    for (auto it = m_runningTasks.cbegin(); it != m_runningTasks.cend(); ++it) {
+        if (m_applicationTask == it.key())
             disconnectApplicationTask();
-        task.key()->disconnect();
-        task.key()->cancel();
-        delete task.key();
-        ++task;
+        it.key()->disconnect();
+        it.key()->cancel();
+        delete it.key();
     }
     m_runningTasks.clear();
     updateSummaryProgressBar();
@@ -476,15 +481,17 @@ ProgressView *ProgressManagerPrivate::progressView()
 
 void ProgressManagerPrivate::taskFinished(QFutureWatcher<void> *task)
 {
-    const Id type = m_runningTasks.value(task);
+    const auto it = m_runningTasks.constFind(task);
+    QTC_ASSERT(it != m_runningTasks.constEnd(), return);
+    const Id type = *it;
     if (m_applicationTask == task)
         disconnectApplicationTask();
     task->disconnect();
     task->deleteLater();
-    m_runningTasks.remove(task);
+    m_runningTasks.erase(it);
     updateSummaryProgressBar();
 
-    if (!m_runningTasks.key(type, 0))
+    if (!m_runningTasks.key(type, nullptr))
         emit allTasksFinished(type);
 }
 
@@ -517,7 +524,7 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
     m_summaryProgressBar->setFinished(false);
     static const int TASK_RANGE = 100;
     int value = 0;
-    for (auto it = m_runningTasks.cbegin(), end = m_runningTasks.cend(); it != end; ++it) {
+    for (auto it = m_runningTasks.cbegin(); it != m_runningTasks.cend(); ++it) {
         QFutureWatcher<void> *watcher = it.key();
         int min = watcher->progressMinimum();
         int range = watcher->progressMaximum() - min;
@@ -661,9 +668,7 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
         } else if (progress->isSubtitleVisibleInStatusBar() && !progress->subtitle().isEmpty()) {
             if (!m_statusDetailsLabel) {
                 m_statusDetailsLabel = new QLabel(m_summaryProgressWidget);
-                QFont font(m_statusDetailsLabel->font());
-                font.setPointSizeF(StyleHelper::sidebarFontSize());
-                font.setBold(true);
+                const QFont font = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
                 m_statusDetailsLabel->setFont(font);
             }
             m_statusDetailsLabel->setText(progress->subtitle());
@@ -706,6 +711,15 @@ void ProgressManagerPrivate::progressDetailsToggled(bool checked)
     settings->beginGroup(kSettingsGroup);
     settings->setValueWithDefault(kDetailsPinned, m_progressViewPinned, kDetailsPinnedDefault);
     settings->endGroup();
+}
+
+void ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
+{
+    if (m_appLabelText == text)
+        return;
+    m_appLabelText = text;
+    if (!m_appLabelUpdateTimer->isActive())
+        m_appLabelUpdateTimer->start(20);
 }
 
 /*!
@@ -764,22 +778,28 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     \sa addTask
 */
 
-FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface, const QString &title,
-                                              Id type, int expectedSeconds, ProgressFlags flags)
+FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface,
+                                              const QString &title,
+                                              Id type,
+                                              seconds expectedDuration,
+                                              ProgressFlags flags)
 {
     QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
     FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
-    (void) new ProgressTimer(futureInterface, expectedSeconds, fp);
+    (void) new ProgressTimer(futureInterface, expectedDuration, fp);
     return fp;
 }
 
-FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const QString &title,
-                                              Id type, int expectedSeconds, ProgressFlags flags)
+FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future,
+                                              const QString &title,
+                                              Id type,
+                                              seconds expectedDuration,
+                                              ProgressFlags flags)
 {
     QFutureInterface<void> dummyFutureInterface;
     QFuture<void> dummyFuture = dummyFutureInterface.future();
     FutureProgress *fp = m_instance->doAddTask(dummyFuture, title, type, flags);
-    (void) new ProgressTimer(dummyFutureInterface, expectedSeconds, fp);
+    (void) new ProgressTimer(dummyFutureInterface, expectedDuration, fp);
 
     QFutureWatcher<void> *dummyWatcher = new QFutureWatcher<void>(fp);
     connect(dummyWatcher, &QFutureWatcher<void>::canceled, dummyWatcher, [future] {
@@ -803,7 +823,7 @@ FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const
 /*!
     Shows the given \a text in a platform dependent way in the application
     icon in the system's task bar or dock. This is used to show the number
-    of build errors on Windows 7 and \macos.
+    of build errors on Windows and \macos.
 */
 void ProgressManager::setApplicationLabel(const QString &text)
 {

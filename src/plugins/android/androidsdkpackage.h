@@ -11,9 +11,13 @@
 
 namespace Android {
 
+class AndroidSdkPackage;
+
 namespace Internal {
     class SdkManagerOutputParser;
     class AndroidToolOutputParser;
+    template <typename T>
+    AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
 }
 class SdkPlatform;
 class SystemImage;
@@ -69,7 +73,7 @@ protected:
     void setInstalledLocation(const Utils::FilePath &path);
     void setExtension(const QString &extension);
 
-    virtual void updatePackageDetails();
+    virtual void updatePackageDetails() {}
 
 private:
     QString m_displayText;
@@ -80,21 +84,21 @@ private:
     QString m_extension;
     Utils::FilePath m_installedLocation;
 
+    template<typename T>
+    friend AndroidSdkPackage *Internal::parsePackage(const QStringList &, int, const QString &);
     friend class Internal::SdkManagerOutputParser;
     friend class Internal::AndroidToolOutputParser;
 };
-using AndroidSdkPackageList = QList<AndroidSdkPackage*>;
+using AndroidSdkPackageList = QList<AndroidSdkPackage *>;
 
 class SystemImage : public AndroidSdkPackage
 {
-    Q_OBJECT
 public:
     SystemImage(const QVersionNumber &revision, const QString &sdkStylePathStr, const QString &abi,
                 SdkPlatform *platform = nullptr);
 
-// AndroidSdkPackage Overrides
     bool isValid() const override;
-    PackageType type() const override;
+    PackageType type() const override { return SystemImagePackage; }
 
     const QString &abiName() const;
     const SdkPlatform *platform() const;
@@ -107,21 +111,16 @@ private:
     QString m_abiName;
     int m_apiLevel = -1;
 };
-using SystemImageList = QList<SystemImage*>;
-
+using SystemImageList = QList<SystemImage *>;
 
 class SdkPlatform : public AndroidSdkPackage
 {
-    Q_OBJECT
 public:
-    SdkPlatform(const QVersionNumber &revision, const QString &sdkStylePathStr, int api,
-                QObject *parent = nullptr);
-
+    SdkPlatform(const QVersionNumber &revision, const QString &sdkStylePathStr, int api);
     ~SdkPlatform() override;
 
-// AndroidSdkPackage Overrides
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return m_apiLevel != -1; }
+    PackageType type() const override { return SdkPlatformPackage; }
     bool operator <(const AndroidSdkPackage &other) const override;
 
     int apiLevel() const;
@@ -135,90 +134,78 @@ private:
     int m_apiLevel = -1;
     QVersionNumber m_version;
 };
-using SdkPlatformList = QList<SdkPlatform*>;
+using SdkPlatformList = QList<SdkPlatform *>;
 
 class BuildTools : public AndroidSdkPackage
 {
 public:
-    BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-               QObject *parent = nullptr);
+    BuildTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return true; }
+    PackageType type() const override { return AndroidSdkPackage::BuildToolsPackage; }
 };
-using BuildToolsList = QList<BuildTools*>;
+using BuildToolsList = QList<BuildTools *>;
 
 class PlatformTools : public AndroidSdkPackage
 {
 public:
-    PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                  QObject *parent = nullptr);
+    PlatformTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return true; }
+    PackageType type() const override { return AndroidSdkPackage::PlatformToolsPackage; }
 };
 
 class EmulatorTools : public AndroidSdkPackage
 {
 public:
-    EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                  QObject *parent = nullptr);
+    EmulatorTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return installedLocation().exists(); }
+    PackageType type() const override { return AndroidSdkPackage::EmulatorToolsPackage; }
 };
 
 class SdkTools : public AndroidSdkPackage
 {
 public:
-    SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-             QObject *parent = nullptr);
+    SdkTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return true; }
+    PackageType type() const override { return AndroidSdkPackage::SdkToolsPackage; }
 };
 
 class Ndk : public AndroidSdkPackage
 {
 public:
-    Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr, QObject *parent = nullptr);
+    Ndk(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-    // AndroidSdkPackage Overrides
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return installedLocation().exists(); }
+    PackageType type() const override { return AndroidSdkPackage::NDKPackage; }
 };
 using NdkList = QList<Ndk *>;
 
 class ExtraTools : public AndroidSdkPackage
 {
 public:
-    ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr,
-               QObject *parent = nullptr);
+    ExtraTools(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return installedLocation().exists(); }
+    PackageType type() const override { return AndroidSdkPackage::ExtraToolsPackage; }
 };
 
 class GenericSdkPackage : public AndroidSdkPackage
 {
 public:
-    GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr,
-                      QObject *parent = nullptr);
+    GenericSdkPackage(const QVersionNumber &revision, const QString &sdkStylePathStr)
+        : AndroidSdkPackage(revision, sdkStylePathStr) {}
 
-// AndroidSdkPackage Overrides
-public:
-    bool isValid() const override;
-    PackageType type() const override;
+    bool isValid() const override { return installedLocation().exists(); }
+    PackageType type() const override { return AndroidSdkPackage::GenericSdkPackage; }
 };
 } // namespace Android
 

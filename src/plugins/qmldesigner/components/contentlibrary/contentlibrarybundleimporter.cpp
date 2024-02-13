@@ -151,7 +151,7 @@ QString ContentLibraryBundleImporter::importComponent(const QString &qmlFile,
 
 void ContentLibraryBundleImporter::handleImportTimer()
 {
-    auto handleFailure = [this]() {
+    auto handleFailure = [this] {
         m_importTimer.stop();
         m_fullReset = false;
         m_importAddPending = false;

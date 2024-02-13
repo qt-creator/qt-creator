@@ -30,7 +30,6 @@ const char ANDROID_BUILD_DIRECTORY[] = "android-build";
 const char ANDROID_APP_PROCESS_DIRECTORY[] = "android-app-process";
 const char JAVA_EDITOR_ID[] = "java.editor";
 const char JLS_SETTINGS_ID[] = "Java::JLSSettingsID";
-const char JAVA_MIMETYPE[] = "text/x-java";
 const char ANDROID_ARCHITECTURE[] = "Android.Architecture";
 const char ANDROID_PACKAGE_SOURCE_DIR[] = "ANDROID_PACKAGE_SOURCE_DIR";
 const char ANDROID_EXTRA_LIBS[] = "ANDROID_EXTRA_LIBS";
@@ -56,6 +55,10 @@ const char AndroidMkSpecAbis[] = "AndroidMkSpecAbis"; // QStringList
 const char AndroidSoLibPath[] = "AndroidSoLibPath"; // QStringList
 const char AndroidTargets[] = "AndroidTargets"; // QStringList
 const char AndroidApplicationArgs[] = "AndroidApplicationArgs"; // QString
+const char AndroidClassPaths[] = "AndroidClassPath"; // QStringList
+
+const char AndroidBuildTargetDirSupport[] = "AndroidBuildTargetDirSupport"; // bool
+const char UseAndroidBuildTargetDir[] = "UseAndroidBuildTargetDir"; // bool
 
 // For qbs support
 const char AndroidApk[] = "Android.APK"; // QStringList

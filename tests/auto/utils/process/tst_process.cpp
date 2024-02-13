@@ -25,6 +25,9 @@
 
 using namespace Utils;
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 // This handler is inspired by the one used in qtbase/tests/auto/corelib/io/qfile/tst_qfile.cpp
 class MessageHandler {
 public:
@@ -64,7 +67,8 @@ QtMessageHandler MessageHandler::s_oldMessageHandler = 0;
 
 class MacroMapExpander : public AbstractMacroExpander {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+        override
     {
         // loop prevention
         const int count = seen.count();
@@ -113,14 +117,14 @@ private slots:
         proc.setCommand({envPath, {}});
         proc.runBlocking();
         QCOMPARE(proc.exitCode(), 0);
-        const QByteArray output = proc.readAllRawStandardOutput() + proc.readAllRawStandardError();
+        const QByteArray output = proc.rawStdOut() + proc.rawStdErr();
         qDebug() << "Process output:" << output;
 
         QCOMPARE(output.size() > 0, qoutput.size() > 0);
     }
 
+    void multiRead_data();
     void multiRead();
-
     void splitArgs_data();
     void splitArgs();
     void prepareArgs_data();
@@ -152,6 +156,7 @@ private slots:
     void mergedChannels();
     void destroyBlockingProcess_data();
     void destroyBlockingProcess();
+    void flushFinishedWhileWaitingForReadyRead_data();
     void flushFinishedWhileWaitingForReadyRead();
     void crash();
     void crashAfterOneSecond();
@@ -161,6 +166,8 @@ private slots:
     void quitBlockingProcess();
     void tarPipe();
     void stdinToShell();
+    void eventLoopMode_data();
+    void eventLoopMode();
 
     void cleanupTestCase();
 
@@ -181,7 +188,7 @@ private:
 void tst_Process::initTestCase()
 {
     msgHandler = new MessageHandler;
-    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
+    TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                 + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     const QString libExecPath(qApp->applicationDirPath() + '/'
                               + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
@@ -231,7 +238,7 @@ void tst_Process::initTestCase()
 
 void tst_Process::cleanupTestCase()
 {
-    Utils::Singleton::deleteAll();
+    Singleton::deleteAll();
     const int destroyCount = msgHandler->destroyCount();
     delete msgHandler;
     if (destroyCount)
@@ -240,35 +247,51 @@ void tst_Process::cleanupTestCase()
 }
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
-Q_DECLARE_METATYPE(Utils::OsType)
-Q_DECLARE_METATYPE(Utils::ProcessResult)
+Q_DECLARE_METATYPE(OsType)
+Q_DECLARE_METATYPE(ProcessResult)
+
+void tst_Process::multiRead_data()
+{
+    QTest::addColumn<QProcess::ProcessChannel>("processChannel");
+
+    QTest::newRow("StandardOutput") << QProcess::StandardOutput;
+    QTest::newRow("StandardError") << QProcess::StandardError;
+}
+
+static QByteArray readData(Process *process, QProcess::ProcessChannel processChannel)
+{
+    return processChannel == QProcess::StandardOutput ? process->readAllRawStandardOutput()
+                                                      : process->readAllRawStandardError();
+}
 
 void tst_Process::multiRead()
 {
-    if (HostOsInfo::isWindowsHost())
-        QSKIP("This test uses /bin/sh.");
+    QFETCH(QProcess::ProcessChannel, processChannel);
+
+    SubProcessConfig subConfig(ProcessTestApp::ChannelEchoer::envVar(),
+                               QString::number(int(processChannel)));
 
     QByteArray buffer;
     Process process;
+    subConfig.setupSubProcess(&process);
 
-    process.setCommand({"/bin/sh", {}});
-    process.setProcessChannelMode(QProcess::SeparateChannels);
-    process.setProcessMode(Utils::ProcessMode::Writer);
-
+    process.setProcessMode(ProcessMode::Writer);
     process.start();
+
     QVERIFY(process.waitForStarted());
 
-    process.writeRaw("echo hi\n");
+    process.writeRaw("hi\n");
+    QVERIFY(process.waitForReadyRead(1s));
+    buffer = readData(&process, processChannel);
+    QCOMPARE(buffer, QByteArray("hi"));
 
-    QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllRawStandardOutput();
-    QCOMPARE(buffer, QByteArray("hi\n"));
+    process.writeRaw("you\n");
+    QVERIFY(process.waitForReadyRead(1s));
+    buffer = readData(&process, processChannel);
+    QCOMPARE(buffer, QByteArray("you"));
 
-    process.writeRaw("echo you\n");
-
-    QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllRawStandardOutput();
-    QCOMPARE(buffer, QByteArray("you\n"));
+    process.writeRaw("exit\n");
+    QVERIFY(process.waitForFinished(1s));
 }
 
 void tst_Process::splitArgs_data()
@@ -276,7 +299,7 @@ void tst_Process::splitArgs_data()
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
     QTest::addColumn<ProcessArgs::SplitError>("err");
-    QTest::addColumn<Utils::OsType>("os");
+    QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
@@ -333,7 +356,7 @@ void tst_Process::splitArgs()
     QFETCH(QString, in);
     QFETCH(QString, out);
     QFETCH(ProcessArgs::SplitError, err);
-    QFETCH(Utils::OsType, os);
+    QFETCH(OsType, os);
 
     ProcessArgs::SplitError outerr;
     QString outstr = ProcessArgs::joinArgs(ProcessArgs::splitArgs(in, os, false, &outerr), os);
@@ -923,43 +946,40 @@ void tst_Process::exitCode()
 void tst_Process::runBlockingStdOut_data()
 {
     QTest::addColumn<bool>("withEndl");
-    QTest::addColumn<int>("timeOutS");
+    QTest::addColumn<seconds>("timeout");
     QTest::addColumn<ProcessResult>("expectedResult");
 
-    // TerminatedAbnormally, since it didn't time out and callback stopped the process forcefully.
-    QTest::newRow("Short timeout with end of line")
-            << true << 2 << ProcessResult::TerminatedAbnormally;
+    // Canceled, since the process is killed (canceled) from the callback.
+    QTest::newRow("Short timeout with end of line") << true << 1s << ProcessResult::Canceled;
 
-    // Hang, since it times out, calls the callback handler and stops the process forcefully.
-    QTest::newRow("Short timeout without end of line")
-            << false << 2 << ProcessResult::Hang;
+    // Canceled, since it times out.
+    QTest::newRow("Short timeout without end of line") << false << 1s << ProcessResult::Canceled;
 
     // FinishedWithSuccess, since it doesn't time out, it finishes process normally,
     // calls the callback handler and tries to stop the process forcefully what is no-op
     // at this point in time since the process is already finished.
     QTest::newRow("Long timeout without end of line")
-            << false << 20 << ProcessResult::FinishedWithSuccess;
+            << false << 10s << ProcessResult::FinishedWithSuccess;
 }
 
 void tst_Process::runBlockingStdOut()
 {
     QFETCH(bool, withEndl);
-    QFETCH(int, timeOutS);
+    QFETCH(seconds, timeout);
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setStdOutCallback([&readLastLine, &process](const QString &out) {
-        if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
+        if (out.contains(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             process.kill();
         }
     });
-    process.runBlocking();
+    process.runBlocking(timeout);
 
     // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
@@ -975,24 +995,23 @@ void tst_Process::runBlockingSignal_data()
 void tst_Process::runBlockingSignal()
 {
     QFETCH(bool, withEndl);
-    QFETCH(int, timeOutS);
+    QFETCH(seconds, timeout);
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
     connect(&process, &Process::textOnStandardOutput,
             this, [&readLastLine, &process](const QString &out) {
-        if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
+        if (out.contains(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             process.kill();
         }
     });
-    process.runBlocking();
+    process.runBlocking(timeout);
 
     // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
@@ -1135,15 +1154,16 @@ void tst_Process::notRunningAfterStartingNonExistingProgram()
 
         QElapsedTimer timer;
         timer.start();
-        const int maxWaitTimeMs = 1000;
+        const seconds timeout = 1s;
 
         switch (signalType) {
-        case ProcessSignalType::Started: QVERIFY(!process.waitForStarted(maxWaitTimeMs)); break;
-        case ProcessSignalType::ReadyRead: QVERIFY(!process.waitForReadyRead(maxWaitTimeMs)); break;
-        case ProcessSignalType::Done: QVERIFY(!process.waitForFinished(maxWaitTimeMs)); break;
+        case ProcessSignalType::Started: QVERIFY(!process.waitForStarted(timeout)); break;
+        case ProcessSignalType::ReadyRead: QVERIFY(!process.waitForReadyRead(timeout)); break;
+        case ProcessSignalType::Done: QVERIFY(!process.waitForFinished(timeout)); break;
         }
 
-        QVERIFY(timer.elapsed() < maxWaitTimeMs); // shouldn't wait, should finish immediately
+        // shouldn't wait, should finish immediately
+        QVERIFY(timer.elapsed() < duration_cast<milliseconds>(timeout).count());
         QCOMPARE(process.state(), QProcess::NotRunning);
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.error(), QProcess::FailedToStart);
@@ -1191,8 +1211,8 @@ void tst_Process::channelForwarding()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllRawStandardOutput();
-    const QByteArray error = process.readAllRawStandardError();
+    const QByteArray output = process.rawStdOut();
+    const QByteArray error = process.rawStdErr();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputForwarded);
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);
@@ -1265,12 +1285,25 @@ void tst_Process::destroyBlockingProcess()
     process.start();
     QVERIFY(process.waitForStarted());
     QVERIFY(process.isRunning());
-    QVERIFY(!process.waitForFinished(1000));
+    QVERIFY(!process.waitForFinished(1s));
+}
+
+void tst_Process::flushFinishedWhileWaitingForReadyRead_data()
+{
+    QTest::addColumn<QProcess::ProcessChannel>("processChannel");
+    QTest::addColumn<QByteArray>("expectedData");
+
+    QTest::newRow("StandardOutput") << QProcess::StandardOutput << QByteArray(s_outputData);
+    QTest::newRow("StandardError") << QProcess::StandardError << QByteArray(s_errorData);
 }
 
 void tst_Process::flushFinishedWhileWaitingForReadyRead()
 {
-    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    QFETCH(QProcess::ProcessChannel, processChannel);
+    QFETCH(QByteArray, expectedData);
+
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(),
+                               QString::number(int(processChannel)));
     Process process;
     subConfig.setupSubProcess(&process);
 
@@ -1279,18 +1312,15 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     QVERIFY(process.waitForStarted());
     QCOMPARE(process.state(), QProcess::Running);
 
-    QDeadlineTimer timer(1000);
     QByteArray reply;
     while (process.state() == QProcess::Running) {
-        process.waitForReadyRead(500);
-        reply += process.readAllRawStandardOutput();
-        if (timer.hasExpired())
-            break;
+        process.waitForReadyRead();
+        if (processChannel == QProcess::StandardOutput)
+            reply += process.readAllRawStandardOutput();
+        else
+            reply += process.readAllRawStandardError();
     }
-
-    QCOMPARE(process.state(), QProcess::NotRunning);
-    QVERIFY(!timer.hasExpired());
-    QVERIFY(reply.contains(s_simpleTestData));
+    QVERIFY(reply.contains(expectedData));
 }
 
 void tst_Process::crash()
@@ -1300,7 +1330,7 @@ void tst_Process::crash()
     subConfig.setupSubProcess(&process);
 
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QVERIFY(process.isRunning());
 
     QEventLoop loop;
@@ -1318,13 +1348,11 @@ void tst_Process::crashAfterOneSecond()
     subConfig.setupSubProcess(&process);
 
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QElapsedTimer timer;
     timer.start();
-    // Please note that QProcess documentation says it should return false, but apparently
-    // it doesn't (try running this test with QTC_USE_QPROCESS=)
-    QVERIFY(process.waitForFinished(30000));
-    QVERIFY(timer.elapsed() < 30000);
+    QVERIFY(process.waitForFinished(30s));
+    QVERIFY(timer.elapsed() < 30000); // in milliseconds
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.error(), QProcess::Crashed);
 }
@@ -1337,7 +1365,7 @@ void tst_Process::recursiveCrashingProcess()
     Process process;
     subConfig.setupSubProcess(&process);
     process.start();
-    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForStarted(1s));
     QVERIFY(process.waitForFinished());
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.exitStatus(), QProcess::NormalExit);
@@ -1367,20 +1395,18 @@ void tst_Process::recursiveBlockingProcess()
                                QString::number(recursionDepth));
     {
         Process process;
+        QSignalSpy readSpy(&process, &Process::readyReadStandardOutput);
+        QSignalSpy doneSpy(&process, &Process::done);
         subConfig.setupSubProcess(&process);
         process.start();
-        QVERIFY(process.waitForStarted(1000));
-        // The readyRead() is generated from the innermost nested process, so it means
-        // we need to give enough time for all nested processes to start their
-        // process launchers successfully.
-        QVERIFY(process.waitForReadyRead(2000));
+        QTRY_COMPARE(readSpy.count(), 1); // Wait until 1st ready read signal comes.
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
         QCOMPARE(runningTestProcessCount(), recursionDepth);
-        QVERIFY(!process.waitForFinished(10));
+        QCOMPARE(doneSpy.count(), 0);
         process.terminate();
-        QVERIFY(process.waitForReadyRead(1000));
+        QTRY_COMPARE(readSpy.count(), 2); // Wait until 2nd ready read signal comes.
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
-        QVERIFY(process.waitForFinished(1000));
+        QTRY_COMPARE(doneSpy.count(), 1); // Wait until done signal comes.
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
     }
@@ -1424,16 +1450,16 @@ void tst_Process::quitBlockingProcess()
                                QString::number(recursionDepth));
 
     Process process;
+    QSignalSpy readSpy(&process, &Process::readyReadStandardOutput);
+    QSignalSpy doneSpy(&process, &Process::done);
     subConfig.setupSubProcess(&process);
-    bool done = false;
-    connect(&process, &Process::done, this, [&done] { done = true; });
 
     process.start();
     QVERIFY(process.waitForStarted());
-    QVERIFY(!done);
+    QCOMPARE(doneSpy.count(), 0);
     QVERIFY(process.isRunning());
 
-    QVERIFY(process.waitForReadyRead(1000));
+    QTRY_COMPARE(readSpy.count(), 1); // Wait until ready read signal comes.
     QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
 
     switch (quitType) {
@@ -1443,7 +1469,7 @@ void tst_Process::quitBlockingProcess()
     case QuitType::Close: process.close(); break;
     }
 
-    QVERIFY(!done);
+    QCOMPARE(doneSpy.count(), 0);
 
     if (doneExpected) {
         QVERIFY(process.isRunning());
@@ -1451,7 +1477,7 @@ void tst_Process::quitBlockingProcess()
         QVERIFY(process.waitForFinished());
 
         QVERIFY(!process.isRunning());
-        QVERIFY(done);
+        QCOMPARE(doneSpy.count(), 1);
 
         if (gracefulQuit) {
             if (HostOsInfo::isWindowsHost())
@@ -1513,7 +1539,7 @@ void tst_Process::tarPipe()
 
     if (targetProcess.isRunning()) {
         targetProcess.closeWriteChannel();
-        QVERIFY(targetProcess.waitForFinished(2000));
+        QVERIFY(targetProcess.waitForFinished(2s));
     }
 
     QCOMPARE(targetProcess.exitCode(), 0);
@@ -1536,6 +1562,45 @@ void tst_Process::stdinToShell()
 
     QString result = proc.readAllStandardOutput().trimmed();
     QCOMPARE(result, "hallo");
+}
+
+void tst_Process::eventLoopMode_data()
+{
+    QTest::addColumn<ProcessImpl>("processImpl");
+    QTest::addColumn<EventLoopMode>("eventLoopMode");
+
+    QTest::newRow("QProcess, blocking with event loop")
+        << ProcessImpl::QProcess << EventLoopMode::On;
+    QTest::newRow("QProcess, blocking without event loop")
+        << ProcessImpl::QProcess << EventLoopMode::Off;
+    QTest::newRow("ProcessLauncher, blocking with event loop")
+        << ProcessImpl::ProcessLauncher << EventLoopMode::On;
+    QTest::newRow("ProcessLauncher, blocking without event loop")
+        << ProcessImpl::ProcessLauncher << EventLoopMode::Off;
+}
+
+void tst_Process::eventLoopMode()
+{
+    QFETCH(ProcessImpl, processImpl);
+    QFETCH(EventLoopMode, eventLoopMode);
+
+    {
+        SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+        Process process;
+        subConfig.setupSubProcess(&process);
+        process.setProcessImpl(processImpl);
+        process.runBlocking(10s, eventLoopMode);
+        QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
+    }
+
+    {
+        Process process;
+        process.setCommand({FilePath::fromString(
+                "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
+        process.setProcessImpl(processImpl);
+        process.runBlocking(10s, eventLoopMode);
+        QCOMPARE(process.result(), ProcessResult::StartFailed);
+    }
 }
 
 QTEST_GUILESS_MAIN(tst_Process)

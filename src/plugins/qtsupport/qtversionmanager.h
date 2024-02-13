@@ -43,7 +43,8 @@ public:
 
 signals:
     // content of QtVersion objects with qmake path might have changed
-    void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
+    void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds = {},
+                           const QList<int> &changedIds = {});
     void qtVersionsLoaded();
 
 private:
@@ -53,7 +54,7 @@ private:
     friend class QtVersion;
     friend class QtVersionFactory;
     friend class QtVersionManagerImpl;
-    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSettingsPageWidget;
     friend class Internal::QtSupportPlugin;
 
     static void initialized();

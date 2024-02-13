@@ -159,12 +159,11 @@ void GitLabDialog::resetTreeView(QTreeView *treeView, QAbstractItemModel *model)
 void GitLabDialog::updateRemotes()
 {
     m_remoteComboBox->clear();
-    const GitLabParameters *global = GitLabPlugin::globalParameters();
-    for (const GitLabServer &server : std::as_const(global->gitLabServers))
+    for (const GitLabServer &server : std::as_const(gitLabParameters().gitLabServers))
         m_remoteComboBox->addItem(server.displayString(), QVariant::fromValue(server));
 
     m_remoteComboBox->setCurrentIndex(m_remoteComboBox->findData(
-                                       QVariant::fromValue(global->currentDefaultServer())));
+                   QVariant::fromValue(gitLabParameters().currentDefaultServer())));
 }
 
 void GitLabDialog::keyPressEvent(QKeyEvent *event)
@@ -189,7 +188,7 @@ void GitLabDialog::requestMainViewUpdate()
     bool linked = false;
     m_currentServerId = Id();
     if (auto project = ProjectExplorer::ProjectManager::startupProject()) {
-        GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
+        GitLabProjectSettings *projSettings = projectSettings(project);
         if (projSettings->isLinked()) {
             m_currentServerId = projSettings->currentServer();
             linked = true;
@@ -198,8 +197,7 @@ void GitLabDialog::requestMainViewUpdate()
     if (!m_currentServerId.isValid())
         m_currentServerId = m_remoteComboBox->currentData().value<GitLabServer>().id;
     if (m_currentServerId.isValid()) {
-        const GitLabParameters *global = GitLabPlugin::globalParameters();
-        const GitLabServer server = global->serverForId(m_currentServerId);
+        const GitLabServer server = gitLabParameters().serverForId(m_currentServerId);
         m_remoteComboBox->setCurrentIndex(m_remoteComboBox->findData(QVariant::fromValue(server)));
     }
     m_remoteComboBox->setEnabled(!linked);

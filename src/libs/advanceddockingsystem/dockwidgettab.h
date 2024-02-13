@@ -55,7 +55,6 @@ private:
     void onDockWidgetFeaturesChanged();
     void detachDockWidget();
     void autoHideDockWidget();
-    void onAutoHideToActionClicked();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

@@ -69,7 +69,6 @@ public:
     void prepend(const QString &arg);
     void add(const QStringList &args, bool gccOnlyOptions = false);
 
-    static UseToolchainMacros useToolChainMacros();
     void reset();
 
     void evaluateCompilerFlags();

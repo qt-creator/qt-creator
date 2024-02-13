@@ -321,8 +321,16 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
+    Returns whether the plugin has its deprecated flag set.
+*/
+bool PluginSpec::isDeprecated() const
+{
+    return d->deprecated;
+}
+
+/*!
     Returns whether the plugin is enabled by default.
-    A plugin might be disabled because the plugin is experimental, or because
+    A plugin might be disabled because the plugin is experimental or deprecated, or because
     the installation settings define it as disabled by default.
 */
 bool PluginSpec::isEnabledByDefault() const
@@ -384,6 +392,15 @@ bool PluginSpec::isForceEnabled() const
 bool PluginSpec::isForceDisabled() const
 {
     return d->forceDisabled;
+}
+
+/*!
+    Returns whether the plugin is allowed to be loaded during runtime
+    without a restart.
+*/
+bool PluginSpec::isSoftLoadable() const
+{
+    return d->softLoadable;
 }
 
 /*!
@@ -524,10 +541,11 @@ QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 */
 bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
 {
-    return Utils::anyOf(d->dependencySpecs.keys(), [this, &plugins](const PluginDependency &dep) {
-        return dep.type == PluginDependency::Required
-               && plugins.contains(d->dependencySpecs.value(dep));
-    });
+    for (auto it = d->dependencySpecs.cbegin(); it != d->dependencySpecs.cend(); ++it) {
+        if (it.key().type == PluginDependency::Required && plugins.contains(*it))
+            return true;
+    }
+    return false;
 }
 
 /*!
@@ -570,6 +588,8 @@ namespace {
     const char PLUGIN_REQUIRED[] = "Required";
     const char PLUGIN_EXPERIMENTAL[] = "Experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
+    const char PLUGIN_DEPRECATED[] = "Deprecated";
+    const char PLUGIN_SOFTLOADABLE[] = "SoftLoadable";
     const char VENDOR[] = "Vendor";
     const char COPYRIGHT[] = "Copyright";
     const char LICENSE[] = "License";
@@ -683,6 +703,11 @@ void PluginSpecPrivate::setForceDisabled(bool value)
     forceDisabled = value;
 }
 
+void PluginSpecPrivate::setSoftLoadable(bool value)
+{
+    softLoadable = value;
+}
+
 /*!
     \internal
 */
@@ -786,15 +811,27 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     experimental = value.toBool(false);
     qCDebug(pluginLog) << "experimental =" << experimental;
 
+    value = metaData.value(QLatin1String(PLUGIN_DEPRECATED));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_DEPRECATED));
+    deprecated = value.toBool(false);
+    qCDebug(pluginLog) << "deprecated =" << deprecated;
+
     value = metaData.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
     enabledByDefault = !value.toBool(false);
     qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
 
-    if (experimental)
+    if (experimental || deprecated)
         enabledByDefault = false;
     enabledBySettings = enabledByDefault;
+
+    value = metaData.value(QLatin1String(PLUGIN_SOFTLOADABLE));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_SOFTLOADABLE));
+    softLoadable = value.toBool(false);
+    qCDebug(pluginLog) << "softLoadable =" << softLoadable;
 
     value = metaData.value(QLatin1String(VENDOR));
     if (!value.isUndefined() && !value.isString())

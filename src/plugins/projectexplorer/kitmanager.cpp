@@ -141,10 +141,6 @@ KitManager *KitManager::instance()
 KitManager::KitManager()
 {
     d = new KitManagerPrivate;
-
-    connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
-    connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
-    connect(this, &KitManager::kitUpdated, this, &KitManager::kitsChanged);
 }
 
 void KitManager::destroy()
@@ -155,8 +151,8 @@ void KitManager::destroy()
 
 static bool kitMatchesAbiList(const Kit *kit, const Abis &abis)
 {
-    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-    for (const ToolChain * const tc : toolchains) {
+    const QList<Toolchain *> toolchains = ToolchainKitAspect::toolChains(kit);
+    for (const Toolchain * const tc : toolchains) {
         const Abi tcAbi = tc->targetAbi();
         for (const Abi &abi : abis) {
             if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
@@ -187,8 +183,8 @@ static Id deviceTypeForKit(const Kit *kit)
 {
     if (isHostKit(kit))
         return Constants::DESKTOP_DEVICE_TYPE;
-    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-    for (const ToolChain * const tc : toolchains) {
+    const QList<Toolchain *> toolchains = ToolchainKitAspect::toolChains(kit);
+    for (const Toolchain * const tc : toolchains) {
         const Abi tcAbi = tc->targetAbi();
         switch (tcAbi.os()) {
         case Abi::BareMetalOS:
@@ -302,7 +298,7 @@ void KitManager::restoreKits()
 
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        QHash<Abi, QHash<Utils::Id, ToolChain *>> uniqueToolchains;
+        QHash<Abi, QHash<Utils::Id, Toolchain *>> uniqueToolchains;
 
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
         // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
@@ -310,8 +306,8 @@ void KitManager::restoreKits()
         // TODO: This should not need to be done here. Instead, it should be a convenience
         // operation on some lower level, e.g. in the toolchain class(es).
         // Also, we shouldn't detect so many doublets in the first place.
-        for (ToolChain * const tc : ToolChainManager::toolchains()) {
-            ToolChain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
+        for (Toolchain * const tc : ToolchainManager::toolchains()) {
+            Toolchain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
             if (!bestTc) {
                 bestTc = tc;
                 continue;
@@ -350,11 +346,11 @@ void KitManager::restoreKits()
             auto kit = std::make_unique<Kit>();
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
-            for (ToolChain * const tc : it.value())
-                ToolChainKitAspect::setToolChain(kit.get(), tc);
+            for (Toolchain * const tc : it.value())
+                ToolchainKitAspect::setToolchain(kit.get(), tc);
             if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
-                return ToolChainKitAspect::toolChains(kit.get())
-                         == ToolChainKitAspect::toolChains(existingKit.get());
+                return ToolchainKitAspect::toolChains(kit.get())
+                         == ToolchainKitAspect::toolChains(existingKit.get());
             })) {
                 continue;
             }
@@ -486,10 +482,11 @@ void KitManager::showLoadingProgress()
     if (futureInterface.isRunning())
         return;
     futureInterface.reportStarted();
+    using namespace std::chrono_literals;
     Core::ProgressManager::addTimedTask(futureInterface.future(),
                                         Tr::tr("Loading Kits"),
                                         "LoadingKitsProgress",
-                                        5);
+                                        5s);
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 
@@ -619,10 +616,12 @@ void KitManager::notifyAboutUpdate(Kit *k)
     if (!k || !isLoaded())
         return;
 
-    if (Utils::contains(d->m_kitList, k))
+    if (Utils::contains(d->m_kitList, k)) {
         emit instance()->kitUpdated(k);
-    else
+        emit instance()->kitsChanged();
+    } else {
         emit instance()->unmanagedKitUpdated(k);
+    }
 }
 
 Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
@@ -645,6 +644,7 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
         setDefaultKit(kptr);
 
     emit instance()->kitAdded(kptr);
+    emit instance()->kitsChanged();
     return kptr;
 }
 
@@ -660,6 +660,7 @@ void KitManager::deregisterKit(Kit *k)
         setDefaultKit(newDefault);
     }
     emit instance()->kitRemoved(k);
+    emit instance()->kitsChanged();
 }
 
 void KitManager::setDefaultKit(Kit *k)
@@ -772,6 +773,17 @@ KitAspect::~KitAspect()
     delete m_mutableAction;
 }
 
+void KitAspect::makeStickySubWidgetsReadOnly()
+{
+    if (!m_kit->isSticky(m_factory->id()))
+        return;
+
+    if (m_manageButton)
+        m_manageButton->setEnabled(false);
+
+    makeReadOnly();
+}
+
 void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 {
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
@@ -782,23 +794,23 @@ void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 
     parentItem.addItem(label);
     addToLayoutImpl(parentItem);
+    if (m_managingPageId.isValid()) {
+        m_manageButton = createSubWidget<QPushButton>(msgManage());
+        connect(m_manageButton, &QPushButton::clicked, [this] {
+            Core::ICore::showOptionsDialog(m_managingPageId, settingsPageItemToPreselect());
+        });
+        parentItem.addItem(m_manageButton);
+    }
     parentItem.addItem(Layouting::br);
 }
 
 void KitAspect::addMutableAction(QWidget *child)
 {
     QTC_ASSERT(child, return);
+    if (factory()->id() == DeviceKitAspect::id())
+        return;
     child->addAction(m_mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
-}
-
-QWidget *KitAspect::createManageButton(Id pageId)
-{
-    auto button = createSubWidget<QPushButton>(msgManage());
-    connect(button, &QPushButton::clicked, this, [pageId] {
-        Core::ICore::showOptionsDialog(pageId);
-    });
-    return button;
 }
 
 QString KitAspect::msgManage()

@@ -74,7 +74,7 @@ private:
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
 
-    void doLayout(bool keepSize);
+    void doLayout();
     QVector<int> listWidgetWidths(int minSize, int maxSize);
     QWidget *createTitleLabel(const QString &text);
 

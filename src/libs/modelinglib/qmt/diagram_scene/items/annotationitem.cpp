@@ -85,7 +85,7 @@ void AnnotationItem::update()
         m_textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         m_textItem->installSceneEventFilter(this);
         QObject::connect(m_textItem->document(), &QTextDocument::contentsChanged, m_textItem,
-                         [=]() { this->onContentsChanged(); } );
+                         [this] { this->onContentsChanged(); } );
     }
     m_textItem->setFont(style->normalFont());
     m_textItem->setDefaultTextColor(style->textBrush().color());

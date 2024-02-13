@@ -30,7 +30,7 @@ struct PackageDescription
     QString description;
     Utils::Key setting;
     Utils::FilePath defaultPath;
-    Utils::FilePath detectionPath;
+    Utils::FilePaths detectionPaths;
     QStringList versions;
     VersionDetection versionDetection;
     bool shouldAddToSystemPath;

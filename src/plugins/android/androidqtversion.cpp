@@ -33,17 +33,14 @@
 
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include "androidplugin.h"
 #endif // WITH_TESTS
 
 using namespace ProjectExplorer;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 AndroidQtVersion::AndroidQtVersion()
-    : QtSupport::QtVersion()
-    , m_guard(std::make_unique<QObject>())
+    : m_guard(std::make_unique<QObject>())
 {
     QObject::connect(AndroidConfigurations::instance(),
                      &AndroidConfigurations::aboutToUpdate,
@@ -64,9 +61,9 @@ QString AndroidQtVersion::invalidReason() const
 {
     QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty()) {
-        if (AndroidConfigurations::currentConfig().ndkLocation(this).isEmpty())
+        if (androidConfig().ndkLocation(this).isEmpty())
             return Tr::tr("NDK is not configured in Devices > Android.");
-        if (AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
+        if (androidConfig().sdkLocation().isEmpty())
             return Tr::tr("SDK is not configured in Devices > Android.");
         if (qtAbis().isEmpty())
             return Tr::tr("Failed to detect the ABIs used by the Qt version. Check the settings in "
@@ -82,7 +79,7 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 
 Abis AndroidQtVersion::detectQtAbis() const
 {
-    const bool conf = AndroidConfigurations::currentConfig().sdkFullyConfigured();
+    const bool conf = androidConfig().sdkFullyConfigured();
     return conf ? Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi) : Abis();
 }
 
@@ -90,7 +87,7 @@ void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) c
 {
     QtVersion::addToEnvironment(k, env);
 
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = androidConfig();
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHost(this));
     env.set(QLatin1String("ANDROID_NDK_ROOT"), config.ndkLocation(this).toUserOutput());
@@ -101,7 +98,7 @@ void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) c
 void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 {
     env.set(QLatin1String("ANDROID_NDK_ROOT"),
-            AndroidConfigurations::currentConfig().ndkLocation(this).toUserOutput());
+            androidConfig().ndkLocation(this).toUserOutput());
 }
 
 QString AndroidQtVersion::description() const
@@ -265,21 +262,40 @@ QSet<Utils::Id> AndroidQtVersion::targetDeviceTypes() const
 
 // Factory
 
-AndroidQtVersionFactory::AndroidQtVersionFactory()
+class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new AndroidQtVersion; });
-    setSupportedType(Constants::ANDROID_QT_TYPE);
-    setPriority(90);
+public:
+    AndroidQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new AndroidQtVersion; });
+        setSupportedType(Constants::ANDROID_QT_TYPE);
+        setPriority(90);
 
-    setRestrictionChecker([](const SetupData &setup) {
-        return !setup.config.contains("android-no-sdk")
-                && (setup.config.contains("android")
-                    || setup.platforms.contains("android"));
-    });
+        setRestrictionChecker([](const SetupData &setup) {
+            return !setup.config.contains("android-no-sdk")
+                   && (setup.config.contains("android")
+                       || setup.platforms.contains("android"));
+        });
+    }
+};
+
+void setupAndroidQtVersion()
+{
+    static AndroidQtVersionFactory theAndroidQtVersionFactory;
 }
 
 #ifdef WITH_TESTS
-void AndroidPlugin::testAndroidQtVersionParseBuiltWith_data()
+
+class AndroidQtVersionTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+   void testAndroidQtVersionParseBuiltWith_data();
+   void testAndroidQtVersionParseBuiltWith();
+};
+
+void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
 {
     QTest::addColumn<QString>("modulesCoreJson");
     QTest::addColumn<bool>("hasInfo");
@@ -325,7 +341,7 @@ void AndroidPlugin::testAndroidQtVersionParseBuiltWith_data()
         << 31;
 }
 
-void AndroidPlugin::testAndroidQtVersionParseBuiltWith()
+void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith()
 {
     QFETCH(QString, modulesCoreJson);
     QFETCH(bool, hasInfo);
@@ -339,7 +355,14 @@ void AndroidPlugin::testAndroidQtVersionParseBuiltWith()
     QCOMPARE(bw.apiVersion, apiVersion);
     QCOMPARE(bw.ndkVersion, ndkVersion);
 }
+
+QObject *createAndroidQtVersionTest()
+{
+    return new AndroidQtVersionTest;
+}
+
 #endif // WITH_TESTS
 
-} // Internal
-} // Android
+} // Android::Internal
+
+#include "androidqtversion.moc"

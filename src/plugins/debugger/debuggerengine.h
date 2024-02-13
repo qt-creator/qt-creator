@@ -149,6 +149,7 @@ public:
     QString version;
 
     bool isQmlDebugging = false;
+    bool isPythonDebugging = false;
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
     bool useTerminal = false;
@@ -159,7 +160,6 @@ public:
     QString startMessage; // First status message shown.
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
-    QString qtPackageSourceLocation;
     Utils::FilePath qtSourceLocation;
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
@@ -214,6 +214,7 @@ public:
     }
 
     QString partialVariable;
+    bool qmlFocusOnFrame = true; // QTCREATORBUG-29874
 };
 
 class Location
@@ -268,7 +269,7 @@ public:
     QString runId() const;
 
     const DebuggerRunParameters &runParameters() const;
-    void setCompanionEngine(DebuggerEngine *engine);
+    void addCompanionEngine(DebuggerEngine *engine);
     void setSecondaryEngine();
 
     void start();
@@ -552,7 +553,7 @@ protected:
     void startDying() const;
 
     ProjectExplorer::IDeviceConstPtr device() const;
-    DebuggerEngine *companionEngine() const;
+    QList<DebuggerEngine *> companionEngines() const;
 
 private:
     friend class DebuggerPluginPrivate;

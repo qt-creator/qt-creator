@@ -106,7 +106,12 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
                 QTC_ASSERT(!currentId.isEmpty(), continue);
                 const QXmlStreamAttributes attributes = r.attributes();
                 if (attributes.hasAttribute(ctx.valueAttribute)) {
-                    const QString keyString = fromAttribute(attributes.value(ctx.valueAttribute));
+                    QString keyString = fromAttribute(attributes.value(ctx.valueAttribute));
+                    if (HostOsInfo::isMacHost())
+                        keyString = keyString.replace("AlwaysCtrl", "Meta");
+                    else
+                        keyString = keyString.replace("AlwaysCtrl", "Ctrl");
+
                     QList<QKeySequence> keys = result.value(currentId);
                     result.insert(currentId, keys << QKeySequence(keyString));
                 }

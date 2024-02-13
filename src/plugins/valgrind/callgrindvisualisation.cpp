@@ -363,7 +363,7 @@ void Visualization::populateScene()
             ratioPercentString.append(QLocale::system().percent());
             const int hiddenFunctions = d->m_model->sourceModel()->rowCount() - d->m_model->rowCount();
             text = Tr::tr("All functions with an inclusive cost ratio higher than %1 (%2 are hidden)")
-                    .arg(ratioPercentString, hiddenFunctions);
+                       .arg(ratioPercentString).arg(hiddenFunctions); // Keep separate .arg()
         }
 
         const qreal height = sceneHeight * (costs.isEmpty() ? 1.0 : 0.1);

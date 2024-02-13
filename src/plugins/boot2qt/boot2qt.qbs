@@ -28,7 +28,6 @@ QtcPlugin {
             "qdbmakedefaultappstep.cpp",
             "qdbmakedefaultappstep.h",
             "qdbplugin.cpp",
-            "qdbplugin.h",
             "qdbstopapplicationstep.cpp",
             "qdbstopapplicationstep.h",
             "qdbtr.h",

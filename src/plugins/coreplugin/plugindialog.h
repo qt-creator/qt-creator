@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
@@ -38,6 +39,7 @@ private:
     QPushButton *m_errorDetailsButton;
     QPushButton *m_installButton;
     bool m_isRestartRequired = false;
+    QSet<ExtensionSystem::PluginSpec *> m_softLoad;
 };
 
 } // namespace Internal

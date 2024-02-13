@@ -14,7 +14,7 @@
     ],
     "Category" : "Qt Quick",
     "Description" : "Visual Designer for QML files.",
-    "DisabledByDefault" : true,
+    "Deprecated" : true,
     "Url" : "http://www.qt.io",
     "Arguments" : [
         {

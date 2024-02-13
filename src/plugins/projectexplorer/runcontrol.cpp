@@ -22,6 +22,7 @@
 #include <coreplugin/icore.h>
 
 #include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -46,6 +47,7 @@
 #endif
 
 using namespace ProjectExplorer::Internal;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -96,6 +98,33 @@ void RunWorkerFactory::addSupportedRunConfig(Id runConfig)
 void RunWorkerFactory::addSupportedDeviceType(Id deviceType)
 {
     m_supportedDeviceTypes.append(deviceType);
+}
+
+void RunWorkerFactory::addSupportForLocalRunConfigs()
+{
+    addSupportedRunConfig(ProjectExplorer::Constants::QMAKE_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::QBS_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
+    addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
+}
+
+void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
+{
+    for (RunWorkerFactory *factory : g_runWorkerFactories) {
+        if (factory->m_id == exitstingStepId) {
+            m_producer = factory->m_producer;
+            // Other bits are intentionally not copied as they are unlikely to be
+            // useful in the cloner's context. The cloner can/has to finish the
+            // setup on its own.
+            break;
+        }
+    }
+    // Existence should be guaranteed by plugin dependencies. In case it fails,
+    // bark and keep the factory in a state where the invalid m_stepId keeps it
+    // inaction.
+    QTC_ASSERT(m_producer, return);
+    if (overrideId.isValid())
+        m_id = overrideId;
 }
 
 bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
@@ -260,7 +289,7 @@ public:
     bool printEnvironment = false;
     bool autoDelete = false;
     bool m_supportsReRunning = true;
-    std::optional<Tasking::Group> m_runRecipe;
+    std::optional<Group> m_runRecipe;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -272,6 +301,9 @@ public:
         : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
+        connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, q, &RunControl::started);
+        connect(&m_taskTreeRunner, &TaskTreeRunner::done,
+                this, &RunControlPrivate::checkAutoDeleteAndEmitStopped);
     }
 
     ~RunControlPrivate() override
@@ -314,7 +346,7 @@ public:
 
     RunControl *q;
     Id runMode;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 } // Internal
@@ -419,7 +451,7 @@ void RunControl::setAutoDeleteOnStop(bool autoDelete)
     d->autoDelete = autoDelete;
 }
 
-void RunControl::setRunRecipe(const Tasking::Group &group)
+void RunControl::setRunRecipe(const Group &group)
 {
     d->m_runRecipe = group;
 }
@@ -447,7 +479,7 @@ void RunControl::initiateReStart()
 void RunControl::initiateStop()
 {
     if (d->isUsingTaskTree()) {
-        d->m_taskTree.reset();
+        d->m_taskTreeRunner.reset();
         d->checkAutoDeleteAndEmitStopped();
     } else {
         d->initiateStop();
@@ -457,7 +489,7 @@ void RunControl::initiateStop()
 void RunControl::forceStop()
 {
     if (d->isUsingTaskTree()) {
-        d->m_taskTree.reset();
+        d->m_taskTreeRunner.reset();
         emit stopped();
     } else {
         d->forceStop();
@@ -819,10 +851,10 @@ void RunControlPrivate::showError(const QString &msg)
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
+    QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
     if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
-            if (CustomParser * const parser = CustomParser::createFromId(id))
+            if (auto parser = createCustomParserFromId(id))
                 parsers << parser;
         }
     }
@@ -1053,17 +1085,7 @@ bool RunControlPrivate::supportsReRunning() const
 
 void RunControlPrivate::startTaskTree()
 {
-    using namespace Tasking;
-
-    m_taskTree.reset(new TaskTree(*m_runRecipe));
-    connect(m_taskTree.get(), &TaskTree::started, q, &RunControl::started);
-    const auto finalize = [this] {
-        m_taskTree.release()->deleteLater();
-        checkAutoDeleteAndEmitStopped();
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, finalize);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
-    m_taskTree->start();
+    m_taskTreeRunner.start(*m_runRecipe);
 }
 
 void RunControlPrivate::checkAutoDeleteAndEmitStopped()
@@ -1080,7 +1102,7 @@ void RunControlPrivate::checkAutoDeleteAndEmitStopped()
 bool RunControl::isRunning() const
 {
     if (d->isUsingTaskTree())
-        return d->m_taskTree.get();
+        return d->m_taskTreeRunner.isRunning();
     return d->state == RunControlState::Running;
 }
 
@@ -1094,7 +1116,7 @@ bool RunControl::isStarting() const
 bool RunControl::isStopped() const
 {
     if (d->isUsingTaskTree())
-        return !d->m_taskTree.get();
+        return !d->m_taskTreeRunner.isRunning();
     return d->state == RunControlState::Stopped;
 }
 
@@ -1274,11 +1296,15 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
-        connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-            this, [this](qint64 pid, const QString &message) {
-            if (privateApplicationPID() == pid)
-                q->appendMessage(message, DebugFormat);
-        });
+        connect(WinDebugInterface::instance(),
+                &WinDebugInterface::debugOutput,
+                this,
+                [this](qint64 pid, const QList<QString> &messages) {
+                    if (privateApplicationPID() != pid)
+                        return;
+                    for (const QString &message : messages)
+                        q->appendMessage(message, DebugFormat);
+                });
     }
 }
 
@@ -1307,7 +1333,8 @@ void SimpleTargetRunnerPrivate::stop()
         switch (m_state) {
         case Run:
             m_process.stop();
-            if (!m_process.waitForFinished(2000)) { // TODO: it may freeze on some devices
+            using namespace std::chrono_literals;
+            if (!m_process.waitForFinished(2s)) { // TODO: it may freeze on some devices
                 q->appendMessage(Tr::tr("Remote process did not finish in time. "
                                         "Connectivity lost?"), ErrorMessageFormat);
                 m_process.close();
@@ -1537,6 +1564,11 @@ void SimpleTargetRunner::setEnvironment(const Environment &environment)
 void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
 {
     d->m_workingDirectory = workingDirectory;
+}
+
+void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
+{
+    d->m_process.setProcessMode(processMode);
 }
 
 void SimpleTargetRunner::forceRunOnHost()
@@ -1812,31 +1844,23 @@ void RunWorker::stop()
     reportStopped();
 }
 
-// OutputFormatterFactory
+// Output parser factories
 
-static QList<OutputFormatterFactory *> g_outputFormatterFactories;
+static QList<std::function<OutputLineParser *(Target *)>> g_outputParserFactories;
 
-OutputFormatterFactory::OutputFormatterFactory()
-{
-    g_outputFormatterFactories.append(this);
-}
-
-OutputFormatterFactory::~OutputFormatterFactory()
-{
-    g_outputFormatterFactories.removeOne(this);
-}
-
-QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *target)
+QList<OutputLineParser *> createOutputParsers(Target *target)
 {
     QList<OutputLineParser *> formatters;
-    for (auto factory : std::as_const(g_outputFormatterFactories))
-        formatters << factory->m_creator(target);
+    for (auto factory : std::as_const(g_outputParserFactories)) {
+        if (OutputLineParser *parser = factory(target))
+            formatters << parser;
+    }
     return formatters;
 }
 
-void OutputFormatterFactory::setFormatterCreator(const FormatterCreator &creator)
+void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &factory)
 {
-    m_creator = creator;
+    g_outputParserFactories.append(factory);
 }
 
 // SimpleTargetRunnerFactory

@@ -13,17 +13,10 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-#ifdef WITH_TESTS
-#include "qtsupportplugin.h"
-#include <projectexplorer/outputparser_test.h>
-#include <QTest>
-#endif // WITH_TESTS
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFormat type)
 {
@@ -71,8 +64,26 @@ void QtTestParser::emitCurrentTask()
     }
 }
 
+} // QtSupport::Internal
+
+
 #ifdef WITH_TESTS
-void QtSupportPlugin::testQtTestOutputParser()
+
+#include <projectexplorer/outputparser_test.h>
+
+#include <QTest>
+
+namespace QtSupport::Internal {
+
+class QtTestParserTest final : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void testQtTestOutputParser();
+};
+
+void QtTestParserTest::testQtTestOutputParser()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new QtTestParser);
@@ -112,7 +123,14 @@ void QtSupportPlugin::testQtTestOutputParser()
     testbench.testParsing(input, OutputParserTester::STDOUT, expectedTasks, expectedChildOutput,
                           QString(), QString());
 }
-#endif // WITH_TESTS
 
-} // namespace Internal
-} // namespace QtSupport
+QObject *createQtTestParserTest()
+{
+    return new QtTestParserTest;
+}
+
+} // QtSupport::Internal
+
+#include "qttestparser.moc"
+
+#endif // WITH_TESTS

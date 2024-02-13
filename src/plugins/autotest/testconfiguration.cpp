@@ -283,11 +283,6 @@ void TestConfiguration::setProjectFile(const FilePath &projectFile)
     m_projectFile = projectFile;
 }
 
-void TestConfiguration::setBuildDirectory(const FilePath &buildDirectory)
-{
-    m_buildDir = buildDirectory;
-}
-
 void TestConfiguration::setInternalTarget(const QString &target)
 {
     m_buildTargets.clear();
@@ -307,11 +302,6 @@ void TestConfiguration::setOriginalRunConfiguration(RunConfiguration *runConfig)
 bool DebuggableTestConfiguration::isDebugRunMode() const
 {
     return m_runMode == TestRunMode::Debug || m_runMode == TestRunMode::DebugWithoutDeploy;
-}
-
-ITestFramework *TestConfiguration::framework() const
-{
-    return static_cast<ITestFramework *>(testBase());
 }
 
 } // namespace Autotest

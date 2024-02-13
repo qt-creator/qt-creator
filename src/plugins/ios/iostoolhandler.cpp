@@ -596,7 +596,8 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
     qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
     process->setEnvironment(env);
     process->setProcessMode(ProcessMode::Writer);
-    process->setReaperTimeout(1500);
+    using namespace std::chrono_literals;
+    process->setReaperTimeout(1500ms);
 
     QObject::connect(process.get(), &Process::readyReadStandardOutput,
                      q, [this] { subprocessHasData(); });
@@ -884,7 +885,8 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             stop(0);
     };
 
-    auto onResponseAppLaunch = [=](const SimulatorControl::Response &response) {
+    auto onResponseAppLaunch = [this, captureConsole, monitorPid, stdoutFile, stderrFile](
+                                   const SimulatorControl::Response &response) {
         if (response) {
             if (!isResponseValid(*response))
                 return;
@@ -971,6 +973,28 @@ void IosToolHandler::requestDeviceInfo(const QString &deviceId, int timeout)
 bool IosToolHandler::isRunning() const
 {
     return d->isRunning();
+}
+
+void IosToolRunner::setStartHandler(const StartHandler &startHandler)
+{
+    m_startHandler = startHandler;
+}
+
+void IosToolRunner::setDeviceType(const Internal::IosDeviceType &type)
+{
+    m_deviceType = type;
+}
+
+IosToolTaskAdapter::IosToolTaskAdapter() {}
+
+void IosToolTaskAdapter::start()
+{
+    task()->m_iosToolHandler = new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType));
+    connect(task()->m_iosToolHandler, &IosToolHandler::finished, this, [this] {
+        task()->m_iosToolHandler->deleteLater();
+        emit done(Tasking::DoneResult::Success);
+    });
+    task()->m_startHandler(task()->m_iosToolHandler);
 }
 
 } // namespace Ios

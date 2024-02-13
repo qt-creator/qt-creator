@@ -4,7 +4,6 @@
 #include "vcsbaseeditor.h"
 
 #include "baseannotationhighlighter.h"
-#include "basevcseditorfactory.h"
 #include "diffandloghighlighter.h"
 #include "vcsbaseeditorconfig.h"
 #include "vcsbaseplugin.h"
@@ -19,6 +18,8 @@
 
 #include <cpaster/codepasterservice.h>
 
+#include <diffeditor/diffeditorconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/editorconfiguration.h>
@@ -26,8 +27,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
@@ -371,16 +374,22 @@ private:
     public:
         int startColumn;
         QString url;
+        qsizetype urlLength;
     };
 
     UrlData m_urlData;
     QRegularExpression m_pattern;
+    QRegularExpression m_jiraPattern;
+    QRegularExpression m_gerritPattern;
 };
 
 UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     : AbstractTextCursorHandler(editorWidget)
 {
     setUrlPattern(QLatin1String("https?\\://[^\\s]+"));
+
+    m_jiraPattern = QRegularExpression("(Fixes|Task-number): ([A-Z]+-[0-9]+)");
+    m_gerritPattern = QRegularExpression("Change-Id: (I[a-f0-9]{40})");
 }
 
 bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
@@ -389,23 +398,37 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 
     m_urlData.url.clear();
     m_urlData.startColumn = -1;
+    m_urlData.urlLength = 0;
 
     QTextCursor cursorForUrl = cursor;
     cursorForUrl.select(QTextCursor::LineUnderCursor);
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
-        QRegularExpressionMatchIterator i = m_pattern.globalMatch(line);
-        while (i.hasNext()) {
-            const QRegularExpressionMatch match = i.next();
-            const int urlMatchIndex = match.capturedStart();
-            const QString url = match.captured(0);
-            if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
-                m_urlData.startColumn = urlMatchIndex;
-                m_urlData.url = url;
-                break;
-            }
+
+        struct {
+            QRegularExpression &pattern;
+            int matchNumber;
+            QString urlPrefix;
+        } RegexUrls[] = {
+            {m_pattern, 0, ""},
+            {m_jiraPattern, 2, "https://bugreports.qt.io/browse/"},
+            {m_gerritPattern, 1, "https://codereview.qt-project.org/r/"},
         };
+        for (const auto &r : RegexUrls) {
+            QRegularExpressionMatchIterator i = r.pattern.globalMatch(line);
+            while (i.hasNext()) {
+                const QRegularExpressionMatch match = i.next();
+                const int urlMatchIndex = match.capturedStart(r.matchNumber);
+                const QString url = match.captured(r.matchNumber);
+                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
+                    m_urlData.startColumn = urlMatchIndex;
+                    m_urlData.url = r.urlPrefix + url;
+                    m_urlData.urlLength = url.length();
+                    break;
+                }
+            }
+        }
     }
 
     return m_urlData.startColumn != -1;
@@ -418,7 +441,7 @@ void UrlTextCursorHandler::highlightCurrentContents()
     sel.cursor = currentCursor();
     sel.cursor.setPosition(currentCursor().position()
                            - (currentCursor().columnNumber() - m_urlData.startColumn));
-    sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.url.length());
+    sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.urlLength);
     sel.format.setFontUnderline(true);
     sel.format.setForeground(linkColor);
     sel.format.setUnderlineColor(linkColor);
@@ -523,14 +546,14 @@ public:
     QComboBox *entriesComboBox();
 
     TextEditorWidget *q;
-    const VcsBaseEditorParameters *m_parameters = nullptr;
+    VcsBaseEditorParameters m_parameters;
 
     FilePath m_workingDirectory;
 
     QRegularExpression m_diffFilePattern;
     QRegularExpression m_logEntryPattern;
-    QRegularExpression m_annotationEntryPattern;
-    QRegularExpression m_annotationSeparatorPattern;
+    VcsBase::Annotation m_annotation;
+
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
     int m_firstLineNumber = -1;
@@ -540,7 +563,6 @@ public:
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
-    VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
@@ -617,9 +639,8 @@ VcsBaseEditorWidget::VcsBaseEditorWidget()
     viewport()->setMouseTracking(true);
 }
 
-void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameters)
+void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters &parameters)
 {
-    QTC_CHECK(d->m_parameters == nullptr);
     d->m_parameters = parameters;
 }
 
@@ -645,17 +666,17 @@ void VcsBaseEditorWidget::setLogEntryPattern(const QString &pattern)
 
 void VcsBaseEditorWidget::setAnnotationEntryPattern(const QString &pattern)
 {
-    regexpFromString(pattern, &d->m_annotationEntryPattern, QRegularExpression::MultilineOption);
+    regexpFromString(pattern, &d->m_annotation.entryPattern, QRegularExpression::MultilineOption);
 }
 
 void VcsBaseEditorWidget::setAnnotationSeparatorPattern(const QString &pattern)
 {
-    regexpFromString(pattern, &d->m_annotationSeparatorPattern);
+    regexpFromString(pattern, &d->m_annotation.separatorPattern);
 }
 
 bool VcsBaseEditorWidget::supportChangeLinks() const
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case LogOutput:
     case AnnotateOutput:
         return true;
@@ -701,20 +722,16 @@ int VcsBaseEditorWidget::lineNumberDigits() const
     return digits;
 }
 
-void VcsBaseEditorWidget::setDescribeFunc(DescribeFunc describeFunc)
-{
-    d->m_describeFunc = describeFunc;
-}
-
 void VcsBaseEditorWidget::finalizeInitialization()
 {
-    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_describeFunc);
+    QTC_CHECK(d->m_parameters.describeFunc);
+    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_parameters.describeFunc);
     init();
 }
 
 void VcsBaseEditorWidget::init()
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case OtherContent:
         break;
     case LogOutput:
@@ -740,9 +757,11 @@ void VcsBaseEditorWidget::init()
         break;
     }
     if (hasDiff()) {
-        auto dh = new DiffAndLogHighlighter(d->m_diffFilePattern, d->m_logEntryPattern);
         setCodeFoldingSupported(true);
-        textDocument()->setSyntaxHighlighter(dh);
+        textDocument()->resetSyntaxHighlighter(
+            [diffFilePattern = d->m_diffFilePattern, logEntryPattern = d->m_logEntryPattern] {
+                return new DiffAndLogHighlighter(diffFilePattern, logEntryPattern);
+            });
     }
     // override revisions display (green or red bar on the left, marking changes):
     setRevisionsVisible(false);
@@ -802,8 +821,7 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
 
 void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
 {
-    auto dh = static_cast<DiffAndLogHighlighter *>(textDocument()->syntaxHighlighter());
-    dh->setEnabled(e);
+    textDocument()->syntaxHighlighterRunner()->setEnabled(e);
 }
 
 FilePath VcsBaseEditorWidget::workingDirectory() const
@@ -831,7 +849,7 @@ void VcsBaseEditorWidget::setCodec(QTextCodec *c)
 
 EditorContentType VcsBaseEditorWidget::contentType() const
 {
-    return d->m_parameters->type;
+    return d->m_parameters.type;
 }
 
 bool VcsBaseEditorWidget::isModified() const
@@ -903,7 +921,7 @@ void VcsBaseEditorWidget::slotJumpToEntry(int index)
     int currentLine, currentColumn;
     convertPosition(position(), &currentLine, &currentColumn);
     if (lineNumber != currentLine) {
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(lineNumber, 0);
     }
 }
@@ -950,14 +968,14 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         const QTextCursor cursor = cursorForPosition(e->pos());
         if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor)) {
             menu = new QMenu;
-            handler->fillContextMenu(menu, d->m_parameters->type);
+            handler->fillContextMenu(menu, d->m_parameters.type);
         }
     }
     if (!menu) {
         menu = new QMenu;
         appendStandardContextMenuActions(menu);
     }
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case LogOutput: // log might have diff
     case DiffOutput: {
         if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
@@ -1069,7 +1087,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 {
     // The annotation highlighting depends on contents (change number
     // set with assigned colors)
-    if (d->m_parameters->type != AnnotateOutput)
+    if (d->m_parameters.type != AnnotateOutput)
         return;
 
     const QSet<QString> changes = annotationChanges();
@@ -1078,11 +1096,12 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (auto ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
-        ah->setChangeNumbers(changes);
+    if (SyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
         ah->rehighlight();
     } else {
-        textDocument()->setSyntaxHighlighter(createAnnotationHighlighter(changes));
+        BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();
+        textDocument()->resetSyntaxHighlighter(
+            [creator, annotation = d->m_annotation] { return creator(annotation); });
     }
 }
 
@@ -1161,7 +1180,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(FilePath::fromString(fileName));
+    IEditor *ed = EditorManager::openEditor(FilePath::fromString(fileName));
     if (auto editor = qobject_cast<BaseTextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
@@ -1223,8 +1242,8 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
 // Find the codec used for a file querying the editor.
 static QTextCodec *findFileCodec(const FilePath &source)
 {
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
-    if (auto textDocument = qobject_cast<Core::BaseTextDocument *>(document))
+    IDocument *document = DocumentModel::documentForFilePath(source);
+    if (auto textDocument = qobject_cast<BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return nullptr;
 }
@@ -1232,10 +1251,9 @@ static QTextCodec *findFileCodec(const FilePath &source)
 // Find the codec by checking the projects (root dir of project file)
 static QTextCodec *findProjectCodec(const FilePath &dirPath)
 {
-    typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
-    const ProjectList projects = ProjectExplorer::ProjectManager::projects();
-    const ProjectExplorer::Project *p
+    const auto projects = ProjectExplorer::ProjectManager::projects();
+    const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
     return p ? p->editorConfiguration()->textCodec() : nullptr;
 }
@@ -1262,7 +1280,7 @@ QTextCodec *VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStr
     return getCodec(workingDirectory / files.front());
 }
 
-VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
+VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const IEditor *editor)
 {
     if (auto be = qobject_cast<const BaseTextEditor *>(editor))
         return qobject_cast<VcsBaseEditorWidget *>(be->editorWidget());
@@ -1272,11 +1290,11 @@ VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor
 // Return line number of current editor if it matches.
 int VcsBaseEditor::lineNumberOfCurrentEditor(const FilePath &currentFile)
 {
-    Core::IEditor *ed = Core::EditorManager::currentEditor();
+    IEditor *ed = EditorManager::currentEditor();
     if (!ed)
         return -1;
     if (!currentFile.isEmpty()) {
-        const Core::IDocument *idocument  = ed->document();
+        const IDocument *idocument  = ed->document();
         if (!idocument || idocument->filePath() != currentFile)
             return -1;
     }
@@ -1294,7 +1312,7 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const FilePath &currentFile)
     return cursorLine;
 }
 
-bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
+bool VcsBaseEditor::gotoLineOfEditor(IEditor *e, int lineNumber)
 {
     if (lineNumber >= 0 && e) {
         if (auto be = qobject_cast<BaseTextEditor*>(e)) {
@@ -1309,7 +1327,7 @@ bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
-    return workingDirectory.pathAppended(fileName);
+    return workingDirectory.resolvePath(fileName);
 }
 
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
@@ -1490,7 +1508,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, PatchAction patchAction) const
 {
-    return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
+    return PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
                                      d->m_workingDirectory, 0, patchAction);
 }
 
@@ -1527,12 +1545,12 @@ QSet<QString> VcsBaseEditorWidget::annotationChanges() const
     QStringView txt = QStringView(text);
     if (txt.isEmpty())
         return changes;
-    if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {
-        const QRegularExpressionMatch match = d->m_annotationSeparatorPattern.match(txt);
+    if (!d->m_annotation.separatorPattern.pattern().isEmpty()) {
+        const QRegularExpressionMatch match = d->m_annotation.separatorPattern.match(txt);
         if (match.hasMatch())
             txt.truncate(match.capturedStart());
     }
-    QRegularExpressionMatchIterator i = d->m_annotationEntryPattern.globalMatch(txt);
+    QRegularExpressionMatchIterator i = d->m_annotation.entryPattern.globalMatch(txt);
     while (i.hasNext()) {
         const QRegularExpressionMatch match = i.next();
         changes.insert(match.captured(1));
@@ -1559,7 +1577,7 @@ QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 
 bool VcsBaseEditorWidget::hasDiff() const
 {
-    switch (d->m_parameters->type) {
+    switch (d->m_parameters.type) {
     case DiffOutput:
     case LogOutput:
         return true;
@@ -1605,21 +1623,60 @@ QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDir
 
 static const char tagPropertyC[] = "_q_VcsBaseEditorTag";
 
-void VcsBaseEditor::tagEditor(Core::IEditor *e, const QString &tag)
+void VcsBaseEditor::tagEditor(IEditor *e, const QString &tag)
 {
     e->document()->setProperty(tagPropertyC, QVariant(tag));
 }
 
-Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
+IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 {
-    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *document : documents) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
-            return Core::DocumentModel::editorsForDocument(document).constFirst();
+            return DocumentModel::editorsForDocument(document).constFirst();
     }
     return nullptr;
 }
+
+/*!
+    \class VcsBase::VcsEditorFactory
+
+    \brief The VcsEditorFactory class is the base class for editor
+    factories creating instances of VcsBaseEditor subclasses.
+
+    \sa VcsBase::VcsBaseEditorWidget
+*/
+
+VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
+{
+    setId(parameters.id);
+    setDisplayName(parameters.displayName);
+    if (parameters.mimeType != DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)
+        addMimeType(parameters.mimeType);
+
+    setEditorActionHandlers(TextEditorActionHandler::None);
+    setDuplicatedSupported(false);
+
+    setDocumentCreator([parameters] {
+        auto document = new TextDocument(parameters.id);
+        document->setMimeType(parameters.mimeType);
+        document->setSuspendAllowed(false);
+        return document;
+    });
+
+    setEditorWidgetCreator([parameters] {
+        auto widget = parameters.editorWidgetCreator();
+        auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
+        editorWidget->setParameters(parameters);
+        return widget;
+    });
+
+    setEditorCreator([] { return new VcsBaseEditor(); });
+    setMarksVisible(false);
+}
+
+VcsEditorFactory::~VcsEditorFactory() = default;
 
 } // namespace VcsBase
 

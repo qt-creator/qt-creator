@@ -1,0 +1,93 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-install.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Install \QC
+
+    You can install either a \e commercial or \e {open source} version of \QC in
+    many ways:
+
+    \list
+        \li As a part of a Qt installation with \l{Get and Install Qt}{\QOI}.
+        \li As a stand-alone tool.
+    \endlist
+
+    You can install and run several \QC versions on the same system and use
+    them in parallel.
+
+    \section1 \QOI
+
+    \QOI has both the latest released version of \QC and a beta version or a
+    release candidate of the upcoming release, depending on the release cycle.
+
+    \note You need a Qt Account to use \QOI.
+
+    \section1 Standalone \QC
+
+    You can get the open source version of \QC in the following ways:
+
+    \list
+        \li Use a package manager
+        \li Download an installation package
+        \li Build \QC from sources
+    \endlist
+
+    Start the \QC installer in the usual way for your system and follow its
+    instructions to install \QC.
+
+    To develop with Qt, you also need a Qt version. You can register Qt versions
+    in the stand-alone \QC to use them in \l{kits-tab}{kits}.
+
+    \section2 Use package managers
+
+    The \QC packages that package managers offer are not
+    officially supported. For links to official releases, see
+    \l {Download installation packages}.
+
+    On Windows you can use \c chocolatey, and on \macos you can use \c brew.
+    These package managers install the latest \QC releases available online.
+    That is, they pick up the 7zip archives and extract them on your system.
+
+    For example, on Windows, enter:
+
+    \badcode
+    choco install qtcreator
+    \endcode
+
+    And on \macos, enter:
+
+    \badcode
+    brew install --cask qt-creator
+    \endcode
+
+    \note Linux distributions might have old \QC versions, so you might want to
+    download and install the latest version.
+
+    \section2 Download installation packages
+
+    You can download \QC installation packages from:
+
+    \list
+        \li \l{https://download.qt.io/official_releases/qtcreator/}
+            {Official releases}
+        \li Your \l{Qt Account} (open source and commercial)
+        \li \l{https://download.qt.io/snapshots/qtcreator/}
+            {Snapshots of the current and upcoming release}
+        \li \l{https://github.com/qt-creator/qt-creator/releases}{GitHub}
+    \endlist
+
+    \section2 Build from sources
+
+    To test the very latest \QC version, maybe with your own changes,
+    you can build it from sources. For more information, see
+    \l{https://github.com/qt-creator/qt-creator/#compiling-qt-creator}
+    {Compiling \QC} and \l{https://wiki.qt.io/Building_Qt_Creator_from_Git}
+    {Building Qt Creator from Git}.
+
+    \sa {Register installed Qt versions}
+*/

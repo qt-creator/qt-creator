@@ -11,6 +11,8 @@
 #include "simulatorinfomodel.h"
 #include "simulatoroperationdialog.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -396,12 +398,21 @@ void IosSettingsWidget::saveSettings()
 
 // IosSettingsPage
 
-IosSettingsPage::IosSettingsPage()
+class IosSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::IOS_SETTINGS_ID);
-    setDisplayName(Tr::tr("iOS"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new IosSettingsWidget; });
+public:
+    IosSettingsPage()
+    {
+        setId(Constants::IOS_SETTINGS_ID);
+        setDisplayName(Tr::tr("iOS"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new IosSettingsWidget; });
+    }
+};
+
+void setupIosSettingsPage()
+{
+    static IosSettingsPage theIosSettingsPage;
 }
 
 } // Ios::Internal

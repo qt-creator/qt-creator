@@ -5,9 +5,11 @@
 
 #include "makefileparserthread.h"
 
-#include <cppeditor/cppprojectupdater.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectupdater.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtcppkitinfo.h>
 
 #include <utils/filesystemwatcher.h>
@@ -20,7 +22,7 @@ namespace AutotoolsProjectManager::Internal {
 
 AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     connect(target, &Target::activeBuildConfigurationChanged, this, [this] { requestParse(); });
     connect(target->project(), &Project::projectFileIsDirty, this, [this] { requestParse(); });
@@ -142,8 +144,8 @@ void AutotoolsBuildSystem::updateCppCodeModel()
         cxxflags = cflags;
 
     const FilePath includeFileBaseDir = projectDirectory();
-    rpp.setFlagsForC({kitInfo.cToolChain, cflags, includeFileBaseDir});
-    rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags, includeFileBaseDir});
+    rpp.setFlagsForC({kitInfo.cToolchain, cflags, includeFileBaseDir});
+    rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxflags, includeFileBaseDir});
 
     const QString absSrc = project()->projectDirectory().toString();
     BuildConfiguration *bc = target()->activeBuildConfiguration();

@@ -37,7 +37,6 @@ namespace Internal {
 
 class EditorWindow;
 class MainWindow;
-class OpenEditorsViewFactory;
 class OpenEditorsWindow;
 
 enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Failed };
@@ -197,43 +196,43 @@ private:
     QTimer *m_autoSaveTimer = nullptr;
 
     // actions
-    QAction *m_revertToSavedAction;
-    QAction *m_saveAction;
-    QAction *m_saveAsAction;
-    QAction *m_closeCurrentEditorAction;
-    QAction *m_closeAllEditorsAction;
-    QAction *m_closeOtherDocumentsAction;
-    QAction *m_closeAllEditorsExceptVisibleAction;
-    QAction *m_gotoNextDocHistoryAction;
-    QAction *m_gotoPreviousDocHistoryAction;
-    QAction *m_goBackAction;
-    QAction *m_goForwardAction;
-    QAction *m_gotoLastEditAction;
-    QAction *m_splitAction;
-    QAction *m_splitSideBySideAction;
-    QAction *m_splitNewWindowAction;
-    QAction *m_removeCurrentSplitAction;
-    QAction *m_removeAllSplitsAction;
-    QAction *m_gotoPreviousSplitAction;
-    QAction *m_gotoNextSplitAction;
+    QAction *m_revertToSavedAction = nullptr;
+    QAction *m_saveAction = nullptr;
+    QAction *m_saveAsAction = nullptr;
+    QAction *m_closeCurrentEditorAction = nullptr;
+    QAction *m_closeAllEditorsAction = nullptr;
+    QAction *m_closeOtherDocumentsAction = nullptr;
+    QAction *m_closeAllEditorsExceptVisibleAction = nullptr;
+    QAction *m_gotoNextDocHistoryAction = nullptr;
+    QAction *m_gotoPreviousDocHistoryAction = nullptr;
+    QAction *m_goBackAction = nullptr;
+    QAction *m_goForwardAction = nullptr;
+    QAction *m_gotoLastEditAction = nullptr;
+    QAction *m_splitAction = nullptr;
+    QAction *m_splitSideBySideAction = nullptr;
+    QAction *m_splitNewWindowAction = nullptr;
+    QAction *m_removeCurrentSplitAction = nullptr;
+    QAction *m_removeAllSplitsAction = nullptr;
+    QAction *m_gotoPreviousSplitAction = nullptr;
+    QAction *m_gotoNextSplitAction = nullptr;
 
-    QAction *m_copyFilePathContextAction;
-    QAction *m_copyLocationContextAction; // Copy path and line number.
-    QAction *m_copyFileNameContextAction;
-    QAction *m_saveCurrentEditorContextAction;
-    QAction *m_saveAsCurrentEditorContextAction;
-    QAction *m_revertToSavedCurrentEditorContextAction;
+    QAction *m_copyFilePathContextAction = nullptr;
+    QAction *m_copyLocationContextAction = nullptr; // Copy path and line number.
+    QAction *m_copyFileNameContextAction = nullptr;
+    QAction *m_saveCurrentEditorContextAction = nullptr;
+    QAction *m_saveAsCurrentEditorContextAction = nullptr;
+    QAction *m_revertToSavedCurrentEditorContextAction = nullptr;
 
-    QAction *m_closeCurrentEditorContextAction;
-    QAction *m_closeAllEditorsContextAction;
-    QAction *m_closeOtherDocumentsContextAction;
-    QAction *m_closeAllEditorsExceptVisibleContextAction;
-    QAction *m_openGraphicalShellAction;
-    QAction *m_openGraphicalShellContextAction;
-    QAction *m_showInFileSystemViewAction;
-    QAction *m_showInFileSystemViewContextAction;
-    QAction *m_openTerminalAction;
-    QAction *m_findInDirectoryAction;
+    QAction *m_closeCurrentEditorContextAction = nullptr;
+    QAction *m_closeAllEditorsContextAction = nullptr;
+    QAction *m_closeOtherDocumentsContextAction = nullptr;
+    QAction *m_closeAllEditorsExceptVisibleContextAction = nullptr;
+    QAction *m_openGraphicalShellAction = nullptr;
+    QAction *m_openGraphicalShellContextAction = nullptr;
+    QAction *m_showInFileSystemViewAction = nullptr;
+    QAction *m_showInFileSystemViewContextAction = nullptr;
+    QAction *m_openTerminalAction = nullptr;
+    QAction *m_findInDirectoryAction = nullptr;
     QAction *m_filePropertiesAction = nullptr;
     QAction *m_pinAction = nullptr;
     DocumentModel::Entry *m_contextMenuEntry = nullptr;
@@ -242,7 +241,6 @@ private:
     OpenEditorsWindow *m_windowPopup = nullptr;
 
     QMap<QString, QVariant> m_editorStates;
-    OpenEditorsViewFactory *m_openEditorsFactory = nullptr;
 
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
     EditorManager::WindowTitleHandler m_sessionTitleHandler;

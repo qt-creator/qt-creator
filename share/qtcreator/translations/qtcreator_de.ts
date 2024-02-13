@@ -50433,7 +50433,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
         <translation>Maximale Post-Mortem-Wartezeit:</translation>
     </message>
     <message>
-        <source>Specifies how many seconds Squish should wait after the the first AUT process has exited.</source>
+        <source>Specifies how many seconds Squish should wait after the first AUT process has exited.</source>
         <translation>Legt fest, wie viele Sekunden Squish wartet, nachdem der erste AUT-Prozess beendet ist.</translation>
     </message>
     <message>

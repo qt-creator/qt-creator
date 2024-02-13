@@ -7,7 +7,6 @@
 #include "gerritserver.h"
 
 #include <QStandardItemModel>
-#include <QSharedPointer>
 #include <QDateTime>
 
 namespace Gerrit {
@@ -57,7 +56,7 @@ public:
     int depth = -1;
 };
 
-using GerritChangePtr = QSharedPointer<GerritChange>;
+using GerritChangePtr = std::shared_ptr<GerritChange>;
 
 class GerritModel : public QStandardItemModel
 {
@@ -79,7 +78,7 @@ public:
         GerritChangeRole = Qt::UserRole + 2,
         SortRole = Qt::UserRole + 3
     };
-    GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = nullptr);
+    GerritModel(const std::shared_ptr<GerritParameters> &, QObject *parent = nullptr);
     ~GerritModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -88,12 +87,12 @@ public:
     QString toHtml(const QModelIndex &index) const;
 
     QStandardItem *itemForNumber(int number) const;
-    QSharedPointer<GerritServer> server() const { return m_server; }
+    std::shared_ptr<GerritServer> server() const { return m_server; }
 
     enum QueryState { Idle, Running, Ok, Error };
     QueryState state() const { return m_state; }
 
-    void refresh(const QSharedPointer<GerritServer> &server, const QString &query);
+    void refresh(const std::shared_ptr<GerritServer> &server, const QString &query);
 
 signals:
     void refreshStateChanged(bool isRefreshing); // For disabling the "Refresh" button.
@@ -111,13 +110,11 @@ private:
                            const QString &serverPrefix) const;
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
-    const QSharedPointer<GerritParameters> m_parameters;
-    QSharedPointer<GerritServer> m_server;
+    const std::shared_ptr<GerritParameters> m_parameters;
+    std::shared_ptr<GerritServer> m_server;
     QueryContext *m_query = nullptr;
     QueryState m_state = Idle;
 };
 
 } // namespace Internal
 } // namespace Gerrit
-
-Q_DECLARE_METATYPE(Gerrit::Internal::GerritChangePtr)

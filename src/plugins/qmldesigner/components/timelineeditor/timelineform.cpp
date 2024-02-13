@@ -82,7 +82,7 @@ TimelineForm::TimelineForm(QWidget *parent)
         expressionBindingL, m_expressionBindingLineEdit, br,
     }.attachTo(this);
 
-    connect(m_expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
+    connect(m_expressionBindingLineEdit, &QLineEdit::editingFinished, [this] {
         QTC_ASSERT(m_timeline.isValid(), return );
 
         const QString bindingText = m_expressionBindingLineEdit->text();
@@ -107,7 +107,7 @@ TimelineForm::TimelineForm(QWidget *parent)
         }
     });
 
-    connect(m_idLineEdit, &QLineEdit::editingFinished, [this]() {
+    connect(m_idLineEdit, &QLineEdit::editingFinished, [this] {
         QTC_ASSERT(m_timeline.isValid(), return );
 
         static QString lastString;

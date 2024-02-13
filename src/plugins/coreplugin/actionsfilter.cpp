@@ -178,7 +178,7 @@ LocatorMatcherTasks ActionsFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](Async<void> &async) {
         m_entries.clear();
@@ -190,7 +190,7 @@ LocatorMatcherTasks ActionsFilter::matchers()
         collectEntriesForCommands();
         if (storage->input().simplified().isEmpty()) {
             storage->reportOutput(m_entries);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, m_entries);

@@ -138,7 +138,7 @@ void Environment::appendOrSetPath(const FilePath &value)
     QTC_CHECK(value.osType() == m_dict.m_osType);
     if (value.isEmpty())
         return;
-    appendOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
+    appendOrSet("PATH", value.nativePath());
 }
 
 void Environment::prependOrSetPath(const FilePath &value)
@@ -146,20 +146,20 @@ void Environment::prependOrSetPath(const FilePath &value)
     QTC_CHECK(value.osType() == m_dict.m_osType);
     if (value.isEmpty())
         return;
-    prependOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
+    prependOrSet("PATH", value.nativePath());
 }
 
 void Environment::prependOrSetPath(const QString &directories)
 {
-    prependOrSet("PATH", directories, OsSpecificAspects::pathListSeparator(osType()));
+    prependOrSet("PATH", directories);
 }
 
-void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
+void Environment::appendOrSet(const QString &key, const QString &value, PathSeparator sep)
 {
     addItem(Item{std::in_place_index_t<AppendOrSet>(), key, value, sep});
 }
 
-void Environment::prependOrSet(const QString &key, const QString &value, const QString &sep)
+void Environment::prependOrSet(const QString &key, const QString &value, PathSeparator sep)
 {
     addItem(Item{std::in_place_index_t<PrependOrSet>(), key, value, sep});
 }
@@ -167,21 +167,20 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
 void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
 {
     QTC_CHECK(value.osType() == osType());
-    const QChar sep = OsSpecificAspects::pathListSeparator(osType());
     switch (osType()) {
     case OsTypeWindows: {
-        prependOrSet("PATH", value.nativePath(), sep);
+        prependOrSet("PATH", value.nativePath());
         break;
     }
     case OsTypeMac: {
         const QString nativeValue = value.nativePath();
-        prependOrSet("DYLD_LIBRARY_PATH", nativeValue, sep);
-        prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue, sep);
+        prependOrSet("DYLD_LIBRARY_PATH", nativeValue);
+        prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue);
         break;
     }
     case OsTypeLinux:
     case OsTypeOtherUnix: {
-        prependOrSet("LD_LIBRARY_PATH", value.nativePath(), sep);
+        prependOrSet("LD_LIBRARY_PATH", value.nativePath());
         break;
     }
     default:
@@ -404,12 +403,10 @@ void Environment::prependToPath(const FilePaths &values)
     m_dict.clear();
     for (int i = values.size(); --i >= 0; ) {
         const FilePath value = values.at(i);
-        m_changeItems.append(Item{
-            std::in_place_index_t<PrependOrSet>(),
-            QString("PATH"),
-            value.nativePath(),
-            value.pathListSeparator()
-        });
+        m_changeItems.append(Item{std::in_place_index_t<PrependOrSet>(),
+                                  QString("PATH"),
+                                  value.nativePath(),
+                                  PathSeparator::Auto});
     }
 }
 
@@ -417,12 +414,10 @@ void Environment::appendToPath(const FilePaths &values)
 {
     m_dict.clear();
     for (const FilePath &value : values) {
-        m_changeItems.append(Item{
-            std::in_place_index_t<AppendOrSet>(),
-            QString("PATH"),
-            value.nativePath(),
-            value.pathListSeparator()
-        });
+        m_changeItems.append(Item{std::in_place_index_t<AppendOrSet>(),
+                                  QString("PATH"),
+                                  value.nativePath(),
+                                  PathSeparator::Auto});
     }
 }
 
@@ -469,7 +464,7 @@ const NameValueDictionary &Environment::resolved() const
                 m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
             } else {
                 // Prepend unless it is already there
-                const QString toPrepend = value + sep;
+                const QString toPrepend = value + pathListSeparator(sep);
                 if (!it.value().first.startsWith(toPrepend))
                     it.value().first.prepend(toPrepend);
             }
@@ -483,7 +478,7 @@ const NameValueDictionary &Environment::resolved() const
                 m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
             } else {
                 // Prepend unless it is already there
-                const QString toAppend = sep + value;
+                const QString toAppend = pathListSeparator(sep) + value;
                 if (!it.value().first.endsWith(toAppend))
                     it.value().first.append(toAppend);
             }
@@ -510,6 +505,15 @@ Environment Environment::appliedToEnvironment(const Environment &base) const
     res.m_dict.clear();
     res.m_changeItems.append(m_changeItems);
     return res;
+}
+
+QChar Environment::pathListSeparator(PathSeparator sep) const
+{
+    if (sep == PathSeparator::Semicolon)
+        return QLatin1Char(';');
+    else if (sep == PathSeparator::Colon)
+        return QLatin1Char(':');
+    return OsSpecificAspects::pathListSeparator(osType());
 }
 
 /*!

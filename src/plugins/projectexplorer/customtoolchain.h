@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "toolchain.h"
-
 namespace ProjectExplorer::Internal {
 
-class CustomToolChainFactory : public ToolChainFactory
-{
-public:
-    CustomToolChainFactory();
-};
+void setupCustomToolchain();
 
 } // ProjectExplorer::Interna;

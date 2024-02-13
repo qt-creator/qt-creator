@@ -1,5 +1,3 @@
-import qbs
-
 CppApplication {
 @if "%{UseVirtualKeyboard}" == "true"
     Depends { name: "Qt"; submodules: ["quick", "virtualkeyboard"] }

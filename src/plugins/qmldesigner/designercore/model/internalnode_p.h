@@ -53,6 +53,7 @@ public:
         , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
+        , traceToken(ModelTracing::category().beginObject("InternalNode"_t))
     {}
 
     InternalNodeAbstractProperty::Pointer parentProperty() const { return m_parentProperty.lock(); }
@@ -223,8 +224,7 @@ public:
     ModuleId moduleId;
     ImportedTypeNameId importedTypeNameId;
     TypeId typeId;
-    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken = ModelTracing::category().beginObject(
-        "InternalNode"_t);
+    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken;
 
 private:
     AuxiliaryDatas m_auxiliaryDatas;

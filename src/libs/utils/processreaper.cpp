@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "processreaper.h"
-#include "processutils.h"
+
+#include "processhelper.h"
 #include "qtcassert.h"
 #include "threadutils.h"
 
@@ -14,6 +15,8 @@
 #include <QWaitCondition>
 
 using namespace Utils;
+
+using namespace std::chrono;
 
 namespace Utils {
 namespace Internal {
@@ -65,7 +68,7 @@ static QString execWithArguments(QProcess *process)
 struct ReaperSetup
 {
     QProcess *m_process = nullptr;
-    int m_timeoutMs;
+    milliseconds m_timeoutMs;
 };
 
 class Reaper : public QObject
@@ -167,9 +170,7 @@ private:
     QList<ReaperSetup> takeReaperSetupList()
     {
         QMutexLocker locker(&m_mutex);
-        const QList<ReaperSetup> reaperSetupList = m_reaperSetupList;
-        m_reaperSetupList.clear();
-        return reaperSetupList;
+        return std::exchange(m_reaperSetupList, {});
     }
 
     void flush()
@@ -234,7 +235,7 @@ ProcessReaper::~ProcessReaper()
     m_thread.wait();
 }
 
-void ProcessReaper::reap(QProcess *process, int timeoutMs)
+void ProcessReaper::reap(QProcess *process, milliseconds timeout)
 {
     if (!process)
         return;
@@ -255,7 +256,7 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     ProcessReaperPrivate *priv = instance()->m_private;
 
     process->moveToThread(priv->thread());
-    ReaperSetup reaperSetup {process, timeoutMs};
+    ReaperSetup reaperSetup{process, timeout};
     priv->scheduleReap(reaperSetup);
 }
 

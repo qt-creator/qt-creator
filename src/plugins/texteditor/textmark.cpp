@@ -6,7 +6,6 @@
 #include "fontsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditorplugin.h"
 #include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -31,23 +30,23 @@ namespace TextEditor {
 
 class TextMarkRegistry : public QObject
 {
-    Q_OBJECT
 public:
+    TextMarkRegistry(QObject *parent);
+
     static void add(TextMark *mark);
     static void add(TextMark *mark, TextDocument *document);
     static bool remove(TextMark *mark);
 
 private:
-    TextMarkRegistry(QObject *parent);
-    static TextMarkRegistry* instance();
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document,
                          const FilePath &oldPath,
                          const FilePath &newPath);
     void allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath);
 
-    QHash<Utils::FilePath, QSet<TextMark *> > m_marks;
 };
+
+static QHash<FilePath, QSet<TextMark *>> s_marks;
 
 class AnnotationColors
 {
@@ -63,8 +62,6 @@ public:
 private:
     static QHash<SourceColors, AnnotationColors> m_colorCache;
 };
-
-TextMarkRegistry *m_instance = nullptr;
 
 TextMark::TextMark(const FilePath &filePath, int lineNumber, TextMarkCategory category)
     : m_fileName(filePath)
@@ -480,21 +477,14 @@ void TextMarkRegistry::add(TextMark *mark)
 
 void TextMarkRegistry::add(TextMark *mark, TextDocument *document)
 {
-    instance()->m_marks[mark->filePath()].insert(mark);
+    s_marks[mark->filePath()].insert(mark);
     if (document)
         document->addMark(mark);
 }
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return instance()->m_marks[mark->filePath()].remove(mark);
-}
-
-TextMarkRegistry *TextMarkRegistry::instance()
-{
-    if (!m_instance)
-        m_instance = new TextMarkRegistry(TextEditorPlugin::instance());
-    return m_instance;
+    return s_marks[mark->filePath()].remove(mark);
 }
 
 void TextMarkRegistry::editorOpened(IEditor *editor)
@@ -502,10 +492,10 @@ void TextMarkRegistry::editorOpened(IEditor *editor)
     auto document = qobject_cast<TextDocument *>(editor ? editor->document() : nullptr);
     if (!document)
         return;
-    if (!m_marks.contains(document->filePath()))
+    if (!s_marks.contains(document->filePath()))
         return;
 
-    const QSet<TextMark *> marks = m_marks.value(document->filePath());
+    const QSet<TextMark *> marks = s_marks.value(document->filePath());
     for (TextMark *mark : marks)
         document->addMark(mark);
 }
@@ -517,7 +507,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
     auto baseTextDocument = qobject_cast<TextDocument *>(document);
     if (!baseTextDocument)
         return;
-    if (!m_marks.contains(oldPath))
+    if (!s_marks.contains(oldPath))
         return;
 
     QSet<TextMark *> toBeMoved;
@@ -525,8 +515,8 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
     for (TextMark *mark : marks)
         toBeMoved.insert(mark);
 
-    m_marks[oldPath].subtract(toBeMoved);
-    m_marks[newPath].unite(toBeMoved);
+    s_marks[oldPath].subtract(toBeMoved);
+    s_marks[newPath].unite(toBeMoved);
 
     for (TextMark *mark : std::as_const(toBeMoved))
         mark->updateFilePath(newPath);
@@ -534,13 +524,13 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
 
 void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
 {
-    if (!m_marks.contains(oldPath))
+    if (!s_marks.contains(oldPath))
         return;
 
-    const QSet<TextMark *> oldFileNameMarks = m_marks.value(oldPath);
+    const QSet<TextMark *> oldFileNameMarks = s_marks.value(oldPath);
 
-    m_marks[newPath].unite(oldFileNameMarks);
-    m_marks[oldPath].clear();
+    s_marks[newPath].unite(oldFileNameMarks);
+    s_marks[oldPath].clear();
 
     for (TextMark *mark : oldFileNameMarks)
         mark->updateFilePath(newPath);
@@ -574,6 +564,9 @@ AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
     return colors;
 }
 
-} // namespace TextEditor
+void setupTextMarkRegistry(QObject *guard)
+{
+    (void) new TextMarkRegistry(guard);
+}
 
-#include "textmark.moc"
+} // namespace TextEditor

@@ -222,9 +222,9 @@ void DiffAndLogHighlighter::setFontSettings(const TextEditor::FontSettings &font
     d->updateOtherFormats();
 }
 
-void DiffAndLogHighlighter::setEnabled(bool e)
+void DiffAndLogHighlighter::setEnabled(bool enabled)
 {
-    d->m_enabled = e;
+    d->m_enabled = enabled;
 }
 
 } // namespace VcsBase

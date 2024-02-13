@@ -42,7 +42,7 @@ public:
                                                          FilePath{}),
                                                      parameters.environment.value_or(Environment{}));
         };
-        auto createProcessInterface = []() { return new ExternalTerminalProcessImpl(); };
+        auto createProcessInterface = [] { return new ExternalTerminalProcessImpl; };
 
         addCallbackSet("External", {openTerminal, createProcessInterface});
     }

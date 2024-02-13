@@ -37,7 +37,7 @@ public:
 
 signals:
     void outputReceived(const QString &output);
-    void done(bool success);
+    void done(Tasking::DoneResult result);
 
 private:
     std::optional<SourceAndCommand> m_sourceAndCommand;

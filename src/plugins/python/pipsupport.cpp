@@ -3,8 +3,8 @@
 
 #include "pipsupport.h"
 
-#include "pythonplugin.h"
 #include "pythontr.h"
+#include "pythonutils.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -55,6 +55,11 @@ void PipInstallTask::setPackages(const QList<PipPackage> &packages)
     m_packages = packages;
 }
 
+void PipInstallTask::setTargetPath(const Utils::FilePath &targetPath)
+{
+    m_targetPath = targetPath;
+}
+
 void PipInstallTask::run()
 {
     if (m_packages.isEmpty() && m_requirementsFile.isEmpty()) {
@@ -75,9 +80,12 @@ void PipInstallTask::run()
         }
     }
 
-    // add --user to global pythons, but skip it for venv pythons
-    if (!QDir(m_python.parentDir().toString()).exists("activate"))
-        arguments << "--user";
+    if (!m_targetPath.isEmpty()) {
+        QTC_ASSERT(m_targetPath.isSameDevice(m_python), emit finished(false); return);
+        arguments << "-t" << m_targetPath.path();
+    } else if (!isVenvPython(m_python)) {
+        arguments << "--user"; // add --user to global pythons, but skip it for venv pythons
+    }
 
     m_process.setCommand({m_python, arguments});
     m_process.setTerminalMode(TerminalMode::Run);
@@ -211,9 +219,16 @@ QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
     return Utils::asyncRun(infoImpl, package, m_python);
 }
 
-Pip::Pip(const Utils::FilePath &python)
-    : QObject(PythonPlugin::instance())
+static QObject *thePipGuard = nullptr;
+
+Pip::Pip(const FilePath &python)
+    : QObject(thePipGuard)
     , m_python(python)
 {}
+
+void setupPipSupport(QObject *guard)
+{
+    thePipGuard = guard;
+}
 
 } // Python::Internal

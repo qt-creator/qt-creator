@@ -23,6 +23,8 @@ public:
 
     void update(PluginSpec *spec);
 
+    static void showModal(QWidget *parent, PluginSpec *spec);
+
 private:
     Internal::PluginDetailsViewPrivate *d = nullptr;
 };

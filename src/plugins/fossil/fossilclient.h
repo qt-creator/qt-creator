@@ -11,15 +11,13 @@
 
 #include <QList>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class FossilSettings;
 class FossilPluginPrivate;
 
 class FossilClient : public VcsBase::VcsBaseClient
 {
-    Q_OBJECT
 public:
     enum SupportedFeature {
         AnnotateBlameFeature = 0x2,
@@ -109,7 +107,8 @@ private:
     friend class FossilPluginPrivate;
 };
 
+FossilClient &fossilClient();
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(FossilClient::SupportedFeatures)
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

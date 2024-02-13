@@ -555,8 +555,7 @@ void ResourceFile::clearPrefixList()
 ** ResourceModel
 */
 
-ResourceModel::ResourceModel(QObject *parent)
-    : QAbstractItemModel(parent), m_dirty(false)
+ResourceModel::ResourceModel()
 {
     static QIcon resourceFolderIcon = Utils::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
     m_prefixIcon = resourceFolderIcon;
@@ -1191,11 +1190,7 @@ void PrefixEntryBackup::restore() const
     }
 }
 
-RelativeResourceModel::RelativeResourceModel(QObject *parent)  :
-    ResourceModel(parent),
-    m_resourceDragEnabled(false)
-{
-}
+RelativeResourceModel::RelativeResourceModel() = default;
 
 Qt::ItemFlags RelativeResourceModel::flags(const QModelIndex &index) const
 {

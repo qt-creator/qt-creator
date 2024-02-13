@@ -27,6 +27,7 @@
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
+static const char SETTINGSKEYRELATIVEPATHSRESULTS[] = "RelativePathsResults";
 
 // Note that this is a soft limit: If all searches are still running, none of them will be
 // removed when a new one is started.
@@ -73,41 +74,41 @@ namespace Internal {
         void moveWidgetToTop(SearchResultWidget *widget);
         void popupRequested(SearchResultWidget *widget, bool focus);
         void handleExpandCollapseToolButton(bool checked);
+        void handleRelativePathsToolButton(bool checked);
         void updateFilterButton();
         int indexOfSearchToEvict() const;
         QList<QWidget *> toolBarWidgets();
 
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
-        QToolButton *m_expandCollapseButton;
+        QToolButton *m_expandCollapseButton = nullptr;
         QToolButton *m_filterButton;
         QToolButton *m_newSearchButton;
-        QAction *m_expandCollapseAction;
+        QToolButton *m_relativePathsButton = nullptr;
+        QAction *m_expandCollapseAction = nullptr;
+        QAction *m_relativePathsAction = nullptr;
         static const bool m_initiallyExpand;
+        static const bool m_initiallyRelativePaths;
         QWidget *m_spacer;
         QLabel *m_historyLabel = nullptr;
         QWidget *m_spacer2;
         QComboBox *m_recentSearchesBox = nullptr;
         QStackedWidget *m_widget;
         QList<SearchResult *> m_searchResults;
-        int m_currentIndex;
         QFont m_font;
         Utils::SearchResultColors m_colors;
-        int m_tabWidth;
-
+        int m_currentIndex{0};
+        int m_tabWidth{8};
     };
 
     const bool SearchResultWindowPrivate::m_initiallyExpand = false;
+    const bool SearchResultWindowPrivate::m_initiallyRelativePaths = false;
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
         q(window),
-        m_expandCollapseButton(nullptr),
-        m_expandCollapseAction(new QAction(Tr::tr("Expand All"), window)),
         m_spacer(new QWidget),
         m_spacer2(new QWidget),
-        m_widget(new QStackedWidget),
-        m_currentIndex(0),
-        m_tabWidth(8)
+        m_widget(new QStackedWidget)
     {
         m_spacer->setMinimumWidth(30);
         m_spacer2->setMinimumWidth(5);
@@ -119,14 +120,28 @@ namespace Internal {
         newSearchArea->setFocusProxy(nsp);
         m_widget->addWidget(newSearchArea);
 
-        m_expandCollapseButton = new QToolButton(m_widget);
+        ActionBuilder expandCollapse(window, "Find.ExpandAll");
+        expandCollapse.setText(Tr::tr("Expand All"));
+        expandCollapse.setCheckable(true);
+        expandCollapse.setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
+        expandCollapse.setEnabled(false);
+        expandCollapse.bindContextAction(&m_expandCollapseAction);
+        expandCollapse.setCommandAttribute(Command::CA_UpdateText);
 
-        m_expandCollapseAction->setCheckable(true);
-        m_expandCollapseAction->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-        m_expandCollapseAction->setEnabled(false);
-        Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
-        cmd->setAttribute(Command::CA_UpdateText);
-        m_expandCollapseButton->setDefaultAction(cmd->action());
+        m_expandCollapseButton = new QToolButton(m_widget);
+        m_expandCollapseButton->setDefaultAction(m_expandCollapseAction);
+        Utils::StyleHelper::setPanelWidget(m_expandCollapseButton);
+
+        m_relativePathsButton = new QToolButton(m_widget);
+
+        ActionBuilder(window, "Find.RelativePaths")
+            .setText(Tr::tr("Show Paths in Relation to Active Project"))
+            .setCheckable(true)
+            .setIconText("../")
+            .setEnabled(false)
+            .bindContextAction(&m_relativePathsAction)
+            .setCommandAttribute(Command::CA_UpdateText);
+        m_relativePathsButton->setDefaultAction(m_relativePathsAction);
 
         m_filterButton = new QToolButton(m_widget);
         m_filterButton->setText(Tr::tr("Filter Results"));
@@ -135,13 +150,16 @@ namespace Internal {
 
         QAction *newSearchAction = new QAction(Tr::tr("New Search"), this);
         newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
-        cmd = ActionManager::command(Constants::ADVANCED_FIND);
+        Command *cmd = ActionManager::command(Constants::ADVANCED_FIND);
         m_newSearchButton = Command::toolButtonWithAppendedShortcut(newSearchAction, cmd);
         if (QTC_GUARD(cmd && cmd->action()))
             connect(m_newSearchButton, &QToolButton::triggered, cmd->action(), &QAction::trigger);
 
         connect(m_expandCollapseAction, &QAction::toggled,
                 this, &SearchResultWindowPrivate::handleExpandCollapseToolButton);
+
+        connect(m_relativePathsAction, &QAction::toggled,
+                this, &SearchResultWindowPrivate::handleRelativePathsToolButton);
 
         connect(m_filterButton, &QToolButton::clicked, this, [this] {
             if (!isSearchVisible())
@@ -162,12 +180,14 @@ namespace Internal {
             if (focus)
                 m_widget->currentWidget()->setFocus();
             m_expandCollapseAction->setEnabled(false);
+            m_relativePathsAction->setEnabled(false);
             m_newSearchButton->setEnabled(false);
         } else {
             if (focus)
                 m_searchResultWidgets.at(visibleSearchIndex())->setFocusInternally();
             m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(true);
             m_expandCollapseAction->setEnabled(true);
+            m_relativePathsAction->setEnabled(true);
             m_newSearchButton->setEnabled(true);
         }
         q->navigateStateChanged();
@@ -487,6 +507,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     bool supportsReplace = searchOrSearchAndReplace != SearchOnly;
     widget->setSupportsReplace(supportsReplace, supportsReplace ? cfgGroup : QString());
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
+    widget->setRelativePaths(d->m_relativePathsAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
     auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
@@ -515,6 +536,7 @@ void SearchResultWindow::clearContents()
     d->m_currentIndex = 0;
     d->m_widget->currentWidget()->setFocus();
     d->m_expandCollapseAction->setEnabled(false);
+    d->m_relativePathsAction->setEnabled(false);
     navigateStateChanged();
 
     d->m_newSearchButton->setEnabled(false);
@@ -596,6 +618,18 @@ void SearchResultWindowPrivate::handleExpandCollapseToolButton(bool checked)
     }
 }
 
+void SearchResultWindowPrivate::handleRelativePathsToolButton(bool checked)
+{
+    if (!isSearchVisible())
+        return;
+    m_searchResultWidgets.at(visibleSearchIndex())->setRelativePaths(checked);
+    if (checked) {
+        m_relativePathsAction->setText(Tr::tr("Show Full Paths"));
+    } else {
+        m_relativePathsAction->setText(Tr::tr("Show Paths in Relation to Active Project"));
+    }
+}
+
 void SearchResultWindowPrivate::updateFilterButton()
 {
     m_filterButton->setEnabled(isSearchVisible()
@@ -626,6 +660,7 @@ QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
     return {m_expandCollapseButton,
             m_filterButton,
             m_newSearchButton,
+            m_relativePathsButton,
             m_spacer,
             m_historyLabel,
             m_spacer2,
@@ -641,6 +676,8 @@ void SearchResultWindow::readSettings()
     s->beginGroup(SETTINGSKEYSECTIONNAME);
     d->m_expandCollapseAction->setChecked(s->value(SETTINGSKEYEXPANDRESULTS,
                                                    SearchResultWindowPrivate::m_initiallyExpand).toBool());
+    d->m_relativePathsAction->setChecked(s->value(SETTINGSKEYRELATIVEPATHSRESULTS,
+                                                  SearchResultWindowPrivate::m_initiallyRelativePaths).toBool());
     s->endGroup();
 }
 
@@ -654,6 +691,9 @@ void SearchResultWindow::writeSettings()
     s->setValueWithDefault(SETTINGSKEYEXPANDRESULTS,
                            d->m_expandCollapseAction->isChecked(),
                            SearchResultWindowPrivate::m_initiallyExpand);
+    s->setValueWithDefault(SETTINGSKEYRELATIVEPATHSRESULTS,
+                           d->m_relativePathsAction->isChecked(),
+                           SearchResultWindowPrivate::m_initiallyRelativePaths);
     s->endGroup();
 }
 

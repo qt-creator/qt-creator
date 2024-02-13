@@ -15,13 +15,40 @@
 
 namespace Nim {
 
-NimIndenter::NimIndenter(QTextDocument *doc)
-    : TextEditor::TextIndenter(doc)
-{}
-
-bool NimIndenter::isElectricCharacter(const QChar &ch) const
+class NimIndenter final : public TextEditor::TextIndenter
 {
-    return NimIndenter::electricCharacters().contains(ch);
+public:
+    explicit NimIndenter(QTextDocument *doc)
+        : TextEditor::TextIndenter(doc)
+    {}
+
+    bool isElectricCharacter(const QChar &ch) const final
+    {
+        return ch == QLatin1Char(':') || ch == QLatin1Char('=');
+    }
+
+    void indentBlock(const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &settings,
+                     int cursorPositionInEditor = -1) final;
+
+private:
+    bool startsBlock(const QString &line, int state) const;
+    bool endsBlock(const QString &line, int state) const;
+
+    int calculateIndentationDiff(const QString &previousLine,
+                                 int previousState,
+                                 int indentSize) const;
+};
+
+static QString rightTrimmed(const QString &str)
+{
+    int n = str.size() - 1;
+    for (; n >= 0; --n) {
+        if (!str.at(n).isSpace())
+            return str.left(n + 1);
+    }
+    return QString();
 }
 
 void NimIndenter::indentBlock(const QTextBlock &block,
@@ -60,12 +87,6 @@ void NimIndenter::indentBlock(const QTextBlock &block,
     settings.indentLine(block, std::max(0, indentation));
 }
 
-const QSet<QChar> &NimIndenter::electricCharacters()
-{
-    static QSet<QChar> result{QLatin1Char(':'), QLatin1Char('=')};
-    return result;
-}
-
 bool NimIndenter::startsBlock(const QString &line, int state) const
 {
     NimLexer lexer(line.constData(), line.length(), static_cast<NimLexer::State>(state));
@@ -88,7 +109,7 @@ bool NimIndenter::startsBlock(const QString &line, int state) const
     // electric characters start a new block, and are operators
     if (previous.type == NimLexer::TokenType::Operator) {
         QStringView ref = QStringView(line).mid(previous.begin, previous.length);
-        return ref.isEmpty() ? false : electricCharacters().contains(ref.at(0));
+        return ref.isEmpty() ? false : isElectricCharacter(ref.at(0));
     }
 
     // some keywords starts a new block
@@ -141,14 +162,9 @@ int NimIndenter::calculateIndentationDiff(const QString &previousLine, int previ
     return 0;
 }
 
-QString NimIndenter::rightTrimmed(const QString &str)
+TextEditor::Indenter *createNimIndenter(QTextDocument *doc)
 {
-    int n = str.size() - 1;
-    for (; n >= 0; --n) {
-        if (!str.at(n).isSpace())
-            return str.left(n + 1);
-    }
-    return QString();
+    return new NimIndenter(doc);
 }
 
 } // Nim

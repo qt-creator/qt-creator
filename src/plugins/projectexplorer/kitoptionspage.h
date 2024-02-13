@@ -24,9 +24,4 @@ private:
     QStringList m_sortedCategories;
 };
 
-namespace Internal {
-
-void setSelectectKitId(const Utils::Id &kitId);
-
-} // Internal
 } // ProjectExplorer

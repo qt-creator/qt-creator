@@ -28,4 +28,8 @@ private:
     const QRegularExpression m_qmlToolsRegExp;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQtOutputParserTest(); }
+#endif
+
 } // namespace QtSupport

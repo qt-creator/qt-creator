@@ -16,6 +16,7 @@ namespace Internal {
 class Payload
 {
 public:
+    Payload() = default;
     Payload(const PerfProfilerFlameGraphData *parent, PerfProfilerFlameGraphModel::Data *data,
             uint numSamples)
         : m_parent(parent), m_data(data), m_numSamples(numSamples)

@@ -19,6 +19,8 @@
 using namespace Core;
 using namespace Utils;
 
+using namespace std::chrono;
+
 namespace VcsBase {
 namespace Internal {
 
@@ -51,14 +53,12 @@ public:
         return m_environment;
     }
 
-    int timeoutS() const;
-
     void setup();
     void cleanup();
     void setupProcess(Process *process, const Job &job);
     void installStdCallbacks(Process *process);
     EventLoopMode eventLoopMode() const;
-    void handleDone(Process *process);
+    ProcessResult handleDone(Process *process, const Job &job) const;
     void startAll();
     void startNextJob();
     void processDone();
@@ -81,28 +81,22 @@ public:
     RunFlags m_flags = RunFlags::None;
 };
 
-int VcsCommandPrivate::timeoutS() const
-{
-    return std::accumulate(m_jobs.cbegin(), m_jobs.cend(), 0,
-        [](int sum, const Job &job) { return sum + job.timeoutS; });
-}
-
 void VcsCommandPrivate::setup()
 {
+    VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(true);
 }
 
 void VcsCommandPrivate::cleanup()
 {
+    VcsOutputWindow::clearRepository();
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
 
 void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 {
-    process->setExitCodeInterpreter(job.exitCodeInterpreter);
-    process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
     if (!(m_flags & RunFlags::SuppressCommandLogging))
@@ -123,6 +117,7 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 
     ProcessProgress *progress = new ProcessProgress(process);
     progress->setDisplayName(m_displayName);
+    progress->setExpectedDuration(seconds(qMin(1, job.timeoutS / 5)));
     if (m_progressParser)
         progress->setProgressParser(m_progressParser);
 }
@@ -158,20 +153,30 @@ EventLoopMode VcsCommandPrivate::eventLoopMode() const
     return EventLoopMode::Off;
 }
 
-void VcsCommandPrivate::handleDone(Process *process)
+ProcessResult VcsCommandPrivate::handleDone(Process *process, const Job &job) const
 {
-    // Success/Fail message in appropriate window?
-    if (process->result() == ProcessResult::FinishedWithSuccess) {
-        if (m_flags & RunFlags::ShowSuccessMessage)
-            VcsOutputWindow::appendMessage(process->exitMessage());
-    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
-        VcsOutputWindow::appendError(process->exitMessage());
+    ProcessResult result;
+    if (job.exitCodeInterpreter && process->error() != QProcess::FailedToStart
+        && process->exitStatus() == QProcess::NormalExit) {
+        result = job.exitCodeInterpreter(process->exitCode());
+    } else {
+        result = process->result();
     }
-    if (!(m_flags & RunFlags::ExpectRepoChanges))
-        return;
-    // TODO tell the document manager that the directory now received all expected changes
-    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    VcsManager::emitRepositoryChanged(process->workingDirectory());
+    const QString message = Process::exitMessage(process->commandLine(), result,
+                                                 process->exitCode(), process->processDuration());
+    // Success/Fail message in appropriate window?
+    if (result == ProcessResult::FinishedWithSuccess) {
+        if (m_flags & RunFlags::ShowSuccessMessage)
+            VcsOutputWindow::appendMessage(message);
+    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
+        VcsOutputWindow::appendError(message);
+    }
+    if (m_flags & RunFlags::ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+        VcsManager::emitRepositoryChanged(process->workingDirectory());
+    }
+    return result;
 }
 
 void VcsCommandPrivate::startAll()
@@ -195,13 +200,11 @@ void VcsCommandPrivate::startNextJob()
 
 void VcsCommandPrivate::processDone()
 {
-    handleDone(m_process.get());
+    m_result = handleDone(m_process.get(), m_jobs.at(m_currentJob));
     m_stdOut += m_process->cleanedStdOut();
     m_stdErr += m_process->cleanedStdErr();
-    m_result = m_process->result();
     ++m_currentJob;
-    const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
-    if (m_currentJob < m_jobs.count() && success) {
+    if (m_currentJob < m_jobs.count() && m_result == ProcessResult::FinishedWithSuccess) {
         m_process.release()->deleteLater();
         startNextJob();
         return;
@@ -216,7 +219,6 @@ void VcsCommandPrivate::processDone()
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
     d(new Internal::VcsCommandPrivate(this, workingDirectory, environment))
 {
-    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
         if (d->m_process && d->m_process->isRunning())
             d->cleanup();
@@ -284,9 +286,9 @@ ProcessResult VcsCommand::result() const
     return d->m_result;
 }
 
-CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
-                                      const Utils::Environment &environment,
-                                      const Utils::CommandLine &command, RunFlags flags,
+CommandResult VcsCommand::runBlocking(const FilePath &workingDirectory,
+                                      const Environment &environment,
+                                      const CommandLine &command, RunFlags flags,
                                       int timeoutS, QTextCodec *codec)
 {
     VcsCommand vcsCommand(workingDirectory, environment);
@@ -295,18 +297,20 @@ CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
     return vcsCommand.runBlockingHelper(command, timeoutS);
 }
 
+// TODO: change timeout to std::chrono::seconds
 CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int timeoutS)
 {
     Process process;
     if (command.executable().isEmpty())
         return {};
 
-    d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
+    const Internal::VcsCommandPrivate::Job job{command, timeoutS, d->m_defaultWorkingDirectory};
+    d->setupProcess(&process, job);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
     process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
-    process.runBlocking(eventLoopMode);
-    d->handleDone(&process);
+    process.runBlocking(seconds(timeoutS), eventLoopMode);
+    d->handleDone(&process, job);
 
     return CommandResult(process);
 }

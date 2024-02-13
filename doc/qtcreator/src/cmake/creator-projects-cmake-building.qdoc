@@ -2,19 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings.html
     \page creator-build-settings-cmake.html
-    \nextpage creator-build-settings-cmake-presets.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title CMake Build Configuration
+
+    \brief Settings for building applications with CMake.
+
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
 
     Configuring medium-sized to large CMake projects in \QC can be a
     challenge due to the number of variables that you need to pass to
     CMake to configure the project correctly. To make this easier,
     \QC creates an initial configuration for you based on the kit
     settings and displays it in \uicontrol {Initial Configuration} in
-    the \l{Specifying Build Settings}{Build Settings} of the project.
-    Alternatively, you can use CMake presets to configure CMake.
+    the \uicontrol {Build Settings} of the project.
+    Or, you can use CMake presets to configure CMake.
 
     The \uicontrol Configure field displays the effective CMake call that
     \QC constructs using the values of the \uicontrol {Build directory} and
@@ -243,8 +250,8 @@
 
     \section1 Using CMake with Conan
 
-    \QC can automatically set up the \l {Setting Up Conan}
-    {Conan package manager} for use with CMake.
+    \QC can automatically set up the \l {Conan Package Manager} for use with
+    CMake.
 
     Select \preferences > \uicontrol CMake
     \uicontrol General > \uicontrol {Package manager auto setup} to set the
@@ -267,4 +274,7 @@
     \image qtcreator-cmake-clean-steps.webp {CMake clean steps}
 
     The build errors and warnings are parsed and displayed in \l Issues.
+
+    \sa {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects}, {CMake}
 */

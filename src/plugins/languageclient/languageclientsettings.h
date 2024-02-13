@@ -7,8 +7,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <projectexplorer/projectsettingswidget.h>
-
 #include <QAbstractItemModel>
 #include <QCoreApplication>
 #include <QJsonObject>
@@ -77,7 +75,7 @@ public:
 
     virtual bool applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
-    virtual BaseSettings *copy() const { return new BaseSettings(*this); }
+    virtual BaseSettings *copy() const = 0;
     virtual bool isValid() const;
     Client *createClient() const;
     Client *createClient(ProjectExplorer::Project *project) const;
@@ -85,7 +83,7 @@ public:
     virtual void fromMap(const Utils::Store &map);
 
 protected:
-    virtual BaseClientInterface *createInterface(ProjectExplorer::Project *) const;
+    virtual BaseClientInterface *createInterface(ProjectExplorer::Project *) const = 0;
     virtual Client *createClient(BaseClientInterface *interface) const;
 
     BaseSettings(const BaseSettings &other) = default;
@@ -208,15 +206,8 @@ private:
     QByteArray m_json;
 };
 
-class ProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-public:
-    explicit ProjectSettingsWidget(ProjectExplorer::Project *project);
-
-private:
-    ProjectSettings m_settings;
-};
-
 LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *jsonEditor();
+
+void setupLanguageClientProjectPanel();
 
 } // namespace LanguageClient

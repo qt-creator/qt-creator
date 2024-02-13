@@ -10,7 +10,6 @@
 #include "qtversionfactory.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -47,6 +46,7 @@
 
 #include <utility>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -149,13 +149,13 @@ private:
     bool m_changed = false;
 };
 
-// QtOptionsPageWidget
+// QtSettingsPageWidget
 
-class QtOptionsPageWidget : public Core::IOptionsPageWidget
+class QtSettingsPageWidget final : public IOptionsPageWidget
 {
 public:
-    QtOptionsPageWidget();
-    ~QtOptionsPageWidget();
+    QtSettingsPageWidget();
+    ~QtSettingsPageWidget();
 
     static void linkWithQt();
 
@@ -190,8 +190,8 @@ private:
         QIcon icon;
     };
     ValidityInfo validInformation(const QtVersion *version);
-    QList<ProjectExplorer::ToolChain*> toolChains(const QtVersion *version);
-    QByteArray defaultToolChainId(const QtVersion *version);
+    QList<ProjectExplorer::Toolchain*> toolChains(const QtVersion *version);
+    QByteArray defaultToolchainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
     void updateVersionItem(QtVersionItem *item);
@@ -224,7 +224,7 @@ private:
     QFormLayout *m_formLayout;
 };
 
-QtOptionsPageWidget::QtOptionsPageWidget()
+QtSettingsPageWidget::QtSettingsPageWidget()
     : m_specifyNameString(Tr::tr("<specify a name>"))
     , m_infoBrowser(new QTextBrowser)
     , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
@@ -297,10 +297,10 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_infoBrowser->setOpenLinks(false);
     m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
     connect(m_infoBrowser, &QTextBrowser::anchorClicked,
-            this, &QtOptionsPageWidget::infoAnchorClicked);
+            this, &QtSettingsPageWidget::infoAnchorClicked);
     m_infoWidget->setWidget(m_infoBrowser);
     connect(m_infoWidget, &DetailsWidget::expanded,
-            this, &QtOptionsPageWidget::setInfoWidgetVisibility);
+            this, &QtSettingsPageWidget::setInfoWidgetVisibility);
 
     m_versionInfoWidget->setWidget(versionInfoWidget);
     m_versionInfoWidget->setState(DetailsWidget::NoSummary);
@@ -348,29 +348,29 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_qtdirList->expandAll();
 
     connect(m_nameEdit, &QLineEdit::textEdited,
-            this, &QtOptionsPageWidget::updateCurrentQtName);
+            this, &QtSettingsPageWidget::updateCurrentQtName);
 
     connect(m_editPathPushButton, &QAbstractButton::clicked,
-            this, &QtOptionsPageWidget::editPath);
+            this, &QtSettingsPageWidget::editPath);
 
     connect(addButton, &QAbstractButton::clicked,
-            this, &QtOptionsPageWidget::addQtDir);
+            this, &QtSettingsPageWidget::addQtDir);
     connect(m_delButton, &QAbstractButton::clicked,
-            this, &QtOptionsPageWidget::removeQtDir);
+            this, &QtSettingsPageWidget::removeQtDir);
 
     connect(m_qtdirList->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &QtOptionsPageWidget::versionChanged);
+            this, &QtSettingsPageWidget::versionChanged);
 
     connect(m_cleanUpButton, &QAbstractButton::clicked,
-            this, &QtOptionsPageWidget::cleanUpQtVersions);
+            this, &QtSettingsPageWidget::cleanUpQtVersions);
     userChangedCurrentVersion();
     updateCleanUpButton();
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QtOptionsPageWidget::updateQtVersions);
+            this, &QtSettingsPageWidget::updateQtVersions);
 
-    connect(ProjectExplorer::ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
-            this, &QtOptionsPageWidget::toolChainsUpdated);
+    connect(ProjectExplorer::ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
+            this, &QtSettingsPageWidget::toolChainsUpdated);
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_nameEdit, "Qt:Name");
@@ -380,7 +380,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     });
 }
 
-QtVersion *QtOptionsPageWidget::currentVersion() const
+QtVersion *QtSettingsPageWidget::currentVersion() const
 {
     QtVersionItem *item = currentItem();
     if (!item)
@@ -388,14 +388,14 @@ QtVersion *QtOptionsPageWidget::currentVersion() const
     return item->version();
 }
 
-QtVersionItem *QtOptionsPageWidget::currentItem() const
+QtVersionItem *QtSettingsPageWidget::currentItem() const
 {
     QModelIndex idx = m_qtdirList->selectionModel()->currentIndex();
     QModelIndex sourceIdx = m_filterModel->mapToSource(idx);
     return m_model->itemForIndexAtLevel<2>(sourceIdx);
 }
 
-void QtOptionsPageWidget::cleanUpQtVersions()
+void QtSettingsPageWidget::cleanUpQtVersions()
 {
     QVector<QtVersionItem *> toRemove;
     QString text;
@@ -426,7 +426,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     updateCleanUpButton();
 }
 
-void QtOptionsPageWidget::toolChainsUpdated()
+void QtSettingsPageWidget::toolChainsUpdated()
 {
     m_model->forItemsAtLevel<2>([this](QtVersionItem *item) {
         if (item == currentItem())
@@ -436,7 +436,7 @@ void QtOptionsPageWidget::toolChainsUpdated()
     });
 }
 
-void QtOptionsPageWidget::setInfoWidgetVisibility()
+void QtSettingsPageWidget::setInfoWidgetVisibility()
 {
     bool isExpanded = m_infoWidget->state() == DetailsWidget::Expanded;
     if (isExpanded && m_infoBrowser->toPlainText().isEmpty()) {
@@ -450,7 +450,7 @@ void QtOptionsPageWidget::setInfoWidgetVisibility()
     m_infoWidget->setVisible(true);
 }
 
-void QtOptionsPageWidget::infoAnchorClicked(const QUrl &url)
+void QtSettingsPageWidget::infoAnchorClicked(const QUrl &url)
 {
     QDesktopServices::openUrl(url);
 }
@@ -467,7 +467,7 @@ static QString formatAbiHtmlList(const Abis &abis)
     return result;
 }
 
-QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const QtVersion *version)
+QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const QtVersion *version)
 {
     ValidityInfo info;
     info.icon = m_validVersionIcon;
@@ -483,18 +483,18 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     }
 
     // Do we have tool chain issues?
-    Abis missingToolChains;
+    Abis missingToolchains;
     const Abis qtAbis = version->qtAbis();
 
     for (const Abi &abi : qtAbis) {
-        const auto abiCompatePred = [&abi] (const ToolChain *tc)
+        const auto abiCompatePred = [&abi] (const Toolchain *tc)
         {
             return Utils::contains(tc->supportedAbis(),
                                    [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
         };
 
-        if (!ToolChainManager::toolChain(abiCompatePred))
-            missingToolChains.append(abi);
+        if (!ToolchainManager::toolchain(abiCompatePred))
+            missingToolchains.append(abi);
     }
 
     bool useable = true;
@@ -502,8 +502,8 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     if (!isNameUnique(version))
         warnings << Tr::tr("Display Name is not unique.");
 
-    if (!missingToolChains.isEmpty()) {
-        if (missingToolChains.count() == qtAbis.size()) {
+    if (!missingToolchains.isEmpty()) {
+        if (missingToolchains.count() == qtAbis.size()) {
             // Yes, this Qt version can't be used at all!
             info.message =
                 Tr::tr("No compiler can produce code for this Qt version."
@@ -514,7 +514,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
             // Yes, some ABIs are unsupported
             warnings << Tr::tr("Not all possible target environments can be supported due to missing compilers.");
             info.toolTip = Tr::tr("The following ABIs are currently not supported: %1")
-                    .arg(formatAbiHtmlList(missingToolChains));
+                    .arg(formatAbiHtmlList(missingToolchains));
             info.icon = m_warningVersionIcon;
         }
     }
@@ -530,17 +530,17 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     return info;
 }
 
-QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
+QList<Toolchain*> QtSettingsPageWidget::toolChains(const QtVersion *version)
 {
-    QList<ToolChain*> toolChains;
+    QList<Toolchain*> toolChains;
     if (!version)
         return toolChains;
 
     QSet<QByteArray> ids;
     const Abis abis = version->qtAbis();
     for (const Abi &a : abis) {
-        const Toolchains tcList = ToolChainManager::findToolChains(a);
-        for (ToolChain *tc : tcList) {
+        const Toolchains tcList = ToolchainManager::findToolchains(a);
+        for (Toolchain *tc : tcList) {
             if (Utils::insert(ids, tc->id()))
                 toolChains.append(tc);
         }
@@ -549,15 +549,15 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
     return toolChains;
 }
 
-QByteArray QtOptionsPageWidget::defaultToolChainId(const QtVersion *version)
+QByteArray QtSettingsPageWidget::defaultToolchainId(const QtVersion *version)
 {
-    QList<ToolChain*> possibleToolChains = toolChains(version);
+    QList<Toolchain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
         return possibleToolChains.first()->id();
     return QByteArray();
 }
 
-bool QtOptionsPageWidget::isNameUnique(const QtVersion *version)
+bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
 {
     const QString name = version->displayName().trimmed();
 
@@ -567,7 +567,7 @@ bool QtOptionsPageWidget::isNameUnique(const QtVersion *version)
     });
 }
 
-void QtOptionsPageWidget::updateVersionItem(QtVersionItem *item)
+void QtSettingsPageWidget::updateVersionItem(QtVersionItem *item)
 {
     if (!item)
         return;
@@ -579,7 +579,7 @@ void QtOptionsPageWidget::updateVersionItem(QtVersionItem *item)
     item->setIcon(info.icon);
 }
 
-void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
+void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
                                            const QList<int> &changes)
 {
     QList<QtVersionItem *> toRemove;
@@ -613,12 +613,12 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     m_model->forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
 }
 
-QtOptionsPageWidget::~QtOptionsPageWidget()
+QtSettingsPageWidget::~QtSettingsPageWidget()
 {
     delete m_configurationWidget;
 }
 
-void QtOptionsPageWidget::addQtDir()
+void QtSettingsPageWidget::addQtDir()
 {
     FilePath qtVersion
         = FileUtils::getOpenFilePath(this,
@@ -678,7 +678,7 @@ void QtOptionsPageWidget::addQtDir()
     updateCleanUpButton();
 }
 
-void QtOptionsPageWidget::removeQtDir()
+void QtSettingsPageWidget::removeQtDir()
 {
     QtVersionItem *item = currentItem();
     if (!item)
@@ -689,7 +689,7 @@ void QtOptionsPageWidget::removeQtDir()
     updateCleanUpButton();
 }
 
-void QtOptionsPageWidget::editPath()
+void QtSettingsPageWidget::editPath()
 {
     QtVersion *current = currentVersion();
     FilePath qtVersion =
@@ -729,7 +729,7 @@ void QtOptionsPageWidget::editPath()
 }
 
 // To be called if a Qt version was removed or added
-void QtOptionsPageWidget::updateCleanUpButton()
+void QtSettingsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
     for (TreeItem *child : *m_manualItem) {
@@ -743,13 +743,13 @@ void QtOptionsPageWidget::updateCleanUpButton()
     m_cleanUpButton->setEnabled(hasInvalidVersion);
 }
 
-void QtOptionsPageWidget::userChangedCurrentVersion()
+void QtSettingsPageWidget::userChangedCurrentVersion()
 {
     updateWidgets();
     updateDescriptionLabel();
 }
 
-void QtOptionsPageWidget::updateDescriptionLabel()
+void QtSettingsPageWidget::updateDescriptionLabel()
 {
     QtVersionItem *item = currentItem();
     const QtVersion *version = item ? item->version() : nullptr;
@@ -774,14 +774,14 @@ void QtOptionsPageWidget::updateDescriptionLabel()
     }
 }
 
-void QtOptionsPageWidget::versionChanged(const QModelIndex &current, const QModelIndex &previous)
+void QtSettingsPageWidget::versionChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_UNUSED(current)
     Q_UNUSED(previous)
     userChangedCurrentVersion();
 }
 
-void QtOptionsPageWidget::updateWidgets()
+void QtSettingsPageWidget::updateWidgets()
 {
     delete m_configurationWidget;
     m_configurationWidget = nullptr;
@@ -794,7 +794,7 @@ void QtOptionsPageWidget::updateWidgets()
             m_formLayout->addRow(m_configurationWidget);
             m_configurationWidget->setEnabled(!version->isAutodetected());
             connect(m_configurationWidget, &QtConfigWidget::changed,
-                    this, &QtOptionsPageWidget::updateDescriptionLabel);
+                    this, &QtSettingsPageWidget::updateDescriptionLabel);
         }
     } else {
         m_nameEdit->clear();
@@ -822,7 +822,7 @@ static QString qtVersionsFile(const QString &baseDir)
 
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
-    const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
+    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toString());
     const bool installSettingsExist = QFileInfo::exists(installSettingsFilePath);
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
@@ -851,7 +851,7 @@ static bool canLinkWithQt(QString *toolTip)
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
-    if (!Core::ICore::resourcePath().isWritableDir()) {
+    if (!ICore::resourcePath().isWritableDir()) {
         canLink = false;
         tip << Tr::tr("%1's resource directory is not writable.")
                    .arg(QGuiApplication::applicationDisplayName());
@@ -865,7 +865,7 @@ static bool canLinkWithQt(QString *toolTip)
     return canLink;
 }
 
-void QtOptionsPageWidget::setupLinkWithQtButton()
+void QtSettingsPageWidget::setupLinkWithQtButton()
 {
     QString tip;
     const bool canLink = canLinkWithQt(&tip);
@@ -874,7 +874,7 @@ void QtOptionsPageWidget::setupLinkWithQtButton()
     connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
 }
 
-void QtOptionsPageWidget::updateCurrentQtName()
+void QtSettingsPageWidget::updateCurrentQtName()
 {
     QtVersionItem *item = currentItem();
     if (!item || !item->version())
@@ -887,12 +887,12 @@ void QtOptionsPageWidget::updateCurrentQtName()
     m_model->forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
 }
 
-void QtOptionsPageWidget::apply()
+void QtSettingsPageWidget::apply()
 {
     disconnect(QtVersionManager::instance(),
                &QtVersionManager::qtVersionsChanged,
                this,
-               &QtOptionsPageWidget::updateQtVersions);
+               &QtSettingsPageWidget::updateQtVersions);
 
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting->currentData().toInt()));
@@ -907,7 +907,7 @@ void QtOptionsPageWidget::apply()
     connect(QtVersionManager::instance(),
             &QtVersionManager::qtVersionsChanged,
             this,
-            &QtOptionsPageWidget::updateQtVersions);
+            &QtSettingsPageWidget::updateQtVersions);
 }
 
 const QStringList kSubdirsToCheck = {"",
@@ -965,12 +965,12 @@ static FilePath defaultQtInstallationPath()
     return FileUtils::homePath() / "Qt";
 }
 
-void QtOptionsPageWidget::linkWithQt()
+void QtSettingsPageWidget::linkWithQt()
 {
     const QString title = Tr::tr("Choose Qt Installation");
     const QString restartText = Tr::tr("The change will take effect after restart.");
     bool askForRestart = false;
-    QDialog dialog(Core::ICore::dialogParent());
+    QDialog dialog(ICore::dialogParent());
     dialog.setWindowTitle(title);
     auto tipLabel = new QLabel(linkingPurposeText());
     tipLabel->setWordWrap(true);
@@ -1017,7 +1017,7 @@ void QtOptionsPageWidget::linkWithQt()
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
-        const QString filePath = settingsFile(Core::ICore::resourcePath().toString());
+        const QString filePath = settingsFile(ICore::resourcePath().toString());
         {
             QSettings installSettings(filePath, QSettings::IniFormat);
             installSettings.remove(kInstallSettingsKey);
@@ -1038,12 +1038,12 @@ void QtOptionsPageWidget::linkWithQt()
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
                                                                         pathInput->rawFilePath());
         if (QTC_GUARD(settingsDir)) {
-            const QString settingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
+            const QString settingsFilePath = settingsFile(ICore::resourcePath().toString());
             QSettings settings(settingsFilePath, QSettings::IniFormat);
             settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
             settings.sync();
             if (settings.status() == QSettings::AccessError) {
-                QMessageBox::critical(Core::ICore::dialogParent(),
+                QMessageBox::critical(ICore::dialogParent(),
                                       Tr::tr("Error Linking With Qt"),
                                       Tr::tr("Could not write to \"%1\".").arg(settingsFilePath));
                 return;
@@ -1052,34 +1052,41 @@ void QtOptionsPageWidget::linkWithQt()
             askForRestart = true;
         }
     }
-    if (askForRestart) {
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
+    if (askForRestart)
+        ICore::askForRestart(restartText);
+}
+
+// QtSettingsPage
+
+class QtSettingsPage final : public IOptionsPage
+{
+public:
+    QtSettingsPage()
+    {
+        setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("Qt Versions"));
+        setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new QtSettingsPageWidget; });
     }
-}
 
-// QtOptionsPage
+    QStringList keywords() const final
+    {
+        return {
+            Tr::tr("Add..."),
+            Tr::tr("Remove"),
+            Tr::tr("Clean Up"),
+            Tr::tr("Link with Qt"),
+            Tr::tr("Remove Link"),
+            Tr::tr("Qt installation path:"),
+            Tr::tr("qmake path:"),
+            Tr::tr("Register documentation:")
+        };
+    }
+};
 
-QtOptionsPage::QtOptionsPage()
+void setupQtSettingsPage()
 {
-    setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
-    setDisplayName(Tr::tr("Qt Versions"));
-    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new QtOptionsPageWidget; });
-}
-
-QStringList QtOptionsPage::keywords() const
-{
-    return {
-        Tr::tr("Add..."),
-        Tr::tr("Remove"),
-        Tr::tr("Clean Up"),
-        Tr::tr("Link with Qt"),
-        Tr::tr("Remove Link"),
-        Tr::tr("Qt installation path:"),
-        Tr::tr("qmake path:"),
-        Tr::tr("Register documentation:")
-    };
+    static QtSettingsPage theQtSettingsPage;
 }
 
 } // Internal
@@ -1101,7 +1108,7 @@ Utils::FilePath LinkWithQtSupport::linkedQt()
 
 void LinkWithQtSupport::linkWithQt()
 {
-    Internal::QtOptionsPageWidget::linkWithQt();
+    Internal::QtSettingsPageWidget::linkWithQt();
 }
 
 } // QtSupport

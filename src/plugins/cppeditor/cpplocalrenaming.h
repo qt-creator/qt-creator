@@ -41,6 +41,7 @@ public:
     bool isSameSelection(int cursorPosition) const;
 
 signals:
+    void started();
     void finished();
     void processKeyPressNormally(QKeyEvent *e);
 

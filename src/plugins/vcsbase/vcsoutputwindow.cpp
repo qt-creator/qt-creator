@@ -31,6 +31,7 @@
 #include <QTextStream>
 #include <QTime>
 
+using namespace Core;
 using namespace Utils;
 
 /*!
@@ -69,36 +70,32 @@ private:
 
 // A plain text edit with a special context menu containing "Clear"
 // and functions to append specially formatted entries.
-class OutputWindowPlainTextEdit : public Core::OutputWindow
+class OutputWindowPlainTextEdit : public OutputWindow
 {
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
 
-    void appendLines(const QString &s, const FilePath &repository = {});
-    void appendLinesWithStyle(const QString &s, VcsOutputWindow::MessageStyle style,
-                              const FilePath &repository = {});
-    VcsOutputLineParser *parser();
+    void appendLines(const QString &text, VcsOutputWindow::MessageStyle style,
+                     const FilePath &repository);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void handleLink(const QPoint &pos) override;
 
 private:
-    void setFormat(VcsOutputWindow::MessageStyle style);
     QString identifierUnderCursor(const QPoint &pos, FilePath *repository = nullptr) const;
 
-    OutputFormat m_format;
     VcsOutputLineParser *m_parser = nullptr;
 };
 
-OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
+OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent)
+    : OutputWindow(Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
+    , m_parser(new VcsOutputLineParser)
 {
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
     outputFormatter()->setBoldFontEnabled(false);
-    m_parser = new VcsOutputLineParser;
     setLineParsers({m_parser});
 }
 
@@ -145,15 +142,13 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
 {
     const QString href = anchorAt(event->pos());
     QMenu *menu = href.isEmpty() ? createStandardContextMenu(event->pos()) : new QMenu;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
     // Add 'open file'
     FilePath repo;
     const QString token = identifierUnderCursor(event->pos(), &repo);
-    if (!repo.isEmpty()) {
-        if (VcsOutputLineParser * const p = parser()) {
-            if (!href.isEmpty())
-                p->fillLinkContextMenu(menu, repo, href);
-        }
-    }
+    if (!repo.isEmpty() && !href.isEmpty())
+        m_parser->fillLinkContextMenu(menu, repo, href);
     QAction *openAction = nullptr;
     if (!token.isEmpty()) {
         // Check for a file, expand via repository if relative
@@ -181,10 +176,9 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
         }
         if (action == openAction) {
             const auto fileName = FilePath::fromVariant(action->data());
-            Core::EditorManager::openEditor(fileName);
+            EditorManager::openEditor(fileName);
         }
     }
-    delete menu;
 }
 
 void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
@@ -200,18 +194,39 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
     }
     if (outputFormatter()->handleFileLink(href))
         return;
-    if (VcsOutputLineParser * const p = parser())
-        p->handleVcsLink(repository, href);
+    m_parser->handleVcsLink(repository, href);
 }
 
-void OutputWindowPlainTextEdit::appendLines(const QString &s, const FilePath &repository)
+static OutputFormat styleToFormat(VcsOutputWindow::MessageStyle style)
 {
-    if (s.isEmpty())
+    switch (style) {
+    case VcsOutputWindow::Warning:
+        return LogMessageFormat;
+    case VcsOutputWindow::Error:
+        return StdErrFormat;
+    case VcsOutputWindow::Message:
+        return StdOutFormat;
+    case VcsOutputWindow::Command:
+        return NormalMessageFormat;
+    case VcsOutputWindow::None:
+        return OutputFormat::StdOutFormat;
+    }
+    return OutputFormat::StdOutFormat;
+}
+
+void OutputWindowPlainTextEdit::appendLines(const QString &text,
+                                            VcsOutputWindow::MessageStyle style,
+                                            const FilePath &repository)
+{
+    if (text.isEmpty())
         return;
 
+    const QString textToAdd = style == VcsOutputWindow::Command
+                            ? QTime::currentTime().toString("\nHH:mm:ss ") + text : text;
     const int previousLineCount = document()->lineCount();
 
-    outputFormatter()->appendMessage(s, m_format);
+    outputFormatter()->setBoldFontEnabled(style == VcsOutputWindow::Command);
+    outputFormatter()->appendMessage(textToAdd, styleToFormat(style));
 
     // Scroll down
     moveCursor(QTextCursor::End);
@@ -221,49 +236,6 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const FilePath &re
         QTextBlock block = document()->findBlockByLineNumber(previousLineCount);
         for ( ; block.isValid(); block = block.next())
             block.setUserData(new RepositoryUserData(repository));
-    }
-}
-
-void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
-                                                     VcsOutputWindow::MessageStyle style,
-                                                     const FilePath &repository)
-{
-    setFormat(style);
-
-    if (style == VcsOutputWindow::Command) {
-        const QString timeStamp = QTime::currentTime().toString("\nHH:mm:ss ");
-        appendLines(timeStamp + s, repository);
-    } else {
-        appendLines(s, repository);
-    }
-}
-
-VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
-{
-    return m_parser;
-}
-
-void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
-{
-    outputFormatter()->setBoldFontEnabled(style == VcsOutputWindow::Command);
-
-    switch (style) {
-    case VcsOutputWindow::Warning:
-        m_format = LogMessageFormat;
-        break;
-    case VcsOutputWindow::Error:
-        m_format = StdErrFormat;
-        break;
-    case VcsOutputWindow::Message:
-        m_format = StdOutFormat;
-        break;
-    case VcsOutputWindow::Command:
-        m_format = NormalMessageFormat;
-        break;
-    default:
-    case VcsOutputWindow::None:
-        m_format = OutputFormat::StdOutFormat;
-        break;
     }
 }
 
@@ -293,7 +265,7 @@ VcsOutputWindow::VcsOutputWindow()
 
     auto updateBehaviorSettings = [] {
         d->widget.setWheelZoomEnabled(
-                    TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+                    TextEditor::globalBehaviorSettings().m_scrollWheelZooming);
     };
 
     auto updateFontSettings = [] {
@@ -304,9 +276,9 @@ VcsOutputWindow::VcsOutputWindow()
     updateFontSettings();
     setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
-    connect(this, &IOutputPane::zoomInRequested, &d->widget, &Core::OutputWindow::zoomIn);
-    connect(this, &IOutputPane::zoomOutRequested, &d->widget, &Core::OutputWindow::zoomOut);
-    connect(this, &IOutputPane::resetZoomRequested, &d->widget, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::zoomInRequested, &d->widget, &OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, &d->widget, &OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, &d->widget, &OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
     connect(TextEditor::TextEditorSettings::instance(),
@@ -386,15 +358,15 @@ void VcsOutputWindow::setData(const QByteArray &data)
 
 void VcsOutputWindow::appendSilently(const QString &text)
 {
-    append(text, None, true);
+    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', None, true);
 }
 
 void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
 {
-    d->widget.appendLinesWithStyle(text, style, d->repository);
+    d->widget.appendLines(text, style, d->repository);
 
     if (!silently && !d->widget.isVisible())
-        m_instance->popup(Core::IOutputPane::NoModeSwitch);
+        m_instance->popup(IOutputPane::NoModeSwitch);
 }
 
 void VcsOutputWindow::appendError(const QString &text)
@@ -438,7 +410,7 @@ QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const 
             + ' ' + formatArguments(command.splitArguments());
     if (workingDir.isEmpty())
         return Tr::tr("Running: %1").arg(maskedCmdline) + '\n';
-    return Tr::tr("Running in \"%1\": %2.").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
+    return Tr::tr("Running in \"%1\": %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
 }
 
 void VcsOutputWindow::appendShellCommandLine(const QString &text)

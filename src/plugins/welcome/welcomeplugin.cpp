@@ -24,6 +24,7 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/treemodel.h>
 
@@ -65,22 +66,6 @@ static void addWeakVerticalSpacerToLayout(QVBoxLayout *layout, int maximumSize)
     weakSpacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
     layout->addWidget(weakSpacer);
     layout->setStretchFactor(weakSpacer, 1);
-}
-
-class ResizeSignallingWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    void resizeEvent(QResizeEvent *event);
-
-signals:
-    void resized(const QSize &size, const QSize &oldSize);
-};
-
-void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
-{
-    emit resized(event->size(), event->oldSize());
 }
 
 class WelcomeMode : public IMode
@@ -175,10 +160,7 @@ public:
 
             hbox->addSpacing(16);
 
-            QFont welcomeFont = brandFont();
-            welcomeFont.setPixelSize(30);
-            welcomeFont.setWeight(QFont::Light);
-            welcomeFont.setWordSpacing(2);
+            const QFont welcomeFont = StyleHelper::uiFont(StyleHelper::UiElementH1);
 
             auto welcomeLabel = new QLabel("Welcome to");
             welcomeLabel->setFont(welcomeFont);
@@ -263,7 +245,6 @@ public:
             vbox->addItem(newVBox);
 
             auto newLabel = new QLabel(Tr::tr("New to Qt?"), mainWidget);
-            newLabel->setFont(brandFont());
             newLabel->setAlignment(Qt::AlignHCenter);
             newVBox->addWidget(newLabel);
 

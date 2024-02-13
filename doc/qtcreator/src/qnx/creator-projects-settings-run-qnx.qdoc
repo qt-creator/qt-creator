@@ -1,0 +1,27 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-run-settings-qnx.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-run-configurations
+
+    \title QNX Run Settings
+
+    \brief Settings for running applications on Linux-based devices.
+
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    To run and debug an application on a QNX device, you must
+    create connections from the development PC to the device. Select
+    \uicontrol {Manage device configurations} to create a connection.
+
+    Settings for QNX Neutrino devices are very similar to those for remote linux
+    devices.
+
+    \sa {Remote Linux Run Settings}, {Activate kits for a project},
+    {Configure projects for running}, {kits-tab}{Kits}, {Connecting QNX Devices}
+*/

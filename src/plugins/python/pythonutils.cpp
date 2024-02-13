@@ -3,6 +3,9 @@
 
 #include "pythonutils.h"
 
+#include "pythonbuildconfiguration.h"
+#include "pythonconstants.h"
+#include "pythonkitaspect.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
@@ -16,7 +19,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
+#include <utils/persistentcachestore.h>
 #include <utils/process.h>
+
+#include <QReadLocker>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -38,14 +44,12 @@ FilePath detectPython(const FilePath &documentPath)
 
     FilePaths dirs = Environment::systemEnvironment().path();
 
-    if (project) {
-        if (auto target = project->activeTarget()) {
-            if (auto runConfig = target->activeRunConfiguration()) {
-                if (auto interpreter = runConfig->aspect<InterpreterAspect>())
-                    return interpreter->currentInterpreter().command;
-                if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
-                    dirs = environmentAspect->environment().path();
-            }
+    if (project && project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE) {
+        if (const Target *target = project->activeTarget()) {
+            if (auto bc = qobject_cast<PythonBuildConfiguration *>(target->activeBuildConfiguration()))
+                return bc->python();
+            if (const std::optional<Interpreter> python = PythonKitAspect::python(target->kit()))
+                return python->command;
         }
     }
 
@@ -144,9 +148,9 @@ QString pythonName(const FilePath &pythonPath)
     QString name = nameForPython.value(pythonPath);
     if (name.isEmpty()) {
         Process pythonProcess;
-        pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
-        pythonProcess.runBlocking();
+        using namespace std::chrono_literals;
+        pythonProcess.runBlocking(2s);
         if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
             return {};
         name = pythonProcess.allOutput().trimmed();
@@ -166,8 +170,8 @@ PythonProject *pythonProjectForFile(const FilePath &pythonFile)
     return nullptr;
 }
 
-void createVenv(const Utils::FilePath &python,
-                const Utils::FilePath &venvPath,
+void createVenv(const FilePath &python,
+                const FilePath &venvPath,
                 const std::function<void(bool)> &callback)
 {
     QTC_ASSERT(python.isExecutableFile(), callback(false); return);
@@ -184,6 +188,72 @@ void createVenv(const Utils::FilePath &python,
     });
     process->setCommand(command);
     process->start();
+}
+
+bool isVenvPython(const FilePath &python)
+{
+    return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
+}
+
+static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyString,
+                           const QString &commandArg, const FilePath &python)
+{
+    auto it = cache->find(python);
+    if (it == cache->end()) {
+        const Key key = keyFromString(keyString);
+        const auto store = PersistentCacheStore::byKey(key);
+        if (store && store->value(keyFromString(python.toString())).toBool()) {
+            cache->insert(python, true);
+            return true;
+        }
+        Process process;
+        process.setCommand({python, QStringList{"-m", commandArg, "-h"}});
+        process.runBlocking();
+        const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
+        if (usable) {
+            Store newStore = store.value_or(Store{});
+            newStore.insert(keyFromString(python.toString()), true);
+            PersistentCacheStore::write(key, newStore);
+        }
+        it = cache->insert(python, usable);
+    }
+    return *it;
+}
+
+bool venvIsUsable(const FilePath &python)
+{
+    static QHash<FilePath, bool> cache;
+    return isUsableHelper(&cache, "pyVenvIsUsable", "venv", python);
+}
+
+bool pipIsUsable(const FilePath &python)
+{
+    static QHash<FilePath, bool> cache;
+    return isUsableHelper(&cache, "pyPipIsUsable", "pip", python);
+}
+
+QString pythonVersion(const FilePath &python)
+{
+    static QReadWriteLock lock;
+    static QMap<FilePath, QString> versionCache;
+
+    {
+        QReadLocker locker(&lock);
+        auto it = versionCache.constFind(python);
+        if (it != versionCache.constEnd())
+            return *it;
+    }
+
+    Process p;
+    p.setCommand({python, {"--version"}});
+    p.runBlocking();
+    if (p.result() == ProcessResult::FinishedWithSuccess) {
+        const QString version = p.readAllStandardOutput().trimmed();
+        QWriteLocker locker(&lock);
+        versionCache.insert(python, version);
+        return version;
+    }
+    return QString();
 }
 
 } // Python::Internal

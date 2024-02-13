@@ -15,14 +15,14 @@ JsonObject &JsonObject::operator=(JsonObject &&other)
     return *this;
 }
 
-QJsonObject::iterator JsonObject::insert(const std::string_view key, const JsonObject &object)
+QJsonObject::iterator JsonObject::insert(const Key key, const JsonObject &object)
 {
-    return m_jsonObject.insert(QLatin1String(key.data()), object.m_jsonObject);
+    return m_jsonObject.insert(key, object.m_jsonObject);
 }
 
-QJsonObject::iterator JsonObject::insert(const std::string_view key, const QJsonValue &value)
+QJsonObject::iterator JsonObject::insert(const Key key, const QJsonValue &value)
 {
-    return m_jsonObject.insert(QLatin1String(key.data()), value);
+    return m_jsonObject.insert(key, value);
 }
 
 } // namespace LanguageServerProtocol

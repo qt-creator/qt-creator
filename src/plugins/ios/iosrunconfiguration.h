@@ -70,21 +70,17 @@ public:
     QString applicationName() const;
     Utils::FilePath bundleDirectory() const;
     Utils::FilePath localExecutable() const;
-    QString disabledReason() const override;
+    QString disabledReason(Utils::Id runMode) const override;
     IosDeviceType deviceType() const;
 
 private:
-    bool isEnabled() const final;
+    bool isEnabled(Utils::Id runMode) const final;
 
     ProjectExplorer::ExecutableAspect executable{this};
     ProjectExplorer::ArgumentsAspect arguments{this};
     IosDeviceTypeAspect iosDeviceType;
 };
 
-class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    IosRunConfigurationFactory();
-};
+void setupIosRunConfiguration();
 
 } // Ios::Internal

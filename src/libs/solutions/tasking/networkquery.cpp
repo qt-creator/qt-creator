@@ -16,13 +16,13 @@ void NetworkQuery::start()
     if (!m_manager) {
         qWarning("Can't start the NetworkQuery without the QNetworkAccessManager. "
                  "Stopping with an error.");
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
     m_reply.reset(m_manager->get(m_request));
     connect(m_reply.get(), &QNetworkReply::finished, this, [this] {
-        disconnect(m_reply.get(), nullptr, this, nullptr);
-        emit done(m_reply->error() == QNetworkReply::NoError);
+        disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
+        emit done(toDoneResult(m_reply->error() == QNetworkReply::NoError));
         m_reply.release()->deleteLater();
     });
     if (m_reply->isRunning())
@@ -31,8 +31,10 @@ void NetworkQuery::start()
 
 NetworkQuery::~NetworkQuery()
 {
-    if (m_reply)
+    if (m_reply) {
+        disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
         m_reply->abort();
+    }
 }
 
 } // namespace Tasking

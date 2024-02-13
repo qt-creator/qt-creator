@@ -27,966 +27,139 @@
     logs for each release. To view the change logs, select \uicontrol Help >
     \uicontrol {Change Log}.
 
-    \section1 Qbs
-
-    \QC installations deliver Qbs. Its licensing and third party attributions
-    are listed in \l{https://doc.qt.io/qbs/attributions.html}{Qbs Manual}.
-
     \section1 Third-party Components
 
     \QC contains the following third-party components:
 
-    \list
-        \li \b{YAML Parser yaml-cpp (MIT License)}
+    \generatelist{groupsbymodule attributions-qtcreator-tools}
 
-            \l {https://github.com/jbeder/yaml-cpp}
+    The following third-party components are shipped with binary packages of \QC:
 
-            QtCreator/src/libs/3rdparty/yaml-cpp
+    \generatelist{groupsbymodule creator-binary-attributions}
+*/
 
-            Copyright (c) 2008-2015 Jesse Beder.
+/*!
+\ingroup creator-binary-attributions
+\page qtcreator-binary-attribution-clazy.html
+\target qtcreator-binary-attribution-clazy
 
-            \include license-mit.qdocinc
+\title Clazy
 
-        \li \b{Syntax highlighting engine for Kate syntax definitions}
+\brief GNU Library General Public License v2
 
-            This is a stand-alone implementation of the Kate syntax highlighting engine.
-            It's meant as a building block for text editors as well as for simple highlighted
-            text rendering (e.g. as HTML), supporting both integration with a custom editor
-            as well as a ready-to-use QSyntaxHighlighter sub-class.
+Clazy is a Qt-oriented static code analyzer based on the Clang framework.
 
-            The following files are part of KDE's kate project, kdelibs/kate:
+Used to statically analyze code in the code editor and as a separate analyzer.
 
-            \list
-                \li \b alert.xml
+The sources with integrated patches can be found at \l{https://code.qt.io/cgit/clang/clazy.git}
 
-                    Author: Dominik Haumann (dhaumann@kde.org).
+\l{https://github.com/KDE/clazy}{Project Homepage}
 
-                    Distributed under the MIT license.
+\badcode *
+Copyright (C) 2015-2019 Clazy Team.
+\endcode
 
-                    \include license-mit.qdocinc
+Distributed under the \l {https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html}
+{GNU Library General Public License, Version 2}.
+*/
 
-                \li \b bash.xml
+/*!
+\ingroup creator-binary-attributions
+\page qtcreator-binary-attribution-llvm.html
+\target qtcreator-binary-attribution-llvm
 
-                    Copyright (c) 2004 by Wilbert Berendsen (wilbert@kde.nl).
+\title LLVM / Clang
 
-                    Changes by: Matthew Woehlke (mw_triad@users.sourceforge.net),
-                    Sebastian Pipping (webmaster@hartwork.org), and
-                    Luiz Angelo Daros de Luca (luizluca@gmail.com).
+\brief Apache 2.0 License with LLVM exceptions
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+The LLVM Project is a collection of modular and reusable compiler and toolchain technologies.
+The Clang frontend compiles C, C++, Objective-C, and Objective-C++ code into LLVM bitcode.
 
-                \li \b cmake.xml
+Clangd is used for enhanced C/C++ support. ClangFormat is used for enhanced indentation and code
+formatting.
 
-                    Copyright 2004 Alexander Neundorf (neundorf@kde.org).
+The sources with backported/additional patches can be found at
+\l{https://code.qt.io/cgit/clang/llvm-project.git}
 
-                    Copyright 2005 Dominik Haumann (dhdev@gmx.de).
+\l{https://github.com/llvm/llvm-project}{Project Homepage}
 
-                    Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net).
+\badcode *
+Copyright (C) 2003-2019 LLVM Team
+\endcode
 
-                    Copyright 2013-2015,2017-2020 Alex Turbov (i.zaufi@gmail.com).
+Distributed under the \l {https://github.com/llvm/llvm-project/blob/main/llvm/LICENSE.TXT}
+{Apache 2.0 License with LLVM exceptions}.
+*/
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)} or later.
+/*!
+\ingroup creator-binary-attributions
+\page qtcreator-binary-attribution-llvmpipe.html
+\target qtcreator-binary-attribution-llvmpipe
 
-                    \badcode
-                    This library is free software; you can redistribute it and/or
-                    modify it under the terms of the GNU Lesser General Public
-                    License as published by the Free Software Foundation; either
-                    version 2 of the License, or (at your option) any later version.
+\title LLVMPipe
 
-                    This library is distributed in the hope that it will be useful,
-                    but WITHOUT ANY WARRANTY; without even the implied warranty of
-                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-                    Lesser General Public License for more details.
+\brief MIT License
 
-                    You should have received a copy of the GNU Lesser General Public
-                    License along with this library; if not, write to the
-                    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-                    Boston, MA  02110-1301, USA.
-                    \endcode
+Mesa is a 3D graphics library with an API which is very similar to that
+of OpenGL. The llvmpipe software renderer enables the running of OpenGL
+applications without any hardware or driver support.
 
-                \li \b css.xml
+\l{https://docs.mesa3d.org/drivers/llvmpipe.html}{Project Homepage}
 
-                    Author: Wilbert Berendsen (wilbert@kde.nl).
+Mesa is shipped as part of the binary packages for Windows
+(opengl32sw.dll).
 
-                    Changes:
-                    Version 7 and 8 by Jonathan Poelen,
-                    Version 2.13 and 4 by Guo Yunhe (guoyunhebrave@gmail.com),
-                    Version 2.08 by Joseph Wenninger,
-                    Version 2.06 by Mte90,
-                    Version 2.03 by Milian Wolff.
+\badcode *
+Copyright (C) 2003-2019 LLVM Team
+\endcode
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+MIT License
 
-                \li \b doxygen.xml
+\badcode *
+Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.
 
-                    Author: Dominik Haumann (dhaumann@kde.org).
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
 
-                    Distributed under the MIT license.
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
 
-                    \include license-mit.qdocinc
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+BRIAN PAUL BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\endcode
+*/
 
-                \li \b dtd.xml
+/*!
+\ingroup creator-binary-attributions
+\page qtcreator-binary-attribution-qbs.html
+\target qtcreator-binary-attribution-qbs
 
-                    Author: Andriy Lesyuk (s-andy@in.if.ua).
+\title Qbs
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+\brief Qt Company Commercial License or GNU General Public License v3.0 only with Qt Company GPL
+Exception 1.0
 
-                \li \b html.xml
+Qbs is a build automation tool designed to conveniently manage the build process of software
+projects across multiple platforms.
 
-                    Author: Wilbert Berendsen (wilbert@kde.nl).
+Qbs is shipped as part of the binary packages for Qbs project support.
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+The sources can be found at https://code.qt.io/cgit/qbs/qbs.git
 
-                \li \b ini.xml
+\l{https://doc.qt.io/qbs/overview.html}{Project Homepage}
 
-                    Author: Jan Janssen (medhefgo@web.de).
+\badcode *
+Copyright (C) 2012-2023 The Qt Company Ltd.
+\endcode
 
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-                \li \b java.xml
-
-                    Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br).
-
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-                \li \b javadoc.xml
-
-                    Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br).
-
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-                \li \b json.xml
-
-                    Author: Sebastian Pipping (sebastian@pipping.org).
-
-                    Released under the \l{https://www.gnu.org/licenses/gpl-3.0.html}
-                    {GNU General Public License Version 3 (GPLv3)} or later.
-
-                \li \b makefile.xml
-
-                    Author: v0.9 by Per Wigren (wigren@home.se).
-
-                    Changes: Joseph Wenninger (jowenn@kde.org),
-                    Rui Santana (santana.rui@gmail.com),
-                    v2.0 by Andreas Nordal (andreas.nordal@gmail.com),
-                    v2.1 by Alex Turbov (i.zaufi@gmail.com),
-                    v4 by Alex Richardson (arichardson.kde@gmail.com).
-
-                \li \b markdown.xml
-
-                    Copyright 2008 Darrin Yeager (http://www.dyeager.org/).
-
-                    Dual-licensed under both the \l{https://www.gnu.org/licenses/gpl-2.0.html}
-                    {GNU General Public License Version 2 (GPLv2)} BSD licenses.
-
-                    Extended 2009 Claes Holmerson (http://github.com/claes/kate-markdown/).
-
-                    Extended 2019 Nibaldo Gonz\unicode{0x00E1}lez S. (nibgonz@gmail.com).
-                    Changes under MIT license.
-
-                    \badcode
-                    Redistribution and use in source and binary forms, with or without
-                    modification, are permitted provided that the following conditions are met:
-
-                      * Redistributions of source code must retain the above copyright
-                        notice, this list of conditions and the following disclaimer.
-                      * Redistributions in binary form must reproduce the above copyright
-                        notice, this list of conditions and the following disclaimer in the
-                        documentation and/or other materials provided with the distribution.
-
-                    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-                    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-                    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-                    ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-                    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-                    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-                    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-                    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-                    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-                    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                    \endcode
-
-                    \include license-mit.qdocinc
-
-                \li \b modelines.xml
-
-                    Author: Alex Turbov (i.zaufi@gmail.com).
-
-                    Distributed under the MIT license.
-
-                    \include license-mit.qdocinc
-
-                \li \b perl.xml
-
-                    Copyright (C) 2001, 2002, 2003, 2004 Anders Lund (anders@alweb.dk).
-
-                    \badcode
-                    This library is free software; you can redistribute it and/or
-                    modify it under the terms of the GNU Library General Public
-                    License version 2 as published by the Free Software Foundation.
-
-                    This library is distributed in the hope that it will be useful,
-                    but WITHOUT ANY WARRANTY; without even the implied warranty of
-                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-                    Library General Public License for more details.
-
-                    You should have received a copy of the GNU Library General Public License
-                    along with this library; see the file COPYING.LIB.  If not, write to
-                    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-                    Boston, MA 02110-1301, USA.
-                    \endcode
-
-                \li \b perl6.xml
-
-                    Author: Jonathan Poelen (jonathan.poelen@gmail.com).
-
-                    Distributed under the MIT license.
-
-                    \include license-mit.qdocinc
-
-                \li \b powershell.xml
-
-                    Authors: Motoki Kashihara (motoki8791@gmail.com),
-                    Michael Lombardi (Michael.T.Lombardi@outlook.com).
-
-                    Distributed under the MIT license.
-
-                    \include license-mit.qdocinc
-
-                \li \b python.xml
-
-                    Author: Michael Bueker
-
-                    Changes: v0.9 by Per Wigren,
-                    v1.9 by Michael Bueker,
-                    v1.97 by Paul Giannaros,
-                    v1.99 by Primoz Anzur,
-                    v2.01 by Paul Giannaros.
-
-                \li \b qdocconf.xml
-
-                    Author: Volker Krause (vkrause@kde.org).
-
-                    Distributed under the MIT license.
-
-                    \include license-mit.qdocinc
-
-                \li \b ruby.xml
-
-                    Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi).
-
-                    Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at).
-
-                    Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com).
-
-                    Copyright (C) 2011 by Miquel Sabat\unicode{0xe9} (mikisabate@gmail.com).
-
-                    \badcode
-                    This library is free software; you can redistribute it and/or
-                    modify it under the terms of the GNU Library General Public
-                    License as published by the Free Software Foundation; either
-                    version 2 of the License, or (at your option) any later version.
-
-                    This library is distributed in the hope that it will be useful,
-                    but WITHOUT ANY WARRANTY; without even the implied warranty of
-                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-                    Library General Public License for more details.
-
-                    You should have received a copy of the GNU Library General Public
-                    License along with this library; if not, write to the
-                    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-                    Boston, MA  02110-1301, USA.
-                    \endcode
-
-                \li \b valgrind-suppression.xml
-
-                    Author: Milian Wolff (mail@milianw.de).
-
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-                \li \b xml.xml
-
-                    Author: Wilbert Berendsen (wilbert@kde.nl).
-
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-                \li \b yacc.xml
-
-                    YACC.XML supports syntax highlighting for Yacc/Bison source under Kate.
-
-                    Copyright (C) 2004, Jan Villat (jan.villat@net2000.ch).
-
-                    Changes by: Nibaldo Gonz\unicode{0x00E1}lez (nibgonz@gmail.com),
-                    Sebastian Pipping (webmaster@hartwork.org).
-
-                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
-                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
-
-            \endlist
-
-            The source code of KSyntaxHighlighting can be found
-            here:
-            \list
-            \li \l{https://invent.kde.org/frameworks/syntax-highlighting}
-            \li QtCreator/src/libs/3rdparty/syntax-highlighting
-            \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/syntax-highlighting}
-            \endlist
-
-        \li \b{Clazy}
-
-            \l {https://github.com/KDE/clazy}
-
-            Copyright (C) 2015-2019 Clazy Team
-
-            Distributed under the \l {https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html}
-            {GNU LIBRARY GENERAL PUBLIC LICENSE Version 2 (LGPL2)}.
-
-            Integrated with patches from
-            \list
-            \li \l{https://code.qt.io/cgit/clang/clazy.git}
-            \endlist
-
-        \li \b{LLVM/Clang}
-
-            \l{https://github.com/llvm/llvm-project/}
-
-            Copyright (C) 2003-2019 LLVM Team
-
-            Distributed under the \l {https://github.com/llvm/llvm-project/blob/main/llvm/LICENSE.TXT}
-            {Apache 2.0 License with LLVM exceptions}.
-
-            With backported/additional patches from
-            \list
-            \li \l{https://code.qt.io/cgit/clang/llvm-project.git}
-            \endlist
-
-        \li \b{std::span implementation for C++11 and later}
-
-            A single-header implementation of C++20's std::span, conforming to
-            the C++20 committee draft. It is compatible with C++11, but will use
-            newer language features if they are available.
-
-            Copyright 2018-2021 Martin Moene
-
-            Distributed under the \l {http://boost.org/LICENSE_1_0.txt}
-            {Boost Software License, Version 1.0}.
-            (See accompanying file LICENSE.md.)
-
-            The source code can be found here:
-            \list
-            \li \l{https://github.com/martinmoene/span-lite}
-            \li QtCreator/src/libs/3rdparty/span
-            \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/span}
-            \endlist
-
-        \li \b{Open Source front-end for C++ (license MIT)}, enhanced for use
-            in \QC.\br
-            Roberto Raggi <roberto.raggi@gmail.com>\br
-            QtCreator/src/libs/3rdparty/cplusplus\br\br
-
-        \li \b{SQLite (version 3.8.10.2)}
-
-        SQLite is a C-language library that implements a small, fast,
-        self-contained, high-reliability, full-featured, SQL database engine.
-
-        The author or authors of this code dedicate any and all copyright
-        interest in this code to the public domain. We make this dedication
-        for the benefit of the public at large and to the detriment of our
-        heirs and successors. We intend this dedication to be an overt act
-        of relinquishment in perpetuity of all present and future rights to
-        this code under copyright law.\br\br
-
-        The source code of SQLite library can be found here:
-        \list
-        \li  QtCreator/src/libs/3rdparty/sqlite
-        \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/sqlite}
-        \endlist
-
-        \li \b{OpenSSL}
-
-        The OpenSSL toolkit stays under a double license, i.e. both the conditions of
-        the OpenSSL License and the original SSLeay license apply to the toolkit.
-        See below for the actual license texts.
-
-        \badcode
-        OpenSSL License
-        ====================================================================
-
-        Copyright (c) 1998-2019 The OpenSSL Project.  All rights reserved.
-
-        Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions
-        are met:
-
-        1. Redistributions of source code must retain the above copyright
-           notice, this list of conditions and the following disclaimer.
-
-        2. Redistributions in binary form must reproduce the above copyright
-           notice, this list of conditions and the following disclaimer in
-           the documentation and/or other materials provided with the
-           distribution.
-
-        3. All advertising materials mentioning features or use of this
-           software must display the following acknowledgment:
-           "This product includes software developed by the OpenSSL Project
-           for use in the OpenSSL Toolkit. (http://www.openssl.org/)"
-
-        4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
-           endorse or promote products derived from this software without
-           prior written permission. For written permission, please contact
-           openssl-core@openssl.org.
-
-        5. Products derived from this software may not be called "OpenSSL"
-           nor may "OpenSSL" appear in their names without prior written
-           permission of the OpenSSL Project.
-
-        6. Redistributions of any form whatsoever must retain the following
-           acknowledgment:
-           "This product includes software developed by the OpenSSL Project
-           for use in the OpenSSL Toolkit (http://www.openssl.org/)"
-
-        THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
-        EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-        PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
-        ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-        NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-        HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-        STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-        ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-        OF THE POSSIBILITY OF SUCH DAMAGE.
-        ====================================================================
-
-        This product includes cryptographic software written by Eric Young
-        (eay@cryptsoft.com).  This product includes software written by Tim
-        Hudson (tjh@cryptsoft.com).
-
-        Original SSLeay License
-        =======================
-
-        Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
-        All rights reserved.
-
-        This package is an SSL implementation written
-        by Eric Young (eay@cryptsoft.com).
-        The implementation was written so as to conform with Netscapes SSL.
-
-        This library is free for commercial and non-commercial use as long as
-        the following conditions are aheared to.  The following conditions
-        apply to all code found in this distribution, be it the RC4, RSA,
-        lhash, DES, etc., code; not just the SSL code.  The SSL documentation
-        included with this distribution is covered by the same copyright terms
-        except that the holder is Tim Hudson (tjh@cryptsoft.com).
-
-        Copyright remains Eric Young's, and as such any Copyright notices in
-        the code are not to be removed.
-        If this package is used in a product, Eric Young should be given attribution
-        as the author of the parts of the library used.
-        This can be in the form of a textual message at program startup or
-        in documentation (online or textual) provided with the package.
-
-        Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions
-        are met:
-        1. Redistributions of source code must retain the copyright
-           notice, this list of conditions and the following disclaimer.
-        2. Redistributions in binary form must reproduce the above copyright
-           notice, this list of conditions and the following disclaimer in the
-           documentation and/or other materials provided with the distribution.
-        3. All advertising materials mentioning features or use of this software
-           must display the following acknowledgement:
-           "This product includes cryptographic software written by
-            Eric Young (eay@cryptsoft.com)"
-           The word 'cryptographic' can be left out if the rouines from the library
-           being used are not cryptographic related :-).
-        4. If you include any Windows specific code (or a derivative thereof) from
-           the apps directory (application code) you must include an acknowledgement:
-           "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
-
-        THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
-        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-        ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-        OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-        HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-        LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-        OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-        SUCH DAMAGE.
-
-        The licence and distribution terms for any publically available version or
-        derivative of this code cannot be changed.  i.e. this code cannot simply be
-        copied and put under another distribution licence
-        [including the GNU Public Licence.]
-        \endcode
-
-        \li \b{LLVMPipe - The Mesa 3D Graphics Library}
-
-        Mesa is a 3D graphics library with an API which is very similar to that
-        of OpenGL. The llvmpipe software renderer enables the running of OpenGL
-        applications without any hardware or driver support.
-
-        Mesa is shipped as part of the binary packages for Windows
-        (opengl32sw.dll).
-
-        \l{https://spdx.org/licenses/MIT.html}{MIT License}:
-
-        \badcode
-        Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.
-
-        Permission is hereby granted, free of charge, to any person obtaining a
-        copy of this software and associated documentation files (the "Software"),
-        to deal in the Software without restriction, including without limitation
-        the rights to use, copy, modify, merge, publish, distribute, sublicense,
-        and/or sell copies of the Software, and to permit persons to whom the
-        Software is furnished to do so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included
-        in all copies or substantial portions of the Software.
-
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-        OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-        BRIAN PAUL BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-        AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-        CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        \endcode
-
-        \li \b{JSON Library by Niels Lohmann}
-
-        Used by the Chrome Trace Format Visualizer plugin instead of QJson
-        because of QJson's current hard limit of 128 Mb object size and
-        trace files often being much larger.
-
-        The sources can be found in
-        \c QtCreator/src/libs/3rdparty/json.
-
-        The class is licensed under the MIT License:
-
-        Copyright (C) 2013-2019 Niels Lohmann
-
-        \badcode
-        Permission is hereby granted, free of charge, to any person obtaining a
-        copy of this software and associated documentation files (the "Software"), to
-        deal in the Software without restriction, including without limitation the
-        rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        copies of the Software, and to permit persons to whom the Software is furnished
-        to do so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included
-        in all copies or substantial portions of the Software.
-
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-        OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        SOFTWARE.
-        \endcode
-
-        The class contains the UTF-8 Decoder from Bjoern Hoehrmann which is
-        licensed under the MIT License (see above). Copyright (C) 2008-2009 Bjoern
-        Hoehrmann <bjoern@hoehrmann.de>
-
-        The class contains a slightly modified version of the Grisu2 algorithm
-        from Florian Loitsch which is licensed under the MIT License (see above).
-        Copyright (C) 2009 Florian Loitsch
-
-        \li \b litehtml
-
-        The litehtml HTML/CSS rendering engine is used as a help viewer backend
-        to display help files.
-
-        The sources can be found in:
-        \list
-            \li \c QtCreator/src/plugins/help/qlitehtml
-            \li \l https://github.com/litehtml
-        \endlist
-
-        Copyright (c) 2013, Yuri Kobets (tordex)
-
-        \badcode
-        Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions are met:
-         * Redistributions of source code must retain the above copyright
-         notice, this list of conditions and the following disclaimer.
-         * Redistributions in binary form must reproduce the above copyright
-         notice, this list of conditions and the following disclaimer in the
-         documentation and/or other materials provided with the distribution.
-         * Neither the name of the <organization> nor the
-         names of its contributors may be used to endorse or promote products
-         derived from this software without specific prior written permission.
-
-        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-        DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-        DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-        ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        \endcode
-
-        \li \b gumbo
-
-        The litehtml HTML/CSS rendering engine uses the gumbo parser.
-
-        Copyright 2010, 2011 Google
-
-        \badcode
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-             http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-        \endcode
-
-        \li \b {gumbo/utf8.c}
-
-        The litehtml HTML/CSS rendering engine uses gumbo/utf8.c parser.
-
-        Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
-
-        \badcode
-        Permission is hereby granted, free of charge, to any person obtaining a copy
-        of this software and associated documentation files (the "Software"), to deal
-        in the Software without restriction, including without limitation the rights
-        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        copies of the Software, and to permit persons to whom the Software is
-        furnished to do  so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included in
-        all copies or substantial portions of the Software.
-        \endcode
-
-        \li \b {SourceCodePro fonts}
-
-        \QC ships with the following fonts licensed under OFL-1.1:
-
-        \list
-            \li SourceCodePro-Regular.ttf
-            \li SourceCodePro-It.ttf
-            \li SourceCodePro-Bold.ttf
-        \endlist
-
-        \badcode
-        SIL OPEN FONT LICENSE
-
-        Version 1.1 - 26 February 2007
-
-        PREAMBLE
-        The goals of the Open Font License (OFL) are to stimulate worldwide
-        development of collaborative font projects, to support the font creation
-        efforts of academic and linguistic communities, and to provide a free and
-        open framework in which fonts may be shared and improved in partnership
-        with others.
-
-        The OFL allows the licensed fonts to be used, studied, modified and
-        redistributed freely as long as they are not sold by themselves. The
-        fonts, including any derivative works, can be bundled, embedded,
-        redistributed and/or sold with any software provided that any reserved
-        names are not used by derivative works. The fonts and derivatives,
-        however, cannot be released under any other type of license. The
-        requirement for fonts to remain under this license does not apply
-        to any document created using the fonts or their derivatives.
-
-        DEFINITIONS
-        "Font Software" refers to the set of files released by the Copyright
-        Holder(s) under this license and clearly marked as such. This may
-        include source files, build scripts and documentation.
-
-        "Reserved Font Name" refers to any names specified as such after the
-        copyright statement(s).
-
-        "Original Version" refers to the collection of Font Software components as
-        distributed by the Copyright Holder(s).
-
-        "Modified Version" refers to any derivative made by adding to, deleting,
-        or substituting - in part or in whole - any of the components of the
-        Original Version, by changing formats or by porting the Font Software to a
-        new environment.
-
-        "Author" refers to any designer, engineer, programmer, technical
-        writer or other person who contributed to the Font Software.
-
-        PERMISSION & CONDITIONS
-        Permission is hereby granted, free of charge, to any person obtaining
-        a copy of the Font Software, to use, study, copy, merge, embed, modify,
-        redistribute, and sell modified and unmodified copies of the Font
-        Software, subject to the following conditions:
-
-        1) Neither the Font Software nor any of its individual components,
-        in Original or Modified Versions, may be sold by itself.
-
-        2) Original or Modified Versions of the Font Software may be bundled,
-        redistributed and/or sold with any software, provided that each copy
-        contains the above copyright notice and this license. These can be
-        included either as stand-alone text files, human-readable headers or
-        in the appropriate machine-readable metadata fields within text or
-        binary files as long as those fields can be easily viewed by the user.
-
-        3) No Modified Version of the Font Software may use the Reserved Font
-        Name(s) unless explicit written permission is granted by the corresponding
-        Copyright Holder. This restriction only applies to the primary font name as
-        presented to the users.
-
-        4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
-        Software shall not be used to promote, endorse or advertise any
-        Modified Version, except to acknowledge the contribution(s) of the
-        Copyright Holder(s) and the Author(s) or with their explicit written
-        permission.
-
-        5) The Font Software, modified or unmodified, in part or in whole,
-        must be distributed entirely under this license, and must not be
-        distributed under any other license. The requirement for fonts to
-        remain under this license does not apply to any document created
-        using the Font Software.
-
-        TERMINATION
-        This license becomes null and void if any of the above conditions are
-        not met.
-
-        DISCLAIMER
-        THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
-        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
-        OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
-        COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-        INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
-        DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-        FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
-        OTHER DEALINGS IN THE FONT SOFTWARE.
-        \endcode
-
-        \li \b conan.cmake
-
-        CMake script used by Qt Creator's auto setup of package manager dependencies.
-
-        The sources can be found in:
-        \list
-            \li \c QtCreator/src/share/3rdparty/package-manager/conan.cmake
-            \li \l https://github.com/conan-io/cmake-conan
-        \endlist
-
-        The MIT License (MIT)
-
-        Copyright (c) 2018 JFrog
-
-        \badcode
-        Permission is hereby granted, free of charge, to any person obtaining a copy
-        of this software and associated documentation files (the "Software"), to deal
-        in the Software without restriction, including without limitation the rights
-        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        copies of the Software, and to permit persons to whom the Software is
-        furnished to do so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included in all
-        copies or substantial portions of the Software.
-
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        SOFTWARE.
-        \endcode
-
-        \li \b TartanLlama/expected
-
-        Implementation of std::expected compatible with C++11/C++14/C++17.
-
-        The sources can be found in:
-        \list
-            \li \c QtCreator/src/libs/3rdparty/tl_expected
-            \li \l https://github.com/TartanLlama/expected
-        \endlist
-
-        CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
-
-        https://creativecommons.org/publicdomain/zero/1.0/
-
-        \li \b WinPty
-
-        Implementation of a pseudo terminal for Windows.
-
-        The sources can be found in:
-        \list
-            \li \l https://github.com/rprichard/winpty
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b ptyqt
-
-        Pty-Qt is small library for access to console applications by a
-        pseudo-terminal interface on \macos, Linux and Windows. On \macos and
-        Linux it uses standard PseudoTerminal API and on Windows it uses
-        WinPty or ConPty.
-
-        \list
-            \li \l https://github.com/kafeg/ptyqt
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b libvterm
-
-        An abstract C99 library, which implements a VT220 or xterm-like terminal
-        emulator. It doesn't use any particular graphics toolkit or output
-        system. Instead it invokes callback function pointers that its embedding
-        program should provide to draw on its behalf. It avoids calling malloc()
-        during normal running state, allowing it to be used in embedded kernels.
-
-        \list
-            \li \l https://www.leonerd.org.uk/code/libvterm/
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b terminal/shellintegrations
-
-        The Terminal plugin uses scripts to integrate with the shell. The scripts are
-        located in the Qt Creator source tree in src/plugins/terminal/shellintegrations.
-
-        \list
-            \li \l https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b terminal/shellintegrations/clink
-
-        The Terminal plugin uses a lua script to integrate with the cmd shell when using clink.
-
-        \list
-            \li \l https://github.com/chrisant996/clink-gizmos
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b QrCodeGenerator
-
-        The QML Designer plugin uses QR Code Generator for Design Viewer integration.
-
-        \list
-            \li \l https://github.com/alex-spataru/Qt-QrCodeGenerator
-        \endlist
-
-        Distributed under the MIT license.
-
-        \include license-mit.qdocinc
-
-        \li \b cmake
-
-        The CMake project manager uses the CMake lexer code for parsing CMake files.
-
-        \list
-            \li \l https://gitlab.kitware.com/cmake/cmake.git
-        \endlist
-
-        CMake - Cross Platform Makefile Generator
-        Copyright 2000-2023 Kitware, Inc. and Contributors
-        All rights reserved.
-
-        \badcode
-        Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions
-        are met:
-
-        * Redistributions of source code must retain the above copyright
-            notice, this list of conditions and the following disclaimer.
-
-        * Redistributions in binary form must reproduce the above copyright
-            notice, this list of conditions and the following disclaimer in the
-            documentation and/or other materials provided with the distribution.
-
-        * Neither the name of Kitware, Inc. nor the names of Contributors
-            may be used to endorse or promote products derived from this
-            software without specific prior written permission.
-
-        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-        "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-        A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-        HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-        THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        \endcode
-
-        \li \b RSTParser
-
-        RSTParser is an open-source C++ library for parsing reStructuredText
-
-        \list
-            \li \l https://github.com/vitaut-archive/rstparser
-        \endlist
-
-        \badcode
-        License
-        -------
-
-        Copyright (c) 2013, Victor Zverovich
-
-        All rights reserved.
-
-        Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions are met:
-
-        1. Redistributions of source code must retain the above copyright notice, this
-            list of conditions and the following disclaimer.
-        2. Redistributions in binary form must reproduce the above copyright notice,
-            this list of conditions and the following disclaimer in the documentation
-            and/or other materials provided with the distribution.
-
-        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-        ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-        ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        \endcode
-
-
-     \endlist
+Licensing and third party attributions are listed in the
+\l{https://doc.qt.io/qbs/attributions.html}{Qbs Manual}.
 */

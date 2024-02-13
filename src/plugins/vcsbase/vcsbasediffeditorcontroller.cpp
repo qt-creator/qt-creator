@@ -38,20 +38,18 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-GroupItem VcsBaseDiffEditorController::postProcessTask(const TreeStorage<QString> &inputStorage)
+GroupItem VcsBaseDiffEditorController::postProcessTask(const Storage<QString> &inputStorage)
 {
-    const auto setupDiffProcessor = [inputStorage](Async<QList<FileData>> &async) {
+    const auto onSetup = [inputStorage](Async<QList<FileData>> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&DiffUtils::readPatchWithPromise, *inputStorage);
     };
-    const auto onDiffProcessorDone = [this](const Async<QList<FileData>> &async) {
-        setDiffFiles(async.isResultAvailable() ? async.result() : QList<FileData>());
+    const auto onDone = [this](const Async<QList<FileData>> &async, DoneWith result) {
+        setDiffFiles(result == DoneWith::Success && async.isResultAvailable()
+                     ? async.result() : QList<FileData>());
         // TODO: We should set the right starting line here
     };
-    const auto onDiffProcessorError = [this](const Async<QList<FileData>> &) {
-        setDiffFiles({});
-    };
-    return AsyncTask<QList<FileData>>(setupDiffProcessor, onDiffProcessorDone, onDiffProcessorError);
+    return AsyncTask<QList<FileData>>(onSetup, onDone);
 }
 
 void VcsBaseDiffEditorController::setupCommand(Process &process, const QStringList &args) const

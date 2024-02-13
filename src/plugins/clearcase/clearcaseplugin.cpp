@@ -29,22 +29,21 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
-#include <utils/parameteraction.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 
 #include <QAbstractButton>
@@ -65,7 +64,6 @@
 #include <QMetaObject>
 #include <QMutex>
 #include <QRegularExpression>
-#include <QSharedPointer>
 #include <QTextCodec>
 #include <QUuid>
 #include <QVBoxLayout>
@@ -79,10 +77,11 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace VcsBase;
 using namespace Utils;
+
+using namespace std::chrono;
 using namespace std::placeholders;
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 const char CLEARCASE_CONTEXT[]         = "ClearCase Context";
 const char CMD_ID_CLEARCASE_MENU[]     = "ClearCase.Menu";
@@ -101,40 +100,16 @@ const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
 const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
 const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    "ClearCase File Log Editor",   // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase File Log Editor"),   // display_name
-    "text/vnd.qtcreator.clearcase.log"
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    "ClearCase Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Annotation Editor"),   // display_name
-    "text/vnd.qtcreator.clearcase.annotation"
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    "ClearCase Diff Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Diff Editor"),   // display_name
-    "text/x-patch"
-};
-
-const VcsBaseSubmitEditorParameters submitParameters {
-    Constants::CLEARCASE_SUBMIT_MIMETYPE,
-    Constants::CLEARCASECHECKINEDITOR_ID,
-    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
+const char LOG_EDITOR_ID[]             = "ClearCase File Log Editor";
+const char ANNOTATION_EDITOR_ID[]      = "ClearCase Annotation Editor";
+const char DIFF_EDITOR_ID[]            = "ClearCase Diff Editor";
 
 static QString debugCodec(const QTextCodec *c)
 {
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
-class ClearCasePluginPrivate final : public VcsBase::VcsBasePluginPrivate
+class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
 {
     Q_OBJECT
 
@@ -216,7 +191,7 @@ public:
     void updateStreamAndView();
 
 protected:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    void updateActions(VcsBase::VersionControlBase::ActionState) override;
     bool activateCommit() override;
     void discardCommit() override { cleanCheckInMessageFile(); }
     QString ccGet(const FilePath &workingDir, const QString &file, const QString &prefix = {});
@@ -285,6 +260,7 @@ private:
     void updateStatusForFile(const QString &absFile);
     void updateEditDerivedObjectWarning(const QString &fileName, const FileStatus::Status status);
 
+public:
     ClearCaseSettings m_settings;
 
     FilePath m_checkInMessageFilePath;
@@ -297,60 +273,61 @@ private:
     QString m_diffPrefix;
 
     CommandLocator *m_commandLocator = nullptr;
-    ParameterAction *m_checkOutAction = nullptr;
-    ParameterAction *m_checkInCurrentAction = nullptr;
-    ParameterAction *m_undoCheckOutAction = nullptr;
-    ParameterAction *m_undoHijackAction = nullptr;
-    ParameterAction *m_diffCurrentAction = nullptr;
-    ParameterAction *m_historyCurrentAction = nullptr;
-    ParameterAction *m_annotateCurrentAction = nullptr;
-    ParameterAction *m_addFileAction = nullptr;
+    Action *m_checkOutAction = nullptr;
+    Action *m_checkInCurrentAction = nullptr;
+    Action *m_undoCheckOutAction = nullptr;
+    Action *m_undoHijackAction = nullptr;
+    Action *m_diffCurrentAction = nullptr;
+    Action *m_historyCurrentAction = nullptr;
+    Action *m_annotateCurrentAction = nullptr;
+    Action *m_addFileAction = nullptr;
     QAction *m_diffActivityAction = nullptr;
     QAction *m_updateIndexAction = nullptr;
-    ParameterAction *m_updateViewAction = nullptr;
-    ParameterAction *m_checkInActivityAction = nullptr;
+    Action *m_updateViewAction = nullptr;
+    Action *m_checkInActivityAction = nullptr;
     QAction *m_checkInAllAction = nullptr;
     QAction *m_statusAction = nullptr;
 
     QAction *m_menuAction = nullptr;
     QMutex m_activityMutex;
     QList<QStringPair> m_activities;
-    QSharedPointer<StatusMap> m_statusMap;
+    std::shared_ptr<StatusMap> m_statusMap;
 
     ClearCaseSettingsPage m_settingsPage;
 
-    VcsSubmitEditorFactory m_submitEditorFactory {
-        submitParameters,
-        [] { return new ClearCaseSubmitEditor; },
-        this
-    };
-
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        LOG_EDITOR_ID,
+        VcsBase::Tr::tr("ClearCase File Log Editor"),   // display_name
+        "text/vnd.qtcreator.clearcase.log",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        ANNOTATION_EDITOR_ID,
+        VcsBase::Tr::tr("ClearCase Annotation Editor"),   // display_name
+        "text/vnd.qtcreator.clearcase.annotation",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        DIFF_EDITOR_ID,
+        VcsBase::Tr::tr("ClearCase Diff Editor"),   // display_name
+        "text/x-patch",
         [] { return new ClearCaseEditorWidget; },
         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    friend class ClearCasePlugin;
 #ifdef WITH_TESTS
     bool m_fakeClearTool = false;
     FilePath m_tempFile;
 #endif
 };
 
-// ------------- ClearCasePlugin
 static ClearCasePluginPrivate *dd = nullptr;
 
 ClearCasePluginPrivate::~ClearCasePluginPrivate()
@@ -563,18 +540,8 @@ QString ClearCasePluginPrivate::findTopLevel(const FilePath &directory) const
     return ccManagesDirectory(directory);
 }
 
-void ClearCasePlugin::initialize()
-{
-    dd = new ClearCasePluginPrivate;
-}
-
-void ClearCasePlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-}
-
 ClearCasePluginPrivate::ClearCasePluginPrivate()
-    : VcsBase::VcsBasePluginPrivate(Context(CLEARCASE_CONTEXT)),
+    : VcsBase::VersionControlBase(Context(CLEARCASE_CONTEXT)),
       m_statusMap(new StatusMap)
 {
     dd = this;
@@ -614,123 +581,162 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     clearcaseMenu->menu()->setTitle(Tr::tr("C&learCase"));
     toolsContainer->addMenu(clearcaseMenu);
     m_menuAction = clearcaseMenu->menu()->menuAction();
-    Command *command;
 
-    m_checkOutAction = new ParameterAction(Tr::tr("Check Out..."), Tr::tr("Check &Out \"%1\"..."), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+O") : Tr::tr("Alt+L,Alt+O")));
-    connect(m_checkOutAction, &QAction::triggered, this, &ClearCasePluginPrivate::checkOutCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder checkOut(this, CMD_ID_CHECKOUT);
+    checkOut.setParameterText(Tr::tr("Check &Out \"%1\"..."), Tr::tr("Check Out..."),
+                              ActionBuilder::AlwaysEnabled);
+    checkOut.bindContextAction(&m_checkOutAction);
+    checkOut.setContext(context);
+    checkOut.setCommandAttribute(Command::CA_UpdateText);
+    checkOut.setDefaultKeySequence(Tr::tr("Meta+L,Meta+O"), Tr::tr("Alt+L,Alt+O"));
+    checkOut.addOnTriggered(this, &ClearCasePluginPrivate::checkOutCurrentFile);
+    checkOut.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkOut.command());
 
-    m_checkInCurrentAction = new ParameterAction(Tr::tr("Check &In..."), Tr::tr("Check &In \"%1\"..."), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+I") : Tr::tr("Alt+L,Alt+I")));
-    connect(m_checkInCurrentAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder checkInCurrent(this, CMD_ID_CHECKIN);
+    checkInCurrent.setParameterText(Tr::tr("Check &In \"%1\"..."), Tr::tr("Check &In..."),
+                                    ActionBuilder::AlwaysEnabled);
+    checkInCurrent.bindContextAction(&m_checkInCurrentAction);
+    checkInCurrent.setContext(context);
+    checkInCurrent.setCommandAttribute(Command::CA_UpdateText);
+    checkInCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+I"), Tr::tr("Alt+L,Alt+I"));
+    checkInCurrent.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInCurrentFile);
+    checkInCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInCurrent.command());
 
-    m_undoCheckOutAction = new ParameterAction(Tr::tr("Undo Check Out"), Tr::tr("&Undo Check Out \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+U") : Tr::tr("Alt+L,Alt+U")));
-    connect(m_undoCheckOutAction, &QAction::triggered, this, &ClearCasePluginPrivate::undoCheckOutCurrent);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder undoCheckOut(this, CMD_ID_UNDOCHECKOUT);
+    undoCheckOut.setParameterText("&Undo Check Out \"%1\"", Tr::tr("Undo Check Out"),
+                                  ActionBuilder::AlwaysEnabled);
+    undoCheckOut.bindContextAction(&m_undoCheckOutAction);
+    undoCheckOut.setContext(context);
+    undoCheckOut.setCommandAttribute(Command::CA_UpdateText);
+    undoCheckOut.setDefaultKeySequence(Tr::tr("Meta+L,Meta+U"), Tr::tr("Alt+L,Alt+U"));
+    undoCheckOut.addOnTriggered(this, &ClearCasePluginPrivate::undoCheckOutCurrent);
+    undoCheckOut.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(undoCheckOut.command());
 
-    m_undoHijackAction = new ParameterAction(Tr::tr("Undo Hijack"), Tr::tr("Undo Hi&jack \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+R") : Tr::tr("Alt+L,Alt+R")));
-    connect(m_undoHijackAction, &QAction::triggered, this, &ClearCasePluginPrivate::undoHijackCurrent);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    clearcaseMenu->addSeparator(context);
-
-    m_diffCurrentAction = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("&Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+D") : Tr::tr("Alt+L,Alt+D")));
-    connect(m_diffCurrentAction, &QAction::triggered, this, &ClearCasePluginPrivate::diffCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_historyCurrentAction = new ParameterAction(Tr::tr("History Current File"), Tr::tr("&History \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_historyCurrentAction,
-        CMD_ID_HISTORY_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+H") : Tr::tr("Alt+L,Alt+H")));
-    connect(m_historyCurrentAction, &QAction::triggered, this,
-        &ClearCasePluginPrivate::historyCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_annotateCurrentAction = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("&Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+A") : Tr::tr("Alt+L,Alt+A")));
-    connect(m_annotateCurrentAction, &QAction::triggered, this,
-        &ClearCasePluginPrivate::annotateCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_addFileAction = new ParameterAction(Tr::tr("Add File..."), Tr::tr("Add File \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_addFileAction, &QAction::triggered, this, &ClearCasePluginPrivate::addCurrentFile);
-    clearcaseMenu->addAction(command);
+    ActionBuilder undoHijack(this, CMD_ID_UNDOHIJACK);
+    undoHijack.setParameterText(Tr::tr("Undo Hi&jack \"%1\""), Tr::tr("Undo Hijack"),
+                                ActionBuilder::AlwaysEnabled);
+    undoHijack.bindContextAction(&m_undoHijackAction);
+    undoHijack.setContext(context);
+    undoHijack.setCommandAttribute(Command::CA_UpdateText);
+    undoHijack.setDefaultKeySequence(Tr::tr("Meta+L,Meta+R"), Tr::tr("Alt+L,Alt+R"));
+    undoHijack.addOnTriggered(this, &ClearCasePluginPrivate::undoHijackCurrent);
+    undoHijack.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(undoHijack.command());
 
     clearcaseMenu->addSeparator(context);
 
-    m_diffActivityAction = new QAction(Tr::tr("Diff A&ctivity..."), this);
-    m_diffActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, context);
-    connect(m_diffActivityAction, &QAction::triggered, this, &ClearCasePluginPrivate::diffActivity);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder diffCurrent(this, CMD_ID_DIFF_CURRENT);
+    diffCurrent.setParameterText(Tr::tr("&Diff \"%1\""), Tr::tr("Diff Current File"),
+                                 ActionBuilder::EnabledWithParameter);
+    diffCurrent.bindContextAction(&m_diffCurrentAction);
+    diffCurrent.setContext(context);
+    diffCurrent.setCommandAttribute(Command::CA_UpdateText);
+    diffCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+D"), Tr::tr("Alt+L,Alt+D"));
+    diffCurrent.addOnTriggered(this, &ClearCasePluginPrivate::diffCurrentFile);
+    diffCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(diffCurrent.command());
 
-    m_checkInActivityAction = new ParameterAction(Tr::tr("Ch&eck In Activity"), Tr::tr("Chec&k In Activity \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    m_checkInActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, context);
-    connect(m_checkInActivityAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInActivity);
-    command->setAttribute(Command::CA_UpdateText);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder historyCurrent(this, CMD_ID_HISTORY_CURRENT);
+    historyCurrent.setParameterText(Tr::tr("&History \"%1\""), Tr::tr("History Current File"),
+                                    ActionBuilder::EnabledWithParameter);
+    historyCurrent.bindContextAction(&m_historyCurrentAction);
+    historyCurrent.setContext(context);
+    historyCurrent.setCommandAttribute(Command::CA_UpdateText);
+    historyCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+H"), Tr::tr("Alt+L,Alt+H"));
+    historyCurrent.addOnTriggered(this, &ClearCasePluginPrivate::historyCurrentFile);
+    historyCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(historyCurrent.command());
+
+    ActionBuilder annotateCurrent(this, CMD_ID_ANNOTATE);
+    annotateCurrent.setParameterText(Tr::tr("&Annotate \"%1\""),Tr::tr("Annotate Current File"),
+                                     ActionBuilder::EnabledWithParameter);
+    annotateCurrent.bindContextAction(&m_annotateCurrentAction);
+    annotateCurrent.setContext(context);
+    annotateCurrent.setCommandAttribute(Command::CA_UpdateText);
+    annotateCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+A"), Tr::tr("Alt+L,Alt+A"));
+    annotateCurrent.addOnTriggered(this, &ClearCasePluginPrivate::annotateCurrentFile);
+    annotateCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(annotateCurrent.command());
+
+    ActionBuilder addFile(this, CMD_ID_ADD_FILE);
+    addFile.setParameterText(Tr::tr("Add File \"%1\""), Tr::tr("Add File..."),
+                             ActionBuilder::EnabledWithParameter);
+    addFile.bindContextAction(&m_addFileAction);
+    addFile.setContext(context);
+    addFile.setCommandAttribute(Command::CA_UpdateText);
+    addFile.addOnTriggered(this, &ClearCasePluginPrivate::addCurrentFile);
+    addFile.addToContainer(CMD_ID_CLEARCASE_MENU);
 
     clearcaseMenu->addSeparator(context);
 
-    m_updateIndexAction = new QAction(Tr::tr("Update Index"), this);
-    command = ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, context);
-    connect(m_updateIndexAction, &QAction::triggered, this, &ClearCasePluginPrivate::updateIndex);
-    clearcaseMenu->addAction(command);
+    ActionBuilder diffActivity(this, CMD_ID_DIFF_ACTIVITY);
+    diffActivity.setText(Tr::tr("Diff A&ctivity..."));
+    diffActivity.bindContextAction(&m_diffActivityAction);
+    diffActivity.setContext(context);
+    diffActivity.setEnabled(false);
+    diffActivity.addOnTriggered(this, &ClearCasePluginPrivate::diffActivity);
+    diffActivity.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(diffActivity.command());
 
-    m_updateViewAction = new ParameterAction(Tr::tr("Update View"), Tr::tr("U&pdate View \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, context);
-    connect(m_updateViewAction, &QAction::triggered, this, &ClearCasePluginPrivate::updateView);
-    command->setAttribute(Command::CA_UpdateText);
-    clearcaseMenu->addAction(command);
+    ActionBuilder checkInActivity(this, CMD_ID_CHECKIN_ACTIVITY);
+    checkInActivity.setParameterText(Tr::tr("Chec&k In Activity \"%1\"..."), Tr::tr("Ch&eck In Activity"),
+                                     ActionBuilder::EnabledWithParameter);
+    checkInActivity.bindContextAction(&m_checkInActivityAction);
+    checkInActivity.setContext(context);
+    checkInActivity.setEnabled(false);
+    checkInActivity.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInActivity);
+    checkInActivity.setCommandAttribute(Command::CA_UpdateText);
+    checkInActivity.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInActivity.command());
 
     clearcaseMenu->addSeparator(context);
 
-    m_checkInAllAction = new QAction(Tr::tr("Check In All &Files..."), this);
-    command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+F") : Tr::tr("Alt+L,Alt+F")));
-    connect(m_checkInAllAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInAll);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder updateIndex(this, CMD_ID_UPDATEINDEX);
+    updateIndex.setText(Tr::tr("Update Index"));
+    updateIndex.bindContextAction(&m_updateIndexAction);
+    updateIndex.setContext(context);
+    updateIndex.addOnTriggered(this, &ClearCasePluginPrivate::updateIndex);
+    updateIndex.addToContainer(CMD_ID_CLEARCASE_MENU);
 
-    m_statusAction = new QAction(Tr::tr("View &Status"), this);
-    command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+S") : Tr::tr("Alt+L,Alt+S")));
-    connect(m_statusAction, &QAction::triggered, this, &ClearCasePluginPrivate::viewStatus);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder updateView(this, CMD_ID_UPDATE_VIEW);
+    updateView.setParameterText(Tr::tr("U&pdate View \"%1\""), Tr::tr("Update View"),
+                                ActionBuilder::EnabledWithParameter);
+    updateView.bindContextAction(&m_updateViewAction);
+    updateView.setContext(context);
+    updateView.setCommandAttribute(Command::CA_UpdateText);
+    updateView.addOnTriggered(this, &ClearCasePluginPrivate::updateView);
+    updateView.addToContainer(CMD_ID_CLEARCASE_MENU);
+
+    clearcaseMenu->addSeparator(context);
+
+    ActionBuilder checkInAll(this, CMD_ID_CHECKIN_ALL);
+    checkInAll.setText(Tr::tr("Check In All &Files..."));
+    checkInAll.bindContextAction(&m_checkInAllAction);
+    checkInAll.setContext(context);
+    checkInAll.setDefaultKeySequence(Tr::tr("Meta+L,Meta+F"), Tr::tr("Alt+L,Alt+F"));
+    checkInAll.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInAll);
+    checkInAll.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInAll.command());
+
+    ActionBuilder status(this, CMD_ID_STATUS);
+    status.setText(Tr::tr("View &Status"));
+    status.bindContextAction(&m_statusAction);
+    status.setContext(context);
+    status.setDefaultKeySequence(Tr::tr("Meta+L,Meta+S"), Tr::tr("Alt+L,Alt+S"));
+    status.addOnTriggered(this, &ClearCasePluginPrivate::viewStatus);
+    status.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(status.command());
+
+    setupVcsSubmitEditor(this, {
+        Constants::CLEARCASE_SUBMIT_MIMETYPE,
+        Constants::CLEARCASECHECKINEDITOR_ID,
+        VcsBase::Tr::tr("ClearCase Check In Editor"),
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new ClearCaseSubmitEditor; }
+    });
 }
 
 // called before closing the submit editor
@@ -917,7 +923,7 @@ void ClearCasePluginPrivate::updateStatusActions()
     m_diffActivityAction->setEnabled(m_viewData.isUcm);
 }
 
-void ClearCasePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void ClearCasePluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
@@ -1205,7 +1211,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QS
         diffname = QDir::toNativeSeparators(files.first());
     }
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
-    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id, source, codec);
+    IEditor *editor = showOutputInEditor(title, result, DIFF_EDITOR_ID, source, codec);
     setWorkingDirectory(editor, workingDir);
     VcsBaseEditor::tagEditor(editor, tag);
     auto diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
@@ -1286,7 +1292,7 @@ void ClearCasePluginPrivate::diffActivity()
     }
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
-    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id,
+    IEditor *editor = showOutputInEditor(title, result, DIFF_EDITOR_ID,
                                          FilePath::fromString(activity), nullptr);
     setWorkingDirectory(editor, topLevel);
 }
@@ -1448,7 +1454,7 @@ void ClearCasePluginPrivate::history(const FilePath &workingDir,
     const QString title = QString::fromLatin1("cc history %1").arg(id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     IEditor *newEditor = showOutputInEditor(title, result.cleanedStdOut(),
-                                            logEditorParameters.id, source, codec);
+                                            LOG_EDITOR_ID, source, codec);
     VcsBaseEditor::tagEditor(newEditor, tag);
     if (enableAnnotationContextMenu)
         VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1551,7 +1557,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc annotate %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, res, annotateEditorParameters.id, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, res, ANNOTATION_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1585,7 +1591,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, description, diffEditorParameters.id, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, description, DIFF_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
     }
 }
@@ -1602,8 +1608,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
     process.setEnvironment(env);
     process.setCommand({m_settings.ccBinaryPath, arguments});
     process.setWorkingDirectory(workingDir);
-    process.setTimeoutS(m_settings.timeOutS);
-    process.runBlocking();
+    process.runBlocking(seconds(m_settings.timeOutS));
     return CommandResult(process);
 }
 
@@ -1792,7 +1797,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
     if (files.isEmpty())
         return true;
     const QString title = QString::fromLatin1("Checkin %1").arg(files.join(QLatin1String("; ")));
-    using FCBPointer = QSharedPointer<FileChangeBlocker>;
+    using FCBPointer = std::shared_ptr<FileChangeBlocker>;
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
@@ -2265,11 +2270,10 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
     diff.addArgs(arguments);
 
     Process process;
-    process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
     process.setCommand(diff);
-    process.runBlocking(EventLoopMode::On);
+    process.runBlocking(seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return {};
     return process.allOutput();
@@ -2420,60 +2424,75 @@ bool ClearCasePluginPrivate::vcsCreateRepository(const FilePath &)
 
 // ClearCasePlugin
 
-ClearCasePlugin::~ClearCasePlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-bool ClearCasePlugin::newActivity()
+bool newActivity()
 {
     return dd->newActivity();
 }
 
-const QList<QStringPair> ClearCasePlugin::activities(int *current)
+const QList<QStringPair> activities(int *current)
 {
     return dd->activities(current);
 }
 
-QStringList ClearCasePlugin::ccGetActiveVobs()
+QStringList ccGetActiveVobs()
 {
     return dd->ccGetActiveVobs();
 }
 
-void ClearCasePlugin::refreshActivities()
+void refreshActivities()
 {
     dd->refreshActivities();
 }
 
-const ViewData ClearCasePlugin::viewData()
+const ViewData viewData()
 {
     return dd->m_viewData;
 }
 
-void ClearCasePlugin::setStatus(const QString &file, FileStatus::Status status, bool update)
+void setStatus(const QString &file, FileStatus::Status status, bool update)
 {
     dd->setStatus(file, status, update);
 }
 
-const ClearCaseSettings &ClearCasePlugin::settings()
+const ClearCaseSettings &settings()
 {
     return dd->m_settings;
 }
 
-void ClearCasePlugin::setSettings(const ClearCaseSettings &s)
+void setSettings(const ClearCaseSettings &s)
 {
     dd->setSettings(s);
 }
 
-QSharedPointer<StatusMap> ClearCasePlugin::statusMap()
+std::shared_ptr<StatusMap> statusMap()
 {
     return dd->m_statusMap;
 }
 
 #ifdef WITH_TESTS
 
-void ClearCasePlugin::testDiffFileResolving_data()
+class ClearCaseTest final : public QObject
+{
+    Q_OBJECT
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+    void testFileStatusParsing_data();
+    void testFileStatusParsing();
+    void testFileNotManaged();
+    void testFileCheckedOutDynamicView();
+    void testFileCheckedInDynamicView();
+    void testFileNotManagedDynamicView();
+    void testStatusActions_data();
+    void testStatusActions();
+    void testVcsStatusDynamicReadonlyNotManaged();
+    void testVcsStatusDynamicNotManaged();
+};
+
+void ClearCaseTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -2485,12 +2504,12 @@ void ClearCasePlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/clearcase/clearcaseeditor.cpp");
 }
 
-void ClearCasePlugin::testDiffFileResolving()
+void ClearCaseTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void ClearCasePlugin::testLogResolving()
+void ClearCaseTest::testLogResolving()
 {
     QByteArray data(
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
@@ -2501,7 +2520,7 @@ void ClearCasePlugin::testLogResolving()
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");
 }
 
-void ClearCasePlugin::initTestCase()
+void ClearCaseTest::initTestCase()
 {
     dd->m_tempFile = FilePath::currentWorkingPath() / "cc_file.cpp";
     FileSaver srcSaver(dd->m_tempFile);
@@ -2509,12 +2528,12 @@ void ClearCasePlugin::initTestCase()
     srcSaver.finalize();
 }
 
-void ClearCasePlugin::cleanupTestCase()
+void ClearCaseTest::cleanupTestCase()
 {
     QVERIFY(dd->m_tempFile.removeFile());
 }
 
-void ClearCasePlugin::testFileStatusParsing_data()
+void ClearCaseTest::testFileStatusParsing_data()
 {
     QTest::addColumn<QString>("filename");
     QTest::addColumn<QString>("cleartoolLsLine");
@@ -2544,9 +2563,9 @@ void ClearCasePlugin::testFileStatusParsing_data()
             << static_cast<int>(FileStatus::Missing);
 }
 
-void ClearCasePlugin::testFileStatusParsing()
+void ClearCaseTest::testFileStatusParsing()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     QFETCH(QString, filename);
     QFETCH(QString, cleartoolLsLine);
@@ -2556,31 +2575,31 @@ void ClearCasePlugin::testFileStatusParsing()
     ccSync.verifyParseStatus(filename, cleartoolLsLine, static_cast<FileStatus::Status>(status));
 }
 
-void ClearCasePlugin::testFileNotManaged()
+void ClearCaseTest::testFileNotManaged()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileNotManaged();
 }
 
-void ClearCasePlugin::testFileCheckedOutDynamicView()
+void ClearCaseTest::testFileCheckedOutDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileCheckedOutDynamicView();
 }
 
-void ClearCasePlugin::testFileCheckedInDynamicView()
+void ClearCaseTest::testFileCheckedInDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileCheckedInDynamicView();
 }
 
-void ClearCasePlugin::testFileNotManagedDynamicView()
+void ClearCaseTest::testFileNotManagedDynamicView()
 {
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
     ClearCaseSync ccSync(dd->m_statusMap);
     ccSync.verifyFileNotManagedDynamicView();
 }
@@ -2634,7 +2653,7 @@ private:
 };
 }
 
-void ClearCasePlugin::testStatusActions_data()
+void ClearCaseTest::testStatusActions_data()
 {
     QTest::addColumn<int>("status");
     QTest::addColumn<bool>("checkOutAction");
@@ -2655,7 +2674,7 @@ void ClearCasePlugin::testStatusActions_data()
                                 << false << false << false << false << true  << false << false;
 }
 
-void ClearCasePlugin::testStatusActions()
+void ClearCaseTest::testStatusActions()
 {
     const QString fileName = QDir::currentPath() + QLatin1String("/clearcase_file.cpp");
     TestCase testCase(fileName);
@@ -2687,11 +2706,11 @@ void ClearCasePlugin::testStatusActions()
     QCOMPARE(dd->m_diffActivityAction->isEnabled(), diffActivityAction);
 }
 
-void ClearCasePlugin::testVcsStatusDynamicReadonlyNotManaged()
+void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const QString fileName = QDir::currentPath() + QLatin1String("/readonly_notmanaged_file.cpp");
 
@@ -2710,10 +2729,10 @@ void ClearCasePlugin::testVcsStatusDynamicReadonlyNotManaged()
 
 }
 
-void ClearCasePlugin::testVcsStatusDynamicNotManaged()
+void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
     ClearCasePluginPrivate::instance();
-    dd->m_statusMap = QSharedPointer<StatusMap>(new StatusMap);
+    dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const QString fileName = QDir::currentPath() + QLatin1String("/notmanaged_file.cpp");
 
@@ -2727,7 +2746,31 @@ void ClearCasePlugin::testVcsStatusDynamicNotManaged()
 }
 #endif
 
-} // namespace Internal
-} // namespace ClearCase
+
+class ClearCasePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
+
+    ~ClearCasePlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new ClearCasePluginPrivate;
+#ifdef WITH_TESTS
+        addTest<ClearCaseTest>();
+#endif
+    }
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
+} // ClearCase::Internal
 
 #include "clearcaseplugin.moc"

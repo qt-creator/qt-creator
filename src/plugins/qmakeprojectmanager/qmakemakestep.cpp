@@ -179,7 +179,7 @@ bool QmakeMakeStep::init()
 void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;
@@ -206,7 +206,7 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
 
     const auto onSetup = [this] {
         if (m_scriptTarget || m_ignoredNonTopLevelBuild)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
 
         if (!m_makeFileToCheck.exists()) {
             const bool success = ignoreReturnValue();
@@ -214,7 +214,7 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
                 emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."),
                                OutputFormat::NormalMessage);
             }
-            return success ? SetupResult::StopWithDone : SetupResult::StopWithError;
+            return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
         }
         return SetupResult::Continue;
     };
@@ -227,9 +227,9 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
     };
 
     return Group {
-        ignoreReturnValue() ? finishAllAndDone : stopOnError,
+        ignoreReturnValue() ? finishAllAndSuccess : stopOnError,
         onGroupSetup(onSetup),
-        onGroupError(onError),
+        onGroupDone(onError, CallDoneIf::Error),
         defaultProcessTask()
     };
 }

@@ -1,0 +1,46 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-enble-debugging.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-build
+
+    \title Enable debugging
+
+    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    \image qtquick-debugger-settings.webp {Debugger Settings"}
+
+    To select the languages to debug, select \uicontrol Automatic
+    or \uicontrol Enabled in \uicontrol {Debugger Settings} >
+    \uicontrol {C++ debugger} and \uicontrol {QML debugger}.
+
+    \note Opening a socket at a well-known port presents a security risk. Anyone
+    on the Internet could connect to the application that you are debugging and
+    execute any JavaScript functions. Therefore, you must make sure that the
+    port is properly protected by a firewall.
+
+    Optionally, in \uicontrol {Additional startup commands}, you can enter
+    additional settings for debugging C++:
+
+    \list
+        \li \l{Adding Custom Debugging Helpers}{Custom debugging helpers}
+        \li \l{Specifying GDB Settings}{GDB commands} to execute after GDB
+            has started, but before the debugged program is started or
+            attached, and before the debugging helpers are initialized
+    \endlist
+
+    However, you can usually leave this field empty.
+
+    \note To create a build configuration that supports debugging for a
+    Qt Quick application project, you also need to \l {Using Default Values}
+    {enable QML debugging} either globally or in the \uicontrol {Build Settings}
+    of the project.
+
+    \sa {Configuring Projects}, {Debugging}
+*/

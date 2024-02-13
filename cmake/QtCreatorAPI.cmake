@@ -46,6 +46,7 @@ option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OF
 option(WITH_SCCACHE_SUPPORT "Enables support for building with SCCACHE and separate debug info with MSVC, which SCCACHE normally doesn't support." OFF)
 option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." "${ENV_WITH_CCACHE_SUPPORT}")
 option(QTC_STATIC_BUILD "Builds libraries and plugins as static libraries" OFF)
+option(QTC_USE_LLVM_LINKER "Uses llvm-link linker if found." OFF)
 
 # If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
 # and for every element we set BUILD_<type>_<elment> to ON

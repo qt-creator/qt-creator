@@ -3,17 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
 namespace Squish::Internal {
 
-class SquishNavigationWidgetFactory : public Core::INavigationWidgetFactory
-{
-public:
-    SquishNavigationWidgetFactory();
-
-private:
-    Core::NavigationView createWidget() override;
-};
+void setupSquishNavigationWidgetFactory();
 
 } // Squish::Internal

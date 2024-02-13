@@ -33,7 +33,7 @@ private:
     void processXMLOutput(const QByteArray &outputLine);
     void processPlainTextOutput(const QByteArray &outputLine);
     void processResultOutput(const QString &result, const QString &message);
-    void processLocationOutput(const QString &fileWithLine);
+    void processLocationOutput(const QStringView file, const QStringView line);
     void processSummaryFinishOutput();
     // helper functions
     void sendCompleteInformation();
@@ -66,6 +66,7 @@ private:
     QXmlStreamReader m_xmlReader;
     OutputMode m_mode = XML;
     TestType m_testType = TestType::QtTest;
+    bool m_parseMessages = false;
     bool m_expectTag = true;
 };
 

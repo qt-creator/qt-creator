@@ -30,7 +30,7 @@ public:
     CurrentDocumentSymbolsData currentDocumentSymbolsData() const { return m_currentDocumentSymbolsData; }
 
 signals:
-    void done(bool success);
+    void done(Tasking::DoneResult result);
 
 private:
     void clearConnections();

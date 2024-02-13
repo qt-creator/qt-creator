@@ -31,6 +31,7 @@ const int MaxConcurrentStatCalls = 10;
 
 struct UploadStorage
 {
+    QList<DeployableFile> deployableFiles;
     QList<DeployableFile> filesToUpload;
 };
 
@@ -54,7 +55,6 @@ public:
         });
     }
 
-    bool isDeploymentNecessary() const final;
     GroupItem deployRecipe() final;
 
     QDateTime timestampFromStat(const DeployableFile &file, Process *statProc);
@@ -64,13 +64,9 @@ public:
           = std::function<void(UploadStorage *, const DeployableFile &, const QDateTime &)>;
     GroupItem statTask(UploadStorage *storage, const DeployableFile &file,
                        StatEndHandler statEndHandler);
-    GroupItem statTree(const TreeStorage<UploadStorage> &storage, FilesToStat filesToStat,
+    GroupItem statTree(const Storage<UploadStorage> &storage, FilesToStat filesToStat,
                        StatEndHandler statEndHandler);
-    GroupItem uploadTask(const TreeStorage<UploadStorage> &storage);
-    GroupItem chmodTask(const DeployableFile &file);
-    GroupItem chmodTree(const TreeStorage<UploadStorage> &storage);
-
-    mutable QList<DeployableFile> m_deployableFiles;
+    GroupItem uploadTask(const Storage<UploadStorage> &storage);
 
     BoolAspect incremental{this};
     BoolAspect ignoreMissingFiles{this};
@@ -89,18 +85,6 @@ static QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployab
         collected << deployable;
     }
     return collected;
-}
-
-bool GenericDirectUploadStep::isDeploymentNecessary() const
-{
-    m_deployableFiles = target()->deploymentData().allFiles();
-    QList<DeployableFile> collected;
-    for (int i = 0; i < m_deployableFiles.count(); ++i)
-        collected.append(collectFilesToUpload(m_deployableFiles.at(i)));
-
-    QTC_CHECK(collected.size() >= m_deployableFiles.size());
-    m_deployableFiles = collected;
-    return !m_deployableFiles.isEmpty();
 }
 
 QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
@@ -149,41 +133,41 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
                                             const DeployableFile &file,
                                             StatEndHandler statEndHandler)
 {
-    const auto setupHandler = [=](Process &process) {
+    const auto onSetup = [this, file](Process &process) {
         // We'd like to use --format=%Y, but it's not supported by busybox.
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto endHandler = [=](const Process &process) {
+    const auto onDone = [this, storage, file, statEndHandler](const Process &process) {
         Process *proc = const_cast<Process *>(&process);
         const QDateTime timestamp = timestampFromStat(file, proc);
         statEndHandler(storage, file, timestamp);
     };
-    return ProcessTask(setupHandler, endHandler, endHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
-GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
+GroupItem GenericDirectUploadStep::statTree(const Storage<UploadStorage> &storage,
                                             FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
-    const auto setupHandler = [=](TaskTree &tree) {
+    const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<GroupItem> statList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
         }
         tree.setRecipe({statList});
     };
-    return TaskTreeTask(setupHandler);
+    return TaskTreeTask(onSetup);
 }
 
-GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
+GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &storage)
 {
-    const auto setupHandler = [this, storage](FileTransfer &transfer) {
+    const auto onSetup = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
             addProgressMessage(Tr::tr("No files need to be uploaded."));
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         addProgressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                   storage->filesToUpload.size()));
@@ -199,67 +183,49 @@ GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &
                 addErrorMessage(message);
                 return SetupResult::StopWithError;
             }
+            const FilePermissions permissions = file.isExecutable()
+                ? FilePermissions::ForceExecutable : FilePermissions::Default;
             files.append({file.localFilePath(),
-                          deviceConfiguration()->filePath(file.remoteFilePath())});
+                          deviceConfiguration()->filePath(file.remoteFilePath()), permissions});
         }
         if (files.isEmpty()) {
             addProgressMessage(Tr::tr("No files need to be uploaded."));
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
                          this, &GenericDirectUploadStep::addProgressMessage);
         return SetupResult::Continue;
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
+    const auto onError = [this](const FileTransfer &transfer) {
         addErrorMessage(transfer.resultData().m_errorString);
     };
 
-    return FileTransferTask(setupHandler, {}, errorHandler);
-}
-
-GroupItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
-{
-    const auto setupHandler = [=](Process &process) {
-        process.setCommand({deviceConfiguration()->filePath("chmod"),
-                {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
-    };
-    const auto errorHandler = [=](const Process &process) {
-        const QString error = process.errorString();
-        if (!error.isEmpty()) {
-            addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                  .arg(file.remoteFilePath(), error));
-        } else if (process.exitCode() != 0) {
-            addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                  .arg(file.remoteFilePath(), process.cleanedStdErr()));
-        }
-    };
-    return ProcessTask(setupHandler, {}, errorHandler);
-}
-
-GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)
-{
-    const auto setupChmodHandler = [=](TaskTree &tree) {
-        QList<DeployableFile> filesToChmod;
-        for (const DeployableFile &file : std::as_const(storage->filesToUpload)) {
-            if (file.isExecutable())
-                filesToChmod << file;
-        }
-        QList<GroupItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
-        for (const DeployableFile &file : std::as_const(filesToChmod)) {
-            QTC_ASSERT(file.isValid(), continue);
-            chmodList.append(chmodTask(file));
-        }
-        tree.setRecipe({chmodList});
-    };
-    return TaskTreeTask(setupChmodHandler);
+    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem GenericDirectUploadStep::deployRecipe()
 {
+    const Storage<UploadStorage> storage;
+
+    const auto setupHandler = [this, storage] {
+        const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
+        QList<DeployableFile> collected;
+        for (const DeployableFile &file : deployableFiles)
+            collected.append(collectFilesToUpload(file));
+
+        QTC_CHECK(collected.size() >= deployableFiles.size());
+        if (collected.isEmpty()) {
+            addSkipDeploymentMessage();
+            return SetupResult::StopWithSuccess;
+        }
+        storage->deployableFiles = collected;
+        return SetupResult::Continue;
+    };
+
     const auto preFilesToStat = [this](UploadStorage *storage) {
         QList<DeployableFile> filesToStat;
-        for (const DeployableFile &file : std::as_const(m_deployableFiles)) {
+        for (const DeployableFile &file : std::as_const(storage->deployableFiles)) {
             if (!incremental() || hasLocalFileChanged(file)) {
                 storage->filesToUpload.append(file);
                 continue;
@@ -287,16 +253,13 @@ GroupItem GenericDirectUploadStep::deployRecipe()
         addProgressMessage(Tr::tr("All files successfully deployed."));
     };
 
-    const TreeStorage<UploadStorage> storage;
     const Group root {
-        Tasking::Storage(storage),
+        storage,
+        onGroupSetup(setupHandler),
         statTree(storage, preFilesToStat, preStatEndHandler),
         uploadTask(storage),
-        Group {
-            chmodTree(storage),
-            statTree(storage, postFilesToStat, postStatEndHandler)
-        },
-        onGroupDone(doneHandler)
+        statTree(storage, postFilesToStat, postStatEndHandler),
+        onGroupDone(doneHandler, CallDoneIf::Success)
     };
     return root;
 }

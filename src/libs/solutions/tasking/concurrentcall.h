@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "tasking_global.h"
-
 #include "tasktree.h"
 
 #include <QtConcurrent>
@@ -33,28 +31,29 @@ public:
     {
         return m_future.resultCount() ? m_future.result() : ResultType();
     }
+    QList<ResultType> results() const
+    {
+        return m_future.results();
+    }
     QFuture<ResultType> future() const { return m_future; }
 
 private:
     template <typename Function, typename ...Args>
     void wrapConcurrent(Function &&function, Args &&...args)
     {
-        m_startHandler = [=] {
-            if (m_threadPool)
-                return QtConcurrent::run(m_threadPool, function, args...);
-            return QtConcurrent::run(function, args...);
+        m_startHandler = [this, function = std::forward<Function>(function), args...] {
+            QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
+            return QtConcurrent::run(threadPool, function, args...);
         };
     }
 
     template <typename Function, typename ...Args>
     void wrapConcurrent(std::reference_wrapper<const Function> &&wrapper, Args &&...args)
     {
-        m_startHandler = [=] {
-            if (m_threadPool) {
-                return QtConcurrent::run(m_threadPool,
-                                         std::forward<const Function>(wrapper.get()), args...);
-            }
-            return QtConcurrent::run(std::forward<const Function>(wrapper.get()), args...);
+        m_startHandler = [this, wrapper = std::forward<std::reference_wrapper<const Function>>(wrapper), args...] {
+            QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
+            return QtConcurrent::run(threadPool, std::forward<const Function>(wrapper.get()),
+                                     args...);
         };
     }
 
@@ -79,12 +78,12 @@ public:
 
     void start() {
         if (!this->task()->m_startHandler) {
-            emit this->done(false); // TODO: Add runtime assert
+            emit this->done(DoneResult::Error); // TODO: Add runtime assert
             return;
         }
         m_watcher.reset(new QFutureWatcher<ResultType>);
         this->connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-            emit this->done(!m_watcher->isCanceled());
+            emit this->done(toDoneResult(!m_watcher->isCanceled()));
             m_watcher.release()->deleteLater();
         });
         this->task()->m_future = this->task()->m_startHandler();

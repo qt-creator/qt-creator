@@ -19,7 +19,7 @@
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>

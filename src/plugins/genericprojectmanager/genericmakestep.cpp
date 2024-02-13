@@ -2,40 +2,48 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "genericmakestep.h"
+
 #include "genericprojectconstants.h"
 
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace GenericProjectManager::Internal {
 
-class GenericMakeStep : public ProjectExplorer::MakeStep
+class GenericMakeStep final : public MakeStep
 {
 public:
-    explicit GenericMakeStep(BuildStepList *parent, Utils::Id id);
+    GenericMakeStep(BuildStepList *parent, Id id)
+        : MakeStep(parent, id)
+    {
+        setAvailableBuildTargets({"all", "clean"});
+        if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
+            setSelectedBuildTarget("all");
+        } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+            setSelectedBuildTarget("clean");
+            setIgnoreReturnValue(true);
+        }
+    }
 };
 
-GenericMakeStep::GenericMakeStep(BuildStepList *parent, Utils::Id id)
-    : MakeStep(parent, id)
+class GenericMakeStepFactory final : public BuildStepFactory
 {
-    setAvailableBuildTargets({"all", "clean"});
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
-        setSelectedBuildTarget("all");
-    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        setSelectedBuildTarget("clean");
-        setIgnoreReturnValue(true);
+public:
+    GenericMakeStepFactory()
+    {
+        registerStep<GenericMakeStep>(Constants::GENERIC_MS_ID);
+        setDisplayName(MakeStep::defaultDisplayName());
+        setSupportedProjectType(Constants::GENERICPROJECT_ID);
     }
-}
+};
 
-GenericMakeStepFactory::GenericMakeStepFactory()
+void setupGenericMakeStep()
 {
-    registerStep<GenericMakeStep>(Constants::GENERIC_MS_ID);
-    setDisplayName(MakeStep::defaultDisplayName());
-    setSupportedProjectType(Constants::GENERICPROJECT_ID);
+    static GenericMakeStepFactory theGenericMakeStepFactory;
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal

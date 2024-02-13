@@ -13,6 +13,8 @@
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
+#include <utils/mimeconstants.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -53,7 +55,7 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
             ("AutotoolsProjectManager.AutotoolsBuildConfiguration");
 
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
+    setSupportedProjectMimeTypeName(Utils::Constants::MAKEFILE_MIMETYPE);
 
     setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
         BuildInfo info;

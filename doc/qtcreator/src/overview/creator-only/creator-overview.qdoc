@@ -28,25 +28,74 @@
             \li \inlineimage front-ui.png
             \li \inlineimage front-coding.png
         \row
-            \li \b {\l{Managing Projects}}
+            \li \b {Managing Projects}
 
                 To be able to build and run applications, \QC needs the same
                 information as a compiler would need. It stores the information
                 in the project settings.
 
-                \QC has templates for creating new projects. They guide
-                you step-by-step through the project creation process, create
-                the necessary files, and specify settings depending on the
-                choices you make. For more information, see
-                \l{Managing Projects}.
-            \li \b {\l{Designing User Interfaces}}
+                You can share projects with other designers and developers across
+                different development platforms with a common tool for design,
+                development, and debugging.
+
+                \list
+                    \li \l{Creating Projects}
+
+                        To set up a project, you first have to decide what kind
+                        of an application you want to develop: do you want a user
+                        interface based on \l{User Interfaces}
+                        {Qt Quick or Qt Widgets}. Second, you have to choose the
+                        programming language to implement the application logic:
+                        C++ or Python.
+                    \li \l{Version Control Systems}
+
+                        The recommended way to set up a project is to use a
+                        version control system. Store and edit only project
+                        source files and configuration files. Do not store
+                        generated files.
+                    \li \l{Configuring Projects}
+
+                        Installation programs and project wizards create default
+                        configurations for \QC and your projects. You can change
+                        the configurations in the \uicontrol Projects mode.
+                \endlist
+                For more information, see \l{Manage Projects}
+                {How To: Manage Projects}.
+            \li \b {Designing User Interfaces}
 
                 To create intuitive, modern-looking, fluid user interfaces, you
-                can use \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}.
+                can use \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}:
+
+                \list
+                    \li \l {\QMLD}
+
+                        Or, you can enable the \QMLD plugin to visually edit
+                        \l{UI Files}{UI files} (.ui.qml).
+                    \li \l {Converting UI Projects to Applications}
+
+                        Qt Quick UI Prototype projects (.qmlproject) are useful
+                        for creating user interfaces. To use them for application
+                        development, you have to convert them to Qt Quick
+                        Application projects that have project configuration
+                        files (CMakeLists.txt or .pro), .cpp, and .qrc files.
+                    \li \l {UI Files}
+
+                        If you switch between \QC and \QDS or cooperate with
+                        designers on a project, you might encounter .ui.qml files.
+                        They are intended to be edited in \QDS only, so you need
+                        to be careful not to break the code. To visually edit the
+                        files in \QC, enable the \QMLD plugin.
+                    \li \l{Using QML Modules with Plugins}
+
+                        You can load C++ plugins for QML to simulate data.
+                \endlist
+
                 If you need a traditional user interface that has a clear
-                structure and enforces a platform look and feel, you can use
-                the integrated \QD. For more information, see
-                \l{Designing User Interfaces}.
+                structure and enforces a platform look and feel, use
+                \l{Qt Widgets} and the integrated \l{\QD}.
+
+                For more information, see
+                \l{Design UIs}{How To: Design UIs}.
             \li \b {\l{Coding}}
 
                 As an IDE, \QC differs from a text editor in that it knows how
@@ -57,7 +106,8 @@
                 \QC supports some of these services also for other programming
                 languages, such as Python, for which a \e {language server} is
                 available that provides information about the code to IDEs.
-                For more information, see \l{Coding}.
+
+                For more information, see \l{Edit Code}{How To: Edit Code}.
         \row
             \li \inlineimage front-preview.png
             \li \inlineimage front-testing.png
@@ -77,7 +127,8 @@
                 settings allow you to quickly switch between different setups and
                 target platforms.
 
-                For more information, see \l{Building and Running}.
+                For more information, see \l{Build and Run}
+                {How To: Build and Run}.
             \li \b {\l{Testing}}
 
                 \QC integrates several external native debuggers that you can use

@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcupackage.h"
+#include "mcuhelpers.h"
+#include "mcusupporttr.h"
 #include "mcusupportversiondetection.h"
 #include "settingshandler.h"
-#include "mcusupporttr.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -18,6 +19,7 @@
 #include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDesktopServices>
@@ -32,7 +34,7 @@ namespace McuSupport::Internal {
 McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QString &label,
                        const FilePath &defaultPath,
-                       const FilePath &detectionPath,
+                       const Utils::FilePaths &detectionPaths,
                        const Key &settingsKey,
                        const QString &cmakeVarName,
                        const QString &envVarName,
@@ -44,7 +46,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
-    , m_detectionPath(detectionPath)
+    , m_detectionPaths(detectionPaths)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
     , m_versions(versions)
@@ -110,9 +112,16 @@ FilePath McuPackage::defaultPath() const
     return m_defaultPath.cleanPath();
 }
 
-FilePath McuPackage::detectionPath() const
+QList<FilePath> McuPackage::detectionPaths() const
 {
-    return m_detectionPath;
+    return m_detectionPaths;
+}
+
+QString McuPackage::detectionPathsToString() const
+{
+    return joinStrings(transform(m_detectionPaths,
+                                 [](const FilePath &filePath) { return filePath.toUserOutput(); }),
+                       '|');
 }
 
 void McuPackage::setPath(const FilePath &newPath)
@@ -128,8 +137,20 @@ void McuPackage::setPath(const FilePath &newPath)
 void McuPackage::updateStatus()
 {
     bool validPath = !m_path.isEmpty() && m_path.exists();
-    const FilePath detectionPath = basePath() / m_detectionPath.path();
-    const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
+    bool validPackage = false;
+    if (m_detectionPaths.empty()) {
+        validPackage = true;
+    } else {
+        for (const FilePath &detectionPath : m_detectionPaths) {
+            std::optional<FilePath> alternativeDetectionPath = firstMatchingPath(
+                basePath() / detectionPath.path());
+            if (!alternativeDetectionPath)
+                continue;
+            validPackage = true;
+            m_usedDetectionPath = detectionPath;
+            break;
+        }
+    }
     m_detectedVersion = validPath && validPackage && m_versionDetector
                             ? m_versionDetector->parseVersion(basePath())
                             : QString();
@@ -185,19 +206,20 @@ QString McuPackage::statusText() const
 {
     const QString displayPackagePath = m_path.toUserOutput();
     const QString displayVersions = m_versions.join(Tr::tr(" or "));
-    const QString outDetectionPath = m_detectionPath.toUserOutput();
+    const QStringList detectionPathsAsString = Utils::transform(m_detectionPaths, &FilePath::toUserOutput);
+    const QString outDetectionPath = joinStrings(detectionPathsAsString, '|');
     const QString displayRequiredPath = m_versions.empty() ? outDetectionPath
                                                            : QString("%1 %2").arg(outDetectionPath,
                                                                                   displayVersions);
     const QString displayDetectedPath = m_versions.empty()
-                                            ? outDetectionPath
-                                            : QString("%1 %2").arg(outDetectionPath,
+                                            ? m_usedDetectionPath.toString()
+                                            : QString("%1 %2").arg(m_usedDetectionPath.toString(),
                                                                    m_detectedVersion);
 
     QString response;
     switch (m_status) {
     case Status::ValidPackage:
-        response = m_detectionPath.isEmpty()
+        response = m_detectionPaths.isEmpty()
                        ? (m_detectedVersion.isEmpty()
                               ? Tr::tr("Path %1 exists.").arg(displayPackagePath)
                               : Tr::tr("Path %1 exists. Version %2 was found.")
@@ -222,7 +244,7 @@ QString McuPackage::statusText() const
         response = Tr::tr("Path %1 does not exist.").arg(displayPackagePath);
         break;
     case Status::EmptyPath:
-        response = m_detectionPath.isEmpty()
+        response = m_detectionPaths.isEmpty()
                        ? Tr::tr("Path is empty.")
                        : Tr::tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
@@ -330,12 +352,12 @@ const QMap<QString, QString> McuPackage::packageLabelTranslations {
     {"Path to project for Renesas e2 Studio",               Tr::tr("Path to project for Renesas e2 Studio")}
 };
 
-McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+McuToolchainPackage::McuToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                          const QString &label,
                                          const FilePath &defaultPath,
-                                         const FilePath &detectionPath,
+                                         const QList<FilePath> &detectionPaths,
                                          const Key &settingsKey,
-                                         McuToolChainPackage::ToolChainType type,
+                                         McuToolchainPackage::ToolchainType type,
                                          const QStringList &versions,
                                          const QString &cmakeVarName,
                                          const QString &envVarName,
@@ -343,7 +365,7 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
     : McuPackage(settingsHandler,
                  label,
                  defaultPath,
-                 detectionPath,
+                 detectionPaths,
                  settingsKey,
                  cmakeVarName,
                  envVarName,
@@ -353,20 +375,20 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
     , m_type(type)
 {}
 
-McuToolChainPackage::ToolChainType McuToolChainPackage::toolchainType() const
+McuToolchainPackage::ToolchainType McuToolchainPackage::toolchainType() const
 {
     return m_type;
 }
 
-bool McuToolChainPackage::isDesktopToolchain() const
+bool McuToolchainPackage::isDesktopToolchain() const
 {
-    return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC
-           || m_type == ToolChainType::MinGW;
+    return m_type == ToolchainType::MSVC || m_type == ToolchainType::GCC
+           || m_type == ToolchainType::MinGW;
 }
 
-ToolChain *McuToolChainPackage::msvcToolChain(Id language)
+Toolchain *McuToolchainPackage::msvcToolchain(Id language)
 {
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
         return abi.osFlavor() == Abi::WindowsMsvc2019Flavor
                && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
@@ -376,9 +398,9 @@ ToolChain *McuToolChainPackage::msvcToolChain(Id language)
     return toolChain;
 }
 
-ToolChain *McuToolChainPackage::gccToolChain(Id language)
+Toolchain *McuToolchainPackage::gccToolchain(Id language)
 {
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
         return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
                && abi.wordWidth() == 64 && t->language() == language;
@@ -386,9 +408,9 @@ ToolChain *McuToolChainPackage::gccToolChain(Id language)
     return toolChain;
 }
 
-static ToolChain *mingwToolChain(const FilePath &path, Id language)
+static Toolchain *mingwToolchain(const FilePath &path, Id language)
 {
-    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
         // find a MinGW toolchain having the same path from registered toolchains
         const Abi abi = t->targetAbi();
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
@@ -398,7 +420,7 @@ static ToolChain *mingwToolChain(const FilePath &path, Id language)
     if (!toolChain) {
         // if there's no MinGW toolchain having the same path,
         // a proper MinGW would be selected from the registered toolchains.
-        toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+        toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
             const Abi abi = t->targetAbi();
             return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
                    && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
@@ -408,25 +430,25 @@ static ToolChain *mingwToolChain(const FilePath &path, Id language)
     return toolChain;
 }
 
-static ToolChain *armGccToolChain(const FilePath &path, Id language)
+static Toolchain *armGccToolchain(const FilePath &path, Id language)
 {
-    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
         return t->compilerCommand() == path && t->language() == language;
     });
     if (!toolChain) {
-        ToolChainFactory *gccFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
-                                       return f->supportedToolChainType()
+        ToolchainFactory *gccFactory
+            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
+                                   [](ToolchainFactory *f) {
+                                       return f->supportedToolchainType()
                                               == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
                                    });
         if (gccFactory) {
-            const QList<ToolChain *> detected = gccFactory->detectForImport({path, language});
+            const QList<Toolchain *> detected = gccFactory->detectForImport({path, language});
             if (!detected.isEmpty()) {
                 toolChain = detected.first();
-                toolChain->setDetection(ToolChain::ManualDetection);
+                toolChain->setDetection(Toolchain::ManualDetection);
                 toolChain->setDisplayName("Arm GCC");
-                ToolChainManager::registerToolChain(toolChain);
+                ToolchainManager::registerToolchain(toolChain);
             }
         }
     }
@@ -434,17 +456,17 @@ static ToolChain *armGccToolChain(const FilePath &path, Id language)
     return toolChain;
 }
 
-static ToolChain *iarToolChain(const FilePath &path, Id language)
+static Toolchain *iarToolchain(const FilePath &path, Id language)
 {
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
                && t->language() == language;
     });
     if (!toolChain) {
-        ToolChainFactory *iarFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
-                                       return f->supportedToolChainType()
+        ToolchainFactory *iarFactory
+            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
+                                   [](ToolchainFactory *f) {
+                                       return f->supportedToolchainType()
                                               == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
                                    });
         if (iarFactory) {
@@ -455,9 +477,9 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
             for (auto tc : detected) {
                 if (tc->language() == language) {
                     toolChain = tc;
-                    toolChain->setDetection(ToolChain::ManualDetection);
+                    toolChain->setDetection(Toolchain::ManualDetection);
                     toolChain->setDisplayName("IAREW");
-                    ToolChainManager::registerToolChain(toolChain);
+                    ToolchainManager::registerToolchain(toolChain);
                 }
             }
         }
@@ -466,67 +488,67 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
     return toolChain;
 }
 
-ToolChain *McuToolChainPackage::toolChain(Id language) const
+Toolchain *McuToolchainPackage::toolChain(Id language) const
 {
     switch (m_type) {
-    case ToolChainType::MSVC:
-        return msvcToolChain(language);
-    case ToolChainType::GCC:
-        return gccToolChain(language);
-    case ToolChainType::MinGW: {
+    case ToolchainType::MSVC:
+        return msvcToolchain(language);
+    case ToolchainType::GCC:
+        return gccToolchain(language);
+    case ToolchainType::MinGW: {
         const QLatin1String compilerName(
             language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
         const FilePath compilerPath = (path() / "bin" / compilerName).withExecutableSuffix();
-        return mingwToolChain(compilerPath, language);
+        return mingwToolchain(compilerPath, language);
     }
-    case ToolChainType::IAR: {
+    case ToolchainType::IAR: {
         const FilePath compiler = (path() / "/bin/iccarm").withExecutableSuffix();
-        return iarToolChain(compiler, language);
+        return iarToolchain(compiler, language);
     }
-    case ToolChainType::ArmGcc:
-    case ToolChainType::KEIL:
-    case ToolChainType::GHS:
-    case ToolChainType::GHSArm:
-    case ToolChainType::Unsupported: {
+    case ToolchainType::ArmGcc:
+    case ToolchainType::KEIL:
+    case ToolchainType::GHS:
+    case ToolchainType::GHSArm:
+    case ToolchainType::Unsupported: {
         const QLatin1String compilerName(
             language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
-        const QString comp = QLatin1String(m_type == ToolChainType::ArmGcc ? "/bin/arm-none-eabi-%1"
+        const QString comp = QLatin1String(m_type == ToolchainType::ArmGcc ? "/bin/arm-none-eabi-%1"
                                                                            : "/bar/foo-keil-%1")
                                  .arg(compilerName);
         const FilePath compiler = (path() / comp).withExecutableSuffix();
 
-        return armGccToolChain(compiler, language);
+        return armGccToolchain(compiler, language);
     }
     default:
         Q_UNREACHABLE();
     }
 }
 
-QString McuToolChainPackage::toolChainName() const
+QString McuToolchainPackage::toolchainName() const
 {
     switch (m_type) {
-    case ToolChainType::MSVC:
+    case ToolchainType::MSVC:
         return QLatin1String("msvc");
-    case ToolChainType::GCC:
+    case ToolchainType::GCC:
         return QLatin1String("gcc");
-    case ToolChainType::MinGW:
+    case ToolchainType::MinGW:
         return QLatin1String("mingw");
-    case ToolChainType::ArmGcc:
+    case ToolchainType::ArmGcc:
         return QLatin1String("armgcc");
-    case ToolChainType::IAR:
+    case ToolchainType::IAR:
         return QLatin1String("iar");
-    case ToolChainType::KEIL:
+    case ToolchainType::KEIL:
         return QLatin1String("keil");
-    case ToolChainType::GHS:
+    case ToolchainType::GHS:
         return QLatin1String("ghs");
-    case ToolChainType::GHSArm:
+    case ToolchainType::GHSArm:
         return QLatin1String("ghs-arm");
     default:
         return QLatin1String("unsupported");
     }
 }
 
-QVariant McuToolChainPackage::debuggerId() const
+QVariant McuToolchainPackage::debuggerId() const
 {
     using namespace Debugger;
 
@@ -534,19 +556,19 @@ QVariant McuToolChainPackage::debuggerId() const
     DebuggerEngineType engineType;
 
     switch (m_type) {
-    case ToolChainType::ArmGcc: {
+    case ToolchainType::ArmGcc: {
         sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
         displayName = Tr::tr("Arm GDB at %1");
         engineType = Debugger::GdbEngineType;
         break;
     }
-    case ToolChainType::IAR: {
+    case ToolchainType::IAR: {
         sub = QString::fromLatin1("../common/bin/CSpyBat");
         displayName = QLatin1String("CSpy");
         engineType = Debugger::NoEngineType; // support for IAR missing
         break;
     }
-    case ToolChainType::KEIL: {
+    case ToolchainType::KEIL: {
         sub = QString::fromLatin1("UV4/UV4");
         displayName = QLatin1String("KEIL uVision Debugger");
         engineType = Debugger::UvscEngineType;

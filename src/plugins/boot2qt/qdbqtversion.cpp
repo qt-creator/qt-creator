@@ -11,7 +11,7 @@
 
 namespace Qdb::Internal {
 
-class QdbQtVersion : public QtSupport::QtVersion
+class QdbQtVersion final : public QtSupport::QtVersion
 {
 public:
     QString description() const final
@@ -24,14 +24,23 @@ public:
     }
 };
 
-QdbQtVersionFactory::QdbQtVersionFactory()
+class QdbQtVersionFactory final : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new QdbQtVersion; });
-    setSupportedType("Qdb.EmbeddedLinuxQt");
-    setPriority(99);
-    setRestrictionChecker([](const SetupData &setup) {
-        return setup.platforms.contains("boot2qt");
-    });
+public:
+    QdbQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new QdbQtVersion; });
+        setSupportedType("Qdb.EmbeddedLinuxQt");
+        setPriority(99);
+        setRestrictionChecker([](const SetupData &setup) {
+            return setup.platforms.contains("boot2qt");
+        });
+    }
+};
+
+void setupQdbQtVersion()
+{
+    static QdbQtVersionFactory theQdbQtVersionFactory;
 }
 
 } // Qdb::Internal

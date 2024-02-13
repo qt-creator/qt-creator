@@ -13,7 +13,6 @@
 
 #include <QFileInfo>
 #include <QDebug>
-#include <QSharedPointer>
 
 using namespace Utils;
 
@@ -88,13 +87,13 @@ static bool
             arguments.push_back(value);
     }
     process.setWorkingDirectory(workingDirectory);
-    process.setTimeoutS(30);
     const Utils::CommandLine cmd(FilePath::fromString(binary), arguments);
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory.toUserOutput()),
                qPrintable(cmd.toUserOutput()));
     process.setCommand(cmd);
-    process.runBlocking(EventLoopMode::On);
+    using namespace std::chrono_literals;
+    process.runBlocking(30s, EventLoopMode::On);
     if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.cleanedStdErr();

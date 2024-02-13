@@ -20,7 +20,8 @@ class QTCREATOR_UTILS_EXPORT ProcessReaper final
         : public SingletonWithOptionalDependencies<ProcessReaper>
 {
 public:
-    static void reap(QProcess *process, int timeoutMs = 500);
+    static void reap(QProcess *process,
+                     std::chrono::milliseconds timeout = std::chrono::milliseconds(500));
 
 private:
     ProcessReaper();

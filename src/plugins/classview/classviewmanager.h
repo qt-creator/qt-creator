@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QStandardItem>
 
 namespace Utils { class FilePath; }
@@ -13,12 +12,13 @@ namespace ClassView::Internal {
 
 class ManagerPrivate;
 
-class Manager : public QObject
+class Manager final : public QObject
 {
     Q_OBJECT
 public:
-    explicit Manager(QObject *parent = nullptr);
-    ~Manager() override;
+    explicit Manager(QObject *parent);
+    ~Manager() final;
+
     static Manager *instance();
 
     bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
@@ -31,7 +31,7 @@ public:
     void onWidgetVisibilityIsChanged(bool visibility);
 
 signals:
-    void treeDataUpdate(QSharedPointer<QStandardItem> result);
+    void treeDataUpdate(std::shared_ptr<QStandardItem> result);
 
 private:
     void initialize();
@@ -41,5 +41,7 @@ private:
 
     ManagerPrivate *d;
 };
+
+void setupClassViewManager(QObject *guard);
 
 } // ClassView::Internal

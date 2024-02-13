@@ -37,20 +37,20 @@
     \list
         \li For CMake version 3.5 or later, generate a
             \l{CMake: CMAKE_EXPORT_COMPILE_COMMANDS}{compilation database} and
-            open that in \QC, as described in \l{Using Compilation Databases}.
+            open that in \QC, as described in \l{Use compilation databases}.
         \li Create an ad-hoc project file for a qmake build using
             \c{qmake -project} and \l{Open projects}{open} that in \QC.
             Typically, you cannot compile such projects without manual changes.
         \li Manually create an ad-hoc project file for a
-            \l{Setting Up a Generic Project}{generic project} and
+            \l{Import an existing project}{generic project} and
             open that in \QC.
             Typically, you cannot compile such projects without manual changes.
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {Open projects},
-    {CMake Build Configuration}, {Debug CMake project files},
-    {Specifying Build Settings}, {Specifying Run Settings},
-    {Deploying to Remote Linux}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
+    {Configure projects for building}, {Configure projects for running},
+    {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects},
+    {Use compilation databases}
 */
 
 /*!
@@ -183,7 +183,7 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {CMake}, {Add kits}, {Kits}
+    \sa {CMake}, {Add kits}, {kits-tab}{Kits}
 */
 
 /*!
@@ -235,7 +235,7 @@
     Warnings and errors are displayed in \l {Issues}.
 
     \sa {CMake}, {Add libraries to CMake projects}, {Complete CMake code},
-    {Completing Code Snippets}, {Format CMake files}
+    {Format CMake files}, {Completion}, {Snippets}
 */
 
 /*!
@@ -260,8 +260,10 @@
         \li \c{$ENV} for environment variables
     \endlist
 
-    \sa {CMake}, {Completing Code}, {Completing Code Snippets},
-    {Edit CMake configuration files}
+    Press \key Tab or \key Enter to accept the selected suggestion and complete
+    the code.
+
+    \sa {CMake}, {Edit CMake configuration files}, {Completion}, {Snippets}
 */
 
 /*!
@@ -286,17 +288,17 @@
             \c {cmake-format.exe}.
         \li Select \uicontrol {Automatic formatting on file save} to automatically
             format CMake files when you save them.
-        \li In \uicontrol {Restrict to MIME types}, add the \l{Editing MIME Types}
-            {MIME types} of the files to format, separated by semicolons. The
-            default value, \c {text/x-cmake} formats CMake files. If the field is
-            empty, all files are formatted.
+        \li In \uicontrol {Restrict to MIME types}, add the MIME types of the
+            files to format, separated by semicolons. The default value,
+            \c {text/x-cmake} formats CMake files. If the field is empty, all
+            files are formatted.
         \li Select the \uicontrol {Restrict to files contained in the current
             project} check box to only format CMake files that belong to the
             current project.
     \endlist
 
     \sa {CMake},{Complete CMake code}, {Edit CMake configuration files},
-    {Editing MIME Types}
+    {Edit MIME types}
 */
 
 /*!
@@ -364,7 +366,7 @@
     For CMake projects that have external dependencies, use
     \l{CMake: Find Modules}{Find<package>.cmake} modules that
     expose imported targets. You can use the pre-defined \c sample_find_module
-    \l{Completing Code Snippets}{code snippet} to add sample commands
+    \l{Snippets}{code snippet} to add sample commands
     to a \c .cmake file. You can then change the commands as necessary.
 
     Place Find modules in the \c ${CMAKE_CURRENT_SOURCE_DIR}/cmake directory, and
@@ -376,5 +378,5 @@
     \endcode
 
     \sa {CMake}, {Edit CMake configuration files}, {Complete CMake code},
-    {Completing Code Snippets}
+    {Completion}, {Snippets}
 */

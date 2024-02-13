@@ -5,8 +5,10 @@
 
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -22,24 +24,37 @@ namespace QbsProjectManager::Internal {
 // QbsProjectParser:
 // --------------------------------------------------------------------
 
-QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi)
+QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem)
     : m_projectFilePath(buildSystem->project()->projectFilePath()),
-      m_session(buildSystem->session()),
-      m_fi(fi)
+      m_session(buildSystem->session())
 {
+    m_fi = new QFutureInterface<bool>();
+    m_fi->setProgressRange(0, 0);
+    Core::ProgressManager::addTask(m_fi->future(),
+                                   Tr::tr("Reading Project \"%1\"")
+                                       .arg(buildSystem->project()->displayName()),
+                                   "Qbs.QbsEvaluate");
+    m_fi->reportStarted();
     auto * const watcher = new QFutureWatcher<bool>(this);
     connect(watcher, &QFutureWatcher<bool>::canceled, this, &QbsProjectParser::cancel);
-    watcher->setFuture(fi->future());
+    watcher->setFuture(m_fi->future());
 }
 
 QbsProjectParser::~QbsProjectParser()
 {
-    if (m_session && m_parsing)
-        m_session->cancelCurrentJob();
-    m_fi = nullptr; // we do not own m_fi, do not delete
+    if (m_parsing) {
+        m_session->disconnect(this);
+        cancel();
+    }
+
+    if (m_fi) {
+        m_fi->reportCanceled();
+        m_fi->reportFinished();
+        delete m_fi;
+    }
 }
 
-void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
+void QbsProjectParser::parse(const Store &config, const Environment &env,
                              const FilePath &dir, const QString &configName)
 {
     QTC_ASSERT(m_session, return);
@@ -48,7 +63,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
     m_environment = env;
     QJsonObject request;
     request.insert("type", "resolve-project");
-    QVariantMap userConfig = config;
+    Store userConfig = config;
     request.insert("top-level-profile",
                    userConfig.take(Constants::QBS_CONFIG_PROFILE_KEY).toString());
     request.insert("configuration-name", configName);
@@ -56,7 +71,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
                    userConfig.take(Constants::QBS_FORCE_PROBES_KEY).toBool());
     if (QbsSettings::useCreatorSettingsDirForQbs())
         request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
-    request.insert("overridden-properties", QJsonObject::fromVariantMap(userConfig));
+    request.insert("overridden-properties", QJsonObject::fromVariantMap(mapFromStore(userConfig)));
 
     // People don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
@@ -81,9 +96,9 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
     connect(m_session, &QbsSession::projectResolved, this, [this](const ErrorInfo &error) {
         m_error = error;
         m_projectData = m_session->projectData();
-        emit done(!m_error.hasError());
+        finish(!m_error.hasError());
     });
-    connect(m_session, &QbsSession::errorOccurred, this, [this] { emit done(false); });
+    connect(m_session, &QbsSession::errorOccurred, this, [this] { finish(false); });
     connect(m_session, &QbsSession::taskStarted, this,
             [this](const QString &description, int maxProgress) {
         Q_UNUSED(description)
@@ -98,6 +113,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
         if (m_fi)
             m_fi->setProgressValue(progress);
     });
+    m_parsing = true;
     m_session->sendRequest(request);
 }
 
@@ -105,6 +121,17 @@ void QbsProjectParser::cancel()
 {
     if (m_session)
         m_session->cancelCurrentJob();
+}
+
+void QbsProjectParser::finish(bool success)
+{
+    m_parsing = false;
+    m_session->disconnect(this);
+    if (!success)
+        m_fi->reportCanceled();
+    m_fi->reportFinished();
+    m_fi = nullptr;
+    emit done(success);
 }
 
 } // QbsProjectManager::Internal

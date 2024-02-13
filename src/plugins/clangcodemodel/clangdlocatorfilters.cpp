@@ -171,12 +171,12 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
                                           [](const Entry &entry) { return entry.entry; }));
 }
 
-LocatorMatcherTask currentDocumentMatcher()
+static LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<CurrentDocumentSymbolsData> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<CurrentDocumentSymbolsData> resultStorage;
 
     const auto onQuerySetup = [=](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)
@@ -192,8 +192,8 @@ LocatorMatcherTask currentDocumentMatcher()
     };
 
     const Group root {
-        Tasking::Storage(resultStorage),
-        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone),
+        resultStorage,
+        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};

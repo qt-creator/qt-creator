@@ -22,7 +22,7 @@ class CPPEDITOR_EXPORT CppHighlighter : public TextEditor::SyntaxHighlighter
 public:
     CppHighlighter(QTextDocument *document = nullptr);
 
-    void setLanguageFeatures(const CPlusPlus::LanguageFeatures &languageFeatures);
+    void setLanguageFeaturesFlags(unsigned int flags) override;
     void highlightBlock(const QString &text) override;
 
 private:

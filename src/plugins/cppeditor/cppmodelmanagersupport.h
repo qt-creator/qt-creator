@@ -4,15 +4,12 @@
 #pragma once
 
 #include "cppeditor_global.h"
+#include "cpptoolsreuse.h"
 #include "cursorineditor.h"
 
 #include <utils/link.h>
 
-#include <QSharedPointer>
-#include <QString>
-
 #include <functional>
-#include <memory>
 
 namespace Core { class SearchResult; }
 namespace TextEditor {
@@ -30,9 +27,6 @@ class RefactoringEngineInterface;
 class CPPEDITOR_EXPORT ModelManagerSupport
 {
 public:
-    using Ptr = QSharedPointer<ModelManagerSupport>;
-
-public:
     virtual ~ModelManagerSupport() = 0;
 
     virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
@@ -41,6 +35,7 @@ public:
 
     virtual void followSymbol(const CursorInEditor &data,
                               const Utils::LinkHandler &processLinkCallback,
+                              FollowSymbolMode mode,
                               bool resolveTarget, bool inNextSplit) = 0;
     virtual void followSymbolToType(const CursorInEditor &data,
                                    const Utils::LinkHandler &processLinkCallback,

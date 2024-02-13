@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Qnx::Internal {
 
-class QnxQmlProfilerWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    QnxQmlProfilerWorkerFactory();
-};
+void setupQnxQmlProfiler();
 
 } // Qnx::Internal

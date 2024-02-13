@@ -22,14 +22,11 @@
 
 #include <memory>
 
-namespace CppEditor {
-class CppEditorWidget;
-}
-
 namespace CompilerExplorer {
 
 class JsonSettingsDocument;
 class SourceEditorWidget;
+class AsmDocument;
 
 class CodeEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -56,6 +53,19 @@ private:
     QUndoStack *m_undoStack;
 };
 
+class AsmDocument : public TextEditor::TextDocument
+{
+public:
+    using TextEditor::TextDocument::TextDocument;
+
+    QList<QTextEdit::ExtraSelection> setCompileResult(const Api::CompileResult &compileResult);
+    QList<Api::CompileResult::AssemblyLine> &asmLines() { return m_assemblyLines; }
+
+private:
+    QList<Api::CompileResult::AssemblyLine> m_assemblyLines;
+    QList<TextEditor::TextMark *> m_marks;
+};
+
 class AsmEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
@@ -69,14 +79,25 @@ public:
         emit gotFocus();
     }
 
+    void findLinkAt(const QTextCursor &,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
 
+protected:
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+
 signals:
     void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
 
 private:
     QUndoStack *m_undoStack;
+    std::optional<Api::CompileResult::AssemblyLine> m_currentlyHoveredLine;
 };
 
 class JsonSettingsDocument : public Core::IDocument
@@ -94,6 +115,8 @@ public:
                   bool autoSave = false) override;
 
     bool setContents(const QByteArray &contents) override;
+
+    QString fallbackSaveAsFileName() const override;
 
     bool shouldAutoSave() const override { return !filePath().isEmpty(); }
     bool isModified() const override;
@@ -127,6 +150,9 @@ public:
     void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
 
     TextEditor::TextEditorWidget *textEditor() { return m_codeEditor; }
+
+public slots:
+    void markSourceLocation(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
 
 signals:
     void sourceCodeChanged();
@@ -163,19 +189,19 @@ private:
 signals:
     void remove();
     void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
 
 private:
     AsmEditorWidget *m_asmEditor{nullptr};
     Core::SearchableTerminal *m_resultTerminal{nullptr};
 
     SpinnerSolution::Spinner *m_spinner{nullptr};
-    QSharedPointer<TextEditor::TextDocument> m_asmDocument;
+    QSharedPointer<AsmDocument> m_asmDocument;
 
     std::unique_ptr<QFutureWatcher<Api::CompileResult>> m_compileWatcher;
 
     QString m_source;
     QTimer *m_delayTimer{nullptr};
-    QList<TextEditor::TextMark *> m_marks;
 };
 
 class HelperWidget : public QWidget
@@ -195,7 +221,7 @@ class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
 public:
-    EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
+    EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                  QUndoStack *undoStack,
                  TextEditor::TextEditorActionHandler &actionHandler,
                  QWidget *parent = nullptr);
@@ -213,10 +239,9 @@ protected:
     void setupHelpWidget();
     QWidget *createHelpWidget() const;
 
-    void addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
-                     const std::shared_ptr<CompilerSettings> &compilerSettings,
-                     int idx,
-                     QDockWidget *parentDockWidget);
+    CompilerWidget *addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
+                                const std::shared_ptr<CompilerSettings> &compilerSettings,
+                                int idx);
 
     void addSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
     void removeSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
@@ -226,7 +251,7 @@ protected:
     QVariantMap windowStateCallback();
 
 private:
-    QSharedPointer<JsonSettingsDocument> m_document;
+    std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
     TextEditor::TextEditorActionHandler &m_actionHandler;
 
@@ -240,10 +265,10 @@ public:
     Editor(TextEditor::TextEditorActionHandler &actionHandler);
     ~Editor();
 
-    Core::IDocument *document() const override { return m_document.data(); }
+    Core::IDocument *document() const override { return m_document.get(); }
     QWidget *toolBar() override;
 
-    QSharedPointer<JsonSettingsDocument> m_document;
+    std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack m_undoStack;
     std::unique_ptr<QToolBar> m_toolBar;
 };

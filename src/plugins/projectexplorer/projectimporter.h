@@ -15,15 +15,15 @@ class BuildInfo;
 class Kit;
 class Project;
 class Target;
-class ToolChain;
+class Toolchain;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
 {
     Q_OBJECT
 public:
-    struct ToolChainData {
-        QList<ToolChain *> tcs;
+    struct ToolchainData {
+        QList<Toolchain *> tcs;
         bool areTemporary = false;
     };
 
@@ -36,6 +36,7 @@ public:
     virtual const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
     virtual Utils::FilePaths importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
+    virtual bool filter(Kit *) const { return true; }
 
     bool isUpdating() const { return m_isUpdating; }
 
@@ -46,6 +47,9 @@ public:
 
     void addProject(Kit *k) const;
     void removeProject(Kit *k) const;
+
+signals:
+    void cmakePresetsUpdated();
 
 protected:
     class UpdateGuard
@@ -87,14 +91,14 @@ protected:
     // Does *any* kit feature the requested data yet?
     bool hasKitWithTemporaryData(Utils::Id id, const QVariant &data) const;
 
-    ToolChainData findOrCreateToolChains(const ToolChainDescription &tcd) const;
+    ToolchainData findOrCreateToolchains(const ToolchainDescription &tcd) const;
 
 private:
     void markKitAsTemporary(Kit *k) const;
     bool findTemporaryHandler(Utils::Id id) const;
 
-    void cleanupTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
-    void persistTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void cleanupTemporaryToolchains(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void persistTemporaryToolchains(ProjectExplorer::Kit *k, const QVariantList &vl);
 
     const Utils::FilePath m_projectPath;
     mutable bool m_isUpdating = false;

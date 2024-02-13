@@ -22,6 +22,7 @@
         { "key": "HdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "ConstantsHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'constants', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "TrHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'tr', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" }
     ],
@@ -180,6 +181,10 @@
                 {
                     "source": "mypluginconstants.h",
                     "target": "%{ConstantsHdrFileName}"
+                },
+                {
+                    "source": "myplugintr.h",
+                    "target": "%{TrHdrFileName}"
                 },
                 {
                     "source": "MyPlugin.json.in",

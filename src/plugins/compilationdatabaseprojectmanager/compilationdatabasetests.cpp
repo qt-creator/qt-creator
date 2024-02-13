@@ -39,7 +39,7 @@ void CompilationDatabaseTests::initTestCase()
     if (allKits.empty())
         QSKIP("This test requires at least one kit to be present.");
 
-    ToolChain *toolchain = ToolChainManager::toolChain([](const ToolChain *tc) {
+    Toolchain *toolchain = ToolchainManager::toolchain([](const Toolchain *tc) {
         return tc->isValid() && tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     });
     if (!toolchain)
@@ -68,7 +68,7 @@ void CompilationDatabaseTests::testProject()
     const CppEditor::ProjectPart &projectPart = *projectParts.first();
     QVERIFY(!projectPart.headerPaths.isEmpty());
     QVERIFY(!projectPart.projectMacros.isEmpty());
-    QVERIFY(!projectPart.toolChainMacros.isEmpty());
+    QVERIFY(!projectPart.toolchainMacros.isEmpty());
     QVERIFY(!projectPart.files.isEmpty());
 }
 

@@ -8,18 +8,37 @@
 #include <cppeditor/cppcodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 
-#include <QChar>
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QTextCursor>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
-GlslIndenter::GlslIndenter(QTextDocument *doc)
-    : TextEditor::TextIndenter(doc)
-{}
-GlslIndenter::~GlslIndenter() = default;
+class GlslIndenter final : public TextEditor::TextIndenter
+{
+public:
+    explicit GlslIndenter(QTextDocument *doc)
+        : TextEditor::TextIndenter(doc)
+    {}
+
+    bool isElectricCharacter(const QChar &ch) const final;
+    void indentBlock(const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) final;
+
+    void indent(const QTextCursor &cursor,
+                const QChar &typedChar,
+                const TextEditor::TabSettings &tabSettings,
+                int cursorPositionInEditor = -1) final;
+
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) final;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings,
+                                                         int cursorPositionInEditor = -1) final;
+};
 
 bool GlslIndenter::isElectricCharacter(const QChar &ch) const
 {
@@ -120,5 +139,9 @@ TextEditor::IndentationForBlock GlslIndenter::indentationForBlocks(
     return ret;
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+TextEditor::TextIndenter *createGlslIndenter(QTextDocument *doc)
+{
+    return new GlslIndenter(doc);
+}
+
+} // GlslEditor::Internal

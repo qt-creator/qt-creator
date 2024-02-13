@@ -35,6 +35,8 @@
 #include <QPushButton>
 
 #ifdef WITH_TESTS
+#include "projectexplorer_test.h"
+
 #include <QTemporaryFile>
 #include <QTest>
 #include <vector>
@@ -637,7 +639,7 @@ void ProjectManagerPrivate::restoreProjects(const FilePaths &fileList)
     // Keep projects that failed to load in the session!
     m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
-        ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
+        OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
         const QList<Project *> projects = result.projects();
@@ -709,7 +711,7 @@ FilePaths ProjectManager::projectsForSessionName(const QString &session)
 
 #ifdef WITH_TESTS
 
-void ProjectExplorerPlugin::testSessionSwitch()
+void ProjectExplorerTest::testSessionSwitch()
 {
     QVERIFY(SessionManager::createSession("session1"));
     QVERIFY(SessionManager::createSession("session2"));

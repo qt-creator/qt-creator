@@ -19,7 +19,7 @@ Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDi
     cancelButton->setEnabled(false);
     connect(cancelButton, &QPushButton::clicked, this, [this] {
         statusBar->showMessage(tr("Canceled."));
-        taskTree.reset();
+        taskTreeRunner.reset();
     });
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -56,6 +56,9 @@ void Images::process()
     const auto urls = downloadDialog->getUrls();
     initLayout(urls.size());
 
+    const LoopList iterator(urls);
+    const Storage<QByteArray> storage;
+
     const auto onRootSetup = [this] {
         statusBar->showMessage(tr("Downloading and Scaling..."));
         cancelButton->setEnabled(true);
@@ -64,50 +67,46 @@ void Images::process()
         statusBar->showMessage(tr("Finished."));
         cancelButton->setEnabled(false);
     };
-    QList<GroupItem> tasks {
-        finishAllAndDone,
-        parallel,
-        onGroupSetup(onRootSetup),
-        onGroupDone(onRootDone)
+
+    const auto onDownloadSetup = [this, iterator](NetworkQuery &query) {
+        query.setNetworkAccessManager(&qnam);
+        query.setRequest(QNetworkRequest(*iterator));
+    };
+    const auto onDownloadDone = [this, storage, iterator](const NetworkQuery &query,
+                                                                  DoneWith result) {
+        const int it = iterator.iteration();
+        if (result == DoneWith::Success)
+            *storage = query.reply()->readAll();
+        else
+            labels[it]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
     };
 
-    int i = 0;
-    for (const QUrl &url : urls) {
-        TreeStorage<QByteArray> storage;
+    const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
+        data.setConcurrentCallData(&scale, *storage);
+    };
+    const auto onScalingDone = [this, iterator](const ConcurrentCall<QImage> &data,
+                                                DoneWith result) {
+        const int it = iterator.iteration();
+        if (result == DoneWith::Success)
+            labels[it]->setPixmap(QPixmap::fromImage(data.result()));
+        else
+            labels[it]->setText(tr("Image\nData\nError."));
+    };
 
-        const auto onDownloadSetup = [this, url](NetworkQuery &query) {
-            query.setNetworkAccessManager(&qnam);
-            query.setRequest(QNetworkRequest(url));
-        };
-        const auto onDownloadDone = [storage](const NetworkQuery &query) {
-            *storage = query.reply()->readAll();
-        };
-        const auto onDownloadError = [this, i](const NetworkQuery &query) {
-            labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
-        };
+    const QList<GroupItem> tasks {
+        finishAllAndSuccess,
+        parallel,
+        iterator,
+        onGroupSetup(onRootSetup),
+        Group {
+            storage,
+            NetworkQueryTask(onDownloadSetup, onDownloadDone),
+            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
+        },
+        onGroupDone(onRootDone, CallDoneIf::Success)
+    };
 
-        const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
-            data.setConcurrentCallData(&scale, *storage);
-        };
-        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data) {
-            labels[i]->setPixmap(QPixmap::fromImage(data.result()));
-        };
-        const auto onScalingError = [this, i](const ConcurrentCall<QImage> &) {
-            labels[i]->setText(tr("Image\nData\nError."));
-        };
-
-        const Group group {
-            Storage(storage),
-            NetworkQueryTask(onDownloadSetup, onDownloadDone, onDownloadError),
-            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone, onScalingError)
-        };
-        tasks.append(group);
-        ++i;
-    }
-
-    taskTree.reset(new TaskTree(tasks));
-    connect(taskTree.get(), &TaskTree::done, this, [this] { taskTree.release()->deleteLater(); });
-    taskTree->start();
+    taskTreeRunner.start(tasks);
 }
 
 void Images::initLayout(qsizetype count)

@@ -8,11 +8,9 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-qmake-libraries.html
-
-    \ingroup creator-explanation-projects
+    \previouspage creator-overview.html
+    \nextpage creator-configuring-projects.html
 
     \title Creating Projects
 
@@ -122,17 +120,20 @@
                 application extensions, or a \QC plugin.
         \row
             \li Other project
-            \li Create custom \l{Developing Widget Based Applications}{\QD}
-                 widgets or widget collections,
-                \l{Qt Quick UI Projects}{Qt Quick UI projects},
-                \l {Creating Tests}{auto-test projects},
+            \li Create custom \l{\QD} widgets or widget collections,
+                \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects},
                 \l{Add subprojects to projects}{subprojects},
                 empty qmake projects, or qmake projects for testing
                 code snippets.
         \row
             \li Non-Qt project
-            \li Create plain C or C++ applications or \l {Setting Up Nimble}
-                {Nim or Nimble} applications (experimental)
+            \li Create plain C or C++ applications or \l {Create Nimble projects}
+                {Nim or Nimble} applications (experimental).
+        \row
+            \li Test project
+            \li Create a test project based on different supported test
+                frameworks, such as Qt Test, Qt Quick Test, Google Test,
+                Boost Test, or Catch2.
         \row
             \li Imported project
             \li Import projects from a supported \l{Version Control Systems}
@@ -155,9 +156,6 @@
     For examples of creating different types of projects, see
     \l{Tutorials}.
 
-    For more information about creating Qt Quick projects, see
-    \l {Creating Qt Quick Projects}.
-
     \section1 Bind keyboard shortcuts to wizards
 
     If you use a wizard regularly, you can bind a custom keyboard shortcut to
@@ -170,7 +168,8 @@
     \uicontrol Impl there.
 
     \sa {Assign keyboard shortcuts}, {Activate kits for a project},
-    {Create files}, {Creating Projects}
+    {Create files}, {Create Projects}{How To: Create Projects},
+    {Creating Projects}
 */
 
 /*!

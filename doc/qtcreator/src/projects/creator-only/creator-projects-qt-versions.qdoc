@@ -130,6 +130,6 @@
 
     If your Qt version has no \c libQtCore.so, \QC cannot detect the ABI.
 
-    \sa {Kits}
+    \sa {kits-tab}{Kits}
 */
 

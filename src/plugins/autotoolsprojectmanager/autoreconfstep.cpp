@@ -75,13 +75,16 @@ private:
                 emit addOutput(::AutotoolsProjectManager::Tr::tr(
                                    "Configuration unchanged, skipping autoreconf step."),
                                OutputFormat::NormalMessage);
-                return SetupResult::StopWithDone;
+                return SetupResult::StopWithSuccess;
             }
             return SetupResult::Continue;
         };
-        const auto onDone = [this] { m_runAutoreconf = false; };
 
-        return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
+        return Group {
+            onGroupSetup(onSetup),
+            onGroupDone([this] { m_runAutoreconf = false; }, CallDoneIf::Success),
+            defaultProcessTask()
+        };
     }
 
     bool m_runAutoreconf = false;

@@ -15,6 +15,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <git/gitplugin.h>
 
 #include <projectexplorer/project.h>
@@ -30,10 +32,9 @@
 #include <QPointer>
 #include <QTimer>
 
+using namespace Core;
+
 namespace GitLab {
-namespace Constants {
-const char GITLAB_OPEN_VIEW[] = "GitLab.OpenView";
-} // namespace Constants
 
 class GitLabPluginPrivate : public QObject
 {
@@ -45,13 +46,7 @@ public:
     void handleUser(const User &user);
     void handleEvents(const Events &events, const QDateTime &timeStamp);
 
-    void onSettingsChanged() {
-        if (dialog)
-            dialog->updateRemotes();
-    }
-
-    GitLabParameters parameters;
-    GitLabOptionsPage optionsPage{&parameters};
+    GitLabOptionsPage optionsPage;
     QHash<ProjectExplorer::Project *, GitLabProjectSettings *> projectSettings;
     QPointer<GitLabDialog> dialog;
 
@@ -63,84 +58,82 @@ public:
 
 static GitLabPluginPrivate *dd = nullptr;
 
-GitLabPlugin::GitLabPlugin()
+class GitLabPlugin final : public ExtensionSystem::IPlugin
 {
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GitLab.json")
 
-GitLabPlugin::~GitLabPlugin()
-{
-    if (!dd->projectSettings.isEmpty()) {
-        qDeleteAll(dd->projectSettings);
-        dd->projectSettings.clear();
-    }
-    delete dd;
-    dd = nullptr;
-}
-
-void GitLabPlugin::initialize()
-{
-    dd = new GitLabPluginPrivate;
-    dd->parameters.fromSettings(Core::ICore::settings());
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(999);
-    panelFactory->setDisplayName(Tr::tr("GitLab"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
-        return new GitLabProjectSettingsWidget(project);
-    });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-    QAction *openViewAction = new QAction(Tr::tr("GitLab..."), this);
-    auto gitlabCommand = Core::ActionManager::registerAction(openViewAction,
-                                                             Constants::GITLAB_OPEN_VIEW);
-    connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
-    Core::ActionContainer *ac = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    ac->addAction(gitlabCommand);
-    connect(ProjectExplorer::ProjectManager::instance(),
-            &ProjectExplorer::ProjectManager::startupProjectChanged,
-            this, &GitLabPlugin::onStartupProjectChanged);
-}
-
-void GitLabPlugin::openView()
-{
-    if (dd->dialog.isNull()) {
-        while (!dd->parameters.isValid()) {
-            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"),
-                                 Tr::tr("Invalid GitLab configuration. For a fully functional "
-                                    "configuration, you need to set up host name or address and "
-                                    "an access token. Providing the path to curl is mandatory."));
-            if (!Core::ICore::showOptionsDialog("GitLab"))
-                return;
+    ~GitLabPlugin() final
+    {
+        if (!dd->projectSettings.isEmpty()) {
+            qDeleteAll(dd->projectSettings);
+            dd->projectSettings.clear();
         }
-        GitLabDialog *gitlabD = new GitLabDialog(Core::ICore::dialogParent());
-        gitlabD->setModal(true);
-        Core::ICore::registerWindow(gitlabD, Core::Context("Git.GitLab"));
-        dd->dialog = gitlabD;
-    }
-    const Qt::WindowStates state = dd->dialog->windowState();
-    if (state & Qt::WindowMinimized)
-        dd->dialog->setWindowState(state & ~Qt::WindowMinimized);
-    dd->dialog->show();
-    dd->dialog->raise();
-}
-
-void GitLabPlugin::onStartupProjectChanged()
-{
-    QTC_ASSERT(dd, return);
-    disconnect(&dd->notificationTimer);
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        dd->notificationTimer.stop();
-        return;
+        delete dd;
+        dd = nullptr;
     }
 
-    const GitLabProjectSettings *projSettings = projectSettings(project);
-    if (!projSettings->isLinked()) {
-        dd->notificationTimer.stop();
-        return;
+    void initialize() final
+    {
+        dd = new GitLabPluginPrivate;
+        gitLabParameters().fromSettings(Core::ICore::settings());
+
+        setupGitlabProjectPanel();
+
+        ActionBuilder(this, "GitLab.OpenView")
+            .setText(Tr::tr("GitLab..."))
+            .addOnTriggered(this, &GitLabPlugin::openView)
+            .addToContainer(Core::Constants::M_TOOLS);
+
+        connect(ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::startupProjectChanged,
+                this, &GitLabPlugin::onStartupProjectChanged);
     }
 
-    dd->fetchEvents();
-    dd->setupNotificationTimer();
-}
+    void openView()
+    {
+        if (dd->dialog.isNull()) {
+            while (!gitLabParameters().isValid()) {
+                QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"),
+                                     Tr::tr("Invalid GitLab configuration. For a fully functional "
+                                            "configuration, you need to set up host name or address and "
+                                            "an access token. Providing the path to curl is mandatory."));
+                if (!Core::ICore::showOptionsDialog("GitLab"))
+                    return;
+            }
+            GitLabDialog *gitlabD = new GitLabDialog(Core::ICore::dialogParent());
+            gitlabD->setModal(true);
+            Core::ICore::registerWindow(gitlabD, Core::Context("Git.GitLab"));
+            dd->dialog = gitlabD;
+        }
+        const Qt::WindowStates state = dd->dialog->windowState();
+        if (state & Qt::WindowMinimized)
+            dd->dialog->setWindowState(state & ~Qt::WindowMinimized);
+        dd->dialog->show();
+        dd->dialog->raise();
+    }
+
+    void onStartupProjectChanged()
+    {
+        QTC_ASSERT(dd, return);
+        disconnect(&dd->notificationTimer);
+        ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+        if (!project) {
+            dd->notificationTimer.stop();
+            return;
+        }
+
+        const GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
+        if (!projSettings->isLinked()) {
+            dd->notificationTimer.stop();
+            return;
+        }
+
+        dd->fetchEvents();
+        dd->setupNotificationTimer();
+    }
+};
+
 
 void GitLabPluginPrivate::setupNotificationTimer()
 {
@@ -158,7 +151,7 @@ void GitLabPluginPrivate::fetchEvents()
     if (runningQuery)
         return;
 
-    const GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
+    const GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
     projectName = projSettings->currentProject();
     serverId = projSettings->currentServer();
 
@@ -219,6 +212,16 @@ void GitLabPluginPrivate::handleUser(const User &user)
     createAndSendEventsRequest(timeStamp);
 }
 
+GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return nullptr);
+    QTC_ASSERT(dd, return nullptr);
+    auto &settings = dd->projectSettings[project];
+    if (!settings)
+        settings = new GitLabProjectSettings(project);
+    return settings;
+}
+
 void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &timeStamp)
 {
     runningQuery = false;
@@ -226,7 +229,7 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return);
 
-    GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
+    GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
     QTC_ASSERT(projSettings->currentProject() == projectName, return);
 
     if (!projSettings->isLinked()) // link state has changed meanwhile - ignore the request
@@ -257,44 +260,12 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
         createAndSendEventsRequest(timeStamp, events.pageInfo.currentPage + 1);
 }
 
-QList<GitLabServer> GitLabPlugin::allGitLabServers()
-{
-    QTC_ASSERT(dd, return {});
-    return dd->parameters.gitLabServers;
-}
-
-GitLabServer GitLabPlugin::gitLabServerForId(const Utils::Id &id)
-{
-    QTC_ASSERT(dd, return {});
-    return dd->parameters.serverForId(id);
-}
-
-GitLabParameters *GitLabPlugin::globalParameters()
-{
-    return &dd->parameters;
-}
-
-GitLabProjectSettings *GitLabPlugin::projectSettings(ProjectExplorer::Project *project)
-{
-    QTC_ASSERT(project, return nullptr);
-    QTC_ASSERT(dd, return nullptr);
-    auto &settings = dd->projectSettings[project];
-    if (!settings)
-        settings = new GitLabProjectSettings(project);
-    return settings;
-}
-
-GitLabOptionsPage *GitLabPlugin::optionsPage()
-{
-    QTC_ASSERT(dd, return {});
-    return &dd->optionsPage;
-}
-
-bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
+bool handleCertificateIssue(const Utils::Id &serverId)
 {
     QTC_ASSERT(dd, return false);
 
-    GitLabServer server = dd->parameters.serverForId(serverId);
+    GitLabParameters &params = gitLabParameters();
+    GitLabServer server = params.serverForId(serverId);
     if (QMessageBox::question(Core::ICore::dialogParent(),
                               Tr::tr("Certificate Error"),
                               Tr::tr(
@@ -303,16 +274,18 @@ bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
                                   "Note: This can expose you to man-in-the-middle attack.")
                               .arg(server.host))
             == QMessageBox::Yes) {
-        int index = dd->parameters.gitLabServers.indexOf(server);
+        int index = params.gitLabServers.indexOf(server);
         server.validateCert = false;
-        dd->parameters.gitLabServers.replace(index, server);
-        dd->onSettingsChanged();
+        params.gitLabServers.replace(index, server);
+        if (dd->dialog)
+            dd->dialog->updateRemotes();
+
         return true;
     }
     return false;
 }
 
-void GitLabPlugin::linkedStateChanged(bool enabled)
+void linkedStateChanged(bool enabled)
 {
     QTC_ASSERT(dd, return);
 
@@ -337,3 +310,5 @@ void GitLabPlugin::linkedStateChanged(bool enabled)
 }
 
 } // namespace GitLab
+
+#include "gitlabplugin.moc"

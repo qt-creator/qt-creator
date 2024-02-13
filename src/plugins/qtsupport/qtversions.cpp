@@ -6,6 +6,7 @@
 #include "baseqtversion.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
+#include "qtversionfactory.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -20,17 +21,17 @@
 
 namespace QtSupport::Internal {
 
-class DesktopQtVersion : public QtVersion
+class DesktopQtVersion final : public QtVersion
 {
 public:
     DesktopQtVersion() = default;
 
-    QStringList warningReason() const override;
+    QStringList warningReason() const final;
 
-    QString description() const override;
+    QString description() const final;
 
-    QSet<Utils::Id> availableFeatures() const override;
-    QSet<Utils::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> availableFeatures() const final;
+    QSet<Utils::Id> targetDeviceTypes() const final;
 };
 
 QStringList DesktopQtVersion::warningReason() const
@@ -66,42 +67,59 @@ QSet<Utils::Id> DesktopQtVersion::targetDeviceTypes() const
 
 // Factory
 
-DesktopQtVersionFactory::DesktopQtVersionFactory()
+class DesktopQtVersionFactory : public QtVersionFactory
 {
-    setQtVersionCreator([] { return new DesktopQtVersion; });
-    setSupportedType(QtSupport::Constants::DESKTOPQT);
-    setPriority(0); // Lowest of all, we want to be the fallback
-    // No further restrictions. We are the fallback :) so we don't care what kind of qt it is.
-}
+public:
+    DesktopQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new DesktopQtVersion; });
+        setSupportedType(QtSupport::Constants::DESKTOPQT);
+        setPriority(0); // Lowest of all, we want to be the fallback
+        // No further restrictions. We are the fallback :) so we don't care what kind of qt it is.
+    }
+};
 
+void setupDesktopQtVersion()
+{
+    static DesktopQtVersionFactory theDesktopQtVersionFactory;
+}
 
 // EmbeddedLinuxQtVersion
 
 const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
 
-class EmbeddedLinuxQtVersion : public QtVersion
+class EmbeddedLinuxQtVersion final : public QtVersion
 {
 public:
     EmbeddedLinuxQtVersion() = default;
 
-    QString description() const override
+    QString description() const final
     {
         return Tr::tr("Embedded Linux", "Qt Version is used for embedded Linux development");
     }
 
-    QSet<Utils::Id> targetDeviceTypes() const override
+    QSet<Utils::Id> targetDeviceTypes() const final
     {
         return {RemoteLinux::Constants::GenericLinuxOsType};
     }
 };
 
-EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
+class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
-    setSupportedType(EMBEDDED_LINUX_QT);
-    setPriority(10);
+public:
+    EmbeddedLinuxQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
+        setSupportedType(EMBEDDED_LINUX_QT);
+        setPriority(10);
 
-    setRestrictionChecker([](const SetupData &) { return false; });
+        setRestrictionChecker([](const SetupData &) { return false; });
+    }
+};
+
+void setupEmbeddedLinuxQtVersion()
+{
+    static EmbeddedLinuxQtVersionFactory theEmbeddedLinuxQtVersionFactory;
 }
 
 } // QtSupport::Internal

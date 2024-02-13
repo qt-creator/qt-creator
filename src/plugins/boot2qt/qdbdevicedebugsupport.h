@@ -3,32 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Qdb::Internal {
 
-class QdbRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit QdbRunWorkerFactory(const QList<Utils::Id> &runConfigs);
-};
-
-class QdbDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit QdbDebugWorkerFactory(const QList<Utils::Id> &runConfigs);
-};
-
-class QdbQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit QdbQmlToolingWorkerFactory(const QList<Utils::Id> &runConfigs);
-};
-
-class QdbPerfProfilerWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    QdbPerfProfilerWorkerFactory();
-};
+void setupQdbRunWorkers();
 
 } // Qdb::Internal

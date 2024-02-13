@@ -22,7 +22,7 @@
 
     In addition, you can use \QDV to run
     \if defined(qtcreator)
-    \l{Qt Quick UI Projects}{Qt Quick UI projects}
+    \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects}
     \else
     applications
     \endif

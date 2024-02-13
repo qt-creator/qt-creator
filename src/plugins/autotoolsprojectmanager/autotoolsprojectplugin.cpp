@@ -18,6 +18,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/mimeconstants.h>
+
 using namespace ProjectExplorer;
 
 namespace AutotoolsProjectManager::Internal {
@@ -34,7 +36,7 @@ class AutotoolsProject : public Project
 {
 public:
     explicit AutotoolsProject(const Utils::FilePath &fileName)
-        : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+        : Project(Utils::Constants::MAKEFILE_MIMETYPE, fileName)
     {
         setId(Constants::AUTOTOOLS_PROJECT_ID);
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -91,6 +93,7 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        ProjectManager::registerProjectType<AutotoolsProject>(Utils::Constants::MAKEFILE_MIMETYPE);
         d = std::make_unique<AutotoolsProjectPluginPrivate>();
     }
 

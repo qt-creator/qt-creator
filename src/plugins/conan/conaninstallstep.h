@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace Conan::Internal {
 
-class ConanInstallStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    ConanInstallStepFactory();
-};
+void setupConanInstallStep();
 
 } // Conan::Internal

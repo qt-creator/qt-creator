@@ -9,6 +9,8 @@
 
 #include <QObject>
 
+#include <chrono>
+
 namespace Tasking { class TaskTree; }
 
 namespace Core {
@@ -25,7 +27,7 @@ public:
 
     void setId(Utils::Id id);
     void setAutoStopOnCancel(bool enable); // Default is true
-    void setHalfLifeTimePerTask(int msecs); // Default is 1000 ms
+    void setHalfLifeTimePerTask(std::chrono::milliseconds duration); // Default is 1000 ms
     void setDisplayName(const QString &name);
     void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setSubtitleVisibleInStatusBar(bool visible);

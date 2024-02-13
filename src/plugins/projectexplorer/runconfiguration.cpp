@@ -186,13 +186,13 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
 
 RunConfiguration::~RunConfiguration() = default;
 
-QString RunConfiguration::disabledReason() const
+QString RunConfiguration::disabledReason(Utils::Id) const
 {
     BuildSystem *bs = activeBuildSystem();
     return bs ? bs->disabledReason(m_buildKey) : Tr::tr("No build system active");
 }
 
-bool RunConfiguration::isEnabled() const
+bool RunConfiguration::isEnabled(Utils::Id) const
 {
     BuildSystem *bs = activeBuildSystem();
     return bs && bs->hasParsingData();
@@ -501,7 +501,8 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 QList<RunConfigurationCreationInfo>
 RunConfigurationFactory::availableCreators(Target *target) const
 {
-    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
+    auto *bs = target->buildSystem();
+    const auto buildTargets = bs ? bs->applicationTargets() : QList<BuildTargetInfo>{};
     const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
                                             Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
@@ -600,7 +601,7 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
 
     // Add the universal aspects.
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
-        rc->registerAspect(factory(target));
+        rc->registerAspect(factory(target), true);
 
     return rc;
 }

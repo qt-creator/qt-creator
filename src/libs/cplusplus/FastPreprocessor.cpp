@@ -38,7 +38,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
                 mergeEnvironment(i.key());
         }
 
-        const QList<Document::Include> includes = doc->resolvedIncludes();
+        const QList<Document::Include> &includes = doc->resolvedIncludes();
         for (const Document::Include &i : includes)
             mergeEnvironment(i.resolvedFileName());
 
@@ -69,7 +69,7 @@ void FastPreprocessor::mergeEnvironment(const FilePath &filePath)
 {
     if (Utils::insert(_merged, filePath)) {
         if (Document::Ptr doc = _snapshot.document(filePath)) {
-            const QList<Document::Include> includes = doc->resolvedIncludes();
+            const QList<Document::Include> &includes = doc->resolvedIncludes();
             for (const Document::Include &i : includes)
                 mergeEnvironment(i.resolvedFileName());
 

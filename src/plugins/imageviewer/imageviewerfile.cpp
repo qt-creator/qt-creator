@@ -6,16 +6,15 @@
 
 #include "imageviewerconstants.h"
 #include "imageviewertr.h"
-#include "utils/algorithm.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QGraphicsPixmapItem>
 #include <QImageReader>
 #include <QMovie>

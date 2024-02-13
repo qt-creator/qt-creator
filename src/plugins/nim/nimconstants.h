@@ -13,7 +13,7 @@ const char C_NIMPROJECT_ID[] = "Nim.NimProject";
 const char C_NIMBLEPROJECT_ID[] = "Nim.NimbleProject";
 const char C_NIMEDITOR_ID[] = "Nim.NimEditor";
 
-// NimToolChain
+// NimToolchain
 const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
 
 // NimProject

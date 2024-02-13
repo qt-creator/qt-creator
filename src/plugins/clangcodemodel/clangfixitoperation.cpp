@@ -3,7 +3,8 @@
 
 #include "clangfixitoperation.h"
 
-#include <texteditor/refactoringchanges.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpprefactoringchanges.h>
 
 #include <utils/qtcassert.h>
 
@@ -46,7 +47,8 @@ static FileToFixits fixitsPerFile(const QList<ClangFixIt> &fixIts)
 
 void ClangFixItOperation::perform()
 {
-    const TextEditor::RefactoringChanges refactoringChanges;
+    const CppEditor::CppRefactoringChanges refactoringChanges(
+        CppEditor::CppModelManager::snapshot());
     const FileToFixits fileToFixIts = fixitsPerFile(fixIts);
 
     for (auto i = fileToFixIts.cbegin(), end = fileToFixIts.cend(); i != end; ++i) {

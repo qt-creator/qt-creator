@@ -84,7 +84,7 @@ GitSubmitEditor::GitSubmitEditor() :
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::showRequested, this, &GitSubmitEditor::showCommit);
-    connect(GitPlugin::versionControl(), &Core::IVersionControl::repositoryChanged,
+    connect(versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
     connect(&m_fetchWatcher, &QFutureWatcher<CommitDataFetchResult>::finished,
             this, &GitSubmitEditor::commitDataRetrieved);

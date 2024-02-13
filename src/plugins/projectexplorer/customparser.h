@@ -80,6 +80,7 @@ public:
     void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
     QList<Utils::Id> parsers() const { return m_parsers; }
 
+
     struct Data : BaseAspect::Data
     {
         QList<Utils::Id> parsers;
@@ -92,6 +93,8 @@ private:
     QList<Utils::Id> m_parsers;
 };
 
+PROJECTEXPLORER_EXPORT ProjectExplorer::OutputTaskParser *createCustomParserFromId(Utils::Id id);
+
 namespace Internal {
 
 class CustomParser : public ProjectExplorer::OutputTaskParser
@@ -100,8 +103,6 @@ public:
     CustomParser(const CustomParserSettings &settings = CustomParserSettings());
 
     void setSettings(const CustomParserSettings &settings);
-
-    static CustomParser *createFromId(Utils::Id id);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;

@@ -548,7 +548,7 @@ void ProjectWizardPage::setFiles(const FilePaths &files)
             str << m_commonDirectory.toUserOutput() << ":\n\n";
             int prefixSize = m_commonDirectory.toUserOutput().size();
             formattedFiles = Utils::transform(files, [prefixSize] (const FilePath &f) {
-                return f.toUserOutput().mid(prefixSize + 1); // +1 skips the initial dir separator
+                return f.toString().mid(prefixSize + 1); // +1 skips the initial dir separator
             });
         }
         // Alphabetically, and files in sub-directories first

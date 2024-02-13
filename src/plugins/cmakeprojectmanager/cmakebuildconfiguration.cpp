@@ -57,6 +57,7 @@
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -553,7 +554,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 
     connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    connect(dialog, &QDialog::accepted, this, [=]{
+    connect(dialog, &QDialog::accepted, this, [this, editor] {
         const auto expander = m_buildConfig->macroExpander();
 
         const QStringList lines = editor->toPlainText().split('\n', Qt::SkipEmptyParts);
@@ -852,7 +853,8 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
     CMakeConfig changedConfig;
 
     if (enable) {
-        const FilePath cmakeCache = m_buildConfig->buildDirectory().pathAppended("CMakeCache.txt");
+        const FilePath cmakeCache = m_buildConfig->buildDirectory().pathAppended(
+            Constants::CMAKE_CACHE_TXT);
 
         // Only modify the CMAKE_CXX_FLAGS variable if the project was previously configured
         // otherwise CMAKE_CXX_FLAGS_INIT will take care of setting the qmlDebug define
@@ -1010,7 +1012,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 
     auto help = new QAction(Tr::tr("Help"), this);
     menu->addAction(help);
-    connect(help, &QAction::triggered, this, [=] {
+    connect(help, &QAction::triggered, this, [this, idx] {
         const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
 
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());
@@ -1090,7 +1092,7 @@ static bool isQnx(const Kit *k)
 
 static bool isWindowsARM64(const Kit *k)
 {
-    ToolChain *toolchain = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(k);
     if (!toolchain)
         return false;
     const Abi targetAbi = toolchain->targetAbi();
@@ -1123,7 +1125,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &build
         const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
             cmd.addArg("-DCMAKE_SYSROOT:PATH=" + sysRoot);
-            if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+            if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(k)) {
                 const QString targetTriple = tc->originalTargetTriple();
                 cmd.addArg("-DCMAKE_C_COMPILER_TARGET:STRING=" + targetTriple);
                 cmd.addArg("-DCMAKE_CXX_COMPILER_TARGET:STRING=" + targetTriple);
@@ -1348,8 +1350,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             if (oldDir.isEmpty())
                 return newDir;
 
-            const FilePath oldDirCMakeCache = FilePath::fromUserInput(oldDir).pathAppended("CMakeCache.txt");
-            const FilePath newDirCMakeCache = FilePath::fromUserInput(newDir).pathAppended("CMakeCache.txt");
+            const FilePath oldDirCMakeCache = FilePath::fromUserInput(oldDir).pathAppended(
+                Constants::CMAKE_CACHE_TXT);
+            const FilePath newDirCMakeCache = FilePath::fromUserInput(newDir).pathAppended(
+                Constants::CMAKE_CACHE_TXT);
 
             if (oldDirCMakeCache.exists() && !newDirCMakeCache.exists()) {
                 if (QMessageBox::information(
@@ -1479,8 +1483,12 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
             if (qt && qt->qtVersion() >= QVersionNumber(6, 0, 0)) {
                 // Don't build apk under ALL target because Qt Creator will handle it
-                if (qt->qtVersion() >= QVersionNumber(6, 1, 0))
+                if (qt->qtVersion() >= QVersionNumber(6, 1, 0)) {
                     cmd.addArg("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
+                    if (qt->qtVersion() >= QVersionNumber(6, 8, 0))
+                        cmd.addArg("-DQT_USE_TARGET_ANDROID_BUILD_DIR:BOOL=ON");
+                }
+
                 cmd.addArg("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
                 cmd.addArg("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
@@ -1875,7 +1883,7 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
     registerBuildConfiguration<CMakeBuildConfiguration>(Constants::CMAKE_BUILDCONFIGURATION_ID);
 
     setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::CMAKE_PROJECT_MIMETYPE);
+    setSupportedProjectMimeTypeName(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
     setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
@@ -2043,7 +2051,8 @@ QString CMakeBuildSystem::cmakeBuildType() const
 
     QString cmakeBuildType = cmakeBuildConfiguration()->buildTypeAspect();
 
-    const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended("CMakeCache.txt");
+    const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended(
+        Constants::CMAKE_CACHE_TXT);
     const bool hasCMakeCache = cmakeCacheTxt.exists();
     CMakeConfig config;
 
@@ -2243,6 +2252,12 @@ void ConfigureEnvironmentAspect::toMap(Store &map) const
     map.insert(CLEAR_SYSTEM_ENVIRONMENT_KEY, baseKey == 0);
     map.insert(BASE_ENVIRONMENT_KEY, baseKey);
     map.insert(USER_ENVIRONMENT_CHANGES_KEY, tmpMap.value(CHANGES_KEY).toStringList());
+}
+
+
+void setupCMakeBuildConfiguration()
+{
+    static CMakeBuildConfigurationFactory theCMakeBuildConfigurationFactory;
 }
 
 } // namespace Internal

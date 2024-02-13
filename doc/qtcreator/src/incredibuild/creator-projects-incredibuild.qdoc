@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Setting Up IncrediBuild
+    \title IncrediBuild
 
     \brief IncrediBuild decreases the time it takes to build C++ code.
 
@@ -21,6 +21,7 @@
     {IncrediBuild for Qt Creator}.
 
     To use IncrediBuild, install IncrediBuild Agent on the development
-    host. Then specify IncrediBuild build steps for your project. For
-    more information, see \l{IncrediBuild Build Steps}.
+    host. Then specify IncrediBuild build steps for your project.
+
+    \sa {IncrediBuild Build Configuration}
 */

@@ -2,22 +2,23 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings-incredibuild.html
     \page creator-build-settings-conan.html
-    \nextpage creator-run-settings.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title Conan Build Configuration
 
-    You can specify build steps for Conan.
+    \brief Settings for building applications with the Conan package manager.
 
-    For more information about configuring Conan, see \l{Setting Up Conan}.
-
-    \section1 Conan Build Steps
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
 
     To configure a project to be built using the Conan package manager, select
     \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.
 
-    \image qtcreator-build-steps-conan-install.png "Conan Install build step"
+    \image qtcreator-build-steps-conan-install.png {Conan Install build step}
 
     In the \uicontrol {Conan file} field, enter the location of the
     \e conanfile.txt file for the project.
@@ -28,4 +29,6 @@
 
     Select \uicontrol {Build missing} to build packages from source if binary
     packages are not found.
+
+    \sa {Conan Package Manager}
 */

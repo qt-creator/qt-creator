@@ -79,9 +79,9 @@ static QStringList projectPartArguments(const ProjectPart &projectPart)
     args << projectPart.compilerFilePath.toString();
     args << "-c";
     if (projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        args << "--target=" + projectPart.toolChainTargetTriple;
-        if (projectPart.toolChainAbi.architecture() == Abi::X86Architecture)
-            args << QLatin1String(projectPart.toolChainAbi.wordWidth() == 64 ? "-m64" : "-m32");
+        args << "--target=" + projectPart.toolchainTargetTriple;
+        if (projectPart.toolchainAbi.architecture() == Abi::X86Architecture)
+            args << QLatin1String(projectPart.toolchainAbi.wordWidth() == 64 ? "-m64" : "-m32");
     }
     args << projectPart.compilerFlags;
     for (const ProjectExplorer::HeaderPath &headerPath : projectPart.headerPaths) {

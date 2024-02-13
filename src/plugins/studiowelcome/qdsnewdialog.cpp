@@ -94,7 +94,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
         deleteLater();
     });
 
-    QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this]() {
+    QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this] {
         m_qmlStyleIndex = -1;
     });
 }

@@ -19,6 +19,7 @@ public:
     Utils::BoolAspect askBeforePresetsReload{this};
     Utils::BoolAspect showSourceSubFolders{this};
     Utils::BoolAspect showAdvancedOptionsByDefault{this};
+    Utils::BoolAspect useJunctionsForSourceAndBuildDirectories{this};
 };
 
 CMakeSpecificSettings &settings();

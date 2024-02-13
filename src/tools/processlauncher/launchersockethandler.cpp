@@ -4,8 +4,8 @@
 #include "launchersockethandler.h"
 #include "launcherlogging.h"
 
+#include <utils/processhelper.h>
 #include <utils/processreaper.h>
-#include <utils/processutils.h>
 
 #include <QCoreApplication>
 #include <QLocalSocket>
@@ -274,7 +274,7 @@ void LauncherSocketHandler::removeProcess(quintptr token)
 
     ProcessWithToken *process = it.value();
     m_processes.erase(it);
-    ProcessReaper::reap(process, process->reaperTimeout());
+    ProcessReaper::reap(process, std::chrono::milliseconds(process->reaperTimeout()));
 }
 
 } // namespace Internal

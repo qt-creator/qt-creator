@@ -19,8 +19,8 @@
     However, the actual performance of the application once started is
     indistinguishable from the same application running on the desktop.
 
-    You can run \l{Qt Quick UI Projects}{Qt Quick UI projects}, which
-    have a .qmlproject file that define the main QML file and the import paths.
+    You can run Qt Quick UI Prototype projects, which
+    have a .qmlproject file that defines the main QML file and the import paths.
     Compress the project folder into a ZIP file that you upload to \QDV.
 
     The loaded applications remain locally in your browser. No data is uploaded
@@ -35,4 +35,6 @@
     \endlist
 
     Your application is compiled and run on \QDV.
+
+    \sa {Create Qt Quick UI Prototypes}
 */

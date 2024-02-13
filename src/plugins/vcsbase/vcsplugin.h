@@ -33,9 +33,6 @@ public:
     // initialization and updating on settings change.
     QStandardItemModel *nickNameModel();
 
-signals:
-    void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
-
 private:
     class VcsPluginPrivate *d = nullptr;
 };

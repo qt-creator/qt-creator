@@ -51,12 +51,14 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/colorpreviewhoverhandler.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/delegates.h>
 #include <utils/changeset.h>
+#include <utils/delegates.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
@@ -66,7 +68,6 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMetaMethod>
@@ -160,10 +161,8 @@ void QmlJSEditorWidget::finalizeInitialization()
 
 void QmlJSEditorWidget::restoreState(const QByteArray &state)
 {
-    QStringList qmlTypes { QmlJSTools::Constants::QML_MIMETYPE,
-                QmlJSTools::Constants::QBS_MIMETYPE,
-                QmlJSTools::Constants::QMLTYPES_MIMETYPE,
-                QmlJSTools::Constants::QMLUI_MIMETYPE };
+    using namespace Utils::Constants;
+    QStringList qmlTypes = {QML_MIMETYPE, QBS_MIMETYPE, QMLTYPES_MIMETYPE, QMLUI_MIMETYPE};
 
     if (QmlJsEditingSettings::get().foldAuxData() && qmlTypes.contains(textDocument()->mimeType())) {
         int version = 0;
@@ -308,11 +307,6 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
         m_outlineCombo->setRootModelIndex(QModelIndex());
     }
 }
-
-} // namespace QmlJSEditor
-
-
-namespace QmlJSEditor {
 
 void QmlJSEditorWidget::updateContextPane()
 {
@@ -745,7 +739,7 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 
     widget->setReadOnly(true);
     widget->textDocument()->setTemporary(true);
-    widget->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter(widget->document()));
+    widget->textDocument()->resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
 
     const QString buf = inspectCppComponent(cppValue);
     widget->textDocument()->setPlainText(buf);
@@ -791,13 +785,18 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         return;
     }
 
+    const ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
+    ProjectExplorer::ProjectNode* projectRootNode = nullptr;
+    if (project) {
+        projectRootNode = project->rootProjectNode();
+    }
+
     // string literals that could refer to a file link to them
     if (auto literal = cast<const StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
         if (text.startsWith("qrc:/")) {
-            const ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
-            if (project && project->rootProjectNode()) {
-                const ProjectExplorer::Node * const nodeForPath = project->rootProjectNode()->findNode(
+            if (projectRootNode) {
+                const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
                             [qrcPath = text.mid(text.indexOf(':') + 1)](ProjectExplorer::Node *n) {
                     if (!n->asFileNode())
                         return false;
@@ -856,14 +855,33 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto q = AST::cast<const AST::UiQualifiedId *>(node)) {
         for (const AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
-            if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
-                link.linkTextStart = tail->identifierToken.begin();
-                link.linkTextEnd = tail->identifierToken.end();
+            if (tail->next || !(cursorPosition <= tail->identifierToken.end())) {
+                continue;
+            }
+
+            link.linkTextStart = tail->identifierToken.begin();
+            link.linkTextEnd = tail->identifierToken.end();
+
+            if (!value->asCppComponentValue() || !projectRootNode) {
                 processLinkCallback(link);
                 return;
             }
-        }
 
+            const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
+                [&fileName](ProjectExplorer::Node *n) {
+                    const auto fileNode = n->asFileNode();
+                    if (!fileNode)
+                        return false;
+                    Utils::FilePath filePath = n->filePath();
+                    return filePath.endsWith(fileName.toUserOutput());
+                });
+            if (nodeForPath) {
+                link.targetFilePath = nodeForPath->filePath();
+                processLinkCallback(link);
+                return;
+            }
+            // else we will process an empty link below to avoid an error dialog
+        }
     } else if (auto id = AST::cast<const AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
@@ -928,7 +946,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         std::unique_ptr<AssistInterface> interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
-                Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor(interface.get()));
+                Internal::quickFixAssistProvider()->createProcessor(interface.get()));
             QScopedPointer<IAssistProposal> proposal(processor->start(std::move(interface)));
             if (!proposal.isNull()) {
                 GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
@@ -1133,11 +1151,11 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     setId(_id);
     setDisplayName(::Core::Tr::tr("QMLJS Editor"));
 
-    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
+    using namespace Utils::Constants;
+    addMimeType(QML_MIMETYPE);
+    addMimeType(QMLPROJECT_MIMETYPE);
+    addMimeType(QMLTYPES_MIMETYPE);
+    addMimeType(JS_MIMETYPE);
 
     setDocumentCreator([this]() { return new QmlJSEditorDocument(id()); });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
@@ -1159,11 +1177,37 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
                             | TextEditorActionHandler::FindUsage);
 }
 
-void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
+static void decorateEditor(TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
-    editor->textDocument()->setIndenter(new Internal::Indenter(editor->textDocument()->document()));
+    editor->textDocument()->resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
+    editor->textDocument()->setIndenter(createQmlJsIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new AutoCompleter);
 }
+
+namespace Internal {
+
+void inspectElement()
+{
+    if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
+        widget->inspectElementUnderCursor();
+}
+
+void showContextPane()
+{
+    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
+        editor->showContextPane();
+}
+
+void setupQmlJSEditor()
+{
+    static QmlJSEditorFactory theQmlJSEditorFactory;
+
+    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
+                                               Tr::tr("QML", "SnippetProvider"),
+                                               &decorateEditor);
+
+}
+
+} // namespace Internal
 
 } // namespace QmlJSEditor

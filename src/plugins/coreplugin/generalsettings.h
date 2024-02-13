@@ -13,6 +13,7 @@ public:
     GeneralSettings();
 
     Utils::BoolAspect showShortcutsInContextMenus{this};
+    Utils::BoolAspect provideSplitterCursors{this};
 
     static void applyToolbarStyleFromSettings();
 };

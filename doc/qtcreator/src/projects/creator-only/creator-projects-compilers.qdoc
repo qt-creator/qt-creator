@@ -94,7 +94,7 @@
         \li A C++ compiler that is installed with Microsoft Visual Studio.
     \row
         \li Nim
-        \li The Nim Compiler for Windows, Linux, and \macos.
+        \li The Nim compiler for Windows, Linux, and \macos.
     \row
         \li QCC
         \li The interface for compiling C++ applications for QNX.
@@ -176,7 +176,7 @@
     \page creator-preferences-kits-compilers.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-reference-preferences-kits
 
     \title Compilers
 
@@ -256,21 +256,6 @@
 */
 
 /*!
-    \page creator-how-to-add-nim-compilers.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-manage-kits
-
-    \title Add Nim compilers
-
-    To build an application using the Nim Compiler, select \preferences >
-    \uicontrol Kits > \uicontrol Compilers > \uicontrol Add > \uicontrol Nim,
-    and specify the path to the directory where the compiler is located.
-
-    \sa {Add compilers}, {Compilers}
-*/
-
-/*!
     \page creator-how-to-add-custom-compilers.html
     \previouspage creator-how-tos.html
 
@@ -319,9 +304,10 @@
             to the Qt mkspecs directory.
 
         \li In the \uicontrol {Error parser} field, select the error parser to use.
-            You can add custom output parsers to the list.
+            You can add custom output parsers to the list. Select
+            \uicontrol {Custom Parser Settings} to view and edit their preferences.
     \endlist
 
     \sa {Add compilers}, {Add Nim compilers}, {Compilers},
-    {Using Custom Output Parsers}
+    {Add custom output parsers}
 */

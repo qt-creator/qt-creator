@@ -968,7 +968,9 @@ public:
     using JsonObject::JsonObject;
 
     DocumentUri uri() const { return TextDocumentIdentifier(value("textDocument")).uri(); }
-    QList<Range> inactiveRegions() const { return array<Range>("regions"); }
+    QList<Range> inactiveRegions() const {
+        return array<Range>(LanguageServerProtocol::Key{"regions"});
+    }
 };
 
 class InactiveRegionsNotification : public Notification<InactiveRegionsParams>

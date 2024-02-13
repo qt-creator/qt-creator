@@ -15,6 +15,8 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/textmark.h>
@@ -24,6 +26,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/jsontreeitem.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -66,6 +69,7 @@ constexpr char typedClientsKey[] = "typedClients";
 constexpr char outlineSortedKey[] = "outlineSorted";
 constexpr char mimeType[] = "application/language.client.setting";
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace LanguageClient {
@@ -131,7 +135,7 @@ public:
         m_settings.reset(LanguageClientManager::currentSettings());
         resetCurrentSettings(row);
     }
-    void finish()
+    void finish() override
     {
         m_settings.reset(LanguageClientManager::currentSettings());
         m_changedSettings.clear();
@@ -553,11 +557,6 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     return client;
 }
 
-BaseClientInterface *BaseSettings::createInterface(ProjectExplorer::Project *) const
-{
-    return nullptr;
-}
-
 Client *BaseSettings::createClient(BaseClientInterface *interface) const
 {
     return new Client(interface);
@@ -665,8 +664,10 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
                                        Utils::Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
-    settings->setValue(clientsKey, transform(stdioSettings));
-    settings->setValue(typedClientsKey, transform(typedSettings));
+    if (!stdioSettings.isEmpty())
+        settings->setValue(clientsKey, transform(stdioSettings));
+    if (!typedSettings.isEmpty())
+        settings->setValue(typedClientsKey, transform(typedSettings));
     settings->endGroup();
 }
 
@@ -992,10 +993,16 @@ QString StdIOSettingsWidget::arguments() const
     return m_arguments->text();
 }
 
-bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeType) const
+bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeTypeName) const
 {
-    if (mimeTypes.contains(mimeType))
-        return true;
+    if (!mimeTypes.isEmpty()) {
+        const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
+        if (Utils::anyOf(mimeTypes, [mimeType](const QString &supported) {
+                return mimeType.inherits(supported);
+            })) {
+            return true;
+        }
+    }
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
     const QRegularExpression::PatternOptions options
@@ -1037,10 +1044,10 @@ TextEditor::BaseTextEditor *jsonEditor()
             break;
         delete editor;
     }
-    QTC_ASSERT(textEditor, textEditor = PlainTextEditorFactory::createPlainTextEditor());
+    QTC_ASSERT(textEditor, textEditor = createPlainTextEditor());
     TextDocument *document = textEditor->textDocument();
     TextEditorWidget *widget = textEditor->editorWidget();
-    widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
+    widget->configureGenericHighlighter(mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     widget->setLineNumbersVisible(false);
     widget->setRevisionsVisible(false);
     widget->setCodeFoldingSupported(false);
@@ -1105,30 +1112,53 @@ void ProjectSettings::setJson(const QByteArray &json)
         LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
 }
 
-ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_settings(project)
+class LanguageClientProjectSettingsWidget : public ProjectSettingsWidget
 {
-    setUseGlobalSettingsCheckBoxVisible(false);
-    setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
-    setExpanding(true);
+public:
+    explicit LanguageClientProjectSettingsWidget(Project *project)
+        : m_settings(project)
+    {
+        setUseGlobalSettingsCheckBoxVisible(false);
+        setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+        setExpanding(true);
 
-    TextEditor::BaseTextEditor *editor = jsonEditor();
-    editor->document()->setContents(m_settings.json());
+        TextEditor::BaseTextEditor *editor = jsonEditor();
+        editor->document()->setContents(m_settings.json());
 
-    auto layout = new QVBoxLayout;
-    setLayout(layout);
-    auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
-    group->setLayout(new QVBoxLayout);
-    group->layout()->addWidget(new QLabel(Tr::tr(
-        "Additional JSON configuration sent to all running language servers for this project.\n"
-        "See the documentation of the specific language server for valid settings.")));
-    group->layout()->addWidget(editor->widget());
-    layout->addWidget(group);
+        auto layout = new QVBoxLayout;
+        setLayout(layout);
+        auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
+        group->setLayout(new QVBoxLayout);
+        group->layout()->addWidget(new QLabel(Tr::tr(
+            "Additional JSON configuration sent to all running language servers for this project.\n"
+            "See the documentation of the specific language server for valid settings.")));
+        group->layout()->addWidget(editor->widget());
+        layout->addWidget(group);
 
-    connect(editor->editorWidget()->textDocument(),
-            &TextEditor::TextDocument::contentsChanged,
-            this,
-            [=]() { m_settings.setJson(editor->document()->contents()); });
+        connect(editor->editorWidget()->textDocument(), &TextEditor::TextDocument::contentsChanged,
+                this, [this, editor] { m_settings.setJson(editor->document()->contents()); });
+    }
+
+private:
+    ProjectSettings m_settings;
+};
+
+class LanguageClientProjectPanelFactory : public ProjectPanelFactory
+{
+public:
+    LanguageClientProjectPanelFactory()
+    {
+        setPriority(35);
+        setDisplayName(Tr::tr("Language Server"));
+        setCreateWidgetFunction([](Project *project) {
+            return new LanguageClientProjectSettingsWidget(project);
+        });
+    }
+};
+
+void setupLanguageClientProjectPanel()
+{
+    static LanguageClientProjectPanelFactory theLanguageClientProjectPanelFactory;
 }
 
 } // namespace LanguageClient

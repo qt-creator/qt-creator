@@ -4,22 +4,24 @@
 #include "projectcommentssettings.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
+#include "projectmanager.h"
+#include "projectpanelfactory.h"
+#include "projectsettingswidget.h"
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QCheckBox>
 #include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const char kUseGlobalKey[] = "UseGlobalKey";
 
-ProjectCommentsSettings::ProjectCommentsSettings(ProjectExplorer::Project *project)
+ProjectCommentsSettings::ProjectCommentsSettings(Project *project)
     : m_project(project)
 {
     loadSettings();
@@ -90,45 +92,62 @@ void ProjectCommentsSettings::saveSettings()
     m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
 }
 
-class ProjectCommentsSettingsWidget::Private
+class ProjectCommentsSettingsWidget final : public ProjectSettingsWidget
 {
 public:
-    Private(ProjectExplorer::Project *project) : settings(project) {}
+    ProjectCommentsSettingsWidget(Project *project)
+        : m_settings(project)
+    {
+        setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(&m_widget);
 
-    ProjectCommentsSettings settings;
-    CommentsSettingsWidget widget{settings.settings()};
-    QCheckBox useGlobalSettingsCheckBox;
+        const auto updateGlobalSettingsCheckBox = [this] {
+            setUseGlobalSettingsCheckBoxEnabled(true);
+            setUseGlobalSettings(m_settings.useGlobalSettings());
+            m_widget.setEnabled(!useGlobalSettings());
+        };
+        updateGlobalSettingsCheckBox();
+        connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
+                this, updateGlobalSettingsCheckBox);
+        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
+                [this](bool checked) {
+                    m_widget.setEnabled(!checked);
+                    m_settings.setUseGlobalSettings(checked);
+                    if (!checked)
+                        m_settings.setSettings(m_widget.settingsData());
+                });
+        connect(&m_widget, &CommentsSettingsWidget::settingsChanged, this, [this] {
+            m_settings.setSettings(m_widget.settingsData());
+        });
+    }
+
+private:
+    ProjectCommentsSettings m_settings;
+    CommentsSettingsWidget m_widget{m_settings.settings()};
 };
 
-ProjectCommentsSettingsWidget::ProjectCommentsSettingsWidget(ProjectExplorer::Project *project)
-    : d(new Private(project))
+class CommentsSettingsProjectPanelFactory final : public ProjectPanelFactory
 {
-    setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
-    const auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(&d->widget);
+public:
+    CommentsSettingsProjectPanelFactory()
+    {
+        setPriority(45);
+        setDisplayName(Tr::tr("Documentation Comments"));
+        setCreateWidgetFunction([](Project *project) {
+            return new ProjectCommentsSettingsWidget(project);
+        });
 
-    const auto updateGlobalSettingsCheckBox = [this] {
-        setUseGlobalSettingsCheckBoxEnabled(true);
-        setUseGlobalSettings(d->settings.useGlobalSettings());
-        d->widget.setEnabled(!useGlobalSettings());
-    };
-    updateGlobalSettingsCheckBox();
-    connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
-            this, updateGlobalSettingsCheckBox);
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-            [this](bool checked) {
-                d->widget.setEnabled(!checked);
-                d->settings.setUseGlobalSettings(checked);
-                if (!checked)
-                    d->settings.setSettings(d->widget.settingsData());
-            });
-    connect(&d->widget, &CommentsSettingsWidget::settingsChanged, this, [this] {
-        d->settings.setSettings(d->widget.settingsData());
-    });
+        TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
+            return ProjectCommentsSettings(ProjectManager::projectForFile(filePath)).settings();
+        });
+    }
+};
+
+void setupCommentsSettingsProjectPanel()
+{
+    static CommentsSettingsProjectPanelFactory theCommentsSettingsProjectPanelFactory;
 }
 
-ProjectCommentsSettingsWidget::~ProjectCommentsSettingsWidget() { delete d; }
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

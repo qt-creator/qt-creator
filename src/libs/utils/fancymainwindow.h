@@ -5,7 +5,7 @@
 
 #include "utils_global.h"
 
-#include "storekey.h"
+#include "store.h"
 
 #include <QMainWindow>
 
@@ -26,32 +26,35 @@ public:
      * which will then be used as key for QSettings. */
     QDockWidget *addDockForWidget(QWidget *widget, bool immutable = false);
     const QList<QDockWidget *> dockWidgets() const;
+    QList<QDockWidget *> docksInArea(Qt::DockWidgetArea area) const;
 
     void setTrackingEnabled(bool enabled);
 
     void saveSettings(QtcSettings *settings) const;
     void restoreSettings(const QtcSettings *settings);
-    QHash<Key, QVariant> saveSettings() const;
-    void restoreSettings(const QHash<Key, QVariant> &settings);
+    Store saveSettings() const;
+    bool restoreSettings(const Store &settings);
+    bool restoreFancyState(const QByteArray &state, int version = 0);
 
     // Additional context menu actions
     QAction *menuSeparator1() const;
-    QAction *autoHideTitleBarsAction() const;
-    QAction *menuSeparator2() const;
     QAction *resetLayoutAction() const;
     QAction *showCentralWidgetAction() const;
     void addDockActionsToMenu(QMenu *menu);
 
-    bool autoHideTitleBars() const;
-    void setAutoHideTitleBars(bool on);
-
     bool isCentralWidgetShown() const;
     void showCentralWidget(bool on);
 
+    void setDockAreaVisible(Qt::DockWidgetArea area, bool visible);
+    bool isDockAreaVisible(Qt::DockWidgetArea area) const;
+    bool isDockAreaAvailable(Qt::DockWidgetArea area) const;
+
+    bool isBlockingAutomaticUncollapse() const;
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.
     void resetLayout();
+    void dockWidgetsChanged();
 
 public slots:
     void setDockActionsVisible(bool v);

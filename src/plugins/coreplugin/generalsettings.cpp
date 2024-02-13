@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "dialogs/restartdialog.h"
 #include "dialogs/ioptionspage.h"
 #include "generalsettings.h"
 #include "coreconstants.h"
@@ -61,6 +60,14 @@ GeneralSettings::GeneralSettings()
     showShortcutsInContextMenus.setLabelText(
         Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
             .arg(defaultShowShortcutsInContextMenu() ? Tr::tr("on") : Tr::tr("off")));
+
+    provideSplitterCursors.setSettingsKey("General/OverrideSplitterCursors");
+    provideSplitterCursors.setDefaultValue(false);
+    provideSplitterCursors.setLabelText(Tr::tr("Override cursors for views"));
+    provideSplitterCursors.setToolTip(
+        Tr::tr("Provide cursors for resizing views.\nIf the system cursors for resizing views are "
+               "not displayed properly, you can use the cursors provided by %1.")
+            .arg(QGuiApplication::applicationDisplayName()));
 
     connect(&showShortcutsInContextMenus, &BaseAspect::changed, this, [this] {
         QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
@@ -150,6 +157,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                   int(Policy::RoundPreferFloor));
         m_policyComboBox->addItem(Tr::tr("Don't Round"), int(Policy::PassThrough));
         m_policyComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_policyComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
         const Policy userPolicy =
             ICore::settings()->value(settingsKeyDpiPolicy,
@@ -157,10 +165,29 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                       .value<Policy>();
         m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
 
-        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox, st});
+        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox});
+        static const char *envVars[] = {
+            StyleHelper::C_QT_SCALE_FACTOR_ROUNDING_POLICY, "QT_ENABLE_HIGHDPI_SCALING",
+            "QT_FONT_DPI", "QT_SCALE_FACTOR", "QT_SCREEN_SCALE_FACTORS", "QT_USE_PHYSICAL_DPI",
+        };
+        if (anyOf(envVars, qEnvironmentVariableIsSet)) {
+            QString toolTip = Tr::tr("The following environment variables are set and can "
+                                     "influence the UI scaling behavior of %1:")
+                                  .arg(QGuiApplication::applicationDisplayName()) + "\n";
+            for (auto var : envVars) {
+                if (qEnvironmentVariableIsSet(var))
+                    toolTip.append(QLatin1String("\n") + var + "=" + qEnvironmentVariable(var));
+            }
+            auto envVarInfo = new InfoLabel(Tr::tr("Environment influences UI scaling behavior."));
+            envVarInfo->setAdditionalToolTip(toolTip);
+            form.addItem(envVarInfo);
+        } else {
+            form.addItem(st);
+        }
     }
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
+    form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
@@ -223,8 +250,12 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
 void GeneralSettingsWidget::apply()
 {
+    bool showRestart = generalSettings().provideSplitterCursors.volatileValue()
+            != generalSettings().provideSplitterCursors.value();
     generalSettings().apply();
     generalSettings().writeSettings();
+    if (showRestart)
+        ICore::askForRestart(Tr::tr("The cursors for resizing views will change after restart."));
 
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
@@ -281,11 +312,8 @@ QString GeneralSettingsWidget::language()
 void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
     QtcSettings *settings = ICore::settings();
-    if (settings->value("General/OverrideLanguage").toString() != locale) {
-        RestartDialog dialog(ICore::dialogParent(),
-                             Tr::tr("The language change will take effect after restart."));
-        dialog.exec();
-    }
+    if (settings->value("General/OverrideLanguage").toString() != locale)
+        ICore::askForRestart(Tr::tr("The language change will take effect after restart."));
 
     settings->setValueWithDefault("General/OverrideLanguage", locale, {});
 }
@@ -344,10 +372,8 @@ void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy po
                 settingsKeyDpiPolicy,
                 int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy())).value<Policy>();
     if (policy != previousPolicy) {
-        RestartDialog dialog(ICore::dialogParent(),
-                             Tr::tr("The DPI rounding policy change will take effect after "
-                                    "restart."));
-        dialog.exec();
+        ICore::askForRestart(
+            Tr::tr("The DPI rounding policy change will take effect after restart."));
     }
     settings->setValueWithDefault(settingsKeyDpiPolicy, int(policy),
                                   int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()));

@@ -9,14 +9,14 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
-#include <utils/process.h>
+
+#include <vcsbase/vcsbaseclient.h>
 
 #include <QObject>
-#include <QString>
 #include <QStringList>
+#include <QVersionNumber>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -24,6 +24,7 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class ICore; }
+namespace Tasking { class GroupItem; }
 
 namespace DiffEditor {
 class ChunkSelection;
@@ -72,8 +73,8 @@ public:
     UpstreamStatus() = default;
     UpstreamStatus(int ahead, int behind) : ahead(ahead), behind(behind) {}
 
-    int ahead = 0;
-    int behind = 0;
+    int ahead = -1;
+    int behind = -1;
 };
 
 struct Author {
@@ -122,8 +123,8 @@ public:
     GitClient();
     ~GitClient();
 
-    Utils::FilePath vcsBinary() const override;
-    QFuture<unsigned> gitVersion() const;
+    Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const override;
+    QFuture<QVersionNumber> gitVersion() const;
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                           bool isRebase = false, const QString &abortCommand = {},
@@ -245,7 +246,7 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    Utils::ProcessTask topRevision(const Utils::FilePath &workingDirectory,
+    Tasking::GroupItem topRevision(const Utils::FilePath &workingDirectory,
         const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 
@@ -276,11 +277,7 @@ public:
 
     void stashPop(const Utils::FilePath &workingDirectory, const QString &stash = {});
     void revertFiles(const QStringList &files, bool revertStaging);
-    bool synchronousStashList(const Utils::FilePath &workingDirectory, QList<Stash> *stashes,
-                              QString *errorMessage = nullptr) const;
-    // Resolve a stash name from message (for IVersionControl's names).
-    bool stashNameFromMessage(const Utils::FilePath &workingDirectory, const QString &messge, QString *name,
-                              QString *errorMessage = nullptr) const;
+    QList<Stash> synchronousStashList(const Utils::FilePath &workingDirectory) const;
 
     QString readGitVar(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar) const;
@@ -298,7 +295,7 @@ public:
                       const GitSubmitEditorPanelData &data,
                       CommitType commitType,
                       const QString &amendSHA1,
-                      const QString &messageFile,
+                      const Utils::FilePath &messageFile,
                       VcsBase::SubmitFileModel *model);
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
@@ -321,7 +318,7 @@ public:
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const Utils::FilePath &workingDirectory = {}) const;
 
-    Utils::Environment processEnvironment() const override;
+    Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const override;
 
     bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
@@ -397,7 +394,8 @@ private:
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
     mutable Utils::FilePath m_gitVersionForBinary;
-    mutable unsigned m_cachedGitVersion = 0;
+    mutable QVersionNumber m_cachedGitVersion;
+    mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;

@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "iosplugin.h"
-
 #include "iosbuildconfiguration.h"
 #include "iosbuildstep.h"
 #include "iosconfigurations.h"
@@ -18,12 +16,13 @@
 #include "iostr.h"
 #include "iosrunconfiguration.h"
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/runconfiguration.h>
 
 using namespace ProjectExplorer;
-using namespace QtSupport;
 
 namespace Ios::Internal {
 
@@ -45,13 +44,6 @@ public:
 class IosPluginPrivate
 {
 public:
-    IosQmakeBuildConfigurationFactory qmakeBuildConfigurationFactory;
-    IosCMakeBuildConfigurationFactory cmakeBuildConfigurationFactory;
-    IosToolChainFactory toolChainFactory;
-    IosRunConfigurationFactory runConfigurationFactory;
-    IosSettingsPage settingsPage;
-    IosQtVersionFactory qtVersionFactory;
-    IosDeviceFactory deviceFactory;
     IosSimulatorFactory simulatorFactory;
     IosBuildStepFactory buildStepFactory;
     IosDeployStepFactory deployStepFactory;
@@ -62,18 +54,36 @@ public:
     IosQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
-IosPlugin::~IosPlugin()
+class IosPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Ios.json")
 
-void IosPlugin::initialize()
-{
-    qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
+    ~IosPlugin() final
+    {
+        delete d;
+    }
 
-    IosConfigurations::initialize();
+    void initialize() final
+    {
+        qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
 
-    d = new IosPluginPrivate;
-}
+        setupIosToolchain();
+        setupIosBuildConfiguration();
+        setupIosQtVersion();
+        setupIosDevice();
+
+        IosConfigurations::initialize();
+
+        setupIosRunConfiguration();
+        setupIosSettingsPage();
+
+        d = new IosPluginPrivate;
+    }
+
+    IosPluginPrivate *d = nullptr;
+};
 
 } // Internal::Ios
+
+#include "iosplugin.moc"

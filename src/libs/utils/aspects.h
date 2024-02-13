@@ -4,6 +4,7 @@
 #pragma once
 
 #include "filepath.h"
+#include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
 #include "macroexpander.h"
@@ -15,6 +16,8 @@
 #include <memory>
 #include <optional>
 
+#include <QAbstractSpinBox>
+#include <QComboBox>
 #include <QUndoCommand>
 
 QT_BEGIN_NAMESPACE
@@ -39,6 +42,7 @@ class CheckableDecider;
 namespace Internal {
 class AspectContainerPrivate;
 class BaseAspectPrivate;
+class ToggleAspectPrivate;
 class BoolAspectPrivate;
 class ColorAspectPrivate;
 class DoubleAspectPrivate;
@@ -107,6 +111,7 @@ public:
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
     void setIcon(const QIcon &labelIcon);
+    QIcon icon() const;
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
@@ -149,7 +154,7 @@ public:
         unsigned bufferFromGui : 1;
     };
 
-    void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit);
+    virtual void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit);
 
     class QTCREATOR_UTILS_EXPORT Data
     {
@@ -201,7 +206,7 @@ public:
     void writeToSettingsImmediatly() const;
 
 signals:
-    void changed(); // "internal"
+    void changed();
     void volatileValueChanged();
     void labelLinkActivated(const QString &link);
     void checkedChanged();
@@ -243,6 +248,10 @@ protected:
     Widget *createSubWidget(Args && ...args) {
         auto w = new Widget(args...);
         registerSubWidget(w);
+        if constexpr (std::is_base_of_v<QComboBox, Widget>
+                      || std::is_base_of_v<QAbstractSpinBox, Widget>) {
+            setWheelScrollingWithoutFocusBlocked(w);
+        }
         return w;
     }
 
@@ -274,6 +283,8 @@ template <typename ValueType>
 class TypedAspect : public BaseAspect
 {
 public:
+    using valueType = ValueType;
+
     TypedAspect(AspectContainer *container = nullptr)
         : BaseAspect(container)
     {
@@ -446,6 +457,39 @@ private:
     bool guiToBuffer() override;
 
     std::unique_ptr<Internal::BoolAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT ToggleAspect : public BoolAspect
+{
+public:
+    ToggleAspect(AspectContainer *container = nullptr);
+    ~ToggleAspect();
+
+    void setOffIcon(const QIcon &icon);
+    QIcon offIcon() const;
+
+    void setOffTooltip(const QString &tooltip);
+    QString offTooltip() const;
+
+    void setOnIcon(const QIcon &icon);
+    QIcon onIcon() const;
+
+    void setOnTooltip(const QString &tooltip);
+    QString onTooltip() const;
+
+    void setOnText(const QString &text);
+    QString onText() const;
+
+    void setOffText(const QString &text);
+    QString offText() const;
+
+    QAction *action() override;
+
+protected:
+    void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit) override;
+
+private:
+    std::unique_ptr<Internal::ToggleAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT ColorAspect : public TypedAspect<QColor>
@@ -624,6 +668,7 @@ public:
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);
     void setDefaultValue(const QString &filePath);
+    void setDefaultPathValue(const FilePath &filePath);
 
     void setPromptDialogFilter(const QString &filter);
     void setPromptDialogTitle(const QString &title);
@@ -829,7 +874,7 @@ class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
     Q_OBJECT
 
 public:
-    explicit TextDisplay(AspectContainer *container,
+    explicit TextDisplay(AspectContainer *container = nullptr,
                          const QString &message = {},
                          InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;

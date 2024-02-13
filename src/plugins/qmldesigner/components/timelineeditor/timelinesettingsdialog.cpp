@@ -93,11 +93,11 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     auto *timelineRemoveAction = new QAction(TimelineIcons::REMOVE_TIMELINE.icon(),
                                              tr("Remove Timeline"));
 
-    connect(timelineAddAction, &QAction::triggered, this, [this]() {
+    connect(timelineAddAction, &QAction::triggered, this, [this] {
         setupTimelines(m_timelineView->addNewTimeline());
     });
 
-    connect(timelineRemoveAction, &QAction::triggered, this, [this]() {
+    connect(timelineRemoveAction, &QAction::triggered, this, [this] {
         QmlTimeline timeline = getTimelineFromTabWidget(m_timelineTab);
         if (timeline.isValid()) {
             timeline.destroy();
@@ -119,11 +119,11 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     animationCornerWidget->addAction(animationAddAction);
     animationCornerWidget->addAction(animationRemoveAction);
 
-    connect(animationAddAction, &QAction::triggered, this, [this]() {
+    connect(animationAddAction, &QAction::triggered, this, [this] {
         setupAnimations(m_timelineView->addAnimation(m_currentTimeline));
     });
 
-    connect(animationRemoveAction, &QAction::triggered, this, [this]() {
+    connect(animationRemoveAction, &QAction::triggered, this, [this] {
         ModelNode node = getAnimationFromTabWidget(m_animationTab);
         if (node.isValid()) {
             node.destroy();
@@ -156,7 +156,7 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     setupTimelines(QmlTimeline());
     setupAnimations(m_currentTimeline);
 
-    connect(m_timelineTab, &QTabWidget::currentChanged, this, [this]() {
+    connect(m_timelineTab, &QTabWidget::currentChanged, this, [this] {
         m_currentTimeline = getTimelineFromTabWidget(m_timelineTab);
         setupAnimations(m_currentTimeline);
     });

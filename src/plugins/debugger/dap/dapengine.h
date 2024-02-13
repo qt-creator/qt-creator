@@ -119,6 +119,9 @@ protected:
     void dapRemoveBreakpoint(const Breakpoint &bp);
     void dapInsertBreakpoint(const Breakpoint &bp);
 
+    void dapRemoveFunctionBreakpoint(const Breakpoint &bp);
+    void dapInsertFunctionBreakpoint(const Breakpoint &bp);
+
     void handleDapDone();
     void readDapStandardOutput();
     void readDapStandardError();
@@ -128,9 +131,9 @@ protected:
     void handleScopesResponse(const QJsonObject &response);
     void handleThreadsResponse(const QJsonObject &response);
     void handleEvaluateResponse(const QJsonObject &response);
+    void handleBreakpointResponse(const QJsonObject &response);
 
     void handleEvent(DapEventType type, const QJsonObject &event);
-    void handleBreakpointEvent(const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
 
     void updateAll() override;

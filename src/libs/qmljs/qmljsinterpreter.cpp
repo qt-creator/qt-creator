@@ -251,6 +251,14 @@ const CppComponentValue *CppComponentValue::asCppComponentValue() const
     return this;
 }
 
+bool CppComponentValue::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
+{
+    *fileName = Utils::FilePath::fromString(m_metaObject->filePath());
+    *line = 0;
+    *column = 0;
+    return true;
+}
+
 void CppComponentValue::processMembers(MemberProcessor *processor) const
 {
     // process the meta enums

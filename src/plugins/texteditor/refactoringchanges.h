@@ -8,6 +8,7 @@
 #include <texteditor/texteditor_global.h>
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/textfileformat.h>
 
 #include <QList>
@@ -15,23 +16,25 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include <utility>
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-class TextDocument;
-class TextEditorWidget;
-class RefactoringChanges;
+class PlainRefactoringFileFactory;
 class RefactoringFile;
-class RefactoringChangesData;
 using RefactoringFilePtr = QSharedPointer<RefactoringFile>;
 using RefactoringSelections = QVector<QPair<QTextCursor, QTextCursor>>;
+class TextDocument;
+class TextEditorWidget;
 
 // ### listen to the m_editor::destroyed signal?
 class TEXTEDITOR_EXPORT RefactoringFile
 {
     Q_DISABLE_COPY(RefactoringFile)
+    friend class PlainRefactoringFileFactory; // access to constructor
 public:
     using Range = Utils::ChangeSet::Range;
 
@@ -40,8 +43,7 @@ public:
     bool isValid() const;
 
     const QTextDocument *document() const;
-    // mustn't use the cursor to change the document
-    const QTextCursor cursor() const;
+    const QTextCursor cursor() const; // mustn't use the cursor to change the document
     Utils::FilePath filePath() const;
     TextEditorWidget *editor() const;
 
@@ -56,10 +58,9 @@ public:
 
     Utils::ChangeSet changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
-    void appendIndentRange(const Range &range);
-    void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
     bool apply();
+    bool create(const QString &contents, bool reindent, bool openInEditor);
 
 protected:
     // users may only get const access to RefactoringFiles created through
@@ -67,85 +68,46 @@ protected:
     RefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
 
     RefactoringFile(TextEditorWidget *editor);
-    RefactoringFile(const Utils::FilePath &filePath,
-                    const QSharedPointer<RefactoringChangesData> &data);
+    RefactoringFile(const Utils::FilePath &filePath);
 
-    QTextDocument *mutableDocument() const;
-    // derived classes may want to clear language specific extra data
-    virtual void fileChanged();
+    void invalidate() { m_filePath.clear(); }
 
-    enum IndentType {Indent, Reindent};
-    void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
+private:
+    virtual void fileChanged() {} // derived classes may want to clear language specific extra data
+    virtual Utils::Id indenterId() const { return {} ;}
 
     void setupFormattingRanges(const QList<Utils::ChangeSet::EditOp> &replaceList);
     void doFormatting();
 
+    TextEditorWidget *openEditor(bool activate, int line, int column);
+    QTextDocument *mutableDocument() const;
+
     Utils::FilePath m_filePath;
-    QSharedPointer<RefactoringChangesData> m_data;
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QTextDocument *m_document = nullptr;
     TextEditorWidget *m_editor = nullptr;
     Utils::ChangeSet m_changes;
-    QList<Range> m_indentRanges;
-    QList<Range> m_reindentRanges;
-    QList<QTextCursor> m_formattingCursors;
+
+    // The bool indicates whether to advance the start position.
+    QList<std::pair<QTextCursor, bool>> m_formattingCursors;
+
     bool m_openEditor = false;
     bool m_activateEditor = false;
     int m_editorCursorPosition = -1;
     bool m_appliedOnce = false;
-    bool m_formattingEnabled = false;
-
-    friend class RefactoringChanges; // access to constructor
 };
 
- /*!
-    This class batches changes to multiple file, which are applied as a single big
-    change.
- */
-class TEXTEDITOR_EXPORT RefactoringChanges
+class TEXTEDITOR_EXPORT RefactoringFileFactory
 {
 public:
-    using Range = Utils::ChangeSet::Range;
-
-    explicit RefactoringChanges(RefactoringChangesData *data = nullptr);
-    virtual ~RefactoringChanges();
-
-    static RefactoringFilePtr file(TextEditorWidget *editor);
-    RefactoringFilePtr file(const Utils::FilePath &filePath) const;
-    bool createFile(const Utils::FilePath &filePath,
-                    const QString &contents,
-                    bool reindent = true,
-                    bool openEditor = true) const;
-    bool removeFile(const Utils::FilePath &filePath) const;
-
-protected:
-    static TextEditorWidget *openEditor(const Utils::FilePath &filePath,
-                                        bool activate,
-                                        int line,
-                                        int column);
-    static RefactoringSelections rangesToSelections(QTextDocument *document,
-                                                    const QList<Range> &ranges);
-
-    QSharedPointer<RefactoringChangesData> m_data;
-
-    friend class RefactoringFile;
+    virtual ~RefactoringFileFactory();
+    virtual RefactoringFilePtr file(const Utils::FilePath &filePath) const = 0;
 };
 
-class TEXTEDITOR_EXPORT RefactoringChangesData
+class TEXTEDITOR_EXPORT PlainRefactoringFileFactory final : public RefactoringFileFactory
 {
-    Q_DISABLE_COPY(RefactoringChangesData)
-
 public:
-    RefactoringChangesData() = default;
-    virtual ~RefactoringChangesData();
-
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const Utils::FilePath &filePath,
-                                 const TextDocument *textEditor) const;
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const Utils::FilePath &filePath,
-                                   const TextDocument *textEditor) const;
-    virtual void fileChanged(const Utils::FilePath &filePath);
+    RefactoringFilePtr file(const Utils::FilePath &filePath) const override;
 };
 
 } // namespace TextEditor

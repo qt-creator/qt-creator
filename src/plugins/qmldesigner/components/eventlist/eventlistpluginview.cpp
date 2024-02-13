@@ -51,7 +51,7 @@ void EventListPluginView::registerActions()
                                                             &SelectionContextFunctors::always,
                                                             &SelectionContextFunctors::always));
     auto eventListAction = new EventListAction();
-    connect(eventListAction->action(), &QAction::triggered, [this]() {
+    connect(eventListAction->action(), &QAction::triggered, [this] {
         if (!m_eventListDialog)
             m_eventListDialog = new EventListDialog(Core::ICore::dialogParent());
 
@@ -62,7 +62,7 @@ void EventListPluginView::registerActions()
     designerActionManager.addDesignerAction(eventListAction);
 
     auto assignEventAction = new AssignEventEditorAction();
-    connect(assignEventAction->action(), &QAction::triggered, [this]() {
+    connect(assignEventAction->action(), &QAction::triggered, [this] {
         if (!m_assigner)
             m_assigner = new AssignEventDialog(Core::ICore::dialogParent());
         if (!m_eventListDialog)

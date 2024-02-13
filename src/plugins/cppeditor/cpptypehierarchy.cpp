@@ -6,11 +6,13 @@
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
-#include "cppeditorplugin.h"
 #include "cppelementevaluator.h"
 
-#include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/texteditor.h>
@@ -25,15 +27,13 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QLabel>
-#include <QLatin1String>
 #include <QMenu>
 #include <QModelIndex>
-#include <QSharedPointer>
 #include <QStackedLayout>
-#include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
 namespace CppEditor::Internal {
@@ -81,7 +81,7 @@ private:
     AnnotatedItemDelegate *m_delegate = nullptr;
     TextEditor::TextEditorLinkLabel *m_inspectedClass = nullptr;
     QLabel *m_infoLabel = nullptr;
-    QFuture<QSharedPointer<CppElement>> m_future;
+    QFuture<std::shared_ptr<CppElement>> m_future;
     QFutureWatcher<void> m_futureWatcher;
     FutureSynchronizer m_synchronizer;
     ProgressIndicator *m_progressIndicator = nullptr;
@@ -195,8 +195,6 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
     showNoTypeHierarchyLabel();
     setLayout(m_stackLayout);
 
-    connect(CppEditorPlugin::instance(), &CppEditorPlugin::typeHierarchyRequested,
-            this, &CppTypeHierarchyWidget::perform);
     connect(&m_futureWatcher, &QFutureWatcher<void>::finished,
             this, &CppTypeHierarchyWidget::displayHierarchy);
 }
@@ -226,8 +224,11 @@ void CppTypeHierarchyWidget::perform()
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(m_future);
 
+    using namespace std::chrono_literals;
     Core::ProgressManager::addTimedTask(m_futureWatcher.future(),
-                                        Tr::tr("Evaluating Type Hierarchy"), "TypeHierarchy", 2);
+                                        Tr::tr("Evaluating Type Hierarchy"),
+                                        "TypeHierarchy",
+                                        2s);
 }
 
 void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const FilePath &filePath)
@@ -256,8 +257,8 @@ void CppTypeHierarchyWidget::displayHierarchy()
         showNoTypeHierarchyLabel();
         return;
     }
-    const QSharedPointer<CppElement> &cppElement = m_future.result();
-    if (cppElement.isNull()) {
+    const std::shared_ptr<CppElement> &cppElement = m_future.result();
+    if (!cppElement) {
         showNoTypeHierarchyLabel();
         return;
     }
@@ -396,18 +397,63 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 
 // CppTypeHierarchyFactory
 
-CppTypeHierarchyFactory::CppTypeHierarchyFactory()
+class CppTypeHierarchyFactory final : public INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Type Hierarchy"));
-    setPriority(700);
-    setId(Constants::TYPE_HIERARCHY_ID);
+public:
+    CppTypeHierarchyFactory()
+    {
+        setDisplayName(Tr::tr("Type Hierarchy"));
+        setPriority(700);
+        setId(Constants::TYPE_HIERARCHY_ID);
+
+        ActionBuilder openTypeHierarchy(this, Constants::OPEN_TYPE_HIERARCHY);
+        openTypeHierarchy.setText(Tr::tr("Open Type Hierarchy"));
+        openTypeHierarchy.setContext(Context(Constants::CPPEDITOR_ID));
+        openTypeHierarchy.bindContextAction(&m_openTypeHierarchyAction);
+        openTypeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+T"), Tr::tr("Ctrl+Shift+T"));
+        openTypeHierarchy.addToContainers({Constants::M_TOOLS_CPP, Constants::M_CONTEXT},
+                                          Constants::G_SYMBOL);
+
+        connect(m_openTypeHierarchyAction, &QAction::triggered, this, [] {
+            NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_ID, Side::Left);
+        });
+
+        connect(ProgressManager::instance(), &ProgressManager::taskStarted, [this](Id type) {
+            if (type == Constants::TASK_INDEX)
+                m_openTypeHierarchyAction->setEnabled(false);
+        });
+        connect(ProgressManager::instance(), &ProgressManager::allTasksFinished, [this](Id type) {
+            if (type == Constants::TASK_INDEX)
+                m_openTypeHierarchyAction->setEnabled(true);
+        });
+    }
+
+    NavigationView createWidget() final
+    {
+        auto w = new CppTypeHierarchyWidget;
+        connect(m_openTypeHierarchyAction, &QAction::triggered, w, &CppTypeHierarchyWidget::perform);
+        w->perform();
+
+        return {w, {}};
+    }
+
+    QAction *m_openTypeHierarchyAction = nullptr;
+};
+
+static CppTypeHierarchyFactory &cppTypeHierarchyFactory()
+{
+    static CppTypeHierarchyFactory theCppTypeHierarchyFactory;
+    return theCppTypeHierarchyFactory;
 }
 
-Core::NavigationView CppTypeHierarchyFactory::createWidget()
+void openCppTypeHierarchy()
 {
-    auto w = new CppTypeHierarchyWidget;
-    w->perform();
-    return {w, {}};
+    cppTypeHierarchyFactory().m_openTypeHierarchyAction->trigger();
+}
+
+void setupCppTypeHierarchy()
+{
+    (void) cppTypeHierarchyFactory(); // Trigger instantiation
 }
 
 } // CppEditor::Internal

@@ -11,8 +11,8 @@ namespace Qdb::Internal {
 class QdbDevice final : public RemoteLinux::LinuxDevice
 {
 public:
-    typedef QSharedPointer<QdbDevice> Ptr;
-    typedef QSharedPointer<const QdbDevice> ConstPtr;
+    typedef std::shared_ptr<QdbDevice> Ptr;
+    typedef std::shared_ptr<const QdbDevice> ConstPtr;
 
     static Ptr create() { return Ptr(new QdbDevice); }
 
@@ -35,10 +35,6 @@ private:
     QString m_serialNumber;
 };
 
-class QdbLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    QdbLinuxDeviceFactory();
-};
+void setupQdbLinuxDevice();
 
 } // Qdb::Internal

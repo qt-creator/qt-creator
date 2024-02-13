@@ -70,7 +70,7 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
         LocatorFilterEntry filterEntry;
         filterEntry.displayName = key;
         filterEntry.acceptor = [key] {
-            HelpPlugin::showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
+            showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
             return AcceptResult();
         };
         filterEntry.displayIcon = icon;
@@ -83,7 +83,7 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
 
 LocatorMatcherTasks HelpIndexFilter::matchers()
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](Async<QStringList> &async) {
         if (m_needsUpdate) {
@@ -105,7 +105,7 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
         }
     };
 
-    return {{AsyncTask<QStringList>(onSetup, onDone), storage}};
+    return {{AsyncTask<QStringList>(onSetup, onDone, CallDoneIf::Success), storage}};
 }
 
 void HelpIndexFilter::invalidateCache()

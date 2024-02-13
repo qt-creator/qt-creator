@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include "core_global.h"
+
 #include <utils/aspects.h>
 
 namespace Core::Internal {
 
-class SystemSettings final : public Utils::AspectContainer
+class CORE_TEST_EXPORT SystemSettings final : public Utils::AspectContainer
 {
 public:
     SystemSettings();
@@ -37,6 +39,6 @@ public:
     Utils::BoolAspect askBeforeExit{this};
 };
 
-SystemSettings &systemSettings();
+CORE_TEST_EXPORT SystemSettings &systemSettings();
 
 } // Core::Internal

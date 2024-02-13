@@ -7,22 +7,39 @@
 #include "androidmanifesteditorwidget.h"
 #include "androidtr.h"
 
+#include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android::Internal {
 
-AndroidManifestEditorFactory::AndroidManifestEditorFactory()
-    : m_actionHandler(Constants::ANDROID_MANIFEST_EDITOR_ID,
-                      Constants::ANDROID_MANIFEST_EDITOR_CONTEXT,
-                      TextEditor::TextEditorActionHandler::UnCommentSelection,
-                      [](Core::IEditor *editor) { return static_cast<AndroidManifestEditor *>(editor)->textEditor(); })
+class AndroidManifestEditorFactory final : public Core::IEditorFactory
 {
-    setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
-    setDisplayName(Tr::tr("Android Manifest editor"));
-    addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
-    setEditorCreator([] {
-        auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
-        return androidManifestEditorWidget->editor();
-    });
+public:
+    AndroidManifestEditorFactory()
+        : m_actionHandler(Constants::ANDROID_MANIFEST_EDITOR_ID,
+                          Constants::ANDROID_MANIFEST_EDITOR_CONTEXT,
+                          TextEditor::TextEditorActionHandler::UnCommentSelection,
+                          [](Core::IEditor *editor) { return static_cast<AndroidManifestEditor *>(editor)->textEditor(); })
+    {
+        setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+        setDisplayName(Tr::tr("Android Manifest editor"));
+        addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
+        setEditorCreator([] {
+            auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
+            return androidManifestEditorWidget->editor();
+        });
+    }
+
+private:
+    TextEditor::TextEditorActionHandler m_actionHandler;
+};
+
+void setupAndroidManifestEditor()
+{
+    static AndroidManifestEditorFactory theAndroidManifestEditorFactory;
 }
+
+} // Android::Internal
+

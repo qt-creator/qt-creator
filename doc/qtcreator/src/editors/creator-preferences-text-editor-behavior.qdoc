@@ -14,7 +14,8 @@
 
     \title Behavior
 
-    \brief Set preferences for the behavior of the text editor.
+    \brief Set preferences for indentation, typing, and file encoding in the
+    text editor.
 
     To specify indentation settings for text files that do not have C++ or
     QML code (such as Python code files), select \preferences >
@@ -95,8 +96,8 @@
     line comments at the end of the line.
 
     \if defined(qtcreator)
-    \sa {Find preferences}, {C++ Code Style}, {Nim}
+    \sa {Change text encoding}, {Find preferences}, {C++ Code Style}, {Nim}
     \endif
 
-    \sa {Indent text or code}, {Qt Quick Code Style}
+    \sa {Indent text or code}, {Qt Quick Code Style}, {Font & Colors}
 */

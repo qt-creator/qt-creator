@@ -4,6 +4,8 @@
 #include "command.h"
 #include "command_p.h"
 
+#include "actionmanager.h"
+
 #include "../coreconstants.h"
 #include "../icontext.h"
 
@@ -396,7 +398,7 @@ void Internal::CommandPrivate::addOverrideAction(QAction *action,
             m_contextActionMap.insert(id, action);
         }
     }
-    m_scriptableMap[action] = scriptable;
+    m_scriptableHash[action] = scriptable;
     setCurrentContext(m_context);
 }
 
@@ -432,18 +434,20 @@ bool Internal::CommandPrivate::isEmpty() const
 
 bool Command::isScriptable() const
 {
-    return std::find(d->m_scriptableMap.cbegin(), d->m_scriptableMap.cend(), true)
-           != d->m_scriptableMap.cend();
+    return std::find(d->m_scriptableHash.cbegin(), d->m_scriptableHash.cend(), true)
+           != d->m_scriptableHash.cend();
 }
 
 bool Command::isScriptable(const Context &context) const
 {
-    if (context == d->m_context && d->m_scriptableMap.contains(d->m_action->action()))
-        return d->m_scriptableMap.value(d->m_action->action());
-
+    if (context == d->m_context) {
+        const auto it = d->m_scriptableHash.constFind(d->m_action->action());
+        if (it != d->m_scriptableHash.constEnd())
+            return *it;
+    }
     for (int i = 0; i < context.size(); ++i) {
         if (QAction *a = d->m_contextActionMap.value(context.at(i), nullptr)) {
-            if (d->m_scriptableMap.contains(a) && d->m_scriptableMap.value(a))
+            if (d->m_scriptableHash.value(a, false))
                 return true;
         }
     }
@@ -530,8 +534,12 @@ QAction *Command::touchBarAction() const
 }
 
 /*!
-    Appends the main keyboard shortcut that is currently assigned to the action
-    \a a to its tool tip.
+    Sets the tool tip of action \a a to the action's text, augmented
+    with the command's main keyboard shortcut. The tool tip automatically
+    updates whenever the main keyboard shortcut or the action's text
+    changes.
+    \sa stringWithAppendedShortcut()
+    \sa createActionWithShortcutToolTip()
 */
 void Command::augmentActionWithShortcutToolTip(QAction *a) const
 {
@@ -542,6 +550,41 @@ void Command::augmentActionWithShortcutToolTip(QAction *a) const
     QObject::connect(a, &QAction::changed, this, [this, a] {
         a->setToolTip(stringWithAppendedShortcut(a->text()));
     });
+}
+
+/*!
+    Returns a new QAction with the command's icon, icon text, and text, that
+    given by \a commandId. Sets the button's parent to \a parent.
+    The action's tool tip is the action's text, augmented with the command's
+    main keyboard shortcut. Other properties of the action are not updated
+    automatically.
+    \sa augmentActionWithShortcutToolTip()
+*/
+QAction *Command::createActionWithShortcutToolTip(Id commandId, QObject *parent)
+{
+    auto a = new QAction(parent);
+    Command *cmd = ActionManager::command(commandId);
+    QTC_ASSERT(cmd, return a);
+    a->setIcon(cmd->action()->icon());
+    a->setIconText(cmd->action()->iconText());
+    a->setText(cmd->action()->text());
+    cmd->augmentActionWithShortcutToolTip(a);
+    return a;
+}
+
+/*!
+    Returns a new QToolButton with the command's icon, icon text, and text, that
+    given by \a commandId. Sets the button's parent to \a parent.
+    The action's tool tip is the action's text, augmented with the command's
+    main keyboard shortcut. Other properties of the button are not updated
+    automatically.
+    \sa createActionWithShortcutToolTip()
+*/
+QToolButton *Command::createToolButtonWithShortcutToolTip(Utils::Id commandId, QWidget *parent)
+{
+    auto button = new QToolButton(parent);
+    button->setDefaultAction(createActionWithShortcutToolTip(commandId, button));
+    return button;
 }
 
 /*!
@@ -556,6 +599,17 @@ QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *c
     if (cmd)
         cmd->augmentActionWithShortcutToolTip(action);
     return button;
+}
+
+/*!
+    Returns a tool button for \a action.
+
+    Appends the main keyboard shortcut of the command with ID \a commandId
+    to the tool tip of the button.
+*/
+QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Utils::Id commandId)
+{
+    return toolButtonWithAppendedShortcut(action, ActionManager::command(commandId));
 }
 
 } // namespace Core

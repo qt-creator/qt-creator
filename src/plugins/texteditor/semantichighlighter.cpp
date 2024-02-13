@@ -5,6 +5,7 @@
 
 #include "syntaxhighlighter.h"
 #include "texteditorsettings.h"
+#include "syntaxhighlighterrunner.h"
 
 #include <utils/qtcassert.h>
 
@@ -73,11 +74,13 @@ const Ranges rangesForResult(
 
 }
 
-void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(SyntaxHighlighter *highlighter,
-        const QFuture<HighlightingResult> &future,
-        int from, int to,
-        const QHash<int, QTextCharFormat> &kindToFormat,
-        const Splitter &splitter)
+void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
+    SyntaxHighlighterRunner *highlighter,
+    const QFuture<HighlightingResult> &future,
+    int from,
+    int to,
+    const QHash<int, QTextCharFormat> &kindToFormat,
+    const Splitter &splitter)
 {
     if (to <= from)
         return;
@@ -111,17 +114,21 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(SyntaxHighlight
             formatRanges[range.block].append(range.formatRange);
     }
 
+    QList<int> clearBlockNumberVector;
+    QMap<int, QList<QTextLayout::FormatRange>> blockNumberMap;
     for (auto &[block, ranges] : formatRanges) {
         while (currentBlock < block) {
-            highlighter->clearExtraFormats(currentBlock);
+            clearBlockNumberVector.append(currentBlock.blockNumber());
             currentBlock = currentBlock.next();
         }
-        highlighter->setExtraFormats(block, std::move(ranges));
+        blockNumberMap[block.blockNumber()] = ranges;
         currentBlock = block.next();
     }
+    highlighter->clearExtraFormats(clearBlockNumberVector);
+    highlighter->setExtraFormats(blockNumberMap);
 }
 
-void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlighter,
+void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighterRunner *highlighter,
                                                     const QList<HighlightingResult> &results,
                                                     const QHash<int, QTextCharFormat> &kindToFormat)
 {
@@ -132,20 +139,19 @@ void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlight
     QTextDocument *doc = highlighter->document();
     QTC_ASSERT(doc, return );
 
-    std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
+    QMap<int, QList<QTextLayout::FormatRange>> blockNumberMap;
 
-    for (auto result : results) {
-        for (const Range &range : rangesForResult(result, doc, kindToFormat))
-            formatRanges[range.block].append(range.formatRange);
+    for (const HighlightingResult &result : results) {
+        const Ranges ranges = rangesForResult(result, doc, kindToFormat);
+        for (const Range &range : ranges)
+            blockNumberMap[range.block.blockNumber()].append(range.formatRange);
     }
 
-    for (auto &[block, ranges] : formatRanges)
-        highlighter->setExtraFormats(block, std::move(ranges));
+    highlighter->setExtraFormats(blockNumberMap);
 }
 
 void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-        SyntaxHighlighter *highlighter,
-        const QFuture<HighlightingResult> &future)
+    SyntaxHighlighterRunner *highlighter, const QFuture<HighlightingResult> &future)
 {
     const QTextDocument * const doc = highlighter->document();
     QTextBlock firstBlockToClear = doc->begin();
@@ -160,6 +166,9 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         }
     }
 
+    QList<int> clearBlockNumberVector;
     for (QTextBlock b = firstBlockToClear; b.isValid(); b = b.next())
-        highlighter->clearExtraFormats(b);
+        clearBlockNumberVector.append(b.blockNumber());
+
+    highlighter->clearExtraFormats(clearBlockNumberVector);
 }

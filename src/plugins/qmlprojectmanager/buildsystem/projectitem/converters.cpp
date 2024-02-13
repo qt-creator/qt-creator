@@ -223,7 +223,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 
-    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toString());
+    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
 
     if (!simpleQmlJSReader.errors().isEmpty() || !rootNode->isValid()) {
         qCritical() << "Unable to parse:" << projectFile;
@@ -260,7 +260,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
     bool qtForMCUs = false;
 
-    // convert the the non-object props
+    // convert the non-object props
     for (const QString &propName : rootNode->propertyNames()) {
         QJsonObject *currentObj = &rootObject;
         QString objKey = QString(propName).remove("QDS.", Qt::CaseInsensitive);
@@ -314,7 +314,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
     rootObject.insert("otherProperties", otherProperties);
 
-    // convert the the object props
+    // convert the object props
     for (const QmlJS::SimpleReaderNode::Ptr &childNode : rootNode->children()) {
         if (childNode->name().contains("files", Qt::CaseInsensitive)) {
             QString childNodeName = childNode->name().remove("qds.", Qt::CaseInsensitive);

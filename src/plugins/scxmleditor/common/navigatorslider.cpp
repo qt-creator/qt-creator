@@ -41,7 +41,7 @@ NavigatorSlider::NavigatorSlider(QWidget *parent)
 
     connect(zoomOut, &QToolButton::clicked, this, &NavigatorSlider::zoomOut);
     connect(zoomIn, &QToolButton::clicked, this, &NavigatorSlider::zoomIn);
-    connect(m_slider, &QSlider::valueChanged, this, [=](int newValue){
+    connect(m_slider, &QSlider::valueChanged, this, [this](int newValue) {
         emit valueChanged(newValue);
     });
 }

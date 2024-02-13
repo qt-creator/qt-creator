@@ -6,8 +6,9 @@
 #include "lldparser.h"
 #include "projectexplorerconstants.h"
 
-using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace ProjectExplorer {
 
 static Task::TaskType taskType(const QString &capture)
 {
@@ -109,15 +110,19 @@ Utils::Id ClangParser::id()
     return Utils::Id("ProjectExplorer.OutputParser.Clang");
 }
 
+} // ProjectExplorer
+
 // Unit tests:
 
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "outputparser_test.h"
 
-void ProjectExplorerPlugin::testClangOutputParser_data()
+namespace ProjectExplorer::Internal {
+
+void ProjectExplorerTest::testClangOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -268,7 +273,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                 << QString();
 }
 
-void ProjectExplorerPlugin::testClangOutputParser()
+void ProjectExplorerTest::testClangOutputParser()
 {
     OutputParserTester testbench;
     testbench.setLineParsers(ClangParser::clangParserSuite());
@@ -283,4 +288,7 @@ void ProjectExplorerPlugin::testClangOutputParser()
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);
 }
-#endif
+
+} // ProjectExplorer::Internal
+
+#endif // WITH_TESTS

@@ -56,8 +56,8 @@ private:
         }
         const FilePath filePath = editorWidget->textDocument()->filePath();
         const QStringList fallback = identifierWordsUnderCursor(tc);
-        if (evaluator.identifiedCppElement()) {
-            const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
+        const std::shared_ptr<CppElement> &cppElement = evaluator.cppElement();
+        if (cppElement) {
             const QStringList candidates = cppElement->helpIdCandidates;
             const HelpItem helpItem(candidates + fallback,
                                     filePath,
@@ -101,8 +101,13 @@ TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
 
 void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
                                               const Utils::LinkHandler &processLinkCallback,
+                                              FollowSymbolMode mode,
                                               bool resolveTarget, bool inNextSplit)
 {
+    // findMatchingDefinition() has an "strict" parameter, but it doesn't seem worth to
+    // pass the mode down all the way. In practice, we are always fuzzy.
+    Q_UNUSED(mode)
+
     SymbolFinder finder;
     m_followSymbol->findLink(data, processLinkCallback,
             resolveTarget, CppModelManager::snapshot(),

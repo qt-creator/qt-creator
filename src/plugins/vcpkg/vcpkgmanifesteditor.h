@@ -3,16 +3,12 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
+#include <QString>
 
 namespace Vcpkg::Internal {
 
-class VcpkgManifestEditorFactory : public TextEditor::TextEditorFactory
-{
-public:
-    VcpkgManifestEditorFactory();
-};
-
 QByteArray addDependencyToManifest(const QByteArray &manifest, const QString &package);
+
+void setupVcpkgManifestEditor();
 
 } // namespace Vcpkg::Internal

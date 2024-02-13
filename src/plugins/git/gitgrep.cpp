@@ -134,8 +134,8 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
                        const GitGrepParameters &gitParameters)
 {
     const auto setupProcess = [&parameters, gitParameters](Process &process) {
-        const FilePath vcsBinary = gitClient().vcsBinary();
-        const Environment environment = gitClient().processEnvironment();
+        const FilePath vcsBinary = gitClient().vcsBinary(parameters.searchDir);
+        const Environment environment = gitClient().processEnvironment(vcsBinary);
 
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
@@ -202,8 +202,8 @@ GitGrep::GitGrep()
     layout->addWidget(m_treeLineEdit);
     // asynchronously check git version, add "recurse submodules" option if available
     Utils::onResultReady(gitClient().gitVersion(), this,
-                         [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
-        if (version >= 0x021300 && pLayout) {
+                         [this, pLayout = QPointer<QHBoxLayout>(layout)](const QVersionNumber &version) {
+        if (version >= QVersionNumber{2, 13} && pLayout) {
             m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
             pLayout->addWidget(m_recurseSubmodules);
         }

@@ -6,6 +6,8 @@
 #include "editorconfiguration.h"
 #include "project.h"
 #include "projectexplorertr.h"
+#include "projectpanelfactory.h"
+#include "projectsettingswidget.h"
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
@@ -24,6 +26,28 @@
 #include <QTextCodec>
 
 namespace ProjectExplorer::Internal {
+
+class EditorSettingsWidget : public ProjectSettingsWidget
+{
+public:
+    explicit EditorSettingsWidget(Project *project);
+
+private:
+    void globalSettingsActivated(bool useGlobal);
+    void restoreDefaultValues();
+
+    void settingsToUi(const EditorConfiguration *config);
+
+    Project *m_project;
+
+    QPushButton *m_restoreButton;
+    QCheckBox *m_showWrapColumn;
+    QCheckBox *m_tintMarginArea;
+    QSpinBox *m_wrapColumn;
+    QCheckBox *m_useIndenter;
+    QGroupBox *m_displaySettings;
+    TextEditor::BehaviorSettingsWidget *m_behaviorSettings;
+};
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project)
 {
@@ -133,6 +157,22 @@ void EditorSettingsWidget::restoreDefaultValues()
     EditorConfiguration *config = m_project->editorConfiguration();
     config->cloneGlobalSettings();
     settingsToUi(config);
+}
+
+class EditorSettingsProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    EditorSettingsProjectPanelFactory()
+    {
+        setPriority(30);
+        setDisplayName(Tr::tr("Editor"));
+        setCreateWidgetFunction([](Project *project) { return new EditorSettingsWidget(project); });
+    }
+};
+
+void setupEditorSettingsProjectPanel()
+{
+    static EditorSettingsProjectPanelFactory theEditorSettingsProjectPanelFactory;
 }
 
 } // ProjectExplorer::Internal

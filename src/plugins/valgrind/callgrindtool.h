@@ -3,13 +3,10 @@
 
 #pragma once
 
+#include <QObject>
+
 namespace Valgrind::Internal {
 
-class CallgrindTool final
-{
-public:
-    CallgrindTool();
-    ~CallgrindTool();
-};
+void setupCallgrindTool(QObject *guard);
 
 } // Valgrind::Internal

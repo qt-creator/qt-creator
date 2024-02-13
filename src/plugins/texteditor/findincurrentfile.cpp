@@ -3,6 +3,7 @@
 
 #include "findincurrentfile.h"
 
+#include "basefilefind.h"
 #include "textdocument.h"
 #include "texteditortr.h"
 
@@ -11,9 +12,32 @@
 
 #include <utils/qtcsettings.h>
 
+#include <QPointer>
+
 using namespace Utils;
 
 namespace TextEditor::Internal {
+
+class FindInCurrentFile final : public BaseFileFind
+{
+public:
+    FindInCurrentFile();
+
+private:
+    QString id() const final;
+    QString displayName() const final;
+    bool isEnabled() const final;
+    void writeSettings(Utils::QtcSettings *settings) final;
+    void readSettings(Utils::QtcSettings *settings) final;
+
+    QString label() const final;
+    QString toolTip() const final;
+
+    FileContainerProvider fileContainerProvider() const final;
+    void handleFileChange(Core::IEditor *editor);
+
+    QPointer<Core::IDocument> m_currentDocument;
+};
 
 FindInCurrentFile::FindInCurrentFile()
 {
@@ -85,6 +109,11 @@ void FindInCurrentFile::readSettings(QtcSettings *settings)
     settings->beginGroup("FindInCurrentFile");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
+}
+
+void setupFindInCurrentFile()
+{
+    static FindInCurrentFile theFindInCurrentFile;
 }
 
 } // TextEditor::Internal

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <qglobal.h>
-
 namespace ImageViewer::Constants {
 
 const char IMAGEVIEWER_ID[] = "Editors.ImageViewer";

@@ -10,6 +10,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -123,7 +124,7 @@ public:
         m_versionDisplay = cmake.versionDisplay();
 
         // Make sure to always have the right version in the name for Qt SDK CMake installations
-        if (m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
+        if (m_autodetected && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
             m_name = QString("CMake %1 (Qt)").arg(m_versionDisplay);
     }
 
@@ -652,17 +653,24 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
     m_makeDefButton->setEnabled(m_currentItem && (!m_model.defaultItemId().isValid() || m_currentItem->m_id != m_model.defaultItemId()));
 }
 
-//
 // CMakeSettingsPage
-//
 
-CMakeSettingsPage::CMakeSettingsPage()
+class CMakeSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::Settings::TOOLS_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setDisplayCategory("CMake");
-    setCategory(Constants::Settings::CATEGORY);
-    setWidgetCreator([] { return new CMakeToolConfigWidget; });
+public:
+    CMakeSettingsPage()
+    {
+        setId(Constants::Settings::TOOLS_ID);
+        setDisplayName(Tr::tr("Tools"));
+        setDisplayCategory("CMake");
+        setCategory(Constants::Settings::CATEGORY);
+        setWidgetCreator([] { return new CMakeToolConfigWidget; });
+    }
+};
+
+void setupCMakeSettingsPage()
+{
+    static CMakeSettingsPage theCMakeSettingsPage;
 }
 
 } // CMakeProjectManager::Internal

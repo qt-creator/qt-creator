@@ -1,22 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cvsplugin.h"
-
 #include "cvseditor.h"
 #include "cvssettings.h"
 #include "cvssubmiteditor.h"
 #include "cvstr.h"
 #include "cvsutils.h"
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -34,10 +31,12 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <extensionsystem/iplugin.h>
+
+#include <utils/action.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -90,42 +89,11 @@ const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
-const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Commit Editor");
 
-const VcsBaseSubmitEditorParameters submitParameters {
-    CVS_SUBMIT_MIMETYPE,
-    CVSCOMMITEDITOR_ID,
-    CVSCOMMITEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
-const VcsBaseEditorParameters commandLogEditorParameters {
-    OtherContent,
-    "CVS Command Log Editor", // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Command Log Editor"), // display name
-    "text/vnd.qtcreator.cvs.commandlog"
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    "CVS File Log Editor",   // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS File Log Editor"),   // display name
-    "text/vnd.qtcreator.cvs.log"
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    "CVS Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Annotation Editor"),  // display name
-    "text/vnd.qtcreator.cvs.annotation"
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    "CVS Diff Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Diff Editor"),  // display name
-    "text/x-patch"
-};
+const char CVS_COMMANDLOG_EDITOR_ID[]  = "CVS Command Log Editor";
+const char CVS_FILELOG_EDITOR_ID[]     = "CVS File Log Editor";
+const char CVS_ANNOTATION_EDITOR_ID[]  = "CVS Annotation Editor";
+const char CVS_DIFF_EDITOR_ID[]        = "CVS Diff Editor";
 
 static inline bool messageBoxQuestion(const QString &title, const QString &question)
 {
@@ -183,7 +151,7 @@ public:
     }
 };
 
-class CvsPluginPrivate final : public VcsBasePluginPrivate
+class CvsPluginPrivate final : public VersionControlBase
 {
 public:
     CvsPluginPrivate();
@@ -294,26 +262,26 @@ private:
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
-    Utils::ParameterAction *m_addAction = nullptr;
-    Utils::ParameterAction *m_deleteAction = nullptr;
-    Utils::ParameterAction *m_revertAction = nullptr;
-    Utils::ParameterAction *m_editCurrentAction = nullptr;
-    Utils::ParameterAction *m_uneditCurrentAction = nullptr;
+    Utils::Action *m_addAction = nullptr;
+    Utils::Action *m_deleteAction = nullptr;
+    Utils::Action *m_revertAction = nullptr;
+    Utils::Action *m_editCurrentAction = nullptr;
+    Utils::Action *m_uneditCurrentAction = nullptr;
     QAction *m_uneditRepositoryAction = nullptr;
-    Utils::ParameterAction *m_diffProjectAction = nullptr;
-    Utils::ParameterAction *m_diffCurrentAction = nullptr;
-    Utils::ParameterAction *m_logProjectAction = nullptr;
+    Utils::Action *m_diffProjectAction = nullptr;
+    Utils::Action *m_diffCurrentAction = nullptr;
+    Utils::Action *m_logProjectAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_commitAllAction = nullptr;
     QAction *m_revertRepositoryAction = nullptr;
-    Utils::ParameterAction *m_commitCurrentAction = nullptr;
-    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
-    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
-    Utils::ParameterAction *m_statusProjectAction = nullptr;
-    Utils::ParameterAction *m_updateProjectAction = nullptr;
-    Utils::ParameterAction *m_commitProjectAction = nullptr;
-    Utils::ParameterAction *m_updateDirectoryAction = nullptr;
-    Utils::ParameterAction *m_commitDirectoryAction = nullptr;
+    Utils::Action *m_commitCurrentAction = nullptr;
+    Utils::Action *m_filelogCurrentAction = nullptr;
+    Utils::Action *m_annotateCurrentAction = nullptr;
+    Utils::Action *m_statusProjectAction = nullptr;
+    Utils::Action *m_updateProjectAction = nullptr;
+    Utils::Action *m_commitProjectAction = nullptr;
+    Utils::Action *m_updateDirectoryAction = nullptr;
+    Utils::Action *m_commitDirectoryAction = nullptr;
     QAction *m_diffRepositoryAction = nullptr;
     QAction *m_updateRepositoryAction = nullptr;
     QAction *m_statusRepositoryAction = nullptr;
@@ -321,35 +289,41 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsSubmitEditorFactory submitEditorFactory {
-        submitParameters,
-        [] { return new CvsSubmitEditor; },
-        this
-    };
-
-    VcsEditorFactory commandLogEditorFactory {
-        &commandLogEditorParameters,
+    VcsEditorFactory commandLogEditorFactory {{
+        OtherContent,
+        CVS_COMMANDLOG_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Command Log Editor"), // display name
+        "text/vnd.qtcreator.cvs.commandlog",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        CVS_FILELOG_EDITOR_ID,
+        VcsBase::Tr::tr("CVS File Log Editor"),   // display name
+        "text/vnd.qtcreator.cvs.log",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        CVS_ANNOTATION_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Annotation Editor"),  // display name
+        "text/vnd.qtcreator.cvs.annotation",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        CVS_DIFF_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Diff Editor"),  // display name
+        "text/x-patch",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 Utils::Id CvsPluginPrivate::id() const
@@ -460,32 +434,25 @@ void CvsPluginPrivate::cleanCommitMessageFile()
         m_commitRepository.clear();
     }
 }
+
 bool CvsPluginPrivate::isCommitEditorOpen() const
 {
     return !m_commitMessageFileName.isEmpty();
 }
 
-CvsPlugin::~CvsPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void CvsPlugin::initialize()
-{
-    dd = new CvsPluginPrivate;
-}
-
-void CvsPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-}
-
 CvsPluginPrivate::CvsPluginPrivate()
-    : VcsBasePluginPrivate(Context(CVS_CONTEXT))
+    : VersionControlBase(Context(CVS_CONTEXT))
 {
     using namespace Core::Constants;
     dd = this;
+
+    setupVcsSubmitEditor(this, {
+        CVS_SUBMIT_MIMETYPE,
+        CVSCOMMITEDITOR_ID,
+        VcsBase::Tr::tr("CVS Commit Editor"),
+        VcsBaseSubmitEditorParameters::DiffFiles,
+        [] { return new CvsSubmitEditor; },
+    });
 
     Context context(CVS_CONTEXT);
     m_client = new CvsClient;
@@ -504,7 +471,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     Command *command;
 
-    m_diffCurrentAction = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffCurrentAction = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -513,7 +480,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_filelogCurrentAction = new ParameterAction(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_filelogCurrentAction = new Action(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_filelogCurrentAction,
         CMD_ID_FILELOG_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -521,7 +488,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_annotateCurrentAction = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_annotateCurrentAction = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -531,7 +498,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -540,7 +507,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitCurrentAction = new ParameterAction(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_commitCurrentAction = new Action(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -549,7 +516,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -557,7 +524,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertAction = new ParameterAction(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Action(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -567,14 +534,14 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_editCurrentAction = new ParameterAction(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_editCurrentAction = new Action(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_editCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::editCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_uneditCurrentAction = new ParameterAction(Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_uneditCurrentAction = new Action(Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_uneditCurrentAction, CMD_ID_UNEDIT_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_uneditCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::uneditCurrentFile);
@@ -589,7 +556,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_diffProjectAction = new ParameterAction(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffProjectAction = new Action(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -597,7 +564,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new ParameterAction(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_statusProjectAction = new Action(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
         context);
     command->setAttribute(Command::CA_UpdateText);
@@ -605,21 +572,21 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new ParameterAction(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_logProjectAction = new Action(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_logProjectAction, &QAction::triggered, this, &CvsPluginPrivate::logProject);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new ParameterAction(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_updateProjectAction = new Action(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateProjectAction, &QAction::triggered, this, &CvsPluginPrivate::updateProject);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new ParameterAction(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_commitProjectAction = new Action(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_PROJECTCOMMIT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_commitProjectAction, &QAction::triggered, this, &CvsPluginPrivate::commitProject);
@@ -628,14 +595,14 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_updateDirectoryAction = new ParameterAction(Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_updateDirectoryAction = new Action(Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateDirectoryAction, &QAction::triggered, this, &CvsPluginPrivate::updateDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitDirectoryAction = new ParameterAction(Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_commitDirectoryAction = new Action(Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_commitDirectoryAction,
         CMD_ID_COMMIT_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);
@@ -745,7 +712,7 @@ CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const QString &fileName)
     return submitEditor;
 }
 
-void CvsPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
+void CvsPluginPrivate::updateActions(VersionControlBase::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
@@ -987,7 +954,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                logEditorParameters.id, source, codec);
+                                                CVS_FILELOG_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1127,7 +1094,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                annotateEditorParameters.id, source, codec);
+                                                CVS_ANNOTATION_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1141,7 +1108,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     const auto response = runCvs(topLevel, args);
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok) {
-        showOutputInEditor(title, response.cleanedStdOut(), commandLogEditorParameters.id,
+        showOutputInEditor(title, response.cleanedStdOut(), CVS_COMMANDLOG_EDITOR_ID,
                            topLevel, nullptr);
     }
     return ok;
@@ -1306,7 +1273,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
-        IEditor *newEditor = showOutputInEditor(title, output, diffEditorParameters.id,
+        IEditor *newEditor = showOutputInEditor(title, output, CVS_DIFF_EDITOR_ID,
                                                 FilePath::fromString(entries.front().file), codec);
         VcsBaseEditor::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
@@ -1408,7 +1375,18 @@ bool CvsPluginPrivate::checkCVSDirectory(const QDir &directory) const
 }
 
 #ifdef WITH_TESTS
-void CvsPlugin::testDiffFileResolving_data()
+
+class CvsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+};
+
+void CvsTest::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -1422,12 +1400,12 @@ void CvsPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/cvs/cvseditor.cpp");
 }
 
-void CvsPlugin::testDiffFileResolving()
+void CvsTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
-void CvsPlugin::testLogResolving()
+void CvsTest::testLogResolving()
 {
     QByteArray data(
                 "RCS file: /sources/cvs/ccvs/Attic/FIXED-BUGS,v\n"
@@ -1454,4 +1432,32 @@ void CvsPlugin::testLogResolving()
 }
 #endif
 
+class CvsPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
+
+    ~CvsPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new CvsPluginPrivate;
+
+        #ifdef WITH_TESTS
+        addTest<CvsTest>();
+        #endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
 } // namespace Cvs::Internal
+
+#include "cvsplugin.moc"

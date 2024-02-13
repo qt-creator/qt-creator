@@ -45,4 +45,14 @@ public:
     std::optional<TabSettings> tabSettings() const override;
 };
 
+class TEXTEDITOR_EXPORT PlainTextIndenter : public TextIndenter
+{
+public:
+    using TextIndenter::TextIndenter;
+
+    void autoIndent(const QTextCursor &cursor,
+                    const TabSettings &tabSettings,
+                    int cursorPositionInEditor = -1) override;
+};
+
 } // namespace TextEditor

@@ -119,25 +119,25 @@ void tst_QrcParser::firstInTest()
 void tst_QrcParser::cacheTest()
 {
     QFETCH(QString, path);
-    QVERIFY(m_cache.parsedPath(path).isNull());
+    QVERIFY(!m_cache.parsedPath(path));
     QrcParser::ConstPtr p0 = m_cache.addPath(path, QString());
-    QVERIFY(!p0.isNull());
+    QVERIFY(p0);
     QrcParser::ConstPtr p1 = m_cache.parsedPath(path);
-    QVERIFY(p1.data() == p0.data());
+    QVERIFY(p1.get() == p0.get());
     QrcParser::ConstPtr p2 = m_cache.addPath(path, QString());
-    QVERIFY(p2.data() == p1.data());
+    QVERIFY(p2.get() == p1.get());
     QrcParser::ConstPtr p3 = m_cache.parsedPath(path);
-    QVERIFY(p3.data() == p2.data());
+    QVERIFY(p3.get() == p2.get());
     QrcParser::ConstPtr p4 = m_cache.updatePath(path, QString());
-    QVERIFY(p4.data() != p3.data());
+    QVERIFY(p4.get() != p3.get());
     QrcParser::ConstPtr p5 = m_cache.parsedPath(path);
-    QVERIFY(p5.data() == p4.data());
+    QVERIFY(p5.get() == p4.get());
     m_cache.removePath(path);
     QrcParser::ConstPtr p6 = m_cache.parsedPath(path);
-    QVERIFY(p6.data() == p5.data());
+    QVERIFY(p6.get() == p5.get());
     m_cache.removePath(path);
     QrcParser::ConstPtr p7 = m_cache.parsedPath(path);
-    QVERIFY(p7.isNull());
+    QVERIFY(!p7);
 }
 
 void tst_QrcParser::simpleTest()

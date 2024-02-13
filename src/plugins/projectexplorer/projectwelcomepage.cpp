@@ -23,7 +23,7 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QAbstractItemDelegate>
@@ -583,11 +583,9 @@ public:
         manageSessionsButton->setOnClicked([] { SessionManager::showSessionManager(); });
 
         auto sessionsLabel = new QLabel(this);
-        sessionsLabel->setFont(brandFont());
         sessionsLabel->setText(Tr::tr("Sessions"));
 
         auto recentProjectsLabel = new QLabel(this);
-        recentProjectsLabel->setFont(brandFont());
         recentProjectsLabel->setText(Tr::tr("Projects"));
 
         auto sessionsList = new TreeView(this, "Sessions");

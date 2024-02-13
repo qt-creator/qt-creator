@@ -61,7 +61,7 @@ QVariantList PerfTimelineModel::labels() const
     sample.insert(QLatin1String("id"), PerfEvent::LastSpecialTypeId);
     result << sample;
 
-    const PerfProfilerTraceManager *manager = traceManager();
+    const PerfProfilerTraceManager *manager = &traceManager();
     const bool aggregated = manager->aggregateAddresses();
     for (int i = 0; i < m_locationOrder.length(); ++i) {
         int locationId = m_locationOrder[i];
@@ -136,7 +136,7 @@ QVariantMap PerfTimelineModel::details(int index) const
 
     const StackFrame &frame = m_data[index];
 
-    const PerfProfilerTraceManager *manager = traceManager();
+    const PerfProfilerTraceManager *manager = &traceManager();
     int typeId = selectionId(index);
     if (isSample(index)) {
         const PerfEventType::Attribute &attribute = manager->attribute(typeId);
@@ -221,13 +221,12 @@ QVariantMap PerfTimelineModel::details(int index) const
 
 QVariantMap PerfTimelineModel::location(int index) const
 {
-    const PerfProfilerTraceManager *manager = traceManager();
     const int typeId = selectionId(index);
     if (typeId < 0) // not a location
         return QVariantMap();
 
-    const PerfEventType::Location &location = manager->location(typeId);
-    const QByteArray &file = manager->string(location.file);
+    const PerfEventType::Location &location = traceManager().location(typeId);
+    const QByteArray &file = traceManager().string(location.file);
     if (file.isEmpty())
         return QVariantMap();
 
@@ -264,7 +263,7 @@ float PerfTimelineModel::relativeHeight(int index) const
 
 void PerfTimelineModel::updateTraceData(const PerfEvent &event)
 {
-    const PerfProfilerTraceManager *manager = traceManager();
+    const PerfProfilerTraceManager *manager = &traceManager();
     for (int i = 0; i < event.numAttributes(); ++i) {
         const PerfEventType::Attribute &attribute = manager->attribute(event.attributeId(i));
         if (attribute.type != PerfEventType::TypeTracepoint)
@@ -539,11 +538,6 @@ void PerfTimelineModel::computeExpandedLevels()
     setExpandedRowCount(expandedRows);
 }
 
-const PerfProfilerTraceManager *PerfTimelineModel::traceManager() const
-{
-    return static_cast<PerfTimelineModelManager *>(parent())->traceManager();
-}
-
 const PerfTimelineModel::LocationStats &PerfTimelineModel::locationStats(int locationId) const
 {
     static const LocationStats empty;
@@ -573,7 +567,7 @@ bool PerfTimelineModel::isResourceTracePoint(int index) const
     if (!isSample(index))
         return false;
 
-    const PerfProfilerTraceManager *manager = traceManager();
+    const PerfProfilerTraceManager *manager = &traceManager();
 
     const PerfEventType::Attribute &attribute = manager->attribute(typeId(index));
     if (attribute.type != PerfEventType::TypeTracepoint)

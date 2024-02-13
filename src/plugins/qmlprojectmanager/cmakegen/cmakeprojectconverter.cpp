@@ -15,8 +15,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
-#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <QAction>
 #include <QMessageBox>
@@ -121,7 +120,7 @@ bool CmakeProjectConverter::convertProject(const QmlProjectManager::QmlProject *
 
     if (retVal) {
         QMessageBox::information(Core::ICore::dialogParent(), SUCCESS_TITLE, SUCCESS_TEXT);
-        ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result
+        ProjectExplorer::OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(newProjectFile());
         if (!result)
             ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);

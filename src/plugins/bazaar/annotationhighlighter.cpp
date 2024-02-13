@@ -4,15 +4,12 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 
-#include <QRegularExpression>
-
 namespace Bazaar::Internal {
 
-BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                         QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-      m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
-{ }
+BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
+    , m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
+{}
 
 QString BazaarAnnotationHighlighter::changeNumber(const QString &block) const
 {

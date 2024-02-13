@@ -30,7 +30,6 @@ private:
     void onFocusWindowChanged(QWindow *focusWindow);
     void onFocusedDockAreaViewToggled(bool open);
     void onStateRestored();
-    void onDockWidgetVisibilityChanged(bool visible);
 
 public:
     /**

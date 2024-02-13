@@ -12,6 +12,8 @@
 
 Q_LOGGING_CATEGORY(deviceShellLog, "qtc.utils.deviceshell", QtWarningMsg)
 
+using namespace std::chrono_literals;
+
 namespace Utils {
 
 /*
@@ -90,8 +92,8 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
         return RunResult{
             proc.exitCode(),
-            proc.readAllRawStandardOutput(),
-            proc.readAllRawStandardError()
+            proc.rawStdOut(),
+            proc.rawStdErr()
         };
     }
 
@@ -168,8 +170,6 @@ expected_str<void> DeviceShell::start()
     connect(&m_thread, &QThread::finished, m_shellProcess.get(), [this] { closeShellProcess(); }, Qt::DirectConnection);
 
     setupShellProcess(m_shellProcess.get());
-
-    CommandLine cmdLine = m_shellProcess->commandLine();
 
     m_shellProcess->setProcessMode(ProcessMode::Writer);
 
@@ -279,7 +279,7 @@ expected_str<void> DeviceShell::installShellScript()
     m_shellProcess->writeRaw(scriptCmd);
 
     while (m_shellScriptState == State::Unknown) {
-        if (!m_shellProcess->waitForReadyRead(5000)) {
+        if (!m_shellProcess->waitForReadyRead(5s)) {
             return make_unexpected(Tr::tr("Timeout while waiting for shell script installation."));
         }
 
@@ -307,7 +307,7 @@ void DeviceShell::closeShellProcess()
     if (m_shellProcess) {
         if (m_shellProcess->isRunning()) {
             m_shellProcess->write("exit\nexit\n");
-            if (!m_shellProcess->waitForFinished(2000))
+            if (!m_shellProcess->waitForFinished(2s))
                 m_shellProcess->terminate();
         }
         m_shellProcess.reset();

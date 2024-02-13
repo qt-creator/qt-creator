@@ -8,7 +8,7 @@ add_qtc_plugin(Nim
     editor/nimtexteditorwidget.cpp editor/nimtexteditorwidget.h
     nim.qrc
     nimconstants.h
-    nimplugin.cpp nimplugin.h
+    nimplugin.cpp
     nimtr.h
     project/nimblebuildstep.h project/nimblebuildstep.cpp
     project/nimbleproject.h project/nimbleproject.cpp

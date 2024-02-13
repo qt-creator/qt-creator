@@ -10,11 +10,16 @@
 
 namespace Vcpkg::Internal {
 
-VcpkgSearchTest::VcpkgSearchTest(QObject *parent)
-    : QObject(parent)
-{ }
+class VcpkgSearchTest : public QObject
+{
+    Q_OBJECT
 
-VcpkgSearchTest::~VcpkgSearchTest() = default;
+private slots:
+    void testVcpkgJsonParser_data();
+    void testVcpkgJsonParser();
+    void testAddDependency_data();
+    void testAddDependency();
+};
 
 void VcpkgSearchTest::testVcpkgJsonParser_data()
 {
@@ -178,4 +183,11 @@ void VcpkgSearchTest::testAddDependency()
     QCOMPARE(QString::fromUtf8(result), modifiedVcpkgManifestJsonData);
 }
 
+QObject *createVcpkgSearchTest()
+{
+    return new VcpkgSearchTest;
+}
+
 } // namespace Vcpkg::Internal
+
+#include "vcpkg_test.moc"

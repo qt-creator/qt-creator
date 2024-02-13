@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "clangcodemodelplugin.h"
-
 #include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangmodelmanagersupport.h"
@@ -20,7 +18,10 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -34,16 +35,69 @@
 
 #include <texteditor/textmark.h>
 
+#include <utils/action.h>
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
+
+#include <QFutureWatcher>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
+
+class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
+
+public:
+    ~ClangCodeModelPlugin() final;
+    void initialize() final;
+
+private:
+    void generateCompilationDB();
+    void createCompilationDBAction();
+
+    Utils::Action *m_generateCompilationDBAction = nullptr;
+    QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
+};
+
+ClangCodeModelPlugin::~ClangCodeModelPlugin()
+{
+    m_generatorWatcher.waitForFinished();
+}
+
+void ClangCodeModelPlugin::initialize()
+{
+    TaskHub::addCategory({Constants::TASK_CATEGORY_DIAGNOSTICS,
+                          Tr::tr("Clang Code Model"),
+                          Tr::tr("C++ code issues that Clangd found in the current document.")});
+    CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
+    createCompilationDBAction();
+
+    ActionBuilder updateStaleIndexEntries(this, "ClangCodeModel.UpdateStaleIndexEntries");
+    updateStaleIndexEntries.setText(Tr::tr("Update Potentially Stale Clangd Index Entries"));
+    updateStaleIndexEntries.addOnTriggered(this, &ClangModelManagerSupport::updateStaleIndexEntries);
+    updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_TOOLS_CPP);
+    updateStaleIndexEntries.addToContainer(CppEditor::Constants::M_CONTEXT);
+
+#ifdef WITH_TESTS
+    addTestCreator(createActivationSequenceProcessorTest);
+    addTestCreator(createClangdTestCompletion);
+    addTestCreator(createClangdTestExternalChanges);
+    addTestCreator(createClangdTestFindReferences);
+    addTestCreator(createClangdTestFollowSymbol);
+    addTestCreator(createClangdTestHighlighting);
+    addTestCreator(createClangdTestIndirectChanges);
+    addTestCreator(createClangdTestLocalReferences);
+    addTestCreator(createClangdTestTooltips);
+    addTestCreator(createClangFixItTest);
+#endif
+}
 
 void ClangCodeModelPlugin::generateCompilationDB()
 {
@@ -70,47 +124,19 @@ void ClangCodeModelPlugin::generateCompilationDB()
     m_generatorWatcher.setFuture(task);
 }
 
-ClangCodeModelPlugin::~ClangCodeModelPlugin()
-{
-    m_generatorWatcher.waitForFinished();
-}
-
-void ClangCodeModelPlugin::initialize()
-{
-    TaskHub::addCategory({Constants::TASK_CATEGORY_DIAGNOSTICS,
-                          Tr::tr("Clang Code Model"),
-                          Tr::tr("C++ code issues that Clangd found in the current document.")});
-    CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
-    createCompilationDBAction();
-
-#ifdef WITH_TESTS
-    addTest<Tests::ActivationSequenceProcessorTest>();
-    addTest<Tests::ClangdTestCompletion>();
-    addTest<Tests::ClangdTestExternalChanges>();
-    addTest<Tests::ClangdTestFindReferences>();
-    addTest<Tests::ClangdTestFollowSymbol>();
-    addTest<Tests::ClangdTestHighlighting>();
-    addTest<Tests::ClangdTestIndirectChanges>();
-    addTest<Tests::ClangdTestLocalReferences>();
-    addTest<Tests::ClangdTestTooltips>();
-    addTest<Tests::ClangFixItTest>();
-#endif
-}
-
 void ClangCodeModelPlugin::createCompilationDBAction()
 {
     // generate compile_commands.json
-    m_generateCompilationDBAction = new ParameterAction(
-                Tr::tr("Generate Compilation Database"),
-                Tr::tr("Generate Compilation Database for \"%1\""),
-                ParameterAction::AlwaysEnabled, this);
-    Project *startupProject = ProjectManager::startupProject();
-    if (startupProject)
+    ActionBuilder(this, Constants::GENERATE_COMPILATION_DB)
+        .setParameterText(Tr::tr("Generate Compilation Database for \"%1\""),
+                          Tr::tr("Generate Compilation Database"),
+                          ActionBuilder::AlwaysEnabled)
+        .bindContextAction(&m_generateCompilationDBAction)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .setCommandDescription(m_generateCompilationDBAction->text());
+
+    if (Project *startupProject = ProjectManager::startupProject())
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
-    Command *command = ActionManager::registerAction(m_generateCompilationDBAction,
-                                                     Constants::GENERATE_COMPILATION_DB);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(m_generateCompilationDBAction->text());
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] {
@@ -172,3 +198,5 @@ void ClangCodeModelPlugin::createCompilationDBAction()
 }
 
 } // namespace ClangCodeModel::Internal
+
+#include "clangcodemodelplugin.moc"

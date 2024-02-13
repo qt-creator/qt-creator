@@ -24,7 +24,7 @@ TimelineToolButton::TimelineToolButton(QAction *action, QGraphicsItem *parent)
     resize(TimelineConstants::toolButtonSize, TimelineConstants::toolButtonSize);
     setPreferredSize(size());
     setAcceptHoverEvents(true);
-    connect(action, &QAction::changed, this, [this]() {
+    connect(action, &QAction::changed, this, [this] {
         setVisible(m_action->isVisible());
         update();
     });

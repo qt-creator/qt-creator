@@ -8,11 +8,14 @@
 
 namespace Android::Internal {
 
-AndroidSdkManagerTest::AndroidSdkManagerTest(QObject *parent)
-    : QObject(parent)
-{}
+class AndroidSdkManagerTest final : public QObject
+{
+    Q_OBJECT
 
-AndroidSdkManagerTest::~AndroidSdkManagerTest() = default;
+private slots:
+    void testAndroidSdkManagerProgressParser_data();
+    void testAndroidSdkManagerProgressParser();
+};
 
 void AndroidSdkManagerTest::testAndroidSdkManagerProgressParser_data()
 {
@@ -61,5 +64,11 @@ void AndroidSdkManagerTest::testAndroidSdkManagerProgressParser()
     QCOMPARE(foundAssertion, actualFoundAssertion);
 }
 
-
+QObject *createAndroidSdkManagerTest()
+{
+    return new AndroidSdkManagerTest;
 }
+
+} // Android::Internal
+
+#include "androidsdkmanager_test.moc"

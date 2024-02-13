@@ -77,8 +77,9 @@ public:
     virtual bool isAvailable(Utils::Id platformId) const;
     QSet<Utils::Id> supportedPlatforms() const;
 
-    using FactoryCreator = std::function<IWizardFactory *()>;
+    using FactoryCreator = std::function<QList<IWizardFactory *>()>;
     static void registerFactoryCreator(const FactoryCreator &creator);
+    static void registerFactoryCreator(const std::function<IWizardFactory *()> &creator);
 
     // Utility to find all registered wizards
     static QList<IWizardFactory*> allWizardFactories();

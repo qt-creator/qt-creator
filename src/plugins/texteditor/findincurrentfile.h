@@ -3,41 +3,8 @@
 
 #pragma once
 
-#include "basefilefind.h"
+namespace TextEditor::Internal {
 
-#include <QPointer>
+void setupFindInCurrentFile();
 
-namespace Core {
-class IEditor;
-class IDocument;
-} // namespace Core
-
-namespace TextEditor {
-namespace Internal {
-
-class FindInCurrentFile final : public BaseFileFind
-{
-    Q_OBJECT
-
-public:
-    FindInCurrentFile();
-
-    QString id() const override;
-    QString displayName() const override;
-    bool isEnabled() const override;
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
-
-protected:
-    QString label() const override;
-    QString toolTip() const override;
-
-private:
-    FileContainerProvider fileContainerProvider() const override;
-    void handleFileChange(Core::IEditor *editor);
-
-    QPointer<Core::IDocument> m_currentDocument;
-};
-
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

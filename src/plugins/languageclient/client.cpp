@@ -105,7 +105,7 @@ public:
     }
     void sendMessage(const JsonRpcMessage &message)
     {
-        QMetaObject::invokeMethod(m_interface, [=]() { m_interface->sendMessage(message); });
+        QMetaObject::invokeMethod(m_interface, [this, message] { m_interface->sendMessage(message); });
     }
     void resetBuffer()
     {
@@ -122,14 +122,6 @@ private:
     BaseClientInterface *m_interface;
     QThread m_thread;
 };
-
-static void updateEditorToolBar(QList<TextEditor::TextDocument *> documents)
-{
-    for (TextEditor::TextDocument *document : documents) {
-        for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
-            updateEditorToolBar(editor);
-    }
-}
 
 class ClientPrivate : public QObject
 {
@@ -166,7 +158,7 @@ public:
         connect(m_clientInterface, &InterfaceController::messageReceived, q, &Client::handleMessage);
         connect(m_clientInterface, &InterfaceController::error, q, &Client::setError);
         connect(m_clientInterface, &InterfaceController::finished, q, &Client::finished);
-        connect(m_clientInterface, &InterfaceController::started, this, [this]() {
+        connect(m_clientInterface, &InterfaceController::started, this, [this] {
             LanguageClientManager::clientStarted(q);
         });
         connect(Core::EditorManager::instance(),
@@ -206,7 +198,7 @@ public:
                     widget->removeHoverHandler(&m_hoverHandler);
                 }
             }
-            updateEditorToolBar(m_openedDocument.keys());
+            updateOpenedEditorToolBars();
         }
         for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
@@ -220,6 +212,47 @@ public:
     }
 
     Client *q;
+
+    void updateOpenedEditorToolBars()
+    {
+        for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
+            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(it->first))
+                updateEditorToolBar(editor);
+        }
+    }
+
+    template <typename R>
+    void updateCapabilities(const QList<R> &regs)
+    {
+        bool updateCompletion = false;
+        bool updateFunctionHint = false;
+        bool updateSemanticToken = false;
+        for (const R &reg : regs) {
+            if (reg.method() == CompletionRequest::methodName)
+                updateCompletion = true;
+            if (reg.method() == SignatureHelpRequest::methodName)
+                updateFunctionHint = true;
+            if (reg.method() == "textDocument/semanticTokens") {
+                updateSemanticToken = true;
+                if constexpr (std::is_same_v<R, Registration>) {
+                    const SemanticTokensOptions options(reg.registerOptions());
+                    if (options.isValid())
+                        m_tokenSupport.setLegend(options.legend());
+                }
+            }
+        }
+        if (updateCompletion || updateFunctionHint || updateSemanticToken) {
+            for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it) {
+                if (updateCompletion)
+                    updateCompletionProvider(it->first);
+                if (updateFunctionHint)
+                    updateFunctionHintProvider(it->first);
+                if (updateSemanticToken)
+                    m_tokenSupport.updateSemanticTokens(it->first);
+            }
+        }
+        emit q->capabilitiesChanged(m_dynamicCapabilities);
+    }
 
     void sendMessageNow(const JsonRpcMessage &message);
     void handleResponse(const MessageId &id,
@@ -270,24 +303,9 @@ public:
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
-    class OpenedDocument
-    {
-    public:
-        ~OpenedDocument()
-        {
-            QObject::disconnect(contentsChangedConnection);
-            QObject::disconnect(filePathChangedConnection);
-            QObject::disconnect(aboutToSaveConnection);
-            QObject::disconnect(savedConnection);
-            delete document;
-        }
-        QMetaObject::Connection contentsChangedConnection;
-        QMetaObject::Connection filePathChangedConnection;
-        QMetaObject::Connection aboutToSaveConnection;
-        QMetaObject::Connection savedConnection;
-        QTextDocument *document = nullptr;
-    };
-    QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
+    using TextDocumentDeleter = std::function<void(QTextDocument *)>;
+    using TextDocumentWithDeleter = std::unique_ptr<QTextDocument, TextDocumentDeleter>;
+    std::unordered_map<TextEditor::TextDocument *, TextDocumentWithDeleter> m_openedDocument;
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
     // the build.
@@ -300,7 +318,7 @@ public:
     std::unordered_map<TextEditor::TextDocument *,
                        QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
-    QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
+    QHash<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
     Utils::Id m_id;
     LanguageServerProtocol::ClientCapabilities m_clientCapabilities;
@@ -314,7 +332,7 @@ public:
     };
 
     AssistProviders m_clientProviders;
-    QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
+    QHash<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
     QHash<QString, Client::CustomMethodHandler> m_customHandlers;
     static const int MaxRestarts = 5;
@@ -615,8 +633,19 @@ void Client::setClientCapabilities(const LanguageServerProtocol::ClientCapabilit
 void Client::openDocument(TextEditor::TextDocument *document)
 {
     using namespace TextEditor;
-    if (d->m_openedDocument.contains(document) || !isSupportedDocument(document))
+    if ((d->m_openedDocument.find(document) != d->m_openedDocument.end())
+        || !isSupportedDocument(document)) {
         return;
+    }
+
+    connect(document, &TextDocument::destroyed, this, [this, document] {
+        d->m_postponedDocuments.remove(document);
+        const auto it = d->m_openedDocument.find(document);
+        if (it != d->m_openedDocument.end())
+            d->m_openedDocument.erase(it);
+        d->m_documentsToUpdate.erase(document);
+        d->m_resetAssistProvider.remove(document);
+    });
 
     if (d->m_state != Initialized) {
         d->m_postponedDocuments << document;
@@ -649,41 +678,38 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    d->m_openedDocument[document].document = new QTextDocument(document->document()->toPlainText());
-    d->m_openedDocument[document].contentsChangedConnection
-        = connect(document,
-                  &TextDocument::contentsChangedWithPosition,
-                  this,
-                  [this, document](int position, int charsRemoved, int charsAdded) {
-                      documentContentsChanged(document, position, charsRemoved, charsAdded);
-                  });
-    d->m_openedDocument[document].filePathChangedConnection
-        = connect(document,
-                  &TextDocument::filePathChanged,
-                  this,
-                  [this, document](const FilePath &oldPath, const FilePath &newPath) {
-                      if (oldPath == newPath)
-                          return;
-                      closeDocument(document, oldPath);
-                      if (isSupportedDocument(document))
-                          openDocument(document);
-                  });
-    d->m_openedDocument[document].savedConnection
-        = connect(document,
-                  &TextDocument::saved,
-                  this,
-                  [this, document](const FilePath &saveFilePath) {
-                      if (saveFilePath == document->filePath())
-                          documentContentsSaved(document);
-                  });
-    d->m_openedDocument[document].aboutToSaveConnection
-        = connect(document,
-                  &TextDocument::aboutToSave,
-                  this,
-                  [this, document](const FilePath &saveFilePath) {
-                      if (saveFilePath == document->filePath())
-                          documentWillSave(document);
-                  });
+    const QList<QMetaObject::Connection> connections {
+    connect(document, &TextDocument::contentsChangedWithPosition, this,
+            [this, document](int position, int charsRemoved, int charsAdded) {
+                documentContentsChanged(document, position, charsRemoved, charsAdded);
+            }),
+    connect(document, &TextDocument::filePathChanged, this,
+            [this, document](const FilePath &oldPath, const FilePath &newPath) {
+                if (oldPath == newPath)
+                    return;
+                closeDocument(document, oldPath);
+                if (isSupportedDocument(document))
+                    openDocument(document);
+            }),
+    connect(document, &TextDocument::saved, this,
+            [this, document](const FilePath &saveFilePath) {
+                if (saveFilePath == document->filePath())
+                    documentContentsSaved(document);
+            }),
+    connect(document, &TextDocument::aboutToSave, this,
+            [this, document](const FilePath &saveFilePath) {
+                if (saveFilePath == document->filePath())
+                    documentWillSave(document);
+            })
+    };
+    const auto deleter = [connections](QTextDocument *document) {
+        for (const QMetaObject::Connection &connection : connections)
+            QObject::disconnect(connection);
+        delete document;
+    };
+
+    d->m_openedDocument.emplace(document, ClientPrivate::TextDocumentWithDeleter(
+        new QTextDocument(document->document()->toPlainText()), deleter));
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
     d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
@@ -747,10 +773,12 @@ void Client::cancelRequest(const MessageId &id)
 void Client::closeDocument(TextEditor::TextDocument *document,
                            const std::optional<FilePath> &overwriteFilePath)
 {
-    deactivateDocument(document);
     d->m_postponedDocuments.remove(document);
     d->m_documentsToUpdate.erase(document);
-    if (d->m_openedDocument.remove(document) != 0) {
+    const auto it = d->m_openedDocument.find(document);
+    if (it != d->m_openedDocument.end()) {
+        d->m_openedDocument.erase(it);
+        deactivateDocument(document);
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
             d->sendCloseNotification(overwriteFilePath.value_or(document->filePath()));
@@ -765,8 +793,8 @@ void Client::closeDocument(TextEditor::TextDocument *document,
     QTC_CHECK(shadowIt.value().second.isEmpty());
     bool isReferenced = false;
     for (auto it = d->m_openedDocument.cbegin(); it != d->m_openedDocument.cend(); ++it) {
-        if (referencesShadowFile(it.key(), shadowIt.key())) {
-            d->openShadowDocument(it.key(), shadowIt);
+        if (referencesShadowFile(it->first, shadowIt.key())) {
+            d->openShadowDocument(it->first, shadowIt);
             isReferenced = true;
         }
     }
@@ -977,7 +1005,7 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor;
         if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
             optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
-        if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
+        if (supportsCallHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
     }
@@ -1044,14 +1072,15 @@ void ClientPrivate::closeRequiredShadowDocuments(const TextEditor::TextDocument 
 
 bool Client::documentOpen(const TextEditor::TextDocument *document) const
 {
-    return d->m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
+    return d->m_openedDocument.find(const_cast<TextEditor::TextDocument *>(document))
+           != d->m_openedDocument.end();
 }
 
 TextEditor::TextDocument *Client::documentForFilePath(const Utils::FilePath &file) const
 {
     for (auto it = d->m_openedDocument.cbegin(); it != d->m_openedDocument.cend(); ++it) {
-        if (it.key()->filePath() == file)
-            return it.key();
+        if (it->first->filePath() == file)
+            return it->first;
     }
     return nullptr;
 }
@@ -1077,8 +1106,8 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
     if (documentForFilePath(filePath))
         return;
     for (auto docIt = d->m_openedDocument.cbegin(); docIt != d->m_openedDocument.cend(); ++docIt) {
-        if (referencesShadowFile(docIt.key(), filePath))
-            d->openShadowDocument(docIt.key(), shadowIt);
+        if (referencesShadowFile(docIt->first, filePath))
+            d->openShadowDocument(docIt->first, shadowIt);
     }
 }
 
@@ -1111,7 +1140,7 @@ void ClientPrivate::closeShadowDocument(ShadowDocIterator shadowIt)
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
-    if (!d->m_openedDocument.contains(document))
+    if (d->m_openedDocument.find(document) == d->m_openedDocument.end())
         return;
     bool send = true;
     bool includeText = false;
@@ -1148,7 +1177,7 @@ void Client::documentWillSave(Core::IDocument *document)
 {
     const FilePath &filePath = document->filePath();
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    if (!d->m_openedDocument.contains(textDocument))
+    if (d->m_openedDocument.find(textDocument) == d->m_openedDocument.end())
         return;
     bool send = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
@@ -1178,7 +1207,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    if (!d->m_openedDocument.contains(document) || !reachable())
+    const auto it = d->m_openedDocument.find(document);
+    if (it == d->m_openedDocument.end() || !reachable())
         return;
     if (d->m_runningFindLinkRequest.isValid())
         cancelRequest(d->m_runningFindLinkRequest);
@@ -1196,7 +1226,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
 
     const QString &text = document->textAt(position, charsAdded);
-    QTextCursor cursor(d->m_openedDocument[document].document);
+    QTextCursor cursor(it->second.get());
     // Workaround https://bugreports.qt.io/browse/QTBUG-80662
     // The contentsChanged gives a character count that can be wrong for QTextCursor
     // when there are special characters removed/added (like formating characters).
@@ -1204,8 +1234,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     // paragraph separator character.
     // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
     // For charsAdded, textAt handles the case itself.
-    cursor.setPosition(qMin(d->m_openedDocument[document].document->characterCount() - 1,
-                            position + charsRemoved));
+    cursor.setPosition(qMin(it->second->characterCount() - 1, position + charsRemoved));
     cursor.setPosition(position, QTextCursor::KeepAnchor);
 
     if (syncKind != TextDocumentSyncKind::None) {
@@ -1254,44 +1283,13 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     d->m_dynamicCapabilities.registerCapability(registrations);
-    for (const Registration &registration : registrations) {
-        if (registration.method() == CompletionRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateCompletionProvider(document);
-        }
-        if (registration.method() == SignatureHelpRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateFunctionHintProvider(document);
-        }
-        if (registration.method() == "textDocument/semanticTokens") {
-            SemanticTokensOptions options(registration.registerOptions());
-            if (options.isValid())
-                d->m_tokenSupport.setLegend(options.legend());
-            for (auto document : d->m_openedDocument.keys())
-                d->m_tokenSupport.updateSemanticTokens(document);
-        }
-    }
-    emit capabilitiesChanged(d->m_dynamicCapabilities);
+    d->updateCapabilities(registrations);
 }
 
 void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
 {
     d->m_dynamicCapabilities.unregisterCapability(unregistrations);
-    for (const Unregistration &unregistration : unregistrations) {
-        if (unregistration.method() == CompletionRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateCompletionProvider(document);
-        }
-        if (unregistration.method() == SignatureHelpRequest::methodName) {
-            for (auto document : d->m_openedDocument.keys())
-                d->updateFunctionHintProvider(document);
-        }
-        if (unregistration.method() == "textDocument/semanticTokens") {
-            for (auto document : d->m_openedDocument.keys())
-                d->m_tokenSupport.updateSemanticTokens(document);
-        }
-    }
-    emit capabilitiesChanged(d->m_dynamicCapabilities);
+    d->updateCapabilities(unregistrations);
 }
 
 void Client::setLocatorsEnabled(bool enabled)
@@ -1479,7 +1477,7 @@ void Client::setCurrentProject(ProjectExplorer::Project *project)
         d->m_project->disconnect(this);
     d->m_project = project;
     if (d->m_project) {
-        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this]() {
+        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this] {
             // the project of the client should already be null since we expect the session and
             // the language client manager to reset it before it gets deleted.
             QTC_ASSERT(d->m_project == nullptr, projectClosed(d->m_project));
@@ -1513,7 +1511,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
     }
     if (project == d->m_project) {
         if (d->m_state == Initialized) {
-            shutdown();
+            LanguageClientManager::shutdownClient(this);
         } else {
             d->m_state = Shutdown; // otherwise the manager would try to restart this server
             emit finished();
@@ -1682,7 +1680,7 @@ bool ClientPrivate::reset()
     m_state = Client::Uninitialized;
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
-    updateEditorToolBar(m_openedDocument.keys());
+    updateOpenedEditorToolBars();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     if (m_diagnosticManager)
@@ -1737,9 +1735,9 @@ void Client::log(const QString &message) const
     }
 }
 
-TextEditor::RefactoringChangesData *Client::createRefactoringChangesBackend() const
+TextEditor::RefactoringFilePtr Client::createRefactoringFile(const FilePath &filePath) const
 {
-    return new TextEditor::RefactoringChangesData;
+    return TextEditor::PlainRefactoringFileFactory().file(filePath);
 }
 
 void Client::setCompletionResultsLimit(int limit)

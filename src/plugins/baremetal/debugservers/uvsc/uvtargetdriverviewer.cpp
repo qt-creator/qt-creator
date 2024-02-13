@@ -80,7 +80,7 @@ DriverSelector::DriverSelector(const QStringList &supportedDrivers, QWidget *par
     const auto detailsPanel = new DriverSelectorDetailsPanel(m_selection);
     setWidget(detailsPanel);
 
-    connect(toolPanel, &DriverSelectorToolPanel::clicked, this, [=]() {
+    connect(toolPanel, &DriverSelectorToolPanel::clicked, this, [this, supportedDrivers] {
         DriverSelectionDialog dialog(m_toolsIniFile, supportedDrivers, this);
         const int result = dialog.exec();
         if (result != QDialog::Accepted)

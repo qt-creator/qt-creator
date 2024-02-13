@@ -68,10 +68,10 @@ public:
             : errorCount(0)
         { }
 
-        virtual void report(int /*level*/,
-                            const StringLiteral *fileName,
-                            int line, int column,
-                            const char *format, va_list ap)
+        void report(int /*level*/,
+                    const StringLiteral *fileName,
+                    int line, int column,
+                    const char *format, va_list ap) override
         {
             ++errorCount;
 
@@ -195,14 +195,14 @@ private slots:
 
 void tst_AST::gcc_attributes_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
 "static inline void *__attribute__((__always_inline__)) _mm_malloc(size_t size, size_t align);"
                                                           ));
 }
 
 void tst_AST::gcc_attributes_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(
                                              "\nnamespace std __attribute__ ((__visibility__ (\"default\"))) {\n}\n"
                                              ));
     AST *ast = unit->ast();
@@ -233,7 +233,7 @@ void tst_AST::gcc_attributes_2()
 void tst_AST::gcc_attributes_3()
 {
     const char *inp = "\nnamespace std X {\n}\n";
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(inp));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(inp));
     AST *ast = unit->ast();
     QVERIFY(ast);
     NamespaceAST* ns = ast->asNamespace();
@@ -250,14 +250,14 @@ void tst_AST::gcc_attributes_3()
 
 void tst_AST::crash_test_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("decltype auto\n"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("decltype auto\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
 }
 
 void tst_AST::thread_local_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("__thread int i;\n"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("__thread int i;\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
     QCOMPARE(diag.errorCount, 0);
@@ -268,14 +268,14 @@ void tst_AST::thread_local_1()
 void tst_AST::msvc_attributes_declspec()
 {
     const char *inp = "class __declspec(novtable) Name{};";
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(inp));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(inp));
     QVERIFY(unit->ast());
     QCOMPARE(diag.errorCount, 0);
 }
 
 void tst_AST::simple_declaration_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("\n"
+    std::shared_ptr<TranslationUnit> unit(parseStatement("\n"
 "a * b = 10;"
     ));
 
@@ -288,7 +288,7 @@ void tst_AST::simple_declaration_1()
 
 void tst_AST::simple_name_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression("a"));
+    std::shared_ptr<TranslationUnit> unit(parseExpression("a"));
     AST *ast = unit->ast();
 
     QVERIFY(ast != 0);
@@ -298,7 +298,7 @@ void tst_AST::simple_name_1()
 
 void tst_AST::template_id_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression("list<10>"));
+    std::shared_ptr<TranslationUnit> unit(parseExpression("list<10>"));
     AST *ast = unit->ast();
 
     QVERIFY(ast != 0);
@@ -315,7 +315,7 @@ void tst_AST::template_id_1()
 
 void tst_AST::new_expression_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+    std::shared_ptr<TranslationUnit> unit(parseExpression("\n"
 "new char"
     ));
 
@@ -341,7 +341,7 @@ void tst_AST::new_expression_1()
 
 void tst_AST::new_expression_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("\n"
+    std::shared_ptr<TranslationUnit> unit(parseStatement("\n"
 "::new(__p) _Tp(__val);"
     ));
 
@@ -368,7 +368,7 @@ void tst_AST::new_expression_2()
 
 void tst_AST::condition_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+    std::shared_ptr<TranslationUnit> unit(parseExpression("\n"
                                                          "(x < 0 && y > (int) a)"
     ));
 
@@ -423,7 +423,7 @@ void tst_AST::condition_1()
 
 void tst_AST::init_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "x y[] = { X<10>, y };"
     ));
 
@@ -433,7 +433,7 @@ void tst_AST::init_1()
 
 void tst_AST::conditional_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+    std::shared_ptr<TranslationUnit> unit(parseExpression("\n"
                                                          "(x < 0 && y > (int) a) ? x == 1 : y = 1"
     ));
 
@@ -525,7 +525,7 @@ void tst_AST::conditional_1()
 
 void tst_AST::throw_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("throw 1;"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("throw 1;"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -533,7 +533,7 @@ void tst_AST::throw_1()
 
 void tst_AST::templated_dtor_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
                                              "\n"
                                              "a.b::~b<c>();"
                                              ));
@@ -588,7 +588,7 @@ void tst_AST::templated_dtor_1()
 
 void tst_AST::templated_dtor_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
                                              "\n"
                                              "a.~b<c>();"
                                              ));
@@ -633,7 +633,7 @@ void tst_AST::templated_dtor_2()
 
 void tst_AST::templated_dtor_3()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
                                              "\n"
                                              "a::~b<c>();"
                                              ));
@@ -687,7 +687,7 @@ void tst_AST::templated_dtor_3()
 
 void tst_AST::templated_dtor_4()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
                                              "\n"
                                              "~b<c>();"
                                              ));
@@ -729,7 +729,7 @@ void tst_AST::templated_dtor_4()
 
 void tst_AST::templated_dtor_5()
 {
-    QSharedPointer<TranslationUnit> unit(parseExpression(
+    std::shared_ptr<TranslationUnit> unit(parseExpression(
                                              "\n"
                                              "~a < b()"
                                              ));
@@ -756,7 +756,7 @@ void tst_AST::templated_dtor_5()
 
 void tst_AST::call_call_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("method()->call();"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("method()->call();"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -797,7 +797,7 @@ void tst_AST::call_call_1()
 
 void tst_AST::function_call_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("retranslateUi(blah);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("retranslateUi(blah);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -805,7 +805,7 @@ void tst_AST::function_call_1()
 
 void tst_AST::function_call_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("retranslateUi(10);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("retranslateUi(10);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -813,7 +813,7 @@ void tst_AST::function_call_2()
 
 void tst_AST::function_call_3()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("advance();"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("advance();"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -821,7 +821,7 @@ void tst_AST::function_call_3()
 
 void tst_AST::function_call_4()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("checkPropertyAttribute(attrAst, propAttrs, ReadWrite);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("checkPropertyAttribute(attrAst, propAttrs, ReadWrite);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -829,7 +829,7 @@ void tst_AST::function_call_4()
 
 void tst_AST::nested_deref_expression()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("(*blah);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -837,7 +837,7 @@ void tst_AST::nested_deref_expression()
 
 void tst_AST::assignment_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("a(x) = 3;"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("a(x) = 3;"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -845,7 +845,7 @@ void tst_AST::assignment_1()
 
 void tst_AST::assignment_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah) = 10;"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("(*blah) = 10;"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -853,7 +853,7 @@ void tst_AST::assignment_2()
 
 void tst_AST::if_statement_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("if (a) b;"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("if (a) b;"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -881,7 +881,7 @@ void tst_AST::if_statement_1()
 
 void tst_AST::if_statement_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("if (x<0 && y>a);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("if (x<0 && y>a);"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -896,7 +896,7 @@ void tst_AST::if_statement_2()
 
 void tst_AST::if_statement_3()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("if (x<0 && x<0 && x<0 && x<0 && x<0 && x<0 && x<0);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("if (x<0 && x<0 && x<0 && x<0 && x<0 && x<0 && x<0);"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -909,7 +909,7 @@ void tst_AST::if_statement_3()
 
 void tst_AST::if_else_statement()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("if (a) b; else c;"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("if (a) b; else c;"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -947,7 +947,7 @@ void tst_AST::if_else_statement()
 
 void tst_AST::while_statement()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("while (a) { }"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("while (a) { }"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -974,7 +974,7 @@ void tst_AST::while_statement()
 
 void tst_AST::while_condition_statement()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("while (int a = foo) { }"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("while (int a = foo) { }"));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -1015,7 +1015,7 @@ void tst_AST::while_condition_statement()
 
 void tst_AST::for_statement()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("for (;;) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("for (;;) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1039,7 +1039,7 @@ void tst_AST::for_statement()
 
 void tst_AST::cpp_initializer_or_function_declaration()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("QFileInfo fileInfo(foo);"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("QFileInfo fileInfo(foo);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1108,7 +1108,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
 
 void tst_AST::cpp_constructor_one_unamed_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1126,7 +1126,7 @@ void tst_AST::cpp_constructor_one_unamed_arg()
 
 void tst_AST::cpp_constructor_one_unamed_arg_namespace()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("Foo::QFileInfo::QFileInfo(QString /*name*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("Foo::QFileInfo::QFileInfo(QString /*name*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1144,7 +1144,7 @@ void tst_AST::cpp_constructor_one_unamed_arg_namespace()
 
 void tst_AST::cpp_constructor_one_named_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1162,7 +1162,7 @@ void tst_AST::cpp_constructor_one_named_arg()
 
 void tst_AST::cpp_constructor_one_knowntype_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(int /*name*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(int /*name*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1181,7 +1181,7 @@ void tst_AST::cpp_constructor_one_knowntype_arg()
 
 void tst_AST::cpp_constructor_one_const_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(const QString /*name*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(const QString /*name*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1199,7 +1199,7 @@ void tst_AST::cpp_constructor_one_const_arg()
 
 void tst_AST::cpp_constructor_one_ref_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString & /*name*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString & /*name*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1217,7 +1217,7 @@ void tst_AST::cpp_constructor_one_ref_arg()
 
 void tst_AST::cpp_constructor_no_arg()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo() {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo() {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1234,7 +1234,7 @@ void tst_AST::cpp_constructor_no_arg()
 
 void tst_AST::cpp_constructor_multiple_args()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/, QString /*type*/) {}"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/, QString /*type*/) {}"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
 
@@ -1252,7 +1252,7 @@ void tst_AST::cpp_constructor_multiple_args()
 
 void tst_AST::cpp_constructor_function_try_catch()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name, QString type)"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name, QString type)"
                                                           "    try : m_name(name), m_type(type) {}"
                                                           "    catch (...) {}"));
     AST *ast = unit->ast();
@@ -1273,7 +1273,7 @@ void tst_AST::cpp_constructor_function_try_catch()
 
 void tst_AST::cpp11_variadic_inheritance()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(
         "template<class ...Args> class C : public Args... {};",
         false, false, true));
     AST *ast = unit->ast();
@@ -1316,7 +1316,7 @@ void tst_AST::cpp11_variadic_inheritance()
 
 void tst_AST::cpp11_attributes()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(
         "[[noreturn]] void f([[maybe_unused]] int v) {throw \"error\";}",
         false, false, true));
     AST *ast = unit->ast();
@@ -1336,7 +1336,7 @@ void tst_AST::cpp11_attributes()
 
 void tst_AST::variableTemplatesInExpression()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("int i = t<int> + t<char>;",
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("int i = t<int> + t<char>;",
                                                          false, false, true));
     AST *ast = unit->ast();
     QVERIFY(ast != nullptr);
@@ -1349,7 +1349,7 @@ void tst_AST::variableTemplatesInExpression()
 
 void tst_AST::if_constexpr()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("if constexpr (a) b;",true));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("if constexpr (a) b;",true));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
@@ -1370,7 +1370,7 @@ void tst_AST::cpp_qproperty()
     QVERIFY(!source.isEmpty());
 
     const QByteArray sourceWithinClass = "class C { " + source + " };";
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(sourceWithinClass, false, true));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(sourceWithinClass, false, true));
     QVERIFY(unit->ast());
 
     QCOMPARE(diag.errorCount, 0);
@@ -1399,7 +1399,7 @@ void tst_AST::cpp_qproperty_data()
 
 void tst_AST::objc_simple_class()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "@interface Zoo {} +(id)alloc;-(id)init;@end\n"
                                                           "@implementation Zoo\n"
                                                           "+(id)alloc{}\n"
@@ -1413,7 +1413,7 @@ void tst_AST::objc_simple_class()
 
 void tst_AST::objc_attributes_followed_by_at_keyword()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
 "__attribute__((deprecated)) @interface foo <bar>\n"
 "{\n"
 " int a, b;\n"
@@ -1428,21 +1428,21 @@ void tst_AST::objc_attributes_followed_by_at_keyword()
 
 void tst_AST::objc_protocol_forward_declaration_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo;"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n@protocol foo;"));
     AST *ast = unit->ast();
     QVERIFY(ast);
 }
 
 void tst_AST::objc_protocol_definition_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo <ciao, bar> @end"));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n@protocol foo <ciao, bar> @end"));
     AST *ast = unit->ast();
     QVERIFY(ast);
 }
 
 void tst_AST::objc_method_attributes_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "@interface Zoo\n"
                                                           "- (void) foo __attribute__((deprecated));\n"
                                                           "+ (void) bar __attribute__((unavailable));\n"
@@ -1526,7 +1526,7 @@ void tst_AST::objc_method_attributes_1()
  */
 void tst_AST::objc_selector_error_recovery_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "void tst() {\n"
                                                           "    @selector(foo:\n"
                                                           "    int i = 1;\n"
@@ -1538,7 +1538,7 @@ void tst_AST::objc_selector_error_recovery_1()
 
 void tst_AST::objc_selector_error_recovery_2()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "void tst() {\n"
                                                           "    @selector(foo:bar);\n"
                                                           "}\n"
@@ -1549,7 +1549,7 @@ void tst_AST::objc_selector_error_recovery_2()
 
 void tst_AST::objc_try_statement_1()
 {
-    QSharedPointer<TranslationUnit> unit(
+    std::shared_ptr<TranslationUnit> unit(
                 parseDeclaration(
                     "\n"
                     "void tst() {\n"
@@ -1565,7 +1565,7 @@ void tst_AST::objc_try_statement_1()
 
 void tst_AST::objc_try_statement_2()
 {
-    QSharedPointer<TranslationUnit> unit(
+    std::shared_ptr<TranslationUnit> unit(
                 parseDeclaration(
                     "void tst() {\n"
                     "    @try {\n"
@@ -1586,7 +1586,7 @@ void tst_AST::objc_try_statement_2()
 
 void tst_AST::objc_try_statement_3()
 {
-    QSharedPointer<TranslationUnit> unit(
+    std::shared_ptr<TranslationUnit> unit(
                 parseDeclaration(
                     "void tst() {\n"
                     "    @try {\n"
@@ -1603,7 +1603,7 @@ void tst_AST::objc_try_statement_3()
 
 void tst_AST::objc_throw_statement()
 {
-    QSharedPointer<TranslationUnit> unit(
+    std::shared_ptr<TranslationUnit> unit(
                 parseDeclaration(
                     "void tst() {\n"
                     "    NSException *up = [NSException exceptionWithName:@\"NoException\"\n"
@@ -1619,7 +1619,7 @@ void tst_AST::objc_throw_statement()
 
 void tst_AST::normal_array_access()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int f() {\n"
                                                           "  int a[10];\n"
                                                           "  int b = 1;\n"
@@ -1661,7 +1661,7 @@ void tst_AST::normal_array_access()
 
 void tst_AST::array_access_with_nested_expression()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int f() {\n"
                                                           "  int a[15];\n"
                                                           "  int b = 1;\n"
@@ -1705,7 +1705,7 @@ void tst_AST::array_access_with_nested_expression()
 
 void tst_AST::objc_msg_send_expression()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int f() {\n"
                                                           "  NSObject *obj = [[[NSObject alloc] init] autorelease];\n"
                                                           "  return [obj description];\n"
@@ -1794,7 +1794,7 @@ void tst_AST::objc_msg_send_expression()
 void tst_AST::objc_msg_send_expression_without_selector()
 {
     // This test is to verify that no ObjCMessageExpressionAST element is created as the expression for the return statement.
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int f() {\n"
                                                           "  NSObject *obj = [[[NSObject alloc] init] autorelease];\n"
                                                           "  return [obj];\n"
@@ -1815,7 +1815,7 @@ void tst_AST::objc_msg_send_expression_without_selector()
 
 void tst_AST::q_enum_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "class Tst {\n"
                                                           "Q_ENUMS(e)\n"
                                                           "public:\n"
@@ -1849,7 +1849,7 @@ void tst_AST::declarationWithNewStatement()
 {
     QFETCH(QByteArray, source);
 
-    QSharedPointer<TranslationUnit> unit(parseStatement(source, true));
+    std::shared_ptr<TranslationUnit> unit(parseStatement(source, true));
     AST *ast = unit->ast();
     QVERIFY(ast);
     QVERIFY(ast->asDeclarationStatement());
@@ -1867,7 +1867,7 @@ void tst_AST::declarationWithNewStatement_data()
 
 void tst_AST::incomplete_ast()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("class A { virtual void a() =\n"));
+    std::shared_ptr<TranslationUnit> unit(parseStatement("class A { virtual void a() =\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
 }
@@ -1886,7 +1886,7 @@ void tst_AST::unnamed_class()
     QFETCH(QByteArray, source);
     QVERIFY(!source.isEmpty());
 
-    QSharedPointer<TranslationUnit> unit(parseDeclaration(source));
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration(source));
     QVERIFY(unit->ast());
     SimpleDeclarationAST *simpleDeclaration = unit->ast()->asSimpleDeclaration();
     QVERIFY(simpleDeclaration);
@@ -1911,7 +1911,7 @@ void tst_AST::unnamed_class_data()
 
 void tst_AST::expensiveExpression()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
         "void f()\n"
         "{\n"
             "(g1\n"
@@ -2005,7 +2005,7 @@ void tst_AST::invalidCode()
     QFETCH(QByteArray, source);
 
     source += "\nclass Foo {};\n";
-    const QSharedPointer<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranlationUnit,
+    const std::shared_ptr<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranlationUnit,
                                                      false, false, true));
 
     // Check that we find the class coming after the invalid garbage.
@@ -2025,7 +2025,7 @@ void tst_AST::invalidCode()
 
 void tst_AST::enumDeclaration()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
          //Unnamed
          "enum { ENUMERATOR0 };\n"
          "enum Enum { ENUMERATOR1 };\n"
@@ -2039,7 +2039,7 @@ void tst_AST::enumDeclaration()
 
 void tst_AST::invalidEnumClassDeclaration()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
         "enum class operator A { };", true));
 
     QVERIFY(diag.errorCount != 0);
@@ -2047,7 +2047,7 @@ void tst_AST::invalidEnumClassDeclaration()
 
 void tst_AST::invalidEnumWithDestructorId()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement(
+    std::shared_ptr<TranslationUnit> unit(parseStatement(
         "enum ~A {};", false));
 
     QVERIFY(diag.errorCount != 0);
@@ -2055,7 +2055,7 @@ void tst_AST::invalidEnumWithDestructorId()
 
 void tst_AST::invalidFunctionInitializer()
 {
-    QSharedPointer<TranslationUnit> unit(parse(
+    std::shared_ptr<TranslationUnit> unit(parse(
         "int main() { a t=b; c d(e)=\"\"; }", TranslationUnit::ParseTranlationUnit, false, false, true));
 
     QVERIFY(diag.errorCount != 0);
@@ -2073,7 +2073,7 @@ void tst_AST::cleanup()
 
 void tst_AST::line_and_column_1()
 {
-    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+    std::shared_ptr<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int i;\n",
                                                           false, true));
     int line, column = 0;

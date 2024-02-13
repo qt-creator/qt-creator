@@ -188,7 +188,7 @@ struct ArrayBuildOption : BuildOption
     }
     Type type() const override { return Type::array; }
     BuildOption *copy() const override { return new ArrayBuildOption{*this}; }
-    inline virtual QString mesonArg() const override
+    inline QString mesonArg() const override
     {
         return QString("-D%1=[%2]").arg(fullName()).arg(quoteAll(m_currentValue).join(','));
     }

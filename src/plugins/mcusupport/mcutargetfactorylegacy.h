@@ -17,7 +17,7 @@ class McuPackage;
 
 namespace Legacy {
 
-using ToolchainCompilerCreator = std::function<McuToolChainPackagePtr(const QStringList &version)>;
+using ToolchainCompilerCreator = std::function<McuToolchainPackagePtr(const QStringList &version)>;
 
 class McuTargetFactory : public McuAbstractTargetFactory
 {
@@ -31,7 +31,7 @@ public:
                                            const McuPackagePtr &qtForMCUsPackage) override;
     AdditionalPackages getAdditionalPackages() const override;
 
-    McuToolChainPackagePtr getToolchainCompiler(const McuTargetDescription::Toolchain &) const;
+    McuToolchainPackagePtr getToolchainCompiler(const McuTargetDescription::Toolchain &) const;
     McuPackagePtr getToolchainFile(const Utils::FilePath &qtForMCUSdkPath,
                                    const QString &toolchainName) const;
 

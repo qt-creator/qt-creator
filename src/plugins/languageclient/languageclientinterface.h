@@ -81,4 +81,19 @@ private:
     Utils::TemporaryFile m_logFile;
 };
 
+class LANGUAGECLIENT_EXPORT LocalSocketClientInterface : public BaseClientInterface
+{
+public:
+    LocalSocketClientInterface(const QString &serverName);
+    ~LocalSocketClientInterface() override;
+
+    void startImpl() override;
+
+private:
+    void sendData(const QByteArray &data) final;
+
+    class Private;
+    Private * const d;
+};
+
 } // namespace LanguageClient

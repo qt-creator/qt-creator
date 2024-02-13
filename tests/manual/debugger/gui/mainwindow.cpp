@@ -172,7 +172,7 @@ class MyThread : public QThread {
 public:
     MyThread(int base, QObject *parent) : QThread(parent), m_base(base) {}
 
-    void run();
+    void run() override;
 private:
     int m_base;
 };
@@ -196,7 +196,7 @@ void MyThread::run()
 class MyFastThread : public QThread {
 public:
     MyFastThread(QObject *parent) : QThread(parent) {}
-    void run() { qDebug() << "Done"  << currentThreadId(); }
+    void run() override { qDebug() << "Done" << currentThreadId(); }
 };
 
 

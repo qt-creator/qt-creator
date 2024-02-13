@@ -13,8 +13,7 @@ QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -84,11 +83,6 @@ private:
     Utils::FilePath m_inputFile;
 };
 
-class AndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AndroidBuildApkStepFactory();
-};
+void setupAndroidBuildApkStep();
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

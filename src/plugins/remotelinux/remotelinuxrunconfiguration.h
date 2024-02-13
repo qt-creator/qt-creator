@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace RemoteLinux::Internal {
 
-class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    RemoteLinuxRunConfigurationFactory();
-};
+void setupRemoteLinuxRunConfiguration();
 
 } // namespace RemoteLinux::Internal

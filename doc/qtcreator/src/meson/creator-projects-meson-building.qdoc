@@ -1,13 +1,20 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 /*!
-    \previouspage creator-build-settings-qbs.html
     \page creator-build-settings-meson.html
-    \nextpage creator-build-settings-incredibuild.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title Meson Build Configuration
 
-    \image qtcreator-meson-build-settings.png "Meson build settings"
+    \brief Settings for building applications with Meson.
+
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
+
+    \image qtcreator-meson-build-settings.png {Meson build settings}
 
     Meson builds projects in the directory specified in the
     \uicontrol {Build directory} field.
@@ -26,8 +33,6 @@
     cross file instead, specify the file name in \uicontrol Parameters.
     For example, \c {--cross-file cross_file.txt}.
 
-    For more information about using Meson, see \l{Setting Up Meson}.
-
     \section1 Meson Build Steps
 
     \QC builds Meson projects by running \c {ninja -v target}.
@@ -35,7 +40,7 @@
     You can add arguments and targets for the build command in
     \uicontrol {Build Steps}.
 
-    \image qtcreator-meson-build-steps.png "Meson build steps"
+    \image qtcreator-meson-build-steps.png {Meson build steps}
 
     The build errors and warnings are parsed and displayed in \l Issues.
 
@@ -44,8 +49,11 @@
     When building with Meson, you can add arguments and targets for the clean
     command in \uicontrol {Clean Steps}.
 
-    \image qtcreator-meson-clean-steps.png "Meson clean steps"
+    \image qtcreator-meson-clean-steps.png {Meson clean steps}
 
     The build errors and warnings are parsed and displayed in \uicontrol Issues.
 
+    \sa {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects}, {Configuring projects},
+    {Meson}
 */

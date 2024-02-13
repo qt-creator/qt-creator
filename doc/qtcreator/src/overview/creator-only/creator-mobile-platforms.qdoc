@@ -5,7 +5,7 @@
     \page creator-mobile-platforms.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference
+    \ingroup creator-reference-platforms
 
     \title Mobile Platforms
 
@@ -27,6 +27,10 @@
 
     You can connect mobile devices to the development PC and select the
     appropriate kit to build, run, debug, and analyze applications from \QC.
+
+    Before starting application development, analyze and define the requirements,
+    scope, and functionality of the application to ensure efficient functionality
+    and a smooth user experience on mobile devices.
 
     \section1 Android
 
@@ -65,5 +69,5 @@
         \li \l{Qt for iOS}
     \endlist
 
-    \sa {Supported Platforms}
+    \sa {Optimizing Applications for Mobile Devices}, {Supported Platforms}
 */

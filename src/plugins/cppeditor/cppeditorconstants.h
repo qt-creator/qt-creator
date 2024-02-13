@@ -67,16 +67,6 @@ const char SHOW_PREPROCESSED_FILE[]     = "CppTools.ShowPreprocessedFile";
 const char SHOW_PREPROCESSED_FILE_SPLIT[]     = "CppTools.ShowPreprocessedFileSplit";
 const char TASK_INDEX[]               = "CppTools.Task.Index";
 const char TASK_SEARCH[]              = "CppTools.Task.Search";
-const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
-const char CUDA_SOURCE_MIMETYPE[] = "text/vnd.nvidia.cuda.csrc";
-const char C_HEADER_MIMETYPE[] = "text/x-chdr";
-const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
-const char OBJECTIVE_C_SOURCE_MIMETYPE[] = "text/x-objcsrc";
-const char OBJECTIVE_CPP_SOURCE_MIMETYPE[] = "text/x-objc++src";
-const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
-const char QDOC_MIMETYPE[] = "text/x-qdoc";
-const char MOC_MIMETYPE[] = "text/x-moc";
-const char AMBIGUOUS_HEADER_MIMETYPE[] = "application/vnd.qtc.ambiguousheader"; // not a real MIME type
 
 // QSettings keys for use by the "New Class" wizards.
 const char CPPEDITOR_SETTINGSGROUP[] = "CppTools";

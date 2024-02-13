@@ -239,18 +239,36 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 // Factories
 
 // The bits plugged in in remote setups.
-QmlProfilerRunWorkerFactory::QmlProfilerRunWorkerFactory()
+class QmlProfilerRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QmlProfilerRunner>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-}
+public:
+    QmlProfilerRunWorkerFactory()
+    {
+        setProduct<QmlProfilerRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+    }
+};
 
 // The full local profiler.
-LocalQmlProfilerRunWorkerFactory::LocalQmlProfilerRunWorkerFactory()
+class LocalQmlProfilerRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<LocalQmlProfilerSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+public:
+    LocalQmlProfilerRunWorkerFactory()
+    {
+        setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
+        setProduct<LocalQmlProfilerSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+
+        addSupportForLocalRunConfigs();
+    }
+};
+
+void setupQmlProfilerRunning()
+{
+    static QmlProfilerRunWorkerFactory theQmlProfilerRunWorkerFactory;
+    static LocalQmlProfilerRunWorkerFactory theLocalQmlProfilerRunWorkerFactory;
 }
+
 
 } // QmlProfiler::Internal

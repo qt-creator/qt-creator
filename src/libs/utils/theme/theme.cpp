@@ -5,6 +5,7 @@
 #include "theme_p.h"
 #include "../hostosinfo.h"
 #include "../qtcassert.h"
+#include "filepath.h"
 #ifdef Q_OS_MACOS
 #import "theme_mac.h"
 #endif
@@ -136,6 +137,21 @@ QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) co
     return file.isEmpty() ? fallBack : file;
 }
 
+QColor Theme::readNamedColorNoWarning(const QString &color) const
+{
+    const auto it = d->palette.constFind(color);
+    if (it != d->palette.constEnd())
+        return it.value();
+    if (color == QLatin1String("style"))
+        return {};
+
+    const QColor col('#' + color);
+    if (!col.isValid()) {
+        return {};
+    }
+    return {col};
+}
+
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
     const auto it = d->palette.constFind(color);
@@ -167,39 +183,52 @@ void Theme::setDisplayName(const QString &name)
     d->displayName = name;
 }
 
-void Theme::readSettings(QSettings &settings)
+void Theme::readSettingsInternal(QSettings &settings)
 {
-    d->fileName = settings.fileName();
+    const QStringList includes = settings.value("Includes").toString().split(",", Qt::SkipEmptyParts);
+
+    for (const QString &include : includes) {
+        FilePath path = FilePath::fromString(d->fileName);
+        const Utils::FilePath includedPath = path.parentDir().pathAppended(include);
+
+        if (includedPath.exists()) {
+            QSettings themeSettings(includedPath.toString(), QSettings::IniFormat);
+            readSettingsInternal(themeSettings);
+        } else {
+            qWarning("Theme \"%s\" misses include \"%s\".",
+                     qPrintable(d->fileName),
+                     qPrintable(includedPath.toUserOutput()));
+        }
+    }
+
     const QMetaObject &m = *metaObject();
 
     {
-        d->displayName = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
+        d->displayName = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed"))
+                             .toString();
         d->preferredStyles = settings.value(QLatin1String("PreferredStyles")).toStringList();
         d->preferredStyles.removeAll(QString());
-        d->defaultTextEditorColorScheme =
-                settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
+        d->defaultTextEditorColorScheme
+            = settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
         d->enforceAccentColorOnMacOS = settings.value("EnforceAccentColorOnMacOS").toString();
     }
+
     {
         settings.beginGroup(QLatin1String("Palette"));
         const QStringList allKeys = settings.allKeys();
-        for (const QString &key : allKeys)
-            d->palette[key] = readNamedColor(settings.value(key).toString()).first;
+        for (const QString &key : allKeys) {
+            d->unresolvedPalette[key] = settings.value(key).toString();
+        }
+
         settings.endGroup();
     }
     {
         settings.beginGroup(QLatin1String("Colors"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            if (!settings.contains(key)) {
-                if (i < PaletteWindow || i > PalettePlaceholderTextDisabled)
-                    qWarning("Theme \"%s\" misses color setting for key \"%s\".",
-                             qPrintable(d->fileName), qPrintable(key));
-                continue;
-            }
-            d->colors[i] = readNamedColor(settings.value(key).toString());
+        const QStringList allKeys = settings.allKeys();
+        for (const QString &key : allKeys) {
+            d->unresolvedPalette[key] = settings.value(key).toString();
         }
+
         settings.endGroup();
     }
     {
@@ -216,10 +245,57 @@ void Theme::readSettings(QSettings &settings)
         QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QTC_ASSERT(settings.contains(key), return);;
+            QTC_ASSERT(settings.contains(key), return );
             d->flags[i] = settings.value(key).toBool();
         }
         settings.endGroup();
+    }
+}
+
+void Theme::readSettings(QSettings &settings)
+{
+    d->fileName = settings.fileName();
+
+    readSettingsInternal(settings);
+
+    int oldInvalidColors = 1;
+    int unresolvedColors = 0;
+
+    const QStringList allKeys = d->unresolvedPalette.keys();
+    do {
+        oldInvalidColors = unresolvedColors;
+        unresolvedColors = 0;
+        for (const QString &key : allKeys) {
+            const QColor currentColor = d->palette[key];
+            if (currentColor.isValid())
+                continue;
+            QColor color = readNamedColorNoWarning(d->unresolvedPalette.value(key));
+            if (!color.isValid())
+                ++unresolvedColors;
+            d->palette[key] = color;
+        }
+
+        //If all colors are resolved or in the last step no new color has been resolved break.
+    } while (unresolvedColors > 0 && oldInvalidColors != unresolvedColors);
+
+    if (unresolvedColors > 0) { //Show warnings for unresolved colors ad set them to black.
+        for (const QString &key : allKeys)
+            d->palette[key] = readNamedColor(d->unresolvedPalette.value(key)).first;
+    }
+
+    const QMetaObject &m = *metaObject();
+
+    QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
+    for (int i = 0, total = e.keyCount(); i < total; ++i) {
+        const QString key = QLatin1String(e.key(i));
+        if (!d->unresolvedPalette.contains(key)) {
+            if (i < PaletteWindow || i > PalettePlaceholderTextDisabled)
+                qWarning("Theme \"%s\" misses color setting for key \"%s\".",
+                         qPrintable(d->fileName),
+                         qPrintable(key));
+            continue;
+        }
+        d->colors[i] = readNamedColor(d->unresolvedPalette.value(key));
     }
 }
 

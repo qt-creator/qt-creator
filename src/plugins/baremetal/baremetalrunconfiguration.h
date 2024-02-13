@@ -3,22 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace BareMetal::Internal {
 
-class BareMetalRunConfigurationFactory final
-        : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    BareMetalRunConfigurationFactory();
-};
-
-class BareMetalCustomRunConfigurationFactory final
-        : public ProjectExplorer::FixedRunConfigurationFactory
-{
-public:
-    BareMetalCustomRunConfigurationFactory();
-};
+void setupBareMetalDeployAndRunConfigurations();
 
 } // BareMetal::Internal

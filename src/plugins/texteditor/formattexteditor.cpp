@@ -23,6 +23,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace TextEditor {
 
 void formatCurrentFile(const Command &command, int startPos, int endPos)
@@ -65,9 +67,8 @@ static FormatTask format(FormatTask task)
         QStringList options = task.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         Process process;
-        process.setTimeoutS(5);
         process.setCommand({executable, options});
-        process.runBlocking();
+        process.runBlocking(5s);
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
             return task;
@@ -95,7 +96,7 @@ static FormatTask format(FormatTask task)
         process.setCommand({executable, options});
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
-        if (!process.waitForFinished(5000)) {
+        if (!process.waitForFinished(5s)) {
             task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
                                                    "reached while formatting file %2.")
                     .arg(executable.toUserOutput(), task.filePath.displayName());
@@ -329,12 +330,21 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
 } // namespace TextEditor
 
 #ifdef WITH_TESTS
-#include "texteditorplugin.h"
+
 #include <QTest>
 
 namespace TextEditor::Internal {
 
-void TextEditorPlugin::testFormatting_data()
+class FormatTextTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testFormatting_data();
+    void testFormatting();
+};
+
+void FormatTextTest::testFormatting_data()
 {
     QTest::addColumn<QString>("code");
     QTest::addColumn<QString>("result");
@@ -360,7 +370,7 @@ void TextEditorPlugin::testFormatting_data()
     }
 }
 
-void TextEditorPlugin::testFormatting()
+void FormatTextTest::testFormatting()
 {
     QFETCH(QString, code);
     QFETCH(QString, result);
@@ -377,6 +387,13 @@ void TextEditorPlugin::testFormatting()
     QCOMPARE(editor->toPlainText(), result);
 }
 
+QObject *createFormatTextTest()
+{
+    return new FormatTextTest;
+}
+
 } // namespace TextEditor::Internal
 
-#endif
+#include "formattexteditor.moc"
+
+#endif // WITH_TESTS

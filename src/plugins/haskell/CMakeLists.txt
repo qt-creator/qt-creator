@@ -9,7 +9,7 @@ add_qtc_plugin(Haskell
     haskelleditorfactory.cpp haskelleditorfactory.h
     haskellhighlighter.cpp haskellhighlighter.h
     haskellmanager.cpp haskellmanager.h
-    haskellplugin.cpp haskellplugin.h
+    haskellplugin.cpp
     haskellproject.cpp haskellproject.h
     haskellrunconfiguration.cpp haskellrunconfiguration.h
     haskellsettings.cpp haskellsettings.h

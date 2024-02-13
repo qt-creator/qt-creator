@@ -183,7 +183,7 @@ void BakeLights::bakeLights()
         m_view->resetPuppet();
     };
 
-    auto crashCallback = [this]() {
+    auto crashCallback = [this] {
         m_progressDialog->raise();
         emit progress(tr("Baking process crashed, baking aborted."));
         emit finished();
@@ -232,7 +232,7 @@ void BakeLights::apply()
 
 void BakeLights::rebake()
 {
-    QTimer::singleShot(0, this, [this]() {
+    QTimer::singleShot(0, this, [this] {
         cleanup();
         showSetupDialog();
     });

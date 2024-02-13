@@ -248,15 +248,23 @@ void CMakeParser::flush()
 } // CMakeProjectManager
 
 #ifdef WITH_TESTS
-#include "cmakeprojectplugin.h"
 
 #include <projectexplorer/outputparser_test.h>
 
 #include <QTest>
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
-void Internal::CMakeProjectPlugin::testCMakeParser_data()
+class CMakeParserTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCMakeParser_data();
+    void testCMakeParser();
+};
+
+void CMakeParserTest::testCMakeParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -462,7 +470,7 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
         << QString();
 }
 
-void Internal::CMakeProjectPlugin::testCMakeParser()
+void CMakeParserTest::testCMakeParser()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new CMakeParser);
@@ -478,6 +486,13 @@ void Internal::CMakeProjectPlugin::testCMakeParser()
                           outputLines);
 }
 
-} // CMakeProjectManager
+QObject *createCMakeParserTest()
+{
+    return new CMakeParserTest;
+}
+
+} // CMakeProjectManager::Internal
 
 #endif
+
+#include "cmakeparser.moc"

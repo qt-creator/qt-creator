@@ -40,12 +40,6 @@ def getBuildIssues(ignoreCodeModel=True):
 # lines within the Issues output
 # param expectedToFail can be used to tell this function if the build was expected to fail or not
 def checkLastBuild(expectedToFail=False):
-    try:
-        # can't use waitForObject() 'cause visible is always 0
-        findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
-    except LookupError:
-        test.log("checkLastBuild called without a build")
-        return
     buildIssues = getBuildIssues()
     types = [i[1] for i in buildIssues]
     errors = types.count("1")

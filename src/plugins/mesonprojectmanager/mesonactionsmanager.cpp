@@ -15,83 +15,59 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/parameteraction.h>
+#include <utils/action.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+using namespace Core;
+using namespace ProjectExplorer;
+using namespace Utils;
 
-MesonActionsManager::MesonActionsManager()
-    : configureActionMenu(Tr::tr("Configure"))
-    , configureActionContextMenu(Tr::tr("Configure"))
+namespace MesonProjectManager::Internal {
+
+void setupMesonActions(QObject *guard)
 {
-    const Core::Context globalContext(Core::Constants::C_GLOBAL);
-    const Core::Context projectContext{Constants::Project::ID};
-    Core::ActionContainer *mproject = Core::ActionManager::actionContainer(
-        ProjectExplorer::Constants::M_PROJECTCONTEXT);
-    Core::ActionContainer *msubproject = Core::ActionManager::actionContainer(
-        ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+    static Action *buildTargetContextAction = nullptr;
 
-    Core::Command *command;
+    const Context projectContext{Constants::Project::ID};
 
-    {
-        command = Core::ActionManager::registerAction(&configureActionMenu,
-                                                      "MesonProject.Configure",
-                                                      projectContext);
-        mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-        msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-        connect(&configureActionMenu,
-                &QAction::triggered,
-                this,
-                &MesonActionsManager::configureCurrentProject);
-    }
+    ActionBuilder(guard, "MesonProject.Configure")
+        .setText(Tr::tr("Configure"))
+        .setContext(projectContext)
+        .addToContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT,
+                        ProjectExplorer::Constants::G_PROJECT_BUILD)
+        .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
+                        ProjectExplorer::Constants::G_PROJECT_BUILD)
+        .addOnTriggered(guard, [] {
+            auto bs = dynamic_cast<MesonBuildSystem *>(ProjectTree::currentBuildSystem());
+            QTC_ASSERT(bs, return);
+            if (ProjectExplorerPlugin::saveModifiedFiles())
+                bs->configure();
+        });
 
-    {
-        command = Core::ActionManager::registerAction(&buildTargetContextAction,
-                                                      "Meson.BuildTargetContextMenu",
-                                                      projectContext);
-        command->setAttribute(Core::Command::CA_Hide);
-        command->setAttribute(Core::Command::CA_UpdateText);
-        command->setDescription(buildTargetContextAction.text());
-
-        Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT)
-            ->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-        // Wire up context menu updates:
-        connect(ProjectExplorer::ProjectTree::instance(),
-                &ProjectExplorer::ProjectTree::currentNodeChanged,
-                this,
-                &MesonActionsManager::updateContextActions);
-
-        connect(&buildTargetContextAction, &Utils::ParameterAction::triggered, this, [] {
-            auto bs = qobject_cast<MesonBuildSystem *>(
-                ProjectExplorer::ProjectTree::currentBuildSystem());
-            if (bs) {
-                auto targetNode = dynamic_cast<MesonTargetNode *>(
-                    ProjectExplorer::ProjectTree::currentNode());
+    ActionBuilder(guard, "Meson.BuildTargetContextMenu")
+        .setParameterText(Tr::tr("Build \"%1\""), Tr::tr("Build"),
+                          ActionBuilder::AlwaysEnabled /*handled manually*/)
+        .bindContextAction(&buildTargetContextAction)
+        .setContext(projectContext)
+        .setCommandAttribute(Core::Command::CA_Hide)
+        .setCommandAttribute(Core::Command::CA_UpdateText)
+        .setCommandDescription(Tr::tr("Build"))
+        .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
+                        ProjectExplorer::Constants::G_PROJECT_BUILD)
+        .addOnTriggered(guard, [] {
+            if (qobject_cast<MesonBuildSystem *>(ProjectTree::currentBuildSystem())) {
+                auto targetNode = dynamic_cast<MesonTargetNode *>(ProjectTree::currentNode());
                 targetNode->build();
             }
         });
-    }
+
+    QObject::connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, guard, [&] {
+        auto targetNode = dynamic_cast<const MesonTargetNode *>(ProjectTree::currentNode());
+        const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
+
+        buildTargetContextAction->setParameter(targetDisplayName);
+        buildTargetContextAction->setEnabled(targetNode);
+        buildTargetContextAction->setVisible(targetNode);
+    });
 }
 
-void MesonActionsManager::configureCurrentProject()
-{
-    auto bs = dynamic_cast<MesonBuildSystem *>(ProjectExplorer::ProjectTree::currentBuildSystem());
-    QTC_ASSERT(bs, return );
-    if (ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
-        bs->configure();
-}
-
-void MesonActionsManager::updateContextActions()
-{
-    auto targetNode = dynamic_cast<const MesonTargetNode *>(
-        ProjectExplorer::ProjectTree::currentNode());
-    const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
-
-    // Build Target:
-    buildTargetContextAction.setParameter(targetDisplayName);
-    buildTargetContextAction.setEnabled(targetNode);
-    buildTargetContextAction.setVisible(targetNode);
-}
-
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

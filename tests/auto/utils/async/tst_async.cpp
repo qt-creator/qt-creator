@@ -33,7 +33,20 @@ void report3(QPromise<int> &promise)
     promise.addResult(1);
 }
 
+static void staticReport3(QPromise<int> &promise)
+{
+    promise.addResult(0);
+    promise.addResult(2);
+    promise.addResult(1);
+}
+
 void reportN(QPromise<double> &promise, int n)
+{
+    for (int i = 0; i < n; ++i)
+        promise.addResult(0);
+}
+
+static void staticReportN(QPromise<double> &promise, int n)
 {
     for (int i = 0; i < n; ++i)
         promise.addResult(0);
@@ -49,7 +62,7 @@ void reportString2(QPromise<QString> &promise, QString s)
     promise.addResult(s);
 }
 
-class Callable {
+class Functor {
 public:
     void operator()(QPromise<double> &promise, int n) const
     {
@@ -135,6 +148,24 @@ std::shared_ptr<Async<ResultType>> createAsyncTask(Function &&function, Args &&.
 
 void tst_Async::runAsync()
 {
+    // tesing QtConcurrent::run()
+    QCOMPARE(QtConcurrent::run(&report3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(report3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(&staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(&reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(&staticReportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(staticReportN, 2).results(),
+             QList<double>({0, 0}));
+
     // free function pointer
     QCOMPARE(createAsyncTask(&report3)->results(),
              QList<int>({0, 2, 1}));
@@ -144,14 +175,30 @@ void tst_Async::runAsync()
              QList<int>({0, 2, 1}));
     QCOMPARE(Utils::asyncRun(report3).results(),
              QList<int>({0, 2, 1}));
+    QCOMPARE(createAsyncTask(&staticReport3)->results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(createAsyncTask(staticReport3)->results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(staticReport3).results(),
+             QList<int>({0, 2, 1}));
 
-    QCOMPARE(createAsyncTask(reportN, 4)->results(),
-             QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::asyncRun(reportN, 4).results(),
-             QList<double>({0, 0, 0, 0}));
+    QCOMPARE(createAsyncTask(&reportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(&reportN, 2).results(),
+             QList<double>({0, 0}));
     QCOMPARE(createAsyncTask(reportN, 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(createAsyncTask(&staticReportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(&staticReportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(createAsyncTask(staticReportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(staticReportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
@@ -215,11 +262,11 @@ void tst_Async::runAsync()
              QList<double>({0, 0}));
 
     // operator()
-    QCOMPARE(createAsyncTask(Callable(), 3)->results(),
+    QCOMPARE(createAsyncTask(Functor(), 3)->results(),
              QList<double>({0, 0, 0}));
-    QCOMPARE(Utils::asyncRun(Callable(), 3).results(),
+    QCOMPARE(Utils::asyncRun(Functor(), 3).results(),
              QList<double>({0, 0, 0}));
-    const Callable c{};
+    const Functor c{};
     QCOMPARE(createAsyncTask(c, 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(c, 2).results(),
@@ -314,7 +361,7 @@ void tst_Async::crefFunction()
              QList<double>({0, 0}));
 
     // callable with promise
-    const Callable c{};
+    const Functor c{};
     QCOMPARE(createAsyncTask(std::cref(c), 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(std::cref(c), 2).results(),
@@ -345,6 +392,8 @@ public:
 
 void tst_Async::onResultReady()
 {
+// TODO: Re-enable when QTBUG-119169 is fixed.
+#if 0
     { // lambda
         QObject context;
         QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {
@@ -378,6 +427,7 @@ void tst_Async::onResultReady()
         QCOMPARE(count, 2);
         QCOMPARE(obj.value, QString("there"));
     }
+#endif
     { // member
         QFuture<QString> f = Utils::asyncRun([] { return QString("Hi"); });
         ObjWithProperty obj;
@@ -434,14 +484,14 @@ void tst_Async::taskTree()
     };
 
     const Group root {
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
     };
 
 
-    QVERIFY(TaskTree::runBlocking(root, 1000ms));
+    QCOMPARE(TaskTree::runBlocking(root, 1000ms), DoneWith::Success);
     QCOMPARE(value, 16);
 }
 
@@ -506,12 +556,12 @@ void tst_Async::mapReduce_data()
         return Group {
             executeMode,
             onGroupSetup(initTree),
-            AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync),
-            onGroupDone(doneHandler)
+            AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync, CallDoneIf::Success),
+            onGroupDone(doneHandler, CallDoneIf::Success)
         };
     };
 
@@ -542,9 +592,9 @@ void tst_Async::mapReduce_data()
     const Group simpleRoot = {
         sequential,
         onGroupSetup([] { s_sum = 0; }),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync, CallDoneIf::Success)
     };
     QTest::newRow("Simple") << simpleRoot << 3.0 << QList<double>({.5, 1.5, 3.});
 
@@ -557,9 +607,9 @@ void tst_Async::mapReduce_data()
     const Group stringRoot = {
         parallel,
         onGroupSetup([] { s_sum = 90.0; }),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync, CallDoneIf::Success)
     };
     QTest::newRow("String") << stringRoot << 1.5 << QList<double>({});
 }
@@ -577,7 +627,7 @@ void tst_Async::mapReduce()
     QFETCH(double, sum);
     QFETCH(QList<double>, results);
 
-    QVERIFY(TaskTree::runBlocking(root, 1000ms));
+    QCOMPARE(TaskTree::runBlocking(root, 1000ms), DoneWith::Success);
     QCOMPARE(s_results, results);
     QCOMPARE(s_sum, sum);
 }

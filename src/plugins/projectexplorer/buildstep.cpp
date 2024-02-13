@@ -212,11 +212,11 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     if (auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration())) {
         for (const Id id : bc->customParsers()) {
-            if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
+            if (auto parser = createCustomParserFromId(id))
                 formatter->addLineParser(parser);
         }
 
-        formatter->addLineParser(new Internal::SanitizerParser);
+        formatter->addLineParser(Internal::createSanitizerOutputParser());
         formatter->setForwardStdOutToStdError(buildConfiguration()->parseStdOut());
     }
     FileInProjectFinder fileFinder;
@@ -349,6 +349,11 @@ void BuildStepFactory::setFlags(BuildStep::Flags flags)
     m_flags = flags;
 }
 
+void BuildStepFactory::setExtraInit(const std::function<void (BuildStep *)> &extraInit)
+{
+    m_extraInit = extraInit;
+}
+
 void BuildStepFactory::setSupportedStepList(Id id)
 {
     m_supportedStepLists = {id};
@@ -392,7 +397,7 @@ Id BuildStepFactory::stepId() const
 BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
     QTC_ASSERT(m_creator, return nullptr);
-    BuildStep *step = m_creator(parent);
+    BuildStep *step = m_creator(this, parent);
     step->setDefaultDisplayName(m_displayName);
     return step;
 }

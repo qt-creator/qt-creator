@@ -8,34 +8,21 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-visual-editor.html
     \page quick-projects.html
-    \nextpage creator-qtquickdesigner-plugin.html
+    \previouspage creator-how-tos.html
 
-    \title Creating Qt Quick Projects
+    \ingroup creator-how-to-projects-create
 
-    Use the following wizard templates to create new Qt Quick projects:
+    \title Create Qt Quick Applications
 
-    \list
-        \li \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
-        \li \uicontrol {Application (Qt for Python)} >
-            \uicontrol {Qt for Python - Qt Quick Application}
-        \li \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype}
-        \li \uicontrol {Library} > \uicontrol {Qt Quick 2 Extension Plugin}
-    \endlist
+    You can create Qt Quick applications that can have both QML and C++ code.
+    Build the applications and deploy them to desktop, embedded, and mobile
+    target platforms.
 
-    The \uicontrol {New Project} dialog shows detailed information about each
-    project wizard template.
+    You can select an option to create a project that you can open in a separate
+    visual editor, \QDS.
 
-    \note The SDK for a particular target platform might install additional
-    templates for that platform. For example, the QNX templates are installed
-    as part of the QNX SDK.
-
-    \QC creates the necessary boilerplate files. Some of the files are
-    specific to a particular target platform. You can use wizard templates
-    also to \l{Create files}{add files} to the projects.
-
-    \section1 Qt Quick Applications
+    To create a Qt Quick Application project:
 
     \list 1
 
@@ -68,7 +55,7 @@
 
         \li In the \uicontrol {Build system} field, select the build system to
             use for building and running the project: \l {CMake}
-            {CMake} or \l {Setting Up Qbs}{Qbs}.
+            {CMake} or \l {qbs-build-system}{Qbs}.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
@@ -94,7 +81,7 @@
 
             \note Kits are listed if they have been specified in \preferences >
             \uicontrol Kits.
-            For more information, see \l {Add kits} and \l {Kits}.
+            For more information, see \l {Add kits} and \l {kits-tab}{Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -108,9 +95,19 @@
     \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \sa {Creating a Qt for Python Application with Qt Quick}
+    \sa {Create Qt Quick UI Prototypes}, {Creating a Mobile Application},
+    {Creating a Qt for Python Application with Qt Quick},
+    {Creating a Qt Quick Application}, {Creating Projects},
+    {Developing Qt Quick Applications}
+*/
 
-    \section1 Qt Quick UI Projects
+/*!
+    \page creator-how-to-create-qtquick-ui-prototype.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Create Qt Quick UI Prototypes
 
     Qt Quick UI Prototype projects are useful for testing or prototyping user
     interfaces,
@@ -170,7 +167,7 @@
 
             \note Kits are listed if they have been specified in \preferences >
             \uicontrol Kits.
-            For more information, see \l {Add kits} and \l {Kits}.
+            For more information, see \l {Add kits} and \l {kits-tab}{Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -201,4 +198,5 @@
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
+    \sa {Create Qt Quick Applications}, {Creating Projects}
 */

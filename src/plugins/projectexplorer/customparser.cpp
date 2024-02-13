@@ -22,7 +22,7 @@
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "projectexplorer.h"
+#   include "projectexplorer_test.h"
 #   include "outputparser_test.h"
 #endif
 
@@ -173,6 +173,15 @@ CustomParsersAspect::CustomParsersAspect(Target *target)
     });
 }
 
+OutputTaskParser *createCustomParserFromId(Utils::Id id)
+{
+    const CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
+            [id](const CustomParserSettings &p) { return p.id == id; });
+    if (parser.id.isValid())
+        return new Internal::CustomParser(parser);
+    return nullptr;
+}
+
 void CustomParsersAspect::fromMap(const Store &map)
 {
     m_parsers = transform(map.value(settingsKey()).toList(), &Id::fromSetting);
@@ -196,15 +205,6 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
 {
     m_error = settings.error;
     m_warning = settings.warning;
-}
-
-CustomParser *CustomParser::createFromId(Utils::Id id)
-{
-    const CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
-            [id](const CustomParserSettings &p) { return p.id == id; });
-    if (parser.id.isValid())
-        return new CustomParser(parser);
-    return nullptr;
 }
 
 OutputLineParser::Result CustomParser::handleLine(const QString &line, OutputFormat type)
@@ -358,7 +358,7 @@ void CustomParsersSelectionWidget::updateSummary()
 
 using namespace Internal;
 
-void ProjectExplorerPlugin::testCustomOutputParsers_data()
+void ProjectExplorerTest::testCustomOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("workDir");
@@ -657,7 +657,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString();
 }
 
-void ProjectExplorerPlugin::testCustomOutputParsers()
+void ProjectExplorerTest::testCustomOutputParsers()
 {
     QFETCH(QString, input);
     QFETCH(QString, workDir);

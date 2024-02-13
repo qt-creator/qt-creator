@@ -49,14 +49,10 @@ public:
     static TextEditorSettings *instance();
 
     static const FontSettings &fontSettings();
-    static const TypingSettings &typingSettings();
-    static const StorageSettings &storageSettings();
-    static const BehaviorSettings &behaviorSettings();
     static const MarginSettings &marginSettings();
     static const DisplaySettings &displaySettings();
     static const CompletionSettings &completionSettings();
     static const HighlighterSettings &highlighterSettings();
-    static const ExtraEncodingSettings &extraEncodingSettings();
 
     static void setCommentsSettingsRetriever(
         const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
@@ -95,4 +91,9 @@ signals:
     void commentsSettingsChanged();
 };
 
-} // namespace TextEditor
+namespace Internal {
+TextEditorSettings &textEditorSettings();
+void setupTextEditorSettings();
+} // Internal
+
+} // TextEditor

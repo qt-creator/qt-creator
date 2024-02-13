@@ -21,11 +21,10 @@ using namespace Utils;
 namespace Mercurial::Internal {
 
 // use QRegularExpression::anchoredPattern() when minimum Qt is raised to 5.12+
-MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
+MercurialEditorWidget::MercurialEditorWidget() :
         exactIdentifier12(QString("\\A(?:") + Constants::CHANGEIDEXACT12 + QString(")\\z")),
         exactIdentifier40(QString("\\A(?:") + Constants::CHANGEIDEXACT40 + QString(")\\z")),
-        changesetIdentifier40(Constants::CHANGESETID40),
-        m_client(client)
+        changesetIdentifier40(Constants::CHANGESETID40)
 {
     setDiffFilePattern(Constants::DIFFIDENTIFIER);
     setLogEntryPattern("^changeset:\\s+(\\S+)$");
@@ -48,16 +47,16 @@ QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) co
     return {};
 }
 
-VcsBase::BaseAnnotationHighlighter *MercurialEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator MercurialEditorWidget::annotationHighlighterCreator() const
 {
-    return new MercurialAnnotationHighlighter(changes);
+    return VcsBase::getAnnotationHighlighterCreator<MercurialAnnotationHighlighter>();
 }
 
 QString MercurialEditorWidget::decorateVersion(const QString &revision) const
 {
     const FilePath workingDirectory = source().absolutePath();
     // Format with short summary
-    return m_client->shortDescriptionSync(workingDirectory, revision);
+    return mercurialClient().shortDescriptionSync(workingDirectory, revision);
 }
 
 QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &revision) const
@@ -65,7 +64,7 @@ QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &rev
     const FilePath filePath = source();
     const FilePath workingDirectory = filePath.absolutePath();
     // Retrieve parent revisions
-    return m_client->parentRevisionsSync(workingDirectory, filePath.fileName(), revision);
+    return mercurialClient().parentRevisionsSync(workingDirectory, filePath.fileName(), revision);
 }
 
 } // Mercurial::Internal

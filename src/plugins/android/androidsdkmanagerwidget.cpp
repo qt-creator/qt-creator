@@ -44,12 +44,10 @@ private:
     QString m_searchText;
 };
 
-AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
-                                                 AndroidSdkManager *sdkManager, QWidget *parent) :
+AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent) :
     QDialog(parent),
-    m_androidConfig(config),
     m_sdkManager(sdkManager),
-    m_sdkModel(new AndroidSdkModel(m_androidConfig, m_sdkManager, this))
+    m_sdkModel(new AndroidSdkModel(m_sdkManager, this))
 {
     QTC_CHECK(sdkManager);
 
@@ -224,19 +222,19 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     connect(obsoleteCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
         const QString obsoleteArg = "--include_obsolete";
-        QStringList args = m_androidConfig.sdkManagerToolArgs();
+        QStringList args = androidConfig().sdkManagerToolArgs();
         if (state == Qt::Checked && !args.contains(obsoleteArg)) {
             args.append(obsoleteArg);
-            m_androidConfig.setSdkManagerToolArgs(args);
+            androidConfig().setSdkManagerToolArgs(args);
        } else if (state == Qt::Unchecked && args.contains(obsoleteArg)) {
             args.removeAll(obsoleteArg);
-            m_androidConfig.setSdkManagerToolArgs(args);
+            androidConfig().setSdkManagerToolArgs(args);
        }
         m_sdkManager->reloadPackages(true);
     });
 
     connect(channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
-        QStringList args = m_androidConfig.sdkManagerToolArgs();
+        QStringList args = androidConfig().sdkManagerToolArgs();
         QString existingArg;
         for (int i = 0; i < 4; ++i) {
             const QString arg = "--channel=" + QString::number(i);
@@ -248,17 +246,17 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
         if (index == 0 && !existingArg.isEmpty()) {
             args.removeAll(existingArg);
-            m_androidConfig.setSdkManagerToolArgs(args);
+            androidConfig().setSdkManagerToolArgs(args);
         } else if (index > 0) {
             // Add 1 to account for Stable (second item) being channel 0
             const QString channelArg = "--channel=" + QString::number(index - 1);
             if (existingArg != channelArg) {
                 if (!existingArg.isEmpty()) {
                     args.removeAll(existingArg);
-                    m_androidConfig.setSdkManagerToolArgs(args);
+                    androidConfig().setSdkManagerToolArgs(args);
                 }
                 args.append(channelArg);
-                m_androidConfig.setSdkManagerToolArgs(args);
+                androidConfig().setSdkManagerToolArgs(args);
             }
        }
         m_sdkManager->reloadPackages(true);
@@ -569,11 +567,11 @@ void AndroidSdkManagerWidget::runPendingCommand()
 
 void AndroidSdkManagerWidget::onSdkManagerOptions()
 {
-    OptionsDialog dlg(m_sdkManager, m_androidConfig.sdkManagerToolArgs(), this);
+    OptionsDialog dlg(m_sdkManager, androidConfig().sdkManagerToolArgs(), this);
     if (dlg.exec() == QDialog::Accepted) {
         QStringList arguments = dlg.sdkManagerArguments();
-        if (arguments != m_androidConfig.sdkManagerToolArgs()) {
-            m_androidConfig.setSdkManagerToolArgs(arguments);
+        if (arguments != androidConfig().sdkManagerToolArgs()) {
+            androidConfig().setSdkManagerToolArgs(arguments);
             m_sdkManager->reloadPackages(true);
         }
     }

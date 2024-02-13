@@ -9,7 +9,6 @@
 #include "mcusupportsdk.h"
 #include "mcusupporttr.h"
 #include "mcutarget.h"
-#include "mcutargetfactory.h"
 #include "settingshandler.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -277,8 +276,8 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
 
     for (const auto &package : packages) {
         QWidget *packageWidget = package->widget();
-        QWeakPointer packagePtr(package);
-        connect(package.get(), &McuPackage::reset, this, [this, packagePtr] (){
+        std::weak_ptr packagePtr(package);
+        connect(package.get(), &McuPackage::reset, this, [this, packagePtr] {
             McuPackagePtr package = packagePtr.lock();
             if (package) {
                 MacroExpanderPtr macroExpander

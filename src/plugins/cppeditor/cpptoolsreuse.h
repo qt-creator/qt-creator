@@ -33,6 +33,8 @@ class CppRefactoringFile;
 class ProjectInfo;
 class CppCompletionAssistProcessor;
 
+enum class FollowSymbolMode { Exact, Fuzzy };
+
 void CPPEDITOR_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPEDITOR_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
 
@@ -53,6 +55,8 @@ const CPlusPlus::Macro CPPEDITOR_EXPORT *findCanonicalMacro(const QTextCursor &c
                                                            CPlusPlus::Document::Ptr document);
 
 bool CPPEDITOR_EXPORT isInCommentOrString(const TextEditor::AssistInterface *interface,
+                                          CPlusPlus::LanguageFeatures features);
+bool CPPEDITOR_EXPORT isInCommentOrString(const QTextCursor &cursor,
                                           CPlusPlus::LanguageFeatures features);
 TextEditor::QuickFixOperations CPPEDITOR_EXPORT
 quickFixOperations(const TextEditor::AssistInterface *interface);

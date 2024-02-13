@@ -3,29 +3,10 @@
 
 #pragma once
 
-#include <utils/parameteraction.h>
+#include <QObject>
 
-#include <QCoreApplication>
+namespace MesonProjectManager::Internal {
 
-namespace MesonProjectManager {
-namespace Internal {
+void setupMesonActions(QObject *guard);
 
-class MesonActionsManager : public QObject
-{
-    Q_OBJECT
-    Utils::ParameterAction buildTargetContextAction{
-        QCoreApplication::translate("QtC::MesonProjectManager", "Build"),
-        QCoreApplication::translate("QtC::MesonProjectManager", "Build \"%1\""),
-        Utils::ParameterAction::AlwaysEnabled /*handled manually*/
-    };
-    QAction configureActionMenu;
-    QAction configureActionContextMenu;
-    void configureCurrentProject();
-    void updateContextActions();
-
-public:
-    MesonActionsManager();
-};
-
-} // namespace Internal
-} // namespace MesonProjectManager
+} // Internal::MesonProjectManager

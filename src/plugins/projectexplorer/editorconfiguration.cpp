@@ -41,10 +41,10 @@ const Key kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
 struct EditorConfigurationPrivate
 {
     EditorConfigurationPrivate() :
-        m_typingSettings(TextEditorSettings::typingSettings()),
-        m_storageSettings(TextEditorSettings::storageSettings()),
-        m_behaviorSettings(TextEditorSettings::behaviorSettings()),
-        m_extraEncodingSettings(TextEditorSettings::extraEncodingSettings()),
+        m_typingSettings(globalTypingSettings()),
+        m_storageSettings(globalStorageSettings()),
+        m_behaviorSettings(globalBehaviorSettings()),
+        m_extraEncodingSettings(globalExtraEncodingSettings()),
         m_textCodec(Core::EditorManager::defaultTextCodec())
     { }
 
@@ -106,10 +106,10 @@ bool EditorConfiguration::useGlobalSettings() const
 void EditorConfiguration::cloneGlobalSettings()
 {
     d->m_defaultCodeStyle->setTabSettings(TextEditorSettings::codeStyle()->tabSettings());
-    setTypingSettings(TextEditorSettings::typingSettings());
-    setStorageSettings(TextEditorSettings::storageSettings());
-    setBehaviorSettings(TextEditorSettings::behaviorSettings());
-    setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    setTypingSettings(globalTypingSettings());
+    setStorageSettings(globalStorageSettings());
+    setBehaviorSettings(globalBehaviorSettings());
+    setExtraEncodingSettings(globalExtraEncodingSettings());
     setMarginSettings(TextEditorSettings::marginSettings());
     d->m_textCodec = Core::EditorManager::defaultTextCodec();
 }
@@ -302,10 +302,10 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
     if (d->m_useGlobal) {
         widget->setMarginSettings(TextEditorSettings::marginSettings());
-        widget->setTypingSettings(TextEditorSettings::typingSettings());
-        widget->setStorageSettings(TextEditorSettings::storageSettings());
-        widget->setBehaviorSettings(TextEditorSettings::behaviorSettings());
-        widget->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+        widget->setTypingSettings(globalTypingSettings());
+        widget->setStorageSettings(globalStorageSettings());
+        widget->setBehaviorSettings(globalBehaviorSettings());
+        widget->setExtraEncodingSettings(globalExtraEncodingSettings());
         switchSettings_helper(TextEditorSettings::instance(), this, widget);
     } else {
         widget->setMarginSettings(marginSettings());

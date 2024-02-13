@@ -620,9 +620,9 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
 
     if (searchPaths.front().osType() == OsTypeMac) {
         Process proc;
-        proc.setTimeoutS(2);
         proc.setCommand({"xcrun", {"--find", "lldb"}});
-        proc.runBlocking();
+        using namespace std::chrono_literals;
+        proc.runBlocking(2s);
         // FIXME:
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QString lPath = proc.allOutput().trimmed();
@@ -635,8 +635,13 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     }
 
     FilePaths paths = searchPaths;
-    if (!searchPaths.front().needsDevice())
+    if (!searchPaths.front().needsDevice()) {
         paths.append(searchGdbPathsFromRegistry());
+
+        const FilePath lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+        if (lldb.exists())
+            suspects.append(lldb);
+    }
 
     paths = Utils::filteredUnique(paths);
 

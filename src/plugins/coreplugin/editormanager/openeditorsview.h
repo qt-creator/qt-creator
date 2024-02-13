@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include "../inavigationwidgetfactory.h"
-
 namespace Core::Internal {
 
-class OpenEditorsViewFactory : public INavigationWidgetFactory
-{
-public:
-    OpenEditorsViewFactory();
-
-    NavigationView createWidget() override;
-};
+void createOpenEditorsViewFactory();
 
 } // Core::Internal

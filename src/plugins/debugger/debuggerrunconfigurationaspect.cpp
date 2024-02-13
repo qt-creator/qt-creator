@@ -40,6 +40,12 @@ namespace Debugger {
     \class Debugger::DebuggerRunConfigurationAspect
 */
 
+static bool isDisabled(TriStateAspect *aspect)
+{
+    QTC_ASSERT(aspect, return false);
+    return aspect->value() == TriState::Disabled;
+}
+
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     : m_target(target)
 {
@@ -49,6 +55,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     setConfigWidgetCreator([this] {
         Layouting::Grid builder;
         builder.addRow({m_cppAspect});
+        builder.addRow({m_pythonAspect});
         auto info = new QLabel(
             Tr::tr("<a href=\""
                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
@@ -98,6 +105,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useQmlDebugger, &Data::useQmlDebugger);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::usePythonDebugger, &Data::usePythonDebugger);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
 
@@ -109,16 +117,23 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     m_qmlAspect->setLabelText(Tr::tr("QML debugger:"));
     m_qmlAspect->setSettingsKey("RunConfiguration.UseQmlDebugger");
 
+    m_pythonAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_pythonAspect->setLabelText(Tr::tr("Python debugger:"));
+    m_pythonAspect->setSettingsKey("RunConfiguration.UsePythonDebugger");
+
     // Make sure at least one of the debuggers is set to be active.
     connect(m_cppAspect, &TriStateAspect::changed, this, [this]{
-        if (m_cppAspect->value() == TriState::Disabled && m_qmlAspect->value() == TriState::Disabled)
+        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
             m_qmlAspect->setValue(TriState::Default);
     });
     connect(m_qmlAspect, &TriStateAspect::changed, this, [this]{
-        if (m_qmlAspect->value() == TriState::Disabled && m_cppAspect->value() == TriState::Disabled)
+        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
             m_cppAspect->setValue(TriState::Default);
     });
-
+    connect(m_qmlAspect, &TriStateAspect::changed, this, [this] {
+        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
+            m_cppAspect->setValue(TriState::Default);
+    });
 
     m_multiProcessAspect = new BoolAspect;
     m_multiProcessAspect->setSettingsKey("RunConfiguration.UseMultiProcess");
@@ -177,13 +192,22 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
         //
         // Try to find a build configuration to check whether qml debugging is enabled there
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
-            const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
-            return aspect && aspect->value() == TriState::Enabled;
+            if (const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>())
+                return aspect->value() == TriState::Enabled;
         }
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
     return m_qmlAspect->value() == TriState::Enabled;
+}
+
+bool DebuggerRunConfigurationAspect::usePythonDebugger() const
+{
+    if (m_pythonAspect->value() == TriState::Default) {
+        const Core::Context languages = m_target->project()->projectLanguages();
+        return languages.contains(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID);
+    }
+    return m_pythonAspect->value() == TriState::Enabled;
 }
 
 bool DebuggerRunConfigurationAspect::useMultiProcess() const
@@ -215,6 +239,7 @@ void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
     m_cppAspect->toMap(map);
     m_qmlAspect->toMap(map);
+    m_pythonAspect->toMap(map);
     m_multiProcessAspect->toMap(map);
     m_overrideStartupAspect->toMap(map);
 
@@ -227,6 +252,7 @@ void DebuggerRunConfigurationAspect::fromMap(const Store &map)
 {
     m_cppAspect->fromMap(map);
     m_qmlAspect->fromMap(map);
+    m_pythonAspect->fromMap(map);
 
     // respect old project settings
     if (map.value("RunConfiguration.UseCppDebuggerAuto", false).toBool())

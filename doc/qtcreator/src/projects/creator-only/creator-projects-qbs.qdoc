@@ -7,7 +7,8 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Setting Up Qbs
+    \target qbs-build-system
+    \title Qbs
 
     \brief \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build
     graph from a high-level project description (like qmake or CMake do) and
@@ -39,7 +40,21 @@
 
     \endlist
 
-    \section1 Specifying Qbs Settings
+    \sa {Select the build system}, {Open projects},
+    {qbs-preferences}{Preferences: Qbs}, {Qbs Build Configuration},
+    {Specifying Run Settings}
+*/
+
+/*!
+    \page creator-preferences-qbs.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \target qbs-preferences
+    \title Qbs
+
+    \brief Set preferences for Qbs and Qbs profiles.
 
     By default, Qbs profiles are stored in the \c qbs directory in the \QC
     settings directory to ensure that different \QC instances do not overwrite
@@ -68,11 +83,6 @@
             For more information, see \l{Edit Qbs profiles}.
     \endlist
 
-    \section1 Related Topics
-
-    \list
-        \li \l {Open projects}
-        \li \l {Qbs Build Configuration}
-        \li \l {Specifying Run Settings}
-    \endlist
+    \sa {Open projects}, {qbs-build-system}{Build Systems: Qbs},
+    {Qbs Build Configuration}, {Specifying Run Settings}
 */

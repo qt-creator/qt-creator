@@ -35,7 +35,7 @@ public:
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         rpp.setHeaderPaths(headerPaths);
         rpp.setConfigFileName(projectConfigFile);
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
         tcInfo.type = toolchainType;
         tcInfo.targetTriple = targetTriple;
         tcInfo.abi = Abi::fromString(targetTriple);
@@ -43,10 +43,10 @@ public:
             tcInfo.abi = Abi(Abi::X86Architecture, Abi::DarwinOS, Abi::FreeBsdFlavor,
                              Abi::MachOFormat, 64);
         }
-        tcInfo.isMsvc2015ToolChain = isMsvc2015;
+        tcInfo.isMsvc2015Toolchain = isMsvc2015;
         tcInfo.extraCodeModelFlags = extraFlags;
         tcInfo.macroInspectionRunner = [this](const QStringList &) {
-            return ToolChain::MacroInspectionReport{toolchainMacros, languageVersion};
+            return Toolchain::MacroInspectionReport{toolchainMacros, languageVersion};
         };
         RawProjectPartFlags rppFlags;
         rppFlags.commandLineFlags = flags;

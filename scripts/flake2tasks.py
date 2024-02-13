@@ -14,7 +14,8 @@ import sys
 import re
 
 if __name__ == '__main__':
-    pattern = re.compile(r'^([^:]+):(\d+):\d+: E\d+ (.*)$')
+    pattern = re.compile(r'^([^:]+):(\d+):\d+: (.*)$')
+    n = 0
     while True:
         line = sys.stdin.readline().rstrip()
         if not line:
@@ -24,5 +25,7 @@ if __name__ == '__main__':
             file_name = match.group(1).replace('\\', '/')
             line_number = match.group(2)
             text = match.group(3)
-            output = "{}\t{}\twarn\t{}".format(file_name, line_number, text)
-            print(output)
+            print(f"{file_name}\t{line_number}\twarn\t{text}")
+            n += 1
+    if n:
+        print(f"{n} issue(s) found.", file=sys.stderr)

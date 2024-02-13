@@ -14,6 +14,7 @@
 #include "session.h"
 #include "settingsdatabase.h"
 #include "themechooser.h"
+#include "vcsmanager.h"
 
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
@@ -61,15 +62,8 @@ static CorePlugin *m_instance = nullptr;
 const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
 const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
-void CorePlugin::setupSystemEnvironment()
-{
-    m_instance->m_startupSystemEnvironment = Environment::systemEnvironment();
-    const EnvironmentItems changes = EnvironmentItem::fromStringList(
-        ICore::settings()->value(kEnvironmentChanges).toStringList());
-    setEnvironmentChanges(changes);
-}
-
 CorePlugin::CorePlugin()
+    : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Utils::Text::Position>();
@@ -81,7 +75,10 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::KeyList>();
     qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
-    setupSystemEnvironment();
+
+    const EnvironmentItems changes = EnvironmentItem::fromStringList(
+        ICore::settings()->value(kEnvironmentChanges).toStringList());
+    setEnvironmentChanges(changes);
 }
 
 CorePlugin::~CorePlugin()
@@ -130,17 +127,22 @@ CoreArguments parseArguments(const QStringList &arguments)
     return args;
 }
 
+void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
+{
+    const QJsonObject metaData = plugin->metaData();
+    const QJsonValue mimetypes = metaData.value("Mimetypes");
+    QString mimetypeString;
+    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
     for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
         if (!plugin->isEffectivelyEnabled())
             continue;
-        const QJsonObject metaData = plugin->metaData();
-        const QJsonValue mimetypes = metaData.value("Mimetypes");
-        QString mimetypeString;
-        if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-            Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+        loadMimeFromPlugin(plugin);
     }
 
     if (ThemeEntry::availableThemes().isEmpty()) {
@@ -157,12 +159,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     CheckableMessageBox::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
-    m_core = new ICore;
     if (args.overrideColor.isValid())
         ICore::setOverrideColor(args.overrideColor);
+    m_core = new ICore;
     m_locator = new Locator;
     std::srand(unsigned(QDateTime::currentDateTime().toSecsSinceEpoch()));
-    ICore::init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
@@ -233,12 +234,19 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                [] { return QUuid::createUuid().toString(); });
 
     expander->registerPrefix("#:", Tr::tr("A comment."), [](const QString &) { return QString(); });
+    expander->registerPrefix("Asciify:", Tr::tr("Convert string into pure ascii."),
+                             [expander] (const QString &s) {
+                                 return asciify(expander->expand(s)); });
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
 #ifdef ENABLE_CRASHPAD
     connect(ICore::instance(), &ICore::coreOpened, this, &CorePlugin::warnAboutCrashReporing,
             Qt::QueuedConnection);
+#endif
+
+#ifdef WITH_TESTS
+    addTestCreator(&createVcsManagerTest);
 #endif
 
     return true;
@@ -314,8 +322,8 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
 {
     if (!ExtensionSystem::PluginManager::isInitializationDone()) {
         connect(ExtensionSystem::PluginManager::instance(),
-                &ExtensionSystem::PluginManager::initializationDone,
-                this, [=] { remoteCommand(QStringList(), workingDirectory, args); });
+                &ExtensionSystem::PluginManager::initializationDone, this,
+                [this, workingDirectory, args] { remoteCommand({}, workingDirectory, args); });
         return nullptr;
     }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);
@@ -325,11 +333,6 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                 FilePath::fromString(workingDirectory));
     ICore::raiseMainWindow();
     return res;
-}
-
-Environment CorePlugin::startupSystemEnvironment()
-{
-    return m_instance->m_startupSystemEnvironment;
 }
 
 EnvironmentItems CorePlugin::environmentChanges()

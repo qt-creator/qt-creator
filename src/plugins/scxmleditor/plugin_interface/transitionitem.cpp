@@ -3,10 +3,7 @@
 
 #include "connectableitem.h"
 #include "cornergrabberitem.h"
-#include "finalstateitem.h"
 #include "graphicsitemprovider.h"
-#include "graphicsscene.h"
-#include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
@@ -50,7 +47,7 @@ TransitionItem::TransitionItem(BaseItem *parent)
             << QPointF(0, 1);
 
     m_eventTagItem = new TagTextItem(this);
-    connect(m_eventTagItem, &TagTextItem::selected, this, [=](bool sel){
+    connect(m_eventTagItem, &TagTextItem::selected, this, [this](bool sel) {
         setItemSelected(sel);
     });
     connect(m_eventTagItem, &TagTextItem::textReady, this, &TransitionItem::textHasChanged);

@@ -6,28 +6,123 @@
 #include "../core_global.h"
 #include "../coreconstants.h"
 #include "../icontext.h"
+#include "actioncontainer.h" // For enum ActionContainer::OnAllDisabledBehavior
 #include "command.h"
 
-#include <QObject>
-#include <QList>
+#include <utils/action.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QString;
-QT_END_NAMESPACE
+#include <functional>
 
 namespace Core {
 
-class ActionContainer;
-class Command;
-class Context;
 class ICore;
 
 namespace Internal {
 class CorePlugin;
 class ICorePrivate;
-class MainWindow;
 } // Internal
+
+class CORE_EXPORT ActionBuilder
+{
+public:
+    ActionBuilder(QObject *contextActionParent, const Utils::Id actionId);
+    ~ActionBuilder();
+
+    ActionBuilder &adopt(Utils::Action *action);
+
+    ActionBuilder &setContext(const Utils::Id id);
+    ActionBuilder &setContext(const Core::Context &context);
+    ActionBuilder &setText(const QString &text);
+    ActionBuilder &setIconText(const QString &iconText);
+    ActionBuilder &setToolTip(const QString &toolTip);
+    ActionBuilder &setCommandAttribute(Core::Command::CommandAttribute attr);
+    ActionBuilder &setCommandDescription(const QString &desc);
+    ActionBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
+    ActionBuilder &addToContainers(QList<Utils::Id> containerIds, Utils::Id groupId = {},
+                         bool needsToExist = true);
+    ActionBuilder &addOnTriggered(const std::function<void()> &func);
+
+    template<class T, typename F>
+    ActionBuilder &addOnTriggered(T *guard,
+                        F &&function,
+                        Qt::ConnectionType connectionType = Qt::AutoConnection)
+    {
+        QObject::connect(contextAction(),
+                         &QAction::triggered,
+                         guard,
+                         std::forward<F>(function),
+                         connectionType);
+        return *this;
+    }
+
+    template<class T, typename F>
+    ActionBuilder &addOnToggled(T *guard,
+                        F &&function,
+                        Qt::ConnectionType connectionType = Qt::AutoConnection)
+    {
+        QObject::connect(contextAction(),
+                         &QAction::toggled,
+                         guard,
+                         std::forward<F>(function),
+                         connectionType);
+        return *this;
+    }
+
+    ActionBuilder &setDefaultKeySequence(const QKeySequence &seq);
+    ActionBuilder &setDefaultKeySequences(const QList<QKeySequence> &seqs);
+    ActionBuilder &setDefaultKeySequence(const QString &mac, const QString &nonMac);
+    ActionBuilder &setIcon(const QIcon &icon);
+    ActionBuilder &setIconVisibleInMenu(bool on);
+    ActionBuilder &setTouchBarIcon(const QIcon &icon);
+    ActionBuilder &setTouchBarText(const QString &text);
+    ActionBuilder &setEnabled(bool on);
+    ActionBuilder &setChecked(bool on);
+    ActionBuilder &setVisible(bool on);
+    ActionBuilder &setCheckable(bool on);
+    ActionBuilder &setSeperator(bool on);
+    ActionBuilder &setScriptable(bool on);
+    ActionBuilder &setMenuRole(QAction::MenuRole role);
+
+    enum EnablingMode { AlwaysEnabled, EnabledWithParameter };
+    ActionBuilder &setParameterText(const QString &parametrizedText,
+                          const QString &emptyText,
+                          EnablingMode mode = EnabledWithParameter);
+
+    ActionBuilder &bindContextAction(QAction **dest);
+    ActionBuilder &bindContextAction(Utils::Action **dest);
+    ActionBuilder &bindCommand(Command **dest);
+    ActionBuilder &augmentActionWithShortcutToolTip();
+
+    Utils::Id id() const;
+    Command *command() const;
+    QAction *commandAction() const;
+    Utils::Action *contextAction() const;
+
+private:
+    class ActionBuilderPrivate *d = nullptr;
+};
+
+class CORE_EXPORT MenuBuilder
+{
+public:
+    MenuBuilder(Utils::Id menuId);
+    ~MenuBuilder();
+
+    MenuBuilder &setTitle(const QString &title);
+    MenuBuilder &setIcon(const QIcon &icon);
+    MenuBuilder &setOnAllDisabledBehavior(ActionContainer::OnAllDisabledBehavior behavior);
+    MenuBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {});
+    MenuBuilder &addSeparator();
+
+private:
+    ActionContainer *m_menu = nullptr;
+};
+
+class CORE_EXPORT ActionSeparator
+{
+public:
+    ActionSeparator(Utils::Id id);
+};
 
 class CORE_EXPORT ActionManager : public QObject
 {
@@ -45,6 +140,7 @@ public:
                                    const Context &context = Context(Constants::C_GLOBAL),
                                    bool scriptable = false);
 
+    static Command *createCommand(Utils::Id id);
     static Command *command(Utils::Id id);
     static ActionContainer *actionContainer(Utils::Id id);
 

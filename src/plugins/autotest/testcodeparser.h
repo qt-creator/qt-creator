@@ -7,6 +7,8 @@
 
 #include <qmljs/qmljsdocument.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
 
@@ -18,7 +20,6 @@ class QThreadPool;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace Tasking { class TaskTree; }
 
 namespace Autotest {
 namespace Internal {
@@ -50,7 +51,7 @@ public:
 
 signals:
     void aboutToPerformFullParse();
-    void testParseResultReady(const TestParseResultPtr result); // TODO: pass list of results?
+    void testParseResultsReady(const QList<TestParseResultPtr> &results);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
@@ -96,7 +97,8 @@ private:
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
     Utils::FutureSynchronizer m_futureSynchronizer;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
+    bool m_withTaskProgress = false;
     QHash<Utils::FilePath, int> m_qmlEditorRev;
 
     QElapsedTimer m_parsingTimer;

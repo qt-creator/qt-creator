@@ -5,11 +5,8 @@
 
 #include <QList>
 
-QT_BEGIN_NAMESPACE
-class QTreeView;
-QT_END_NAMESPACE
-
 namespace Utils {
+
 class NameValueDictionary;
 class NameValueItem;
 using NameValueItems = QList<NameValueItem>;
@@ -24,4 +21,5 @@ using PreprocessorMacroItems = NameValueItems;
 
 class NameValueModel;
 class EnvironmentModel;
+
 } // namespace Utils

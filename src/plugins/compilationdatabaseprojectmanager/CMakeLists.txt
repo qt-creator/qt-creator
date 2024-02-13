@@ -3,15 +3,20 @@ add_qtc_plugin(CompilationDatabaseProjectManager
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor
   SOURCES
     compilationdatabaseconstants.h
-    compilationdatabaseproject.cpp compilationdatabaseproject.h
-    compilationdatabaseprojectmanagerplugin.cpp compilationdatabaseprojectmanagerplugin.h
+    compilationdatabaseproject.cpp
+    compilationdatabaseproject.h
+    compilationdatabaseprojectmanagerplugin.cpp
     compilationdatabaseprojectmanagertr.h
-    compilationdatabaseutils.cpp compilationdatabaseutils.h
-    compilationdbparser.cpp compilationdbparser.h
+    compilationdatabaseutils.cpp
+    compilationdatabaseutils.h
+    compilationdbparser.cpp
+    compilationdbparser.h
 )
 
 extend_qtc_plugin(CompilationDatabaseProjectManager
   CONDITION WITH_TESTS
   SOURCES
-    compilationdatabasetests.cpp compilationdatabasetests.h compilationdatabasetests.qrc
+    compilationdatabasetests.cpp
+    compilationdatabasetests.h
+    compilationdatabasetests.qrc
 )

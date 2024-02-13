@@ -1,25 +1,50 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-qtquickdesigner-plugin.html
-    \previouspage quick-projects.html
-    \nextpage quick-converting-ui-projects.html
+    \previouspage creator-reference.html
 
-    \title Using \QMLD
+    \ingroup creator-reference-ui-design
 
-    We recommend that you use a separate visual editor,
-    \l{Qt Design Studio Manual}{\QDS} to open and edit
-    \l{UI Files}{UI files} (.ui.qml).
+    \title \QMLD
 
-    However, you can enable the \QMLD plugin in \QC for editing
-    UI files. The functionality is restricted and not all \QDS
-    features are supported.
+    \brief A visual editor for QML files (.qml) and \QDS UI files (.ui.qml).
+
+    Use wizards to create Qt Quick projects that have boiler-plate code. Change
+    the code in the \uicontrol Edit mode or use a separate visual editor,
+    \l{Qt Design Studio Manual}{\QDS} to open and edit \l{UI Files}{UI files}
+    (.ui.qml).
+
+    Don't edit UI files in the \uicontrol Edit mode because it is easy
+    to add code that \QDS does not support.
+
+    \section1 Opening Files in \QDS
+
+    If you have installed \QDS, and open a .ui.qml or a .qml file in \QC, it
+    asks you whether you would like to open the file in \QDS instead. Select
+    \uicontrol {Open in \QDS} to open the file in \QDS.
+
+    To continue editing the file in \QC, close the info bar.
+
+    To hide the question, select \uicontrol {Do Not Show Again}.
+
+    \section1 Editing Files in \QMLD
+
+    Enable the \QMLD plugin in \QC for editing UI files. The functionality is
+    restricted and not all \QDS features are supported.
 
     To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or .qml
     file is open.
 
+    \image qtquick-designer.webp {Qt Quick Designer}
+
+    For more information about \l{Qt QML}, \l{Qt Quick}, and \l{All QML Types}
+    {QML types}, see the Qt reference documentation available online and
+    in the \uicontrol Help mode.
+
     For more information about using \QMLD, see \l{Qt Design Studio Manual}.
 
-    \sa {Enable and disable plugins}
+    \sa {Create Qt Quick Applications}, {Create Qt Quick UI Prototypes},
+    {Enable and disable plugins}
 */

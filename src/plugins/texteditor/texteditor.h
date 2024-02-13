@@ -22,6 +22,7 @@
 
 #include <QPlainTextEdit>
 #include <QSharedPointer>
+#include <QToolButton>
 
 #include <functional>
 #include <memory>
@@ -56,6 +57,7 @@ using TextMarks = QList<TextMark *>;
 
 namespace Internal {
 class BaseTextEditorPrivate;
+class LineColumnButtonPrivate;
 class TextEditorFactoryPrivate;
 class TextEditorWidgetPrivate;
 class TextEditorOverlay;
@@ -177,7 +179,8 @@ public:
     using QPlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
     void setCursorPosition(int pos);
-    QToolBar *toolBar();
+    QWidget *toolBarWidget() const;
+    QToolBar *toolBar() const;
 
     void print(QPrinter *);
 
@@ -426,7 +429,7 @@ public:
     void uppercaseSelection();
     void lowercaseSelection();
 
-    void sortSelectedLines();
+    void sortLines();
 
     void cleanWhitespace();
 
@@ -698,6 +701,21 @@ private:
     friend class BaseTextEditor;
     friend class PlainTextEditorFactory;
     Internal::TextEditorFactoryPrivate *d;
+};
+
+class TEXTEDITOR_EXPORT LineColumnButton : public QToolButton
+{
+public:
+    LineColumnButton(TextEditorWidget *parent);
+    ~LineColumnButton();
+
+private:
+    void update();
+    bool event(QEvent *event) override;
+    QSize sizeHint() const override;
+
+private:
+    std::unique_ptr<Internal::LineColumnButtonPrivate> m_d;
 };
 
 } // namespace TextEditor

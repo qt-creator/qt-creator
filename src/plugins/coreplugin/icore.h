@@ -55,6 +55,7 @@ public:
                                   const QVariantMap &extraVariables = {});
 
     static bool showOptionsDialog(const Utils::Id page, QWidget *parent = nullptr);
+    static bool showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent = nullptr);
     static QString msgShowOptionsDialog();
     static QString msgShowOptionsDialogToolTip();
 
@@ -80,6 +81,8 @@ public:
     static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static Utils::InfoBar *infoBar();
+
+    static void askForRestart(const QString &text);
 
     static void raiseWindow(QWidget *widget);
     static void raiseMainWindow();
@@ -133,9 +136,13 @@ signals:
 
 public:
     /* internal use */
+    static void setRelativePathToProjectFunction(const std::function<Utils::FilePath(const Utils::FilePath &)> &func);
+    static Utils::FilePath pathRelativeToActiveProject(const Utils::FilePath &path);
     static QStringList additionalAboutInformation();
     static void clearAboutInformation();
     static void appendAboutInformation(const QString &line);
+    static QString aboutInformationCompact();
+    static QString aboutInformationHtml();
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
     static QString pluginPath();
@@ -146,7 +153,7 @@ public:
     static Utils::FilePath clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangIncludeDirectory(const QString &clangVersion,
                                                  const Utils::FilePath &clangFallbackIncludeDir);
-    static QString buildCompatibilityString();
+    static Utils::FilePath lldbExecutable(const Utils::FilePath &lldbBinDirectory);
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);
@@ -163,6 +170,9 @@ public:
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 OpenFilesFlags flags = None,
                                 const Utils::FilePath &workingDirectory = {});
+
+private:
+    std::function<Utils::FilePath(const Utils::FilePath &)> m_relativePathToProject = nullptr;
 };
 
 } // namespace Core

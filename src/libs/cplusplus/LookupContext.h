@@ -119,9 +119,9 @@ private:
     QHash<Block *, ClassOrNamespace *> _blocks;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
-    QSharedPointer<Control> _control;
+    std::shared_ptr<Control> _control;
     TemplateNameIdTable _specializations;
-    QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
+    QHash<const TemplateNameId *, ClassOrNamespace *> _instantiations;
     Anonymouses _anonymouses;
     QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
 
@@ -182,7 +182,7 @@ public:
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
-    QSharedPointer<Control> control() const
+    std::shared_ptr<Control> control() const
     { return _control; }
 
     bool expandTemplates() const
@@ -250,7 +250,7 @@ private:
                                         Template *specialization) const;
 
     Snapshot _snapshot;
-    QSharedPointer<Control> _control;
+    std::shared_ptr<Control> _control;
     QSet<Namespace *> _processed;
     QList<ClassOrNamespace *> _entities;
     ClassOrNamespace *_globalNamespace;
@@ -269,7 +269,7 @@ public:
     LookupContext(Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
                   const Snapshot &snapshot,
-                  QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>());
+                  std::shared_ptr<CreateBindings> bindings = {});
 
     LookupContext(const LookupContext &other);
     LookupContext &operator = (const LookupContext &other);
@@ -291,8 +291,7 @@ public:
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
-    QSharedPointer<CreateBindings> bindings() const
-    { return _bindings; }
+    std::shared_ptr<CreateBindings> bindings() const { return _bindings; }
 
     enum InlineNamespacePolicy { ShowInlineNamespaces, HideInlineNamespaces };
     static QList<const Name *> fullyQualifiedName(
@@ -322,7 +321,7 @@ private:
     Snapshot _snapshot;
 
     // Bindings
-    QSharedPointer<CreateBindings> _bindings;
+    std::shared_ptr<CreateBindings> _bindings;
 
     bool m_expandTemplates;
 };

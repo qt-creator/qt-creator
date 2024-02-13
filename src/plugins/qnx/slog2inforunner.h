@@ -5,9 +5,9 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <QDateTime>
+#include <solutions/tasking/tasktreerunner.h>
 
-namespace Tasking { class TaskTree; }
+#include <QDateTime>
 
 namespace Qnx::Internal {
 
@@ -33,7 +33,7 @@ private:
     bool m_currentLogs = false;
     QString m_remainingData;
 
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // Qnx::Internal

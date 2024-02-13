@@ -3,15 +3,13 @@
 
 #include "fileandtokenactions_test.h"
 
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppquickfix.h"
 #include "cppquickfixassistant.h"
-#include "cppquickfixes.h"
 #include "cppinsertvirtualmethods.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsreuse.h"
 #include "cpptoolstestcase.h"
+#include "cpptypehierarchy.h"
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
 
@@ -292,7 +290,7 @@ class NoOpTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Do nothing on each token
-    void run(CppEditorWidget *) {}
+    void run(CppEditorWidget *) override {}
 };
 
 class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractAction
@@ -300,7 +298,7 @@ class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 public:
     /// Follow symbol under cursor
     /// Warning: May block if file does not exist (e.g. a not generated ui_* file).
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 void FollowSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
@@ -326,16 +324,17 @@ class SwitchDeclarationDefinitionTokenAction : public TestActionsTestCase::Abstr
 {
 public:
     /// Switch Declaration/Definition on each token
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
-void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *)
+void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Switch Declaration/Definition
     IEditor *editorBefore = EditorManager::currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
-    CppEditorPlugin::instance()->switchDeclarationDefinition();
+    if (editorWidget)
+        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
     QApplication::processEvents();
 
     // Go back
@@ -351,7 +350,7 @@ class FindUsagesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Find Usages on each token
-    void run(CppEditorWidget *editor);
+    void run(CppEditorWidget *editor) override;
 };
 
 void FindUsagesTokenAction::run(CppEditorWidget *editor)
@@ -364,12 +363,14 @@ class RenameSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 {
 public:
     /// Rename Symbol Under Cursor on each token (Renaming is not applied)
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
-void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *)
+void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
 {
-    CppEditorPlugin::instance()->renameSymbolUnderCursor();
+    if (editorWidget)
+        editorWidget->renameSymbolUnderCursor();
+
     QApplication::processEvents();
 }
 
@@ -377,12 +378,12 @@ class OpenTypeHierarchyTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Open Type Hierarchy on each token
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
-    CppEditorPlugin::instance()->openTypeHierarchy();
+    openCppTypeHierarchy();
     QApplication::processEvents();
 }
 
@@ -391,7 +392,7 @@ class InvokeCompletionTokenAction : public TestActionsTestCase::AbstractAction
 public:
     /// Invoke completion menu on each token.
     /// Warning: May create tool tip artefacts if focus is lost.
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
@@ -417,7 +418,7 @@ class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Trigger all Quick Fixes and apply the matching ones
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 // TODO: Some QuickFixes operate on selections.
@@ -456,7 +457,7 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
 class SwitchHeaderSourceFileAction : public TestActionsTestCase::AbstractAction
 {
 public:
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void SwitchHeaderSourceFileAction::run(CppEditorWidget *)

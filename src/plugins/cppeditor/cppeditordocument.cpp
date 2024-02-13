@@ -6,11 +6,9 @@
 #include "baseeditordocumentparser.h"
 #include "cppcodeformatter.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cpphighlighter.h"
 #include "cppquickfixassistant.h"
@@ -22,8 +20,10 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
@@ -78,7 +78,7 @@ private:
 CppEditorDocument::CppEditorDocument()
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
-    setSyntaxHighlighter(new CppHighlighter);
+    resetSyntaxHighlighter([] { return new CppHighlighter(); });
 
     ICodeStylePreferencesFactory *factory
         = TextEditorSettings::codeStyleFactory(Constants::CPP_SETTINGS_ID);
@@ -132,7 +132,7 @@ TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
 {
     if (const auto baseProvider = TextDocument::quickFixAssistProvider())
         return baseProvider;
-    return CppEditorPlugin::instance()->quickFixProvider();
+    return &cppQuickFixAssistProvider();
 }
 
 void CppEditorDocument::recalculateSemanticInfoDetached()
@@ -164,7 +164,7 @@ QByteArray CppEditorDocument::contentsText() const
 
 void CppEditorDocument::applyFontSettings()
 {
-    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter())
+    if (TextEditor::SyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
         highlighter->clearAllExtraFormats(); // Clear all additional formats since they may have changed
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
     if (m_processor)
@@ -180,8 +180,8 @@ void CppEditorDocument::invalidateFormatterCache()
 void CppEditorDocument::onMimeTypeChanged()
 {
     const QString &mt = mimeType();
-    m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                       || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    m_isObjCEnabled = (mt == QLatin1String(Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                       || mt == QLatin1String(Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = CppModelManager::completionAssistProvider();
 
     initializeTimer();
@@ -408,8 +408,8 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
         connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, this,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
-                    auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
-                    highlighter->setLanguageFeatures(document->languageFeatures());
+                    if (SyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
+                        highlighter->setLanguageFeaturesFlags(document->languageFeatures().flags);
 
                     m_overviewModel.update(usesClangd() ? nullptr : document);
 

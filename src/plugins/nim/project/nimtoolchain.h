@@ -8,11 +8,11 @@
 
 namespace Nim {
 
-class NimToolChain : public ProjectExplorer::ToolChain
+class NimToolchain : public ProjectExplorer::Toolchain
 {
 public:
-    NimToolChain();
-    explicit NimToolChain(Utils::Id typeId);
+    NimToolchain();
+    explicit NimToolchain(Utils::Id typeId);
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;
@@ -24,7 +24,7 @@ public:
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
     QString compilerVersion() const;
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
-    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
+    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() final;
 
     void fromMap(const Utils::Store &data) final;
 
@@ -34,13 +34,13 @@ private:
     std::tuple<int, int, int> m_version;
 };
 
-class NimToolChainFactory : public ProjectExplorer::ToolChainFactory
+class NimToolchainFactory : public ProjectExplorer::ToolchainFactory
 {
 public:
-    NimToolChainFactory();
+    NimToolchainFactory();
 
     ProjectExplorer::Toolchains autoDetect(const ProjectExplorer::ToolchainDetector &detector) const final;
-    ProjectExplorer::Toolchains detectForImport(const ProjectExplorer::ToolChainDescription &tcd) const final;
+    ProjectExplorer::Toolchains detectForImport(const ProjectExplorer::ToolchainDescription &tcd) const final;
 };
 
 } // Nim

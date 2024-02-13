@@ -14,11 +14,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/navigationtreeview.h>
@@ -46,9 +47,9 @@ using namespace Utils;
 
 QList<ProjectTreeWidget *> ProjectTreeWidget::m_projectTreeWidgets;
 
-namespace {
+namespace ProjectExplorer::Internal {
 
-class ProjectTreeItemDelegate : public QStyledItemDelegate
+class ProjectTreeItemDelegate final : public QStyledItemDelegate
 {
 public:
     ProjectTreeItemDelegate(QTreeView *view) : QStyledItemDelegate(view),
@@ -65,12 +66,12 @@ public:
                 this, &ProjectTreeItemDelegate::deleteAllIndicators);
     }
 
-    ~ProjectTreeItemDelegate() override
+    ~ProjectTreeItemDelegate() final
     {
         deleteAllIndicators();
     }
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final
     {
         const bool useUnavailableMarker = index.data(Project::UseUnavailableMarkerRole).toBool();
         if (useUnavailableMarker) {
@@ -128,7 +129,6 @@ private:
 };
 
 bool debug = false;
-}
 
 class ProjectTreeView : public NavigationTreeView
 {
@@ -159,7 +159,7 @@ public:
         m_cachedSize = -1;
     }
 
-    void setModel(QAbstractItemModel *newModel) override
+    void setModel(QAbstractItemModel *newModel) final
     {
         // Note: Don't connect to column signals, as we have only one column
         if (model()) {
@@ -194,7 +194,7 @@ public:
         NavigationTreeView::setModel(newModel);
     }
 
-    int sizeHintForColumn(int column) const override
+    int sizeHintForColumn(int column) const final
     {
         if (m_cachedSize < 0)
             m_cachedSize = NavigationTreeView::sizeHintForColumn(column);
@@ -211,7 +211,7 @@ private:
 
   Shows the projects in form of a tree.
   */
-ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
+ProjectTreeWidget::ProjectTreeWidget()
 {
     // We keep one instance per tree as this also manages the
     // simple/non-simple etc state which is per tree.
@@ -220,7 +220,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     m_view->setModel(m_model);
     m_view->setItemDelegate(new ProjectTreeItemDelegate(m_view));
     setFocusProxy(m_view);
-    m_view->installEventFilter(this);
 
     auto layout = new QVBoxLayout();
     layout->addWidget(ItemViewFind::createSearchableWrapper(
@@ -615,20 +614,26 @@ bool ProjectTreeWidget::projectFilter()
     return m_model->projectFilterEnabled();
 }
 
-
-ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
+class ProjectTreeWidgetFactory final : public INavigationWidgetFactory
 {
-    setDisplayName(Tr::tr("Projects"));
-    setPriority(100);
-    setId(ProjectExplorer::Constants::PROJECTTREE_ID);
-    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+X") : Tr::tr("Alt+X")));
-}
+public:
+    ProjectTreeWidgetFactory()
+    {
+        setDisplayName(Tr::tr("Projects"));
+        setPriority(100);
+        setId(ProjectExplorer::Constants::PROJECTTREE_ID);
+        setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+X") : Tr::tr("Alt+X")));
+    }
 
-NavigationView ProjectTreeWidgetFactory::createWidget()
-{
-    auto ptw = new ProjectTreeWidget;
-    return {ptw, ptw->createToolButtons()};
-}
+    Core::NavigationView createWidget() final
+    {
+        auto ptw = new ProjectTreeWidget;
+        return {ptw, ptw->createToolButtons()};
+    }
+
+    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) final;
+    void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) final;
+};
 
 const bool kProjectFilterDefault = false;
 const bool kHideGeneratedFilesDefault = true;
@@ -684,3 +689,10 @@ void ProjectTreeWidgetFactory::restoreSettings(QtcSettings *settings, int positi
         settings->value(baseKey + kHideSourceGroupsKey, kHideSourceGroupsDefault).toBool());
     ptw->setAutoSynchronization(settings->value(baseKey + kSyncKey, kSyncDefault).toBool());
 }
+
+void setupProjectTreeWidgetFactory()
+{
+    static ProjectTreeWidgetFactory theProjectTreeWidgetFactory;
+}
+
+} // ProjectExplorer::Internal

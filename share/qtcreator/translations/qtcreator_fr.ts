@@ -50215,7 +50215,7 @@ Refus d&apos;enregistrer le cas de test «&#xa0;%2&#xa0;».</translation>
         <translation>Temps maximal d&apos;attente après la fin&#xa0;:</translation>
     </message>
     <message>
-        <source>Specifies how many seconds Squish should wait after the the first AUT process has exited.</source>
+        <source>Specifies how many seconds Squish should wait after the first AUT process has exited.</source>
         <translation>Spécifie combien de secondes Squish doit attendre après la fin du premier processus de l&apos;AUT.</translation>
     </message>
     <message>

@@ -1,15 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "texteditorplugin.h"
-
+#include "behaviorsettings.h"
 #include "bookmarkfilter.h"
 #include "bookmarkmanager.h"
+#include "extraencodingsettings.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
 #include "findinopenfiles.h"
 #include "fontsettings.h"
-#include "highlighter.h"
+#include "highlighterhelper.h"
 #include "icodestylepreferences.h"
 #include "jsoneditor.h"
 #include "linenumberfilter.h"
@@ -17,13 +17,16 @@
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
-#include "textdocument.h"
 #include "texteditor.h"
+#include "texteditor_test.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
+#include "textmark.h"
+#include "typingsettings.h"
 
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
@@ -42,6 +45,7 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/iplugin.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -64,281 +68,116 @@ const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
 const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor";
 
-class TextEditorPluginPrivate : public QObject
+class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TextEditor.json")
+
 public:
-    TextEditorPluginPrivate();
+    ShutdownFlag aboutToShutdown() final;
 
-    void updateActions(bool enableToggle, int stateMask);
-    void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
+    void initialize() final;
+    void extensionsInitialized() final;
 
-    void requestContextMenu(TextEditorWidget *widget, int lineNumber, QMenu *menu);
-
-    void extensionsInitialized();
     void updateSearchResultsFont(const FontSettings &);
     void updateSearchResultsTabWidth(const TabSettings &tabSettings);
     void updateCurrentSelection(const QString &text);
 
     void createStandardContextMenu();
-
-    BookmarkManager m_bookmarkManager;
-    BookmarkFilter m_bookmarkFilter{&m_bookmarkManager};
-    BookmarkViewFactory m_bookmarkViewFactory{&m_bookmarkManager};
-
-    QAction m_toggleAction{Tr::tr("Toggle Bookmark")};
-    QAction m_editAction{Tr::tr("Edit Bookmark")};
-    QAction m_prevAction{Tr::tr("Previous Bookmark")};
-    QAction m_nextAction{Tr::tr("Next Bookmark")};
-    QAction m_docPrevAction{Tr::tr("Previous Bookmark in Document")};
-    QAction m_docNextAction{Tr::tr("Next Bookmark in Document")};
-    QAction m_editBookmarkAction{Tr::tr("Edit Bookmark")};
-    QAction m_bookmarkMarginAction{Tr::tr("Toggle Bookmark")};
-
-    int m_marginActionLineNumber = 0;
-    FilePath m_marginActionFileName;
-
-    TextEditorSettings settings;
-    LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
-    OutlineFactory outlineFactory;
-
-    FindInFiles findInFilesFilter;
-    FindInCurrentFile findInCurrentFileFilter;
-    FindInOpenFiles findInOpenFilesFilter;
-
-    PlainTextEditorFactory plainTextEditorFactory;
-    MarkdownEditorFactory markdownEditorFactory;
-    JsonEditorFactory jsonEditorFactory;
 };
-
-TextEditorPluginPrivate::TextEditorPluginPrivate()
-{
-    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    ActionContainer *touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
-    ActionContainer *mbm = ActionManager::createMenu(Id("Bookmarks.Menu"));
-
-    mbm->menu()->setTitle(Tr::tr("&Bookmarks"));
-    mtools->addMenu(mbm);
-
-    const Context editorManagerContext(Core::Constants::C_EDITORMANAGER);
-
-    // Toggle
-    Command *cmd = ActionManager::registerAction(&m_toggleAction, "Bookmarks.Toggle",
-                                                 editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+M") : Tr::tr("Ctrl+M")));
-    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
-    mbm->addAction(cmd);
-    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_EDITOR);
-
-    cmd = ActionManager::registerAction(&m_editAction, "Bookmarks.Edit", editorManagerContext);
-    cmd->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+M") : Tr::tr("Ctrl+Shift+M")));
-    mbm->addAction(cmd);
-
-    mbm->addSeparator();
-
-    // Previous
-    m_prevAction.setIcon(Icons::PREV_TOOLBAR.icon());
-    m_prevAction.setIconVisibleInMenu(false);
-    cmd = ActionManager::registerAction(&m_prevAction, BOOKMARKS_PREV_ACTION, editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+,")
-                                                            : Tr::tr("Ctrl+,")));
-    mbm->addAction(cmd);
-
-    // Next
-    m_nextAction.setIcon(Icons::NEXT_TOOLBAR.icon());
-    m_nextAction.setIconVisibleInMenu(false);
-    cmd = ActionManager::registerAction(&m_nextAction, BOOKMARKS_NEXT_ACTION, editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+.")
-                                                            : Tr::tr("Ctrl+.")));
-    mbm->addAction(cmd);
-
-    mbm->addSeparator();
-
-    // Previous Doc
-    cmd = ActionManager::registerAction(&m_docPrevAction, "Bookmarks.PreviousDocument",
-                                        editorManagerContext);
-    mbm->addAction(cmd);
-
-    // Next Doc
-    cmd = ActionManager::registerAction(&m_docNextAction, "Bookmarks.NextDocument",
-                                        editorManagerContext);
-    mbm->addAction(cmd);
-
-    connect(&m_toggleAction, &QAction::triggered, this, [this] {
-        IEditor *editor = EditorManager::currentEditor();
-        auto widget = TextEditorWidget::fromEditor(editor);
-        if (widget && editor && !editor->document()->isTemporary())
-            m_bookmarkManager.toggleBookmark(editor->document()->filePath(), editor->currentLine());
-    });
-
-    connect(&m_editAction, &QAction::triggered, this, [this] {
-        IEditor *editor = EditorManager::currentEditor();
-        auto widget = TextEditorWidget::fromEditor(editor);
-        if (widget && editor && !editor->document()->isTemporary()) {
-            const FilePath filePath = editor->document()->filePath();
-            const int line = editor->currentLine();
-            if (!m_bookmarkManager.hasBookmarkInPosition(filePath, line))
-                m_bookmarkManager.toggleBookmark(filePath, line);
-            m_bookmarkManager.editByFileAndLine(filePath, line);
-        }
-    });
-
-    connect(&m_prevAction, &QAction::triggered, &m_bookmarkManager, &BookmarkManager::prev);
-    connect(&m_nextAction, &QAction::triggered, &m_bookmarkManager, &BookmarkManager::next);
-    connect(&m_docPrevAction, &QAction::triggered,
-            &m_bookmarkManager, &BookmarkManager::prevInDocument);
-    connect(&m_docNextAction, &QAction::triggered,
-            &m_bookmarkManager, &BookmarkManager::nextInDocument);
-
-    connect(&m_editBookmarkAction, &QAction::triggered, this, [this] {
-            m_bookmarkManager.editByFileAndLine(m_marginActionFileName, m_marginActionLineNumber);
-    });
-
-    connect(&m_bookmarkManager, &BookmarkManager::updateActions,
-            this, &TextEditorPluginPrivate::updateActions);
-    updateActions(false, m_bookmarkManager.state());
-
-    connect(&m_bookmarkMarginAction, &QAction::triggered, this, [this] {
-            m_bookmarkManager.toggleBookmark(m_marginActionFileName, m_marginActionLineNumber);
-    });
-
-    // EditorManager
-    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
-        this, &TextEditorPluginPrivate::editorAboutToClose);
-    connect(EditorManager::instance(), &EditorManager::editorOpened,
-        this, &TextEditorPluginPrivate::editorOpened);
-}
-
-void TextEditorPluginPrivate::updateActions(bool enableToggle, int state)
-{
-    const bool hasbm    = state >= BookmarkManager::HasBookMarks;
-    const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
-
-    m_toggleAction.setEnabled(enableToggle);
-    m_editAction.setEnabled(enableToggle);
-    m_prevAction.setEnabled(hasbm);
-    m_nextAction.setEnabled(hasbm);
-    m_docPrevAction.setEnabled(hasdocbm);
-    m_docNextAction.setEnabled(hasdocbm);
-}
-
-void TextEditorPluginPrivate::editorOpened(IEditor *editor)
-{
-    if (auto widget = TextEditorWidget::fromEditor(editor)) {
-        connect(widget, &TextEditorWidget::markRequested,
-                this, [this, editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
-                    if (kind == BookmarkRequest && !editor->document()->isTemporary())
-                        m_bookmarkManager.toggleBookmark(editor->document()->filePath(), line);
-                });
-
-        connect(widget, &TextEditorWidget::markContextMenuRequested,
-                this, &TextEditorPluginPrivate::requestContextMenu);
-    }
-}
-
-void TextEditorPluginPrivate::editorAboutToClose(IEditor *editor)
-{
-    if (auto widget = TextEditorWidget::fromEditor(editor)) {
-        disconnect(widget, &TextEditorWidget::markContextMenuRequested,
-                   this, &TextEditorPluginPrivate::requestContextMenu);
-    }
-}
-
-void TextEditorPluginPrivate::requestContextMenu(TextEditorWidget *widget,
-    int lineNumber, QMenu *menu)
-{
-    if (widget->textDocument()->isTemporary())
-        return;
-
-    m_marginActionLineNumber = lineNumber;
-    m_marginActionFileName = widget->textDocument()->filePath();
-
-    menu->addAction(&m_bookmarkMarginAction);
-    if (m_bookmarkManager.hasBookmarkInPosition(m_marginActionFileName, m_marginActionLineNumber))
-        menu->addAction(&m_editBookmarkAction);
-}
-
-static TextEditorPlugin *m_instance = nullptr;
-
-TextEditorPlugin::TextEditorPlugin()
-{
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-}
-
-TextEditorPlugin::~TextEditorPlugin()
-{
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
-}
-
-TextEditorPlugin *TextEditorPlugin::instance()
-{
-    return m_instance;
-}
 
 void TextEditorPlugin::initialize()
 {
-    d = new TextEditorPluginPrivate;
+#ifdef WITH_TESTS
+    addTestCreator(createFormatTextTest);
+    addTestCreator(createTextDocumentTest);
+    addTestCreator(createTextEditorTest);
+    addTestCreator(createSnippetParserTest);
+#endif
+
+    setupTextEditorSettings();
+    setupBehaviorSettings();
+    setupExtraEncodingSettings();
+    setupStorageSettings();
+    setupTypingSettings();
+
+    setupTextMarkRegistry(this);
+    setupOutlineFactory();
+    setupLineNumberFilter(); // Goto line functionality for quick open
+
+    setupPlainTextEditor();
+
+    setupBookmarkManager(this);
+    setupBookmarkView();
+    setupBookmarkFilter();
+
+    setupFindInFiles(this);
+    setupFindInCurrentFile();
+    setupFindInOpenFiles();
+
+    setupMarkdownEditor();
+    setupJsonEditor();
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
-    QAction *completionAction = new QAction(Tr::tr("Trigger Completion"), this);
-    Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Space") : Tr::tr("Ctrl+Space")));
-    connect(completionAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(Completion);
-    });
+    Command *command = nullptr;
+    ActionBuilder(this, Constants::COMPLETE_THIS)
+        .setText(Tr::tr("Trigger Completion"))
+        .setContext(context)
+        .bindCommand(&command)
+        .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(Completion);
+        });
+
     connect(command, &Command::keySequenceChanged, [command] {
         FancyLineEdit::setCompletionShortcut(command->keySequence());
     });
     FancyLineEdit::setCompletionShortcut(command->keySequence());
 
     // Add shortcut for invoking function hint completion
-    QAction *functionHintAction = new QAction(Tr::tr("Display Function Hint"), this);
-    command = ActionManager::registerAction(functionHintAction, Constants::FUNCTION_HINT, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+D")
-                                                                : Tr::tr("Ctrl+Shift+D")));
-    connect(functionHintAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(FunctionHint);
-    });
+    ActionBuilder(this, Constants::FUNCTION_HINT)
+        .setText(Tr::tr("Display Function Hint"))
+        .setContext(context)
+        .setDefaultKeySequence(Tr::tr("Meta+Shift+D"), Tr::tr("Ctrl+Shift+D"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(FunctionHint);
+        });
 
     // Add shortcut for invoking quick fix options
-    QAction *quickFixAction = new QAction(Tr::tr("Trigger Refactoring Action"), this);
-    Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
-    quickFixCommand->setDefaultKeySequence(QKeySequence(Tr::tr("Alt+Return")));
-    connect(quickFixAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->invokeAssist(QuickFix);
-    });
+    ActionBuilder(this, Constants::QUICKFIX_THIS)
+        .setText(Tr::tr("Trigger Refactoring Action"))
+        .setContext(context)
+        .setDefaultKeySequence(Tr::tr("Alt+Return"))
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->invokeAssist(QuickFix);
+        });
 
-    QAction *showContextMenuAction = new QAction(Tr::tr("Show Context Menu"), this);
-    ActionManager::registerAction(showContextMenuAction,
-                                  Constants::SHOWCONTEXTMENU,
-                                  context);
-    connect(showContextMenuAction, &QAction::triggered, this, [] {
-        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-            editor->editorWidget()->showContextMenu();
-    });
+    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
+        .setText(Tr::tr("Show Context Menu"))
+        .setContext(context)
+        .addOnTriggered(this, [] {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+                editor->editorWidget()->showContextMenu();
+        });
 
     // Add text snippet provider.
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     Tr::tr("Text", "SnippetProvider"));
 
-    d->createStandardContextMenu();
+    createStandardContextMenu();
 
 #ifdef WITH_TESTS
-    addTest<CodeAssistTests>();
-    addTest<GenerigHighlighterTests>();
+    addTestCreator(createCodeAssistTests);
+    addTestCreator(createGenericHighlighterTests);
 #endif
 }
 
-void TextEditorPluginPrivate::extensionsInitialized()
+void TextEditorPlugin::extensionsInitialized()
 {
     connect(FolderNavigationWidgetFactory::instance(),
             &FolderNavigationWidgetFactory::aboutToShowContextMenu,
@@ -349,25 +188,18 @@ void TextEditorPluginPrivate::extensionsInitialized()
                 }
             });
 
-    connect(&settings,
-            &TextEditorSettings::fontSettingsChanged,
-            this,
-            &TextEditorPluginPrivate::updateSearchResultsFont);
+    connect(&textEditorSettings(), &TextEditorSettings::fontSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsFont);
 
     updateSearchResultsFont(TextEditorSettings::fontSettings());
 
     connect(TextEditorSettings::codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
-            this, &TextEditorPluginPrivate::updateSearchResultsTabWidth);
+            this, &TextEditorPlugin::updateSearchResultsTabWidth);
 
     updateSearchResultsTabWidth(TextEditorSettings::codeStyle()->currentTabSettings());
 
     connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
-            this, &TextEditorPluginPrivate::updateCurrentSelection);
-}
-
-void TextEditorPlugin::extensionsInitialized()
-{
-    d->extensionsInitialized();
+            this, &TextEditorPlugin::updateCurrentSelection);
 
     MacroExpander *expander = Utils::globalMacroExpander();
 
@@ -426,18 +258,13 @@ void TextEditorPlugin::extensionsInitialized()
                                });
 }
 
-LineNumberFilter *TextEditorPlugin::lineNumberFilter()
-{
-    return &m_instance->d->lineNumberFilter;
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
 {
-    Highlighter::handleShutdown();
+    HighlighterHelper::handleShutdown();
     return SynchronousShutdown;
 }
 
-void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)
+void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
         const Format textFormat = settings.formatFor(C_TEXT);
@@ -465,13 +292,13 @@ void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settin
     }
 }
 
-void TextEditorPluginPrivate::updateSearchResultsTabWidth(const TabSettings &tabSettings)
+void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
 {
     if (auto window = SearchResultWindow::instance())
         window->setTabWidth(tabSettings.m_tabSize);
 }
 
-void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
+void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
     if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
         const int pos = editor->position();
@@ -491,7 +318,7 @@ void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
     }
 }
 
-void TextEditorPluginPrivate::createStandardContextMenu()
+void TextEditorPlugin::createStandardContextMenu()
 {
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_STANDARDCONTEXTMENU);
     contextMenu->appendGroup(Constants::G_UNDOREDO);
@@ -519,3 +346,5 @@ void TextEditorPluginPrivate::createStandardContextMenu()
 }
 
 } // namespace TextEditor::Internal
+
+#include "texteditorplugin.moc"

@@ -41,7 +41,11 @@ private:
     {
         QTC_ASSERT(controlSignal != ControlSignal::Interrupt, return);
         QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
-        runInShell({Constants::AppcontrollerFilepath, {"--stop"}});
+        if (m_setup.m_commandLine.executable().path() == Constants::AppcontrollerFilepath) {
+            runInShell({Constants::AppcontrollerFilepath, {"--stop"}});
+            return;
+        }
+        SshProcessInterface::handleSendControlSignal(controlSignal);
     }
 };
 
@@ -124,7 +128,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 
 ProcessInterface *QdbDevice::createProcessInterface() const
 {
-    return new QdbProcessImpl(sharedFromThis());
+    return new QdbProcessImpl(shared_from_this());
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)
@@ -243,21 +247,30 @@ private:
 
 // Device factory
 
-QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
-    : IDeviceFactory(Constants::QdbLinuxOsType)
+class QdbLinuxDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("Boot2Qt Device"));
-    setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
-    setQuickCreationAllowed(true);
-    setConstructionFunction(&QdbDevice::create);
-    setCreator([] {
-        QdbDeviceWizard wizard(Core::ICore::dialogParent());
-        if (!creatorTheme()->preferredStyles().isEmpty())
-            wizard.setWizardStyle(QWizard::ModernStyle);
-        if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
-    });
+public:
+    QdbLinuxDeviceFactory()
+        : IDeviceFactory(Constants::QdbLinuxOsType)
+    {
+        setDisplayName(Tr::tr("Boot2Qt Device"));
+        setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
+        setQuickCreationAllowed(true);
+        setConstructionFunction(&QdbDevice::create);
+        setCreator([] {
+            QdbDeviceWizard wizard(Core::ICore::dialogParent());
+            if (!creatorTheme()->preferredStyles().isEmpty())
+                wizard.setWizardStyle(QWizard::ModernStyle);
+            if (wizard.exec() != QDialog::Accepted)
+                return IDevice::Ptr();
+            return wizard.device();
+        });
+    }
+};
+
+void setupQdbLinuxDevice()
+{
+    static QdbLinuxDeviceFactory theQdbLinuxSeviceFactory;
 }
 
 } // Qdb::Internal

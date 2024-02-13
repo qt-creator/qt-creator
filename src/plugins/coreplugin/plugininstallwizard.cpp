@@ -10,6 +10,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -189,7 +191,7 @@ public:
         m_label->setWordWrap(true);
         m_cancelButton = new QPushButton(Tr::tr("Cancel"));
         connect(m_cancelButton, &QPushButton::clicked, this, [this] {
-            m_taskTree.reset();
+            m_taskTreeRunner.reset();
             m_cancelButton->setVisible(false);
             m_label->setType(InfoLabel::Information);
             m_label->setText(Tr::tr("Canceled."));
@@ -230,7 +232,7 @@ public:
                 m_output->append(output);
             });
         };
-        const auto onUnarchiverError = [this](const Unarchiver &) {
+        const auto onUnarchiverError = [this] {
             m_label->setType(InfoLabel::Error);
             m_label->setText(Tr::tr("There was an error while unarchiving."));
         };
@@ -257,33 +259,24 @@ public:
         };
 
         const Group root {
-            UnarchiverTask(onUnarchiverSetup, {}, onUnarchiverError),
-            AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone)
+            UnarchiverTask(onUnarchiverSetup, onUnarchiverError, CallDoneIf::Error),
+            AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
         };
-        m_taskTree.reset(new TaskTree(root));
-
-        const auto onEnd = [this] {
-            m_cancelButton->setVisible(false);
-            m_taskTree.release()->deleteLater();
-        };
-        connect(m_taskTree.get(), &TaskTree::done, this, onEnd);
-        connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onEnd);
-
         m_cancelButton->setVisible(true);
-        m_taskTree->start();
+        m_taskTreeRunner.start(root, {}, [this](DoneWith) { m_cancelButton->setVisible(false); });
     }
 
     void cleanupPage() final
     {
         // back button pressed
-        m_taskTree.reset();
+        m_taskTreeRunner.reset();
         m_tempDir.reset();
     }
 
     bool isComplete() const final { return m_isComplete; }
 
     std::unique_ptr<TemporaryDirectory> m_tempDir;
-    std::unique_ptr<TaskTree> m_taskTree;
+    TaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;
@@ -372,9 +365,9 @@ static std::function<void(FilePath)> postCopyOperation()
         // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
         // to get it loaded as a plugin in Qt Creator.
         Process xattr;
-        xattr.setTimeoutS(1);
         xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
-        xattr.runBlocking();
+        using namespace std::chrono_literals;
+        xattr.runBlocking(1s);
     };
 }
 

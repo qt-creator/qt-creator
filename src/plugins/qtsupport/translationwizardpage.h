@@ -3,21 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+namespace QtSupport::Internal {
 
-namespace QtSupport {
-namespace Internal {
+void setupTranslationWizardPage();
 
-class TranslationWizardPageFactory : public ProjectExplorer::JsonWizardPageFactory
-{
-public:
-    TranslationWizardPageFactory();
-
-private:
-    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Utils::Id typeId,
-                              const QVariant &data) override;
-    bool validateData(Utils::Id, const QVariant &, QString *) override { return true; }
-};
-
-} // namespace Internal
-} // namespace QtSupport
+} // QtSupport::Internal

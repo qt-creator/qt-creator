@@ -3,25 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/toolchain.h>
-
 namespace BareMetal::Internal {
 
-class IarToolChainFactory final : public ProjectExplorer::ToolChainFactory
-{
-public:
-    IarToolChainFactory();
-
-    ProjectExplorer::Toolchains autoDetect(
-            const ProjectExplorer::ToolchainDetector &detector) const final;
-    ProjectExplorer::Toolchains detectForImport(
-            const ProjectExplorer::ToolChainDescription &tcd) const final;
-
-private:
-    ProjectExplorer::Toolchains autoDetectToolchains(const Candidates &candidates,
-            const ProjectExplorer::Toolchains &alreadyKnown) const;
-    ProjectExplorer::Toolchains autoDetectToolchain(
-            const Candidate &candidate, Utils::Id languageId) const;
-};
+void setupIarToolchain();
 
 } // BareMetal::Internal

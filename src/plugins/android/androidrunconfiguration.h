@@ -7,10 +7,6 @@
 
 namespace Android {
 
-class AndroidRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    AndroidRunConfigurationFactory();
-};
+void setupAndroidRunConfiguration();
 
 } // namespace Android

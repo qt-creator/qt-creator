@@ -5,15 +5,12 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-#include <QRegularExpression>
-
 namespace Mercurial::Internal {
 
 class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                            QTextDocument *document = nullptr);
+    explicit MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const override;

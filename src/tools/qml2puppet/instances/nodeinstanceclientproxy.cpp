@@ -58,7 +58,7 @@
 
 // Nanotrace headers are not exported to build dir at all if the feature is disabled, so
 // runtime puppet build can't find them.
-#if NANOTRACE_ENABLED
+#if NANOTRACE_DESIGNSTUDIO_ENABLED
 #include "nanotrace/nanotrace.h"
 #else
 #define NANOTRACE_INIT(process, thread, filepath)
@@ -185,7 +185,7 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
             exit(-1);
         }
     } else if (m_outputIoDevice) {
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
         if (command.typeId() != QMetaType::type("PuppetAliveCommand")) {
             if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
@@ -390,7 +390,7 @@ void NodeInstanceClientProxy::readDataStream()
         static quint32 blockSize = 0;
 
         QVariant command = readCommandFromIOStream(m_inputIoDevice, &readCommandCounter, &blockSize);
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
         if (command.typeId() != QMetaType::type("EndNanotraceCommand")) {
             if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();

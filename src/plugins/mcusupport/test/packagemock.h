@@ -20,7 +20,7 @@ public:
     MOCK_METHOD(void, setPath, (const Utils::FilePath &) );
     MOCK_METHOD(QString, label, (), (const));
     MOCK_METHOD(Utils::FilePath, defaultPath, (), (const));
-    MOCK_METHOD(Utils::FilePath, detectionPath, (), (const));
+    MOCK_METHOD(Utils::FilePaths, detectionPaths, (), (const));
     MOCK_METHOD(QString, statusText, (), (const));
     MOCK_METHOD(void, updateStatus, ());
     MOCK_METHOD(Utils::Key, settingsKey, (), (const));

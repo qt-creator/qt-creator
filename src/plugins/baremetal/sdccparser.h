@@ -25,4 +25,8 @@ private:
     int m_lines = 0;
 };
 
+#ifdef WITH_TESTS
+QObject *createSdccParserTest();
+#endif // WITH_TESTS
+
 } // BareMetal::Internal

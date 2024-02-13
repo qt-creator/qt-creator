@@ -44,7 +44,6 @@ public:
     bool modify(const TestParseResult *result) override;
     TestTreeItem *createParentGroupNode() const override;
 
-    void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
     TestTreeItem *findChildByNameStateAndFile(const QString &name,

@@ -16,12 +16,12 @@ namespace QmlDesigner {
 FileDownloader::FileDownloader(QObject *parent)
     : QObject(parent)
 {
-    QObject::connect(this, &FileDownloader::downloadFailed, this, [this]() {
+    QObject::connect(this, &FileDownloader::downloadFailed, this, [this] {
         if (m_outputFile.exists())
             m_outputFile.remove();
     });
 
-    QObject::connect(this, &FileDownloader::downloadCanceled, this, [this]() {
+    QObject::connect(this, &FileDownloader::downloadCanceled, this, [this] {
         if (m_outputFile.exists())
             m_outputFile.remove();
     });

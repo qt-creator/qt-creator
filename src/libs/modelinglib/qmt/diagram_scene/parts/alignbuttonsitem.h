@@ -16,15 +16,13 @@ class AlignButtonsItem : public QGraphicsItem
     class AlignButtonItem;
 
 public:
-    enum {
-        NormalPixmapWidth = 14,
-        NormalPixmapHeight = NormalPixmapWidth,
-        InnerBorder = 2,
-        NormalButtonWidth = NormalPixmapWidth + 2 * InnerBorder,
-        NormalButtonHeight = NormalPixmapHeight + 2 * InnerBorder,
-        HorizontalDistanceToObject = 4,
-        VerticalDistanceToObejct = HorizontalDistanceToObject
-    };
+    static const int NormalPixmapWidth = 14;
+    static const int NormalPixmapHeight = NormalPixmapWidth;
+    static const int InnerBorder = 2;
+    static const int NormalButtonWidth = NormalPixmapWidth + 2 * InnerBorder;
+    static const int NormalButtonHeight = NormalPixmapHeight + 2 * InnerBorder;
+    static const int HorizontalDistanceToObject = 4;
+    static const int VerticalDistanceToObejct = HorizontalDistanceToObject;
 
     explicit AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = nullptr);
     ~AlignButtonsItem() override;

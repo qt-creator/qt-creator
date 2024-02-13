@@ -186,7 +186,6 @@ QtcPlugin {
             "actioncontainer.cpp", "actioncontainer.h", "actioncontainer_p.h",
             "actionmanager.cpp", "actionmanager.h", "actionmanager_p.h",
             "command.cpp", "command.h", "command_p.h",
-            "commandbutton.cpp", "commandbutton.h",
             "commandmappings.cpp", "commandmappings.h",
             "commandsfile.cpp", "commandsfile.h",
         ]
@@ -206,7 +205,6 @@ QtcPlugin {
             "openwithdialog.cpp", "openwithdialog.h",
             "promptoverwritedialog.cpp", "promptoverwritedialog.h",
             "readonlyfilesdialog.cpp", "readonlyfilesdialog.h",
-            "restartdialog.cpp", "restartdialog.h",
             "saveitemsdialog.cpp", "saveitemsdialog.h",
             "settingsdialog.cpp", "settingsdialog.h",
             "shortcutsettings.cpp", "shortcutsettings.h",

@@ -60,6 +60,20 @@
                 enabled by the user. This should be done for plugins which are not expected
                 to be used by so many people as to justify the additional resource consumption.
         \row
+            \li Deprecated
+            \li Boolean
+            \li Optional. Defaults to \c false.
+                Deprecated plugins are not loaded by default but must be explicitly
+                enabled by the user. This attribute is a hint that the plugin is no longer
+                supported and might negatively affect the user experience.
+        \row
+            \li SoftLoadable
+            \li Boolean
+            \li Optional. Defaults to \c false.
+                Soft loadable plugins can be loaded during runtime without a restart.
+                This is possible for plugins that only hook into functionality that supports
+                updating during runtime.
+        \row
             \li Required
             \li Boolean
             \li Optional. Defaults to \c false.

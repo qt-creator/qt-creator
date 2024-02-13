@@ -91,11 +91,11 @@ void QmlProfilerClientManager::createClients()
                      m_clientPlugin.data(), &QmlProfilerTraceClient::setRecording);
 
     QObject::connect(this, &QmlDebug::QmlDebugConnectionManager::connectionOpened,
-                     m_clientPlugin.data(), [this]() {
+                     m_clientPlugin.data(), [this] {
         m_clientPlugin->setRecording(m_profilerState->clientRecording());
     });
     QObject::connect(this, &QmlDebug::QmlDebugConnectionManager::connectionClosed,
-                     m_clientPlugin.data(), [this]() {
+                     m_clientPlugin.data(), [this] {
         m_profilerState->setServerRecording(false);
     });
 }

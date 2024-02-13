@@ -3,8 +3,6 @@
 
 #include "snippetprovider.h"
 
-#include <texteditor/texteditorplugin.h>
-
 #include <utils/algorithm.h>
 
 using namespace TextEditor;

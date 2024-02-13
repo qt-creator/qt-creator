@@ -78,7 +78,7 @@ LocatorMatcherTasks QmlJSFunctionsFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, entries = m_data->entries()](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());

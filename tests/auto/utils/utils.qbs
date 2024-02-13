@@ -19,6 +19,7 @@ Project {
         "process/process.qbs",
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
+        "synchronizedvalue/synchronizedvalue.qbs",
         "templateengine/templateengine.qbs",
         "text/text.qbs",
         "treemodel/treemodel.qbs",

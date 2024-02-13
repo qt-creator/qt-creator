@@ -6,11 +6,12 @@
  * All test are based on Vim behaviour.
  */
 
-#include "fakevimplugin.h"
 #include "fakevimhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <QtTest>
 #include <QTextEdit>
@@ -35,9 +36,163 @@
 #define LINE_START "\t\t<"
 #define LINE_END ">\n"
 
+using namespace TextEditor;
+
+namespace FakeVim::Internal {
+
 QString _(const char *c) { return QLatin1String(c); }
 QString _(const QByteArray &c) { return QLatin1String(c); }
 QString _(const QString &c) { return c; }
+
+class FakeVimTester final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void cleanup();
+
+    void test_vim_movement();
+
+    void test_vim_target_column_normal();
+    void test_vim_target_column_visual_char();
+    void test_vim_target_column_visual_block();
+    void test_vim_target_column_visual_line();
+    void test_vim_target_column_insert();
+    void test_vim_target_column_replace();
+
+    void test_vim_insert();
+    void test_vim_fFtT();
+    void test_vim_transform_numbers();
+    void test_vim_delete();
+
+    void test_vim_delete_inner_word();
+    void test_vim_delete_a_word();
+    void test_vim_change_a_word();
+
+    void test_vim_change_replace();
+
+    void test_vim_block_selection();
+    void test_vim_block_selection_insert();
+
+    void test_vim_delete_inner_paragraph();
+    void test_vim_delete_a_paragraph();
+    void test_vim_change_inner_paragraph();
+    void test_vim_change_a_paragraph();
+    void test_vim_select_inner_paragraph();
+    void test_vim_select_a_paragraph();
+
+    void test_vim_repeat();
+    void test_vim_search();
+    void test_vim_indent();
+    void test_vim_marks();
+    void test_vim_jumps();
+    void test_vim_current_column();
+    void test_vim_copy_paste();
+    void test_vim_undo_redo();
+    void test_vim_letter_case();
+    void test_vim_code_autoindent();
+    void test_vim_code_folding();
+    void test_vim_code_completion();
+    void test_vim_substitute();
+    void test_vim_ex_commandbuffer_paste();
+    void test_vim_ex_yank();
+    void test_vim_ex_delete();
+    void test_vim_ex_change();
+    void test_vim_ex_shift();
+    void test_vim_ex_move();
+    void test_vim_ex_join();
+    void test_advanced_commands();
+
+//public:
+//    void changeStatusData(const QString &info) { m_statusData = info; }
+//    void changeStatusMessage(const QString &info, int) { m_statusMessage = info; }
+//    void changeExtraInformation(const QString &info) { m_infoMessage = info; }
+
+//private slots:
+//    // functional tests
+    void test_vim_indentation();
+
+    // command mode
+    void test_vim_command_oO();
+    void test_vim_command_put_at_eol();
+    void test_vim_command_Cxx_down_dot();
+    void test_vim_command_Gyyp();
+    void test_vim_command_J();
+    void test_vim_command_Yp();
+    void test_vim_command_cc();
+    void test_vim_command_cw();
+    void test_vim_command_cj();
+    void test_vim_command_ck();
+    void test_vim_command_c_dollar();
+    void test_vim_command_C();
+    void test_vim_command_dd();
+    void test_vim_command_dd_2();
+    void test_vim_command_d_dollar();
+    void test_vim_command_dgg();
+    void test_vim_command_dG();
+    void test_vim_command_dj();
+    void test_vim_command_dk();
+    void test_vim_command_D();
+    void test_vim_command_dfx_down();
+    void test_vim_command_dollar();
+    void test_vim_command_down();
+    void test_vim_command_dw();
+    void test_vim_command_e();
+    void test_vim_command_i();
+    void test_vim_command_left();
+    void test_vim_command_ma_yank();
+    void test_vim_command_r();
+    void test_vim_command_right();
+    void test_vim_command_up();
+    void test_vim_command_w();
+    void test_vim_command_x();
+    void test_vim_command_yyp();
+    void test_vim_command_y_dollar();
+    void test_vim_command_percent();
+
+    void test_vim_visual_d();
+    void test_vim_Visual_d();
+    void test_vim_visual_block_D();
+
+    // Plugin emulation
+    void test_vim_commentary_emulation();
+    void test_vim_commentary_file_names();
+    void test_vim_replace_with_register_emulation();
+    void test_vim_exchange_emulation();
+    void test_vim_arg_text_obj_emulation();
+    void test_vim_surround_emulation();
+
+    void test_macros();
+
+    void test_vim_qtcreator();
+
+    // special tests
+    void test_i_cw_i();
+
+    // map test should be last one since it changes default behaviour
+    void test_map();
+
+//private:
+//    QString m_statusMessage;
+//    QString m_statusData;
+//    QString m_infoMessage;
+
+private:
+    struct TestData;
+    void setup(TestData *data);
+};
+
+using SetupTestCallback =  void (*)(QString *, FakeVimHandler **, QWidget **);
+
+static SetupTestCallback setupTest = nullptr;
+
+
+QObject *createFakeVimTester(SetupTestCallback cb)
+{
+    setupTest = cb;
+    return new FakeVimTester;
+}
+
 
 // Format of message after comparison fails (used by KEYS, COMMAND).
 static const QString helpFormat = _(
@@ -109,8 +264,6 @@ static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block
         KEYS(".", textWithCursor(redo, newPosition)); \
     } while (false)
 
-using namespace FakeVim::Internal;
-using namespace TextEditor;
 
 const QByteArray testLines =
   /* 0         1         2         3        4 */
@@ -151,7 +304,7 @@ static QByteArray cursor(int line, int column)
 static QByteArray lmid(int i, int n = -1) { return bajoin(l.mid(i, n)); }
 
 // Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
-struct FakeVimPlugin::TestData
+struct FakeVimTester::TestData
 {
     FakeVimHandler *handler;
     QWidget *edit;
@@ -195,7 +348,10 @@ struct FakeVimPlugin::TestData
 
     void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
     void doCommand(const char *cmd) { doCommand(_(cmd)); }
-    void doKeys(const QString &keys) { handler->handleInput(keys); }
+    void doKeys(const QString &keys) {
+        handler->handleInput(keys);
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    }
     void doKeys(const char *keys) { doKeys(_(keys)); }
 
     void setText(const char *text)
@@ -208,6 +364,7 @@ struct FakeVimPlugin::TestData
         else
             i = 0;
         editor()->document()->setPlainText(_(str));
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
         setPosition(i);
         QCOMPARE(position(), i);
     }
@@ -218,6 +375,7 @@ struct FakeVimPlugin::TestData
         QTextCursor tc = editor()->textCursor();
         tc.insertText(_(text));
         editor()->setTextCursor(tc);
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
     }
 
     // Simulate external position change.
@@ -244,7 +402,7 @@ struct FakeVimPlugin::TestData
     }
 };
 
-void FakeVimPlugin::setup(TestData *data)
+void FakeVimTester::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
     data->reset();
@@ -255,13 +413,13 @@ void FakeVimPlugin::setup(TestData *data)
 }
 
 
-void FakeVimPlugin::cleanup()
+void FakeVimTester::cleanup()
 {
     Core::EditorManager::closeAllEditors(false);
 }
 
 
-void FakeVimPlugin::test_vim_indentation()
+void FakeVimTester::test_vim_indentation()
 {
     TestData data;
     setup(&data);
@@ -331,7 +489,7 @@ void FakeVimPlugin::test_vim_indentation()
     QCOMPARE(data.handler->tabExpand(9), _("\t "));
 }
 
-void FakeVimPlugin::test_vim_movement()
+void FakeVimTester::test_vim_movement()
 {
     TestData data;
     setup(&data);
@@ -512,7 +670,7 @@ void FakeVimPlugin::test_vim_movement()
          X "");
 }
 
-void FakeVimPlugin::test_vim_target_column_normal()
+void FakeVimTester::test_vim_target_column_normal()
 {
     TestData data;
     setup(&data);
@@ -535,7 +693,7 @@ void FakeVimPlugin::test_vim_target_column_normal()
     KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
-void FakeVimPlugin::test_vim_target_column_visual_char()
+void FakeVimTester::test_vim_target_column_visual_char()
 {
     TestData data;
     setup(&data);
@@ -560,7 +718,7 @@ void FakeVimPlugin::test_vim_target_column_visual_char()
                  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
-void FakeVimPlugin::test_vim_target_column_visual_block()
+void FakeVimTester::test_vim_target_column_visual_block()
 {
     TestData data;
     setup(&data);
@@ -586,7 +744,7 @@ void FakeVimPlugin::test_vim_target_column_visual_block()
                  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
-void FakeVimPlugin::test_vim_target_column_visual_line()
+void FakeVimTester::test_vim_target_column_visual_line()
 {
     TestData data;
     setup(&data);
@@ -602,7 +760,7 @@ void FakeVimPlugin::test_vim_target_column_visual_line()
     // Movement inside selection is not supported.
 }
 
-void FakeVimPlugin::test_vim_target_column_insert()
+void FakeVimTester::test_vim_target_column_insert()
 {
     TestData data;
     setup(&data);
@@ -627,7 +785,7 @@ void FakeVimPlugin::test_vim_target_column_insert()
                     X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
-void FakeVimPlugin::test_vim_target_column_replace()
+void FakeVimTester::test_vim_target_column_replace()
 {
     TestData data;
     setup(&data);
@@ -653,7 +811,7 @@ void FakeVimPlugin::test_vim_target_column_replace()
                     X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
-void FakeVimPlugin::test_vim_insert()
+void FakeVimTester::test_vim_insert()
 {
     TestData data;
     setup(&data);
@@ -791,7 +949,7 @@ void FakeVimPlugin::test_vim_insert()
     KEYS(".", "  <end><end" X ">abc" N "  def");
 }
 
-void FakeVimPlugin::test_vim_fFtT()
+void FakeVimTester::test_vim_fFtT()
 {
     TestData data;
     setup(&data);
@@ -836,7 +994,7 @@ void FakeVimPlugin::test_vim_fFtT()
     KEYS("2;", "int main() { return (x > 0) ? 0 :" X " (x - 1); }");
 }
 
-void FakeVimPlugin::test_vim_transform_numbers()
+void FakeVimTester::test_vim_transform_numbers()
 {
     TestData data;
     setup(&data);
@@ -921,7 +1079,7 @@ void FakeVimPlugin::test_vim_transform_numbers()
     KEYS("<c-x>", "007" X "7");
 }
 
-void FakeVimPlugin::test_vim_delete()
+void FakeVimTester::test_vim_delete()
 {
     TestData data;
     setup(&data);
@@ -1086,7 +1244,7 @@ void FakeVimPlugin::test_vim_delete()
          X "");
 }
 
-void FakeVimPlugin::test_vim_delete_inner_word()
+void FakeVimTester::test_vim_delete_inner_word()
 {
     TestData data;
     setup(&data);
@@ -1134,7 +1292,7 @@ void FakeVimPlugin::test_vim_delete_inner_word()
     KEYS("diw", "a " X " c");
 }
 
-void FakeVimPlugin::test_vim_delete_a_word()
+void FakeVimTester::test_vim_delete_a_word()
 {
     TestData data;
     setup(&data);
@@ -1204,7 +1362,7 @@ void FakeVimPlugin::test_vim_delete_a_word()
     KEYS("vh2awd", "ab" X "c");
 }
 
-void FakeVimPlugin::test_vim_change_a_word()
+void FakeVimTester::test_vim_change_a_word()
 {
     TestData data;
     setup(&data);
@@ -1236,7 +1394,7 @@ void FakeVimPlugin::test_vim_change_a_word()
     KEYS("cawZ<esc>", "a " X "Zc");
 }
 
-void FakeVimPlugin::test_vim_change_replace()
+void FakeVimTester::test_vim_change_replace()
 {
     TestData data;
     setup(&data);
@@ -1368,7 +1526,7 @@ void FakeVimPlugin::test_vim_change_replace()
     KEYS("2\"xp", "xyzabcabcab" X "c" N "def");
 }
 
-void FakeVimPlugin::test_vim_block_selection()
+void FakeVimTester::test_vim_block_selection()
 {
     TestData data;
     setup(&data);
@@ -1485,7 +1643,7 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("u", "\"abc\"\"" X "def\"");
 }
 
-void FakeVimPlugin::test_vim_block_selection_insert()
+void FakeVimTester::test_vim_block_selection_insert()
 {
     TestData data;
     setup(&data);
@@ -1555,7 +1713,7 @@ void FakeVimPlugin::test_vim_block_selection_insert()
          );
 }
 
-void FakeVimPlugin::test_vim_delete_inner_paragraph()
+void FakeVimTester::test_vim_delete_inner_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1587,7 +1745,7 @@ void FakeVimPlugin::test_vim_delete_inner_paragraph()
     );
 }
 
-void FakeVimPlugin::test_vim_delete_a_paragraph()
+void FakeVimTester::test_vim_delete_a_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1627,7 +1785,7 @@ void FakeVimPlugin::test_vim_delete_a_paragraph()
     );
 }
 
-void FakeVimPlugin::test_vim_change_inner_paragraph()
+void FakeVimTester::test_vim_change_inner_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1660,7 +1818,7 @@ void FakeVimPlugin::test_vim_change_inner_paragraph()
     );
 }
 
-void FakeVimPlugin::test_vim_change_a_paragraph()
+void FakeVimTester::test_vim_change_a_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1701,7 +1859,7 @@ void FakeVimPlugin::test_vim_change_a_paragraph()
          );
 }
 
-void FakeVimPlugin::test_vim_select_inner_paragraph()
+void FakeVimTester::test_vim_select_inner_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1925,7 +2083,7 @@ void FakeVimPlugin::test_vim_select_inner_paragraph()
     );
 }
 
-void FakeVimPlugin::test_vim_select_a_paragraph()
+void FakeVimTester::test_vim_select_a_paragraph()
 {
     TestData data;
     setup(&data);
@@ -1981,7 +2139,7 @@ void FakeVimPlugin::test_vim_select_a_paragraph()
     );
 }
 
-void FakeVimPlugin::test_vim_repeat()
+void FakeVimTester::test_vim_repeat()
 {
     TestData data;
     setup(&data);
@@ -2030,7 +2188,7 @@ void FakeVimPlugin::test_vim_repeat()
     KEYS("gg.", "XXcd" N "XXXg" N "gXXj" N "jklm");
 }
 
-void FakeVimPlugin::test_vim_search()
+void FakeVimTester::test_vim_search()
 {
     TestData data;
     setup(&data);
@@ -2173,7 +2331,7 @@ void FakeVimPlugin::test_vim_search()
     KEYS("fe/d<C-R><ESC>ef<CR>", "abc def ghi " X "def.");
 }
 
-void FakeVimPlugin::test_vim_indent()
+void FakeVimTester::test_vim_indent()
 {
     TestData data;
     setup(&data);
@@ -2303,7 +2461,7 @@ void FakeVimPlugin::test_vim_indent()
          "");
 }
 
-void FakeVimPlugin::test_vim_marks()
+void FakeVimTester::test_vim_marks()
 {
     TestData data;
     setup(&data);
@@ -2343,7 +2501,7 @@ void FakeVimPlugin::test_vim_marks()
     KEYS("<c-r>G" "`x",  "a" X "bc" N "df" N "ghi");
 }
 
-void FakeVimPlugin::test_vim_jumps()
+void FakeVimTester::test_vim_jumps()
 {
     TestData data;
     setup(&data);
@@ -2382,7 +2540,7 @@ void FakeVimPlugin::test_vim_jumps()
     KEYS("<C-O>", "abc" N "def" N "g" X "hi");
 }
 
-void FakeVimPlugin::test_vim_current_column()
+void FakeVimTester::test_vim_current_column()
 {
     // Check if column is correct after command and vertical cursor movement.
     TestData data;
@@ -2440,7 +2598,7 @@ void FakeVimPlugin::test_vim_current_column()
     KEYS("cc<up>x<down><down>", "  xabc" N "  " N "  g" X "hi");
 }
 
-void FakeVimPlugin::test_vim_copy_paste()
+void FakeVimTester::test_vim_copy_paste()
 {
     TestData data;
     setup(&data);
@@ -2534,7 +2692,7 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("\"ayawA<C-r>a", "aaa bbbaaa ");
 }
 
-void FakeVimPlugin::test_vim_undo_redo()
+void FakeVimTester::test_vim_undo_redo()
 {
     TestData data;
     setup(&data);
@@ -2624,7 +2782,7 @@ void FakeVimPlugin::test_vim_undo_redo()
     KEYS("u", "abc" N "  " X "def" N "ghi");
 }
 
-void FakeVimPlugin::test_vim_letter_case()
+void FakeVimTester::test_vim_letter_case()
 {
     TestData data;
     setup(&data);
@@ -2679,7 +2837,7 @@ void FakeVimPlugin::test_vim_letter_case()
     KEYS("u", "  abcde" N " " X " fgh" N "  ijk");
 }
 
-void FakeVimPlugin::test_vim_code_autoindent()
+void FakeVimTester::test_vim_code_autoindent()
 {
     TestData data;
     setup(&data);
@@ -2762,7 +2920,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
     data.doCommand("set smartindent");
 }
 
-void FakeVimPlugin::test_vim_code_folding()
+void FakeVimTester::test_vim_code_folding()
 {
     TestData data;
     setup(&data);
@@ -2837,6 +2995,7 @@ void FakeVimPlugin::test_vim_code_folding()
 
     // delete folded lined if deleting to the end of the first folding line
     data.doKeys("zMgg");
+    //QTRY_COMPARE(data.lines(), lines - 8);
     QCOMPARE(data.lines(), lines - 8);
     KEYS("wwd$", "int main" N "");
 
@@ -2856,7 +3015,7 @@ void FakeVimPlugin::test_vim_code_folding()
     // Opening folds recursively isn't supported (previous position in fold isn't restored).
 }
 
-void FakeVimPlugin::test_vim_code_completion()
+void FakeVimTester::test_vim_code_completion()
 {
     // Test completion by simply bypassing FakeVim and inserting text directly in editor widget.
     TestData data;
@@ -2907,7 +3066,7 @@ void FakeVimPlugin::test_vim_code_completion()
         "");
 }
 
-void FakeVimPlugin::test_vim_substitute()
+void FakeVimTester::test_vim_substitute()
 {
     TestData data;
     setup(&data);
@@ -3053,7 +3212,7 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND(R"(s#\#\##\#\#\#\##g)", X "abc####def####ghi");
 }
 
-void FakeVimPlugin::test_vim_ex_commandbuffer_paste()
+void FakeVimTester::test_vim_ex_commandbuffer_paste()
 {
     TestData data;
     setup(&data);
@@ -3062,7 +3221,7 @@ void FakeVimPlugin::test_vim_ex_commandbuffer_paste()
     KEYS("fyyiw0:s/<C-R><C-W>/<C-R>0/g<CR>", "xyz def xyz def xyz");
 }
 
-void FakeVimPlugin::test_vim_ex_yank()
+void FakeVimTester::test_vim_ex_yank()
 {
     TestData data;
     setup(&data);
@@ -3167,7 +3326,7 @@ void FakeVimPlugin::test_vim_ex_yank()
     );
 }
 
-void FakeVimPlugin::test_vim_ex_delete()
+void FakeVimTester::test_vim_ex_delete()
 {
     TestData data;
     setup(&data);
@@ -3185,7 +3344,7 @@ void FakeVimPlugin::test_vim_ex_delete()
     COMMAND("5,.+1d", "abc" N "def" N "abc" N X "jkl");
 }
 
-void FakeVimPlugin::test_vim_ex_change()
+void FakeVimTester::test_vim_ex_change()
 {
     TestData data;
     setup(&data);
@@ -3195,7 +3354,7 @@ void FakeVimPlugin::test_vim_ex_change()
     KEYS(":-1,+1c<CR>XXX<ESC>0", X "XXX" N "jkl");
 }
 
-void FakeVimPlugin::test_vim_ex_shift()
+void FakeVimTester::test_vim_ex_shift()
 {
     TestData data;
     setup(&data);
@@ -3210,7 +3369,7 @@ void FakeVimPlugin::test_vim_ex_shift()
     COMMAND("<<", "abc" N X "def" N "ghi" N "jkl");
 }
 
-void FakeVimPlugin::test_vim_ex_move()
+void FakeVimTester::test_vim_ex_move()
 {
     TestData data;
     setup(&data);
@@ -3268,7 +3427,7 @@ void FakeVimPlugin::test_vim_ex_move()
     data.doCommand("vunmap <C-S-J>");
 }
 
-void FakeVimPlugin::test_vim_ex_join()
+void FakeVimTester::test_vim_ex_join()
 {
     TestData data;
     setup(&data);
@@ -3280,7 +3439,7 @@ void FakeVimPlugin::test_vim_ex_join()
     COMMAND("u", X "  abc" N "  def" N "  ghi" N "  jkl");
 }
 
-void FakeVimPlugin::test_advanced_commands()
+void FakeVimTester::test_advanced_commands()
 {
     TestData data;
     setup(&data);
@@ -3302,7 +3461,7 @@ void FakeVimPlugin::test_advanced_commands()
     COMMAND("%s/a\\|b\\||/X/g|%s/[^X]/Y/g", "XXY");
 }
 
-void FakeVimPlugin::test_map()
+void FakeVimTester::test_map()
 {
     TestData data;
     setup(&data);
@@ -3507,7 +3666,7 @@ void FakeVimPlugin::test_map()
     KEYS("ijk<ESC>", "aj" X "kb__c def" N "gh__i jkl");
 }
 
-void FakeVimPlugin::test_vim_command_cc()
+void FakeVimTester::test_vim_command_cc()
 {
     TestData data;
     setup(&data);
@@ -3522,7 +3681,7 @@ void FakeVimPlugin::test_vim_command_cc()
     KEYS("3ccxyz<Esc>", "xy|z" N "abc");
 }
 
-void FakeVimPlugin::test_vim_command_cw()
+void FakeVimTester::test_vim_command_cw()
 {
     TestData data;
     setup(&data);
@@ -3530,7 +3689,7 @@ void FakeVimPlugin::test_vim_command_cw()
     KEYS("cwx<Esc>", X "x 456");
 }
 
-void FakeVimPlugin::test_vim_command_cj()
+void FakeVimTester::test_vim_command_cj()
 {
     TestData data;
     setup(&data);
@@ -3549,7 +3708,7 @@ void FakeVimPlugin::test_vim_command_cj()
     KEYS(".",           "ab|c\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_ck()
+void FakeVimTester::test_vim_command_ck()
 {
     TestData data;
     setup(&data);
@@ -3560,7 +3719,7 @@ void FakeVimPlugin::test_vim_command_ck()
     KEYS("P",           '|' + lmid(0,2)+'\n' + '\n' + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_c_dollar()
+void FakeVimTester::test_vim_command_c_dollar()
 {
     TestData data;
     setup(&data);
@@ -3574,7 +3733,7 @@ void FakeVimPlugin::test_vim_command_c_dollar()
     KEYS("0c$abc<Esc>", l[0]+'\n' + "ab|c\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_C()
+void FakeVimTester::test_vim_command_C()
 {
     TestData data;
     setup(&data);
@@ -3588,7 +3747,7 @@ void FakeVimPlugin::test_vim_command_C()
     KEYS("0Cabc<Esc>",  l[0] + "\nab|c\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_dw()
+void FakeVimTester::test_vim_command_dw()
 {
     TestData data;
     setup(&data);
@@ -3607,7 +3766,7 @@ void FakeVimPlugin::test_vim_command_dw()
     KEYS("dw",  "|>\n" + lmid(3));
 }
 
-void FakeVimPlugin::test_vim_command_dd()
+void FakeVimTester::test_vim_command_dd()
 {
     TestData data;
     setup(&data);
@@ -3623,7 +3782,7 @@ void FakeVimPlugin::test_vim_command_dd()
     KEYS("dd",  l[0] + "\n|" + lmid(9));
 }
 
-void FakeVimPlugin::test_vim_command_dd_2()
+void FakeVimTester::test_vim_command_dd_2()
 {
     TestData data;
     setup(&data);
@@ -3635,7 +3794,7 @@ void FakeVimPlugin::test_vim_command_dd_2()
     KEYS("u",   l[0] + "\n|" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_d_dollar()
+void FakeVimTester::test_vim_command_d_dollar()
 {
     TestData data;
     setup(&data);
@@ -3646,7 +3805,7 @@ void FakeVimPlugin::test_vim_command_d_dollar()
     KEYS("0d$", l[0] + '\n'+"|\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_dj()
+void FakeVimTester::test_vim_command_dj()
 {
     TestData data;
     setup(&data);
@@ -3665,7 +3824,7 @@ void FakeVimPlugin::test_vim_command_dj()
     KEYS("p",   lmid(0,1)+'\n' + lmid(3,1)+'\n' + '|'+lmid(1,2)+'\n' + lmid(4));
 }
 
-void FakeVimPlugin::test_vim_command_dk()
+void FakeVimTester::test_vim_command_dk()
 {
     TestData data;
     setup(&data);
@@ -3685,7 +3844,7 @@ void FakeVimPlugin::test_vim_command_dk()
     KEYS("p",    lmid(2,1)+'\n' + '|' + lmid(0,2)+'\n' + lmid(3));
 }
 
-void FakeVimPlugin::test_vim_command_dgg()
+void FakeVimTester::test_vim_command_dgg()
 {
     TestData data;
     setup(&data);
@@ -3696,7 +3855,7 @@ void FakeVimPlugin::test_vim_command_dgg()
     KEYS("u",    '|' + lmid(0));
 }
 
-void FakeVimPlugin::test_vim_command_dG()
+void FakeVimTester::test_vim_command_dG()
 {
     TestData data;
     setup(&data);
@@ -3715,7 +3874,7 @@ void FakeVimPlugin::test_vim_command_dG()
     KEYS("dG0",  lmid(0, l.size()-3)+'\n' + '|'+lmid(l.size()-3,1));
 }
 
-void FakeVimPlugin::test_vim_command_D()
+void FakeVimTester::test_vim_command_D()
 {
     TestData data;
     setup(&data);
@@ -3726,7 +3885,7 @@ void FakeVimPlugin::test_vim_command_D()
     KEYS("0D",   l[0] + "\n|\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_dollar()
+void FakeVimTester::test_vim_command_dollar()
 {
     TestData data;
     setup(&data);
@@ -3737,7 +3896,7 @@ void FakeVimPlugin::test_vim_command_dollar()
     KEYS("2j", cursor(4, -1));
 }
 
-void FakeVimPlugin::test_vim_command_down()
+void FakeVimTester::test_vim_command_down()
 {
     TestData data;
     setup(&data);
@@ -3748,7 +3907,7 @@ void FakeVimPlugin::test_vim_command_down()
     KEYS("4j", lmid(0,8)+'\n' + "|    return app.exec();\n" + lmid(9));
 }
 
-void FakeVimPlugin::test_vim_command_dfx_down()
+void FakeVimTester::test_vim_command_dfx_down()
 {
     TestData data;
     setup(&data);
@@ -3764,7 +3923,7 @@ void FakeVimPlugin::test_vim_command_dfx_down()
     KEYS("u",    l[0] + "\n#inc|lude <QtCore>\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_Cxx_down_dot()
+void FakeVimTester::test_vim_command_Cxx_down_dot()
 {
     TestData data;
     setup(&data);
@@ -3776,7 +3935,7 @@ void FakeVimPlugin::test_vim_command_Cxx_down_dot()
     KEYS(".",        l[0] + "\n#incxx\n#inclx|x\n" + lmid(3));
 }
 
-void FakeVimPlugin::test_vim_command_e()
+void FakeVimTester::test_vim_command_e()
 {
     TestData data;
     setup(&data);
@@ -3801,7 +3960,7 @@ void FakeVimPlugin::test_vim_command_e()
     KEYS("10k","|\n" + lmid(1)); // home.
 }
 
-void FakeVimPlugin::test_vim_command_i()
+void FakeVimTester::test_vim_command_i()
 {
     TestData data;
     setup(&data);
@@ -3838,7 +3997,7 @@ void FakeVimPlugin::test_vim_command_i()
     KEYS("u", "|a" + testLines);
 }
 
-void FakeVimPlugin::test_vim_command_left()
+void FakeVimTester::test_vim_command_left()
 {
     TestData data;
     setup(&data);
@@ -3852,7 +4011,7 @@ void FakeVimPlugin::test_vim_command_left()
     KEYS("50h", lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
 }
 
-void FakeVimPlugin::test_vim_command_r()
+void FakeVimTester::test_vim_command_r()
 {
     TestData data;
     setup(&data);
@@ -3868,7 +4027,7 @@ void FakeVimPlugin::test_vim_command_r()
     KEYS("h2rc",lmid(0, 4) + "\nint main(int argc, char *argvbc|c\n" + lmid(5));
 }
 
-void FakeVimPlugin::test_vim_command_right()
+void FakeVimTester::test_vim_command_right()
 {
     TestData data;
     setup(&data);
@@ -3880,7 +4039,7 @@ void FakeVimPlugin::test_vim_command_right()
     KEYS("50l", lmid(0, 4) + "\nint main(int argc, char *argv[]|)\n" + lmid(5));
 }
 
-void FakeVimPlugin::test_vim_command_up()
+void FakeVimTester::test_vim_command_up()
 {
     TestData data;
     setup(&data);
@@ -3894,7 +4053,7 @@ void FakeVimPlugin::test_vim_command_up()
     KEYS("2k", cursor(0, 0));
 }
 
-void FakeVimPlugin::test_vim_command_w()
+void FakeVimTester::test_vim_command_w()
 {
     TestData data;
     setup(&data);
@@ -3919,7 +4078,7 @@ void FakeVimPlugin::test_vim_command_w()
     KEYS("w",   lmid(0,5)+'\n' + "|{\n" + lmid(6));
 }
 
-void FakeVimPlugin::test_vim_command_yyp()
+void FakeVimTester::test_vim_command_yyp()
 {
     TestData data;
     setup(&data);
@@ -3929,7 +4088,7 @@ void FakeVimPlugin::test_vim_command_yyp()
     KEYS("yyp", lmid(0, 4) + '\n' + lmid(4, 1) + "\n|" + lmid(4));
 }
 
-void FakeVimPlugin::test_vim_command_y_dollar()
+void FakeVimTester::test_vim_command_y_dollar()
 {
     TestData data;
     setup(&data);
@@ -3942,7 +4101,7 @@ void FakeVimPlugin::test_vim_command_y_dollar()
     KEYS("$y$P", l[0]+'\n'+ l[1]+">>|>>\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_percent()
+void FakeVimTester::test_vim_command_percent()
 {
     TestData data;
     setup(&data);
@@ -4026,7 +4185,7 @@ void FakeVimPlugin::test_vim_command_percent()
     );
 }
 
-void FakeVimPlugin::test_vim_command_Yp()
+void FakeVimTester::test_vim_command_Yp()
 {
     TestData data;
     setup(&data);
@@ -4036,7 +4195,7 @@ void FakeVimPlugin::test_vim_command_Yp()
     KEYS("Yp", lmid(0, 4) + '\n' + lmid(4, 1) + "\n|" + lmid(4));
 }
 
-void FakeVimPlugin::test_vim_command_ma_yank()
+void FakeVimTester::test_vim_command_ma_yank()
 {
     TestData data;
     setup(&data);
@@ -4058,7 +4217,7 @@ void FakeVimPlugin::test_vim_command_ma_yank()
     KEYS("\"ap",   lmid(0,5) + "\n|" + lmid(0,4) +'\n' + lmid(4));
 }
 
-void FakeVimPlugin::test_vim_command_Gyyp()
+void FakeVimTester::test_vim_command_Gyyp()
 {
     TestData data;
     setup(&data);
@@ -4068,7 +4227,7 @@ void FakeVimPlugin::test_vim_command_Gyyp()
     KEYS("yyp", lmid(0) + '|' + lmid(9, 1)+'\n');
 }
 
-void FakeVimPlugin::test_i_cw_i()
+void FakeVimTester::test_i_cw_i()
 {
     TestData data;
     setup(&data);
@@ -4080,7 +4239,7 @@ void FakeVimPlugin::test_i_cw_i()
     KEYS("iaa<Esc>",    l[0] + "\nxya|ay" + lmid(1));
 }
 
-void FakeVimPlugin::test_vim_command_J()
+void FakeVimTester::test_vim_command_J()
 {
     TestData data;
     setup(&data);
@@ -4108,7 +4267,7 @@ void FakeVimPlugin::test_vim_command_J()
     KEYS("J", "# abc def");
 }
 
-void FakeVimPlugin::test_vim_command_put_at_eol()
+void FakeVimTester::test_vim_command_put_at_eol()
 {
     TestData data;
     setup(&data);
@@ -4122,7 +4281,7 @@ void FakeVimPlugin::test_vim_command_put_at_eol()
     KEYS("P",  lmid(0,2)+">|>>\n" + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_command_oO()
+void FakeVimTester::test_vim_command_oO()
 {
     TestData data;
     setup(&data);
@@ -4138,7 +4297,7 @@ void FakeVimPlugin::test_vim_command_oO()
     KEYS("Ol-2<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-|2\n" + "l-1\n");
 }
 
-void FakeVimPlugin::test_vim_command_x()
+void FakeVimTester::test_vim_command_x()
 {
     TestData data;
     setup(&data);
@@ -4149,7 +4308,7 @@ void FakeVimPlugin::test_vim_command_x()
     KEYS("x", lmid(0,1)+'\n' + l[1].left(l[1].length()-2)+'|'+l[1].mid(l[1].length()-2,1)+'\n' + lmid(2));
 }
 
-void FakeVimPlugin::test_vim_visual_d()
+void FakeVimTester::test_vim_visual_d()
 {
     TestData data;
     setup(&data);
@@ -4181,7 +4340,7 @@ void FakeVimPlugin::test_vim_visual_d()
     KEYS("v$o0k$d", '|' + lmid(6));
 }
 
-void FakeVimPlugin::test_vim_Visual_d()
+void FakeVimTester::test_vim_Visual_d()
 {
     TestData data;
     setup(&data);
@@ -4198,7 +4357,7 @@ void FakeVimPlugin::test_vim_Visual_d()
     KEYS("P",     '|' + lmid(0,1)+'\n' + lmid(3));
 }
 
-void FakeVimPlugin::test_vim_visual_block_D()
+void FakeVimTester::test_vim_visual_block_D()
 {
     TestData data;
     setup(&data);
@@ -4213,7 +4372,7 @@ void FakeVimPlugin::test_vim_visual_block_D()
     KEYS(".", X "a" N "g" N "" N "j");
 }
 
-void FakeVimPlugin::test_vim_commentary_emulation()
+void FakeVimTester::test_vim_commentary_emulation()
 {
     TestData data;
     setup(&data);
@@ -4239,7 +4398,7 @@ void FakeVimPlugin::test_vim_commentary_emulation()
     KEYS(".", X "abc" N "def");
 }
 
-void FakeVimPlugin::test_vim_commentary_file_names()
+void FakeVimTester::test_vim_commentary_file_names()
 {
     TestData data;
     setup(&data);
@@ -4266,7 +4425,7 @@ void FakeVimPlugin::test_vim_commentary_file_names()
     KEYS("gcc", X "// abc");
 }
 
-void FakeVimPlugin::test_vim_replace_with_register_emulation()
+void FakeVimTester::test_vim_replace_with_register_emulation()
 {
     TestData data;
     setup(&data);
@@ -4313,7 +4472,7 @@ void FakeVimPlugin::test_vim_replace_with_register_emulation()
     KEYS("v4lgr", "abc abci");
 }
 
-void FakeVimPlugin::test_vim_exchange_emulation()
+void FakeVimTester::test_vim_exchange_emulation()
 {
     TestData data;
     setup(&data);
@@ -4341,7 +4500,7 @@ void FakeVimPlugin::test_vim_exchange_emulation()
     KEYS(".", "def" N "abc");
 }
 
-void FakeVimPlugin::test_vim_arg_text_obj_emulation()
+void FakeVimTester::test_vim_arg_text_obj_emulation()
 {
     TestData data;
     setup(&data);
@@ -4365,7 +4524,7 @@ void FakeVimPlugin::test_vim_arg_text_obj_emulation()
     KEYS("dia", "foo()");
 }
 
-void FakeVimPlugin::test_vim_surround_emulation()
+void FakeVimTester::test_vim_surround_emulation()
 {
     TestData data;
     setup(&data);
@@ -4435,7 +4594,7 @@ void FakeVimPlugin::test_vim_surround_emulation()
     KEYS("<C-v>ljSB", "{ab}c" N "{de}f");
 }
 
-void FakeVimPlugin::test_macros()
+void FakeVimTester::test_macros()
 {
     TestData data;
     setup(&data);
@@ -4507,7 +4666,7 @@ void FakeVimPlugin::test_macros()
     KEYS("j@q", "!!!" N X "!!!");
 }
 
-void FakeVimPlugin::test_vim_qtcreator()
+void FakeVimTester::test_vim_qtcreator()
 {
     TestData data;
     setup(&data);
@@ -4897,3 +5056,8 @@ void FakeVimPlugin::test_vim_qtcreator()
          "}" N
          "");
 }
+
+} // FakeVim::Internal
+
+#include "fakevim_test.moc"
+

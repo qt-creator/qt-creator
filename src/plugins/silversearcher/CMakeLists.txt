@@ -3,7 +3,7 @@ add_qtc_plugin(SilverSearcher
   SOURCES
     findinfilessilversearcher.cpp findinfilessilversearcher.h
     silversearcherparser.cpp silversearcherparser.h
-    silversearcherplugin.cpp silversearcherplugin.h
+    silversearcherplugin.cpp
     silversearchertr.h
 )
 

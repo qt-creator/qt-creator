@@ -74,7 +74,8 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     formLayout->addRow(Tr::tr("Extra arguments:"),  additionalArgumentsLineEdit);
     formLayout->addRow(Tr::tr("Command:"), commandTextEdit);
 
-    auto updateUi = [=] {
+    auto updateUi = [this, commandTextEdit, targetComboBox, additionalArgumentsLineEdit,
+                     defaultArgumentsComboBox] {
         const CommandLine cmd = commandLine();
         const QStringList parts = ProcessArgs::splitArgs(cmd.toUserOutput(), HostOsInfo::hostOs());
 
@@ -159,7 +160,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     QTC_ASSERT(bc, return {});
 
-    auto tc = ToolChainKitAspect::toolChain(kit(), Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolchainKitAspect::toolchain(kit(), Constants::C_NIMLANGUAGE_ID);
     QTC_ASSERT(tc, return {});
 
     CommandLine cmd{tc->compilerCommand()};

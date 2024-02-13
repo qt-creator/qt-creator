@@ -19,17 +19,54 @@
 
     \annotatedlist creator-reference-build-systems
 
+    \section1 Build Configurations
+
+    \annotatedlist creator-reference-build-configurations
+
+    \section1 Run Configurations
+
+    \annotatedlist creator-reference-run-configurations
+
+    \section1 Editors
+
+    \annotatedlist creator-reference-editors
+
+    \section1 Platforms
+
+    \annotatedlist creator-reference-platforms
+
     \section1 Preferences
 
+    Set prefecerences that apply globally to all projects.
+
     \annotatedlist creator-reference-preferences
+
+    \section2 Analyzer
+
+    \annotatedlist creator-reference-preferences-analyzer
 
     \section2 C++
 
     \annotatedlist creator-reference-preferences-cpp
 
+    \section2 Kits
+
+    \annotatedlist creator-reference-preferences-kits
+
     \section2 Text Editor
 
+    Configure the text editor to suit your needs.
+
     \annotatedlist creator-reference-preferences-text-editor
+
+    \section1 UI Design
+
+    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
+    \QC integrates a visual editor, \QD, for designing widget-based UIs
+    in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
+    editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
+
+    \annotatedlist creator-reference-ui-design
 
     \section1 Views
 

@@ -30,16 +30,16 @@ PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *
     Timeline::TimelineTheme::setupTheme(engine());
 
     rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
-                                      tool->modelManager());
+                                      &modelManager());
     rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                       tool->zoomControl());
     setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
 
     // Avoid ugly warnings when reading from null properties in QML.
-    connect(tool->modelManager(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });
+    connect(&modelManager(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });
     connect(tool->zoomControl(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });
 
-    connect(tool->modelManager(), &Timeline::TimelineModelAggregator::updateCursorPosition,
+    connect(&modelManager(), &Timeline::TimelineModelAggregator::updateCursorPosition,
             this, &PerfProfilerTraceView::updateCursorPosition);
 }
 

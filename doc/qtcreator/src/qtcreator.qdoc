@@ -36,9 +36,8 @@
             \li {4,1} \b {\l{All Topics}{Click Here for a List of All Topics}}
         \row
             \li \inlineimage front-gs.png
-            \li \inlineimage front-projects.png
-            \li \inlineimage front-ui.png
             \li \inlineimage front-coding.png
+            \li \inlineimage front-preview.png
         \row
             \li \b {\l{Getting Started}}
                 \list
@@ -48,33 +47,13 @@
                     \li \l{Building and Running an Example}
                     \li \l{Tutorials}
                 \endlist
-            \li \b {\l{Managing Projects}}
-                \list
-                    \li \l{Creating Projects}
-                    \li \l{Version Control Systems}
-                    \li \l{Configuring Projects}
-                \endlist
-            \li \b {\l{Designing User Interfaces}}
-                \list
-                    \li \l{Developing Qt Quick Applications}
-                    \li \l{Developing Widget Based Applications}
-                    \li \l{Optimizing Applications for Mobile Devices}
-                \endlist
             \li \b {\l{Coding}}
                 \list
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
-                    \li \l{Modeling}
-                    \li \l{Editing State Charts}
                 \endlist
-        \row
-            \li \inlineimage front-preview.png
-            \li \inlineimage front-testing.png
-            \li \inlineimage front-help.png
-            \li \inlineimage front-advanced.png
-        \row
             \li \b {\l{Building and Running}}
                 \list
                     \li \l{Validating with Target Hardware}
@@ -83,6 +62,11 @@
                     \li \l{Deploying to Devices}
                     \li \l{Connecting Devices}
                 \endlist
+        \row
+            \li \inlineimage front-testing.png
+            \li \inlineimage front-help.png
+            \li \inlineimage front-advanced.png
+        \row
             \li \b {\l{Testing}}
                 \list
                     \li \l{Debugging}

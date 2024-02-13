@@ -4,11 +4,8 @@
 
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
-#include "androidconstants.h"
-#include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
-#include "androidrunconfiguration.h"
 #include "androidrunner.h"
 #include "androidrunnerworker.h"
 #include "androidtr.h"
@@ -167,7 +164,7 @@ void AndroidRunner::launchAVD()
 
     // Get AVD info
     const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.data());
+    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
     AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
     emit androidDeviceInfoChanged(info);
     if (info.isValid()) {
@@ -183,8 +180,7 @@ void AndroidRunner::launchAVD()
 
 void AndroidRunner::checkAVD()
 {
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    AndroidAvdManager avdManager(config);
+    AndroidAvdManager avdManager;
     QString serialNumber = avdManager.findAvd(m_launchedAVDName);
     if (!serialNumber.isEmpty())
         return; // try again on next timer hit
@@ -193,7 +189,7 @@ void AndroidRunner::checkAVD()
         m_checkAVDTimer.stop();
         AndroidManager::setDeviceSerialNumber(m_target, serialNumber);
         emit asyncStart();
-    } else if (!config.isConnected(serialNumber)) {
+    } else if (!androidConfig().isConnected(serialNumber)) {
         // device was disconnected
         m_checkAVDTimer.stop();
     }

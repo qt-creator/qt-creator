@@ -35,7 +35,7 @@ public:
         return _exprs;
     }
 
-    virtual bool preVisit(AST *ast) {
+    bool preVisit(AST *ast) override {
         if (NameAST *nameAst = ast->asName())
             if (!qstrcmp(_name, nameAst->name->identifier()->chars()))
                 _exprs.append(nameAst);

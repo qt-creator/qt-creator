@@ -42,6 +42,7 @@ add_qtc_plugin(AutoTest
     itestframework.cpp itestframework.h
     itestparser.cpp itestparser.h
     projectsettingswidget.cpp projectsettingswidget.h
+    qtest/datataglocatorfilter.cpp qtest/datataglocatorfilter.h
     qtest/qttest_utils.cpp qtest/qttest_utils.h
     qtest/qttestconfiguration.cpp qtest/qttestconfiguration.h
     qtest/qttestconstants.h

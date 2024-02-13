@@ -28,10 +28,10 @@
         \li Select \uicontrol Tools > \uicontrol Locate.
 
         \li Select \uicontrol Edit > \uicontrol {Go to Line}.
-
+        \if defined(qtcreator)
         \li Click the line and column indicator on the
-            \l{Using the Editor Toolbar}{editor toolbar}.
-
+            \l{Edit Mode}{editor toolbar}.
+        \endif
     \endlist
 
     \section1 Using Locator Filters
@@ -72,54 +72,6 @@
 
     \endlist
 
-    \section2 Locating Files
-
-    You can locate files in the local file system or on connected devices. By
-    default, the file system filter shows the files in the same folder as the
-    currently open file and lets you navigate the file system. Also, it shows
-    items that let you switch to another device root.
-
-    For example, to open a QML file called \e HelloWorld.qml in the currently
-    open project using the locator:
-
-    \list 1
-
-        \li Press \key {Ctrl+K} to activate the locator.
-
-        \li Start typing the filename.
-
-            \image qtcreator-locator-open.webp "List of files found in the locator"
-
-        \li Use the arrow keys to move to the filename in the list and press
-            \key Enter.
-
-            The file opens in the editor.
-
-        \li To move to a line in the file, enter the line number in the locator.
-
-    \endlist
-
-    If the path to a file is very long, it might not fit into the locator
-    window. To view the full path, press \key Alt when the filename is selected
-    or use the handle next to the locator window to increase the window width.
-
-    \if defined(qtcreator)
-    If the locator does not find some files, see \l{Specify project contents}
-    for how to make them known to the locator.
-    \endif
-
-    \section2 Locating Files from Global File System Index
-
-    You can install tools such as Spotlight, Locate, or Everything and use them
-    to locate files from a global file system index. Use the \c md locator
-    filter to locate the files.
-
-    To use the sorting from the selected tool instead of from \QC,
-    deselect the \uicontrol {Sort results} check box in the \c md
-    locator filter configuration.
-
-    \image qtcreator-locator-filter-edit-md.webp {Filter Configuration dialog}
-
     \section2 Locating Lines and Columns
 
     To move directly to a particular line and column in the document when you
@@ -132,33 +84,6 @@
     \code
     HelloWorld.qml:41:2
     \endcode
-
-    \if defined(qtcreator)
-    \section2 Locating Symbols
-
-    For example, to locate symbols matching \c {QGuiApplication}:
-
-    \list 1
-
-        \li Activate the locator.
-
-        \li Enter a colon (:) followed by a space and the upper case letters in
-            the symbol name (here, \c {QGuiApplication}):
-
-            \code
-            : qga
-            \endcode
-
-            The locator lists the results.
-
-            \image qtcreator-locator-example.webp "List of files matching the locator filter"
-
-    \endlist
-
-    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
-    Filters locating class and function definitions also accept namespaces,
-    such as \c {Utils::*View}.
-    \endif
 
     \section2 Creating Files and Directories from Locator
 

@@ -283,20 +283,21 @@ expected_str<ParsedExamples> parseExamples(const QByteArray &manifestData,
                                            const bool examples)
 {
     const FilePath path = manifestPath.parentDir();
-    QStringList categoryOrder;
-    QList<ExampleItem *> items;
+    ParsedExamples result;
     QXmlStreamReader reader(manifestData);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
-            if (categoryOrder.isEmpty() && reader.name() == QLatin1String("categories"))
-                categoryOrder = parseCategories(&reader);
+            if (reader.name() == QLatin1String("instructionals"))
+                result.instructionalsModule = reader.attributes().value("module").toString();
+            else if (result.categoryOrder.isEmpty() && reader.name() == QLatin1String("categories"))
+                result.categoryOrder = parseCategories(&reader);
             else if (examples && reader.name() == QLatin1String("examples"))
-                items += parseExamples(&reader, path, examplesInstallPath);
+                result.items += parseExamples(&reader, path, examplesInstallPath);
             else if (examples && reader.name() == QLatin1String("demos"))
-                items += parseDemos(&reader, path, demosInstallPath);
+                result.items += parseDemos(&reader, path, demosInstallPath);
             else if (!examples && reader.name() == QLatin1String("tutorials"))
-                items += parseTutorials(&reader, path);
+                result.items += parseTutorials(&reader, path);
             break;
         default: // nothing
             break;
@@ -304,14 +305,14 @@ expected_str<ParsedExamples> parseExamples(const QByteArray &manifestData,
     }
 
     if (reader.hasError()) {
-        qDeleteAll(items);
+        qDeleteAll(result.items);
         return make_unexpected(QString("Could not parse file \"%1\" as XML document: %2:%3: %4")
                                    .arg(manifestPath.toUserOutput())
                                    .arg(reader.lineNumber())
                                    .arg(reader.columnNumber())
                                    .arg(reader.errorString()));
     }
-    return {{items, categoryOrder}};
+    return result;
 }
 
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)

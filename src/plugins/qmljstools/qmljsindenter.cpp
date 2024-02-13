@@ -6,30 +6,47 @@
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 #include <texteditor/tabsettings.h>
 
-#include <QChar>
 #include <QTextDocument>
 #include <QTextBlock>
 
-using namespace QmlJSEditor;
-using namespace Internal;
+using namespace TextEditor;
 
-Indenter::Indenter(QTextDocument *doc)
-    : TextEditor::TextIndenter(doc)
-{}
+namespace QmlJSEditor {
+namespace Internal {
 
-Indenter::~Indenter() = default;
-
-bool Indenter::isElectricCharacter(const QChar &ch) const
+class QmlJsIndenter final : public TextEditor::TextIndenter
 {
-    if (ch == QLatin1Char('{')
-            || ch == QLatin1Char('}')
-            || ch == QLatin1Char(']')
-            || ch == QLatin1Char(':'))
-        return true;
-    return false;
+public:
+    explicit QmlJsIndenter(QTextDocument *doc)
+        : TextEditor::TextIndenter(doc)
+    {}
+
+    bool isElectricCharacter(const QChar &ch) const final;
+    void indentBlock(const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) final;
+    void invalidateCache() final;
+
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) final;
+    int visualIndentFor(const QTextBlock &block,
+                        const TextEditor::TabSettings &tabSettings) final;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings,
+                                                         int cursorPositionInEditor = -1) final;
+};
+
+bool QmlJsIndenter::isElectricCharacter(const QChar &ch) const
+{
+    return ch == QLatin1Char('{')
+        || ch == QLatin1Char('}')
+        || ch == QLatin1Char(']')
+        || ch == QLatin1Char(':');
 }
 
-void Indenter::indentBlock(const QTextBlock &block,
+void QmlJsIndenter::indentBlock(const QTextBlock &block,
                            const QChar &typedChar,
                            const TextEditor::TabSettings &tabSettings,
                            int /*cursorPositionInEditor*/)
@@ -52,13 +69,13 @@ void Indenter::indentBlock(const QTextBlock &block,
     tabSettings.indentLine(block, depth);
 }
 
-void Indenter::invalidateCache()
+void QmlJsIndenter::invalidateCache()
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter;
     codeFormatter.invalidateCache(m_doc);
 }
 
-int Indenter::indentFor(const QTextBlock &block,
+int QmlJsIndenter::indentFor(const QTextBlock &block,
                         const TextEditor::TabSettings &tabSettings,
                         int /*cursorPositionInEditor*/)
 {
@@ -67,12 +84,12 @@ int Indenter::indentFor(const QTextBlock &block,
     return codeFormatter.indentFor(block);
 }
 
-int Indenter::visualIndentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int QmlJsIndenter::visualIndentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
 {
     return indentFor(block, tabSettings);
 }
 
-TextEditor::IndentationForBlock Indenter::indentationForBlocks(
+TextEditor::IndentationForBlock QmlJsIndenter::indentationForBlocks(
     const QVector<QTextBlock> &blocks,
     const TextEditor::TabSettings &tabSettings,
     int /*cursorPositionInEditor*/)
@@ -86,3 +103,31 @@ TextEditor::IndentationForBlock Indenter::indentationForBlocks(
         ret.insert(block.blockNumber(), codeFormatter.indentFor(block));
     return ret;
 }
+
+} // Internal
+
+TextEditor::TextIndenter *createQmlJsIndenter(QTextDocument *doc)
+{
+    return new Internal::QmlJsIndenter(doc);
+}
+
+void indentQmlJs(QTextDocument *doc, int startLine, int endLine, const TextEditor::TabSettings &tabSettings)
+{
+    if (startLine <= 0)
+        return;
+
+    QTextCursor tc(doc);
+
+    tc.beginEditBlock();
+    for (int i = startLine; i <= endLine; i++) {
+        // FIXME: block.next() should be faster.
+        QTextBlock block = doc->findBlockByNumber(i);
+        if (block.isValid()) {
+            Internal::QmlJsIndenter indenter(doc);
+            indenter.indentBlock(block, QChar::Null, tabSettings);
+        }
+    }
+    tc.endEditBlock();
+}
+
+} // QmlJsEditor

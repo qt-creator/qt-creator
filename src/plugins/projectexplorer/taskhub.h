@@ -22,12 +22,11 @@ public:
     int priority = 0;
 };
 
-class PROJECTEXPLORER_EXPORT TaskHub : public QObject
+class PROJECTEXPLORER_EXPORT TaskHub final : public QObject
 {
     Q_OBJECT
-public:
-    static TaskHub *instance();
 
+public:
     // Convenience overload
     static void addTask(Task::TaskType type, const QString &description,
                         Utils::Id category);
@@ -60,12 +59,12 @@ signals:
     void openTask(const Task &task);
 
 private:
+    friend PROJECTEXPLORER_EXPORT TaskHub &taskHub();
+
     TaskHub();
-    ~TaskHub() override;
-
-    static QVector<Utils::Id> m_registeredCategories;
-
-    friend class ProjectExplorerPluginPrivate;
+    ~TaskHub() final;
 };
+
+PROJECTEXPLORER_EXPORT TaskHub &taskHub();
 
 } // namespace ProjectExplorer

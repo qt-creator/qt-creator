@@ -7,8 +7,10 @@
 #include "genericprojectconstants.h"
 #include "genericprojectmanagertr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 
@@ -46,29 +48,35 @@ public:
     }
 };
 
-
-// GenericBuildConfigurationFactory
-
-GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
+class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
 {
-    registerBuildConfiguration<GenericBuildConfiguration>
-        ("GenericProjectManager.GenericBuildConfiguration");
+public:
+    GenericBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<GenericBuildConfiguration>
+            ("GenericProjectManager.GenericBuildConfiguration");
 
-    setSupportedProjectType(Constants::GENERICPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
+        setSupportedProjectType(Constants::GENERICPROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
 
-    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
-        BuildInfo info;
-        info.typeName = ProjectExplorer::Tr::tr("Build");
-        info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+            BuildInfo info;
+            info.typeName = ProjectExplorer::Tr::tr("Build");
+            info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
-        if (forSetup)  {
-            //: The name of the build configuration created by default for a generic project.
-            info.displayName = ProjectExplorer::Tr::tr("Default");
-        }
+            if (forSetup)  {
+                //: The name of the build configuration created by default for a generic project.
+                info.displayName = ProjectExplorer::Tr::tr("Default");
+            }
 
-        return QList<BuildInfo>{info};
-    });
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
+void setupGenericBuildConfiguration()
+{
+    static GenericBuildConfigurationFactory theGenericBuildConfigurationFactory;
 }
 
 } // GenericProjectManager::Internal

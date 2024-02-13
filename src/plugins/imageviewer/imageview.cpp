@@ -9,16 +9,14 @@
 #include "imageviewertr.h"
 #include "multiexportdialog.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 
 #include <QClipboard>
-#include <QDir>
-#include <QFileInfo>
 #include <QGraphicsRectItem>
 #include <QGuiApplication>
 #include <QImage>
@@ -42,13 +40,12 @@ const char kSettingsFitToScreen[] = "FitToScreen";
 
 using namespace Utils;
 
-namespace ImageViewer {
+namespace ImageViewer::Internal {
+
 namespace Constants {
     const qreal DEFAULT_SCALE_FACTOR = 1.2;
     const qreal zoomLevels[] = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0 };
 }
-
-namespace Internal {
 
 static qreal nextLevel(qreal currentLevel)
 {
@@ -319,8 +316,9 @@ void ImageView::setFitToScreen(bool fit)
     emit fitToScreenChanged(m_settings.fitToScreen);
 }
 
-void ImageView::readSettings(Utils::QtcSettings *settings)
+void ImageView::readSettings()
 {
+    QtcSettings *settings = Core::ICore::settings();
     const Settings def;
     settings->beginGroup(kSettingsGroup);
     m_settings.showBackground = settings->value(kSettingsBackground, def.showBackground).toBool();
@@ -329,8 +327,9 @@ void ImageView::readSettings(Utils::QtcSettings *settings)
     settings->endGroup();
 }
 
-void ImageView::writeSettings(Utils::QtcSettings *settings) const
+void ImageView::writeSettings() const
 {
+    QtcSettings *settings = Core::ICore::settings();
     const Settings def;
     settings->beginGroup(kSettingsGroup);
     settings->setValueWithDefault(kSettingsBackground,
@@ -369,5 +368,4 @@ void ImageView::hideEvent(QHideEvent *)
     m_file->updateVisibility();
 }
 
-} // namespace Internal
-} // namespace ImageView
+} // namespace ImageView::Internal

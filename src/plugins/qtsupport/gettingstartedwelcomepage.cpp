@@ -10,6 +10,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/iwelcomepage.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/welcomepagehelper.h>
@@ -42,17 +43,27 @@
 using namespace Core;
 using namespace Utils;
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
 Q_GLOBAL_STATIC(ExampleSetModel, s_exampleSetModel)
 
-ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
-    : m_showExamples(showExamples)
+class ExamplesWelcomePage final : public Core::IWelcomePage
 {
-}
+public:
+    explicit ExamplesWelcomePage(bool showExamples)
+        : m_showExamples(showExamples)
+    {}
+
+    QString title() const final;
+    int priority() const final;
+    Id id() const final;
+    QWidget *createWidget() const final;
+
+private:
+    const bool m_showExamples;
+};
 
 QString ExamplesWelcomePage::title() const
 {
@@ -69,9 +80,9 @@ Id ExamplesWelcomePage::id() const
     return m_showExamples ? "Examples" : "Tutorials";
 }
 
-FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
-                                                        FilePaths &filesToOpen,
-                                                        const FilePaths &dependencies)
+static FilePath copyToAlternativeLocation(const FilePath &proFile,
+                                          FilePaths &filesToOpen,
+                                          const FilePaths &dependencies)
 {
     const FilePath projectDir = proFile.canonicalPath().parentDir();
     QDialog d(ICore::dialogParent());
@@ -106,12 +117,12 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
     auto bb = new QDialogButtonBox;
     QPushButton *copyBtn = bb->addButton(Tr::tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
-    connect(copyBtn, &QAbstractButton::released, &d, [&d] { d.done(Copy); });
+    QObject::connect(copyBtn, &QAbstractButton::released, &d, [&d] { d.done(Copy); });
     copyBtn->setDefault(true);
     QPushButton *keepBtn = bb->addButton(Tr::tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
-    connect(keepBtn, &QAbstractButton::released, &d, [&d] { d.done(Keep); });
+    QObject::connect(keepBtn, &QAbstractButton::released, &d, [&d] { d.done(Keep); });
     lay->addWidget(bb, 2, 0, 1, 2);
-    connect(chooser, &PathChooser::validChanged, copyBtn, &QWidget::setEnabled);
+    QObject::connect(chooser, &PathChooser::validChanged, copyBtn, &QWidget::setEnabled);
     int code = d.exec();
     if (code == Copy) {
         const QString exampleDirName = projectDir.fileName();
@@ -162,7 +173,7 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     return {};
 }
 
-void ExamplesWelcomePage::openProject(const ExampleItem *item)
+static void openProject(const ExampleItem *item)
 {
     using namespace ProjectExplorer;
     FilePath proFile = item->projectPath;
@@ -192,7 +203,8 @@ void ExamplesWelcomePage::openProject(const ExampleItem *item)
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
         return;
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
+
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
         ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -220,7 +232,7 @@ protected:
         if (exampleItem->isVideo)
             QDesktopServices::openUrl(QUrl::fromUserInput(exampleItem->videoUrl));
         else if (exampleItem->hasSourceCode)
-            ExamplesWelcomePage::openProject(exampleItem);
+            openProject(exampleItem);
         else
             HelpManager::showHelpUrl(QUrl::fromUserInput(exampleItem->docUrl),
                                      HelpManager::ExternalHelpAlways);
@@ -345,5 +357,10 @@ QWidget *ExamplesWelcomePage::createWidget() const
     return new ExamplesPageWidget(m_showExamples);
 }
 
-} // namespace Internal
-} // namespace QtSupport
+void setupGettingStartedWelcomePage()
+{
+    static ExamplesWelcomePage examplesPage{true};
+    static ExamplesWelcomePage tutorialPage{false};
+}
+
+} // QtSupport::Internal

@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "helloworldplugin.h"
+#include "helloworldtr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -9,6 +9,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <QDebug>
 #include <QAction>
@@ -20,18 +22,34 @@ namespace HelloWorld::Internal {
 
 /*!  A mode with a push button based on BaseMode.  */
 
-class HelloMode : public Core::IMode
+class HelloMode final : public Core::IMode
 {
 public:
     HelloMode()
     {
-        setWidget(new QPushButton(tr("Hello World PushButton!")));
+        setWidget(new QPushButton(Tr::tr("Hello World PushButton!")));
         setContext(Core::Context("HelloWorld.MainView"));
-        setDisplayName(tr("Hello world!"));
+        setDisplayName(Tr::tr("Hello world!"));
         setIcon(QIcon());
         setPriority(0);
         setId("HelloWorld.HelloWorldMode");
     }
+};
+
+class HelloWorldPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "HelloWorld.json")
+
+public:
+    HelloWorldPlugin();
+    ~HelloWorldPlugin() final;
+
+    void initialize() final;
+    void extensionsInitialized() final;
+
+private:
+    HelloMode *m_helloMode = nullptr;
 };
 
 
@@ -40,9 +58,7 @@ public:
     actual work is done later, in the initialize() and extensionsInitialized()
     functions.
 */
-HelloWorldPlugin::HelloWorldPlugin()
-{
-}
+HelloWorldPlugin::HelloWorldPlugin() = default;
 
 /*! Plugins are responsible for deleting objects they created on the heap, and
     to unregister objects from the plugin manager that they registered there.
@@ -60,31 +76,35 @@ void HelloWorldPlugin::initialize()
 {
     // Create a unique context for our own view, that will be used for the
     // menu entry later.
-    Core::Context context("HelloWorld.MainView");
-
-    // Create an action to be triggered by a menu entry
-    auto helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
-    connect(helloWorldAction, &QAction::triggered, this, &HelloWorldPlugin::sayHelloWorld);
-
-    // Register the action with the action manager
-    Core::Command *command =
-            Core::ActionManager::registerAction(
-                    helloWorldAction, "HelloWorld.HelloWorldAction", context);
+    const Core::Context context("HelloWorld.MainView");
 
     // Create our own menu to place in the Tools menu
-    Core::ActionContainer *helloWorldMenu =
-            Core::ActionManager::createMenu("HelloWorld.HelloWorldMenu");
-    QMenu *menu = helloWorldMenu->menu();
-    menu->setTitle(tr("&Hello World"));
-    menu->setEnabled(true);
+    const Utils::Id menuId = "HelloWorld.HelloWorldMenu";
 
-    // Add the Hello World action command to the menu
-    helloWorldMenu->addAction(command);
+    Core::ActionContainer *helloWorldMenu = Core::ActionManager::createMenu(menuId);
+    QMenu *menu = helloWorldMenu->menu();
+    menu->setTitle(Tr::tr("&Hello World"));
+    menu->setEnabled(true);
 
     // Request the Tools menu and add the Hello World menu to it
     Core::ActionContainer *toolsMenu =
             Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(helloWorldMenu);
+
+    // Create an action to be triggered by a menu entry.
+    // The ActionBuilder registers the action with Core::ActionManager
+    // on its destruction.
+    Core::ActionBuilder hello(this, "HelloWorld.HelloWorldAction");
+    hello.setText(Tr::tr("Say \"&Hello World!\""));
+    hello.setContext(context);
+    hello.addToContainer(menuId); // Add the Hello World action command to the menu
+    hello.addOnTriggered(this, [] {
+        // When passing nullptr for the parent, the message box becomes an
+        // application-global modal dialog box
+        QMessageBox::information(nullptr,
+                                 Tr::tr("Hello World!"),
+                                 Tr::tr("Hello World! Beautiful day today, isn't it?"));
+    });
 
     // Add a mode with a push button based on BaseMode.
     m_helloMode = new HelloMode;
@@ -105,12 +125,6 @@ void HelloWorldPlugin::extensionsInitialized()
 {
 }
 
-void HelloWorldPlugin::sayHelloWorld()
-{
-    // When passing nullptr for the parent, the message box becomes an
-    // application-global modal dialog box
-    QMessageBox::information(
-            nullptr, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
-}
-
 } // namespace HelloWorld::Internal
+
+#include <helloworldplugin.moc>

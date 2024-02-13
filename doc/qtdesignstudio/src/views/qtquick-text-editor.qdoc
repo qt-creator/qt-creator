@@ -26,7 +26,7 @@
     \list
         \li \l{Semantic Highlighting}
         \li \l{Checking Code Syntax}
-        \li \l{Completing Code}
+        \li \l{Complete code}
         \li \l{Indent text or code}
         \li \l{Using Qt Quick Toolbars}
     \endlist

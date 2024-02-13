@@ -14,82 +14,12 @@
 
 using namespace SpinnerSolution;
 
-enum class State {
-    NotRunning,
-    Running
-};
-
-static QString colorButtonStyleSheet(const QColor &bgColor)
-{
-    QString rc("border-width: 2px; border-radius: 2px; border-color: black; ");
-    rc += bgColor.isValid() ? "border-style: solid; background:" + bgColor.name() + ";"
-                            : QString("border-style: dotted;");
-    return rc;
-}
-
-static QColor stateToColor(State state)
-{
-    switch (state) {
-    case State::NotRunning: return Qt::gray;
-    case State::Running: return Qt::yellow;
-    }
-    return {};
-}
-
-class StateIndicator : public QLabel
-{
-public:
-    StateIndicator(QWidget *parent = nullptr)
-        : QLabel(parent)
-    {
-        setFixedSize(30, 30);
-        m_spinner = new Spinner(SpinnerSize::Small, this);
-        m_spinner->hide();
-        updateState();
-    }
-
-    void setState(State state)
-    {
-        if (m_state == state)
-            return;
-        m_state = state;
-        updateState();
-    }
-
-private:
-    void updateState()
-    {
-        setStyleSheet(colorButtonStyleSheet(stateToColor(m_state)));
-        if (m_state == State::Running)
-            m_spinner->show();
-        else
-            m_spinner->hide();
-    }
-    State m_state = State::NotRunning;
-    Spinner *m_spinner = nullptr;
-};
-
-class StateWidget : public QWidget
-{
-public:
-    StateWidget() : m_stateIndicator(new StateIndicator(this)) {
-        QBoxLayout *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(m_stateIndicator);
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    }
-    void setState(State state) { m_stateIndicator->setState(state); }
-
-protected:
-    StateIndicator *m_stateIndicator = nullptr;
-};
-
 QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
 {
     const QMetaEnum spinnerSize = QMetaEnum::fromType<SpinnerSize>();
     QGroupBox *groupBox = new QGroupBox(spinnerSize.valueToKey(int(size)));
 
-    StateWidget *stateWidget = new StateWidget;
+    SpinnerWidget *spinnerWidget = new SpinnerWidget;
     QToolButton *startButton = new QToolButton;
     startButton->setText("Start");
     QToolButton *stopButton = new QToolButton;
@@ -97,7 +27,7 @@ QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
 
     QVBoxLayout *mainLayout = new QVBoxLayout(groupBox);
     QHBoxLayout *topLayout = new QHBoxLayout();
-    topLayout->addWidget(stateWidget);
+    topLayout->addWidget(spinnerWidget);
     topLayout->addWidget(startButton);
     topLayout->addWidget(stopButton);
     topLayout->addStretch();
@@ -108,12 +38,12 @@ QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
     spinner->hide(); // TODO: make the default hidden?
 
     QObject::connect(startButton, &QAbstractButton::clicked, groupBox, [=] {
-        stateWidget->setState(State::Running);
+        spinnerWidget->setState(SpinnerState::Running);
         spinner->show();
         widget->setEnabled(false);
     });
     QObject::connect(stopButton, &QAbstractButton::clicked, groupBox, [=] {
-        stateWidget->setState(State::NotRunning);
+        spinnerWidget->setState(SpinnerState::NotRunning);
         spinner->hide();
         widget->setEnabled(true);
     });

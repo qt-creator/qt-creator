@@ -55,7 +55,7 @@
                 command line until the first editor is closed.
 
        \row
-            \li -nocrashcheck
+            \li -no-crashcheck
             \li Disable the startup check for a previously crashed \QC instance.
 
        \row
@@ -217,7 +217,7 @@
 
     Exercise caution when applying styles, as overriding the existing styling
     may make some items difficult to see. Also, setting a stylesheet may affect
-    the \l{Specifying Text Editor Settings}{text editor color scheme} and the
+    the \l{Font & Colors}{text editor color scheme} and the
     styling of the integrated \QD.
 
     You can also switch to a dark theme to customize the appearance of widgets,

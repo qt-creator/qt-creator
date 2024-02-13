@@ -84,11 +84,21 @@ Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const
 
 // RemoteLinuxCustomRunConfigurationFactory
 
-RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory()
-    : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
+class RemoteLinuxCustomRunConfigurationFactory
+    : public FixedRunConfigurationFactory
 {
-    registerRunConfiguration<RemoteLinuxCustomRunConfiguration>(Constants::CustomRunConfigId);
-    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+public:
+    RemoteLinuxCustomRunConfigurationFactory()
+        : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
+    {
+        registerRunConfiguration<RemoteLinuxCustomRunConfiguration>(Constants::CustomRunConfigId);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupRemoteLinuxCustomRunConfiguration()
+{
+    static RemoteLinuxCustomRunConfigurationFactory theRemoteLinuxCustomRunConfigurationFactory;
 }
 
 } // RemoteLinux::Internal

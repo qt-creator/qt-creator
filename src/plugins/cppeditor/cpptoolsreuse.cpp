@@ -9,7 +9,6 @@
 #include "cppcodemodelsettings.h"
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppeditorwidget.h"
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
@@ -293,29 +292,33 @@ bool isInCommentOrString(const TextEditor::AssistInterface *interface,
 {
     QTextCursor tc(interface->textDocument());
     tc.setPosition(interface->position());
+    return isInCommentOrString(tc, features);
+}
 
+bool isInCommentOrString(const QTextCursor &cursor, CPlusPlus::LanguageFeatures features)
+{
     SimpleLexer tokenize;
     features.qtMocRunEnabled = true;
     tokenize.setLanguageFeatures(features);
     tokenize.setSkipComments(false);
-    const Tokens &tokens = tokenize(tc.block().text(),
-                                    BackwardsScanner::previousBlockState(tc.block()));
-    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
+    const Tokens &tokens = tokenize(cursor.block().text(),
+                                    BackwardsScanner::previousBlockState(cursor.block()));
+    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, cursor.positionInBlock() - 1));
     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
     if (tk.isComment())
         return true;
-    if (!tk.isLiteral())
+    if (!tk.isStringLiteral())
         return false;
     if (tokens.size() == 3 && tokens.at(0).kind() == T_POUND
-            && tokens.at(1).kind() == T_IDENTIFIER) {
-        const QString &line = tc.block().text();
+        && tokens.at(1).kind() == T_IDENTIFIER) {
+        const QString &line = cursor.block().text();
         const Token &idToken = tokens.at(1);
         QStringView identifier = QStringView(line).mid(idToken.utf16charsBegin(),
                                                        idToken.utf16chars());
         if (identifier == QLatin1String("include")
-                || identifier == QLatin1String("include_next")
-                || (features.objCEnabled && identifier == QLatin1String("import"))) {
+            || identifier == QLatin1String("include_next")
+            || (features.objCEnabled && identifier == QLatin1String("import"))) {
             return false;
         }
     }
@@ -334,7 +337,7 @@ CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
 
 CppCodeModelSettings *codeModelSettings()
 {
-    return Internal::CppEditorPlugin::instance()->codeModelSettings();
+    return &cppCodeModelSettings();
 }
 
 int indexerFileSizeLimitInMb()
@@ -623,17 +626,17 @@ void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id edi
 
 bool preferLowerCaseFileNames(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).lowerCaseFiles;
+    return Internal::cppFileSettingsForProject(project).lowerCaseFiles;
 }
 
 QString preferredCxxHeaderSuffix(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).headerSuffix;
+    return Internal::cppFileSettingsForProject(project).headerSuffix;
 }
 
 QString preferredCxxSourceSuffix(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings(project).sourceSuffix;
+    return Internal::cppFileSettingsForProject(project).sourceSuffix;
 }
 
 SearchResultItems symbolOccurrencesInDeclarationComments(
@@ -851,9 +854,8 @@ namespace Internal {
 
 void decorateCppEditor(TextEditor::TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighter(new CppHighlighter);
-    editor->textDocument()->setIndenter(
-                new CppQtStyleIndenter(editor->textDocument()->document()));
+    editor->textDocument()->resetSyntaxHighlighter([] { return new CppHighlighter(); });
+    editor->textDocument()->setIndenter(createCppQtStyleIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new CppAutoCompleter);
 }
 

@@ -29,6 +29,8 @@ class ITestConfiguration;
 class TestParseResult;
 enum class TestRunMode;
 
+using TestParseResultPtr = std::shared_ptr<TestParseResult>;
+
 class ITestTreeItem : public Utils::TypedTreeItem<ITestTreeItem>
 {
 public:
@@ -55,9 +57,9 @@ public:
                            const Utils::FilePath &filePath = {},
                            Type type = Root);
 
-    virtual QVariant data(int column, int role) const override;
-    virtual bool setData(int column, const QVariant &data, int role) override;
-    virtual Qt::ItemFlags flags(int column) const override;
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+    Qt::ItemFlags flags(int column) const override;
 
     virtual Qt::CheckState checked() const;
     virtual bool canProvideTestConfiguration() const { return false; }
@@ -102,7 +104,7 @@ public:
                           Type type = Root);
 
     virtual TestTreeItem *copyWithoutChildren() = 0;
-    virtual QVariant data(int column, int role) const override;
+    QVariant data(int column, int role) const override;
     bool modifyTestCaseOrSuiteContent(const TestParseResult *result);
     bool modifyTestFunctionContent(const TestParseResult *result);
     bool modifyDataTagContent(const TestParseResult *result);

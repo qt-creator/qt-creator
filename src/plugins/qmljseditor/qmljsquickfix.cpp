@@ -15,7 +15,7 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;
-using TextEditor::RefactoringChanges;
+using TextEditor::RefactoringFileFactory;
 
 namespace QmlJSEditor {
 
@@ -31,7 +31,7 @@ QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixAssistInterfac
 void QmlJSQuickFixOperation::perform()
 {
     QmlJSRefactoringChanges refactoring(ModelManagerInterface::instance(), semanticInfo().snapshot);
-    QmlJSRefactoringFilePtr current = refactoring.file(fileName());
+    QmlJSRefactoringFilePtr current = refactoring.qmlJSFile(fileName());
 
     performChanges(current, refactoring);
 }

@@ -106,7 +106,7 @@ void BaseConnectionManager::readDataStream(Connection &connection)
         in >> command;
         connection.blockSize = 0;
 
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
         if (command.typeId() != QMetaType::type("PuppetAliveCommand")) {
             if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();

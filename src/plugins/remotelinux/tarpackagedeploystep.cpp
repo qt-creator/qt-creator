@@ -53,7 +53,6 @@ public:
 
 private:
     QString remoteFilePath() const;
-    bool isDeploymentNecessary() const final;
     GroupItem deployRecipe() final;
     GroupItem uploadTask();
     GroupItem installTask();
@@ -66,33 +65,27 @@ QString TarPackageDeployStep::remoteFilePath() const
     return QLatin1String("/tmp/") + m_packageFilePath.fileName();
 }
 
-bool TarPackageDeployStep::isDeploymentNecessary() const
-{
-    return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
-}
-
 GroupItem TarPackageDeployStep::uploadTask()
 {
-    const auto setupHandler = [this](FileTransfer &transfer) {
+    const auto onSetup = [this](FileTransfer &transfer) {
         const FilesToTransfer files {{m_packageFilePath,
                         deviceConfiguration()->filePath(remoteFilePath())}};
         transfer.setFilesToTransfer(files);
         connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::addProgressMessage);
         addProgressMessage(Tr::tr("Uploading package to device..."));
     };
-    const auto doneHandler = [this](const FileTransfer &) {
-        addProgressMessage(Tr::tr("Successfully uploaded package file."));
+    const auto onDone = [this](const FileTransfer &transfer, DoneWith result) {
+        if (result == DoneWith::Success)
+            addProgressMessage(Tr::tr("Successfully uploaded package file."));
+        else
+            addErrorMessage(transfer.resultData().m_errorString);
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
-        const ProcessResultData result = transfer.resultData();
-        addErrorMessage(result.m_errorString);
-    };
-    return FileTransferTask(setupHandler, doneHandler, errorHandler);
+    return FileTransferTask(onSetup, onDone);
 }
 
 GroupItem TarPackageDeployStep::installTask()
 {
-    const auto setupHandler = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
                 + " && (rm " + remoteFilePath() + " || :)";
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
@@ -105,30 +98,46 @@ GroupItem TarPackageDeployStep::installTask()
         });
         addProgressMessage(Tr::tr("Installing package to device..."));
     };
-    const auto doneHandler = [this](const Process &) {
-        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        addProgressMessage(Tr::tr("Successfully installed package file."));
-    };
-    const auto errorHandler = [this](const Process &process) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
+            addProgressMessage(Tr::tr("Successfully installed package file."));
+            return;
+        }
         addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
     };
-    return ProcessTask(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem TarPackageDeployStep::deployRecipe()
 {
-    return Group { uploadTask(), installTask() };
+    const auto onSetup = [this] {
+        if (hasLocalFileChanged(DeployableFile(m_packageFilePath, {})))
+            return SetupResult::Continue;
+        addSkipDeploymentMessage();
+        return SetupResult::StopWithSuccess;
+    };
+    return Group { onGroupSetup(onSetup), uploadTask(), installTask() };
 }
 
 
 // TarPackageDeployStepFactory
 
-TarPackageDeployStepFactory::TarPackageDeployStepFactory()
+class TarPackageDeployStepFactory final : public BuildStepFactory
 {
-    registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
-    setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    TarPackageDeployStepFactory()
+    {
+        registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
+        setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupTarPackageDeployStep()
+{
+    static TarPackageDeployStepFactory theTarPackageDeployStepFactory;
 }
 
 } // RemoteLinux::Internal

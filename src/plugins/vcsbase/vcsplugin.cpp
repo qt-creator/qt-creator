@@ -96,13 +96,6 @@ void VcsPlugin::initialize()
 {
     d = new VcsPluginPrivate(this);
 
-    EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
-        bool result = true;
-        if (auto se = qobject_cast<VcsBaseSubmitEditor *>(editor))
-            emit submitEditorAboutToClose(se, &result);
-        return result;
-    });
-
     JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
 
     MacroExpander *expander = globalMacroExpander();

@@ -10,7 +10,7 @@
     \title vcpkg Package Manager
 
     \brief The experimental vcpkg plugin integrates the vcpkg C/C++ package
-    manager into \QC.
+    manager.
 
     \l {https://vcpkg.io/en/}{vcpkg} is available on all the
     \l{Supported Platforms}{supported development platforms}.

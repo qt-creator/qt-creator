@@ -18,12 +18,11 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtsupportconstants.h>
-
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -243,7 +242,7 @@ static TextDocument *createProFileDocument()
 {
     auto doc = new TextDocument;
     doc->setId(Constants::PROFILE_EDITOR_ID);
-    doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
+    doc->setMimeType(Utils::Constants::PROFILE_MIMETYPE);
     // qmake project files do not support UTF8-BOM
     // If the BOM would be added qmake would fail and Qt Creator couldn't parse the project file
     doc->setSupportsUtf8Bom(false);
@@ -256,14 +255,15 @@ static TextDocument *createProFileDocument()
 
 ProFileEditorFactory::ProFileEditorFactory()
 {
+    using namespace Utils::Constants;
     setId(Constants::PROFILE_EDITOR_ID);
     setDisplayName(::Core::Tr::tr(Constants::PROFILE_EDITOR_DISPLAY_NAME));
-    addMimeType(Constants::PROFILE_MIMETYPE);
-    addMimeType(Constants::PROINCLUDEFILE_MIMETYPE);
-    addMimeType(Constants::PROFEATUREFILE_MIMETYPE);
-    addMimeType(Constants::PROCONFIGURATIONFILE_MIMETYPE);
-    addMimeType(Constants::PROCACHEFILE_MIMETYPE);
-    addMimeType(Constants::PROSTASHFILE_MIMETYPE);
+    addMimeType(PROFILE_MIMETYPE);
+    addMimeType(PROINCLUDEFILE_MIMETYPE);
+    addMimeType(PROFEATUREFILE_MIMETYPE);
+    addMimeType(PROCONFIGURATIONFILE_MIMETYPE);
+    addMimeType(PROCACHEFILE_MIMETYPE);
+    addMimeType(PROSTASHFILE_MIMETYPE);
 
     setDocumentCreator(createProFileDocument);
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });

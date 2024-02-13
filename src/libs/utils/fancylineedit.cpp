@@ -571,7 +571,7 @@ void FancyLineEdit::validate()
         connect(d->m_validatorWatcher.get(),
                 &QFutureWatcher<AsyncValidationResult>::finished,
                 this,
-                [this, oldText]() {
+                [this, oldText] {
                     FancyLineEdit::AsyncValidationResult result = d->m_validatorWatcher->result();
 
                     handleValidationResult(result, oldText);
@@ -634,7 +634,7 @@ void FancyIconButton::paintEvent(QPaintEvent *)
     const QPixmap iconPixmap = icon().pixmap(sizeHint(), pixelRatio,
                                              isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QStylePainter painter(this);
-    QRect pixmapRect(QPoint(), iconPixmap.size() / pixelRatio);
+    QRect pixmapRect(QPoint(), iconPixmap.size() / iconPixmap.devicePixelRatio());
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)

@@ -78,7 +78,7 @@
     select the \uicontrol Preferences link, or select \preferences >
     \uicontrol Kits.
 
-    Qt for Python projects rely on the \l{Using Language Servers}
+    Qt for Python projects rely on the \l{Language Servers}
     {language server client} for code completion, highlighting, and
     other useful features.
 
@@ -95,7 +95,7 @@
     of the \uicontrol {Configure Project} tab and select \uicontrol {Import}.
 
     You can edit the build configuration later. For more information, see
-    \l{Editing Build Configurations}.
+    \l{Edit build configurations}.
 
     \section1 Show progress information
 
@@ -112,5 +112,5 @@
     later. Select the \inlineimage icons/pin.png
     (\uicontrol Pin) button to pin the progress bar back to the toggle button.
 
-    \sa {Activate kits for a project}, {Add kits}, {Kits},
+    \sa {Activate kits for a project}, {Add kits}, {kits-tab}{Kits},
 */

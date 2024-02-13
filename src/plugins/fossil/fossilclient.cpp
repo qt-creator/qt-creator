@@ -34,8 +34,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
 
@@ -709,7 +708,8 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
         if (VcsBaseEditorConfig *editorConfig = createAnnotateEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, file, revision, editorConfig] {
                 const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                 annotate(workingDir, file, line, revision, editorConfig->arguments());
             });
@@ -736,7 +736,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
         lineNumber = -1;
     editor->setDefaultLineNumber(lineNumber);
 
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
@@ -833,14 +833,14 @@ void FossilClient::view(const FilePath &source, const QString &id, const QString
                                                   VcsBaseEditor::getCodec(source), "view", id);
     editor->setWorkingDirectory(workingDirectory);
 
-    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions);
+    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions, source);
 }
 
 class FossilLogHighlighter : QSyntaxHighlighter
 {
 public:
     explicit FossilLogHighlighter(QTextDocument *parent);
-    virtual void highlightBlock(const QString &text) final;
+    void highlightBlock(const QString &text) final;
 
 private:
     const QRegularExpression m_revisionIdRx;
@@ -915,7 +915,8 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
         if (VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu, addAuthOptions] {
                 log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu,
                     addAuthOptions);
             });
@@ -934,7 +935,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     args << effectiveArgs;
     if (!files.isEmpty())
          args << "--path" << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
@@ -970,7 +971,8 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
         if (VcsBaseEditorConfig *editorConfig = createLogCurrentFileEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu, addAuthOptions] {
                 logCurrentFile(workingDir, files, editorConfig->arguments(),
                                enableAnnotationContextMenu, addAuthOptions);
             });
@@ -987,7 +989,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
 
     QStringList args(vcsCmdString);
     args << effectiveArgs << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
 }
 
 void FossilClient::revertFile(const FilePath &workingDir,
@@ -1007,7 +1009,7 @@ void FossilClient::revertFile(const FilePath &workingDir,
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(cmd, args);
+    enqueueJob(cmd, args, workingDir);
 }
 
 void FossilClient::revertAll(const FilePath &workingDir, const QString &revision, const QStringList &extraOptions)
@@ -1031,7 +1033,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(createCommand(workingDir), args);
+    enqueueJob(createCommand(workingDir), args, workingDir);
 }
 
 QString FossilClient::sanitizeFossilOutput(const QString &output) const
@@ -1170,7 +1172,12 @@ VcsBaseEditorConfig *FossilClient::createLogEditor(VcsBaseEditorWidget *editor)
     return new FossilLogConfig(editor->toolBar());
 }
 
-} // namespace Internal
-} // namespace Fossil
+FossilClient &fossilClient()
+{
+    static FossilClient theFossilClient;
+    return theFossilClient;
+}
+
+} // namespace Fossil::Internal
 
 #include "fossilclient.moc"

@@ -36,8 +36,6 @@ public:
 
     static PerfProfilerTool *instance();
 
-    PerfProfilerTraceManager *traceManager() const;
-    PerfTimelineModelManager *modelManager() const;
     Timeline::TimelineZoomControl *zoomControl() const;
 
     bool isRecording() const;
@@ -107,13 +105,14 @@ private:
     PerfProfilerStatisticsView *m_statisticsView = nullptr;
     PerfProfilerFlameGraphView *m_flameGraphView = nullptr;
 
-    PerfProfilerTraceManager *m_traceManager = nullptr;
-    PerfTimelineModelManager *m_modelManager = nullptr;
     Timeline::TimelineZoomControl *m_zoomControl = nullptr;
     Utils::FileInProjectFinder m_fileFinder;
     bool m_readerRunning = false;
     bool m_processRunning = false;
 };
+
+void setupPerfProfilerTool();
+void destroyPerfProfilerTool();
 
 } // namespace Internal
 } // namespace PerfProfiler

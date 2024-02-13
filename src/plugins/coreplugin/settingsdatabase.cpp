@@ -209,14 +209,15 @@ void remove(const QString &key)
     const QString effectiveKey = d->effectiveKey(key);
 
     // Remove keys from the cache
-    const QStringList keys = d->m_settings.keys();
-    for (const QString &k : keys) {
+    for (auto it = d->m_settings.cbegin(); it != d->m_settings.cend(); ) {
         // Either it's an exact match, or it matches up to a /
+        const QString k = it.key();
         if (k.startsWith(effectiveKey)
             && (k.length() == effectiveKey.length()
-                || k.at(effectiveKey.length()) == QLatin1Char('/')))
-        {
-            d->m_settings.remove(k);
+                || k.at(effectiveKey.length()) == QLatin1Char('/'))) {
+            it = d->m_settings.erase(it);
+        } else {
+            ++it;
         }
     }
 

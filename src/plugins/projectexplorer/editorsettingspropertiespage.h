@@ -3,46 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/projectsettingswidget.h>
+namespace ProjectExplorer::Internal {
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QGroupBox;
-class QPushButton;
-class QSpinBox;
-QT_END_NAMESPACE
+void setupEditorSettingsProjectPanel();
 
-namespace TextEditor { class BehaviorSettingsWidget; }
-
-namespace ProjectExplorer {
-
-class EditorConfiguration;
-class Project;
-
-namespace Internal {
-
-class EditorSettingsWidget : public ProjectSettingsWidget
-{
-    Q_OBJECT
-public:
-    explicit EditorSettingsWidget(Project *project);
-
-private:
-    void globalSettingsActivated(bool useGlobal);
-    void restoreDefaultValues();
-
-    void settingsToUi(const EditorConfiguration *config);
-
-    Project *m_project;
-
-    QPushButton *m_restoreButton;
-    QCheckBox *m_showWrapColumn;
-    QCheckBox *m_tintMarginArea;
-    QSpinBox *m_wrapColumn;
-    QCheckBox *m_useIndenter;
-    QGroupBox *m_displaySettings;
-    TextEditor::BehaviorSettingsWidget *m_behaviorSettings;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

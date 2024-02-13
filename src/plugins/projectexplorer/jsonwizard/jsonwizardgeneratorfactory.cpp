@@ -4,8 +4,6 @@
 #include "jsonwizardgeneratorfactory.h"
 
 #include "jsonwizard.h"
-#include "jsonwizardfilegenerator.h"
-#include "jsonwizardscannergenerator.h"
 
 #include "../editorconfiguration.h"
 #include "../project.h"
@@ -91,7 +89,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
                      QChar::Null,
                      codeStylePrefs->currentTabSettings());
     delete indenter;
-    if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
+    if (globalStorageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
             TabSettings::removeTrailingWhitespace(cursor, block);
@@ -270,87 +268,4 @@ void JsonWizardGeneratorFactory::setTypeIdsSuffix(const QString &suffix)
     setTypeIdsSuffixes(QStringList() << suffix);
 }
 
-// --------------------------------------------------------------------
-// FileGeneratorFactory:
-// --------------------------------------------------------------------
-
-namespace Internal {
-
-FileGeneratorFactory::FileGeneratorFactory()
-{
-    setTypeIdsSuffix(QLatin1String("File"));
-}
-
-JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &data,
-                                                  const QString &path, Id platform,
-                                                  const QVariantMap &variables)
-{
-    Q_UNUSED(path)
-    Q_UNUSED(platform)
-    Q_UNUSED(variables)
-
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-
-    auto gen = new JsonWizardFileGenerator;
-    QString errorMessage;
-    gen->setup(data, &errorMessage);
-
-    if (!errorMessage.isEmpty()) {
-        qWarning() << "FileGeneratorFactory setup error:" << errorMessage;
-        delete gen;
-        return nullptr;
-    }
-
-    return gen;
-}
-
-bool FileGeneratorFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-
-    QScopedPointer<JsonWizardFileGenerator> gen(new JsonWizardFileGenerator);
-    return gen->setup(data, errorMessage);
-}
-
-// --------------------------------------------------------------------
-// ScannerGeneratorFactory:
-// --------------------------------------------------------------------
-
-ScannerGeneratorFactory::ScannerGeneratorFactory()
-{
-    setTypeIdsSuffix(QLatin1String("Scanner"));
-}
-
-JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &data,
-                                                     const QString &path, Id platform,
-                                                     const QVariantMap &variables)
-{
-    Q_UNUSED(path)
-    Q_UNUSED(platform)
-    Q_UNUSED(variables)
-
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-
-    auto gen = new JsonWizardScannerGenerator;
-    QString errorMessage;
-    gen->setup(data, &errorMessage);
-
-    if (!errorMessage.isEmpty()) {
-        qWarning() << "ScannerGeneratorFactory setup error:" << errorMessage;
-        delete gen;
-        return nullptr;
-    }
-
-    return gen;
-}
-
-bool ScannerGeneratorFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-
-    QScopedPointer<JsonWizardScannerGenerator> gen(new JsonWizardScannerGenerator);
-    return gen->setup(data, errorMessage);
-}
-
-} // namespace Internal
 } // namespace ProjectExplorer

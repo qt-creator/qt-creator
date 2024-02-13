@@ -10,10 +10,12 @@
 
 namespace Copilot {
 
+using Key = LanguageServerProtocol::Key;
+
 class EditorPluginInfo : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char version[] = "version";
-    static constexpr char name[] = "name";
+    static constexpr Key version{"version"};
+    static constexpr Key name{"name"};
 
 public:
     using JsonObject::JsonObject;
@@ -30,8 +32,8 @@ public:
 
 class EditorInfo : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char version[] = "version";
-    static constexpr char name[] = "name";
+    static constexpr Key version{"version"};
+    static constexpr Key name{"name"};
 
 public:
     using JsonObject::JsonObject;
@@ -48,11 +50,11 @@ public:
 
 class NetworkProxy : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char host[] = "host";
-    static constexpr char port[] = "port";
-    static constexpr char user[] = "username";
-    static constexpr char password[] = "password";
-    static constexpr char rejectUnauthorized[] = "rejectUnauthorized";
+    static constexpr Key host{"host"};
+    static constexpr Key port{"port"};
+    static constexpr Key user{"username"};
+    static constexpr Key password{"password"};
+    static constexpr Key rejectUnauthorized{"rejectUnauthorized"};
 
 public:
     using JsonObject::JsonObject;
@@ -70,7 +72,7 @@ public:
         setRejectUnauthorized(rejectUnauthorized);
     }
 
-    void insertIfNotEmpty(const std::string_view key, const QString &value)
+    void insertIfNotEmpty(const Key key, const QString &value)
     {
         if (!value.isEmpty())
             insert(key, value);
@@ -85,9 +87,9 @@ public:
 
 class SetEditorInfoParams : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char editorInfo[] = "editorInfo";
-    static constexpr char editorPluginInfo[] = "editorPluginInfo";
-    static constexpr char networkProxy[] = "networkProxy";
+    static constexpr Key editorInfo{"editorInfo"};
+    static constexpr Key editorPluginInfo{"editorPluginInfo"};
+    static constexpr Key networkProxy{"networkProxy"};
 
 public:
     using JsonObject::JsonObject;
@@ -120,7 +122,7 @@ public:
         : Request(methodName, params)
     {}
     using Request::Request;
-    constexpr static const char methodName[] = "setEditorInfo";
+    constexpr static const Key methodName{"setEditorInfo"};
 };
 
 } // namespace Copilot
