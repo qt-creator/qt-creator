@@ -12,12 +12,167 @@
 #include <QFileInfo>
 #include <QMutableMapIterator>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QVariant>
 #include <QXmlStreamReader>
 
-#ifdef QT_XMLPATTERNS_LIB
-#include <QXmlSchema>
-#include <QXmlSchemaValidator>
+#ifdef HAS_XERCESC
+
+#include <xercesc/framework/XMLGrammarPoolImpl.hpp>
+
+#include <xercesc/parsers/SAX2XMLReaderImpl.hpp>
+
+#include <xercesc/sax/ErrorHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
+
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/XMLUni.hpp>
+
+#include <xercesc/framework/XMLGrammarPoolImpl.hpp>
+#include <xercesc/validators/common/Grammar.hpp>
+
+using namespace xercesc;
+
+/*
+ * Ideas taken from:
+ *
+ * author    : Boris Kolpackov <boris@codesynthesis.com>
+ * copyright : not copyrighted - public domain
+ *
+ * This program uses Xerces-C++ SAX2 parser to load a set of schema files
+ * and then to validate a set of XML documents against these schemas. To
+ * build this program you will need Xerces-C++ 3.0.0 or later. For more
+ * information, see:
+ *
+ * http://www.codesynthesis.com/~boris/blog/2010/03/15/validating-external-schemas-xerces-cxx/
+ */
+
+/**
+ * Error handler object used during xml schema validation.
+ */
+class CustomErrorHandler : public ErrorHandler
+{
+public:
+    /**
+     * Constructor
+     * @param messages Pointer to the error message string to fill.
+     */
+    CustomErrorHandler(QString *messages)
+        : m_messages(messages)
+    {
+    }
+
+    /**
+     * Check global success/fail state.
+     * @return True if there was a failure, false otherwise.
+     */
+    bool failed() const
+    {
+        return m_failed;
+    }
+
+private:
+    /**
+     * Severity classes for error messages.
+     */
+    enum severity { s_warning, s_error, s_fatal };
+
+    /**
+     * Wrapper for warning exceptions.
+     * @param e Exception to handle.
+     */
+    void warning(const SAXParseException &e) override
+    {
+        m_failed = true; // be strict, warnings are evil, too!
+        handle(e, s_warning);
+    }
+
+    /**
+     * Wrapper for error exceptions.
+     * @param e Exception to handle.
+     */
+    void error(const SAXParseException &e) override
+    {
+        m_failed = true;
+        handle(e, s_error);
+    }
+
+    /**
+     * Wrapper for fatal error exceptions.
+     * @param e Exception to handle.
+     */
+    void fatalError(const SAXParseException &e) override
+    {
+        m_failed = true;
+        handle(e, s_fatal);
+    }
+
+    /**
+     * Reset the error status to "no error".
+     */
+    void resetErrors() override
+    {
+        m_failed = false;
+    }
+
+    /**
+     * Generic handler for error/warning/fatal error message exceptions.
+     * @param e Exception to handle.
+     * @param s Enum value encoding the message severtity.
+     */
+    void handle(const SAXParseException &e, severity s)
+    {
+        // get id to print
+        const XMLCh *xid(e.getPublicId());
+        if (!xid)
+            xid = e.getSystemId();
+
+        m_messages << QString::fromUtf16(xid) << ":" << e.getLineNumber() << ":" << e.getColumnNumber() << " " << (s == s_warning ? "warning: " : "error: ")
+                   << QString::fromUtf16(e.getMessage()) << Qt::endl;
+    }
+
+private:
+    /**
+     * Storage for created error messages in this handler.
+     */
+    QTextStream m_messages;
+
+    /**
+     * Global error state. True if there was an error, false otherwise.
+     */
+    bool m_failed = false;
+};
+
+void init_parser(SAX2XMLReaderImpl &parser)
+{
+    // Commonly useful configuration.
+    //
+    parser.setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+    parser.setFeature(XMLUni::fgSAX2CoreNameSpacePrefixes, true);
+    parser.setFeature(XMLUni::fgSAX2CoreValidation, true);
+
+    // Enable validation.
+    //
+    parser.setFeature(XMLUni::fgXercesSchema, true);
+    parser.setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+    parser.setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
+
+    // Use the loaded grammar during parsing.
+    //
+    parser.setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+
+    // Don't load schemas from any other source (e.g., from XML document's
+    // xsi:schemaLocation attributes).
+    //
+    parser.setFeature(XMLUni::fgXercesLoadSchema, false);
+
+    // Xerces-C++ 3.1.0 is the first version with working multi import
+    // support.
+    //
+    parser.setFeature(XMLUni::fgXercesHandleMultipleImports, true);
+}
+
 #endif
 
 #include "../lib/worddelimiters_p.h"
@@ -152,12 +307,10 @@ public:
                 success = false;
             }
 
-            QSet<const Keywords *> referencedKeywords;
             QSet<ItemDatas::Style> usedAttributeNames;
             QSet<ItemDatas::Style> ignoredAttributeNames;
-            success = checkKeywordsList(definition, referencedKeywords) && success;
-            success =
-                checkContexts(definition, referencedKeywords, usedAttributeNames, ignoredAttributeNames, usedContexts, unreachableIncludedRules) && success;
+            success = checkKeywordsList(definition) && success;
+            success = checkContexts(definition, usedAttributeNames, ignoredAttributeNames, usedContexts, unreachableIncludedRules) && success;
 
             // search for non-existing itemDatas.
             const auto invalidNames = usedAttributeNames - definition.itemDatas.styleNames;
@@ -362,7 +515,7 @@ private:
                 QString content;
                 int line;
 
-                friend uint qHash(const Item &item, uint seed = 0)
+                friend size_t qHash(const Item &item, size_t seed = 0)
                 {
                     return qHash(item.content, seed);
                 }
@@ -373,7 +526,7 @@ private:
                 }
             };
 
-            QVector<Item> keywords;
+            QList<Item> keywords;
             QSet<Item> includes;
 
             bool parseElement(const QString &filename, QXmlStreamReader &xml)
@@ -486,7 +639,7 @@ private:
             QString weakDeliminator;
 
             // rules included by IncludeRules (without IncludeRule)
-            QVector<const Rule *> includedRules;
+            QList<const Rule *> includedRules;
 
             // IncludeRules included by IncludeRules
             QSet<const Rule *> includedIncludeRules;
@@ -683,9 +836,10 @@ private:
         ContextName lineEndContext;
         ContextName lineEmptyContext;
         ContextName fallthroughContext;
-        QVector<Rule> rules;
+        QList<Rule> rules;
         XmlBool dynamic{};
         XmlBool fallthrough{};
+        XmlBool stopEmptyLineContextSwitchLoop{};
 
         bool parseElement(const QString &filename, QXmlStreamReader &xml)
         {
@@ -697,12 +851,17 @@ private:
                 Parser parser{filename, xml, attr, success};
                 XmlBool noIndentationBasedFolding{};
 
-                const bool isExtracted = parser.extractString(name, QStringLiteral("name")) || parser.extractString(attribute, QStringLiteral("attribute"))
+                // clang-format off
+                const bool isExtracted = parser.extractString(name, QStringLiteral("name"))
+                    || parser.extractString(attribute, QStringLiteral("attribute"))
                     || parser.extractString(lineEndContext.name, QStringLiteral("lineEndContext"))
                     || parser.extractString(lineEmptyContext.name, QStringLiteral("lineEmptyContext"))
                     || parser.extractString(fallthroughContext.name, QStringLiteral("fallthroughContext"))
-                    || parser.extractXmlBool(dynamic, QStringLiteral("dynamic")) || parser.extractXmlBool(fallthrough, QStringLiteral("fallthrough"))
+                    || parser.extractXmlBool(dynamic, QStringLiteral("dynamic"))
+                    || parser.extractXmlBool(fallthrough, QStringLiteral("fallthrough"))
+                    || parser.extractXmlBool(stopEmptyLineContextSwitchLoop, QStringLiteral("stopEmptyLineContextSwitchLoop"))
                     || parser.extractXmlBool(noIndentationBasedFolding, QStringLiteral("noIndentationBasedFolding"));
+                // clang-format on
 
                 success = parser.checkIfExtracted(isExtracted);
             }
@@ -714,11 +873,6 @@ private:
 
             if (attribute.isEmpty()) {
                 qWarning() << filename << "line" << xml.lineNumber() << "missing attribute: attribute";
-                success = false;
-            }
-
-            if (lineEndContext.name.isEmpty()) {
-                qWarning() << filename << "line" << xml.lineNumber() << "missing attribute: lineEndContext";
                 success = false;
             }
 
@@ -747,7 +901,7 @@ private:
             QString name;
             int line;
 
-            friend uint qHash(const Style &style, uint seed = 0)
+            friend size_t qHash(const Style &style, size_t seed = 0)
             {
                 return qHash(style.name, seed);
             }
@@ -802,7 +956,6 @@ private:
         const Context *firstContext = nullptr;
         QString filename;
         WordDelimiters wordDelimiters;
-        XmlBool casesensitive{};
         Version kateVersion{};
         QString kateVersionStr;
         QString languageName;
@@ -865,7 +1018,7 @@ private:
     void resolveIncludeRules()
     {
         QSet<const Context *> usedContexts;
-        QVector<const Context *> contexts;
+        QList<const Context *> contexts;
 
         QMutableMapIterator<QString, Definition> def(m_definitions);
         while (def.hasNext()) {
@@ -936,7 +1089,7 @@ private:
     QSet<const Context *> extractUsedContexts() const
     {
         QSet<const Context *> usedContexts;
-        QVector<const Context *> contexts;
+        QList<const Context *> contexts;
 
         QMapIterator<QString, Definition> def(m_definitions);
         while (def.hasNext()) {
@@ -982,13 +1135,12 @@ private:
     };
 
     struct IncludedRuleUnreachableBy {
-        QVector<RuleAndInclude> unreachableBy;
+        QList<RuleAndInclude> unreachableBy;
         bool alwaysUnreachable = true;
     };
 
     //! Check contexts and rules
     bool checkContexts(const Definition &definition,
-                       QSet<const Keywords *> &referencedKeywords,
                        QSet<ItemDatas::Style> &usedAttributeNames,
                        QSet<ItemDatas::Style> &ignoredAttributeNames,
                        const QSet<const Context *> &usedContexts,
@@ -1018,7 +1170,7 @@ private:
                 usedAttributeNames.insert({context.attribute, context.line});
             }
 
-            success = checkfallthrough(definition, context) && success;
+            success = checkContextAttribute(definition, context) && success;
             success = checkUreachableRules(definition.filename, context, unreachableIncludedRules) && success;
             success = suggestRuleMerger(definition.filename, context) && success;
 
@@ -1032,7 +1184,7 @@ private:
                 }
                 success = checkLookAhead(rule) && success;
                 success = checkStringDetect(rule) && success;
-                success = checkKeyword(definition, rule, referencedKeywords) && success;
+                success = checkKeyword(definition, rule) && success;
                 success = checkRegExpr(filename, rule, context) && success;
                 success = checkDelimiters(definition, rule) && success;
             }
@@ -1047,12 +1199,13 @@ private:
     //! - dynamic=true but no place holder used?
     //! - is not . with lookAhead="1"
     //! - is not ^... without column ou firstNonSpace attribute
-    //! - is not equivalent to DetectSpaces, DetectChar, Detect2Chars, StringDetect, DetectIdentifier, RangeDetect
+    //! - is not equivalent to DetectSpaces, DetectChar, Detect2Chars, StringDetect, DetectIdentifier, RangeDetect, LineContinue or AnyChar
     //! - has no unused captures
     //! - has no unnecessary quantifier with lookAhead
     bool checkRegExpr(const QString &filename, const Context::Rule &rule, const Context &context) const
     {
-        if (rule.type == Context::Rule::Type::RegExpr) {
+        // ignore empty regex because the error is raised during xml parsing
+        if (rule.type == Context::Rule::Type::RegExpr && !rule.string.isEmpty()) {
             const QRegularExpression regexp(rule.string);
             if (!checkRegularExpression(rule.filename, regexp, rule.line)) {
                 return false;
@@ -1092,13 +1245,21 @@ private:
 
             // is RangeDetect
             static const QRegularExpression isRange(QStringLiteral("^\\^?" REG_CHAR "(?:"
-                                                                   "\\.\\*[?*]?" REG_CHAR "|"
-                                                                   "\\[\\^(" REG_ESCAPE_CHAR "|.)\\]\\*[?*]?\\1"
+                                                                   "\\.\\*[?+]?" REG_CHAR "|"
+                                                                   "\\[\\^(" REG_ESCAPE_CHAR "|.)\\]\\*[?+]?\\1"
                                                                    ")$"));
             if ((rule.lookAhead == XmlBool::True || rule.minimal == XmlBool::True || rule.string.contains(QStringLiteral(".*?"))
                  || rule.string.contains(QStringLiteral("[^")))
                 && reg.contains(isRange)) {
-                qWarning() << filename << "line" << rule.line << "RegExpr should be replaced by RangeDetect:" << rule.string;
+                qWarning() << rule.filename << "line" << rule.line << "RegExpr should be replaced by RangeDetect:" << rule.string;
+                return false;
+            }
+
+            // is AnyChar
+            static const QRegularExpression isAnyChar(QStringLiteral(R"(^(\^|\((\?:)?)*\[(?!\^)[-\]]?(\\[^0BDPSWbdpswoux]|[^-\]\\])*\]\)*$)"));
+            if (rule.string.contains(isAnyChar)) {
+                auto extra = (reg[0] == QLatin1Char('^') || reg[1] == QLatin1Char('^')) ? "with column=\"0\"" : "";
+                qWarning() << rule.filename << "line" << rule.line << "RegExpr should be replaced by AnyChar:" << rule.string << extra;
                 return false;
             }
 
@@ -1106,7 +1267,7 @@ private:
             static const QRegularExpression isLineContinue(QStringLiteral("^\\^?" REG_CHAR "\\$$"));
             if (reg.contains(isLineContinue)) {
                 auto extra = (reg[0] == QLatin1Char('^')) ? "with column=\"0\"" : "";
-                qWarning() << filename << "line" << rule.line << "RegExpr should be replaced by LineContinue:" << rule.string << extra;
+                qWarning() << rule.filename << "line" << rule.line << "RegExpr should be replaced by LineContinue:" << rule.string << extra;
                 return false;
             }
 
@@ -1124,7 +1285,7 @@ private:
             if (rule.lookAhead == XmlBool::True && rule.minimal != XmlBool::True && reg.contains(isMinimal) && !reg.contains(hasNotGreedy)
                 && (!rule.context.context || !rule.context.context->hasDynamicRule || regexp.captureCount() == 0)
                 && (reg.back() != QLatin1Char('$') || reg.contains(QLatin1Char('|')))) {
-                qWarning() << filename << "line" << rule.line
+                qWarning() << rule.filename << "line" << rule.line
                            << "RegExpr should be have minimal=\"1\" or use lazy operator (i.g, '.*' -> '.*?'):" << rule.string;
                 return false;
             }
@@ -1160,8 +1321,8 @@ private:
                 return false;
             }
 
-            // column="0" or firstNonSpace="1"
-            if (rule.column == -1 && rule.firstNonSpace != XmlBool::True) {
+            // column="0"
+            if (rule.column == -1) {
                 // ^ without |
                 // (^sas*) -> ok
                 // (^sa|s*) -> ko
@@ -1204,7 +1365,7 @@ private:
                     }
 
                     if (replace) {
-                        qWarning() << rule.filename << "line" << rule.line << "column=\"0\" or firstNonSpace=\"1\" missing with RegExpr:" << rule.string;
+                        qWarning() << rule.filename << "line" << rule.line << "column=\"0\" missing with RegExpr:" << rule.string;
                         return false;
                     }
                 }
@@ -1306,11 +1467,8 @@ private:
 
             if (!useCapture) {
                 // is DetectIdentifier
-                static const QRegularExpression isInsensitiveDetectIdentifier(
-                    QStringLiteral(R"(^(\((\?:)?)?\[((a-z|_){2}|(A-Z|_){2})\]([+][*?]?)?\[((0-9|a-z|_){3}|(0-9|A-Z|_){3})\][*][*?]?(\))?$)"));
-                static const QRegularExpression isSensitiveDetectIdentifier(
-                    QStringLiteral(R"(^(\((\?:)?)?\[(a-z|A-Z|_){3}\]([+][*?]?)?\[(0-9|a-z|A-Z|_){4}\][*][*?]?(\))?$)"));
-                auto &isDetectIdentifier = (rule.insensitive == XmlBool::True) ? isInsensitiveDetectIdentifier : isSensitiveDetectIdentifier;
+                static const QRegularExpression isDetectIdentifier(
+                    QStringLiteral(R"(^(\((\?:)?|\^)*\[(\\p\{L\}|_){2}\]([+][?+]?)?\[(\\p\{N\}|\\p\{L\}|_){3}\][*][?+]?\)*$)"));
                 if (rule.string.contains(isDetectIdentifier)) {
                     qWarning() << rule.filename << "line" << rule.line << "RegExpr should be replaced by DetectIdentifier:" << rule.string;
                     return false;
@@ -1357,7 +1515,7 @@ private:
                 static const QRegularExpression unnecessaryQuantifier2(QStringLiteral(R"([*+?]([.][*+?]{0,2})?[)]*$)"));
                 auto &unnecessaryQuantifier = useCapture ? unnecessaryQuantifier1 : unnecessaryQuantifier2;
                 if (rule.lookAhead == XmlBool::True && rule.minimal != XmlBool::True && reg.contains(unnecessaryQuantifier)) {
-                    qWarning() << filename << "line" << rule.line
+                    qWarning() << rule.filename << "line" << rule.line
                                << "Last quantifier is not necessary (i.g., 'xyz*' -> 'xy', 'xyz+.' -> 'xyz.'):" << rule.string;
                     return false;
                 }
@@ -1418,19 +1576,13 @@ private:
         return true;
     }
 
-    //! Search for rules with lookAhead="true" and context="#stay".
-    //! This would cause an infinite loop.
-    bool checkfallthrough(const Definition &definition, const Context &context) const
+    //! Check fallthrough and fallthroughContext.
+    //! Check kateversion for stopEmptyLineContextSwitchLoop.
+    bool checkContextAttribute(const Definition &definition, const Context &context) const
     {
         bool success = true;
 
         if (!context.fallthroughContext.name.isEmpty()) {
-            if (context.fallthroughContext.stay) {
-                qWarning() << definition.filename << "line" << context.line << "possible infinite loop due to fallthroughContext=\"#stay\" in context "
-                           << context.name;
-                success = false;
-            }
-
             const bool mandatoryFallthroughAttribute = definition.kateVersion < Version{5, 62};
             if (context.fallthrough == XmlBool::True && !mandatoryFallthroughAttribute) {
                 qWarning() << definition.filename << "line" << context.line << "fallthrough attribute is unnecessary with kateversion >= 5.62 in context"
@@ -1442,6 +1594,12 @@ private:
                            << context.name;
                 success = false;
             }
+        }
+
+        if (context.stopEmptyLineContextSwitchLoop != XmlBool::Unspecified && definition.kateVersion < Version{5, 103}) {
+            qWarning() << definition.filename << "line" << context.line
+                       << "stopEmptyLineContextSwitchLoop attribute is only valid with kateversion >= 5.103 in context" << context.name;
+            success = false;
         }
 
         return success;
@@ -1478,15 +1636,12 @@ private:
         return false;
     }
 
-    //! Search for rules with lookAhead="true" and context="#stay".
-    //! This would cause an infinite loop.
-    bool checkKeyword(const Definition &definition, const Context::Rule &rule, QSet<const Keywords *> &referencedKeywords) const
+    //! Check that keyword rule reference an existing keyword list.
+    bool checkKeyword(const Definition &definition, const Context::Rule &rule) const
     {
         if (rule.type == Context::Rule::Type::keyword) {
             auto it = definition.keywordsList.find(rule.string);
-            if (it != definition.keywordsList.end()) {
-                referencedKeywords.insert(&*it);
-            } else {
+            if (it == definition.keywordsList.end()) {
                 qWarning() << rule.filename << "line" << rule.line << "reference of non-existing keyword list:" << rule.string;
                 return false;
             }
@@ -1504,13 +1659,7 @@ private:
         return true;
     }
 
-    //! Check that StringDetect contains more that 2 characters
-    //! Fix with following command:
-    //! \code
-    //!   sed -E
-    //!   '/StringDetect/{/dynamic="(1|true)|insensitive="(1|true)/!{s/StringDetect(.*)String="(.|&lt;|&gt;|&quot;|&amp;)(.|&lt;|&gt;|&quot;|&amp;)"/Detect2Chars\1char="\2"
-    //!   char1="\3"/;t;s/StringDetect(.*)String="(.|&lt;|&gt;|&quot;|&amp;)"/DetectChar\1char="\2"/}}' -i file.xml...
-    //! \endcode
+    //! Check that StringDetect contains a placeHolder when dynamic="1"
     bool checkStringDetect(const Context::Rule &rule) const
     {
         if (rule.type == Context::Rule::Type::StringDetect) {
@@ -1527,7 +1676,7 @@ private:
     }
 
     //! Check \<include> and delimiter in a keyword list
-    bool checkKeywordsList(const Definition &definition, QSet<const Keywords *> &referencedKeywords) const
+    bool checkKeywordsList(const Definition &definition) const
     {
         bool success = true;
 
@@ -1542,7 +1691,7 @@ private:
                                << "<include> is only available since version \"5.53\". Please, increase kateversion.";
                     success = false;
                 }
-                success = checkKeywordInclude(definition, include, referencedKeywords) && success;
+                success = checkKeywordInclude(definition, include) && success;
             }
 
             // Check that keyword list items do not have deliminator character
@@ -1562,16 +1711,13 @@ private:
     }
 
     //! Search for non-existing keyword include.
-    bool checkKeywordInclude(const Definition &definition, const Keywords::Items::Item &include, QSet<const Keywords *> &referencedKeywords) const
+    bool checkKeywordInclude(const Definition &definition, const Keywords::Items::Item &include) const
     {
         bool containsKeywordName = true;
         int const idx = include.content.indexOf(QStringLiteral("##"));
         if (idx == -1) {
             auto it = definition.keywordsList.find(include.content);
             containsKeywordName = (it != definition.keywordsList.end());
-            if (containsKeywordName) {
-                referencedKeywords.insert(&*it);
-            }
         } else {
             auto defName = include.content.mid(idx + 2);
             auto listName = include.content.left(idx);
@@ -1644,10 +1790,10 @@ private:
             }
 
             /// Search RuleAndInclude associated with the characters of @p s.
-            /// \return an empty QVector when at least one character is not found.
-            QVector<RuleAndInclude> find(QStringView s) const
+            /// \return an empty QList when at least one character is not found.
+            QList<RuleAndInclude> find(QStringView s) const
             {
-                QVector<RuleAndInclude> result;
+                QList<RuleAndInclude> result;
 
                 for (QChar c : s) {
                     if (!find(c)) {
@@ -1731,8 +1877,8 @@ private:
             }
 
             /// Search RuleAndInclude associated with the characters of @p s.
-            /// \return an empty QVector when at least one character is not found.
-            QVector<RuleAndInclude> find(QStringView s) const
+            /// \return an empty QList when at least one character is not found.
+            QList<RuleAndInclude> find(QStringView s) const
             {
                 for (int i = 0; i < m_size; ++i) {
                     auto result = m_charTables[i]->find(s);
@@ -1743,7 +1889,7 @@ private:
                         return result;
                     }
                 }
-                return QVector<RuleAndInclude>();
+                return QList<RuleAndInclude>();
             }
 
             /// Associates @p c with a rule.
@@ -1785,7 +1931,7 @@ private:
 
         // Iterates over all the rules, including those in includedRules
         struct RuleIterator {
-            RuleIterator(const QVector<ObservableRule> &rules, const ObservableRule &endRule)
+            RuleIterator(const QList<ObservableRule> &rules, const ObservableRule &endRule)
                 : m_end(&endRule - rules.data())
                 , m_rules(rules)
             {
@@ -1830,10 +1976,10 @@ private:
 
         private:
             int m_i = 0;
-            int m_i2;
-            int m_end;
-            const QVector<ObservableRule> &m_rules;
-            const QVector<const Context::Rule *> *m_includedRules = nullptr;
+            int m_i2 = 0;
+            const int m_end;
+            const QList<ObservableRule> &m_rules;
+            const QList<const Context::Rule *> *m_includedRules = nullptr;
         };
 
         // Dot regex container that satisfies firstNonSpace and column.
@@ -1915,7 +2061,7 @@ private:
 
         DotRegex dotRegex;
 
-        QVector<ObservableRule> observedRules;
+        QList<ObservableRule> observedRules;
         observedRules.reserve(context.rules.size());
         for (const Context::Rule &rule : context.rules) {
             const Context::Rule *includeRule = nullptr;
@@ -1937,7 +2083,7 @@ private:
         for (auto &observedRule : observedRules) {
             const Context::Rule &rule = *observedRule.rule;
             bool isUnreachable = false;
-            QVector<RuleAndInclude> unreachableBy;
+            QList<RuleAndInclude> unreachableBy;
 
             // declare rule as unreachable if ruleAndInclude is not empty
             auto updateUnreachable1 = [&](RuleAndInclude ruleAndInclude) {
@@ -1948,7 +2094,7 @@ private:
             };
 
             // declare rule as unreachable if ruleAndIncludes is not empty
-            auto updateUnreachable2 = [&](const QVector<RuleAndInclude> &ruleAndIncludes) {
+            auto updateUnreachable2 = [&](const QList<RuleAndInclude> &ruleAndIncludes) {
                 if (!ruleAndIncludes.isEmpty()) {
                     isUnreachable = true;
                     unreachableBy.append(ruleAndIncludes);
@@ -2030,6 +2176,8 @@ private:
             case Context::Rule::Type::Float:
                 updateUnreachable2(CharTableArray(detectChars, rule).find(QStringLiteral("0123456789.")));
                 updateUnreachable1(floatRule.setRule(rule));
+                // check that Float is before Int
+                updateUnreachable1(Rule4(intRule).setRule(rule));
                 break;
 
             // check if hidden by another DetectIdentifier rule
@@ -2629,12 +2777,32 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-#ifdef QT_XMLPATTERNS_LIB
-    // open schema
-    QXmlSchema schema;
-    if (!schema.load(QUrl::fromLocalFile(app.arguments().at(2)))) {
+#ifdef HAS_XERCESC
+    // care for proper init and cleanup
+    XMLPlatformUtils::Initialize();
+    auto cleanup = qScopeGuard(XMLPlatformUtils::Terminate);
+
+    /*
+     * parse XSD first time and cache it
+     */
+    XMLGrammarPoolImpl xsd(XMLPlatformUtils::fgMemoryManager);
+
+    // create parser for the XSD
+    SAX2XMLReaderImpl parser(XMLPlatformUtils::fgMemoryManager, &xsd);
+    init_parser(parser);
+    QString messages;
+    CustomErrorHandler eh(&messages);
+    parser.setErrorHandler(&eh);
+
+    // load grammar into the pool, on error just abort
+    const auto xsdFile = app.arguments().at(2);
+    if (!parser.loadGrammar((const char16_t *)xsdFile.utf16(), Grammar::SchemaGrammarType, true) || eh.failed()) {
+        qWarning("Failed to parse XSD %s: %s", qPrintable(xsdFile), qPrintable(messages));
         return 2;
     }
+
+    // lock the pool, no later modifications wanted!
+    xsd.lockPool();
 #endif
 
     const QString hlFilenamesListing = app.arguments().value(3);
@@ -2665,10 +2833,20 @@ int main(int argc, char *argv[])
             continue;
         }
 
-#ifdef QT_XMLPATTERNS_LIB
-        // validate against schema
-        QXmlSchemaValidator validator(schema);
-        if (!validator.validate(&hlFile, QUrl::fromLocalFile(hlFile.fileName()))) {
+#ifdef HAS_XERCESC
+        // create parser
+        SAX2XMLReaderImpl parser(XMLPlatformUtils::fgMemoryManager, &xsd);
+        init_parser(parser);
+        QString messages;
+        CustomErrorHandler eh(&messages);
+        parser.setErrorHandler(&eh);
+
+        // parse the XML file
+        parser.parse((const char16_t *)hlFile.fileName().utf16());
+
+        // report issues
+        if (eh.failed()) {
+            qWarning("Failed to validate XML %s: %s", qPrintable(hlFile.fileName()), qPrintable(messages));
             anyError = 4;
             continue;
         }
@@ -2707,6 +2885,10 @@ int main(int argc, char *argv[])
 
         // add boolean one
         hl[QStringLiteral("hidden")] = attrToBool(xml.attributes().value(QLatin1String("hidden")));
+
+        // keep some strings as UTF-8 for faster translations
+        hl[QStringLiteral("nameUtf8")] = hl[QStringLiteral("name")].toString().toUtf8();
+        hl[QStringLiteral("sectionUtf8")] = hl[QStringLiteral("section")].toString().toUtf8();
 
         // remember hl
         hls[QFileInfo(hlFile).fileName()] = hl;

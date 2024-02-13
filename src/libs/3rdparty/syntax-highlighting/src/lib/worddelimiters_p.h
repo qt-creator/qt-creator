@@ -27,6 +27,11 @@ public:
     WordDelimiters();
 
     /**
+     * Initialize with a default delimiters.
+     */
+    explicit WordDelimiters(QStringView str);
+
+    /**
      * Returns @c true if @p c is a word delimiter; otherwise returns @c false.
      */
     bool contains(QChar c) const;

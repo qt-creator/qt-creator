@@ -3,25 +3,31 @@
 #
 # Generate Kate syntax file for CMake
 #
-# SPDX-FileCopyrightText: 2017-2020 Alex Turbov <i.zaufi@gmail.com>
+# SPDX-FileCopyrightText: 2017-2023 Alex Turbov <i.zaufi@gmail.com>
 #
 # To install prerequisites:
 #
-#   $ pip install --user click jinja2 pyyaml
+#   $ pip install --user click jinja2 lxml pyyaml
 #
 # To use:
 #
 #   $ ./generate-cmake-syntax.py cmake.yaml > ../syntax/cmake.xml
 #
+
+from __future__ import annotations
+
+import functools
+import re
+from dataclasses import dataclass, field
+
 import click
 import jinja2
-import re
 import yaml
-
+import sys
 from lxml import etree
 
 
-_TEMPLATED_NAME = re.compile('<[^>]+>')
+_TEMPLATED_NAME = re.compile(r'(?:<[^>]+>)')
 _PROPERTY_KEYS = [
     'global-properties'
   , 'directory-properties'
@@ -33,7 +39,7 @@ _PROPERTY_KEYS = [
   ]
 _KW_RE_LIST = ['kw', 're']
 _VAR_KIND_LIST = ['variables', 'deprecated-or-internal-variables', 'environment-variables']
-_CONTROL_FLOW_LIST = set((
+_CONTROL_FLOW_LIST = {
     'break'
   , 'continue'
   , 'elseif'
@@ -45,39 +51,226 @@ _CONTROL_FLOW_LIST = set((
   , 'if'
   , 'return'
   , 'while'
-))
+  }
+_VAR_REF_ENTITY = '&var_ref_re;'
+
+_HEURISTICS = [
+    (
+        {'MAX(_(COUNT|MAJOR|MINOR|PATCH|TWEAK))?', 'MIN(_(COUNT|MAJOR|MINOR|PATCH|TWEAK))?'}
+      , 'M(AX|IN)(_(COUNT|MAJOR|MINOR|PATCH|TWEAK))?'
+    )
+  , ({'OUTPUTS', 'OUTPUT_(HEADER|SOURCE)'}, 'OUTPUT(S|_(HEADER|SOURCE))')
+  , ({'PREFIX', 'SUFFIX'}, '(PRE|SUF)FIX')
+  , ({'CPPCHECK', 'CPPLINT'}, 'CPP(CHECK|LINT)')
+  , ({'DEPENDS', 'PREDEPENDS'}, '(PRE)?DEPENDS')
+  , ({'ICON', 'ICONURL'}, 'ICON(URL)?')
+  , (
+        {
+            '&var%ref%re;(_INIT)?'
+          , 'DEBUG(_INIT)?'
+          , 'MINSIZEREL(_INIT)?'
+          , 'RELEASE(_INIT)?'
+          , 'RELWITHDEBINFO(_INIT)?'
+          }
+      , '(DEBUG|MINSIZEREL|REL(EASE|WITHDEBINFO)|&var%ref%re;)(_INIT)?'
+    )
+  , ({'RELEASE', 'RELWITHDEBINFO'}, 'REL(EASE|WITHDEBINFO)')
+  , ({'POST', 'POSTUN', 'PRE', 'PREUN'}, 'P(RE|OST)(UN)?')
+  , ({'AUTOPROV', 'AUTOREQ', 'AUTOREQPROV'}, 'AUTO(PROV|REQ(PROV)?)')
+  , ({'DEFINITIONS', 'OPTIONS'}, '(DEFINI|OP)TIONS')
+  , ({'LIB_NAMES', 'LIBRARY'}, 'LIB(_NAMES|RARY)')
+  , ({'EXTENSIONS', 'EXTRA_FLAGS'}, 'EXT(ENSIONS|RA_FLAGS)')
+  , ({'DISABLED', 'DISPLAY_NAME'}, 'DIS(ABLED|PLAY_NAME)')
+  , ({'LIBRARIES', 'LINK_LIBRARIES', 'STATIC_LINK_LIBRARIES'}, '((STATIC_)?LINK_)?LIBRARIES')
+  , ({'INCLUDE_DIRS', 'LIBRARY_DIRS'}, '(INCLUDE|LIBRARY)_DIRS')
+  , ({'BINARY_DIR', 'SOURCE_DIR'}, '(BINARY|SOURCE)_DIR')
+  , ({'CFLAGS(_OTHER)?', 'LDFLAGS(_OTHER)?'}, '(C|LD)FLAGS(_OTHER)?')
+  , ({'INCLUDE_DIRECTORIES', 'LIBRARIES'}, '(INCLUDE_DIRECTO|LIBRA)RIES')
+  , ({'POSTFLIGHT_&var%ref%re;_SCRIPT', 'PREFLIGHT_&var%ref%re;_SCRIPT'}, 'P(RE|OST)FLIGHT_&var%ref%re;_SCRIPT')
+  , ({'DIRECTORIES', 'FRAMEWORK_DIRECTORIES'}, '(FRAMEWORK_)?DIRECTORIES')
+  , ({'FILE_FLAG', 'FILE'}, 'FILE(_FLAG)?')
+  , ({'DIR_PERMISSIONS', 'FILE_PERMISSIONS'}, '(DIR|FILE)_PERMISSIONS')
+  , ({'COMPILER_LAUNCHER', 'LINKER_LAUNCHER'}, '(COMPIL|LINK)ER_LAUNCHER')
+  , ({'COMPILER', 'COMPILE_(DEFINI|OP)TIONS'}, 'COMPILE(R|_(DEFINI|OP)TIONS)')
+  , ({'LICENSEURL', 'LICENSE_(EXPRESSION|FILE_NAME)'}, 'LICENSE(URL|_(EXPRESSION|FILE_NAME))')
+  , ({'NO_SONAME', 'SONAME'}, '(NO_)?SONAME')
+  , ({'CODE_SIGN_ON_COPY', 'REMOVE_HEADERS_ON_COPY'}, '(CODE_SIGN|REMOVE_HEADERS)_ON_COPY')
+  , ({'(REFERENCE|REFERENCEPROP_&var%ref%re;_TAG)_&var%ref%re;'}, 'REFERENCE(PROP_&var%ref%re;_TAG)?_&var%ref%re;')
+  , ({'DISABLE_FIND_PACKAGE', 'REQUIRE_FIND_PACKAGE'}, '(DISABLE|REQUIRE)_FIND_PACKAGE')
+  , (
+        {'GROUP_USING_&var%ref%re;(_SUPPORTED)?', 'LIBRARY_USING_&var%ref%re;(_SUPPORTED)?'}
+      , '(GROUP|LIBRARY)_USING_&var%ref%re;(_SUPPORTED)?'
+    )
+  , (
+        {
+            'EXE_LINKER_FLAGS_&var%ref%re;(_INIT)?'
+          , 'MODULE_LINKER_FLAGS_&var%ref%re;(_INIT)?'
+          , 'SHARED_LINKER_FLAGS_&var%ref%re;(_INIT)?'
+          , 'STATIC_LINKER_FLAGS_&var%ref%re;(_INIT)?'
+        }
+      , '(EXE|MODULE|SHARED|STATIC)_LINKER_FLAGS_&var%ref%re;(_INIT)?'
+    )
+  , (
+        {
+            'ARCHIVE_OUTPUT_DIRECTORY'
+          , 'COMPILE_PDB_OUTPUT_DIRECTORY'
+          , 'LIBRARY_OUTPUT_DIRECTORY'
+          , 'PDB_OUTPUT_DIRECTORY'
+          , 'RUNTIME_OUTPUT_DIRECTORY'
+        }
+      , '(ARCHIVE|(COMPILE_)?PDB|LIBRARY|RUNTIME)_OUTPUT_DIRECTORY'
+    )
+  , (
+        {
+            'ARCHIVE_OUTPUT_(DIRECTORY|NAME)'
+          , 'LIBRARY_OUTPUT_(DIRECTORY|NAME)'
+          , 'RUNTIME_OUTPUT_(DIRECTORY|NAME)'
+        }
+      , '(ARCHIVE|LIBRARY|RUNTIME)_OUTPUT_(DIRECTORY|NAME)'
+    )
+  , ({'ASM&var_ref_re;', 'ASM&var_ref_re;FLAGS'}, 'ASM&var_ref_re;(FLAGS)?')
+  , (
+        {
+            'CMAKE_POLICY_DEFAULT_CMP[0-9]{4}'
+          , 'CMAKE_POLICY_WARNING_CMP[0-9]{4}'
+          }
+      , 'CMAKE_POLICY_(DEFAULT|WARNING)_CMP[0-9]{4}'
+      )
+  , ({'CMAKE_ARGV[0-9]+', 'CMAKE_MATCH_[0-9]+'}, 'CMAKE_(ARGV|MATCH_)[0-9]+')
+ ]
+
+@dataclass
+class RePartNode:
+    children: dict[str, RePartNode] = field(default_factory=dict, hash=False)
+    is_leaf: bool = False
 
 
-def try_transform_placeholder_string_to_regex(name):
+@dataclass
+class RegexCollection:
+    special_cases: list[str] = field(default_factory=list, hash=False)
+    re_tree: dict[str, RePartNode] = field(default_factory=dict, hash=False)
+
+    def add_case(self, regex: str) -> RegexCollection:
+        self.special_cases.append(regex)
+        return self
+
+    def update_tree(self, name_parts: list[str]) -> RegexCollection:
+        safe_var_ref = _VAR_REF_ENTITY.replace('_', '%')
+        current = functools.reduce(
+            lambda current, part: (
+                self.re_tree if current is None else current.children
+              ).setdefault(part, RePartNode())
+          , safe_var_ref.join(name_parts).replace(f'{safe_var_ref}_{safe_var_ref}', safe_var_ref).split('_')
+          , None
+          )
+        current.is_leaf = True
+        return self
+
+
+def try_transform_placeholder_string_to_regex(state: RegexCollection, name: str):
     '''
         NOTE Some placeholders are not IDs, but numbers...
             `CMAKE_MATCH_<N>` 4 example
     '''
-    m = _TEMPLATED_NAME.split(name)
-    if 'CMAKE_MATCH_' in m:
-        return 'CMAKE_MATCH_[0-9]+'
+    name_parts = _TEMPLATED_NAME.split(name)
+    match name_parts:
+        case ['CMAKE_MATCH_' as head, ''] | ['CMAKE_ARGV' as head, ''] | ['ARGV' as head, '']:
+            return state.add_case(head + '[0-9]+')
 
-    if 'CMAKE_ARGV' in m:
-        return 'CMAKE_ARGV[0-9]+'
+        case ['CMAKE_POLICY_DEFAULT_CMP' as head, ''] | ['CMAKE_POLICY_WARNING_CMP' as head, '']:
+            return state.add_case(head + '[0-9]{4}')
 
-    if 'CMAKE_POLICY_DEFAULT_CMP' in m:
-        return 'CMAKE_POLICY_DEFAULT_CMP[0-9]{4}'
+        case ['', '__TRYRUN_OUTPUT']:
+            return state.add_case(f'{_VAR_REF_ENTITY}__TRYRUN_OUTPUT')
 
-    if 'CMAKE_POLICY_WARNING_CMP' in m:
-        return 'CMAKE_POLICY_WARNING_CMP[0-9]{4}'
+        case (['ASM', ''] | ['ASM', 'FLAGS']) as asm_env:
+            return state.add_case(f'{asm_env[0]}{_VAR_REF_ENTITY}{asm_env[1]}')
 
-    if 'ARGV' in m:
-        return 'ARGV[0-9]+'
+    return state.update_tree(name_parts)
 
-    return '&var_ref_re;'.join(m) if 1 < len(m) else name
+
+def is_first_subset_of_second(first, second):
+    subset = set(first)
+    fullset = set(second)
+    return subset.issubset(fullset)
+
+
+def try_optimize_known_alt_groups(groups: list[str]) -> list[str]:
+    for case in _HEURISTICS:
+        if is_first_subset_of_second(case[0], groups):
+            groups = sorted([*filter(lambda item: item not in case[0], groups), case[1]])
+    return groups
+
+
+def try_optimize_trailing_var_ref_regex(groups: list[str]) -> list[str]:
+    tail_var_ref_re = '_' + _VAR_REF_ENTITY.replace('_', '%')
+    candidates = [*filter(lambda s: s.endswith(tail_var_ref_re), groups)]
+    return sorted([
+        *filter(lambda item: item not in candidates, groups)
+      , f'({"|".join(try_optimize_known_alt_groups([s[:-len(tail_var_ref_re)] for s in candidates]))}){tail_var_ref_re}'
+      ]) if len(candidates) > 1 else groups
+
+
+def build_regex(state: list[str], kv: tuple[str, RePartNode]) -> list[str]:
+    name, value = kv
+    match (value, len(value.children)):
+        case (RePartNode(children={}, is_leaf=True), 0):
+            return [*state, name]
+
+        case (node, sz) if sz > 0:
+            alt_group = try_optimize_known_alt_groups(
+                try_optimize_trailing_var_ref_regex(
+                    functools.reduce(build_regex, node.children.items(), [])
+                  )
+              )
+
+            match (len(alt_group), node.is_leaf):
+                case (1, False):
+                    return [*state, f'{name}_{alt_group[0]}']
+
+                case (1, True):
+                    return [*state, f'{name}(_{alt_group[0]})?']
+
+                case (sz, False) if sz > 0:
+                    return [*state, f'{name}_({"|".join(alt_group)})']
+
+                case (sz, True) if sz > 0:
+                    return [*state, f'{name}(_({"|".join(alt_group)}))?']
+
+                case _:
+                    raise AssertionError('Zero children?')
+
+        case _:
+            raise AssertionError(f'NOT MATCHED: {name=}→{value=}')
+
+    return state
 
 
 def try_placeholders_to_regex(names):
     if not names:
         return None
-    l = map(try_transform_placeholder_string_to_regex, names)
-    l = sorted(l, reverse=True)
-    return '\\b(?:' + '|'.join(l) + ')\\b'
+
+    data = functools.reduce(
+        try_transform_placeholder_string_to_regex
+      , names
+      , RegexCollection()
+      )
+
+    return (
+        '\\b(?:'
+      + '|'.join(
+            try_optimize_known_alt_groups(
+                try_optimize_trailing_var_ref_regex(
+                    functools.reduce(
+                        build_regex
+                      , data.re_tree.items()
+                      , data.special_cases
+                      )
+                  )
+              )
+          ).replace('%', '_')
+      + ')\\b'
+      )
 
 
 def partition_iterable(fn, iterable):
@@ -287,7 +480,8 @@ def cli(input_yaml, template):
     del data['standard-module-commands']
 
     # Fix node names to be accessible from Jinja template
-    data['generator_expressions'] = data['generator-expressions']
+    data['generator_expressions'] = (ex for ex in data['generator-expressions'] if isinstance(ex, str))
+    data['complex_generator_expressions'] = [ex for ex in data['generator-expressions'] if not isinstance(ex, str)]
     data['deprecated_or_internal_variables'] = data['deprecated-or-internal-variables']
     data['environment_variables'] = data['environment-variables']
     del data['generator-expressions']

@@ -9,7 +9,8 @@
 
 #include "ksyntaxhighlighting_export.h"
 
-#include <QVector>
+#include <QList>
+#include <QObject>
 #include <QtGlobal>
 
 #include <memory>
@@ -76,13 +77,6 @@ class Theme;
  *    map to $HOME/.local5/share/org.kde.syntax-highlighting/syntax and
  *    /usr/share/org.kde.syntax-highlighting/syntax.
  *
- * -# Next, for backwards compatibility with Kate, all syntax highlighting
- *    files are loaded that are located in
- *    QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("katepart5/syntax"), QStandardPaths::LocateDirectory);
- *    Again, under Unix, this uses $XDG_DATA_HOME and $XDG_DATA_DIRS, which
- *    could map to $HOME/.local5/share/katepart5/syntax and
- *    /usr/share/katepart5/syntax.
- *
  * -# Then, all files compiled into the library through resources are loaded.
  *    The internal resource path is ":/org.kde.syntax-highlighting/syntax".
  *    This path should never be touched by other applications.
@@ -124,8 +118,12 @@ class Theme;
  * @see Definition, Theme, AbstractHighlighter
  * @since 5.28
  */
-class KSYNTAXHIGHLIGHTING_EXPORT Repository
+class KSYNTAXHIGHLIGHTING_EXPORT Repository : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QList<KSyntaxHighlighting::Definition> definitions READ definitions NOTIFY reloaded)
+    Q_PROPERTY(QList<KSyntaxHighlighting::Theme> themes READ themes NOTIFY reloaded)
+
 public:
     /**
      * Create a new syntax definition repository.
@@ -148,7 +146,7 @@ public:
      *       Therefore, only the string "JavaScript" will return a valid
      *       Definition file.
      */
-    Definition definitionForName(const QString &defName) const;
+    Q_INVOKABLE KSyntaxHighlighting::Definition definitionForName(const QString &defName) const;
 
     /**
      * Returns the best matching Definition for the file named @p fileName.
@@ -159,7 +157,7 @@ public:
      * If no match is found, Definition::isValid() of the returned instance
      * returns false.
      */
-    Definition definitionForFileName(const QString &fileName) const;
+    Q_INVOKABLE KSyntaxHighlighting::Definition definitionForFileName(const QString &fileName) const;
 
     /**
      * Returns all Definition%s for the file named @p fileName sorted by priority.
@@ -168,7 +166,7 @@ public:
      *
      * @since 5.56
      */
-    QVector<Definition> definitionsForFileName(const QString &fileName) const;
+    Q_INVOKABLE QList<KSyntaxHighlighting::Definition> definitionsForFileName(const QString &fileName) const;
 
     /**
      * Returns the best matching Definition to the type named @p mimeType
@@ -178,34 +176,34 @@ public:
      *
      * @since 5.50
      */
-    Definition definitionForMimeType(const QString &mimeType) const;
+    Q_INVOKABLE KSyntaxHighlighting::Definition definitionForMimeType(const QString &mimeType) const;
 
     /**
      * Returns all Definition%s to the type named @p mimeType sorted by priority
      *
      * @since 5.56
      */
-    QVector<Definition> definitionsForMimeType(const QString &mimeType) const;
+    Q_INVOKABLE QList<KSyntaxHighlighting::Definition> definitionsForMimeType(const QString &mimeType) const;
 
     /**
      * Returns all available Definition%s.
      * Definition%ss are ordered by translated section and translated names,
      * for consistent displaying.
      */
-    QVector<Definition> definitions() const;
+    Q_INVOKABLE QList<KSyntaxHighlighting::Definition> definitions() const;
 
     /**
      * Returns all available color themes.
      * The returned list should never be empty.
      */
-    QVector<Theme> themes() const;
+    Q_INVOKABLE QList<KSyntaxHighlighting::Theme> themes() const;
 
     /**
      * Returns the theme called @p themeName.
      * If the requested theme cannot be found, the retunred Theme is invalid,
      * see Theme::isValid().
      */
-    Theme theme(const QString &themeName) const;
+    Q_INVOKABLE KSyntaxHighlighting::Theme theme(const QString &themeName) const;
 
     /**
      * Built-in default theme types.
@@ -217,35 +215,20 @@ public:
         //! Theme with a dark background color.
         DarkTheme
     };
+    Q_ENUM(DefaultTheme)
 
     /**
      * Returns a default theme instance of the given type.
      * The returned Theme is guaranteed to be a valid theme.
      * @since 5.79
      */
-    Theme defaultTheme(DefaultTheme t = LightTheme) const;
-
-    /**
-     * Returns a default theme instance of the given type.
-     * The returned Theme is guaranteed to be a valid theme.
-     *
-     * KF6: remove in favor of const variant
-     */
-    Theme defaultTheme(DefaultTheme t = LightTheme);
+    Q_INVOKABLE KSyntaxHighlighting::Theme defaultTheme(DefaultTheme t = LightTheme) const;
 
     /**
      * Returns the best matching theme for the given palette
      * @since 5.79
      **/
     Theme themeForPalette(const QPalette &palette) const;
-
-    /**
-     * Returns the best matching theme for the given palette
-     * @since 5.77
-     *
-     * KF6: remove in favor of const variant
-     **/
-    Theme themeForPalette(const QPalette &palette);
 
     /**
      * Reloads the repository.
@@ -278,7 +261,20 @@ public:
      * @see addCustomSearchPath()
      * @since 5.39
      */
-    QVector<QString> customSearchPaths() const;
+    QList<QString> customSearchPaths() const;
+
+Q_SIGNALS:
+    /**
+     * This signal is emitted before the reload is started.
+     * @since 6.0
+     */
+    void aboutToReload();
+
+    /**
+     * This signal is emitted when the reload is finished.
+     * @since 6.0
+     */
+    void reloaded();
 
 private:
     Q_DISABLE_COPY(Repository)

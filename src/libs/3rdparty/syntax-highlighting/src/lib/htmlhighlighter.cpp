@@ -6,7 +6,9 @@
 */
 
 #include "htmlhighlighter.h"
+#include "abstracthighlighter_p.h"
 #include "definition.h"
+#include "definition_p.h"
 #include "format.h"
 #include "ksyntaxhighlighting_logging.h"
 #include "state.h"
@@ -14,21 +16,22 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QIODevice>
 #include <QTextStream>
-#include <QVarLengthArray>
 
 using namespace KSyntaxHighlighting;
 
-class KSyntaxHighlighting::HtmlHighlighterPrivate
+class KSyntaxHighlighting::HtmlHighlighterPrivate : public AbstractHighlighterPrivate
 {
 public:
     std::unique_ptr<QTextStream> out;
     std::unique_ptr<QFile> file;
     QString currentLine;
+    std::vector<QString> htmlStyles;
 };
 
 HtmlHighlighter::HtmlHighlighter()
-    : d(new HtmlHighlighterPrivate())
+    : AbstractHighlighter(new HtmlHighlighterPrivate())
 {
 }
 
@@ -38,27 +41,21 @@ HtmlHighlighter::~HtmlHighlighter()
 
 void HtmlHighlighter::setOutputFile(const QString &fileName)
 {
+    Q_D(HtmlHighlighter);
     d->file.reset(new QFile(fileName));
     if (!d->file->open(QFile::WriteOnly | QFile::Truncate)) {
         qCWarning(Log) << "Failed to open output file" << fileName << ":" << d->file->errorString();
         return;
     }
     d->out.reset(new QTextStream(d->file.get()));
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     d->out->setEncoding(QStringConverter::Utf8);
-#else
-    d->out->setCodec("UTF-8");
-#endif
 }
 
 void HtmlHighlighter::setOutputFile(FILE *fileHandle)
 {
+    Q_D(HtmlHighlighter);
     d->out.reset(new QTextStream(fileHandle, QIODevice::WriteOnly));
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     d->out->setEncoding(QStringConverter::Utf8);
-#else
-    d->out->setCodec("UTF-8");
-#endif
 }
 
 void HtmlHighlighter::highlightFile(const QString &fileName, const QString &title)
@@ -79,7 +76,7 @@ void HtmlHighlighter::highlightFile(const QString &fileName, const QString &titl
 
 /**
  * @brief toHtmlRgba
- * Converts QColor -> rgba(r, g, b, a) if there is an alpha channel
+ * Converts QColor -> #RRGGBBAA if there is an alpha channel
  * otherwise it will just return the hexcode. This is because QColor
  * outputs #AARRGGBB, whereas browser support #RRGGBBAA.
  *
@@ -91,22 +88,24 @@ static QString toHtmlRgbaString(const QColor &color)
     if (color.alpha() == 0xFF) {
         return color.name();
     }
-
-    QString rgba = QStringLiteral("rgba(");
-    rgba.append(QString::number(color.red()));
-    rgba.append(QLatin1Char(','));
-    rgba.append(QString::number(color.green()));
-    rgba.append(QLatin1Char(','));
-    rgba.append(QString::number(color.blue()));
-    rgba.append(QLatin1Char(','));
-    // this must be alphaF
-    rgba.append(QString::number(color.alphaF()));
-    rgba.append(QLatin1Char(')'));
-    return rgba;
+    static const char16_t digits[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    QChar hexcode[9];
+    hexcode[0] = QLatin1Char('#');
+    hexcode[1] = digits[color.red() >> 4];
+    hexcode[2] = digits[color.red() & 0xf];
+    hexcode[3] = digits[color.green() >> 4];
+    hexcode[4] = digits[color.green() & 0xf];
+    hexcode[5] = digits[color.blue() >> 4];
+    hexcode[6] = digits[color.blue() & 0xf];
+    hexcode[7] = digits[color.alpha() >> 4];
+    hexcode[8] = digits[color.alpha() & 0xf];
+    return QString(hexcode, 9);
 }
 
 void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 {
+    Q_D(HtmlHighlighter);
+
     if (!d->out) {
         qCWarning(Log) << "No output stream defined!";
         return;
@@ -114,9 +113,57 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 
     QString htmlTitle;
     if (title.isEmpty()) {
-        htmlTitle = QStringLiteral("Kate Syntax Highlighter");
+        htmlTitle = QStringLiteral("KSyntaxHighlighter");
     } else {
         htmlTitle = title.toHtmlEscaped();
+    }
+
+    const auto &theme = d->m_theme;
+    const auto &definition = d->m_definition;
+
+    auto definitions = definition.includedDefinitions();
+    definitions.append(definition);
+
+    int maxId = 0;
+    for (const auto &definition : std::as_const(definitions)) {
+        for (const auto &format : std::as_const(DefinitionData::get(definition)->formats)) {
+            maxId = qMax(maxId, format.id());
+        }
+    }
+    d->htmlStyles.clear();
+    // htmlStyles must not be empty for applyFormat to work even with a definition without any context
+    d->htmlStyles.resize(maxId + 1);
+
+    // initialize htmlStyles
+    for (const auto &definition : std::as_const(definitions)) {
+        for (const auto &format : std::as_const(DefinitionData::get(definition)->formats)) {
+            auto &buffer = d->htmlStyles[format.id()];
+            if (format.hasTextColor(theme)) {
+                buffer += QStringLiteral("color:") + toHtmlRgbaString(format.textColor(theme)) + QStringLiteral(";");
+            }
+            if (format.hasBackgroundColor(theme)) {
+                buffer += QStringLiteral("background-color:") + toHtmlRgbaString(format.backgroundColor(theme)) + QStringLiteral(";");
+            }
+            if (format.isBold(theme)) {
+                buffer += QStringLiteral("font-weight:bold;");
+            }
+            if (format.isItalic(theme)) {
+                buffer += QStringLiteral("font-style:italic;");
+            }
+            if (format.isUnderline(theme)) {
+                buffer += QStringLiteral("text-decoration:underline;");
+            }
+            if (format.isStrikeThrough(theme)) {
+                buffer += QStringLiteral("text-decoration:line-through;");
+            }
+
+            if (!buffer.isEmpty()) {
+                buffer.insert(0, QStringLiteral("<span style=\""));
+                // replace last ';'
+                buffer.back() = u'"';
+                buffer += u'>';
+            }
+        }
     }
 
     State state;
@@ -124,19 +171,15 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     *d->out << "<html><head>\n";
     *d->out << "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n";
     *d->out << "<title>" << htmlTitle << "</title>\n";
-    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition().name() << ") - Theme (" << theme().name()
-            << ")\"/>\n";
+    *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition.name() << ") - Theme (" << theme.name() << ")\"/>\n";
     *d->out << "</head><body";
-    *d->out << " style=\"background-color:" << toHtmlRgbaString(QColor::fromRgba(theme().editorColor(Theme::BackgroundColor)));
-    if (theme().textColor(Theme::Normal)) {
-        *d->out << ";color:" << toHtmlRgbaString(QColor::fromRgba(theme().textColor(Theme::Normal)));
+    *d->out << " style=\"background-color:" << toHtmlRgbaString(QColor::fromRgba(theme.editorColor(Theme::BackgroundColor)));
+    if (theme.textColor(Theme::Normal)) {
+        *d->out << ";color:" << toHtmlRgbaString(QColor::fromRgba(theme.textColor(Theme::Normal)));
     }
     *d->out << "\"><pre>\n";
 
     QTextStream in(dev);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    in.setCodec("UTF-8");
-#endif
     while (in.readLineInto(&d->currentLine)) {
         state = highlightLine(d->currentLine, state);
         *d->out << "\n";
@@ -155,38 +198,24 @@ void HtmlHighlighter::applyFormat(int offset, int length, const Format &format)
         return;
     }
 
-    // collect potential output, cheaper than thinking about "is there any?"
-    QVarLengthArray<QString, 16> formatOutput;
-    if (format.hasTextColor(theme())) {
-        formatOutput << QStringLiteral("color:") << toHtmlRgbaString(format.textColor(theme())) << QStringLiteral(";");
-    }
-    if (format.hasBackgroundColor(theme())) {
-        formatOutput << QStringLiteral("background-color:") << toHtmlRgbaString(format.backgroundColor(theme())) << QStringLiteral(";");
-    }
-    if (format.isBold(theme())) {
-        formatOutput << QStringLiteral("font-weight:bold;");
-    }
-    if (format.isItalic(theme())) {
-        formatOutput << QStringLiteral("font-style:italic;");
-    }
-    if (format.isUnderline(theme())) {
-        formatOutput << QStringLiteral("text-decoration:underline;");
-    }
-    if (format.isStrikeThrough(theme())) {
-        formatOutput << QStringLiteral("text-decoration:line-through;");
+    Q_D(HtmlHighlighter);
+
+    auto const &htmlStyle = d->htmlStyles[format.id()];
+
+    if (!htmlStyle.isEmpty()) {
+        *d->out << htmlStyle;
     }
 
-    if (!formatOutput.isEmpty()) {
-        *d->out << "<span style=\"";
-        for (const auto &out : std::as_const(formatOutput)) {
-            *d->out << out;
-        }
-        *d->out << "\">";
+    for (QChar ch : QStringView(d->currentLine).mid(offset, length)) {
+        if (ch == u'<')
+            *d->out << QStringLiteral("&lt;");
+        else if (ch == u'&')
+            *d->out << QStringLiteral("&amp;");
+        else
+            *d->out << ch;
     }
 
-    *d->out << d->currentLine.mid(offset, length).toHtmlEscaped();
-
-    if (!formatOutput.isEmpty()) {
-        *d->out << "</span>";
+    if (!htmlStyle.isEmpty()) {
+        *d->out << QStringLiteral("</span>");
     }
 }

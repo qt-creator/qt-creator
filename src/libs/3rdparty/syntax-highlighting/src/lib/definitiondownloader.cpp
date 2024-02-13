@@ -169,8 +169,8 @@ DefinitionDownloader::~DefinitionDownloader()
 
 void DefinitionDownloader::start()
 {
-    const QString url = QLatin1String("https://www.kate-editor.org/syntax/update-") + QString::number(SyntaxHighlighting_VERSION_MAJOR) + QLatin1Char('.')
-        + QString::number(SyntaxHighlighting_VERSION_MINOR) + QLatin1String(".xml");
+    const QString url = QLatin1String("https://www.kate-editor.org/syntax/update-") + QString::number(KSYNTAXHIGHLIGHTING_VERSION_MAJOR) + QLatin1Char('.')
+        + QString::number(KSYNTAXHIGHLIGHTING_VERSION_MINOR) + QLatin1String(".xml");
     auto req = QNetworkRequest(QUrl(url));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto reply = d->nam->get(req);
@@ -178,3 +178,5 @@ void DefinitionDownloader::start()
         d->definitionListDownloadFinished(reply);
     });
 }
+
+#include "moc_definitiondownloader.cpp"

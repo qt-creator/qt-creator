@@ -18,11 +18,6 @@
 
 using namespace KSyntaxHighlighting;
 
-ThemeData *ThemeData::get(const Theme &theme)
-{
-    return theme.m_data.data();
-}
-
 ThemeData::ThemeData()
 {
     memset(m_editorColors, 0, sizeof(m_editorColors));
@@ -87,9 +82,18 @@ bool ThemeData::load(const QString &filePath)
         return false;
     }
     const QByteArray jsonData = loadFile.readAll();
+    // look for metadata object
+    int metaDataStart = jsonData.indexOf("\"metadata\"");
+    int start = jsonData.indexOf('{', metaDataStart);
+    int end = jsonData.indexOf("}", metaDataStart);
+    if (start < 0 || end < 0) {
+        qCWarning(Log) << "Failed to parse theme file" << filePath << ":"
+                       << "no metadata object found";
+        return false;
+    }
 
     QJsonParseError parseError;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData.mid(start, (end + 1) - start), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         qCWarning(Log) << "Failed to parse theme file" << filePath << ":" << parseError.errorString();
         return false;
@@ -97,13 +101,34 @@ bool ThemeData::load(const QString &filePath)
 
     m_filePath = filePath;
 
-    QJsonObject obj = jsonDoc.object();
-
     // read metadata
-    const QJsonObject metadata = obj.value(QLatin1String("metadata")).toObject();
+    QJsonObject metadata = jsonDoc.object();
     m_name = metadata.value(QLatin1String("name")).toString();
     m_revision = metadata.value(QLatin1String("revision")).toInt();
+    return true;
+}
 
+void ThemeData::loadComplete()
+{
+    if (m_completelyLoaded) {
+        return;
+    }
+    m_completelyLoaded = true;
+
+    QFile loadFile(m_filePath);
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    const QByteArray jsonData = loadFile.readAll();
+
+    QJsonParseError parseError;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qCWarning(Log) << "Failed to parse theme file" << m_filePath << ":" << parseError.errorString();
+        return;
+    }
+
+    QJsonObject obj = jsonDoc.object();
     // read text styles
     const auto metaEnumStyle = QMetaEnum::fromType<Theme::TextStyle>();
     const QJsonObject textStyles = obj.value(QLatin1String("text-styles")).toObject();
@@ -162,7 +187,7 @@ bool ThemeData::load(const QString &filePath)
         }
     }
 
-    return true;
+    return;
 }
 
 QString ThemeData::name() const
@@ -187,6 +212,9 @@ QString ThemeData::filePath() const
 
 TextStyleData ThemeData::textStyle(Theme::TextStyle style) const
 {
+    if (!m_completelyLoaded) {
+        const_cast<ThemeData *>(this)->loadComplete();
+    }
     return m_textStyles[style];
 }
 
@@ -232,12 +260,18 @@ bool ThemeData::isStrikeThrough(Theme::TextStyle style) const
 
 QRgb ThemeData::editorColor(Theme::EditorColorRole role) const
 {
+    if (!m_completelyLoaded) {
+        const_cast<ThemeData *>(this)->loadComplete();
+    }
     Q_ASSERT(static_cast<int>(role) >= 0 && static_cast<int>(role) <= static_cast<int>(Theme::TemplateReadOnlyPlaceholder));
     return m_editorColors[role];
 }
 
 TextStyleData ThemeData::textStyleOverride(const QString &definitionName, const QString &attributeName) const
 {
+    if (!m_completelyLoaded) {
+        const_cast<ThemeData *>(this)->loadComplete();
+    }
     auto it = m_textStyleOverrides.find(definitionName);
     if (it != m_textStyleOverrides.end()) {
         return it->value(attributeName);

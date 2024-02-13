@@ -13,6 +13,10 @@
 #include <QSharedData>
 #include <QString>
 
+QT_BEGIN_NAMESPACE
+class QXmlStreamReader;
+QT_END_NAMESPACE
+
 namespace KSyntaxHighlighting
 {
 class FormatPrivate : public QSharedData
@@ -20,6 +24,11 @@ class FormatPrivate : public QSharedData
 public:
     FormatPrivate() = default;
     static FormatPrivate *detachAndGet(Format &format);
+
+    static std::intptr_t ptrId(const Format &format)
+    {
+        return std::intptr_t(format.d.data());
+    }
 
     TextStyleData styleOverride(const Theme &theme) const;
     void load(QXmlStreamReader &reader);
@@ -33,7 +42,7 @@ public:
     QString name;
     TextStyleData style;
     Theme::TextStyle defaultStyle = Theme::Normal;
-    quint16 id = 0;
+    int id = 0;
     bool spellCheck = true;
 };
 

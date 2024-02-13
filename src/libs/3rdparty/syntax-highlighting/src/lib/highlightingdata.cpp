@@ -379,6 +379,7 @@ void HighlightingContextData::load(const QString &defName, QXmlStreamReader &rea
     lineEmptyContext = reader.attributes().value(QLatin1String("lineEmptyContext")).toString();
     fallthroughContext = reader.attributes().value(QLatin1String("fallthroughContext")).toString();
     noIndentationBasedFolding = Xml::attrToBool(reader.attributes().value(QLatin1String("noIndentationBasedFolding")));
+    stopEmptyLineContextSwitchLoop = Xml::attrToBool(reader.attributes().value(QLatin1String("stopEmptyLineContextSwitchLoop")));
 
     rules.reserve(8);
 

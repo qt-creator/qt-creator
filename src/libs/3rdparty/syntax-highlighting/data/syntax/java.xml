@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
 	<!ENTITY int "(?:[0-9]++(_++[0-9]++)*+)">
 	<!ENTITY hex "(?:[0-9a-fA-F]++(_++[0-9a-fA-F]++)*+)">
@@ -7,7 +7,7 @@
 	<!ENTITY float "(\b&int;(\.((&int;&exp;?+|&exp;)[fFdD]?\b|[fFdD]\b)?|&exp;[fFdD]?\b|[fFdD]\b)|\.&int;&exp;?[fFdD]?\b)">
 	<!ENTITY hexfloat "\b0[xX](&hex;\.?+&hex;?+|\.&hex;?)[pP][-+]?&int;[fFdD]?\b">
 ]>
-<language name="Java" version="11" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="13" kateversion="5.79" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3705,6 +3705,8 @@
 			
 <!-- 			end new classes -->
 		</list>
+
+		<!-- https://docs.oracle.com/javase/specs/jls/se20/html/jls-3.html#jls-Keyword -->
 		<list name="keywords">
 			<item>abstract</item>
 			<item>class</item>
@@ -3714,7 +3716,6 @@
 			<item>false</item>
 			<item>implements</item>
 			<item>instanceof</item>
-			<item>@interface</item>
 			<item>interface</item>
 			<item>native</item>
 			<item>new</item>
@@ -3730,6 +3731,11 @@
 			<item>transient</item>
 			<item>true</item>
 			<item>volatile</item>
+			<!-- contextual -->
+			<item>non-sealed</item>
+			<item>permits</item>
+			<item>record</item>
+			<item>sealed</item>
 		</list>
 		<list name="control flow">
 			<item>assert</item>
@@ -3748,6 +3754,7 @@
 			<item>throw</item>
 			<item>try</item>
 			<item>while</item>
+			<item>yield</item>
 		</list>
 		<list name="types">
 			<item>boolean</item>
@@ -3764,6 +3771,25 @@
 			<item>var</item>
 			<item>void</item>
 		</list>
+
+		<list name="annotations">
+			<!-- builtin -->
+			<item>@Override</item>
+			<item>@Deprecated</item>
+			<item>@SuppressWarnings</item>
+			<item>@SafeVarargs</item>
+			<item>@FunctionalInterface</item>
+			<item>@interface</item>
+			<!-- java.lang.annotation -->
+			<item>@Retention</item>
+			<item>@Documented</item>
+			<item>@Target</item>
+			<item>@Inherited</item>
+			<item>@Repeatable</item>
+		</list>
+
+		<!-- https://docs.oracle.com/javase/specs/jls/se20/html/jls-3.html -->
+
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
 				<DetectSpaces context="#stay"/>
@@ -3783,6 +3809,7 @@
 
 				<AnyChar context="Number" String="0123456789" lookAhead="1"/>
 
+				<StringDetect attribute="Text Block" context="TextBlock" String="&quot;&quot;&quot;"/>
 				<DetectChar attribute="String" context="String" char="&quot;"/>
 				<DetectChar context="Char" char="'" lookAhead="1"/>
 
@@ -3795,6 +3822,7 @@
 				<WordDetect attribute="Keyword" context="ImportsOrStaticImports" String="import" />
 
 				<RegExpr attribute="Function" context="#stay" String="\b[_a-zA-Z]\w*(?=[\s]*(/\*\s*\d+\s*\*/\s*)?[(])" />
+				<WordDetect attribute="Keyword" context="ImportsOrStaticImports" String="non-sealed" />
 				<DetectIdentifier attribute="Normal Text"/>
 			</context>
 
@@ -3829,6 +3857,11 @@
 				<HlCStringChar attribute="String Char" context="#pop"/>
 				<RegExpr attribute="String Char" context="#pop" String="\\u+[0-9a-fA-F]{4}"/>
 				<RegExpr attribute="Error" context="#pop" String="\\(u+[0-9a-fA-F]*|.)?"/>
+			</context>
+
+			<context attribute="Text Block" lineEndContext="#stay" name="TextBlock">
+				<DetectChar context="StringEscapedChar" char="\" lookAhead="1"/>
+				<StringDetect attribute="Text Block" context="#pop" String="&quot;&quot;&quot;"/>
 			</context>
 
 			<context attribute="Normal Text" lineEndContext="#stay" name="Printf" fallthroughContext="#pop">
@@ -3898,6 +3931,7 @@
 			<itemData name="Binary"       defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Float"        defStyleNum="dsFloat" spellChecking="false"/>
 			<itemData name="Char"         defStyleNum="dsChar" spellChecking="false"/>
+			<itemData name="Text Block"   defStyleNum="dsString"/>
 			<itemData name="String"       defStyleNum="dsString"/>
 			<itemData name="String Char"  defStyleNum="dsSpecialChar" spellChecking="false"/>
 			<itemData name="PrintfString" defStyleNum="dsString"/>

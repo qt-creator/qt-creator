@@ -22,7 +22,7 @@
           Example: **bold text and _italic and bold text_**
                    __bold and ~~strikeout and bold~~__
 -->
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
 <!-- NOTE: To correctly detect bold, italic or strike out text, use minimal="true" in RegExpr rules -->
 <!ENTITY contentregex_ast "(?:(?:[^\*\s\\]|\\.)(?:[^\\]|\\.)*)?(?:[^\*\s\\]|\\\S)">
@@ -72,6 +72,10 @@
 <!ENTITY linebreakregex "  $">
 <!-- strikethrough text, pandoc style -->
 <!ENTITY strikeoutregex "[~]{2}[^~](?:.*[^~])?[~]{2}">
+<!-- highlight text -->
+<!ENTITY highlightregex "[=]{2}[^=](?:.*[^=])?[=]{2}">
+<!-- emoji -->
+<!ENTITY emojiregex ":([-+]1|\w+):">
 <!-- start of fenced code block -->
 <!ENTITY fcode "(`{3,}|~{3,})">
 <!-- end of line & empty line -->
@@ -90,7 +94,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="24" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="30" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown;*.md.html" mimetype="text/markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -137,15 +141,28 @@
         <DetectChar context="find-strong-normal" char="*" lookAhead="true"/>
         <DetectChar context="find-emphasis-normal" char="_" lookAhead="true"/>
         <RegExpr attribute="Strikethrough Text" minimal="true" String="&strikeoutregex;"/>
+        <RegExpr attribute="Highlight Text" minimal="true" String="&highlightregex;"/>
         <!-- Common -->
         <IncludeRules context="inc"/>
         <RegExpr attribute="Normal Text: Link" String="&implicitlink;"/>
+        <!-- Table -->
+        <DetectChar attribute="Table" char="|" context="table" firstNonSpace="true" lookAhead="1"/>
       </context>
       <!-- Find indented code blocks. These are only allowed after an empty line or on the first line -->
       <context name="find-code-block" attribute="Normal Text" lineEndContext="#stay" lineEmptyContext="#stay" fallthroughContext="#pop">
         <RegExpr attribute="Code" String="^&indentedcodeblock;" column="0"/>
         <RegExpr attribute="Normal Text" String="&end;" />
         <RegExpr attribute="Comment" context="comment" String="^\s*&startcomment;|\s*&startcomment;(?=.*&endcomment;)" beginRegion="comment"/>
+      </context>
+
+      <!-- Table in Normal Text Document -->
+      <context name="table" attribute="Normal Text" lineEndContext="#pop" lineEmptyContext="#pop!find-code-block">
+        <IncludeRules context="find-table-element"/>
+        <IncludeRules context="Normal Text"/>
+      </context>
+
+      <context name="find-table-element" attribute="Normal Text" lineEndContext="#pop">
+        <RegExpr attribute="Table" String="(\|(\s*:?---+:?)?)++"/>
       </context>
 
       <context name="find-header" attribute="Normal Text" lineEndContext="#pop">
@@ -207,6 +224,7 @@
         <RegExpr attribute="Normal Text" context="#pop!find-code-block" String="&emptyline;" column="0"/>
         <StringDetect attribute="Comment" context="#pop!find-code-block" String="&startcomment;" column="0" lookAhead="true"/>
         <IncludeRules context="default-blockquote-2"/>
+        <IncludeRules context="find-table-element"/>
       </context>
       <!-- Blockquote within a list -->
       <context name="blockquote-list" attribute="Blockquote: Normal Text" lineEndContext="#stay" lineEmptyContext="#pop">
@@ -226,6 +244,7 @@
         <!-- Strong, emphasis, strong-emphasis and strikethrough text -->
         <AnyChar context="find-strong-emphasis-blockquote" String="*_" lookAhead="true"/>
         <RegExpr attribute="Blockquote: Strikethrough Text" minimal="true" String="&strikeoutregex;"/>
+        <RegExpr attribute="Blockquote: Highlight Text" minimal="true" String="&highlightregex;"/>
         <!-- Common -->
         <IncludeRules context="inc"/>
         <RegExpr attribute="Blockquote: Link" String="&implicitlink;"/>
@@ -254,6 +273,8 @@
         <RegExpr context="#pop" String="^\s*\S" column="0" lookAhead="true"/>
         <!-- Highlight checkbox at the start of the item (task list) -->
         <RegExpr attribute="List: Checkbox" context="content-list" String="\s*&checkbox;"/>
+        <!-- Highlight checkbox at the start of the item (task list) -->
+        <RegExpr attribute="Table" context="content-list-table" String="\s*\|"/>
       </context>
       <!-- 1. numlist (one digit) -->
       <context name="numlist" attribute="List: Normal Text" lineEndContext="#stay" fallthroughContext="content-list">
@@ -284,13 +305,14 @@
            to check the indentation of the text and determine if the content of the list ends. -->
       <context name="content-list" attribute="List: Normal Text" lineEndContext="#stay" lineEmptyContext="#pop">
         <RegExpr context="#pop" String="&emptyline;" column="0"/>
-        <!-- Blockquote and horzontal rule (check indentation) -->
+        <!-- Blockquote and horizontal rule (check indentation) -->
         <RegExpr context="#pop" String="^\s*(?:&gt;|&rulerregex;)" column="0" lookAhead="true"/>
         <!-- End with header or new list/numlist -->
         <RegExpr context="#pop#pop" String="^(?:\s*(?:&listbullet;|[\d]+\.)\s|#{1,6}\s)" column="0" lookAhead="true"/>
         <!-- Strong, emphasis, strong-emphasis and strikethrough text -->
         <AnyChar context="find-strong-emphasis-list" String="*_" lookAhead="true"/>
         <RegExpr attribute="List: Strikethrough Text" minimal="true" String="&strikeoutregex;"/>
+        <RegExpr attribute="List: Highlight Text" minimal="true" String="&highlightregex;"/>
         <!-- Common -->
         <IncludeRules context="inc"/>
         <RegExpr attribute="List: Link" String="&implicitlink;"/>
@@ -303,6 +325,12 @@
         <AnyChar attribute="List: Normal Text" context="#pop" String="*_"/>
       </context>
 
+      <!-- Table in List -->
+      <context name="content-list-table" attribute="List: Normal Text" lineEndContext="#stay" lineEmptyContext="#pop">
+        <IncludeRules context="find-table-element"/>
+        <IncludeRules context="content-list"/>
+      </context>
+
       <!-- Comments -->
       <context name="comment" attribute="Comment" lineEndContext="#stay">
         <StringDetect attribute="Comment" context="#pop" String="&endcomment;" endRegion="comment"/>
@@ -312,42 +340,42 @@
       <!-- Fenced Code Blocks -->
       <context name="find-lang-fenced-code" attribute="Normal Text" lineEndContext="#pop">
         <!-- Apply syntax highlighting to fenced code blocks for some languages -->
-        <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;&end;"/>
-        <RegExpr attribute="Fenced Code" context="#pop!bash-code" String="&fcode;\s*(?:bash(?:rc|_profile|_login|_logout)?|shell|sh|profile|PKGBUILD|APKBUILD|ebuild|eclass|nix)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!zsh-code" String="&fcode;\s*(?:zsh)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!cpp-code" String="&fcode;\s*(?:[ch]pp|[ch]\+\+|[ch]xx|h?cc|hh|cuh?|ino|pde|moc)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!csharp-code" String="&fcode;\s*(?:cs|csharp|c\#)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!cmake-code" String="&fcode;\s*(?:cmake|CMakeLists(?:\.txt)?)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!css-code" String="&fcode;\s*css&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!c-code" String="&fcode;\s*[ch]&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!doxygen-code" String="&fcode;\s*doxygen&end;" insensitive="true"/> <!-- Block comment of Doxygen -->
-        <RegExpr attribute="Fenced Code" context="#pop!email-code" String="&fcode;\s*(?:email|emlx?|mbo?x)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!go-code" String="&fcode;\s*go(?:lang)?&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!hamlet-code" String="&fcode;\s*[wxs]?hamlet&end;" insensitive="true"/> <!-- Included in the Haskell definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!haskell-code" String="&fcode;\s*(?:haskell|c?hs|hs\-boot)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!html-code" String="&fcode;\s*(?:[sx]?html?|inc|tmpl|tpl)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!java-code" String="&fcode;\s*(?:java|bsh)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!javascript-code" String="&fcode;\s*(?:javascript|m?js|es6|kwinscript|julius)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!jsx-code" String="&fcode;\s*(?:jsx|tsx|(?:java|type)script\-react)&end;" insensitive="true"/> <!-- Included in the HTML definition. Also apply for TSX. -->
-        <RegExpr attribute="Fenced Code" context="#pop!json-code" String="&fcode;\s*(?:json5?|gltf)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!yaml-code" String="&fcode;\s*(?:ya?ml)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!matlab-code" String="&fcode;\s*matlab&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!markdown-code" String="&fcode;\s*(?:markdown|m?md)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!mustache-code" String="&fcode;\s*(?:handlebars|hbs|mustache|mst|ractive|hogan|hulk)&end;" insensitive="true"/> <!-- Included in the HTML definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!perl-code" String="&fcode;\s*(?:perl|p[lm]|pod|psgi|vcl)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!php-code" String="&fcode;\s*(?:php[3457t]?|wml|phtml?|aw|ctp)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!python-code" String="&fcode;\s*(?:python[23]?|py[23w]?|[rc]py|sconstruct|gypi?)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!qml-code" String="&fcode;\s*qml(?:types)?&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!r-code" String="&fcode;\s*(?:r|rprofile|rscript)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!raku-code" String="&fcode;\s*(?:raku(?:mod|doc|test)?|perl6|p[lm]?6|pod6|nqp)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!rest-code" String="&fcode;\s*(?:rst|rest|restructuredtext)&end;" insensitive="true"/> <!-- Included in the CMake definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml|(?:xml|js)\.erb)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!rust-code" String="&fcode;\s*(?:rust|rs)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!mysql-code" String="&fcode;\s*(?:mysql|sql|ddl)&end;" insensitive="true"/> <!-- Included in the PHP definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!nim-code" String="&fcode;\s*(?:nims?)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!typescript-code" String="&fcode;\s*(?:typescript|ts)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!xml-code" String="&fcode;\s*(?:xml|xsd|xspf|tld|jsp|c?pt|dtml|rss|opml|svg|daml|rdf|ui|kcfg|qrc|wsdl|scxml|xbel|dae|sch|brd|docbook)&end;" insensitive="true"/>
-        <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;.*$"/>
+        <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;&end;" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!bash-code" String="&fcode;\s*(?:bash(?:rc|_profile|_login|_logout)?|shell|sh|profile|PKGBUILD|APKBUILD|ebuild|eclass|nix)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!zsh-code" String="&fcode;\s*(?:zsh)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!cpp-code" String="&fcode;\s*(?:[ch]pp|[ch]\+\+|[ch]xx|h?cc|hh|cuh?|ino|pde|moc)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!csharp-code" String="&fcode;\s*(?:cs|csharp|c\#)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!cmake-code" String="&fcode;\s*(?:cmake|CMakeLists(?:\.txt)?)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!css-code" String="&fcode;\s*css&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!c-code" String="&fcode;\s*[ch]&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!doxygen-code" String="&fcode;\s*doxygen&end;" insensitive="true" beginRegion="code-block"/> <!-- Block comment of Doxygen -->
+        <RegExpr attribute="Fenced Code" context="#pop!email-code" String="&fcode;\s*(?:email|emlx?|mbo?x)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!go-code" String="&fcode;\s*go(?:lang)?&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!hamlet-code" String="&fcode;\s*[wxs]?hamlet&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the Haskell definition -->
+        <RegExpr attribute="Fenced Code" context="#pop!haskell-code" String="&fcode;\s*(?:haskell|c?hs|hs\-boot)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!html-code" String="&fcode;\s*(?:[sx]?html?|inc|tmpl|tpl)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!java-code" String="&fcode;\s*(?:java|bsh)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!javascript-code" String="&fcode;\s*(?:javascript|m?js|es6|kwinscript|julius)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!jsx-code" String="&fcode;\s*(?:jsx|tsx|(?:java|type)script\-react)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the HTML definition. Also apply for TSX. -->
+        <RegExpr attribute="Fenced Code" context="#pop!json-code" String="&fcode;\s*(?:json5?|gltf)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!yaml-code" String="&fcode;\s*(?:ya?ml)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!matlab-code" String="&fcode;\s*matlab&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!markdown-code" String="&fcode;\s*(?:markdown|m?md)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!mustache-code" String="&fcode;\s*(?:handlebars|hbs|mustache|mst|ractive|hogan|hulk)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the HTML definition -->
+        <RegExpr attribute="Fenced Code" context="#pop!perl-code" String="&fcode;\s*(?:perl|p[lm]|pod|psgi|vcl)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!php-code" String="&fcode;\s*(?:php[3457t]?|wml|phtml?|aw|ctp)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!python-code" String="&fcode;\s*(?:python[23]?|py[23w]?|[rc]py|sconstruct|gypi?)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!qml-code" String="&fcode;\s*qml(?:types)?&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!r-code" String="&fcode;\s*(?:r|rprofile|rscript)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!raku-code" String="&fcode;\s*(?:raku(?:mod|doc|test)?|perl6|p[lm]?6|pod6|nqp)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!rest-code" String="&fcode;\s*(?:rst|rest|restructuredtext)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the CMake definition -->
+        <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml|(?:xml|js)\.erb)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!rust-code" String="&fcode;\s*(?:rust|rs)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!mysql-code" String="&fcode;\s*(?:mysql|sql|ddl)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the PHP definition -->
+        <RegExpr attribute="Fenced Code" context="#pop!nim-code" String="&fcode;\s*(?:nims?)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!typescript-code" String="&fcode;\s*(?:typescript|ts)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!xml-code" String="&fcode;\s*(?:xml|xsd|xspf|tld|jsp|c?pt|dtml|rss|opml|svg|daml|rdf|ui|kcfg|qrc|wsdl|scxml|xbel|dae|sch|brd|docbook)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;.*$" beginRegion="code-block"/>
       </context>
       <context name="code" attribute="Code" lineEndContext="#stay"> <!-- Unknown language -->
         <RegExpr attribute="Fenced Code" context="#pop" String="%1[~`]*(?=&end;)" firstNonSpace="true" dynamic="true" endRegion="code-block"/>
@@ -450,13 +478,13 @@
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="qml-code">
         <IncludeRules context="code"/>
-        <IncludeRules context="##QML" includeAttrib="true"/>
+        <IncludeRules context="Normal##QML" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="r-code">
         <IncludeRules context="code"/>
         <IncludeRules context="##R Script" includeAttrib="true"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#stay" name="raku-code">
+      <context attribute="Normal Text" lineEndContext="#stay" name="raku-code" fallthroughContext="term##Raku">
         <IncludeRules context="code"/>
         <IncludeRules context="base##Raku" includeAttrib="true"/>
       </context>
@@ -494,7 +522,7 @@
         <!-- Code -->
         <RegExpr attribute="Code" String="`[^`]+`(?!`)|`{2}[^`](?:.*?[^`])?`{2}(?!`)|`{3}[^`](?:.*?[^`])?`{3}(?!`)|`{4}[^`](?:.*?[^`])?`{4}(?!`)|`{5,}[^`](?:.*?[^`])?`{5,}"/>
         <!-- Find Fenced Code Block -->
-        <RegExpr attribute="Fenced Code" context="find-lang-fenced-code" String="`{3,}(?=[^`]*$)|~{3,}(?=[^~]*$)" firstNonSpace="true" lookAhead="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="find-lang-fenced-code" String="`{3,}(?=[^`]*$)|~{3,}(?=[^~]*$)" firstNonSpace="true" lookAhead="true"/>
         <!-- Comment -->
         <StringDetect attribute="Comment" context="comment" String="&startcomment;" beginRegion="comment"/>
         <!-- Links and References -->
@@ -505,6 +533,8 @@
         <RegExpr attribute="Reference Image" String="&refimageregex;"/>
         <RegExpr attribute="Auto-Link" context="autolink" String="&autolinkregex;" lookAhead="true"/>
         <RegExpr attribute="Mailto-Link" context="mailtolink" String="&mailtolinkregex;"/>
+        <!-- Emoji -->
+        <RegExpr attribute="Emoji" String="&emojiregex;"/>
         <!-- Line Break -->
         <RegExpr attribute="Line Break" minimal="true" String="&linebreakregex;"/>
         <!-- Backslash Escapes -->
@@ -523,6 +553,7 @@
         <Detect2Chars attribute="Backslash Escape" char="\" char1="-"/>
         <Detect2Chars attribute="Backslash Escape" char="\" char1="."/>
         <Detect2Chars attribute="Backslash Escape" char="\" char1="!"/>
+        <Detect2Chars attribute="Backslash Escape" char="\" char1="|"/>
         <Detect2Chars attribute="Backslash Escape" char="\" char1="&lt;"/>
         <Detect2Chars attribute="Backslash Escape" char="\" char1="&gt;"/>
         <Detect2Chars attribute="Backslash Escape" char="\" char1="&amp;"/>
@@ -531,8 +562,7 @@
         <RegExpr context="find-html-block" String="&lt;/?&htmlname;(?:[\s&gt;]|/&gt;|$)" lookAhead="true"/>
       </context>
       <context name="find-html-block" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
-        <IncludeRules context="FindSpecialHTMLTags##HTML"/>
-        <IncludeRules context="FindHTMLTags##HTML"/>
+        <IncludeRules context="FindElements##HTML"/>
       </context>
 
       <!-- Links and email: <https://example.com>, <example@kde.org> -->
@@ -606,6 +636,7 @@
       <itemData name="Strong Text" defStyleNum="dsNormal" bold="true"/>
       <itemData name="Strong-Emphasis Text" defStyleNum="dsNormal" italic="true" bold="true"/>
       <itemData name="Strikethrough Text" defStyleNum="dsNormal" strikeOut="true"/>
+      <itemData name="Highlight Text" defStyleNum="dsAlert"/>
       <itemData name="Normal Text: Link" defStyleNum="dsNormal" underline="true" spellChecking="false"/>
       <itemData name="Horizontal Rule" defStyleNum="dsNormal" bold="true" spellChecking="false"/>
       <itemData name="Line Break" defStyleNum="dsNormal" underline="true" color="#999999" spellChecking="false"/>
@@ -621,6 +652,7 @@
       <itemData name="Blockquote: Strong Text" defStyleNum="dsAttribute" bold="true"/>
       <itemData name="Blockquote: Strong-Emphasis Text" defStyleNum="dsAttribute" italic="true" bold="true"/>
       <itemData name="Blockquote: Strikethrough Text" defStyleNum="dsAttribute" strikeOut="true"/>
+      <itemData name="Blockquote: Highlight Text" defStyleNum="dsAlert"/>
       <itemData name="Blockquote: Link" defStyleNum="dsAttribute" underline="true" spellChecking="false"/>
       <itemData name="List" defStyleNum="dsSpecialString" bold="1" spellChecking="false"/>
       <itemData name="Number List" defStyleNum="dsSpecialString" spellChecking="false"/>
@@ -629,11 +661,14 @@
       <itemData name="List: Strong Text" defStyleNum="dsNormal" bold="true"/>
       <itemData name="List: Strong-Emphasis Text" defStyleNum="dsNormal" italic="true" bold="true"/>
       <itemData name="List: Strikethrough Text" defStyleNum="dsNormal" strikeOut="true"/>
+      <itemData name="List: Highlight Text" defStyleNum="dsAlert"/>
       <itemData name="List: Link" defStyleNum="dsNormal" underline="true" spellChecking="false"/>
       <itemData name="List: Checkbox" defStyleNum="dsVariable" spellChecking="false"/>
       <itemData name="Comment" defStyleNum="dsComment"/>
       <itemData name="Code" defStyleNum="dsInformation"/>
       <itemData name="Fenced Code" defStyleNum="dsInformation" spellChecking="false"/>
+      <itemData name="Table" defStyleNum="dsPreprocessor"/>
+      <itemData name="Emoji" defStyleNum="dsSpecialChar" spellChecking="false"/>
       <itemData name="Auto-Link" defStyleNum="dsOthers" spellChecking="false"/>
       <itemData name="Link" defStyleNum="dsOthers" underline="true" spellChecking="false"/>
       <itemData name="Mailto-Link" defStyleNum="dsOthers" spellChecking="false"/>

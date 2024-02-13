@@ -30,10 +30,8 @@ class DefinitionRef
 {
 public:
     DefinitionRef();
-    explicit DefinitionRef(const Definition &def);
-    explicit DefinitionRef(Definition &&def);
-    DefinitionRef &operator=(const Definition &def);
-    DefinitionRef &operator=(Definition &&def);
+    explicit DefinitionRef(const Definition &def) noexcept;
+    DefinitionRef &operator=(const Definition &def) noexcept;
 
     Definition definition() const;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
+<!DOCTYPE language>
 <language name="Valgrind Suppression" section="Other" extensions="*.supp;" mimetype="" version="4" kateversion="5.0" author="Milian Wolff (mail@milianw.de)" license="LGPL">
 <highlighting>
 <contexts>

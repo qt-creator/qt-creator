@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
     <!ENTITY tab      "&#009;">
     <!ENTITY funcname "([^&_fragpathseps;}=#$]|[+!@](?!\())([^&_fragpathseps;}=$]*+([+!@](?!\())?+)*+">
@@ -66,7 +66,7 @@
 
 <language
     name="Bash"
-    version="46"
+    version="51"
     kateversion="5.79"
     section="Scripts"
     extensions="*.sh;*.bash;*.ebuild;*.eclass;*.exlib;*.exheres-0;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD"
@@ -533,7 +533,7 @@
 
     <contexts>
       <context attribute="Normal Text" lineEndContext="#stay" name="Start" fallthroughContext="Command">
-          <IncludeRules context="BashOneLine"/>
+        <IncludeRules context="BashOneLine"/>
       </context>
 
       <!-- used by other syntaxes -->
@@ -1005,13 +1005,15 @@
         <DetectChar attribute="Redirection" context="#pop!WordRedirection" char="&lt;"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="FdRedirection" fallthroughContext="#pop!FdRedirection2">
-        <DetectSpaces attribute="Normal Text" context="#pop!FdRedirection2"/>
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar attribute="Comment" context="#pop!Comment" char="#"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="FdRedirection2" fallthroughContext="#pop!WordRedirection2">
         <RegExpr attribute="File Descriptor" context="#pop!CloseFile" String="[0-9]+(?=-?&eoexpr;)"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="WordRedirection" fallthroughContext="#pop!WordRedirection2">
-        <DetectSpaces attribute="Normal Text" context="#pop!WordRedirection2"/>
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar attribute="Comment" context="#pop!Comment" char="#"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="WordRedirection2" fallthroughContext="#pop">
         <AnyChar context="#pop" String="&wordseps;`" lookAhead="1"/>
@@ -1019,7 +1021,8 @@
         <RegExpr attribute="Path" context="PathThenPop" String="&path;"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="StringRedirection" fallthroughContext="#pop!StringRedirection2">
-        <DetectSpaces attribute="Normal Text" context="#pop!StringRedirection2"/>
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar attribute="Comment" context="#pop!Comment" char="#"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="StringRedirection2">
         <AnyChar context="#pop" String="&wordseps;`" lookAhead="1"/>
@@ -1046,8 +1049,9 @@
         <Detect2Chars attribute="Redirection" context="#pop"  char="&lt;" char1="&lt;"/><!-- always met -->
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#pop" name="HereDocRemainder" fallthroughContext="Command">
-        <IncludeRules context="Start"/>
+      <context attribute="Normal Text" lineEndContext="#pop" name="HereDocRemainder" fallthroughContext="CommandArg">
+        <AnyChar context="BashOneLine" String="&amp;|;`" lookAhead="1"/>
+        <IncludeRules context="CommandArgs"/>
       </context>
 
       <!-- Highlight the builtin `:` (true) and the followed redirection, then fall into `HereDocMLComment` -->
@@ -1073,7 +1077,7 @@
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocNQ" dynamic="true" fallthroughContext="HereDocSubstitutions">
-        <RegExpr attribute="Redirection" context="#pop#pop" String="^%1$" dynamic="true" column="0"/>
+        <IncludeRules context="HereDocQ" />
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocIQ" dynamic="true" fallthroughContext="HereDocText">
@@ -1081,27 +1085,32 @@
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocINQ" dynamic="true" fallthroughContext="HereDocSubstitutions">
-        <RegExpr attribute="Redirection" context="#pop#pop" String="^\t*%1$" dynamic="true" column="0"/>
+        <IncludeRules context="HereDocIQ" />
+      </context>
+
+      <context attribute="Here Doc" lineEndContext="#stay" name="HereDocCmd">
+        <!-- Only if the redirect is before the command, but as this is too complicated,
+             check if the redirect is at the beginning of the line. -->
+        <StringDetect attribute="Redirection" context="BashOneLine" String="%1" dynamic="true" firstNonSpace="1"/>
+        <StringDetect attribute="Redirection" context="HereDocRemainder" String="%1" dynamic="true"/>
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocQCmd" dynamic="true" fallthroughContext="HereDocText">
-        <StringDetect attribute="Redirection" context="HereDocRemainder" String="%1" dynamic="true"/>
+        <IncludeRules context="HereDocCmd"/>
         <RegExpr attribute="Redirection" context="#pop#pop" String="^%2$" dynamic="true" column="0"/>
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocNQCmd" dynamic="true" fallthroughContext="HereDocSubstitutions">
-        <StringDetect attribute="Redirection" context="HereDocRemainder" String="%1" dynamic="true"/>
-        <RegExpr attribute="Redirection" context="#pop#pop" String="^%2$" dynamic="true" column="0"/>
+        <IncludeRules context="HereDocQCmd"/>
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocIQCmd" dynamic="true" fallthroughContext="HereDocText">
-        <StringDetect attribute="Redirection" context="HereDocRemainder" String="%1" dynamic="true"/>
+        <IncludeRules context="HereDocCmd"/>
         <RegExpr attribute="Redirection" context="#pop#pop" String="^\t*%2$" dynamic="true" column="0"/>
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocINQCmd" dynamic="true" fallthroughContext="HereDocSubstitutions">
-        <StringDetect attribute="Redirection" context="HereDocRemainder" String="%1" dynamic="true"/>
-        <RegExpr attribute="Redirection" context="#pop#pop" String="^\t*%2$" dynamic="true" column="0"/>
+        <IncludeRules context="HereDocIQCmd"/>
       </context>
 
       <context attribute="Here Doc" lineEndContext="#pop" name="HereDocText">
@@ -1262,6 +1271,7 @@
 
       <!-- VarBraceStart is called as soon as ${ is encoutered -->
       <context attribute="Variable" lineEndContext="#pop!VarBrace" name="VarBraceStart" fallthroughContext="#pop!VarBrace">
+        <StringDetect context="#pop!VarBrace" String="!}" lookAhead="1"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarBracePrefix" char="!"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarBrace" char="#"/>
       </context>
@@ -1270,12 +1280,18 @@
       <context attribute="Variable" lineEndContext="#pop" name="VarBracePrefix">
         <DetectIdentifier attribute="Variable" context="#pop!VarBracePrefixSuffix"/>
         <Int attribute="Variable" context="#pop!VarBracePrefixSuffix"/>
+        <AnyChar attribute="Parameter Expansion Operator" context="#pop!VarBracePrefixSharp" String="@*#"/>
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
       </context>
       <context attribute="Variable" lineEndContext="#pop" name="VarBracePrefixSuffix" fallthroughContext="#pop!VarError">
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <AnyChar attribute="Parameter Expansion Operator" context="#stay" String="@*"/>
         <StringDetect attribute="Parameter Expansion Operator" context="#stay" String="[@]"/>
         <StringDetect attribute="Parameter Expansion Operator" context="#stay" String="[*]"/>
+      </context>
+      <context attribute="Variable" lineEndContext="#pop" name="VarBracePrefixSharp" fallthroughContext="#pop!VarError">
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
+        <DetectChar attribute="Parameter Expansion Operator" char="#"/>
       </context>
 
       <!-- VarBrace is called as soon as ${ or ${# are encoutered -->
@@ -1352,7 +1368,7 @@
       <!-- called as soon as ${xxx@ is encoutered -->
       <context attribute="Normal Text" lineEndContext="#stay" name="VarTransformation" fallthroughContext="#pop!VarError">
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
-        <AnyChar attribute="Parameter Expansion" context="#stay" String="QEPAa"/>
+        <AnyChar attribute="Parameter Expansion" context="#stay" String="UuLQEPAKa"/>
       </context>
 
       <context attribute="Escape" lineEndContext="#pop" name="BraceExpansion">

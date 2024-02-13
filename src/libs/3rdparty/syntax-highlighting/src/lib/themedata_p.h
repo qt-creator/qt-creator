@@ -24,7 +24,10 @@ namespace KSyntaxHighlighting
 class ThemeData : public QSharedData
 {
 public:
-    static ThemeData *get(const Theme &theme);
+    static ThemeData *get(const Theme &theme)
+    {
+        return theme.m_data.data();
+    }
 
     /**
      * Default constructor, creating an uninitialized ThemeData instance.
@@ -36,6 +39,8 @@ public:
      * Note, that @p filePath either is a local file, or a qt resource location.
      */
     bool load(const QString &filePath);
+
+    void loadComplete();
 
     /**
      * Returns the unique name of this Theme.
@@ -140,6 +145,8 @@ private:
     //! on disk (in a read-only or a writeable location).
     QString m_filePath;
 
+    bool m_completelyLoaded = false;
+
     //! TextStyles
     std::vector<TextStyleData> m_textStyles;
 
@@ -154,7 +161,7 @@ private:
 }
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(KSyntaxHighlighting::TextStyleData, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(KSyntaxHighlighting::TextStyleData, Q_RELOCATABLE_TYPE);
 QT_END_NAMESPACE
 
 #endif // KSYNTAXHIGHLIGHTING_THEMEDATA_P_H

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
+<!DOCTYPE language>
 
 <!--
   Ruby syntax highlighting definition for Kate.
@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="17" kateversion="5.0"
+	  version="18" kateversion="5.0"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -360,6 +360,7 @@
 				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
 				<Detect2Chars attribute="String" char="\" char1="&quot;" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<DetectChar char="&quot;" attribute="String" context="check_div_1_pop"/>
 			</context>
@@ -374,6 +375,7 @@
 				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
 				<Detect2Chars attribute="String" char="\" char1="`" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<DetectChar char="`" attribute="Command" context="check_div_1_pop"/>
 			</context>
@@ -387,6 +389,7 @@
 			<context name="RegEx 1" attribute="Regular Expression" lineEndContext="#stay">
 				<Detect2Chars attribute="Regular Expression" char="\" char1="/" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<RegExpr attribute="Regular Expression" String="/[uiomxn]*" context="check_div_1_pop"/>
 			</context>
@@ -401,6 +404,7 @@
 			<context name="Short Subst" attribute="Substitution" lineEndContext="#pop">
 				<!-- Check for e.g.: "#@var#@@xy" -->
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="#stay"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="#stay"/>
 				<RegExpr attribute="Substitution" String="\w(?!\w)" context="#pop"/>
 			</context>
 
@@ -459,6 +463,7 @@
 			<!-- rules for heredoc types -->
 			<context name="heredoc_rules" attribute="Normal Text" lineEndContext="#stay">
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 			</context>
 
@@ -595,6 +600,7 @@
 			<context name="dq_string_rules" attribute="String" lineEndContext="#stay" >
 				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 			</context>
 
@@ -789,6 +795,7 @@
 			<context name="shell_command_rules" attribute="Command" lineEndContext="#stay" >
 				<Detect2Chars attribute="Command" char="\" char1="\" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 			</context>
 
@@ -855,6 +862,7 @@
 			<context name="regexpr_rules" attribute="Regular Expression" lineEndContext="#stay" >
 				<Detect2Chars attribute="Regular Expression" char="\" char1="\" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
+				<Detect2Chars attribute="Substitution" char="#" char1="$" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 			</context>
 

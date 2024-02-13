@@ -7,20 +7,15 @@
 #ifndef KSYNTAXHIGHLIGHTING_ABSTRACTHIGHLIGHTERM_H
 #define KSYNTAXHIGHLIGHTING_ABSTRACTHIGHLIGHTERM_H
 
+#include "definition.h"
 #include "ksyntaxhighlighting_export.h"
 
 #include <QObject>
-
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+#include <QStringView>
 
 namespace KSyntaxHighlighting
 {
 class AbstractHighlighterPrivate;
-class Definition;
 class FoldingRegion;
 class Format;
 class State;
@@ -106,21 +101,8 @@ public:
 
 protected:
     AbstractHighlighter();
-    AbstractHighlighter(AbstractHighlighterPrivate *dd);
+    KSYNTAXHIGHLIGHTING_NO_EXPORT explicit AbstractHighlighter(AbstractHighlighterPrivate *dd);
 
-#if KSYNTAXHIGHLIGHTING_ENABLE_DEPRECATED_SINCE(5, 87)
-    /**
-     * @copydoc highlightLine(QStringView,const State&)
-     * @deprecated since 5.87, use highlightLine(QStringView, const State&) instead.
-     */
-    // no deprecation warning, as removal of this will automatically "port" the using code
-    State highlightLine(const QString &text, const State &state);
-#endif
-
-    // TODO KF6: add an optional void* context argument that is passed through
-    // to the applyX() calls, so highlighters dealing with some form of line object
-    // (such as QSyntaxHighlighter or KTextEditor) can avoid some ugly hacks to have
-    // this context available in their applyX methods
     /**
      * Highlight the given line. Call this from your derived class
      * where appropriate. This will result in any number of applyFormat()

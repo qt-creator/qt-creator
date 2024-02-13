@@ -32,6 +32,7 @@ public:
     ~SyntaxHighlighter() override;
 
     void setDefinition(const Definition &def) override;
+    void setTheme(const Theme &theme) override;
 
     /** Returns whether there is a folding region beginning at @p startBlock.
      *  This only considers syntax-based folding regions,

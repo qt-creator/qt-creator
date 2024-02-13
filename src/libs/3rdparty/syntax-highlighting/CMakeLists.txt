@@ -26,6 +26,7 @@ add_qtc_library(KSyntaxHighlighting
     src/lib/definitiondownloader.cpp src/lib/definitiondownloader.h
     src/lib/definitionref_p.h
     src/lib/definition_p.h
+    src/lib/dynamicregexpcache_p.h
     src/lib/foldingregion.cpp src/lib/foldingregion.h
     src/lib/format.cpp src/lib/format.h src/lib/format_p.h
     src/lib/htmlhighlighter.cpp src/lib/htmlhighlighter.h
@@ -44,7 +45,7 @@ add_qtc_library(KSyntaxHighlighting
     src/lib/xml_p.h
 )
 
-set(export_symbol_declaration DEFINES KF5SyntaxHighlighting_EXPORTS)
+set(export_symbol_declaration DEFINES KF6SyntaxHighlighting_EXPORTS)
 if (QTC_STATIC_BUILD)
   set(export_symbol_declaration PUBLIC_DEFINES KSYNTAXHIGHLIGHTING_STATIC_DEFINE)
 endif()
