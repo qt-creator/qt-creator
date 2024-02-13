@@ -106,6 +106,10 @@ AxivionSettings::AxivionSettings()
 {
     setSettingsGroup("Axivion");
 
+    highlightMarks.setSettingsKey("HighlightMarks");
+    highlightMarks.setLabelText(Tr::tr("Highlight marks"));
+    highlightMarks.setToolTip(Tr::tr("Check to enable issue marks on the scroll bar."));
+    highlightMarks.setDefaultValue(false);
     AspectContainer::readSettings();
 
     server = readTokenFile(tokensFilePath());
@@ -240,10 +244,15 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     m_dashboardDisplay = new DashboardSettingsWidget(DashboardSettingsWidget::Display, this);
     m_dashboardDisplay->setDashboardServer(settings().server);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
-    Row {
-        Form {
-            m_dashboardDisplay, br,
-        }, Column { m_edit, st }
+    Column {
+        Row {
+            Form {
+                m_dashboardDisplay, br
+            }, st,
+            Column { m_edit },
+        },
+        Space(10), br,
+        Row { settings().highlightMarks }, st
     }.attachTo(this);
 
     connect(m_edit, &QPushButton::clicked, this, &AxivionSettingsWidget::showEditServerDialog);

@@ -38,6 +38,7 @@ public:
     void toSettings() const;
 
     AxivionServer server; // shall we have more than one?
+    Utils::BoolAspect highlightMarks{this};
 };
 
 AxivionSettings &settings();

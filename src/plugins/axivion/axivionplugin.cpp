@@ -213,13 +213,16 @@ static AxivionPluginPrivate *dd = nullptr;
 class AxivionTextMark : public TextMark
 {
 public:
-    AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue)
+    AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue,
+                    std::optional<Theme::Color> color)
         : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
     {
         const QString markText = issue.description;
         const QString id = issue.kind + QString::number(issue.id.value_or(-1));
-        setToolTip(id + markText);
+        setToolTip(id + '\n' + markText);
         setIcon(iconForIssue(issue.kind));
+        if (color)
+            setColor(*color);
         setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
         setActionsProvider([id] {
@@ -818,12 +821,14 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
         return;
 
     const FilePath filePath = project->projectDirectory().pathAppended(fileView.fileName);
-
+    std::optional<Theme::Color> color = std::nullopt;
+    if (settings().highlightMarks())
+        color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
     for (const Dto::LineMarkerDto &marker : std::as_const(fileView.lineMarkers)) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
-        new AxivionTextMark(filePath, marker);
+        new AxivionTextMark(filePath, marker, color);
     }
 }
 
