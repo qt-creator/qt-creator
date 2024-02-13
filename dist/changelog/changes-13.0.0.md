@@ -34,18 +34,18 @@ General
       dock area
 * Added the option to show file paths relative to the active project to the
   search results view
-  (QTCREATORBUG-29462)
+  ([QTCREATORBUG-29462](https://bugreports.qt.io/browse/QTCREATORBUG-29462))
 * Added a `Current` button for selecting the directory of the current document
   for searching in `Files in File System`
 * Added `Copy to Clipboard` to the `About Qt Creator` dialog
-  (QTCREATORBUG-29886)
+  ([QTCREATORBUG-29886](https://bugreports.qt.io/browse/QTCREATORBUG-29886))
 
 Editing
 -------
 
 * Made syntax highlighting asynchronous
 * Fixed that `Shift+Tab` did not always unindent
-  (QTCREATORBUG-29742)
+  ([QTCREATORBUG-29742](https://bugreports.qt.io/browse/QTCREATORBUG-29742))
 * Fixed that `Surround text selection with brackets` did nothing for `<`
 * Fixed following links without a file name in documents without a file name
 
@@ -53,34 +53,39 @@ Editing
 
 * Added the `Move Definition Here` refactoring action that moves an existing
   function definition to its declaration
-  (QTCREATORBUG-9515)
+  ([QTCREATORBUG-9515](https://bugreports.qt.io/browse/QTCREATORBUG-9515))
+* Added the `Enclose in QByteArrayLiteral` refactoring action
+  ([QTCREATORBUG-12995](https://bugreports.qt.io/browse/QTCREATORBUG-12995))
 * Enabled the completion inside comments and strings by falling back to the
   built-in code model
-  (QTCREATORBUG-20828)
+  ([QTCREATORBUG-20828](https://bugreports.qt.io/browse/QTCREATORBUG-20828))
 * Improved the position of headers inserted by refactoring operations
-  (QTCREATORBUG-21826)
+  ([QTCREATORBUG-21826](https://bugreports.qt.io/browse/QTCREATORBUG-21826))
 * Improved the coding style settings by separating Clang Format and other coding
   style settings, and using a plain text editor for custom Clang Format settings
 * Fixed that the class wizards used the class name for the include guard
   instead of the file name
-  (QTCREATORBUG-30140)
+  ([QTCREATORBUG-30140](https://bugreports.qt.io/browse/QTCREATORBUG-30140))
 * Fixed that renaming classes did not change the include directive for the
   renamed header in the source file
-  (QTCREATORBUG-30154)
+  ([QTCREATORBUG-30154](https://bugreports.qt.io/browse/QTCREATORBUG-30154))
 * Fixed issues with refactoring template functions
-  (QTCREATORBUG-29408)
+  ([QTCREATORBUG-29408](https://bugreports.qt.io/browse/QTCREATORBUG-29408))
+* Fixed the `Add Definition` refactoring action for member functions of a
+  template class in a namespace
+  ([QTCREATORBUG-22076](https://bugreports.qt.io/browse/QTCREATORBUG-22076))
 * Clangd
     * Fixed that `Follow Symbol Under Cursor` only worked for exact matches
-      (QTCREATORBUG-29814)
+      ([QTCREATORBUG-29814](https://bugreports.qt.io/browse/QTCREATORBUG-29814))
 
 ### QML
 
 * Added navigation from QML components to the C++ code in the project
-  (QTCREATORBUG-28086)
+  ([QTCREATORBUG-28086](https://bugreports.qt.io/browse/QTCREATORBUG-28086))
 * Added a button for launching the QML Preview on the current document to
   the editor tool bar
 * Added color previews when hovering Qt color functions
-  (QTCREATORBUG-29966)
+  ([QTCREATORBUG-29966](https://bugreports.qt.io/browse/QTCREATORBUG-29966))
 
 ### Python
 
@@ -95,7 +100,7 @@ Editing
 ### Widget Designer
 
 * Fixed the indentation of the code that is inserted by `Go to slot`
-  (QTCREATORBUG-11730)
+  ([QTCREATORBUG-11730](https://bugreports.qt.io/browse/QTCREATORBUG-11730))
 
 ### Compiler Explorer
 
@@ -108,6 +113,10 @@ Editing
 endings) to the tool bar
 * Added support for following links to the text editor
 
+### Binary Files
+
+* Fixed issues with large addresses
+
 Projects
 --------
 
@@ -115,41 +124,62 @@ Projects
   was configured for kits that have vanished, as a replacement for the automatic
   creation of "Replacement" kits
 * Added the status of devices to the device lists
-  (QTCREATORBUG-20941)
+  ([QTCREATORBUG-20941](https://bugreports.qt.io/browse/QTCREATORBUG-20941))
 * Added the `Preferences > Build & Run > General > Application environment`
   option for globally modifying the environment for all run configurations
-  (QTCREATORBUG-29530)
+  ([QTCREATORBUG-29530](https://bugreports.qt.io/browse/QTCREATORBUG-29530))
 * Added a file wizard for Qt translation (`.ts`) files
-  (QTCREATORBUG-29775)
+  ([QTCREATORBUG-29775](https://bugreports.qt.io/browse/QTCREATORBUG-29775))
 * Increased the maximum width of the target selector
-  (QTCREATORBUG-30038)
+  ([QTCREATORBUG-30038](https://bugreports.qt.io/browse/QTCREATORBUG-30038))
 * Fixed that the `Left` cursor key did not always collapse the current item
-  (QTBUG-118515)
+  ([QTBUG-118515](https://bugreports.qt.io/browse/QTBUG-118515))
 * Fixed inconsistent folder hierarchies in the project tree
-  (QTCREATORBUG-29923)
+  ([QTCREATORBUG-29923](https://bugreports.qt.io/browse/QTCREATORBUG-29923))
 
 ### CMake
 
 * Added support for custom output parsers for the configuration of projects
-  (QTCREATORBUG-29992)
+  ([QTCREATORBUG-29992](https://bugreports.qt.io/browse/QTCREATORBUG-29992))
 * Made cache variables available even if project configuration failed
+* CMake Presets
+    * Fixed `Reload CMake Presets` if the project was not configured yet
+      ([QTCREATORBUG-30238](https://bugreports.qt.io/browse/QTCREATORBUG-30238))
+    * Fixed that kits were accumulating on the project setup page
+      ([QTCREATORBUG-29535](https://bugreports.qt.io/browse/QTCREATORBUG-29535))
+    * Fixed that `binaryDir` was not handled for all presets
+      ([QTCREATORBUG-30236](https://bugreports.qt.io/browse/QTCREATORBUG-30236))
+    * Fixed a freeze with nested presets
+      ([QTCREATORBUG-30288](https://bugreports.qt.io/browse/QTCREATORBUG-30288))
+* Conan
+    * Fixed that backslashes were wrongly used for paths on Windows
+      ([QTCREATORBUG-30326](https://bugreports.qt.io/browse/QTCREATORBUG-30326))
+
+### Qbs
+
+* Added support for code completion with the Qbs language server
+  (QBS-395)
 
 ### Python
 
 * Added `Generate Kit` to the Python interpreter preferences for generating a
   Python kit with this interpreter
 * Added the target setup page when loading unconfigured Python projects
+* Added a `requirements.txt` file to the application wizard
 * Fixed that the same Python interpreter could be auto-detected multiple times
   under different names
 
 Debugging
 ---------
 
+* Added a `dr` locator filter for debugging a project
+
 ### C++
 
+* Added a pretty printer for `std::tuple`
 * Fixed that breakpoints were not hit while the message dialog about missing
   debug information was shown
-  (QTCREATORBUG-30168)
+  ([QTCREATORBUG-30168](https://bugreports.qt.io/browse/QTCREATORBUG-30168))
 
 ### Debug Adapter Protocol
 
@@ -161,7 +191,7 @@ Analyzer
 ### Clang
 
 * Added `Edit Checks as Strings` for Clazy
-  (QTCREATORBUG-24846)
+  ([QTCREATORBUG-24846](https://bugreports.qt.io/browse/QTCREATORBUG-24846))
 
 ### Axivion
 
@@ -171,15 +201,18 @@ Terminal
 --------
 
 * Added `Select All` to the context menu
-  (QTCREATORBUG-29922)
+  ([QTCREATORBUG-29922](https://bugreports.qt.io/browse/QTCREATORBUG-29922))
 * Fixed the startup performance on Windows
-  (QTCREATORBUG-29840)
+  ([QTCREATORBUG-29840](https://bugreports.qt.io/browse/QTCREATORBUG-29840))
 * Fixed the integration of the `fish` shell
 * Fixed that `Ctrl+W` closed the terminal even when shortcuts were blocked
-  (QTCREATORBUG-30070)
+  ([QTCREATORBUG-30070](https://bugreports.qt.io/browse/QTCREATORBUG-30070))
+* Fixed issues with Windows Powershell
 
 Version Control Systems
 -----------------------
+
+* Added support for remote version control operations
 
 ### Git
 
@@ -195,22 +228,27 @@ Test Integration
 Platforms
 ---------
 
+### Windows
+
+* Fixed Clang compiler ABI detection for WOA64
+  ([QTCREATORBUG-30060](https://bugreports.qt.io/browse/QTCREATORBUG-30060))
+
 ### Android
 
 * Add support for target-based android-build directories (??? is that ready? Qt 6.8+ ???)
-  (QTBUG-117443)
+  ([QTBUG-117443](https://bugreports.qt.io/browse/QTBUG-117443))
 
 ### iOS
 
 * Fixed the detection of iOS 17 devices
 * Fixed deployment and running applications for iOS 17 devices
   (application output, debugging, and profiling are not supported)
-  (QTCREATORBUG-29682)
+  ([QTCREATORBUG-29682](https://bugreports.qt.io/browse/QTCREATORBUG-29682))
 
 ### Remote Linux
 
 * Fixed that debugging unnecessarily downloaded files from the remote system
-  (QTCREATORBUG-29614)
+  ([QTCREATORBUG-29614](https://bugreports.qt.io/browse/QTCREATORBUG-29614))
 
 Credits for these changes go to:
 --------------------------------
@@ -238,6 +276,7 @@ Esa Törmänen
 Fabian Kosmale  
 Friedemann Kleint  
 Henning Gruendl  
+Ilya Kulakov  
 Jaroslaw Kobus  
 Johanna Vanhatapio  
 Karim Abdelrahman  
@@ -249,6 +288,7 @@ Marcus Tillmanns
 Mathias Hasselmann  
 Mats Honkamaa  
 Mehdi Salem  
+Michael Weghorn  
 Miikka Heikkinen  
 Mitch Curtis  
 Olivier De Cannière  
@@ -257,6 +297,7 @@ Pranta Dastider
 Robert Löhning  
 Sami Shalayel  
 Samuel Jose Raposo Vieira Mira  
+Samuel Mira  
 Serg Kryvonos  
 Shrief Gabr  
 Sivert Krøvel  
