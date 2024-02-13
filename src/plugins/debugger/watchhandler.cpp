@@ -822,12 +822,12 @@ static QString formattedValue(const WatchItem *item)
     QString v = quoteUnprintable(item->value);
 
     if (v.endsWith('"')) {
-        if (item->elided) {
+        if (item->valuelen > maxLength) {
             v.chop(1);
             v.append("...\"");
         }
-        int len = item->elided ? item->elided : item->value.length() - 2;
-        v += QString(" (%1)").arg(len > 0 ? QString::number(len) : "unknown length");
+        if (item->valuelen > 0)
+            v += QString(" (%1)").arg(item->valuelen);
         return v;
     }
 
@@ -1297,7 +1297,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
             //    return editable; // Watcher types can be set by force.
-            if (column == ValueColumn && item->valueEditable && !item->elided)
+            if (column == ValueColumn && item->valueEditable && item->valuelen >= 0)
                 return editable; // Watcher values are sometimes editable.
         }
     } else if (item->isLocal()) {
@@ -1305,7 +1305,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
             return notEditable;
         if (isRunning && !m_engine->hasCapability(AddWatcherWhileRunningCapability))
             return notEditable;
-        if (column == ValueColumn && item->valueEditable && !item->elided)
+        if (column == ValueColumn && item->valueEditable && item->valuelen >= 0)
             return editable; // Locals values are sometimes editable.
         if (column == ValueColumn && item->arrayIndex >= 0)
             return editable;
