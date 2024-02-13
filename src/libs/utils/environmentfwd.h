@@ -7,16 +7,10 @@
 
 namespace Utils {
 
-class NameValueDictionary;
-class NameValueItem;
-using NameValueItems = QList<NameValueItem>;
-
 class Environment;
-using EnvironmentItem = NameValueItem;
-using EnvironmentItems = NameValueItems;
+class EnvironmentItem;
+using EnvironmentItems = QList<EnvironmentItem>;
 
-class PreprocessorMacroDictionary;
-using PreprocessorMacroItem = NameValueItem;
-using PreprocessorMacroItems = NameValueItems;
+class NameValueDictionary;
 
 } // namespace Utils

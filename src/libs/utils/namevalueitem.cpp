@@ -10,34 +10,34 @@
 
 namespace Utils {
 
-void NameValueItem::sort(NameValueItems *list)
+void EnvironmentItem::sort(EnvironmentItems *list)
 {
-    Utils::sort(*list, &NameValueItem::name);
+    Utils::sort(*list, &EnvironmentItem::name);
 }
 
-NameValueItems NameValueItem::fromStringList(const QStringList &list)
+EnvironmentItems EnvironmentItem::fromStringList(const QStringList &list)
 {
-    NameValueItems result;
+    EnvironmentItems result;
     for (const QString &string : list) {
         int pos = string.indexOf("+=");
         if (pos != -1) {
-            result.append({string.left(pos), string.mid(pos + 2), NameValueItem::Append});
+            result.append({string.left(pos), string.mid(pos + 2), EnvironmentItem::Append});
             continue;
         }
         pos = string.indexOf("=+");
         if (pos != -1) {
-            result.append({string.left(pos), string.mid(pos + 2), NameValueItem::Prepend});
+            result.append({string.left(pos), string.mid(pos + 2), EnvironmentItem::Prepend});
             continue;
         }
         pos = string.indexOf('=', 1);
         if (pos == -1) {
-            result.append(NameValueItem(string, QString(), NameValueItem::Unset));
+            result.append(EnvironmentItem(string, QString(), EnvironmentItem::Unset));
             continue;
         }
         const int hashPos = string.indexOf('#');
         if (hashPos != -1 && hashPos < pos) {
             result.append({string.mid(hashPos + 1, pos - hashPos - 1), string.mid(pos + 1),
-                           NameValueItem::SetDisabled});
+                           EnvironmentItem::SetDisabled});
         } else {
             result.append({string.left(pos), string.mid(pos + 1)});
         }
@@ -45,49 +45,49 @@ NameValueItems NameValueItem::fromStringList(const QStringList &list)
     return result;
 }
 
-QStringList NameValueItem::toStringList(const NameValueItems &list)
+QStringList EnvironmentItem::toStringList(const EnvironmentItems &list)
 {
-    return Utils::transform<QStringList>(list, [](const NameValueItem &item) {
+    return Utils::transform<QStringList>(list, [](const EnvironmentItem &item) {
         switch (item.operation) {
-        case NameValueItem::Unset:
+        case EnvironmentItem::Unset:
             return item.name;
-        case NameValueItem::Append:
+        case EnvironmentItem::Append:
             return QString(item.name + "+=" + item.value);
-        case NameValueItem::Prepend:
+        case EnvironmentItem::Prepend:
             return QString(item.name + "=+" + item.value);
-        case NameValueItem::SetDisabled:
+        case EnvironmentItem::SetDisabled:
             return QString('#' + item.name + '=' + item.value);
-        case NameValueItem::SetEnabled:
+        case EnvironmentItem::SetEnabled:
             return QString(item.name + '=' + item.value);
         }
         return QString();
     });
 }
 
-NameValueItems NameValueItem::itemsFromVariantList(const QVariantList &list)
+EnvironmentItems EnvironmentItem::itemsFromVariantList(const QVariantList &list)
 {
-    return Utils::transform<NameValueItems>(list, [](const QVariant &item) {
+    return Utils::transform<EnvironmentItems>(list, [](const QVariant &item) {
         return itemFromVariantList(item.toList());
     });
 }
 
-QVariantList NameValueItem::toVariantList(const NameValueItems &list)
+QVariantList EnvironmentItem::toVariantList(const EnvironmentItems &list)
 {
-    return Utils::transform<QVariantList>(list, [](const NameValueItem &item) {
+    return Utils::transform<QVariantList>(list, [](const EnvironmentItem &item) {
         return QVariant(toVariantList(item));
     });
 }
 
-NameValueItem NameValueItem::itemFromVariantList(const QVariantList &list)
+EnvironmentItem EnvironmentItem::itemFromVariantList(const QVariantList &list)
 {
-    QTC_ASSERT(list.size() == 3, return NameValueItem("", ""));
+    QTC_ASSERT(list.size() == 3, return EnvironmentItem("", ""));
     QString key = list.value(0).toString();
     Operation operation = Operation(list.value(1).toInt());
     QString value = list.value(2).toString();
-    return NameValueItem(key, value, operation);
+    return EnvironmentItem(key, value, operation);
 }
 
-QVariantList NameValueItem::toVariantList(const NameValueItem &item)
+QVariantList EnvironmentItem::toVariantList(const EnvironmentItem &item)
 {
     return QVariantList() << item.name << item.operation << item.value;
 }
@@ -118,7 +118,7 @@ static QString expand(const NameValueDictionary *dictionary, QString value)
     return value;
 }
 
-void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
+void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
 {
     switch (op) {
     case SetEnabled:
@@ -173,26 +173,26 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
     }
 }
 
-QDebug operator<<(QDebug debug, const NameValueItem &i)
+QDebug operator<<(QDebug debug, const EnvironmentItem &i)
 {
     QDebugStateSaver saver(debug);
     debug.noquote();
     debug.nospace();
     debug << "KeyValueItem(";
     switch (i.operation) {
-    case NameValueItem::SetEnabled:
+    case EnvironmentItem::SetEnabled:
         debug << "set \"" << i.name << "\" to \"" << i.value << '"';
         break;
-    case NameValueItem::SetDisabled:
+    case EnvironmentItem::SetDisabled:
         debug << "set \"" << i.name << "\" to \"" << i.value << '"' << "[disabled]";
         break;
-    case NameValueItem::Unset:
+    case EnvironmentItem::Unset:
         debug << "unset \"" << i.name << '"';
         break;
-    case NameValueItem::Prepend:
+    case EnvironmentItem::Prepend:
         debug << "prepend to \"" << i.name << "\":\"" << i.value << '"';
         break;
-    case NameValueItem::Append:
+    case EnvironmentItem::Append:
         debug << "append to \"" << i.name << "\":\"" << i.value << '"';
         break;
     }

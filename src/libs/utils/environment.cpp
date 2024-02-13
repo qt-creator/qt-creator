@@ -50,7 +50,7 @@ Environment::Environment(const NameValueDictionary &dict)
     m_changeItems.append(dict);
 }
 
-NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepend) const
+EnvironmentItems Environment::diff(const Environment &other, bool checkAppendPrepend) const
 {
     const NameValueDictionary &dict = resolved();
     const NameValueDictionary &otherDict = other.resolved();
@@ -393,7 +393,7 @@ void Environment::unset(const QString &key)
     addItem(Item{std::in_place_index_t<UnsetValue>(), key});
 }
 
-void Environment::modify(const NameValueItems &items)
+void Environment::modify(const EnvironmentItems &items)
 {
     addItem(Item{std::in_place_index_t<Modify>(), items});
 }
@@ -485,7 +485,7 @@ const NameValueDictionary &Environment::resolved() const
             break;
         }
         case Modify: {
-            NameValueItems items = std::get<Modify>(item);
+            EnvironmentItems items = std::get<Modify>(item);
             m_dict.modify(items);
             break;
         }

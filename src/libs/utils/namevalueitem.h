@@ -13,12 +13,12 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT NameValueItem
+class QTCREATOR_UTILS_EXPORT EnvironmentItem
 {
 public:
     enum Operation : char { SetEnabled, Unset, Prepend, Append, SetDisabled };
-    NameValueItem() = default;
-    NameValueItem(const QString &key, const QString &value, Operation operation = SetEnabled)
+    EnvironmentItem() = default;
+    EnvironmentItem(const QString &key, const QString &value, Operation operation = SetEnabled)
         : name(key)
         , value(value)
         , operation(operation)
@@ -26,25 +26,25 @@ public:
 
     void apply(NameValueDictionary *dictionary) const { apply(dictionary, operation); }
 
-    static void sort(NameValueItems *list);
-    static NameValueItems fromStringList(const QStringList &list);
-    static QStringList toStringList(const NameValueItems &list);
-    static NameValueItems itemsFromVariantList(const QVariantList &list);
-    static QVariantList toVariantList(const NameValueItems &list);
-    static NameValueItem itemFromVariantList(const QVariantList &list);
-    static QVariantList toVariantList(const NameValueItem &item);
+    static void sort(EnvironmentItems *list);
+    static EnvironmentItems fromStringList(const QStringList &list);
+    static QStringList toStringList(const EnvironmentItems &list);
+    static EnvironmentItems itemsFromVariantList(const QVariantList &list);
+    static QVariantList toVariantList(const EnvironmentItems &list);
+    static EnvironmentItem itemFromVariantList(const QVariantList &list);
+    static QVariantList toVariantList(const EnvironmentItem &item);
 
-    friend bool operator==(const NameValueItem &first, const NameValueItem &second)
+    friend bool operator==(const EnvironmentItem &first, const EnvironmentItem &second)
     {
         return first.operation == second.operation && first.name == second.name
                && first.value == second.value;
     }
-    friend bool operator!=(const NameValueItem &first, const NameValueItem &second)
+    friend bool operator!=(const EnvironmentItem &first, const EnvironmentItem &second)
     {
         return !(first == second);
     }
 
-    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const NameValueItem &i);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const EnvironmentItem &i);
 
 public:
     QString name;

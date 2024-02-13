@@ -36,7 +36,7 @@ public:
     void setBaseEnvironment(const Environment &env);
 
     QModelIndex addVariable();
-    QModelIndex addVariable(const NameValueItem &item);
+    QModelIndex addVariable(const EnvironmentItem &item);
     void resetVariable(const QString &name);
     void unsetVariable(const QString &name);
     void toggleVariable(const QModelIndex &index);
@@ -46,8 +46,8 @@ public:
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
-    NameValueItems userChanges() const;
-    void setUserChanges(const NameValueItems &items);
+    EnvironmentItems userChanges() const;
+    void setUserChanges(const EnvironmentItems &items);
     bool currentEntryIsPathList(const QModelIndex &current) const;
 
 signals:

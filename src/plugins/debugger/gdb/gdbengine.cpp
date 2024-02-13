@@ -4093,7 +4093,7 @@ void GdbEngine::setEnvironmentVariables()
 
     Environment baseEnv = runParameters().debugger.environment;
     Environment runEnv = runParameters().inferior.environment;
-    const NameValueItems items = baseEnv.diff(runEnv);
+    const EnvironmentItems items = baseEnv.diff(runEnv);
     for (const EnvironmentItem &item : items) {
         // imitate the weird windows gdb behavior of setting the case of the path environment
         // variable name to an all uppercase PATH

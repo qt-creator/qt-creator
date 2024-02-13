@@ -30,8 +30,8 @@ public:
         m_resultNameValueDictionary.modify(m_items);
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
-        for (const NameValueItem &item : std::as_const(m_items)) {
-            if (item.operation == NameValueItem::Unset)
+        for (const EnvironmentItem &item : std::as_const(m_items)) {
+            if (item.operation == EnvironmentItem::Unset)
                 m_resultNameValueDictionary.set(item.name, Tr::tr("<UNSET>"));
         }
     }
@@ -74,7 +74,7 @@ public:
 
     NameValueDictionary m_baseNameValueDictionary;
     NameValueDictionary m_resultNameValueDictionary;
-    NameValueItems m_items;
+    EnvironmentItems m_items;
 };
 
 } // namespace Internal
@@ -145,7 +145,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
                 int pos = d->findInChanges(indexToVariable(index));
-                if (pos != -1 && d->m_items.at(pos).operation == NameValueItem::Unset)
+                if (pos != -1 && d->m_items.at(pos).operation == EnvironmentItem::Unset)
                     return QString();
             }
             QString value = d->m_resultNameValueDictionary.value(resultIterator);
@@ -225,7 +225,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         if (d->m_resultNameValueDictionary.hasKey(newName) || newName.isEmpty())
             return false;
 
-        NameValueItem newVariable(newName, oldValue);
+        EnvironmentItem newVariable(newName, oldValue);
 
         if (changesPos != -1)
             resetVariable(oldName); // restore the original base variable again
@@ -249,12 +249,12 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             } else {
                 // ... and changed it again
                 d->m_items[changesPos].value = stringValue;
-                if (d->m_items[changesPos].operation == NameValueItem::Unset)
-                    d->m_items[changesPos].operation = NameValueItem::SetEnabled;
+                if (d->m_items[changesPos].operation == EnvironmentItem::Unset)
+                    d->m_items[changesPos].operation = EnvironmentItem::SetEnabled;
             }
         } else {
             // Add a new change item:
-            d->m_items.append(NameValueItem(oldName, stringValue));
+            d->m_items.append(EnvironmentItem(oldName, stringValue));
         }
         d->updateResultNameValueDictionary();
         emit dataChanged(index, index);
@@ -266,10 +266,10 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QModelIndex EnvironmentModel::addVariable()
 {
-    return addVariable(NameValueItem("NEWVAR", "VALUE"));
+    return addVariable(EnvironmentItem("NEWVAR", "VALUE"));
 }
 
-QModelIndex EnvironmentModel::addVariable(const NameValueItem &item)
+QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
     // Return existing index if the name is already in the result set:
     int pos = d->findInResult(item.name);
@@ -283,7 +283,7 @@ QModelIndex EnvironmentModel::addVariable(const NameValueItem &item)
         Q_ASSERT(changePos >= 0);
         // Do not insert a line here as we listed the variable as <UNSET> before!
         Q_ASSERT(d->m_items.at(changePos).name == item.name);
-        Q_ASSERT(d->m_items.at(changePos).operation == NameValueItem::Unset);
+        Q_ASSERT(d->m_items.at(changePos).operation == EnvironmentItem::Unset);
         Q_ASSERT(d->m_items.at(changePos).value.isEmpty());
         d->m_items[changePos] = item;
         emit dataChanged(index(insertPos, 0, QModelIndex()), index(insertPos, 1, QModelIndex()));
@@ -336,14 +336,14 @@ void EnvironmentModel::unsetVariable(const QString &name)
     // look in d->m_items for the variable
     int pos = d->findInChanges(name);
     if (pos != -1) {
-        d->m_items[pos].operation = NameValueItem::Unset;
+        d->m_items[pos].operation = EnvironmentItem::Unset;
         d->m_items[pos].value.clear();
         d->updateResultNameValueDictionary();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
     }
-    d->m_items.append(NameValueItem(name, QString(), NameValueItem::Unset));
+    d->m_items.append(EnvironmentItem(name, QString(), EnvironmentItem::Unset));
     d->updateResultNameValueDictionary();
     emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
     emit userChangesChanged();
@@ -355,7 +355,7 @@ void EnvironmentModel::toggleVariable(const QModelIndex &idx)
     const auto newIt = d->m_resultNameValueDictionary.constFind(name);
     QTC_ASSERT(newIt != d->m_resultNameValueDictionary.constEnd(), return);
     const auto op = d->m_resultNameValueDictionary.isEnabled(newIt)
-            ? NameValueItem::SetDisabled : NameValueItem::SetEnabled;
+            ? EnvironmentItem::SetDisabled : EnvironmentItem::SetEnabled;
     const int changesPos = d->findInChanges(name);
     if (changesPos != -1) {
         const auto oldIt = d->m_baseNameValueDictionary.constFind(name);
@@ -376,7 +376,7 @@ void EnvironmentModel::toggleVariable(const QModelIndex &idx)
 bool EnvironmentModel::isUnset(const QString &name)
 {
     const int pos = d->findInChanges(name);
-    return pos == -1 ? false : d->m_items.at(pos).operation == NameValueItem::Unset;
+    return pos == -1 ? false : d->m_items.at(pos).operation == EnvironmentItem::Unset;
 }
 
 bool EnvironmentModel::isEnabled(const QString &name) const
@@ -389,14 +389,14 @@ bool EnvironmentModel::canReset(const QString &name)
     return d->m_baseNameValueDictionary.hasKey(name);
 }
 
-NameValueItems EnvironmentModel::userChanges() const
+EnvironmentItems EnvironmentModel::userChanges() const
 {
     return d->m_items;
 }
 
-void EnvironmentModel::setUserChanges(const NameValueItems &items)
+void EnvironmentModel::setUserChanges(const EnvironmentItems &items)
 {
-    NameValueItems filtered = Utils::filtered(items, [](const NameValueItem &i) {
+    EnvironmentItems filtered = Utils::filtered(items, [](const EnvironmentItem &i) {
         return i.name != "export " && !i.name.contains('=');
     });
     // We assume nobody is reordering the items here.
@@ -404,7 +404,7 @@ void EnvironmentModel::setUserChanges(const NameValueItems &items)
         return;
     beginResetModel();
     d->m_items = filtered;
-    for (NameValueItem &item : d->m_items) {
+    for (EnvironmentItem &item : d->m_items) {
         QString &name = item.name;
         name = name.trimmed();
         if (name.startsWith("export "))
