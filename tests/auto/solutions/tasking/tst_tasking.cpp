@@ -2807,7 +2807,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        LoopUntil loop([](int index) { return index < 3; });
+        const LoopUntil loop([](int index) { return index < 3; });
 
         const auto onSetupContinue = [storage, loop](int taskId) {
             return [storage, loop, taskId](TaskObject &) {
@@ -2899,6 +2899,17 @@ void tst_Tasking::testTree_data()
             << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
         QTest::newRow("LoopParallelLimit")
             << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+    }
+
+    {
+        // Check if task tree finishes with the right progress value when LoopUntil(false).
+        const Group root {
+            storage,
+            LoopUntil([](int) { return false; }),
+            createSuccessTask(1)
+        };
+        QTest::newRow("ProgressWithLoopUntilFalse")
+            << TestData{storage, root, {}, 1, DoneWith::Success};
     }
 
     {
