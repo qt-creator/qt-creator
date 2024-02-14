@@ -112,7 +112,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                             "CollectionEditor",
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Model Editor"),
+                            tr("Model Editor [beta]"),
                             tr("Model Editor view"));
 }
 
