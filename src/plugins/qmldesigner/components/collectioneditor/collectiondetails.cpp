@@ -733,7 +733,7 @@ CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document)
         }
     }
 
-    return fromImportedJson(importedArray);
+    return fromImportedJson(importedArray, headers);
 }
 
 CollectionDetails CollectionDetails::fromImportedJson(const QByteArray &json, QJsonParseError *error)
