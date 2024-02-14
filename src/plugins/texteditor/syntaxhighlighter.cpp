@@ -60,7 +60,6 @@ public:
     QList<QTextCharFormat> formats;
     QList<std::pair<int,TextStyle>> formatCategories;
     QTextCharFormat whitespaceFormat;
-    bool noAutomaticHighlighting = false;
     QString mimeType;
 };
 
@@ -345,12 +344,11 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
     d->doc = doc;
     documentChanged(oldDoc, d->doc);
     if (d->doc) {
-        if (!d->noAutomaticHighlighting) {
-            connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
-            d->rehighlightPending = true;
-            QMetaObject::invokeMethod(this, &SyntaxHighlighter::delayedRehighlight,
-                                      Qt::QueuedConnection);
-        }
+        connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
+        d->rehighlightPending = true;
+        QMetaObject::invokeMethod(this,
+                                  &SyntaxHighlighter::delayedRehighlight,
+                                  Qt::QueuedConnection);
         d->foldValidator.setup(qobject_cast<TextDocumentLayout *>(doc->documentLayout()));
     }
 }
@@ -845,15 +843,6 @@ FontSettings SyntaxHighlighter::fontSettings() const
 {
     Q_D(const SyntaxHighlighter);
     return d->fontSettings;
-}
-/*!
-    The syntax highlighter is not anymore reacting to the text document if \a noAutomatic is
-    \c true.
-*/
-void SyntaxHighlighter::setNoAutomaticHighlighting(bool noAutomatic)
-{
-    Q_D(SyntaxHighlighter);
-    d->noAutomaticHighlighting = noAutomatic;
 }
 
 /*!

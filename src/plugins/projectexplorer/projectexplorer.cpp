@@ -1897,10 +1897,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             &ProjectWelcomePage::requestProject,
             m_instance,
             &ProjectExplorerPlugin::openProjectWelcomePage);
-    connect(SessionManager::instance(),
-            &SessionManager::startupSessionRestored,
-            m_instance,
-            &ProjectExplorerPlugin::finishedInitialization);
     dd->updateWelcomePage();
 
     MacroExpander *expander = Utils::globalMacroExpander();

@@ -87,7 +87,25 @@
 
     To run in a clean system environment, select \uicontrol {Clean Environment}.
 
-    \section2 Run on devices
+    \section2 Set the environment for all run configurations
+
+    To set environment variables for running and debugging applications, so
+    that they don't affect \QC itself, set environment variables for run
+    configurations of all projects:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Build & Run} > \uicontrol General.
+        \li Select \uicontrol Change in \uicontrol {Application environment}.
+        \li Set environment variables in \uicontrol {Edit Environment}.
+            \image qtcreator-edit-environment.webp {Edit Environment dialog}
+    \endlist
+
+    For example, set \c QT_FORCE_STDERR_LOGGING=1 to see application output
+    in \l {Application Output} instead of a journal or system log.
+
+    Or, set \c QT_MESSAGE_PATTERN to add information to debugging messages.
+
+    \section2 Use device environment
 
     When running on a mobile device connected to the development host, \QC
     fetches information about the \uicontrol {Device Environment} from the device.

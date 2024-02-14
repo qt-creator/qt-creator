@@ -9,9 +9,6 @@
 
 #include <utils/link.h>
 
-#include <QSharedPointer>
-#include <QString>
-
 #include <functional>
 
 namespace Core { class SearchResult; }
@@ -29,9 +26,6 @@ class RefactoringEngineInterface;
 
 class CPPEDITOR_EXPORT ModelManagerSupport
 {
-public:
-    using Ptr = QSharedPointer<ModelManagerSupport>;
-
 public:
     virtual ~ModelManagerSupport() = 0;
 

@@ -19,6 +19,8 @@ namespace ProjectExplorer { class Project; }
 
 namespace Tasking { class Group; }
 
+namespace Utils { class FilePath; }
+
 namespace Axivion::Internal {
 
 struct IssueListSearch
@@ -56,6 +58,10 @@ Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &ha
 // TODO: Wrap into expected_str<>?
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
 Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
+
+// TODO: Wrap into expected_str<>?
+using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
+Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
 using HtmlHandler = std::function<void(const QByteArray &)>;
 Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);

@@ -36,6 +36,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -85,20 +86,6 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Constants::SUBVERSION_LOG_EDITOR_ID,
-    Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
-    Constants::SUBVERSION_LOG_MIMETYPE
-};
-
-const VcsBaseEditorParameters blameEditorParameters {
-    AnnotateOutput,
-    Constants::SUBVERSION_BLAME_EDITOR_ID,
-    Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
-    Constants::SUBVERSION_BLAME_MIMETYPE
-};
-
 static inline QString debugCodec(const QTextCodec *c)
 {
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
@@ -138,24 +125,6 @@ static inline QStringList svnDirectories()
         rc.push_back(QLatin1String("_svn"));
     return rc;
 }
-
-class SubversionPluginPrivate;
-
-class SubversionTopicCache : public Core::IVersionControl::TopicCache
-{
-public:
-    SubversionTopicCache(SubversionPluginPrivate *plugin) :
-        m_plugin(plugin)
-    { }
-
-protected:
-    FilePath trackFile(const FilePath &repository) override;
-
-    QString refreshTopic(const FilePath &repository) override;
-
-private:
-    SubversionPluginPrivate *m_plugin;
-};
 
 class SubversionPluginPrivate final : public VcsBase::VersionControlBase
 {
@@ -276,17 +245,23 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Constants::SUBVERSION_LOG_EDITOR_ID,
+        VcsBase::Tr::tr("Subversion File Log Editor"),
+        Constants::SUBVERSION_LOG_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory blameEditorFactory {
-        &blameEditorParameters,
+    VcsEditorFactory blameEditorFactory {{
+        AnnotateOutput,
+        Constants::SUBVERSION_BLAME_EDITOR_ID,
+        VcsBase::Tr::tr("Subversion Annotation Editor"),
+        Constants::SUBVERSION_BLAME_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 
@@ -319,7 +294,12 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 {
     dd = this;
 
-    setTopicCache(new SubversionTopicCache(this));
+    setTopicFileTracker([this](const FilePath &repository) {
+        return FilePath::fromString(monitorFile(repository));
+    });
+    setTopicRefresher([this](const FilePath &repository) {
+        return synchronousTopic(repository);
+    });
 
     using namespace Constants;
     using namespace Core::Constants;
@@ -488,7 +468,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::SUBVERSION_SUBMIT_MIMETYPE,
         Constants::SUBVERSION_COMMIT_EDITOR_ID,
-        Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Subversion Commit Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new SubversionSubmitEditor; },
     });
@@ -853,7 +833,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                blameEditorParameters.id, source, codec);
+                                            Constants::SUBVERSION_BLAME_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1155,19 +1135,11 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
     args << SubversionClient::AddAuthOptions();
     args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;
 
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, subversionClient().processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
+                                                   subversionClient().processEnvironment(
+                                                       baseDirectory));
     command->addJob(args, -1);
     return command;
-}
-
-FilePath SubversionTopicCache::trackFile(const FilePath &repository)
-{
-    return FilePath::fromString(m_plugin->monitorFile(repository));
-}
-
-QString SubversionTopicCache::refreshTopic(const FilePath &repository)
-{
-    return m_plugin->synchronousTopic(repository);
 }
 
 

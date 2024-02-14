@@ -32,19 +32,19 @@ Utils::Id McuDependenciesKitAspect::id()
     return "PE.Profile.McuCMakeDependencies";
 }
 
-Utils::NameValueItems McuDependenciesKitAspect::dependencies(const Kit *kit)
+Utils::EnvironmentItems McuDependenciesKitAspect::dependencies(const Kit *kit)
 {
     if (kit)
-        return Utils::NameValueItem::fromStringList(
+        return Utils::EnvironmentItem::fromStringList(
             kit->value(McuDependenciesKitAspect::id()).toStringList());
-    return Utils::NameValueItems();
+    return Utils::EnvironmentItems();
 }
 
-void McuDependenciesKitAspect::setDependencies(Kit *k, const Utils::NameValueItems &dependencies)
+void McuDependenciesKitAspect::setDependencies(Kit *k, const Utils::EnvironmentItems &dependencies)
 {
     if (k)
         k->setValue(McuDependenciesKitAspect::id(),
-                    Utils::NameValueItem::toStringList(dependencies));
+                    Utils::EnvironmentItem::toStringList(dependencies));
 }
 
 Utils::NameValuePairs McuDependenciesKitAspect::configuration(const Kit *kit)
@@ -108,7 +108,7 @@ public:
         if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
             qWarning("Kit \"%s\" has a wrong mcu dependencies value set.",
                      qPrintable(kit->displayName()));
-            McuDependenciesKitAspect::setDependencies(kit, Utils::NameValueItems());
+            McuDependenciesKitAspect::setDependencies(kit, Utils::EnvironmentItems());
         }
     }
 

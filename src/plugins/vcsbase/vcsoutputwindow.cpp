@@ -393,7 +393,7 @@ QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const 
             + ' ' + formatArguments(command.splitArguments());
     if (workingDir.isEmpty())
         return Tr::tr("Running: %1").arg(maskedCmdline) + '\n';
-    return Tr::tr("Running in \"%1\": %2.").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
+    return Tr::tr("Running in \"%1\": %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
 }
 
 void VcsOutputWindow::appendShellCommandLine(const QString &text)

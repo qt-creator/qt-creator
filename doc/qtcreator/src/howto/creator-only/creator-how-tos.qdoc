@@ -77,7 +77,7 @@
 
     \generatelist creator-how-to-projects-create
 
-    \section2 Create Files
+    \section2 Add Files
 
     \generatelist creator-how-to-projects-files
 
@@ -288,16 +288,18 @@
 
     \ingroup creator-how-to-edit
 
-    \title Enclose selected code in curly braces, parentheses, or double quotes
+    \title Enclose code in brackets or quotes
 
-    When you have selected code and enter one of the following opening
-    characters, the matching closing character is added automatically
-    at the end of the selection:
+    Select code and enter one of the following opening characters to add
+    the matching closing character at the end of the selection:
 
     \list
-        \li {
         \li (
+        \li {
+        \li [
+        \li <
         \li "
+        \li '
     \endlist
 
     To specify whether to automatically insert matching characters,

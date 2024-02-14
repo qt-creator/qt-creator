@@ -57,7 +57,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QString &commitMessageFile,
                                 const QStringList &extraOptions) const
 {
-    CommandLine args{vcsBinary()};
+    CommandLine args{vcsBinary(repositoryRoot)};
     args << vcsCommandString(CommitCommand)
          << extraOptions
          << AddAuthOptions()
@@ -117,7 +117,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
 {
     QStringList args;
 
-    QString svnVersionBinary = vcsBinary().toString();
+    QString svnVersionBinary = vcsBinary(repository).toString();
     int pos = svnVersionBinary.lastIndexOf('/');
     if (pos < 0)
         svnVersionBinary.clear();
@@ -237,7 +237,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     if (!controller) {
         controller = new SubversionDiffEditorController(document);
         controller->setVcsBinary(settings().binaryPath());
-        controller->setProcessEnvironment(processEnvironment());
+        controller->setProcessEnvironment(processEnvironment(workingDirectory));
         controller->setWorkingDirectory(workingDirectory);
     }
     VcsBase::setSource(document, source);

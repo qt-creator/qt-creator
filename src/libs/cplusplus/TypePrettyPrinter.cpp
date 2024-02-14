@@ -363,12 +363,11 @@ void TypePrettyPrinter::visit(Function *type)
 {
     bool showTemplateParameters = _overview->showTemplateParameters;
     QStringList nameParts = _name.split("::");
-    int i = nameParts.length() - 1;
     Scope *s = type->enclosingScope();
     if (s && s->asTemplate())
         s = s->enclosingScope();
 
-    for (; s && i >= 0; s = s->enclosingScope()) {
+    for (int i = nameParts.length() - 1; s && i >= 0; s = s->enclosingScope()) {
         if (s->asClass())
             showTemplateParameters = true;
 
@@ -433,7 +432,8 @@ void TypePrettyPrinter::visit(Function *type)
     }
 
     if (_overview->showEnclosingTemplate) {
-        for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
+        for (auto [s, i] = std::tuple{type->enclosingScope(), nameParts.length() - 1}; s && i >= 0;
+             s = s->enclosingScope()) {
             if (Template *templ = s->asTemplate()) {
                 QString templateScope = "template<";
                 const int paramCount = templ->templateParameterCount();

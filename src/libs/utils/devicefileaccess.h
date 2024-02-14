@@ -188,6 +188,8 @@ protected:
                      QStringList *found,
                      const QString &start) const;
 
+    virtual bool disconnected() const;
+
 private:
     bool iterateWithFind(const FilePath &filePath,
                          const FileFilter &filter,

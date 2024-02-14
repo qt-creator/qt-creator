@@ -238,7 +238,7 @@ protected:
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
-
+    void cancelAllThreads();
 private:
     void joinAllThreads(bool cancelOnWait = false);
     void iterateQrcFiles(ProjectExplorer::Project *project,

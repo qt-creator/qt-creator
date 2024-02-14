@@ -47,7 +47,7 @@ def verifyVersionControlView(targetDir, canceled):
                 "Searching for target directory in clone log")
     test.verify(" ".join(["clone", "--progress", cloneUrl, cloneDir]) in vcsLog,
                 "Searching for git parameters in clone log")
-    test.compare(canceled, " terminated abnormally" in vcsLog,
+    test.compare(canceled, " was canceled after " in vcsLog,
                  "Searching for result in clone log")
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 

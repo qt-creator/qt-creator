@@ -45,6 +45,7 @@ public:
     virtual int indexOf(const std::function<bool (AssistProposalItemInterface *)> &predicate) const;
 
     void loadContent(const QList<AssistProposalItemInterface *> &items);
+    const QList<AssistProposalItemInterface *> &originalItems() const { return m_originalItems; }
 
     bool isPerfectMatch(const QString &prefix) const;
     bool hasItemsToPropose(const QString &prefix, AssistReason reason) const;

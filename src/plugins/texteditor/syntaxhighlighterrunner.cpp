@@ -27,26 +27,22 @@ class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    SyntaxHighlighterRunnerPrivate(SyntaxHighlighterRunner::SyntaxHighlighterCreator creator,
+    SyntaxHighlighterRunnerPrivate(SyntaxHighlighter *highlighter,
                                    QTextDocument *document,
-                                   bool async,
-                                   const QString &mimeType,
-                                   FontSettings fontSettings)
+                                   bool async)
+        : m_highlighter(highlighter)
     {
         if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
+            m_highlighter->setParent(m_document);
         } else {
             m_document = document;
         }
 
-        m_highlighter.reset(creator());
-        m_highlighter->setFontSettings(fontSettings);
         m_highlighter->setDocument(m_document);
-        m_highlighter->setMimeType(mimeType);
-        m_highlighter->setParent(m_document);
 
-        connect(m_highlighter.get(),
+        connect(m_highlighter,
                 &SyntaxHighlighter::resultsReady,
                 this,
                 &SyntaxHighlighterRunnerPrivate::resultsReady);
@@ -102,7 +98,7 @@ public:
 
     void rehighlight() { m_highlighter->rehighlight(); }
 
-    std::unique_ptr<SyntaxHighlighter> m_highlighter;
+    SyntaxHighlighter *m_highlighter = nullptr;
     QTextDocument *m_document = nullptr;
 
 signals:
@@ -110,15 +106,13 @@ signals:
 
 };
 
-SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighterCreator creator,
+SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                                                  QTextDocument *document,
-                                                 bool async,
-                                                 const QString &mimeType,
-                                                 const TextEditor::FontSettings &fontSettings)
-    : d(new SyntaxHighlighterRunnerPrivate(creator, document, async, mimeType, fontSettings))
+                                                 bool async)
+    : d(new SyntaxHighlighterRunnerPrivate(highlighter, document, async))
     , m_document(document)
 {
-    m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter.get());
+    m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter);
 
     if (async) {
         m_thread.emplace();
@@ -163,6 +157,7 @@ SyntaxHighlighterRunner::~SyntaxHighlighterRunner()
         m_thread->quit();
         m_thread->wait();
     } else {
+        delete d->m_highlighter;
         delete d;
     }
 }
@@ -185,7 +180,7 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
 
         result.copyToBlock(docBlock);
 
-        if (!result.m_formatRanges.empty()) {
+        if (result.m_formatRanges != docBlock.layout()->formats()) {
             TextDocumentLayout::FoldValidator foldValidator;
             foldValidator.setup(qobject_cast<TextDocumentLayout *>(m_document->documentLayout()));
             docBlock.layout()->setFormats(result.m_formatRanges);

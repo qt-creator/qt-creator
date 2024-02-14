@@ -8,15 +8,14 @@
 #include <utils/id.h>
 #include <utils/filepath.h>
 
-#include <QDateTime>
 #include <QFlags>
-#include <QHash>
 #include <QObject>
-#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 
 namespace Core {
+
+namespace Internal { class IVersionControlPrivate; }
 
 class CORE_EXPORT IVersionControl : public QObject
 {
@@ -41,28 +40,6 @@ public:
         NoOpen,        /*!< Files can be edited without noticing the VCS */
         OpenOptional,  /*!< Files can be opened by the VCS, or hijacked */
         OpenMandatory  /*!< Files must always be opened by the VCS */
-    };
-
-    class CORE_EXPORT TopicCache
-    {
-    public:
-        virtual ~TopicCache();
-        QString topic(const Utils::FilePath &topLevel);
-
-    protected:
-        virtual Utils::FilePath trackFile(const Utils::FilePath &repository) = 0;
-        virtual QString refreshTopic(const Utils::FilePath &repository) = 0;
-
-    private:
-        class TopicData
-        {
-        public:
-            QDateTime timeStamp;
-            QString topic;
-        };
-
-        QHash<Utils::FilePath, TopicData> m_cache;
-
     };
 
     IVersionControl();
@@ -218,7 +195,14 @@ public:
     };
     virtual RepoUrl getRepoUrl(const QString &location) const;
 
-    void setTopicCache(TopicCache *topicCache);
+    // Topic cache
+    using FileTracker = std::function<Utils::FilePath(const Utils::FilePath &)>;
+    Utils::FilePath trackFile(const Utils::FilePath &repository);
+    void setTopicFileTracker(const FileTracker &fileTracker);
+
+    using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
+    QString refreshTopic(const Utils::FilePath &repository);
+    void setTopicRefresher(const TopicRefresher &topicRefresher);
 
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
@@ -226,7 +210,7 @@ signals:
     void configurationChanged();
 
 private:
-    TopicCache *m_topicCache = nullptr;
+    Internal::IVersionControlPrivate *d;
 };
 
 } // namespace Core

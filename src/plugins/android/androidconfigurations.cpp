@@ -1479,9 +1479,12 @@ FilePath AndroidConfig::getJdkPath()
         // Look for Android Studio's jdk first
         const FilePath androidStudioSdkPath = androidStudioPath();
         if (!androidStudioSdkPath.isEmpty()) {
-            const FilePath androidStudioSdkJrePath = androidStudioSdkPath / "jre";
-            if (androidStudioSdkJrePath.exists())
-                jdkHome = androidStudioSdkJrePath;
+            const QStringList allVersions{"jbr", "jre"};
+            for (const QString &version : allVersions) {
+                const FilePath androidStudioSdkJbrPath = androidStudioSdkPath / version;
+                if (androidStudioSdkJbrPath.exists())
+                    return androidStudioSdkJbrPath;
+            }
         }
 
         if (jdkHome.isEmpty()) {

@@ -312,6 +312,9 @@ void DeviceSettingsWidget::testDevice()
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setModal(true);
     dlg->show();
+    connect(dlg, &QObject::destroyed, this, [this, id = device->id()] {
+        handleDeviceUpdated(id);
+    });
 }
 
 void DeviceSettingsWidget::handleDeviceUpdated(Id id)

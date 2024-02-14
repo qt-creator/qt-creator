@@ -151,8 +151,8 @@ QString WatchItem::toString() const
     if (!value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
 
-    if (elided)
-        str << "valueelided=\"" << elided << doubleQuoteComma;
+    if (valuelen)
+        str << "valuelen=\"" << valuelen << doubleQuoteComma;
 
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
@@ -300,9 +300,9 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     if (mi.isValid())
         id = mi.toInt();
 
-    mi = input["valueelided"];
+    mi = input["valuelen"];
     if (mi.isValid())
-        elided = mi.toInt();
+        valuelen = mi.toInt();
 
     mi = input["bitpos"];
     if (mi.isValid())

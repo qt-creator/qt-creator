@@ -1063,13 +1063,13 @@ void Project::setNamedSettings(const Key &name, const QVariant &value)
 
 void Project::setAdditionalEnvironment(const EnvironmentItems &envItems)
 {
-    setNamedSettings(PROJECT_ENV_KEY, NameValueItem::toStringList(envItems));
+    setNamedSettings(PROJECT_ENV_KEY, EnvironmentItem::toStringList(envItems));
     emit environmentChanged();
 }
 
 EnvironmentItems Project::additionalEnvironment() const
 {
-    return NameValueItem::fromStringList(namedSettings(PROJECT_ENV_KEY).toStringList());
+    return EnvironmentItem::fromStringList(namedSettings(PROJECT_ENV_KEY).toStringList());
 }
 
 bool Project::needsConfiguration() const

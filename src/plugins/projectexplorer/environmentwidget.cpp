@@ -481,25 +481,25 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
     d->m_editor.setEnvironmentItems(d->m_model->userChanges());
 }
 
-void EnvironmentWidget::amendPathList(Utils::NameValueItem::Operation op)
+void EnvironmentWidget::amendPathList(Utils::EnvironmentItem::Operation op)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
     const FilePath dir = FileUtils::getExistingDirectory(this, Tr::tr("Choose Directory"));
     if (dir.isEmpty())
         return;
-    Utils::NameValueItems changes = d->m_model->userChanges();
+    Utils::EnvironmentItems changes = d->m_model->userChanges();
     changes.append({varName, dir.toUserOutput(), op});
     setUserChanges(changes);
 }
 
 void EnvironmentWidget::appendPathButtonClicked()
 {
-    amendPathList(Utils::NameValueItem::Append);
+    amendPathList(Utils::EnvironmentItem::Append);
 }
 
 void EnvironmentWidget::prependPathButtonClicked()
 {
-    amendPathList(Utils::NameValueItem::Prepend);
+    amendPathList(Utils::EnvironmentItem::Prepend);
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)

@@ -43,8 +43,8 @@ add_qtc_library(Utils
     elidinglabel.cpp elidinglabel.h
     environment.cpp environment.h
     environmentdialog.cpp environmentdialog.h
-    environmentfwd.h
     environmentmodel.cpp environmentmodel.h
+    environmentfwd.h
     execmenu.cpp execmenu.h
     expected.h
     externalterminalprocessimpl.cpp externalterminalprocessimpl.h
@@ -103,12 +103,7 @@ add_qtc_library(Utils
     namevaluedictionary.cpp namevaluedictionary.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevalueitem.cpp namevalueitem.h
-    namevalueitem.cpp namevalueitem.h
-    namevaluemodel.cpp namevaluemodel.h
-    namevaluemodel.cpp namevaluemodel.h
     namevaluesdialog.cpp namevaluesdialog.h
-    namevaluesdialog.cpp namevaluesdialog.h
-    namevaluevalidator.cpp namevaluevalidator.h
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h

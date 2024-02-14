@@ -87,7 +87,6 @@ SearchBox::SearchBox(QWidget *parent)
     m_lineEdit = new FancyLineEdit;
     m_lineEdit->setFiltering(true);
     m_lineEdit->setFrame(false);
-    m_lineEdit->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
     m_lineEdit->setMinimumHeight(33);
     m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -806,7 +805,6 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     }.emerge();
     m_sectionLabels.append(sectionLabel);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
 
@@ -877,7 +875,6 @@ void SectionedGridView::zoomInSection(const Section &section)
         noMargin
     }.emerge();
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
 
     auto gridView = new GridView(zoomedInWidget);
     gridView->setItemDelegate(m_itemDelegate);

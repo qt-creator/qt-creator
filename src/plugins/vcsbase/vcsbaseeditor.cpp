@@ -563,7 +563,6 @@ public:
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
-    VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
@@ -723,14 +722,10 @@ int VcsBaseEditorWidget::lineNumberDigits() const
     return digits;
 }
 
-void VcsBaseEditorWidget::setDescribeFunc(DescribeFunc describeFunc)
-{
-    d->m_describeFunc = describeFunc;
-}
-
 void VcsBaseEditorWidget::finalizeInitialization()
 {
-    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_describeFunc);
+    QTC_CHECK(d->m_parameters.describeFunc);
+    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_parameters.describeFunc);
     init();
 }
 
@@ -1332,7 +1327,7 @@ bool VcsBaseEditor::gotoLineOfEditor(IEditor *e, int lineNumber)
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
-    return workingDirectory.pathAppended(fileName);
+    return workingDirectory.resolvePath(fileName);
 }
 
 FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
@@ -1653,30 +1648,26 @@ IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
     \sa VcsBase::VcsBaseEditorWidget
 */
 
-VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
-                                   // Force copy, see QTCREATORBUG-13218
-                                   const EditorWidgetCreator editorWidgetCreator,
-                                   std::function<void (const Utils::FilePath &, const QString &)> describeFunc)
+VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
 {
-    setId(parameters->id);
-    setDisplayName(Tr::tr(parameters->displayName));
-    if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
-        addMimeType(QLatin1String(parameters->mimeType));
+    setId(parameters.id);
+    setDisplayName(parameters.displayName);
+    if (parameters.mimeType != DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)
+        addMimeType(parameters.mimeType);
 
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);
 
     setDocumentCreator([parameters] {
-        auto document = new TextDocument(parameters->id);
-        document->setMimeType(QLatin1String(parameters->mimeType));
+        auto document = new TextDocument(parameters.id);
+        document->setMimeType(parameters.mimeType);
         document->setSuspendAllowed(false);
         return document;
     });
 
-    setEditorWidgetCreator([parameters=*parameters, editorWidgetCreator, describeFunc] {
-        auto widget = editorWidgetCreator();
+    setEditorWidgetCreator([parameters] {
+        auto widget = parameters.editorWidgetCreator();
         auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
-        editorWidget->setDescribeFunc(describeFunc);
         editorWidget->setParameters(parameters);
         return widget;
     });

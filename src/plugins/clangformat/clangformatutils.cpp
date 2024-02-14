@@ -19,6 +19,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/expected.h>
 
 #include <QCryptographicHash>
 
@@ -417,15 +418,30 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-bool parseConfigurationContent(const std::string &fileContent, clang::format::FormatStyle &style)
+static QString s_errorMessage;
+Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+                                                    clang::format::FormatStyle &style)
 {
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = parseConfiguration(fileContent, &style);
+    auto diagHandler = [](const llvm::SMDiagnostic &diag, void * /*context*/) {
+        s_errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                         + QString::number(diag.getLineNo()) + ":"
+                         + QString::number(diag.getColumnNo());
+    };
 
-    return error.value() == static_cast<int>(ParseError::Success);
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = parseConfiguration(llvm::MemoryBufferRef(fileContent, "YAML"),
+                                                     &style,
+                                                     false,
+                                                     diagHandler,
+                                                     nullptr);
+
+    if (error)
+        return make_unexpected(s_errorMessage);
+    return {};
 }
 
-bool parseConfigurationFile(const Utils::FilePath &filePath, clang::format::FormatStyle &style)
+Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+                                                 clang::format::FormatStyle &style)
 {
     return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),
                                      style);

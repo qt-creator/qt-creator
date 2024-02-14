@@ -5,7 +5,6 @@
 
 #include "cppoutlinemodel.h"
 
-#include <QModelIndex>
 #include <QObject>
 
 #include <memory>
@@ -16,7 +15,6 @@ class QSortFilterProxyModel;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
 namespace CppEditor {

@@ -239,6 +239,11 @@ bool FileSaver::finalize()
 
 TempFileSaver::TempFileSaver(const QString &templ)
 {
+    initFromString(templ);
+}
+
+void TempFileSaver::initFromString(const QString &templ)
+{
     m_file.reset(new QTemporaryFile{});
     auto tempFile = static_cast<QTemporaryFile *>(m_file.get());
     if (!templ.isEmpty())
@@ -251,6 +256,29 @@ TempFileSaver::TempFileSaver(const QString &templ)
         m_hasError = true;
     }
     m_filePath = FilePath::fromString(tempFile->fileName());
+}
+
+TempFileSaver::TempFileSaver(const FilePath &templ)
+{
+    if (templ.isEmpty() || !templ.needsDevice()) {
+        initFromString(templ.path());
+    } else {
+        expected_str<FilePath> result = templ.createTempFile();
+        if (!result) {
+            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(templ.toUserOutput(), result.error());
+            m_hasError = true;
+            return;
+        }
+
+        m_file.reset(new QFile(result->toFSPathString()));
+        if (!m_file->open(QIODevice::WriteOnly)) {
+            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(result->toUserOutput(), m_file->errorString());
+            m_hasError = true;
+        }
+        m_filePath = *result;
+    }
 }
 
 TempFileSaver::~TempFileSaver()

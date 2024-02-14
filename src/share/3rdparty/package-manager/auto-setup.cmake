@@ -137,6 +137,7 @@ macro(qtc_auto_setup_conan)
           get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)
           if (CONAN_INSTALL_SUCCESS)
             get_property(CONAN_GENERATORS_FOLDER GLOBAL PROPERTY CONAN_GENERATORS_FOLDER)
+            file(TO_CMAKE_PATH \"\${CONAN_GENERATORS_FOLDER}\" CONAN_GENERATORS_FOLDER)
             file(WRITE \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_paths.cmake\" \"
               list(PREPEND CMAKE_PREFIX_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
               list(PREPEND CMAKE_MODULE_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")

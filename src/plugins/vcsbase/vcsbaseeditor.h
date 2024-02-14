@@ -42,9 +42,11 @@ class VCSBASE_EXPORT VcsBaseEditorParameters
 {
 public:
     EditorContentType type;
-    const char *id;
-    const char *displayName;
-    const char *mimeType;
+    Utils::Id id;
+    QString displayName;
+    QString mimeType;
+    std::function<QWidget *()> editorWidgetCreator;
+    std::function<void (const Utils::FilePath &, const QString &)> describeFunc;
 };
 
 class VCSBASE_EXPORT DiffChunk
@@ -145,8 +147,6 @@ public:
 
     void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
-    void setDescribeFunc(DescribeFunc describeFunc);
-    // void
     virtual void init();
     //
     void setParameters(const VcsBaseEditorParameters &parameters);
@@ -289,10 +289,7 @@ public:
 class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {
 public:
-    VcsEditorFactory(const VcsBaseEditorParameters *parameters,
-                     const EditorWidgetCreator editorWidgetCreator,
-                     std::function<void(const Utils::FilePath &, const QString &)> describeFunc);
-
+    explicit VcsEditorFactory(const VcsBaseEditorParameters &parameters);
     ~VcsEditorFactory();
 };
 

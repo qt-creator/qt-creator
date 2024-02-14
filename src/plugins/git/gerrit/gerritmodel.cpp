@@ -266,7 +266,6 @@ QueryContext::QueryContext(const QString &query,
         m_output.append(m_process.readAllRawStandardOutput());
     });
     connect(&m_process, &Process::done, this, &QueryContext::processDone);
-    m_process.setEnvironment(Git::Internal::gitClient().processEnvironment());
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
@@ -286,6 +285,7 @@ void QueryContext::start()
     VcsOutputWindow::appendCommand(m_process.workingDirectory(), commandLine);
     m_timer.start();
     m_process.setCommand(commandLine);
+    m_process.setEnvironment(Git::Internal::gitClient().processEnvironment(m_binary));
     auto progress = new Core::ProcessProgress(&m_process);
     progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
     m_process.start();

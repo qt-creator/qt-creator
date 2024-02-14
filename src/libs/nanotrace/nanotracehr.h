@@ -34,7 +34,7 @@ enum class Tracing { IsDisabled, IsEnabled };
 
 constexpr Tracing tracingStatus()
 {
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACEHR_ENABLED
     return Tracing::IsEnabled;
 #else
     return Tracing::IsDisabled;
@@ -1569,7 +1569,7 @@ template<typename Category, typename... Arguments>
 Tracer(typename Category::ArgumentType name, Category &category, Arguments &&...)
     -> Tracer<Category, typename Category::IsActive>;
 
-#ifdef NANOTRACE_ENABLED
+#ifdef NANOTRACEHR_ENABLED
 class GlobalTracer
 {
 public:

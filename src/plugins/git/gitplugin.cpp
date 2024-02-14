@@ -57,6 +57,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -131,48 +132,6 @@ public:
 };
 
 static const QVersionNumber minimumRequiredVersion{1, 9};
-
-const VcsBaseEditorParameters svnLogEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_SVN_LOG_EDITOR_ID,
-    Git::Constants::GIT_SVN_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.svnlog"
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Git::Constants::GIT_LOG_EDITOR_ID,
-    Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.log"
-};
-
-const VcsBaseEditorParameters reflogEditorParameters {
-    LogOutput,
-    Git::Constants::GIT_REFLOG_EDITOR_ID,
-    Git::Constants::GIT_REFLOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.reflog"
-};
-
-const VcsBaseEditorParameters blameEditorParameters {
-    AnnotateOutput,
-    Git::Constants::GIT_BLAME_EDITOR_ID,
-    Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.annotation"
-};
-
-const VcsBaseEditorParameters commitTextEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
-    Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.commit"
-};
-
-const VcsBaseEditorParameters rebaseEditorParameters {
-    OtherContent,
-    Git::Constants::GIT_REBASE_EDITOR_ID,
-    Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.rebase"
-};
 
 // GitPlugin
 
@@ -322,7 +281,7 @@ public:
                                                  const Context &context);
 
     void updateRepositoryBrowserAction();
-    IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
+    IEditor *openSubmitEditor(const FilePath &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
     void cleanRepository(const FilePath &directory);
     void applyPatch(const FilePath &workingDirectory, QString file = {});
@@ -360,69 +319,68 @@ public:
     BranchViewFactory m_branchViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
     FilePath m_submitRepository;
-    QString m_commitMessageFileName;
+    FilePath m_commitMessageFileName;
 
     InstantBlame m_instantBlame;
 
     GitGrep gitGrep;
 
-    VcsEditorFactory svnLogEditorFactory {
-        &svnLogEditorParameters,
+    VcsEditorFactory svnLogEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_SVN_LOG_EDITOR_ID,
+        VcsBase::Tr::tr("Git SVN Log Editor"),
+        "text/vnd.qtcreator.git.svnlog",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Git::Constants::GIT_LOG_EDITOR_ID,
+        VcsBase::Tr::tr("Git Log Editor"),
+        "text/vnd.qtcreator.git.log",
         [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory reflogEditorFactory {
-        &reflogEditorParameters,
-                [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
+    VcsEditorFactory reflogEditorFactory {{
+        LogOutput,
+        Git::Constants::GIT_REFLOG_EDITOR_ID,
+        VcsBase::Tr::tr("Git Reflog Editor"),
+        "text/vnd.qtcreator.git.reflog",
+        [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory blameEditorFactory {
-        &blameEditorParameters,
+    VcsEditorFactory blameEditorFactory {{
+        AnnotateOutput,
+        Git::Constants::GIT_BLAME_EDITOR_ID,
+        VcsBase::Tr::tr("Git Annotation Editor"),
+        "text/vnd.qtcreator.git.annotation",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory commitTextEditorFactory {
-        &commitTextEditorParameters,
+    VcsEditorFactory commitTextEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
+        VcsBase::Tr::tr("Git Commit Editor"),
+        "text/vnd.qtcreator.git.commit",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory rebaseEditorFactory {
-        &rebaseEditorParameters,
+    VcsEditorFactory rebaseEditorFactory {{
+        OtherContent,
+        Git::Constants::GIT_REBASE_EDITOR_ID,
+        VcsBase::Tr::tr("Git Rebase Editor"),
+        "text/vnd.qtcreator.git.rebase",
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static GitPluginPrivate *dd = nullptr;
-
-class GitTopicCache : public IVersionControl::TopicCache
-{
-public:
-    GitTopicCache() {}
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        const FilePath gitDir = gitClient().findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        emit dd->repositoryChanged(repository);
-        return gitClient().synchronousTopic(repository);
-    }
-};
 
 GitPluginPrivate::~GitPluginPrivate()
 {
@@ -433,11 +391,9 @@ void GitPluginPrivate::onApplySettings()
 {
     emit configurationChanged();
     updateRepositoryBrowserAction();
-    bool gitFoundOk;
-    QString errorMessage;
-    settings().gitExecutable(&gitFoundOk, &errorMessage);
-    if (!gitFoundOk) {
-        QTimer::singleShot(0, this, [errorMessage] {
+    const expected_str<FilePath> result = settings().gitExecutable();
+    if (!result) {
+        QTimer::singleShot(0, this, [errorMessage = result.error()] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);
         });
     }
@@ -446,7 +402,7 @@ void GitPluginPrivate::onApplySettings()
 void GitPluginPrivate::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
-        QFile::remove(m_commitMessageFileName);
+        m_commitMessageFileName.removeFile();
         m_commitMessageFileName.clear();
     }
 }
@@ -585,7 +541,14 @@ GitPluginPrivate::GitPluginPrivate()
 {
     dd = this;
 
-    setTopicCache(new GitTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        const FilePath gitDir = gitClient().findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
+    });
+    setTopicRefresher([this](const FilePath &repository) {
+        emit repositoryChanged(repository);
+        return gitClient().synchronousTopic(repository);
+    });
 
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
@@ -957,7 +920,7 @@ GitPluginPrivate::GitPluginPrivate()
     setupVcsSubmitEditor(this, {
         Git::Constants::SUBMIT_MIMETYPE,
         Git::Constants::GITSUBMITEDITOR_ID,
-        Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("Git Submit Editor"),
         VcsBaseSubmitEditorParameters::DiffRows,
         [] { return new GitSubmitEditor; },
     });
@@ -1023,8 +986,12 @@ void GitPluginPrivate::blameFile()
     const FilePath fileName = state.currentFile().canonicalPath();
     FilePath topLevel;
     VcsManager::findVersionControlForDirectory(fileName.parentDir(), &topLevel);
-    gitClient().annotate(topLevel, fileName.relativeChildPath(topLevel).toString(),
-                         lineNumber, {}, extraOptions, firstLine);
+    gitClient().annotate(topLevel,
+                         fileName.relativeChildPath(topLevel).path(),
+                         lineNumber,
+                         {},
+                         extraOptions,
+                         firstLine);
 }
 
 void GitPluginPrivate::logProject()
@@ -1284,7 +1251,9 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     m_submitRepository = data.panelInfo.repository;
 
     // Start new temp file with message template
-    TempFileSaver saver;
+    TempFileSaver saver(
+        data.panelInfo.repository.tmpDir().value_or(data.panelInfo.repository.withNewPath(""))
+        / "commit-msg.XXXXXX");
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     saver.write(commitTemplate.toLocal8Bit());
@@ -1292,7 +1261,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
         VcsOutputWindow::appendError(saver.errorString());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toString();
+    m_commitMessageFileName = saver.filePath();
     openSubmitEditor(m_commitMessageFileName, data);
 }
 
@@ -1321,10 +1290,9 @@ void GitPluginPrivate::instantBlameOnce()
     m_instantBlame.once();
 }
 
-IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)
+IEditor *GitPluginPrivate::openSubmitEditor(const FilePath &fileName, const CommitData &cd)
 {
-    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
-                                                Constants::GITSUBMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID);
     auto submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     setSubmitEditor(submitEditor);
@@ -1357,10 +1325,9 @@ bool GitPluginPrivate::activateCommit()
     QTC_ASSERT(editorDocument, return true);
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
-    const QFileInfo changeFile(m_commitMessageFileName);
+
     // Paranoia!
-    if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
+    if (!editorDocument->filePath().isSameFile(m_commitMessageFileName))
         return true;
 
     auto model = qobject_cast<SubmitFileModel *>(editor->fileModel());
@@ -1737,7 +1704,7 @@ bool GitPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 
 bool GitPluginPrivate::isConfigured() const
 {
-    return !gitClient().vcsBinary().isEmpty();
+    return !gitClient().vcsBinary({}).isEmpty();
 }
 
 bool GitPluginPrivate::supportsOperation(Operation operation) const
@@ -1802,9 +1769,10 @@ VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
     QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;
 
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, gitClient().processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
+                                                   gitClient().processEnvironment(baseDirectory));
     command->addFlags(RunFlags::SuppressStdErr);
-    command->addJob({gitClient().vcsBinary(), args}, -1);
+    command->addJob({gitClient().vcsBinary(baseDirectory), args}, -1);
     return command;
 }
 

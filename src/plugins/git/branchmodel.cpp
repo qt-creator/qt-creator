@@ -318,9 +318,12 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             if (!node->isLocal() || !node->isLeaf())
                 break;
 
-            res += ' ' + arrowUp + QString::number(node->status.ahead);
+            if (node->status.ahead >= 0)
+                res += ' ' + arrowUp + QString::number(node->status.ahead);
+
             if (!node->tracking.isEmpty()) {
-                res += ' ' + arrowDown + QString::number(node->status.behind);
+                if (node->status.behind >= 0)
+                    res += ' ' + arrowDown + QString::number(node->status.behind);
                 res += " [" + node->tracking + ']';
             }
             break;
@@ -911,13 +914,13 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         return;
 
     Process *process = new Process(node);
-    process->setEnvironment(gitClient().processEnvironment());
+    process->setEnvironment(gitClient().processEnvironment(d->workingDirectory));
     QStringList parameters = {"rev-list", "--no-color", "--count"};
     if (node->tracking.isEmpty())
-        parameters += {"HEAD", "--not", "--remotes"};
+        parameters += {node->fullRef(), "--not", "--remotes"};
     else
         parameters += {"--left-right", node->fullRef() + "..." + node->tracking};
-    process->setCommand({gitClient().vcsBinary(), parameters});
+    process->setCommand({gitClient().vcsBinary(d->workingDirectory), parameters});
     process->setWorkingDirectory(d->workingDirectory);
     connect(process, &Process::done, this, [this, process, node] {
         process->deleteLater();

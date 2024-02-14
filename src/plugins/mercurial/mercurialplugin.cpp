@@ -30,6 +30,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -49,44 +50,6 @@ using namespace Utils;
 using namespace std::placeholders;
 
 namespace Mercurial::Internal {
-
-class MercurialTopicCache : public Core::IVersionControl::TopicCache
-{
-public:
-    MercurialTopicCache() = default;
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        return repository.pathAppended(".hg/branch");
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        return mercurialClient().branchQuerySync(repository.toString());
-    }
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::LOGAPP
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    Constants::ANNOTATELOG_ID,
-    Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
 
 class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
@@ -180,23 +143,32 @@ private:
     FilePath m_submitRepository;
 
 public:
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
-        [this] { return new MercurialEditorWidget; },
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        Constants::FILELOG_ID,
+        VcsBase::Tr::tr("Mercurial File Log Editor"),
+        Constants::LOGAPP,
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
-        [this] { return new MercurialEditorWidget; },
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        VcsBase::Tr::tr("Mercurial Annotation Editor"),
+        Constants::ANNOTATEAPP,
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
-        [this] { return new MercurialEditorWidget; },
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        VcsBase::Tr::tr("Mercurial Diff Editor"),
+        Constants::DIFFAPP,
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 static MercurialPluginPrivate *dd = nullptr;
@@ -209,12 +181,17 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::COMMITMIMETYPE,
         Constants::COMMIT_ID,
-        Constants::COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Mercurial Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });
 
-    setTopicCache(new MercurialTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        return repository.pathAppended(".hg/branch");
+    });
+    setTopicRefresher([](const FilePath &repository) {
+        return mercurialClient().branchQuerySync(repository.toString());
+    });
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
@@ -759,7 +736,9 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
 {
     QStringList args;
     args << QLatin1String("clone") << extraArgs << url << localName;
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, mercurialClient().processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
+                                                   mercurialClient().processEnvironment(
+                                                       baseDirectory));
     command->addJob({settings().binaryPath(), args}, -1);
     return command;
 }

@@ -420,6 +420,7 @@ void TerminalInterface::start()
     connect(d->stubConnectTimeoutTimer.get(), &QTimer::timeout, this, [this] {
         killInferiorProcess();
         killStubProcess();
+        emitFinished(-1, QProcess::ExitStatus::CrashExit);
     });
     d->stubConnectTimeoutTimer->setSingleShot(true);
     d->stubConnectTimeoutTimer->start(10000);

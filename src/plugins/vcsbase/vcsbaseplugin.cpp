@@ -374,7 +374,7 @@ FilePath VcsBasePluginState::currentFileDirectory() const
 QString VcsBasePluginState::relativeCurrentFile() const
 {
     QTC_ASSERT(hasFile(), return {});
-    return data->m_state.currentFile.relativeChildPath(data->m_state.currentFileTopLevel).toString();
+    return data->m_state.currentFile.relativeChildPath(data->m_state.currentFileTopLevel).path();
 }
 
 QString VcsBasePluginState::currentPatchFile() const

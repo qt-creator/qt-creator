@@ -3,6 +3,7 @@
 
 #include "linuxdevicetester.h"
 
+#include "linuxdevice.h"
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -16,6 +17,8 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+
+#include <QFutureWatcher>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
@@ -43,9 +46,13 @@ public:
                            const Storage<TransferStorage> &storage) const;
     GroupItem transferTasks() const;
     GroupItem commandTasks() const;
+    void runCommandTests();
+
+    bool isRunning() const { return m_connectionTest || m_taskTreeRunner.isRunning(); }
 
     GenericLinuxDeviceTester *q = nullptr;
-    IDevice::Ptr m_device;
+    LinuxDevice::Ptr m_device;
+    QFutureWatcher<bool> *m_connectionTest = nullptr;
     TaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
     QList<GroupItem> m_extraTests;
@@ -276,6 +283,20 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
     return root;
 }
 
+void GenericLinuxDeviceTesterPrivate::runCommandTests()
+{
+    const Group root {
+        echoTask("Hello"), // No quoting necessary
+        echoTask("Hello Remote World!"), // Checks quoting, too.
+        unameTask(),
+        gathererTask(),
+        transferTasks(),
+        m_extraTests,
+        commandTasks()
+    };
+    m_taskTreeRunner.start(root);
+}
+
 } // namespace Internal
 
 using namespace Internal;
@@ -302,26 +323,40 @@ void GenericLinuxDeviceTester::setExtraTests(const QList<GroupItem> &extraTests)
 
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
-    QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
+    QTC_ASSERT(!d->isRunning(), return);
 
-    d->m_device = deviceConfiguration;
+    emit progressMessage(Tr::tr("Connecting to device..."));
 
-    const Group root {
-        d->echoTask("Hello"), // No quoting necessary
-        d->echoTask("Hello Remote World!"), // Checks quoting, too.
-        d->unameTask(),
-        d->gathererTask(),
-        d->transferTasks(),
-        d->m_extraTests,
-        d->commandTasks()
-    };
-    d->m_taskTreeRunner.start(root);
+    d->m_device = std::static_pointer_cast<LinuxDevice>(deviceConfiguration);
+
+    d->m_connectionTest = new QFutureWatcher<bool>(this);
+    d->m_connectionTest->setFuture(d->m_device->tryToConnect());
+
+    connect(d->m_connectionTest, &QFutureWatcher<bool>::finished, this, [this] {
+        const bool success = d->m_connectionTest->result();
+        d->m_connectionTest->deleteLater();
+        d->m_connectionTest = nullptr;
+        if (success) {
+            emit progressMessage(Tr::tr("Connected. Now doing extended checks.\n"));
+            d->runCommandTests();
+        } else {
+            emit errorMessage(
+                Tr::tr("Basic connectivity test failed, device is considered unusable."));
+            emit finished(TestFailure);
+        }
+    });
 }
 
 void GenericLinuxDeviceTester::stopTest()
 {
-    QTC_ASSERT(d->m_taskTreeRunner.isRunning(), return);
-    d->m_taskTreeRunner.reset();
+    QTC_ASSERT(d->isRunning(), return);
+    if (d->m_connectionTest) {
+        d->m_connectionTest->disconnect();
+        d->m_connectionTest->cancel();
+        d->m_connectionTest = nullptr;
+    } else {
+        d->m_taskTreeRunner.reset();
+    }
     emit finished(TestFailure);
 }
 

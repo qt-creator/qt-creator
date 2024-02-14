@@ -70,7 +70,7 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     layout->addWidget(new QLabel(helpText, this));
 
     const auto checkForItemChange = [this] {
-        const NameValueItems newItems = environmentItems();
+        const EnvironmentItems newItems = environmentItems();
         if (newItems != m_originalItems) {
             m_originalItems = newItems;
             emit userChangedItems(newItems);
@@ -190,8 +190,8 @@ void NameValuesDialog::setPlaceholderText(const QString &text)
     m_editor->setPlaceholderText(text);
 }
 
-std::optional<NameValueItems> NameValuesDialog::getNameValueItems(QWidget *parent,
-                                                                    const NameValueItems &initial,
+std::optional<EnvironmentItems> NameValuesDialog::getNameValueItems(QWidget *parent,
+                                                                    const EnvironmentItems &initial,
                                                                     const QString &placeholderText,
                                                                     Polisher polisher,
                                                                     const QString &windowTitle)

@@ -33,7 +33,7 @@ const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
 class AxivionProjectSettingsHandler : public QObject
 {
 public:
-    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project)
+    AxivionProjectSettings *projectSettings(Project *project)
     {
         auto &settings = m_axivionProjectSettings[project];
         if (!settings)
@@ -47,7 +47,7 @@ public:
         m_axivionProjectSettings.clear();
     }
 
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
+    QHash<Project *, AxivionProjectSettings *> m_axivionProjectSettings;
 };
 
 static AxivionProjectSettingsHandler &projectSettingsHandler()
@@ -58,17 +58,15 @@ static AxivionProjectSettingsHandler &projectSettingsHandler()
 
 // AxivionProjectSettings
 
-AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project)
+AxivionProjectSettings::AxivionProjectSettings(Project *project)
     : m_project{project}
 {
     load();
-    connect(project, &ProjectExplorer::Project::settingsLoaded,
-            this, &AxivionProjectSettings::load);
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
-            this, &AxivionProjectSettings::save);
+    connect(project, &Project::settingsLoaded, this, &AxivionProjectSettings::load);
+    connect(project, &Project::aboutToSaveSettings, this, &AxivionProjectSettings::save);
 }
 
-AxivionProjectSettings *AxivionProjectSettings::projectSettings(ProjectExplorer::Project *project)
+AxivionProjectSettings *AxivionProjectSettings::projectSettings(Project *project)
 {
     return projectSettingsHandler().projectSettings(project);
 }
@@ -90,10 +88,10 @@ void AxivionProjectSettings::save()
 
 // AxivionProjectSettingsWidget
 
-class AxivionProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+class AxivionProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
-    explicit AxivionProjectSettingsWidget(ProjectExplorer::Project *project);
+    explicit AxivionProjectSettingsWidget(Project *project);
 
 private:
     void fetchProjects();
@@ -109,11 +107,11 @@ private:
     QPushButton *m_fetchProjects = nullptr;
     QPushButton *m_link = nullptr;
     QPushButton *m_unlink = nullptr;
-    Utils::InfoLabel *m_infoLabel = nullptr;
+    InfoLabel *m_infoLabel = nullptr;
     TaskTreeRunner m_taskTreeRunner;
 };
 
-AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project)
+AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
     : m_projectSettings(projectSettingsHandler().projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
@@ -132,7 +130,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
     verticalLayout->addWidget(new QLabel(Tr::tr("Dashboard projects:")));
     verticalLayout->addWidget(m_dashboardProjects);
 
-    m_infoLabel = new Utils::InfoLabel(this);
+    m_infoLabel = new InfoLabel(this);
     m_infoLabel->setVisible(false);
     verticalLayout->addWidget(m_infoLabel);
 
@@ -171,7 +169,7 @@ void AxivionProjectSettingsWidget::fetchProjects()
     const auto onDashboardInfo = [this](const expected_str<DashboardInfo> &info) {
         if (!info) {
             m_infoLabel->setText(info.error());
-            m_infoLabel->setType(Utils::InfoLabel::Error);
+            m_infoLabel->setType(InfoLabel::Error);
             m_infoLabel->setVisible(true);
         } else {
             for (const QString &project : info->projects)
@@ -234,19 +232,19 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
 
     if (!hasDashboardSettings) {
         m_infoLabel->setText(Tr::tr("Incomplete or misconfigured settings."));
-        m_infoLabel->setType(Utils::InfoLabel::NotOk);
+        m_infoLabel->setType(InfoLabel::NotOk);
         m_infoLabel->setVisible(true);
     }
 }
 
-class AxivionProjectPanelFactory : public ProjectExplorer::ProjectPanelFactory
+class AxivionProjectPanelFactory : public ProjectPanelFactory
 {
 public:
     AxivionProjectPanelFactory()
     {
         setPriority(250);
         setDisplayName(Tr::tr("Axivion"));
-        setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        setCreateWidgetFunction([](Project *project) {
             return new AxivionProjectSettingsWidget(project);
         });
     }

@@ -20,11 +20,12 @@
 #include <QUuid>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Axivion::Internal {
 
-AxivionServer::AxivionServer(const Utils::Id &id, const QString &dashboard,
+AxivionServer::AxivionServer(const Id &id, const QString &dashboard,
                              const QString &description, const QString &token)
     : id(id)
     , dashboard(dashboard)
@@ -68,17 +69,17 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     const QJsonValue token = json.value("token");
     if (token == QJsonValue::Undefined)
         return invalidServer;
-    return { Utils::Id::fromString(id.toString()), dashboard.toString(),
+    return { Id::fromString(id.toString()), dashboard.toString(),
                 description.toString(), token.toString() };
 }
 
-static Utils::FilePath tokensFilePath()
+static FilePath tokensFilePath()
 {
-    return Utils::FilePath::fromString(Core::ICore::settings()->fileName()).parentDir()
+    return FilePath::fromString(ICore::settings()->fileName()).parentDir()
             .pathAppended("qtcreator/axivion.json");
 }
 
-static void writeTokenFile(const Utils::FilePath &filePath, const AxivionServer &server)
+static void writeTokenFile(const FilePath &filePath, const AxivionServer &server)
 {
     QJsonDocument doc;
     doc.setObject(server.toJson());
@@ -87,11 +88,11 @@ static void writeTokenFile(const Utils::FilePath &filePath, const AxivionServer 
     filePath.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
-static AxivionServer readTokenFile(const Utils::FilePath &filePath)
+static AxivionServer readTokenFile(const FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
-    Utils::expected_str<QByteArray> contents = filePath.fileContents();
+    expected_str<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return {};
     const QJsonDocument doc = QJsonDocument::fromJson(*contents);
@@ -120,7 +121,7 @@ AxivionSettings::AxivionSettings()
 void AxivionSettings::toSettings() const
 {
     writeTokenFile(tokensFilePath(), server);
-    Utils::AspectContainer::writeSettings();
+    AspectContainer::writeSettings();
 }
 
 // AxivionSettingsPage
@@ -214,7 +215,7 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
     if (m_id.isValid())
         result.id = m_id;
     else
-        result.id = m_mode == Edit ? Utils::Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
+        result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
     result.dashboard = m_dashboardUrl();
     result.description = m_description();
     result.token = m_token();
@@ -234,7 +235,7 @@ bool DashboardSettingsWidget::isValid() const
     return !m_token().isEmpty() && !m_description().isEmpty() && isUrlValid(m_dashboardUrl());
 }
 
-class AxivionSettingsWidget : public Core::IOptionsPageWidget
+class AxivionSettingsWidget : public IOptionsPageWidget
 {
 public:
     AxivionSettingsWidget();
@@ -299,7 +300,7 @@ void AxivionSettingsWidget::showEditServerDialog()
 
 // AxivionSettingsPage
 
-class AxivionSettingsPage : public Core::IOptionsPage
+class AxivionSettingsPage : public IOptionsPage
 {
 public:
     AxivionSettingsPage()

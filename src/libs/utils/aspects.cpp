@@ -7,6 +7,7 @@
 #include "checkablemessagebox.h"
 #include "environment.h"
 #include "fancylineedit.h"
+#include "guard.h"
 #include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "passworddialog.h"
@@ -1181,13 +1182,12 @@ void StringAspect::addToLayout(LayoutItem &parent)
         connect(lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
         bufferToGui();
         if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-            connect(lineEditDisplay,
-                    &FancyLineEdit::editingFinished,
-                    this,
-                    [this, lineEditDisplay] {
-                        d->undoable.set(undoStack(), lineEditDisplay->text());
-                        handleGuiChanged();
-                    });
+            connect(lineEditDisplay, &FancyLineEdit::editingFinished, this, [this, lineEditDisplay] {
+                if (lineEditDisplay->text() != d->undoable.get()) {
+                    d->undoable.set(undoStack(), lineEditDisplay->text());
+                    handleGuiChanged();
+                }
+            });
         } else {
             connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay] {
                 d->undoable.set(undoStack(), lineEditDisplay->text());
@@ -1386,6 +1386,8 @@ public:
     bool m_autoApplyOnEditingFinished = false;
     bool m_allowPathFromDevice = true;
     bool m_validatePlaceHolder = false;
+
+    Guard m_editFinishedGuard;
 };
 
 FilePathAspect::FilePathAspect(AspectContainer *container)
@@ -1559,8 +1561,12 @@ void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
     connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
     bufferToGui();
     if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-        connect(d->m_pathChooserDisplay, &PathChooser::editingFinished,
-                this, &FilePathAspect::handleGuiChanged);
+        connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, [this] {
+            if (d->m_editFinishedGuard.isLocked())
+                return;
+            GuardLocker lk(d->m_editFinishedGuard);
+            handleGuiChanged();
+        });
         connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished,
                 this, &FilePathAspect::handleGuiChanged);
     } else {

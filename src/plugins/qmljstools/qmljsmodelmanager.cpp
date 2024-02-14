@@ -10,6 +10,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/session.h>
 
 #include <cppeditor/cppmodelmanager.h>
 
@@ -281,6 +282,8 @@ void ModelManager::delayedInitialization()
             this, &ModelManager::removeProjectInfo);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &ModelManager::updateDefaultProjectInfo);
+    connect(SessionManager::instance(), &SessionManager::aboutToLoadSession,
+            this, &ModelManager::cancelAllThreads);
 
     ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;

@@ -382,9 +382,14 @@ QString QtVersion::defaultUnexpandedDisplayName() const
         }
     }
 
-    return detectionSource() == "PATH" ?
-        Tr::tr("Qt %{Qt:Version} in PATH (%2)").arg(location) :
-        Tr::tr("Qt %{Qt:Version} (%2)").arg(location);
+    QString result = detectionSource() == "PATH"
+                         ? Tr::tr("Qt %{Qt:Version} in PATH (%2)").arg(location)
+                         : Tr::tr("Qt %{Qt:Version} (%2)").arg(location);
+
+    if (qmakeFilePath().needsDevice())
+        result += QString(Tr::tr(" (on %1)")).arg(qmakeFilePath().host().toString());
+
+    return result;
 }
 
 QSet<Id> QtVersion::availableFeatures() const
