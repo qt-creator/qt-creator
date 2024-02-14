@@ -317,29 +317,22 @@ constexpr char s_jsonContentType[] = "application/json";
 
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
-    struct StorageData
-    {
-        QByteArray credentials;
-    };
-
-    const Storage<StorageData> storage;
-
     // TODO: Refactor so that it's a common code with fetchDataRecipe().
-    const auto onCredentialSetup = [storage] {
-        storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
-    };
+    const auto onQuerySetup = [url](NetworkQuery &query) {
+        if (dd->m_serverAccess == ServerAccess::Unknown)
+            return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
-    const auto onQuerySetup = [storage, url](NetworkQuery &query) {
         QNetworkRequest request(url);
         request.setRawHeader("Accept", s_htmlContentType);
-        request.setRawHeader("Authorization", storage->credentials);
+        if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
+            request.setRawHeader("Authorization", "AxToken " + *dd->m_apiToken);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
                               "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
         request.setRawHeader("X-Axivion-User-Agent", ua);
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
+        return SetupResult::Continue;
     };
-
     const auto onQueryDone = [url, handler](const NetworkQuery &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -356,14 +349,7 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
         }
         return DoneResult::Error;
     };
-
-    const Group recipe {
-        storage,
-        Sync(onCredentialSetup),
-        NetworkQueryTask(onQuerySetup, onQueryDone),
-    };
-
-    return recipe;
+    return {NetworkQueryTask(onQuerySetup, onQueryDone)};
 }
 
 template <typename DtoType>
