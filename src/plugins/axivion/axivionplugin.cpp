@@ -266,8 +266,8 @@ static QUrl urlForProject(const QString &projectName)
 }
 
 static constexpr int httpStatusCodeOk = 200;
-static const QLatin1String jsonContentType{ "application/json" };
-static const QLatin1String htmlContentType{ "text/html" };
+constexpr char s_htmlContentType[] = "text/html";
+constexpr char s_jsonContentType[] = "application/json";
 
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
@@ -284,15 +284,11 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
 
     const auto onQuerySetup = [storage, url](NetworkQuery &query) {
         QNetworkRequest request(url);
-        request.setRawHeader(QByteArrayLiteral("Accept"),
-                             QByteArray(htmlContentType.data(), htmlContentType.size()));
-        request.setRawHeader(QByteArrayLiteral("Authorization"),
-                             storage->credentials);
-        const QByteArray ua = QByteArrayLiteral("Axivion")
-                              + QCoreApplication::applicationName().toUtf8()
-                              + QByteArrayLiteral("Plugin/")
-                              + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        request.setRawHeader("Accept", s_htmlContentType);
+        request.setRawHeader("Authorization", storage->credentials);
+        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
+                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader("X-Axivion-User-Agent", ua);
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
     };
@@ -307,11 +303,10 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
                                         .trimmed()
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == htmlContentType) {
+            && contentType == s_htmlContentType) {
             handler(reply->readAll());
             return DoneResult::Success;
         }
-
         return DoneResult::Error;
     };
 
@@ -340,22 +335,19 @@ static Group fetchDataRecipe(const QUrl &url,
         storage->credentials = QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8();
     };
 
-    const auto onQuerySetup = [storage, url](NetworkQuery &query) {
+    const auto onNetworkQuerySetup = [storage, url](NetworkQuery &query) {
         QNetworkRequest request(url);
-        request.setRawHeader(QByteArrayLiteral("Accept"),
-                             QByteArray(jsonContentType.data(), jsonContentType.size()));
-        request.setRawHeader(QByteArrayLiteral("Authorization"),
-                             storage->credentials);
-        const QByteArray ua = QByteArrayLiteral("Axivion")
-                              + QCoreApplication::applicationName().toUtf8()
-                              + QByteArrayLiteral("Plugin/")
-                              + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        request.setRawHeader("Accept", s_jsonContentType);
+        request.setRawHeader("Authorization", storage->credentials);
+        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
+                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader("X-Axivion-User-Agent", ua);
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
+        return SetupResult::Continue;
     };
 
-    const auto onQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onNetworkQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -366,13 +358,13 @@ static Group fetchDataRecipe(const QUrl &url,
                                         .trimmed()
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == jsonContentType) {
+            && contentType == s_jsonContentType) {
             storage->serializableData = reply->readAll();
             return DoneResult::Success;
         }
 
         const auto getError = [&]() -> Error {
-            if (contentType == jsonContentType) {
+            if (contentType == s_jsonContentType) {
                 try {
                     return DashboardError(reply->url(), statusCode,
                                           reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
@@ -389,8 +381,7 @@ static Group fetchDataRecipe(const QUrl &url,
             return NetworkError(reply->url(), error, reply->errorString());
         };
 
-        MessageManager::writeFlashing(
-            QStringLiteral("Axivion: %1").arg(getError().message()));
+        MessageManager::writeFlashing(QStringLiteral("Axivion: %1").arg(getError().message()));
         return DoneResult::Error;
     };
 
@@ -411,7 +402,7 @@ static Group fetchDataRecipe(const QUrl &url,
     const Group recipe {
         storage,
         Sync(onCredentialSetup),
-        NetworkQueryTask(onQuerySetup, onQueryDone),
+        NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
         AsyncTask<SerializableType>(onDeserializeSetup, onDeserializeDone)
     };
 

@@ -86,6 +86,7 @@
                 \endlist
             \li \b {\l{Reference}}
                 \list
+                    \li \l {Acknowledgements}
                     \li \l {Build Systems}
                     \li \l {Command-Line Options}
                     \li \l {Custom Wizards}
@@ -94,21 +95,5 @@
                     \li \l {Supported Platforms}
                     \li \l {Reference}{See More...}
                 \endlist
-        \row
-            \li {4,1} \b {Contact Us}
-                \list
-                    \li To report bugs and suggestions to the
-                        \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
-                        select \uicontrol Help > \uicontrol {Report Bug}.
-                    \li To copy and paste detailed information about your
-                        system to the bug report, select \uicontrol Help >
-                        \uicontrol {System Information}.
-                    \li To join the \l{https://lists.qt-project.org/listinfo/qt-creator}
-                        {\QC mailing list} or \l{https://web.libera.chat/#qt-creator}
-                        {#qt-creator} channel on Libera.Chat IRC, select
-                        \uicontrol Help > \uicontrol Contact.
-                    \li For credits and a list of third-party libraries, see
-                        \l {Acknowledgements}.
-            \endlist
     \endtable
 */
