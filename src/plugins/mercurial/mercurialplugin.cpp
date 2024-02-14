@@ -148,7 +148,7 @@ public:
         Constants::FILELOG_ID,
         VcsBase::Tr::tr("Mercurial File Log Editor"),
         Constants::LOGAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 
@@ -157,7 +157,7 @@ public:
         Constants::ANNOTATELOG_ID,
         VcsBase::Tr::tr("Mercurial Annotation Editor"),
         Constants::ANNOTATEAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 
@@ -166,7 +166,7 @@ public:
         Constants::DIFFLOG_ID,
         VcsBase::Tr::tr("Mercurial Diff Editor"),
         Constants::DIFFAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 };
