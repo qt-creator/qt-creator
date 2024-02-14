@@ -338,6 +338,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     if (!node->id.isEmpty())
         m_idNodeHash.remove(node->id);
     node->isValid = false;
+    node->traceToken.end();
     m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
 }
@@ -480,7 +481,7 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
     const QString oldId = node->id;
 
     node->id = id;
-    node->traceToken.change("id"_t, std::forward_as_tuple("id", id));
+    node->traceToken.tick("id"_t, std::forward_as_tuple("id", id));
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())

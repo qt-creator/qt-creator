@@ -39,6 +39,10 @@ class InternalNode;
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 
+using NanotraceHR::dictonary;
+using NanotraceHR::keyValue;
+using namespace std::literals::string_view_literals;
+
 class InternalNode : public std::enable_shared_from_this<InternalNode>
 {
     friend InternalProperty;
@@ -53,7 +57,9 @@ public:
         , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
-        , traceToken(ModelTracing::category().beginObject("InternalNode"_t))
+        , traceToken(ModelTracing::category().beginAsynchronous("InternalNode"_t,
+                                                                keyValue("type", typeName),
+                                                                keyValue("internal id", internalId)))
     {}
 
     InternalNodeAbstractProperty::Pointer parentProperty() const { return m_parentProperty.lock(); }
@@ -224,7 +230,7 @@ public:
     ModuleId moduleId;
     ImportedTypeNameId importedTypeNameId;
     TypeId typeId;
-    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken;
+    NO_UNIQUE_ADDRESS ModelTracing::AsynchronousToken traceToken;
 
 private:
     AuxiliaryDatas m_auxiliaryDatas;
