@@ -227,6 +227,7 @@ private:
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void updateTableView();
+    void setFiltersEnabled(bool enabled);
     IssueListSearch searchFromUi() const;
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
@@ -337,7 +338,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
 void IssuesWidget::updateUi()
 {
-    m_filtersLayout->setEnabled(false);
+    setFiltersEnabled(false);
     std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
     updateBasicProjectInfo(projectInfo);
 
@@ -347,7 +348,7 @@ void IssuesWidget::updateUi()
     if (info.versions.empty()) // add some warning/information?
         return;
 
-    m_filtersLayout->setEnabled(true);
+    setFiltersEnabled(true);
     // avoid refetching existing data
     if (!m_currentPrefix.isEmpty() || m_issuesModel->rowCount())
         return;
@@ -553,6 +554,16 @@ void IssuesWidget::updateTableView()
         fetchIssues(search);
     };
     m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
+}
+
+void IssuesWidget::setFiltersEnabled(bool enabled)
+{
+    m_addedFilter->setEnabled(enabled);
+    m_removedFilter->setEnabled(enabled);
+    m_ownerFilter->setEnabled(enabled);
+    m_versionStart->setEnabled(enabled);
+    m_versionEnd->setEnabled(enabled);
+    m_pathGlobFilter->setEnabled(enabled);
 }
 
 IssueListSearch IssuesWidget::searchFromUi() const
