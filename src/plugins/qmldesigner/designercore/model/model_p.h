@@ -133,7 +133,6 @@ public:
 
     /*factory methods for internal use in model and rewriter*/
     void removeNodeAndRelatedResources(const InternalNodePointer &node);
-    void removeNode(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);
     void changeNodeType(const InternalNodePointer &node, const TypeName &typeName, int majorVersion, int minorVersion);
 
@@ -310,6 +309,7 @@ public:
 
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
+    void removeNode(const InternalNodePointer &node);
 
 private:
     void removePropertyWithoutNotification(InternalProperty *property);

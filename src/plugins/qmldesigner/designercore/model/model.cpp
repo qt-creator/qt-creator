@@ -136,6 +136,7 @@ ModelPrivate::ModelPrivate(Model *model,
 
 ModelPrivate::~ModelPrivate()
 {
+    removeNode(rootNode());
     if constexpr (useProjectStorage())
         projectStorage->removeObserver(this);
 };

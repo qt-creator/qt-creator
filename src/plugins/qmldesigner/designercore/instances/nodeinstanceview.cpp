@@ -848,6 +848,7 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     NodeInstance instance = instanceForModelNode(node);
     m_nodeInstanceHash.remove(node);
+    m_statePreviewImage.remove(node);
     instance.makeInvalid();
 }
 

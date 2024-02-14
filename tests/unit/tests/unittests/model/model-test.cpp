@@ -89,7 +89,7 @@ protected:
 
     auto createNodeWithParent(const ModelNode &parentNode, const QString &id = {})
     {
-        auto node = viewMock.createModelNode("QtQuick.Item");
+        auto node = parentNode.view()->createModelNode("QtQuick.Item");
         node.setIdWithoutRefactoring(id);
         parentNode.defaultNodeAbstractProperty().reparentHere(node);
 
@@ -113,7 +113,6 @@ protected:
     }
 
 protected:
-    NiceMock<AbstractViewMock> viewMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
@@ -124,6 +123,7 @@ protected:
                              nullptr,
                              std::make_unique<ModelResourceManagementMockWrapper>(
                                  resourceManagementMock)};
+    NiceMock<AbstractViewMock> viewMock;
     QmlDesigner::SourceId filePathId = pathCacheMock.sourceId;
     QmlDesigner::TypeId itemTypeId = projectStorageMock.typeId(projectStorageMock.moduleId(
                                                                    "QtQuick"),
@@ -515,8 +515,8 @@ TEST_F(Model,
 
 TEST_F(Model, by_default_remove_model_node_removes_node)
 {
-    model.detachView(&viewMock);
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
+    NiceMock<AbstractViewMock> viewMock;
     newModel.attachView(&viewMock);
     auto node = createNodeWithParent(viewMock.rootModelNode());
 
@@ -527,8 +527,8 @@ TEST_F(Model, by_default_remove_model_node_removes_node)
 
 TEST_F(Model, by_default_remove_properties_removes_property)
 {
-    model.detachView(&viewMock);
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
+    NiceMock<AbstractViewMock> viewMock;
     newModel.attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto property = createProperty(rootNode, "yi");
@@ -644,8 +644,8 @@ TEST_F(Model, remove_model_nodes_bypasses_model_resource_management)
 
 TEST_F(Model, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
 {
-    model.detachView(&viewMock);
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
+    NiceMock<AbstractViewMock> viewMock;
     newModel.attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto node = createNodeWithParent(rootNode, "yi");
