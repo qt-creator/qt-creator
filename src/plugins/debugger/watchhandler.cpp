@@ -826,8 +826,6 @@ static QString formattedValue(const WatchItem *item)
             v.chop(1);
             v.append("...\"");
         }
-        if (item->valuelen > 0)
-            v += QString(" (%1)").arg(item->valuelen);
         return v;
     }
 
@@ -961,6 +959,8 @@ static QString displayType(const WatchItem *item)
         result += QString(":%1").arg(item->bitsize);
     result.remove('\'');
     result = watchModel(item)->removeNamespaces(result);
+    if (item->valuelen > 0)
+        result = Tr::tr("%1 of length %2").arg(result).arg(item->valuelen);
     return result;
 }
 
