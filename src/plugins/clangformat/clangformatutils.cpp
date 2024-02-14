@@ -42,37 +42,22 @@ clang::format::FormatStyle calculateQtcStyle()
 #if LLVM_VERSION_MAJOR >= 15
     style.AlignConsecutiveAssignments = {false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false};
-#elif LLVM_VERSION_MAJOR >= 12
+#else
     style.AlignConsecutiveAssignments = FormatStyle::ACS_None;
     style.AlignConsecutiveDeclarations = FormatStyle::ACS_None;
-#else
-    style.AlignConsecutiveAssignments = false;
-    style.AlignConsecutiveDeclarations = false;
 #endif
     style.AlignEscapedNewlines = FormatStyle::ENAS_DontAlign;
-#if LLVM_VERSION_MAJOR >= 11
     style.AlignOperands = FormatStyle::OAS_Align;
-#else
-    style.AlignOperands = true;
-#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.AlignTrailingComments = {FormatStyle::TCAS_Always, 0};
 #else
     style.AlignTrailingComments = true;
 #endif
     style.AllowAllParametersOfDeclarationOnNextLine = true;
-#if LLVM_VERSION_MAJOR >= 10
     style.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Never;
-#else
-    style.AllowShortBlocksOnASingleLine = false;
-#endif
     style.AllowShortCaseLabelsOnASingleLine = false;
     style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
-#if LLVM_VERSION_MAJOR >= 9
     style.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
-#else
-    style.AllowShortIfStatementsOnASingleLine = false;
-#endif
     style.AllowShortLoopsOnASingleLine = false;
     style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
     style.AlwaysBreakBeforeMultilineStrings = false;
@@ -80,11 +65,7 @@ clang::format::FormatStyle calculateQtcStyle()
     style.BinPackArguments = false;
     style.BinPackParameters = false;
     style.BraceWrapping.AfterClass = true;
-#if LLVM_VERSION_MAJOR >= 10
     style.BraceWrapping.AfterControlStatement = FormatStyle::BWACS_Never;
-#else
-    style.BraceWrapping.AfterControlStatement = false;
-#endif
     style.BraceWrapping.AfterEnum = false;
     style.BraceWrapping.AfterFunction = true;
     style.BraceWrapping.AfterNamespace = false;
@@ -119,11 +100,7 @@ clang::format::FormatStyle calculateQtcStyle()
     style.ExperimentalAutoDetectBinPacking = false;
     style.FixNamespaceComments = true;
     style.ForEachMacros = {"forever", "foreach", "Q_FOREACH", "BOOST_FOREACH"};
-#if LLVM_VERSION_MAJOR >= 12
     style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200, 200, true}};
-#else
-    style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200, 200}};
-#endif
     style.IncludeStyle.IncludeIsMainRegex = "(Test)?$";
     style.IndentCaseLabels = false;
     style.IndentWidth = 4;
@@ -148,11 +125,7 @@ clang::format::FormatStyle calculateQtcStyle()
     style.PenaltyReturnTypeOnItsOwnLine = 300;
     style.PointerAlignment = FormatStyle::PAS_Right;
     style.ReflowComments = false;
-#if LLVM_VERSION_MAJOR >= 13
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
-#else
-    style.SortIncludes = true;
-#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;
 #else
@@ -166,11 +139,7 @@ clang::format::FormatStyle calculateQtcStyle()
     style.SpaceInEmptyParentheses = false;
 #endif
     style.SpacesBeforeTrailingComments = 1;
-#if LLVM_VERSION_MAJOR >= 13
     style.SpacesInAngles = FormatStyle::SIAS_Never;
-#else
-    style.SpacesInAngles = false;
-#endif
     style.SpacesInContainerLiterals = false;
 #if LLVM_VERSION_MAJOR >= 17
     style.SpacesInParens = FormatStyle::SIPO_Never;
@@ -225,9 +194,7 @@ void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
         style.BreakBeforeBraces = FormatStyle::BS_Custom;
 
     style.IndentCaseLabels = settings.indentSwitchLabels;
-#if LLVM_VERSION_MAJOR >= 11
     style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels;
-#endif
 
     if (settings.extraPaddingForConditionsIfConfusingAlign)
         style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;

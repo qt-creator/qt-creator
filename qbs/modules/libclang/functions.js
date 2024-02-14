@@ -1,7 +1,7 @@
 var Environment = require("qbs.Environment")
 var File = require("qbs.File")
 var FileInfo = require("qbs.FileInfo")
-var MinimumLLVMVersion = "8.0.0" // CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
+var MinimumLLVMVersion = "14.0.0" // CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
 var Process = require("qbs.Process")
 var Utilities = require("qbs.Utilities")
 
