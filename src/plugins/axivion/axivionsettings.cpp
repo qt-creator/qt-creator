@@ -28,7 +28,7 @@ namespace Axivion::Internal {
 bool AxivionServer::operator==(const AxivionServer &other) const
 {
     return id == other.id && dashboard == other.dashboard && username == other.username
-            && description == other.description && token == other.token;
+            && description == other.description;
 }
 
 bool AxivionServer::operator!=(const AxivionServer &other) const
@@ -43,7 +43,6 @@ QJsonObject AxivionServer::toJson() const
     result.insert("dashboard", dashboard);
     result.insert("username", username);
     result.insert("description", description);
-    result.insert("token", token);
     return result;
 }
 
@@ -62,11 +61,8 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     const QJsonValue description = json.value("description");
     if (description == QJsonValue::Undefined)
         return invalidServer;
-    const QJsonValue token = json.value("token");
-    if (token == QJsonValue::Undefined)
-        return invalidServer;
     return {Id::fromString(id.toString()), dashboard.toString(), username.toString(),
-            description.toString(), token.toString()};
+            description.toString()};
 }
 
 static FilePath tokensFilePath()
@@ -162,7 +158,6 @@ private:
     StringAspect m_dashboardUrl;
     StringAspect m_username;
     StringAspect m_description;
-    StringAspect m_token;
     BoolAspect m_valid;
 };
 
@@ -185,18 +180,12 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
     m_description.setDisplayStyle(labelStyle);
     m_description.setPlaceHolderText(Tr::tr("Non-empty description"));
 
-    m_token.setLabelText(Tr::tr("Access token:"));
-    m_token.setDisplayStyle(labelStyle);
-    m_token.setPlaceHolderText(Tr::tr("IDE Access Token"));
-    m_token.setVisible(mode == Edit);
-
     using namespace Layouting;
 
     Form {
         m_dashboardUrl, br,
         m_username, br,
         m_description, br,
-        m_token, br,
         mode == Edit ? normalMargin : noMargin
     }.attachTo(this);
 
@@ -209,7 +198,6 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
         connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
         connect(&m_username, &BaseAspect::changed, this, checkValidity);
         connect(&m_description, &BaseAspect::changed, this, checkValidity);
-        connect(&m_token, &BaseAspect::changed, this, checkValidity);
     }
 }
 
@@ -223,7 +211,6 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
     result.dashboard = m_dashboardUrl();
     result.username = m_username();
     result.description = m_description();
-    result.token = m_token();
     return result;
 }
 
@@ -233,12 +220,11 @@ void DashboardSettingsWidget::setDashboardServer(const AxivionServer &server)
     m_dashboardUrl.setValue(server.dashboard);
     m_username.setValue(server.username);
     m_description.setValue(server.description);
-    m_token.setValue(server.token);
 }
 
 bool DashboardSettingsWidget::isValid() const
 {
-    return !m_token().isEmpty() && !m_description().isEmpty() && isUrlValid(m_dashboardUrl());
+    return !m_description().isEmpty() && isUrlValid(m_dashboardUrl());
 }
 
 class AxivionSettingsWidget : public IOptionsPageWidget

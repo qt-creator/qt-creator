@@ -27,7 +27,6 @@ public:
     QString dashboard;
     QString username;
     QString description;
-    QString token;
 
     bool validateCert = true;
 };
