@@ -7,6 +7,7 @@
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "issueheaderview.h"
+#include "dynamiclistmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ioutputpane.h>
@@ -19,7 +20,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 
@@ -31,7 +31,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QScrollBar>
 #include <QStackedWidget>
 #include <QToolButton>
 
@@ -191,15 +190,26 @@ void DashboardWidget::updateUi()
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
-class IssueTreeItem final : public StaticTreeItem
+class IssueListItem final : public ListItem
 {
 public:
-    IssueTreeItem(const QString &id, const QStringList &data, const QStringList &toolTips)
-        : StaticTreeItem(data, toolTips)
+    IssueListItem(int row, const QString &id, const QStringList &data, const QStringList &toolTips)
+        : ListItem(row)
         , m_id(id)
+        , m_data(data)
+        , m_toolTips(toolTips)
     {}
 
     void setLinks(const Links &links) { m_links = links; }
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole && column >= 0 && column < m_data.size())
+            return m_data.at(column);
+        if (role == Qt::ToolTipRole && column >= 0 && column < m_toolTips.size())
+            return m_toolTips.at(column);
+        return {};
+    }
 
     bool setData(int column, const QVariant &value, int role) final
     {
@@ -217,11 +227,13 @@ public:
                 fetchIssueInfo(m_id);
             return true;
         }
-        return StaticTreeItem::setData(column, value, role);
+        return ListItem::setData(column, value, role);
     }
 
 private:
     const QString m_id;
+    QStringList m_data;
+    QStringList m_toolTips;
     Links m_links;
 };
 
@@ -233,14 +245,14 @@ public:
 
 private:
     void updateTable();
-    void addIssues(const Dto::IssueTableDto &dto);
+    void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void setFiltersEnabled(bool enabled);
     IssueListSearch searchFromUi() const;
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
-    void fetchMoreIssues();
+    void onFetchRequested(int startRow, int limit);
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -256,9 +268,9 @@ private:
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
     IssueHeaderView *m_headerView = nullptr;
-    TreeModel<> *m_issuesModel = nullptr;
+    DynamicListModel *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
-    int m_lastRequestedOffset = 0;
+    bool m_fetchingMore = false;
     QStringList m_userNames;
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
@@ -320,18 +332,9 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesView->setHeader(m_headerView);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
-    m_issuesModel = new TreeModel(this);
+    m_issuesModel = new DynamicListModel(this);
     m_issuesView->setModel(m_issuesModel);
-    auto sb = m_issuesView->verticalScrollBar();
-    if (QTC_GUARD(sb)) {
-        connect(sb, &QAbstractSlider::valueChanged, sb, [this, sb](int value) {
-            if (value >= sb->maximum() - 50) {
-                if (m_issuesModel->rowCount() < m_totalRowCount)
-                    fetchMoreIssues();
-            }
-        });
-    }
-
+    connect(m_issuesModel, &DynamicListModel::fetchRequested, this, &IssuesWidget::onFetchRequested);
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
     using namespace Layouting;
@@ -374,8 +377,6 @@ void IssuesWidget::updateTable()
     if (!m_currentTableInfo)
         return;
 
-    // update issues table layout - for now just simple approach
-    TreeModel<> *issuesModel = new TreeModel(this);
     QStringList columnHeaders;
     QStringList hiddenColumns;
     QList<bool> sortableColumns;
@@ -389,17 +390,14 @@ void IssuesWidget::updateTable()
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
 
-    issuesModel->setHeader(columnHeaders);
-
-    auto oldModel = m_issuesModel;
-    m_issuesModel = issuesModel;
-    m_issuesView->setModel(issuesModel);
+    m_issuesModel->clear();
+    m_issuesModel->setHeader(columnHeaders);
     m_headerView->setSortableColumns(sortableColumns);
-    delete oldModel;
+
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
-    m_issuesView->header()->resizeSections(QHeaderView::ResizeToContents);
+    m_headerView->resizeSections(QHeaderView::ResizeToContents);
 }
 
 static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
@@ -427,11 +425,13 @@ static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
     return links;
 }
 
-void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
+void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
 {
+    m_fetchingMore = false;
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     if (dto.totalRowCount.has_value()) {
         m_totalRowCount = dto.totalRowCount.value();
+        m_issuesModel->setExpectedRowCount(m_totalRowCount);
         m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(m_totalRowCount));
     }
     if (dto.totalAddedCount.has_value())
@@ -441,6 +441,7 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 
     const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+    QList<ListItem *> items;
     for (const auto &row : rows) {
         QString id;
         QStringList data;
@@ -455,10 +456,11 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
                 data << value;
             }
         }
-        IssueTreeItem *it = new IssueTreeItem(id, data, data);
+        IssueListItem *it = new IssueListItem(startRow++, id, data, data);
         it->setLinks(linksForIssue(row));
-        m_issuesModel->rootItem()->appendChild(it);
+        items.append(it);
     }
+    m_issuesModel->setItems(items);
 }
 
 void IssuesWidget::onSearchParameterChanged()
@@ -467,10 +469,10 @@ void IssuesWidget::onSearchParameterChanged()
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
 
-    m_issuesModel->rootItem()->removeChildren();
+    m_issuesModel->clear();
     // new "first" time lookup
     m_totalRowCount = 0;
-    m_lastRequestedOffset = 0;
+    m_fetchingMore = false;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
     fetchIssues(search);
@@ -598,7 +600,7 @@ void IssuesWidget::fetchTable()
     };
     const auto setupHandler = [this](TaskTree *) {
         m_totalRowCount = 0;
-        m_lastRequestedOffset = 0;
+        m_fetchingMore = false;
         m_currentTableInfo.reset();
         m_issuesView->showProgressIndicator();
     };
@@ -618,20 +620,23 @@ void IssuesWidget::fetchTable()
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
-    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) { addIssues(dto); };
+    const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
+        addIssues(dto, startRow);
+    };
     const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
     const auto doneHandler = [this](DoneWith) { m_issuesView->hideProgressIndicator(); };
     m_taskTreeRunner.start(issueTableRecipe(search, issuesHandler), setupHandler, doneHandler);
 }
 
-void IssuesWidget::fetchMoreIssues()
+void IssuesWidget::onFetchRequested(int startRow, int limit)
 {
-    if (m_lastRequestedOffset == m_issuesModel->rowCount())
+    if (m_fetchingMore)
         return;
 
+    m_fetchingMore = true;
     IssueListSearch search = searchFromUi();
-    m_lastRequestedOffset = m_issuesModel->rowCount();
-    search.offset = m_lastRequestedOffset;
+    search.offset = startRow;
+    search.limit = limit;
     fetchIssues(search);
 }
 

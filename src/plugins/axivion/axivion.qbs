@@ -23,8 +23,10 @@ QtcPlugin {
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axiviontr.h",
-        "credentialquery.h",
         "credentialquery.cpp",
+        "credentialquery.h",
+        "dynamiclistmodel.cpp",
+        "dynamiclistmodel.h",
         "issueheaderview.cpp",
         "issueheaderview.h",
     ]

@@ -696,7 +696,6 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
 
     const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
                          .resolved(QString("issues" + query));
-
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
