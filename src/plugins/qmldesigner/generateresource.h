@@ -12,7 +12,7 @@ struct ResourceFile
     bool inProject;
 };
     void generateMenuEntry(QObject *parent);
-    QStringList getFileList(const QList<ResourceFile> &);
+    std::optional<QStringList> getFileList(const QList<ResourceFile> &);
     QTableWidget* createFilesTable(const QList<ResourceFile> &);
 }
 } // namespace QmlDesigner
