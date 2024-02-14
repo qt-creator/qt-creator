@@ -77,9 +77,9 @@ QTableWidget* GenerateResource::createFilesTable(const QList<ResourceFile> &file
     return table;
 }
 
-QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
+std::optional<QStringList> GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
 {
-    QStringList result;
+    std::optional<QStringList> result;
     QDialog *dialog = new QDialog(Core::ICore::dialogParent());
     dialog->setMinimumWidth(480);
     dialog->setMinimumHeight(640);
@@ -118,7 +118,7 @@ QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
             }
         }
 
-        result = fileList;
+        result.emplace(fileList);
     });
 
     dialog->exec();
@@ -311,7 +311,10 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
         temp.close();
 
-        QStringList modifiedList = getFileList(fileList);
+        std::optional<QStringList> modifiedList = getFileList(fileList);
+
+        if (!modifiedList)
+            return;
 
         if (!persistentFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
             return;
@@ -323,7 +326,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
         persistentFile.write(firstLine.trimmed());
         writer.writeStartElement("qresource");
 
-        for (QString file : modifiedList)
+        for (const QString &file : modifiedList.value())
             writer.writeTextElement("file", file.trimmed());
 
         writer.writeEndElement();
@@ -446,7 +449,11 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
         temp.close();
         persistentFile.close();
-        QStringList modifiedList = getFileList(fileList);
+        std::optional<QStringList> modifiedList = getFileList(fileList);
+
+        if (!modifiedList)
+            return;
+
         QTemporaryFile tempFile(projectPath.toString() + "/XXXXXXX.create.modifiedresource.qrc");
 
         if (!tempFile.open())
@@ -459,7 +466,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
         tempFile.write(firstLine.trimmed());
         writer.writeStartElement("qresource");
 
-        for (QString file : modifiedList)
+        for (const QString &file : modifiedList.value())
             writer.writeTextElement("file", file.trimmed());
 
         writer.writeEndElement();
@@ -486,4 +493,3 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 }
 
 } // namespace QmlDesigner
-
