@@ -20,6 +20,7 @@
 #include <qmljstools/qmljscodestylepreferences.h>
 #include <qmljstools/qmljstoolssettings.h>
 
+#include <coreplugin/documentmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -301,6 +302,7 @@ void DataStoreModelNode::updateSingletonFile()
         imports += QStringLiteral("import %1\n").arg(import.toString(true));
 
     QString content = pragmaSingleTone + imports + getModelQmlText();
+    Core::DocumentManager::expectFileChange(dataStoreQmlFilePath());
     FileSaver file(dataStoreQmlFilePath());
     file.write(content.toLatin1());
     file.finalize();

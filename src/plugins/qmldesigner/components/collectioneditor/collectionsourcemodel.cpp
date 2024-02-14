@@ -9,6 +9,7 @@
 #include "collectionlistmodel.h"
 #include "variantproperty.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <qqml.h>
 
@@ -27,6 +28,8 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
 {
     using namespace QmlDesigner::CollectionEditorConstants;
     using namespace QmlDesigner::CollectionEditorUtils;
+    using Utils::FilePath;
+    using Utils::FileReader;
     QString sourceFileAddress = getSourceCollectionPath(sourceNode);
 
     QSharedPointer<QmlDesigner::CollectionListModel> collectionsList;
@@ -40,12 +43,12 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     };
 
     if (sourceNode.type() == JSONCOLLECTIONMODEL_TYPENAME) {
-        QFile sourceFile(sourceFileAddress);
-        if (!sourceFile.open(QFile::ReadOnly))
+        FileReader sourceFile;
+        if (!sourceFile.fetch(FilePath::fromUserInput(sourceFileAddress)))
             return {};
 
         QJsonParseError parseError;
-        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &parseError);
+        QJsonDocument document = QJsonDocument::fromJson(sourceFile.data(), &parseError);
         if (parseError.error != QJsonParseError::NoError)
             return {};
 
@@ -273,6 +276,8 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
                                                   const QJsonObject &newCollection,
                                                   QString *errorString)
 {
+    using Utils::FilePath;
+    using Utils::FileReader;
     auto returnError = [errorString](const QString &msg) -> bool {
         if (errorString)
             *errorString = msg;
@@ -295,13 +300,15 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
     if (!sourceFileInfo.isFile())
         return returnError(tr("Selected node must have a valid source file address"));
 
-    QFile jsonFile(sourceFileAddress);
-    if (!jsonFile.open(QFile::ReadWrite))
-        return returnError(tr("Can't read or write \"%1\".\n%2")
-                               .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+    FilePath jsonPath = FilePath::fromUserInput(sourceFileAddress);
+    FileReader jsonFile;
+    if (!jsonFile.fetch(jsonPath)) {
+        return returnError(
+            tr("Can't read \"%1\".\n%2").arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+    }
 
     QJsonParseError parseError;
-    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.data(), &parseError);
     if (parseError.error != QJsonParseError::NoError)
         return returnError(tr("\"%1\" is corrupted.\n%2")
                                .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
@@ -310,14 +317,8 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
         QJsonObject sourceObject = document.object();
         sourceObject.insert(collectionName, newCollection);
         document.setObject(sourceObject);
-        if (!jsonFile.resize(0))
-            return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
 
-        QByteArray jsonData = document.toJson();
-        auto writtenBytes = jsonFile.write(jsonData);
-        jsonFile.close();
-
-        if (writtenBytes != jsonData.size())
+        if (!CollectionEditorUtils::writeToJsonDocument(jsonPath, document))
             return returnError(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
 
         updateCollectionList(index(idx));
@@ -417,6 +418,10 @@ void CollectionSourceModel::onSelectedCollectionChanged(CollectionListModel *col
 void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collectionList,
                                                     const QString &oldName, const QString &newName)
 {
+    using Utils::FilePath;
+    using Utils::FileReader;
+    using Utils::FileSaver;
+
     auto emitRenameWarning = [this](const QString &msg) -> void {
         emit warning(tr("Rename Model"), msg);
     };
@@ -446,15 +451,16 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
         return;
     }
 
-    QFile jsonFile(sourceFileAddress);
-    if (!jsonFile.open(QFile::ReadWrite)) {
-        emitRenameWarning(tr("Can't read or write \"%1\".\n%2")
-                              .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+    FilePath jsonPath = FilePath::fromUserInput(sourceFileAddress);
+    FileReader jsonFile;
+    if (!jsonFile.fetch(jsonPath)) {
+        emitRenameWarning(
+            tr("Can't read \"%1\".\n%2").arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
         return;
     }
 
     QJsonParseError parseError;
-    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.data(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         emitRenameWarning(tr("\"%1\" is corrupted.\n%2")
                               .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
@@ -484,16 +490,8 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
         rootObject.remove(oldName);
 
         document.setObject(rootObject);
-        if (!jsonFile.resize(0)) {
-            emitRenameWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
-            return;
-        }
 
-        QByteArray jsonData = document.toJson();
-        auto writtenBytes = jsonFile.write(jsonData);
-        jsonFile.close();
-
-        if (writtenBytes != jsonData.size()) {
+        if (!CollectionEditorUtils::writeToJsonDocument(jsonPath, document)) {
             emitRenameWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
             return;
         }
@@ -519,6 +517,8 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
 void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collectionList,
                                                  const QStringList &removedCollections)
 {
+    using Utils::FilePath;
+    using Utils::FileReader;
     auto emitDeleteWarning = [this](const QString &msg) -> void {
         emit warning(tr("Delete Model"), msg);
     };
@@ -547,15 +547,16 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
         return;
     }
 
-    QFile jsonFile(sourceFileAddress);
-    if (!jsonFile.open(QFile::ReadWrite)) {
+    FilePath jsonPath = FilePath::fromUserInput(sourceFileAddress);
+    FileReader jsonFile;
+    if (!jsonFile.fetch(jsonPath)) {
         emitDeleteWarning(tr("Can't read or write \"%1\".\n%2")
                               .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
         return;
     }
 
     QJsonParseError parseError;
-    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.data(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         emitDeleteWarning(tr("\"%1\" is corrupted.\n%2")
                               .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
@@ -578,16 +579,8 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
         }
 
         document.setObject(rootObject);
-        if (!jsonFile.resize(0)) {
-            emitDeleteWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
-            return;
-        }
 
-        QByteArray jsonData = document.toJson();
-        auto writtenBytes = jsonFile.write(jsonData);
-        jsonFile.close();
-
-        if (writtenBytes != jsonData.size()) {
+        if (!CollectionEditorUtils::writeToJsonDocument(jsonPath, document)) {
             emitDeleteWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
             return;
         }

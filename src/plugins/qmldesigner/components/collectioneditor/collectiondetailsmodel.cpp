@@ -414,7 +414,6 @@ bool CollectionDetailsModel::saveDataStoreCollections()
     const ModelNode node = m_currentCollection.reference().node;
     const Utils::FilePath path = CollectionEditorUtils::dataStoreJsonFilePath();
     Utils::FileReader fileData;
-    Utils::FileSaver sourceFile(path);
 
     if (!fileData.fetch(path)) {
         qWarning() << Q_FUNC_INFO << "Cannot read the json file:" << fileData.errorString();
@@ -437,10 +436,8 @@ bool CollectionDetailsModel::saveDataStoreCollections()
         }
 
         document.setObject(obj);
-        bool saved = sourceFile.write(document.toJson());
-        saved &= sourceFile.finalize();
 
-        if (saved) {
+        if (CollectionEditorUtils::writeToJsonDocument(path, document)) {
             const CollectionReference currentReference = m_currentCollection.reference();
             for (CollectionDetails &collection : collectionsToBeSaved) {
                 collection.markSaved();

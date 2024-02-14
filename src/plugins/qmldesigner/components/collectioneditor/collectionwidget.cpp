@@ -17,7 +17,6 @@
 #include <coreplugin/messagebox.h>
 #include <studioquickwidget.h>
 
-#include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -167,14 +166,14 @@ bool CollectionWidget::loadCsvFile(const QUrl &url, const QString &collectionNam
 
 bool CollectionWidget::isJsonFile(const QUrl &url) const
 {
-    QString filePath = url.isLocalFile() ? url.toLocalFile() : url.toString();
-    QFile file(filePath);
-
-    if (!file.exists() || !file.open(QFile::ReadOnly))
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
+                                                                                : url.toString());
+    Utils::FileReader file;
+    if (!file.fetch(filePath))
         return false;
 
     QJsonParseError error;
-    QJsonDocument::fromJson(file.readAll(), &error);
+    QJsonDocument::fromJson(file.data(), &error);
     if (error.error)
         return false;
 
@@ -184,9 +183,8 @@ bool CollectionWidget::isJsonFile(const QUrl &url) const
 bool CollectionWidget::isCsvFile(const QUrl &url) const
 {
     QString filePath = url.isLocalFile() ? url.toLocalFile() : url.toString();
-    QFile file(filePath);
-
-    return file.exists() && file.fileName().endsWith(".csv");
+    QFileInfo fileInfo(filePath);
+    return fileInfo.exists() && !fileInfo.suffix().compare("csv", Qt::CaseInsensitive);
 }
 
 bool CollectionWidget::isValidUrlToImport(const QUrl &url) const
@@ -199,73 +197,6 @@ bool CollectionWidget::isValidUrlToImport(const QUrl &url) const
 
     if (fileInfo.suffix() == "csv")
         return isCsvFile(url);
-
-    return false;
-}
-
-bool CollectionWidget::addCollection(const QString &collectionName,
-                                     const QString &collectionType,
-                                     const QUrl &sourceUrl,
-                                     const QVariant &sourceNode)
-{
-    const ModelNode node = sourceNode.value<ModelNode>();
-    bool isNewCollection = !node.isValid();
-
-    if (isNewCollection) {
-        QString sourcePath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : sourceUrl.toString();
-
-        if (collectionType == "json") {
-            QJsonObject jsonObject;
-            jsonObject.insert(collectionName, CollectionEditorUtils::defaultCollection());
-
-            QFile sourceFile(sourcePath);
-            if (!sourceFile.open(QFile::WriteOnly)) {
-                warn(tr("File error"),
-                     tr("Can not open the file to write.\n") + sourceFile.errorString());
-                return false;
-            }
-
-            sourceFile.write(QJsonDocument(jsonObject).toJson());
-            sourceFile.close();
-
-            bool loaded = loadJsonFile(sourcePath, collectionName);
-            if (!loaded)
-                sourceFile.remove();
-
-            return loaded;
-        } else if (collectionType == "csv") {
-            QFile sourceFile(sourcePath);
-            if (!sourceFile.open(QFile::WriteOnly)) {
-                warn(tr("File error"),
-                     tr("Can not open the file to write.\n") + sourceFile.errorString());
-                return false;
-            }
-
-            sourceFile.write("Column1\n\n");
-            sourceFile.close();
-
-            bool loaded = loadCsvFile(sourcePath, collectionName);
-            if (!loaded)
-                sourceFile.remove();
-
-            return loaded;
-        } else if (collectionType == "existing") {
-            QFileInfo fileInfo(sourcePath);
-            if (fileInfo.suffix() == "json")
-                return loadJsonFile(sourcePath, collectionName);
-            else if (fileInfo.suffix() == "csv")
-                return loadCsvFile(sourcePath, collectionName);
-        }
-    } else if (collectionType == "json") {
-        QString errorMsg;
-        bool added = m_sourceModel->addCollectionToSource(node,
-                                                          collectionName,
-                                                          CollectionEditorUtils::defaultCollection(),
-                                                          &errorMsg);
-        if (!added)
-            warn(tr("Can not add a model to the JSON file"), errorMsg);
-        return added;
-    }
 
     return false;
 }
@@ -289,15 +220,13 @@ bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url
     QByteArray fileContent;
 
     auto loadUrlContent = [&]() -> bool {
-        QFile file(url.isLocalFile() ? url.toLocalFile() : url.toString());
-
-        if (file.open(QFile::ReadOnly)) {
-            fileContent = file.readAll();
-            file.close();
+        Utils::FileReader file;
+        if (file.fetch(fileInfo)) {
+            fileContent = file.data();
             return true;
         }
 
-        warn(tr("Import from file"), tr("Cannot import from file \"%1\"").arg(file.fileName()));
+        warn(tr("Import from file"), tr("Cannot import from file \"%1\"").arg(fileInfo.fileName()));
         return false;
     };
 

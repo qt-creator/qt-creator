@@ -29,6 +29,10 @@ Utils::FilePath dataStoreJsonFilePath();
 
 Utils::FilePath dataStoreQmlFilePath();
 
+bool writeToJsonDocument(const Utils::FilePath &path,
+                         const QJsonDocument &document,
+                         QString *errorString = nullptr);
+
 bool isDataStoreNode(const ModelNode &dataStoreNode);
 
 bool ensureDataStoreExists(bool &justCreated);

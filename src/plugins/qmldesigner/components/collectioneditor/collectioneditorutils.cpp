@@ -7,6 +7,7 @@
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -391,6 +392,18 @@ QStringList dataTypesStringList()
 {
     static const QStringList typesList = CollectionDataTypeHelper::orderedTypeNames();
     return typesList;
+}
+
+bool writeToJsonDocument(const Utils::FilePath &path, const QJsonDocument &document, QString *errorString)
+{
+    Core::FileChangeBlocker fileBlocker(path);
+    Utils::FileSaver jsonFile(path);
+    if (jsonFile.write(document.toJson()))
+        jsonFile.finalize();
+    if (errorString)
+        *errorString = jsonFile.errorString();
+
+    return !jsonFile.hasError();
 }
 
 } // namespace QmlDesigner::CollectionEditorUtils

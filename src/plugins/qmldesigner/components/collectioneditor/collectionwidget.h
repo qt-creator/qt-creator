@@ -39,10 +39,6 @@ public:
     Q_INVOKABLE bool isJsonFile(const QUrl &url) const;
     Q_INVOKABLE bool isCsvFile(const QUrl &url) const;
     Q_INVOKABLE bool isValidUrlToImport(const QUrl &url) const;
-    Q_INVOKABLE bool addCollection(const QString &collectionName,
-                                   const QString &collectionType,
-                                   const QUrl &sourceUrl,
-                                   const QVariant &sourceNode);
 
     Q_INVOKABLE bool importFile(const QString &collectionName, const QUrl &url);
     Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
