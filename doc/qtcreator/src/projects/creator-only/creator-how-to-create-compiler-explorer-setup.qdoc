@@ -1,20 +1,20 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-how-to-create-compiler-explorer-sessions.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects-files
+    \ingroup creator-how-to-analyze
 
     \title Create compiler explorer sessions
 
     To create a compiler explorer session for a C++ or Python project:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File} >
-            \uicontrol {Compiler Explorer} > \uicontrol C++ or \uicontrol Python
-            > \uicontrol Choose.
+        \li Go to \uicontrol File > \uicontrol {New File}.
+        \li Select \uicontrol {Compiler Explorer} > \uicontrol C++ or
+            \uicontrol Python > \uicontrol Choose.
         \li Follow the instructions of the wizard to create an example
             compiler explorer session as a JSON-based \c .qtce file and to open
             it.
@@ -29,7 +29,7 @@
     \page creator-how-to-explore-compiler-code.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-build
+    \ingroup creator-how-to-analyze
 
     \title Explore compiler code
 
@@ -45,13 +45,16 @@
     To check how a compiler sees C++ or Python code:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol {Compiler Explorer} >
+        \li Go to \uicontrol Tools > \uicontrol {Compiler Explorer} >
             \uicontrol {Open Compiler Explorer}.
         \li In the \uicontrol Language field, select the language to compile.
         \li In the \uicontrol Compiler field, select a compiler to see the
             assembly code.
         \li Enter code to see the resulting assembly code.
     \endlist
+
+    Hover the mouse over the assembly code, to have the matching source lines
+    highlighted.
 
     You can also see the application status and output.
 
