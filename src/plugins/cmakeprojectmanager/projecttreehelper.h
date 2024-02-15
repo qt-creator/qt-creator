@@ -21,7 +21,8 @@ void addCMakeVFolder(ProjectExplorer::FolderNode *base,
                      int priority,
                      const QString &displayName,
                      std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&files,
-                     bool sourcesOrHeaders = false);
+                     bool sourcesOrHeaders = false,
+                     bool listInProject = true);
 
 std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&removeKnownNodes(
     const QSet<Utils::FilePath> &knownFiles,
