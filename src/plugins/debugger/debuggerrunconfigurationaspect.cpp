@@ -150,6 +150,7 @@ DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect()
 {
     delete m_cppAspect;
     delete m_qmlAspect;
+    delete m_pythonAspect;
     delete m_multiProcessAspect;
     delete m_overrideStartupAspect;
 }
