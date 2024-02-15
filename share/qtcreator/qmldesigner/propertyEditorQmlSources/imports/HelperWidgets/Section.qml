@@ -318,5 +318,10 @@ Item {
             duration: 120
             easing.type: Easing.OutCubic
         }
+
+        onRunningChanged: {
+            if (!running)
+                enabled = false
+        }
     }
 }
