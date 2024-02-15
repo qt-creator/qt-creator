@@ -198,8 +198,6 @@ QtcLibrary {
         "namevaluedictionary.h",
         "namevalueitem.cpp",
         "namevalueitem.h",
-        "namevaluemodel.cpp",
-        "namevaluemodel.h",
         "namevaluesdialog.cpp",
         "namevaluesdialog.h",
         "namevaluevalidator.cpp",

@@ -90,9 +90,10 @@ public:
         return !tis.isEmpty();
     }
 
-    virtual bool filterTarget(const TargetInformation &ti) const
+    virtual bool filterTarget(Target *target, const TargetInformation &ti) const
     {
-        return !ti.manifest.supportsDebugging();
+        return !ti.manifest.supportsDebugging() ||
+               DeviceKitAspect::device(target->kit())->osType() != OsType::OsTypeLinux;
     }
 
     QList<RunConfigurationCreationInfo> availableCreators(Target *target) const
@@ -102,8 +103,8 @@ public:
                          Qt::UniqueConnection);
 
         const auto buildTargets = TargetInformation::readFromProject(target);
-        const auto filteredTargets = Utils::filtered(buildTargets, [this](const TargetInformation &ti){
-            return filterTarget(ti);
+        const auto filteredTargets = Utils::filtered(buildTargets, [this, target](const TargetInformation &ti) {
+            return filterTarget(target, ti);
         });
         auto result = Utils::transform(filteredTargets, [this, target](const TargetInformation &ti) {
 
@@ -143,9 +144,9 @@ public:
         addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
     }
 
-    virtual bool filterTarget(const TargetInformation &ti) const final
+    virtual bool filterTarget(Target *target, const TargetInformation &ti) const final
     {
-        return ti.manifest.supportsDebugging();
+        return !AppManagerRunConfigurationFactory::filterTarget(target, ti);
     }
 };
 

@@ -13,6 +13,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -88,35 +89,11 @@ const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
-const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Commit Editor");
 
-const VcsBaseEditorParameters commandLogEditorParameters {
-    OtherContent,
-    "CVS Command Log Editor", // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Command Log Editor"), // display name
-    "text/vnd.qtcreator.cvs.commandlog"
-};
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput,
-    "CVS File Log Editor",   // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS File Log Editor"),   // display name
-    "text/vnd.qtcreator.cvs.log"
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    "CVS Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Annotation Editor"),  // display name
-    "text/vnd.qtcreator.cvs.annotation"
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    "CVS Diff Editor",  // id
-    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Diff Editor"),  // display name
-    "text/x-patch"
-};
+const char CVS_COMMANDLOG_EDITOR_ID[]  = "CVS Command Log Editor";
+const char CVS_FILELOG_EDITOR_ID[]     = "CVS File Log Editor";
+const char CVS_ANNOTATION_EDITOR_ID[]  = "CVS Annotation Editor";
+const char CVS_DIFF_EDITOR_ID[]        = "CVS Diff Editor";
 
 static inline bool messageBoxQuestion(const QString &title, const QString &question)
 {
@@ -312,29 +289,41 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsEditorFactory commandLogEditorFactory {
-        &commandLogEditorParameters,
+    VcsEditorFactory commandLogEditorFactory {{
+        OtherContent,
+        CVS_COMMANDLOG_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Command Log Editor"), // display name
+        "text/vnd.qtcreator.cvs.commandlog",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput,
+        CVS_FILELOG_EDITOR_ID,
+        VcsBase::Tr::tr("CVS File Log Editor"),   // display name
+        "text/vnd.qtcreator.cvs.log",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        CVS_ANNOTATION_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Annotation Editor"),  // display name
+        "text/vnd.qtcreator.cvs.annotation",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        CVS_DIFF_EDITOR_ID,
+        VcsBase::Tr::tr("CVS Diff Editor"),  // display name
+        "text/x-patch",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 Utils::Id CvsPluginPrivate::id() const
@@ -460,7 +449,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     setupVcsSubmitEditor(this, {
         CVS_SUBMIT_MIMETYPE,
         CVSCOMMITEDITOR_ID,
-        CVSCOMMITEDITOR_DISPLAY_NAME,
+        VcsBase::Tr::tr("CVS Commit Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CvsSubmitEditor; },
     });
@@ -965,7 +954,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                logEditorParameters.id, source, codec);
+                                                CVS_FILELOG_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1105,7 +1094,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                annotateEditorParameters.id, source, codec);
+                                                CVS_ANNOTATION_EDITOR_ID, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1119,7 +1108,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     const auto response = runCvs(topLevel, args);
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok) {
-        showOutputInEditor(title, response.cleanedStdOut(), commandLogEditorParameters.id,
+        showOutputInEditor(title, response.cleanedStdOut(), CVS_COMMANDLOG_EDITOR_ID,
                            topLevel, nullptr);
     }
     return ok;
@@ -1284,7 +1273,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
-        IEditor *newEditor = showOutputInEditor(title, output, diffEditorParameters.id,
+        IEditor *newEditor = showOutputInEditor(title, output, CVS_DIFF_EDITOR_ID,
                                                 FilePath::fromString(entries.front().file), codec);
         VcsBaseEditor::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);

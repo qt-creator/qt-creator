@@ -5264,7 +5264,12 @@ void tst_Dumpers::dumper_data()
 
             << Data("#include <string>\n"
                     "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {};\n",
+                    "class myallocator : public std::allocator<T> {\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
+                    "};\n",
 
                     "std::basic_string<char, std::char_traits<char>, myallocator<char>> str(\"hello\");",
 
@@ -5313,8 +5318,8 @@ void tst_Dumpers::dumper_data()
 
                     "&view, &u16view, basicview, u16basicview")
 
-               + Check("view", "\"test\"", "std::string_view")
-               + Check("u16view", "\"test\"", "std::u16string_view")
+               + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
+               + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
                + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
                + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
 
@@ -5341,6 +5346,18 @@ void tst_Dumpers::dumper_data()
                + Check("str", "\"foo\"", "std::string")
                + Check("v", "<2 items>", "std::vector<std::string>")
                + Check("v.0", "[0]", "\"foo\"", "std::string");
+
+
+    QTest::newRow("StdTuple")
+            << Data("#include <string>\n",
+
+                    "std::tuple<int, std::string, int> tuple = std::make_tuple(123, std::string(\"hello\"), 456);\n",
+
+                    "&tuple")
+
+               + Check("tuple.0", "[0]", "123", "int")
+               + Check("tuple.1", "[1]", "\"hello\"", "std::string")
+               + Check("tuple.2", "[2]", "456", "int");
 
 
     QTest::newRow("StdValArray")
@@ -5418,6 +5435,10 @@ void tst_Dumpers::dumper_data()
                     "template<class T>\n"
                     "class myallocator : public std::allocator<T> {\n"
                     "using std::allocator<T>::allocator;\n"
+                    "template<typename _Tp1>\n"
+                    "struct rebind {\n"
+                    "typedef myallocator<_Tp1> other;\n"
+                    "};\n"
                     "};\n",
 
                     "std::vector<double> v0, v1;\n"

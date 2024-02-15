@@ -24,7 +24,9 @@ public:
 
     Utils::FilePaths importCandidates() final;
     ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
+    bool filter(ProjectExplorer::Kit *k) const final;
 
+    Utils::FilePaths presetCandidates();
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,
                                    QString *warningMessage) const final;
@@ -47,6 +49,7 @@ private:
 
     const CMakeProject *m_project;
     Utils::TemporaryDirectory m_presetsTempDir;
+    bool m_hasCMakePresets = false;
 };
 
 #ifdef WITH_TESTS

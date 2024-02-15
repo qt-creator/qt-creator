@@ -317,6 +317,16 @@ void ModelManagerInterface::setDefaultProject(const ModelManagerInterface::Proje
     });
 }
 
+void ModelManagerInterface::cancelAllThreads()
+{
+    m_cppQmlTypesUpdater.cancel();
+    // Don't execute the scheduled updates for the old session anymore
+    m_updateCppQmlTypesTimer->stop();
+    m_asyncResetTimer->stop();
+    QMutexLocker locker(&m_futuresMutex);
+    m_futureSynchronizer.cancelAllFutures();
+}
+
 Snapshot ModelManagerInterface::snapshot() const
 {
     return m_syncedData.readLocked()->m_validSnapshot;

@@ -150,12 +150,6 @@ QWidget *CppEditorOutline::widget() const
     return m_combo;
 }
 
-QSharedPointer<CPlusPlus::Document> getDocument(const Utils::FilePath &filePath)
-{
-    const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
-    return snapshot.document(filePath);
-}
-
 void CppEditorOutline::updateNow()
 {
     m_combo->view()->expandAll();

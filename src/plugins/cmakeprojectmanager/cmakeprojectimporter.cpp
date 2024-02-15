@@ -147,19 +147,30 @@ static QString displayPresetName(const QString &presetName)
 
 FilePaths CMakeProjectImporter::importCandidates()
 {
-    FilePaths candidates;
+    FilePaths candidates = presetCandidates();
 
-    candidates << scanDirectory(projectFilePath().absolutePath(), "build");
+    if (candidates.isEmpty()) {
+        candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
-    const QList<Kit *> kits = KitManager::kits();
-    for (const Kit *k : kits) {
-        FilePath shadowBuildDirectory
-            = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
-                                                            k,
-                                                            QString(),
-                                                            BuildConfiguration::Unknown);
-        candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        const QList<Kit *> kits = KitManager::kits();
+        for (const Kit *k : kits) {
+            FilePath shadowBuildDirectory
+                = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
+                                                                k,
+                                                                QString(),
+                                                                BuildConfiguration::Unknown);
+            candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+        }
     }
+
+    const FilePaths finalists = Utils::filteredUnique(candidates);
+    qCInfo(cmInputLog) << "import candidates:" << finalists;
+    return finalists;
+}
+
+FilePaths CMakeProjectImporter::presetCandidates()
+{
+    FilePaths candidates;
 
     for (const auto &configPreset : m_project->presetsData().configurePresets) {
         if (configPreset.hidden.value())
@@ -190,9 +201,9 @@ FilePaths CMakeProjectImporter::importCandidates()
         }
     }
 
-    const FilePaths finalists = Utils::filteredUnique(candidates);
-    qCInfo(cmInputLog) << "import candidates:" << finalists;
-    return finalists;
+    m_hasCMakePresets = !candidates.isEmpty();
+
+    return candidates;
 }
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
@@ -208,6 +219,22 @@ Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
     m_project->setOldPresetKits({});
 
     return ProjectImporter::preferredTarget(possibleTargets);
+}
+
+bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
+{
+    if (!m_hasCMakePresets)
+        return true;
+
+    const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetConfigItem.isNull())
+        return false;
+
+    const QString presetName = presetConfigItem.expandedValue(k);
+    return std::find_if(m_project->presetsData().configurePresets.cbegin(),
+                        m_project->presetsData().configurePresets.cend(),
+                        [&presetName](const auto &preset) { return presetName == preset.name; })
+           != m_project->presetsData().configurePresets.cend();
 }
 
 static CMakeConfig configurationFromPresetProbe(

@@ -2334,12 +2334,30 @@ QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT bool operator<(const FilePath &first, const FilePath &second)
 {
-    const int cmp = first.pathView().compare(second.pathView(), first.caseSensitivity());
-    if (cmp != 0)
-        return cmp < 0;
-    if (first.host() != second.host())
-        return first.host() < second.host();
-    return first.scheme() < second.scheme();
+    const bool firstNeedsDevice = first.needsDevice();
+    const bool secondNeedsDevice = second.needsDevice();
+
+    // If either needs a device, we have to compare host and scheme first.
+    if (firstNeedsDevice || secondNeedsDevice) {
+        // Paths needing a device are "larger" than those not needing one.
+        if (firstNeedsDevice < secondNeedsDevice)
+            return true;
+        else if (firstNeedsDevice > secondNeedsDevice)
+            return false;
+
+        // First we sort by scheme ...
+        const int s = first.scheme().compare(second.scheme());
+        if (s != 0)
+            return s < 0;
+
+        // than by host ...
+        const int h = first.host().compare(second.host());
+        if (h != 0)
+            return h < 0;
+    }
+
+    const int p = first.pathView().compare(second.pathView(), first.caseSensitivity());
+    return p < 0;
 }
 
 QTCREATOR_UTILS_EXPORT bool operator<=(const FilePath &first, const FilePath &second)

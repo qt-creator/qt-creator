@@ -82,9 +82,11 @@ public:
     void setProgressParser(const Core::ProgressParser &parser);
 
     static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
-                                     const Utils::Environment &environmentconst,
-                                     const Utils::CommandLine &command, RunFlags flags,
-                                     int timeoutS, QTextCodec *codec);
+                                     const Utils::Environment &environment,
+                                     const Utils::CommandLine &command,
+                                     RunFlags flags,
+                                     int timeoutS,
+                                     QTextCodec *codec);
     void cancel();
 
     QString cleanedStdOut() const;

@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "namevaluevalidator.h"
-#include "namevaluemodel.h"
+
+#include "environmentmodel.h"
 #include "tooltip/tooltip.h"
 
 #include <QTreeView>
@@ -10,7 +11,7 @@
 namespace Utils {
 
 NameValueValidator::NameValueValidator(QWidget *parent,
-                                       NameValueModel *model,
+                                       EnvironmentModel *model,
                                        QTreeView *view,
                                        const QModelIndex &index,
                                        const QString &toolTipText)

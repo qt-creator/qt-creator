@@ -112,20 +112,12 @@
     lists the kits that are compatible with your project. To activate one or more
     kits, click them.
 
-    \image qtcreator-project-kits.png {List of kits in Projects mode sidebar}
+    \image qtcreator-projects-kits.webp {List of kits in Projects mode sidebar}
 
     The list displays kits from \preferences >
     \uicontrol Kits. Warning and error icons indicate that the kit configuration
     is not suitable for the project type. To view the warning and error messages,
     move the mouse pointer over the kit name.
-
-    In the list of kits, you may see entries described as \e {Replacement for
-    <kit-name>}. \QC generates them to save your project-specific settings,
-    such as custom build flags or run configuration arguments that would
-    disappear if the corresponding kits were simply removed when you remove
-    Qt versions while updating your Qt installation. You can modify the kit
-    configuration to use a currently installed Qt version and save the kit
-    under a new name.
 
     \section1 Manage kits
 
@@ -134,10 +126,11 @@
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, \l{Add compilers}{compiler},
-    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}.
+    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}, as well
+    as steps for building, deploying, and running applications.
 
-    To copy the build and run settings for a kit to another kit, select
-    \uicontrol {Copy Steps from Other Kit} in the context menu.
+    To copy the build, deploy, and run steps from another kit, select
+    \uicontrol {Copy Steps from Another Kit} in the context menu.
 
     To deactivate a kit, select \uicontrol {Disable Kit for Project} in the
     context menu.
@@ -147,6 +140,33 @@
 
     To import an existing build for the project, select
     \uicontrol {Import Existing Build}.
+
+    \section1 Copy custom settings from vanished targets
+
+    \QC creates a list of \uicontrol {Vanished Targets} to save project-specific
+    settings, such as custom build flags or run configuration arguments, that
+    would disappear if \QOI removes the corresponding kits when you update your
+    Qt installation.
+
+    \image qtcreator-projects-vanished-targets.webp {Vanished Targets in Projects}
+
+    Go to one of the following options in the context menu to restore the
+    project's settings:
+
+    \list
+        \li \uicontrol {Create a New Kit} creates a new kit with the same name
+            for the same device type, with the original build, deploy, and run
+            steps. Other kit settings are not restored.
+        \li \uicontrol {Copy Steps to Another Kit} copies the build, deploy, and
+            run steps to another kit.
+    \endlist
+
+    To remove vanished targets, go to \uicontrol {Remove Vanished Target} or
+    \uicontrol {Remove All Vanished Targets} in the context menu.
+
+    \note Since version 13.0, \QC does not create \e {replacement kits}, but you
+    might still see them listed for existing projects. You can copy the build,
+    deploy, and run steps from them to other kits.
 
     \sa {Add kits}, {Configuring Projects}, {kits-tab}{Kits}
 */

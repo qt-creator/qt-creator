@@ -21,6 +21,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/guard.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -68,7 +69,7 @@ private:
     QCheckBox *m_formatOnSave;
     QCheckBox *m_useCustomSettingsCheckBox;
     QCheckBox *m_useGlobalSettings;
-    QLabel *m_currentProjectLabel;
+    InfoLabel *m_currentProjectLabel;
 };
 
 ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferences *codeStyle,
@@ -95,10 +96,10 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
     m_useGlobalSettings->hide();
     m_useCustomSettings = ClangFormatSettings::instance().useCustomSettings();
 
-    m_currentProjectLabel = new QLabel(
+    m_currentProjectLabel = new Utils::InfoLabel(
         Tr::tr("Please note that the current project includes a .clang-format file, which will be "
-               "used for code indenting and formatting."));
-    m_currentProjectLabel->setStyleSheet("QLabel { color : red; }");
+               "used for code indenting and formatting."),
+        Utils::InfoLabel::Warning);
     m_currentProjectLabel->setWordWrap(true);
 
     using namespace Layouting;

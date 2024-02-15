@@ -117,6 +117,11 @@ private slots:
 
     void isRootPath();
 
+    void lessThan();
+    void lessThan_data();
+
+    void asQMapKey();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1664,6 +1669,42 @@ void tst_filepath::sort()
     QStringList sortedPaths = Utils::transform(filePaths, &FilePath::toString);
 
     QCOMPARE(sortedPaths, sorted);
+}
+
+void tst_filepath::lessThan_data()
+{
+    QTest::addColumn<FilePath>("left");
+    QTest::addColumn<FilePath>("right");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("empty") << FilePath() << FilePath() << false;
+    QTest::newRow("simple") << FilePath("/a") << FilePath("/b") << true;
+    QTest::newRow("simple-2") << FilePath("/a") << FilePath("/a") << false;
+    QTest::newRow("simple-3") << FilePath("/b") << FilePath("/a") << false;
+
+    QTest::newRow("remote-vs-local") << FilePath("docker://1234/a") << FilePath("/a") << false;
+    QTest::newRow("local-vs-remote") << FilePath("/a") << FilePath("docker://1234/a") << true;
+
+    QTest::newRow("remote-vs-local-2") << FilePath("docker://1234/a") << FilePath("/b") << false;
+    QTest::newRow("local-vs-remote-2") << FilePath("/a") << FilePath("docker://1234/b") << true;
+}
+
+void tst_filepath::lessThan()
+{
+    QFETCH(FilePath, left);
+    QFETCH(FilePath, right);
+    QFETCH(bool, expected);
+
+    QCOMPARE(left < right, expected);
+}
+
+void tst_filepath::asQMapKey()
+{
+    QMap<FilePath, int> map;
+    map.insert(FilePath::fromString("/Users/mtillmanns/projects/qt/qtc-work/fsengine"), 1);
+
+    QCOMPARE(map.contains(FilePath::fromString("ssh://marcus@mad-ubuntu-23.local/tmp/untitled")),
+             false);
 }
 
 void tst_filepath::isRootPath()

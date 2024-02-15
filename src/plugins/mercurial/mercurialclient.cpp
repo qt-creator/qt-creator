@@ -273,7 +273,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getCodec(repositoryRoot),
                                                   "incoming", id);
-    enqueueJob(createCommand(FilePath::fromString(repository), editor), args);
+    enqueueJob(createCommand(FilePath::fromString(repository), editor), args, repositoryRoot);
 }
 
 void MercurialClient::outgoing(const FilePath &repositoryRoot)
@@ -286,7 +286,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getCodec(repositoryRoot),
                                                   "outgoing", repositoryRoot.toString());
-    enqueueJob(createCommand(repositoryRoot, editor), args);
+    enqueueJob(createCommand(repositoryRoot, editor), args, repositoryRoot);
 }
 
 void MercurialClient::annotate(const Utils::FilePath &workingDir, const QString &file,
@@ -424,7 +424,6 @@ void MercurialClient::requestReload(const QString &documentId, const FilePath &s
     QTC_ASSERT(document, return);
     auto controller = new MercurialDiffEditorController(document, args);
     controller->setVcsBinary(settings().binaryPath());
-    controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 
     VcsBase::setSource(document, sourceCopy);

@@ -183,8 +183,7 @@
     skipped when you type, and removed when you press \key Backspace.
 
     \if defined(qtcreator)
-    \sa {Complete CMake code},
-    {Enclose selected code in curly braces, parentheses, or double quotes}, {Nim}
+    \sa {Complete CMake code}, {Enclose code in brackets or quotes}, {Nim}
     \endif
 
     \sa {Complete code}, {Snippets}

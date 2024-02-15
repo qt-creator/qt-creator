@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -59,45 +60,6 @@ using namespace VcsBase;
 using namespace std::placeholders;
 
 namespace Fossil::Internal {
-
-class FossilTopicCache final : public IVersionControl::TopicCache
-{
-public:
-    FossilTopicCache() = default;
-
-protected:
-    FilePath trackFile(const FilePath &repository) final
-    {
-        return repository.pathAppended(Constants::FOSSILREPO);
-    }
-
-    QString refreshTopic(const FilePath &repository) final
-    {
-        return fossilClient().synchronousTopic(repository);
-    }
-};
-
-const VcsBaseEditorParameters fileLogParameters {
-    LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::LOGAPP
-};
-
-const VcsBaseEditorParameters annotateLogParameters {
-     AnnotateOutput,
-     Constants::ANNOTATELOG_ID,
-     Constants::ANNOTATELOG_DISPLAY_NAME,
-     Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
-
 
 class FossilPluginPrivate final : public VersionControlBase
 {
@@ -171,23 +133,32 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    VcsEditorFactory fileLogFactory {
-        &fileLogParameters,
+    VcsEditorFactory fileLogFactory {{
+        LogOutput,
+        Constants::FILELOG_ID,
+        VcsBase::Tr::tr("Fossil File Log Editor"),
+        Constants::LOGAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateLogFactory {
-        &annotateLogParameters,
+    VcsEditorFactory annotateLogFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        VcsBase::Tr::tr("Fossil Annotation Editor"),
+        Constants::ANNOTATEAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffFactory {
-        &diffParameters,
+    VcsEditorFactory diffFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        VcsBase::Tr::tr("Fossil Diff Editor"),
+        Constants::DIFFAPP,
         [] { return new FossilEditorWidget; },
         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
     CommandLocator *m_commandLocator = nullptr;
     ActionContainer *m_fossilContainer = nullptr;
@@ -234,7 +205,13 @@ FossilPluginPrivate::FossilPluginPrivate()
 {
     Context context(Constants::FOSSIL_CONTEXT);
 
-    setTopicCache(new FossilTopicCache);
+    setTopicFileTracker([](const FilePath &repository) {
+        return repository.pathAppended(Constants::FOSSILREPO);
+    });
+    setTopicRefresher([](const FilePath &repository) {
+        return fossilClient().synchronousTopic(repository);
+    });
+
     connect(&fossilClient(), &VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);
@@ -251,7 +228,7 @@ FossilPluginPrivate::FossilPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::COMMITMIMETYPE,
         Constants::COMMIT_ID,
-        Constants::COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Fossil Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });
@@ -831,7 +808,7 @@ bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool FossilPluginPrivate::isConfigured() const
 {
-    const FilePath binary = fossilClient().vcsBinary();
+    const FilePath binary = fossilClient().vcsBinary({});
     if (binary.isEmpty())
         return false;
 
@@ -950,7 +927,8 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = VcsBaseClient::createVcsCommand(checkoutPath, fossilClient().processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(checkoutPath,
+                                                   fossilClient().processEnvironment(checkoutPath));
 
     if (!isLocalRepository
         && !cloneRepository.exists()) {
@@ -986,7 +964,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
              << extraOptions
              << sourceUrl
              << fossilFileNative;
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;
@@ -995,20 +973,20 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     QStringList args({"open", fossilFileNative});
     if (!checkoutBranch.isEmpty())
         args << checkoutBranch;
-    command->addJob({fossilClient().vcsBinary(), args}, -1);
+    command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
 
     // set user default to admin user if specified
     if (!isLocalRepository
         && !adminUser.isEmpty()) {
         const QStringList args({ "user", "default", adminUser, "--user", adminUser});
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     // turn-off autosync if requested
     if (!isLocalRepository
         && disableAutosync) {
         const QStringList args({"settings", "autosync", "off"});
-        command->addJob({fossilClient().vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
     }
 
     return command;

@@ -34,6 +34,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -62,7 +63,6 @@ namespace Bazaar::Internal {
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Commit Log Editor");
 const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
 
 // Menu items
@@ -88,27 +88,6 @@ const char UPDATE[] = "Bazaar.Action.Update";
 const char COMMIT[] = "Bazaar.Action.Commit";
 const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
 const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
-
-const VcsBaseEditorParameters logEditorParameters {
-    LogOutput, // type
-    Constants::FILELOG_ID, // id
-    Constants::FILELOG_DISPLAY_NAME, // display name
-    Constants::LOGAPP // mime type
-};
-
-const VcsBaseEditorParameters annotateEditorParameters {
-    AnnotateOutput,
-    Constants::ANNOTATELOG_ID,
-    Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATEAPP
-};
-
-const VcsBaseEditorParameters diffEditorParameters {
-    DiffOutput,
-    Constants::DIFFLOG_ID,
-    Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFAPP
-};
 
 class RevertDialog : public QDialog
 {
@@ -220,23 +199,32 @@ public:
 
     FilePath m_submitRepository;
 
-    VcsEditorFactory logEditorFactory {
-        &logEditorParameters,
+    VcsEditorFactory logEditorFactory {{
+        LogOutput, // type
+        Constants::FILELOG_ID, // id
+        VcsBase::Tr::tr("Bazaar File Log Editor"),
+        Constants::LOGAPP,// mime type
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory annotateEditorFactory {
-        &annotateEditorParameters,
+    VcsEditorFactory annotateEditorFactory {{
+        AnnotateOutput,
+        Constants::ANNOTATELOG_ID,
+        VcsBase::Tr::tr("Bazaar Annotation Editor"),
+        Constants::ANNOTATEAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 
-    VcsEditorFactory diffEditorFactory {
-        &diffEditorParameters,
+    VcsEditorFactory diffEditorFactory {{
+        DiffOutput,
+        Constants::DIFFLOG_ID,
+        VcsBase::Tr::tr("Bazaar Diff Editor"),
+        Constants::DIFFAPP,
         [] { return new BazaarEditorWidget; },
         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    };
+    }};
 };
 
 class UnCommitDialog : public QDialog
@@ -492,7 +480,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     setupVcsSubmitEditor(this, {
         COMMITMIMETYPE,
         COMMIT_ID,
-        COMMIT_DISPLAY_NAME,
+        VcsBase::Tr::tr("Bazaar Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });
@@ -963,10 +951,10 @@ VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url
     args << m_client.vcsCommandString(BazaarClient::CloneCommand)
          << extraArgs << url << localName;
 
-    Environment env = m_client.processEnvironment();
+    Environment env = m_client.processEnvironment(baseDirectory);
     env.set("BZR_PROGRESS_BAR", "text");
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, env);
-    command->addJob({m_client.vcsBinary(), args}, -1);
+    command->addJob({m_client.vcsBinary(baseDirectory), args}, -1);
     return command;
 }
 

@@ -91,7 +91,6 @@ private:
 
     bool companionPreventsActions() const override;
     bool hasCapability(unsigned) const override;
-    void quitDebugger() override;
 
     void doUpdateLocals(const UpdateParameters &params) override;
     Core::Context languageContext() const override;

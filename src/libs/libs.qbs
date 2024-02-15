@@ -26,6 +26,7 @@ Project {
         "utils/utils.qbs",
         "3rdparty/libptyqt/ptyqt.qbs",
         "3rdparty/libvterm/vterm.qbs",
+        "3rdparty/qtkeychain/qtkeychain.qbs",
         "3rdparty/syntax-highlighting/syntax-highlighting.qbs",
         "3rdparty/winpty/winpty.qbs",
         "3rdparty/yaml-cpp/yaml-cpp.qbs",

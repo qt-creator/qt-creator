@@ -89,6 +89,7 @@ QtcPlugin {
             "makestep.cpp", "makestep.h",
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "msvcparser.cpp", "msvcparser.h",
+            "msvctoolchain.cpp", "msvctoolchain.h",
             "namedwidget.cpp", "namedwidget.h",
             "osparser.cpp", "osparser.h",
             "panelswidget.cpp", "panelswidget.h",
@@ -228,15 +229,6 @@ QtcPlugin {
         name: "Images"
         prefix: "images/"
         files: ["*.png"]
-    }
-
-    Group {
-        name: "WindowsToolChains"
-        condition: qbs.targetOS.contains("windows") || qtc.withPluginTests
-        files: [
-            "msvctoolchain.cpp",
-            "msvctoolchain.h",
-        ]
     }
 
     QtcTestFiles {

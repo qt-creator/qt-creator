@@ -697,6 +697,36 @@ def qdump__std__pair(d, value):
     d.putValue('(%s, %s)' % (key, value))
 
 
+def qdumpHelper_get_tuple_elements(d, tuple, value_typename, value_member):
+    """
+    Helper method that returns the elements of a tuple.
+    """
+    elems = []
+    other_members = []
+    for member in tuple.members(True):
+        if not member.type.templateArguments():
+            continue
+        if member.type.name.startswith(value_typename):
+            elems.append(member[value_member])
+        else:
+            other_members.append(member)
+    for member in other_members:
+        sub_elems = qdumpHelper_get_tuple_elements(d, member, value_typename, value_member)
+        elems = elems + sub_elems
+    return elems
+
+
+def qdump__std__tuple(d, value):
+    if d.isMsvcTarget():
+        elems = qdumpHelper_get_tuple_elements(d, value, "std::_Tuple_val", "_Val")
+    else:
+        elems = qdumpHelper_get_tuple_elements(d, value, "std::_Head_base", "_M_head_impl")
+    d.putItemCount(len(elems))
+    with Children(d):
+        for elem in elems:
+            d.putSubItem(0, elem)
+
+
 def qform__std__unordered_map():
     return [DisplayFormat.CompactMap]
 

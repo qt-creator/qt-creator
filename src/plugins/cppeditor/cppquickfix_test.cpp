@@ -5008,20 +5008,53 @@ void QuickfixTest::testInsertDefFromDeclTemplateClassAndTemplateFunction()
         "class Foo\n"
         "{\n"
         "    template<class U>\n"
-        "    void fun@c();\n"
+        "    T fun@c(U u);\n"
         "};\n";
     QByteArray expected =
         "template<class T>"
         "class Foo\n"
         "{\n"
         "    template<class U>\n"
-        "    void fun@c();\n"
+        "    T fun@c(U u);\n"
         "};\n"
         "\n"
         "template<class T>\n"
         "template<class U>\n"
-        "void Foo<T>::func()\n"
+        "T Foo<T>::func(U u)\n"
         "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefFromDeclTemplateClassAndFunctionInsideNamespace()
+{
+    QByteArray original =
+        "namespace N {\n"
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n"
+        "}\n";
+    QByteArray expected =
+        "namespace N {\n"
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    T fun@c(U u);\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "T Foo<T>::func(U u)\n"
+        "{\n"
+        "\n"
+        "}\n"
         "\n"
         "}\n";
 

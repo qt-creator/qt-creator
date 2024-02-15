@@ -25,7 +25,6 @@
 #include "refactoroverlay.h"
 #include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
-#include "syntaxhighlighter.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
@@ -9425,7 +9424,7 @@ public:
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
-    CompletionAssistProvider * m_completionAssistProvider = nullptr; // owned
+    std::unique_ptr<CompletionAssistProvider> m_completionAssistProvider; // owned
     std::unique_ptr<TextEditorActionHandler> m_textEditorActionHandler;
     bool m_useGenericHighlighter = false;
     bool m_duplicatedSupported = true;
@@ -9445,7 +9444,6 @@ TextEditorFactory::TextEditorFactory()
 TextEditorFactory::~TextEditorFactory()
 {
     qDeleteAll(d->m_hoverHandlers);
-    delete d->m_completionAssistProvider;
     delete d;
 }
 
@@ -9472,8 +9470,9 @@ void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
         if (d->m_syntaxHighlighterCreator)
             doc->resetSyntaxHighlighter(d->m_syntaxHighlighterCreator);
 
-        doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
-                                                                       : &basicSnippetProvider);
+        doc->setCompletionAssistProvider(d->m_completionAssistProvider
+                                             ? d->m_completionAssistProvider.get()
+                                             : &basicSnippetProvider);
 
         return d->createEditorHelper(doc);
     });
@@ -9511,7 +9510,7 @@ void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
 
 void TextEditorFactory::setCompletionAssistProvider(CompletionAssistProvider *provider)
 {
-    d->m_completionAssistProvider = provider;
+    d->m_completionAssistProvider.reset(provider);
 }
 
 void TextEditorFactory::setCommentDefinition(CommentDefinition definition)

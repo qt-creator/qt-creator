@@ -19,7 +19,20 @@ void NetworkQuery::start()
         emit done(DoneResult::Error);
         return;
     }
-    m_reply.reset(m_manager->get(m_request));
+    switch (m_operation) {
+    case NetworkOperation::Get:
+        m_reply.reset(m_manager->get(m_request));
+        break;
+    case NetworkOperation::Put:
+        m_reply.reset(m_manager->put(m_request, m_writeData));
+        break;
+    case NetworkOperation::Post:
+        m_reply.reset(m_manager->post(m_request, m_writeData));
+        break;
+    case NetworkOperation::Delete:
+        m_reply.reset(m_manager->deleteResource(m_request));
+        break;
+    }
     connect(m_reply.get(), &QNetworkReply::finished, this, [this] {
         disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
         emit done(toDoneResult(m_reply->error() == QNetworkReply::NoError));

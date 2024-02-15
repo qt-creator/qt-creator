@@ -34,20 +34,20 @@ signals:
 
 private:
     Internal::TextEditHelper *m_editor;
-    NameValueItems m_originalItems;
+    EnvironmentItems m_originalItems;
 };
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog
 {
 public:
-    void setNameValueItems(const NameValueItems &items);
-    NameValueItems nameValueItems() const;
+    void setNameValueItems(const EnvironmentItems &items);
+    EnvironmentItems nameValueItems() const;
 
     void setPlaceholderText(const QString &text);
 
     using Polisher = std::function<void(QWidget *)>;
-    static std::optional<NameValueItems> getNameValueItems(QWidget *parent = nullptr,
-                                                             const NameValueItems &initial = {},
+    static std::optional<EnvironmentItems> getNameValueItems(QWidget *parent = nullptr,
+                                                             const EnvironmentItems &initial = {},
                                                              const QString &placeholderText = {},
                                                              Polisher polish = {},
                                                              const QString &windowTitle = {});

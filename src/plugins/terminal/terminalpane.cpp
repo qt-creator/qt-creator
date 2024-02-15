@@ -106,6 +106,18 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
         }
     }
 
+    if (parametersCopy.workingDirectory && parametersCopy.workingDirectory->needsDevice()
+        && !parametersCopy.shellCommand) {
+        const FilePath shell = parametersCopy.workingDirectory->withNewPath(
+            parametersCopy.environment
+                .value_or(parametersCopy.workingDirectory->deviceEnvironment())
+                .value_or("SHELL", "/bin/sh"));
+        if (!shell.isExecutableFile())
+            parametersCopy.workingDirectory.reset();
+        else
+            parametersCopy.shellCommand = CommandLine{shell, {}};
+    }
+
     const auto terminalWidget = new TerminalWidget(&m_tabWidget, parametersCopy);
 
     using namespace Constants;

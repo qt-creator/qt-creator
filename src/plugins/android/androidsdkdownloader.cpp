@@ -100,8 +100,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     m_progressDialog->setFixedSize(m_progressDialog->sizeHint());
     m_progressDialog->setAutoClose(false);
     connect(m_progressDialog.get(), &QProgressDialog::canceled, this, [this] {
-        m_progressDialog.release()->deleteLater();
         m_taskTreeRunner.reset();
+        m_progressDialog.release()->deleteLater();
     });
 
     Storage<std::optional<FilePath>> storage;
@@ -116,6 +116,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
                 return;
             connect(reply, &QNetworkReply::downloadProgress,
                     this, [this](qint64 received, qint64 max) {
+                if (!m_progressDialog)
+                    return;
                 m_progressDialog->setRange(0, max);
                 m_progressDialog->setValue(received);
             });

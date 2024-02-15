@@ -583,11 +583,9 @@ public:
         manageSessionsButton->setOnClicked([] { SessionManager::showSessionManager(); });
 
         auto sessionsLabel = new QLabel(this);
-        sessionsLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
         sessionsLabel->setText(Tr::tr("Sessions"));
 
         auto recentProjectsLabel = new QLabel(this);
-        recentProjectsLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
         recentProjectsLabel->setText(Tr::tr("Projects"));
 
         auto sessionsList = new TreeView(this, "Sessions");

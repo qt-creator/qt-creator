@@ -137,6 +137,7 @@ private slots:
     void testInsertDefFromDeclTemplateClassWithValueParam();
     void testInsertDefFromDeclTemplateFunction();
     void testInsertDefFromDeclTemplateClassAndTemplateFunction();
+    void testInsertDefFromDeclTemplateClassAndFunctionInsideNamespace();
     void testInsertDefFromDeclFunctionWithSignedUnsignedArgument();
     void testInsertDefFromDeclNotTriggeredForFriendFunc();
     void testInsertDefFromDeclMinimalFunctionParameterType();

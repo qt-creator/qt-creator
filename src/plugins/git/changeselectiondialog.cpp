@@ -33,8 +33,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
                                              QWidget *parent) :
     QDialog(parent)
 {
-    m_gitExecutable = gitClient().vcsBinary();
-    m_gitEnvironment = gitClient().processEnvironment();
+    m_gitExecutable = gitClient().vcsBinary(workingDirectory);
+    m_gitEnvironment = gitClient().processEnvironment(workingDirectory);
 
     resize(550, 350);
     setWindowTitle(Tr::tr("Select a Git Commit"));
@@ -209,8 +209,9 @@ void ChangeSelectionDialog::recalculateCompletion()
         return;
 
     Process *process = new Process(this);
-    process->setEnvironment(gitClient().processEnvironment());
-    process->setCommand({gitClient().vcsBinary(), {"for-each-ref", "--format=%(refname:short)"}});
+    process->setEnvironment(gitClient().processEnvironment(workingDir));
+    process->setCommand(
+        {gitClient().vcsBinary(workingDir), {"for-each-ref", "--format=%(refname:short)"}});
     process->setWorkingDirectory(workingDir);
     process->setUseCtrlCStub(true);
     connect(process, &Process::done, this, [this, process] {

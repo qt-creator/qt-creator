@@ -19,20 +19,16 @@
     To specify QML code style globally:
 
     \list 1
-        \li Select \preferences > \uicontrol {Qt Quick}.
-        \li In the \uicontrol {Current settings} field, select the settings to
-            modify and click \uicontrol Copy.
-            \image qtcreator-options-code-style-qml.png {QML Code Style preferences}
-        \li Give a name to the settings and click \uicontrol OK.
-        \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-qtquick.png {Edit Code Style dialog}
+        \li Go to \preferences > \uicontrol {Qt Quick} > \uicontrol {Code Style}.
+        \li In \uicontrol {Custom settings}, select the settings to
+            modify, and then select \uicontrol Copy.
+            \image qtcreator-preferences-qtquick-code-style.webp {Qt Quick Code Style preferences}
+        \li Give a name to the settings, and select \uicontrol OK.
+        \li Specify how to interpret the \key Tab key presses and how to align
+            continuation lines.
+        \li In \uicontrol {Line length}, set the maximum line length for
+            code lines.
     \endlist
-
-    You can specify how to interpret the \key Tab key presses and how to align
-    continuation lines.
-
-    In \uicontrol {Line length}, you can adjust the maximum line length for
-    code lines.
 
     To override the global preferences for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.

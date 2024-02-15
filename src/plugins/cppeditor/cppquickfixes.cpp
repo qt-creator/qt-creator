@@ -141,7 +141,8 @@ enum DefPos {
 
 inline bool isQtStringLiteral(const QByteArray &id)
 {
-    return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral";
+    return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral"
+           || id == "QByteArrayLiteral";
 }
 
 inline bool isQtStringTranslation(const QByteArray &id)
@@ -1117,20 +1118,19 @@ enum ActionFlags {
     EncloseInQLatin1CharAction = 0x1,
     EncloseInQLatin1StringAction = 0x2,
     EncloseInQStringLiteralAction = 0x4,
-    EncloseActionMask = EncloseInQLatin1CharAction
-    | EncloseInQLatin1StringAction | EncloseInQStringLiteralAction,
-    TranslateTrAction = 0x8,
-    TranslateQCoreApplicationAction = 0x10,
-    TranslateNoopAction = 0x20,
-    TranslationMask = TranslateTrAction
-    | TranslateQCoreApplicationAction | TranslateNoopAction,
-    RemoveObjectiveCAction = 0x40,
-    ConvertEscapeSequencesToCharAction = 0x100,
-    ConvertEscapeSequencesToStringAction = 0x200,
-    SingleQuoteAction = 0x400,
-    DoubleQuoteAction = 0x800
+    EncloseInQByteArrayLiteralAction = 0x8,
+    EncloseActionMask = EncloseInQLatin1CharAction | EncloseInQLatin1StringAction
+                        | EncloseInQStringLiteralAction | EncloseInQByteArrayLiteralAction,
+    TranslateTrAction = 0x10,
+    TranslateQCoreApplicationAction = 0x20,
+    TranslateNoopAction = 0x40,
+    TranslationMask = TranslateTrAction | TranslateQCoreApplicationAction | TranslateNoopAction,
+    RemoveObjectiveCAction = 0x100,
+    ConvertEscapeSequencesToCharAction = 0x200,
+    ConvertEscapeSequencesToStringAction = 0x400,
+    SingleQuoteAction = 0x800,
+    DoubleQuoteAction = 0x1000
 };
-
 
 /* Convert single-character string literals into character literals with some
  * special cases "a" --> 'a', "'" --> '\'', "\n" --> '\n', "\"" --> '"'. */
@@ -1167,6 +1167,8 @@ static QString stringLiteralReplacement(unsigned actions)
         return QLatin1String("QLatin1String");
     if (actions & EncloseInQStringLiteralAction)
         return QLatin1String("QStringLiteral");
+    if (actions & EncloseInQByteArrayLiteralAction)
+        return QLatin1String("QByteArrayLiteral");
     if (actions & TranslateTrAction)
         return QLatin1String("tr");
     if (actions & TranslateQCoreApplicationAction)
@@ -1355,6 +1357,9 @@ void WrapStringLiteral::doMatch(const CppQuickFixInterface &interface, QuickFixO
         result << new WrapStringLiteralOp(interface, priority, actions,
                                           msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
         actions = EncloseInQStringLiteralAction | objectiveCActions;
+        result << new WrapStringLiteralOp(interface, priority, actions,
+                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
+        actions = EncloseInQByteArrayLiteralAction | objectiveCActions;
         result << new WrapStringLiteralOp(interface, priority, actions,
                                           msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
     }

@@ -44,15 +44,15 @@ class ReportItem():
     subsequent better guesses during a putItem() run.
     """
 
-    def __init__(self, value=None, encoding=None, priority=-100, elided=None):
+    def __init__(self, value=None, encoding=None, priority=-100, length=None):
         self.value = value
         self.priority = priority
         self.encoding = encoding
-        self.elided = elided
+        self.length = length
 
     def __str__(self):
-        return 'Item(value: %s, encoding: %s, priority: %s, elided: %s)' \
-            % (self.value, self.encoding, self.priority, self.elided)
+        return 'Item(value: %s, encoding: %s, priority: %s, length: %s)' \
+            % (self.value, self.encoding, self.priority, self.length)
 
 
 class Timer():
@@ -349,8 +349,8 @@ class DumperBase():
                 else:
                     if self.currentValue.encoding is not None:
                         self.put('valueencoded="%s",' % self.currentValue.encoding)
-                    if self.currentValue.elided:
-                        self.put('valueelided="%s",' % self.currentValue.elided)
+                    if self.currentValue.length:
+                        self.put('valuelen="%s",' % self.currentValue.length)
                     self.put('value="%s",' % self.currentValue.value)
             except:
                 pass
@@ -376,7 +376,7 @@ class DumperBase():
                         b = bytes(bytearray.fromhex(value))
                         value = codecs.decode(b, 'utf-16')
                     self.put('"%s"' % value)
-                    if self.currentValue.elided:
+                    if self.currentValue.length:
                         self.put('...')
 
                 if self.currentType.value:
@@ -545,40 +545,40 @@ class DumperBase():
         # assume no Qt 3 support by default
         return False
 
-    # Clamps size to limit.
-    def computeLimit(self, size, limit):
+    # Clamps length to limit.
+    def computeLimit(self, length, limit=0):
         if limit == 0:
             limit = self.displayStringLimit
-        if limit is None or size <= limit:
-            return 0, size
-        return size, limit
+        if limit is None or length <= limit:
+            return length
+        return limit
 
     def vectorData(self, value):
         if self.qtVersion() >= 0x060000:
-            data, size, alloc = self.qArrayData(value)
+            data, length, alloc = self.qArrayData(value)
         elif self.qtVersion() >= 0x050000:
             vector_data_ptr = self.extractPointer(value)
             if self.ptrSize() == 4:
-                (ref, size, alloc, offset) = self.split('IIIp', vector_data_ptr)
+                (ref, length, alloc, offset) = self.split('IIIp', vector_data_ptr)
             else:
-                (ref, size, alloc, pad, offset) = self.split('IIIIp', vector_data_ptr)
+                (ref, length, alloc, pad, offset) = self.split('IIIIp', vector_data_ptr)
             alloc = alloc & 0x7ffffff
             data = vector_data_ptr + offset
         else:
             vector_data_ptr = self.extractPointer(value)
-            (ref, alloc, size) = self.split('III', vector_data_ptr)
+            (ref, alloc, length) = self.split('III', vector_data_ptr)
             data = vector_data_ptr + 16
-        self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-        return data, size
+        self.check(0 <= length and length <= alloc and alloc <= 1000 * 1000 * 1000)
+        return data, length
 
     def qArrayData(self, value):
         if self.qtVersion() >= 0x60000:
-            dd, data, size = self.split('ppp', value)
+            dd, data, length = self.split('ppp', value)
             if dd:
                 _, _, alloc = self.split('iip', dd)
             else: # fromRawData
-                alloc = size
-            return data, size, alloc
+                alloc = length
+            return data, length, alloc
         return self.qArrayDataHelper(self.extractPointer(value))
 
     def qArrayDataHelper(self, array_data_ptr):
@@ -586,10 +586,10 @@ class DumperBase():
         if self.qtVersion() >= 0x050000:
             # QTypedArray:
             # - QtPrivate::RefCount ref
-            # - int size
+            # - int length
             # - uint alloc : 31, capacityReserved : 1
             # - qptrdiff offset
-            (ref, size, alloc, offset) = self.split('IIpp', array_data_ptr)
+            (ref, length, alloc, offset) = self.split('IIpp', array_data_ptr)
             alloc = alloc & 0x7ffffff
             data = array_data_ptr + offset
             if self.ptrSize() == 4:
@@ -599,43 +599,42 @@ class DumperBase():
         elif self.qtVersion() >= 0x040000:
             # Data:
             # - QBasicAtomicInt ref;
-            # - int alloc, size;
+            # - int alloc, length;
             # - [padding]
             # - char *data;
             if self.ptrSize() == 4:
-                (ref, alloc, size, data) = self.split('IIIp', array_data_ptr)
+                (ref, alloc, length, data) = self.split('IIIp', array_data_ptr)
             else:
-                (ref, alloc, size, pad, data) = self.split('IIIIp', array_data_ptr)
+                (ref, alloc, length, pad, data) = self.split('IIIIp', array_data_ptr)
         else:
             # Data:
             # - QShared count;
             # - QChar *unicode
             # - char *ascii
             # - uint len: 30
-            (dummy, dummy, dummy, size) = self.split('IIIp', array_data_ptr)
-            size = self.extractInt(array_data_ptr + 3 * self.ptrSize()) & 0x3ffffff
-            alloc = size  # pretend.
+            (dummy, dummy, dummy, length) = self.split('IIIp', array_data_ptr)
+            length = self.extractInt(array_data_ptr + 3 * self.ptrSize()) & 0x3ffffff
+            alloc = length  # pretend.
             data = self.extractPointer(array_data_ptr + self.ptrSize())
-        return data, size, alloc
+        return data, length, alloc
 
     def encodeStringHelper(self, value, limit):
-        data, size, alloc = self.qArrayData(value)
+        data, length, alloc = self.qArrayData(value)
         if alloc != 0:
-            self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
-        elided, shown = self.computeLimit(2 * size, 2 * limit)
-        return elided, self.readMemory(data, shown)
+            self.check(0 <= length and length <= alloc and alloc <= 100 * 1000 * 1000)
+        shown = self.computeLimit(2 * length, 2 * limit)
+        return length, self.readMemory(data, shown)
 
     def encodeByteArrayHelper(self, value, limit):
-        data, size, alloc = self.qArrayData(value)
+        data, length, alloc = self.qArrayData(value)
         if alloc != 0:
-            self.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
-        elided, shown = self.computeLimit(size, limit)
-        return elided, self.readMemory(data, shown)
+            self.check(0 <= length and length <= alloc and alloc <= 100 * 1000 * 1000)
+        shown = self.computeLimit(length, limit)
+        return length, self.readMemory(data, shown)
 
-    def putCharArrayValue(self, data, size, charSize,
+    def putCharArrayValue(self, data, length, charSize,
                           displayFormat=DisplayFormat.Automatic):
-        bytelen = size * charSize
-        elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
+        shown = self.computeLimit(length, self.displayStringLimit)
         mem = self.readMemory(data, shown)
         if charSize == 1:
             if displayFormat in (DisplayFormat.Latin1String, DisplayFormat.SeparateLatin1String):
@@ -650,13 +649,13 @@ class DumperBase():
             encodingType = 'ucs4'
             #childType = 'int'
 
-        self.putValue(mem, encodingType, elided=elided)
+        self.putValue(mem, encodingType, length=length)
 
         if displayFormat in (
                 DisplayFormat.SeparateLatin1String,
                 DisplayFormat.SeparateUtf8String,
                 DisplayFormat.Separate):
-            elided, shown = self.computeLimit(bytelen, 100000)
+            shown = self.computeLimit(length, 100000)
             self.putDisplay(encodingType + ':separate', self.readMemory(data, shown))
 
     def putCharArrayHelper(self, data, size, charType,
@@ -676,15 +675,15 @@ class DumperBase():
         return self.hexencode(bytes(self.readRawMemory(addr, size)))
 
     def encodeByteArray(self, value, limit=0):
-        elided, data = self.encodeByteArrayHelper(value, limit)
+        _, data = self.encodeByteArrayHelper(value, limit)
         return data
 
     def putByteArrayValue(self, value):
-        elided, data = self.encodeByteArrayHelper(value, self.displayStringLimit)
-        self.putValue(data, 'latin1', elided=elided)
+        length, data = self.encodeByteArrayHelper(value, self.displayStringLimit)
+        self.putValue(data, 'latin1', length=length)
 
     def encodeString(self, value, limit=0):
-        elided, data = self.encodeStringHelper(value, limit)
+        _, data = self.encodeStringHelper(value, limit)
         return data
 
     def encodedUtf16ToUtf8(self, s):
@@ -730,8 +729,8 @@ class DumperBase():
         return inner
 
     def putStringValue(self, value):
-        elided, data = self.encodeStringHelper(value, self.displayStringLimit)
-        self.putValue(data, 'utf16', elided=elided)
+        length, data = self.encodeStringHelper(value, self.displayStringLimit)
+        self.putValue(data, 'utf16', length=length)
 
     def putPtrItem(self, name, value):
         with SubItem(self, name):
@@ -900,12 +899,12 @@ class DumperBase():
         if not self.isInt(thing):
             raise RuntimeError('Expected an integral value, got %s' % type(thing))
 
-    def readToFirstZero(self, base, tsize, maximum):
+    def readToFirstZero(self, base, typesize, maximum):
         self.checkIntType(base)
-        self.checkIntType(tsize)
+        self.checkIntType(typesize)
         self.checkIntType(maximum)
 
-        code = self.packCode + (None, 'b', 'H', None, 'I')[tsize]
+        code = self.packCode + (None, 'b', 'H', None, 'I')[typesize]
         #blob = self.readRawMemory(base, 1)
         blob = bytes()
         while maximum > 1:
@@ -916,8 +915,8 @@ class DumperBase():
                 maximum = int(maximum / 2)
                 self.warn('REDUCING READING MAXIMUM TO %s' % maximum)
 
-        #DumperBase.warn('BASE: 0x%x TSIZE: %s MAX: %s' % (base, tsize, maximum))
-        for i in range(0, maximum, tsize):
+        #DumperBase.warn('BASE: 0x%x TSIZE: %s MAX: %s' % (base, typesize, maximum))
+        for i in range(0, maximum, typesize):
             t = struct.unpack_from(code, blob, i)[0]
             if t == 0:
                 return 0, i, self.hexencode(blob[:i])
@@ -925,9 +924,9 @@ class DumperBase():
         # Real end is unknown.
         return -1, maximum, self.hexencode(blob[:maximum])
 
-    def encodeCArray(self, p, tsize, limit):
-        elided, shown, blob = self.readToFirstZero(p, tsize, limit)
-        return elided, blob
+    def encodeCArray(self, p, typesize, limit):
+        length, shown, blob = self.readToFirstZero(p, typesize, limit)
+        return length, blob
 
     def putItemCount(self, count, maximum=1000000000):
         # This needs to override the default value, so don't use 'put' directly.
@@ -1043,12 +1042,12 @@ class DumperBase():
                 self.currentType.value = typish.name
             self.currentType.priority = priority
 
-    def putValue(self, value, encoding=None, priority=0, elided=None):
+    def putValue(self, value, encoding=None, priority=0, length=None):
         # Higher priority values override lower ones.
-        # elided = 0 indicates all data is available in value,
+        # length = None indicates all data is available in value,
         # otherwise it's the true length.
         if priority >= self.currentValue.priority:
-            self.currentValue = ReportItem(value, encoding, priority, elided)
+            self.currentValue = ReportItem(value, encoding, priority, length)
 
     def putSpecialValue(self, encoding, value='', children=None):
         self.putValue(value, encoding)
@@ -1226,13 +1225,13 @@ class DumperBase():
 
         return False
 
-    def putSimpleCharArray(self, base, size=None):
-        if size is None:
-            elided, shown, data = self.readToFirstZero(base, 1, self.displayStringLimit)
+    def putSimpleCharArray(self, base, length=None):
+        if length is None:
+            length, shown, data = self.readToFirstZero(base, 1, self.displayStringLimit)
         else:
-            elided, shown = self.computeLimit(int(size), self.displayStringLimit)
+            shown = self.computeLimit(length)
             data = self.readMemory(base, shown)
-        self.putValue(data, 'latin1', elided=elided)
+        self.putValue(data, 'latin1', length=length)
 
     def putDisplay(self, editFormat, value):
         self.putField('editformat', editFormat)
@@ -1248,8 +1247,8 @@ class DumperBase():
             if targetType.name in ('char', 'signed char', 'unsigned char', 'uint8_t', 'CHAR'):
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
-                (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
-                self.putValue(data, 'utf8', elided=elided)
+                (length, shown, data) = self.readToFirstZero(ptr, 1, limit)
+                self.putValue(data, 'utf8', length=length)
                 if self.isExpanded():
                     self.putArrayData(ptr, shown, innerType)
                 return True
@@ -1257,55 +1256,55 @@ class DumperBase():
             if targetType.name in ('wchar_t', 'WCHAR'):
                 self.putType(typeName)
                 charSize = self.lookupType('wchar_t').size()
-                (elided, data) = self.encodeCArray(ptr, charSize, limit)
+                (length, data) = self.encodeCArray(ptr, charSize, limit)
                 if charSize == 2:
-                    self.putValue(data, 'utf16', elided=elided)
+                    self.putValue(data, 'utf16', length=length)
                 else:
-                    self.putValue(data, 'ucs4', elided=elided)
+                    self.putValue(data, 'ucs4', length=length)
                 return True
 
         if displayFormat == DisplayFormat.Latin1String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'latin1', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 1, limit)
+            self.putValue(data, 'latin1', length=length)
             return True
 
         if displayFormat == DisplayFormat.SeparateLatin1String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'latin1', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 1, limit)
+            self.putValue(data, 'latin1', length=length)
             self.putDisplay('latin1:separate', data)
             return True
 
         if displayFormat == DisplayFormat.Utf8String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'utf8', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 1, limit)
+            self.putValue(data, 'utf8', length=length)
             return True
 
         if displayFormat == DisplayFormat.SeparateUtf8String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'utf8', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 1, limit)
+            self.putValue(data, 'utf8', length=length)
             self.putDisplay('utf8:separate', data)
             return True
 
         if displayFormat == DisplayFormat.Local8BitString:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'local8bit', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 1, limit)
+            self.putValue(data, 'local8bit', length=length)
             return True
 
         if displayFormat == DisplayFormat.Utf16String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 2, limit)
-            self.putValue(data, 'utf16', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 2, limit)
+            self.putValue(data, 'utf16', length=length)
             return True
 
         if displayFormat == DisplayFormat.Ucs4String:
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(ptr, 4, limit)
-            self.putValue(data, 'ucs4', elided=elided)
+            (length, data) = self.encodeCArray(ptr, 4, limit)
+            self.putValue(data, 'ucs4', length=length)
             return True
 
         return False
@@ -2577,17 +2576,17 @@ class DumperBase():
 
     def extractQStringFromQDataStream(self, buf, offset):
         """ Read a QString from the stream """
-        size = struct.unpack_from('!I', buf, offset)[0]
+        length = struct.unpack_from('!I', buf, offset)[0]
         offset += 4
-        string = buf[offset:offset + size].decode('utf-16be')
-        return (string, offset + size)
+        string = buf[offset:offset + length].decode('utf-16be')
+        return (string, offset + length)
 
     def extractQByteArrayFromQDataStream(self, buf, offset):
         """ Read a QByteArray from the stream """
-        size = struct.unpack_from('!I', buf, offset)[0]
+        length = struct.unpack_from('!I', buf, offset)[0]
         offset += 4
-        string = buf[offset:offset + size].decode('latin1')
-        return (string, offset + size)
+        string = buf[offset:offset + length].decode('latin1')
+        return (string, offset + length)
 
     def extractIntFromQDataStream(self, buf, offset):
         """ Read an int from the stream """

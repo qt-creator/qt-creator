@@ -37,6 +37,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/infolabel.h>
+#include <utils/expected.h>
 
 #include <QComboBox>
 #include <QLabel>
@@ -105,8 +107,7 @@ private:
 
     Guard m_ignoreChanges;
     QLabel *m_clangVersion;
-    QLabel *m_clangFileIsCorrectText;
-    QLabel *m_clangFileIsCorrectIcon;
+    InfoLabel *m_clangFileIsCorrectText;
     ClangFormatIndenter *m_indenter;
 };
 
@@ -137,7 +138,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     Column {
         m_clangVersion,
         Row { m_editorScrollArea, m_preview },
-        Row {m_clangFileIsCorrectIcon, m_clangFileIsCorrectText, st}
+        Row {m_clangFileIsCorrectText, st}
     }.attachTo(this);
 
     connect(codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
@@ -194,46 +195,28 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
     m_editorScrollArea->setWidget(m_editor->widget());
     m_editorScrollArea->setWidgetResizable(true);
 
-    m_clangFileIsCorrectText = new QLabel(Tr::tr("Clang-Format is configured correctly."));
-    QPalette paletteCorrect = m_clangFileIsCorrectText->palette();
-    paletteCorrect.setColor(QPalette::WindowText, Qt::darkGreen);
-    m_clangFileIsCorrectText->setPalette(paletteCorrect);
-
-    m_clangFileIsCorrectIcon = new QLabel(this);
-    m_clangFileIsCorrectIcon->setPixmap(Icons::OK.icon().pixmap(16, 16));
+    m_clangFileIsCorrectText = new InfoLabel("", Utils::InfoLabel::Ok);
+    m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_clangFileIsCorrectText->hide();
 
     m_clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
                                 this);
 
     connect(m_editor->document(), &TextEditor::TextDocument::contentsChanged, this, [this] {
         clang::format::FormatStyle currentSettingsStyle;
-        const bool success
+        const Utils::expected_str<void> success
             = parseConfigurationContent(m_editor->document()->contents().toStdString(),
                                         currentSettingsStyle);
 
-        QString text;
-        Qt::GlobalColor currentColor;
-        QPixmap pixmap;
         if (success) {
-            text = Tr::tr("Clang-Format is configured correctly.");
-            currentColor = Qt::darkGreen;
-            pixmap = Icons::OK.icon().pixmap(16, 16);
-        } else {
-            text = Tr::tr("Clang-Format is not configured correctly.");
-            currentColor = Qt::red;
-            pixmap = Icons::WARNING.icon().pixmap(16, 16);
-        }
-
-        m_clangFileIsCorrectText->setText(text);
-        QPalette paletteCorrect = m_clangFileIsCorrectText->palette();
-        paletteCorrect.setColor(QPalette::WindowText, currentColor);
-        m_clangFileIsCorrectText->setPalette(paletteCorrect);
-        m_clangFileIsCorrectIcon->setPixmap(pixmap);
-
-        if (!success)
+            m_clangFileIsCorrectText->hide();
+            m_indenter->setOverriddenStyle(currentSettingsStyle);
+            updatePreview();
             return;
-        m_indenter->setOverriddenStyle(currentSettingsStyle);
-        updatePreview();
+        }
+        m_clangFileIsCorrectText->show();
+        m_clangFileIsCorrectText->setText(Tr::tr("Warning: ") + success.error());
+        m_clangFileIsCorrectText->setType(Utils::InfoLabel::Warning);
     });
 
     QShortcut *completionSC = new QShortcut(QKeySequence("Ctrl+Space"), this);
@@ -347,8 +330,9 @@ void ClangFormatConfigWidget::apply()
         return;
 
     clang::format::FormatStyle currentSettingsStyle;
-    const bool success = parseConfigurationContent(m_editor->document()->contents().toStdString(),
-                                                   currentSettingsStyle);
+    const Utils::expected_str<void> success
+        = parseConfigurationContent(m_editor->document()->contents().toStdString(),
+                                    currentSettingsStyle);
 
     auto saveSettings = [this] {
         QString errorString;

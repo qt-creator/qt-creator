@@ -79,7 +79,7 @@ public:
         m_widget->highlightSearchResults(QByteArray());
     }
 
-    int find(const QByteArray &pattern, int pos, FindFlags findFlags, bool *wrapped)
+    qint64 find(const QByteArray &pattern, qint64 pos, FindFlags findFlags, bool *wrapped)
     {
         if (wrapped)
             *wrapped = false;
@@ -88,7 +88,7 @@ public:
             return pos;
         }
 
-        int res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
+        qint64 res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
         if (res < 0) {
             pos = (findFlags & FindBackward) ? -1 : 0;
             res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
@@ -111,7 +111,7 @@ public:
         if (m_contPos == -1)
             m_contPos = m_incrementalStartPos;
         bool wrapped;
-        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        qint64 found = find(pattern, m_contPos, findFlags, &wrapped);
         if (wrapped != m_incrementalWrappedState && (found >= 0)) {
             m_incrementalWrappedState = wrapped;
             showWrapIndicator(m_widget);
@@ -147,7 +147,7 @@ public:
                 m_contPos = m_widget->selectionStart()-1;
         }
         bool wrapped;
-        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        qint64 found = find(pattern, m_contPos, findFlags, &wrapped);
         if (wrapped)
             showWrapIndicator(m_widget);
         Result result;

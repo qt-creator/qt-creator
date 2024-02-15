@@ -24,8 +24,6 @@ namespace Core {
 class OutputWindow;
 } // Core
 
-namespace Utils { class CommandLine; }
-
 namespace ProjectExplorer {
 class CustomParserSettings;
 class FolderNode;
@@ -170,8 +168,6 @@ public:
     static Core::OutputWindow *buildSystemOutput();
 
 signals:
-    void finishedInitialization();
-
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.
     void fileListChanged();

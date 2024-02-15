@@ -44,7 +44,7 @@ public:
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;
 
-    Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
+    Utils::expected_str<Utils::FilePath> gitExecutable() const;
 
     static QString trIgnoreWhitespaceChanges();
     static QString trIgnoreLineMoves();

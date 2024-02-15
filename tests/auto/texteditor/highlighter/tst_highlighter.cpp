@@ -58,9 +58,8 @@ Last)";
 
     doc = new QTextDocument();
     doc->setPlainText(text);
-
-    highlighterRunner = new SyntaxHighlighterRunner(
-        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, false, {}, fontsettings);
+    auto highlighter = new SyntaxHighlighter(doc, fontsettings);
+    highlighterRunner = new SyntaxHighlighterRunner(highlighter, doc, false);
 }
 
 static const HighlightingResults &highlightingResults()
