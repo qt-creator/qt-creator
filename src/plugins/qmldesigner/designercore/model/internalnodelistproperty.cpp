@@ -64,6 +64,8 @@ const QList<InternalNode::Pointer> &InternalNodeListProperty::nodeList() const
 
 void InternalNodeListProperty::slide(int from, int to)
 {
+    traceToken.tick("slide"_t, keyValue("from", from), keyValue("to", to));
+
     InternalNode::Pointer internalNode = m_nodeList.takeAt(from);
     m_nodeList.insert(to, internalNode);
 }

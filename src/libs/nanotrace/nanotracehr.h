@@ -750,6 +750,12 @@ public:
     }
 
     template<typename... Arguments>
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, Arguments &&...)
+    {
+        return {};
+    }
+
+    template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType,
                                                                             Arguments &&...)
     {
@@ -840,6 +846,22 @@ public:
     {
         if (m_id)
             m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
+
+        return AsynchronousToken{std::move(name), m_id, m_category};
+    }
+
+    template<typename... Arguments>
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &flowToken,
+                                          ArgumentType name,
+                                          Arguments &&...arguments)
+    {
+        if (m_id)
+            m_category().begin('b',
+                               m_id,
+                               name,
+                               flowToken.bindId(),
+                               IsFlow::In,
+                               std::forward<Arguments>(arguments)...);
 
         return AsynchronousToken{std::move(name), m_id, m_category};
     }

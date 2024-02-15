@@ -25,6 +25,9 @@
 
 namespace QmlDesigner {
 
+using namespace NanotraceHR::Literals;
+using NanotraceHR::keyValue;
+
 /*!
 \class QmlDesigner::AbstractView
 \ingroup CoreModel

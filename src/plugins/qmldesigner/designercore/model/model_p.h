@@ -333,6 +333,7 @@ private:
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
+    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model"_t);
 
 private:
     Model *m_model = nullptr;
@@ -357,8 +358,7 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
-    ModelTracing::AsynchronousToken m_traceToken = ModelTracing::category().beginAsynchronous(
-        "Model"_t);
+
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };
