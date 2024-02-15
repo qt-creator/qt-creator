@@ -12,7 +12,6 @@
 
 #include <QComboBox>
 #include <QFutureWatcher>
-#include <QNetworkAccessManager>
 
 namespace CompilerExplorer {
 
@@ -306,7 +305,6 @@ CompilerExplorerSettings::CompilerExplorerSettings()
 {
     setAutoApply(false);
     setSettingsKey("CompilerExplorer");
-    m_networkAccessManager = std::make_unique<QNetworkAccessManager>();
 
     compilerExplorerUrl.setSettingsKey("CompilerExplorerUrl");
     compilerExplorerUrl.setLabelText(Tr::tr("Compiler Explorer URL:"));

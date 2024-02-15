@@ -6,7 +6,6 @@
 #include "config.h"
 
 #include <QFuture>
-#include <QNetworkAccessManager>
 #include <QString>
 #include <QStringList>
 

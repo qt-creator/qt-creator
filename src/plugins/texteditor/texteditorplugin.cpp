@@ -95,11 +95,13 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetParserTest);
 #endif
 
-    setupTextEditorSettings();
     setupBehaviorSettings();
     setupExtraEncodingSettings();
     setupStorageSettings();
     setupTypingSettings();
+    // Currently needed after the previous four lines.
+    // FIXME: This kind of dependency should not exist.
+    setupTextEditorSettings();
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();

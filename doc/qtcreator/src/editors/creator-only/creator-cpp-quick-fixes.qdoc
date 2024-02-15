@@ -328,7 +328,20 @@
     \endcode
 
             \li String literal
+        \row
+            \li Enclose in QByteArrayLiteral()
+            \li Converts a string to a byte array. For example, rewrites
+    \code
+    "abcd"
+    \endcode
 
+                as
+
+    \code
+    QByteArrayLiteral("abcd")
+    \endcode
+
+            \li String literal
         \row
             \li Mark as Translatable
             \li Marks a string translatable. For example, rewrites \c "abcd"

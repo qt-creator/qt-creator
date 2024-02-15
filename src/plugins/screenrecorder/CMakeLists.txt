@@ -1,6 +1,6 @@
 add_qtc_plugin(ScreenRecorder
   PLUGIN_DEPENDS Core
-  DEPENDS Spinner
+  DEPENDS Utils
   SOURCES
     cropandtrim.cpp cropandtrim.h
     export.cpp export.h

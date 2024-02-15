@@ -287,13 +287,13 @@ static void registerActionsForOptions()
         const Id commandId = generateOpenPageCommandId(page);
         if (!commandId.isValid())
             continue;
-        const QString actionTitle = Tr::tr("%1 > %2 Preferences...")
-            .arg(categoryDisplay.value(page->category()), page->displayName());
-        auto action = new QAction(actionTitle, m_instance);
-        QObject::connect(action, &QAction::triggered, m_instance, [id = page->id()] {
-            ICore::showOptionsDialog(id);
-        });
-        ActionManager::registerAction(action, commandId);
+
+        ActionBuilder(m_instance, commandId)
+            .setText(Tr::tr("%1 > %2 Preferences...")
+                         .arg(categoryDisplay.value(page->category()), page->displayName()))
+            .addOnTriggered(m_instance, [id = page->id()] {
+                ICore::showOptionsDialog(id);
+            });
     }
 }
 

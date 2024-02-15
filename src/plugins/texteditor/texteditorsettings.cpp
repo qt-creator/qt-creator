@@ -418,12 +418,9 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
 
 
 static TextEditorSettingsPrivate *d = nullptr;
-static TextEditorSettings *m_instance = nullptr;
 
 TextEditorSettings::TextEditorSettings()
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
     d = new Internal::TextEditorSettingsPrivate;
 
     // Note: default background colors are coming from FormatDescription::background()
@@ -434,32 +431,21 @@ TextEditorSettings::TextEditorSettings()
     connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
-    auto updateGeneralMessagesBehaviorSettings = []() {
-        bool wheelZoom = d->m_behaviorSettingsPage.behaviorSettings().m_scrollWheelZooming;
-        Core::MessageManager::setWheelZoomEnabled(wheelZoom);
-    };
     connect(this, &TextEditorSettings::behaviorSettingsChanged,
-            this, updateGeneralMessagesBehaviorSettings);
-    updateGeneralMessagesBehaviorSettings();
-
-    auto updateCamelCaseNavigation = [] {
-        FancyLineEdit::setCamelCaseNavigationEnabled(globalBehaviorSettings().m_camelCaseNavigation);
-    };
-    connect(this, &TextEditorSettings::behaviorSettingsChanged,
-            this, updateCamelCaseNavigation);
-    updateCamelCaseNavigation();
+            this, [](const BehaviorSettings &bs) {
+        Core::MessageManager::setWheelZoomEnabled(bs.m_scrollWheelZooming);
+        FancyLineEdit::setCamelCaseNavigationEnabled(bs.m_camelCaseNavigation);
+    });
 }
 
 TextEditorSettings::~TextEditorSettings()
 {
     delete d;
-
-    m_instance = nullptr;
 }
 
 TextEditorSettings *TextEditorSettings::instance()
 {
-    return m_instance;
+    return &textEditorSettings();
 }
 
 const FontSettings &TextEditorSettings::fontSettings()
@@ -578,7 +564,7 @@ static void setFontZoom(int zoom)
 {
     d->m_fontSettings.setFontZoom(zoom);
     d->m_fontSettings.toSettings(Core::ICore::settings());
-    emit m_instance->fontSettingsChanged(d->m_fontSettings);
+    emit textEditorSettings().fontSettingsChanged(d->m_fontSettings);
 }
 
 int TextEditorSettings::increaseFontZoom(int step)

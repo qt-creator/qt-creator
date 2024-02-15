@@ -281,6 +281,7 @@ const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/Cl
 const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
 const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
+const char WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
 const char APP_ENV_CHANGES_SETTINGS_KEY[] = "ProjectExplorer/Settings/AppEnvChanges";
 
 const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
@@ -1696,6 +1697,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectExplorerSettings.lowBuildPriority
         = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, defaultSettings.lowBuildPriority)
               .toBool();
+    dd->m_projectExplorerSettings.warnAgainstNonAsciiBuildDir
+        = s->value(Constants::WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY,
+                   defaultSettings.warnAgainstNonAsciiBuildDir)
+              .toBool();
     dd->m_projectExplorerSettings.appEnvChanges = EnvironmentItem::fromStringList(
         s->value(Constants::APP_ENV_CHANGES_SETTINGS_KEY).toStringList());
 
@@ -2258,6 +2263,9 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValueWithDefault(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY,
                            dd->m_projectExplorerSettings.lowBuildPriority,
                            defaultSettings.lowBuildPriority);
+    s->setValueWithDefault(Constants::WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY,
+                           dd->m_projectExplorerSettings.warnAgainstNonAsciiBuildDir,
+                           defaultSettings.warnAgainstNonAsciiBuildDir);
     s->setValueWithDefault(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY,
                            dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations,
                            defaultSettings.automaticallyCreateRunConfigurations);

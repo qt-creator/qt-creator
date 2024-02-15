@@ -1,6 +1,6 @@
 add_qtc_plugin(CompilerExplorer
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
-  DEPENDS Qt::Network TerminalLib Spinner
+  DEPENDS Qt::Network TerminalLib
   SOURCES
     api/config.h
     api/compile.cpp

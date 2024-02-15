@@ -6,16 +6,12 @@
 #include "compiler.h"
 #include "config.h"
 
-#include "../compilerexploreraspects.h"
-
-#include <QList>
-#include <QString>
-
 #include <QFuture>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QNetworkAccessManager>
+#include <QList>
+#include <QString>
 
 namespace CompilerExplorer::Api {
 

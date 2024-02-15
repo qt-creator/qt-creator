@@ -31,7 +31,7 @@
 
     \QC contains the following third-party components:
 
-    \generatelist{groupsbymodule attributions-qtcreator-tools}
+    \generatelist{groupsbymodule attributions-tools}
 
     The following third-party components are shipped with binary packages of \QC:
 

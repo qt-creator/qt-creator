@@ -17,10 +17,6 @@ namespace Axivion::Internal {
 class AxivionServer
 {
 public:
-    AxivionServer() = default;
-    AxivionServer(const Utils::Id &id, const QString &dashboardUrl,
-                  const QString &description, const QString &token);
-
     bool operator==(const AxivionServer &other) const;
     bool operator!=(const AxivionServer &other) const;
 
@@ -29,6 +25,7 @@ public:
 
     Utils::Id id;
     QString dashboard;
+    QString username;
     QString description;
     QString token;
 

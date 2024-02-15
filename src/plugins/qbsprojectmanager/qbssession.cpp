@@ -453,7 +453,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
             setError(Error::VersionMismatch);
             return;
         }
-        if (packet.value("api-level").toInt() > 4) {
+        if (parent() && packet.value("api-level").toInt() > 4) {
             const QString lspSocket = packet.value("lsp-socket").toString();
             if (!lspSocket.isEmpty())
                 d->languageClient = new QbsLanguageClient(lspSocket,

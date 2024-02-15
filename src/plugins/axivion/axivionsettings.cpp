@@ -25,17 +25,9 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-AxivionServer::AxivionServer(const Id &id, const QString &dashboard,
-                             const QString &description, const QString &token)
-    : id(id)
-    , dashboard(dashboard)
-    , description(description)
-    , token(token)
-{}
-
 bool AxivionServer::operator==(const AxivionServer &other) const
 {
-    return id == other.id && dashboard == other.dashboard
+    return id == other.id && dashboard == other.dashboard && username == other.username
             && description == other.description && token == other.token;
 }
 
@@ -49,6 +41,7 @@ QJsonObject AxivionServer::toJson() const
     QJsonObject result;
     result.insert("id", id.toString());
     result.insert("dashboard", dashboard);
+    result.insert("username", username);
     result.insert("description", description);
     result.insert("token", token);
     return result;
@@ -63,14 +56,17 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     const QJsonValue dashboard = json.value("dashboard");
     if (dashboard == QJsonValue::Undefined)
         return invalidServer;
+    const QJsonValue username = json.value("username");
+    if (username == QJsonValue::Undefined)
+        return invalidServer;
     const QJsonValue description = json.value("description");
     if (description == QJsonValue::Undefined)
         return invalidServer;
     const QJsonValue token = json.value("token");
     if (token == QJsonValue::Undefined)
         return invalidServer;
-    return { Id::fromString(id.toString()), dashboard.toString(),
-                description.toString(), token.toString() };
+    return {Id::fromString(id.toString()), dashboard.toString(), username.toString(),
+            description.toString(), token.toString()};
 }
 
 static FilePath tokensFilePath()
@@ -164,6 +160,7 @@ private:
     Mode m_mode = Display;
     Id m_id;
     StringAspect m_dashboardUrl;
+    StringAspect m_username;
     StringAspect m_description;
     StringAspect m_token;
     BoolAspect m_valid;
@@ -176,9 +173,14 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
     auto labelStyle = mode == Display ? StringAspect::LabelDisplay : StringAspect::LineEditDisplay;
     m_dashboardUrl.setLabelText(Tr::tr("Dashboard URL:"));
     m_dashboardUrl.setDisplayStyle(labelStyle);
-    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit, QString *){
+    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit, QString *) {
         return isUrlValid(edit->text());
     });
+
+    m_username.setLabelText(Tr::tr("Username:"));
+    m_username.setDisplayStyle(labelStyle);
+    m_username.setPlaceHolderText(Tr::tr("User name"));
+
     m_description.setLabelText(Tr::tr("Description:"));
     m_description.setDisplayStyle(labelStyle);
     m_description.setPlaceHolderText(Tr::tr("Non-empty description"));
@@ -192,6 +194,7 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
 
     Form {
         m_dashboardUrl, br,
+        m_username, br,
         m_description, br,
         m_token, br,
         mode == Edit ? normalMargin : noMargin
@@ -204,6 +207,7 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
             ok->setEnabled(m_valid());
         };
         connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
+        connect(&m_username, &BaseAspect::changed, this, checkValidity);
         connect(&m_description, &BaseAspect::changed, this, checkValidity);
         connect(&m_token, &BaseAspect::changed, this, checkValidity);
     }
@@ -217,6 +221,7 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
     else
         result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
     result.dashboard = m_dashboardUrl();
+    result.username = m_username();
     result.description = m_description();
     result.token = m_token();
     return result;
@@ -226,6 +231,7 @@ void DashboardSettingsWidget::setDashboardServer(const AxivionServer &server)
 {
     m_id = server.id;
     m_dashboardUrl.setValue(server.dashboard);
+    m_username.setValue(server.username);
     m_description.setValue(server.description);
     m_token.setValue(server.token);
 }
