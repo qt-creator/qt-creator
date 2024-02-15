@@ -2518,9 +2518,20 @@ TriStateAspect::TriStateAspect(AspectContainer *container,
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(TriState::Default);
-    addOption(onString.isEmpty() ? Tr::tr("Enable") : onString);
-    addOption(offString.isEmpty() ? Tr::tr("Disable") : offString);
-    addOption(defaultString.isEmpty() ? Tr::tr("Leave at Default") : defaultString);
+    SelectionAspect::addOption({});
+    SelectionAspect::addOption({});
+    SelectionAspect::addOption({});
+    setOptionTexts(onString, offString, defaultString);
+}
+
+void TriStateAspect::setOptionTexts(const QString &onString,
+                                    const QString &offString,
+                                    const QString &defaultString)
+{
+    QTC_ASSERT(d->m_options.size() == 3, return);
+    d->m_options[0].displayName = onString.isEmpty() ? Tr::tr("Enable") : onString;
+    d->m_options[1].displayName = offString.isEmpty() ? Tr::tr("Disable") : offString;
+    d->m_options[2].displayName = defaultString.isEmpty() ? Tr::tr("Leave at Default") : defaultString;
 }
 
 TriState TriStateAspect::value() const

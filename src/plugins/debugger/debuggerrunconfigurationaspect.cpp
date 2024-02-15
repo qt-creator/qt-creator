@@ -26,10 +26,8 @@
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
 #include <QDebug>
 #include <QLabel>
-#include <QTextEdit>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -79,26 +77,26 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
         const auto setSummaryText = [this, details] {
             QStringList items;
-            if (m_cppAspect->value() == TriState::Enabled)
+            if (m_cppAspect() == TriState::Enabled)
                 items.append(Tr::tr("Enable C++ debugger."));
-            else if (m_cppAspect->value() == TriState::Default)
+            else if (m_cppAspect() == TriState::Default)
                 items.append(Tr::tr("Try to determine need for C++ debugger."));
 
-            if (m_qmlAspect->value() == TriState::Enabled)
+            if (m_qmlAspect() == TriState::Enabled)
                 items.append(Tr::tr("Enable QML debugger."));
-            else if (m_qmlAspect->value() == TriState::Default)
+            else if (m_qmlAspect() == TriState::Default)
                 items.append(Tr::tr("Try to determine need for QML debugger."));
 
-            items.append(m_overrideStartupAspect->value().isEmpty()
+            items.append(m_overrideStartupAspect().isEmpty()
                              ? Tr::tr("Without additional startup commands.")
                              : Tr::tr("With additional startup commands."));
             details->setSummaryText(items.join(" "));
         };
         setSummaryText();
 
-        connect(m_cppAspect, &BaseAspect::changed, this, setSummaryText);
-        connect(m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
-        connect(m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(&m_cppAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(&m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(&m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
 
         return details;
     });
@@ -109,63 +107,54 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
 
-    m_cppAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
-    m_cppAspect->setLabelText(Tr::tr("C++ debugger:"));
-    m_cppAspect->setSettingsKey("RunConfiguration.UseCppDebugger");
+    m_cppAspect.setSettingsKey("RunConfiguration.UseCppDebugger");
+    m_cppAspect.setLabelText(Tr::tr("C++ debugger:"));
+    m_cppAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
 
-    m_qmlAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
-    m_qmlAspect->setLabelText(Tr::tr("QML debugger:"));
-    m_qmlAspect->setSettingsKey("RunConfiguration.UseQmlDebugger");
+    m_qmlAspect.setSettingsKey("RunConfiguration.UseQmlDebugger");
+    m_qmlAspect.setLabelText(Tr::tr("QML debugger:"));
+    m_qmlAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
 
-    m_pythonAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
-    m_pythonAspect->setLabelText(Tr::tr("Python debugger:"));
-    m_pythonAspect->setSettingsKey("RunConfiguration.UsePythonDebugger");
+    m_pythonAspect.setSettingsKey("RunConfiguration.UsePythonDebugger");
+    m_pythonAspect.setLabelText(Tr::tr("Python debugger:"));
+    m_pythonAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
 
     // Make sure at least one of the debuggers is set to be active.
-    connect(m_cppAspect, &TriStateAspect::changed, this, [this]{
-        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
-            m_qmlAspect->setValue(TriState::Default);
+    connect(&m_cppAspect, &TriStateAspect::changed, this, [this] {
+        if (Utils::allOf({&m_cppAspect, &m_qmlAspect, &m_pythonAspect}, &isDisabled))
+            m_qmlAspect.setValue(TriState::Default);
     });
-    connect(m_qmlAspect, &TriStateAspect::changed, this, [this]{
-        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
-            m_cppAspect->setValue(TriState::Default);
+    connect(&m_qmlAspect, &TriStateAspect::changed, this, [this] {
+        if (Utils::allOf({&m_cppAspect, &m_qmlAspect, &m_pythonAspect}, &isDisabled))
+            m_cppAspect.setValue(TriState::Default);
     });
-    connect(m_qmlAspect, &TriStateAspect::changed, this, [this] {
-        if (Utils::allOf({m_cppAspect, m_qmlAspect, m_pythonAspect}, &isDisabled))
-            m_cppAspect->setValue(TriState::Default);
+    connect(&m_qmlAspect, &TriStateAspect::changed, this, [this] {
+        if (Utils::allOf({&m_cppAspect, &m_qmlAspect, &m_pythonAspect}, &isDisabled))
+            m_cppAspect.setValue(TriState::Default);
     });
 
-    m_multiProcessAspect = new BoolAspect;
-    m_multiProcessAspect->setSettingsKey("RunConfiguration.UseMultiProcess");
-    m_multiProcessAspect->setLabel(Tr::tr("Enable Debugging of Subprocesses"),
+    m_multiProcessAspect.setSettingsKey("RunConfiguration.UseMultiProcess");
+    m_multiProcessAspect.setLabel(Tr::tr("Enable Debugging of Subprocesses"),
                                    BoolAspect::LabelPlacement::AtCheckBox);
 
-    m_overrideStartupAspect = new StringAspect;
-    m_overrideStartupAspect->setSettingsKey("RunConfiguration.OverrideDebuggerStartup");
-    m_overrideStartupAspect->setDisplayStyle(StringAspect::TextEditDisplay);
-    m_overrideStartupAspect->setLabelText(Tr::tr("Additional startup commands:"));
+    m_overrideStartupAspect.setSettingsKey("RunConfiguration.OverrideDebuggerStartup");
+    m_overrideStartupAspect.setDisplayStyle(StringAspect::TextEditDisplay);
+    m_overrideStartupAspect.setLabelText(Tr::tr("Additional startup commands:"));
 }
 
-DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect()
-{
-    delete m_cppAspect;
-    delete m_qmlAspect;
-    delete m_pythonAspect;
-    delete m_multiProcessAspect;
-    delete m_overrideStartupAspect;
-}
+DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect() = default;
 
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
-    m_qmlAspect->setValue(value ? TriState::Enabled : TriState::Disabled);
+    m_qmlAspect.setValue(value ? TriState::Enabled : TriState::Disabled);
 }
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    if (m_cppAspect->value() == TriState::Default)
+    if (m_cppAspect() == TriState::Default)
         return m_target->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    return m_cppAspect->value() == TriState::Enabled;
+    return m_cppAspect() == TriState::Enabled;
 }
 
 static bool projectHasQmlDefines(ProjectExplorer::Project *project)
@@ -185,7 +174,7 @@ static bool projectHasQmlDefines(ProjectExplorer::Project *project)
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (m_qmlAspect->value() == TriState::Default) {
+    if (m_qmlAspect() == TriState::Default) {
         const Core::Context languages = m_target->project()->projectLanguages();
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
             return projectHasQmlDefines(m_target->project());
@@ -199,31 +188,31 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
-    return m_qmlAspect->value() == TriState::Enabled;
+    return m_qmlAspect() == TriState::Enabled;
 }
 
 bool DebuggerRunConfigurationAspect::usePythonDebugger() const
 {
-    if (m_pythonAspect->value() == TriState::Default) {
+    if (m_pythonAspect() == TriState::Default) {
         const Core::Context languages = m_target->project()->projectLanguages();
         return languages.contains(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID);
     }
-    return m_pythonAspect->value() == TriState::Enabled;
+    return m_pythonAspect() == TriState::Enabled;
 }
 
 bool DebuggerRunConfigurationAspect::useMultiProcess() const
 {
-    return m_multiProcessAspect->value();
+    return m_multiProcessAspect();
 }
 
 void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 {
-    m_multiProcessAspect->setValue(value);
+    m_multiProcessAspect.setValue(value);
 }
 
 QString DebuggerRunConfigurationAspect::overrideStartup() const
 {
-    return m_overrideStartupAspect->value();
+    return m_overrideStartupAspect();
 }
 
 int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
@@ -238,31 +227,31 @@ int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
 
 void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
-    m_cppAspect->toMap(map);
-    m_qmlAspect->toMap(map);
-    m_pythonAspect->toMap(map);
-    m_multiProcessAspect->toMap(map);
-    m_overrideStartupAspect->toMap(map);
+    m_cppAspect.toMap(map);
+    m_qmlAspect.toMap(map);
+    m_pythonAspect.toMap(map);
+    m_multiProcessAspect.toMap(map);
+    m_overrideStartupAspect.toMap(map);
 
     // compatibility to old settings
-    map.insert("RunConfiguration.UseCppDebuggerAuto", m_cppAspect->value() == TriState::Default);
-    map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect->value() == TriState::Default);
+    map.insert("RunConfiguration.UseCppDebuggerAuto", m_cppAspect() == TriState::Default);
+    map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect() == TriState::Default);
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const Store &map)
 {
-    m_cppAspect->fromMap(map);
-    m_qmlAspect->fromMap(map);
-    m_pythonAspect->fromMap(map);
+    m_cppAspect.fromMap(map);
+    m_qmlAspect.fromMap(map);
+    m_pythonAspect.fromMap(map);
 
     // respect old project settings
     if (map.value("RunConfiguration.UseCppDebuggerAuto", false).toBool())
-        m_cppAspect->setValue(TriState::Default);
+        m_cppAspect.setValue(TriState::Default);
     if (map.value("RunConfiguration.UseQmlDebuggerAuto", false).toBool())
-        m_qmlAspect->setValue(TriState::Default);
+        m_qmlAspect.setValue(TriState::Default);
 
-    m_multiProcessAspect->fromMap(map);
-    m_overrideStartupAspect->fromMap(map);
+    m_multiProcessAspect.fromMap(map);
+    m_overrideStartupAspect.fromMap(map);
 }
 
 } // namespace Debugger
