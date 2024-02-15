@@ -314,7 +314,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesView = new BaseTreeView(this);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
-    m_issuesModel = new TreeModel;
+    m_issuesModel = new TreeModel(this);
     m_issuesView->setModel(m_issuesModel);
     auto sb = m_issuesView->verticalScrollBar();
     if (QTC_GUARD(sb)) {
@@ -363,7 +363,7 @@ void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
     m_currentTableInfo.emplace(dto);
 
     // update issues table layout - for now just simple approach
-    TreeModel<> *issuesModel = new TreeModel;
+    TreeModel<> *issuesModel = new TreeModel(this);
     QStringList columnHeaders;
     QStringList hiddenColumns;
     for (const Dto::ColumnInfoDto &column : dto.columns) {
