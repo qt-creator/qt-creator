@@ -427,6 +427,10 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
 
     Utils::onFinished(loadQmlTypeDescription(dependenciesPaths), const_cast<PluginDumper*>(this),
             [this, iface, visited](const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
+        if (typesFuture.resultCount() == 0 || typesFuture.isCanceled()) {
+            iface->reportCanceled();
+            return;
+        }
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         FilePaths newDependencies = FileUtils::toFilePathList(typesResult.dependencies);
 
