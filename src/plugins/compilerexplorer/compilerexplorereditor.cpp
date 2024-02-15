@@ -36,7 +36,6 @@
 #include <QCompleter>
 #include <QDesktopServices>
 #include <QDockWidget>
-#include <QNetworkAccessManager>
 #include <QPushButton>
 #include <QSplitter>
 #include <QStackedLayout>
