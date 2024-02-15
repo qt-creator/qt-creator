@@ -42,6 +42,10 @@ bool InternalNodeProperty::isValid() const
 void InternalNodeProperty::remove([[maybe_unused]] const InternalNode::Pointer &node)
 {
     Q_ASSERT(m_node == node);
+
+    auto flowToken = traceToken.tickWithFlow("remove node"_t);
+    node->traceToken.tick(flowToken, "node removed"_t);
+
     m_node.reset();
 }
 
@@ -49,6 +53,10 @@ void InternalNodeProperty::add(const InternalNode::Pointer &node)
 {
     Q_ASSERT(node);
     Q_ASSERT(node->parentProperty());
+
+    auto flowToken = traceToken.tickWithFlow("add node"_t);
+    node->traceToken.tick(flowToken, "node added"_t);
+
     m_node = node;
 }
 
