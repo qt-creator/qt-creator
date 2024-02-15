@@ -295,7 +295,11 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
-    auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
+    auto newNode = std::make_shared<InternalNode>(typeName,
+                                                  majorVersion,
+                                                  minorVersion,
+                                                  internalId,
+                                                  m_traceToken.tickWithFlow("create node"_t));
 
     setTypeId(newNode.get(), typeName);
 

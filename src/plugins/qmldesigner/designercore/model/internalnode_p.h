@@ -51,15 +51,19 @@ public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
 
-    explicit InternalNode(TypeName typeName, int majorVersion, int minorVersion, qint32 internalId)
+    explicit InternalNode(TypeName typeName,
+                          int majorVersion,
+                          int minorVersion,
+                          qint32 internalId,
+                          ModelTracing::Category::FlowTokenType flowTraceToken)
         : typeName(std::move(typeName))
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
-        , traceToken(ModelTracing::category().beginAsynchronous("InternalNode"_t,
-                                                                keyValue("type", typeName),
-                                                                keyValue("internal id", internalId)))
+        , traceToken(flowTraceToken.beginAsynchronous("InternalNode"_t,
+                                                      keyValue("type", typeName),
+                                                      keyValue("internal id", internalId)))
     {}
 
     InternalNodeAbstractProperty::Pointer parentProperty() const { return m_parentProperty.lock(); }

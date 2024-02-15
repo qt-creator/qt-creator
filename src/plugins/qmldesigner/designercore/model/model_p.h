@@ -5,6 +5,8 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include "abstractview.h"
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include "metainfo.h"
@@ -36,6 +38,8 @@ class NodeInstanceView;
 class NodeMetaInfoPrivate;
 
 namespace Internal {
+
+using namespace NanotraceHR::Literals;
 
 class InternalNode;
 class InternalProperty;
@@ -353,6 +357,8 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
+    ModelTracing::AsynchronousToken m_traceToken = ModelTracing::category().beginAsynchronous(
+        "Model"_t);
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };
