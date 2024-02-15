@@ -431,20 +431,11 @@ TextEditorSettings::TextEditorSettings()
     connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
-    auto updateGeneralMessagesBehaviorSettings = []() {
-        bool wheelZoom = d->m_behaviorSettingsPage.behaviorSettings().m_scrollWheelZooming;
-        Core::MessageManager::setWheelZoomEnabled(wheelZoom);
-    };
     connect(this, &TextEditorSettings::behaviorSettingsChanged,
-            this, updateGeneralMessagesBehaviorSettings);
-    updateGeneralMessagesBehaviorSettings();
-
-    auto updateCamelCaseNavigation = [] {
-        FancyLineEdit::setCamelCaseNavigationEnabled(globalBehaviorSettings().m_camelCaseNavigation);
-    };
-    connect(this, &TextEditorSettings::behaviorSettingsChanged,
-            this, updateCamelCaseNavigation);
-    updateCamelCaseNavigation();
+            this, [](const BehaviorSettings &bs) {
+        Core::MessageManager::setWheelZoomEnabled(bs.m_scrollWheelZooming);
+        FancyLineEdit::setCamelCaseNavigationEnabled(bs.m_camelCaseNavigation);
+    });
 }
 
 TextEditorSettings::~TextEditorSettings()
