@@ -128,7 +128,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         if (Utils::allOf({&m_cppAspect, &m_qmlAspect, &m_pythonAspect}, &isDisabled))
             m_cppAspect.setValue(TriState::Default);
     });
-    connect(&m_qmlAspect, &TriStateAspect::changed, this, [this] {
+    connect(&m_pythonAspect, &TriStateAspect::changed, this, [this] {
         if (Utils::allOf({&m_cppAspect, &m_qmlAspect, &m_pythonAspect}, &isDisabled))
             m_cppAspect.setValue(TriState::Default);
     });
