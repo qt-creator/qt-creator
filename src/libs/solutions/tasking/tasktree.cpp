@@ -1849,8 +1849,9 @@ SetupResult TaskTreePrivate::start(RuntimeContainer *container)
     if (startAction == SetupResult::Continue
         && (containerNode.m_children.empty()
             || (containerNode.m_loop && !invokeLoopHandler(container)))) {
+        if (isProgressive(container))
+            advanceProgress(containerNode.m_taskCount);
         startAction = toSetupResult(container->m_successBit);
-        advanceProgress(containerNode.m_taskCount);
     }
     return continueStart(container, startAction);
 }

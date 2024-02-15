@@ -2913,6 +2913,20 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // Check if task tree finishes with the right progress value when nested LoopUntil(false).
+        const Group root {
+            storage,
+            LoopUntil([](int index) { return index < 2; }),
+            Group {
+                LoopUntil([](int) { return false; }),
+                createSuccessTask(1)
+            }
+        };
+        QTest::newRow("ProgressWithNestedLoopUntilFalse")
+            << TestData{storage, root, {}, 1, DoneWith::Success};
+    }
+
+    {
         const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
             return Group {
                 storage,
