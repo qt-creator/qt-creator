@@ -10,6 +10,7 @@
 
 #include <QByteArrayView>
 #include <QStringView>
+#include <QVariant>
 
 #include <array>
 #include <atomic>
@@ -148,6 +149,18 @@ template<typename String>
 void convertToString(String &string, double number)
 {
     string.append(Utils::SmallString::number(number));
+}
+
+template<typename String>
+void convertToString(String &string, const QString &text)
+{
+    convertToString(string, QStringView{text});
+}
+
+template<typename String>
+void convertToString(String &string, const QVariant &value)
+{
+    convertToString(string, value.toString());
 }
 
 template<typename String, typename... Arguments>
