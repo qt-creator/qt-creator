@@ -856,6 +856,10 @@ public:
     {}
 
     template<typename... Arguments>
+    void tick(const FlowTokenType &, ArgumentType, Arguments &&...)
+    {}
+
+    template<typename... Arguments>
     FlowTokenType tickWithFlow(ArgumentType, Arguments &&...)
     {
         return {};
@@ -958,6 +962,19 @@ public:
         if (m_id) {
             m_category().tick(
                 'n', m_id, std::move(name), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
+        }
+    }
+
+    template<typename... Arguments>
+    void tick(const FlowTokenType &flowToken, ArgumentType name, Arguments &&...arguments)
+    {
+        if (m_id) {
+            m_category().tick('n',
+                              m_id,
+                              std::move(name),
+                              flowToken.bindId(),
+                              IsFlow::In,
+                              std::forward<Arguments>(arguments)...);
         }
     }
 
@@ -1150,6 +1167,8 @@ public:
     {
         m_category().tick('i', 0, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
     }
+
+    std::size_t bindId() const { return m_bindId; }
 
 private:
     StringType m_name;
