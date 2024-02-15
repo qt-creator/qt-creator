@@ -33,6 +33,8 @@
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
+#include <utils/networkaccessmanager.h>
+#include <utils/passworddialog.h>
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
 #include <utils/store.h>
@@ -41,6 +43,7 @@
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
+#include <QAuthenticator>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
@@ -136,6 +139,30 @@ void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
         Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
 }
 
+static void initProxyAuthDialog()
+{
+    QObject::connect(Utils::NetworkAccessManager::instance(),
+                     &QNetworkAccessManager::proxyAuthenticationRequired,
+                     Utils::NetworkAccessManager::instance(),
+                     [](const QNetworkProxy &, QAuthenticator *authenticator) {
+                         static bool doNotAskAgain = false;
+
+                         std::optional<QPair<QString, QString>> answer
+                             = Utils::PasswordDialog::getUserAndPassword(
+                                 Tr::tr("Proxy Authentication Required"),
+                                 authenticator->realm(),
+                                 Tr::tr("Do not ask again."),
+                                 {},
+                                 &doNotAskAgain,
+                                 Core::ICore::dialogParent());
+
+                         if (answer) {
+                             authenticator->setUser(answer->first);
+                             authenticator->setPassword(answer->second);
+                         }
+                     });
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
@@ -144,6 +171,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
             continue;
         loadMimeFromPlugin(plugin);
     }
+
+    initProxyAuthDialog();
 
     if (ThemeEntry::availableThemes().isEmpty()) {
         *errorMessage = Tr::tr("No themes found in installation.");
