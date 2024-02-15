@@ -9,7 +9,7 @@ def toggleIssuesFilter(filterName, checked):
         filterMenu = waitForObject("{type='QMenu' unnamed='1' visible='1'}")
         waitFor("filterMenu.visible", 1000)
 
-        filterCategory = waitForObjectItem(filterMenu, filterName)
+        filterCategory = waitForObjectItem(filterMenu, filterName, 1000)
         waitFor("filterCategory.visible", 2000)
         if filterCategory.checked == checked:
             test.log("Filter '%s' has already check state %s - not toggling."
@@ -20,8 +20,8 @@ def toggleIssuesFilter(filterName, checked):
             test.log("Filter '%s' check state changed to %s." % (filterName, checked))
     except:
         t,v = sys.exc_info()[:2]
-        test.log("Exception while toggling filter '%s'" % filterName,
-                 "%s: %s" % (t.__name__, str(v)))
+        test.warning("Exception while toggling filter '%s'" % filterName,
+                     "%s: %s" % (t.__name__, str(v)))
 
 
 def getBuildIssues(ignoreCodeModel=True):
