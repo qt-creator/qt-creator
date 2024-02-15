@@ -773,7 +773,7 @@ PythonSettings::PythonSettings()
     const Tasking::Group recipe {
         Tasking::finishAllAndSuccess,
         Utils::HostOsInfo::isWindowsHost()
-            ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : Tasking::GroupItem({}),
+            ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : Tasking::nullItem,
         AsyncTask<QList<Interpreter>>(onPathSetup, onTaskDone)
     };
     m_taskTreeRunner.start(recipe);
