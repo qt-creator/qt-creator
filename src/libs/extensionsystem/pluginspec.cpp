@@ -175,7 +175,7 @@ public:
     std::optional<QPluginLoader> loader;
     std::optional<QStaticPlugin> staticPlugin;
 
-    IPlugin *plugin;
+    IPlugin *plugin = nullptr;
 };
 
 class PluginSpecPrivate

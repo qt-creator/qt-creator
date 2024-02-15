@@ -1792,7 +1792,7 @@ void PluginManagerPrivate::readPluginPaths()
     for (const QString &pluginFile : pluginFiles(pluginPaths)) {
         expected_str<PluginSpec *> spec = PluginSpecImpl::read(pluginFile);
         if (!spec) {
-            qCWarning(pluginLog).noquote()
+            qCInfo(pluginLog).noquote()
                 << QString("Ignoring plugin \"%1\" because: %2").arg(pluginFile).arg(spec.error());
             continue;
         }
