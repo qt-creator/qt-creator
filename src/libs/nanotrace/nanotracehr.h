@@ -725,101 +725,6 @@ using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgum
 using DisabledToken = Token<StringViewCategory<Tracing::IsDisabled>, Tracing::IsDisabled>;
 
 template<typename Category, Tracing isEnabled>
-class ObjectToken : public BasicDisabledToken
-{
-public:
-    using ArgumentType = typename Category::ArgumentType;
-
-    ObjectToken() = default;
-    ObjectToken(const ObjectToken &) = delete;
-    ObjectToken &operator=(const ObjectToken &) = delete;
-    ObjectToken(ObjectToken &&other) noexcept = default;
-    ObjectToken &operator=(ObjectToken &&other) noexcept = default;
-    ~ObjectToken() = default;
-
-    template<typename... Arguments>
-    void change(ArgumentType, Arguments &&...)
-    {}
-};
-
-template<typename Category>
-class ObjectToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
-{
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
-
-    ObjectToken(std::string_view name, std::size_t id, CategoryFunctionPointer category)
-        : m_name{name}
-        , m_id{id}
-        , m_category{category}
-    {}
-
-public:
-    using StringType = typename Category::StringType;
-    using ArgumentType = typename Category::ArgumentType;
-
-    friend Category;
-
-    ObjectToken(const ObjectToken &other)
-        : m_name{other.m_name}
-        , m_category{other.m_category}
-    {
-        if (other.m_id)
-            m_id = m_category().beginObject(m_name).m_id;
-    }
-
-    ObjectToken &operator=(const ObjectToken &other)
-    {
-        if (this != &other) {
-            ~ObjectToken();
-            if (other.m_id) {
-                m_category = other.m_category;
-                m_name = other.m_name;
-                m_id = other.m_category->beginObject(other.m_name).m_id;
-            }
-        }
-    }
-
-    ObjectToken(ObjectToken &&other) noexcept
-        : m_name{std::move(other.m_name)}
-        , m_id{std::exchange(other.m_id, 0)}
-        , m_category{std::exchange(other.m_category, nullptr)}
-    {}
-
-    ObjectToken &operator=(ObjectToken &&other) noexcept
-    {
-        if (&other != this) {
-            m_name = std::move(other.m_name);
-            m_id = std::exchange(other.m_id, 0);
-            m_category = std::exchange(other.m_category, nullptr);
-        }
-
-        return *this;
-    }
-
-    ~ObjectToken()
-    {
-        if (m_id)
-            m_category().end('e', m_id, std::move(m_name));
-
-        m_id = 0;
-    }
-
-    template<typename... Arguments>
-    void change(ArgumentType name, Arguments &&...arguments)
-    {
-        if (m_id) {
-            m_category().tick(
-                'n', m_id, std::move(name), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-        }
-    }
-
-private:
-    StringType m_name;
-    std::size_t m_id = 0;
-    CategoryFunctionPointer m_category = nullptr;
-};
-
-template<typename Category, Tracing isEnabled>
 class AsynchronousToken : public BasicDisabledToken
 {
 public:
@@ -1184,7 +1089,6 @@ public:
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsDisabled>;
-    using ObjectTokenType = ObjectToken<Category, Tracing::IsDisabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsDisabled>;
     using TracerType = Tracer<Category, std::false_type>;
     using TokenType = Token<Category, Tracing::IsDisabled>;
@@ -1205,12 +1109,6 @@ public:
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
         ArgumentType, Arguments &&...)
     {}
-
-    template<typename... Arguments>
-    [[nodiscard]] ObjectTokenType beginObject(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
 
     template<typename... Arguments>
     [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
@@ -1240,14 +1138,12 @@ public:
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using StringType = typename TraceEvent::StringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsEnabled>;
-    using ObjectTokenType = ObjectToken<Category, Tracing::IsEnabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsEnabled>;
     using TracerType = Tracer<Category, std::true_type>;
     using TokenType = Token<Category, Tracing::IsEnabled>;
     using CategoryFunctionPointer = Category &(*) ();
 
     friend AsynchronousTokenType;
-    friend ObjectTokenType;
     friend TokenType;
     friend FlowTokenType;
     friend TracerType;
@@ -1290,16 +1186,6 @@ public:
         return {std::piecewise_construct,
                 std::forward_as_tuple(PrivateTag{}, traceName, id, m_self),
                 std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] ObjectTokenType beginObject(ArgumentType traceName, Arguments &&...arguments)
-    {
-        std::size_t id = createId();
-
-        begin('b', id, std::move(traceName), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-
-        return {traceName, id, m_self};
     }
 
     template<typename... Arguments>

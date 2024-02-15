@@ -38,7 +38,6 @@ constexpr NanotraceHR::Tracing tracingStatus()
 }
 
 using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
-using ObjectTraceToken = Category::ObjectTokenType;
 using AsynchronousToken = Category::AsynchronousTokenType;
 QMLDESIGNERCORE_EXPORT Category &category();
 
