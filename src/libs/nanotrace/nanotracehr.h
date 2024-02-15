@@ -657,7 +657,7 @@ public:
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
@@ -954,12 +954,12 @@ public:
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.tick('n', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
 
-        return {std::move(name), bindId, m_category};
+        return {PrivateTag{}, std::move(name), bindId, m_category};
     }
 
     template<typename... Arguments>
@@ -1072,9 +1072,9 @@ public:
         std::size_t id = 0;
 
         if (m_bindId) {
-            auto category = m_category();
+            auto &category = m_category();
             id = category.createId();
-            category->begin('b', id, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
+            category.begin('b', id, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
         }
 
         return {std::move(name), id, m_category};
@@ -1088,10 +1088,10 @@ public:
         std::size_t bindId = 0;
 
         if (m_bindId) {
-            auto category = m_category();
+            auto &category = m_category();
             id = category.createId();
             bindId = category.createBindId();
-            category->begin('b', id, name, bindId, IsFlow::InOut, std::forward<Arguments>(arguments)...);
+            category.begin('b', id, name, bindId, IsFlow::InOut, std::forward<Arguments>(arguments)...);
         }
 
         return {std::piecewise_construct,
@@ -1231,6 +1231,9 @@ public:
         m_idCounter = m_globalIdCounter += 1ULL << 32;
         m_bindIdCounter = m_globalBindIdCounter += 1ULL << 32;
     }
+
+    Category(const Category &) = delete;
+    Category &operator=(const Category &) = delete;
 
     template<typename... Arguments>
     [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType traceName,
