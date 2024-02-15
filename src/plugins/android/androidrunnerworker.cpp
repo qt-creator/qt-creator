@@ -210,7 +210,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
                     == Debugger::LldbEngineType;
-    auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
+    auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
     Utils::Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
@@ -242,7 +242,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
 
-    m_extraEnvVars = runControl->aspect<EnvironmentAspect>()->environment;
+    m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
                                            << m_extraEnvVars.toStringList();
 

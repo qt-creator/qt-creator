@@ -53,12 +53,12 @@ public:
         });
 
         setStartModifier([this, runControl] {
-            FilePath controller = runControl->aspect<AppManagerControllerAspect>()->filePath;
-            QString appId = runControl->aspect<AppManagerIdAspect>()->value;
-            QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
-            QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
+            FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
+            QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
+            QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
+            QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
             QStringList envVars;
-            if (auto envAspect = runControl->aspect<EnvironmentAspect>())
+            if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
 
             // Always use the default environment to start the appman-controller in
@@ -115,12 +115,12 @@ public:
         addStartDependency(m_portsGatherer);
 
         setStartModifier([this, runControl] {
-            FilePath controller = runControl->aspect<AppManagerControllerAspect>()->filePath;
-            QString appId = runControl->aspect<AppManagerIdAspect>()->value;
-            QString instanceId = runControl->aspect<AppManagerInstanceIdAspect>()->value;
-            QString documentUrl = runControl->aspect<AppManagerDocumentUrlAspect>()->value;
+            FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
+            QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
+            QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
+            QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
             QStringList envVars;
-            if (auto envAspect = runControl->aspect<EnvironmentAspect>())
+            if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
 
 //            const int perfPort = m_portsGatherer->gdbServer().port();

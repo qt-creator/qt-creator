@@ -97,7 +97,7 @@ public:
 
     void start() final
     {
-        auto perfAspect = runControl()->aspect<PerfRunConfigurationAspect>();
+        auto perfAspect = runControl()->aspectData<PerfRunConfigurationAspect>();
         QTC_ASSERT(perfAspect, reportFailure(); return);
         PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
         QTC_ASSERT(settings, reportFailure(); return);

@@ -139,7 +139,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
 {
     QTC_ASSERT(runTool, return false);
     const RunControl *runControl = runTool->runControl();
-    const auto exeAspect = runControl->aspect<ExecutableAspect>();
+    const auto exeAspect = runControl->aspectData<ExecutableAspect>();
     QTC_ASSERT(exeAspect, return false);
 
     const FilePath bin = FilePath::fromString(exeAspect->executable.path());
@@ -155,7 +155,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
 
     ProcessRunData inferior;
     inferior.command.setExecutable(bin);
-    if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
+    if (const auto argAspect = runControl->aspectData<ArgumentsAspect>())
         inferior.command.setArguments(argAspect->arguments);
     runTool->setInferior(inferior);
     runTool->setSymbolFile(bin);

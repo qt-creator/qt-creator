@@ -529,8 +529,8 @@ void DebuggerRunTool::start()
         return;
     }
 
-    if (auto interpreterAspect = runControl()->aspect<FilePathAspect>()) {
-        if (auto mainScriptAspect = runControl()->aspect<MainScriptAspect>()) {
+    if (auto interpreterAspect = runControl()->aspectData<FilePathAspect>()) {
+        if (auto mainScriptAspect = runControl()->aspectData<MainScriptAspect>()) {
             const FilePath mainScript = mainScriptAspect->filePath;
             const FilePath interpreter = interpreterAspect->filePath;
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
@@ -831,11 +831,11 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     m_runParameters.displayName = runControl->displayName();
 
-    if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
+    if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
         m_runParameters.symbolFile = symbolsAspect->filePath;
-    if (auto terminalAspect = runControl->aspect<TerminalAspect>())
+    if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
         m_runParameters.useTerminal = terminalAspect->useTerminal;
-    if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
+    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
         m_runParameters.runAsRoot = runAsRootAspect->value;
 
     Kit *kit = runControl->kit();
@@ -850,7 +850,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtSourceLocation = qtVersion->sourcePath();
 
-    if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
+    if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
             m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger;

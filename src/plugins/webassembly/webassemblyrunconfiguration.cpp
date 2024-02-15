@@ -210,7 +210,7 @@ public:
 
         setStartModifier([this, runControl, portsGatherer] {
             const QString browserId =
-                    runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser;
+                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
             setCommandLine(emrunCommand(runControl->target(),
                                         runControl->buildKey(),
                                         browserId,

@@ -852,7 +852,7 @@ void RunControlPrivate::showError(const QString &msg)
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
-    if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
+    if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
                 parsers << parser;
@@ -969,12 +969,12 @@ const MacroExpander *RunControl::macroExpander() const
     return d->macroExpander;
 }
 
-const BaseAspect::Data *RunControl::aspect(Id instanceId) const
+const BaseAspect::Data *RunControl::aspectData(Id instanceId) const
 {
     return d->aspectData.aspect(instanceId);
 }
 
-const BaseAspect::Data *RunControl::aspect(BaseAspect::Data::ClassId classId) const
+const BaseAspect::Data *RunControl::aspectData(BaseAspect::Data::ClassId classId) const
 {
     return d->aspectData.aspect(classId);
 }
@@ -1502,11 +1502,11 @@ void SimpleTargetRunner::start()
         d->m_startModifier();
 
     bool useTerminal = false;
-    if (auto terminalAspect = runControl()->aspect<TerminalAspect>())
+    if (auto terminalAspect = runControl()->aspectData<TerminalAspect>())
         useTerminal = terminalAspect->useTerminal;
 
     bool runAsRoot = false;
-    if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
+    if (auto runAsRootAspect = runControl()->aspectData<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
     d->m_stopForced = false;

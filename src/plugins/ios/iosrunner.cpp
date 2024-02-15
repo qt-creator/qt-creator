@@ -114,7 +114,7 @@ DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("IosDeviceCtlRunner");
-    const IosDeviceTypeAspect::Data *data = runControl->aspect<IosDeviceTypeAspect>();
+    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, return);
     m_bundlePath = data->bundleDirectory;
     m_arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
@@ -436,7 +436,7 @@ IosRunner::IosRunner(RunControl *runControl)
 {
     setId("IosRunner");
     stopRunningRunControl(runControl);
-    const IosDeviceTypeAspect::Data *data = runControl->aspect<IosDeviceTypeAspect>();
+    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, return);
     m_bundleDir = data->bundleDirectory;
     m_device = DeviceKitAspect::device(runControl->kit());
@@ -826,7 +826,7 @@ void IosDebugSupport::start()
         setIosPlatform("ios-simulator");
     }
 
-    const IosDeviceTypeAspect::Data *data = runControl()->aspect<IosDeviceTypeAspect>();
+    const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
 
     setRunControlName(data->applicationName);

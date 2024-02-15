@@ -169,7 +169,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 {
     QTC_ASSERT(runTool, return false);
     const RunControl *runControl = runTool->runControl();
-    const auto exeAspect = runControl->aspect<ExecutableAspect>();
+    const auto exeAspect = runControl->aspectData<ExecutableAspect>();
     QTC_ASSERT(exeAspect, return false);
 
     const FilePath bin = exeAspect->executable;
