@@ -2927,6 +2927,31 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // Check if task tree finishes with the right progress value when onGroupSetup(false).
+        const Group root {
+            storage,
+            onGroupSetup([] { return SetupResult::StopWithSuccess; }),
+            createSuccessTask(1)
+        };
+        QTest::newRow("ProgressWithGroupSetupFalse")
+            << TestData{storage, root, {}, 1, DoneWith::Success};
+    }
+
+    {
+        // Check if task tree finishes with the right progress value when nested LoopUntil(false).
+        const Group root {
+            storage,
+            LoopUntil([](int index) { return index < 2; }),
+            Group {
+                onGroupSetup([] { return SetupResult::StopWithSuccess; }),
+                createSuccessTask(1)
+            }
+        };
+        QTest::newRow("ProgressWithNestedGroupSetupFalse")
+            << TestData{storage, root, {}, 1, DoneWith::Success};
+    }
+
+    {
         const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
             return Group {
                 storage,
