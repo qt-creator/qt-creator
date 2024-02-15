@@ -366,6 +366,8 @@ static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDone
 TASKING_EXPORT GroupItem parallelLimit(int limit);
 TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
+TASKING_EXPORT extern const GroupItem nullItem;
+
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
 

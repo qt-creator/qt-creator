@@ -2952,6 +2952,25 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        const auto recipe = [storage, createSuccessTask](bool withTask) {
+            return Group {
+                storage,
+                withTask ? createSuccessTask(1) : nullItem
+            };
+        };
+
+        const Log withTaskLog {
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+
+        QTest::newRow("RecipeWithTask")
+            << TestData{storage, recipe(true), withTaskLog, 1, DoneWith::Success};
+        QTest::newRow("RecipeWithNull")
+            << TestData{storage, recipe(false), {}, 0, DoneWith::Success};
+    }
+
+    {
         const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
             return Group {
                 storage,
