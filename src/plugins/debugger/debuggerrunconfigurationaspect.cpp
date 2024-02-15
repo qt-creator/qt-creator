@@ -53,12 +53,12 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     setConfigWidgetCreator([this] {
         Layouting::Grid builder;
         builder.addRow({m_cppAspect});
-        builder.addRow({m_pythonAspect});
         auto info = new QLabel(
             Tr::tr("<a href=\""
                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
                    "\">What are the prerequisites?</a>"));
         builder.addRow({m_qmlAspect, info});
+        builder.addRow({m_pythonAspect});
         connect(info, &QLabel::linkActivated, [](const QString &link) {
             Core::HelpManager::showHelpUrl(link);
         });
@@ -76,26 +76,28 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         builder.attachTo(innerPane);
 
         const auto setSummaryText = [this, details] {
-            QStringList items;
-            if (m_cppAspect() == TriState::Enabled)
-                items.append(Tr::tr("Enable C++ debugger."));
-            else if (m_cppAspect() == TriState::Default)
-                items.append(Tr::tr("Try to determine need for C++ debugger."));
+            const auto describe = [](const TriStateAspect &aspect, const QString &name) {
+                if (aspect() == TriState::Enabled)
+                    return Tr::tr("Enable %1 debugger.").arg(name);
+                if (aspect() == TriState::Disabled)
+                    return Tr::tr("Disable %1 debugger.").arg(name);
+                return Tr::tr("Try to determine need for %1 debugger.").arg(name);
+            };
 
-            if (m_qmlAspect() == TriState::Enabled)
-                items.append(Tr::tr("Enable QML debugger."));
-            else if (m_qmlAspect() == TriState::Default)
-                items.append(Tr::tr("Try to determine need for QML debugger."));
-
-            items.append(m_overrideStartupAspect().isEmpty()
-                             ? Tr::tr("Without additional startup commands.")
-                             : Tr::tr("With additional startup commands."));
-            details->setSummaryText(items.join(" "));
+            details->setSummaryText(QStringList{
+                describe(m_cppAspect, "C++"),
+                describe(m_qmlAspect, "QML"),
+                describe(m_pythonAspect, "Python"),
+                m_overrideStartupAspect().isEmpty()
+                                 ? Tr::tr("No additional startup commands.")
+                                 : Tr::tr("Use additional startup commands.")
+            }.join(" "));
         };
         setSummaryText();
 
         connect(&m_cppAspect, &BaseAspect::changed, this, setSummaryText);
         connect(&m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(&m_pythonAspect, &BaseAspect::changed, this, setSummaryText);
         connect(&m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
 
         return details;
@@ -179,7 +181,6 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
             return projectHasQmlDefines(m_target->project());
 
-        //
         // Try to find a build configuration to check whether qml debugging is enabled there
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
             if (const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>())
