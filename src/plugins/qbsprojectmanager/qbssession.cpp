@@ -413,6 +413,7 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     QTimer::singleShot(10000, &session, [&session] { session.d->eventLoop.exit(1); });
     connect(&session, &QbsSession::errorOccurred, [&] {
         bgInfo.error = ErrorInfo(Tr::tr("Failed to load qbs build graph."));
+        session.d->eventLoop.quit();
     });
     connect(&session, &QbsSession::projectResolved, [&](const ErrorInfo &error) {
         bgInfo.error = error;
