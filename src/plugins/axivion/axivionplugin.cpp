@@ -168,6 +168,8 @@ QString IssueListSearch::toQuery() const
     return result;
 }
 
+enum class ServerAccess { Unknown, NoAuthorization, WithAuthorization };
+
 class AxivionPluginPrivate : public QObject
 {
 public:
@@ -182,7 +184,10 @@ public:
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void fetchIssueInfo(const QString &id);
 
-    std::optional<QByteArray> m_apiToken; // TODO: Should be cleared on settings modification
+    // TODO: Should be set to Unknown on server address change in settings.
+    ServerAccess m_serverAccess = ServerAccess::Unknown;
+    // TODO: Should be cleared on username change in settings.
+    std::optional<QByteArray> m_apiToken;
     NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
     std::optional<DashboardInfo> m_dashboardInfo;
@@ -364,8 +369,8 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
 template <typename DtoType>
 struct GetDtoStorage
 {
-    QByteArray credential;
     QUrl url;
+    std::optional<QByteArray> credential;
     std::optional<DtoType> dtoData;
 };
 
@@ -377,7 +382,8 @@ static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
     const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
         QNetworkRequest request(dtoStorage->url);
         request.setRawHeader("Accept", s_jsonContentType);
-        request.setRawHeader("Authorization", dtoStorage->credential);
+        if (dtoStorage->credential) // Unauthorized access otherwise
+            request.setRawHeader("Authorization", *dtoStorage->credential);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
                               "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
         request.setRawHeader("X-Axivion-User-Agent", ua);
@@ -455,8 +461,8 @@ static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
 template <typename DtoType>
 struct PostDtoStorage
 {
-    QByteArray credential;
     QUrl url;
+    std::optional<QByteArray> credential;
     QByteArray csrfToken;
     QByteArray writeData;
     std::optional<DtoType> dtoData;
@@ -470,7 +476,8 @@ static Group postDtoRecipe(const Storage<PostDtoStorage<DtoType>> &dtoStorage)
     const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
         QNetworkRequest request(dtoStorage->url);
         request.setRawHeader("Accept", s_jsonContentType);
-        request.setRawHeader("Authorization", dtoStorage->credential);
+        if (dtoStorage->credential) // Unauthorized access otherwise
+            request.setRawHeader("Authorization", *dtoStorage->credential);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
                               "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
         request.setRawHeader("X-Axivion-User-Agent", ua);
@@ -543,10 +550,28 @@ static Group postDtoRecipe(const Storage<PostDtoStorage<DtoType>> &dtoStorage)
 
 static Group authorizationRecipe()
 {
-    const Storage<QString> passwordStorage;
-    const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const Storage<PostDtoStorage<Dto::ApiTokenInfoDto>> apiTokenStorage;
+    const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
+    const auto onUnauthorizedGroupSetup = [unauthorizedDashboardStorage] {
+        if (dd->m_serverAccess != ServerAccess::NoAuthorization)
+            return SetupResult::StopWithSuccess;
 
+        unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
+        return SetupResult::Continue;
+    };
+    const auto onUnauthorizedGroupDone = [unauthorizedDashboardStorage] {
+        if (unauthorizedDashboardStorage->dtoData) {
+            dd->m_serverAccess = ServerAccess::NoAuthorization;
+            dd->m_dashboardInfo = toDashboardInfo(settings().server.dashboard,
+                                                  *unauthorizedDashboardStorage->dtoData);
+        } else {
+            dd->m_serverAccess = ServerAccess::WithAuthorization;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onCredentialLoopCondition = [](int) {
+        return dd->m_serverAccess == ServerAccess::WithAuthorization && !dd->m_apiToken;
+    };
     const auto onGetCredentialSetup = [](CredentialQuery &credential) {
         credential.setOperation(CredentialOperation::Get);
         credential.setService(s_axivionKeychainService);
@@ -557,6 +582,9 @@ static Group authorizationRecipe()
             dd->m_apiToken = credential.data();
         // TODO: Show the message about keystore error and info that we can't authorize without it.
     };
+
+    const Storage<QString> passwordStorage;
+    const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
     const auto onDashboardGroupSetup = [passwordStorage, dashboardStorage] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
@@ -575,6 +603,7 @@ static Group authorizationRecipe()
         return SetupResult::Continue;
     };
 
+    const Storage<PostDtoStorage<Dto::ApiTokenInfoDto>> apiTokenStorage;
     const auto onApiTokenGroupSetup = [passwordStorage, dashboardStorage, apiTokenStorage] {
         if (!dashboardStorage->dtoData)
             return SetupResult::StopWithSuccess;
@@ -609,9 +638,14 @@ static Group authorizationRecipe()
     };
 
     return {
-        // TODO: Try unauthorized access first
         Group {
-            LoopUntil([](int) { return !dd->m_apiToken; }),
+            unauthorizedDashboardStorage,
+            onGroupSetup(onUnauthorizedGroupSetup),
+            getDtoRecipe(unauthorizedDashboardStorage),
+            onGroupDone(onUnauthorizedGroupDone)
+        },
+        Group {
+            LoopUntil(onCredentialLoopCondition),
             CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone),
             Group {
                 passwordStorage,
