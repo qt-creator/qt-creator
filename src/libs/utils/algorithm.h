@@ -22,7 +22,9 @@
 
 #include <memory>
 #include <optional>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace Utils
 {
@@ -1530,6 +1532,17 @@ template <class Key, class T>
 void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
 {
     result->insert(additionalContents);
+}
+
+template <typename Tuple, std::size_t... I>
+static std::size_t tupleHashHelper(uint seed, const Tuple &tuple, std::index_sequence<I...>)
+{
+    return qHashMulti(seed, (std::get<I>(tuple), ...));
+}
+
+template<typename... T> std::size_t qHash(const std::tuple<T...> &tuple, uint seed = 0)
+{
+    return tupleHashHelper(seed, tuple, std::make_index_sequence<sizeof...(T)>());
 }
 
 // Workaround for missing information from QSet::insert()

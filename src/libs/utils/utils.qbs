@@ -77,6 +77,7 @@ QtcLibrary {
         "cpplanguage_details.h",
         "crumblepath.cpp",
         "crumblepath.h",
+        "datafromprocess.h",
         "delegates.cpp",
         "delegates.h",
         "detailsbutton.cpp",

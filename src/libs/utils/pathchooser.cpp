@@ -5,6 +5,7 @@
 
 #include "async.h"
 #include "commandline.h"
+#include "datafromprocess.h"
 #include "environment.h"
 #include "fileutils.h"
 #include "guard.h"
@@ -130,15 +131,12 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
 
 QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
 {
-    if (cmd.executable().isEmpty())
-        return QString();
-    Process proc;
-    proc.setCommand(cmd);
+    DataFromProcess<QString>::Parameters params(cmd, [](const QString &output) { return output; });
     using namespace std::chrono_literals;
-    proc.runBlocking(1s);
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
-    return proc.allOutput();
+    params.timeout = 1s;
+    if (const auto version = DataFromProcess<QString>::getData(params))
+        return *version;
+    return {};
 }
 
 // Extends BinaryVersionToolTipEventFilter to prepend the existing pathchooser

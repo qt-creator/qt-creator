@@ -230,7 +230,7 @@ VersionAndSuffix ClangToolsSettings::clangTidyVersion()
 
 QVersionNumber ClangToolsSettings::clazyVersion()
 {
-    return ClazyStandaloneInfo::getInfo(Internal::toolExecutable(ClangToolType::Clazy)).version;
+    return ClazyStandaloneInfo(Internal::toolExecutable(ClangToolType::Clazy)).version;
 }
 
 } // namespace Internal

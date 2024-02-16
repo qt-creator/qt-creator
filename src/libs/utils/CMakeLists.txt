@@ -31,6 +31,7 @@ add_qtc_library(Utils
     completingtextedit.cpp completingtextedit.h
     cpplanguage_details.h
     crumblepath.cpp crumblepath.h
+    datafromprocess.h
     delegates.cpp delegates.h
     detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h

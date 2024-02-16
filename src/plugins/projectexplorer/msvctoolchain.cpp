@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -41,8 +42,6 @@
 #include <QDateTime>
 #include <QFormLayout>
 #include <QLabel>
-
-#include <utility>
 
 using namespace Utils;
 
@@ -1580,7 +1579,6 @@ private:
     FilePath m_filePath;
     QVersionNumber m_version;
     Abi m_defaultAbi;
-    static inline QHash<FilePath, std::pair<ClangClInfo, QDateTime>> m_cache;
 };
 
 static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
@@ -2280,18 +2278,8 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    auto &entry = m_cache[filePath];
-    ClangClInfo &info = entry.first;
-    const QDateTime lastModified = filePath.lastModified();
-    if (entry.second == lastModified)
-        return info;
-
-    entry.second = lastModified;
-    Process clangClProcess;
-    clangClProcess.setCommand({filePath, {"--version"}});
-    clangClProcess.runBlocking();
-    if (clangClProcess.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = clangClProcess.cleanedStdOut();
+    static const auto parser = [](const QString &stdOut) {
+        ClangClInfo info;
         const QRegularExpressionMatch versionMatch
             = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);
         if (versionMatch.hasMatch())
@@ -2314,9 +2302,10 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
                                         detectedAbi.wordWidth());
             }
         }
-    }
-    m_cache.insert(filePath, entry);
-    return info;
+        return info;
+    };
+    const auto info = DataFromProcess<ClangClInfo>::getData({{filePath, {"--version"}}, parser});
+    return info ? *info : ClangClInfo();
 }
 
 } // namespace ProjectExplorer::Internal
