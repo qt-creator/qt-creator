@@ -700,7 +700,7 @@ void NavigatorView::updateItemSelection()
     blockSelectionChangedSignal(blocked);
 
     if (!selectedModelNodes().isEmpty())
-        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constFirst()));
+        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constLast()));
 
     // make sure selected nodes are visible
     for (const QModelIndex &selectedIndex : itemSelection.indexes()) {
