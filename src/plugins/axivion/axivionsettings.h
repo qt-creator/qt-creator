@@ -26,7 +26,6 @@ public:
     Utils::Id id;
     QString dashboard;
     QString username;
-    QString description;
 
     bool validateCert = true;
 };
