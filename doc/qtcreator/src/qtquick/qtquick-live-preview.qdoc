@@ -15,10 +15,7 @@
     You can use the live preview feature to preview a UI file or the entire
     UI on the desktop, as well as on embedded Linux
     devices. The changes you make to the UI are instantly visible
-    to you in the preview. While the preview is available on Android devices,
-    it does not instantly reflect the changes made to the UI in the editor. It
-    shows the snapshot of your project from the moment you start the preview on
-    the device.
+    to you in the preview.
 
     In addition, you can use \QDV to run
     \if defined(qtcreator)
@@ -52,15 +49,15 @@
             \endif
 
         \if defined(qtdesignstudio)
-        \li \l{Previewing Android applications}
-
-            You can preview Android applications live using an Android
-            emulator.
 
         \li \l{Sharing Applications Online}
 
             You can share applications online and view them in a web browser.
 
+        \li \l{Viewing Applications on Android}
+
+           Preview your \QDS projects with \QUV. It is an application
+           that runs on your Android device.
         \else
         \li \l{Previewing in Browsers}
 

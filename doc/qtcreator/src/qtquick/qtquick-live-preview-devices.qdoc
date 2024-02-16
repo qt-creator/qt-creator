@@ -4,11 +4,8 @@
 /*!
     \previouspage creator-live-preview-desktop.html
     \page creator-live-preview-devices.html
-    \if defined(qtdesignstudio)
-    \nextpage creator-live-preview-android.html
-    \else
     \nextpage qt-design-viewer.html
-    \endif
+
     \title Previewing on Devices
 
     To preview UIs on Android devices, you need to enable USB debugging on them
@@ -47,6 +44,7 @@
 
     \section2 Previewing on Android Devices
 
+    \if defined(qtcreator)
     The USB debugging feature on Android devices enables creating connections
     to the devices from \QDS and running the preview utility on them.
 
@@ -63,6 +61,12 @@
     is copied to them. This might take some time. Thereafter, previewing will
     get faster because only the UI files need to be copied to the
     device.
+    \else
+    Preview your \QDS projects with \QUV. It is an application
+    that runs on your Android device.
+    Learn more about \l{Viewing Applications on Android}.
+    \endif
+
 
     \section2 Previewing on Boot2Qt Devices
 

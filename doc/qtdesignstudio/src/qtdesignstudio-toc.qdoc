@@ -134,11 +134,11 @@
                     \list
                         \li \l{Previewing on Desktop}
                         \li \l{Previewing on Devices}
-                        \li \l{Previewing Android Applications}
                         \li \l{Sharing Applications Online}
                           \list
                             \li \l{Creating a Single Page Navigation Web Application}
                           \endlist
+                        \li \l {Viewing Applications on Android}
                     \endlist
                 \li \l {Asset Creation with Other Tools}
                     \list
