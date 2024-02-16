@@ -541,13 +541,11 @@ static Group postDtoRecipe(const Storage<PostDtoStorage<DtoType>> &dtoStorage)
     return recipe;
 };
 
-template<typename DtoType>
-static Group fetchDataRecipe(const QUrl &url, const std::function<void(const DtoType &)> &handler)
+static Group authorizationRecipe()
 {
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
     const Storage<PostDtoStorage<Dto::ApiTokenInfoDto>> apiTokenStorage;
-    const Storage<GetDtoStorage<DtoType>> dtoStorage;
 
     const auto onGetCredentialSetup = [](CredentialQuery &credential) {
         credential.setOperation(CredentialOperation::Get);
@@ -610,20 +608,8 @@ static Group fetchDataRecipe(const QUrl &url, const std::function<void(const Dto
         return SetupResult::Continue;
     };
 
-    const auto onDtoSetup = [dtoStorage, url] {
-        if (!dd->m_apiToken)
-            return SetupResult::StopWithError;
-
-        dtoStorage->credential = "AxToken " + *dd->m_apiToken;
-        dtoStorage->url = url;
-        return SetupResult::Continue;
-    };
-    const auto onDtoDone = [dtoStorage, handler] {
-        if (dtoStorage->dtoData)
-            handler(*dtoStorage->dtoData);
-    };
-
-    const Group recipe {
+    return {
+        // TODO: Try unauthorized access first
         Group {
             LoopUntil([](int) { return !dd->m_apiToken; }),
             CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone),
@@ -642,7 +628,30 @@ static Group fetchDataRecipe(const QUrl &url, const std::function<void(const Dto
                     CredentialQueryTask(onSetCredentialSetup)
                 }
             }
-        },
+        }
+    };
+}
+
+template<typename DtoType>
+static Group fetchDataRecipe(const QUrl &url, const std::function<void(const DtoType &)> &handler)
+{
+    const Storage<GetDtoStorage<DtoType>> dtoStorage;
+
+    const auto onDtoSetup = [dtoStorage, url] {
+        if (!dd->m_apiToken)
+            return SetupResult::StopWithError;
+
+        dtoStorage->credential = "AxToken " + *dd->m_apiToken;
+        dtoStorage->url = url;
+        return SetupResult::Continue;
+    };
+    const auto onDtoDone = [dtoStorage, handler] {
+        if (dtoStorage->dtoData)
+            handler(*dtoStorage->dtoData);
+    };
+
+    const Group recipe {
+        authorizationRecipe(),
         Group {
             dtoStorage,
             onGroupSetup(onDtoSetup),
