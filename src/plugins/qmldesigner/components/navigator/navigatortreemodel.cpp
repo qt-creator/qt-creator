@@ -933,7 +933,7 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
     if (index.column() == ColumnType::Alias && role == Qt::CheckStateRole) {
         m_view->handleChangedExport(modelNode, value.toInt() != 0);
     } else if (index.column() == ColumnType::Visibility && role == Qt::CheckStateRole) {
-        if (m_view->isPartOfMaterialLibrary(modelNode))
+        if (m_view->isPartOfMaterialLibrary(modelNode) || QmlItemNode(modelNode).isEffectItem())
             return false;
         QmlVisualNode(modelNode).setVisibilityOverride(value.toInt() == 0);
     } else if (index.column() == ColumnType::Lock && role == Qt::CheckStateRole) {
