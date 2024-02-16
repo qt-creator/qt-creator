@@ -98,7 +98,9 @@ public:
     static void addContextObject(IContext *context);
     static void removeContextObject(IContext *context);
 
-    static void registerWindow(QWidget *window, const Context &context);
+    static void registerWindow(QWidget *window,
+                               const Context &context,
+                               const Context &actionContext = {});
     static void restartTrimmer();
 
     enum OpenFilesFlags {

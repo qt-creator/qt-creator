@@ -1011,14 +1011,15 @@ void ICore::removeAdditionalContext(const Context &context)
     Registers a \a window with the specified \a context. Registered windows are
     shown in the \uicontrol Window menu and get registered for the various
     window related actions, like the minimize, zoom, fullscreen and close
-    actions.
+    actions. The context for the actions is \a context by default, but can be
+    overridden with \a actionContext.
 
     Whenever the application focus is in \a window, its \a context is made
     active.
 */
-void ICore::registerWindow(QWidget *window, const Context &context)
+void ICore::registerWindow(QWidget *window, const Context &context, const Context &actionContext)
 {
-    new WindowSupport(window, context); // deletes itself when widget is destroyed
+    new WindowSupport(window, context, actionContext); // deletes itself when widget is destroyed
 }
 
 /*!

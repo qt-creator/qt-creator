@@ -40,7 +40,7 @@ class WindowSupport : public QObject
 {
     Q_OBJECT
 public:
-    WindowSupport(QWidget *window, const Context &context);
+    WindowSupport(QWidget *window, const Context &context, const Context &actionContext = {});
     ~WindowSupport() override;
 
     void setCloseActionEnabled(bool enabled);

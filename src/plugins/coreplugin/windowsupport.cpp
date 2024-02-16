@@ -28,9 +28,9 @@ namespace Internal {
 
 Q_GLOBAL_STATIC(WindowList, m_windowList)
 
-WindowSupport::WindowSupport(QWidget *window, const Context &context)
-    : QObject(window),
-      m_window(window)
+WindowSupport::WindowSupport(QWidget *window, const Context &context, const Context &actionContext)
+    : QObject(window)
+    , m_window(window)
 {
     m_window->installEventFilter(this);
 
@@ -38,14 +38,15 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
     m_contextObject->setWidget(window);
     m_contextObject->setContext(context);
     ICore::addContextObject(m_contextObject);
+    const Context ac = actionContext.isEmpty() ? context : actionContext;
 
     if (useMacShortcuts) {
         m_minimizeAction = new QAction(this);
-        ActionManager::registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, context);
+        ActionManager::registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, ac);
         connect(m_minimizeAction, &QAction::triggered, m_window, &QWidget::showMinimized);
 
         m_zoomAction = new QAction(this);
-        ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, context);
+        ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, ac);
         connect(m_zoomAction, &QAction::triggered, m_window, [this] {
             if (m_window->isMaximized()) {
                 // similar to QWidget::showMaximized
@@ -58,13 +59,13 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
         });
 
         m_closeAction = new QAction(this);
-        ActionManager::registerAction(m_closeAction, Constants::CLOSE_WINDOW, context);
+        ActionManager::registerAction(m_closeAction, Constants::CLOSE_WINDOW, ac);
         connect(m_closeAction, &QAction::triggered, m_window, &QWidget::close, Qt::QueuedConnection);
     }
 
     m_toggleFullScreenAction = new QAction(this);
     updateFullScreenAction();
-    ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, context);
+    ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, ac);
     connect(m_toggleFullScreenAction, &QAction::triggered, this, &WindowSupport::toggleFullScreen);
 
     m_windowList->addWindow(window);
