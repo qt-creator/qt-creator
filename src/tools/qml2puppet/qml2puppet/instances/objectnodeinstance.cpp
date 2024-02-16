@@ -291,7 +291,7 @@ static void removeObjectFromList(const QQmlProperty &property,
 
     int count = listReference.count();
 
-    QObjectList objectList;
+    QList<QPointer<QObject>> objectList;
 
     for (int i = 0; i < count; i ++) {
         QObject *listItem = listReference.at(i);
@@ -301,8 +301,10 @@ static void removeObjectFromList(const QQmlProperty &property,
 
     listReference.clear();
 
-    for (QObject *object : std::as_const(objectList))
-        listReference.append(object);
+    for (QObject *object : std::as_const(objectList)) {
+        if (object)
+            listReference.append(object);
+    }
 }
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const PropertyName &oldParentProperty)
