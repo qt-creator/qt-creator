@@ -361,7 +361,17 @@ struct GetDtoStorage
 };
 
 template <typename DtoType>
-static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
+struct PostDtoStorage
+{
+    QUrl url;
+    std::optional<QByteArray> credential;
+    QByteArray csrfToken;
+    QByteArray writeData;
+    std::optional<DtoType> dtoData;
+};
+
+template <typename DtoType, template <typename> typename DtoStorageType>
+static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 {
     const Storage<QByteArray> storage;
 
@@ -373,6 +383,14 @@ static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
                               "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
         request.setRawHeader("X-Axivion-User-Agent", ua);
+
+        if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>) {
+            request.setRawHeader("Content-Type", "application/json");
+            request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
+            query.setWriteData(dtoStorage->writeData);
+            query.setOperation(NetworkOperation::Post);
+        }
+
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
     };
@@ -436,103 +454,12 @@ static Group getDtoRecipe(const Storage<GetDtoStorage<DtoType>> &dtoStorage)
         }
     };
 
-    const Group recipe {
+    return {
         storage,
         NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
         AsyncTask<DtoType>(onDeserializeSetup, onDeserializeDone)
     };
-    return recipe;
-};
-
-template <typename DtoType>
-struct PostDtoStorage
-{
-    QUrl url;
-    std::optional<QByteArray> credential;
-    QByteArray csrfToken;
-    QByteArray writeData;
-    std::optional<DtoType> dtoData;
-};
-
-template <typename DtoType>
-static Group postDtoRecipe(const Storage<PostDtoStorage<DtoType>> &dtoStorage)
-{
-    const Storage<QByteArray> storage;
-
-    const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
-        QNetworkRequest request(dtoStorage->url);
-        request.setRawHeader("Accept", s_jsonContentType);
-        if (dtoStorage->credential) // Unauthorized access otherwise
-            request.setRawHeader("Authorization", *dtoStorage->credential);
-        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
-                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader("X-Axivion-User-Agent", ua);
-        request.setRawHeader("Content-Type", "application/json");
-        request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
-        query.setRequest(request);
-        query.setWriteData(dtoStorage->writeData);
-        query.setOperation(NetworkOperation::Post);
-        query.setNetworkAccessManager(&dd->m_networkAccessManager);
-    };
-
-    const auto onNetworkQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
-        QNetworkReply *reply = query.reply();
-        const QNetworkReply::NetworkError error = reply->error();
-        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
-        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == s_jsonContentType) {
-            *storage = reply->readAll();
-            return DoneResult::Success;
-        }
-
-        const auto getError = [&]() -> Error {
-            if (contentType == s_jsonContentType) {
-                try {
-                    return DashboardError(reply->url(), statusCode,
-                                          reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                          Dto::ErrorDto::deserialize(reply->readAll()));
-                } catch (const Dto::invalid_dto_exception &) {
-                    // ignore
-                }
-            }
-            if (statusCode != 0) {
-                return HttpError(reply->url(), statusCode,
-                                 reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                 QString::fromUtf8(reply->readAll())); // encoding?
-            }
-            return NetworkError(reply->url(), error, reply->errorString());
-        };
-
-        MessageManager::writeFlashing(QStringLiteral("Axivion: %1").arg(getError().message()));
-        return DoneResult::Error;
-    };
-
-    const auto onDeserializeSetup = [storage](Async<DtoType> &task) {
-        const auto deserialize = [](QPromise<DtoType> &promise, const QByteArray &input) {
-            promise.addResult(DtoType::deserialize(input));
-        };
-        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        task.setConcurrentCallData(deserialize, *storage);
-    };
-
-    const auto onDeserializeDone = [dtoStorage](const Async<DtoType> &task, DoneWith doneWith) {
-        if (doneWith == DoneWith::Success)
-            dtoStorage->dtoData = task.future().result();
-    };
-
-    const Group recipe {
-        storage,
-        NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
-        AsyncTask<DtoType>(onDeserializeSetup, onDeserializeDone)
-    };
-    return recipe;
-};
+}
 
 static Group authorizationRecipe()
 {
@@ -627,7 +554,7 @@ static Group authorizationRecipe()
         Group {
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
-            getDtoRecipe(unauthorizedDashboardStorage),
+            dtoRecipe(unauthorizedDashboardStorage),
             onGroupDone(onUnauthorizedGroupDone)
         },
         Group {
@@ -639,12 +566,12 @@ static Group authorizationRecipe()
                 onGroupSetup(onDashboardGroupSetup),
                 Group { // GET DashboardInfoDto
                     finishAllAndSuccess,
-                    getDtoRecipe(dashboardStorage),
+                    dtoRecipe(dashboardStorage)
                 },
                 Group { // POST ApiTokenCreationRequestDto, GET ApiTokenInfoDto.
                     apiTokenStorage,
                     onGroupSetup(onApiTokenGroupSetup),
-                    postDtoRecipe(apiTokenStorage),
+                    dtoRecipe(apiTokenStorage),
                     CredentialQueryTask(onSetCredentialSetup)
                 }
             }
@@ -675,7 +602,7 @@ static Group fetchDataRecipe(const QUrl &url, const std::function<void(const Dto
         Group {
             dtoStorage,
             onGroupSetup(onDtoSetup),
-            getDtoRecipe(dtoStorage),
+            dtoRecipe(dtoStorage),
             onGroupDone(onDtoDone)
         }
     };
