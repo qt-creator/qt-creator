@@ -171,6 +171,9 @@ private:
     void checkQtSdkPdbFiles(const QString &module);
     BreakpointParameters parseBreakPoint(const GdbMi &gdbmi);
 
+    void debugLastCommand() final;
+    DebuggerCommand m_lastDebuggableCommand;
+
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);
 
