@@ -176,8 +176,8 @@ void DebuggerRunTool::setBreakOnMainNextTime()
 
 void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
 {
+    m_runParameters.startMode = startMode;
     if (startMode == AttachToQmlServer) {
-        m_runParameters.startMode = AttachToRemoteProcess;
         m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = true;
         m_runParameters.closeMode = KillAtClose;
@@ -194,9 +194,6 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
             m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
         if (!projects.isEmpty())
             m_runParameters.projectSourceDirectory = projects.first()->projectDirectory();
-
-    } else {
-        m_runParameters.startMode = startMode;
     }
 }
 
