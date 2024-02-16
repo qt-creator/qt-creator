@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 @if %{IsQt6}
-    const QUrl url(u"qrc:/%{JS: value('ProjectName')}/main.qml"_qs);
+    const QUrl url(QStringLiteral("qrc:/%{JS: value('ProjectName')}/main.qml"));
 @else
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 @endif
