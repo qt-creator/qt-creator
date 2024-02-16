@@ -22,6 +22,8 @@ StudioControls.ComboBox {
 
     readonly property int popupHeight: Math.min(800, row.height + 2)
 
+    property bool nodeJustAdded: false
+
     function calculateWindowGeometry() {
         var globalPos = EffectComposerBackend.rootView.globalPos(mainRoot.mapFromItem(root, 0, 0))
         var screenRect = EffectComposerBackend.rootView.screenRect();
@@ -117,6 +119,7 @@ StudioControls.ComboBox {
                                     onAddEffectNode: (nodeQenPath) => {
                                         EffectComposerBackend.rootView.addEffectNode(modelData.nodeQenPath)
                                         root.popup.close()
+                                        root.nodeJustAdded = true
                                     }
                                 }
                             }

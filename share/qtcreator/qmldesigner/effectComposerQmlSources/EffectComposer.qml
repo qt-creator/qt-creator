@@ -145,6 +145,8 @@ ColumnLayout {
                 color: StudioTheme.Values.themeToolbarBackground
 
                 EffectNodesComboBox {
+                    id: nodesComboBox
+
                     mainRoot: root
 
                     anchors.verticalCenter: parent.verticalCenter
@@ -196,6 +198,14 @@ ColumnLayout {
                     anchors.fill: parent
                     clip: true
                     interactive: !HelperWidgets.Controller.contextMenuOpened
+
+                    onContentHeightChanged: {
+                        if (nodesComboBox.nodeJustAdded && scrollView.contentItem.height > scrollView.height) {
+                            let lastItemH = repeater.itemAt(repeater.count - 1).height
+                            scrollView.contentY = scrollView.contentItem.height - lastItemH
+                            nodesComboBox.nodeJustAdded = false
+                        }
+                    }
 
                     Column {
                         id: nodesCol
