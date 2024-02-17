@@ -1531,100 +1531,22 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
 
 QString DockManager::readDisplayName(const FilePath &filePath)
 {
-    auto data = loadFile(filePath);
-
-    if (data.isEmpty())
-        return {};
-
-    auto tmp = data.startsWith("<?xml") ? data : qUncompress(data);
-
-    DockingStateReader reader(tmp);
-    if (!reader.readNextStartElement())
-        return {};
-
-    if (reader.name() != QLatin1String("QtAdvancedDockingSystem"))
-        return {};
-
-    return reader.attributes().value(workspaceDisplayNameAttribute.toString()).toString();
+    return readAttribute(filePath, workspaceDisplayNameAttribute);
 }
 
 bool DockManager::writeDisplayName(const FilePath &filePath, const QString &displayName)
 {
-    const expected_str<QByteArray> content = filePath.fileContents();
-
-    QTC_ASSERT_EXPECTED(content, return false);
-
-    QDomDocument doc;
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
-        qWarning() << QString("XML error on line %1, col %2: %3")
-                          .arg(error_line)
-                          .arg(error_col)
-                          .arg(error_msg);
-        return false;
-    }
-
-    QDomElement docElem = doc.documentElement();
-    docElem.setAttribute(workspaceDisplayNameAttribute.toString(), displayName);
-
-    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
-    if (!result) {
-        qWarning() << "Could not write display name" << displayName << "to" << filePath << ":"
-                   << result.error();
-        return false;
-    }
-
-    return true;
+    return writeAttribute(filePath, workspaceDisplayNameAttribute, displayName);
 }
 
 QString DockManager::readMcusEnabled(const FilePath &filePath)
 {
-    auto data = loadFile(filePath);
-
-    if (data.isEmpty())
-        return {};
-
-    auto tmp = data.startsWith("<?xml") ? data : qUncompress(data);
-
-    DockingStateReader reader(tmp);
-    if (!reader.readNextStartElement())
-        return {};
-
-    if (reader.name() != QLatin1String("QtAdvancedDockingSystem"))
-        return {};
-
-    return reader.attributes().value(workspaceMcusEnabledAttribute.toString()).toString();
+    return readAttribute(filePath, workspaceMcusEnabledAttribute);
 }
 
 bool DockManager::writeMcusEnabled(const FilePath &filePath, const QString &mcusEnabled)
 {
-    const expected_str<QByteArray> content = filePath.fileContents();
-
-    QTC_ASSERT_EXPECTED(content, return false);
-
-    QDomDocument doc;
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
-        qWarning() << QString("XML error on line %1, col %2: %3")
-                          .arg(error_line)
-                          .arg(error_col)
-                          .arg(error_msg);
-        return false;
-    }
-
-    QDomElement docElem = doc.documentElement();
-    docElem.setAttribute(workspaceMcusEnabledAttribute.toString(), mcusEnabled);
-
-    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
-    if (!result) {
-        qWarning() << "Could not write mcusEnabled" << mcusEnabled << "to" << filePath << ":"
-                   << result.error();
-        return false;
-    }
-
-    return true;
+    return writeAttribute(filePath, workspaceMcusEnabledAttribute, mcusEnabled);
 }
 
 QString DockManager::readAttribute(const FilePath &filePath, QStringView key)
