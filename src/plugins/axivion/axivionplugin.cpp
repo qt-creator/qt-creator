@@ -205,7 +205,7 @@ class AxivionTextMark : public TextMark
 {
 public:
     AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue)
-        : TextMark(filePath, issue.startLine, {Tr::tr("Axivion"), s_axivionTextMarkId})
+        : TextMark(filePath, issue.startLine, {QString("Axivion"), s_axivionTextMarkId})
     {
         const QString markText = issue.description;
         const QString id = issue.kind + QString::number(issue.id.value_or(-1));
@@ -308,7 +308,7 @@ static QUrl urlForProject(const QString &projectName)
     QString dashboard = settings().server.dashboard;
     if (!dashboard.endsWith(QLatin1Char('/')))
         dashboard += QLatin1Char('/');
-    return QUrl(dashboard).resolved(QStringLiteral("api/projects/")).resolved(projectName);
+    return QUrl(dashboard).resolved(QString("api/projects/")).resolved(projectName);
 }
 
 static constexpr int httpStatusCodeOk = 200;
@@ -428,8 +428,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             }
             return NetworkError(reply->url(), error, reply->errorString());
         };
-
-        MessageManager::writeFlashing(QStringLiteral("Axivion: %1").arg(getError().message()));
+        MessageManager::writeDisrupting(QString("Axivion: %1").arg(getError().message()));
         return DoneResult::Error;
     };
 
@@ -493,7 +492,8 @@ static Group authorizationRecipe()
     const auto onGetCredentialDone = [](const CredentialQuery &credential, DoneWith result) {
         if (result == DoneWith::Success)
             dd->m_apiToken = credential.data();
-        // TODO: Show the message about keystore error and info that we can't authorize without it.
+        else
+            MessageManager::writeDisrupting(QString("Axivion: %1").arg(credential.errorString()));
     };
 
     const Storage<QString> passwordStorage;
@@ -549,6 +549,9 @@ static Group authorizationRecipe()
         credential.setData(*dd->m_apiToken);
         return SetupResult::Continue;
     };
+    const auto onSetCredentialDone = [](const CredentialQuery &credential) {
+        MessageManager::writeDisrupting(QString("Axivion: %1").arg(credential.errorString()));
+    };
 
     return {
         Group {
@@ -572,7 +575,7 @@ static Group authorizationRecipe()
                     apiTokenStorage,
                     onGroupSetup(onApiTokenGroupSetup),
                     dtoRecipe(apiTokenStorage),
-                    CredentialQueryTask(onSetCredentialSetup)
+                    CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDoneIf::Error)
                 }
             }
         }
