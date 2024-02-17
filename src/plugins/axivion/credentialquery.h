@@ -17,14 +17,14 @@ public:
     void setKey(const QString &key) { m_key = key; }
     void setData(const QByteArray &data) { m_data = data; }
 
-    QByteArray data() const { return m_data; }
+    std::optional<QByteArray> data() const { return m_data; }
     QString errorString() const { return m_errorString; }
 
 private:
     CredentialOperation m_operation = CredentialOperation::Get;
     QString m_service;
     QString m_key;
-    QByteArray m_data; // Used for input when Set and for output when Get.
+    std::optional<QByteArray> m_data; // Used for input when Set and for output when Get.
     QString m_errorString;
     friend class CredentialQueryTaskAdapter;
 };

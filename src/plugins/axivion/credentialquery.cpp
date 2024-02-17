@@ -24,7 +24,8 @@ void CredentialQueryTaskAdapter::start()
     }
     case CredentialOperation::Set: {
         WritePasswordJob *writer = new WritePasswordJob(task()->m_service);
-        writer->setBinaryData(task()->m_data);
+        if (task()->m_data)
+            writer->setBinaryData(*task()->m_data);
         job = writer;
         break;
     }
@@ -38,11 +39,12 @@ void CredentialQueryTaskAdapter::start()
     m_guard.reset(job);
 
     connect(job, &Job::finished, this, [this, reader](Job *job) {
-        if (job->error() != NoError)
+        const bool success = job->error() == NoError || job->error() == EntryNotFound;
+        if (!success)
             task()->m_errorString = job->errorString();
-        else if (reader)
+        else if (reader && job->error() == NoError)
             task()->m_data = reader->binaryData();
-        emit done(toDoneResult(job->error() == NoError));
+        emit done(toDoneResult(success));
         m_guard.release()->deleteLater();
     });
     job->start();
