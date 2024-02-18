@@ -1402,8 +1402,8 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
     }
 }
 
-GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
-                                 const std::function<void()> &handler)
+ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
+                                           const std::function<void()> &handler) const
 {
     const auto onSetup = [timeout](milliseconds &timeoutData) { timeoutData = timeout; };
     return Group {
@@ -1414,7 +1414,7 @@ GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
             handler ? TimeoutTask(onSetup, [handler] { handler(); }, CallDoneIf::Success)
                     : TimeoutTask(onSetup)
         },
-        item
+        *this
     };
 }
 

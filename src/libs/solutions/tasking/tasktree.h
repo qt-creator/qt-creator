@@ -261,8 +261,6 @@ protected:
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
-    static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
-                                 const std::function<void()> &handler = {});
 
     // Checks if Function may be invoked with Args and if Function's return type is Result.
     template <typename Result, typename Function, typename ...Args,
@@ -286,7 +284,18 @@ private:
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group : public GroupItem
+class TASKING_EXPORT ExecutableItem : public GroupItem
+{
+public:
+    ExecutableItem withTimeout(std::chrono::milliseconds timeout,
+                               const std::function<void()> &handler = {}) const;
+
+protected:
+    ExecutableItem() = default;
+    ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
+};
+
+class TASKING_EXPORT Group : public ExecutableItem
 {
 public:
     Group(const QList<GroupItem> &children) { addChildren(children); }
@@ -303,11 +312,6 @@ public:
     }
     using GroupItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
     using GroupItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
-
-    GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const std::function<void()> &handler = {}) const {
-        return GroupItem::withTimeout(*this, timeout, handler);
-    }
 
 private:
     template <typename Handler>
@@ -387,7 +391,7 @@ public:
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
-class TASKING_EXPORT Sync final : public GroupItem
+class TASKING_EXPORT Sync final : public ExecutableItem
 {
 public:
     template <typename Handler>
@@ -431,7 +435,7 @@ private:
 };
 
 template <typename Adapter>
-class CustomTask final : public GroupItem
+class CustomTask final : public ExecutableItem
 {
 public:
     using Task = typename Adapter::TaskType;
@@ -445,15 +449,9 @@ public:
     template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
     CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
                CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
-                     wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
+        : ExecutableItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
+                          wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
     {}
-
-    GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const std::function<void()> &handler = {}) const
-    {
-        return GroupItem::withTimeout(*this, timeout, handler);
-    }
 
 private:
     static Adapter *createAdapter() { return new Adapter; }
