@@ -63,6 +63,7 @@ Q_ENUM_NS(ThreadResult);
 using namespace PrintableEnums;
 
 using Log = QList<QPair<int, Handler>>;
+using MessageLog = QList<std::pair<QString, Handler>>;
 
 struct CustomStorage
 {
@@ -82,7 +83,8 @@ struct TestData
     Group root;
     Log expectedLog;
     int taskCount = 0;
-    DoneWith onDone = DoneWith::Success;
+    DoneWith result = DoneWith::Success;
+    std::optional<MessageLog> messageLog = {};
 };
 
 class tst_Tasking : public QObject
@@ -2971,6 +2973,84 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // These tests confirms the expected message log
+
+        const TestData testSuccess {
+            storage,
+            Group {
+                storage,
+                Group {
+                    createSuccessTask(1, 2ms).withLog("Task 1")
+                }.withLog("Group 1")
+            },
+            Log {
+                {1, Handler::Setup},
+                {1, Handler::Success}
+            },
+            1,
+            DoneWith::Success,
+            MessageLog {
+                {"Group 1", Handler::Setup},
+                {"Task 1", Handler::Setup},
+                {"Task 1", Handler::Success},
+                {"Group 1", Handler::Success}
+            }
+        };
+        const TestData testError {
+            storage,
+            Group {
+                storage,
+                Group {
+                    createFailingTask(1, 1ms).withLog("Task 1")
+                }.withLog("Group 1")
+            },
+            Log {
+                {1, Handler::Setup},
+                {1, Handler::Error}
+            },
+            1,
+            DoneWith::Error,
+            MessageLog {
+                {"Group 1", Handler::Setup},
+                {"Task 1", Handler::Setup},
+                {"Task 1", Handler::Error},
+                {"Group 1", Handler::Error}
+            }
+        };
+        const TestData testCancel {
+            storage,
+            Group {
+                storage,
+                parallel,
+                Group {
+                    createSuccessTask(1).withLog("Task 1"),
+                }.withLog("Group 1"),
+                createSyncWithTweak(2, DoneResult::Error).withLog("Task 2")
+            },
+            Log {
+                {1, Handler::Setup},
+                {2, Handler::Sync},
+                {2, Handler::TweakDoneToError},
+                {1, Handler::Canceled}
+            },
+            1,
+            DoneWith::Error,
+            MessageLog {
+                {"Group 1", Handler::Setup},
+                {"Task 1", Handler::Setup},
+                {"Task 2", Handler::Setup},
+                {"Task 2", Handler::Error},
+                {"Task 1", Handler::Canceled},
+                {"Group 1", Handler::Canceled}
+            }
+        };
+
+        QTest::newRow("LogSuccess") << testSuccess;
+        QTest::newRow("LogError") << testError;
+        QTest::newRow("LogCancel") << testCancel;
+    }
+
+    {
         const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
             return Group {
                 storage,
@@ -3023,12 +3103,98 @@ void tst_Tasking::testTree_data()
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
 
+
+static QtMessageHandler s_oldMessageHandler = nullptr;
+static QStringList s_messages;
+
+class LogMessageHandler
+{
+public:
+    LogMessageHandler()
+    {
+        s_messages.clear();
+        s_oldMessageHandler = qInstallMessageHandler(handler);
+    }
+    ~LogMessageHandler() { qInstallMessageHandler(s_oldMessageHandler); }
+
+private:
+    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        QString message = msg;
+        message.remove('\r');
+        s_messages.append(message);
+        // Defer to old message handler.
+        if (s_oldMessageHandler)
+            s_oldMessageHandler(type, context, msg);
+    }
+};
+
+static const QList<Handler> s_logHandlers
+    = {Handler::Setup, Handler::Success, Handler::Error, Handler::Canceled};
+
+static QString handlerToName(Handler handler)
+{
+    if (handler == Handler::Setup)
+        return "started";
+
+    DoneWith doneWith;
+    switch (handler) {
+    case Handler::Success:
+        doneWith = DoneWith::Success;
+        break;
+    case Handler::Error:
+        doneWith = DoneWith::Error;
+        break;
+    case Handler::Canceled:
+        doneWith = DoneWith::Cancel;
+        break;
+    default:
+        return {};
+    }
+    const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
+    return QString("finished with %1").arg(doneWithEnum.valueToKey(int(doneWith)));
+}
+
+static bool matchesLogPattern(const QString &log, const QPair<QString, Handler> &pattern)
+{
+    QStringView message(log);
+    const static QLatin1StringView part1("TASK TREE LOG [");
+    if (!message.startsWith(part1))
+        return false;
+
+    message = message.mid(part1.size());
+    const static QLatin1StringView part2("HH:mm:ss.zzz"); // check only size
+
+    message = message.mid(part2.size());
+    const QString part3 = QString("] \"%1\" ").arg(pattern.first);
+    if (!message.startsWith(part3))
+        return false;
+
+    message = message.mid(part3.size());
+    const QString part4(handlerToName(pattern.second));
+    if (!message.startsWith(part4))
+        return false;
+
+    message = message.mid(part4.size());
+    if (pattern.second == Handler::Setup)
+        return message == QLatin1StringView(".");
+
+    const static QLatin1StringView part5(" within ");
+    if (!message.startsWith(part5))
+        return false;
+
+    return message.endsWith(QLatin1StringView("ms."));
+}
+
 void tst_Tasking::testTree()
 {
     QFETCH(TestData, testData);
 
+    LogMessageHandler handler;
+
     TaskTree taskTree({testData.root.withTimeout(1000ms)});
-    QCOMPARE(taskTree.taskCount() - 1, testData.taskCount); // -1 for the timeout task above
+    const int taskCount = taskTree.taskCount() - 1; // -1 for the timeout task above
+    QCOMPARE(taskCount, testData.taskCount);
     Log actualLog;
     const auto collectLog = [&actualLog](const CustomStorage &storage) {
         actualLog = storage.m_log;
@@ -3041,7 +3207,24 @@ void tst_Tasking::testTree()
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
-    QCOMPARE(result, testData.onDone);
+    QCOMPARE(result, testData.result);
+
+    if (testData.messageLog) {
+        QCOMPARE(s_messages.count(), testData.messageLog->count());
+
+        for (int i = 0; i < s_messages.count(); ++i) {
+            const auto &message = testData.messageLog->at(i);
+            QVERIFY(s_logHandlers.contains(message.second));
+            const QString &log = s_messages.at(i);
+            if (!matchesLogPattern(log, message)) {
+                const QString failMessage
+                    = QString("The log message at index %1: \"%2\" doesn't match the expected "
+                              "pattern: \"%3\" %4.").arg(i)
+                              .arg(log, message.first, handlerToName(message.second));
+                QFAIL(failMessage.toUtf8());
+            }
+        }
+    }
 }
 
 void tst_Tasking::testInThread_data()
@@ -3094,7 +3277,7 @@ static void runInThread(QPromise<TestResult> &promise, const TestData &testData)
             promise.addResult(TestResult{i, ThreadResult::FailOnLogCheck, actualLog});
             return;
         }
-        if (result != testData.onDone) {
+        if (result != testData.result) {
             promise.addResult(TestResult{i, ThreadResult::FailOnDoneStatusCheck});
             return;
         }
@@ -3126,7 +3309,7 @@ void tst_Tasking::testInThread()
     QCOMPARE(taskTree.isRunning(), false);
 
     QCOMPARE(CustomStorage::instanceCount(), 0);
-    QCOMPARE(result, testData.onDone);
+    QCOMPARE(result, testData.result);
 }
 
 struct StorageIO
