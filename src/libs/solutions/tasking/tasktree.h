@@ -289,6 +289,7 @@ class TASKING_EXPORT ExecutableItem : public GroupItem
 public:
     ExecutableItem withTimeout(std::chrono::milliseconds timeout,
                                const std::function<void()> &handler = {}) const;
+    ExecutableItem withLog(const QString &logName) const;
 
 protected:
     ExecutableItem() = default;

@@ -7,10 +7,12 @@
 #include <QEventLoop>
 #include <QFutureWatcher>
 #include <QHash>
+#include <QMetaEnum>
 #include <QMutex>
 #include <QPromise>
 #include <QPointer>
 #include <QSet>
+#include <QTime>
 #include <QTimer>
 
 using namespace std::chrono;
@@ -1415,6 +1417,30 @@ ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
                     : TimeoutTask(onSetup)
         },
         *this
+    };
+}
+
+static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateWithMs); }
+
+ExecutableItem ExecutableItem::withLog(const QString &logName) const
+{
+    const auto header = [logName] {
+        return QString("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
+    };
+    const Storage<time_point<system_clock, nanoseconds>> storage;
+    return Group {
+        storage,
+        onGroupSetup([storage, header] {
+            *storage = system_clock::now();
+            qDebug().noquote() << header() << "started.";
+        }),
+        *this,
+        onGroupDone([storage, header](DoneWith result) {
+            const auto elapsed = duration_cast<milliseconds>(system_clock::now() - *storage);
+            const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
+            qDebug().noquote().nospace() << header() << " finished with "
+                << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
+        })
     };
 }
 
