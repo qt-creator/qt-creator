@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
 	<!ENTITY name          "[A-Za-z_:][\w.:_-]*">
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="15" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm;*.aspx" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="18" kateversion="5.79" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm;*.aspx" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -18,53 +18,70 @@
     <DetectIdentifier/>
     <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
     <StringDetect attribute="CDATA" context="CDATA" String="&lt;![CDATA[" beginRegion="cdata" />
-    <RegExpr attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE\s+" insensitive="true" beginRegion="doctype"  />
+    <WordDetect attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE" insensitive="true" beginRegion="doctype" />
+    <IncludeRules context="FindElements" />
     <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:-]*" beginRegion="pi" />
-    <IncludeRules context="FindSpecialHTMLTags" />
-    <IncludeRules context="FindHTMLTags" />
+
     <!-- as long as kde gives DTDs the text/html mimetype--><IncludeRules context="FindDTDRules" />
     <IncludeRules context="FindEntityRefs" />
   </context>
 
+  <context name="FindElements" attribute="Other Text" lineEndContext="#pop">
+    <RegExpr attribute="Element Symbols" context="ElementTagName" String="&lt;(?=(&name;))" />
+    <RegExpr attribute="Element Symbols" context="ElementTagNameClose" String="&lt;/(?=(&name;))" />
+  </context>
+
+  <context name="ElementTagName" attribute="Other Text" lineEndContext="#pop">
+    <IncludeRules context="FindHTMLTags" />
+    <IncludeRules context="FindSpecialHTMLTags" />
+    <StringDetect attribute="Element" context="#pop!El Open" String="%1" dynamic="true" />
+  </context>
+
+  <context name="ElementTagNameClose" attribute="Other Text" lineEndContext="#pop">
+    <IncludeRules context="FindHTMLTagsClose" />
+    <StringDetect attribute="Element" context="#pop!El Close" String="%1" dynamic="true" />
+  </context>
+
   <!-- This allows you to insert HTML tags in other syntax definitions -->
   <context name="FindSpecialHTMLTags" attribute="Normal Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="CSS" String="&lt;style\b" insensitive="true" beginRegion="style" />
-    <RegExpr attribute="Element" context="JS" String="&lt;script\b" insensitive="true" beginRegion="script" />
+    <WordDetect attribute="Element" context="#pop!CSS" String="style" insensitive="true" beginRegion="style" />
+    <WordDetect attribute="Element" context="#pop!JS" String="script" insensitive="true" beginRegion="script" />
   </context>
 
   <context name="FindHTMLTags" attribute="Normal Text" lineEndContext="#stay">
-    <WordDetect attribute="Element" context="El Open" String="&lt;pre" insensitive="true" beginRegion="pre" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;div" insensitive="true" beginRegion="div" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;table" insensitive="true" beginRegion="table" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;ul" insensitive="true" beginRegion="ul" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;ol" insensitive="true" beginRegion="ol" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;dl" insensitive="true" beginRegion="dl" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;article" insensitive="true" beginRegion="article" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;aside" insensitive="true" beginRegion="aside" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;details" insensitive="true" beginRegion="details" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;figure" insensitive="true" beginRegion="figure" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;footer" insensitive="true" beginRegion="footer" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;header" insensitive="true" beginRegion="header" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;main" insensitive="true" beginRegion="main" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;nav" insensitive="true" beginRegion="nav" />
-    <WordDetect attribute="Element" context="El Open" String="&lt;section" insensitive="true" beginRegion="section" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;&name;" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/pre" insensitive="true" endRegion="pre" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/div" insensitive="true" endRegion="div" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/table" insensitive="true" endRegion="table" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/ul" insensitive="true" endRegion="ul" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/ol" insensitive="true" endRegion="ol" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/dl" insensitive="true" endRegion="dl" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/article" insensitive="true" endRegion="article" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/aside" insensitive="true" endRegion="aside" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/details" insensitive="true" endRegion="details" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/figure" insensitive="true" endRegion="figure" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/footer" insensitive="true" endRegion="footer" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/header" insensitive="true" endRegion="header" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/main" insensitive="true" endRegion="main" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/nav" insensitive="true" endRegion="nav" />
-    <WordDetect attribute="Element" context="El Close" String="&lt;/section" insensitive="true" endRegion="section" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/&name;" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="pre" insensitive="true" beginRegion="pre" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="div" insensitive="true" beginRegion="div" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="table" insensitive="true" beginRegion="table" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="ul" insensitive="true" beginRegion="ul" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="ol" insensitive="true" beginRegion="ol" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="dl" insensitive="true" beginRegion="dl" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="article" insensitive="true" beginRegion="article" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="aside" insensitive="true" beginRegion="aside" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="details" insensitive="true" beginRegion="details" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="figure" insensitive="true" beginRegion="figure" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="footer" insensitive="true" beginRegion="footer" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="header" insensitive="true" beginRegion="header" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="main" insensitive="true" beginRegion="main" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="nav" insensitive="true" beginRegion="nav" />
+    <WordDetect attribute="Element" context="#pop!El Open" String="section" insensitive="true" beginRegion="section" />
+  </context>
+
+  <context name="FindHTMLTagsClose" attribute="Normal Text" lineEndContext="#stay">
+    <WordDetect attribute="Element" context="#pop!El Close" String="pre" insensitive="true" endRegion="pre" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="div" insensitive="true" endRegion="div" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="table" insensitive="true" endRegion="table" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="ul" insensitive="true" endRegion="ul" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="ol" insensitive="true" endRegion="ol" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="dl" insensitive="true" endRegion="dl" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="article" insensitive="true" endRegion="article" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="aside" insensitive="true" endRegion="aside" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="details" insensitive="true" endRegion="details" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="figure" insensitive="true" endRegion="figure" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="footer" insensitive="true" endRegion="footer" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="header" insensitive="true" endRegion="header" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="main" insensitive="true" endRegion="main" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="nav" insensitive="true" endRegion="nav" />
+    <WordDetect attribute="Element" context="#pop!El Close" String="section" insensitive="true" endRegion="section" />
   </context>
 
   <context name="FindEntityRefs" attribute="Other Text" lineEndContext="#stay">
@@ -79,8 +96,8 @@
   </context>
 
   <context name="FindAttributes" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Attribute" context="#stay" String="^&attributeName;|\s+&attributeName;" />
-    <DetectChar attribute="Attribute" context="Value" char="=" />
+    <DetectChar attribute="Attribute Separator" context="Value" char="=" />
+    <RegExpr attribute="Attribute" context="#stay" String="(^|\s+)&attributeName;(\s+&attributeName;)*\s*|\s+" />
   </context>
 
   <context name="FindDTDRules" attribute="Other Text" lineEndContext="#stay">
@@ -136,49 +153,40 @@
     <IncludeRules context="FindPEntityRefs" />
   </context>
 
-  <context name="El Open" attribute="Other Text" lineEndContext="#stay">
-    <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" />
-    <DetectChar attribute="Element" context="#pop" char="&gt;" />
+  <context name="El Open" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" />
+    <DetectChar attribute="Element Symbols" context="#pop" char="&gt;" />
     <IncludeRules context="FindAttributes" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
   </context>
 
   <context name="El Close" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="#pop" char="&gt;" />
+    <DetectChar attribute="Element Symbols" context="#pop" char="&gt;" />
     <RegExpr attribute="Error" context="#stay" String="\S" />
   </context>
 
-  <context name="El Close 2" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="#pop#pop#pop" char="&gt;" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
-  </context>
-
-  <context name="El Close 3" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="#pop#pop#pop#pop" char="&gt;" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
-  </context>
-
-  <context name="CSS" attribute="Other Text" lineEndContext="#stay">
-    <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" endRegion="style" />
-    <DetectChar attribute="Element" context="CSS content" char="&gt;" />
+  <context name="CSS" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" endRegion="style" />
+    <DetectChar attribute="Element Symbols" context="CSS content" char="&gt;" />
     <IncludeRules context="FindAttributes" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
   </context>
 
   <context name="CSS content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/style\b" insensitive="true" endRegion="style" />
+    <RegExpr attribute="Element Symbols" context="CSS content Close" String="&lt;/(?=style\b)" insensitive="true" />
     <IncludeRules context="##CSS" includeAttrib="true"/>
   </context>
+  <context name="CSS content Close" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" endRegion="style" />
+  </context>
 
-  <context name="JS" attribute="Other Text" lineEndContext="#stay">
+  <context name="JS" attribute="Error" lineEndContext="#stay">
     <RegExpr attribute="Attribute" context="Script-Type" String="(?:\s+|^)type(?=\=|\s|$)" insensitive="true"/>
-    <DetectChar attribute="Element" context="JS content" char="&gt;" />
+    <DetectChar attribute="Element Symbols" context="JS content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="DefaultJS" attribute="Other Text" lineEndContext="#stay">
-    <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" endRegion="script" />
-    <IncludeRules context="FindAttributes" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" endRegion="script" />
+    <DetectChar attribute="Attribute Separator" context="Value" char="=" />
+    <RegExpr attribute="Attribute" context="#stay" String="(^|\s+)&attributeName;|\s+" />
   </context>
 
   <context name="JS content" attribute="Other Text" lineEndContext="#stay">
@@ -186,25 +194,35 @@
     <IncludeRules context="Normal##JavaScript" includeAttrib="true"/>
   </context>
   <context name="Default JS content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <IncludeRules context="FindScriptTagClose" />
     <RegExpr attribute="Comment" context="JS comment close" String="//(?=.*&lt;/script\b)" insensitive="true" />
   </context>
 
+  <context name="FindScriptTagClose" attribute="Other Text" lineEndContext="#stay">
+    <RegExpr attribute="Element Symbols" context="ScriptTagClose" String="&lt;/(?=script\b)" insensitive="true" />
+  </context>
+  <context name="ScriptTagClose" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" endRegion="script" />
+  </context>
+
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
-    <RegExpr attribute="Element" context="El Close 3" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <RegExpr attribute="Element Symbols" context="#pop!ScriptTagClose" String="&lt;/(?=script\b)" insensitive="true" />
     <DetectSpaces />
     <IncludeRules context="##Comments" />
   </context>
 
-  <context name="Value" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="Value NQ">
+  <context name="Value" attribute="Other Text" lineEndContext="#stay" fallthroughContext="Value NQ">
     <DetectChar attribute="Value" context="Value DQ" char="&quot;" />
     <DetectChar attribute="Value" context="Value SQ" char="&apos;" />
     <DetectSpaces />
   </context>
 
-  <context name="Value NQ" attribute="Other Text" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
+  <context name="Value NQ" attribute="Other Text" lineEndContext="#pop#pop" fallthroughContext="#pop#pop">
+    <!-- '{' and '}' are valid, but used with twig -->
+    <RegExpr attribute="Value" String="[^&gt;&lt;&quot;&apos;&amp;\s=`{}]+" />
     <IncludeRules context="FindEntityRefs" />
-    <RegExpr attribute="Value" context="#stay" String="/(?!&gt;)|[^/&gt;&lt;&quot;&apos;\s]" />
+    <AnyChar attribute="Error" String="&quot;&apos;`=" />
+    <AnyChar attribute="Value" String="{}" />
   </context>
 
   <context name="Value DQ" attribute="Value" lineEndContext="#stay">
@@ -220,11 +238,11 @@
   <!-- Read content from the "type" attribute to change the language to
        highlight in the <script> tag. The default language is JavaScript. -->
 
-  <context name="Script-Type" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop">
+  <context name="Script-Type" attribute="Other Text" lineEndContext="#stay" fallthroughContext="#pop">
     <DetectSpaces />
     <DetectChar attribute="Attribute" context="#pop!Script-Type Value" char="=" />
   </context>
-  <context name="Script-Type Value" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop!Value">
+  <context name="Script-Type Value" attribute="Other Text" lineEndContext="#stay" fallthroughContext="#pop!Value">
     <DetectSpaces />
     <!-- TypeScript -->
     <StringDetect attribute="Value" context="#pop#pop!TypeScript" String="&quot;text/typescript&quot;"/>
@@ -250,8 +268,8 @@
     <StringDetect attribute="Value" context="#pop#pop!Script HTML template" String="&apos;text/html&apos;"/>
   </context>
 
-  <context name="JSX" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="JSX content" char="&gt;" />
+  <context name="JSX" attribute="Error" lineEndContext="#stay">
+    <DetectChar attribute="Element Symbols" context="JSX content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="JSX content" attribute="Other Text" lineEndContext="#stay">
@@ -259,8 +277,8 @@
     <IncludeRules context="Normal##JavaScript React (JSX)" includeAttrib="true"/>
   </context>
 
-  <context name="TypeScript" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="TypeScript content" char="&gt;" />
+  <context name="TypeScript" attribute="Error" lineEndContext="#stay">
+    <DetectChar attribute="Element Symbols" context="TypeScript content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="TypeScript content" attribute="Other Text" lineEndContext="#stay">
@@ -268,25 +286,25 @@
     <IncludeRules context="Normal##TypeScript" includeAttrib="true"/>
   </context>
 
-  <context name="MustacheJS" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="MustacheJS content" char="&gt;" />
+  <context name="MustacheJS" attribute="Error" lineEndContext="#stay">
+    <DetectChar attribute="Element Symbols" context="MustacheJS content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="MustacheJS content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <IncludeRules context="FindScriptTagClose" />
     <StringDetect attribute="Error" context="#stay" String="&lt;script&gt;" insensitive="true" />
-    <RegExpr attribute="Error" context="#stay" String="&lt;script\b" insensitive="true" />
+    <WordDetect attribute="Error" context="#stay" String="&lt;script" insensitive="true" />
     <IncludeRules context="Base##Mustache/Handlebars (HTML)" includeAttrib="true"/>
   </context>
 
-  <context name="Script HTML template" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Element" context="Script HTML template content" char="&gt;" />
+  <context name="Script HTML template" attribute="Error" lineEndContext="#stay">
+    <DetectChar attribute="Element Symbols" context="Script HTML template content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="Script HTML template content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <IncludeRules context="FindScriptTagClose" />
     <StringDetect attribute="Error" context="#stay" String="&lt;script&gt;" insensitive="true" />
-    <RegExpr attribute="Error" context="#stay" String="&lt;script\b" insensitive="true" />
+    <WordDetect attribute="Error" context="#stay" String="&lt;script" insensitive="true" />
     <IncludeRules context="FindHTML" />
   </context>
 
@@ -299,7 +317,9 @@
   <itemData name="Processing Instruction" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false" />
   <itemData name="Element" defStyleNum="dsKeyword" spellChecking="false" />
+  <itemData name="Element Symbols" defStyleNum="dsDataType" spellChecking="false" />
   <itemData name="Attribute" defStyleNum="dsOthers" spellChecking="false" />
+  <itemData name="Attribute Separator" defStyleNum="dsOperator" spellChecking="false" />
   <itemData name="Value" defStyleNum="dsString" spellChecking="false" />
   <itemData name="EntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="PEntityRef" defStyleNum="dsDecVal" spellChecking="false" />

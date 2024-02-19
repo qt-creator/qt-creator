@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
   <!-- NOTE See https://cmake.org/cmake/help/latest/manual/cmake-language.7.html#variable-references -->
   <!ENTITY var_ref_re "[/\.\+\-_0-9A-Za-z]+">
@@ -12,7 +12,7 @@
     SPDX-FileCopyrightText: 2004 Alexander Neundorf <neundorf@kde.org>
     SPDX-FileCopyrightText: 2005 Dominik Haumann <dhdev@gmx.de>
     SPDX-FileCopyrightText: 2007, 2008, 2013, 2014 Matthew Woehlke <mw_triad@users.sourceforge.net>
-    SPDX-FileCopyrightText: 2013-2015, 2017-2020 Alex Turbov <i.zaufi@gmail.com>
+    SPDX-FileCopyrightText: 2013-2015, 2017-2023 Alex Turbov <i.zaufi@gmail.com>
 
     SPDX-License-Identifier: LGPL-2.0-or-later
  -->
@@ -26,7 +26,7 @@
 <language
     name="CMake"
     version="<!--{version}-->"
-    kateversion="5.0"
+    kateversion="5.62"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
     style="CMake"
@@ -94,6 +94,13 @@
       <item><!--{ expr }--></item>
       <!--[- endfor ]-->
     </list>
+    <!--[- for expr in complex_generator_expressions ]-->
+    <list name="genex-<!--{expr.name}-->-subcommands">
+      <!--[- for cmd in expr.subcommands ]-->
+      <item><!--{ cmd }--></item>
+      <!--[- endfor ]-->
+    </list>
+    <!--[- endfor ]-->
 
     <list name="standard-modules">
       <!--[- for module in modules.utility ]-->
@@ -135,7 +142,7 @@
     <contexts>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
-        <DetectSpaces/>
+        <DetectSpaces />
         <!--[ for command in commands -]-->
         <WordDetect String="<!--{command.name}-->" insensitive="true" attribute="<!--{command.attribute}-->" context="<!--{command.name}-->_ctx"<!--[ if command.start_region ]--> beginRegion="<!--{command.start_region}-->"<!--[ endif -]--> <!--[- if command.end_region ]--> endRegion="<!--{command.end_region}-->"<!--[ endif ]--> />
         <!--[ endfor -]-->
@@ -427,10 +434,21 @@
         <DetectChar attribute="Comment" context="Comment" char="#" />
         <DetectChar attribute="Generator Expression" context="#pop" char="&gt;" />
         <keyword attribute="Generator Expression Keyword" context="#stay" String="generator-expressions" insensitive="false" />
+        <!--[- for expr in complex_generator_expressions ]-->
+        <WordDetect String="<!--{expr.name}-->" attribute="Generator Expression Keyword" context="genex_<!--{expr.name}-->_ctx" />
+        <!--[- endfor ]-->
         <IncludeRules context="Detect Aliased Targets" />
         <IncludeRules context="Detect Variable Substitutions" />
         <DetectIdentifier />
       </context>
+
+      <!--[- for expr in complex_generator_expressions ]-->
+      <context attribute="Generator Expression" lineEndContext="#stay" name="genex_<!--{expr.name}-->_ctx" fallthroughContext="#pop">
+        <DetectChar char=":" context="#stay" />
+        <DetectSpaces />
+        <keyword attribute="Generator Expression Sub-Command" context="#pop" String="genex-<!--{expr.name}-->-subcommands" insensitive="false" />
+      </context>
+      <!--[- endfor ]-->
 
     </contexts>
 
@@ -460,6 +478,7 @@
       <itemData name="Environment Variable Substitution" defStyleNum="dsFloat" spellChecking="false" />
       <itemData name="Standard Environment Variable" defStyleNum="dsFloat" spellChecking="false" />
       <itemData name="Generator Expression Keyword" defStyleNum="dsKeyword" color="#b84040" selColor="#b84040" spellChecking="false" />
+      <itemData name="Generator Expression Sub-Command" defStyleNum="dsKeyword" color="#c05050" selColor="#c05050" spellChecking="false" />
       <itemData name="Generator Expression" defStyleNum="dsOthers" color="#b86050" selColor="#b86050" spellChecking="false" />
       <itemData name="Standard Module" defStyleNum="dsImport" spellChecking="false" />
       <itemData name="Deprecated Module" defStyleNum="dsImport" spellChecking="false" />

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,35 +9,48 @@
 
 /*!
     \page creator-build-process-customizing.html
-    \previouspage creator-setup-webassembly.html
-    \nextpage creator-testing.html
+    \previouspage creator-how-tos.html
 
-    \title  Customizing the Build Process
+    \ingroup creator-how-to-build
 
-    To configure how projects are built, deployed, and run, select
+    \title Customize the build process
+
+    To configure how projects are built, deployed, and run, go to
     \preferences > \uicontrol {Build & Run} > \uicontrol General.
 
-    \image qtcreator-project-options-deploy.png "Project General preferences"
+    \image qtcreator-preferences-build-run-general.webp {Build & Run General preferences}
 
-    By default, the \uicontrol {Always deploy project before running it} (1) and
-    \uicontrol {Build the Whole Project} (2) options are enabled. Therefore,
-    when you select the \uicontrol Run function, \QC checks for changes in the
-    project files and also builds and deploys the project if necessary.
+    By default, \uicontrol {Always deploy project before running it} (1) and
+    \uicontrol {Build the Whole Project} (2) are selected. Therefore, when
+    you select \inlineimage icons/run_small.png (\uicontrol Run), \QC checks
+    for changes in the project files and also builds and deploys the project if
+    necessary.
 
     To deploy applications without building them or to just build the
     application that you want to run, select the appropriate options
-    in the \uicontrol {Build before deploying} field.
+    in \uicontrol {Build before deploying}.
+
+    \section1 Stop applications before building
 
     By default, the applications that the project contains are stopped
-    before rebuilding the project. To stop just the current application,
-    the applications in the same build directory, all applications,
-    or no applications, select the appropriate option in the
-    \uicontrol {Stop applications before building} field.
+    before rebuilding the project.
+
+    To stop just the current application, the applications in the same build
+    directory, all applications, or no applications, select the appropriate
+    option in \uicontrol {Stop applications before building}.
+
+    \section1 Use jom
 
     On Windows, you can use \c jom instead of \c nmake for building the project
-    to distribute the compilation process to multiple CPU cores. You can download
-    \c jom from \l{http://download.qt.io/official_releases/jom}{Qt Downloads}.
-    To use \c jom, select the \uicontrol {Use jom instead of nmake} check box.
-    Deselect the check box if you experience build problems.
+    to distribute the compilation process to multiple CPU cores.
 
+    To use \c jom:
+
+    \list 1
+        \li Download \c jom from \l{http://download.qt.io/official_releases/jom}
+            {Qt Downloads}.
+        \li Select \uicontrol {Use jom instead of nmake}.
+    \endlist
+
+    Clear the check box if builds fail.
 */

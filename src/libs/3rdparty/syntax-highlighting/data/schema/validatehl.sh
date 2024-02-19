@@ -1,2 +1,3 @@
 #!/bin/sh
-xmllint --noout --schema language.xsd $@ 
+schemadir=$(dirname "$0")
+xmllint --noout --schema "$schemadir"/language.xsd "$@"

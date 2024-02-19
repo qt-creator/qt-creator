@@ -269,6 +269,8 @@ def addHelpDocumentation(which):
         clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
         selectFromFileDialog(qch)
     clickButton(waitForObject(":Options.OK_QPushButton"))
+    progressBarWait(10000)  # Wait for "Update Documentation"
+
 
 def addCurrentCreatorDocumentation():
     currentCreatorPath = currentApplicationContext().cwd
@@ -297,6 +299,8 @@ def addCurrentCreatorDocumentation():
     except:
         test.fail("Added Qt Creator's documentation explicitly.")
     clickButton(waitForObject(":Options.OK_QPushButton"))
+    progressBarWait(10000)  # Wait for "Update Documentation"
+
 
 def verifyOutput(string, substring, outputFrom, outputIn):
     index = string.find(substring)

@@ -1,0 +1,39 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-finding.html
+    \previouspage creator-diff-editor.html
+    \nextpage creator-editor-finding.html
+
+    \title Finding
+
+    \list
+
+        \li \l{Search in current file}
+
+            The incremental search highlights the matching strings in the
+            editor while you type.
+
+        \li \l{Search in projects or file systems}
+
+            With advanced search, you can search in currently open projects or
+            files on the file system.
+
+        \li \l{Searching with the Locator}
+
+            Use the locator to browse
+            through projects, files, classes, functions, documentation and
+            file systems.
+
+        \li \l{Jump to the Code}
+
+            Jump to the code for a specific component directly from
+            the \uicontrol {2D} view or \uicontrol {Navigator} view.
+            You can also jump to the code of a particular
+            \uicontrol {State} or \uicontrol {Connection} from their
+            corresponding views.
+
+    \endlist
+
+*/

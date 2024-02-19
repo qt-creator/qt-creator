@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     // The first subfolder is the libraryName followed by the regular
     // folder structure: LibraryName/Subfolder
-    const QUrl url(u"qrc:/ExampleProjectApp/example/example.qml"_qs);
+    const QUrl url(QStringLiteral("qrc:/ExampleProjectApp/example/example.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl)

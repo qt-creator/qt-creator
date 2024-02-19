@@ -60,9 +60,9 @@
 
     \section1 Find and filter output
 
-    To search from output, press \key {Ctrl+F} when the view is active. Enter
+    To search in output, press \key {Ctrl+F} when the view is active. Enter
     search criteria in the \uicontrol Find field. For more information, see
-    \l{Finding and Replacing}.
+    \l{Search in current file}.
 
     To filter output, enter a string in the \uicontrol Filter field.
 

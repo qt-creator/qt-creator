@@ -21,11 +21,11 @@
 
     \section1 Build Configurations
 
+    Build configurations have everything you need to compile the sources into
+    binaries. Build configurations use the tools and settings defined in their
+    corresponding kit.
+
     \annotatedlist creator-reference-build-configurations
-
-    \section1 Run Configurations
-
-    \annotatedlist creator-reference-run-configurations
 
     \section1 Editors
 
@@ -58,6 +58,17 @@
     Configure the text editor to suit your needs.
 
     \annotatedlist creator-reference-preferences-text-editor
+
+    \section1 Run Configurations
+
+    Run configurations start the application in the location where the
+    \e {deploy configuration} copied it. By default, when you select
+    \uicontrol Run, \QC builds the project, deploys it to the device
+    defined in the kit, and runs it there. If you did not make changes
+    to the project since you last built and deployed it, \QC simply runs
+    it again.
+
+    \annotatedlist creator-reference-run-configurations
 
     \section1 UI Design
 

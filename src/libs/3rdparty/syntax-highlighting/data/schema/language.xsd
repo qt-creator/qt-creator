@@ -6,38 +6,21 @@
     SPDX-FileCopyrightText: 2005 Dominik Haumann <dhdev@gmx.de>
     SPDX-FileCopyrightText: 2008 Wilbert Berendsen <info@wilbertberendsen.nl>
 
-  	This file describes the XML format used for syntax highlight descriptions
-  	for the Kate text editor (http://kate.kde.org), which is part of the KDE
-  	desktop environment (http://www.kde.org).
-  	You'll find the "Writing a Kate Highlighting XML File HOWTO" at
-  	http://kate.kde.org/doc/hlhowto.php
+    This file describes the XML format used for syntax highlight descriptions
+    for the Kate text editor (https://kate-editor.org), which is part of the
+    KDE desktop environment (https://kde.org).
+    You'll find the "Working with Syntax Highlighting" at
+    https://docs.kde.org/stable5/en/kate/katepart/highlight.html
 
-  	This format is identified using the SYSTEM identifier
-  	SYSTEM "language.dtd"
+    You can validate your syntax files using "validatehl.sh yourSyntax.xml".
+    This needs xmllint from the libxml2 XML library.
 
-  	Files using this format should include a DOCTYPE declaration like this:
-  	<!DOCTYPE language SYSTEM "language.dtd">
-
-  	You can validate your syntax files using "validatehl.sh yourSyntax.xml".
-  	This needs xmllint from the libxml2 XML library.
-
-  	In any case, the katehighlightingindexer will validate all files bundled
-  	with KTextEditor during compile time and fail on errors.
-
-  	To use your syntax file, copy it to ~/.local/share/katepart5/syntax/ in
-  	your home directory. You have to open a new instance of kwrite/kate to use
-  	the new syntax file.
+    In any case, the katehighlightingindexer will validate all files bundled
+    with KTextEditor during compile time and fail on errors.
 
   TODO
     - find a more readable way for the - -dtdvalid stuff, it's just annoying
       xml comments don't allow it.
--->
-<!--
-  Entity declarations
-    You can use '&per;' instead of '.'. This seems to be useful in <item> elements.
-
-  TODO
-    - Are there any more such pre-defined entities?
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
   <!--
@@ -132,19 +115,12 @@
       mimetype:    A list of mimetypes to decide for which documents to use this syntax description [optional]
       version:     Version number of this syntax description
       kateversion: Kate version required for using this file
-      casesensitive: Whether text is matched case sensitive. [boolean, optional, default=true] FIXME: This is not implemented yet
+      casesensitive: Ignored but preserved to maintain compatibility in older versions of KF5.
       priority:    Priority of this language, if more than one are usable for the file [optional]
       author:      Name of author of this hl file [optional]
       license:     License for this hl file [optional]
       indenter:    Name of the Indenter to use for this highlighting mode per default, like "cstyle" [optional]
       hidden:      Should it be hidden in menu [boolean, optional, default=false]
-
-    TODO
-      - Which matches are affected by casesensitive? keyword, RegExpr, StringDetect, WordDetect...?
-
-    WARNING: due to helper scripts, the language opening tag must be on a
-    *single line* and *cannot* be split in multiple lines.
-
   -->
   <xs:element name="language">
     <xs:complexType>
@@ -160,6 +136,7 @@
       <xs:attribute name="kateversion" use="required" type="xs:decimal"/>
       <xs:attribute name="style"/>
       <xs:attribute name="mimetype"/>
+      <!-- always ignored, <keywords casesensitive> must be used -->
       <xs:attribute name="casesensitive" type="xs:boolean"/>
       <xs:attribute name="priority" type="xs:integer"/>
       <xs:attribute name="author"/>
@@ -317,20 +294,18 @@
     context specification
       name:             The name of this context specification. Used in '*Context' attributes [optional]
       attribute:        The name of the ItemData to be used for matching text
-      lineEndContext:   Next context if end of line is encountered
-      lineEmptyContext: Next context if an empty line is encountered [optional]
+      lineEndContext:   Next context if end of line is encountered [optional, default='#stay']
+      lineEmptyContext: Next context if an empty line is encountered [optional, default=value of lineEndContext]
       fallthrough:      Use a fallthrough context [optional]
                 deprecated since 5.62 but preserved to maintain compatibility in older versions of KF5
-      fallthroughContext: Fall through to this context [optional]
+      fallthroughContext: Fall through to this context [optional, default='#stay']
       dynamic:          Dynamic context [boolean, optional]
+                deprecated since always but preserved to maintain compatibility in older versions of KF5
       noIndentationBasedFolding: Python uses indentation based folding. However, Python has parts where
-    		    it does not use indentation based folding (e.g. for """ strings). In this case
-    		    switch to an own context and set this attribute to true. Then the indentation
-    		    based folding will ignore this parts and not change folding markers. [optional]
-
-    TODO:
-      - Explain fallthrough.
-      - Make lineEndContext optional, defaults to '#stay'. Reasonable?
+            it does not use indentation based folding (e.g. for """ strings). In this case
+            switch to an own context and set this attribute to true. Then the indentation
+            based folding will ignore this parts and not change folding markers. [optional]
+      stopEmptyLineContextSwitchLoop: Do not continue the context switching if an empty line is encountered. [boolean, optional, default=false]
   -->
   <xs:element name="context">
     <xs:complexType>
@@ -356,11 +331,11 @@
       </xs:choice>
       <xs:attribute name="name"/>
       <xs:attribute name="attribute" use="required"/>
-      <xs:attribute name="lineEndContext" use="required"/>
+      <xs:attribute name="lineEndContext"/>
       <xs:attribute name="lineEmptyContext"/>
       <xs:attribute name="fallthrough">
         <xs:simpleType>
-          <!-- alway true since 5.62 -->
+          <!-- always true since 5.62 -->
           <xs:restriction base="xs:token">
             <xs:enumeration value="1"/>
             <xs:enumeration value="true"/>
@@ -368,8 +343,11 @@
         </xs:simpleType>
       </xs:attribute>
       <xs:attribute name="fallthroughContext"/>
+      <!-- always ignored -->
       <xs:attribute name="dynamic" type="xs:boolean"/>
       <xs:attribute name="noIndentationBasedFolding" type="xs:boolean"/>
+      <!-- since 5.103 -->
+      <xs:attribute name="stopEmptyLineContextSwitchLoop" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <!--
@@ -414,7 +392,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect a floating point number
+    Detect a floating point number (as the regular expression: (\b[0-9]+\.[0-9]*|\.[0-9]+)([eE][-+]?[0-9]+)?).
     commonAttributes: Common attributes
     weakDeliminator:  Add weak deliminators [optional]
     additionalDeliminator: Add deliminators [optional]
@@ -427,7 +405,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect an octal number
+    Detect an octal number (as the regular expression: \b0[0-7]+).
     commonAttributes: Common attributes
     weakDeliminator:  Add weak deliminators [optional]
     additionalDeliminator: Add deliminators [optional]
@@ -440,7 +418,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect a hexadecimal number
+    Detect a hexadecimal number (as a regular expression: \b0[xX][0-9a-fA-F]+).
     commonAttributes: Common attributes
     weakDeliminator:  Add weak deliminators [optional]
     additionalDeliminator: Add deliminators [optional]
@@ -453,11 +431,8 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect C-style character
+    Detect C-style character. Characters enclosed in a tick (Example: 'c') which may be a simple character or an escaped character (as a regular expression: '(\\([abefnrtv"'?\\.]|x[0-9a-fA-F]{1,2}|[0-7]{1,3})|[^'])')
       commonAttributes: Common attributes
-
-    TODO
-      - Did I get this right?
   -->
   <xs:element name="HlCChar">
     <xs:complexType>
@@ -504,12 +479,9 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect any group of characters
+    Detect one character of a set of specified characters.
       commonAttributes: Common attributes
-      String:           A string representing the characters to look for
-
-    TODO
-      - Description is not descriptive enough, I'm not sure what it exactly does:-(
+      String:           The set of characters
   -->
   <xs:element name="AnyChar">
     <xs:complexType>
@@ -523,9 +495,6 @@
       String:           The string to look for
       insensitive:      Whether the string is matched case INsensitive. [boolean, optional, default=false]
       dynamic:          Uses %1 .. %9 as placeholders for dynamic arguments [boolean, optional, default=false]
-
-    TODO
-      - What's default of insensitive? I'm not sure...
   -->
   <xs:element name="StringDetect">
     <xs:complexType>
@@ -542,9 +511,6 @@
       insensitive:      Whether the string is matched case INsensitive. [boolean, optional, default=false]
       weakDeliminator:  Add weak deliminators [optional]
       additionalDeliminator: Add deliminators [optional]
-
-    TODO
-      - What's default of insensitive? I'm not sure...
   -->
   <xs:element name="WordDetect">
     <xs:complexType>
@@ -560,7 +526,7 @@
     commonAttributes: Common attributes
     String:           The regular expression pattern
     insensitive:      Whether the text is matched case INsensitive. [boolean, optional, default=false]
-    minimal:          Wheather to use minimal matching for wild cards in the pattern [boolean, optional, default='false']
+    minimal:          Wheather to use minimal matching for wild cards in the pattern [boolean, optional, default=false]
     dynamic:          Uses %1 .. %9 as placeholders for dynamic arguments [boolean, optional, default=false]
   -->
   <xs:element name="RegExpr">
@@ -584,11 +550,8 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect a C-style escaped character
+    Detect a C-style escaped character (as a regular expression: \\([abefnrtv"'?\\.]|x[0-9a-fA-F]{1,2}|[0-7]{1,3})).
       commonAttributes: Common attributes
-
-    TODO:
-      - Did I get this right? Only one character, or a string?
   -->
   <xs:element name="HlCStringChar">
     <xs:complexType>
@@ -596,7 +559,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Detect a range of characters
+    Detect a string with defined start and end characters.
     commonAttributes: Common attributes
     char:             The character starting the range
     char1:            The character terminating the range

@@ -1078,6 +1078,8 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         };
 
         runCommand(cmd);
+        cmd.arg("passexceptions", true);
+        m_lastDebuggableCommand = cmd;
     } else {
 
         const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
@@ -2966,6 +2968,11 @@ BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
         result.ignoreCount = *ignoreCount - 1;
     result.threadSpec = gdbmiChildToInt(gdbmi, "thread").value_or(result.threadSpec);
     return result;
+}
+
+void CdbEngine::debugLastCommand()
+{
+    runCommand(m_lastDebuggableCommand);
 }
 
 void CdbEngine::handleBreakPoints(const DebuggerResponse &response)

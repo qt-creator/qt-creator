@@ -77,9 +77,9 @@ Definition findHighestPriorityDefinitionIf(const QMap<QString, Definition> &defs
 }
 
 template<typename UnaryPredicate>
-QVector<Definition> findDefinitionsIf(const QMap<QString, Definition> &defs, UnaryPredicate predicate)
+QList<Definition> findDefinitionsIf(const QMap<QString, Definition> &defs, UnaryPredicate predicate)
 {
-    QVector<Definition> matches;
+    QList<Definition> matches;
     std::copy_if(defs.cbegin(), defs.cend(), std::back_inserter(matches), predicate);
     std::stable_sort(matches.begin(), matches.end(), [](const Definition &lhs, const Definition &rhs) {
         return lhs.priority() > rhs.priority();
@@ -127,7 +127,7 @@ Definition Repository::definitionForFileName(const QString &fileName) const
     return findHighestPriorityDefinitionIf(d->m_defs, anyWildcardMatches(fileNameFromFilePath(fileName)));
 }
 
-QVector<Definition> Repository::definitionsForFileName(const QString &fileName) const
+QList<Definition> Repository::definitionsForFileName(const QString &fileName) const
 {
     return findDefinitionsIf(d->m_defs, anyWildcardMatches(fileNameFromFilePath(fileName)));
 }
@@ -137,22 +137,22 @@ Definition Repository::definitionForMimeType(const QString &mimeType) const
     return findHighestPriorityDefinitionIf(d->m_defs, anyMimeTypeEquals(mimeType));
 }
 
-QVector<Definition> Repository::definitionsForMimeType(const QString &mimeType) const
+QList<Definition> Repository::definitionsForMimeType(const QString &mimeType) const
 {
     return findDefinitionsIf(d->m_defs, anyMimeTypeEquals(mimeType));
 }
 
-QVector<Definition> Repository::definitions() const
+QList<Definition> Repository::definitions() const
 {
     return d->m_sortedDefs;
 }
 
-QVector<Theme> Repository::themes() const
+QList<Theme> Repository::themes() const
 {
     return d->m_themes;
 }
 
-static auto lowerBoundTheme(const QVector<KSyntaxHighlighting::Theme> &themes, QStringView themeName)
+static auto lowerBoundTheme(const QList<KSyntaxHighlighting::Theme> &themes, QStringView themeName)
 {
     return std::lower_bound(themes.begin(), themes.end(), themeName, [](const Theme &lhs, QStringView rhs) {
         return lhs.name() < rhs;
@@ -177,42 +177,32 @@ Theme Repository::defaultTheme(Repository::DefaultTheme t) const
     return theme(QStringLiteral("Breeze Light"));
 }
 
-Theme Repository::defaultTheme(Repository::DefaultTheme t)
-{
-    return std::as_const(*this).defaultTheme(t);
-}
-
 Theme Repository::themeForPalette(const QPalette &palette) const
 {
     const auto base = palette.color(QPalette::Base);
+    const auto highlight = palette.color(QPalette::Highlight).rgb();
 
-    // find themes with matching background colors
-    QVector<const KSyntaxHighlighting::Theme *> matchingThemes;
+    // find themes with matching background and highlight colors
+    const Theme *firstMatchingTheme = nullptr;
     for (const auto &theme : std::as_const(d->m_themes)) {
-        const auto background = theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor);
+        const auto background = theme.editorColor(Theme::EditorColorRole::BackgroundColor);
         if (background == base.rgb()) {
-            matchingThemes.append(&theme);
-        }
-    }
-    if (!matchingThemes.empty()) {
-        // if there's multiple, search for one with a matching highlight color
-        const auto highlight = palette.color(QPalette::Highlight);
-        for (const auto *theme : std::as_const(matchingThemes)) {
-            auto selection = theme->editorColor(KSyntaxHighlighting::Theme::EditorColorRole::TextSelection);
-            if (selection == highlight.rgb()) {
-                return *theme;
+            // find theme with a matching highlight color
+            auto selection = theme.editorColor(Theme::EditorColorRole::TextSelection);
+            if (selection == highlight) {
+                return theme;
+            }
+            if (!firstMatchingTheme) {
+                firstMatchingTheme = &theme;
             }
         }
-        return *matchingThemes.first();
+    }
+    if (firstMatchingTheme) {
+        return *firstMatchingTheme;
     }
 
     // fallback to just use the default light or dark theme
-    return defaultTheme((base.lightness() < 128) ? KSyntaxHighlighting::Repository::DarkTheme : KSyntaxHighlighting::Repository::LightTheme);
-}
-
-Theme Repository::themeForPalette(const QPalette &palette)
-{
-    return std::as_const(*this).themeForPalette(palette);
+    return defaultTheme((base.lightness() < 128) ? Repository::DarkTheme : Repository::LightTheme);
 }
 
 void RepositoryPrivate::load(Repository *repo)
@@ -236,12 +226,6 @@ void RepositoryPrivate::load(Repository *repo)
     for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
                                                      QStringLiteral("org.kde.syntax-highlighting/syntax"),
                                                      QStandardPaths::LocateDirectory)) {
-        loadSyntaxFolder(repo, dir);
-    }
-
-    // backward compatibility with Kate
-    for (const auto &dir :
-         QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("katepart5/syntax"), QStandardPaths::LocateDirectory)) {
         loadSyntaxFolder(repo, dir);
     }
 #endif
@@ -377,25 +361,27 @@ void RepositoryPrivate::addTheme(const Theme &theme)
     }
 }
 
-quint16 RepositoryPrivate::foldingRegionId(const QString &defName, const QString &foldName)
+int RepositoryPrivate::foldingRegionId(const QString &defName, const QString &foldName)
 {
     const auto it = m_foldingRegionIds.constFind(qMakePair(defName, foldName));
     if (it != m_foldingRegionIds.constEnd()) {
         return it.value();
     }
+    Q_ASSERT(m_foldingRegionId < std::numeric_limits<int>::max());
     m_foldingRegionIds.insert(qMakePair(defName, foldName), ++m_foldingRegionId);
     return m_foldingRegionId;
 }
 
-quint16 RepositoryPrivate::nextFormatId()
+int RepositoryPrivate::nextFormatId()
 {
-    Q_ASSERT(m_formatId < std::numeric_limits<quint16>::max());
+    Q_ASSERT(m_formatId < std::numeric_limits<int>::max());
     return ++m_formatId;
 }
 
 void Repository::reload()
 {
-    qCDebug(Log) << "Reloading syntax definitions!";
+    Q_EMIT aboutToReload();
+
     for (const auto &def : std::as_const(d->m_sortedDefs)) {
         DefinitionData::get(def)->clear();
     }
@@ -410,6 +396,8 @@ void Repository::reload()
     d->m_formatId = 0;
 
     d->load(this);
+
+    Q_EMIT reloaded();
 }
 
 void Repository::addCustomSearchPath(const QString &path)
@@ -418,7 +406,9 @@ void Repository::addCustomSearchPath(const QString &path)
     reload();
 }
 
-QVector<QString> Repository::customSearchPaths() const
+QList<QString> Repository::customSearchPaths() const
 {
     return d->m_customSearchPaths;
 }
+
+#include "moc_repository.cpp"

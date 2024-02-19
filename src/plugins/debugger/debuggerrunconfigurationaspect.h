@@ -40,11 +40,11 @@ public:
     };
 
 private:
-    Utils::TriStateAspect *m_cppAspect;
-    Utils::TriStateAspect *m_qmlAspect;
-    Utils::TriStateAspect *m_pythonAspect;
-    Utils::BoolAspect *m_multiProcessAspect;
-    Utils::StringAspect *m_overrideStartupAspect;
+    Utils::TriStateAspect m_cppAspect;
+    Utils::TriStateAspect m_qmlAspect;
+    Utils::TriStateAspect m_pythonAspect;
+    Utils::BoolAspect m_multiProcessAspect;
+    Utils::StringAspect m_overrideStartupAspect;
     ProjectExplorer::Target *m_target;
 };
 

@@ -11,7 +11,7 @@
     \page creator-diff-editor.html
     \if defined(qtdesignstudio)
     \previouspage qt-quick-toolbars.html
-    \nextpage creator-finding-overview.html
+    \nextpage studio-finding.html
     \else
     \previouspage creator-macros.html
     \nextpage creator-clang-codemodel.html

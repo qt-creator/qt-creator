@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
+<!DOCTYPE language>
 <!--
  ***************************************************************************
  ** Writing a Kate Highlighting XML File
@@ -13,7 +13,7 @@
  ** https://www.json.org/json-en.html
  ***************************************************************************
 -->
-<language name="JSON" section="Markup" version="7" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
+<language name="JSON" section="Markup" version="8" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
   <highlighting>
     <list name="Constants">
       <item>null</item>
@@ -40,7 +40,12 @@
 
       <context name="String_Key" lineEndContext="#stay" attribute="Style_String_Key">
         <DetectChar char="&quot;"  context="#pop" attribute="Style_String_Key" />
-        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" attribute="Style_String_Key_Char" />
+        <DetectChar char="\"       context="String_Key_Char" lookAhead="1"/>
+      </context>
+
+      <context name="String_Key_Char" lineEndContext="#stay" attribute="Style_Normal">
+        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#pop" attribute="Style_String_Key_Char" />
+        <RegExpr String="\\(u[0-9a-fA-f]+|.)?" context="#pop" attribute="Style_Error" />
       </context>
 
       <context name="Value" lineEndContext="#stay" attribute="Style_Error" >
@@ -57,13 +62,18 @@
 
         <keyword String="Constants" context="#stay" attribute="Style_Keyword" />
 
-        <RegExpr String="-?[0-9]+\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" attribute="Style_Float" />
-        <RegExpr String="-?[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" attribute="Style_Decimal" />
+        <RegExpr String="-?\b([1-9][0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)?)" context="#stay" attribute="Style_Float" />
+        <RegExpr String="-?\b(0\b|[1-9][0-9]*(?:[eE][+-]?[0-9]+)?)" context="#stay" attribute="Style_Decimal" />
       </context>
 
       <context name="String_Value" lineEndContext="#stay" attribute="Style_String_Value">
         <DetectChar char="&quot;"  context="#pop" attribute="Style_String_Value" />
-        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" attribute="Style_String_Value_Char" />
+        <DetectChar char="\"       context="String_Key_Value" lookAhead="1" />
+      </context>
+
+      <context name="String_Key_Value" lineEndContext="#stay" attribute="Style_Normal">
+        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#pop"  attribute="Style_String_Value_Char" />
+        <RegExpr String="\\(u[0-9a-fA-f]+|.)?" context="#pop" attribute="Style_Error" />
       </context>
 
       <context name="Array" lineEndContext="#stay" attribute="Style_Error">

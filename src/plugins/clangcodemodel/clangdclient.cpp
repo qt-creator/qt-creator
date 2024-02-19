@@ -207,11 +207,11 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
                             "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
-    if (indexingEnabled && settings.clangdVersion() >= QVersionNumber(15)) {
+    if (indexingEnabled && Utils::clangdVersion(clangdExePath) >= QVersionNumber(15)) {
         cmd.addArg("--background-index-priority="
                    + ClangdSettings::priorityToString(indexingPriority));
     }
-    if (settings.clangdVersion() >= QVersionNumber(16))
+    if (Utils::clangdVersion(clangdExePath) >= QVersionNumber(16))
         cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());

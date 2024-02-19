@@ -101,6 +101,9 @@ static PyObject *cdbext_resolveSymbol(PyObject *, PyObject *args) // -> Value
     if (!PyArg_ParseTuple(args, "s", &pattern))
         Py_RETURN_NONE;
 
+    if (debugPyCdbextModule)
+        DebugPrint() << "resolve symbol: " << pattern;
+
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     auto rc = PyList_New(0);
 
@@ -132,6 +135,9 @@ static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
     if (!PyArg_ParseTuple(args, "K", &address))
         Py_RETURN_NONE;
 
+    if (debugPyCdbextModule)
+        DebugPrint() << "name by address: " << address;
+
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
 
     PyObject* ret = NULL;
@@ -152,6 +158,9 @@ static PyObject *cdbext_getAddressByName(PyObject *, PyObject *args)
     char *name = 0;
     if (!PyArg_ParseTuple(args, "s", &name))
         Py_RETURN_NONE;
+
+    if (debugPyCdbextModule)
+        DebugPrint() << "address by name: " << name;
 
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
 
@@ -177,6 +186,14 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
         Py_RETURN_NONE;
 
     const std::string partialVariable(partialVariablesC);
+
+    if (debugPyCdbextModule) {
+        if (partialVariable.empty())
+            DebugPrint() << "list of locals";
+        else
+            DebugPrint() << "list of locals with partial variable: " << partialVariable;
+    }
+
     IDebugSymbolGroup2 *symbolGroup = nullptr;
     auto locals = PyList_New(0);
     if (partialVariable.empty()) {

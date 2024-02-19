@@ -1,24 +1,25 @@
-// Copyright (C) 2017 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-//! [running on embedded linux]
+    \page creator-how-to-run-on-remote-linux.html
+    \previouspage creator-how-tos.html
 
-    \section1 Running on Remote Linux Devices
+    \ingroup creator-how-to-run
 
-    To build the application and run it on a device:
+    \title Run on remote Linux devices
+
+    To build an application and run it on a device:
 
         \list 1
 
-            \li Specify a connection to the device. For more information, see
-                \l{Connecting Remote Linux Devices}.
+            \li Specify a connection to the device.
 
-            \li Click the \uicontrol Run button.
+            \li Select \inlineimage icons/run_small.png (\uicontrol Run).
 
         \endlist
 
-    \QC uses the compiler specified in the project build settings
-    (tool chain) to build the application.
+    \QC uses the compiler from the kit (tool chain) to build the application.
 
     \QC copies the application files to the connected device and runs the
     application. The application views are
@@ -33,5 +34,6 @@
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.
 
-//! [running on embedded linux]
+    \sa {Connecting Remote Linux Devices}, {Run on many platforms}, {Compilers},
+    {Embedded Platforms}, {kit-preferences}{Kits}
 */

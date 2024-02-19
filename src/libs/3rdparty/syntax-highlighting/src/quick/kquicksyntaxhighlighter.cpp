@@ -49,7 +49,7 @@ QVariant KQuickSyntaxHighlighter::definition() const
 void KQuickSyntaxHighlighter::setDefinition(const QVariant &definition)
 {
     Definition def;
-    if (definition.type() == QVariant::String) {
+    if (definition.userType() == QMetaType::QString) {
         def = unwrappedRepository()->definitionForName(definition.toString());
     } else {
         def = definition.value<Definition>();
@@ -73,9 +73,9 @@ QVariant KQuickSyntaxHighlighter::theme() const
 void KQuickSyntaxHighlighter::setTheme(const QVariant &theme)
 {
     Theme t;
-    if (theme.type() == QVariant::String) {
+    if (theme.userType() == QMetaType::QString) {
         t = unwrappedRepository()->theme(theme.toString());
-    } else if (theme.type() == QVariant::Int) {
+    } else if (theme.userType() == QMetaType::Int) {
         t = unwrappedRepository()->defaultTheme(static_cast<Repository::DefaultTheme>(theme.toInt()));
     } else {
         t = theme.value<Theme>();
@@ -89,12 +89,12 @@ void KQuickSyntaxHighlighter::setTheme(const QVariant &theme)
     }
 }
 
-RepositoryWrapper *KQuickSyntaxHighlighter::repository() const
+Repository *KQuickSyntaxHighlighter::repository() const
 {
     return m_repository;
 }
 
-void KQuickSyntaxHighlighter::setRepository(RepositoryWrapper *repository)
+void KQuickSyntaxHighlighter::setRepository(Repository *repository)
 {
     if (m_repository == repository) {
         return;
@@ -106,7 +106,9 @@ void KQuickSyntaxHighlighter::setRepository(RepositoryWrapper *repository)
 Repository *KQuickSyntaxHighlighter::unwrappedRepository() const
 {
     if (m_repository) {
-        return m_repository->m_repository;
+        return m_repository;
     }
     return defaultRepository();
 }
+
+#include "moc_kquicksyntaxhighlighter.cpp"

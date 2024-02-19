@@ -1178,6 +1178,8 @@ GroupItem workflowPolicy(WorkflowPolicy policy)
     return Group::workflowPolicy(policy);
 }
 
+const GroupItem nullItem = GroupItem({});
+
 const GroupItem sequential = parallelLimit(1);
 const GroupItem parallel = parallelLimit(0);
 

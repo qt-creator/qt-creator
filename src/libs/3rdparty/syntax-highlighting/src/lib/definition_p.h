@@ -10,11 +10,13 @@
 
 #include "definitionref_p.h"
 #include "highlightingdata_p.hpp"
+#include "state.h"
 #include "worddelimiters_p.h"
 
 #include <QHash>
+#include <QList>
+#include <QSet>
 #include <QString>
-#include <QVector>
 
 #include <vector>
 
@@ -36,7 +38,10 @@ public:
     DefinitionData(const DefinitionData &) = delete;
     DefinitionData &operator=(const DefinitionData &) = delete;
 
-    static DefinitionData *get(const Definition &def);
+    static DefinitionData *get(const Definition &def)
+    {
+        return def.d.get();
+    }
 
     bool isLoaded() const;
     bool loadMetaData(const QString &definitionFileName);
@@ -80,9 +85,9 @@ public:
     std::vector<Context> contexts;
     QHash<QString, Format> formats;
     // data loaded from xml file and emptied after loading contexts
-    QVector<HighlightingContextData> contextDatas;
+    QList<HighlightingContextData> contextDatas;
     // Definition referenced by IncludeRules and ContextSwitch
-    QVector<DefinitionRef> immediateIncludedDefinitions;
+    QList<DefinitionRef> immediateIncludedDefinitions;
     WordDelimiters wordDelimiters;
     WordDelimiters wordWrapDelimiters;
     bool keywordIsLoaded = false;
@@ -93,21 +98,28 @@ public:
     CommentPosition singleLineCommentPosition = CommentPosition::StartOfLine;
     QString multiLineCommentStartMarker;
     QString multiLineCommentEndMarker;
-    QVector<QPair<QChar, QString>> characterEncodings;
+    QList<QPair<QChar, QString>> characterEncodings;
 
     QString fileName;
     QString name = QStringLiteral(QT_TRANSLATE_NOOP("Language", "None"));
+    QByteArray nameUtf8;
+    mutable QString translatedName;
     QString section;
+    QByteArray sectionUtf8;
+    mutable QString translatedSection;
     QString style;
     QString indenter;
     QString author;
     QString license;
-    QVector<QString> mimetypes;
-    QVector<QString> extensions;
+    QList<QString> mimetypes;
+    QList<QString> extensions;
     Qt::CaseSensitivity caseSensitive = Qt::CaseSensitive;
     int version = 0;
     int priority = 0;
     bool hidden = false;
+
+    // cache that is used to unify states in AbstractHighlighter::highlightLine
+    mutable QSet<State> unify;
 };
 }
 

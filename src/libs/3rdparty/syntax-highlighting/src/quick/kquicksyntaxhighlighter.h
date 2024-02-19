@@ -8,8 +8,6 @@
 #ifndef KQUICKSYNTAXHIGHLIGHTER_H
 #define KQUICKSYNTAXHIGHLIGHTER_H
 
-#include "repositorywrapper.h"
-
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -29,7 +27,7 @@ class KQuickSyntaxHighlighter : public QObject
     Q_PROPERTY(QObject *textEdit READ textEdit WRITE setTextEdit NOTIFY textEditChanged)
     Q_PROPERTY(QVariant definition READ definition WRITE setDefinition NOTIFY definitionChanged)
     Q_PROPERTY(QVariant theme READ theme WRITE setTheme NOTIFY themeChanged)
-    Q_PROPERTY(RepositoryWrapper *repository READ repository WRITE setRepository NOTIFY repositoryChanged)
+    Q_PROPERTY(KSyntaxHighlighting::Repository *repository READ repository WRITE setRepository NOTIFY repositoryChanged)
 
 public:
     explicit KQuickSyntaxHighlighter(QObject *parent = nullptr);
@@ -44,8 +42,8 @@ public:
     QVariant theme() const;
     void setTheme(const QVariant &theme);
 
-    RepositoryWrapper *repository() const;
-    void setRepository(RepositoryWrapper *repository);
+    KSyntaxHighlighting::Repository *repository() const;
+    void setRepository(KSyntaxHighlighting::Repository *repository);
 
 Q_SIGNALS:
     void textEditChanged() const;
@@ -59,7 +57,7 @@ private:
     QObject *m_textEdit;
     KSyntaxHighlighting::Definition m_definition;
     KSyntaxHighlighting::Theme m_theme;
-    RepositoryWrapper *m_repository = nullptr;
+    KSyntaxHighlighting::Repository *m_repository = nullptr;
     KSyntaxHighlighting::SyntaxHighlighter *m_highlighter = nullptr;
 };
 

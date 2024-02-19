@@ -192,7 +192,6 @@ public:
     void setData(const Data &data);
     Data data() const { return m_data; }
 
-    QVersionNumber clangdVersion() const { return Utils::clangdVersion(clangdFilePath()); }
     Utils::FilePath clangdIncludePath() const;
     static Utils::FilePath clangdUserConfigFilePath();
 

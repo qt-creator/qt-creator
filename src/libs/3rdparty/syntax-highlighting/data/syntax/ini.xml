@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc;.gitattributes*;.gitconfig*;.gitmodules*;.editorconfig*" mimetype="" version="12" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<!DOCTYPE language>
+<language name="INI Files" section="Configuration" extensions="*.ini;*.cfg;*.pls;*.kcfgc;.gitattributes*;.gitconfig*;.gitmodules*;.editorconfig*" mimetype="" version="13" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL" priority="1">
 
 <highlighting>
 <list name="keywords">

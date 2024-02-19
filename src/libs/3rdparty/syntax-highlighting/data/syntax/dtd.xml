@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"[
+<!DOCTYPE language[
   <!ENTITY nmtoken "[\-\w\d\.:_]+">
   <!ENTITY entref  "(#[0-9]+|#[xX][0-9A-Fa-f]+|&nmtoken;);">
 ]>

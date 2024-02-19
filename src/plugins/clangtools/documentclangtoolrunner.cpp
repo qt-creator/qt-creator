@@ -191,7 +191,7 @@ void DocumentClangToolRunner::run()
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
-    QList<GroupItem> tasks{parallel};
+    QList<GroupItem> tasks;
     const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;
@@ -204,7 +204,7 @@ void DocumentClangToolRunner::run()
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
         const AnalyzeUnits units{{m_fileInfo, includeDir, clangVersion}};
-        auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
+        const auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
                                     const FilePath &path) { return path == mappedPath; };
         const AnalyzeInputData input{tool,
                                      runSettings,
@@ -225,7 +225,7 @@ void DocumentClangToolRunner::run()
         return;
 
     cleanup.dismiss();
-    m_taskTreeRunner.start(tasks);
+    m_taskTreeRunner.start({parallel, tasks});
 }
 
 static void updateLocation(Debugger::DiagnosticLocation &location)

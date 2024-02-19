@@ -38,6 +38,7 @@
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 
+#include <QApplication>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -312,8 +313,11 @@ public:
     explicit LinuxDevicePrivate(LinuxDevice *parent);
     ~LinuxDevicePrivate();
 
-    bool setupShell(const SshParameters &sshParameters);
+    bool setupShell(const SshParameters &sshParameters, bool announce);
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
+    void announceConnectionAttempt();
+    void unannounceConnectionAttempt();
+    Id announceId() const { return q->id().withPrefix("announce_"); }
 
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
@@ -1166,17 +1170,23 @@ void LinuxDevicePrivate::checkOsType()
 }
 
 // Call me with shell mutex locked
-bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters)
+bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
     if (m_handler->isRunning(sshParameters))
         return true;
 
     invalidateEnvironmentCache();
 
+    if (announce)
+        announceConnectionAttempt();
+
     bool ok = false;
     QMetaObject::invokeMethod(m_handler, [this, sshParameters] {
         return m_handler->start(sshParameters);
     }, Qt::BlockingQueuedConnection, &ok);
+
+    if (announce)
+        unannounceConnectionAttempt();
 
     if (ok) {
         setDisconnected(false);
@@ -1194,11 +1204,34 @@ RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArra
     DEBUG(cmd.toUserOutput());
     if (checkDisconnectedWithWarning())
         return {};
-    const bool isSetup = setupShell(q->sshParameters());
+    const bool isSetup = setupShell(q->sshParameters(), true);
     if (checkDisconnectedWithWarning())
         return {};
     QTC_ASSERT(isSetup, return {});
     return m_handler->runInShell(cmd, data);
+}
+
+void LinuxDevicePrivate::announceConnectionAttempt()
+{
+    const auto announce = [id = announceId(), name = q->displayName()] {
+        Core::ICore::infoBar()->addInfo(
+            InfoBarEntry(id,
+                         Tr::tr("Establishing initial connection to device \"%1\". "
+                                "This might take a moment.")
+                             .arg(name)));
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // Yes, twice.
+    };
+    if (QThread::currentThread() == qApp->thread())
+        announce();
+    else
+        QMetaObject::invokeMethod(Core::ICore::infoBar(), announce, Qt::BlockingQueuedConnection);
+}
+
+void LinuxDevicePrivate::unannounceConnectionAttempt()
+{
+    QMetaObject::invokeMethod(Core::ICore::infoBar(),
+                              [id = announceId()] { Core::ICore::infoBar()->removeInfo(id); });
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
@@ -1207,11 +1240,12 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
         return false;
 
     QMetaObject::invokeMethod(Core::ICore::infoBar(), [id = q->id(), name = q->displayName()] {
-        if (!Core::ICore::infoBar()->canInfoBeAdded(id))
+        const Id errorId = id.withPrefix("error_");
+        if (!Core::ICore::infoBar()->canInfoBeAdded(errorId))
             return;
         const QString warnStr
             = Tr::tr("Device \"%1\" is currently marked as disconnected.").arg(name);
-        InfoBarEntry info(id, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
+        InfoBarEntry info(errorId, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
         info.setDetailsWidgetCreator([] {
             const auto label = new QLabel(Tr::tr(
                 "The device was not available when trying to connect previously.<br>"
@@ -1638,7 +1672,7 @@ QFuture<bool> LinuxDevice::tryToConnect()
 {
     return Utils::asyncRun([this] {
         QMutexLocker locker(&d->m_shellMutex);
-        return d->setupShell(sshParameters());
+        return d->setupShell(sshParameters(), false);
     });
 }
 

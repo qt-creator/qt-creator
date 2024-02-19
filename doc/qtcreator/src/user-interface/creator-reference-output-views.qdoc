@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -78,25 +78,87 @@
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
 
-    \title Search Results
+    \title Search Results View
 
-    \brief Lets you search through projects, files on a file system or the
-    currently open files.
+    \brief Search through projects, files on a file system or the
+    currently open files and view search results.
 
-    The search history (1) stores the search results. You can select earlier
-    searches from the history.
+    The search scope determines where \QC searches for the search string:
 
-    \image qtcreator-search-results.webp {Search Results - criteria}
+    \list
+        \li \uicontrol {All Projects} searches in all projects.
+        \li \uicontrol {Current Project} searches in the currently active
+            project.
+        \li \uicontrol {Files in All Project Directories} recursively searches
+            in all project directories.
+        \li \uicontrol {Files in File System} recursively searches in
+            the selected directory.
+        \li \uicontrol {Current File} searches only from the current
+            file.
+        \li \uicontrol {Open Documents} searches in all open files.
+    \endlist
 
-    The figure below shows an example search result for all
-    occurrences of the search string in the specified directory.
+    In \uicontrol {File pattern} and \uicontrol {Exclusion pattern}, specify
+    file patterns to further restrict the search scope.
 
-    \image qtcreator-search-results-matches.webp {Search Results - matches found}
+    The search criteria determine how \QC matches the search
+    string with text and which results it shows:
 
-    For more information about the different search options, see
-    \l {Finding and Replacing}.
+    \list
+
+        \li To consider case, select \uicontrol {Case sensitive}.
+        \li To search only whole words, select \uicontrol {Whole words only}.
+        \li To search using \l{QRegularExpression}{regular expressions}, select
+            \uicontrol {Use regular expressions}.
+    \endlist
+
+    \image qtcreator-search-file-system.webp {Search Results view with search options}
+
+    \section1 Viewing Search Results
+
+    After you select \uicontrol Search or \uicontrol {Search & Replace}, the view
+    shows a list of files that have search hits.
+
+    \image qtcreator-search-results-matches.webp {Found matches in Search Results}
+
+    To show search hits in the editor:
+
+    \list
+
+        \li To see all occurrences in a file, double-click the file name
+            in the list.
+
+        \li To go to an occurrence, double-click it.
+    \endlist
+
+    To repeat the search after you have made changes to the listed files,
+    for example, select \uicontrol {Search Again}.
+
+    \section1 Search Results View Toolbar
+
+    The toolbar contains options for searching again and navigating search
+    results:
+
+    \list
+        \li To clear the search results, select
+            \inlineimage icons/clean_pane_small.png (\uicontrol Clear).
+        \li To expand and collapse the search results, select
+            \inlineimage icons/qtcreator-expand.png (\uicontrol {Expand All}).
+        \li To start a new search, select
+            \inlineimage icons/qtcreator-new-search-icon.png
+            (\uicontrol {New Search}).
+        \li If the active project has long paths, select \uicontrol {../}
+            (\uicontrol {Show Paths in Relation to Active Project}) to show
+            relative paths.
+        \li To show the results of earlier searches, select them in
+            \uicontrol History.
+    \endlist
 
     \sa {View output}
+
+    \if defined(qtcreator)
+    \sa {Search}{How To: Search}
+    \endif
 */
 
 /*!
