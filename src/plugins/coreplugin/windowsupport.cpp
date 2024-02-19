@@ -15,8 +15,8 @@
 #include <utils/stringutils.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QEvent>
-#include <QGuiApplication>
 #include <QMenu>
 #include <QWidget>
 #include <QWindowStateChangeEvent>
@@ -106,11 +106,8 @@ bool WindowSupport::eventFilter(QObject *obj, QEvent *event)
         updateFullScreenAction();
     } else if (event->type() == QEvent::WindowActivate) {
         m_windowList->setActiveWindow(m_window);
-    } else if (event->type() == QEvent::Hide) {
-        // minimized windows are hidden, but we still want to show them
-        m_windowList->setWindowVisible(m_window, m_window->isMinimized());
-    } else if (event->type() == QEvent::Show) {
-        m_windowList->setWindowVisible(m_window, true);
+    } else if (event->type() == QEvent::Hide || event->type() == QEvent::Show) {
+        m_windowList->updateVisibility(m_window);
     }
     return false;
 }
@@ -182,15 +179,28 @@ void WindowList::activateWindow(QAction *action)
     ICore::raiseWindow(m_windows.at(index));
 }
 
-void WindowList::updateTitle(QWidget *window)
+void WindowList::updateTitle(QWidget *window, int i)
 {
-    int index = m_windows.indexOf(window);
+    const int index = i < 0 ? m_windows.indexOf(window) : i;
     QTC_ASSERT(index >= 0, return);
     QTC_ASSERT(index < m_windowActions.size(), return);
     QString title = window->windowTitle();
     if (title.endsWith(QStringLiteral("- ") + QGuiApplication::applicationDisplayName()))
         title.chop(12);
     m_windowActions.at(index)->setText(Utils::quoteAmpersands(title.trimmed()));
+}
+
+void WindowList::updateVisibility(QWidget *window)
+{
+    updateVisibility(window, m_windows.indexOf(window));
+}
+
+void WindowList::updateVisibility(QWidget *window, int index)
+{
+    QTC_ASSERT(index >= 0, return);
+    QTC_ASSERT(index < m_windowActions.size(), return);
+    // minimized windows are hidden, but we still want to show them
+    m_windowActions.at(index)->setVisible(window->isVisible() || window->isMinimized());
 }
 
 void WindowList::removeWindow(QWidget *window)
@@ -207,22 +217,18 @@ void WindowList::removeWindow(QWidget *window)
 
     m_windows.removeOne(window);
 
-    for (int i = index; i < m_windows.size(); ++i)
-        updateTitle(m_windows.at(i));
+    for (int i = index; i < m_windows.size(); ++i) {
+        QWidget *window = m_windows.at(i);
+        updateTitle(window, i);
+        updateVisibility(window, i);
+    }
+    setActiveWindow(QApplication::activeWindow());
 }
 
 void WindowList::setActiveWindow(QWidget *window)
 {
     for (int i = 0; i < m_windows.size(); ++i)
         m_windowActions.at(i)->setChecked(m_windows.at(i) == window);
-}
-
-void WindowList::setWindowVisible(QWidget *window, bool visible)
-{
-    int index = m_windows.indexOf(window);
-    QTC_ASSERT(index >= 0, return);
-    QTC_ASSERT(index < m_windowActions.size(), return);
-    m_windowActions.at(index)->setVisible(visible);
 }
 
 } // Internal
