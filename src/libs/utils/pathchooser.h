@@ -99,8 +99,6 @@ public:
     QStringList commandVersionArguments() const;
     void setCommandVersionArguments(const QStringList &arguments);
 
-    // Utility to run a tool and return its stdout.
-    static QString toolVersion(const CommandLine &cmd);
     // Install a tooltip on lineedits used for binaries showing the version.
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 

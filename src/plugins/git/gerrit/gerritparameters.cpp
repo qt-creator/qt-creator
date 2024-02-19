@@ -5,6 +5,7 @@
 #include "gerritplugin.h"
 
 #include <utils/commandline.h>
+#include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -70,8 +71,12 @@ void GerritParameters::setPortFlagBySshType()
 {
     bool isPlink = false;
     if (!ssh.isEmpty()) {
-        const QString version = PathChooser::toolVersion({ssh, {"-V"}});
-        isPlink = version.contains("plink", Qt::CaseInsensitive);
+        DataFromProcess<QString>::Parameters params({ssh, {"-V"}},
+                                                    [](const QString &output) { return output; });
+        using namespace std::chrono_literals;
+        params.timeout = 1s;
+        if (const auto version = DataFromProcess<QString>::getData(params))
+            isPlink = version->contains("plink", Qt::CaseInsensitive);
     }
     portFlag = QLatin1String(isPlink ? "-P" : defaultPortFlag);
 }

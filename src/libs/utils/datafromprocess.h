@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -32,6 +33,7 @@ public:
     public:
         using OutputParser = std::function<std::optional<Data>(const QString &)>;
         using ErrorHandler = std::function<void(const Process &)>;
+        using Callback = std::function<void(const std::optional<Data> &)>;
 
         Parameters(const CommandLine &cmdLine, const OutputParser &parser)
             : commandLine(cmdLine)
@@ -43,25 +45,50 @@ public:
         std::chrono::seconds timeout = std::chrono::seconds(10);
         OutputParser parser;
         ErrorHandler errorHandler;
+        Callback callback;
         QList<ProcessResult> allowedResults{ProcessResult::FinishedWithSuccess};
     };
 
+    // Use the first variant whenever possible.
+    static void provideData(const Parameters &params);
     static std::optional<Data> getData(const Parameters &params);
-
-    // TODO: async variant.
 
 private:
     using Key = std::tuple<FilePath, QStringList, QString>;
     using Value = std::pair<std::optional<Data>, QDateTime>;
+
+    static std::optional<Data> getOrProvideData(const Parameters &params);
+    static std::optional<Data> handleProcessFinished(const Parameters &params,
+                                                     const QDateTime &exeTimestamp,
+                                                     const Key &cacheKey,
+                                                     const std::shared_ptr<Process> &process);
+
     static inline QHash<Key, Value> m_cache;
     static inline QMutex m_cacheMutex;
 };
 
 template<typename Data>
+inline void DataFromProcess<Data>::provideData(const Parameters &params)
+{
+    QTC_ASSERT(params.callback, return);
+    getOrProvideData(params);
+}
+
+template<typename Data>
 inline std::optional<Data> DataFromProcess<Data>::getData(const Parameters &params)
 {
-    if (params.commandLine.executable().isEmpty())
+    QTC_ASSERT(!params.callback, return {});
+    return getOrProvideData(params);
+}
+
+template<typename Data>
+inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Parameters &params)
+{
+    if (params.commandLine.executable().isEmpty()) {
+        if (params.callback)
+            params.callback({});
         return {};
+    }
 
     const auto key = std::make_tuple(params.commandLine.executable(),
                                      params.environment.toStringList(),
@@ -74,21 +101,47 @@ inline std::optional<Data> DataFromProcess<Data>::getData(const Parameters &para
             return it.value().first;
     }
 
-    Process outputRetriever;
-    outputRetriever.setCommand(params.commandLine);
-    outputRetriever.runBlocking(params.timeout);
-
-    // Do not store into cache: The next call might succeed.
-    if (outputRetriever.result() == ProcessResult::Canceled)
+    const auto outputRetriever = std::make_shared<Process>();
+    outputRetriever->setCommand(params.commandLine);
+    if (params.callback) {
+        QObject::connect(outputRetriever.get(),
+                         &Process::done,
+                         [params, exeTimestamp, key, outputRetriever] {
+                             handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+                         });
+        outputRetriever->start();
         return {};
+    }
+
+    outputRetriever->runBlocking(params.timeout);
+    return handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+}
+
+template<typename Data>
+inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
+    const Parameters &params,
+    const QDateTime &exeTimestamp,
+    const Key &cacheKey,
+    const std::shared_ptr<Process> &process)
+{
+    // Do not store into cache: The next call might succeed.
+    if (process->result() == ProcessResult::Canceled) {
+        if (params.callback)
+            params.callback({});
+        return {};
+    }
 
     std::optional<Data> data;
-    if (params.allowedResults.contains(outputRetriever.result()))
-        data = params.parser(outputRetriever.cleanedStdOut());
+    if (params.allowedResults.contains(process->result()))
+        data = params.parser(process->cleanedStdOut());
     else if (params.errorHandler)
-        params.errorHandler(outputRetriever);
+        params.errorHandler(*process);
     QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
-    m_cache.insert(key, std::make_pair(data, exeTimestamp));
+    m_cache.insert(cacheKey, std::make_pair(data, exeTimestamp));
+    if (params.callback) {
+        params.callback(data);
+        return {};
+    }
     return data;
 }
 

@@ -19,6 +19,7 @@
 #include <QFileDialog>
 #include <QFuture>
 #include <QGuiApplication>
+#include <QHelpEvent>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPushButton>
@@ -85,8 +86,6 @@ public:
     QStringList arguments() const { return m_arguments; }
     void setArguments(const QStringList &arguments) { m_arguments = arguments; }
 
-    static QString toolVersion(const CommandLine &cmd);
-
 private:
     // Extension point for concatenating existing tooltips.
     virtual QString defaultToolTip() const  { return QString(); }
@@ -108,35 +107,41 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     QTC_ASSERT(le, return false);
 
     const QString binary = le->text();
-    if (!binary.isEmpty()) {
-        const QString version = BinaryVersionToolTipEventFilter::toolVersion(
-                    CommandLine(FilePath::fromString(QDir::cleanPath(binary)), m_arguments));
-        if (!version.isEmpty()) {
-            // Concatenate tooltips.
-            QString tooltip = "<html><head/><body>";
-            const QString defaultValue = defaultToolTip();
-            if (!defaultValue.isEmpty()) {
-                tooltip += "<p>";
-                tooltip += defaultValue;
-                tooltip += "</p>";
-            }
-            tooltip += "<pre>";
-            tooltip += version;
-            tooltip += "</pre><body></html>";
-            le->setToolTip(tooltip);
-        }
-    }
-    return false;
-}
+    DataFromProcess<QString>::Parameters params(CommandLine(FilePath::fromString(
+                                                                QDir::cleanPath(binary)),
+                                                            m_arguments),
+                                                [](const QString &output) { return output; });
+    params.callback = [binary, self = QPointer(this),
+                       le = QPointer(le)](const std::optional<QString> &version) {
+        if (!self || !le)
+            return;
+        if (!version || version->isEmpty())
+            return;
+        if (binary != le->text())
+            return;
 
-QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
-{
-    DataFromProcess<QString>::Parameters params(cmd, [](const QString &output) { return output; });
-    using namespace std::chrono_literals;
-    params.timeout = 1s;
-    if (const auto version = DataFromProcess<QString>::getData(params))
-        return *version;
-    return {};
+        // Concatenate tooltips.
+        QString tooltip = "<html><head/><body>";
+        const QString defaultValue = self->defaultToolTip();
+        if (!defaultValue.isEmpty()) {
+            tooltip += "<p>";
+            tooltip += defaultValue;
+            tooltip += "</p>";
+        }
+        tooltip += "<pre>";
+        tooltip += *version;
+        tooltip += "</pre><body></html>";
+        le->setToolTip(tooltip);
+        if (QRect(le->mapToGlobal(QPoint(0, 0)), le->size()).contains(QCursor::pos())) {
+            QCoreApplication::postEvent(le,
+                                        new QHelpEvent(QEvent::ToolTip,
+                                                       le->mapFromGlobal(QCursor::pos()),
+                                                       QCursor::pos()));
+        }
+    };
+    DataFromProcess<QString>::provideData(params);
+
+    return false;
 }
 
 // Extends BinaryVersionToolTipEventFilter to prepend the existing pathchooser
@@ -720,11 +725,6 @@ FancyLineEdit *PathChooser::lineEdit() const
     if (d->m_lineEdit->objectName().isEmpty())
         d->m_lineEdit->setObjectName(objectName() + "LineEdit");
     return d->m_lineEdit;
-}
-
-QString PathChooser::toolVersion(const CommandLine &cmd)
-{
-    return BinaryVersionToolTipEventFilter::toolVersion(cmd);
 }
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)
