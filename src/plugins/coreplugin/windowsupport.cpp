@@ -176,7 +176,10 @@ void WindowList::activateWindow(QAction *action)
     int index = m_windowActions.indexOf(action);
     QTC_ASSERT(index >= 0, return);
     QTC_ASSERT(index < m_windows.size(), return);
-    ICore::raiseWindow(m_windows.at(index));
+    QWidget *window = m_windows.at(index);
+    if (window->isMinimized())
+        window->setWindowState(window->windowState() & ~Qt::WindowMinimized);
+    ICore::raiseWindow(window);
 }
 
 void WindowList::updateTitle(QWidget *window, int i)
