@@ -12,6 +12,7 @@
 #include "nodemetainfo.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
+#include <utils3d.h>
 
 #include <coreplugin/messagebox.h>
 
@@ -117,7 +118,7 @@ ModelNode CreateTexture::resolveSceneEnv(int sceneId)
     if (selectedNode.metaInfo().isQtQuick3DSceneEnvironment()) {
         activeSceneEnv = selectedNode;
     } else if (sceneId != -1) {
-        ModelNode activeScene = m_view->active3DSceneNode();
+        ModelNode activeScene = Utils3D::active3DSceneNode(m_view);
         if (activeScene.isValid()) {
             QmlObjectNode view3D;
             if (activeScene.metaInfo().isQtQuick3DView3D()) {

@@ -95,8 +95,6 @@ inline constexpr AuxiliaryDataKeyDefaultValue insightCategoriesProperty{Auxiliar
                                                                         "insightCategories",
                                                                         {}};
 inline constexpr AuxiliaryDataKeyView uuidProperty{AuxiliaryDataType::Document, "uuid"};
-inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
-                                                            "active3dScene"};
 inline constexpr AuxiliaryDataKeyView tmpProperty{AuxiliaryDataType::Temporary, "tmp"};
 inline constexpr AuxiliaryDataKeyView recordProperty{AuxiliaryDataType::Temporary, "Record"};
 inline constexpr AuxiliaryDataKeyView transitionDurationProperty{AuxiliaryDataType::Document,

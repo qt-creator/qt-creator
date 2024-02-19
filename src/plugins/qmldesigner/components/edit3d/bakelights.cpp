@@ -16,6 +16,7 @@
 #include <nodemetainfo.h>
 #include <plaintexteditmodifier.h>
 #include <rewriterview.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
@@ -84,7 +85,7 @@ ModelNode BakeLights::resolveView3dNode(AbstractView *view)
         return {};
 
     ModelNode activeView3D;
-    ModelNode activeScene = view->active3DSceneNode();
+    ModelNode activeScene = Utils3D::active3DSceneNode(view);
 
     if (activeScene.isValid()) {
         if (activeScene.metaInfo().isQtQuick3DView3D()) {

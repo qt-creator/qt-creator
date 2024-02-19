@@ -49,7 +49,9 @@ public:
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
-    void active3DSceneChanged(qint32 sceneId) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView type,
+                              const QVariant &data) override;
     void currentStateChanged(const ModelNode &node) override;
 
     void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture = {});
@@ -65,6 +67,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
+    void active3DSceneChanged(qint32 sceneId);
     void refreshModel(bool updateImages);
     void updateMaterialsPreview();
     bool isMaterial(const ModelNode &node) const;

@@ -373,8 +373,6 @@ void AbstractView::modelNodePreviewPixmapChanged(const ModelNode &/*node*/, cons
 
 void AbstractView::view3DAction(View3DActionType, const QVariant &) {}
 
-void AbstractView::active3DSceneChanged(qint32 /*sceneId*/) {}
-
 void AbstractView::dragStarted(QMimeData * /*mimeData*/) {}
 void AbstractView::dragEnded() {}
 
@@ -835,19 +833,6 @@ bool AbstractView::isPartOfMaterialLibrary(const ModelNode &node)
     return matLib.isValid()
             && (node == matLib
                 || (node.hasParentProperty() && node.parentProperty().parentModelNode() == matLib));
-}
-
-ModelNode AbstractView::active3DSceneNode()
-{
-    auto activeSceneAux = rootModelNode().auxiliaryData(active3dSceneProperty);
-    if (activeSceneAux) {
-        int activeScene = activeSceneAux->toInt();
-
-        if (hasModelNodeForInternalId(activeScene))
-            return modelNodeForInternalId(activeScene);
-    }
-
-    return {};
 }
 
 ModelNode AbstractView::getTextureDefaultInstance(const QString &source)

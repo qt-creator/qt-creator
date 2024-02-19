@@ -111,6 +111,7 @@ private:
     void handleEntriesChanged();
     void showMaterialPropertiesView();
     void updateAlignActionStates();
+    void setActive3DSceneId(qint32 sceneId);
 
     void createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction);
     void createGridColorSelectionAction();

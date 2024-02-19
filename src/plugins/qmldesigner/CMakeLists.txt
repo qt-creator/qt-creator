@@ -626,6 +626,7 @@ extend_qtc_plugin(QmlDesigner
     anchoraction.cpp anchoraction.h
     svgpasteaction.cpp svgpasteaction.h
     viewmanager.cpp viewmanager.h
+    utils3d.cpp utils3d.h
 )
 
 extend_qtc_plugin(QmlDesigner

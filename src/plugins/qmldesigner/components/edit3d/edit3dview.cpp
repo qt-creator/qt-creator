@@ -23,7 +23,9 @@
 #include "seekerslider.h"
 #include "snapconfiguration.h"
 
+#include <auxiliarydataproperties.h>
 #include <model/modelutils.h>
+#include <utils3d.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -143,7 +145,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        model()->setActive3DSceneId(newActiveScene);
+        setActive3DSceneId(newActiveScene);
         updateAlignActionStates();
     }
 
@@ -238,7 +240,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     bool desiredSyncValue = false;
     if (sceneState.contains(syncEnvBgKey))
         desiredSyncValue = sceneState[syncEnvBgKey].toBool();
-    ModelNode checkNode = active3DSceneNode();
+    ModelNode checkNode = Utils3D::active3DSceneNode(this);
     const bool activeSceneValid = checkNode.isValid();
 
     while (checkNode.isValid()) {
@@ -385,7 +387,7 @@ void Edit3DView::updateAlignActionStates()
 {
     bool enabled = false;
 
-    ModelNode activeScene = active3DSceneNode();
+    ModelNode activeScene = Utils3D::active3DSceneNode(this);
     if (activeScene.isValid()) {
         const QList<ModelNode> nodes = activeScene.allSubModelNodes();
         enabled = ::Utils::anyOf(nodes, [](const ModelNode &node) {
@@ -395,6 +397,11 @@ void Edit3DView::updateAlignActionStates()
 
     m_alignCamerasAction->action()->setEnabled(enabled);
     m_alignViewAction->action()->setEnabled(enabled);
+}
+
+void Edit3DView::setActive3DSceneId(qint32 sceneId)
+{
+    rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)

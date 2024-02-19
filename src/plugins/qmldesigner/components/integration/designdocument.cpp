@@ -15,6 +15,7 @@
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <rewritingexception.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
@@ -232,13 +233,12 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         });
 
         if (all3DNodes) {
-            auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
-            if (data) {
-                if (int activeSceneId = data->toInt(); activeSceneId != -1) {
-                    NodeListProperty sceneNodeProperty = QmlVisualNode::findSceneNodeProperty(
-                                rootModelNode().view(), activeSceneId);
-                    targetNode = sceneNodeProperty.parentModelNode();
-                }
+            int activeSceneId = Utils3D::active3DSceneId(m_documentModel.get());
+
+            if (activeSceneId != -1) {
+                NodeListProperty sceneNodeProperty = QmlVisualNode::findSceneNodeProperty(
+                    rootModelNode().view(), activeSceneId);
+                targetNode = sceneNodeProperty.parentModelNode();
             }
         }
     }

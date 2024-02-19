@@ -733,11 +733,6 @@ void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &val
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
 }
 
-void ModelPrivate::notifyActive3DSceneIdChanged(qint32 sceneId)
-{
-    notifyInstanceChanges([&](AbstractView *view) { view->active3DSceneChanged(sceneId); });
-}
-
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });
@@ -1901,24 +1896,6 @@ QString Model::generateIdFromName(const QString &name, const QString &fallbackId
     }
 
     return newId;
-}
-
-void Model::setActive3DSceneId(qint32 sceneId)
-{
-    auto activeSceneAux = d->rootNode()->auxiliaryData(active3dSceneProperty);
-    if (activeSceneAux && activeSceneAux->toInt() == sceneId)
-        return;
-
-    d->rootNode()->setAuxiliaryData(active3dSceneProperty, sceneId);
-    d->notifyActive3DSceneIdChanged(sceneId);
-}
-
-qint32 Model::active3DSceneId() const
-{
-    auto sceneId = d->rootNode()->auxiliaryData(active3dSceneProperty);
-    if (sceneId)
-        return sceneId->toInt();
-    return -1;
 }
 
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)

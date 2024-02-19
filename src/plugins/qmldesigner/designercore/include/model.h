@@ -239,9 +239,6 @@ public:
                           std::optional<std::function<bool(const QString &)>> isDuplicate = {}) const;
     QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
-    void setActive3DSceneId(qint32 sceneId);
-    qint32 active3DSceneId() const;
-
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
