@@ -117,6 +117,11 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
         }
     });
 
+    connect(m_effectComposerModel.data(), &EffectComposerModel::modelAboutToBeReset,
+            this, [this] {
+        QMetaObject::invokeMethod(quickWidget()->rootObject(), "storeExpandStates");
+    });
+
     connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave, this, [this] {
         if (m_effectComposerModel->hasUnsavedChanges()) {
             QString compName = m_effectComposerModel->currentComposition();

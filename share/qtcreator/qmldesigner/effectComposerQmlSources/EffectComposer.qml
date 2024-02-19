@@ -22,6 +22,7 @@ ColumnLayout {
     property int moveFromIdx: 0
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
+    property var expandStates: null
 
     // Invoked after save changes is done
     property var onSaveChangesCallback: () => {}
@@ -31,6 +32,28 @@ ColumnLayout {
         root.onSaveChangesCallback = () => { EffectComposerBackend.rootView.doOpenComposition() }
 
         saveChangesDialog.open()
+    }
+
+    // Invoked from C++ side before resetting the model to store current expanded state of nodes
+    function storeExpandStates() {
+        expandStates = new Map()
+
+        for (let i = 0; i < repeater.count; ++i) {
+            var curItem = repeater.itemAt(i)
+            expandStates.set(curItem.caption, curItem.expanded)
+        }
+    }
+
+    // Invoked after model has been reset to restore expanded state for nodes
+    function restoreExpandStates() {
+        if (expandStates) {
+            for (let i = 0; i < repeater.count; ++i) {
+                var curItem = repeater.itemAt(i)
+                if (expandStates.has(curItem.caption))
+                    curItem.expanded = expandStates.get(curItem.caption)
+            }
+            expandStates = null
+        }
     }
 
     Connections {
@@ -200,6 +223,13 @@ ColumnLayout {
                     interactive: !HelperWidgets.Controller.contextMenuOpened
 
                     onContentHeightChanged: {
+                        // Expand states are stored before full model reset.
+                        // Content height change indicates the model has been updated after full
+                        // reset, so we restore expand states if any are stored.
+                        root.restoreExpandStates()
+
+                        // If content height change was because a recent node addition, we want to
+                        // scroll to the end of the content so the newly added item is visible.
                         if (nodesComboBox.nodeJustAdded && scrollView.contentItem.height > scrollView.height) {
                             let lastItemH = repeater.itemAt(repeater.count - 1).height
                             scrollView.contentY = scrollView.contentItem.height - lastItemH
