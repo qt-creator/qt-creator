@@ -347,12 +347,6 @@ bool ensureDataStoreExists(bool &justCreated)
 
     if (qmlDirSaver.finalize()) {
         justCreated = true;
-
-        // Force code model reset to notice changes to existing module
-        auto modelManager = QmlJS::ModelManagerInterface::instance();
-        if (modelManager)
-            modelManager->resetCodeModel();
-
         return true;
     }
 

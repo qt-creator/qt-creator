@@ -19,14 +19,15 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
-
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 namespace {
 
@@ -137,6 +138,12 @@ void CollectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
     resetDataStoreNode();
+}
+
+void CollectionView::modelAboutToBeDetached([[maybe_unused]] Model *model)
+{
+    m_libraryInfoIsUpdated = false;
+    disconnect(m_documentUpdateConnection);
 }
 
 void CollectionView::nodeReparented(const ModelNode &node,
@@ -292,6 +299,10 @@ void CollectionView::assignCollectionToNode(const QString &collectionName, const
             }
 
             NodeProperty delegateProperty = node.nodeProperty("delegate");
+            // Remove the old model node if is available
+            if (delegateProperty.modelNode())
+                delegateProperty.modelNode().destroy();
+
             delegateProperty.setModelNode(rowItem);
         }
     });
@@ -324,8 +335,29 @@ void CollectionView::ensureDataStoreExists()
 {
     bool filesJustCreated = false;
     bool filesExist = CollectionEditorUtils::ensureDataStoreExists(filesJustCreated);
-    if (filesExist && filesJustCreated)
-        resetDataStoreNode();
+    if (filesExist) {
+        if (filesJustCreated) {
+            // Force code model reset to notice changes to existing module
+            auto modelManager = QmlJS::ModelManagerInterface::instance();
+            if (modelManager) {
+                m_libraryInfoIsUpdated = false;
+
+                m_expectedDocumentUpdates.clear();
+                m_expectedDocumentUpdates << CollectionEditorUtils::dataStoreQmlFilePath()
+                                          << CollectionEditorUtils::dataStoreJsonFilePath();
+
+                m_documentUpdateConnection = connect(modelManager,
+                                                     &QmlJS::ModelManagerInterface::documentUpdated,
+                                                     this,
+                                                     &CollectionView::onDocumentUpdated);
+
+                modelManager->resetCodeModel();
+            }
+            resetDataStoreNode();
+        } else {
+            m_libraryInfoIsUpdated = true;
+        }
+    }
 }
 
 QString CollectionView::collectionNameFromDataStoreChildren(const PropertyName &childPropertyName) const
@@ -387,9 +419,62 @@ void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
         sourceModel->addCollectionToSource(dataStoreNode(),
                                            newCollectionName,
                                            CollectionEditorUtils::defaultColorCollection());
-        assignCollectionToNode(newCollectionName, node);
         m_widget->openCollection(newCollectionName);
+        new DelayedAssignCollectionToItem(this, node, newCollectionName);
     }
+}
+
+void CollectionView::onDocumentUpdated(const QSharedPointer<const QmlJS::Document> &doc)
+{
+    if (m_expectedDocumentUpdates.contains(doc->fileName()))
+        m_expectedDocumentUpdates.remove(doc->fileName());
+
+    if (m_expectedDocumentUpdates.isEmpty()) {
+        disconnect(m_documentUpdateConnection);
+        m_libraryInfoIsUpdated = true;
+    }
+}
+
+DelayedAssignCollectionToItem::DelayedAssignCollectionToItem(CollectionView *parent,
+                                                             const ModelNode &node,
+                                                             const QString &collectionName)
+    : QObject(parent)
+    , m_collectionView(parent)
+    , m_node(node)
+    , m_name(collectionName)
+{
+    checkAndAssign();
+}
+
+void DelayedAssignCollectionToItem::checkAndAssign()
+{
+    AbstractView *view = m_node.view();
+
+    if (!m_node || !m_collectionView || !view || ++m_counter > 50) {
+        deleteLater();
+        return;
+    }
+
+    bool dataStoreFound = false;
+
+    if (m_collectionView->isDataStoreReady()) {
+        for (const QmlTypeData &cppTypeData : view->rewriterView()->getQMLTypes()) {
+            if (cppTypeData.isSingleton && cppTypeData.typeName == "DataStore")
+                dataStoreFound = true;
+        }
+        if (!dataStoreFound && !m_rewriterAmended) {
+            m_collectionView->model()->rewriterView()->forceAmend();
+            m_rewriterAmended = true;
+        }
+    }
+
+    if (!dataStoreFound) {
+        QTimer::singleShot(100, this, &DelayedAssignCollectionToItem::checkAndAssign);
+        return;
+    }
+
+    m_collectionView->assignCollectionToNode(m_name, m_node);
+    deleteLater();
 }
 
 } // namespace QmlDesigner

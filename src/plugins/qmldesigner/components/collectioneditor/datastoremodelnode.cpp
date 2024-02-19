@@ -459,8 +459,16 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
 
     view->executeInTransaction("assignCollectionToNode", [&]() {
         QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
+
+        // Remove the old model node property if exists
+        NodeProperty modelNodeProperty = targetNode.nodeProperty("model");
+        if (modelNodeProperty.modelNode())
+            modelNodeProperty.modelNode().destroy();
+
+        // Assign the collection to the node
         BindingProperty modelProperty = targetNode.bindingProperty("model");
         modelProperty.setExpression(identifier);
+
         if (CollectionEditorUtils::hasTextRoleProperty(targetNode)) {
             VariantProperty textRoleProperty = targetNode.variantProperty("textRole");
             const QVariant currentTextRoleValue = textRoleProperty.value();
