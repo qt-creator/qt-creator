@@ -541,6 +541,7 @@ public:
     static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future,
         std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
 
+    int asyncCount() const;
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
@@ -565,6 +566,7 @@ public:
 signals:
     void started();
     void done(DoneWith result);
+    void asyncCountChanged(int count);
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:

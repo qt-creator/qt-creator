@@ -1516,9 +1516,8 @@ public:
 
     void start();
     void stop();
+    void bumpAsyncCount();
     void advanceProgress(int byValue);
-    void emitStartedAndProgress();
-    void emitProgress();
     void emitDone(DoneWith result);
     void callSetupHandler(StorageBase storage, StoragePtr storagePtr) {
         callStorageHandler(storage, storagePtr, &StorageHandler::m_setupHandler);
@@ -1578,6 +1577,7 @@ public:
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
+    int m_asyncCount = 0;
     QSet<StorageBase> m_storages;
     QHash<StorageBase, StorageHandler> m_storageHandlers;
     std::optional<TaskNode> m_root;
@@ -1722,8 +1722,14 @@ void TaskTreePrivate::start()
 {
     QT_ASSERT(m_root, return);
     QT_ASSERT(!m_runtimeRoot, return);
+    m_asyncCount = 0;
     m_progressValue = 0;
-    emitStartedAndProgress();
+    {
+        GuardLocker locker(m_guard);
+        emit q->started();
+        emit q->asyncCountChanged(m_asyncCount);
+        emit q->progressValueChanged(m_progressValue);
+    }
     // TODO: check storage handlers for not existing storages in tree
     for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
         QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
@@ -1731,6 +1737,7 @@ void TaskTreePrivate::start()
     }
     m_runtimeRoot.reset(new RuntimeTask{*m_root});
     start(m_runtimeRoot.get());
+    bumpAsyncCount();
 }
 
 void TaskTreePrivate::stop()
@@ -1743,6 +1750,15 @@ void TaskTreePrivate::stop()
     emitDone(DoneWith::Cancel);
 }
 
+void TaskTreePrivate::bumpAsyncCount()
+{
+    if (!m_runtimeRoot)
+        return;
+    ++m_asyncCount;
+    GuardLocker locker(m_guard);
+    emit q->asyncCountChanged(m_asyncCount);
+}
+
 void TaskTreePrivate::advanceProgress(int byValue)
 {
     if (byValue == 0)
@@ -1750,18 +1766,6 @@ void TaskTreePrivate::advanceProgress(int byValue)
     QT_CHECK(byValue > 0);
     QT_CHECK(m_progressValue + byValue <= m_root->taskCount());
     m_progressValue += byValue;
-    emitProgress();
-}
-
-void TaskTreePrivate::emitStartedAndProgress()
-{
-    GuardLocker locker(m_guard);
-    emit q->started();
-    emit q->progressValueChanged(m_progressValue);
-}
-
-void TaskTreePrivate::emitProgress()
-{
     GuardLocker locker(m_guard);
     emit q->progressValueChanged(m_progressValue);
 }
@@ -2063,10 +2067,12 @@ SetupResult TaskTreePrivate::start(RuntimeTask *node)
         node->m_task.release()->deleteLater();
         RuntimeIteration *parentIteration = node->m_parentIteration;
         parentIteration->deleteChild(node);
-        if (parentIteration->m_container->isStarting())
+        if (parentIteration->m_container->isStarting()) {
             *unwindAction = toSetupResult(result);
-        else
+        } else {
             childDone(parentIteration, result);
+            bumpAsyncCount();
+        }
     });
 
     node->m_task->start();
@@ -2988,6 +2994,38 @@ DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future,
 }
 
 /*!
+    Returns the current real count of asynchronous chains of invocations.
+
+    The returned value indicates how many times the control has returned to the caller's
+    event loop while the task tree is running. Initially, this value is 0.
+    If the execution of the task tree finishes fully synchronously, this value remains 0.
+    If the task tree contains any asynchronous task that is successfully started during
+    a call to start(), this value is bumped to 1 just before the call to start() finishes.
+    Later, when any asynchronous task finishes and any possible continuations are started,
+    this value is bumped again. The bumping continues until the task tree finishes.
+    After the task tree emitted the done() signal, this value isn't bumped anymore.
+    The asyncCountChanged() signal is emitted on every bump of this value.
+
+    \sa asyncCountChanged()
+*/
+int TaskTree::asyncCount() const
+{
+    return d->m_asyncCount;
+}
+
+/*!
+    \fn void TaskTree::asyncCountChanged(int count)
+
+    This signal is emitted when the running task tree is about to return control to the caller's
+    event loop. When the task tree is started, this signal is emitted with the value of 0,
+    and emitted later on every asyncCount() value bump. Every signal sent
+    (except the initial one with the value of 0) guarantees that the task tree is still running
+    asynchronously after the emission.
+
+    \sa asyncCount()
+*/
+
+/*!
     Returns the number of asynchronous tasks contained in the stored recipe.
 
     \note The returned number doesn't include \l {Tasking::Sync} {Sync} tasks.
@@ -3032,7 +3070,7 @@ int TaskTree::taskCount() const
     When the task tree is started, this number is set to \c 0.
     When the task tree is finished, this number always equals progressMaximum().
 
-    \sa progressMaximum()
+    \sa progressMaximum(), progressValueChanged()
 */
 int TaskTree::progressValue() const
 {
