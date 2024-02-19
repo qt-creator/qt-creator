@@ -5,7 +5,7 @@ source("../../shared/qtcreator.py")
 
 def main():
     with GitClone("git://code.qt.io/qt-creator/qt-creator.git",
-                  "v6.0.1") as CreatorSrcPath:
+                  "v12.0.2") as CreatorSrcPath:
         if not CreatorSrcPath:
             test.fatal("Could not clone Qt Creator")
             return
@@ -15,9 +15,10 @@ def main():
         if not startedWithoutPluginError():
             return
         openQbsProject(pathCreator)
-        if not addAndActivateKit(Targets.DESKTOP_5_14_1_DEFAULT):
+        usedKit = Targets.DESKTOP_6_2_4
+        if not addAndActivateKit(usedKit):
             test.fatal("Failed to activate '%s'"
-                       % Targets.getStringForTarget(Targets.DESKTOP_5_10_1_DEFAULT))
+                       % Targets.getStringForTarget(usedKit))
             invokeMenuItem("File", "Exit")
             return
         test.log("Start parsing project")
