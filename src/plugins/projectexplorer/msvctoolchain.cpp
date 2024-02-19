@@ -124,19 +124,19 @@ static QString platformName(MsvcToolchain::Platform t)
 static bool hostPrefersPlatform(MsvcToolchain::Platform platform)
 {
     switch (HostOsInfo::hostArchitecture()) {
-    case HostOsInfo::HostArchitectureAMD64:
+    case Utils::OsArchAMD64:
         return platform == MsvcToolchain::amd64 || platform == MsvcToolchain::amd64_arm
                || platform == MsvcToolchain::amd64_x86 || platform == MsvcToolchain::amd64_arm64;
-    case HostOsInfo::HostArchitectureX86:
+    case Utils::OsArchX86:
         return platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
                || platform == MsvcToolchain::x86_ia64 || platform == MsvcToolchain::x86_arm
                || platform == MsvcToolchain::x86_arm64;
-    case HostOsInfo::HostArchitectureArm:
+    case Utils::OsArchArm:
         return platform == MsvcToolchain::arm;
-    case HostOsInfo::HostArchitectureArm64:
+    case Utils::OsArchArm64:
         return platform == MsvcToolchain::arm64
                || platform == MsvcToolchain::arm64_x86 || platform == MsvcToolchain::arm64_amd64;
-    case HostOsInfo::HostArchitectureItanium:
+    case Utils::OsArchItanium:
         return platform == MsvcToolchain::ia64;
     default:
         return false;
@@ -151,12 +151,12 @@ static bool hostSupportsPlatform(MsvcToolchain::Platform platform)
     switch (HostOsInfo::hostArchitecture()) {
     // The x86 host toolchains are not the preferred toolchains on amd64 but they are still
     // supported by that host
-    case HostOsInfo::HostArchitectureAMD64:
+    case Utils::OsArchAMD64:
         return platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
                || platform == MsvcToolchain::x86_ia64 || platform == MsvcToolchain::x86_arm
                || platform == MsvcToolchain::x86_arm64;
     // The Arm64 host can run the cross-compilers via emulation of x86 and amd64
-    case HostOsInfo::HostArchitectureArm64:
+    case Utils::OsArchArm64:
         return platform == MsvcToolchain::x86_arm || platform == MsvcToolchain::x86_arm64
                || platform == MsvcToolchain::amd64_arm || platform == MsvcToolchain::amd64_arm64
                || platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
@@ -1228,8 +1228,7 @@ MsvcToolchain::Platform MsvcToolchain::platform() const
     QStringList args = m_varsBatArg.split(' ');
     if (const MsvcPlatform *entry = platformEntryFromName(args.value(0)))
         return entry->platform;
-    return Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64 ? amd64
-                                                                                             : x86;
+    return Utils::HostOsInfo::hostArchitecture() == Utils::OsArchAMD64 ? amd64 : x86;
 }
 
 // --------------------------------------------------------------------------
@@ -1308,8 +1307,7 @@ public:
                 m_varsBatPathCombo->addItem(nativeVcVars);
             }
         }
-        const bool isAmd64
-            = Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64;
+        const bool isAmd64 = Utils::HostOsInfo::hostArchitecture() == Utils::OsArchAMD64;
         // TODO: Add missing values to MsvcToolChain::Platform
         m_varsBatArchCombo->addItem(Tr::tr("<empty>"), isAmd64 ? MsvcToolchain::amd64 : MsvcToolchain::x86);
         m_varsBatArchCombo->addItem("x86", MsvcToolchain::x86);
