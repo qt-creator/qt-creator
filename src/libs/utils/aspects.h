@@ -773,11 +773,11 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TriState
 {
-    enum Value { EnabledValue, DisabledValue, DefaultValue };
-    explicit TriState(Value v) : m_value(v) {}
-
 public:
+    enum Value { EnabledValue, DisabledValue, DefaultValue };
+
     TriState() = default;
+    explicit TriState(Value v) : m_value(v) {}
 
     int toInt() const { return int(m_value); }
     QVariant toVariant() const { return int(m_value); }
@@ -801,9 +801,9 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
 
 public:
     TriStateAspect(AspectContainer *container = nullptr,
-                   const QString &onString = {},
-                   const QString &offString = {},
-                   const QString &defaultString = {});
+                   const QString &enabledDisplay = {},
+                   const QString &disabledDisplay = {},
+                   const QString &defaultDisplay = {});
 
     TriState operator()() const { return value(); }
     TriState value() const;
@@ -812,9 +812,8 @@ public:
     TriState defaultValue() const;
     void setDefaultValue(TriState setting);
 
-    void setOptionTexts(const QString &onString,
-                        const QString &offString,
-                        const QString &defaultString);
+    void setOptionText(const TriState::Value tristate, const QString &display);
+
 private:
     void addOption(const QString &displayName, const QString &toolTip = {}) = delete;
     void addOption(const Option &option) = delete;

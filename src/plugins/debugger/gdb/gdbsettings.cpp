@@ -168,7 +168,7 @@ GdbSettings::GdbSettings()
 
     useDebugInfoD.setSettingsKey("UseDebugInfoD");
     useDebugInfoD.setLabelText(Tr::tr("Use debug info daemon"));
-    useDebugInfoD.setOptionTexts({}, {}, tr("Use system settings"));
+    useDebugInfoD.setOptionText(TriState::DefaultValue, tr("Use system settings"));
     useDebugInfoD.setToolTip(Tr::tr("Lets GDB attempt to automatically retrieve "
                                     "debug information for system packages."));
 

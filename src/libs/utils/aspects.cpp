@@ -2511,9 +2511,9 @@ void DoubleAspect::setSingleStep(double step)
 */
 
 TriStateAspect::TriStateAspect(AspectContainer *container,
-                               const QString &onString,
-                               const QString &offString,
-                               const QString &defaultString)
+                               const QString &enabledDisplay,
+                               const QString &disabledDisplay,
+                               const QString &defaultDisplay)
     : SelectionAspect(container)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
@@ -2521,17 +2521,26 @@ TriStateAspect::TriStateAspect(AspectContainer *container,
     SelectionAspect::addOption({});
     SelectionAspect::addOption({});
     SelectionAspect::addOption({});
-    setOptionTexts(onString, offString, defaultString);
+    setOptionText(TriState::EnabledValue, enabledDisplay);
+    setOptionText(TriState::DisabledValue, disabledDisplay);
+    setOptionText(TriState::DefaultValue, defaultDisplay);
 }
 
-void TriStateAspect::setOptionTexts(const QString &onString,
-                                    const QString &offString,
-                                    const QString &defaultString)
+static QString defaultTristateDisplay(TriState::Value tristate)
 {
-    QTC_ASSERT(d->m_options.size() == 3, return);
-    d->m_options[0].displayName = onString.isEmpty() ? Tr::tr("Enable") : onString;
-    d->m_options[1].displayName = offString.isEmpty() ? Tr::tr("Disable") : offString;
-    d->m_options[2].displayName = defaultString.isEmpty() ? Tr::tr("Leave at Default") : defaultString;
+    switch (tristate) {
+        case TriState::EnabledValue: return Tr::tr("Enable");
+        case TriState::DisabledValue: return Tr::tr("Disable");
+        case TriState::DefaultValue: return Tr::tr("Default");
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
+void TriStateAspect::setOptionText(const TriState::Value tristate, const QString &display)
+{
+    d->m_options[tristate].displayName = display.isEmpty()
+        ? defaultTristateDisplay(tristate) : display;
 }
 
 TriState TriStateAspect::value() const
