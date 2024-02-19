@@ -10,6 +10,7 @@
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -44,6 +45,12 @@ QJsonObject AxivionServer::toJson() const
     return result;
 }
 
+static QString fixUrl(const QString &url)
+{
+    const QString trimmed = Utils::trimBack(url, ' ');
+    return trimmed.endsWith('/') ? trimmed : trimmed + '/';
+}
+
 AxivionServer AxivionServer::fromJson(const QJsonObject &json)
 {
     const AxivionServer invalidServer;
@@ -56,7 +63,7 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     const QJsonValue username = json.value("username");
     if (username == QJsonValue::Undefined)
         return invalidServer;
-    return {Id::fromString(id.toString()), dashboard.toString(), username.toString()};
+    return {Id::fromString(id.toString()), fixUrl(dashboard.toString()), username.toString()};
 }
 
 static FilePath tokensFilePath()
@@ -195,7 +202,7 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
         result.id = m_id;
     else
         result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
-    result.dashboard = m_dashboardUrl();
+    result.dashboard = fixUrl(m_dashboardUrl());
     result.username = m_username();
     return result;
 }

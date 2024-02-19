@@ -214,7 +214,7 @@ class AxivionTextMark : public TextMark
 {
 public:
     AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue)
-        : TextMark(filePath, issue.startLine, {QString("Axivion"), s_axivionTextMarkId})
+        : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
     {
         const QString markText = issue.description;
         const QString id = issue.kind + QString::number(issue.id.value_or(-1));
@@ -314,10 +314,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
 
 static QUrl urlForProject(const QString &projectName)
 {
-    QString dashboard = settings().server.dashboard;
-    if (!dashboard.endsWith(QLatin1Char('/')))
-        dashboard += QLatin1Char('/');
-    return QUrl(dashboard).resolved(QString("api/projects/")).resolved(projectName);
+    return QUrl(settings().server.dashboard).resolved(QString("api/projects/")).resolved(projectName);
 }
 
 static constexpr int httpStatusCodeOk = 200;
@@ -636,17 +633,15 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
             handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
     };
 
-    const QUrl url(settings().server.dashboard);
-
-    const auto resultHandler = [handler, url](const Dto::DashboardInfoDto &data) {
-        dd->m_dashboardInfo = toDashboardInfo(url, data);
+    const auto resultHandler = [handler](const Dto::DashboardInfoDto &data) {
+        dd->m_dashboardInfo = toDashboardInfo(settings().server.dashboard, data);
         if (handler)
             handler(*dd->m_dashboardInfo);
     };
 
     const Group root {
         onGroupSetup(onSetup), // Stops if cache exists.
-        fetchDataRecipe<Dto::DashboardInfoDto>(url, resultHandler),
+        fetchDataRecipe<Dto::DashboardInfoDto>(settings().server.dashboard, resultHandler),
         onGroupDone(onDone, CallDoneIf::Error)
     };
     return root;
@@ -680,10 +675,6 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
-
-    QString dashboard = settings().server.dashboard;
-    if (!dashboard.endsWith(QLatin1Char('/')))
-        dashboard += QLatin1Char('/');
 
     const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
                          .resolved(QString("issues/"))
