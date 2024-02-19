@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -9,9 +9,9 @@
 
     \title Edit Markdown files
 
-    Open \l{https://www.markdownguide.org/basic-syntax/}{Markdown} (.md) files
-    or select \uicontrol File > \uicontrol {New File} > \uicontrol {General} >
-    \uicontrol {Markdown File} to create a new file.
+    Open \l{https://www.markdownguide.org/basic-syntax/}{Markdown} (.md) files,
+    or go to \uicontrol File > \uicontrol {New File} and select
+    \uicontrol {General} > \uicontrol {Markdown File} to create a new file.
 
     \image qtcreator-markdown-editor.webp {Markdown file in Preview and Editor views}
 
@@ -26,4 +26,20 @@
     Use the buttons on the editor toolbar to format text as italic (i), bold (b),
     or inline code (`), and to create links to web sites
     (\inlineimage icons/linkicon.png).
+
+    \section1 Move to a line and column
+
+    The line and column indicator shows information about the current cursor
+    position. Select it to activate the locator, and enter a line and column
+    number to move there.
+
+    \section1 Follow links to web sites
+
+    To follow a link to a web site in the editor:
+
+    \list 1
+        \li Place the cursor on the link.
+        \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu, or
+            press \key F2.
+    \endlist
 */
