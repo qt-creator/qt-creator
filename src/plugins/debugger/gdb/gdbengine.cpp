@@ -1492,6 +1492,16 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
             runCommand({"set target-async off", ConsoleCommand});
 
         //runCommand("set build-id-verbose 2", ConsoleCommand);
+
+        if (m_gdbVersion >= 100100) {
+            const TriState useDebugInfoD = settings().useDebugInfoD();
+            if (useDebugInfoD == TriState::Enabled) {
+                runCommand({"set debuginfod verbose 1"});
+                runCommand({"set debuginfod enabled on"});
+            } else if (useDebugInfoD == TriState::Disabled) {
+                runCommand({"set debuginfod enabled off"});
+            }
+        }
     }
 }
 

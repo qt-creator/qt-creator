@@ -166,6 +166,12 @@ GdbSettings::GdbSettings()
         "binary in the future."));
     useIndexCache.setDefaultValue(true);
 
+    useDebugInfoD.setSettingsKey("UseDebugInfoD");
+    useDebugInfoD.setLabelText(Tr::tr("Use debug info daemon"));
+    useDebugInfoD.setOptionTexts({}, {}, tr("Use system settings"));
+    useDebugInfoD.setToolTip(Tr::tr("Lets GDB attempt to automatically retrieve "
+                                    "debug information for system packages."));
+
     skipKnownFrames.setSettingsKey("SkipKnownFrames");
     skipKnownFrames.setDisplayName(Tr::tr("Skip Known Frames"));
     skipKnownFrames.setLabelText(Tr::tr("Skip known frames when stepping"));
@@ -221,6 +227,7 @@ GdbSettings::GdbSettings()
                 intelFlavor,
                 usePseudoTracepoints,
                 useIndexCache,
+                Row { useDebugInfoD, st },
                 st
             }
         };

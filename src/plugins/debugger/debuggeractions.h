@@ -48,6 +48,7 @@ public:
     Utils::BoolAspect &intelFlavor;
     Utils::BoolAspect &usePseudoTracepoints;
     Utils::BoolAspect &useIndexCache;
+    Utils::TriStateAspect &useDebugInfoD;
     Utils::StringAspect &gdbStartupCommands;
     Utils::StringAspect &gdbPostAttachCommands;
 
