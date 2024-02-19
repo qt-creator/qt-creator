@@ -53,7 +53,6 @@ extend_qtc_plugin(QmlProjectManager
 )
 
 add_qtc_library(QmlProjectManagerLib OBJECT
-    CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
     EXCLUDE_FROM_INSTALL
     DEPENDS
         QmlJS Utils
