@@ -245,6 +245,11 @@ public:
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
+    void setCurrentStateNode(const ModelNode &node);
+    ModelNode currentStateNode(AbstractView *view = nullptr);
+
+    void setCurrentTimeline(const ModelNode &timeline);
+
     NotNullPointer<const ProjectStorageType> projectStorage() const;
     const PathCacheType &pathCache() const;
     PathCacheType &pathCache();

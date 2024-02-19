@@ -569,8 +569,8 @@ void AbstractView::setCurrentTimeline(const ModelNode &timeline)
     if (currentTimeline().isValid())
         currentTimeline().toogleRecording(false);
 
-    if (model())
-        model()->d->notifyCurrentTimelineChanged(timeline);
+    if (m_model)
+        m_model->setCurrentTimeline(timeline);
 }
 
 void AbstractView::activateTimelineRecording(const ModelNode &timeline)
@@ -580,8 +580,8 @@ void AbstractView::activateTimelineRecording(const ModelNode &timeline)
 
     Internal::WriteLocker locker(m_model.data());
 
-    if (model())
-        model()->d->notifyCurrentTimelineChanged(timeline);
+    if (m_model)
+        m_model->setCurrentTimeline(timeline);
 }
 
 void AbstractView::deactivateTimelineRecording()
@@ -590,9 +590,8 @@ void AbstractView::deactivateTimelineRecording()
         currentTimeline().toogleRecording(false);
         currentTimeline().resetGroupRecording();
     }
-
-    if (model())
-        model()->d->notifyCurrentTimelineChanged(ModelNode());
+    if (m_model)
+        m_model->setCurrentTimeline({});
 }
 
 bool AbstractView::executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda)
@@ -761,9 +760,8 @@ void AbstractView::emitRewriterEndTransaction()
 
 void AbstractView::setCurrentStateNode(const ModelNode &node)
 {
-    Internal::WriteLocker locker(m_model.data());
-    if (model())
-        model()->d->notifyCurrentStateChanged(node);
+    if (m_model)
+        m_model->setCurrentStateNode(node);
 }
 
 void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
@@ -872,11 +870,10 @@ ModelNode AbstractView::getTextureDefaultInstance(const QString &source)
     return {};
 }
 
-
 ModelNode AbstractView::currentStateNode() const
 {
-    if (model())
-        return ModelNode(m_model.data()->d->currentStateNode(), m_model.data(), const_cast<AbstractView*>(this));
+    if (m_model)
+        return m_model->currentStateNode(const_cast<AbstractView *>(this));
 
     return {};
 }

@@ -681,7 +681,6 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &mode
 
 void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
-    m_currentStateNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentStateChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -689,7 +688,6 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
 void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 {
-    m_currentTimelineNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentTimelineChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -1911,6 +1909,26 @@ void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 void Model::endDrag()
 {
     d->notifyDragEnded();
+}
+
+void Model::setCurrentStateNode(const ModelNode &node)
+{
+    Internal::WriteLocker locker(this);
+    d->m_currentStateNode = node.internalNode();
+    d->notifyCurrentStateChanged(node);
+}
+
+// QTC_TEMP
+ModelNode Model::currentStateNode(AbstractView *view)
+{
+    return ModelNode(d->currentStateNode(), this, view);
+}
+
+void Model::setCurrentTimeline(const ModelNode &timeline)
+{
+    d->m_currentTimelineNode = timeline.internalNode();
+
+    d->notifyCurrentTimelineChanged(timeline);
 }
 
 NotNullPointer<const ProjectStorageType> Model::projectStorage() const
