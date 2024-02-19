@@ -30,7 +30,6 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QStackedWidget>
-#include <QTextBrowser>
 #include <QToolButton>
 
 #include <map>
@@ -615,8 +614,6 @@ AxivionOutputPane::AxivionOutputPane(QObject *parent)
     m_outputWidget->addWidget(dashboardWidget);
     IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
     m_outputWidget->addWidget(issuesWidget);
-    QTextBrowser *browser = new QTextBrowser(m_outputWidget);
-    m_outputWidget->addWidget(browser);
 }
 
 AxivionOutputPane::~AxivionOutputPane()
@@ -706,17 +703,6 @@ void AxivionOutputPane::updateDashboard()
         m_outputWidget->setCurrentIndex(0);
         if (dashboard->hasProject())
             flash();
-    }
-}
-
-void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
-{
-    if (auto browser = static_cast<QTextBrowser *>(m_outputWidget->widget(2))) {
-        browser->setText(ruleHtml);
-        if (!ruleHtml.isEmpty()) {
-            m_outputWidget->setCurrentIndex(2);
-            popup(IOutputPane::NoModeSwitch);
-        }
     }
 }
 

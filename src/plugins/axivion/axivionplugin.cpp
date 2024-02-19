@@ -14,7 +14,9 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/navigationwidget.h>
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -42,6 +44,7 @@
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTextBrowser>
 #include <QTimer>
 
 #include <memory>
@@ -172,6 +175,7 @@ enum class ServerAccess { Unknown, NoAuthorization, WithAuthorization };
 
 class AxivionPluginPrivate : public QObject
 {
+    Q_OBJECT
 public:
     AxivionPluginPrivate();
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
@@ -183,7 +187,12 @@ public:
     void clearAllMarks();
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void fetchIssueInfo(const QString &id);
+    void setIssueDetails(const QString &issueDetailsHtml);
 
+signals:
+    void issueDetailsChanged(const QString &issueDetailsHtml);
+
+public:
     // TODO: Should be set to Unknown on server address change in settings.
     ServerAccess m_serverAccess = ServerAccess::Unknown;
     // TODO: Should be cleared on username change in settings.
@@ -739,10 +748,17 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
         const int idx = htmlText.indexOf("<div class=\"ax-issuedetails-table-container\">");
         if (idx >= 0)
             fixedHtml = "<html><body>" + htmlText.mid(idx);
-        dd->m_axivionOutputPane.updateAndShowRule(QString::fromUtf8(fixedHtml));
+
+        NavigationWidget::activateSubWidget("Axivion.Issue", Side::Right);
+        dd->setIssueDetails(QString::fromUtf8(fixedHtml));
     };
 
     m_issueInfoRunner.start(issueHtmlRecipe(id, ruleHandler));
+}
+
+void AxivionPluginPrivate::setIssueDetails(const QString &issueDetailsHtml)
+{
+    emit issueDetailsChanged(issueDetailsHtml);
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()
@@ -820,6 +836,33 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
     }
 }
 
+class AxivionIssueWidgetFactory final : public INavigationWidgetFactory
+{
+public:
+    AxivionIssueWidgetFactory()
+    {
+        setDisplayName(Tr::tr("Axivion"));
+        setId("Axivion.Issue");
+        setPriority(555);
+    }
+
+    NavigationView createWidget() final
+    {
+        QTC_ASSERT(dd, return {});
+        QTextBrowser *browser = new QTextBrowser;
+        browser->setOpenLinks(false);
+        NavigationView view;
+        view.widget = browser;
+        connect(dd, &AxivionPluginPrivate::issueDetailsChanged, browser, &QTextBrowser::setHtml);
+        return view;
+    }
+};
+
+void setupAxivionIssueWidgetFactory()
+{
+    static AxivionIssueWidgetFactory issueWidgetFactory;
+}
+
 class AxivionPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -837,6 +880,7 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
         dd = new AxivionPluginPrivate;
 
         AxivionProjectSettings::setupProjectPanel();
+        setupAxivionIssueWidgetFactory();
 
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 dd, &AxivionPluginPrivate::onStartupProjectChanged);
