@@ -70,9 +70,6 @@ private:
     void handleHighlighterResults();
     void onHighlighterFinished();
 
-    void connectWatcher();
-    void disconnectWatcher();
-
     unsigned documentRevision() const;
     QVector<TextEditor::Parenthesis> getClearedParentheses(const QTextBlock &block);
 

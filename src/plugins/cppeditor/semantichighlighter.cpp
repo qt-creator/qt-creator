@@ -39,7 +39,7 @@ SemanticHighlighter::SemanticHighlighter(TextDocument *baseTextDocument)
 SemanticHighlighter::~SemanticHighlighter()
 {
     if (m_watcher) {
-        disconnectWatcher();
+        m_watcher->disconnect(this);
         m_watcher->cancel();
         m_watcher->waitForFinished();
     }
@@ -57,11 +57,14 @@ void SemanticHighlighter::run()
     qCDebug(log) << "SemanticHighlighter: run()";
 
     if (m_watcher) {
-        disconnectWatcher();
+        m_watcher->disconnect(this);
         m_watcher->cancel();
     }
     m_watcher.reset(new QFutureWatcher<HighlightingResult>);
-    connectWatcher();
+    connect(m_watcher.get(), &QFutureWatcherBase::resultsReadyAt,
+            this, &SemanticHighlighter::onHighlighterResultAvailable);
+    connect(m_watcher.get(), &QFutureWatcherBase::finished,
+            this, &SemanticHighlighter::onHighlighterFinished);
 
     m_revision = documentRevision();
     m_seenBlocks.clear();
@@ -234,24 +237,6 @@ void SemanticHighlighter::onHighlighterFinished()
 
     m_watcher.release()->deleteLater();
     qCDebug(log) << "onHighlighterFinished() took" << t.elapsed() << "ms";
-}
-
-void SemanticHighlighter::connectWatcher()
-{
-    using Watcher = QFutureWatcher<HighlightingResult>;
-    connect(m_watcher.get(), &Watcher::resultsReadyAt,
-            this, &SemanticHighlighter::onHighlighterResultAvailable);
-    connect(m_watcher.get(), &Watcher::finished,
-            this, &SemanticHighlighter::onHighlighterFinished);
-}
-
-void SemanticHighlighter::disconnectWatcher()
-{
-    using Watcher = QFutureWatcher<HighlightingResult>;
-    disconnect(m_watcher.get(), &Watcher::resultsReadyAt,
-               this, &SemanticHighlighter::onHighlighterResultAvailable);
-    disconnect(m_watcher.get(), &Watcher::finished,
-               this, &SemanticHighlighter::onHighlighterFinished);
 }
 
 unsigned SemanticHighlighter::documentRevision() const
