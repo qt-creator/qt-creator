@@ -78,7 +78,6 @@ protected:
     {
     public:
         OptionMapping() = default;
-        OptionMapping(const QString &option, QObject *obj);
         OptionMapping(const QStringList &optionList, QObject *obj);
         QStringList options;
         QObject *object = nullptr;
