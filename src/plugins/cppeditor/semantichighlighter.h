@@ -6,11 +6,11 @@
 #include "cppeditor_global.h"
 
 #include <QFutureWatcher>
-#include <QScopedPointer>
 #include <QTextCharFormat>
 #include <QVector>
 
 #include <functional>
+#include <memory>
 #include <set>
 
 namespace TextEditor {
@@ -80,7 +80,7 @@ private:
     TextEditor::TextDocument *m_baseTextDocument;
 
     unsigned m_revision = 0;
-    QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
+    std::unique_ptr<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
     QHash<int, QTextCharFormat> m_formatMap;
     std::set<int> m_seenBlocks;
     int m_nextResultToHandle = 0;

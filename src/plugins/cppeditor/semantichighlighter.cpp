@@ -232,25 +232,25 @@ void SemanticHighlighter::onHighlighterFinished()
         TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
     }
 
-    m_watcher.reset();
+    m_watcher.release()->deleteLater();
     qCDebug(log) << "onHighlighterFinished() took" << t.elapsed() << "ms";
 }
 
 void SemanticHighlighter::connectWatcher()
 {
     using Watcher = QFutureWatcher<HighlightingResult>;
-    connect(m_watcher.data(), &Watcher::resultsReadyAt,
+    connect(m_watcher.get(), &Watcher::resultsReadyAt,
             this, &SemanticHighlighter::onHighlighterResultAvailable);
-    connect(m_watcher.data(), &Watcher::finished,
+    connect(m_watcher.get(), &Watcher::finished,
             this, &SemanticHighlighter::onHighlighterFinished);
 }
 
 void SemanticHighlighter::disconnectWatcher()
 {
     using Watcher = QFutureWatcher<HighlightingResult>;
-    disconnect(m_watcher.data(), &Watcher::resultsReadyAt,
+    disconnect(m_watcher.get(), &Watcher::resultsReadyAt,
                this, &SemanticHighlighter::onHighlighterResultAvailable);
-    disconnect(m_watcher.data(), &Watcher::finished,
+    disconnect(m_watcher.get(), &Watcher::finished,
                this, &SemanticHighlighter::onHighlighterFinished);
 }
 
