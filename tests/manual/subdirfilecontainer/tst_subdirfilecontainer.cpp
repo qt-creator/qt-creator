@@ -247,12 +247,7 @@ private slots:
             QDirIterator it(m_tempDir->path(), s_filters, QDirIterator::Subdirectories
                                                               | QDirIterator::FollowSymlinks);
             while (it.hasNext()) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
                 const QFileInfo fi = it.nextFileInfo();
-#else
-                it.next();
-                const QFileInfo fi = it.fileInfo();
-#endif
                 if (fi.isDir()) {
                     ++dirsCount;
                 } else {

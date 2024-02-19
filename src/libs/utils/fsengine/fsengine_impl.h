@@ -19,15 +19,10 @@ public:
     ~FSEngineImpl();
 
 public:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
     bool open(QIODeviceBase::OpenMode openMode,
               std::optional<QFile::Permissions> permissions = std::nullopt) override;
     bool mkdir(const QString &dirName, bool createParentDirectories,
               std::optional<QFile::Permissions> permissions = std::nullopt) const override;
-#else
-    bool open(QIODevice::OpenMode openMode) override;
-    bool mkdir(const QString &dirName, bool createParentDirectories) const override;
-#endif
     bool close() override;
     bool flush() override;
     bool syncToDisk() override;

@@ -33,11 +33,7 @@ void Relayer::setClientSocket(QTcpSocket *clientSocket)
     QTC_CHECK(!m_clientSocket);
     m_clientSocket = clientSocket;
     if (m_clientSocket) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-        const auto errorOccurred = QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error);
-#else
         const auto errorOccurred = &QAbstractSocket::errorOccurred;
-#endif
         connect(m_clientSocket, errorOccurred, this, &Relayer::handleClientHasError);
         connect(m_clientSocket, &QAbstractSocket::disconnected,
                 this, [this](){server()->removeRelayConnection(this);});

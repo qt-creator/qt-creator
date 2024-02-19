@@ -152,11 +152,7 @@ TimelineNotesRenderPassState::TimelineNotesRenderPassState(int numExpandedRows) 
     m_nullGeometry(NotesGeometry::point2DWithDistanceFromTop(), 0)
 {
     m_material.setFlag(QSGMaterial::Blending, true);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
     m_material.setFlag(QSGMaterial::NoBatching, true);
-#else
-    m_material.setFlag(QSGMaterial::CustomCompileStep, true);
-#endif // >= Qt 6.3
     m_expandedRows.reserve(numExpandedRows);
     for (int i = 0; i < numExpandedRows; ++i)
         m_expandedRows << createNode();

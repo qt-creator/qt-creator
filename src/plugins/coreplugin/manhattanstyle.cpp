@@ -190,14 +190,6 @@ QRect ManhattanStyle::subControlRect(
         SubControl subControl,
         const QWidget *widget) const
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 5)
-    // Workaround for QTBUG-101581, can be removed when building with Qt 6.2.5 or higher
-    if (control == CC_ScrollBar) {
-        const auto scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(option);
-        if (scrollbar && qint64(scrollbar->maximum) - scrollbar->minimum > INT_MAX)
-            return QRect(); // breaks the scrollbar, but avoids the crash
-    }
-#endif
     return QProxyStyle::subControlRect(control, option, subControl, widget);
 }
 
