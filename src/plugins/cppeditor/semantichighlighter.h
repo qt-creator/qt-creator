@@ -5,6 +5,8 @@
 
 #include "cppeditor_global.h"
 
+#include <utils/futuresynchronizer.h>
+
 #include <QFutureWatcher>
 #include <QTextCharFormat>
 #include <QVector>
@@ -77,13 +79,14 @@ private:
     TextEditor::TextDocument *m_baseTextDocument;
 
     unsigned m_revision = 0;
-    std::unique_ptr<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
     QHash<int, QTextCharFormat> m_formatMap;
     std::set<int> m_seenBlocks;
     int m_nextResultToHandle = 0;
     int m_resultCount = 0;
 
     HighlightingRunner m_highlightingRunner;
+    Utils::FutureSynchronizer m_futureSynchronizer; // Keep before m_watcher.
+    std::unique_ptr<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
 };
 
 } // namespace CppEditor

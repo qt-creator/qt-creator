@@ -36,14 +36,7 @@ SemanticHighlighter::SemanticHighlighter(TextDocument *baseTextDocument)
     updateFormatMapFromFontSettings();
 }
 
-SemanticHighlighter::~SemanticHighlighter()
-{
-    if (m_watcher) {
-        m_watcher->disconnect(this);
-        m_watcher->cancel();
-        m_watcher->waitForFinished();
-    }
-}
+SemanticHighlighter::~SemanticHighlighter() = default;
 
 void SemanticHighlighter::setHighlightingRunner(HighlightingRunner highlightingRunner)
 {
@@ -56,10 +49,8 @@ void SemanticHighlighter::run()
 
     qCDebug(log) << "SemanticHighlighter: run()";
 
-    if (m_watcher) {
-        m_watcher->disconnect(this);
+    if (m_watcher)
         m_watcher->cancel();
-    }
     m_watcher.reset(new QFutureWatcher<HighlightingResult>);
     connect(m_watcher.get(), &QFutureWatcherBase::resultsReadyAt,
             this, &SemanticHighlighter::onHighlighterResultAvailable);
@@ -71,6 +62,7 @@ void SemanticHighlighter::run()
     m_nextResultToHandle = m_resultCount = 0;
     qCDebug(log) << "starting runner for document revision" << m_revision;
     m_watcher->setFuture(m_highlightingRunner());
+    m_futureSynchronizer.addFuture(m_watcher->future());
 }
 
 Parentheses SemanticHighlighter::getClearedParentheses(const QTextBlock &block)
