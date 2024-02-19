@@ -20,6 +20,10 @@
             With advanced search, you can search in currently open projects or
             files on the file system.
 
+        \li \l{Rename symbols}
+
+           Search for QML types and rename them in all files in a project.
+
         \li \l{Searching with the Locator}
 
             Use the locator to browse

@@ -50,7 +50,6 @@
             \li \b {\l{Coding}}
                 \list
                     \li \l{Writing Code}
-                    \li \l{Refactoring}
                     \li \l{Configuring the Editor}
                 \endlist
             \li \b {\l{Building and Running}}

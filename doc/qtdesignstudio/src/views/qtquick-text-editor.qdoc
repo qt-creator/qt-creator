@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -17,10 +17,6 @@
 
     You can also view and modify other types of text files.
 
-    To open the search dialog in the \uicontrol {Code} view, go to
-    \uicontrol Edit > \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
-    You can also select \key Ctrl + \key {F}.
-
     The view offers the following features:
 
     \list
@@ -30,4 +26,23 @@
         \li \l{Indent text or code}
         \li \l{Using Qt Quick Toolbars}
     \endlist
+
+    \section1 Refactoring Code
+
+    Code refactoring is the process of improving and simplifying code without
+    modifying the existing functionality of an application. You can easily find
+    and rename symbols and apply quick fixes in the \uicontrol Code view to
+    refactor code.
+
+    \section1 Searching in Code
+
+    To open the search dialog in the \uicontrol {Code} view:
+
+    \list
+        \li Go to \uicontrol Edit > \uicontrol {Find/Replace} >
+            \uicontrol {Find/Replace}.
+        \li Select \key Ctrl + \key {F} (or \key Cmd + \key F on \macos).
+    \endlist
+
+    \sa {Finding}, {Apply quick fixes}, {QML Quick Fixes}
 */
