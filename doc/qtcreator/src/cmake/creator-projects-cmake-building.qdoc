@@ -275,6 +275,7 @@
 
     The build errors and warnings are parsed and displayed in \l Issues.
 
-    \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}, {CMake}
+    \sa {Activate kits for a project}, {Add custom output parsers},
+    {Configure projects for building}, {Configure projects for running},
+    {Open projects}, {CMake}
 */
