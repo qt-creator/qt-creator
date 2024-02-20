@@ -5352,7 +5352,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("StdTuple")
-            << Data("#include <string>\n",
+            << Data("#include <string>\n"
+                    "#include <tuple>\n",
 
                     "std::tuple<int, std::string, int> tuple = std::make_tuple(123, std::string(\"hello\"), 456);\n",
 
