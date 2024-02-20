@@ -126,6 +126,15 @@ static QString ndkPackageMarker()
     return QLatin1String(Constants::ndkPackageName) + ";";
 }
 
+static QString platformsPackageMarker()
+{
+    return QLatin1String(Constants::platformsPackageName) + ";";
+}
+
+static QString buildToolsPackageMarker()
+{
+    return QLatin1String(Constants::buildToolsPackageName) + ";";
+}
 
 //////////////////////////////////
 // AndroidConfig
@@ -951,15 +960,59 @@ bool AndroidConfig::sdkToolsOk() const
     return exists && writable && sdkToolsExist;
 }
 
+static QStringList packagesExcludingBuiltWithDefaults(const QStringList &packages)
+{
+    return Utils::filtered(packages, [] (const QString &p) {
+        return !p.startsWith(ndkPackageMarker()) && !p.startsWith(platformsPackageMarker())
+               && !p.startsWith(buildToolsPackageMarker()); });
+}
+
+static QString essentialBuiltWithBuildToolsPackage(int builtWithApiVersion)
+{
+    // For build-tools, to avoid the situation of potentially having the essential packages
+    // invalidated whenever a new minor version is released, check if any version with major
+    // version matching builtWith apiVersion and use it as essential, otherwise use the any
+    // other one that has an minimum major version of builtWith apiVersion.
+    const BuildToolsList buildTools =
+        AndroidConfigurations::sdkManager()->filteredBuildTools(builtWithApiVersion);
+    const BuildToolsList apiBuildTools
+        = Utils::filtered(buildTools, [builtWithApiVersion] (const BuildTools *pkg) {
+              return pkg->revision().majorVersion() == builtWithApiVersion; });
+    const QString installedBuildTool = [apiBuildTools] () -> QString {
+        for (const BuildTools *pkg : apiBuildTools) {
+            if (pkg->state() == AndroidSdkPackage::Installed)
+                return pkg->sdkStylePath();
+        }
+        return {};
+    }();
+
+    if (installedBuildTool.isEmpty()) {
+        if (!apiBuildTools.isEmpty())
+            return apiBuildTools.first()->sdkStylePath();
+        else if (!buildTools.isEmpty())
+            return buildTools.first()->sdkStylePath();
+        // This means there's  something wrong with sdkmanager, return a default version anyway
+        else
+            return buildToolsPackageMarker() + QString::number(builtWithApiVersion) + ".0.0";
+    }
+
+    return installedBuildTool;
+}
+
 QStringList AndroidConfig::essentialsFromQtVersion(const QtVersion &version) const
 {
     if (auto androidQtVersion = dynamic_cast<const AndroidQtVersion *>(&version)) {
         bool ok;
         const AndroidQtVersion::BuiltWith bw = androidQtVersion->builtWith(&ok);
         if (ok) {
-            const QString ndkPackage = ndkPackageMarker() + bw.ndkVersion.toString();
-            return QStringList(ndkPackage)
-                   + packagesWithoutNdks(m_defaultSdkDepends.essentialPackages);
+            QStringList builtWithPackages;
+            builtWithPackages.append(ndkPackageMarker() + bw.ndkVersion.toString());
+            const QString apiVersion = QString::number(bw.apiVersion);
+            builtWithPackages.append(platformsPackageMarker() + "android-" + apiVersion);
+            builtWithPackages.append(essentialBuiltWithBuildToolsPackage(bw.apiVersion));
+
+            return builtWithPackages + packagesExcludingBuiltWithDefaults(
+                       m_defaultSdkDepends.essentialPackages);
         }
     }
 
