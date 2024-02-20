@@ -445,31 +445,34 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         return DoneResult::Error;
     };
 
-    const auto onDeserializeSetup = [storage](Async<DtoType> &task) {
-        const auto deserialize = [](QPromise<DtoType> &promise, const QByteArray &input) {
-            try {
-                promise.addResult(DtoType::deserialize(input));
-            } catch (const Dto::invalid_dto_exception &) {
-                promise.future().cancel();
-            }
+    const auto onDeserializeSetup = [storage](Async<expected_str<DtoType>> &task) {
+        const auto deserialize = [](QPromise<expected_str<DtoType>> &promise, const QByteArray &input) {
+            promise.addResult(DtoType::deserializeExpected(input));
         };
         task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         task.setConcurrentCallData(deserialize, *storage);
     };
 
-    const auto onDeserializeDone = [dtoStorage](const Async<DtoType> &task, DoneWith doneWith) {
+    const auto onDeserializeDone = [dtoStorage](const Async<expected_str<DtoType>> &task,
+                                                DoneWith doneWith) {
         if (doneWith == DoneWith::Success && task.isResultAvailable()) {
-            dtoStorage->dtoData = task.result();
+            const auto result = task.result();
+            if (result) {
+                dtoStorage->dtoData = *result;
+                return DoneResult::Success;
+            }
+            MessageManager::writeFlashing(QString("Axivion: %1").arg(result.error()));
         } else {
             MessageManager::writeFlashing(QString("Axivion: %1")
-                .arg(Tr::tr("Deserialization of an unexpected Dto structure.")));
+                .arg(Tr::tr("Unknown Dto structure deserialization error.")));
         }
+        return DoneResult::Error;
     };
 
     return {
         storage,
         NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
-        AsyncTask<DtoType>(onDeserializeSetup, onDeserializeDone)
+        AsyncTask<expected_str<DtoType>>(onDeserializeSetup, onDeserializeDone)
     };
 }
 
