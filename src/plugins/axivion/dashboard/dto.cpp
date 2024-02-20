@@ -158,6 +158,7 @@ namespace Axivion::Internal::Dto {
         return de_serializer<T>::serialize(value);
     }
 
+    // throws std::domain_error
     template<typename T>
     static QByteArray serialize_bytes(const T &value)
     {
@@ -647,10 +648,10 @@ namespace Axivion::Internal::Dto {
 
     // version
 
-    constexpr std::array<qint32, 4> ApiVersion::number{7,7,2,13780};
-    const QLatin1String ApiVersion::string{"7.7.2.13780"};
-    const QLatin1String ApiVersion::name{"7.7.2"};
-    const QLatin1String ApiVersion::timestamp{"2024-01-10 07:39:35 +00:00"};
+    constexpr std::array<qint32, 4> ApiVersion::number{7,7,3,3857};
+    const QLatin1String ApiVersion::string{"7.7.3.13857"};
+    const QLatin1String ApiVersion::name{"7.7.3"};
+    const QLatin1String ApiVersion::timestamp{"2024-02-07 09:28:43 +00:00"};
 
     // AnalyzedFileDto
 
@@ -700,7 +701,6 @@ namespace Axivion::Internal::Dto {
         languageName(std::move(languageName))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray AnalyzedFileDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -805,7 +805,6 @@ namespace Axivion::Internal::Dto {
         newPassword(std::move(newPassword))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ChangePasswordFormDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -936,7 +935,6 @@ namespace Axivion::Internal::Dto {
         displayColor(std::move(displayColor))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ColumnTypeOptionDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -980,7 +978,6 @@ namespace Axivion::Internal::Dto {
         text(std::move(text))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray CommentRequestDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1024,7 +1021,6 @@ namespace Axivion::Internal::Dto {
         csrfToken(std::move(csrfToken))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray CsrfTokenDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1088,7 +1084,6 @@ namespace Axivion::Internal::Dto {
         line(std::move(line))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray EntityDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1172,7 +1167,6 @@ namespace Axivion::Internal::Dto {
         data(std::move(data))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ErrorDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1246,7 +1240,6 @@ namespace Axivion::Internal::Dto {
         commentDeletionId(std::move(commentDeletionId))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueCommentDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1453,7 +1446,6 @@ namespace Axivion::Internal::Dto {
         endColumn(std::move(endColumn))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueSourceLocationDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1502,7 +1494,6 @@ namespace Axivion::Internal::Dto {
         color(std::move(color))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueTagDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1571,7 +1562,6 @@ namespace Axivion::Internal::Dto {
         selected(std::move(selected))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueTagTypeDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1686,7 +1676,6 @@ namespace Axivion::Internal::Dto {
         maxValue(std::move(maxValue))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray MetricDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1760,7 +1749,6 @@ namespace Axivion::Internal::Dto {
         entityId(std::move(entityId))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray MetricValueTableRowDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1846,7 +1834,6 @@ namespace Axivion::Internal::Dto {
         groups(std::move(groups))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray NamedFilterVisibilityDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1895,7 +1882,6 @@ namespace Axivion::Internal::Dto {
         url(std::move(url))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ProjectReferenceDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -1949,7 +1935,6 @@ namespace Axivion::Internal::Dto {
         disabled(std::move(disabled))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray RuleDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2080,7 +2065,6 @@ namespace Axivion::Internal::Dto {
         buildDate(std::move(buildDate))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ToolsVersionDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2176,7 +2160,6 @@ namespace Axivion::Internal::Dto {
         Removed(std::move(Removed))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray VersionKindCountDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2260,7 +2243,6 @@ namespace Axivion::Internal::Dto {
         cloneRatio(std::move(cloneRatio))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray AnalysisVersionDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2351,7 +2333,6 @@ namespace Axivion::Internal::Dto {
         type = ApiTokenTypeMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ApiTokenCreationRequestDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2505,7 +2486,6 @@ namespace Axivion::Internal::Dto {
         type = ApiTokenTypeMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ApiTokenInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2658,7 +2638,6 @@ namespace Axivion::Internal::Dto {
         type = ColumnTypeMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ColumnInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2772,7 +2751,6 @@ namespace Axivion::Internal::Dto {
         csrfTokenUrl(std::move(csrfTokenUrl))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray DashboardInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2816,7 +2794,6 @@ namespace Axivion::Internal::Dto {
         comments(std::move(comments))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueCommentListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2900,7 +2877,6 @@ namespace Axivion::Internal::Dto {
         prefix = IssueKindMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueKindInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -2944,7 +2920,6 @@ namespace Axivion::Internal::Dto {
         tags(std::move(tags))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueTagTypeListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3070,7 +3045,6 @@ namespace Axivion::Internal::Dto {
         kind = IssueKindMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray LineMarkerDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3147,7 +3121,6 @@ namespace Axivion::Internal::Dto {
         severity = MessageSeverityMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray RepositoryUpdateMessageDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3191,7 +3164,6 @@ namespace Axivion::Internal::Dto {
         rules(std::move(rules))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray RuleListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3268,7 +3240,6 @@ namespace Axivion::Internal::Dto {
         direction = SortDirectionMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray SortInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3361,7 +3332,6 @@ namespace Axivion::Internal::Dto {
         type = UserRefTypeMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray UserRefDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3410,7 +3380,6 @@ namespace Axivion::Internal::Dto {
         rows(std::move(rows))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray AnalyzedFileListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3459,7 +3428,6 @@ namespace Axivion::Internal::Dto {
         entities(std::move(entities))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray EntityListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3518,7 +3486,6 @@ namespace Axivion::Internal::Dto {
         lineMarkers(std::move(lineMarkers))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray FileViewDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3630,7 +3597,6 @@ namespace Axivion::Internal::Dto {
         kind = IssueKindMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3709,7 +3675,6 @@ namespace Axivion::Internal::Dto {
         totalRemovedCount(std::move(totalRemovedCount))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray IssueTableDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3758,7 +3723,6 @@ namespace Axivion::Internal::Dto {
         metrics(std::move(metrics))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray MetricListDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3822,7 +3786,6 @@ namespace Axivion::Internal::Dto {
         values(std::move(values))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray MetricValueRangeDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3871,7 +3834,6 @@ namespace Axivion::Internal::Dto {
         rows(std::move(rows))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray MetricValueTableDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -3969,7 +3931,6 @@ namespace Axivion::Internal::Dto {
         kind = IssueKindForNamedFilterCreationMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray NamedFilterCreateDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -4111,7 +4072,6 @@ namespace Axivion::Internal::Dto {
         type = NamedFilterTypeMeta::enumToStr(newValue);
     }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray NamedFilterInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -4170,7 +4130,6 @@ namespace Axivion::Internal::Dto {
         visibility(std::move(visibility))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray NamedFilterUpdateDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -4244,7 +4203,6 @@ namespace Axivion::Internal::Dto {
         hasHiddenIssues(std::move(hasHiddenIssues))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray ProjectInfoDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -4298,7 +4256,6 @@ namespace Axivion::Internal::Dto {
         hasWarnings(std::move(hasWarnings))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray RepositoryUpdateResponseDto::serialize() const
     {
         return serialize_bytes(*this);
@@ -4367,7 +4324,6 @@ namespace Axivion::Internal::Dto {
         axivionDefaultFilter(std::move(axivionDefaultFilter))
     { }
 
-    // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray TableInfoDto::serialize() const
     {
         return serialize_bytes(*this);
