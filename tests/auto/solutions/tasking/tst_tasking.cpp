@@ -84,6 +84,7 @@ struct TestData
     Log expectedLog;
     int taskCount = 0;
     DoneWith result = DoneWith::Success;
+    std::optional<int> asyncCount = {};
     std::optional<MessageLog> messageLog = {};
 };
 
@@ -472,7 +473,7 @@ static TestData storageShadowingData()
         {1, Handler::Storage},
     };
 
-    return {storage, root, log, 0, DoneWith::Success};
+    return {storage, root, log, 0, DoneWith::Success, 0};
 }
 
 static TestData parallelData()
@@ -653,10 +654,10 @@ void tst_Tasking::testTree_data()
         const Log logDone {{0, Handler::GroupSuccess}};
         const Log logError {{0, Handler::GroupError}};
 
-        QTest::newRow("Empty") << TestData{storage, root1, logDone, 0, DoneWith::Success};
-        QTest::newRow("EmptyContinue") << TestData{storage, root2, logDone, 0, DoneWith::Success};
-        QTest::newRow("EmptyDone") << TestData{storage, root3, logDone, 0, DoneWith::Success};
-        QTest::newRow("EmptyError") << TestData{storage, root4, logError, 0, DoneWith::Error};
+        QTest::newRow("Empty") << TestData{storage, root1, logDone, 0, DoneWith::Success, 0};
+        QTest::newRow("EmptyContinue") << TestData{storage, root2, logDone, 0, DoneWith::Success, 0};
+        QTest::newRow("EmptyDone") << TestData{storage, root3, logDone, 0, DoneWith::Success, 0};
+        QTest::newRow("EmptyError") << TestData{storage, root4, logError, 0, DoneWith::Error, 0};
     }
 
     {
@@ -671,11 +672,11 @@ void tst_Tasking::testTree_data()
 
         const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
             return TestData{storage, setupGroup(SetupResult::StopWithSuccess, policy),
-                            Log{{0, Handler::GroupSuccess}}, 0, DoneWith::Success};
+                            Log{{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
         };
         const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
             return TestData{storage, setupGroup(SetupResult::StopWithError, policy),
-                            Log{{0, Handler::GroupError}}, 0, DoneWith::Error};
+                            Log{{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
         };
 
         QTest::newRow("DoneAndStopOnError") << doneData(WorkflowPolicy::StopOnError);
@@ -707,7 +708,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {2, Handler::TweakSetupToSuccess}
         };
-        QTest::newRow("TweakTaskSuccess") << TestData{storage, root, log, 2, DoneWith::Success};
+        QTest::newRow("TweakTaskSuccess") << TestData{storage, root, log, 2, DoneWith::Success, 0};
     }
 
     {
@@ -720,7 +721,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::TweakSetupToError}
         };
-        QTest::newRow("TweakTaskError") << TestData{storage, root, log, 2, DoneWith::Error};
+        QTest::newRow("TweakTaskError") << TestData{storage, root, log, 2, DoneWith::Error, 0};
     }
 
     {
@@ -741,7 +742,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup},
             {3, Handler::TweakSetupToError}
         };
-        QTest::newRow("TweakMixed") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakMixed") << TestData{storage, root, log, 4, DoneWith::Error, 2};
     }
 
     {
@@ -763,7 +764,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("TweakParallel") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakParallel") << TestData{storage, root, log, 4, DoneWith::Error, 0};
     }
 
     {
@@ -787,7 +788,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("TweakParallelGroup") << TestData{storage, root, log, 4, DoneWith::Error};
+        QTest::newRow("TweakParallelGroup") << TestData{storage, root, log, 4, DoneWith::Error, 0};
     }
 
     {
@@ -813,7 +814,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Canceled}
         };
         QTest::newRow("TweakParallelGroupSetup")
-            << TestData{storage, root, log, 4, DoneWith::Error};
+            << TestData{storage, root, log, 4, DoneWith::Error, 0};
     }
 
     {
@@ -857,7 +858,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::GroupSuccess},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("Nested") << TestData{storage, root, log, 1, DoneWith::Success};
+        QTest::newRow("Nested") << TestData{storage, root, log, 1, DoneWith::Success, 1};
     }
 
     QTest::newRow("Parallel") << parallelData();
@@ -915,10 +916,10 @@ void tst_Tasking::testTree_data()
             {5, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("Sequential") << TestData{storage, root1, log, 5, DoneWith::Success};
-        QTest::newRow("SequentialEncapsulated") << TestData{storage, root2, log, 5, DoneWith::Success};
+        QTest::newRow("Sequential") << TestData{storage, root1, log, 5, DoneWith::Success, 5};
+        QTest::newRow("SequentialEncapsulated") << TestData{storage, root2, log, 5, DoneWith::Success, 5};
         // We don't inspect subtrees, so taskCount is 3, not 5.
-        QTest::newRow("SequentialSubTree") << TestData{storage, root3, log, 3, DoneWith::Success};
+        QTest::newRow("SequentialSubTree") << TestData{storage, root3, log, 3, DoneWith::Success, 3};
     }
 
     {
@@ -964,7 +965,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::GroupSuccess},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("SequentialNested") << TestData{storage, root, log, 5, DoneWith::Success};
+        QTest::newRow("SequentialNested") << TestData{storage, root, log, 5, DoneWith::Success, 5};
     }
 
     {
@@ -986,7 +987,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Error},
             {0, Handler::GroupError}
         };
-        QTest::newRow("SequentialError") << TestData{storage, root, log, 5, DoneWith::Error};
+        QTest::newRow("SequentialError") << TestData{storage, root, log, 5, DoneWith::Error, 3};
     }
 
     {
@@ -1000,7 +1001,8 @@ void tst_Tasking::testTree_data()
                 },
                 Log {{0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}},
                 0,
-                result
+                result,
+                0
             };
         };
 
@@ -1040,7 +1042,8 @@ void tst_Tasking::testTree_data()
                     {0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}
                 },
                 1,
-                result
+                result,
+                1
             };
         };
 
@@ -1077,7 +1080,8 @@ void tst_Tasking::testTree_data()
                     {0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}
                 },
                 1,
-                result
+                result,
+                1
             };
         };
 
@@ -1139,31 +1143,31 @@ void tst_Tasking::testTree_data()
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopRootWithStopOnError")
-            << TestData{storage, root1, errorErrorLog, 2, DoneWith::Error};
+            << TestData{storage, root1, errorErrorLog, 2, DoneWith::Error, 1};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopRootWithContinueOnError")
-            << TestData{storage, root2, errorDoneLog, 2, DoneWith::Error};
+            << TestData{storage, root2, errorDoneLog, 2, DoneWith::Error, 2};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("StopRootWithStopOnSuccess")
-            << TestData{storage, root3, doneLog, 2, DoneWith::Success};
+            << TestData{storage, root3, doneLog, 2, DoneWith::Success, 2};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         QTest::newRow("StopRootWithContinueOnSuccess")
-            << TestData{storage, root4, doneLog, 2, DoneWith::Success};
+            << TestData{storage, root4, doneLog, 2, DoneWith::Success, 2};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("StopRootWithStopOnSuccessOrError")
-            << TestData{storage, root5, errorErrorLog, 2, DoneWith::Error};
+            << TestData{storage, root5, errorErrorLog, 2, DoneWith::Error, 1};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("StopRootWithFinishAllAndSuccess")
-            << TestData{storage, root6, doneLog, 2, DoneWith::Success};
+            << TestData{storage, root6, doneLog, 2, DoneWith::Success, 2};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopRootWithFinishAllAndError")
-            << TestData{storage, root7, errorDoneLog, 2, DoneWith::Error};
+            << TestData{storage, root7, errorDoneLog, 2, DoneWith::Error, 2};
     }
 
     {
@@ -1226,31 +1230,31 @@ void tst_Tasking::testTree_data()
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopRootAfterDoneWithStopOnError")
-            << TestData{storage, root1, errorErrorLog, 3, DoneWith::Error};
+            << TestData{storage, root1, errorErrorLog, 3, DoneWith::Error, 2};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopRootAfterDoneWithContinueOnError")
-            << TestData{storage, root2, errorDoneLog, 3, DoneWith::Error};
+            << TestData{storage, root2, errorDoneLog, 3, DoneWith::Error, 3};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("StopRootAfterDoneWithStopOnSuccess")
-            << TestData{storage, root3, doneErrorLog, 3, DoneWith::Success};
+            << TestData{storage, root3, doneErrorLog, 3, DoneWith::Success, 1};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         QTest::newRow("StopRootAfterDoneWithContinueOnSuccess")
-            << TestData{storage, root4, doneDoneLog, 3, DoneWith::Success};
+            << TestData{storage, root4, doneDoneLog, 3, DoneWith::Success, 3};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("StopRootAfterDoneWithStopOnSuccessOrError")
-            << TestData{storage, root5, doneErrorLog, 3, DoneWith::Success};
+            << TestData{storage, root5, doneErrorLog, 3, DoneWith::Success, 1};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("StopRootAfterDoneWithFinishAllAndSuccess")
-            << TestData{storage, root6, doneDoneLog, 3, DoneWith::Success};
+            << TestData{storage, root6, doneDoneLog, 3, DoneWith::Success, 3};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopRootAfterDoneWithFinishAllAndError")
-            << TestData{storage, root7, errorDoneLog, 3, DoneWith::Error};
+            << TestData{storage, root7, errorDoneLog, 3, DoneWith::Error, 3};
     }
 
     {
@@ -1283,33 +1287,33 @@ void tst_Tasking::testTree_data()
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopGroupWithStopOnError")
-            << TestData{storage, root1, log, 2, DoneWith::Error};
+            << TestData{storage, root1, log, 2, DoneWith::Error, 1};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopGroupWithContinueOnError")
-            << TestData{storage, root2, log, 2, DoneWith::Error};
+            << TestData{storage, root2, log, 2, DoneWith::Error, 1};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("StopGroupWithStopOnSuccess")
-            << TestData{storage, root3, log, 2, DoneWith::Error};
+            << TestData{storage, root3, log, 2, DoneWith::Error, 1};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         QTest::newRow("StopGroupWithContinueOnSuccess")
-            << TestData{storage, root4, log, 2, DoneWith::Error};
+            << TestData{storage, root4, log, 2, DoneWith::Error, 1};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("StopGroupWithStopOnSuccessOrError")
-            << TestData{storage, root5, log, 2, DoneWith::Error};
+            << TestData{storage, root5, log, 2, DoneWith::Error, 1};
 
         // TODO: Behavioral change! Fix Docs!
         // Cancellation always invokes error handler (i.e. DoneWith is Canceled)
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("StopGroupWithFinishAllAndSuccess")
-            << TestData{storage, root6, log, 2, DoneWith::Error};
+            << TestData{storage, root6, log, 2, DoneWith::Error, 1};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupWithFinishAllAndError")
-            << TestData{storage, root7, log, 2, DoneWith::Error};
+            << TestData{storage, root7, log, 2, DoneWith::Error, 1};
     }
 
     {
@@ -1354,33 +1358,33 @@ void tst_Tasking::testTree_data()
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopGroupAfterDoneWithStopOnError")
-            << TestData{storage, root1, errorLog, 3, DoneWith::Error};
+            << TestData{storage, root1, errorLog, 3, DoneWith::Error, 2};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopGroupAfterDoneWithContinueOnError")
-            << TestData{storage, root2, errorLog, 3, DoneWith::Error};
+            << TestData{storage, root2, errorLog, 3, DoneWith::Error, 2};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("StopGroupAfterDoneWithStopOnSuccess")
-            << TestData{storage, root3, doneLog, 3, DoneWith::Error};
+            << TestData{storage, root3, doneLog, 3, DoneWith::Error, 2};
 
         // TODO: Behavioral change!
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         QTest::newRow("StopGroupAfterDoneWithContinueOnSuccess")
-            << TestData{storage, root4, errorLog, 3, DoneWith::Error};
+            << TestData{storage, root4, errorLog, 3, DoneWith::Error, 2};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("StopGroupAfterDoneWithStopOnSuccessOrError")
-            << TestData{storage, root5, doneLog, 3, DoneWith::Error};
+            << TestData{storage, root5, doneLog, 3, DoneWith::Error, 2};
 
         // TODO: Behavioral change!
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("StopGroupAfterDoneWithFinishAllAndSuccess")
-            << TestData{storage, root6, errorLog, 3, DoneWith::Error};
+            << TestData{storage, root6, errorLog, 3, DoneWith::Error, 2};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupAfterDoneWithFinishAllAndError")
-            << TestData{storage, root7, errorLog, 3, DoneWith::Error};
+            << TestData{storage, root7, errorLog, 3, DoneWith::Error, 2};
     }
 
     {
@@ -1425,32 +1429,32 @@ void tst_Tasking::testTree_data()
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopGroupAfterErrorWithStopOnError")
-            << TestData{storage, root1, shortLog, 3, DoneWith::Error};
+            << TestData{storage, root1, shortLog, 3, DoneWith::Error, 1};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopGroupAfterErrorWithContinueOnError")
-            << TestData{storage, root2, longLog, 3, DoneWith::Error};
+            << TestData{storage, root2, longLog, 3, DoneWith::Error, 2};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("StopGroupAfterErrorWithStopOnSuccess")
-            << TestData{storage, root3, longLog, 3, DoneWith::Error};
+            << TestData{storage, root3, longLog, 3, DoneWith::Error, 2};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         QTest::newRow("StopGroupAfterErrorWithContinueOnSuccess")
-            << TestData{storage, root4, longLog, 3, DoneWith::Error};
+            << TestData{storage, root4, longLog, 3, DoneWith::Error, 2};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("StopGroupAfterErrorWithStopOnSuccessOrError")
-            << TestData{storage, root5, shortLog, 3, DoneWith::Error};
+            << TestData{storage, root5, shortLog, 3, DoneWith::Error, 1};
 
         // TODO: Behavioral change!
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("StopGroupAfterErrorWithFinishAllAndSuccess")
-            << TestData{storage, root6, longLog, 3, DoneWith::Error};
+            << TestData{storage, root6, longLog, 3, DoneWith::Error, 2};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupAfterErrorWithFinishAllAndError")
-            << TestData{storage, root7, longLog, 3, DoneWith::Error};
+            << TestData{storage, root7, longLog, 3, DoneWith::Error, 2};
     }
 
     {
@@ -1474,7 +1478,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error},
             {0, Handler::GroupError}
         };
-        QTest::newRow("StopOnError") << TestData{storage, root1, log1, 3, DoneWith::Error};
+        QTest::newRow("StopOnError") << TestData{storage, root1, log1, 3, DoneWith::Error, 2};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         const Log errorLog {
@@ -1486,7 +1490,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Success},
             {0, Handler::GroupError}
         };
-        QTest::newRow("ContinueOnError") << TestData{storage, root2, errorLog, 3, DoneWith::Error};
+        QTest::newRow("ContinueOnError") << TestData{storage, root2, errorLog, 3, DoneWith::Error, 3};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
         const Log log3 {
@@ -1494,7 +1498,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("StopOnSuccess") << TestData{storage, root3, log3, 3, DoneWith::Success};
+        QTest::newRow("StopOnSuccess") << TestData{storage, root3, log3, 3, DoneWith::Success, 1};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
         const Log doneLog {
@@ -1506,7 +1510,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("ContinueOnSuccess") << TestData{storage, root4, doneLog, 3, DoneWith::Success};
+        QTest::newRow("ContinueOnSuccess") << TestData{storage, root4, doneLog, 3, DoneWith::Success, 3};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         const Log log5 {
@@ -1514,13 +1518,13 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("StopOnSuccessOrError") << TestData{storage, root5, log5, 3, DoneWith::Success};
+        QTest::newRow("StopOnSuccessOrError") << TestData{storage, root5, log5, 3, DoneWith::Success, 1};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
-        QTest::newRow("FinishAllAndSuccess") << TestData{storage, root6, doneLog, 3, DoneWith::Success};
+        QTest::newRow("FinishAllAndSuccess") << TestData{storage, root6, doneLog, 3, DoneWith::Success, 3};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
-        QTest::newRow("FinishAllAndError") << TestData{storage, root7, errorLog, 3, DoneWith::Error};
+        QTest::newRow("FinishAllAndError") << TestData{storage, root7, errorLog, 3, DoneWith::Error, 3};
     }
 
     {
@@ -1557,13 +1561,13 @@ void tst_Tasking::testTree_data()
         };
 
         QTest::newRow("StopOnSuccessOrError1")
-            << TestData{storage, root1, success, 2, DoneWith::Success};
+            << TestData{storage, root1, success, 2, DoneWith::Success, 1};
         QTest::newRow("StopOnSuccessOrError2")
-            << TestData{storage, root2, failure, 2, DoneWith::Error};
+            << TestData{storage, root2, failure, 2, DoneWith::Error, 1};
         QTest::newRow("StopOnSuccessOrError3")
-            << TestData{storage, root3, success, 2, DoneWith::Success};
+            << TestData{storage, root3, success, 2, DoneWith::Success, 1};
         QTest::newRow("StopOnSuccessOrError4")
-            << TestData{storage, root4, failure, 2, DoneWith::Error};
+            << TestData{storage, root4, failure, 2, DoneWith::Error, 1};
     }
 
     {
@@ -1587,7 +1591,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("GroupSetupTweakToSuccess")
-            << TestData{storage, root1, log1, 1, DoneWith::Success};
+            << TestData{storage, root1, log1, 1, DoneWith::Success, 0};
 
         const Group root2 = createRoot(SetupResult::StopWithError);
         const Log log2 {
@@ -1596,7 +1600,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupError}
         };
         QTest::newRow("GroupSetupTweakToError")
-            << TestData{storage, root2, log2, 1, DoneWith::Error};
+            << TestData{storage, root2, log2, 1, DoneWith::Error, 0};
 
         const Group root3 = createRoot(SetupResult::Continue);
         const Log log3 {
@@ -1607,7 +1611,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("GroupSetupTweakToContinue")
-            << TestData{storage, root3, log3, 1, DoneWith::Success};
+            << TestData{storage, root3, log3, 1, DoneWith::Success, 1};
     }
 
     {
@@ -1633,7 +1637,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("GroupDoneWithSuccessTweakToSuccess")
-            << TestData{storage, root1, log1, 1, DoneWith::Success};
+            << TestData{storage, root1, log1, 1, DoneWith::Success, 1};
 
         const Group root2 = createRoot(DoneResult::Success, DoneResult::Error);
         const Log log2 {
@@ -1644,7 +1648,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupError}
         };
         QTest::newRow("GroupDoneWithSuccessTweakToError")
-            << TestData{storage, root2, log2, 1, DoneWith::Error};
+            << TestData{storage, root2, log2, 1, DoneWith::Error, 1};
 
         const Group root3 = createRoot(DoneResult::Error, DoneResult::Success);
         const Log log3 {
@@ -1655,7 +1659,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("GroupDoneWithErrorTweakToSuccess")
-            << TestData{storage, root3, log3, 1, DoneWith::Success};
+            << TestData{storage, root3, log3, 1, DoneWith::Success, 1};
 
         const Group root4 = createRoot(DoneResult::Error, DoneResult::Error);
         const Log log4 {
@@ -1666,7 +1670,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupError}
         };
         QTest::newRow("GroupDoneWithErrorTweakToError")
-            << TestData{storage, root4, log4, 1, DoneWith::Error};
+            << TestData{storage, root4, log4, 1, DoneWith::Error, 1};
     }
 
     {
@@ -1692,7 +1696,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("TaskSetupTweakToSuccess")
-            << TestData{storage, root1, log1, 2, DoneWith::Success};
+            << TestData{storage, root1, log1, 2, DoneWith::Success, 1};
 
         const Group root2 = createRoot(SetupResult::StopWithError);
         const Log log2 {
@@ -1701,7 +1705,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupError}
         };
         QTest::newRow("TaskSetupTweakToError")
-            << TestData{storage, root2, log2, 2, DoneWith::Error};
+            << TestData{storage, root2, log2, 2, DoneWith::Error, 0};
 
         const Group root3 = createRoot(SetupResult::Continue);
         const Log log3 {
@@ -1713,7 +1717,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupSuccess}
         };
         QTest::newRow("TaskSetupTweakToContinue")
-            << TestData{storage, root3, log3, 2, DoneWith::Success};
+            << TestData{storage, root3, log3, 2, DoneWith::Success, 2};
     }
 
     {
@@ -1751,7 +1755,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Success},
             {4, Handler::Success}
         };
-        QTest::newRow("NestedParallel") << TestData{storage, root, log, 4, DoneWith::Success};
+        QTest::newRow("NestedParallel") << TestData{storage, root, log, 4, DoneWith::Success, 4};
     }
 
     {
@@ -1796,7 +1800,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Success},
             {5, Handler::Success}
         };
-        QTest::newRow("NestedParallelDone") << TestData{storage, root, log, 5, DoneWith::Success};
+        QTest::newRow("NestedParallelDone") << TestData{storage, root, log, 5, DoneWith::Success, 4};
     }
 
     {
@@ -1926,11 +1930,11 @@ void tst_Tasking::testTree_data()
             {5, Handler::Success}
         };
         QTest::newRow("NestedParallelError1")
-            << TestData{storage, root1, log1, 5, DoneWith::Error};
+            << TestData{storage, root1, log1, 5, DoneWith::Error, 1};
         QTest::newRow("NestedParallelError2")
-            << TestData{storage, root2, log2, 5, DoneWith::Error};
+            << TestData{storage, root2, log2, 5, DoneWith::Error, 1};
         QTest::newRow("NestedParallelError3")
-            << TestData{storage, root3, log3, 5, DoneWith::Error};
+            << TestData{storage, root3, log3, 5, DoneWith::Error, 2};
     }
 
     {
@@ -1980,7 +1984,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Success},
             {4, Handler::Success}
         };
-        QTest::newRow("DeeplyNestedParallel") << TestData{storage, root, log, 4, DoneWith::Success};
+        QTest::newRow("DeeplyNestedParallel") << TestData{storage, root, log, 4, DoneWith::Success, 4};
     }
 
     {
@@ -2026,7 +2030,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::Success}
         };
         QTest::newRow("DeeplyNestedParallelSuccess")
-            << TestData{storage, root, log, 5, DoneWith::Success};
+            << TestData{storage, root, log, 5, DoneWith::Success, 4};
     }
 
     {
@@ -2066,7 +2070,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Canceled}
         };
         QTest::newRow("DeeplyNestedParallelError")
-            << TestData{storage, root, log, 5, DoneWith::Error};
+            << TestData{storage, root, log, 5, DoneWith::Error, 1};
     }
 
     {
@@ -2085,7 +2089,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Sync},
             {5, Handler::Sync}
         };
-        QTest::newRow("SyncSequential") << TestData{storage, root, log, 0, DoneWith::Success};
+        QTest::newRow("SyncSequential") << TestData{storage, root, log, 0, DoneWith::Success, 0};
     }
 
     {
@@ -2109,7 +2113,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::Sync},
             {5, Handler::TweakDoneToSuccess}
         };
-        QTest::newRow("SyncWithReturn") << TestData{storage, root, log, 0, DoneWith::Success};
+        QTest::newRow("SyncWithReturn") << TestData{storage, root, log, 0, DoneWith::Success, 0};
     }
 
     {
@@ -2129,7 +2133,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Sync},
             {5, Handler::Sync}
         };
-        QTest::newRow("SyncParallel") << TestData{storage, root, log, 0, DoneWith::Success};
+        QTest::newRow("SyncParallel") << TestData{storage, root, log, 0, DoneWith::Success, 0};
     }
 
     {
@@ -2148,7 +2152,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Sync},
             {3, Handler::TweakDoneToError}
         };
-        QTest::newRow("SyncError") << TestData{storage, root, log, 0, DoneWith::Error};
+        QTest::newRow("SyncError") << TestData{storage, root, log, 0, DoneWith::Error, 0};
     }
 
     {
@@ -2171,7 +2175,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::Sync},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("SyncAndAsync") << TestData{storage, root, log, 2, DoneWith::Success};
+        QTest::newRow("SyncAndAsync") << TestData{storage, root, log, 2, DoneWith::Success, 2};
     }
 
     {
@@ -2192,7 +2196,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::TweakDoneToError},
             {0, Handler::GroupError}
         };
-        QTest::newRow("SyncAndAsyncError") << TestData{storage, root, log, 2, DoneWith::Error};
+        QTest::newRow("SyncAndAsyncError") << TestData{storage, root, log, 2, DoneWith::Error, 1};
     }
 
     {
@@ -2343,15 +2347,15 @@ void tst_Tasking::testTree_data()
 
         // Notice the different log order for each scenario.
         QTest::newRow("BarrierSequential")
-            << TestData{storage, root1, log1, 4, DoneWith::Success};
+            << TestData{storage, root1, log1, 4, DoneWith::Success, 3};
         QTest::newRow("BarrierParallelAdvanceFirst")
-            << TestData{storage, root2, log2, 4, DoneWith::Success};
+            << TestData{storage, root2, log2, 4, DoneWith::Success, 4};
         QTest::newRow("BarrierParallelWaitForFirst")
-            << TestData{storage, root3, log3, 4, DoneWith::Success};
+            << TestData{storage, root3, log3, 4, DoneWith::Success, 4};
         QTest::newRow("BarrierParallelMultiWaitFor")
-            << TestData{storage, root4, log4, 5, DoneWith::Success};
+            << TestData{storage, root4, log4, 5, DoneWith::Success, 5};
         QTest::newRow("BarrierParallelTwoSingleBarriers")
-            << TestData{storage, root5, log5, 5, DoneWith::Success};
+            << TestData{storage, root5, log5, 5, DoneWith::Success, 5};
     }
 
     {
@@ -2483,13 +2487,13 @@ void tst_Tasking::testTree_data()
 
         // Notice the different log order for each scenario.
         QTest::newRow("MultiBarrierSequential")
-            << TestData{storage, root1, log1, 5, DoneWith::Success};
+            << TestData{storage, root1, log1, 5, DoneWith::Success, 4};
         QTest::newRow("MultiBarrierParallelAdvanceFirst")
-            << TestData{storage, root2, log2, 5, DoneWith::Success};
+            << TestData{storage, root2, log2, 5, DoneWith::Success, 5};
         QTest::newRow("MultiBarrierParallelWaitForFirst")
-            << TestData{storage, root3, log3, 5, DoneWith::Success};
+            << TestData{storage, root3, log3, 5, DoneWith::Success, 5};
         QTest::newRow("MultiBarrierParallelMultiWaitFor")
-            << TestData{storage, root4, log4, 6, DoneWith::Success};
+            << TestData{storage, root4, log4, 6, DoneWith::Success, 6};
     }
 
     {
@@ -2505,8 +2509,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::Canceled}
         };
-        QTest::newRow("TaskErrorWithTimeout") << TestData{storage, root1, log1, 2,
-                                                          DoneWith::Error};
+        QTest::newRow("TaskErrorWithTimeout")
+            << TestData{storage, root1, log1, 2, DoneWith::Error, 1};
 
         const Group root2 {
             storage,
@@ -2518,8 +2522,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Timeout},
             {1, Handler::Canceled}
         };
-        QTest::newRow("TaskErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
-                                                                 DoneWith::Error};
+        QTest::newRow("TaskErrorWithTimeoutHandler")
+            << TestData{storage, root2, log2, 2, DoneWith::Error, 1};
 
         const Group root3 {
             storage,
@@ -2530,16 +2534,16 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::Success}
         };
-        QTest::newRow("TaskDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
-                                                         DoneWith::Success};
+        QTest::newRow("TaskDoneWithTimeout")
+            << TestData{storage, root3, doneLog, 2, DoneWith::Success, 1};
 
         const Group root4 {
             storage,
             TestTask(setupTask(1, 1ms), setupDone(1))
                 .withTimeout(1000ms, setupTimeout(1))
         };
-        QTest::newRow("TaskDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
-                                                                DoneWith::Success};
+        QTest::newRow("TaskDoneWithTimeoutHandler")
+            << TestData{storage, root4, doneLog, 2, DoneWith::Success, 1};
     }
 
     {
@@ -2556,8 +2560,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::Canceled}
         };
-        QTest::newRow("GroupErrorWithTimeout") << TestData{storage, root1, log1, 2,
-                                                           DoneWith::Error};
+        QTest::newRow("GroupErrorWithTimeout")
+            << TestData{storage, root1, log1, 2, DoneWith::Error, 1};
 
         // Test Group::withTimeout(), passing custom handler
         const Group root2 {
@@ -2571,8 +2575,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Timeout},
             {1, Handler::Canceled}
         };
-        QTest::newRow("GroupErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
-                                                                  DoneWith::Error};
+        QTest::newRow("GroupErrorWithTimeoutHandler")
+            << TestData{storage, root2, log2, 2, DoneWith::Error, 1};
 
         const Group root3 {
             storage,
@@ -2584,8 +2588,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::Success}
         };
-        QTest::newRow("GroupDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
-                                                          DoneWith::Success};
+        QTest::newRow("GroupDoneWithTimeout")
+            << TestData{storage, root3, doneLog, 2, DoneWith::Success, 1};
 
         // Test Group::withTimeout(), passing custom handler
         const Group root4 {
@@ -2594,8 +2598,8 @@ void tst_Tasking::testTree_data()
                 createSuccessTask(1, 1ms)
             }.withTimeout(1000ms, setupTimeout(1))
         };
-        QTest::newRow("GroupDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
-                                                                 DoneWith::Success};
+        QTest::newRow("GroupDoneWithTimeoutHandler")
+            << TestData{storage, root4, doneLog, 2, DoneWith::Success, 1};
     }
 
     {
@@ -2630,7 +2634,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::GroupSetup},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("CommonStorage") << TestData{storage, root, log, 0, DoneWith::Success};
+        QTest::newRow("CommonStorage") << TestData{storage, root, log, 0, DoneWith::Success, 0};
     }
 
     {
@@ -2640,12 +2644,12 @@ void tst_Tasking::testTree_data()
                 parallel,
                 createSuccessTask(1, 100ms),
                 Group {
-                    createFailingTask(2, 10ms),
-                    createSuccessTask(3, 10ms)
+                    createFailingTask(2, 1ms),
+                    createSuccessTask(3, 1ms)
                 },
-                createSuccessTask(4, 10ms)
+                createSuccessTask(4, 1ms)
             },
-            createSuccessTask(5, 10ms)
+            createSuccessTask(5, 1ms)
         };
         const Log log {
             {1, Handler::Setup},
@@ -2655,7 +2659,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Canceled},
             {4, Handler::Canceled}
         };
-        QTest::newRow("NestedCancel") << TestData{storage, root, log, 5, DoneWith::Error};
+        QTest::newRow("NestedCancel") << TestData{storage, root, log, 5, DoneWith::Error, 1};
     }
 
     {
@@ -2758,17 +2762,17 @@ void tst_Tasking::testTree_data()
         };
 
         QTest::newRow("RepeatSequentialSuccess")
-            << TestData{storage, rootSequentialSuccess, logSequentialSuccess, 4, DoneWith::Success};
+            << TestData{storage, rootSequentialSuccess, logSequentialSuccess, 4, DoneWith::Success, 4};
         QTest::newRow("RepeatParallelSuccess")
-            << TestData{storage, rootParallelSuccess, logParallelSuccess, 4, DoneWith::Success};
+            << TestData{storage, rootParallelSuccess, logParallelSuccess, 4, DoneWith::Success, 4};
         QTest::newRow("RepeatParallelLimitSuccess")
-            << TestData{storage, rootParallelLimitSuccess, logParallelLimitSuccess, 4, DoneWith::Success};
+            << TestData{storage, rootParallelLimitSuccess, logParallelLimitSuccess, 4, DoneWith::Success, 4};
         QTest::newRow("RepeatSequentialError")
-            << TestData{storage, rootSequentialError, logSequentialError, 4, DoneWith::Error};
+            << TestData{storage, rootSequentialError, logSequentialError, 4, DoneWith::Error, 2};
         QTest::newRow("RepeatParallelError")
-            << TestData{storage, rootParallelError, logParallelError, 4, DoneWith::Error};
+            << TestData{storage, rootParallelError, logParallelError, 4, DoneWith::Error, 2};
         QTest::newRow("RepeatParallelLimitError")
-            << TestData{storage, rootParallelLimitError, logParallelLimitError, 4, DoneWith::Error};
+            << TestData{storage, rootParallelLimitError, logParallelLimitError, 4, DoneWith::Error, 2};
     }
 
     {
@@ -2859,11 +2863,11 @@ void tst_Tasking::testTree_data()
         };
 
         QTest::newRow("LoopSequential")
-            << TestData{storage, rootSequential, logSequential, 2, DoneWith::Success};
+            << TestData{storage, rootSequential, logSequential, 2, DoneWith::Success, 5};
         QTest::newRow("LoopParallel")
-            << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success};
+            << TestData{storage, rootParallel, logParallel, 2, DoneWith::Success, 5};
         QTest::newRow("LoopParallelLimit")
-            << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success};
+            << TestData{storage, rootParallelLimit, logParallelLimit, 2, DoneWith::Success, 5};
     }
 
     {
@@ -2874,7 +2878,7 @@ void tst_Tasking::testTree_data()
             createSuccessTask(1)
         };
         QTest::newRow("ProgressWithLoopUntilFalse")
-            << TestData{storage, root, {}, 1, DoneWith::Success};
+            << TestData{storage, root, {}, 1, DoneWith::Success, 0};
     }
 
     {
@@ -2888,7 +2892,7 @@ void tst_Tasking::testTree_data()
             }
         };
         QTest::newRow("ProgressWithNestedLoopUntilFalse")
-            << TestData{storage, root, {}, 1, DoneWith::Success};
+            << TestData{storage, root, {}, 1, DoneWith::Success, 0};
     }
 
     {
@@ -2899,7 +2903,7 @@ void tst_Tasking::testTree_data()
             createSuccessTask(1)
         };
         QTest::newRow("ProgressWithGroupSetupFalse")
-            << TestData{storage, root, {}, 1, DoneWith::Success};
+            << TestData{storage, root, {}, 1, DoneWith::Success, 0};
     }
 
     {
@@ -2913,7 +2917,7 @@ void tst_Tasking::testTree_data()
             }
         };
         QTest::newRow("ProgressWithNestedGroupSetupFalse")
-            << TestData{storage, root, {}, 1, DoneWith::Success};
+            << TestData{storage, root, {}, 1, DoneWith::Success, 0};
     }
 
     {
@@ -2930,9 +2934,9 @@ void tst_Tasking::testTree_data()
         };
 
         QTest::newRow("RecipeWithTask")
-            << TestData{storage, recipe(true), withTaskLog, 1, DoneWith::Success};
+            << TestData{storage, recipe(true), withTaskLog, 1, DoneWith::Success, 1};
         QTest::newRow("RecipeWithNull")
-            << TestData{storage, recipe(false), {}, 0, DoneWith::Success};
+            << TestData{storage, recipe(false), {}, 0, DoneWith::Success, 0};
     }
 
     {
@@ -2952,6 +2956,7 @@ void tst_Tasking::testTree_data()
             },
             1,
             DoneWith::Success,
+            1,
             MessageLog {
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
@@ -2973,6 +2978,7 @@ void tst_Tasking::testTree_data()
             },
             1,
             DoneWith::Error,
+            1,
             MessageLog {
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
@@ -2998,6 +3004,7 @@ void tst_Tasking::testTree_data()
             },
             1,
             DoneWith::Error,
+            0,
             MessageLog {
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
@@ -3044,22 +3051,22 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterSuccess")
             << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::SuccessOrError),
-                        logSuccessLong, 1, DoneWith::Success};
+                        logSuccessLong, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupSuccessAfterSuccess")
             << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Success),
-                        logSuccessLong, 1, DoneWith::Success};
+                        logSuccessLong, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupErrorAfterSuccess")
             << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Error),
-                        logSuccessShort, 1, DoneWith::Success};
+                        logSuccessShort, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterError")
             << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::SuccessOrError),
-                        logErrorLong, 1, DoneWith::Error};
+                        logErrorLong, 1, DoneWith::Error, 1};
         QTest::newRow("CallDoneIfGroupSuccessAfterError")
             << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Success),
-                        logErrorShort, 1, DoneWith::Error};
+                        logErrorShort, 1, DoneWith::Error, 1};
         QTest::newRow("CallDoneIfGroupErrorAfterError")
             << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Error),
-                        logErrorLong, 1, DoneWith::Error};
+                        logErrorLong, 1, DoneWith::Error, 1};
     }
 
     // This test checks if storage shadowing works OK.
@@ -3171,6 +3178,9 @@ void tst_Tasking::testTree()
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
     QCOMPARE(result, testData.result);
+
+    if (testData.asyncCount)
+        QCOMPARE(taskTree.asyncCount(), *testData.asyncCount);
 
     if (testData.messageLog) {
         QCOMPARE(s_messages.count(), testData.messageLog->count());
