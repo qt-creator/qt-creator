@@ -126,7 +126,7 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     }
 
     LookupContext context(doc, snapshot);
-    return CheckSymbols::create(doc, context, macroUses);
+    return CheckSymbols::create(doc, textDocument->toPlainText(), context, macroUses);
 }
 
 QList<TextEditor::BlockRange> toTextEditorBlocks(

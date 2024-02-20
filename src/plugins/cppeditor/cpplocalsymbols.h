@@ -12,7 +12,7 @@ class LocalSymbols
     Q_DISABLE_COPY(LocalSymbols)
 
 public:
-    LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast);
+    LocalSymbols(CPlusPlus::Document::Ptr doc, const QString &content, CPlusPlus::DeclarationAST *ast);
 
     SemanticInfo::LocalUseMap uses;
 };

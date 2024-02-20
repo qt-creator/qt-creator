@@ -890,7 +890,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         // for function definitions, rename the local usages
         FunctionDefinitionAST *targetDefinition = targetDeclaration->asFunctionDefinition();
         if (targetDefinition && !renamedTargetParameters.isEmpty()) {
-            const LocalSymbols localSymbols(targetFile->cppDocument(), targetDefinition);
+            const LocalSymbols localSymbols(targetFile->cppDocument(), {}, targetDefinition);
             const int endOfArguments = targetFile->endOf(targetFunctionDeclarator->rparen_token);
 
             for (auto it = renamedTargetParameters.cbegin(), end = renamedTargetParameters.cend();

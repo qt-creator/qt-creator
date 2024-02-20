@@ -42,9 +42,11 @@ public:
     }
 
     static Future go(CPlusPlus::Document::Ptr doc,
+                     const QString &content,
                      const CPlusPlus::LookupContext &context,
                      const QList<Result> &macroUses);
     static CheckSymbols * create(CPlusPlus::Document::Ptr doc,
+                                 const QString &content,
                                  const CPlusPlus::LookupContext &context,
                                  const QList<Result> &macroUses);
 
@@ -79,6 +81,7 @@ protected:
     };
 
     CheckSymbols(CPlusPlus::Document::Ptr doc,
+                 const QString &content,
                  const CPlusPlus::LookupContext &context,
                  const QList<Result> &otherUses);
 
@@ -168,6 +171,7 @@ private:
     bool isConstructorDeclaration(CPlusPlus::Symbol *declaration);
 
     CPlusPlus::Document::Ptr _doc;
+    const QString _content;
     CPlusPlus::LookupContext _context;
     CPlusPlus::TypeOfExpression typeOfExpression;
     Utils::FilePath _filePath;
