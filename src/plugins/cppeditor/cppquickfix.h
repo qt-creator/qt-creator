@@ -8,6 +8,10 @@
 
 #include <texteditor/quickfix.h>
 
+#include <QVersionNumber>
+
+#include <optional>
+
 namespace CppEditor {
 namespace Internal {
 class CppQuickFixInterface;
@@ -52,8 +56,8 @@ public:
 
     static const QList<CppQuickFixFactory *> &cppQuickFixFactories();
 
-    bool hasClangdReplacement() const { return m_hasClangdReplacement; }
-    void setHasClangdReplacement() { m_hasClangdReplacement = true; }
+    std::optional<QVersionNumber> clangdReplacement() const { return m_clangdReplacement; }
+    void setClangdReplacement(const QVersionNumber &version) { m_clangdReplacement = version; }
 
 private:
     /*!
@@ -63,7 +67,7 @@ private:
     virtual void doMatch(const Internal::CppQuickFixInterface &interface,
                          QuickFixOperations &result) = 0;
 
-    bool m_hasClangdReplacement = false;
+    std::optional<QVersionNumber> m_clangdReplacement;
 };
 
 } // namespace CppEditor

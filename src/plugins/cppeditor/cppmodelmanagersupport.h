@@ -9,7 +9,10 @@
 
 #include <utils/link.h>
 
+#include <QVersionNumber>
+
 #include <functional>
+#include <optional>
 
 namespace Core { class SearchResult; }
 namespace TextEditor {
@@ -31,7 +34,10 @@ public:
 
     virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual bool usesClangd(const TextEditor::TextDocument *) const { return false; }
+    virtual std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *) const
+    {
+        return {};
+    }
 
     virtual void followSymbol(const CursorInEditor &data,
                               const Utils::LinkHandler &processLinkCallback,

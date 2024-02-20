@@ -428,9 +428,12 @@ void ClangModelManagerSupport::checkUnused(const Link &link, SearchResult *searc
                 CppModelManager::Backend::Builtin)->checkUnused(link, search, callback);
 }
 
-bool ClangModelManagerSupport::usesClangd(const TextEditor::TextDocument *document) const
+std::optional<QVersionNumber> ClangModelManagerSupport::usesClangd(
+    const TextEditor::TextDocument *document) const
 {
-    return clientForFile(document->filePath());
+    if (const auto client = clientForFile(document->filePath()))
+        return client->versionNumber();
+    return {};
 }
 
 BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(

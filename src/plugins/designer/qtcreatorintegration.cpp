@@ -747,7 +747,8 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
     // In the case of clangd, this entails doing a "virtual rename" on the TextDocument,
     // as the LanguageClient cannot be forced into taking a document and assuming a different
     // file path.
-    const bool usesClangd = CppEditor::CppModelManager::usesClangd(editorWidget->textDocument());
+    const bool usesClangd
+        = CppEditor::CppModelManager::usesClangd(editorWidget->textDocument()).has_value();
     if (usesClangd)
         editorWidget->textDocument()->setFilePath(uiHeader);
     editorWidget->textDocument()->setPlainText(QString::fromUtf8(virtualContent));

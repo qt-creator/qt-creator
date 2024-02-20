@@ -191,7 +191,7 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
                                              const QByteArray &clangFormatSettings)
     : BaseQuickFixTestCase(testDocuments, headerPaths, clangFormatSettings)
 {
-    if (factory->hasClangdReplacement() && CppModelManager::isClangCodeModelActive())
+    if (factory->clangdReplacement() && CppModelManager::isClangCodeModelActive())
         return;
 
     QVERIFY(succeededSoFar());

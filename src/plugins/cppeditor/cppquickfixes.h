@@ -338,7 +338,7 @@ public:
 class CompleteSwitchCaseStatement: public CppQuickFixFactory
 {
 public:
-    CompleteSwitchCaseStatement() { setHasClangdReplacement(); }
+    CompleteSwitchCaseStatement() { setClangdReplacement({12}); }
 
 private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
@@ -580,7 +580,7 @@ public:
 class RemoveUsingNamespace : public CppQuickFixFactory
 {
 public:
-    RemoveUsingNamespace() { setHasClangdReplacement(); }
+    RemoveUsingNamespace() { setClangdReplacement({10}); }
 
 private:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;

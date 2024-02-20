@@ -475,7 +475,7 @@ bool CppEditorDocument::saveImpl(QString *errorString, const FilePath &filePath,
 
 bool CppEditorDocument::usesClangd() const
 {
-    return CppModelManager::usesClangd(this);
+    return CppModelManager::usesClangd(this).has_value();
 }
 
 void CppEditorDocument::onDiagnosticsChanged(const FilePath &fileName, const QString &kind)

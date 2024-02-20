@@ -104,9 +104,12 @@ CppQuickFixFactory::~CppQuickFixFactory()
 void CppQuickFixFactory::match(const Internal::CppQuickFixInterface &interface,
                                QuickFixOperations &result)
 {
-    if (m_hasClangdReplacement
-            && CppModelManager::usesClangd(interface.currentFile()->editor()->textDocument())) {
-        return;
+    if (m_clangdReplacement) {
+        if (const auto clangdVersion = CppModelManager::usesClangd(
+                    interface.currentFile()->editor()->textDocument());
+                clangdVersion && clangdVersion >= m_clangdReplacement) {
+            return;
+        }
     }
 
     doMatch(interface, result);

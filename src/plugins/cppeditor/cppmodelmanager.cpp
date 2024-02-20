@@ -1714,7 +1714,7 @@ bool CppModelManager::isCppEditor(IEditor *editor)
     return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
-bool CppModelManager::usesClangd(const TextEditor::TextDocument *document)
+std::optional<QVersionNumber> CppModelManager::usesClangd(const TextEditor::TextDocument *document)
 {
     return d->m_activeModelManagerSupport->usesClangd(document);
 }

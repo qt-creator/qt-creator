@@ -19,9 +19,11 @@
 #include <QFuture>
 #include <QObject>
 #include <QStringList>
+#include <QVersionNumber>
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace Core {
@@ -132,7 +134,7 @@ public:
     static void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
-    static bool usesClangd(const TextEditor::TextDocument *document);
+    static std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *document);
     static bool isClangCodeModelActive();
 
     static QSet<AbstractEditorSupport*> abstractEditorSupports();
