@@ -2996,14 +2996,14 @@ DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future,
 /*!
     Returns the current real count of asynchronous chains of invocations.
 
-    The returned value indicates how many times the control has returned to the caller's
+    The returned value indicates how many times the control returns to the caller's
     event loop while the task tree is running. Initially, this value is 0.
     If the execution of the task tree finishes fully synchronously, this value remains 0.
-    If the task tree contains any asynchronous task that is successfully started during
+    If the task tree contains any asynchronous tasks that are successfully started during
     a call to start(), this value is bumped to 1 just before the call to start() finishes.
     Later, when any asynchronous task finishes and any possible continuations are started,
     this value is bumped again. The bumping continues until the task tree finishes.
-    After the task tree emitted the done() signal, this value isn't bumped anymore.
+    When the task tree emits the done() signal, the bumping stops.
     The asyncCountChanged() signal is emitted on every bump of this value.
 
     \sa asyncCountChanged()
@@ -3017,10 +3017,10 @@ int TaskTree::asyncCount() const
     \fn void TaskTree::asyncCountChanged(int count)
 
     This signal is emitted when the running task tree is about to return control to the caller's
-    event loop. When the task tree is started, this signal is emitted with the value of 0,
-    and emitted later on every asyncCount() value bump. Every signal sent
-    (except the initial one with the value of 0) guarantees that the task tree is still running
-    asynchronously after the emission.
+    event loop. When the task tree is started, this signal is emitted with \a count value of 0,
+    and emitted later on every asyncCount() value bump with an updated \a count value.
+    Every signal sent (except the initial one with the value of 0) guarantees that the task tree
+    is still running asynchronously after the emission.
 
     \sa asyncCount()
 */
