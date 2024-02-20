@@ -23,10 +23,11 @@
 #include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
-#include <rewritingexception.h>
-#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmlitemnode.h>
+#include <rewritingexception.h>
+#include <utils3d.h>
+#include <variantproperty.h>
 
 #include <qmlprojectmanager/qmlproject.h>
 
@@ -935,11 +936,11 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
     if (index.column() == ColumnType::Alias && role == Qt::CheckStateRole) {
         m_view->handleChangedExport(modelNode, value.toInt() != 0);
     } else if (index.column() == ColumnType::Visibility && role == Qt::CheckStateRole) {
-        if (m_view->isPartOfMaterialLibrary(modelNode) || QmlItemNode(modelNode).isEffectItem())
+        if (Utils3D::isPartOfMaterialLibrary(modelNode) || QmlItemNode(modelNode).isEffectItem())
             return false;
         QmlVisualNode(modelNode).setVisibilityOverride(value.toInt() == 0);
     } else if (index.column() == ColumnType::Lock && role == Qt::CheckStateRole) {
-        if (m_view->isPartOfMaterialLibrary(modelNode))
+        if (Utils3D::isPartOfMaterialLibrary(modelNode))
             return false;
         modelNode.setLocked(value.toInt() != 0);
     }

@@ -34,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils3d.h>
 #include <qmldesignerplugin.h>
 
 #include <QApplication>
@@ -65,9 +66,10 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
             && model()->rewriterView()->errors().isEmpty()) {
             DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (doc && !doc->inFileComponentModelActive())
-                ensureMaterialLibraryNode();
+                Utils3D::ensureMaterialLibraryNode(this);
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
+                    Utils3D::materialLibraryNode(this).isValid());
             m_ensureMatLibTimer.stop();
         }
     });
@@ -375,7 +377,7 @@ void TextureEditorView::handleToolBarAction(int action)
         if (!model())
             break;
         executeInTransaction("TextureEditorView:handleToolBarAction", [&] {
-            ModelNode matLib = materialLibraryNode();
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
                 return;
 
@@ -410,7 +412,8 @@ void TextureEditorView::setupQmlBackend()
     QUrl qmlSpecificsUrl;
     QString specificQmlData;
 
-    if (m_selectedTexture.isValid() && m_hasQuick3DImport && (materialLibraryNode().isValid() || m_hasTextureRoot)) {
+    if (m_selectedTexture.isValid() && m_hasQuick3DImport
+        && (Utils3D::materialLibraryNode(this).isValid() || m_hasTextureRoot)) {
         qmlPaneUrl = QUrl::fromLocalFile(textureEditorResourcesPath() + "/TextureEditorPane.qml");
 
         TypeName diffClassName;
@@ -457,7 +460,8 @@ void TextureEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+    currentQmlBackend->contextObject()->setHasMaterialLibrary(
+        Utils3D::materialLibraryNode(this).isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
     currentQmlBackend->contextObject()->setHasSingleModelSelection(hasValidSelection);
@@ -745,7 +749,7 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
     QList<AbstractProperty> dynamicProps;
 
     executeInTransaction(__FUNCTION__, [&] {
-        ModelNode matLib = materialLibraryNode();
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
         if (!matLib.isValid())
             return;
 

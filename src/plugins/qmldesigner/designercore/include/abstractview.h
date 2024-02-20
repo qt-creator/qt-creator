@@ -228,11 +228,6 @@ public:
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
-    void ensureMaterialLibraryNode();
-    ModelNode materialLibraryNode();
-    bool isPartOfMaterialLibrary(const ModelNode &node);
-    ModelNode getTextureDefaultInstance(const QString &source);
-
     const NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
 

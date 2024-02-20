@@ -247,7 +247,7 @@ void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 
 void AssetsLibraryWidget::updateContextMenuActionsEnableState()
 {
-    setHasMaterialLibrary(m_assetsView->materialLibraryNode().isValid()
+    setHasMaterialLibrary(Utils3D::materialLibraryNode(m_assetsView).isValid()
                           && m_assetsView->model()->hasImport("QtQuick3D"));
 
     ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(

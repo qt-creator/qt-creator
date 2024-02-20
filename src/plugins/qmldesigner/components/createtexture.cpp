@@ -74,7 +74,7 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
     if (mode != AddTextureMode::Texture && mode != AddTextureMode::LightProbe)
         return {};
 
-    ModelNode matLib = m_view->materialLibraryNode();
+    ModelNode matLib = Utils3D::materialLibraryNode(m_view);
     if (!matLib.isValid())
         return {};
 
@@ -82,7 +82,7 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
 
     QString textureSource = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toString();
 
-    ModelNode newTexNode = m_view->getTextureDefaultInstance(textureSource);
+    ModelNode newTexNode = Utils3D::getTextureDefaultInstance(textureSource, m_view);
     if (!newTexNode.isValid()) {
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
                                              metaInfo.majorVersion(),

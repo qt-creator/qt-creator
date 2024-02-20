@@ -25,6 +25,7 @@
 #include "qmltimeline.h"
 #include "variantproperty.h"
 #include <itemlibraryentry.h>
+#include <utils3d.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -54,9 +55,10 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
             && model()->rewriterView()->errors().isEmpty()) {
             DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (doc && !doc->inFileComponentModelActive())
-                ensureMaterialLibraryNode();
+                Utils3D::ensureMaterialLibraryNode(this);
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
+                    Utils3D::materialLibraryNode(this).isValid());
             m_ensureMatLibTimer.stop();
         }
     });
@@ -414,7 +416,7 @@ void MaterialEditorView::handleToolBarAction(int action)
         if (!model())
             break;
         executeInTransaction(__FUNCTION__, [&] {
-            ModelNode matLib = materialLibraryNode();
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
                 return;
 
@@ -529,7 +531,8 @@ void MaterialEditorView::setupQmlBackend()
     QString specificQmlData;
     QString currentTypeName;
 
-    if (m_selectedMaterial.isValid() && m_hasQuick3DImport && (materialLibraryNode().isValid() || m_hasMaterialRoot)) {
+    if (m_selectedMaterial.isValid() && m_hasQuick3DImport
+        && (Utils3D::materialLibraryNode(this).isValid() || m_hasMaterialRoot)) {
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
 
         TypeName diffClassName;
@@ -582,7 +585,8 @@ void MaterialEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+    currentQmlBackend->contextObject()->setHasMaterialLibrary(
+        Utils3D::materialLibraryNode(this).isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
     currentQmlBackend->contextObject()->setIsQt6Project(externalDependencies().isQt6Project());
@@ -1028,7 +1032,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
     QList<AbstractProperty> dynamicProps;
 
     executeInTransaction(__FUNCTION__, [&] {
-        ModelNode matLib = materialLibraryNode();
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
         if (!matLib.isValid())
             return;
 
