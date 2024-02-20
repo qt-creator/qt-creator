@@ -201,8 +201,6 @@ FilePaths CMakeProjectImporter::presetCandidates()
         }
     }
 
-    m_hasCMakePresets = !candidates.isEmpty();
-
     return candidates;
 }
 
@@ -223,7 +221,7 @@ Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
 
 bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
 {
-    if (!m_hasCMakePresets)
+    if (!m_project->presetsData().havePresets)
         return true;
 
     const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
