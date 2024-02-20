@@ -17,8 +17,9 @@ BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: AfterComma
 ColumnLimit:    100
 IncludeCategories:
-  - Regex:           '^<Q.*'
-    Priority:        200
+  - Regex:           'Q.*'
+    Priority:        8
+    CaseSensitive:   true
 IndentPPDirectives: AfterHash
 IndentWidth:     4
 KeepEmptyLinesAtTheStartOfBlocks: false
