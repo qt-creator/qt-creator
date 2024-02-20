@@ -18,6 +18,7 @@
 #include <utils/macroexpander.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/store.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -72,56 +73,59 @@ static FilePath fallbackClangdFilePath()
 
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
-    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-
-    const CppCodeModelSettings def;
-    setEnableLowerClazyLevels(
-        s->value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels()).toBool());
-    setPCHUsage(static_cast<PCHUsage>(s->value(pchUsageKey(), def.pchUsage()).toInt()));
-    setInterpretAmbigiousHeadersAsCHeaders(s->value(interpretAmbiguousHeadersAsCHeadersKey(),
-                                                    def.interpretAmbigiousHeadersAsCHeaders())
-                                               .toBool());
-    setSkipIndexingBigFiles(
-        s->value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles()).toBool());
-    setIgnoreFiles(s->value(ignoreFilesKey(), def.ignoreFiles()).toBool());
-    setIgnorePattern(s->value(ignorePatternKey(), def.ignorePattern()).toString());
-    setUseBuiltinPreprocessor(
-        s->value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor()).toBool());
-    setIndexerFileSizeLimitInMb(
-        s->value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb()).toInt());
-
-    s->endGroup();
-
+    fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
     emit changed();
 }
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
+    storeToSettings(Constants::CPPEDITOR_SETTINGSGROUP, s, toMap());
+    emit changed(); // TODO: Why?
+}
 
+Store CppCodeModelSettings::toMap() const
+{
     const CppCodeModelSettings def;
-    s->setValueWithDefault(enableLowerClazyLevelsKey(),
-                           enableLowerClazyLevels(),
-                           def.enableLowerClazyLevels());
-    s->setValueWithDefault(pchUsageKey(), pchUsage(), def.pchUsage());
-    s->setValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
-                           interpretAmbigiousHeadersAsCHeaders(),
-                           def.interpretAmbigiousHeadersAsCHeaders());
-    s->setValueWithDefault(skipIndexingBigFilesKey(),
-                           skipIndexingBigFiles(),
-                           def.skipIndexingBigFiles());
-    s->setValueWithDefault(ignoreFilesKey(), ignoreFiles(), def.ignoreFiles());
-    s->setValueWithDefault(ignorePatternKey(), ignorePattern(), def.ignorePattern());
-    s->setValueWithDefault(useBuiltinPreprocessorKey(),
-                           useBuiltinPreprocessor(),
-                           def.useBuiltinPreprocessor());
-    s->setValueWithDefault(indexerFileSizeLimitKey(),
-                           indexerFileSizeLimitInMb(),
-                           def.indexerFileSizeLimitInMb());
+    Store store;
+    store.insertValueWithDefault(enableLowerClazyLevelsKey(),
+                                 enableLowerClazyLevels(),
+                                 def.enableLowerClazyLevels());
+    store.insertValueWithDefault(pchUsageKey(), pchUsage(), def.pchUsage());
+    store.insertValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
+                                 interpretAmbigiousHeadersAsCHeaders(),
+                                 def.interpretAmbigiousHeadersAsCHeaders());
+    store.insertValueWithDefault(skipIndexingBigFilesKey(),
+                                 skipIndexingBigFiles(),
+                                 def.skipIndexingBigFiles());
+    store.insertValueWithDefault(ignoreFilesKey(), ignoreFiles(), def.ignoreFiles());
+    store.insertValueWithDefault(ignorePatternKey(), ignorePattern(), def.ignorePattern());
+    store.insertValueWithDefault(useBuiltinPreprocessorKey(),
+                                 useBuiltinPreprocessor(),
+                                 def.useBuiltinPreprocessor());
+    store.insertValueWithDefault(indexerFileSizeLimitKey(),
+                                 indexerFileSizeLimitInMb(),
+                                 def.indexerFileSizeLimitInMb());
+    return store;
+}
 
-    s->endGroup();
-
-    emit changed();
+void CppCodeModelSettings::fromMap(const Utils::Store &store)
+{
+    const CppCodeModelSettings def;
+    setEnableLowerClazyLevels(
+        store.value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels()).toBool());
+    setPCHUsage(static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage()).toInt()));
+    setInterpretAmbigiousHeadersAsCHeaders(store
+                                               .value(interpretAmbiguousHeadersAsCHeadersKey(),
+                                                      def.interpretAmbigiousHeadersAsCHeaders())
+                                               .toBool());
+    setSkipIndexingBigFiles(
+        store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles()).toBool());
+    setIgnoreFiles(store.value(ignoreFilesKey(), def.ignoreFiles()).toBool());
+    setIgnorePattern(store.value(ignorePatternKey(), def.ignorePattern()).toString());
+    setUseBuiltinPreprocessor(
+        store.value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor()).toBool());
+    setIndexerFileSizeLimitInMb(
+        store.value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb()).toInt());
 }
 
 CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const

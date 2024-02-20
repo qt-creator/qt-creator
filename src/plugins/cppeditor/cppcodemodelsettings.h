@@ -17,7 +17,10 @@
 #include <QVersionNumber>
 
 namespace ProjectExplorer { class Project; }
-namespace Utils { class MacroExpander; }
+namespace Utils {
+class MacroExpander;
+class Store;
+} // namespace Utils
 
 namespace CppEditor {
 
@@ -68,6 +71,8 @@ signals:
 private:
     CppCodeModelSettings() = default;
     void fromSettings(Utils::QtcSettings *s);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &store);
 
     PCHUsage m_pchUsage = PchUse_BuildSystem;
     bool m_interpretAmbigiousHeadersAsCHeaders = false;
