@@ -185,7 +185,7 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
     Form {
         m_dashboardUrl, br,
         m_username, br,
-        mode == Edit ? normalMargin : noMargin
+        noMargin
     }.attachTo(this);
 
     if (mode == Edit) {
