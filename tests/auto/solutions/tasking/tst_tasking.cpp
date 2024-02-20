@@ -990,148 +990,111 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, groupDone](WorkflowPolicy policy) {
-            return Group {
+        const auto testData = [storage, groupDone](WorkflowPolicy policy, DoneWith result) {
+            return TestData {
                 storage,
-                workflowPolicy(policy),
-                groupDone(0)
+                Group {
+                    storage,
+                    workflowPolicy(policy),
+                    groupDone(0)
+                },
+                Log {{0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}},
+                0,
+                result
             };
         };
 
         const Log doneLog = {{0, Handler::GroupSuccess}};
         const Log errorLog = {{0, Handler::GroupError}};
 
-        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
-        QTest::newRow("EmptyStopOnError") << TestData{storage, root1, doneLog, 0,
-                                                      DoneWith::Success};
-
-        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("EmptyContinueOnError") << TestData{storage, root2, doneLog, 0,
-                                                          DoneWith::Success};
-
-        const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
-        QTest::newRow("EmptyStopOnSuccess") << TestData{storage, root3, errorLog, 0,
-                                                     DoneWith::Error};
-
-        const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
-        QTest::newRow("EmptyContinueOnSuccess") << TestData{storage, root4, errorLog, 0,
-                                                         DoneWith::Error};
-
-        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
-        QTest::newRow("EmptyStopOnSuccessOrError") << TestData{storage, root5, errorLog, 0,
-                                                         DoneWith::Error};
-
-        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
-        QTest::newRow("EmptyFinishAllAndSuccess") << TestData{storage, root6, doneLog, 0,
-                                                           DoneWith::Success};
-
-        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
-        QTest::newRow("EmptyFinishAllAndError") << TestData{storage, root7, errorLog, 0,
-                                                            DoneWith::Error};
+        QTest::newRow("EmptyStopOnError")
+            << testData(WorkflowPolicy::StopOnError, DoneWith::Success);
+        QTest::newRow("EmptyContinueOnError")
+            << testData(WorkflowPolicy::ContinueOnError, DoneWith::Success);
+        QTest::newRow("EmptyStopOnSuccess")
+            << testData(WorkflowPolicy::StopOnSuccess, DoneWith::Error);
+        QTest::newRow("EmptyContinueOnSuccess")
+            << testData(WorkflowPolicy::ContinueOnSuccess, DoneWith::Error);
+        QTest::newRow("EmptyStopOnSuccessOrError")
+            << testData(WorkflowPolicy::StopOnSuccessOrError, DoneWith::Error);
+        QTest::newRow("EmptyFinishAllAndSuccess")
+            << testData(WorkflowPolicy::FinishAllAndSuccess, DoneWith::Success);
+        QTest::newRow("EmptyFinishAllAndError")
+            << testData(WorkflowPolicy::FinishAllAndError, DoneWith::Error);
     }
 
     {
-        const auto createRoot = [storage, createSuccessTask, groupDone](
-                                    WorkflowPolicy policy) {
-            return Group {
+        const auto testData = [storage, groupDone, createSuccessTask](WorkflowPolicy policy,
+                                                                      DoneWith result) {
+            return TestData {
                 storage,
-                workflowPolicy(policy),
-                createSuccessTask(1),
-                groupDone(0)
+                Group {
+                    storage,
+                    workflowPolicy(policy),
+                    createSuccessTask(1),
+                    groupDone(0)
+                },
+                Log {
+                    {1, Handler::Setup},
+                    {1, Handler::Success},
+                    {0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}
+                },
+                1,
+                result
             };
         };
 
-        const Log doneLog = {
-            {1, Handler::Setup},
-            {1, Handler::Success},
-            {0, Handler::GroupSuccess}
-        };
-
-        const Log errorLog = {
-            {1, Handler::Setup},
-            {1, Handler::Success},
-            {0, Handler::GroupError}
-        };
-
-        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
-        QTest::newRow("DoneStopOnError") << TestData{storage, root1, doneLog, 1,
-                                                     DoneWith::Success};
-
-        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("DoneContinueOnError") << TestData{storage, root2, doneLog, 1,
-                                                         DoneWith::Success};
-
-        const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
-        QTest::newRow("DoneStopOnSuccess") << TestData{storage, root3, doneLog, 1,
-                                                    DoneWith::Success};
-
-        const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
-        QTest::newRow("DoneContinueOnSuccess") << TestData{storage, root4, doneLog, 1,
-                                                        DoneWith::Success};
-
-        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
-        QTest::newRow("DoneStopOnSuccessOrError") << TestData{storage, root5, doneLog, 1,
-                                                        DoneWith::Success};
-
-        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
-        QTest::newRow("DoneFinishAllAndSuccess") << TestData{storage, root6, doneLog, 1,
-                                                          DoneWith::Success};
-
-        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
-        QTest::newRow("DoneFinishAllAndError") << TestData{storage, root7, errorLog, 1,
-                                                           DoneWith::Error};
+        QTest::newRow("DoneStopOnError")
+            << testData(WorkflowPolicy::StopOnError, DoneWith::Success);
+        QTest::newRow("DoneContinueOnError")
+            << testData(WorkflowPolicy::ContinueOnError, DoneWith::Success);
+        QTest::newRow("DoneStopOnSuccess")
+            << testData(WorkflowPolicy::StopOnSuccess, DoneWith::Success);
+        QTest::newRow("DoneContinueOnSuccess")
+            << testData(WorkflowPolicy::ContinueOnSuccess, DoneWith::Success);
+        QTest::newRow("DoneStopOnSuccessOrError")
+            << testData(WorkflowPolicy::StopOnSuccessOrError, DoneWith::Success);
+        QTest::newRow("DoneFinishAllAndSuccess")
+            << testData(WorkflowPolicy::FinishAllAndSuccess, DoneWith::Success);
+        QTest::newRow("DoneFinishAllAndError")
+            << testData(WorkflowPolicy::FinishAllAndError, DoneWith::Error);
     }
 
     {
-        const auto createRoot = [storage, createFailingTask, groupDone](
-                                    WorkflowPolicy policy) {
-            return Group {
+        const auto testData = [storage, groupDone, createFailingTask](WorkflowPolicy policy,
+                                                                      DoneWith result) {
+            return TestData {
                 storage,
-                workflowPolicy(policy),
-                createFailingTask(1),
-                groupDone(0)
+                Group {
+                    storage,
+                    workflowPolicy(policy),
+                    createFailingTask(1),
+                    groupDone(0)
+                },
+                Log {
+                    {1, Handler::Setup},
+                    {1, Handler::Error},
+                    {0, result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError}
+                },
+                1,
+                result
             };
         };
 
-        const Log doneLog = {
-            {1, Handler::Setup},
-            {1, Handler::Error},
-            {0, Handler::GroupSuccess}
-        };
-
-        const Log errorLog = {
-            {1, Handler::Setup},
-            {1, Handler::Error},
-            {0, Handler::GroupError}
-        };
-
-        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
-        QTest::newRow("ErrorStopOnError") << TestData{storage, root1, errorLog, 1,
-                                                      DoneWith::Error};
-
-        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("ErrorContinueOnError") << TestData{storage, root2, errorLog, 1,
-                                                          DoneWith::Error};
-
-        const Group root3 = createRoot(WorkflowPolicy::StopOnSuccess);
-        QTest::newRow("ErrorStopOnSuccess") << TestData{storage, root3, errorLog, 1,
-                                                     DoneWith::Error};
-
-        const Group root4 = createRoot(WorkflowPolicy::ContinueOnSuccess);
-        QTest::newRow("ErrorContinueOnSuccess") << TestData{storage, root4, errorLog, 1,
-                                                         DoneWith::Error};
-
-        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
-        QTest::newRow("ErrorStopOnSuccessOrError") << TestData{storage, root5, errorLog, 1,
-                                                         DoneWith::Error};
-
-        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
-        QTest::newRow("ErrorFinishAllAndSuccess") << TestData{storage, root6, doneLog, 1,
-                                                           DoneWith::Success};
-
-        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
-        QTest::newRow("ErrorFinishAllAndError") << TestData{storage, root7, errorLog, 1,
-                                                           DoneWith::Error};
+        QTest::newRow("ErrorStopOnError")
+            << testData(WorkflowPolicy::StopOnError, DoneWith::Error);
+        QTest::newRow("ErrorContinueOnError")
+            << testData(WorkflowPolicy::ContinueOnError, DoneWith::Error);
+        QTest::newRow("ErrorStopOnSuccess")
+            << testData(WorkflowPolicy::StopOnSuccess, DoneWith::Error);
+        QTest::newRow("ErrorContinueOnSuccess")
+            << testData(WorkflowPolicy::ContinueOnSuccess, DoneWith::Error);
+        QTest::newRow("ErrorStopOnSuccessOrError")
+            << testData(WorkflowPolicy::StopOnSuccessOrError, DoneWith::Error);
+        QTest::newRow("ErrorFinishAllAndSuccess")
+            << testData(WorkflowPolicy::FinishAllAndSuccess, DoneWith::Success);
+        QTest::newRow("ErrorFinishAllAndError")
+            << testData(WorkflowPolicy::FinishAllAndError, DoneWith::Error);
     }
 
     {
