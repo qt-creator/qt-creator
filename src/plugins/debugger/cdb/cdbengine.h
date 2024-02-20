@@ -110,6 +110,7 @@ private:
     };
     enum CommandFlags {
         NoFlags = 0,
+        Silent = DebuggerCommand::Silent,
         BuiltinCommand = DebuggerCommand::Silent << 1,
         ExtensionCommand = DebuggerCommand::Silent << 2,
         ScriptCommand = DebuggerCommand::Silent << 3

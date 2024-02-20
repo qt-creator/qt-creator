@@ -2781,7 +2781,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
             showMessage("Reading " + codeFile.toUserOutput(), LogInput);
             runCommand({QString("module = types.ModuleType('%1')").arg(module), ScriptCommand});
             runCommand({QString("code = bytes.fromhex('%1').decode('utf-8')")
-                            .arg(QString::fromUtf8(code->toHex())), ScriptCommand | DebuggerCommand::Silent});
+                            .arg(QString::fromUtf8(code->toHex())), ScriptCommand | Silent});
             runCommand({QString("exec(code, module.__dict__)"), ScriptCommand});
             runCommand({QString("sys.modules['%1'] = module").arg(module), ScriptCommand});
             runCommand({QString("import %1").arg(module), ScriptCommand});
