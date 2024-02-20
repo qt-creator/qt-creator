@@ -16,3 +16,48 @@ set(IDE_DOC_FILE_ONLINE "qtdesignstudio/qtdesignstudio-online.qdocconf")
 
 set(IDE_ICON_PATH "${CMAKE_CURRENT_LIST_DIR}")
 set(IDE_LOGO_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+set(DESIGNSTUDIO_PLUGINS
+    Android
+    BareMetal
+    Boot2Qt
+    CMakeProjectManager
+    CodePaster
+    Core
+    CppEditor
+    Debugger
+    Designer
+    DiffEditor
+    EffectComposer
+    Help
+    Insight
+    LanguageClient
+    McuSupport
+    ProjectExplorer
+    QmakeProjectManager
+    QmlDesigner
+    QmlDesignerBase
+    QmlJSEditor
+    QmlJSTools
+    QmlPreview
+    QmlProjectManager
+    QtSupport
+    RemoteLinux
+    ResourceEditor
+    StudioPlugin
+    StudioWelcome
+    Texteditor
+    UpdateInfo
+    VcsBase
+    assetexporterplugin
+    componentsplugin
+    qmlpreviewplugin
+    qtquickplugin)
+
+if(DESIGNSTUDIO_EXTRAPLUGINS)
+  list(APPEND DESIGNSTUDIO_PLUGINS ${DESIGNSTUDIO_EXTRAPLUGINS})
+endif()
+
+if(NOT BUILD_PLUGINS)
+    set(BUILD_PLUGINS "${DESIGNSTUDIO_PLUGINS}" CACHE STRING "Build plugins" FORCE)
+endif()

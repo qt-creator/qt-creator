@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
+option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." OFF)
+if (BUILD_DESIGNSTUDIO)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dist/branding/qtdesignstudio")
+endif()
+
 ## Add paths to check for cmake modules:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Utils)
