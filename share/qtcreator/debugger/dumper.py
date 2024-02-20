@@ -420,7 +420,7 @@ class DumperBase():
 
     def charType(self):
         result = self.lookupType('char')
-        self.intType = lambda: result
+        self.charType = lambda: result
         return result
 
     def ptrSize(self):
