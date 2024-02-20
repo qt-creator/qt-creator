@@ -127,6 +127,26 @@ namespace Axivion::Internal::Dto {
         return de_serializer<T>::deserialize(json);
     }
 
+    template<typename T>
+    static Utils::expected_str<T> deserializeExp(const QByteArray &json)
+    {
+        try {
+            return T::deserialize(json);
+        } catch (const Dto::invalid_dto_exception &e) {
+            return Utils::make_unexpected(QString::fromUtf8(e.what()));
+        }
+    }
+
+    template<typename M, typename R = std::invoke_result_t<decltype(&M::strToEnum), QAnyStringView>>
+    static std::optional<R> strToOptionalEn(QAnyStringView str)
+    {
+        try {
+            return M::strToEnum(str);
+        } catch (const std::range_error &) {
+            return std::nullopt;
+        }
+    }
+
     // throws Axivion::Internal::Dto::invalid_dto_exception
     template<typename T>
     static T deserialize_bytes(const QByteArray &json)
@@ -549,6 +569,10 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<Any>(json);
     }
 
+    Utils::expected_str<Any> Any::deserializeExpected(const QByteArray &json) {
+        return deserializeExp<Any>(json);
+    }
+
     Any::Any() {}
 
     Any::Any(QString value) : data(std::move(value)) {}
@@ -691,6 +715,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<AnalyzedFileDto>(json);
     }
 
+    Utils::expected_str<AnalyzedFileDto> AnalyzedFileDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<AnalyzedFileDto>(json);
+    }
+
     AnalyzedFileDto::AnalyzedFileDto(
         QString path,
         std::optional<bool> isSystemHeader,
@@ -738,6 +767,11 @@ namespace Axivion::Internal::Dto {
             return ApiTokenType::continuousintegration;
         }
         throw std::range_error(concat({ "Unknown ApiTokenType str: ", to_std_string(str) }));
+    }
+
+    std::optional<ApiTokenType> ApiTokenTypeMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<ApiTokenTypeMeta>(str);
     }
 
     QLatin1String ApiTokenTypeMeta::enumToStr(ApiTokenType e)
@@ -795,6 +829,11 @@ namespace Axivion::Internal::Dto {
     ChangePasswordFormDto ChangePasswordFormDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ChangePasswordFormDto>(json);
+    }
+
+    Utils::expected_str<ChangePasswordFormDto> ChangePasswordFormDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ChangePasswordFormDto>(json);
     }
 
     ChangePasswordFormDto::ChangePasswordFormDto(
@@ -857,6 +896,11 @@ namespace Axivion::Internal::Dto {
             return ColumnType::owners;
         }
         throw std::range_error(concat({ "Unknown ColumnType str: ", to_std_string(str) }));
+    }
+
+    std::optional<ColumnType> ColumnTypeMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<ColumnTypeMeta>(str);
     }
 
     QLatin1String ColumnTypeMeta::enumToStr(ColumnType e)
@@ -925,6 +969,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ColumnTypeOptionDto>(json);
     }
 
+    Utils::expected_str<ColumnTypeOptionDto> ColumnTypeOptionDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ColumnTypeOptionDto>(json);
+    }
+
     ColumnTypeOptionDto::ColumnTypeOptionDto(
         QString key,
         std::optional<QString> displayName,
@@ -972,6 +1021,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<CommentRequestDto>(json);
     }
 
+    Utils::expected_str<CommentRequestDto> CommentRequestDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<CommentRequestDto>(json);
+    }
+
     CommentRequestDto::CommentRequestDto(
         QString text
     ) :
@@ -1013,6 +1067,11 @@ namespace Axivion::Internal::Dto {
     CsrfTokenDto CsrfTokenDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<CsrfTokenDto>(json);
+    }
+
+    Utils::expected_str<CsrfTokenDto> CsrfTokenDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<CsrfTokenDto>(json);
     }
 
     CsrfTokenDto::CsrfTokenDto(
@@ -1068,6 +1127,11 @@ namespace Axivion::Internal::Dto {
     EntityDto EntityDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<EntityDto>(json);
+    }
+
+    Utils::expected_str<EntityDto> EntityDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<EntityDto>(json);
     }
 
     EntityDto::EntityDto(
@@ -1143,6 +1207,11 @@ namespace Axivion::Internal::Dto {
     ErrorDto ErrorDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ErrorDto>(json);
+    }
+
+    Utils::expected_str<ErrorDto> ErrorDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ErrorDto>(json);
     }
 
     ErrorDto::ErrorDto(
@@ -1222,6 +1291,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueCommentDto>(json);
     }
 
+    Utils::expected_str<IssueCommentDto> IssueCommentDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueCommentDto>(json);
+    }
+
     IssueCommentDto::IssueCommentDto(
         QString username,
         QString userDisplayName,
@@ -1282,6 +1356,11 @@ namespace Axivion::Internal::Dto {
             return IssueKind::sv;
         }
         throw std::range_error(concat({ "Unknown IssueKind str: ", to_std_string(str) }));
+    }
+
+    std::optional<IssueKind> IssueKindMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<IssueKindMeta>(str);
     }
 
     QLatin1String IssueKindMeta::enumToStr(IssueKind e)
@@ -1350,6 +1429,11 @@ namespace Axivion::Internal::Dto {
             return IssueKindForNamedFilterCreation::universal;
         }
         throw std::range_error(concat({ "Unknown IssueKindForNamedFilterCreation str: ", to_std_string(str) }));
+    }
+
+    std::optional<IssueKindForNamedFilterCreation> IssueKindForNamedFilterCreationMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<IssueKindForNamedFilterCreationMeta>(str);
     }
 
     QLatin1String IssueKindForNamedFilterCreationMeta::enumToStr(IssueKindForNamedFilterCreation e)
@@ -1428,6 +1512,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueSourceLocationDto>(json);
     }
 
+    Utils::expected_str<IssueSourceLocationDto> IssueSourceLocationDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueSourceLocationDto>(json);
+    }
+
     IssueSourceLocationDto::IssueSourceLocationDto(
         QString fileName,
         std::optional<QString> role,
@@ -1484,6 +1573,11 @@ namespace Axivion::Internal::Dto {
     IssueTagDto IssueTagDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<IssueTagDto>(json);
+    }
+
+    Utils::expected_str<IssueTagDto> IssueTagDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueTagDto>(json);
     }
 
     IssueTagDto::IssueTagDto(
@@ -1546,6 +1640,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTagTypeDto>(json);
     }
 
+    Utils::expected_str<IssueTagTypeDto> IssueTagTypeDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueTagTypeDto>(json);
+    }
+
     IssueTagTypeDto::IssueTagTypeDto(
         QString id,
         std::optional<QString> text,
@@ -1599,6 +1698,11 @@ namespace Axivion::Internal::Dto {
             return MessageSeverity::fatal;
         }
         throw std::range_error(concat({ "Unknown MessageSeverity str: ", to_std_string(str) }));
+    }
+
+    std::optional<MessageSeverity> MessageSeverityMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<MessageSeverityMeta>(str);
     }
 
     QLatin1String MessageSeverityMeta::enumToStr(MessageSeverity e)
@@ -1662,6 +1766,11 @@ namespace Axivion::Internal::Dto {
     MetricDto MetricDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<MetricDto>(json);
+    }
+
+    Utils::expected_str<MetricDto> MetricDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricDto>(json);
     }
 
     MetricDto::MetricDto(
@@ -1731,6 +1840,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricValueTableRowDto>(json);
     }
 
+    Utils::expected_str<MetricValueTableRowDto> MetricValueTableRowDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricValueTableRowDto>(json);
+    }
+
     MetricValueTableRowDto::MetricValueTableRowDto(
         QString metric,
         std::optional<QString> path,
@@ -1776,6 +1890,11 @@ namespace Axivion::Internal::Dto {
             return NamedFilterType::custom;
         }
         throw std::range_error(concat({ "Unknown NamedFilterType str: ", to_std_string(str) }));
+    }
+
+    std::optional<NamedFilterType> NamedFilterTypeMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<NamedFilterTypeMeta>(str);
     }
 
     QLatin1String NamedFilterTypeMeta::enumToStr(NamedFilterType e)
@@ -1828,6 +1947,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterVisibilityDto>(json);
     }
 
+    Utils::expected_str<NamedFilterVisibilityDto> NamedFilterVisibilityDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<NamedFilterVisibilityDto>(json);
+    }
+
     NamedFilterVisibilityDto::NamedFilterVisibilityDto(
         std::optional<std::vector<QString>> groups
     ) :
@@ -1872,6 +1996,11 @@ namespace Axivion::Internal::Dto {
     ProjectReferenceDto ProjectReferenceDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ProjectReferenceDto>(json);
+    }
+
+    Utils::expected_str<ProjectReferenceDto> ProjectReferenceDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ProjectReferenceDto>(json);
     }
 
     ProjectReferenceDto::ProjectReferenceDto(
@@ -1925,6 +2054,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RuleDto>(json);
     }
 
+    Utils::expected_str<RuleDto> RuleDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<RuleDto>(json);
+    }
+
     RuleDto::RuleDto(
         QString name,
         QString original_name,
@@ -1957,6 +2091,11 @@ namespace Axivion::Internal::Dto {
             return SortDirection::desc;
         }
         throw std::range_error(concat({ "Unknown SortDirection str: ", to_std_string(str) }));
+    }
+
+    std::optional<SortDirection> SortDirectionMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<SortDirectionMeta>(str);
     }
 
     QLatin1String SortDirectionMeta::enumToStr(SortDirection e)
@@ -1997,6 +2136,11 @@ namespace Axivion::Internal::Dto {
             return TableCellAlignment::center;
         }
         throw std::range_error(concat({ "Unknown TableCellAlignment str: ", to_std_string(str) }));
+    }
+
+    std::optional<TableCellAlignment> TableCellAlignmentMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<TableCellAlignmentMeta>(str);
     }
 
     QLatin1String TableCellAlignmentMeta::enumToStr(TableCellAlignment e)
@@ -2055,6 +2199,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ToolsVersionDto>(json);
     }
 
+    Utils::expected_str<ToolsVersionDto> ToolsVersionDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ToolsVersionDto>(json);
+    }
+
     ToolsVersionDto::ToolsVersionDto(
         QString name,
         QString number,
@@ -2092,6 +2241,11 @@ namespace Axivion::Internal::Dto {
             return UserRefType::unmapped_user;
         }
         throw std::range_error(concat({ "Unknown UserRefType str: ", to_std_string(str) }));
+    }
+
+    std::optional<UserRefType> UserRefTypeMeta::strToOptionalEnum(QAnyStringView str)
+    {
+        return strToOptionalEn<UserRefTypeMeta>(str);
     }
 
     QLatin1String UserRefTypeMeta::enumToStr(UserRefType e)
@@ -2148,6 +2302,11 @@ namespace Axivion::Internal::Dto {
     VersionKindCountDto VersionKindCountDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<VersionKindCountDto>(json);
+    }
+
+    Utils::expected_str<VersionKindCountDto> VersionKindCountDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<VersionKindCountDto>(json);
     }
 
     VersionKindCountDto::VersionKindCountDto(
@@ -2221,6 +2380,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<AnalysisVersionDto>(json);
     }
 
+    Utils::expected_str<AnalysisVersionDto> AnalysisVersionDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<AnalysisVersionDto>(json);
+    }
+
     AnalysisVersionDto::AnalysisVersionDto(
         QString date,
         std::optional<QString> label,
@@ -2287,6 +2451,11 @@ namespace Axivion::Internal::Dto {
     ApiTokenCreationRequestDto ApiTokenCreationRequestDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ApiTokenCreationRequestDto>(json);
+    }
+
+    Utils::expected_str<ApiTokenCreationRequestDto> ApiTokenCreationRequestDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ApiTokenCreationRequestDto>(json);
     }
 
     ApiTokenCreationRequestDto::ApiTokenCreationRequestDto(
@@ -2404,6 +2573,11 @@ namespace Axivion::Internal::Dto {
     ApiTokenInfoDto ApiTokenInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ApiTokenInfoDto>(json);
+    }
+
+    Utils::expected_str<ApiTokenInfoDto> ApiTokenInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ApiTokenInfoDto>(json);
     }
 
     ApiTokenInfoDto::ApiTokenInfoDto(
@@ -2548,6 +2722,11 @@ namespace Axivion::Internal::Dto {
     ColumnInfoDto ColumnInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<ColumnInfoDto>(json);
+    }
+
+    Utils::expected_str<ColumnInfoDto> ColumnInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ColumnInfoDto>(json);
     }
 
     ColumnInfoDto::ColumnInfoDto(
@@ -2717,6 +2896,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<DashboardInfoDto>(json);
     }
 
+    Utils::expected_str<DashboardInfoDto> DashboardInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<DashboardInfoDto>(json);
+    }
+
     DashboardInfoDto::DashboardInfoDto(
         std::optional<QString> mainUrl,
         QString dashboardVersion,
@@ -2788,6 +2972,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueCommentListDto>(json);
     }
 
+    Utils::expected_str<IssueCommentListDto> IssueCommentListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueCommentListDto>(json);
+    }
+
     IssueCommentListDto::IssueCommentListDto(
         std::vector<IssueCommentDto> comments
     ) :
@@ -2835,6 +3024,11 @@ namespace Axivion::Internal::Dto {
     IssueKindInfoDto IssueKindInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<IssueKindInfoDto>(json);
+    }
+
+    Utils::expected_str<IssueKindInfoDto> IssueKindInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueKindInfoDto>(json);
     }
 
     IssueKindInfoDto::IssueKindInfoDto(
@@ -2914,6 +3108,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTagTypeListDto>(json);
     }
 
+    Utils::expected_str<IssueTagTypeListDto> IssueTagTypeListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueTagTypeListDto>(json);
+    }
+
     IssueTagTypeListDto::IssueTagTypeListDto(
         std::vector<IssueTagTypeDto> tags
     ) :
@@ -2979,6 +3178,11 @@ namespace Axivion::Internal::Dto {
     LineMarkerDto LineMarkerDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<LineMarkerDto>(json);
+    }
+
+    Utils::expected_str<LineMarkerDto> LineMarkerDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<LineMarkerDto>(json);
     }
 
     LineMarkerDto::LineMarkerDto(
@@ -3085,6 +3289,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RepositoryUpdateMessageDto>(json);
     }
 
+    Utils::expected_str<RepositoryUpdateMessageDto> RepositoryUpdateMessageDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<RepositoryUpdateMessageDto>(json);
+    }
+
     RepositoryUpdateMessageDto::RepositoryUpdateMessageDto(
         QString severity,
         QString message
@@ -3158,6 +3367,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RuleListDto>(json);
     }
 
+    Utils::expected_str<RuleListDto> RuleListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<RuleListDto>(json);
+    }
+
     RuleListDto::RuleListDto(
         std::vector<RuleDto> rules
     ) :
@@ -3202,6 +3416,11 @@ namespace Axivion::Internal::Dto {
     SortInfoDto SortInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<SortInfoDto>(json);
+    }
+
+    Utils::expected_str<SortInfoDto> SortInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<SortInfoDto>(json);
     }
 
     SortInfoDto::SortInfoDto(
@@ -3284,6 +3503,11 @@ namespace Axivion::Internal::Dto {
     UserRefDto UserRefDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<UserRefDto>(json);
+    }
+
+    Utils::expected_str<UserRefDto> UserRefDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<UserRefDto>(json);
     }
 
     UserRefDto::UserRefDto(
@@ -3372,6 +3596,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<AnalyzedFileListDto>(json);
     }
 
+    Utils::expected_str<AnalyzedFileListDto> AnalyzedFileListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<AnalyzedFileListDto>(json);
+    }
+
     AnalyzedFileListDto::AnalyzedFileListDto(
         AnalysisVersionDto version,
         std::vector<AnalyzedFileDto> rows
@@ -3418,6 +3647,11 @@ namespace Axivion::Internal::Dto {
     EntityListDto EntityListDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<EntityListDto>(json);
+    }
+
+    Utils::expected_str<EntityListDto> EntityListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<EntityListDto>(json);
     }
 
     EntityListDto::EntityListDto(
@@ -3472,6 +3706,11 @@ namespace Axivion::Internal::Dto {
     FileViewDto FileViewDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<FileViewDto>(json);
+    }
+
+    Utils::expected_str<FileViewDto> FileViewDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<FileViewDto>(json);
     }
 
     FileViewDto::FileViewDto(
@@ -3539,6 +3778,11 @@ namespace Axivion::Internal::Dto {
     IssueDto IssueDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<IssueDto>(json);
+    }
+
+    Utils::expected_str<IssueDto> IssueDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueDto>(json);
     }
 
     IssueDto::IssueDto(
@@ -3655,6 +3899,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTableDto>(json);
     }
 
+    Utils::expected_str<IssueTableDto> IssueTableDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueTableDto>(json);
+    }
+
     IssueTableDto::IssueTableDto(
         std::optional<AnalysisVersionDto> startVersion,
         AnalysisVersionDto endVersion,
@@ -3715,6 +3964,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricListDto>(json);
     }
 
+    Utils::expected_str<MetricListDto> MetricListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricListDto>(json);
+    }
+
     MetricListDto::MetricListDto(
         std::optional<AnalysisVersionDto> version,
         std::vector<MetricDto> metrics
@@ -3772,6 +4026,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricValueRangeDto>(json);
     }
 
+    Utils::expected_str<MetricValueRangeDto> MetricValueRangeDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricValueRangeDto>(json);
+    }
+
     MetricValueRangeDto::MetricValueRangeDto(
         AnalysisVersionDto startVersion,
         AnalysisVersionDto endVersion,
@@ -3824,6 +4083,11 @@ namespace Axivion::Internal::Dto {
     MetricValueTableDto MetricValueTableDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<MetricValueTableDto>(json);
+    }
+
+    Utils::expected_str<MetricValueTableDto> MetricValueTableDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricValueTableDto>(json);
     }
 
     MetricValueTableDto::MetricValueTableDto(
@@ -3881,6 +4145,11 @@ namespace Axivion::Internal::Dto {
     NamedFilterCreateDto NamedFilterCreateDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<NamedFilterCreateDto>(json);
+    }
+
+    Utils::expected_str<NamedFilterCreateDto> NamedFilterCreateDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<NamedFilterCreateDto>(json);
     }
 
     NamedFilterCreateDto::NamedFilterCreateDto(
@@ -3996,6 +4265,11 @@ namespace Axivion::Internal::Dto {
     NamedFilterInfoDto NamedFilterInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<NamedFilterInfoDto>(json);
+    }
+
+    Utils::expected_str<NamedFilterInfoDto> NamedFilterInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<NamedFilterInfoDto>(json);
     }
 
     NamedFilterInfoDto::NamedFilterInfoDto(
@@ -4118,6 +4392,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterUpdateDto>(json);
     }
 
+    Utils::expected_str<NamedFilterUpdateDto> NamedFilterUpdateDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<NamedFilterUpdateDto>(json);
+    }
+
     NamedFilterUpdateDto::NamedFilterUpdateDto(
         std::optional<QString> name,
         std::optional<std::map<QString, QString>> filters,
@@ -4185,6 +4464,11 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ProjectInfoDto>(json);
     }
 
+    Utils::expected_str<ProjectInfoDto> ProjectInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<ProjectInfoDto>(json);
+    }
+
     ProjectInfoDto::ProjectInfoDto(
         QString name,
         std::optional<QString> issueFilterHelp,
@@ -4244,6 +4528,11 @@ namespace Axivion::Internal::Dto {
     RepositoryUpdateResponseDto RepositoryUpdateResponseDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<RepositoryUpdateResponseDto>(json);
+    }
+
+    Utils::expected_str<RepositoryUpdateResponseDto> RepositoryUpdateResponseDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<RepositoryUpdateResponseDto>(json);
     }
 
     RepositoryUpdateResponseDto::RepositoryUpdateResponseDto(
@@ -4306,6 +4595,11 @@ namespace Axivion::Internal::Dto {
     TableInfoDto TableInfoDto::deserialize(const QByteArray &json)
     {
         return deserialize_bytes<TableInfoDto>(json);
+    }
+
+    Utils::expected_str<TableInfoDto> TableInfoDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<TableInfoDto>(json);
     }
 
     TableInfoDto::TableInfoDto(
