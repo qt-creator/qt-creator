@@ -289,8 +289,13 @@ bool ensureDataStoreExists(bool &justCreated)
             return false;
         }
 
-        templatePath.copyFile(filePath);
-        if (filePath.exists()) {
+        if (!filePath.parentDir().ensureWritableDir()) {
+            qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot create directory"
+                       << filePath.parentDir();
+            return false;
+        }
+
+        if (templatePath.copyFile(filePath)) {
             justCreated = true;
             return true;
         }
