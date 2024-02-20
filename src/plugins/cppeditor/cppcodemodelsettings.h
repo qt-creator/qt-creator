@@ -31,13 +31,10 @@ public:
         PchUse_BuildSystem = 2
     };
 
-public:
-    CppCodeModelSettings();
+    CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
 
-    void fromSettings(Utils::QtcSettings *s);
     void toSettings(Utils::QtcSettings *s);
 
-public:
     bool enableLowerClazyLevels() const;
     void setEnableLowerClazyLevels(bool yesno);
 
@@ -69,6 +66,9 @@ signals:
     void changed();
 
 private:
+    CppCodeModelSettings() = default;
+    void fromSettings(Utils::QtcSettings *s);
+
     PCHUsage m_pchUsage = PchUse_BuildSystem;
     bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;

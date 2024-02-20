@@ -31,8 +31,6 @@ using namespace Utils;
 namespace CppEditor {
 
 static Id initialClangDiagnosticConfigId() { return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
-static CppCodeModelSettings::PCHUsage initialPchUsage()
-    { return CppCodeModelSettings::PchUse_BuildSystem; }
 static Key enableLowerClazyLevelsKey() { return "enableLowerClazyLevels"; }
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
@@ -72,37 +70,25 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
-CppCodeModelSettings::CppCodeModelSettings()
-{
-    fromSettings(Core::ICore::settings());
-}
-
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
 
-    setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
-
-    const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
-    setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
-
-    const QVariant interpretAmbiguousHeadersAsCHeaders
-            = s->value(interpretAmbiguousHeadersAsCHeadersKey(), false);
-    setInterpretAmbigiousHeadersAsCHeaders(interpretAmbiguousHeadersAsCHeaders.toBool());
-
-    const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
-    setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
-
-    const QVariant ignoreFiles = s->value(ignoreFilesKey(), false);
-    setIgnoreFiles(ignoreFiles.toBool());
-
-    const QVariant ignorePattern = s->value(ignorePatternKey(), "");
-    setIgnorePattern(ignorePattern.toString());
-
-    setUseBuiltinPreprocessor(s->value(useBuiltinPreprocessorKey(), true).toBool());
-
-    const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
-    setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
+    const CppCodeModelSettings def;
+    setEnableLowerClazyLevels(
+        s->value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels()).toBool());
+    setPCHUsage(static_cast<PCHUsage>(s->value(pchUsageKey(), def.pchUsage()).toInt()));
+    setInterpretAmbigiousHeadersAsCHeaders(s->value(interpretAmbiguousHeadersAsCHeadersKey(),
+                                                    def.interpretAmbigiousHeadersAsCHeaders())
+                                               .toBool());
+    setSkipIndexingBigFiles(
+        s->value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles()).toBool());
+    setIgnoreFiles(s->value(ignoreFilesKey(), def.ignoreFiles()).toBool());
+    setIgnorePattern(s->value(ignorePatternKey(), def.ignorePattern()).toString());
+    setUseBuiltinPreprocessor(
+        s->value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor()).toBool());
+    setIndexerFileSizeLimitInMb(
+        s->value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb()).toInt());
 
     s->endGroup();
 
@@ -113,15 +99,25 @@ void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
 
-    s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
-    s->setValue(pchUsageKey(), pchUsage());
-
-    s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
-    s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
-    s->setValue(ignoreFilesKey(), ignoreFiles());
-    s->setValue(ignorePatternKey(), QVariant(ignorePattern()));
-    s->setValue(useBuiltinPreprocessorKey(), useBuiltinPreprocessor());
-    s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
+    const CppCodeModelSettings def;
+    s->setValueWithDefault(enableLowerClazyLevelsKey(),
+                           enableLowerClazyLevels(),
+                           def.enableLowerClazyLevels());
+    s->setValueWithDefault(pchUsageKey(), pchUsage(), def.pchUsage());
+    s->setValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
+                           interpretAmbigiousHeadersAsCHeaders(),
+                           def.interpretAmbigiousHeadersAsCHeaders());
+    s->setValueWithDefault(skipIndexingBigFilesKey(),
+                           skipIndexingBigFiles(),
+                           def.skipIndexingBigFiles());
+    s->setValueWithDefault(ignoreFilesKey(), ignoreFiles(), def.ignoreFiles());
+    s->setValueWithDefault(ignorePatternKey(), ignorePattern(), def.ignorePattern());
+    s->setValueWithDefault(useBuiltinPreprocessorKey(),
+                           useBuiltinPreprocessor(),
+                           def.useBuiltinPreprocessor());
+    s->setValueWithDefault(indexerFileSizeLimitKey(),
+                           indexerFileSizeLimitInMb(),
+                           def.indexerFileSizeLimitInMb());
 
     s->endGroup();
 
@@ -670,7 +666,7 @@ int ClangdSettings::Data::defaultCompletionResults()
 
 CppCodeModelSettings &cppCodeModelSettings()
 {
-    static CppCodeModelSettings theCppCodeModelSettings;
+    static CppCodeModelSettings theCppCodeModelSettings(Core::ICore::settings());
     return theCppCodeModelSettings;
 }
 
