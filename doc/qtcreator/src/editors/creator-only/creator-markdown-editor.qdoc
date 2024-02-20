@@ -39,7 +39,12 @@
 
     \list 1
         \li Place the cursor on the link.
-        \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu, or
-            press \key F2.
+        \li Then, do one of the following:
+            \list
+                \li Press \key {Ctrl+Click} (or \key {Cmd+Click} on \macos).
+                \li Press \key F2.
+                \li Go to \uicontrol {Follow Symbol Under Cursor} in the context
+                    menu.
+            \endlist
     \endlist
 */
