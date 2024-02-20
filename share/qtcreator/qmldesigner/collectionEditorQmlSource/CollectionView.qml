@@ -25,7 +25,7 @@ Item {
 
     // called from C++ when using the delete key
     function deleteSelectedCollection() {
-        print("TODO: deleteSelectedCollection")
+        collectionListView.deleteCurrentCollection()
     }
 
     function closeDialogs() {

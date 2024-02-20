@@ -71,6 +71,7 @@ private:
     QPointer<CollectionView> m_view;
     QPointer<CollectionListModel> m_listModel;
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
+    QPointer<Core::IContext> m_iContext;
     std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;
     bool m_targetNodeSelected = false;

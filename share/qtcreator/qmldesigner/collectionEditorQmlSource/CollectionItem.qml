@@ -98,7 +98,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton | Qt.LeftButton
-                    onClicked: contextMenuRequested()
+                    onClicked: root.contextMenuRequested()
                 }
             }
         }

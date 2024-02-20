@@ -9,7 +9,7 @@ import StudioTheme 1.0 as StudioTheme
 T.MenuItem {
     id: control
 
-    property alias shortcut: itemAction.shortcut
+    property alias shortcut: shortcutObserver.shortcutWorkaround
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
@@ -24,9 +24,6 @@ T.MenuItem {
     padding: 0
     spacing: 0
     horizontalPadding: control.style.contextMenuHorizontalPadding
-    action: Action {
-        id: itemAction
-    }
 
     contentItem: Item {
         Text {
@@ -41,16 +38,23 @@ T.MenuItem {
 
         Text {
             id: shortcutLabel
+
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: shortcutObserver.nativeText
+                  ? shortcutObserver.nativeText
+                  : control.action
+                    ? control.action.fakeShortcut ? control.action.fakeShortcut : ""
+                    : ""
             font: control.font
             color: textLabel.color
 
             Shortcut {
                 id: shortcutObserver
-                property int shortcutWorkaround: control.shortcut ?? 0
+
+                property int shortcutWorkaround: 0
                 sequence: shortcutObserver.shortcutWorkaround
+                enabled: false
             }
         }
     }

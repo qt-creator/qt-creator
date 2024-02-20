@@ -53,6 +53,7 @@ QString getPreferredCollectionName(const QUrl &url, const QString &collectionNam
 } // namespace
 
 namespace QmlDesigner {
+
 CollectionWidget::CollectionWidget(CollectionView *view)
     : m_view(view)
     , m_listModel(new CollectionListModel)
@@ -62,11 +63,11 @@ CollectionWidget::CollectionWidget(CollectionView *view)
 {
     setWindowTitle(tr("Model Editor", "Title of model editor widget"));
 
-    Core::IContext *icontext = nullptr;
     Core::Context context(Constants::C_QMLCOLLECTIONEDITOR);
-    icontext = new Core::IContext(this);
-    icontext->setContext(context);
-    icontext->setWidget(this);
+    m_iContext = new Core::IContext(this);
+    m_iContext->setContext(context);
+    m_iContext->setWidget(this);
+    Core::ICore::addContextObject(m_iContext);
 
     connect(m_listModel, &CollectionListModel::warning, this, &CollectionWidget::warn);
 

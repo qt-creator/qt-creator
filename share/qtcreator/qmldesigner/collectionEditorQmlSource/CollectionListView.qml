@@ -22,6 +22,10 @@ ListView {
         renameDialog.reject()
     }
 
+    function deleteCurrentCollection() {
+        deleteDialog.open()
+    }
+
     delegate: CollectionItem {
         implicitWidth: root.width
         onDeleteItem: root.model.removeRow(index)
@@ -35,6 +39,10 @@ ListView {
         readonly property string name: item ? item.name : ""
         readonly property bool selected: item ? item.isSelected : false
         readonly property int index: item ? item.id : -1
+
+        function updateItem() {
+            currentCollection.item = collectionMenu.clickedItem ?? root.itemAtIndex(root.model.selectedIndex)
+        }
 
         function rename(newName) {
             if (item)
@@ -54,145 +62,56 @@ ListView {
     StudioControls.Menu {
         id: collectionMenu
 
+        property CollectionItem clickedItem
+
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        enabled: root.count
 
         function openMenu(item) {
-            currentCollection.item = item
-            popup()
+            collectionMenu.clickedItem = item
+            currentCollection.updateItem()
+            collectionMenu.popup()
         }
 
-        StudioControls.MenuItem {
+        onClosed: collectionMenu.clickedItem = null
+
+        Action {
+            id: menuDeleteAction
+
             text: qsTr("Delete")
-            shortcut: StandardKey.Delete
             onTriggered: deleteDialog.open()
         }
 
-        StudioControls.MenuItem {
+        Action {
+            id: menuRenameAction
+
             text: qsTr("Rename")
-            shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
         }
 
-        StudioControls.MenuItem {
+        Action {
+            id: menuAssignAction
+
             text: qsTr("Assign to the selected node")
             enabled: CollectionEditorBackend.rootView.targetNodeSelected
             onTriggered: rootView.assignCollectionToSelectedNode(currentCollection.name)
         }
     }
 
-    StudioControls.Dialog {
+    ConfirmDeleteCollectionDialog {
         id: deleteDialog
 
-        title: qsTr("Deleting the model")
-        clip: true
-
+        collectionName: currentCollection.name
+        onAboutToShow: currentCollection.updateItem()
         onAccepted: currentCollection.deleteItem()
-
-        contentItem: ColumnLayout {
-            id: deleteDialogContent // Keep the id here even if it's not used, because the dialog might lose implicitSize
-
-            width: 300
-            spacing: 2
-
-            Text {
-                Layout.fillWidth: true
-
-                wrapMode: Text.WordWrap
-                color: StudioTheme.Values.themeTextColor
-                text: qsTr("Are you sure that you want to delete model \"%1\"?"
-                           + "\nThe model will be deleted permanently.").arg(currentCollection.name)
-
-            }
-
-            Spacer {}
-
-            RowLayout {
-                spacing: StudioTheme.Values.sectionRowSpacing
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-
-                HelperWidgets.Button {
-                    text: qsTr("Delete")
-                    onClicked: deleteDialog.accept()
-                }
-
-                HelperWidgets.Button {
-                    text: qsTr("Cancel")
-                    onClicked: deleteDialog.reject()
-                }
-            }
-        }
     }
 
-    StudioControls.Dialog {
+    RenameCollectionDialog {
         id: renameDialog
 
-        title: qsTr("Rename model")
-
-        onAccepted: {
-            if (newNameField.text !== "")
-                currentCollection.rename(newNameField.text)
-        }
-
-        onOpened: {
-            newNameField.text = currentCollection.name
-        }
-
-        contentItem: ColumnLayout {
-            spacing: 2
-
-            Text {
-                text: qsTr("Previous name: " + currentCollection.name)
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            Spacer {}
-
-            Text {
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                text: qsTr("New name:")
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            StudioControls.TextField {
-                id: newNameField
-
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                Layout.fillWidth: true
-
-                actionIndicator.visible: false
-                translationIndicator.visible: false
-                validator: newNameValidator
-
-                Keys.onEnterPressed: renameDialog.accept()
-                Keys.onReturnPressed: renameDialog.accept()
-                Keys.onEscapePressed: renameDialog.reject()
-
-                onTextChanged: {
-                    btnRename.enabled = newNameField.text !== ""
-                }
-            }
-
-            Spacer {}
-
-            RowLayout {
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                spacing: StudioTheme.Values.sectionRowSpacing
-
-                HelperWidgets.Button {
-                    id: btnRename
-
-                    text: qsTr("Rename")
-                    onClicked: renameDialog.accept()
-                }
-
-                HelperWidgets.Button {
-                    text: qsTr("Cancel")
-                    onClicked: renameDialog.reject()
-                }
-            }
-        }
+        collectionName: currentCollection.name
+        onAboutToShow: currentCollection.updateItem()
+        onAccepted: currentCollection.rename(renameDialog.newCollectionName)
     }
 
     Connections {
@@ -201,15 +120,5 @@ ListView {
         function onModelReset() {
             root.closeDialogs()
         }
-    }
-
-    RegularExpressionValidator {
-        id: newNameValidator
-        regularExpression: /^\w+$/
-    }
-
-    component Spacer: Item {
-        implicitWidth: 1
-        implicitHeight: StudioTheme.Values.columnGap
     }
 }
