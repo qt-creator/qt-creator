@@ -1896,7 +1896,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      QKeySequence(Qt::Key_F2),
                                                      Priorities::ComponentActions + 2,
                                                      &goIntoComponentOperation,
-                                                     &selectionIsComponent));
+                                                     &selectionIsEditableComponent));
 
     addDesignerAction(new ModelNodeContextMenuAction(jumpToCodeCommandId,
                                                      JumpToCodeDisplayName,

@@ -577,6 +577,7 @@ QString EffectComposerModel::getQmlEffectString()
     QString header{
 R"(
 // Created with Qt Design Studio (version %1), %2
+// Do not manually edit this file, it will be overwritten if effect is modified in Qt Design Studio.
 
 import QtQuick
 

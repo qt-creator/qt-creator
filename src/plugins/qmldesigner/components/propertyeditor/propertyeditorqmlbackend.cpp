@@ -749,7 +749,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     qmlTemplate += "Column {\n";
     qmlTemplate += "width: parent.width\n";
 
-    if (node.modelNode().isComponent())
+    bool isEditableComponent = node.modelNode().isComponent() && !QmlItemNode(node).isEffectItem();
+    if (isEditableComponent)
         qmlTemplate += "ComponentButton {}\n";
 
     QString qmlInnerTemplate = "";

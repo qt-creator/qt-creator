@@ -574,8 +574,10 @@ void PropertyEditorView::setupQmlBackend()
 {
     if constexpr (useProjectStorage()) {
         auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
+        bool isEditableComponent = m_selectedNode.isComponent()
+                                   && !QmlItemNode(m_selectedNode).isEffectItem();
         auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
-                                                                         m_selectedNode.isComponent());
+                                                                         isEditableComponent);
         auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes,
                                                                   model()->pathCache());
         PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,

@@ -124,7 +124,7 @@ inline bool singleSelectedItem(const SelectionContext &selectionState)
 }
 
 bool selectionHasSameParent(const SelectionContext &selectionState);
-bool selectionIsComponent(const SelectionContext &selectionState);
+bool selectionIsEditableComponent(const SelectionContext &selectionState);
 bool singleSelectionItemIsAnchored(const SelectionContext &selectionState);
 bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);
 bool selectionIsImported3DAsset(const SelectionContext &selectionState);
