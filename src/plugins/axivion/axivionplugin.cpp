@@ -887,6 +887,12 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
     }
 };
 
+void fetchIssueInfo(const QString &id)
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchIssueInfo(id);
+}
+
 } // Axivion::Internal
 
 #include "axivionplugin.moc"

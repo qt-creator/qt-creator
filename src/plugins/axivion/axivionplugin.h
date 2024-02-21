@@ -72,6 +72,7 @@ bool handleCertificateIssue();
 
 QIcon iconForIssue(const QString &prefix);
 QString anyToSimpleString(const Dto::Any &any);
+void fetchIssueInfo(const QString &id);
 
 } // Axivion::Internal
 

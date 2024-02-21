@@ -189,28 +189,34 @@ void DashboardWidget::updateUi()
 class IssueTreeItem final : public StaticTreeItem
 {
 public:
-    IssueTreeItem(const QStringList &data, const QStringList &toolTips)
+    IssueTreeItem(const QString &id, const QStringList &data, const QStringList &toolTips)
         : StaticTreeItem(data, toolTips)
+        , m_id(id)
     {}
 
     void setLinks(const Links &links) { m_links = links; }
 
     bool setData(int column, const QVariant &value, int role) final
     {
-        if (role == BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
-            // TODO for now only simple - just the first..
-            Link link = m_links.first();
-            Project *project = ProjectManager::startupProject();
-            FilePath baseDir = project ? project->projectDirectory() : FilePath{};
-            link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
-            if (link.targetFilePath.exists())
-                EditorManager::openEditorAt(link);
+        if (role == BaseTreeView::ItemActivatedRole) {
+            if (!m_links.isEmpty()) {
+                // TODO for now only simple - just the first..
+                Link link = m_links.first();
+                Project *project = ProjectManager::startupProject();
+                FilePath baseDir = project ? project->projectDirectory() : FilePath{};
+                link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
+                if (link.targetFilePath.exists())
+                    EditorManager::openEditorAt(link);
+            }
+            if (!m_id.isEmpty())
+                fetchIssueInfo(m_id);
             return true;
         }
         return StaticTreeItem::setData(column, value, role);
     }
 
 private:
+    const QString m_id;
     Links m_links;
 };
 
@@ -425,17 +431,20 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
     const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
     for (const auto &row : rows) {
+        QString id;
         QStringList data;
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
                 QString value = anyToSimpleString(it->second);
-                if (column.key == "id")
+                if (column.key == "id") {
                     value.prepend(m_currentPrefix);
+                    id = value;
+                }
                 data << value;
             }
         }
-        IssueTreeItem *it = new IssueTreeItem(data, data);
+        IssueTreeItem *it = new IssueTreeItem(id, data, data);
         it->setLinks(linksForIssue(row));
         m_issuesModel->rootItem()->appendChild(it);
     }
