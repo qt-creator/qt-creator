@@ -798,7 +798,7 @@ Une valeur positive augmente la réverbération pour les hautes fréquences et �
     </message>
 </context>
 <context>
-    <name>Axivion</name>
+    <name>QtC::Axivion</name>
     <message>
         <source>Project:</source>
         <translation>Projet&#xa0;:</translation>
