@@ -34,12 +34,14 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QDesktopServices>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -838,6 +840,19 @@ void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
 {
     QTC_ASSERT(dd, return);
     QTC_ASSERT(dd->m_project, return);
+    if (!url.scheme().isEmpty()) {
+        const QString detail = Tr::tr("The activated link appears to be external.\n"
+                                      "Do you want to open \"%1\" with its default application?")
+                .arg(url.toString());
+        const QMessageBox::StandardButton pressed
+            = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                            Tr::tr("Open External Links"),
+                                            detail,
+                                            Key("AxivionOpenExternalLinks"));
+        if (pressed == QMessageBox::Yes)
+            QDesktopServices::openUrl(url);
+        return;
+    }
     const QUrlQuery query(url);
     if (query.isEmpty())
         return;
