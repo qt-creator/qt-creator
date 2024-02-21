@@ -46,6 +46,7 @@
 #include <QNetworkReply>
 #include <QTextBrowser>
 #include <QTimer>
+#include <QUrlQuery>
 
 #include <memory>
 
@@ -188,6 +189,7 @@ public:
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void fetchIssueInfo(const QString &id);
     void setIssueDetails(const QString &issueDetailsHtml);
+    void handleAnchorClicked(const QUrl &url);
 
 signals:
     void issueDetailsChanged(const QString &issueDetailsHtml);
@@ -832,6 +834,23 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
     }
 }
 
+void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
+{
+    QTC_ASSERT(dd, return);
+    QTC_ASSERT(dd->m_project, return);
+    const QUrlQuery query(url);
+    if (query.isEmpty())
+        return;
+    Link link;
+    if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
+        link.targetFilePath = m_project->projectDirectory().pathAppended(path);
+    if (const QString line = query.queryItemValue("line"); !line.isEmpty())
+        link.targetLine = line.toInt();
+    // column entry is wrong - so, ignore it
+    if (link.hasValidTarget() && link.targetFilePath.exists())
+        EditorManager::openEditorAt(link);
+}
+
 class AxivionIssueWidgetFactory final : public INavigationWidgetFactory
 {
 public:
@@ -850,6 +869,8 @@ public:
         NavigationView view;
         view.widget = browser;
         connect(dd, &AxivionPluginPrivate::issueDetailsChanged, browser, &QTextBrowser::setHtml);
+        connect(browser, &QTextBrowser::anchorClicked,
+                dd, &AxivionPluginPrivate::handleAnchorClicked);
         return view;
     }
 };
