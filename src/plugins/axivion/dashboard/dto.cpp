@@ -77,7 +77,8 @@ namespace Axivion::Internal::Dto {
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
     template<typename T>
-    [[noreturn]] static void throw_json_type_conversion(QJsonValue::Type type) {
+    [[noreturn]] static void throw_json_type_conversion(QJsonValue::Type type)
+    {
         throw_invalid_dto_exception<T>(concat({
             "Error parsing JSON: Cannot convert type ",
             to_std_string(type)
@@ -86,7 +87,8 @@ namespace Axivion::Internal::Dto {
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
     template<typename T, typename V>
-    [[noreturn]] static void throw_json_value_conversion(const V &raw_value) {
+    [[noreturn]] static void throw_json_value_conversion(const V &raw_value)
+    {
         throw_invalid_dto_exception<T>(concat({
             "Error parsing JSON: Cannot convert raw value ",
             to_std_string(raw_value)
@@ -543,7 +545,8 @@ namespace Axivion::Internal::Dto {
                 }));
         }
 
-        static QJsonValue serialize(const Any &value) {
+        static QJsonValue serialize(const Any &value)
+        {
             if (value.isNull())
                 return serialize_json(nullptr);
             if (value.isString())
@@ -569,7 +572,8 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<Any>(json);
     }
 
-    Utils::expected_str<Any> Any::deserializeExpected(const QByteArray &json) {
+    Utils::expected_str<Any> Any::deserializeExpected(const QByteArray &json)
+    {
         return deserializeExp<Any>(json);
     }
 
@@ -688,7 +692,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalyzedFileDto deserialize(const QJsonValue &json) {
+        static AnalyzedFileDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<AnalyzedFileDto>(json);
             return {
                 deserialize_field<QString>(jo, analyzedFileKeyPath),
@@ -697,7 +702,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const AnalyzedFileDto &value) {
+        static QJsonValue serialize(const AnalyzedFileDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, analyzedFileKeyPath, value.path);
             serialize_field(jo, analyzedFileKeyIsSystemHeader, value.isSystemHeader);
@@ -806,7 +812,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ChangePasswordFormDto deserialize(const QJsonValue &json) {
+        static ChangePasswordFormDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ChangePasswordFormDto>(json);
             return {
                 deserialize_field<QString>(jo, changePasswordFormKeyCurrentPassword),
@@ -814,7 +821,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ChangePasswordFormDto &value) {
+        static QJsonValue serialize(const ChangePasswordFormDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, changePasswordFormKeyCurrentPassword, value.currentPassword);
             serialize_field(jo, changePasswordFormKeyNewPassword, value.newPassword);
@@ -942,7 +950,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ColumnTypeOptionDto deserialize(const QJsonValue &json) {
+        static ColumnTypeOptionDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ColumnTypeOptionDto>(json);
             return {
                 deserialize_field<QString>(jo, columnTypeOptionKeyKey),
@@ -951,7 +960,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ColumnTypeOptionDto &value) {
+        static QJsonValue serialize(const ColumnTypeOptionDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, columnTypeOptionKeyKey, value.key);
             serialize_field(jo, columnTypeOptionKeyDisplayName, value.displayName);
@@ -998,14 +1008,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static CommentRequestDto deserialize(const QJsonValue &json) {
+        static CommentRequestDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<CommentRequestDto>(json);
             return {
                 deserialize_field<QString>(jo, commentRequestKeyText)
             };
         }
 
-        static QJsonValue serialize(const CommentRequestDto &value) {
+        static QJsonValue serialize(const CommentRequestDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, commentRequestKeyText, value.text);
             return { jo };
@@ -1046,14 +1058,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static CsrfTokenDto deserialize(const QJsonValue &json) {
+        static CsrfTokenDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<CsrfTokenDto>(json);
             return {
                 deserialize_field<QString>(jo, csrfTokenKeyCsrfToken)
             };
         }
 
-        static QJsonValue serialize(const CsrfTokenDto &value) {
+        static QJsonValue serialize(const CsrfTokenDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, csrfTokenKeyCsrfToken, value.csrfToken);
             return { jo };
@@ -1098,7 +1112,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static EntityDto deserialize(const QJsonValue &json) {
+        static EntityDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<EntityDto>(json);
             return {
                 deserialize_field<QString>(jo, entityKeyId),
@@ -1109,7 +1124,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const EntityDto &value) {
+        static QJsonValue serialize(const EntityDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, entityKeyId, value.id);
             serialize_field(jo, entityKeyName, value.name);
@@ -1170,7 +1186,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ErrorDto deserialize(const QJsonValue &json) {
+        static ErrorDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ErrorDto>(json);
             return {
                 deserialize_field<std::optional<QString>>(jo, errorKeyDashboardVersionNumber),
@@ -1185,7 +1202,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ErrorDto &value) {
+        static QJsonValue serialize(const ErrorDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, errorKeyDashboardVersionNumber, value.dashboardVersionNumber);
             serialize_field(jo, errorKeyType, value.type);
@@ -1256,7 +1274,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueCommentDto deserialize(const QJsonValue &json) {
+        static IssueCommentDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueCommentDto>(json);
             return {
                 deserialize_field<QString>(jo, issueCommentKeyUsername),
@@ -1269,7 +1288,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueCommentDto &value) {
+        static QJsonValue serialize(const IssueCommentDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueCommentKeyUsername, value.username);
             serialize_field(jo, issueCommentKeyUserDisplayName, value.userDisplayName);
@@ -1477,7 +1497,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueSourceLocationDto deserialize(const QJsonValue &json) {
+        static IssueSourceLocationDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueSourceLocationDto>(json);
             return {
                 deserialize_field<QString>(jo, issueSourceLocationKeyFileName),
@@ -1490,7 +1511,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueSourceLocationDto &value) {
+        static QJsonValue serialize(const IssueSourceLocationDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueSourceLocationKeyFileName, value.fileName);
             serialize_field(jo, issueSourceLocationKeyRole, value.role);
@@ -1550,7 +1572,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTagDto deserialize(const QJsonValue &json) {
+        static IssueTagDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueTagDto>(json);
             return {
                 deserialize_field<QString>(jo, issueTagKeyTag),
@@ -1558,7 +1581,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueTagDto &value) {
+        static QJsonValue serialize(const IssueTagDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueTagKeyTag, value.tag);
             serialize_field(jo, issueTagKeyColor, value.color);
@@ -1607,7 +1631,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTagTypeDto deserialize(const QJsonValue &json) {
+        static IssueTagTypeDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueTagTypeDto>(json);
             return {
                 deserialize_field<QString>(jo, issueTagTypeKeyId),
@@ -1619,7 +1644,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueTagTypeDto &value) {
+        static QJsonValue serialize(const IssueTagTypeDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueTagTypeKeyId, value.id);
             serialize_field(jo, issueTagTypeKeyText, value.text);
@@ -1739,7 +1765,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricDto deserialize(const QJsonValue &json) {
+        static MetricDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<MetricDto>(json);
             return {
                 deserialize_field<QString>(jo, metricKeyName),
@@ -1749,7 +1776,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const MetricDto &value) {
+        static QJsonValue serialize(const MetricDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, metricKeyName, value.name);
             serialize_field(jo, metricKeyDisplayName, value.displayName);
@@ -1805,7 +1833,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricValueTableRowDto deserialize(const QJsonValue &json) {
+        static MetricValueTableRowDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<MetricValueTableRowDto>(json);
             return {
                 deserialize_field<QString>(jo, metricValueTableRowKeyMetric),
@@ -1818,7 +1847,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const MetricValueTableRowDto &value) {
+        static QJsonValue serialize(const MetricValueTableRowDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, metricValueTableRowKeyMetric, value.metric);
             serialize_field(jo, metricValueTableRowKeyPath, value.path);
@@ -1924,14 +1954,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static NamedFilterVisibilityDto deserialize(const QJsonValue &json) {
+        static NamedFilterVisibilityDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<NamedFilterVisibilityDto>(json);
             return {
                 deserialize_field<std::optional<std::vector<QString>>>(jo, namedFilterVisibilityKeyGroups)
             };
         }
 
-        static QJsonValue serialize(const NamedFilterVisibilityDto &value) {
+        static QJsonValue serialize(const NamedFilterVisibilityDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, namedFilterVisibilityKeyGroups, value.groups);
             return { jo };
@@ -1973,7 +2005,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ProjectReferenceDto deserialize(const QJsonValue &json) {
+        static ProjectReferenceDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ProjectReferenceDto>(json);
             return {
                 deserialize_field<QString>(jo, projectReferenceKeyName),
@@ -1981,7 +2014,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ProjectReferenceDto &value) {
+        static QJsonValue serialize(const ProjectReferenceDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, projectReferenceKeyName, value.name);
             serialize_field(jo, projectReferenceKeyUrl, value.url);
@@ -2027,7 +2061,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static RuleDto deserialize(const QJsonValue &json) {
+        static RuleDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<RuleDto>(json);
             return {
                 deserialize_field<QString>(jo, ruleKeyName),
@@ -2036,7 +2071,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const RuleDto &value) {
+        static QJsonValue serialize(const RuleDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, ruleKeyName, value.name);
             serialize_field(jo, ruleKeyOriginal_name, value.original_name);
@@ -2172,7 +2208,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ToolsVersionDto deserialize(const QJsonValue &json) {
+        static ToolsVersionDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ToolsVersionDto>(json);
             return {
                 deserialize_field<QString>(jo, toolsVersionKeyName),
@@ -2181,7 +2218,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ToolsVersionDto &value) {
+        static QJsonValue serialize(const ToolsVersionDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, toolsVersionKeyName, value.name);
             serialize_field(jo, toolsVersionKeyNumber, value.number);
@@ -2277,7 +2315,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static VersionKindCountDto deserialize(const QJsonValue &json) {
+        static VersionKindCountDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<VersionKindCountDto>(json);
             return {
                 deserialize_field<qint32>(jo, versionKindCountKeyTotal),
@@ -2286,7 +2325,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const VersionKindCountDto &value) {
+        static QJsonValue serialize(const VersionKindCountDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, versionKindCountKeyTotal, value.Total);
             serialize_field(jo, versionKindCountKeyAdded, value.Added);
@@ -2341,7 +2381,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalysisVersionDto deserialize(const QJsonValue &json) {
+        static AnalysisVersionDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<AnalysisVersionDto>(json);
             return {
                 deserialize_field<QString>(jo, analysisVersionKeyDate),
@@ -2356,7 +2397,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const AnalysisVersionDto &value) {
+        static QJsonValue serialize(const AnalysisVersionDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, analysisVersionKeyDate, value.date);
             serialize_field(jo, analysisVersionKeyLabel, value.label);
@@ -2424,7 +2466,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ApiTokenCreationRequestDto deserialize(const QJsonValue &json) {
+        static ApiTokenCreationRequestDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ApiTokenCreationRequestDto>(json);
             return {
                 deserialize_field<QString>(jo, apiTokenCreationRequestKeyPassword),
@@ -2434,7 +2477,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ApiTokenCreationRequestDto &value) {
+        static QJsonValue serialize(const ApiTokenCreationRequestDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, apiTokenCreationRequestKeyPassword, value.password);
             serialize_field(jo, apiTokenCreationRequestKeyType, value.type);
@@ -2528,7 +2572,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ApiTokenInfoDto deserialize(const QJsonValue &json) {
+        static ApiTokenInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ApiTokenInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, apiTokenInfoKeyId),
@@ -2547,7 +2592,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ApiTokenInfoDto &value) {
+        static QJsonValue serialize(const ApiTokenInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, apiTokenInfoKeyId, value.id);
             serialize_field(jo, apiTokenInfoKeyUrl, value.url);
@@ -2683,7 +2729,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ColumnInfoDto deserialize(const QJsonValue &json) {
+        static ColumnInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ColumnInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, columnInfoKeyKey),
@@ -2699,7 +2746,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ColumnInfoDto &value) {
+        static QJsonValue serialize(const ColumnInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, columnInfoKeyKey, value.key);
             serialize_field(jo, columnInfoKeyHeader, value.header);
@@ -2845,7 +2893,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static DashboardInfoDto deserialize(const QJsonValue &json) {
+        static DashboardInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<DashboardInfoDto>(json);
             return {
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyMainUrl),
@@ -2866,7 +2915,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const DashboardInfoDto &value) {
+        static QJsonValue serialize(const DashboardInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, dashboardInfoKeyMainUrl, value.mainUrl);
             serialize_field(jo, dashboardInfoKeyDashboardVersion, value.dashboardVersion);
@@ -2949,14 +2999,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueCommentListDto deserialize(const QJsonValue &json) {
+        static IssueCommentListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueCommentListDto>(json);
             return {
                 deserialize_field<std::vector<IssueCommentDto>>(jo, issueCommentListKeyComments)
             };
         }
 
-        static QJsonValue serialize(const IssueCommentListDto &value) {
+        static QJsonValue serialize(const IssueCommentListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueCommentListKeyComments, value.comments);
             return { jo };
@@ -2999,7 +3051,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueKindInfoDto deserialize(const QJsonValue &json) {
+        static IssueKindInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueKindInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, issueKindInfoKeyPrefix),
@@ -3008,7 +3061,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueKindInfoDto &value) {
+        static QJsonValue serialize(const IssueKindInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueKindInfoKeyPrefix, value.prefix);
             serialize_field(jo, issueKindInfoKeyNiceSingularName, value.niceSingularName);
@@ -3085,14 +3139,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTagTypeListDto deserialize(const QJsonValue &json) {
+        static IssueTagTypeListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueTagTypeListDto>(json);
             return {
                 deserialize_field<std::vector<IssueTagTypeDto>>(jo, issueTagTypeListKeyTags)
             };
         }
 
-        static QJsonValue serialize(const IssueTagTypeListDto &value) {
+        static QJsonValue serialize(const IssueTagTypeListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueTagTypeListKeyTags, value.tags);
             return { jo };
@@ -3141,7 +3197,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static LineMarkerDto deserialize(const QJsonValue &json) {
+        static LineMarkerDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<LineMarkerDto>(json);
             return {
                 deserialize_field<QString>(jo, lineMarkerKeyKind),
@@ -3156,7 +3213,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const LineMarkerDto &value) {
+        static QJsonValue serialize(const LineMarkerDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, lineMarkerKeyKind, value.kind);
             serialize_field(jo, lineMarkerKeyId, value.id);
@@ -3264,7 +3322,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static RepositoryUpdateMessageDto deserialize(const QJsonValue &json) {
+        static RepositoryUpdateMessageDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<RepositoryUpdateMessageDto>(json);
             return {
                 deserialize_field<QString>(jo, repositoryUpdateMessageKeySeverity),
@@ -3272,7 +3331,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const RepositoryUpdateMessageDto &value) {
+        static QJsonValue serialize(const RepositoryUpdateMessageDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, repositoryUpdateMessageKeySeverity, value.severity);
             serialize_field(jo, repositoryUpdateMessageKeyMessage, value.message);
@@ -3344,14 +3404,16 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static RuleListDto deserialize(const QJsonValue &json) {
+        static RuleListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<RuleListDto>(json);
             return {
                 deserialize_field<std::vector<RuleDto>>(jo, ruleListKeyRules)
             };
         }
 
-        static QJsonValue serialize(const RuleListDto &value) {
+        static QJsonValue serialize(const RuleListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, ruleListKeyRules, value.rules);
             return { jo };
@@ -3393,7 +3455,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static SortInfoDto deserialize(const QJsonValue &json) {
+        static SortInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<SortInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, sortInfoKeyKey),
@@ -3401,7 +3464,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const SortInfoDto &value) {
+        static QJsonValue serialize(const SortInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, sortInfoKeyKey, value.key);
             serialize_field(jo, sortInfoKeyDirection, value.direction);
@@ -3476,7 +3540,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static UserRefDto deserialize(const QJsonValue &json) {
+        static UserRefDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<UserRefDto>(json);
             return {
                 deserialize_field<QString>(jo, userRefKeyName),
@@ -3486,7 +3551,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const UserRefDto &value) {
+        static QJsonValue serialize(const UserRefDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, userRefKeyName, value.name);
             serialize_field(jo, userRefKeyDisplayName, value.displayName);
@@ -3571,7 +3637,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalyzedFileListDto deserialize(const QJsonValue &json) {
+        static AnalyzedFileListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<AnalyzedFileListDto>(json);
             return {
                 deserialize_field<AnalysisVersionDto>(jo, analyzedFileListKeyVersion),
@@ -3579,7 +3646,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const AnalyzedFileListDto &value) {
+        static QJsonValue serialize(const AnalyzedFileListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, analyzedFileListKeyVersion, value.version);
             serialize_field(jo, analyzedFileListKeyRows, value.rows);
@@ -3624,7 +3692,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static EntityListDto deserialize(const QJsonValue &json) {
+        static EntityListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<EntityListDto>(json);
             return {
                 deserialize_field<std::optional<AnalysisVersionDto>>(jo, entityListKeyVersion),
@@ -3632,7 +3701,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const EntityListDto &value) {
+        static QJsonValue serialize(const EntityListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, entityListKeyVersion, value.version);
             serialize_field(jo, entityListKeyEntities, value.entities);
@@ -3679,7 +3749,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static FileViewDto deserialize(const QJsonValue &json) {
+        static FileViewDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<FileViewDto>(json);
             return {
                 deserialize_field<QString>(jo, fileViewKeyFileName),
@@ -3689,7 +3760,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const FileViewDto &value) {
+        static QJsonValue serialize(const FileViewDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, fileViewKeyFileName, value.fileName);
             serialize_field(jo, fileViewKeyVersion, value.version);
@@ -3745,7 +3817,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueDto deserialize(const QJsonValue &json) {
+        static IssueDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueDto>(json);
             return {
                 deserialize_field<QString>(jo, issueKeyKind),
@@ -3758,7 +3831,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueDto &value) {
+        static QJsonValue serialize(const IssueDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueKeyKind, value.kind);
             serialize_field(jo, issueKeyId, value.id);
@@ -3862,7 +3936,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTableDto deserialize(const QJsonValue &json) {
+        static IssueTableDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<IssueTableDto>(json);
             return {
                 deserialize_field<std::optional<AnalysisVersionDto>>(jo, issueTableKeyStartVersion),
@@ -3876,7 +3951,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const IssueTableDto &value) {
+        static QJsonValue serialize(const IssueTableDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, issueTableKeyStartVersion, value.startVersion);
             serialize_field(jo, issueTableKeyEndVersion, value.endVersion);
@@ -3939,7 +4015,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricListDto deserialize(const QJsonValue &json) {
+        static MetricListDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<MetricListDto>(json);
             return {
                 deserialize_field<std::optional<AnalysisVersionDto>>(jo, metricListKeyVersion),
@@ -3947,7 +4024,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const MetricListDto &value) {
+        static QJsonValue serialize(const MetricListDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, metricListKeyVersion, value.version);
             serialize_field(jo, metricListKeyMetrics, value.metrics);
@@ -3995,7 +4073,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricValueRangeDto deserialize(const QJsonValue &json) {
+        static MetricValueRangeDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<MetricValueRangeDto>(json);
             return {
                 deserialize_field<AnalysisVersionDto>(jo, metricValueRangeKeyStartVersion),
@@ -4006,7 +4085,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const MetricValueRangeDto &value) {
+        static QJsonValue serialize(const MetricValueRangeDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, metricValueRangeKeyStartVersion, value.startVersion);
             serialize_field(jo, metricValueRangeKeyEndVersion, value.endVersion);
@@ -4060,7 +4140,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricValueTableDto deserialize(const QJsonValue &json) {
+        static MetricValueTableDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<MetricValueTableDto>(json);
             return {
                 deserialize_field<std::vector<ColumnInfoDto>>(jo, metricValueTableKeyColumns),
@@ -4068,7 +4149,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const MetricValueTableDto &value) {
+        static QJsonValue serialize(const MetricValueTableDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, metricValueTableKeyColumns, value.columns);
             serialize_field(jo, metricValueTableKeyRows, value.rows);
@@ -4116,7 +4198,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static NamedFilterCreateDto deserialize(const QJsonValue &json) {
+        static NamedFilterCreateDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<NamedFilterCreateDto>(json);
             return {
                 deserialize_field<QString>(jo, namedFilterCreateKeyDisplayName),
@@ -4127,7 +4210,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const NamedFilterCreateDto &value) {
+        static QJsonValue serialize(const NamedFilterCreateDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, namedFilterCreateKeyDisplayName, value.displayName);
             serialize_field(jo, namedFilterCreateKeyKind, value.kind);
@@ -4224,7 +4308,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static NamedFilterInfoDto deserialize(const QJsonValue &json) {
+        static NamedFilterInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<NamedFilterInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, namedFilterInfoKeyKey),
@@ -4241,7 +4326,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const NamedFilterInfoDto &value) {
+        static QJsonValue serialize(const NamedFilterInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, namedFilterInfoKeyKey, value.key);
             serialize_field(jo, namedFilterInfoKeyDisplayName, value.displayName);
@@ -4363,7 +4449,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static NamedFilterUpdateDto deserialize(const QJsonValue &json) {
+        static NamedFilterUpdateDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<NamedFilterUpdateDto>(json);
             return {
                 deserialize_field<std::optional<QString>>(jo, namedFilterUpdateKeyName),
@@ -4373,7 +4460,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const NamedFilterUpdateDto &value) {
+        static QJsonValue serialize(const NamedFilterUpdateDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, namedFilterUpdateKeyName, value.name);
             serialize_field(jo, namedFilterUpdateKeyFilters, value.filters);
@@ -4429,7 +4517,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static ProjectInfoDto deserialize(const QJsonValue &json) {
+        static ProjectInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<ProjectInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, projectInfoKeyName),
@@ -4442,7 +4531,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const ProjectInfoDto &value) {
+        static QJsonValue serialize(const ProjectInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, projectInfoKeyName, value.name);
             serialize_field(jo, projectInfoKeyIssueFilterHelp, value.issueFilterHelp);
@@ -4503,7 +4593,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static RepositoryUpdateResponseDto deserialize(const QJsonValue &json) {
+        static RepositoryUpdateResponseDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<RepositoryUpdateResponseDto>(json);
             return {
                 deserialize_field<std::vector<RepositoryUpdateMessageDto>>(jo, repositoryUpdateResponseKeyMessages),
@@ -4512,7 +4603,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const RepositoryUpdateResponseDto &value) {
+        static QJsonValue serialize(const RepositoryUpdateResponseDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, repositoryUpdateResponseKeyMessages, value.messages);
             serialize_field(jo, repositoryUpdateResponseKeyHasErrors, value.hasErrors);
@@ -4564,7 +4656,8 @@ namespace Axivion::Internal::Dto {
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static TableInfoDto deserialize(const QJsonValue &json) {
+        static TableInfoDto deserialize(const QJsonValue &json)
+        {
             const QJsonObject jo = toJsonObject<TableInfoDto>(json);
             return {
                 deserialize_field<QString>(jo, tableInfoKeyTableDataUri),
@@ -4576,7 +4669,8 @@ namespace Axivion::Internal::Dto {
             };
         }
 
-        static QJsonValue serialize(const TableInfoDto &value) {
+        static QJsonValue serialize(const TableInfoDto &value)
+        {
             QJsonObject jo;
             serialize_field(jo, tableInfoKeyTableDataUri, value.tableDataUri);
             serialize_field(jo, tableInfoKeyIssueBaseViewUri, value.issueBaseViewUri);
