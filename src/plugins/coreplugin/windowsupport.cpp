@@ -63,9 +63,12 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context, const Cont
         connect(m_closeAction, &QAction::triggered, m_window, &QWidget::close, Qt::QueuedConnection);
     }
 
-    m_toggleFullScreenAction = new QAction(this);
+    auto cmd = ActionManager::command(Constants::TOGGLE_FULLSCREEN); // created in registerDefaultActions()
+    if (QTC_GUARD(cmd))
+        m_toggleFullScreenAction = cmd->action();
+    else
+        m_toggleFullScreenAction = new QAction(this);
     updateFullScreenAction();
-    ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, ac);
     connect(m_toggleFullScreenAction, &QAction::triggered, this, &WindowSupport::toggleFullScreen);
 
     m_windowList->addWindow(window);
@@ -124,15 +127,12 @@ void WindowSupport::toggleFullScreen()
 void WindowSupport::updateFullScreenAction()
 {
     if (m_window->isFullScreen()) {
-        if (Utils::HostOsInfo::isMacHost())
-            m_toggleFullScreenAction->setText(Tr::tr("Exit Full Screen"));
-        else
-            m_toggleFullScreenAction->setChecked(true);
+        m_toggleFullScreenAction->setText(Tr::tr("Exit Full Screen"));
     } else {
         if (Utils::HostOsInfo::isMacHost())
             m_toggleFullScreenAction->setText(Tr::tr("Enter Full Screen"));
         else
-            m_toggleFullScreenAction->setChecked(false);
+            m_toggleFullScreenAction->setText(Tr::tr("Full Screen"));
     }
 }
 
