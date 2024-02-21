@@ -223,13 +223,8 @@ template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
-                                                       TraceEventsSpan eventsOne,
-                                                       TraceEventsSpan eventsTwo)
+EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file)
     : file{file}
-    , eventsOne{eventsOne}
-    , eventsTwo{eventsTwo}
-    , currentEvents{eventsOne}
     , threadId{std::this_thread::get_id()}
 {
     Internal::EventQueueTracker<TraceEvent>::get().addQueue(this);
@@ -247,6 +242,15 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
     Internal::EventQueueTracker<TraceEvent>::get().removeQueue(this);
 
     flush();
+}
+
+template<typename TraceEvent>
+void EventQueue<TraceEvent, Tracing::IsEnabled>::setEventsSpans(TraceEventsSpan eventsSpanOne,
+                                                                TraceEventsSpan eventsSpanTwo)
+{
+    eventsOne = eventsSpanOne;
+    eventsTwo = eventsSpanTwo;
+    currentEvents = eventsSpanOne;
 }
 
 template<typename TraceEvent>

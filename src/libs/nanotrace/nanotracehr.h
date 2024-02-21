@@ -468,9 +468,11 @@ class EventQueue<TraceEvent, Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile *file, TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
+    EventQueue(EnabledTraceFile *file);
 
     ~EventQueue();
+
+    void setEventsSpans(TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
 
     void flush();
 
@@ -520,13 +522,13 @@ public:
     using IsActive = std::true_type;
 
     EventQueueData(EnabledTraceFile &file)
-        : Base{&file, eventsOne, eventsTwo}
-        , file{file}
-    {}
+        : Base{&file}
+    {
+        Base::setEventsSpans(*eventsOne.get(), *eventsTwo.get());
+    }
 
-    EnabledTraceFile &file;
-    TraceEvents eventsOne;
-    TraceEvents eventsTwo;
+    std::unique_ptr<TraceEvents> eventsOne = std::make_unique<TraceEvents>();
+    std::unique_ptr<TraceEvents> eventsTwo = std::make_unique<TraceEvents>();
 };
 
 template<typename TraceEvent>
