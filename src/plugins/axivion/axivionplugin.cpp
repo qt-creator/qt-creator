@@ -566,7 +566,13 @@ static Group authorizationRecipe()
         return SetupResult::Continue;
     };
     const auto onSetCredentialDone = [](const CredentialQuery &credential) {
-        MessageManager::writeDisrupting(QString("Axivion: %1").arg(credential.errorString()));
+        const QString keyChainMessage = credential.errorString().isEmpty() ? QString()
+            : QString(" %1").arg(Tr::tr("Key chain message: \"%1\".").arg(credential.errorString()));
+        MessageManager::writeDisrupting(QString("Axivion: %1")
+            .arg(Tr::tr("The ApiToken cannot be stored in a secure way.") + keyChainMessage));
+        // TODO: We are multiplying the ApiTokens on Axivion server for each Creator run,
+        //       but at least things should continue to work OK in the current session.
+        return DoneResult::Success;
     };
 
     return {
