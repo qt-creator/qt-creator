@@ -171,6 +171,9 @@ QString IssueListSearch::toQuery() const
         result.append(QString("&state=%1").arg(state));
     if (computeTotalRowCount)
         result.append("&computeTotalRowCount=true");
+    if (!sort.isEmpty())
+        result.append(QString("&sort=%1").arg(
+            QString::fromUtf8(QUrl::toPercentEncoding(sort))));
     return result;
 }
 

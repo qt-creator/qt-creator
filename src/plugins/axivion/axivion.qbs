@@ -25,6 +25,8 @@ QtcPlugin {
         "axiviontr.h",
         "credentialquery.h",
         "credentialquery.cpp",
+        "issueheaderview.cpp",
+        "issueheaderview.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

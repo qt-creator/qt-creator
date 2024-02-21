@@ -14,5 +14,9 @@
         <file>images/button-mv@2x.png</file>
         <file>images/button-sv.png</file>
         <file>images/button-sv@2x.png</file>
+        <file>images/sortAsc.png</file>
+        <file>images/sortAsc@2x.png</file>
+        <file>images/sortDesc.png</file>
+        <file>images/sortDesc@2x.png</file>
     </qresource>
 </RCC>

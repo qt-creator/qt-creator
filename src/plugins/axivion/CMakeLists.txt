@@ -13,4 +13,5 @@ add_qtc_plugin(Axivion
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h
     dashboard/error.h dashboard/error.cpp
+    issueheaderview.cpp issueheaderview.h
 )

@@ -31,6 +31,7 @@ struct IssueListSearch
     QString versionEnd;
     QString owner;
     QString filter_path;
+    QString sort;
     int offset = 0;
     int limit = 150;
     bool computeTotalRowCount = false;

@@ -6,6 +6,7 @@
 #include "axivionplugin.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
+#include "issueheaderview.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ioutputpane.h>
@@ -254,6 +255,7 @@ private:
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
+    IssueHeaderView *m_headerView = nullptr;
     TreeModel<> *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
     int m_lastRequestedOffset = 0;
@@ -312,6 +314,10 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
 
     m_issuesView = new BaseTreeView(this);
+    m_headerView = new IssueHeaderView(this);
+    connect(m_headerView, &IssueHeaderView::sortTriggered,
+            this, &IssuesWidget::onSearchParameterChanged);
+    m_issuesView->setHeader(m_headerView);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
     m_issuesModel = new TreeModel(this);
@@ -372,10 +378,12 @@ void IssuesWidget::updateTable()
     TreeModel<> *issuesModel = new TreeModel(this);
     QStringList columnHeaders;
     QStringList hiddenColumns;
+    QList<bool> sortableColumns;
     for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
+        sortableColumns << column.canSort;
     }
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
@@ -386,10 +394,12 @@ void IssuesWidget::updateTable()
     auto oldModel = m_issuesModel;
     m_issuesModel = issuesModel;
     m_issuesView->setModel(issuesModel);
+    m_headerView->setSortableColumns(sortableColumns);
     delete oldModel;
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
+    m_issuesView->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
@@ -569,6 +579,13 @@ IssueListSearch IssuesWidget::searchFromUi() const
         search.state = "added";
     else if (m_removedFilter->isChecked())
         search.state = "removed";
+    if (int column = m_headerView->currentSortColumn() != -1) {
+        QTC_ASSERT(m_currentTableInfo, return search);
+        QTC_ASSERT((ulong)column < m_currentTableInfo->columns.size(), return search);
+        search.sort = m_currentTableInfo->columns.at(m_headerView->currentSortColumn()).key
+                + (m_headerView->currentSortOrder() == SortOrder::Ascending ? " asc" : " desc");
+    }
+
     return search;
 }
 
