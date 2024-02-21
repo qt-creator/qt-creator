@@ -37,7 +37,7 @@ constexpr NanotraceHR::Tracing projectStorageTracingStatus()
 #endif
 }
 
-NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory();
+[[gnu::pure]] NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory();
 
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface

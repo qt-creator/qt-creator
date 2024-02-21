@@ -21,7 +21,7 @@ thread_local NanotraceHR::EventQueue stringViewEventWithStringArgumentsQueue_ = 
                                                                                     .createEventQueue();
 } // namespace
 
-EventQueue &eventQueue()
+[[gnu::pure]] EventQueue &eventQueue()
 {
     return stringViewEventQueue_;
 }

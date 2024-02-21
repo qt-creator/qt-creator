@@ -8,8 +8,8 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-error=maybe-uninitialized>")
-add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-error=maybe-uninitialized>")
+add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>")
+add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/wd5030>")
 
 env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
