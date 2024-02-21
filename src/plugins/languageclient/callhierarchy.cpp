@@ -280,7 +280,7 @@ public:
         Icons::RELOAD_TOOLBAR.icon();
         auto button = new QToolButton;
         button->setIcon(Icons::RELOAD_TOOLBAR.icon());
-        button->setToolTip(Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
+        button->setToolTip(::LanguageClient::Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
         connect(button, &QToolButton::clicked, this, [h] { h->updateHierarchyAtCursorPosition(); });
         return {h, {button}};
     }

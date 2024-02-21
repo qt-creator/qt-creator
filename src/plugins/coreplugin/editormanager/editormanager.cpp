@@ -579,7 +579,7 @@ void EditorManagerPrivate::init()
     // Go back in navigation history
     ActionBuilder goBack(this, Constants::GO_BACK);
     goBack.setIcon(Utils::Icons::PREV.icon());
-    goBack.setText(Core::Tr::tr("Go Back"));
+    goBack.setText(::Core::Tr::tr("Go Back"));
     goBack.bindContextAction(&m_goBackAction);
     goBack.setContext(editDesignContext);
     goBack.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Alt+Left"), ::Core::Tr::tr("Alt+Left"));
@@ -589,7 +589,7 @@ void EditorManagerPrivate::init()
     // Go forward in navigation history
     ActionBuilder goForward(this, Constants::GO_FORWARD);
     goForward.setIcon(Utils::Icons::NEXT.icon());
-    goForward.setText(Core::Tr::tr("Go Forward"));
+    goForward.setText(::Core::Tr::tr("Go Forward"));
     goForward.bindContextAction(&m_goForwardAction);
     goForward.setContext(editDesignContext);
     goForward.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Alt+Right"), ::Core::Tr::tr("Alt+Right"));
@@ -618,7 +618,7 @@ void EditorManagerPrivate::init()
     splitSideBySide.setText(::Core::Tr::tr("Split Side by Side"));
     splitSideBySide.bindContextAction(&m_splitSideBySideAction);
     splitSideBySide.setContext(editManagerContext);
-    splitSideBySide.setDefaultKeySequence(::Core::Tr::tr("Meta+E,3"), Core::Tr::tr("Ctrl+E,3"));
+    splitSideBySide.setDefaultKeySequence(::Core::Tr::tr("Meta+E,3"), ::Core::Tr::tr("Ctrl+E,3"));
     splitSideBySide.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
     splitSideBySide.addOnTriggered(this, &EditorManager::splitSideBySide);
 

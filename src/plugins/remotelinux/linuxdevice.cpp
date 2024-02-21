@@ -476,8 +476,8 @@ ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const 
     using namespace std::chrono_literals;
     process.runBlocking(2s);
     if (process.result() == ProcessResult::Canceled) {
-        Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
-                                               "The device might have been disconnected.")
+        Core::MessageManager::writeFlashing(Tr::tr("Can't send control signal to the %1 device. "
+                                                   "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
     return process.result();

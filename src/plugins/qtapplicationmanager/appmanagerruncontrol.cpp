@@ -232,7 +232,7 @@ private:
     void start() override
     {
         if (m_symbolFile.isEmpty()) {
-            reportFailure(tr("Cannot debug: Local executable is not set."));
+            reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
             return;
         }
 

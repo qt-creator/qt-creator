@@ -504,7 +504,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                                                              currentFile.parentDir(),
                                                              &errorMessage);
             if (!factory) {
-                verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
+                verboseLog.append(Tr::tr("* Failed to create: %1\n").arg(errorMessage));
                 continue;
             }
 

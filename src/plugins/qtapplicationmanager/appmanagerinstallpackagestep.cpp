@@ -52,7 +52,7 @@ private:
 AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    setDisplayName(tr("Install Application Manager package"));
+    setDisplayName(Tr::tr("Install Application Manager package"));
 
     controller.setDefaultPathValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
                                                    target()->kit(),
@@ -125,7 +125,7 @@ GroupItem AppManagerInstallPackageStep::deployRecipe()
     };
     const auto doneHandler = [this](const Process &process, DoneWith result) {
         if (result == DoneWith::Success) {
-            addProgressMessage(tr("Command finished successfully."));
+            addProgressMessage(Tr::tr("Command finished successfully."));
         } else {
             if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {
