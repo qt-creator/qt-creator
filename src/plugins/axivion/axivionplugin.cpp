@@ -476,6 +476,27 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
     };
 }
 
+static QString credentialOperationMessage(CredentialOperation operation)
+{
+    switch (operation) {
+    case CredentialOperation::Get:
+        return Tr::tr("The ApiToken cannot be read in a secure way.");
+    case CredentialOperation::Set:
+        return Tr::tr("The ApiToken cannot be stored in a secure way.");
+    case CredentialOperation::Delete:
+        return Tr::tr("The ApiToken cannot be deleted in a secure way.");
+    }
+    return {};
+}
+
+static void handleCredentialError(const CredentialQuery &credential)
+{
+    const QString keyChainMessage = credential.errorString().isEmpty() ? QString()
+        : QString(" %1").arg(Tr::tr("Key chain message: \"%1\".").arg(credential.errorString()));
+    MessageManager::writeFlashing(QString("Axivion: %1")
+        .arg(credentialOperationMessage(credential.operation()) + keyChainMessage));
+}
+
 static Group authorizationRecipe()
 {
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
@@ -509,7 +530,10 @@ static Group authorizationRecipe()
         if (result == DoneWith::Success)
             dd->m_apiToken = credential.data();
         else
-            MessageManager::writeDisrupting(QString("Axivion: %1").arg(credential.errorString()));
+            handleCredentialError(credential);
+        // TODO: In case of an error we are multiplying the ApiTokens on Axivion server for each
+        //       Creator run, but at least things should continue to work OK in the current session.
+        return DoneResult::Success;
     };
 
     const Storage<QString> passwordStorage;
@@ -566,12 +590,9 @@ static Group authorizationRecipe()
         return SetupResult::Continue;
     };
     const auto onSetCredentialDone = [](const CredentialQuery &credential) {
-        const QString keyChainMessage = credential.errorString().isEmpty() ? QString()
-            : QString(" %1").arg(Tr::tr("Key chain message: \"%1\".").arg(credential.errorString()));
-        MessageManager::writeFlashing(QString("Axivion: %1")
-            .arg(Tr::tr("The ApiToken cannot be stored in a secure way.") + keyChainMessage));
-        // TODO: We are multiplying the ApiTokens on Axivion server for each Creator run,
-        //       but at least things should continue to work OK in the current session.
+        handleCredentialError(credential);
+        // TODO: In case of an error we are multiplying the ApiTokens on Axivion server for each
+        //       Creator run, but at least things should continue to work OK in the current session.
         return DoneResult::Success;
     };
 

@@ -17,6 +17,7 @@ public:
     void setKey(const QString &key) { m_key = key; }
     void setData(const QByteArray &data) { m_data = data; }
 
+    CredentialOperation operation() const { return m_operation; }
     std::optional<QByteArray> data() const { return m_data; }
     QString errorString() const { return m_errorString; }
 
