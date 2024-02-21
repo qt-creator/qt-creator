@@ -34,54 +34,56 @@ public:
         PchUse_BuildSystem = 2
     };
 
+    class Data
+    {
+    public:
+        Utils::Store toMap() const;
+        void fromMap(const Utils::Store &store);
+
+        friend bool operator==(const Data &s1, const Data &s2);
+        friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
+
+        PCHUsage pchUsage = PchUse_BuildSystem;
+        bool interpretAmbigiousHeadersAsC = false;
+        bool skipIndexingBigFiles = true;
+        bool useBuiltinPreprocessor = true;
+        int indexerFileSizeLimitInMb = 5;
+        bool enableLowerClazyLevels = true;    // For UI behavior only
+        bool categorizeFindReferences = false; // Ephemeral!
+        bool ignoreFiles = false;
+        QString ignorePattern;
+    };
+
     CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
 
-    void toSettings(Utils::QtcSettings *s);
+    void setData(const Data &data);
+    Data data() const { return m_data; }
 
-    bool enableLowerClazyLevels() const;
-    void setEnableLowerClazyLevels(bool yesno);
+    bool enableLowerClazyLevels() const { return m_data.enableLowerClazyLevels; }
+    PCHUsage pchUsage() const { return m_data.pchUsage; }
+    bool interpretAmbigiousHeadersAsC() const { return m_data.interpretAmbigiousHeadersAsC; }
+    bool skipIndexingBigFiles() const { return m_data.skipIndexingBigFiles; }
+    bool useBuiltinPreprocessor() const { return m_data.useBuiltinPreprocessor; }
+    int indexerFileSizeLimitInMb() const { return m_data.indexerFileSizeLimitInMb; }
+    bool categorizeFindReferences() const { return m_data.categorizeFindReferences; }
+    bool ignoreFiles() const { return m_data.ignoreFiles; }
+    QString ignorePattern() const { return m_data.ignorePattern; }
 
-    PCHUsage pchUsage() const;
-    void setPCHUsage(PCHUsage pchUsage);
+    // FIXME: Doesn't belong here.
+    void setEnableLowerClazyLevels(bool enable);
 
-    bool interpretAmbigiousHeadersAsCHeaders() const;
-    void setInterpretAmbigiousHeadersAsCHeaders(bool yesno);
-
-    bool skipIndexingBigFiles() const;
-    void setSkipIndexingBigFiles(bool yesno);
-
-    bool useBuiltinPreprocessor() const { return m_useBuiltinPreprocessor; }
-    void setUseBuiltinPreprocessor(bool useBuiltin) { m_useBuiltinPreprocessor = useBuiltin; }
-
-    int indexerFileSizeLimitInMb() const;
-    void setIndexerFileSizeLimitInMb(int sizeInMB);
-
-    void setCategorizeFindReferences(bool categorize) { m_categorizeFindReferences = categorize; }
-    bool categorizeFindReferences() const { return m_categorizeFindReferences; }
-
-    bool ignoreFiles() const;
-    void setIgnoreFiles(bool ignoreFiles);
-    QString ignorePattern() const;
-    void setIgnorePattern(const QString& ignorePattern);
+    void setCategorizeFindReferences(bool categorize);
 
 signals:
     void changed();
 
 private:
     CppCodeModelSettings() = default;
-    void fromSettings(Utils::QtcSettings *s);
-    Utils::Store toMap() const;
-    void fromMap(const Utils::Store &store);
 
-    PCHUsage m_pchUsage = PchUse_BuildSystem;
-    bool m_interpretAmbigiousHeadersAsCHeaders = false;
-    bool m_skipIndexingBigFiles = true;
-    bool m_useBuiltinPreprocessor = true;
-    int m_indexerFileSizeLimitInMB = 5;
-    bool m_enableLowerClazyLevels = true; // For UI behavior only
-    bool m_categorizeFindReferences = false; // Ephemeral!
-    bool m_ignoreFiles = false;
-    QString m_ignorePattern;
+    void toSettings(Utils::QtcSettings *s);
+    void fromSettings(Utils::QtcSettings *s);
+
+    Data m_data;
 };
 
 class CPPEDITOR_EXPORT ClangdSettings : public QObject

@@ -71,134 +71,97 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
+bool operator==(const CppEditor::CppCodeModelSettings::Data &s1,
+                const CppEditor::CppCodeModelSettings::Data &s2)
+{
+    return s1.pchUsage == s2.pchUsage
+           && s1.interpretAmbigiousHeadersAsC == s2.interpretAmbigiousHeadersAsC
+           && s1.skipIndexingBigFiles == s2.skipIndexingBigFiles
+           && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
+           && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
+           && s1.enableLowerClazyLevels == s2.enableLowerClazyLevels
+           && s1.categorizeFindReferences == s2.categorizeFindReferences
+           && s1.ignoreFiles == s2.ignoreFiles && s1.ignorePattern == s2.ignorePattern;
+}
+
+Store CppCodeModelSettings::Data::toMap() const
+{
+    const CppCodeModelSettings::Data def;
+    Store store;
+    store.insertValueWithDefault(enableLowerClazyLevelsKey(),
+                                 enableLowerClazyLevels,
+                                 def.enableLowerClazyLevels);
+    store.insertValueWithDefault(pchUsageKey(), pchUsage, def.pchUsage);
+    store.insertValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
+                                 interpretAmbigiousHeadersAsC,
+                                 def.interpretAmbigiousHeadersAsC);
+    store.insertValueWithDefault(skipIndexingBigFilesKey(),
+                                 skipIndexingBigFiles,
+                                 def.skipIndexingBigFiles);
+    store.insertValueWithDefault(ignoreFilesKey(), ignoreFiles, def.ignoreFiles);
+    store.insertValueWithDefault(ignorePatternKey(), ignorePattern, def.ignorePattern);
+    store.insertValueWithDefault(useBuiltinPreprocessorKey(),
+                                 useBuiltinPreprocessor,
+                                 def.useBuiltinPreprocessor);
+    store.insertValueWithDefault(indexerFileSizeLimitKey(),
+                                 indexerFileSizeLimitInMb,
+                                 def.indexerFileSizeLimitInMb);
+    return store;
+}
+
+void CppCodeModelSettings::Data::fromMap(const Utils::Store &store)
+{
+    const CppCodeModelSettings::Data def;
+    enableLowerClazyLevels
+        = store.value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels).toBool();
+    pchUsage = static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage).toInt());
+    interpretAmbigiousHeadersAsC = store
+                                       .value(interpretAmbiguousHeadersAsCHeadersKey(),
+                                              def.interpretAmbigiousHeadersAsC)
+                                       .toBool();
+    skipIndexingBigFiles = store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles).toBool();
+    ignoreFiles = store.value(ignoreFilesKey(), def.ignoreFiles).toBool();
+    ignorePattern = store.value(ignorePatternKey(), def.ignorePattern).toString();
+    useBuiltinPreprocessor
+        = store.value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor).toBool();
+    indexerFileSizeLimitInMb
+        = store.value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb).toInt();
+}
+
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
-    fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
+    m_data.fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
     emit changed();
 }
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    storeToSettings(Constants::CPPEDITOR_SETTINGSGROUP, s, toMap());
+    storeToSettings(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap());
     emit changed(); // TODO: Why?
 }
 
-Store CppCodeModelSettings::toMap() const
+void CppCodeModelSettings::setData(const Data &data)
 {
-    const CppCodeModelSettings def;
-    Store store;
-    store.insertValueWithDefault(enableLowerClazyLevelsKey(),
-                                 enableLowerClazyLevels(),
-                                 def.enableLowerClazyLevels());
-    store.insertValueWithDefault(pchUsageKey(), pchUsage(), def.pchUsage());
-    store.insertValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
-                                 interpretAmbigiousHeadersAsCHeaders(),
-                                 def.interpretAmbigiousHeadersAsCHeaders());
-    store.insertValueWithDefault(skipIndexingBigFilesKey(),
-                                 skipIndexingBigFiles(),
-                                 def.skipIndexingBigFiles());
-    store.insertValueWithDefault(ignoreFilesKey(), ignoreFiles(), def.ignoreFiles());
-    store.insertValueWithDefault(ignorePatternKey(), ignorePattern(), def.ignorePattern());
-    store.insertValueWithDefault(useBuiltinPreprocessorKey(),
-                                 useBuiltinPreprocessor(),
-                                 def.useBuiltinPreprocessor());
-    store.insertValueWithDefault(indexerFileSizeLimitKey(),
-                                 indexerFileSizeLimitInMb(),
-                                 def.indexerFileSizeLimitInMb());
-    return store;
+    if (m_data != data) {
+        m_data = data;
+        toSettings(Core::ICore::settings());
+        emit changed();
+    }
 }
 
-void CppCodeModelSettings::fromMap(const Utils::Store &store)
+void CppCodeModelSettings::setEnableLowerClazyLevels(bool enable)
 {
-    const CppCodeModelSettings def;
-    setEnableLowerClazyLevels(
-        store.value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels()).toBool());
-    setPCHUsage(static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage()).toInt()));
-    setInterpretAmbigiousHeadersAsCHeaders(store
-                                               .value(interpretAmbiguousHeadersAsCHeadersKey(),
-                                                      def.interpretAmbigiousHeadersAsCHeaders())
-                                               .toBool());
-    setSkipIndexingBigFiles(
-        store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles()).toBool());
-    setIgnoreFiles(store.value(ignoreFilesKey(), def.ignoreFiles()).toBool());
-    setIgnorePattern(store.value(ignorePatternKey(), def.ignorePattern()).toString());
-    setUseBuiltinPreprocessor(
-        store.value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor()).toBool());
-    setIndexerFileSizeLimitInMb(
-        store.value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb()).toInt());
+    Data d = data();
+    d.enableLowerClazyLevels = enable;
+    setData(d);
 }
 
-CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const
+void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
 {
-    return m_pchUsage;
+    Data d = data();
+    d.categorizeFindReferences = categorize;
+    setData(d);
 }
-
-void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
-{
-    m_pchUsage = pchUsage;
-}
-
-bool CppCodeModelSettings::interpretAmbigiousHeadersAsCHeaders() const
-{
-    return m_interpretAmbigiousHeadersAsCHeaders;
-}
-
-void CppCodeModelSettings::setInterpretAmbigiousHeadersAsCHeaders(bool yesno)
-{
-    m_interpretAmbigiousHeadersAsCHeaders = yesno;
-}
-
-bool CppCodeModelSettings::skipIndexingBigFiles() const
-{
-    return m_skipIndexingBigFiles;
-}
-
-void CppCodeModelSettings::setSkipIndexingBigFiles(bool yesno)
-{
-    m_skipIndexingBigFiles = yesno;
-}
-
-int CppCodeModelSettings::indexerFileSizeLimitInMb() const
-{
-    return m_indexerFileSizeLimitInMB;
-}
-
-void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
-{
-    m_indexerFileSizeLimitInMB = sizeInMB;
-}
-
-bool CppCodeModelSettings::ignoreFiles() const
-{
-   return m_ignoreFiles;
-}
-
-void CppCodeModelSettings::setIgnoreFiles(bool ignoreFiles)
-{
-    m_ignoreFiles = ignoreFiles;
-}
-
-QString CppCodeModelSettings::ignorePattern() const
-{
-   return m_ignorePattern;
-}
-
-void CppCodeModelSettings::setIgnorePattern(const QString& ignorePattern)
-{
-    m_ignorePattern = ignorePattern;
-}
-
-
-bool CppCodeModelSettings::enableLowerClazyLevels() const
-{
-    return m_enableLowerClazyLevels;
-}
-
-void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
-{
-    m_enableLowerClazyLevels = yesno;
-}
-
 
 QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 {

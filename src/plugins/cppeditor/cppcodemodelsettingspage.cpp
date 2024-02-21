@@ -51,14 +51,13 @@ namespace CppEditor::Internal {
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
-    CppCodeModelSettingsWidget();
+    CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data);
 
 private:
-    void apply() final;
+    void apply() final { codeModelSettings()->setData(data()); }
 
-    bool applyGeneralWidgetsToSettings() const;
+    CppCodeModelSettings::Data data() const;
 
-    CppCodeModelSettings *m_settings = nullptr;
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
     QCheckBox *m_useBuiltinPreprocessorCheckBox;
@@ -68,19 +67,18 @@ private:
     QPlainTextEdit *m_ignorePatternTextEdit;
 };
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
-    : m_settings(&cppCodeModelSettings())
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data)
 {
     m_interpretAmbiguousHeadersAsCHeaders
         = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
 
     m_skipIndexingBigFilesCheckBox = new QCheckBox(Tr::tr("Do not index files greater than"));
-    m_skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
+    m_skipIndexingBigFilesCheckBox->setChecked(data.skipIndexingBigFiles);
 
     m_bigFilesLimitSpinBox = new QSpinBox;
     m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
     m_bigFilesLimitSpinBox->setRange(1, 500);
-    m_bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
+    m_bigFilesLimitSpinBox->setValue(data.indexerFileSizeLimitInMb);
 
     m_ignoreFilesCheckBox = new QCheckBox(Tr::tr("Ignore files"));
     m_ignoreFilesCheckBox->setToolTip(
@@ -88,8 +86,8 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
         + Tr::tr("Ignore files that match these wildcard patterns, one wildcard per line.")
         + "</p></body></html>");
 
-    m_ignoreFilesCheckBox->setChecked(m_settings->ignoreFiles());
-    m_ignorePatternTextEdit = new QPlainTextEdit(m_settings->ignorePattern());
+    m_ignoreFilesCheckBox->setChecked(data.ignoreFiles);
+    m_ignorePatternTextEdit = new QPlainTextEdit(data.ignorePattern);
     m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
     m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
 
@@ -109,11 +107,9 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
             (Tr::tr("Uncheck this to invoke the actual compiler "
                     "to show a pre-processed source file in the editor."));
 
-    m_interpretAmbiguousHeadersAsCHeaders->setChecked(
-                m_settings->interpretAmbigiousHeadersAsCHeaders());
-
-    m_ignorePchCheckBox->setChecked(m_settings->pchUsage() == CppCodeModelSettings::PchUse_None);
-    m_useBuiltinPreprocessorCheckBox->setChecked(m_settings->useBuiltinPreprocessor());
+    m_interpretAmbiguousHeadersAsCHeaders->setChecked(data.interpretAmbigiousHeadersAsC);
+    m_ignorePchCheckBox->setChecked(data.pchUsage == CppCodeModelSettings::PchUse_None);
+    m_useBuiltinPreprocessorCheckBox->setChecked(data.useBuiltinPreprocessor);
 
     using namespace Layouting;
 
@@ -132,61 +128,18 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
     }.attachTo(this);
 }
 
-void CppCodeModelSettingsWidget::apply()
+CppCodeModelSettings::Data CppCodeModelSettingsWidget::data() const
 {
-    if (applyGeneralWidgetsToSettings())
-        m_settings->toSettings(Core::ICore::settings());
-}
-
-bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
-{
-    bool settingsChanged = false;
-
-    const bool newInterpretAmbiguousHeaderAsCHeaders
-            = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
-    if (m_settings->interpretAmbigiousHeadersAsCHeaders()
-            != newInterpretAmbiguousHeaderAsCHeaders) {
-        m_settings->setInterpretAmbigiousHeadersAsCHeaders(newInterpretAmbiguousHeaderAsCHeaders);
-        settingsChanged = true;
-    }
-
-    const bool newSkipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
-    if (m_settings->skipIndexingBigFiles() != newSkipIndexingBigFiles) {
-        m_settings->setSkipIndexingBigFiles(newSkipIndexingBigFiles);
-        settingsChanged = true;
-    }
-    const bool newUseBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
-    if (m_settings->useBuiltinPreprocessor() != newUseBuiltinPreprocessor) {
-        m_settings->setUseBuiltinPreprocessor(newUseBuiltinPreprocessor);
-        settingsChanged = true;
-    }
-    const bool ignoreFiles = m_ignoreFilesCheckBox->isChecked();
-    if (m_settings->ignoreFiles() != ignoreFiles) {
-        m_settings->setIgnoreFiles(ignoreFiles);
-        settingsChanged = true;
-    }
-    const QString ignorePattern = m_ignorePatternTextEdit->toPlainText();
-    if (m_settings->ignorePattern() != ignorePattern) {
-        m_settings->setIgnorePattern(ignorePattern);
-        settingsChanged = true;
-    }
-    const int newFileSizeLimit = m_bigFilesLimitSpinBox->value();
-    if (m_settings->indexerFileSizeLimitInMb() != newFileSizeLimit) {
-        m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
-        settingsChanged = true;
-    }
-
-    const bool newIgnorePch = m_ignorePchCheckBox->isChecked();
-    const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
-    if (newIgnorePch != previousIgnorePch) {
-        const CppCodeModelSettings::PCHUsage pchUsage = m_ignorePchCheckBox->isChecked()
-                ? CppCodeModelSettings::PchUse_None
-                : CppCodeModelSettings::PchUse_BuildSystem;
-        m_settings->setPCHUsage(pchUsage);
-        settingsChanged = true;
-    }
-
-    return settingsChanged;
+    CppCodeModelSettings::Data data;
+    data.interpretAmbigiousHeadersAsC = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
+    data.skipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
+    data.useBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
+    data.ignoreFiles = m_ignoreFilesCheckBox->isChecked();
+    data.ignorePattern = m_ignorePatternTextEdit->toPlainText();
+    data.indexerFileSizeLimitInMb = m_bigFilesLimitSpinBox->value();
+    data.pchUsage = m_ignorePchCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
+                                                     : CppCodeModelSettings::PchUse_BuildSystem;
+    return data;
 }
 
 class CppCodeModelSettingsPage final : public Core::IOptionsPage
@@ -199,7 +152,7 @@ public:
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("C++"));
         setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
-        setWidgetCreator([] { return new CppCodeModelSettingsWidget; });
+        setWidgetCreator([] { return new CppCodeModelSettingsWidget(codeModelSettings()->data()); });
     }
 };
 

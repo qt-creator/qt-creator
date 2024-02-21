@@ -35,9 +35,9 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor() = default;
 
 void BaseEditorDocumentProcessor::run(bool projectsUpdated)
 {
-    const Utils::Language languagePreference = codeModelSettings()->interpretAmbigiousHeadersAsCHeaders()
-            ? Utils::Language::C
-            : Utils::Language::Cxx;
+    const Utils::Language languagePreference = codeModelSettings()->interpretAmbigiousHeadersAsC()
+                                                   ? Utils::Language::C
+                                                   : Utils::Language::Cxx;
 
     runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),
