@@ -707,12 +707,18 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     }
 
     const auto onTaskTreeSetup = [this, projectName](TaskTree &taskTree) {
-        if (!m_dashboardInfo)
+        if (!m_dashboardInfo) {
+            MessageManager::writeDisrupting(QString("Axivion: %1")
+                .arg(Tr::tr("Fetching DashboardInfo error.")));
             return SetupResult::StopWithError;
+        }
 
         const auto it = m_dashboardInfo->projectUrls.constFind(projectName);
-        if (it == m_dashboardInfo->projectUrls.constEnd())
+        if (it == m_dashboardInfo->projectUrls.constEnd()) {
+            MessageManager::writeDisrupting(QString("Axivion: %1")
+                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(projectName)));
             return SetupResult::StopWithError;
+        }
 
         const auto handler = [this](const Dto::ProjectInfoDto &data) {
             m_currentProjectInfo = data;
