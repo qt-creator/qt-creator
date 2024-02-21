@@ -12,23 +12,20 @@ using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
 TraceFile traceFile{"qml_designer.json"};
 
 thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingStatus()>
-    strinViewEventQueueData(traceFile);
-thread_local NanotraceHR::EventQueue stringViewEventQueue_ = strinViewEventQueueData.createEventQueue();
+    stringViewEventQueueData(traceFile);
 
 thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingStatus()>
     stringViewWithStringArgumentsEventQueueData(traceFile);
-thread_local NanotraceHR::EventQueue stringViewEventWithStringArgumentsQueue_ = stringViewWithStringArgumentsEventQueueData
-                                                                                    .createEventQueue();
 } // namespace
 
-[[gnu::pure]] EventQueue &eventQueue()
+EventQueue &eventQueue()
 {
-    return stringViewEventQueue_;
+    return stringViewEventQueueData;
 }
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    return stringViewEventWithStringArgumentsQueue_;
+    return stringViewWithStringArgumentsEventQueueData;
 }
 
 } // namespace Tracing
@@ -37,7 +34,9 @@ namespace ModelTracing {
 namespace {
 using namespace NanotraceHR::Literals;
 
-thread_local Category category_{"model"_t, Tracing::stringViewEventWithStringArgumentsQueue_, category};
+thread_local Category category_{"model"_t,
+                                Tracing::stringViewWithStringArgumentsEventQueueData,
+                                category};
 
 } // namespace
 

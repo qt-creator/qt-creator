@@ -239,16 +239,16 @@ void convertToString(String &string, const Container<Arguments...> &container)
 template<typename String, typename... Arguments>
 String toArguments(Arguments &&...arguments)
 {
-        String text;
-        constexpr auto argumentCount = sizeof...(Arguments);
-        text.append("{");
-        (convertDictonaryEntryToString(text, arguments), ...);
-        if (argumentCount)
-            text.pop_back();
+    String text;
+    constexpr auto argumentCount = sizeof...(Arguments);
+    text.append("{");
+    (convertDictonaryEntryToString(text, arguments), ...);
+    if (argumentCount)
+        text.pop_back();
 
-        text.append("}");
+    text.append("}");
 
-        return text;
+    return text;
 }
 
 inline std::string_view toArguments(std::string_view arguments)
@@ -501,32 +501,28 @@ extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, Tracing::IsE
 extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
-class EventQueueData
+class EventQueueData : public EventQueue<TraceEvent, isEnabled>
 {
 public:
     using IsActive = std::true_type;
 
     EventQueueData(TraceFile<Tracing::IsDisabled> &) {}
-
-    EventQueue<TraceEvent, Tracing::IsDisabled> createEventQueue() { return {}; }
 };
 
 template<typename TraceEvent, std::size_t eventCount>
 class EventQueueData<TraceEvent, eventCount, Tracing::IsEnabled>
+    : public EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEvents = std::array<TraceEvent, eventCount>;
+    using Base = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
 public:
     using IsActive = std::true_type;
 
     EventQueueData(EnabledTraceFile &file)
-        : file{file}
+        : Base{&file, eventsOne, eventsTwo}
+        , file{file}
     {}
-
-    EventQueue<TraceEvent, Tracing::IsEnabled> createEventQueue()
-    {
-        return {&file, eventsOne, eventsTwo};
-    }
 
     EnabledTraceFile &file;
     TraceEvents eventsOne;
@@ -572,6 +568,7 @@ public:
     BasicEnabledToken &operator=(const BasicEnabledToken &) = default;
     BasicEnabledToken(BasicEnabledToken &&other) noexcept = default;
     BasicEnabledToken &operator=(BasicEnabledToken &&other) noexcept = default;
+
     ~BasicEnabledToken() {}
 
     constexpr explicit operator bool() const { return false; }
@@ -782,7 +779,6 @@ public:
 
     static constexpr bool categoryIsActive() { return Category::isActive(); }
 };
-
 
 using DisabledAsynchronousToken = AsynchronousToken<StringViewCategory<Tracing::IsDisabled>,
                                                     Tracing::IsDisabled>;
