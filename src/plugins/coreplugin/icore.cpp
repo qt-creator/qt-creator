@@ -1971,14 +1971,32 @@ void ICorePrivate::registerDefaultActions()
         toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
         toggleMenubarAction.addOnToggled(this, [](bool visible) {
             if (!visible) {
-                const QString keys = ActionManager::command(Constants::TOGGLE_MENUBAR)
-                                         ->keySequence().toString(QKeySequence::NativeText);
-                CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                                 Tr::tr("Hide Menu Bar"),
-                                                 Tr::tr("This will hide the menu bar completely. "
-                                                        "You can show it again by typing %1.")
-                                                     .arg(keys),
-                                                 Key("ToogleMenuBarHint"));
+                auto keySequenceAndText = [](const Utils::Id &actionName) {
+                    const auto command = ActionManager::command(actionName);
+
+                    const QString keySequence = command->keySequence().toString(
+                        QKeySequence::NativeText);
+                    const QString text = command->action()->text();
+
+                    return QPair<QString, QString>(keySequence, text);
+                };
+
+                auto [menuBarKeys, menuBarText] = keySequenceAndText(Constants::TOGGLE_MENUBAR);
+                auto [actionsFromMenuKeys, actionsFromMenuText] = keySequenceAndText(
+                    "Locator.Actions from the menu");
+
+                CheckableMessageBox::information(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Hide Menu Bar"),
+                    Tr::tr("This will hide the menu bar completely. "
+                           "You can show it again by typing %1."
+                           "<br><br>"
+                           "Or, trigger the \"%2\" action from the \"%3\" locator filter (%4).")
+                        .arg(menuBarKeys)
+                        .arg(menuBarText)
+                        .arg(actionsFromMenuText)
+                        .arg(actionsFromMenuKeys),
+                    Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });
