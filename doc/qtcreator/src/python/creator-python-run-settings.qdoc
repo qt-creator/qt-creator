@@ -35,7 +35,7 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtcreator-python-run-settings.png {Python run settings}
+    \image qtcreator-python-run-settings.webp {Python run settings}
 
     The following table summarizes the settings for running Qt for Python
     applications.
@@ -45,7 +45,7 @@
         \li Setting
         \li Value
     \row
-        \li \uicontrol Interpreter
+        \li \uicontrol Python
         \li Path to the Python executable.
     \row
         \li \uicontrol {Buffered output}

@@ -19,9 +19,8 @@
     \list
         \li \l{Set up PySide6}
         \li \l{Create Qt for Python applications}
-        \li \l{Select the Python interpreter}
-        \li \l{Create a virtual environment}
-        \li \l{Create kits for Python interpreters}
+        \li \l{Select the Python version}
+        \li \l{Create kits for Python}
         \li \l{Use Python interactive shell}
         \li \l{Configure Python language servers}
         \li \l{Run Python applications}
@@ -48,9 +47,10 @@
 
     \section1 Create Qt for Python applications
 
-    You can use wizards to create Qt for Python application projects. The wizards
+    Use wizards to create Qt for Python application projects. The wizards
     generate a project file, \c {.pyproject}, that lists the files in the Python
-    project. They also generate a \c {.py} file that has some boilerplate code.
+    project. They also generate a \c {.py} file that has some boilerplate code
+    and \c {reguirements.txt} that stores the PySide version of the generated code.
     In addition, the widget-based UI wizard creates a \c {.ui} file that has a
     \QD form, and the Qt Quick Application wizard creates a \c {.qml} file that
     imports Qt Quick controls.
@@ -72,50 +72,31 @@
     use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
     for new projects.
 
-    \section1 Select the Python interpreter
+    \section1 Select the Python version
 
-    You select the initial Python interpreter when you use the Qt for Python
-    Application wizard templates to create Python projects.
+    The \l{kits-tab}{kits} you select for the project in \uicontrol Projects >
+    \uicontrol {Build & Run} set the Python version to use.
 
-    \image qtcreator-new-qt-for-python-app-widgets-project-details.webp {Define Project Details dialog}
+    The \l {Edit Mode}{Edit mode} toolbar shows the current Python version.
 
-    You can see the current Python interpreter on the \uicontrol Edit mode
-    toolbar.
+    \image qtcreator-python-interpreter-edit-mode.webp {Python version on the Edit mode toolbar}
 
-    \image qtcreator-python-interpreter-edit-mode.webp {Python interpreter on the Edit mode toolbar}
+    To use another Python version, activate another kit for the project.
 
-    You can change the interpreter to use for a particular project in
-    \uicontrol Projects > \uicontrol Run > \uicontrol Interpreter.
+    \section1 Create kits for Python
 
-    \image qtcreator-python-run-settings.png {Python run settings}
-
-    To see the available interpreters and choose another interpreter, select the
-    current interpreter, and then select \uicontrol {Manage Python Interpreters}.
-    Or, select \preferences > \uicontrol Python > \uicontrol Interpreters.
+    \QC automatically adds all Python versions it can find to the list of
+    Python versions in \preferences > \uicontrol Python > \uicontrol Interpreters.
+    It generates kits for the global Python versions that are not inside a
+    virtual environment.
 
     \image qtcreator-python-interpreters.webp {Python Interpreters in Preferences}
 
-    You can add and remove interpreters and clean up references to interpreters
-    that you uninstalled, but that still appear in the list.
+    You can add and remove Python versions and clean up references to Python
+    versions that you uninstalled, but that still appear in the list.
 
-    To use the selected Python interpreter by default, select
-    \uicontrol {Make Default}.
-
-    \section1 Create a virtual environment
-
-    To use a clean \l{https://docs.python.org/3/library/venv.html}{Python}
-    virtual environment (\c venv) that is independent of your global Python
-    installation for a Qt for Python project, select the
-    \uicontrol {Create new virtual environment} check box in the project wizard.
-    Set the directory where to create the environment in
-    \uicontrol {Path to virtual environment}.
-
-    \section1 Create kits for Python interpreters
-
-    \QC automatically adds all Python interpreters it can find to the list of
-    interpreters in \preferences > \uicontrol Python > \uicontrol Interpreters.
-    It generates \l{kits-tab}{kits} for the global Python interpreters that are
-    not inside a virtual environment.
+    To use the selected Python version when opening \c {.py} files that don't
+    belong to a project, select \uicontrol {Make Default}.
 
     To use a virtual environment as a kit, select it in \uicontrol Interpreters,
     and then select \uicontrol {Generate Kit}.
@@ -133,5 +114,6 @@
     the file, select \uicontrol {REPL Import *}.
 
     \sa {Creating a Qt for Python Application with Qt Widgets},
-    {Creating a Qt for Python Application with Qt Quick}
+    {Creating a Qt for Python Application with Qt Quick},
+    {Activate kits for a project}
 */

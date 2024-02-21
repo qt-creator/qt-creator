@@ -169,11 +169,12 @@ Projects
 
 * Added `Generate Kit` to the Python interpreter preferences for generating a
   Python kit with this interpreter
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-python-development.html#create-kits-for-python-interpreters))
-* Added the target setup page when loading unconfigured Python projects
+* Added the `Kit Selection` page for creating and opening Python projects
 * Added a `requirements.txt` file to the application wizard
 * Fixed that the same Python interpreter could be auto-detected multiple times
   under different names
+
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-python-development.html))
 
 Debugging
 ---------
