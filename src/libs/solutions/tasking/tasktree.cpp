@@ -1193,6 +1193,17 @@ const GroupItem stopOnSuccessOrError = workflowPolicy(WorkflowPolicy::StopOnSucc
 const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
+// Please note the thread_local keyword below guarantees a separate instance per thread.
+// The s_activeTaskTrees is currently used internally only and is not exposed in the public API.
+// It serves for withLog() implementation now. Add a note here when a new usage is introduced.
+static thread_local QList<TaskTree *> s_activeTaskTrees = {};
+
+static TaskTree *activeTaskTree()
+{
+    QT_ASSERT(s_activeTaskTrees.size(), return nullptr);
+    return s_activeTaskTrees.back();
+}
+
 DoneResult toDoneResult(bool success)
 {
     return success ? DoneResult::Success : DoneResult::Error;
@@ -1427,18 +1438,28 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
     const auto header = [logName] {
         return QString("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
     };
-    const Storage<time_point<system_clock, nanoseconds>> storage;
+    struct LogStorage
+    {
+        time_point<system_clock, nanoseconds> start;
+        int asyncCount = 0;
+    };
+    const Storage<LogStorage> storage;
     return Group {
         storage,
         onGroupSetup([storage, header] {
-            *storage = system_clock::now();
+            storage->start = system_clock::now();
+            storage->asyncCount = activeTaskTree()->asyncCount();
             qDebug().noquote() << header() << "started.";
         }),
         *this,
         onGroupDone([storage, header](DoneWith result) {
-            const auto elapsed = duration_cast<milliseconds>(system_clock::now() - *storage);
+            const auto elapsed = duration_cast<milliseconds>(system_clock::now() - storage->start);
+            const int asyncCountDiff = activeTaskTree()->asyncCount() - storage->asyncCount;
+            QT_CHECK(asyncCountDiff >= 0);
             const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
-            qDebug().noquote().nospace() << header() << " finished with "
+            const QString syncType = asyncCountDiff ? QString("asynchronously")
+                                                    : QString("synchronously");
+            qDebug().noquote().nospace() << header() << " finished " << syncType << " with "
                 << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
         })
     };
@@ -1453,16 +1474,26 @@ class RuntimeTask;
 class ExecutionContextActivator
 {
 public:
-    ExecutionContextActivator(RuntimeIteration *iteration) { activateContext(iteration); }
-    ExecutionContextActivator(RuntimeContainer *container) { activateContext(container); }
+    ExecutionContextActivator(RuntimeIteration *iteration) {
+        activateTaskTree(iteration);
+        activateContext(iteration);
+    }
+    ExecutionContextActivator(RuntimeContainer *container) {
+        activateTaskTree(container);
+        activateContext(container);
+    }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
             m_activeStorages[i].m_storageData->threadData().popStorage();
         for (int i = m_activeLoops.size() - 1; i >= 0; --i) // iterate in reverse order
             m_activeLoops[i].m_loopData->threadData().popIteration();
+        QT_ASSERT(s_activeTaskTrees.size(), return);
+        s_activeTaskTrees.pop_back();
     }
 
 private:
+    void activateTaskTree(RuntimeIteration *iteration);
+    void activateTaskTree(RuntimeContainer *container);
     void activateContext(RuntimeIteration *iteration);
     void activateContext(RuntimeContainer *container);
     QList<Loop> m_activeLoops;
@@ -1690,6 +1721,16 @@ static bool isProgressive(RuntimeContainer *container)
 {
     RuntimeIteration *iteration = container->m_parentTask->m_parentIteration;
     return iteration ? iteration->m_isProgressive : true;
+}
+
+void ExecutionContextActivator::activateTaskTree(RuntimeIteration *iteration)
+{
+    activateTaskTree(iteration->m_container);
+}
+
+void ExecutionContextActivator::activateTaskTree(RuntimeContainer *container)
+{
+    s_activeTaskTrees.push_back(container->m_containerNode.m_taskTreePrivate->q);
 }
 
 void ExecutionContextActivator::activateContext(RuntimeIteration *iteration)

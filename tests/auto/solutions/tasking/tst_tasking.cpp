@@ -58,12 +58,26 @@ enum class ThreadResult
 };
 Q_ENUM_NS(ThreadResult);
 
+enum class Execution
+{
+    Sync,
+    Async
+};
+
 } // namespace PrintableEnums
 
 using namespace PrintableEnums;
 
 using Log = QList<QPair<int, Handler>>;
-using MessageLog = QList<std::pair<QString, Handler>>;
+
+struct Message
+{
+    QString name;
+    Handler handler;
+    std::optional<Execution> execution = {};
+};
+
+using MessageLog = QList<Message>;
 
 struct CustomStorage
 {
@@ -2960,8 +2974,8 @@ void tst_Tasking::testTree_data()
             MessageLog {
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
-                {"Task 1", Handler::Success},
-                {"Group 1", Handler::Success}
+                {"Task 1", Handler::Success, Execution::Async},
+                {"Group 1", Handler::Success, Execution::Async}
             }
         };
         const TestData testError {
@@ -2982,8 +2996,8 @@ void tst_Tasking::testTree_data()
             MessageLog {
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
-                {"Task 1", Handler::Error},
-                {"Group 1", Handler::Error}
+                {"Task 1", Handler::Error, Execution::Async},
+                {"Group 1", Handler::Error, Execution::Async}
             }
         };
         const TestData testCancel {
@@ -3009,9 +3023,9 @@ void tst_Tasking::testTree_data()
                 {"Group 1", Handler::Setup},
                 {"Task 1", Handler::Setup},
                 {"Task 2", Handler::Setup},
-                {"Task 2", Handler::Error},
-                {"Task 1", Handler::Canceled},
-                {"Group 1", Handler::Canceled}
+                {"Task 2", Handler::Error, Execution::Sync},
+                {"Task 1", Handler::Canceled, Execution::Sync},
+                {"Group 1", Handler::Canceled, Execution::Sync}
             }
         };
 
@@ -3102,13 +3116,13 @@ private:
 static const QList<Handler> s_logHandlers
     = {Handler::Setup, Handler::Success, Handler::Error, Handler::Canceled};
 
-static QString handlerToName(Handler handler)
+static QString messageInfix(const Message &message)
 {
-    if (handler == Handler::Setup)
+    if (message.handler == Handler::Setup)
         return "started";
 
     DoneWith doneWith;
-    switch (handler) {
+    switch (message.handler) {
     case Handler::Success:
         doneWith = DoneWith::Success;
         break;
@@ -3121,40 +3135,45 @@ static QString handlerToName(Handler handler)
     default:
         return {};
     }
+
+    const QString execution = message.execution == Execution::Async ? "asynchronously"
+                                                                    : "synchronously";
     const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
-    return QString("finished with %1").arg(doneWithEnum.valueToKey(int(doneWith)));
+    return QString("finished %1 with %2").arg(execution, doneWithEnum.valueToKey(int(doneWith)));
 }
 
-static bool matchesLogPattern(const QString &log, const QPair<QString, Handler> &pattern)
+static bool matchesLogPattern(const QString &log, const Message &message)
 {
-    QStringView message(log);
+    QStringView logView(log);
     const static QLatin1StringView part1("TASK TREE LOG [");
-    if (!message.startsWith(part1))
+    if (!logView.startsWith(part1))
         return false;
 
-    message = message.mid(part1.size());
+    logView = logView.mid(part1.size());
     const static QLatin1StringView part2("HH:mm:ss.zzz"); // check only size
 
-    message = message.mid(part2.size());
-    const QString part3 = QString("] \"%1\" ").arg(pattern.first);
-    if (!message.startsWith(part3))
+    logView = logView.mid(part2.size());
+    const QString part3 = QString("] \"%1\" ").arg(message.name);
+    if (!logView.startsWith(part3))
         return false;
 
-    message = message.mid(part3.size());
-    const QString part4(handlerToName(pattern.second));
-    if (!message.startsWith(part4))
+    logView = logView.mid(part3.size());
+    const QString part4(messageInfix(message));
+    if (!logView.startsWith(part4))
         return false;
 
-    message = message.mid(part4.size());
-    if (pattern.second == Handler::Setup)
-        return message == QLatin1StringView(".");
+    logView = logView.mid(part4.size());
+    if (message.handler == Handler::Setup)
+        return logView == QLatin1StringView(".");
 
     const static QLatin1StringView part5(" within ");
-    if (!message.startsWith(part5))
+    if (!logView.startsWith(part5))
         return false;
 
-    return message.endsWith(QLatin1StringView("ms."));
+    return logView.endsWith(QLatin1StringView("ms."));
 }
+
+const QMetaEnum s_handlerEnum = QMetaEnum::fromType<Handler>();
 
 void tst_Tasking::testTree()
 {
@@ -3187,15 +3206,18 @@ void tst_Tasking::testTree()
 
         for (int i = 0; i < s_messages.count(); ++i) {
             const auto &message = testData.messageLog->at(i);
-            QVERIFY(s_logHandlers.contains(message.second));
-            const QString &log = s_messages.at(i);
-            if (!matchesLogPattern(log, message)) {
-                const QString failMessage
-                    = QString("The log message at index %1: \"%2\" doesn't match the expected "
-                              "pattern: \"%3\" %4.").arg(i)
-                              .arg(log, message.first, handlerToName(message.second));
-                QFAIL(failMessage.toUtf8());
+            QVERIFY2(s_logHandlers.contains(message.handler), qPrintable(QString(
+                "The expected log message at index %1 contains invalid %2 handler.")
+                .arg(i).arg(s_handlerEnum.valueToKey(int(message.handler)))));
+            if (message.handler != Handler::Setup) {
+                QVERIFY2(message.execution, qPrintable(QString(
+                    "The expected log message at index %1 of %2 type doesn't specify the required "
+                    "execution mode.").arg(i).arg(s_handlerEnum.valueToKey(int(message.handler)))));
             }
+            const QString &log = s_messages.at(i);
+            QVERIFY2(matchesLogPattern(log, message), qPrintable(QString(
+                "The log message at index %1: \"%2\" doesn't match the expected pattern: "
+                "\"%3\" %4.").arg(i).arg(log, message.name, messageInfix(message))));
         }
     }
 }
