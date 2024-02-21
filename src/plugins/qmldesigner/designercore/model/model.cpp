@@ -1099,8 +1099,6 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
 
 void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList)
 {
-    auto tracer = traceToken.begin("selected model nodes"_t);
-
     auto sortedSelectedList = Utils::filtered(selectedNodeList, [](const auto &node) {
         return node && node->isValid;
     });
@@ -1112,13 +1110,31 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNo
     if (sortedSelectedList == m_selectedInternalNodeList)
         return;
 
-    for (auto &node : sortedSelectedList) {
-        auto flowToken = node->traceToken.tickWithFlow("select model nodes"_t);
-        traceToken.tick(flowToken, "select model node"_t);
+    auto [tracer, flow] = traceToken.beginWithFlow("selected model nodes"_t);
+    auto &flowToken = flow; // should be not anymore needed in C++ 20
+
+    if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
+        std::set_difference(sortedSelectedList.begin(),
+                            sortedSelectedList.end(),
+                            m_selectedInternalNodeList.begin(),
+                            m_selectedInternalNodeList.end(),
+                            Utils::make_iterator([&](const auto &node) {
+                                node->traceToken.tick(flowToken, "select model node"_t);
+                            }));
     }
 
     const QList<InternalNodePointer> lastSelectedNodeList = m_selectedInternalNodeList;
     m_selectedInternalNodeList = sortedSelectedList;
+
+    if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
+        std::set_difference(lastSelectedNodeList.begin(),
+                            lastSelectedNodeList.end(),
+                            m_selectedInternalNodeList.begin(),
+                            m_selectedInternalNodeList.end(),
+                            Utils::make_iterator([&](const auto &node) {
+                                node->traceToken.tick(flowToken, "deselect model node"_t);
+                            }));
+    }
 
     changeSelectedNodes(sortedSelectedList, lastSelectedNodeList);
 }

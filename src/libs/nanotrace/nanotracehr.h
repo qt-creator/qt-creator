@@ -779,6 +779,8 @@ public:
     template<typename... Arguments>
     void end(Arguments &&...)
     {}
+
+    static constexpr bool categoryIsActive() { return Category::isActive(); }
 };
 
 
@@ -873,13 +875,13 @@ public:
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
 
         return {std::piecewise_construct,
-                std::forward_as_tuple(std::move(name), m_id, m_category),
+                std::forward_as_tuple(PrivateTag{}, std::move(name), m_id, m_category),
                 std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
     }
 
@@ -927,6 +929,8 @@ public:
 
         m_id = 0;
     }
+
+    static constexpr bool categoryIsActive() { return Category::isActive(); }
 
 private:
     StringType m_name;
