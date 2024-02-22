@@ -196,21 +196,21 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
     return roles;
 }
 
-void CollectionSourceModel::setSources(const ModelNodes &sources)
+void CollectionSourceModel::setSource(const ModelNode &source)
 {
     beginResetModel();
-    m_collectionSources = sources;
+    m_collectionSources = {source};
     m_sourceIndexHash.clear();
     m_collectionList.clear();
-    int i = -1;
-    for (const ModelNode &collectionSource : sources) {
-        m_sourceIndexHash.insert(collectionSource.internalId(), ++i);
 
-        auto loadedCollection = loadCollection(collectionSource);
-        m_collectionList.append(loadedCollection);
+    // TODO: change m_collectionSources to only contain 1 source node
+    m_sourceIndexHash.insert(source.internalId(), 0);
 
-        registerCollectionList(loadedCollection);
-    }
+    auto loadedCollection = loadCollection(source);
+    m_collectionList.append(loadedCollection);
+
+    registerCollectionList(loadedCollection);
+
 
     updateEmpty();
     endResetModel();

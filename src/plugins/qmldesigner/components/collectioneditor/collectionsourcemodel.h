@@ -45,7 +45,7 @@ public:
 
     virtual QHash<int, QByteArray> roleNames() const override;
 
-    void setSources(const ModelNodes &sources);
+    void setSource(const ModelNode &source);
     void removeSource(const ModelNode &node);
     int sourceIndex(const ModelNode &node) const;
     void addSource(const ModelNode &node);

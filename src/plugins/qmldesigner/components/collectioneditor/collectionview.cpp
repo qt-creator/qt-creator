@@ -376,13 +376,10 @@ void CollectionView::refreshModel()
     if (!model())
         return;
 
-    // Load Model Groups
-    ModelNodes collectionSourceNodes;
+    ModelNode dataStore = m_dataStore->modelNode();
+    QTC_ASSERT(dataStore, return);
 
-    if (ModelNode dataStore = m_dataStore->modelNode())
-        collectionSourceNodes << dataStore;
-
-    m_widget->sourceModel()->setSources(collectionSourceNodes);
+    m_widget->sourceModel()->setSource(dataStore);
 }
 
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const
