@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
@@ -69,6 +70,7 @@ typedef struct _REPARSE_DATA_BUFFER {
 #endif
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
@@ -451,8 +453,19 @@ FilePath CMakeToolManager::mappedFilePath(const FilePath &path)
     if (path.needsDevice())
         return path;
 
-    Internal::settings();
-    if (!Internal::settings().useJunctionsForSourceAndBuildDirectories())
+    auto project = ProjectManager::startupProject();
+    auto environment = Environment::systemEnvironment();
+    if (project)
+        environment.modify(project->additionalEnvironment());
+    const bool enableJunctions
+        = QVariant(
+              environment.value_or("QTC_CMAKE_USE_JUNCTIONS",
+                                   Internal::settings().useJunctionsForSourceAndBuildDirectories()
+                                       ? "1"
+                                       : "0"))
+              .toBool();
+
+    if (!enableJunctions)
         return path;
 
     if (!d->m_junctionsDir.isDir())
@@ -583,14 +596,17 @@ CMakeToolManagerPrivate::CMakeToolManagerPrivate()
         m_junctionsDir = FilePath::fromString(*std::min_element(locations.begin(), locations.end()))
                              .pathAppended("QtCreator/Links");
 
-        if (Utils::qtcEnvironmentVariableIsSet("QTC_CMAKE_JUNCTIONS_DIR")) {
-            m_junctionsDir = FilePath::fromUserInput(
-                Utils::qtcEnvironmentVariable("QTC_CMAKE_JUNCTIONS_DIR"));
-        }
-        if (Utils::qtcEnvironmentVariableIsSet("QTC_CMAKE_JUNCTIONS_HASH_LENGTH")) {
+        auto project = ProjectManager::startupProject();
+        auto environment = Environment::systemEnvironment();
+        if (project)
+            environment.modify(project->additionalEnvironment());
+
+        if (environment.hasKey("QTC_CMAKE_JUNCTIONS_DIR"))
+            m_junctionsDir = FilePath::fromUserInput(environment.value("QTC_CMAKE_JUNCTIONS_DIR"));
+
+        if (environment.hasKey("QTC_CMAKE_JUNCTIONS_HASH_LENGTH")) {
             bool ok = false;
-            const int hashLength
-                = Utils::qtcEnvironmentVariableIntValue("QTC_CMAKE_JUNCTIONS_HASH_LENGTH", &ok);
+            const int hashLength = environment.value("QTC_CMAKE_JUNCTIONS_HASH_LENGTH").toInt(&ok);
             if (ok && hashLength >= 4 && hashLength < 32)
                 m_junctionsHashLength = hashLength;
         }
