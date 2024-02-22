@@ -623,6 +623,32 @@ AxivionOutputPane::AxivionOutputPane(QObject *parent)
     m_outputWidget->addWidget(dashboardWidget);
     IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
     m_outputWidget->addWidget(issuesWidget);
+
+    m_showDashboard = new QToolButton(m_outputWidget);
+    m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
+    m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
+    m_showDashboard->setCheckable(true);
+    m_showDashboard->setChecked(true);
+    connect(m_showDashboard, &QToolButton::clicked, this, [this] {
+        QTC_ASSERT(m_outputWidget, return);
+        m_outputWidget->setCurrentIndex(0);
+    });
+
+    m_showIssues = new QToolButton(m_outputWidget);
+    m_showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
+    m_showIssues->setToolTip(Tr::tr("Search for issues"));
+    m_showIssues->setCheckable(true);
+    connect(m_showIssues, &QToolButton::clicked, this, [this] {
+        QTC_ASSERT(m_outputWidget, return);
+        m_outputWidget->setCurrentIndex(1);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+            issues->updateUi();
+    });
+
+    connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
+        m_showDashboard->setChecked(idx == 0);
+        m_showIssues->setChecked(idx == 1);
+    });
 }
 
 AxivionOutputPane::~AxivionOutputPane()
@@ -642,26 +668,7 @@ QWidget *AxivionOutputPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
 {
-    QList<QWidget *> buttons;
-    auto showDashboard = new QToolButton(m_outputWidget);
-    showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
-    showDashboard->setToolTip(Tr::tr("Show dashboard"));
-    connect(showDashboard, &QToolButton::clicked, this, [this]{
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(0);
-    });
-    buttons.append(showDashboard);
-    auto showIssues = new QToolButton(m_outputWidget);
-    showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
-    showIssues->setToolTip(Tr::tr("Search for issues"));
-    connect(showIssues, &QToolButton::clicked, this, [this]{
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(1);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
-            issues->updateUi();
-    });
-    buttons.append(showIssues);
-    return buttons;
+    return {m_showDashboard, m_showIssues};
 }
 
 void AxivionOutputPane::clearContents()

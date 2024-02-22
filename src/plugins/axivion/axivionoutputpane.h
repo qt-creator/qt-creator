@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Axivion::Internal {
@@ -14,6 +15,7 @@ namespace Axivion::Internal {
 class AxivionOutputPane : public Core::IOutputPane
 {
     Q_OBJECT
+
 public:
     explicit AxivionOutputPane(QObject *parent = nullptr);
     ~AxivionOutputPane();
@@ -32,8 +34,11 @@ public:
     void goToPrev() override;
 
     void updateDashboard();
+
 private:
     QStackedWidget *m_outputWidget = nullptr;
+    QToolButton *m_showDashboard = nullptr;
+    QToolButton *m_showIssues = nullptr;
 };
 
 } // Axivion::Internal
