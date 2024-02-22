@@ -35,13 +35,14 @@ inline QString osTypeToString(OsType osType)
 
 inline OsType osTypeFromString(const QString &string)
 {
-    if (string == "Windows")
+    if (string.compare("windows", Qt::CaseInsensitive) == 0)
         return OsTypeWindows;
-    if (string == "Linux")
+    if (string.compare("linux", Qt::CaseInsensitive) == 0)
         return OsTypeLinux;
-    if (string == "Mac")
+    if (string.compare("mac", Qt::CaseInsensitive) == 0
+        || string.compare("darwin", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
-    if (string == "Other Unix")
+    if (string.compare("other unix", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
     return OsTypeOther;
 }
