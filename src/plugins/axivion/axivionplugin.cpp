@@ -202,7 +202,6 @@ public:
     // TODO: Should be cleared on username change in settings.
     std::optional<QByteArray> m_apiToken;
     NetworkAccessManager m_networkAccessManager;
-    AxivionOutputPane m_axivionOutputPane;
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     Project *m_project = nullptr;
@@ -309,7 +308,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
     m_project = project;
     clearAllMarks();
     m_currentProjectInfo = {};
-    m_axivionOutputPane.updateDashboard();
+    updateDashboard();
 
     if (!m_project)
         return;
@@ -729,7 +728,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     clearAllMarks();
     if (projectName.isEmpty()) {
         m_currentProjectInfo = {};
-        m_axivionOutputPane.updateDashboard();
+        updateDashboard();
         return;
     }
 
@@ -749,7 +748,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
         const auto handler = [this](const Dto::ProjectInfoDto &data) {
             m_currentProjectInfo = data;
-            m_axivionOutputPane.updateDashboard();
+            updateDashboard();
             handleOpenedDocs();
         };
 
@@ -945,6 +944,8 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        setupAxivionOutputPane(this);
+
         dd = new AxivionPluginPrivate;
 
         AxivionProjectSettings::setupProjectPanel();

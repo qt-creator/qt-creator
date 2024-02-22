@@ -8,6 +8,7 @@
 #include "dashboard/dto.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/ioutputpane.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -611,115 +612,107 @@ void IssuesWidget::fetchMoreIssues()
     fetchIssues(search);
 }
 
-AxivionOutputPane::AxivionOutputPane(QObject *parent)
-    : IOutputPane(parent)
+class AxivionOutputPane final : public IOutputPane
 {
-    setId("Axivion");
-    setDisplayName(Tr::tr("Axivion"));
-    setPriorityInStatusBar(-50);
+public:
+    explicit AxivionOutputPane(QObject *parent)
+        : IOutputPane(parent)
+    {
+        setId("Axivion");
+        setDisplayName(Tr::tr("Axivion"));
+        setPriorityInStatusBar(-50);
 
-    m_outputWidget = new QStackedWidget;
-    DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
-    m_outputWidget->addWidget(dashboardWidget);
-    IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
-    m_outputWidget->addWidget(issuesWidget);
+        m_outputWidget = new QStackedWidget;
+        DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
+        m_outputWidget->addWidget(dashboardWidget);
+        IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
+        m_outputWidget->addWidget(issuesWidget);
 
-    m_showDashboard = new QToolButton(m_outputWidget);
-    m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
-    m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
-    m_showDashboard->setCheckable(true);
-    m_showDashboard->setChecked(true);
-    connect(m_showDashboard, &QToolButton::clicked, this, [this] {
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(0);
-    });
+        m_showDashboard = new QToolButton(m_outputWidget);
+        m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
+        m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
+        m_showDashboard->setCheckable(true);
+        m_showDashboard->setChecked(true);
+        connect(m_showDashboard, &QToolButton::clicked, this, [this] {
+            QTC_ASSERT(m_outputWidget, return);
+            m_outputWidget->setCurrentIndex(0);
+        });
 
-    m_showIssues = new QToolButton(m_outputWidget);
-    m_showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
-    m_showIssues->setToolTip(Tr::tr("Search for issues"));
-    m_showIssues->setCheckable(true);
-    connect(m_showIssues, &QToolButton::clicked, this, [this] {
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(1);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
-            issues->updateUi();
-    });
+        m_showIssues = new QToolButton(m_outputWidget);
+        m_showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
+        m_showIssues->setToolTip(Tr::tr("Search for issues"));
+        m_showIssues->setCheckable(true);
+        connect(m_showIssues, &QToolButton::clicked, this, [this] {
+            QTC_ASSERT(m_outputWidget, return);
+            m_outputWidget->setCurrentIndex(1);
+            if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+                issues->updateUi();
+        });
 
-    connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
-        m_showDashboard->setChecked(idx == 0);
-        m_showIssues->setChecked(idx == 1);
-    });
-}
-
-AxivionOutputPane::~AxivionOutputPane()
-{
-    if (!m_outputWidget->parent())
-        delete m_outputWidget;
-}
-
-QWidget *AxivionOutputPane::outputWidget(QWidget *parent)
-{
-    if (m_outputWidget)
-        m_outputWidget->setParent(parent);
-    else
-        QTC_CHECK(false);
-    return m_outputWidget;
-}
-
-QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
-{
-    return {m_showDashboard, m_showIssues};
-}
-
-void AxivionOutputPane::clearContents()
-{
-}
-
-void AxivionOutputPane::setFocus()
-{
-}
-
-bool AxivionOutputPane::hasFocus() const
-{
-    return false;
-}
-
-bool AxivionOutputPane::canFocus() const
-{
-    return true;
-}
-
-bool AxivionOutputPane::canNavigate() const
-{
-    return true;
-}
-
-bool AxivionOutputPane::canNext() const
-{
-    return false;
-}
-
-bool AxivionOutputPane::canPrevious() const
-{
-    return false;
-}
-
-void AxivionOutputPane::goToNext()
-{
-}
-
-void AxivionOutputPane::goToPrev()
-{
-}
-
-void AxivionOutputPane::updateDashboard()
-{
-    if (auto dashboard = static_cast<DashboardWidget *>(m_outputWidget->widget(0))) {
-        dashboard->updateUi();
-        m_outputWidget->setCurrentIndex(0);
-        if (dashboard->hasProject())
-            flash();
+        connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
+            m_showDashboard->setChecked(idx == 0);
+            m_showIssues->setChecked(idx == 1);
+        });
     }
+
+    ~AxivionOutputPane()
+    {
+        if (!m_outputWidget->parent())
+            delete m_outputWidget;
+    }
+
+    QWidget *outputWidget(QWidget *parent) final
+    {
+        if (m_outputWidget)
+            m_outputWidget->setParent(parent);
+        else
+            QTC_CHECK(false);
+        return m_outputWidget;
+    }
+
+    QList<QWidget *> toolBarWidgets() const final
+    {
+        return {m_showDashboard, m_showIssues};
+    }
+
+    void clearContents() final {}
+    void setFocus() final {}
+    bool hasFocus() const final { return false; }
+    bool canFocus() const final { return true; }
+    bool canNavigate() const final { return true; }
+    bool canNext() const final { return false; }
+    bool canPrevious() const final { return false; }
+    void goToNext() final {}
+    void goToPrev() final {}
+
+    void updateDashboard()
+    {
+        if (auto dashboard = static_cast<DashboardWidget *>(m_outputWidget->widget(0))) {
+            dashboard->updateUi();
+            m_outputWidget->setCurrentIndex(0);
+            if (dashboard->hasProject())
+                flash();
+        }
+    }
+
+private:
+    QStackedWidget *m_outputWidget = nullptr;
+    QToolButton *m_showDashboard = nullptr;
+    QToolButton *m_showIssues = nullptr;
+};
+
+
+static QPointer<AxivionOutputPane> theAxivionOutputPane;
+
+void setupAxivionOutputPane(QObject *guard)
+{
+    theAxivionOutputPane = new AxivionOutputPane(guard);
+}
+
+void updateDashboard()
+{
+    QTC_ASSERT(theAxivionOutputPane, return);
+    theAxivionOutputPane->updateDashboard();
 }
 
 } // Axivion::Internal
