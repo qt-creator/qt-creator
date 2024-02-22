@@ -50,7 +50,7 @@ public:
                             const QList<ModelNode> &nodeList,
                             const QList<QVariant> &data) override;
 
-    void addResource(const QUrl &url, const QString &name, const QString &type);
+    void addResource(const QUrl &url, const QString &name);
 
     void assignCollectionToNode(const QString &collectionName, const ModelNode &node);
     void assignCollectionToSelectedNode(const QString &collectionName);

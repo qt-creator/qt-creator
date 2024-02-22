@@ -153,14 +153,14 @@ bool CollectionWidget::loadJsonFile(const QUrl &url, const QString &collectionNa
     if (!isJsonFile(url))
         return false;
 
-    m_view->addResource(url, getPreferredCollectionName(url, collectionName), "json");
+    m_view->addResource(url, getPreferredCollectionName(url, collectionName));
 
     return true;
 }
 
 bool CollectionWidget::loadCsvFile(const QUrl &url, const QString &collectionName)
 {
-    m_view->addResource(url, getPreferredCollectionName(url, collectionName), "csv");
+    m_view->addResource(url, getPreferredCollectionName(url, collectionName));
 
     return true;
 }

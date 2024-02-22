@@ -25,9 +25,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QJsonArray>
-#include <QJsonDocument>
 #include <QJsonObject>
+#include <QTimer>
 
 namespace {
 
@@ -68,7 +67,6 @@ CollectionView::CollectionView(ExternalDependenciesInterface &externalDependenci
         if (m_widget.get())
             m_widget->collectionDetailsModel()->removeAllCollections();
     });
-    resetDataStoreNode();
 }
 
 bool CollectionView::hasWidget() const
@@ -226,9 +224,9 @@ void CollectionView::customNotification(const AbstractView *,
         m_widget->openCollection(collectionNameFromDataStoreChildren(data.first().toByteArray()));
 }
 
-void CollectionView::addResource(const QUrl &url, const QString &name, const QString &type)
+void CollectionView::addResource(const QUrl &url, const QString &name)
 {
-    executeInTransaction(Q_FUNC_INFO, [this, &url, &name, &type]() {
+    executeInTransaction(Q_FUNC_INFO, [this, &url, &name]() {
         ensureStudioModelImport();
         QString sourceAddress;
         if (url.isLocalFile()) {
@@ -319,7 +317,7 @@ void CollectionView::registerDeclarativeType()
 
 void CollectionView::resetDataStoreNode()
 {
-    m_dataStore->reloadModel();
+    QTimer::singleShot(0, this, [&] { m_dataStore->reloadModel(); });
     refreshModel();
 }
 
@@ -447,7 +445,8 @@ void DelayedAssignCollectionToItem::checkAndAssign()
     bool dataStoreFound = false;
 
     if (m_collectionView->isDataStoreReady()) {
-        for (const QmlTypeData &cppTypeData : view->rewriterView()->getQMLTypes()) {
+        const QList<QmlTypeData> types = view->rewriterView()->getQMLTypes();
+        for (const QmlTypeData &cppTypeData : types) {
             if (cppTypeData.isSingleton && cppTypeData.typeName == "DataStore")
                 dataStoreFound = true;
         }
