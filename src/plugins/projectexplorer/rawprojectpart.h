@@ -14,6 +14,7 @@
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/store.h>
 
 #include <QPointer>
 
@@ -170,9 +171,13 @@ public:
     Utils::FilePath buildRoot;
     RawProjectParts rawProjectParts;
     RppGenerator rppGenerator;
+    Utils::Store cppSettings;
 
     ToolchainInfo cToolchainInfo;
     ToolchainInfo cxxToolchainInfo;
 };
+
+using CppSettingsRetriever = std::function<Utils::Store(const Project *)>;
+void PROJECTEXPLORER_EXPORT provideCppSettingsRetriever(const CppSettingsRetriever &retriever);
 
 } // namespace ProjectExplorer

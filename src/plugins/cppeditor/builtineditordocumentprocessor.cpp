@@ -144,16 +144,14 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath())
     , m_parser(new BuiltinEditorDocumentParser(document->filePath(),
-                                               CppCodeModelSettings::instance()
-                                                   .effectiveIndexerFileSizeLimitInMb()))
+                                               settings().effectiveIndexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(new SemanticHighlighter(document))
 {
     using namespace Internal;
 
     BaseEditorDocumentParser::Configuration config = m_parser->configuration();
-    config.usePrecompiledHeaders = CppCodeModelSettings::instance().pchUsage()
-                                   != CppCodeModelSettings::PchUse_None;
+    config.usePrecompiledHeaders = settings().pchUsage() != CppCodeModelSettings::PchUse_None;
     m_parser->setConfiguration(config);
 
     m_semanticHighlighter->setHighlightingRunner(

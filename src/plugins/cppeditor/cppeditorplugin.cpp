@@ -70,6 +70,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
@@ -202,7 +203,10 @@ void CppEditorPlugin::initialize()
     d = new CppEditorPluginPrivate;
 
     setupCppQuickFixSettings();
-    setupCppCodeModelSettings();
+    setupCppCodeModelSettingsPage();
+    provideCppSettingsRetriever([](const Project *p) {
+        return CppCodeModelSettings::settingsForProject(p).data().toMap();
+    });
     setupCppOutline();
     setupCppCodeStyleSettings();
     setupCppProjectUpdater();
@@ -227,6 +231,7 @@ void CppEditorPlugin::extensionsInitialized()
 {
     setupCppQuickFixProjectPanel();
     setupCppFileSettings();
+    setupCppCodeModelProjectSettingsPanel();
 
     if (CppModelManager::isClangCodeModelActive()) {
         setupClangdProjectSettingsPanel();
@@ -349,9 +354,9 @@ void CppEditorPlugin::addPerSymbolActions()
     findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
     findRefsCategorized.addOnTriggered(this, [] {
         if (const auto w = currentCppEditorWidget()) {
-            CppCodeModelSettings::instance().setCategorizeFindReferences(true);
+            CppCodeModelSettings::setCategorizeFindReferences(true);
             w->findUsages();
-            CppCodeModelSettings::instance().setCategorizeFindReferences(false);
+            CppCodeModelSettings::setCategorizeFindReferences(false);
         }
     });
 

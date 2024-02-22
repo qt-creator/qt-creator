@@ -419,7 +419,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
                     *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
         const CppEditor::UsePrecompiledHeaders usePch
-            = CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders();
+            = CppEditor::CppCodeModelSettings::usePrecompiledHeaders(nullptr);
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, globalClangOptions());
         const QJsonArray clangOptions = clangOptionsForFile({}, optionsBuilder.projectPart(),
@@ -600,7 +600,7 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
         }
     }
 
-    const bool categorize = CppEditor::CppCodeModelSettings::instance().categorizeFindReferences();
+    const bool categorize = CppEditor::CppCodeModelSettings::categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
@@ -920,9 +920,11 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
                                       CppEditor::ProjectFile::classify(filePath.toString()));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
+    const auto cppSettings = CppEditor::CppCodeModelSettings::settingsForProject(
+        projectPart->topLevelProject);
     addToCompilationDb(cdbChanges,
                        *projectPart,
-                       CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders(),
+                       cppSettings.usePrecompiledHeaders(),
                        projectPartOptions,
                        filePath.parentDir(),
                        file,

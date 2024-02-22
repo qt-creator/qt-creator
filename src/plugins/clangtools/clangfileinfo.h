@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/projectpart.h>
 
@@ -19,9 +20,11 @@ public:
     FileInfo() = default;
     FileInfo(Utils::FilePath file,
              CppEditor::ProjectFile::Kind kind,
+             const CppEditor::CppCodeModelSettings &settings,
              CppEditor::ProjectPart::ConstPtr projectPart)
         : file(std::move(file))
         , kind(kind)
+        , settings(settings.data())
         , projectPart(projectPart)
     {}
 
@@ -31,6 +34,7 @@ public:
 
     Utils::FilePath file;
     CppEditor::ProjectFile::Kind kind;
+    CppEditor::CppCodeModelSettings::Data settings;
     CppEditor::ProjectPart::ConstPtr projectPart;
 };
 using FileInfos = std::vector<FileInfo>;

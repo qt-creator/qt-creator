@@ -37,6 +37,8 @@ public:
     class Data
     {
     public:
+        Data() = default;
+        Data(const Utils::Store &store) { fromMap(store); }
         Utils::Store toMap() const;
         void fromMap(const Utils::Store &store);
 
@@ -53,26 +55,35 @@ public:
         QString ignorePattern;
     };
 
-    static CppCodeModelSettings &instance();
+    CppCodeModelSettings(const Data &data) : m_data(data) {}
 
-    void setData(const Data &data);
+    static CppCodeModelSettings &globalInstance(); // TODO: Make inaccessible.
+    static CppCodeModelSettings settingsForProject(const ProjectExplorer::Project *project);
+    static CppCodeModelSettings settingsForProject(const Utils::FilePath &projectFile);
+    static CppCodeModelSettings settingsForFile(const Utils::FilePath &file);
+
+    static void setGlobalData(const Data &data); // TODO: Make inaccessible.
+    void setData(const Data &data) { m_data = data; }
     Data data() const { return m_data; }
 
     PCHUsage pchUsage() const { return m_data.pchUsage; }
+    static PCHUsage pchUsage(const ProjectExplorer::Project *project);
     UsePrecompiledHeaders usePrecompiledHeaders() const;
+    static UsePrecompiledHeaders usePrecompiledHeaders(const ProjectExplorer::Project *project);
+
     bool interpretAmbigiousHeadersAsC() const { return m_data.interpretAmbigiousHeadersAsC; }
     bool skipIndexingBigFiles() const { return m_data.skipIndexingBigFiles; }
     bool useBuiltinPreprocessor() const { return m_data.useBuiltinPreprocessor; }
     int indexerFileSizeLimitInMb() const { return m_data.indexerFileSizeLimitInMb; }
     int effectiveIndexerFileSizeLimitInMb() const;
-    bool categorizeFindReferences() const { return m_data.categorizeFindReferences; }
     bool ignoreFiles() const { return m_data.ignoreFiles; }
     QString ignorePattern() const { return m_data.ignorePattern; }
 
-    void setCategorizeFindReferences(bool categorize);
+    static bool categorizeFindReferences();
+    static void setCategorizeFindReferences(bool categorize);
 
 signals:
-    void changed();
+    void changed(ProjectExplorer::Project *project);
 
 private:
     CppCodeModelSettings() = default;
@@ -82,6 +93,25 @@ private:
     void fromSettings(Utils::QtcSettings *s);
 
     Data m_data;
+};
+
+class CppCodeModelProjectSettings
+{
+public:
+    CppCodeModelProjectSettings(ProjectExplorer::Project *project);
+
+    CppCodeModelSettings::Data data() const;
+    void setData(const CppCodeModelSettings::Data &data);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    CppCodeModelSettings::Data m_customSettings;
+    bool m_useGlobalSettings = true;
 };
 
 class CPPEDITOR_EXPORT ClangdSettings : public QObject

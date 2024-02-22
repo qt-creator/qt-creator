@@ -13,6 +13,7 @@
 #include <coreplugin/session.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -28,6 +29,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor {
@@ -56,7 +58,7 @@ static Key clangdThreadLimitKey() { return "ClangdThreadLimit"; }
 static Key clangdDocumentThresholdKey() { return "ClangdDocumentThreshold"; }
 static Key clangdSizeThresholdEnabledKey() { return "ClangdSizeThresholdEnabled"; }
 static Key clangdSizeThresholdKey() { return "ClangdSizeThreshold"; }
-static Key clangdUseGlobalSettingsKey() { return "useGlobalSettings"; }
+static Key useGlobalSettingsKey() { return "useGlobalSettings"; }
 static Key clangdblockIndexingSettingsKey() { return "blockIndexing"; }
 static Key sessionsWithOneClangdKey() { return "SessionsWithOneClangd"; }
 static Key diagnosticConfigIdKey() { return "diagnosticConfigId"; }
@@ -116,48 +118,118 @@ void CppCodeModelSettings::Data::fromMap(const Utils::Store &store)
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
     m_data.fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
-    emit changed();
 }
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    const Data def;
-    storeToSettingsWithDefault(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap(), def.toMap());
-    emit changed(); // TODO: Why?
+    storeToSettingsWithDefault(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap(), Data().toMap());
 }
 
-CppCodeModelSettings &CppCodeModelSettings::instance()
+CppCodeModelSettings &CppCodeModelSettings::globalInstance()
 {
     static CppCodeModelSettings theCppCodeModelSettings(Core::ICore::settings());
     return theCppCodeModelSettings;
 }
 
-void CppCodeModelSettings::setData(const Data &data)
+CppCodeModelSettings CppCodeModelSettings::settingsForProject(const ProjectExplorer::Project *project)
 {
-    if (m_data != data) {
-        m_data = data;
-        toSettings(Core::ICore::settings());
-        emit changed();
-    }
+    return {CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project)).data()};
+}
+
+CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FilePath &projectFile)
+{
+    return settingsForProject(ProjectManager::projectWithProjectFilePath(projectFile));
+}
+
+CppCodeModelSettings CppCodeModelSettings::settingsForFile(const Utils::FilePath &file)
+{
+    return settingsForProject(ProjectManager::projectForFile(file));
+}
+
+void CppCodeModelSettings::setGlobalData(const Data &data)
+{
+    if (globalInstance().m_data == data)
+        return;
+
+    globalInstance().m_data = data;
+    globalInstance().toSettings(Core::ICore::settings());
+    emit globalInstance().changed(nullptr);
+}
+
+CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage(const Project *project)
+{
+    return CppCodeModelSettings::settingsForProject(project).pchUsage();
 }
 
 UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders() const
 {
-    if (instance().pchUsage() == CppCodeModelSettings::PchUse_None)
-        return UsePrecompiledHeaders::No;
-    return UsePrecompiledHeaders::Yes;
+    return pchUsage() == CppCodeModelSettings::PchUse_None ? UsePrecompiledHeaders::No
+                                                           : UsePrecompiledHeaders::Yes;
+}
+
+UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders(const Project *project)
+{
+    return CppCodeModelSettings::settingsForProject(project).usePrecompiledHeaders();
 }
 
 int CppCodeModelSettings::effectiveIndexerFileSizeLimitInMb() const
 {
-    return instance().skipIndexingBigFiles() ? instance().indexerFileSizeLimitInMb() : -1;
+    return skipIndexingBigFiles() ? indexerFileSizeLimitInMb() : -1;
+}
+
+bool CppCodeModelSettings::categorizeFindReferences()
+{
+    return globalInstance().m_data.categorizeFindReferences;
 }
 
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
 {
-    Data d = data();
+    Data d = globalInstance().data();
     d.categorizeFindReferences = categorize;
-    setData(d);
+    globalInstance().setGlobalData(d);
+}
+
+CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)
+    : m_project(project)
+{
+    loadSettings();
+}
+
+CppCodeModelSettings::Data CppCodeModelProjectSettings::data() const
+{
+    return m_useGlobalSettings ? CppCodeModelSettings::globalInstance().data() : m_customSettings;
+}
+
+void CppCodeModelProjectSettings::setData(const CppCodeModelSettings::Data &data)
+{
+    m_customSettings = data;
+    saveSettings();
+    emit CppCodeModelSettings::globalInstance().changed(m_project);
+}
+
+void CppCodeModelProjectSettings::setUseGlobalSettings(bool useGlobal)
+{
+    m_useGlobalSettings = useGlobal;
+    saveSettings();
+    emit CppCodeModelSettings::globalInstance().changed(m_project);
+}
+
+void CppCodeModelProjectSettings::loadSettings()
+{
+    if (!m_project)
+        return;
+    const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+    m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
+    m_customSettings.fromMap(data);
+}
+
+void CppCodeModelProjectSettings::saveSettings()
+{
+    if (!m_project)
+        return;
+    Store data = m_customSettings.toMap();
+    data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
+    m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
 }
 
 QString ClangdSettings::priorityToString(const IndexingPriority &priority)
@@ -513,7 +585,7 @@ void ClangdProjectSettings::loadSettings()
     if (!m_project)
         return;
     const Store data = storeFromVariant(m_project->namedSettings(clangdSettingsKey()));
-    m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
+    m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
     m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
         m_customSettings.fromMap(data);
@@ -526,7 +598,7 @@ void ClangdProjectSettings::saveSettings()
     Store data;
     if (!m_useGlobalSettings)
         data = m_customSettings.toMap();
-    data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
+    data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
     data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
     m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(data));
 }

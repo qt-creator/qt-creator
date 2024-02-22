@@ -249,7 +249,7 @@ private:
 void ClangdTestFindReferences::initTestCase()
 {
     ClangdTest::initTestCase();
-    CppEditor::CppCodeModelSettings::instance().setCategorizeFindReferences(true);
+    CppEditor::CppCodeModelSettings::setCategorizeFindReferences(true);
     connect(client(), &ClangdClient::foundReferences, this,
             [this](const SearchResultItems &results) {
         if (results.isEmpty())

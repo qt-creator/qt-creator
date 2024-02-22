@@ -407,7 +407,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         saveAndOpen(outFilePath, content.append(preprocessedDoc->utf8Source()), inNextSplit);
     };
 
-    if (CppCodeModelSettings::instance().useBuiltinPreprocessor()) {
+    if (CppCodeModelSettings::settingsForFile(filePath).useBuiltinPreprocessor()) {
         useBuiltinPreprocessor();
         return;
     }
@@ -1023,6 +1023,9 @@ CppModelManager::CppModelManager()
     connect(ICore::instance(), &ICore::coreAboutToClose,
             this, &CppModelManager::onCoreAboutToClose);
 
+    connect(&CppCodeModelSettings::globalInstance(), &CppCodeModelSettings::changed,
+            this, &CppModelManager::onSettingsChange);
+
     d->m_fallbackProjectPartTimer.setSingleShot(true);
     d->m_fallbackProjectPartTimer.setInterval(5000);
     connect(&d->m_fallbackProjectPartTimer, &QTimer::timeout,
@@ -1349,12 +1352,17 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const CppCodeModelSettings &settings = CppCodeModelSettings::instance();
-    const QSet<QString> filteredFiles
-        = filteredFilesRemoved(transform(sourceFiles, &FilePath::toString),
-                               settings.effectiveIndexerFileSizeLimitInMb(),
-                               settings.ignoreFiles(),
-                               settings.ignorePattern());
+    QHash<Project *, QSet<QString>> sourcesPerProject; // TODO: Work with QList from here on?
+    for (const FilePath &fp : sourceFiles)
+        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toString();
+    QSet<QString> filteredFiles;
+    for (auto it = sourcesPerProject.cbegin(); it != sourcesPerProject.cend(); ++it) {
+        const CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(it.key());
+        filteredFiles.unite(filteredFilesRemoved(it.value(),
+                                                 settings.effectiveIndexerFileSizeLimitInMb(),
+                                                 settings.ignoreFiles(),
+                                                 settings.ignorePattern()));
+    }
 
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
@@ -1990,6 +1998,21 @@ void CppModelManager::onCoreAboutToClose()
     d->m_fallbackProjectPartTimer.stop();
     ProgressManager::cancelTasks(Constants::TASK_INDEX);
     d->m_enableGC = false;
+}
+
+void CppModelManager::onSettingsChange(Project *project)
+{
+    ProjectInfoList info;
+    if (project)
+        info << projectInfo(project);
+    else
+        info << projectInfos();
+    for (const ProjectInfo::ConstPtr &pi : std::as_const(info)) {
+        const CppCodeModelSettings newSettings = CppCodeModelSettings::settingsForProject(
+            pi->projectFilePath());
+        if (pi->settings().data() != newSettings.data())
+            updateProjectInfo(ProjectInfo::cloneWithNewSettings(pi, newSettings));
+    }
 }
 
 void CppModelManager::setupFallbackProjectPart()

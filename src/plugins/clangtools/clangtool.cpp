@@ -341,7 +341,8 @@ private:
     QMap<FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const QVector<ProjectPart::ConstPtr> &projectParts)
+static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
+                                 const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
@@ -359,7 +360,7 @@ static FileInfos sortedFileInfos(const QVector<ProjectPart::ConstPtr> &projectPa
             if (file.active && (ProjectFile::isSource(file.kind)
                                 || ProjectFile::isHeader(file.kind))) {
                 ProjectFile::Kind sourceKind = ProjectFile::sourceKind(file.kind);
-                fileInfos.emplace_back(file.path, sourceKind, projectPart);
+                fileInfos.emplace_back(file.path, sourceKind, settings, projectPart);
             }
         }
     }
@@ -901,7 +902,8 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
     const auto projectInfo = CppModelManager::projectInfo(project);
     QTC_ASSERT(projectInfo, return FileInfos());
 
-    const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
+    const FileInfos allFileInfos = sortedFileInfos(projectInfo->settings(),
+                                                   projectInfo->projectParts());
 
     if (selectionType && *selectionType == FileSelectionType::AllFiles)
         return allFileInfos;

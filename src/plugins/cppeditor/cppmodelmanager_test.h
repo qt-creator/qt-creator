@@ -31,6 +31,7 @@ private slots:
     void testRenameIncludes();
     void testRenameIncludesInEditor();
     void testDocumentsAndRevisions();
+    void testSettingsChanges();
 };
 
 } // namespace CppEditor::Internal

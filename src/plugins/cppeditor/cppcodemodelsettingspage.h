@@ -5,7 +5,8 @@
 
 namespace CppEditor::Internal {
 
-void setupCppCodeModelSettings();
+void setupCppCodeModelSettingsPage();
+void setupCppCodeModelProjectSettingsPanel();
 void setupClangdProjectSettingsPanel();
 void setupClangdSettingsPage();
 

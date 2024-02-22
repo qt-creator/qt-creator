@@ -19,6 +19,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -1172,6 +1173,107 @@ void ModelManagerTest::testDocumentsAndRevisions()
     QVERIFY(TestCase::parseFiles(filesToIndex));
     VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 4U);
     VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 4U);
+}
+
+void ModelManagerTest::testSettingsChanges()
+{
+    ModelManagerTestHelper helper;
+
+    int refreshCount = 0;
+    QSet<QString> refreshedFiles;
+    connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed,
+            &helper, [&](const QSet<QString> &files) {
+        ++refreshCount;
+        refreshedFiles.unite(files);
+    });
+    const auto waitForRefresh = [] {
+        return ::CppEditor::Tests::waitForSignalOrTimeout(CppModelManager::instance(),
+                                                          &CppModelManager::sourceFilesRefreshed,
+                                                          5000);
+    };
+
+    const auto setupProjectNodes = [](Project &p, const ProjectFiles &projectFiles) {
+        auto rootNode = std::make_unique<ProjectNode>(p.projectFilePath());
+        for (const ProjectFile &sourceFile : projectFiles) {
+            rootNode->addNestedNode(std::make_unique<FileNode>(sourceFile.path,
+                                                               sourceFile.isHeader()
+                                                               ? FileType::Header
+                                                                   : FileType::Source));
+        }
+        p.setRootProjectNode(std::move(rootNode));
+    };
+
+    // Set up projects.
+    const MyTestDataDir p1Dir("testdata_project1");
+    const FilePaths p1Files
+        = Utils::transform({"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
+                           [&](const QString &fn) { return p1Dir.filePath(fn); });
+    const ProjectFiles p1ProjectFiles = Utils::transform(p1Files, [](const FilePath &fp) {
+        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+    });
+    Project * const p1 = helper.createProject("testdata_project1", FilePath::fromString("p1.pro"));
+    setupProjectNodes(*p1, p1ProjectFiles);
+    RawProjectPart rpp1;
+    const auto part1 = ProjectPart::create(p1->projectFilePath(), rpp1, {}, p1ProjectFiles);
+    const auto pi1 = ProjectInfo::create(ProjectUpdateInfo(p1, KitInfo(nullptr), {}, {}), {part1});
+    const auto p1Sources = Utils::transform<QSet<QString>>(p1Files, &FilePath::toString);
+    CppModelManager::updateProjectInfo(pi1);
+
+    const MyTestDataDir p2Dir("testdata_project2");
+    const FilePaths p2Files
+        = Utils::transform({"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
+                           [&](const QString &fn) { return p1Dir.filePath(fn); });
+    const ProjectFiles p2ProjectFiles = Utils::transform(p2Files, [](const FilePath &fp) {
+        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+    });
+    Project * const p2 = helper.createProject("testdata_project2", FilePath::fromString("p2.pro"));
+    setupProjectNodes(*p2, p2ProjectFiles);
+    RawProjectPart rpp2;
+    const auto part2 = ProjectPart::create(p2->projectFilePath(), rpp2, {}, p2ProjectFiles);
+    const auto pi2 = ProjectInfo::create(ProjectUpdateInfo(p2, KitInfo(nullptr), {}, {}), {part2});
+    const auto p2Sources = Utils::transform<QSet<QString>>(p2Files, &FilePath::toString);
+    CppModelManager::updateProjectInfo(pi2);
+
+    // Initial check: Have all files been indexed?
+    while (refreshCount < 2)
+        QVERIFY(waitForRefresh());
+    const auto allSources = p1Sources + p2Sources;
+    QCOMPARE(refreshedFiles, allSources);
+
+    // Switch first project from global to local settings. Nothing should get re-indexed,
+    // as the default values are the same.
+    refreshCount = 0;
+    refreshedFiles.clear();
+    CppCodeModelProjectSettings p1Settings(p1);
+    QVERIFY(p1Settings.useGlobalSettings());
+    p1Settings.setUseGlobalSettings(false);
+    QCOMPARE(refreshCount, 0);
+    QVERIFY(!waitForRefresh());
+
+    // Change global settings. Only the second project should get re-indexed, as the first one
+    // has its own settings, which are still the same.
+    CppCodeModelSettings::Data globalSettings
+        = CppCodeModelSettings::settingsForProject(nullptr).data();
+    globalSettings.indexerFileSizeLimitInMb = 1;
+    CppCodeModelSettings::setGlobalData(globalSettings);
+    if (refreshCount == 0)
+        QVERIFY(waitForRefresh());
+    QVERIFY(!waitForRefresh());
+    QCOMPARE(refreshedFiles, p2Sources);
+
+    // Change first project's settings. Only this project should get re-indexed.
+    refreshCount = 0;
+    refreshedFiles.clear();
+    CppCodeModelSettings::Data p1Data = p1Settings.data();
+    p1Data.ignoreFiles = true;
+    p1Data.ignorePattern = "baz3.h";
+    p1Settings.setData(p1Data);
+    if (refreshCount == 0)
+        QVERIFY(waitForRefresh());
+    QVERIFY(!waitForRefresh());
+    QSet<QString> filteredP1Sources = p1Sources;
+    filteredP1Sources -= p1Dir.filePath("baz3.h").toString();
+    QCOMPARE(refreshedFiles, filteredP1Sources);
 }
 
 } // CppEditor::Internal

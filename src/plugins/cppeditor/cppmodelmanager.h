@@ -288,6 +288,7 @@ private:
     static void onSourceFilesRefreshed();
     static void onCurrentEditorChanged(Core::IEditor *editor);
     static void onCoreAboutToClose();
+    static void onSettingsChange(ProjectExplorer::Project *project);
     static void setupFallbackProjectPart();
 
     static void delayedGC();

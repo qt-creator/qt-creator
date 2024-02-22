@@ -166,7 +166,6 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
     }
     compileCommandsFile.write("[");
 
-    const UsePrecompiledHeaders usePch = CppCodeModelSettings::instance().usePrecompiledHeaders();
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
         QTC_ASSERT(projectInfo, continue);
@@ -183,9 +182,15 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
                                                    jsonProjectOptions);
             }
             for (const ProjectFile &projFile : projectPart->files) {
-                const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
-                                                          purpose, ppOptions, usePch,
-                                                          optionsBuilder.isClStyle());
+                const QJsonObject json
+                    = createFileObject(baseDir,
+                                       args,
+                                       *projectPart,
+                                       projFile,
+                                       purpose,
+                                       ppOptions,
+                                       projectInfo->settings().usePrecompiledHeaders(),
+                                       optionsBuilder.isClStyle());
                 if (compileCommandsFile.size() > 1)
                     compileCommandsFile.write(",");
                 compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));

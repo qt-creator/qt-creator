@@ -50,13 +50,17 @@ namespace CppEditor::Internal {
 
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
+    Q_OBJECT
 public:
     CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data);
 
-private:
-    void apply() final { CppCodeModelSettings::instance().setData(data()); }
-
     CppCodeModelSettings::Data data() const;
+
+signals:
+    void settingsDataChanged();
+
+private:
+    void apply() final { CppCodeModelSettings::globalInstance().setGlobalData(data()); }
 
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
@@ -126,6 +130,23 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
         },
         st
     }.attachTo(this);
+
+    for (const QCheckBox *const b : {m_interpretAmbiguousHeadersAsCHeaders,
+                                     m_ignorePchCheckBox,
+                                     m_useBuiltinPreprocessorCheckBox,
+                                     m_skipIndexingBigFilesCheckBox,
+                                     m_ignoreFilesCheckBox}) {
+        connect(b, &QCheckBox::toggled, this, &CppCodeModelSettingsWidget::settingsDataChanged);
+    }
+    connect(m_bigFilesLimitSpinBox, &QSpinBox::valueChanged,
+            this, &CppCodeModelSettingsWidget::settingsDataChanged);
+
+    const auto timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(1000);
+    connect(timer, &QTimer::timeout, this, &CppCodeModelSettingsWidget::settingsDataChanged);
+    connect(m_ignorePatternTextEdit, &QPlainTextEdit::textChanged,
+            timer, qOverload<>(&QTimer::start));
 }
 
 CppCodeModelSettings::Data CppCodeModelSettingsWidget::data() const
@@ -153,13 +174,60 @@ public:
         setDisplayCategory(Tr::tr("C++"));
         setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
         setWidgetCreator(
-            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::instance().data()); });
+            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::globalInstance().data()); });
     }
 };
 
-void setupCppCodeModelSettings()
+void setupCppCodeModelSettingsPage()
 {
     static CppCodeModelSettingsPage theCppCodeModelSettingsPage;
+}
+
+class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
+{
+public:
+    CppCodeModelProjectSettingsWidget(const CppCodeModelProjectSettings &settings)
+        : m_settings(settings), m_widget(settings.data())
+    {
+        setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(&m_widget);
+
+        setUseGlobalSettings(m_settings.useGlobalSettings());
+        m_widget.setEnabled(!useGlobalSettings());
+        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
+                [this](bool checked) {
+                    m_widget.setEnabled(!checked);
+                    m_settings.setUseGlobalSettings(checked);
+                    if (!checked)
+                        m_settings.setData(m_widget.data());
+                });
+
+        connect(&m_widget, &CppCodeModelSettingsWidget::settingsDataChanged,
+                this, [this] { m_settings.setData(m_widget.data()); });
+    }
+
+private:
+    CppCodeModelProjectSettings m_settings;
+    CppCodeModelSettingsWidget m_widget;
+};
+
+class CppCodeModelProjectSettingsPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CppCodeModelProjectSettingsPanelFactory()
+    {
+        setPriority(100);
+        setDisplayName(Tr::tr("C++ Code Model"));
+        setCreateWidgetFunction([](Project *project) {
+            return new CppCodeModelProjectSettingsWidget(project);
+        });
+    }
+};
+void setupCppCodeModelProjectSettingsPanel()
+{
+    static CppCodeModelProjectSettingsPanelFactory factory;
 }
 
 class ClangdSettingsWidget final : public QWidget

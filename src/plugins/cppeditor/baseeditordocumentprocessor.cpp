@@ -27,7 +27,8 @@ namespace CppEditor {
 BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
                                                          const Utils::FilePath &filePath)
     : m_filePath(filePath),
-      m_textDocument(textDocument)
+      m_textDocument(textDocument),
+      m_settings(CppCodeModelSettings::settingsForFile(filePath))
 {
 }
 
@@ -35,9 +36,11 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor() = default;
 
 void BaseEditorDocumentProcessor::run(bool projectsUpdated)
 {
+    if (projectsUpdated)
+        m_settings.setData(CppCodeModelSettings::settingsForFile(m_filePath).data());
+
     const Utils::Language languagePreference
-        = CppCodeModelSettings::instance().interpretAmbigiousHeadersAsC() ? Utils::Language::C
-                                                                          : Utils::Language::Cxx;
+        = m_settings.interpretAmbigiousHeadersAsC() ? Utils::Language::C : Utils::Language::Cxx;
 
     runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),

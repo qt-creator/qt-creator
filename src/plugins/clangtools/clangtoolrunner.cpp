@@ -51,7 +51,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
     arguments = extraClangToolsPrependOptions();
     arguments.append(
         optionsBuilder.build(fileInfo.kind,
-                             CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders()));
+                             CppCodeModelSettings(fileInfo.settings).usePrecompiledHeaders()));
     arguments.append(extraClangToolsAppendOptions());
 }
 

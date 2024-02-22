@@ -19,6 +19,12 @@ ProjectInfo::ConstPtr ProjectInfo::create(const ProjectExplorer::ProjectUpdateIn
     return ConstPtr(new ProjectInfo(updateInfo, projectParts));
 }
 
+ProjectInfo::ConstPtr ProjectInfo::cloneWithNewSettings(const ConstPtr &pi,
+                                                        const CppCodeModelSettings &settings)
+{
+    return ConstPtr(new ProjectInfo(pi, settings));
+}
+
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
 {
     return m_projectName == other.m_projectName
@@ -27,6 +33,7 @@ bool ProjectInfo::operator ==(const ProjectInfo &other) const
         && m_projectParts == other.m_projectParts
         && m_headerPaths == other.m_headerPaths
         && m_sourceFiles == other.m_sourceFiles
+        && m_settings.data() == other.m_settings.data()
         && m_defines == other.m_defines;
 }
 
@@ -42,7 +49,8 @@ bool ProjectInfo::definesChanged(const ProjectInfo &other) const
 
 bool ProjectInfo::configurationChanged(const ProjectInfo &other) const
 {
-    return definesChanged(other) || m_headerPaths != other.m_headerPaths;
+    return definesChanged(other) || m_headerPaths != other.m_headerPaths
+        || m_settings.data() != other.settings().data();
 }
 
 bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
@@ -89,7 +97,20 @@ ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
       m_buildRoot(updateInfo.buildRoot),
       m_headerPaths(getHeaderPaths(projectParts)),
       m_sourceFiles(getSourceFiles(projectParts)),
-      m_defines(getDefines(projectParts))
+      m_defines(getDefines(projectParts)),
+      m_settings(CppCodeModelSettings::Data(updateInfo.cppSettings))
+{
+}
+
+ProjectInfo::ProjectInfo(const ConstPtr &pi, const CppCodeModelSettings &settings)
+    : m_projectParts(pi->projectParts()),
+    m_projectName(pi->projectName()),
+    m_projectFilePath(pi->projectFilePath()),
+    m_buildRoot(pi->buildRoot()),
+    m_headerPaths(pi->m_headerPaths),
+    m_sourceFiles(pi->sourceFiles()),
+    m_defines(pi->m_defines),
+    m_settings(settings.data())
 {
 }
 
