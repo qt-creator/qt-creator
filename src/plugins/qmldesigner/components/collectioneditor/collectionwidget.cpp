@@ -64,7 +64,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     setWindowTitle(tr("Model Editor", "Title of model editor widget"));
 
     Core::IContext *icontext = nullptr;
-    Core::Context context(Constants::C_QMLMATERIALBROWSER);
+    Core::Context context(Constants::C_QMLCOLLECTIONEDITOR);
     icontext = new Core::IContext(this);
     icontext->setContext(context);
     icontext->setWidget(this);
@@ -315,6 +315,11 @@ void CollectionWidget::setTargetNodeSelected(bool selected)
 
     m_targetNodeSelected = selected;
     emit targetNodeSelectedChanged(m_targetNodeSelected);
+}
+
+void CollectionWidget::deleteSelectedCollection()
+{
+    QMetaObject::invokeMethod(m_quickWidget->quickWidget()->rootObject(), "deleteSelectedCollection");
 }
 
 QString CollectionWidget::generateUniqueCollectionName(const ModelNode &node, const QString &name)

@@ -23,6 +23,11 @@ Item {
         warningDialog.open()
     }
 
+    // called from C++ when using the delete key
+    function deleteSelectedCollection() {
+        print("TODO: deleteSelectedCollection")
+    }
+
     ImportDialog {
         id: importDialog
 

@@ -49,6 +49,8 @@ public:
     void warn(const QString &title, const QString &body);
     void setTargetNodeSelected(bool selected);
 
+    void deleteSelectedCollection();
+
 signals:
     void targetNodeSelectedChanged(bool);
 

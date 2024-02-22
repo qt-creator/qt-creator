@@ -381,6 +381,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
     Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
+    Core::Context qmlDesignerCollectionEditorContext(Constants::C_QMLCOLLECTIONEDITOR);
 
     context->context().add(qmlDesignerMainContext);
     context->context().add(qmlDesignerFormEditorContext);
@@ -388,6 +389,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     context->context().add(qmlDesignerNavigatorContext);
     context->context().add(qmlDesignerMaterialBrowserContext);
     context->context().add(qmlDesignerAssetsLibraryContext);
+    context->context().add(qmlDesignerCollectionEditorContext);
     context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,

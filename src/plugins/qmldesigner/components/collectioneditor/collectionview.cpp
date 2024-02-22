@@ -222,6 +222,8 @@ void CollectionView::customNotification(const AbstractView *,
         onItemLibraryNodeCreated(nodeList.first());
     else if (identifier == QLatin1String("open_collection_by_id") && !data.isEmpty())
         m_widget->openCollection(collectionNameFromDataStoreChildren(data.first().toByteArray()));
+    else if (identifier == "delete_selected_collection")
+        m_widget->deleteSelectedCollection();
 }
 
 void CollectionView::addResource(const QUrl &url, const QString &name)
