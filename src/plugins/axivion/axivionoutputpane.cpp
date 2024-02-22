@@ -229,10 +229,10 @@ class IssuesWidget : public QScrollArea
 public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi();
-    void updateTable();
-    void addIssues(const Dto::IssueTableDto &dto);
 
 private:
+    void updateTable();
+    void addIssues(const Dto::IssueTableDto &dto);
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
     void setFiltersEnabled(bool enabled);
@@ -544,33 +544,6 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
 }
 
-void IssuesWidget::fetchTable()
-{
-    QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
-    // fetch table dto and apply, on done fetch first data for the selected issues
-    const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
-        m_currentTableInfo.emplace(dto);
-    };
-    const auto setupHandler = [this](TaskTree *) {
-        m_totalRowCount = 0;
-        m_lastRequestedOffset = 0;
-        m_currentTableInfo.reset();
-        m_issuesView->showProgressIndicator();
-    };
-    const auto doneHandler = [this](DoneWith result) {
-        if (result == DoneWith::Error) {
-            m_issuesView->hideProgressIndicator();
-            return;
-        }
-        // first time lookup... should we cache and maybe represent old data?
-        updateTable();
-        IssueListSearch search = searchFromUi();
-        search.computeTotalRowCount = true;
-        fetchIssues(search);
-    };
-    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
-}
-
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
     m_addedFilter->setEnabled(enabled);
@@ -597,6 +570,33 @@ IssueListSearch IssuesWidget::searchFromUi() const
     else if (m_removedFilter->isChecked())
         search.state = "removed";
     return search;
+}
+
+void IssuesWidget::fetchTable()
+{
+    QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
+    // fetch table dto and apply, on done fetch first data for the selected issues
+    const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
+        m_currentTableInfo.emplace(dto);
+    };
+    const auto setupHandler = [this](TaskTree *) {
+        m_totalRowCount = 0;
+        m_lastRequestedOffset = 0;
+        m_currentTableInfo.reset();
+        m_issuesView->showProgressIndicator();
+    };
+    const auto doneHandler = [this](DoneWith result) {
+        if (result == DoneWith::Error) {
+            m_issuesView->hideProgressIndicator();
+            return;
+        }
+        // first time lookup... should we cache and maybe represent old data?
+        updateTable();
+        IssueListSearch search = searchFromUi();
+        search.computeTotalRowCount = true;
+        fetchIssues(search);
+    };
+    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
 }
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
