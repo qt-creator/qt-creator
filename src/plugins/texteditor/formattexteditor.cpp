@@ -256,7 +256,7 @@ static void showError(const QString &error)
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-static void checkAndApplyTask(const FormatTask &task)
+static void checkAndApplyTask(const QPointer<QPlainTextEdit> &textEditor, const FormatTask &task)
 {
     if (!task.error.isEmpty()) {
         showError(task.error);
@@ -264,15 +264,12 @@ static void checkAndApplyTask(const FormatTask &task)
     }
 
     if (task.formattedData.isEmpty()) {
-        showError(Tr::tr("Could not format file %1.").arg(
-                      task.filePath.displayName()));
+        showError(Tr::tr("Could not format file %1.").arg(task.filePath.displayName()));
         return;
     }
 
-    QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
-        showError(Tr::tr("File %1 was closed.").arg(
-                      task.filePath.displayName()));
+        showError(Tr::tr("File %1 was closed.").arg(task.filePath.displayName()));
         return;
     }
 
@@ -298,8 +295,8 @@ void formatEditor(TextEditorWidget *editor, const Command &command, int startPos
     const QString sd = sourceData(editor, startPos, endPos);
     if (sd.isEmpty())
         return;
-    checkAndApplyTask(format(FormatTask(editor, editor->textDocument()->filePath(), sd,
-                                        command, startPos, endPos)));
+    checkAndApplyTask(editor,
+                      format({editor->textDocument()->filePath(), sd, command, startPos, endPos}));
 }
 
 /**
@@ -316,15 +313,16 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     auto watcher = new QFutureWatcher<FormatTask>;
     const TextDocument *doc = editor->textDocument();
     QObject::connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, [watcher] {
+    QObject::connect(watcher, &QFutureWatcherBase::finished,
+                     [watcher, editor = QPointer<QPlainTextEdit>(editor)] {
         if (watcher->isCanceled())
             showError(Tr::tr("File was modified."));
         else
-            checkAndApplyTask(watcher->result());
+            checkAndApplyTask(editor, watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(Utils::asyncRun(&format, FormatTask(editor, doc->filePath(), sd,
-                                                           command, startPos, endPos)));
+    watcher->setFuture(
+        Utils::asyncRun(&format, FormatTask{doc->filePath(), sd, command, startPos, endPos}));
 }
 
 } // namespace TextEditor
