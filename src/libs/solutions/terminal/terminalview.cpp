@@ -1199,6 +1199,9 @@ void TerminalView::mouseReleaseEvent(QMouseEvent *event)
 
 void TerminalView::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    if (event->button() != Qt::LeftButton)
+        return;
+
     if (d->m_allowMouseTracking) {
         d->m_surface->mouseMove(toGridPos(event), event->modifiers());
         d->m_surface->mouseButton(event->button(), true, event->modifiers());
