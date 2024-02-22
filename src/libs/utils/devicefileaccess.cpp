@@ -314,12 +314,10 @@ expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath
 }
 
 expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                         const QByteArray &data,
-                                                         qint64 offset) const
+                                                         const QByteArray &data) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(data)
-    Q_UNUSED(offset)
     QTC_CHECK(false);
     return make_unexpected(
         Tr::tr("writeFileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
@@ -738,8 +736,7 @@ expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &f
 }
 
 expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                                const QByteArray &data,
-                                                                qint64 offset) const
+                                                                const QByteArray &data) const
 {
     QFile file(filePath.path());
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
@@ -747,8 +744,6 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
         return make_unexpected(
             Tr::tr("Could not open file \"%1\" for writing.").arg(filePath.toUserOutput()));
 
-    if (offset != 0)
-        file.seek(offset);
     qint64 res = file.write(data);
     if (res != data.size())
         return make_unexpected(
@@ -1088,17 +1083,12 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
 }
 
 expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                             const QByteArray &data,
-                                                             qint64 offset) const
+                                                             const QByteArray &data) const
 {
     if (disconnected())
         return make_unexpected_disconnected();
 
     QStringList args = {"of=" + filePath.path()};
-    if (offset != 0) {
-        args.append("bs=1");
-        args.append(QString("seek=%1").arg(offset));
-    }
     RunResult result = runInShell({"dd", args, OsType::OsTypeLinux}, data);
 
     if (result.exitCode != 0) {

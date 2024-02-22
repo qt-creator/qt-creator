@@ -139,7 +139,7 @@ public:
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
     expected_str<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    expected_str<qint64> writeFileContents(const QByteArray &data, qint64 offset = 0) const;
+    expected_str<qint64> writeFileContents(const QByteArray &data) const;
     FilePathInfo filePathInfo() const;
 
     [[nodiscard]] FilePath operator/(const QString &str) const;

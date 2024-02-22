@@ -655,9 +655,9 @@ bool FilePath::ensureReachable(const FilePath &other) const
     return false;
 }
 
-expected_str<qint64> FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
+expected_str<qint64> FilePath::writeFileContents(const QByteArray &data) const
 {
-    return fileAccess()->writeFileContents(*this, data, offset);
+    return fileAccess()->writeFileContents(*this, data);
 }
 
 FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,

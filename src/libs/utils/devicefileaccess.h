@@ -69,8 +69,7 @@ protected:
                                                   qint64 offset) const;
 
     virtual expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                                   const QByteArray &data,
-                                                   qint64 offset) const;
+                                                   const QByteArray &data) const;
 
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 };
@@ -125,8 +124,7 @@ protected:
                                           qint64 limit,
                                           qint64 offset) const override;
     expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                           const QByteArray &data,
-                                           qint64 offset) const override;
+                                           const QByteArray &data) const override;
 
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 
@@ -178,8 +176,7 @@ protected:
                                           qint64 limit,
                                           qint64 offset) const override;
     expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                           const QByteArray &data,
-                                           qint64 offset) const override;
+                                           const QByteArray &data) const override;
 
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 
