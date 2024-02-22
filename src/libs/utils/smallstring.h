@@ -548,6 +548,25 @@ public:
         return m_data.control.shortStringSize();
     }
 
+    static BasicSmallString join(std::initializer_list<SmallStringView> list,
+                                 Utils::SmallStringView separator) noexcept
+    {
+        size_type totalSize = 0;
+        for (SmallStringView string : list)
+            totalSize += string.size() + separator.size();
+
+        BasicSmallString joinedString;
+        joinedString.reserve(totalSize);
+
+        for (auto it = list.begin(); it != list.end(); ++it) {
+            joinedString.append(*it);
+            if (std::next(it) != list.end())
+                joinedString.append(separator);
+        }
+
+        return joinedString;
+    }
+
     static BasicSmallString join(std::initializer_list<SmallStringView> list) noexcept
     {
         size_type totalSize = 0;

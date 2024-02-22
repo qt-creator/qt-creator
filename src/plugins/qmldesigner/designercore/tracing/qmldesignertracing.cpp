@@ -28,15 +28,21 @@ EventQueueWithStringArguments &eventQueueWithStringArguments()
     return stringViewWithStringArgumentsEventQueueData;
 }
 
+StringEventQueue &stringEventQueue()
+{
+    thread_local NanotraceHR::EventQueueData<NanotraceHR::StringTraceEvent, 1000, tracingStatus()> eventQueue(
+        traceFile);
+
+    return eventQueue;
+}
+
 } // namespace Tracing
 
 namespace ModelTracing {
 namespace {
 using namespace NanotraceHR::Literals;
 
-thread_local Category category_{"model"_t,
-                                Tracing::stringViewWithStringArgumentsEventQueueData,
-                                category};
+thread_local Category category_{"model"_t, Tracing::stringEventQueue(), category};
 
 } // namespace
 

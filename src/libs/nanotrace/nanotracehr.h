@@ -52,6 +52,8 @@ struct TracerLiteral
 
     operator std::string() const { return std::string{text}; }
 
+    operator Utils::SmallString() const { return text; }
+
 private:
     constexpr TracerLiteral(std::string_view text)
         : text{text}
@@ -333,7 +335,7 @@ struct TraceEvent
 
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
 using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
-using StringTraceEvent = TraceEvent<std::string, std::string>;
+using StringTraceEvent = TraceEvent<Utils::SmallString, ArgumentsString>;
 
 enum class IsEnabled { No, Yes };
 

@@ -47,8 +47,7 @@ InternalProperty::InternalProperty(const PropertyName &name,
     : m_name(name)
     , m_propertyOwner(propertyOwner)
     , m_propertyType(propertyType)
-    , traceToken(propertyOwner->traceToken.begin("InternalProperty"_t,
-                                                 keyValue("name", name),
+    , traceToken(propertyOwner->traceToken.begin(name,
                                                  keyValue("owner", propertyOwner->internalId),
                                                  keyValue("type", propertyType)))
 {}
