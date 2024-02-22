@@ -170,6 +170,175 @@ bool Uniform::enableMipmap() const
     return m_enableMipmap;
 }
 
+QString Uniform::getDesignerSpecifics() const
+{
+    QString specs;
+
+    // Uniforms with custom values or define type do not result in exported properties
+    if (!m_customValue.isEmpty() || m_type == Type::Define)
+        return specs;
+
+    auto appendVectorSpinbox = [this, &specs](const QString subProp, const QString &label,
+                                              float minVal, float maxVal, bool firstCol) {
+        QString vecSpec =
+R"(
+                SpinBox {
+                    minimumValue: %4
+                    maximumValue: %5
+                    decimals: 2
+                    stepSize: .01
+                    backendValue: backendValues.%1_%2
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "%3"
+                }
+)";
+        specs += vecSpec.arg(m_name).arg(subProp).arg(label).arg(minVal).arg(maxVal);
+        if (firstCol)
+            specs += "                Spacer { implicitWidth: StudioTheme.Values.controlGap }\n";
+    };
+
+    auto appendVectorSeparator = [&specs]() {
+        specs +=
+R"(
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+)";
+
+    };
+
+    specs +=
+R"(
+            PropertyLabel {
+                text: "%1"
+                tooltip: "%2"
+            }
+
+            SecondColumnLayout {
+)";
+    QString desc = m_description;
+    desc.replace("\n", "\\n");
+    desc.replace("\"", "\\\"");
+    specs = specs.arg(m_displayName, desc);
+
+    switch (m_type) {
+    case Type::Bool: {
+        QString typeSpec =
+R"(
+                CheckBox {
+                    text: backendValues.%1.valueToString
+                    backendValue: backendValues.%1
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                + StudioTheme.Values.actionIndicatorWidth
+                }
+)";
+        specs += typeSpec.arg(m_name);
+        break;
+    }
+    case Type::Int: {
+        QString typeSpec =
+R"(
+                SpinBox {
+                    minimumValue: %1
+                    maximumValue: %2
+                    decimals: 0
+                    stepSize: 1
+                    sliderIndicatorVisible: true
+                    backendValue: backendValues.%3
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+)";
+        specs += typeSpec.arg(m_minValue.toString(), m_maxValue.toString(), m_name);
+        break;
+    }
+    case Type::Float: {
+        QString typeSpec =
+R"(
+                SpinBox {
+                    minimumValue: %1
+                    maximumValue: %2
+                    decimals: 2
+                    stepSize: .01
+                    sliderIndicatorVisible: true
+                    backendValue: backendValues.%3
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+)";
+        specs += typeSpec.arg(m_minValue.toString(), m_maxValue.toString(), m_name);
+        break;
+    }
+    case Type::Vec2: {
+        QVector2D minVal = m_minValue.value<QVector2D>();
+        QVector2D maxVal = m_maxValue.value<QVector2D>();
+        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        break;
+    }
+    case Type::Vec3: {
+        QVector3D minVal = m_minValue.value<QVector3D>();
+        QVector3D maxVal = m_maxValue.value<QVector3D>();
+        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        appendVectorSeparator();
+        appendVectorSpinbox("z", tr("Z"), minVal.z(), maxVal.z(), true);
+        break;
+    }
+    case Type::Vec4: {
+        QVector4D minVal = m_minValue.value<QVector4D>();
+        QVector4D maxVal = m_maxValue.value<QVector4D>();
+        appendVectorSpinbox("x", tr("X"), minVal.x(), maxVal.x(), true);
+        appendVectorSpinbox("y", tr("Y"), minVal.y(), maxVal.y(), false);
+        appendVectorSeparator();
+        appendVectorSpinbox("z", tr("Z"), minVal.z(), maxVal.z(), true);
+        appendVectorSpinbox("w", tr("W"), minVal.w(), maxVal.w(), false);
+        break;
+    }
+    case Type::Color: {
+        QString typeSpec =
+R"(
+                ColorEditor {
+                    backendValue: backendValues.%1
+                    supportGradient: false
+                }
+)";
+        specs += typeSpec.arg(m_name);
+        break;
+    }
+    case Type::Sampler: {
+        QString typeSpec =
+R"(
+                UrlChooser {
+                    backendValue: backendValues.%1
+                }
+)";
+        specs += typeSpec.arg(m_name + "Url");
+        break;
+    }
+    case Type::Define:
+    default:
+        break;
+    }
+
+    specs +=
+R"(
+                ExpandingSpacer {}
+            }
+)";
+
+    return specs;
+}
+
 // Returns name for image mipmap property.
 // e.g. "myImage" -> "myImageMipmap".
 QString Uniform::mipmapPropertyName(const QString &name) const

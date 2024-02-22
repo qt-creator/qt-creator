@@ -623,6 +623,15 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
                                                      const NodeMetaInfo &superType,
                                                      const QmlObjectNode &node)
 {
+    // If we have dynamically generated specifics file for the type, prefer using it
+    QUrl dynamicUrl = PropertyEditorQmlBackend::getQmlFileUrl(
+        metaType.typeName() + "SpecificsDynamic", metaType);
+
+    if (checkIfUrlExists(dynamicUrl)) {
+        Utils::FilePath fp = Utils::FilePath::fromString(fileFromUrl(dynamicUrl));
+        return QString::fromUtf8(fp.fileContents().value_or(QByteArray()));
+    }
+
     if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
 

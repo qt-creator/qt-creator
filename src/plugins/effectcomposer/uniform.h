@@ -74,6 +74,7 @@ public:
     void setEnabled(bool newEnabled);
 
     bool enableMipmap() const;
+    QString getDesignerSpecifics() const;
 
     static QString stringFromType(Uniform::Type type, bool isShader = false);
     static Uniform::Type typeFromString(const QString &typeString);
