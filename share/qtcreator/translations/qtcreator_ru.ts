@@ -2745,12 +2745,8 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Логировать сигналы и слоты</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>Рекомендуется вывод в формате XML, так как исключает проблемы при разборе. Простой же текст более удобен для чтения человеком.
-
-Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>Рекомендуется вывод в формате XML, так как исключает проблемы при разборе. Простой же текст более удобен для чтения человеком.&lt;p&gt;Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>

@@ -12413,10 +12413,8 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
         <translation>Auf abgeleitete Qt Quick-Tests überprüfen</translation>
     </message>
     <message>
-        <source>Search for Qt Quick tests that are derived from TestCase.
-Warning: Enabling this feature significantly increases scan time.</source>
-        <translation>Sucht nach Qt Quick-Tests, die von TestCase abgeleitet sind.
-Achtung: Dies erhöht die zum Durchsuchen benötigte Zeit erheblich.</translation>
+        <source>Search for Qt Quick tests that are derived from TestCase.&lt;p&gt;Warning: Enabling this feature significantly increases scan time.</source>
+        <translation>Sucht nach Qt Quick-Tests, die von TestCase abgeleitet sind.&lt;p&gt;Achtung: Dies erhöht die zum Durchsuchen benötigte Zeit erheblich.</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
@@ -12463,12 +12461,8 @@ Achtung: Dies erhöht die zum Durchsuchen benötigte Zeit erheblich.</translatio
         <translation>Perf</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>Die XML-Ausgabe ist empfehlenswert, weil sie Probleme beim Einlesen vermeidet. Reiner Text ist hingegen besser lesbar für Menschen.
-
-Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>Die XML-Ausgabe ist empfehlenswert, weil sie Probleme beim Einlesen vermeidet. Reiner Text ist hingegen besser lesbar für Menschen.&lt;p&gt;Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>

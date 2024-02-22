@@ -1135,12 +1135,8 @@ Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</transl
         <translation>Deaktiviraj rukovatelja urušivanja tijekom uklanjanja grešaka</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>Preporuča se XML izlaz, jer izbjegava probleme s raščlanjivanjem, dok je običan tekst čitljiviji za čitanje.
-
-Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>Preporuča se XML izlaz, jer izbjegava probleme s raščlanjivanjem, dok je običan tekst čitljiviji za čitanje.&lt;p&gt;Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</translation>
     </message>
     <message>
         <source>Use XML output</source>

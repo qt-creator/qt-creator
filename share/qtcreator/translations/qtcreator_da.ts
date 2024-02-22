@@ -1717,12 +1717,8 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
         <translation>Perf</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>XML-output anbefales, fordi det forhindre parsing-problemer, mens ren tekst er lettere at læse for mennesker.
-
-Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>XML-output anbefales, fordi det forhindre parsing-problemer, mens ren tekst er lettere at læse for mennesker.&lt;p&gt;Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>

@@ -2950,12 +2950,8 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>使用 XML 输出</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>建议使用 XML 输出，它避免了一些解析问题，虽然纯文本可读性更好。
-
-警告：纯文本丢失了一些信息，比如持续时间。</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>建议使用 XML 输出，它避免了一些解析问题，虽然纯文本可读性更好。&lt;p&gt;警告：纯文本丢失了一些信息，比如持续时间。</translation>
     </message>
     <message>
         <source>Verbose benchmarks</source>

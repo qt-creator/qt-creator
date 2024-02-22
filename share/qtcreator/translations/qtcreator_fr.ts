@@ -12063,12 +12063,8 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
         <translation>Utilise la sortie XML</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>La sortie XML est recommandée&#xa0;: elle évite des problèmes d&apos;analyse, alors que le texte brut est plus lisible pour un humain.
-
-Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, telle que la durée.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>La sortie XML est recommandée&#xa0;: elle évite des problèmes d&apos;analyse, alors que le texte brut est plus lisible pour un humain.&lt;p&gt;Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, telle que la durée.</translation>
     </message>
     <message>
         <source>Verbose benchmarks</source>
@@ -12099,10 +12095,8 @@ Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, tell
         <translation>Vérifier la présence de tests dérivés de Qt Quick</translation>
     </message>
     <message>
-        <source>Search for Qt Quick tests that are derived from TestCase.
-Warning: Enabling this feature significantly increases scan time.</source>
-        <translation>Recherche des tests Qt Quick dérivé de TestCase.
-Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente significativement le temps de recherche.</translation>
+        <source>Search for Qt Quick tests that are derived from TestCase.&lt;p&gt;Warning: Enabling this feature significantly increases scan time.</source>
+        <translation>Recherche des tests Qt Quick dérivé de TestCase.&lt;p&gt;Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente significativement le temps de recherche.</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
