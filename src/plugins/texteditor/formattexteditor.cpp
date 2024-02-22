@@ -12,8 +12,9 @@
 
 #include <utils/async.h>
 #include <utils/differ.h>
-#include <utils/qtcprocess.h>
+#include <utils/expected.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
@@ -27,17 +28,16 @@ using namespace std::chrono_literals;
 
 namespace TextEditor {
 
-class FormatTask
+struct FormatInput
 {
-public:
     Utils::FilePath filePath;
     QString sourceData;
     TextEditor::Command command;
     int startPos = -1;
     int endPos = 0;
-    QString formattedData = {};
-    QString error = {};
 };
+
+using FormatOutput = expected_str<QString>;
 
 void formatCurrentFile(const Command &command, int startPos, int endPos)
 {
@@ -52,89 +52,80 @@ static QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
             : Utils::Text::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
-static FormatTask format(FormatTask task)
+static FormatOutput format(const FormatInput &input)
 {
-    task.error.clear();
-    task.formattedData.clear();
-
-    const FilePath executable = task.command.executable();
+    const FilePath executable = input.command.executable();
     if (executable.isEmpty())
-        return task;
+        return {};
 
-    switch (task.command.processing()) {
+    switch (input.command.processing()) {
     case Command::FileProcessing: {
         // Save text to temporary file
         Utils::TempFileSaver sourceFile(Utils::TemporaryDirectory::masterDirectoryPath()
-                                        + "/qtc_beautifier_XXXXXXXX."
-                                        + task.filePath.suffix());
+                                        + "/qtc_beautifier_XXXXXXXX." + input.filePath.suffix());
         sourceFile.setAutoRemove(true);
-        sourceFile.write(task.sourceData.toUtf8());
+        sourceFile.write(input.sourceData.toUtf8());
         if (!sourceFile.finalize()) {
-            task.error = Tr::tr("Cannot create temporary file \"%1\": %2.")
-                    .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString());
-            return task;
+            return Utils::make_unexpected(Tr::tr("Cannot create temporary file \"%1\": %2.")
+                         .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString()));
         }
 
         // Format temporary file
-        QStringList options = task.command.options();
+        QStringList options = input.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         Process process;
         process.setCommand({executable, options});
         process.runBlocking(5s);
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
-            return task;
+            return Utils::make_unexpected(Tr::tr("Failed to format: %1.")
+                                             .arg(process.exitMessage()));
         }
         const QString output = process.cleanedStdErr();
         if (!output.isEmpty())
-            task.error = executable.toUserOutput() + ": " + output;
+            return Utils::make_unexpected(executable.toUserOutput() + ": " + output);
 
         // Read text back
         Utils::FileReader reader;
         if (!reader.fetch(sourceFile.filePath(), QIODevice::Text)) {
-            task.error = Tr::tr("Cannot read file \"%1\": %2.")
-                    .arg(sourceFile.filePath().toUserOutput(), reader.errorString());
-            return task;
+            return Utils::make_unexpected(Tr::tr("Cannot read file \"%1\": %2.")
+                         .arg(sourceFile.filePath().toUserOutput(), reader.errorString()));
         }
-        task.formattedData = QString::fromUtf8(reader.data());
+        return QString::fromUtf8(reader.data());
     }
-    return task;
 
     case Command::PipeProcessing: {
         Process process;
-        QStringList options = task.command.options();
-        options.replaceInStrings("%filename", task.filePath.fileName());
-        options.replaceInStrings("%file", task.filePath.toString());
+        QStringList options = input.command.options();
+        options.replaceInStrings("%filename", input.filePath.fileName());
+        options.replaceInStrings("%file", input.filePath.toString());
         process.setCommand({executable, options});
-        process.setWriteData(task.sourceData.toUtf8());
+        process.setWriteData(input.sourceData.toUtf8());
         process.start();
         if (!process.waitForFinished(5s)) {
-            task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
-                                                   "reached while formatting file %2.")
-                    .arg(executable.toUserOutput(), task.filePath.displayName());
-            return task;
+            return Utils::make_unexpected(Tr::tr("Cannot call %1 or some other error occurred. "
+                                                 "Timeout reached while formatting file %2.")
+                    .arg(executable.toUserOutput(), input.filePath.displayName()));
         }
         const QString errorText = process.readAllStandardError();
         if (!errorText.isEmpty()) {
-            task.error = QString("%1: %2").arg(executable.toUserOutput(), errorText);
-            return task;
+            return Utils::make_unexpected(QString("%1: %2").arg(executable.toUserOutput(),
+                                                                errorText));
         }
 
-        task.formattedData = process.readAllStandardOutput();
+        QString formattedData = process.readAllStandardOutput();
 
-        if (task.command.pipeAddsNewline() && task.formattedData.endsWith('\n')) {
-            task.formattedData.chop(1);
-            if (task.formattedData.endsWith('\r'))
-                task.formattedData.chop(1);
+        if (input.command.pipeAddsNewline() && formattedData.endsWith('\n')) {
+            formattedData.chop(1);
+            if (formattedData.endsWith('\r'))
+                formattedData.chop(1);
         }
-        if (task.command.returnsCRLF())
-            task.formattedData.replace("\r\n", "\n");
+        if (input.command.returnsCRLF())
+            formattedData.replace("\r\n", "\n");
 
-        return task;
+        return formattedData;
     }
     }
-
-    return task;
+    return {};
 }
 
 /**
@@ -268,28 +259,26 @@ static void showError(const QString &error)
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-static void checkAndApplyTask(const QPointer<QPlainTextEdit> &textEditor, const FormatTask &task)
+static void checkAndApplyTask(const QPointer<QPlainTextEdit> &textEditor, const FormatInput &input,
+                              const FormatOutput &output)
 {
-    if (!task.error.isEmpty()) {
-        showError(task.error);
+    if (!output.has_value()) {
+        showError(output.error());
         return;
     }
 
-    if (task.formattedData.isEmpty()) {
-        showError(Tr::tr("Could not format file %1.").arg(task.filePath.displayName()));
+    if (output->isEmpty()) {
+        showError(Tr::tr("Could not format file %1.").arg(input.filePath.displayName()));
         return;
     }
 
     if (!textEditor) {
-        showError(Tr::tr("File %1 was closed.").arg(task.filePath.displayName()));
+        showError(Tr::tr("File %1 was closed.").arg(input.filePath.displayName()));
         return;
     }
 
-    const QString formattedData = (task.startPos < 0)
-            ? task.formattedData
-            : QString(textEditor->toPlainText()).replace(
-                  task.startPos, (task.endPos - task.startPos), task.formattedData);
-
+    const QString formattedData = (input.startPos < 0) ? *output
+        : textEditor->toPlainText().replace(input.startPos, (input.endPos - input.startPos), *output);
     updateEditorText(textEditor, formattedData);
 }
 
@@ -307,8 +296,8 @@ void formatEditor(TextEditorWidget *editor, const Command &command, int startPos
     const QString sd = sourceData(editor, startPos, endPos);
     if (sd.isEmpty())
         return;
-    checkAndApplyTask(editor,
-                      format({editor->textDocument()->filePath(), sd, command, startPos, endPos}));
+    const FormatInput input{editor->textDocument()->filePath(), sd, command, startPos, endPos};
+    checkAndApplyTask(editor, input, format(input));
 }
 
 /**
@@ -322,19 +311,20 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     if (sd.isEmpty())
         return;
 
-    auto watcher = new QFutureWatcher<FormatTask>;
+    auto watcher = new QFutureWatcher<FormatOutput>;
     const TextDocument *doc = editor->textDocument();
-    QObject::connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
-    QObject::connect(watcher, &QFutureWatcherBase::finished,
-                     [watcher, editor = QPointer<QPlainTextEdit>(editor)] {
+    const FormatInput input{doc->filePath(), sd, command, startPos, endPos};
+    QObject::connect(doc, &TextDocument::contentsChanged, watcher,
+                     &QFutureWatcher<FormatOutput>::cancel);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher,
+                     [watcher, editor = QPointer<QPlainTextEdit>(editor), input] {
         if (watcher->isCanceled())
             showError(Tr::tr("File was modified."));
         else
-            checkAndApplyTask(editor, watcher->result());
+            checkAndApplyTask(editor, input, watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(
-        Utils::asyncRun(&format, FormatTask{doc->filePath(), sd, command, startPos, endPos}));
+    watcher->setFuture(Utils::asyncRun(&format, input));
 }
 
 } // namespace TextEditor
