@@ -1110,8 +1110,7 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNo
     if (sortedSelectedList == m_selectedInternalNodeList)
         return;
 
-    auto [tracer, flow] = traceToken.beginWithFlow("selected model nodes"_t);
-    auto &flowToken = flow; // should be not anymore needed in C++ 20
+    auto flowToken = traceToken.tickWithFlow("selected model nodes"_t);
 
     if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
         std::set_difference(sortedSelectedList.begin(),
