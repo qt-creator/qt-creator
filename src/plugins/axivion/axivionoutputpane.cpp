@@ -229,15 +229,15 @@ class IssuesWidget : public QScrollArea
 public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi();
-    void setTableDto(const Dto::TableInfoDto &dto);
+    void updateTable();
     void addIssues(const Dto::IssueTableDto &dto);
 
 private:
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
-    void updateTableView();
     void setFiltersEnabled(bool enabled);
     IssueListSearch searchFromUi() const;
+    void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void fetchMoreIssues();
 
@@ -360,18 +360,19 @@ void IssuesWidget::updateUi()
 
     if (info.issueKinds.size())
         m_currentPrefix = info.issueKinds.front().prefix;
-    updateTableView();
+    fetchTable();
 }
 
-void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
+void IssuesWidget::updateTable()
 {
-    m_currentTableInfo.emplace(dto);
+    if (!m_currentTableInfo)
+        return;
 
     // update issues table layout - for now just simple approach
     TreeModel<> *issuesModel = new TreeModel(this);
     QStringList columnHeaders;
     QStringList hiddenColumns;
-    for (const Dto::ColumnInfoDto &column : dto.columns) {
+    for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
@@ -511,7 +512,7 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
-            updateTableView();
+            fetchTable();
         });
         m_typesButtonGroup->addButton(button, ++buttonId);
         m_typesLayout->addWidget(button);
@@ -543,20 +544,26 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
 }
 
-void IssuesWidget::updateTableView()
+void IssuesWidget::fetchTable()
 {
     QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
     // fetch table dto and apply, on done fetch first data for the selected issues
-    const auto tableHandler = [this](const Dto::TableInfoDto &dto) { setTableDto(dto); };
-    const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
+    const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
+        m_currentTableInfo.emplace(dto);
+    };
+    const auto setupHandler = [this](TaskTree *) {
+        m_totalRowCount = 0;
+        m_lastRequestedOffset = 0;
+        m_currentTableInfo.reset();
+        m_issuesView->showProgressIndicator();
+    };
     const auto doneHandler = [this](DoneWith result) {
         if (result == DoneWith::Error) {
             m_issuesView->hideProgressIndicator();
             return;
         }
         // first time lookup... should we cache and maybe represent old data?
-        m_totalRowCount = 0;
-        m_lastRequestedOffset = 0;
+        updateTable();
         IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
         fetchIssues(search);
