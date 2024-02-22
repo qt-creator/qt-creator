@@ -65,7 +65,6 @@ public:
     void setIgnorePattern(const QString& ignorePattern);
 
 signals:
-    void clangDiagnosticConfigsInvalidated(const QVector<Utils::Id> &configId);
     void changed();
 
 private:
