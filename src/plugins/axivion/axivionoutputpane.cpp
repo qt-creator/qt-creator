@@ -628,6 +628,10 @@ public:
         IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
         m_outputWidget->addWidget(issuesWidget);
 
+        QPalette pal = m_outputWidget->palette();
+        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::Color::BackgroundColorNormal));
+        m_outputWidget->setPalette(pal);
+
         m_showDashboard = new QToolButton(m_outputWidget);
         m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
         m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
