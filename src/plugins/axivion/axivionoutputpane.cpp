@@ -15,6 +15,7 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -59,22 +60,24 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     : QScrollArea(parent)
 {
     QWidget *widget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-    QFormLayout *projectLayout = new QFormLayout;
     m_project = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Project:"), m_project);
     m_loc = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Lines of code:"), m_loc);
     m_timestamp = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Analysis timestamp:"), m_timestamp);
-    layout->addLayout(projectLayout);
-    layout->addSpacing(10);
-    auto row = new QHBoxLayout;
+
     m_gridLayout = new QGridLayout;
-    row->addLayout(m_gridLayout);
-    row->addStretch(1);
-    layout->addLayout(row);
-    layout->addStretch(1);
+
+    using namespace Layouting;
+    Column {
+        Form {
+            Tr::tr("Project:"), m_project, br,
+            Tr::tr("Lines of code:"), m_loc, br,
+            Tr::tr("Analysis timestamp:"), m_timestamp
+        },
+        Space(10),
+        Row { m_gridLayout, st },
+        st
+    }.attachTo(widget);
+
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
@@ -243,7 +246,6 @@ private:
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
     QHBoxLayout *m_typesLayout = nullptr;
     QButtonGroup *m_typesButtonGroup = nullptr;
-    QHBoxLayout *m_filtersLayout = nullptr;
     QPushButton *m_addedFilter = nullptr;
     QPushButton *m_removedFilter = nullptr;
     QComboBox *m_ownerFilter = nullptr;
@@ -264,59 +266,51 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     : QScrollArea(parent)
 {
     QWidget *widget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(widget);
     // row with issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
     // row with added/removed and some filters (assignee, path glob, (named filter))
     // table, columns depend on chosen issue type
-    QHBoxLayout *top = new QHBoxLayout;
-    layout->addLayout(top);
     m_typesButtonGroup = new QButtonGroup(this);
     m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
-    top->addLayout(m_typesLayout);
-    top->addStretch(1);
+
     m_versionStart = new QComboBox(this);
     m_versionStart->setMinimumContentsLength(25);
-    top->addWidget(m_versionStart);
+    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+
     m_versionEnd = new QComboBox(this);
     m_versionEnd->setMinimumContentsLength(25);
-    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
     connect(m_versionEnd, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
-    top->addWidget(m_versionEnd);
-    top->addStretch(1);
-    m_filtersLayout = new QHBoxLayout;
+
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
     m_addedFilter->setText("0");
     m_addedFilter->setCheckable(true);
-    m_filtersLayout->addWidget(m_addedFilter);
-    m_removedFilter = new QPushButton(this);
-    m_removedFilter->setIcon(trendIcon(0, 1));
-    m_removedFilter->setText("0");
-    m_removedFilter->setCheckable(true);
-    m_filtersLayout->addWidget(m_removedFilter);
     connect(m_addedFilter, &QPushButton::clicked, this, [this](bool checked) {
         if (checked && m_removedFilter->isChecked())
             m_removedFilter->setChecked(false);
         onSearchParameterChanged();
     });
+
+    m_removedFilter = new QPushButton(this);
+    m_removedFilter->setIcon(trendIcon(0, 1));
+    m_removedFilter->setText("0");
+    m_removedFilter->setCheckable(true);
     connect(m_removedFilter, &QPushButton::clicked, this, [this](bool checked) {
         if (checked && m_addedFilter->isChecked())
             m_addedFilter->setChecked(false);
         onSearchParameterChanged();
     });
-    m_filtersLayout->addSpacing(1);
+
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
     m_ownerFilter->setMinimumContentsLength(25);
     connect(m_ownerFilter, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
-    m_filtersLayout->addWidget(m_ownerFilter);
+
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
-    m_filtersLayout->addWidget(m_pathGlobFilter);
-    layout->addLayout(m_filtersLayout);
+
     m_issuesView = new BaseTreeView(this);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
@@ -331,12 +325,17 @@ IssuesWidget::IssuesWidget(QWidget *parent)
             }
         });
     }
-    layout->addWidget(m_issuesView);
+
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
-    QHBoxLayout *bottom = new QHBoxLayout;
-    layout->addLayout(bottom);
-    bottom->addStretch(1);
-    bottom->addWidget(m_totalRows);
+
+    using namespace Layouting;
+    Column {
+        Row { m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
+        m_issuesView,
+        Row { st, m_totalRows }
+    }.attachTo(widget);
+
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
