@@ -164,7 +164,7 @@ QString IssueListSearch::toQuery() const
             QString::fromUtf8((QUrl::toPercentEncoding(owner)))));
     }
     if (!filter_path.isEmpty()) {
-        result.append(QString("&filter_path=%1").arg(
+        result.append(QString("&filter_any path=%1").arg(
             QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
     }
     if (!state.isEmpty())
