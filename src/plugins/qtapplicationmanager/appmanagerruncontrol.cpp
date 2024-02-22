@@ -48,7 +48,7 @@ public:
     {
         setId("ApplicationManagerPlugin.Run.TargetRunner");
         connect(this, &RunWorker::stopped, this, [this, runControl] {
-            appendMessage(Tr::tr("%1 exited").arg(runControl->runnable().command.toUserOutput()),
+            appendMessage(Tr::tr("%1 exited.").arg(runControl->runnable().command.toUserOutput()),
                           OutputFormat::NormalMessageFormat);
         });
 
@@ -170,8 +170,8 @@ public:
             setProcessMode(ProcessMode::Writer);
             setCommandLine(cmd);
 
-            appendMessage(Tr::tr("Starting AppMan Debugging..."), NormalMessageFormat);
-            appendMessage(Tr::tr("Using: %1").arg(cmd.toUserOutput()), NormalMessageFormat);
+            appendMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
+            appendMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
         });
     }
 

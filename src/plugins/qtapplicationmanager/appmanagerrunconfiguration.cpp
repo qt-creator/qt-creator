@@ -33,7 +33,7 @@ public:
     AppManagerRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        setDefaultDisplayName(Tr::tr("Run an Appman Package"));
+        setDefaultDisplayName(Tr::tr("Run an Application Manager Package"));
 
         setUpdater([this, target] {
             QList<TargetInformation> tis = TargetInformation::readFromProject(target, buildKey());
@@ -66,7 +66,7 @@ public:
     AppManagerRunAndDebugConfiguration(Target *target, Id id)
         : AppManagerRunConfiguration(target, id)
     {
-        setDefaultDisplayName(Tr::tr("Run and Debug an Appman Package"));
+        setDefaultDisplayName(Tr::tr("Run and Debug an Application Manager Package"));
         environment.addPreferredBaseEnvironment(Tr::tr("Clean Environment"), {});
     }
 

@@ -33,7 +33,7 @@ public:
     AppManagerDeployConfigurationFactory()
     {
         setConfigBaseId(Constants::DEPLOYCONFIGURATION_ID);
-        setDefaultDisplayName(Tr::tr("Automatic AppMan Deploy Configuration"));
+        setDefaultDisplayName(Tr::tr("Automatic Application Manager Deploy Configuration"));
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
