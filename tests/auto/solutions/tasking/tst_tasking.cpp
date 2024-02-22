@@ -3145,12 +3145,12 @@ static QString messageInfix(const Message &message)
 static bool matchesLogPattern(const QString &log, const Message &message)
 {
     QStringView logView(log);
-    const static QLatin1StringView part1("TASK TREE LOG [");
+    const static QLatin1String part1("TASK TREE LOG [");
     if (!logView.startsWith(part1))
         return false;
 
     logView = logView.mid(part1.size());
-    const static QLatin1StringView part2("HH:mm:ss.zzz"); // check only size
+    const static QLatin1String part2("HH:mm:ss.zzz"); // check only size
 
     logView = logView.mid(part2.size());
     const QString part3 = QString("] \"%1\" ").arg(message.name);
@@ -3164,13 +3164,13 @@ static bool matchesLogPattern(const QString &log, const Message &message)
 
     logView = logView.mid(part4.size());
     if (message.handler == Handler::Setup)
-        return logView == QLatin1StringView(".");
+        return logView == QLatin1String(".");
 
-    const static QLatin1StringView part5(" within ");
+    const static QLatin1String part5(" within ");
     if (!logView.startsWith(part5))
         return false;
 
-    return logView.endsWith(QLatin1StringView("ms."));
+    return logView.endsWith(QLatin1String("ms."));
 }
 
 const QMetaEnum s_handlerEnum = QMetaEnum::fromType<Handler>();
