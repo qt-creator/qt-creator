@@ -46,6 +46,21 @@ inline OsType osTypeFromString(const QString &string)
     return OsTypeOther;
 }
 
+inline OsArch osArchFromString(const QString &architecture)
+{
+    if (architecture == QLatin1String("x86_64"))
+        return OsArchAMD64;
+    if (architecture == QLatin1String("x86"))
+        return OsArchX86;
+    if (architecture == QLatin1String("ia64"))
+        return OsArchItanium;
+    if (architecture == QLatin1String("arm"))
+        return OsArchArm;
+    if (architecture == QLatin1String("arm64"))
+        return OsArchArm64;
+    return OsArchUnknown;
+}
+
 namespace OsSpecificAspects {
 
 inline QString withExecutableSuffix(OsType osType, const QString &executable)

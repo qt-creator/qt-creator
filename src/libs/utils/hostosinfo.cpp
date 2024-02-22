@@ -29,25 +29,9 @@ namespace Utils {
 Qt::CaseSensitivity HostOsInfo::m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
 bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
 
-static OsArch parseArchitecture()
-{
-    QString currentArchitecture = QSysInfo::currentCpuArchitecture();
-    if (currentArchitecture == QLatin1String("x86_64"))
-        return OsArchAMD64;
-    if (currentArchitecture == QLatin1String("x86"))
-        return OsArchX86;
-    if (currentArchitecture == QLatin1String("ia64"))
-        return OsArchItanium;
-    if (currentArchitecture == QLatin1String("arm"))
-        return OsArchArm;
-    if (currentArchitecture == QLatin1String("arm64"))
-        return OsArchArm64;
-    return OsArchUnknown;
-}
-
 OsArch HostOsInfo::hostArchitecture()
 {
-    static const OsArch arch = parseArchitecture();
+    static const OsArch arch = osArchFromString(QSysInfo::currentCpuArchitecture());
     return arch;
 }
 
