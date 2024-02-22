@@ -15,18 +15,6 @@ namespace TextEditor {
 
 class TextEditorWidget;
 
-class TEXTEDITOR_EXPORT FormatTask
-{
-public:
-    Utils::FilePath filePath;
-    QString sourceData;
-    TextEditor::Command command;
-    int startPos = -1;
-    int endPos = 0;
-    QString formattedData = {};
-    QString error = {};
-};
-
 TEXTEDITOR_EXPORT void formatCurrentFile(const TextEditor::Command &command, int startPos = -1, int endPos = 0);
 TEXTEDITOR_EXPORT void formatEditor(TextEditorWidget *editor, const TextEditor::Command &command,
                   int startPos = -1, int endPos = 0);

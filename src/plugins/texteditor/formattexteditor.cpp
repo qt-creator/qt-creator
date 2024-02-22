@@ -27,6 +27,18 @@ using namespace std::chrono_literals;
 
 namespace TextEditor {
 
+class FormatTask
+{
+public:
+    Utils::FilePath filePath;
+    QString sourceData;
+    TextEditor::Command command;
+    int startPos = -1;
+    int endPos = 0;
+    QString formattedData = {};
+    QString error = {};
+};
+
 void formatCurrentFile(const Command &command, int startPos, int endPos)
 {
     if (TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget())
