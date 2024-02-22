@@ -71,6 +71,8 @@ public:
     Utils::FilePath executable(CppEditor::ClangToolType tool) const;
     void setExecutable(CppEditor::ClangToolType tool, const Utils::FilePath &path);
 
+    Utils::BoolAspect enableLowerClazyLevels{this};
+
     CppEditor::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
     void setDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs)
     { m_diagnosticConfigs = configs; }

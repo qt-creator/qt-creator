@@ -98,8 +98,10 @@ ClangToolsSettings::ClangToolsSettings()
     setSettingsGroup(Constants::SETTINGS_ID);
 
     clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
-
     clazyStandaloneExecutable.setSettingsKey("ClazyStandaloneExecutable");
+
+    enableLowerClazyLevels.setSettingsKey("EnableLowerClazyLevels");
+    enableLowerClazyLevels.setDefaultValue(true);
 
     readSettings();
 }

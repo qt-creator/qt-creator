@@ -10,7 +10,6 @@
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
 
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -1008,10 +1007,10 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, this, [this] {
         const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
         m_clazyTreeModel->setEnableLowerLevels(enable);
-        codeModelSettings()->setEnableLowerClazyLevels(enable);
+        ClangToolsSettings::instance()->enableLowerClazyLevels.setValue(enable);
     });
     const Qt::CheckState checkEnableLowerClazyLevels
-        = codeModelSettings()->enableLowerClazyLevels() ? Qt::Checked : Qt::Unchecked;
+        = ClangToolsSettings::instance()->enableLowerClazyLevels.value() ? Qt::Checked : Qt::Unchecked;
     m_clazyChecks->enableLowerLevelsCheckBox->setCheckState(checkEnableLowerClazyLevels);
 
     m_tidyChecks = new TidyChecksWidget;

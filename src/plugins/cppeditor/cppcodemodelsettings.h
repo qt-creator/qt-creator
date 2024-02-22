@@ -47,7 +47,6 @@ public:
         bool skipIndexingBigFiles = true;
         bool useBuiltinPreprocessor = true;
         int indexerFileSizeLimitInMb = 5;
-        bool enableLowerClazyLevels = true;    // For UI behavior only
         bool categorizeFindReferences = false; // Ephemeral!
         bool ignoreFiles = false;
         QString ignorePattern;
@@ -58,7 +57,6 @@ public:
     void setData(const Data &data);
     Data data() const { return m_data; }
 
-    bool enableLowerClazyLevels() const { return m_data.enableLowerClazyLevels; }
     PCHUsage pchUsage() const { return m_data.pchUsage; }
     bool interpretAmbigiousHeadersAsC() const { return m_data.interpretAmbigiousHeadersAsC; }
     bool skipIndexingBigFiles() const { return m_data.skipIndexingBigFiles; }
@@ -67,9 +65,6 @@ public:
     bool categorizeFindReferences() const { return m_data.categorizeFindReferences; }
     bool ignoreFiles() const { return m_data.ignoreFiles; }
     QString ignorePattern() const { return m_data.ignorePattern; }
-
-    // FIXME: Doesn't belong here.
-    void setEnableLowerClazyLevels(bool enable);
 
     void setCategorizeFindReferences(bool categorize);
 

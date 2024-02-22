@@ -32,7 +32,6 @@ using namespace Utils;
 namespace CppEditor {
 
 static Id initialClangDiagnosticConfigId() { return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
-static Key enableLowerClazyLevelsKey() { return "enableLowerClazyLevels"; }
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
     { return Constants::CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS; }
@@ -79,7 +78,6 @@ bool operator==(const CppEditor::CppCodeModelSettings::Data &s1,
            && s1.skipIndexingBigFiles == s2.skipIndexingBigFiles
            && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
            && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
-           && s1.enableLowerClazyLevels == s2.enableLowerClazyLevels
            && s1.categorizeFindReferences == s2.categorizeFindReferences
            && s1.ignoreFiles == s2.ignoreFiles && s1.ignorePattern == s2.ignorePattern;
 }
@@ -87,7 +85,6 @@ bool operator==(const CppEditor::CppCodeModelSettings::Data &s1,
 Store CppCodeModelSettings::Data::toMap() const
 {
     Store store;
-    store.insert(enableLowerClazyLevelsKey(), enableLowerClazyLevels);
     store.insert(pchUsageKey(), pchUsage);
     store.insert(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsC);
     store.insert(skipIndexingBigFilesKey(), skipIndexingBigFiles);
@@ -101,8 +98,6 @@ Store CppCodeModelSettings::Data::toMap() const
 void CppCodeModelSettings::Data::fromMap(const Utils::Store &store)
 {
     const CppCodeModelSettings::Data def;
-    enableLowerClazyLevels
-        = store.value(enableLowerClazyLevelsKey(), def.enableLowerClazyLevels).toBool();
     pchUsage = static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage).toInt());
     interpretAmbigiousHeadersAsC = store
                                        .value(interpretAmbiguousHeadersAsCHeadersKey(),
@@ -137,13 +132,6 @@ void CppCodeModelSettings::setData(const Data &data)
         toSettings(Core::ICore::settings());
         emit changed();
     }
-}
-
-void CppCodeModelSettings::setEnableLowerClazyLevels(bool enable)
-{
-    Data d = data();
-    d.enableLowerClazyLevels = enable;
-    setData(d);
 }
 
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
