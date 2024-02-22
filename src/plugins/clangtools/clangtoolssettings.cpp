@@ -104,76 +104,27 @@ ClangToolsSettings::ClangToolsSettings()
     readSettings();
 }
 
-static Store convertToMapFromVersionBefore410(QtcSettings *s)
-{
-    const char oldParallelJobsKey[] = "simultaneousProcesses";
-    const char oldBuildBeforeAnalysisKey[] = "buildBeforeAnalysis";
-
-    Store map;
-    map.insert(diagnosticConfigIdKey, s->value(oldDiagnosticConfigIdKey));
-    map.insert(parallelJobsKey, s->value(oldParallelJobsKey));
-    map.insert(buildBeforeAnalysisKey, s->value(oldBuildBeforeAnalysisKey));
-
-    s->remove(oldDiagnosticConfigIdKey);
-    s->remove(oldParallelJobsKey);
-    s->remove(oldBuildBeforeAnalysisKey);
-
-    return map;
-}
-
-ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
-{
-    const ClangDiagnosticConfigs configs = ClangdSettings::instance().customDiagnosticConfigs();
-
-    ClangDiagnosticConfigs tidyClazyConfigs;
-    ClangDiagnosticConfigs clangOnlyConfigs;
-    std::tie(tidyClazyConfigs, clangOnlyConfigs)
-        = Utils::partition(configs, [](const ClangDiagnosticConfig &config) {
-              return !config.checks(ClangToolType::Clazy).isEmpty()
-                     || (!config.checks(ClangToolType::Tidy).isEmpty()
-                         && config.checks(ClangToolType::Tidy) != "-*");
-          });
-    return tidyClazyConfigs;
-}
-
 void ClangToolsSettings::readSettings()
 {
-    // Transfer tidy/clazy configs from code model
-    bool write = false;
-    ClangDiagnosticConfigs importedConfigs = importDiagnosticConfigsFromCodeModel();
-    m_diagnosticConfigs.append(importedConfigs);
-    if (!importedConfigs.isEmpty())
-        write = true;
-
     AspectContainer::readSettings();
 
+    // TODO: The remaining things should be ready for aspectification now.
     QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
-    Store map;
-    if (!s->value(oldDiagnosticConfigIdKey).isNull()) {
-        map = convertToMapFromVersionBefore410(s);
-        write = true;
-    } else {
-        Store defaults;
-        defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
-        defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
-        defaults.insert(preferConfigFileKey, m_runSettings.preferConfigFile());
-        defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
-        defaults.insert(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles());
-        map = defaults;
-        for (Store::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
-            map.insert(it.key(), s->value(it.key(), it.value()));
-    }
-
     // Run settings
+    Store map;
+    map.insert(diagnosticConfigIdKey,
+               s->value(diagnosticConfigIdKey, defaultDiagnosticId().toSetting()));
+    map.insert(parallelJobsKey, s->value(parallelJobsKey, m_runSettings.parallelJobs()));
+    map.insert(preferConfigFileKey, s->value(preferConfigFileKey, m_runSettings.preferConfigFile()));
+    map.insert(buildBeforeAnalysisKey,
+               s->value(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis()));
+    map.insert(analyzeOpenFilesKey, s->value(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles()));
     m_runSettings.fromMap(map);
 
     s->endGroup();
-
-    if (write)
-        writeSettings();
 }
 
 void ClangToolsSettings::writeSettings() const
