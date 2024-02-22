@@ -34,8 +34,7 @@ namespace {
 inline bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
 {
     using namespace QmlDesigner::CollectionEditorConstants;
-    return node.metaInfo().typeName() == JSONCOLLECTIONMODEL_TYPENAME
-           || node.metaInfo().typeName() == CSVCOLLECTIONMODEL_TYPENAME;
+    return node.metaInfo().typeName() == JSONCOLLECTIONMODEL_TYPENAME;
 }
 
 inline void setVariantPropertyValue(const QmlDesigner::ModelNode &node,
@@ -240,9 +239,7 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
             sourceAddress = url.toString();
         }
 
-        const NodeMetaInfo resourceMetaInfo = type.compare("json", Qt::CaseInsensitive) == 0
-                                                  ? jsonCollectionMetaInfo()
-                                                  : csvCollectionMetaInfo();
+        const NodeMetaInfo resourceMetaInfo = jsonCollectionMetaInfo();
         ModelNode resourceNode = createModelNode(resourceMetaInfo.typeName(),
                                                  resourceMetaInfo.majorVersion(),
                                                  resourceMetaInfo.minorVersion());
@@ -385,11 +382,6 @@ void CollectionView::refreshModel()
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const
 {
     return model()->metaInfo(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME);
-}
-
-NodeMetaInfo CollectionView::csvCollectionMetaInfo() const
-{
-    return model()->metaInfo(CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME);
 }
 
 void CollectionView::ensureStudioModelImport()

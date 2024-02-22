@@ -182,9 +182,6 @@ CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const ModelNod
     if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
         return CollectionEditorConstants::SourceFormat::Json;
 
-    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
-        return CollectionEditorConstants::SourceFormat::Csv;
-
     return CollectionEditorConstants::SourceFormat::Unknown;
 }
 
@@ -193,9 +190,6 @@ QString getSourceCollectionType(const ModelNode &node)
     using namespace QmlDesigner;
     if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
         return "json";
-
-    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
-        return "csv";
 
     return {};
 }

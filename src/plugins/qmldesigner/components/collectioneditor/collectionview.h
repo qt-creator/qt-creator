@@ -67,7 +67,6 @@ public:
 private:
     void refreshModel();
     NodeMetaInfo jsonCollectionMetaInfo() const;
-    NodeMetaInfo csvCollectionMetaInfo() const;
     void ensureStudioModelImport();
     void onItemLibraryNodeCreated(const ModelNode &node);
     void onDocumentUpdated(const QSharedPointer<const QmlJS::Document> &doc);

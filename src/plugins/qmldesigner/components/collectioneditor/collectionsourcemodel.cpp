@@ -58,12 +58,8 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
             const QJsonObject sourceObject = document.object();
             collectionsList->resetModelData(sourceObject.toVariantMap().keys());
         }
-    } else if (sourceNode.type() == CSVCOLLECTIONMODEL_TYPENAME) {
-        QmlDesigner::VariantProperty collectionNameProperty = sourceNode.variantProperty(
-            "objectName");
-        setupCollectionList();
-        collectionsList->resetModelData({collectionNameProperty.value().toString()});
     }
+
     return collectionsList;
 }
 
@@ -470,11 +466,7 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
         return;
     }
 
-    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME) {
-        if (!setData(nodeIndex, newName, NameRole))
-            emitRenameWarning(tr("Can't rename the node"));
-        return;
-    } else if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
+    if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
         emitRenameWarning(tr("Invalid node type"));
         return;
     }
@@ -567,10 +559,7 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
         return;
     }
 
-    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME) {
-        removeSource(node);
-        return;
-    } else if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
+    if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
         emitDeleteWarning(tr("Invalid node type"));
         return;
     }
