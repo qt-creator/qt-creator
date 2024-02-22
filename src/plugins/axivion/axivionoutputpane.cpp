@@ -388,11 +388,13 @@ void IssuesWidget::updateTable()
     QStringList columnHeaders;
     QStringList hiddenColumns;
     QList<bool> sortableColumns;
+    QList<int> columnWidths;
     for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
         sortableColumns << column.canSort;
+        columnWidths << column.width;
     }
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
@@ -401,7 +403,6 @@ void IssuesWidget::updateTable()
     m_issuesModel->clear();
     m_issuesModel->setHeader(columnHeaders);
     m_headerView->setSortableColumns(sortableColumns);
-
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));

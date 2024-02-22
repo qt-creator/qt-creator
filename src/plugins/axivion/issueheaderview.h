@@ -16,9 +16,11 @@ class IssueHeaderView : public QHeaderView
 public:
     explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
     void setSortableColumns(const QList<bool> &sortable);
+    void setColumnWidths(const QList<int> &widths) { m_columnWidths = widths; }
 
     SortOrder currentSortOrder() const { return m_currentSortOrder; }
     int currentSortColumn() const;
+
 signals:
     void sortTriggered();
 
@@ -36,6 +38,7 @@ private:
     int m_currentSortIndex = -1;
     SortOrder m_currentSortOrder = SortOrder::None;
     QList<bool> m_sortableColumns;
+    QList<int> m_columnWidths;
 };
 
 } // namespace Axivion::Internal

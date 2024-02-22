@@ -115,9 +115,11 @@ void IssueHeaderView::onToggleSort(int index, SortOrder order)
 
 QSize IssueHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
-    QSize size = QHeaderView::sectionSizeFromContents(logicalIndex);
+    const QSize oldSize = QHeaderView::sectionSizeFromContents(logicalIndex);
+    const QSize newSize = logicalIndex < m_columnWidths.size()
+        ? QSize(qMax(m_columnWidths.at(logicalIndex), oldSize.width()), oldSize.height()) : oldSize;
     // add icon size and margin (2)
-    return QSize{size.width() + ICON_SIZE + 2, qMax(size.height(), ICON_SIZE)};
+    return QSize{newSize.width() + ICON_SIZE + 2, qMax(newSize.height(), ICON_SIZE)};
 }
 
 void IssueHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
