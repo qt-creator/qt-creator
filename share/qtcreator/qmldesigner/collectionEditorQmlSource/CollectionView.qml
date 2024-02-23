@@ -69,6 +69,8 @@ Item {
         orientation: width >= 500 ? Qt.Horizontal : Qt.Vertical
         anchors.fill: parent
 
+        onOrientationChanged: detailsView.closeDialogs()
+
         handle: Item {
             id: handleDelegate
 
@@ -197,6 +199,8 @@ Item {
         }
 
         CollectionDetailsView {
+            id: detailsView
+
             model: root.collectionDetailsModel
             backend: root.model
             sortedModel: root.collectionDetailsSortFilterModel

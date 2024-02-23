@@ -20,6 +20,10 @@ Rectangle {
     implicitHeight: 400
     color: StudioTheme.Values.themeControlBackground
 
+    function closeDialogs() {
+        editPropertyDialog.close()
+    }
+
     Column {
         id: topRow
 
@@ -502,11 +506,6 @@ Rectangle {
     EditPropertyDialog {
         id: editPropertyDialog
         model: root.model
-    }
-
-    Connections {
-        target: root.parent
-        function onIsHorizontalChanged() { editPropertyDialog.close() }
     }
 
     StudioControls.Dialog {
