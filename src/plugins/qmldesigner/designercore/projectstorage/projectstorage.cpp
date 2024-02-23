@@ -9,14 +9,11 @@
 
 namespace QmlDesigner {
 
-namespace {
-
-thread_local NanotraceHR::StringViewCategory<projectStorageTracingStatus()> projectStorageCategory_{
-    "project storage"_t, Tracing::eventQueue(), projectStorageCategory};
-}
-
 NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory()
 {
+    thread_local NanotraceHR::StringViewCategory<projectStorageTracingStatus()>
+        projectStorageCategory_{"project storage"_t, Tracing::eventQueue(), projectStorageCategory};
+
     return projectStorageCategory_;
 }
 
