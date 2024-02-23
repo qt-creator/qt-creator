@@ -260,6 +260,7 @@ QtcLibrary {
         "qtcolorbutton.h",
         "qtcsettings.cpp",
         "qtcsettings.h",
+        "ranges.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",
         "removefiledialog.cpp",
