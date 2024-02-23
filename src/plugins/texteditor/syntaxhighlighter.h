@@ -53,8 +53,10 @@ public:
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
     TextEditor::FontSettings fontSettings() const;
 
-    enum State  {
+    enum State {
+        Start,
         InProgress,
+        Extras,
         Done
     };
 
@@ -71,7 +73,6 @@ public:
 
             m_hasBlockUserData = true;
             m_foldingIndent = userDate->foldingIndent();
-            m_folded = userDate->folded();
             m_ifdefedOut = userDate->ifdefedOut();
             m_foldingStartIncluded = userDate->foldingStartIncluded();
             m_foldingEndIncluded = userDate->foldingEndIncluded();
@@ -83,28 +84,27 @@ public:
         {
             block.setUserState(m_userState);
 
-            if (m_hasBlockUserData) {
-                TextBlockUserData *data = TextDocumentLayout::userData(block);
-                data->setExpectedRawStringSuffix(m_expectedRawStringSuffix);
-                data->setFolded(m_folded);
-                data->setFoldingIndent(m_foldingIndent);
-                data->setFoldingStartIncluded(m_foldingStartIncluded);
-                data->setFoldingEndIncluded(m_foldingEndIncluded);
+            if (!m_hasBlockUserData)
+                return;
 
-                if (m_ifdefedOut)
-                    data->setIfdefedOut();
-                else
-                    data->clearIfdefedOut();
+            TextBlockUserData *data = TextDocumentLayout::userData(block);
+            data->setExpectedRawStringSuffix(m_expectedRawStringSuffix);
+            data->setFoldingIndent(m_foldingIndent);
+            data->setFoldingStartIncluded(m_foldingStartIncluded);
+            data->setFoldingEndIncluded(m_foldingEndIncluded);
 
-                data->setParentheses(m_parentheses);
-            }
+            if (m_ifdefedOut)
+                data->setIfdefedOut();
+            else
+                data->clearIfdefedOut();
+
+            data->setParentheses(m_parentheses);
         }
 
         int m_blockNumber;
         bool m_hasBlockUserData = false;
 
         int m_foldingIndent : 16;
-        uint m_folded : 1;
         uint m_ifdefedOut : 1;
         uint m_foldingStartIncluded : 1;
         uint m_foldingEndIncluded : 1;

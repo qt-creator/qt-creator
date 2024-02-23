@@ -81,6 +81,10 @@ void SyntaxHighlighter::delayedRehighlight()
     if (!d->rehighlightPending)
         return;
     d->rehighlightPending = false;
+
+    if (document()->isEmpty())
+        return;
+
     rehighlight();
 }
 
@@ -196,6 +200,10 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     bool forceHighlightOfNextBlock = false;
 
     QList<SyntaxHighlighter::Result> vecRes;
+
+    SyntaxHighlighter::Result resStart;
+    resStart.m_state = SyntaxHighlighter::State::Start;
+    vecRes << resStart;
 
     while (block.isValid() && (block.position() < endPosition || forceHighlightOfNextBlock)) {
         if (QThread::currentThread()->isInterruptionRequested())
@@ -758,7 +766,10 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     SyntaxHighlighter::Result res;
     res.m_formatRanges = block.layout()->formats();
     res.fillByBlock(block);
-    emit resultsReady({res});
+    res.m_state = SyntaxHighlighter::State::Extras;
+    SyntaxHighlighter::Result resDone;
+    resDone.m_state = SyntaxHighlighter::State::Done;
+    emit resultsReady({res, resDone});
 
     document()->markContentsDirty(block.position(), blockLength - 1);
     d->inReformatBlocks = wasInReformatBlocks;
@@ -784,7 +795,10 @@ void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)
     SyntaxHighlighter::Result res;
     res.m_formatRanges = block.layout()->formats();
     res.fillByBlock(block);
-    emit resultsReady({res});
+    res.m_state = SyntaxHighlighter::State::Extras;
+    SyntaxHighlighter::Result resDone;
+    resDone.m_state = SyntaxHighlighter::State::Done;
+    emit resultsReady({res, resDone});
 
     document()->markContentsDirty(block.position(), blockLength - 1);
     d->inReformatBlocks = wasInReformatBlocks;

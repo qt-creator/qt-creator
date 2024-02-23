@@ -100,7 +100,6 @@ public:
 
     SyntaxHighlighter *m_highlighter = nullptr;
     QTextDocument *m_document = nullptr;
-
 signals:
     void resultsReady(const QList<SyntaxHighlighter::Result> &result);
 
@@ -130,6 +129,8 @@ SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                 &QTextDocument::contentsChange,
                 this,
                 &SyntaxHighlighterRunner::changeDocument);
+
+        m_foldValidator.setup(qobject_cast<TextDocumentLayout *>(document->documentLayout()));
     } else {
         connect(d,
                 &SyntaxHighlighterRunnerPrivate::resultsReady,
@@ -169,7 +170,12 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
 
     for (const SyntaxHighlighter::Result &result : results) {
         m_syntaxInfoUpdated = result.m_state;
+        if (m_syntaxInfoUpdated == SyntaxHighlighter::State::Start) {
+            m_foldValidator.reset();
+            continue;
+        }
         if (m_syntaxInfoUpdated == SyntaxHighlighter::State::Done) {
+            m_foldValidator.finalize();
             emit highlightingFinished();
             return;
         }
@@ -181,12 +187,11 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
         result.copyToBlock(docBlock);
 
         if (result.m_formatRanges != docBlock.layout()->formats()) {
-            TextDocumentLayout::FoldValidator foldValidator;
-            foldValidator.setup(qobject_cast<TextDocumentLayout *>(m_document->documentLayout()));
             docBlock.layout()->setFormats(result.m_formatRanges);
             m_document->markContentsDirty(docBlock.position(), docBlock.length());
-            foldValidator.process(docBlock);
         }
+        if (m_syntaxInfoUpdated != SyntaxHighlighter::State::Extras)
+            m_foldValidator.process(docBlock);
     }
 }
 

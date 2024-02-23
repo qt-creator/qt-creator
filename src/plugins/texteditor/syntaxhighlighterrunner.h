@@ -56,6 +56,7 @@ private:
     bool m_useGenericHighlighter = false;
     QString m_definitionName;
     std::optional<QThread> m_thread;
+    TextDocumentLayout::FoldValidator m_foldValidator;
 };
 
 } // namespace TextEditor

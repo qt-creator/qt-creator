@@ -189,7 +189,6 @@ void GlslHighlighter::highlightBlock(const QString &text)
     TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
     // if the block is ifdefed out, we only store the parentheses, but
-
     // do not adjust the brace depth.
     if (TextDocumentLayout::ifdefedOut(currentBlock())) {
         braceDepth = initialBraceDepth;
@@ -197,23 +196,6 @@ void GlslHighlighter::highlightBlock(const QString &text)
     }
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
-
-    // optimization: if only the brace depth changes, we adjust subsequent blocks
-    // to have QSyntaxHighlighter stop the rehighlighting
-    int currentState = currentBlockState();
-    if (currentState != -1) {
-        int oldState = currentState & 0xff;
-        int oldBraceDepth = currentState >> 8;
-        if (oldState == lex.state() && oldBraceDepth != braceDepth) {
-            int delta = braceDepth - oldBraceDepth;
-            QTextBlock block = currentBlock().next();
-            while (block.isValid() && block.userState() != -1) {
-                TextDocumentLayout::changeBraceDepth(block, delta);
-                TextDocumentLayout::changeFoldingIndent(block, delta);
-                block = block.next();
-            }
-        }
-    }
 
     setCurrentBlockState((braceDepth << 8) | lex.state());
 }
