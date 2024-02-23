@@ -346,6 +346,7 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
                                                     "Q_GADGET",
                                                     "Q_GADGET_EXPORT",
                                                     "Q_INTERFACES",
+                                                    "Q_LOGGING_CATEGORY",
                                                     "Q_MOC_INCLUDE",
                                                     "Q_NAMESPACE",
                                                     "Q_NAMESPACE_EXPORT",

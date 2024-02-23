@@ -209,6 +209,8 @@ private:
     void leave(bool statementDone = false);
     void correctIndentation(const QTextBlock &block);
 
+    bool isStatementMacroOrEquivalent() const;
+
 private:
     static QStack<State> initialState();
 

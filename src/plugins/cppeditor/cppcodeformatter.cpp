@@ -152,6 +152,12 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_GREATER_GREATER: break;
             case T_LBRACKET: break;
             case T_NAMESPACE:   leave(); enter(namespace_start); break;
+            case T_IDENTIFIER:
+                if (isStatementMacroOrEquivalent()) {
+                    enter(qt_like_macro);
+                    break;
+                }
+                [[fallthrough]];
             default:            tryExpression(true); break;
             } break;
 
@@ -272,7 +278,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_SEMICOLON:   leave(true); break;
             case T_LBRACE:      enter(brace_list_open); break;
             case T_RBRACE:      leave(true); continue;
-            case T_RPAREN:      leave(); break;
+            case T_RPAREN:
+                leave();
+                if (m_currentState.top().type == qt_like_macro && m_currentState.size() > 1
+                    && m_currentState.at(m_currentState.size() - 2).type == declaration_start) {
+                    leave();
+                    leave();
+                }
+                break;
             default:            tryExpression(); break;
             } break;
 
@@ -754,6 +767,16 @@ void CodeFormatter::correctIndentation(const QTextBlock &block)
     adjustIndent(m_tokens, lexerState, &m_indentDepth, &m_paddingDepth);
 }
 
+bool CodeFormatter::isStatementMacroOrEquivalent() const
+{
+    const QStringView tokenText = currentTokenText();
+    return tokenText.startsWith(QLatin1String("Q_"))
+           || tokenText.startsWith(QLatin1String("QT_"))
+           || tokenText.startsWith(QLatin1String("QML_"))
+           || tokenText.startsWith(QLatin1String("QDOC_"))
+           || m_statementMacros.contains(tokenText);
+}
+
 bool CodeFormatter::tryExpression(bool alsoExpression)
 {
     int newState = -1;
@@ -838,12 +861,7 @@ bool CodeFormatter::tryDeclaration()
         return true;
     case T_IDENTIFIER:
         if (m_tokenIndex == 0) {
-            const QStringView tokenText = currentTokenText();
-            if (tokenText.startsWith(QLatin1String("Q_"))
-                    || tokenText.startsWith(QLatin1String("QT_"))
-                    || tokenText.startsWith(QLatin1String("QML_"))
-                    || tokenText.startsWith(QLatin1String("QDOC_"))
-                    || m_statementMacros.contains(tokenText)) {
+            if (isStatementMacroOrEquivalent()) {
                 enter(qt_like_macro);
                 return true;
             }
