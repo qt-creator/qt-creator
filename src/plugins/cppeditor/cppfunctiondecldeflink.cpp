@@ -14,8 +14,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <texteditor/refactoroverlay.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
@@ -23,7 +21,13 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <texteditor/refactoroverlay.h>
+#include <texteditor/texteditorconstants.h>
+
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
@@ -235,6 +239,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
     connect(m_watcher.get(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
 }
 
 bool FunctionDeclDefLink::isValid() const
