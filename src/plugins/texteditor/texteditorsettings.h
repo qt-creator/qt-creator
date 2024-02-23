@@ -76,6 +76,8 @@ public:
 
     static void registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId);
     static Utils::Id languageId(const QString &mimeType);
+    static int increaseFontZoom();
+    static int decreaseFontZoom();
     static int increaseFontZoom(int step);
     static void resetFontZoom();
 

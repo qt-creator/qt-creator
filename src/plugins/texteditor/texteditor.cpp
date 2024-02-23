@@ -6891,6 +6891,18 @@ static void showZoomIndicator(QWidget *editor, const int newZoom)
                                      Utils::FadingIndicator::SmallText);
 }
 
+void TextEditorWidget::increaseFontZoom()
+{
+    d->clearVisibleFoldedBlock();
+    showZoomIndicator(this, TextEditorSettings::increaseFontZoom());
+}
+
+void TextEditorWidget::decreaseFontZoom()
+{
+    d->clearVisibleFoldedBlock();
+    showZoomIndicator(this, TextEditorSettings::decreaseFontZoom());
+}
+
 void TextEditorWidget::zoomF(float delta)
 {
     d->clearVisibleFoldedBlock();

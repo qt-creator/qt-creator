@@ -560,20 +560,33 @@ Utils::Id TextEditorSettings::languageId(const QString &mimeType)
     return d->m_mimeTypeToLanguage.value(mimeType);
 }
 
-static void setFontZoom(int zoom)
+static int setFontZoom(int zoom)
 {
-    d->m_fontSettings.setFontZoom(zoom);
-    d->m_fontSettings.toSettings(Core::ICore::settings());
-    emit textEditorSettings().fontSettingsChanged(d->m_fontSettings);
+    zoom = qMax(10, zoom);
+    if (d->m_fontSettings.fontZoom() != zoom) {
+        d->m_fontSettings.setFontZoom(zoom);
+        d->m_fontSettings.toSettings(Core::ICore::settings());
+        emit textEditorSettings().fontSettingsChanged(d->m_fontSettings);
+    }
+    return zoom;
+}
+
+int TextEditorSettings::increaseFontZoom()
+{
+    const int previousZoom = d->m_fontSettings.fontZoom();
+    return setFontZoom(previousZoom + 10 - previousZoom % 10);
+}
+
+int TextEditorSettings::decreaseFontZoom()
+{
+    const int previousZoom = d->m_fontSettings.fontZoom();
+    const int delta = previousZoom % 10;
+    return setFontZoom(previousZoom - (delta == 0 ? 10 : delta));
 }
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    const int previousZoom = d->m_fontSettings.fontZoom();
-    const int newZoom = qMax(10, previousZoom + step);
-    if (newZoom != previousZoom)
-        setFontZoom(newZoom);
-    return newZoom;
+    return setFontZoom(d->m_fontSettings.fontZoom() + step);
 }
 
 void TextEditorSettings::resetFontZoom()
