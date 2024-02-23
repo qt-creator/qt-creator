@@ -23217,7 +23217,7 @@ Id必须以小写字母开头。</translation>
         </translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

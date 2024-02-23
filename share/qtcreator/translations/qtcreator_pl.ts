@@ -33930,8 +33930,8 @@ Czy nadpisać je?</translation>
         <translation>Uruchomienie symulatora</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Nie można uruchomić symulatora (%1, %2) w bieżącym stanie: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Nie można uruchomić symulatora (%1, %2) w bieżącym stanie: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

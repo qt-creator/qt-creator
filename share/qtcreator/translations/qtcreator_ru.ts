@@ -22984,8 +22984,8 @@ Ids must begin with a lowercase letter.</source>
         <translation>Запустить эмулятор</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Невозможно запустить эмулятор (%1, %2) в текущем состоянии: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Невозможно запустить эмулятор (%1, %2) в текущем состоянии: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

@@ -33897,7 +33897,7 @@ Möchten Sie sie überschreiben?</translation>
         <translation>Simulator starten</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
         <translation>Der Simulator (%1, %2) kann im momentanen Zustand (%3) nicht gestartet werden.</translation>
     </message>
     <message>

@@ -33467,8 +33467,8 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         </translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Impossible de démarrer le simulateur (%1, %2) dans l&apos;état actuel&#xa0;: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Impossible de démarrer le simulateur (%1, %2) dans l&apos;état actuel&#xa0;: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

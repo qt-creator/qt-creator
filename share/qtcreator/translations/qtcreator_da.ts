@@ -18346,8 +18346,8 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Simulator start</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Kan ikke starte simulator (%1, %2) i aktuelle tilstand: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Kan ikke starte simulator (%1, %2) i aktuelle tilstand: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

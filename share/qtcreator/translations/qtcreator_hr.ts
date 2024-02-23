@@ -4546,8 +4546,8 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         </translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Nije moguće pokrenuti simulatora (%1, %2) u trenutačnom stanju: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Nije moguće pokrenuti simulatora (%1, %2) u trenutačnom stanju: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>
