@@ -108,6 +108,7 @@ private Q_SLOTS:
     void lambdaWithReturnType();
     void structuredBinding();
     void subscriptOperatorInFunctionCall();
+    void statementMacros();
 };
 
 struct Line {
@@ -2211,6 +2212,23 @@ void tst_CodeFormatter::subscriptOperatorInFunctionCall()
          << Line("}")
         ;
     checkIndent(data);
+}
+
+void tst_CodeFormatter::statementMacros()
+{
+    QList<Line> data;
+    data << Line("MY_MACRO")
+         << Line("template<int n = 0>")
+         << Line("~       class C;");
+    checkIndent(data);
+
+    data.clear();
+    CppCodeStyleSettings settings;
+    settings.statementMacros << "MY_MACRO";
+    data << Line("MY_MACRO")
+         << Line("template<int n = 0>")
+         << Line("class C;");
+    checkIndent(data, settings);
 }
 
 QTEST_GUILESS_MAIN(tst_CodeFormatter)

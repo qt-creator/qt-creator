@@ -40,6 +40,7 @@ public:
     void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
     void setTabSize(int tabSize);
+    void setStatementMacros(const QStringList &macros) { m_statementMacros = macros; }
 
     void invalidateCache(QTextDocument *document);
 
@@ -224,6 +225,7 @@ private:
     int m_paddingDepth = 0;
 
     int m_tabSize = 4;
+    QStringList m_statementMacros;
 
     friend class Internal::CppCodeFormatterData;
 };

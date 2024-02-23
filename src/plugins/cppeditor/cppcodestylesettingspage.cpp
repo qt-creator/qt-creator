@@ -163,8 +163,9 @@ public:
         , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
                                                     Tr::tr("This does not apply to references.")))
         , m_tabSettingsWidget(new TabSettingsWidget)
+        , m_statementMacros(new QPlainTextEdit)
     {
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(m_tabSettingsWidget->sizePolicy().hasHeightForWidth());
@@ -241,11 +242,25 @@ public:
             }
         };
 
+        sizePolicy.setVerticalPolicy(QSizePolicy::Preferred);
+        m_statementMacros->setToolTip(
+            Tr::tr("Macros that can be used as statements without a trailing semicolon"));
+        m_statementMacros->setSizePolicy(sizePolicy);
+        const Group statementMacrosGroup {
+            title(Tr::tr("Statement macros")),
+            Column { m_statementMacros}
+        };
+        QObject::connect(m_statementMacros, &QPlainTextEdit::textChanged, q, [this] {
+            m_handlingStatementMacroChange = true;
+            q->slotCodeStyleSettingsChanged();
+            m_handlingStatementMacroChange = false;
+        });
+
         Row {
             TabWidget {
                 bindTo(&m_categoryTab),
                 Tab { Tr::tr("General"),
-                    Row { Column { m_tabSettingsWidget, st }, createPreview(0) }
+                    Row { Column { m_tabSettingsWidget, statementMacrosGroup }, createPreview(0) }
                 },
                 Tab { Tr::tr("Content"), Row { contentGroup, createPreview(1) } },
                 Tab { Tr::tr("Braces"), Row { bracesGroup, createPreview(2) } },
@@ -310,6 +325,8 @@ public:
 
     QTabWidget *m_categoryTab = nullptr;
     TabSettingsWidget *m_tabSettingsWidget = nullptr;
+    QPlainTextEdit * const m_statementMacros;
+    bool m_handlingStatementMacroChange = false;
 };
 
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
@@ -361,6 +378,10 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
 {
     CppCodeStyleSettings set;
 
+    set.statementMacros
+        = Utils::transform(d->m_statementMacros->toPlainText().trimmed().split('\n',
+                                                                               Qt::SkipEmptyParts),
+                           [](const QString &line) { return line.trimmed(); });
     set.indentBlockBraces = d->m_indentBlockBraces->isChecked();
     set.indentBlockBody = d->m_indentBlockBody->isChecked();
     set.indentClassBraces = d->m_indentClassBraces->isChecked();
@@ -399,6 +420,8 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
 {
     const bool wasBlocked = m_blockUpdates;
     m_blockUpdates = true;
+    if (!d->m_handlingStatementMacroChange)
+        d->m_statementMacros->setPlainText(s.statementMacros.join('\n'));
     d->m_indentBlockBraces->setChecked(s.indentBlockBraces);
     d->m_indentBlockBody->setChecked(s.indentBlockBody);
     d->m_indentClassBraces->setChecked(s.indentClassBraces);

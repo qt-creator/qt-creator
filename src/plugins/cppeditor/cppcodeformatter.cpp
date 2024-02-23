@@ -842,7 +842,8 @@ bool CodeFormatter::tryDeclaration()
             if (tokenText.startsWith(QLatin1String("Q_"))
                     || tokenText.startsWith(QLatin1String("QT_"))
                     || tokenText.startsWith(QLatin1String("QML_"))
-                    || tokenText.startsWith(QLatin1String("QDOC_"))) {
+                    || tokenText.startsWith(QLatin1String("QDOC_"))
+                    || m_statementMacros.contains(tokenText)) {
                 enter(qt_like_macro);
                 return true;
             }
@@ -1118,6 +1119,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
     , m_styleSettings(settings)
 {
     setTabSize(tabSettings.m_tabSize);
+    setStatementMacros(m_styleSettings.statementMacros);
 }
 
 void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
@@ -1129,6 +1131,7 @@ void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
 void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &settings)
 {
     m_styleSettings = settings;
+    setStatementMacros(m_styleSettings.statementMacros);
 }
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
