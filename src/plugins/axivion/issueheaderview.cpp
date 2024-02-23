@@ -15,14 +15,14 @@ constexpr int ICON_SIZE = 16;
 static QIcon iconForSorted(SortOrder order)
 {
     const Utils::Icon UNSORTED(
-                {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteButtonTextDisabled},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteButtonTextDisabled}});
+                {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
+                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}});
     const Utils::Icon SORT_ASC(
-                {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteButtonText},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteButtonTextDisabled}});
+                {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteText},
+                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}});
     const Utils::Icon SORT_DESC(
-                {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteButtonTextDisabled},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteButtonText}});
+                {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
+                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteText}});
     static const QIcon unsorted = UNSORTED.icon();
     static const QIcon sortedAsc = SORT_ASC.icon();
     static const QIcon sortedDesc = SORT_DESC.icon();
