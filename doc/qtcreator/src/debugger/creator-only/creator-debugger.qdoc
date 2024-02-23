@@ -115,9 +115,17 @@
 
     \title Launching the Debugger
 
-    To start an application from an open project under the control of a
-    debugger, select the \inlineimage icons/qtcreator-debug-button.png
-    (\uicontrol {Start Debugging of Startup Project}) button or press \key F5.
+    You can start an application from an open project under the control of a
+    debugger in the following ways:
+
+    \list
+        \li Select \inlineimage icons/qtcreator-debug-button.png
+            (\uicontrol {Start Debugging of Startup Project}).
+        \li Press \key F5.
+        \li Enter \c {dr} in the locator, and select the project to debug.
+        \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start Debugging of Startup Project}.
+    \endlist
 
     \QC checks whether the compiled application is up-to-date, and rebuilds and
     deploys it if you set the \uicontrol {Build before deploying} field to
