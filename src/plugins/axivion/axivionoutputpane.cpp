@@ -270,7 +270,6 @@ private:
     IssueHeaderView *m_headerView = nullptr;
     DynamicListModel *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
-    bool m_fetchingMore = false;
     QStringList m_userNames;
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
@@ -427,7 +426,6 @@ static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
 
 void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
 {
-    m_fetchingMore = false;
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     if (dto.totalRowCount.has_value()) {
         m_totalRowCount = dto.totalRowCount.value();
@@ -472,7 +470,6 @@ void IssuesWidget::onSearchParameterChanged()
     m_issuesModel->clear();
     // new "first" time lookup
     m_totalRowCount = 0;
-    m_fetchingMore = false;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
     fetchIssues(search);
@@ -600,7 +597,6 @@ void IssuesWidget::fetchTable()
     };
     const auto setupHandler = [this](TaskTree *) {
         m_totalRowCount = 0;
-        m_fetchingMore = false;
         m_currentTableInfo.reset();
         m_issuesView->showProgressIndicator();
     };
@@ -630,10 +626,9 @@ void IssuesWidget::fetchIssues(const IssueListSearch &search)
 
 void IssuesWidget::onFetchRequested(int startRow, int limit)
 {
-    if (m_fetchingMore)
+    if (m_taskTreeRunner.isRunning())
         return;
 
-    m_fetchingMore = true;
     IssueListSearch search = searchFromUi();
     search.offset = startRow;
     search.limit = limit;
