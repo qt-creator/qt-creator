@@ -403,8 +403,7 @@ void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
     CollectionSourceModel *sourceModel = m_widget->sourceModel();
 
     if (node.metaInfo().isQtQuickListView()) {
-        const QString newCollectionName = sourceModel->generateCollectionName(dataStoreNode(),
-                                                                              "ListModel");
+        const QString newCollectionName = sourceModel->getUniqueCollectionName("ListModel");
         sourceModel->addCollectionToSource(dataStoreNode(),
                                            newCollectionName,
                                            CollectionEditorUtils::defaultColorCollection());

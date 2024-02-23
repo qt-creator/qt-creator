@@ -248,7 +248,7 @@ bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url
     }
 
     if (loadedCollection.columns()) {
-        const QString newCollectionName = generateUniqueCollectionName(node, collectionName);
+        const QString newCollectionName = m_sourceModel->getUniqueCollectionName(collectionName);
         added = m_sourceModel->addCollectionToSource(node,
                                                      newCollectionName,
                                                      loadedCollection.toLocalJson(),
@@ -274,8 +274,7 @@ bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
 
     QString errorMsg;
     bool added = m_sourceModel->addCollectionToSource(node,
-                                                      generateUniqueCollectionName(node,
-                                                                                   collectionName),
+                                                      m_sourceModel->getUniqueCollectionName(collectionName),
                                                       CollectionEditorUtils::defaultCollection(),
                                                       &errorMsg);
     if (!added)
@@ -320,22 +319,6 @@ void CollectionWidget::setTargetNodeSelected(bool selected)
 void CollectionWidget::deleteSelectedCollection()
 {
     QMetaObject::invokeMethod(m_quickWidget->quickWidget()->rootObject(), "deleteSelectedCollection");
-}
-
-QString CollectionWidget::generateUniqueCollectionName(const ModelNode &node, const QString &name)
-{
-    if (!m_sourceModel->collectionExists(node, name))
-        return name;
-
-    static QRegularExpression reg("^(?<mainName>[\\w\\d\\.\\_\\-]+)\\_(?<number>\\d+)$");
-    QRegularExpressionMatch match = reg.match(name);
-    if (match.hasMatch()) {
-        int nextNumber = match.captured("number").toInt() + 1;
-        return generateUniqueCollectionName(
-            node, QString("%1_%2").arg(match.captured("mainName")).arg(nextNumber));
-    } else {
-        return generateUniqueCollectionName(node, QString("%1_1").arg(name));
-    }
 }
 
 } // namespace QmlDesigner

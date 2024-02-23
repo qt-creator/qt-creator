@@ -254,17 +254,9 @@ void CollectionSourceModel::selectSource(const ModelNode &node)
     selectSourceIndex(nodePlace, true);
 }
 
-bool CollectionSourceModel::collectionExists(const ModelNode &node, const QString &collectionName) const
+bool CollectionSourceModel::collectionExists(const QString &collectionName) const
 {
-    int idx = sourceIndex(node);
-    if (idx < 0)
-        return false;
-
-    auto collections = m_collectionList.at(idx);
-    if (collections.isNull())
-        return false;
-
-    return collections->contains(collectionName);
+    return  m_collectionList.size() == 1 && m_collectionList.at(0)->contains(collectionName);
 }
 
 bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
@@ -287,7 +279,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
     if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
         return returnError(tr("Node should be a JSON model."));
 
-    if (collectionExists(node, collectionName))
+    if (collectionExists(collectionName))
         return returnError(tr("A model with the identical name already exists."));
 
     QString sourceFileAddress = CollectionEditorUtils::getSourceCollectionPath(node);
@@ -349,26 +341,6 @@ CollectionListModel *CollectionSourceModel::selectedCollectionList()
     return idx.data(CollectionsRole).value<CollectionListModel *>();
 }
 
-QString CollectionSourceModel::generateCollectionName(const ModelNode &node,
-                                                      const QString &baseCollectionName) const
-{
-    int idx = sourceIndex(node);
-    if (idx < 0)
-        return {};
-
-    auto collections = m_collectionList.at(idx);
-    if (collections.isNull())
-        return {};
-
-    const int maxNumber = std::numeric_limits<int>::max();
-    for (int i = 1; i < maxNumber; ++i) {
-        const QString name = QLatin1String("%1_%2").arg(baseCollectionName).arg(i);
-        if (!collections->contains(name))
-            return name;
-    }
-    return {};
-}
-
 void CollectionSourceModel::selectSourceIndex(int idx, bool selectAtLeastOne)
 {
     int collectionCount = m_collectionSources.size();
@@ -410,9 +382,22 @@ void CollectionSourceModel::updateSelectedSource(bool selectAtLeastOne)
     selectSourceIndex(idx, selectAtLeastOne);
 }
 
-bool CollectionSourceModel::collectionExists(const QVariant &node, const QString &collectionName) const
+QString CollectionSourceModel::getUniqueCollectionName(const QString &baseName) const
 {
-    return collectionExists(node.value<ModelNode>(), collectionName);
+    if (m_collectionList.isEmpty())
+        return "Model01";
+
+    CollectionListModel *collectionModel = m_collectionList.at(0).data();
+
+    QString name = baseName.isEmpty() ? "Model" : baseName;
+    QString nameTemplate = name + "%1";
+
+    int num = 0;
+
+    while (collectionModel->contains(name))
+        name = nameTemplate.arg(++num, 2, 10, QChar('0'));
+
+    return name;
 }
 
 void CollectionSourceModel::updateNodeName(const ModelNode &node)

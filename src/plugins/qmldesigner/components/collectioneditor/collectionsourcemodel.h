@@ -51,7 +51,6 @@ public:
     void addSource(const ModelNode &node);
     void selectSource(const ModelNode &node);
 
-    bool collectionExists(const ModelNode &node, const QString &collectionName) const;
     bool addCollectionToSource(const ModelNode &node,
                                const QString &collectionName,
                                const QJsonObject &newCollection,
@@ -59,16 +58,16 @@ public:
 
     ModelNode sourceNodeAt(int idx);
     CollectionListModel *selectedCollectionList();
-    QString generateCollectionName(const ModelNode &node, const QString &baseCollectionName) const;
+
+    void updateNodeName(const ModelNode &node);
+    void updateNodeSource(const ModelNode &node);
 
     Q_INVOKABLE void selectSourceIndex(int idx, bool selectAtLeastOne = false);
     Q_INVOKABLE void selectCollection(const QVariant &node, const QString &collectionName);
     Q_INVOKABLE void deselect();
     Q_INVOKABLE void updateSelectedSource(bool selectAtLeastOne = false);
-    Q_INVOKABLE bool collectionExists(const QVariant &node, const QString &collectionName) const;
-
-    void updateNodeName(const ModelNode &node);
-    void updateNodeSource(const ModelNode &node);
+    Q_INVOKABLE QString getUniqueCollectionName(const QString &baseName = {}) const;
+    Q_INVOKABLE bool collectionExists(const QString &collectionName) const;
 
 signals:
     void selectedIndexChanged(int idx);

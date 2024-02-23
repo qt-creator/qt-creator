@@ -4,30 +4,24 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.platform as PlatformWidgets
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import CollectionEditor
+import CollectionEditorBackend
 
 StudioControls.Dialog {
     id: root
 
-    enum SourceType { NewJson, NewCsv, ExistingCollection }
+    property bool nameExists: false
+    readonly property bool isValid: collectionName.text !== "" && !root.nameExists
 
-    required property var backendValue
-    required property var sourceModel
+    title: qsTr("Add a new model")
 
-    readonly property bool isValid: collectionName.isValid
-
-    title: qsTr("Add a new Model")
-    anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
 
     onOpened: {
-        collectionName.text = qsTr("Model")
-        updateCollectionExists()
+        collectionName.text = CollectionEditorBackend.model.getUniqueCollectionName()
     }
 
     onRejected: {
@@ -36,53 +30,21 @@ StudioControls.Dialog {
 
     onAccepted: {
         if (root.isValid)
-            root.backendValue.addCollectionToDataStore(collectionName.text);
+            root.CollectionEditorBackend.rootView.addCollectionToDataStore(collectionName.text);
     }
 
-    function updateCollectionExists() {
-        collectionName.alreadyExists = sourceModel.collectionExists(backendValue.dataStoreNode(),
-                                                                    collectionName.text)
-    }
-
-    component NameField: Text {
-        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-        horizontalAlignment: Qt.AlignRight
-        verticalAlignment: Qt.AlignCenter
-        color: StudioTheme.Values.themeTextColor
-        font.family: StudioTheme.Constants.font.family
-        font.pixelSize: StudioTheme.Values.baseIconFontSize
-    }
-
-    component ErrorField: Text {
-        Layout.columnSpan: 2
-        color: StudioTheme.Values.themeError
-        font.family: StudioTheme.Constants.font.family
-        font.pixelSize: StudioTheme.Values.baseIconFontSize
-    }
-
-    component Spacer: Item {
-        Layout.minimumWidth: 1
-        Layout.preferredHeight: StudioTheme.Values.columnGap
-    }
-
-    contentItem: ColumnLayout {
+    ColumnLayout {
         spacing: 5
 
         NameField {
-            text: qsTr("The model name")
-            visible: collectionName.enabled
+            text: qsTr("Name")
         }
 
         StudioControls.TextField {
             id: collectionName
 
-            readonly property bool isValid: !collectionName.enabled
-                                            || (collectionName.text !== "" && !collectionName.alreadyExists)
-            property bool alreadyExists
-
             Layout.fillWidth: true
 
-            visible: collectionName.enabled
             actionIndicator.visible: false
             translationIndicator.visible: false
             validator: RegularExpressionValidator {
@@ -93,39 +55,57 @@ StudioControls.Dialog {
             Keys.onReturnPressed: btnCreate.onClicked()
             Keys.onEscapePressed: root.reject()
 
-            onTextChanged: root.updateCollectionExists()
+            onTextChanged: {
+                root.nameExists = CollectionEditorBackend.model.collectionExists(collectionName.text)
+            }
         }
 
         ErrorField {
-            text: qsTr("The model name can not be empty")
-            visible: collectionName.enabled && collectionName.text === ""
+            id: errorField
+            text: {
+                if (collectionName.text === "")
+                    return qsTr("Name can not be empty")
+                else if (root.nameExists)
+                    return qsTr("Name '%1' already exists").arg(collectionName.text)
+                else
+                    return ""
+            }
         }
 
-        ErrorField {
-            text: qsTr("The model name already exists %1").arg(collectionName.text)
-            visible: collectionName.enabled && collectionName.alreadyExists
-        }
+        Spacer {}
 
-        Spacer { visible: collectionName.visible }
-
-        RowLayout {
+        Row {
             spacing: StudioTheme.Values.sectionRowSpacing
-            Layout.alignment: Qt.AlignRight | Qt.AlignBottom
 
             HelperWidgets.Button {
                 id: btnCreate
 
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 text: qsTr("Create")
                 enabled: root.isValid
                 onClicked: root.accept()
             }
 
             HelperWidgets.Button {
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 text: qsTr("Cancel")
                 onClicked: root.reject()
             }
         }
+    }
+
+    component NameField: Text {
+        color: StudioTheme.Values.themeTextColor
+        font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.baseIconFontSize
+    }
+
+    component ErrorField: Text {
+        color: StudioTheme.Values.themeError
+        font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.baseIconFontSize
+    }
+
+    component Spacer: Item {
+        width: 1
+        height: StudioTheme.Values.columnGap
     }
 }
