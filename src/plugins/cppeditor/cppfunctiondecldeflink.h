@@ -36,7 +36,7 @@ private:
 
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    QScopedPointer<QFutureWatcher<std::shared_ptr<FunctionDeclDefLink>>> m_watcher;
+    std::unique_ptr<QFutureWatcher<std::shared_ptr<FunctionDeclDefLink>>> m_watcher;
 };
 
 class FunctionDeclDefLink
