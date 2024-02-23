@@ -79,8 +79,6 @@ public:
     std::function<void(Environment &)> m_environmentModifier;
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
-    std::unique_ptr<QTextDecoder> stdOutDecoder;
-    std::unique_ptr<QTextDecoder> stdErrDecoder;
     OutputFormatter *outputFormatter = nullptr;
 };
 
@@ -146,9 +144,6 @@ bool AbstractProcessStep::init()
     if (!setupProcessParameters(processParameters()))
         return false;
 
-    d->stdOutDecoder = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
-        ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
-    d->stdErrDecoder = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
     return true;
 }
 
@@ -197,14 +192,18 @@ bool AbstractProcessStep::setupProcess(Process &process)
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
         process.setLowPriority();
 
-    connect(&process, &Process::readyReadStandardOutput, this, [this, &process] {
-        emit addOutput(d->stdOutDecoder->toUnicode(process.readAllRawStandardOutput()),
-                       OutputFormat::Stdout, DontAppendNewline);
+    process.setStdOutCodec(buildEnvironment().hasKey("VSLANG")
+                               ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
+    process.setStdErrCodec(QTextCodec::codecForLocale());
+
+    process.setStdOutLineCallback([this](const QString &s){
+        emit addOutput(s, OutputFormat::Stdout, DontAppendNewline);
     });
-    connect(&process, &Process::readyReadStandardError, this, [this, &process] {
-        emit addOutput(d->stdErrDecoder->toUnicode(process.readAllRawStandardError()),
-                       OutputFormat::Stderr, DontAppendNewline);
+
+    process.setStdErrLineCallback([this](const QString &s){
+        emit addOutput(s, OutputFormat::Stderr, DontAppendNewline);
     });
+
     connect(&process, &Process::started, this, [this] {
         ProcessParameters *params = d->m_displayedParams;
         emit addOutput(Tr::tr("Starting: \"%1\" %2")
