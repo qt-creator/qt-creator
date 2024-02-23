@@ -148,8 +148,10 @@ public:
     void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
-    // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
-    void setCodec(QTextCodec *c);
+    void setCodec(QTextCodec *c); // for stdOut and stdErr
+    void setStdOutCodec(QTextCodec *c);
+    void setStdErrCodec(QTextCodec *c);
+
     void setTimeOutMessageBoxEnabled(bool);
 
     void setStdOutCallback(const TextChannelCallback &callback);
