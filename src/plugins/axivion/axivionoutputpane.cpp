@@ -424,7 +424,7 @@ static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &i
         }
         return -1;
     };
-    auto findAndAppend = [&links, &issueRow, &columnInfos, &findColumn, &end](const QString &path,
+    auto findAndAppend = [&links, &issueRow, &findColumn, &end](const QString &path,
             const QString &line) {
         QList<int> columns;
         auto it = issueRow.find(path);
