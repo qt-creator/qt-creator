@@ -17,6 +17,7 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
@@ -190,6 +191,12 @@ void DashboardWidget::updateUi()
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
+struct LinkWithColumns
+{
+    Link link;
+    QList<int> columns;
+};
+
 class IssueListItem final : public ListItem
 {
 public:
@@ -200,7 +207,7 @@ public:
         , m_toolTips(toolTips)
     {}
 
-    void setLinks(const Links &links) { m_links = links; }
+    void setLinks(const QList<LinkWithColumns> &links) { m_links = links; }
 
     QVariant data(int column, int role) const
     {
@@ -215,8 +222,10 @@ public:
     {
         if (role == BaseTreeView::ItemActivatedRole) {
             if (!m_links.isEmpty()) {
-                // TODO for now only simple - just the first..
-                Link link = m_links.first();
+                Link link
+                        = Utils::findOr(m_links, m_links.first(), [column](const LinkWithColumns &link) {
+                    return link.columns.contains(column);
+                }).link;
                 Project *project = ProjectManager::startupProject();
                 FilePath baseDir = project ? project->projectDirectory() : FilePath{};
                 link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
@@ -234,7 +243,7 @@ private:
     const QString m_id;
     QStringList m_data;
     QStringList m_toolTips;
-    Links m_links;
+    QList<LinkWithColumns> m_links;
 };
 
 class IssuesWidget : public QScrollArea
@@ -399,19 +408,34 @@ void IssuesWidget::updateTable()
     m_headerView->resizeSections(QHeaderView::ResizeToContents);
 }
 
-static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
+static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &issueRow,
+                                            const std::vector<Dto::ColumnInfoDto> &columnInfos)
 {
-    Links links;
+    QList<LinkWithColumns> links;
 
     auto end = issueRow.end();
-    auto findAndAppend = [&links, &issueRow, &end](const QString &path, const QString &line) {
+    auto findColumn = [columnInfos](const QString &columnKey) {
+        int col = 0;
+        for (auto it = columnInfos.cbegin(), end = columnInfos.cend(); it != end; ++it) {
+            if (it->key == columnKey)
+                return col;
+            ++col;
+        }
+        return -1;
+    };
+    auto findAndAppend = [&links, &issueRow, &columnInfos, &findColumn, &end](const QString &path,
+            const QString &line) {
+        QList<int> columns;
         auto it = issueRow.find(path);
         if (it != end) {
             Link link{ FilePath::fromUserInput(it->second.getString()) };
+            columns.append(findColumn(it->first));
             it = issueRow.find(line);
-            if (it != end)
+            if (it != end) {
                 link.targetLine = it->second.getDouble();
-            links.append(link);
+                columns.append(findColumn(it->first));
+            }
+            links.append({link, columns});
         }
     };
     // do these always? or just for their "expected" kind
@@ -455,7 +479,7 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
             }
         }
         IssueListItem *it = new IssueListItem(startRow++, id, data, data);
-        it->setLinks(linksForIssue(row));
+        it->setLinks(linksForIssue(row, tableColumns));
         items.append(it);
     }
     m_issuesModel->setItems(items);
