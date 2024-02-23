@@ -185,7 +185,7 @@ ColumnLayout {
                     style: StudioTheme.Values.viewBarButtonStyle
                     buttonIcon: StudioTheme.Constants.clearList_medium
                     tooltip: qsTr("Remove all effect nodes.")
-                    enabled: !root.backendModel.isEmpty
+                    enabled: root.backendModel ? !root.backendModel.isEmpty : false
 
                     onClicked: {
                         if (root.backendModel.hasUnsavedChanges)
@@ -296,14 +296,16 @@ ColumnLayout {
                 } // ScrollView
 
                 Text {
-                    text: root.backendModel.isEnabled ? qsTr("Add an effect node to start")
-                                                      : qsTr("Effect Composer is disabled on MCU projects")
+                    text: root.backendModel ? root.backendModel.isEnabled
+                                              ? qsTr("Add an effect node to start")
+                                              : qsTr("Effect Composer is disabled on MCU projects")
+                                            : ""
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: StudioTheme.Values.baseFontSize
 
                     anchors.centerIn: parent
 
-                    visible: root.backendModel.isEmpty
+                    visible: root.backendModel ? root.backendModel.isEmpty : false
                 }
             } // Item
         } // Column

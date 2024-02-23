@@ -28,7 +28,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.add_medium
             tooltip: qsTr("Add new composition")
-            enabled: root.backendModel.isEnabled
+            enabled: root.backendModel ? root.backendModel.isEnabled : false
             onClicked: root.addClicked()
         }
 
@@ -36,8 +36,10 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.save_medium
             tooltip: qsTr("Save current composition")
-            enabled: root.backendModel.isEnabled && (root.backendModel.hasUnsavedChanges
-                                                  || root.backendModel.currentComposition === "")
+            enabled: root.backendModel ? root.backendModel.isEnabled
+                                         && (root.backendModel.hasUnsavedChanges
+                                             || root.backendModel.currentComposition === "")
+                                       : false
 
             onClicked: root.saveClicked()
         }
@@ -46,7 +48,8 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
-            enabled: root.backendModel.isEnabled && !root.backendModel.isEmpty
+            enabled: root.backendModel ? root.backendModel.isEnabled && !root.backendModel.isEmpty
+                                       : false
 
             onClicked: root.saveAsClicked()
         }
@@ -55,7 +58,9 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.assignTo_medium
             tooltip: qsTr("Assign current composition to selected item")
-            enabled: root.backendModel.isEnabled && root.backendModel.currentComposition !== ""
+            enabled: root.backendModel ? root.backendModel.isEnabled
+                                         && root.backendModel.currentComposition !== ""
+                                       : false
 
             onClicked: root.assignToSelectedClicked()
         }
@@ -63,7 +68,8 @@ Rectangle {
 
 
     Text {
-        readonly property string compName: root.backendModel.currentComposition
+        readonly property string compName: root.backendModel ? root.backendModel.currentComposition
+                                                             : ""
 
         text: compName !== "" ? compName : qsTr("Untitled")
         anchors.centerIn: parent
