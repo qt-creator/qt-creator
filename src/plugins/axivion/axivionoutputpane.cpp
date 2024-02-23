@@ -403,6 +403,7 @@ void IssuesWidget::updateTable()
     m_issuesModel->clear();
     m_issuesModel->setHeader(columnHeaders);
     m_headerView->setSortableColumns(sortableColumns);
+    m_headerView->setColumnWidths(columnWidths);
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
