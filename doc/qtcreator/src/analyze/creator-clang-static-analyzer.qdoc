@@ -247,20 +247,24 @@
             \l{https://clang-analyzer.llvm.org/available_checks.html}
             {Clang Static Analyzer documentation}.
 
-        \li To edit the selected check as plain text, select
+        \li To edit the selected checks as plain text, select
             \uicontrol {Edit Checks as String}.
 
         \li In the \uicontrol {Clazy Checks} tab, select the level of Clazy
             checks to perform.
 
-            \image qtcreator-clazy.png {Clazy Checks tab}
+            \image qtcreator-clazy.webp {Clazy Checks tab}
+
+        \li To edit the selected checks as plain text, select
+            \uicontrol {Edit Checks as String}.
+
 
         \li In the \uicontrol Filters field, select topics to view
             only checks related to those areas in the \uicontrol Checks field.
             To filter the checks in the selected areas, enter a string in the
             \uicontrol {Filter by name} field.
 
-        \li To view all checks again, select \uicontrol {Reset Filter}.
+        \li To view all checks again, select \uicontrol {Reset Topic Filter}.
 
         \li To view more information about the checks online, select the
             \uicontrol {Web Page} links next to them.
