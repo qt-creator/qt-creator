@@ -36,7 +36,7 @@ public:
         return state.d.data();
     }
 
-    int size() const
+    std::size_t size() const
     {
         return m_contextStack.size();
     }
