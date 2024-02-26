@@ -54,7 +54,7 @@ auto asyncRun(Function &&function, Args &&...args)
 template <typename R, typename T>
 const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*member)(const T &))
 {
-    auto watcher = new QFutureWatcher<T>();
+    auto watcher = new QFutureWatcher<T>(receiver);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver, [=](int index) {
         (receiver->*member)(watcher->future().resultAt(index));
@@ -72,7 +72,7 @@ const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*
 template <typename T, typename Function>
 const QFuture<T> &onResultReady(const QFuture<T> &future, QObject *guard, Function f)
 {
-    auto watcher = new QFutureWatcher<T>();
+    auto watcher = new QFutureWatcher<T>(guard);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, guard, [f, watcher](int index) {
         f(watcher->future().resultAt(index));
@@ -90,7 +90,7 @@ template<typename R, typename T>
 const QFuture<T> &onFinished(const QFuture<T> &future,
                              R *receiver, void (R::*member)(const QFuture<T> &))
 {
-    auto watcher = new QFutureWatcher<T>();
+    auto watcher = new QFutureWatcher<T>(receiver);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::finished, receiver,
                      [=] { (receiver->*member)(watcher->future()); });
@@ -107,7 +107,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future,
 template<typename T, typename Function>
 const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function f)
 {
-    auto watcher = new QFutureWatcher<T>();
+    auto watcher = new QFutureWatcher<T>(guard);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher] {
         f(watcher->future());
