@@ -71,10 +71,7 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
     populateRuntimes(DeviceTypeInfo());
 }
 
-CreateSimulatorDialog::~CreateSimulatorDialog()
-{
-    m_futureSync.waitForFinished();
-}
+CreateSimulatorDialog::~CreateSimulatorDialog() = default;
 
 /*!
     Returns the simulator name entered by user.
