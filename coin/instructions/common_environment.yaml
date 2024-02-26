@@ -59,6 +59,21 @@ instructions:
           condition: property
           property: target.os
           equals_value: MacOS
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_SCCACHE_C_OPTION
+            variableValue: --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache
+          - type: EnvironmentVariable
+            variableName: QTC_SCCACHE_CXX_OPTION
+            variableValue: --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+          - type: EnvironmentVariable
+            variableName: QTC_SCCACHE_ENABLE_OPTION
+            variableValue: --add-config=-DWITH_SCCACHE_SUPPORT=ON
+        enable_if:
+          condition: property
+          property: features
+          contains_value: Sccache
 
   - type: Group
     instructions:
