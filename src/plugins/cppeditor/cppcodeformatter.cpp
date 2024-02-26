@@ -204,7 +204,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_IDENTIFIER:          // '&', id, 'this' are allowed both in the capture list and subscribtion
             case T_AMPER:
             case T_THIS:        break;
-            default:            leave(); leave(); tryExpression(m_currentState.at(m_currentState.size() - 1).type == declaration_start); break;
+            default:            tryExpression(m_currentState.at(m_currentState.size() - 2).type == declaration_start); break;
                                         // any other symbol allowed only in subscribtion operator
             } break;
 
