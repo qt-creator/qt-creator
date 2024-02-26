@@ -200,6 +200,26 @@
 
     \image qtcreator-build-configuration-set-clicolor-force.webp {Build Environment with CLICOLOR_FORCE set}
 
+    \section1 Using Junction Points on Windows
+
+    To overcome issues with long paths on Windows, create and use
+    \l{https://learn.microsoft.com/en-us/sysinternals/downloads/junction}
+    {junction points} for the source and build directories. At a junction point,
+    a directory serves as an alias to another directory on the computer.
+
+    To use the junction points for CMake configure, build, and install
+    operations, go to \preferences > \uicontrol CMake > \uicontrol General and
+    select \uicontrol {Use junctions for CMake configuration and build operations}.
+
+    \image qtcreator-preferences-cmake-general.webp {CMake General preferences}
+
+    \QC stores junction points in \c {C:\ProgramData\QtCreator\Links}. To use
+    another path, set it as the value of the \c QTC_CMAKE_JUNCTIONS_DIR
+    environment variable.
+
+    Set the \c QTC_CMAKE_JUNCTIONS_HASH_LENGTH environment variable to shorten
+    the MD5 hash key length from the default length value of 32.
+
     \section1 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
