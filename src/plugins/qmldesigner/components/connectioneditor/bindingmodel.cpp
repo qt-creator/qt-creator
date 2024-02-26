@@ -20,10 +20,8 @@
 
 namespace QmlDesigner {
 
-BindingModel::BindingModel(ConnectionView *parent)
-    : QStandardItemModel(parent)
-    , m_connectionView(parent)
-    , m_delegate(new BindingModelBackendDelegate(this))
+BindingModel::BindingModel(ConnectionView *view)
+    : m_connectionView(view)
 {
     setHorizontalHeaderLabels(BindingModelItem::headerLabels());
 }
@@ -33,9 +31,9 @@ ConnectionView *BindingModel::connectionView() const
     return m_connectionView;
 }
 
-BindingModelBackendDelegate *BindingModel::delegate() const
+BindingModelBackendDelegate *BindingModel::delegate()
 {
-    return m_delegate;
+    return &m_delegate;
 }
 
 int BindingModel::currentIndex() const
@@ -133,7 +131,7 @@ void BindingModel::setCurrentIndex(int i)
         m_currentIndex = i;
         emit currentIndexChanged();
     }
-    m_delegate->update(currentProperty(), m_connectionView);
+    m_delegate.update(currentProperty(), m_connectionView);
 }
 
 void BindingModel::setCurrentProperty(const AbstractProperty &property)
@@ -153,7 +151,7 @@ void BindingModel::updateItem(const BindingProperty &property)
             setCurrentProperty(property);
         }
     }
-    m_delegate->update(currentProperty(), m_connectionView);
+    m_delegate.update(currentProperty(), m_connectionView);
 }
 
 void BindingModel::removeItem(const AbstractProperty &property)
@@ -248,9 +246,8 @@ void BindingModel::addModelNode(const ModelNode &node)
         appendRow(new BindingModelItem(property));
 }
 
-BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent)
-    : QObject(parent)
-    , m_targetNode()
+BindingModelBackendDelegate::BindingModelBackendDelegate()
+    : m_targetNode()
     , m_property()
     , m_sourceNode()
     , m_sourceNodeProperty()

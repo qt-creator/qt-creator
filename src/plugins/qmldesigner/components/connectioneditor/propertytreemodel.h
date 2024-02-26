@@ -49,7 +49,7 @@ public:
         BoolType
     };
 
-    PropertyTreeModel(ConnectionView *parent = nullptr);
+    PropertyTreeModel(ConnectionView *view);
 
     void resetModel();
 
@@ -187,7 +187,7 @@ class PropertyTreeModelDelegate : public QObject
     Q_PROPERTY(StudioQmlComboBoxBackend *id READ idCombboBox CONSTANT)
 
 public:
-    explicit PropertyTreeModelDelegate(ConnectionView *parent = nullptr);
+    explicit PropertyTreeModelDelegate(ConnectionView *view);
     void setPropertyType(PropertyTreeModel::PropertyTypes type);
     void setup(const QString &id, const QString &name, bool *nameExists = nullptr);
     void setupNameComboBox(const QString &id, const QString &name, bool *nameExists);

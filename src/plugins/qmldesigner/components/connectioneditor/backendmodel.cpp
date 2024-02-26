@@ -19,9 +19,8 @@
 
 namespace QmlDesigner {
 
-BackendModel::BackendModel(ConnectionView *parent) :
-    QStandardItemModel(parent)
-    ,m_connectionView(parent)
+BackendModel::BackendModel(ConnectionView *view)
+    : m_connectionView(view)
 {
     connect(this, &QStandardItemModel::dataChanged, this, &BackendModel::handleDataChanged);
 }

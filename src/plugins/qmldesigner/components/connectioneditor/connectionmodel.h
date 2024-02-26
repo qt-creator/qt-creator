@@ -10,6 +10,8 @@
 #include <QAbstractListModel>
 #include <QStandardItemModel>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 class AbstractProperty;
@@ -19,92 +21,7 @@ class SignalHandlerProperty;
 class VariantProperty;
 
 class ConnectionView;
-class ConnectionModelBackendDelegate;
-
-class ConnectionModel : public QStandardItemModel
-{
-    Q_OBJECT
-
-    Q_PROPERTY(ConnectionModelBackendDelegate *delegate READ delegate CONSTANT)
-
-public:
-    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
-
-public:
-    enum ColumnRoles {
-        TargetModelNodeRow = 0,
-        TargetPropertyNameRow = 1,
-        SourceRow = 2
-    };
-    enum UserRoles {
-        InternalIdRole = Qt::UserRole + 1,
-        TargetPropertyNameRole,
-        TargetNameRole,
-        ActionTypeRole
-    };
-    ConnectionModel(ConnectionView *parent = nullptr);
-
-    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
-
-    void resetModel();
-    SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;
-    ConnectionView *connectionView() const;
-
-    QStringList getSignalsForRow(int row) const;
-    QStringList getflowActionTriggerForRow(int row) const;
-    ModelNode getTargetNodeForConnection(const ModelNode &connection) const;
-
-    void addConnection(const PropertyName &signalName = {});
-
-    void bindingPropertyChanged(const BindingProperty &bindingProperty);
-    void variantPropertyChanged(const VariantProperty &variantProperty);
-    void abstractPropertyChanged(const AbstractProperty &abstractProperty);
-
-    void deleteConnectionByRow(int currentRow);
-    void removeRowFromTable(const SignalHandlerProperty &property);
-
-    Q_INVOKABLE void add();
-    Q_INVOKABLE void remove(int row);
-
-    void setCurrentIndex(int i);
-    int currentIndex() const;
-
-    void selectProperty(const SignalHandlerProperty &property);
-
-    void nodeAboutToBeRemoved(const ModelNode &removedNode);
-    void modelAboutToBeDetached();
-
-    void showPopup();
-
-signals:
-    void currentIndexChanged();
-
-protected:
-    void addModelNode(const ModelNode &modelNode);
-    void addConnection(const ModelNode &modelNode);
-    void addSignalHandler(const SignalHandlerProperty &bindingProperty);
-    void removeModelNode(const ModelNode &modelNode);
-    void removeConnection(const ModelNode &modelNode);
-    void updateSource(int row);
-    void updateSignalName(int rowNumber);
-    void updateTargetNode(int rowNumber);
-    void updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty);
-    QStringList getPossibleSignalsForConnection(const ModelNode &connection) const;
-
-    QHash<int, QByteArray> roleNames() const override;
-
-private:
-    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
-    void handleException();
-    ConnectionModelBackendDelegate *delegate() const;
-
-private:
-    ConnectionView *m_connectionView;
-    bool m_lock = false;
-    QString m_exceptionError;
-    ConnectionModelBackendDelegate *m_delegate = nullptr;
-    int m_currentIndex = -1;
-};
+class ConnectionModel;
 
 class ConditionListModel : public QAbstractListModel
 {
@@ -125,7 +42,7 @@ public:
         QString value;
     };
 
-    ConditionListModel(ConnectionModel *parent = nullptr);
+    ConditionListModel(ConnectionModel *model);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -136,8 +53,7 @@ public:
     void setCondition(ConnectionEditorStatements::MatchedCondition &condition);
     ConnectionEditorStatements::MatchedCondition &condition();
 
-    static ConditionToken tokenFromConditionToken(
-        const ConnectionEditorStatements::ConditionToken &token);
+    static ConditionToken tokenFromConditionToken(const ConnectionEditorStatements::ConditionToken &token);
 
     static ConditionToken tokenFromComparativeStatement(
         const ConnectionEditorStatements::ComparativeStatement &token);
@@ -196,7 +112,7 @@ class ConnectionModelStatementDelegate : public QObject
     Q_OBJECT
 
 public:
-    explicit ConnectionModelStatementDelegate(ConnectionModel *parent = nullptr);
+    explicit ConnectionModelStatementDelegate(ConnectionModel *model);
 
     enum ActionType { CallFunction, Assign, ChangeState, SetProperty, PrintMessage, Custom };
 
@@ -277,12 +193,11 @@ class ConnectionModelBackendDelegate : public QObject
     Q_PROPERTY(PropertyListProxyModel *propertyListProxyModel READ propertyListProxyModel CONSTANT)
 
 public:
-    explicit ConnectionModelBackendDelegate(ConnectionModel *parent = nullptr);
+    explicit ConnectionModelBackendDelegate(ConnectionModel *model);
 
     using ActionType = ConnectionModelStatementDelegate::ActionType;
 
-    Q_INVOKABLE void changeActionType(
-        QmlDesigner::ConnectionModelStatementDelegate::ActionType actionType);
+    Q_INVOKABLE void changeActionType(QmlDesigner::ConnectionModelStatementDelegate::ActionType actionType);
 
     Q_INVOKABLE void addCondition();
     Q_INVOKABLE void removeCondition();
@@ -349,6 +264,92 @@ private:
     PropertyTreeModel m_propertyTreeModel;
     PropertyListProxyModel m_propertyListProxyModel;
     bool m_blockReflection = false;
+};
+
+class ConnectionModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+    Q_PROPERTY(ConnectionModelBackendDelegate *delegate READ delegate CONSTANT)
+
+public:
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
+
+public:
+    enum ColumnRoles {
+        TargetModelNodeRow = 0,
+        TargetPropertyNameRow = 1,
+        SourceRow = 2
+    };
+    enum UserRoles {
+        InternalIdRole = Qt::UserRole + 1,
+        TargetPropertyNameRole,
+        TargetNameRole,
+        ActionTypeRole
+    };
+
+    ConnectionModel(ConnectionView *view);
+
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
+
+    void resetModel();
+    SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;
+    ConnectionView *connectionView() const;
+
+    QStringList getSignalsForRow(int row) const;
+    QStringList getflowActionTriggerForRow(int row) const;
+    ModelNode getTargetNodeForConnection(const ModelNode &connection) const;
+
+    void addConnection(const PropertyName &signalName = {});
+
+    void bindingPropertyChanged(const BindingProperty &bindingProperty);
+    void variantPropertyChanged(const VariantProperty &variantProperty);
+    void abstractPropertyChanged(const AbstractProperty &abstractProperty);
+
+    void deleteConnectionByRow(int currentRow);
+    void removeRowFromTable(const SignalHandlerProperty &property);
+
+    Q_INVOKABLE void add();
+    Q_INVOKABLE void remove(int row);
+
+    void setCurrentIndex(int i);
+    int currentIndex() const;
+
+    void selectProperty(const SignalHandlerProperty &property);
+
+    void nodeAboutToBeRemoved(const ModelNode &removedNode);
+    void modelAboutToBeDetached();
+
+    void showPopup();
+
+signals:
+    void currentIndexChanged();
+
+protected:
+    void addModelNode(const ModelNode &modelNode);
+    void addConnection(const ModelNode &modelNode);
+    void addSignalHandler(const SignalHandlerProperty &bindingProperty);
+    void removeModelNode(const ModelNode &modelNode);
+    void removeConnection(const ModelNode &modelNode);
+    void updateSource(int row);
+    void updateSignalName(int rowNumber);
+    void updateTargetNode(int rowNumber);
+    void updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty);
+    QStringList getPossibleSignalsForConnection(const ModelNode &connection) const;
+
+    QHash<int, QByteArray> roleNames() const override;
+
+private:
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
+    void handleException();
+    ConnectionModelBackendDelegate *delegate();
+
+private:
+    ConnectionView *m_connectionView;
+    bool m_lock = false;
+    QString m_exceptionError;
+    ConnectionModelBackendDelegate m_delegate;
+    int m_currentIndex = -1;
 };
 
 } // namespace QmlDesigner

@@ -47,7 +47,10 @@ class ConnectionViewQuickWidget : public StudioQuickWidget
     // Q_OBJECT carefull
 
 public:
-    ConnectionViewQuickWidget(ConnectionView *connectionEditorView)
+    ConnectionViewQuickWidget(ConnectionView *connectionEditorView,
+                              ConnectionModel *connectionModel,
+                              BindingModel *bindingModel,
+                              DynamicPropertiesModel *dynamicPropertiesModel)
         : m_connectionEditorView(connectionEditorView)
 
     {
@@ -70,15 +73,11 @@ public:
         qmlRegisterAnonymousType<DynamicPropertiesModelBackendDelegate>(
             "ConnectionsEditorEditorBackend", 1);
 
-        map->setProperties(
-            {{"connectionModel", QVariant::fromValue(m_connectionEditorView->connectionModel())}});
+        map->setProperties({{"connectionModel", QVariant::fromValue(connectionModel)}});
 
-        map->setProperties(
-            {{"bindingModel", QVariant::fromValue(m_connectionEditorView->bindingModel())}});
+        map->setProperties({{"bindingModel", QVariant::fromValue(bindingModel)}});
 
-        map->setProperties(
-            {{"dynamicPropertiesModel",
-              QVariant::fromValue(m_connectionEditorView->dynamicPropertiesModel())}});
+        map->setProperties({{"dynamicPropertiesModel", QVariant::fromValue(dynamicPropertiesModel)}});
 
         qmlRegisterType<ConnectionModelBackendDelegate>("ConnectionsEditorEditorBackend",
                                                         1,
@@ -141,75 +140,92 @@ private:
     QShortcut *m_qmlSourceUpdateShortcut;
 };
 
+struct ConnectionView::ConnectionViewData
+{
+    ConnectionViewData(ConnectionView *view)
+        : connectionModel{view}
+        , bindingModel{view}
+        , dynamicPropertiesModel{false, view}
+        , backendModel{view}
+        , propertyTreeModel{view}
+        , connectionViewQuickWidget{Utils::makeUniqueObjectPtr<ConnectionViewQuickWidget>(
+              view, &connectionModel, &bindingModel, &dynamicPropertiesModel)}
+    {}
+
+    ConnectionModel connectionModel;
+    BindingModel bindingModel;
+    DynamicPropertiesModel dynamicPropertiesModel;
+    BackendModel backendModel;
+    PropertyTreeModel propertyTreeModel;
+    int currentIndex = 0;
+
+    // Ensure that QML is deleted first to avoid calling back to C++.
+    Utils::UniqueObjectPtr<ConnectionViewQuickWidget> connectionViewQuickWidget;
+};
+
 ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-    , m_connectionModel(new ConnectionModel(this))
-    , m_bindingModel(new BindingModel(this))
-    , m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this))
-    , m_backendModel(new BackendModel(this))
-    , m_connectionViewQuickWidget(new ConnectionViewQuickWidget(this))
+    , d{std::make_unique<ConnectionViewData>(this)}
 {}
 
 ConnectionView::~ConnectionView()
 {
-    // Ensure that QML is deleted first to avoid calling back to C++.
-    delete m_connectionViewQuickWidget.data();
 }
 void ConnectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    bindingModel()->reset();
-    dynamicPropertiesModel()->reset();
-    connectionModel()->resetModel();
-    backendModel()->resetModel();
+    d->bindingModel.reset();
+    d->dynamicPropertiesModel.reset();
+    d->connectionModel.resetModel();
+    d->backendModel.resetModel();
 }
 
 void ConnectionView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
-    bindingModel()->reset();
-    dynamicPropertiesModel()->reset();
-    connectionModel()->resetModel();
-    connectionModel()->modelAboutToBeDetached();
+    d->bindingModel.reset();
+    d->dynamicPropertiesModel.reset();
+    d->connectionModel.resetModel();
+    d->connectionModel.modelAboutToBeDetached();
 }
 
 void ConnectionView::nodeCreated(const ModelNode & /*createdNode*/)
 {
-    connectionModel()->resetModel();
+    d->connectionModel.resetModel();
 }
 
 void ConnectionView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    connectionModel()->nodeAboutToBeRemoved(removedNode);
+    d->connectionModel.nodeAboutToBeRemoved(removedNode);
 }
 
 void ConnectionView::nodeRemoved(const ModelNode & /*removedNode*/,
                                  const NodeAbstractProperty & /*parentProperty*/,
                                  AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-     connectionModel()->resetModel();
+    d->connectionModel.resetModel();
 }
 
 void ConnectionView::nodeReparented(const ModelNode & /*node*/, const NodeAbstractProperty & /*newPropertyParent*/,
                                const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    connectionModel()->resetModel();
+    d->connectionModel.resetModel();
 }
 
 void ConnectionView::nodeIdChanged(const ModelNode & /*node*/, const QString & /*newId*/, const QString & /*oldId*/)
 {
-    connectionModel()->resetModel();
-    bindingModel()->reset();
-    dynamicPropertiesModel()->reset();
+    d->connectionModel.resetModel();
+    d->bindingModel.reset();
+    d->dynamicPropertiesModel.reset();
 }
 
 void ConnectionView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
     for (const AbstractProperty &property : propertyList) {
         if (property.isDefaultProperty())
-            connectionModel()->resetModel();
+            d->connectionModel.resetModel();
 
-        dynamicPropertiesModel()->dispatchPropertyChanges(property);
+        d->dynamicPropertiesModel.dispatchPropertyChanges(property);
     }
 }
 
@@ -217,12 +233,12 @@ void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &p
 {
     for (const AbstractProperty &property : propertyList) {
         if (property.isBindingProperty()) {
-            bindingModel()->removeItem(property);
-            dynamicPropertiesModel()->removeItem(property);
+            d->bindingModel.removeItem(property);
+            d->dynamicPropertiesModel.removeItem(property);
         } else if (property.isVariantProperty()) {
-            dynamicPropertiesModel()->removeItem(property);
+            d->dynamicPropertiesModel.removeItem(property);
         } else if (property.isSignalHandlerProperty()) {
-            connectionModel()->removeRowFromTable(property.toSignalHandlerProperty());
+            d->connectionModel.removeRowFromTable(property.toSignalHandlerProperty());
         }
     }
 }
@@ -232,13 +248,13 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
 {
     for (const VariantProperty &variantProperty : propertyList) {
         if (variantProperty.isDynamic())
-            dynamicPropertiesModel()->updateItem(variantProperty);
+            d->dynamicPropertiesModel.updateItem(variantProperty);
         if (variantProperty.isDynamic() && variantProperty.parentModelNode().isRootNode())
-            backendModel()->resetModel();
+            d->backendModel.resetModel();
 
-        connectionModel()->variantPropertyChanged(variantProperty);
+        d->connectionModel.variantPropertyChanged(variantProperty);
 
-        dynamicPropertiesModel()->dispatchPropertyChanges(variantProperty);
+        d->dynamicPropertiesModel.dispatchPropertyChanges(variantProperty);
     }
 }
 
@@ -246,15 +262,15 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
                                          AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     for (const BindingProperty &bindingProperty : propertyList) {
-        bindingModel()->updateItem(bindingProperty);
+        d->bindingModel.updateItem(bindingProperty);
         if (bindingProperty.isDynamic())
-            dynamicPropertiesModel()->updateItem(bindingProperty);
+            d->dynamicPropertiesModel.updateItem(bindingProperty);
         if (bindingProperty.isDynamic() && bindingProperty.parentModelNode().isRootNode())
-            backendModel()->resetModel();
+            d->backendModel.resetModel();
 
-        connectionModel()->bindingPropertyChanged(bindingProperty);
+        d->connectionModel.bindingPropertyChanged(bindingProperty);
 
-        dynamicPropertiesModel()->dispatchPropertyChanges(bindingProperty);
+        d->dynamicPropertiesModel.dispatchPropertyChanges(bindingProperty);
     }
 }
 
@@ -262,29 +278,29 @@ void ConnectionView::signalHandlerPropertiesChanged(const QVector<SignalHandlerP
                                                     AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     for (const SignalHandlerProperty &signalHandlerProperty : propertyList)
-        connectionModel()->abstractPropertyChanged(signalHandlerProperty);
+        d->connectionModel.abstractPropertyChanged(signalHandlerProperty);
 }
 
 void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeList,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
-    bindingModel()->reset(selectedNodeList);
-    dynamicPropertiesModel()->reset();
+    d->bindingModel.reset(selectedNodeList);
+    d->dynamicPropertiesModel.reset();
 }
 
 void ConnectionView::importsChanged(const Imports & /*addedImports*/, const Imports & /*removedImports*/)
 {
-    backendModel()->resetModel();
+    d->backendModel.resetModel();
 }
 
 void ConnectionView::currentStateChanged(const ModelNode &)
 {
-    dynamicPropertiesModel()->reset();
+    d->dynamicPropertiesModel.reset();
 }
 
 WidgetInfo ConnectionView::widgetInfo()
 {
-    return createWidgetInfo(m_connectionViewQuickWidget.data(),
+    return createWidgetInfo(d->connectionViewQuickWidget.get(),
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
                             0,
@@ -303,35 +319,35 @@ bool ConnectionView::isWidgetEnabled()
 
 ConnectionModel *ConnectionView::connectionModel() const
 {
-    return m_connectionModel;
+    return &d->connectionModel;
 }
 
 BindingModel *ConnectionView::bindingModel() const
 {
-    return m_bindingModel;
+    return &d->bindingModel;
 }
 
 DynamicPropertiesModel *ConnectionView::dynamicPropertiesModel() const
 {
-    return m_dynamicPropertiesModel;
+    return &d->dynamicPropertiesModel;
 }
 
 BackendModel *ConnectionView::backendModel() const
 {
-    return m_backendModel;
+    return &d->backendModel;
 }
 
 int ConnectionView::currentIndex() const
 {
-    return m_currentIndex;
+    return d->currentIndex;
 }
 
 void ConnectionView::setCurrentIndex(int i)
 {
-    if (m_currentIndex == i)
+    if (d->currentIndex == i)
         return;
 
-    m_currentIndex = i;
+    d->currentIndex = i;
     emit currentIndexChanged();
 }
 
@@ -362,8 +378,8 @@ void ConnectionView::customNotification(const AbstractView *,
         QTC_ASSERT(data.count() == 1, return );
 
         const PropertyName name = data.first().toString().toUtf8();
-        m_connectionModel->addConnection(name);
-        m_connectionModel->showPopup();
+        d->connectionModel.addConnection(name);
+        d->connectionModel.showPopup();
     } else if (identifier == EditConnectionNotification) {
         QTC_ASSERT(nodeList.count() == 1, return );
         ModelNode modelNode = nodeList.first();
@@ -374,8 +390,8 @@ void ConnectionView::customNotification(const AbstractView *,
 
         QTC_ASSERT(modelNode.hasSignalHandlerProperty(name), return );
 
-        m_connectionModel->selectProperty(modelNode.signalHandlerProperty(name));
-        m_connectionModel->showPopup();
+        d->connectionModel.selectProperty(modelNode.signalHandlerProperty(name));
+        d->connectionModel.showPopup();
     }
 }
 

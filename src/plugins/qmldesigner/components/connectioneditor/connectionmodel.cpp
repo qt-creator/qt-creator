@@ -55,9 +55,9 @@ bool isConnection(const QmlDesigner::ModelNode &modelNode)
 
 namespace QmlDesigner {
 
-ConnectionModel::ConnectionModel(ConnectionView *parent)
-    : QStandardItemModel(parent), m_connectionView(parent),
-      m_delegate(new ConnectionModelBackendDelegate(this))
+ConnectionModel::ConnectionModel(ConnectionView *view)
+    : m_connectionView(view)
+    , m_delegate{this}
 {
     connect(this, &QStandardItemModel::dataChanged, this, &ConnectionModel::handleDataChanged);
 }
@@ -90,7 +90,7 @@ void ConnectionModel::resetModel()
             addModelNode(modelNode);
     }
     endResetModel();
-    m_delegate->update();
+    m_delegate.update();
 }
 
 SignalHandlerProperty ConnectionModel::signalHandlerPropertyForRow(int rowNumber) const
@@ -480,7 +480,7 @@ void ConnectionModel::setCurrentIndex(int i)
         m_currentIndex = i;
         emit currentIndexChanged();
     }
-    m_delegate->setCurrentRow(i);
+    m_delegate.setCurrentRow(i);
 }
 
 int ConnectionModel::currentIndex() const
@@ -506,7 +506,7 @@ void ConnectionModel::nodeAboutToBeRemoved(const ModelNode &removedNode)
     if (selectedSignal.isValid()) {
         ModelNode targetNode = getTargetNodeForConnection(selectedSignal.parentModelNode());
         if (targetNode == removedNode) {
-            emit m_delegate->popupShouldClose();
+            emit m_delegate.popupShouldClose();
         }
     }
 }
@@ -517,9 +517,9 @@ void ConnectionModel::handleException()
     resetModel();
 }
 
-ConnectionModelBackendDelegate *ConnectionModel::delegate() const
+ConnectionModelBackendDelegate *ConnectionModel::delegate()
 {
-    return m_delegate;
+    return &m_delegate;
 }
 
 void ConnectionModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -676,10 +676,13 @@ QHash<int, QByteArray> ConnectionModel::roleNames() const
     return roleNames;
 }
 
-ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *parent)
-    : QObject(parent), m_signalDelegate(parent->connectionView()), m_okStatementDelegate(parent),
-      m_koStatementDelegate(parent), m_conditionListModel(parent),
-      m_propertyTreeModel(parent->connectionView()), m_propertyListProxyModel(&m_propertyTreeModel)
+ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *model)
+    : m_signalDelegate(model->connectionView())
+    , m_okStatementDelegate(model)
+    , m_koStatementDelegate(model)
+    , m_conditionListModel(model)
+    , m_propertyTreeModel(model->connectionView())
+    , m_propertyListProxyModel(&m_propertyTreeModel)
 
 {
     connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
@@ -1214,10 +1217,12 @@ void ConnectionModelBackendDelegate::commitNewSource(const QString &source)
 
 static ConnectionEditorStatements::MatchedStatement emptyStatement;
 
-ConnectionModelStatementDelegate::ConnectionModelStatementDelegate(ConnectionModel *parent)
-    : QObject(parent), m_functionDelegate(parent->connectionView()),
-      m_lhsDelegate(parent->connectionView()), m_rhsAssignmentDelegate(parent->connectionView()),
-      m_statement(emptyStatement), m_model(parent)
+ConnectionModelStatementDelegate::ConnectionModelStatementDelegate(ConnectionModel *model)
+    : m_functionDelegate(model->connectionView())
+    , m_lhsDelegate(model->connectionView())
+    , m_rhsAssignmentDelegate(model->connectionView())
+    , m_statement(emptyStatement)
+    , m_model(model)
 {
     m_functionDelegate.setPropertyType(PropertyTreeModel::SlotType);
 
@@ -1657,8 +1662,9 @@ QString ConnectionModelStatementDelegate::baseStateName() const
 
 static ConnectionEditorStatements::MatchedCondition emptyCondition;
 
-ConditionListModel::ConditionListModel(ConnectionModel *parent)
-    : m_connectionModel(parent), m_condition(emptyCondition)
+ConditionListModel::ConditionListModel(ConnectionModel *model)
+    : m_connectionModel(model)
+    , m_condition(emptyCondition)
 {}
 
 int ConditionListModel::rowCount(const QModelIndex & /*parent*/) const
@@ -2139,12 +2145,12 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
 
 void QmlDesigner::ConnectionModel::modelAboutToBeDetached()
 {
-    emit m_delegate->popupShouldClose();
+    emit m_delegate.popupShouldClose();
 }
 
 void ConnectionModel::showPopup()
 {
-    emit m_delegate->popupShouldOpen();
+    emit m_delegate.popupShouldOpen();
 }
 
 } // namespace QmlDesigner

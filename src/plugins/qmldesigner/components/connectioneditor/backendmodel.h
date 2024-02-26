@@ -21,7 +21,7 @@ public:
         IsLocalColumn = 3,
     };
 
-    BackendModel(ConnectionView *parent);
+    BackendModel(ConnectionView *view);
 
     ConnectionView *connectionView() const;
 

@@ -55,7 +55,7 @@ class QMLDESIGNERBASE_EXPORT StudioQmlTextBackend : public QObject
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
 
 public:
-    explicit StudioQmlTextBackend(QObject *parent = nullptr) : QObject(parent) {}
+    StudioQmlTextBackend() = default;
 
     void setText(const QString &text)
     {
@@ -95,7 +95,7 @@ class QMLDESIGNERBASE_EXPORT StudioQmlComboBoxBackend : public QObject
     Q_PROPERTY(QStringList model READ model NOTIFY modelChanged) //TODO turn into model
 
 public:
-    explicit StudioQmlComboBoxBackend(QObject *parent = nullptr) : QObject(parent) {}
+    StudioQmlComboBoxBackend() = default;
 
     void setModel(const QStringList &model)
     {
