@@ -94,10 +94,10 @@ private:
     void scheduleClientRestart(ClangdClient *client);
     static ClangdClient *clientWithProject(const ProjectExplorer::Project *project);
 
-    Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;
     QTimer * const m_clientRestartTimer;
     QHash<Utils::FilePath, QString> m_potentialShadowDocuments;
+    Utils::FutureSynchronizer m_generatorSynchronizer; // Keep me last
 };
 
 } // namespace Internal
