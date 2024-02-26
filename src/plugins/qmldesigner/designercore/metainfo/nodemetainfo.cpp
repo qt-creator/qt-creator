@@ -3151,7 +3151,7 @@ bool NodeMetaInfo::isUrl() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "url" || type == "QUrl";
     }
