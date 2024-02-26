@@ -72,8 +72,9 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(Process *process)
 class UicGeneratorFactory final : public ExtraCompilerFactory
 {
 public:
-    UicGeneratorFactory() = default;
+    explicit UicGeneratorFactory(QObject *guard) : m_guard(guard) {}
 
+private:
     FileType sourceType() const final { return FileType::Form; }
 
     QString sourceTag() const final { return QLatin1String("ui"); }
@@ -82,13 +83,15 @@ public:
                           const FilePath &source,
                           const FilePaths &targets) final
     {
-        return new UicGenerator(project, source, targets, this);
+        return new UicGenerator(project, source, targets, m_guard);
     }
+
+    QObject *m_guard;
 };
 
-void setupUicGenerator()
+void setupUicGenerator(QObject *guard)
 {
-    static UicGeneratorFactory theUicGeneratorFactory;
+    static UicGeneratorFactory theUicGeneratorFactory(guard);
 }
 
 } // QtSupport::Internal

@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <QObject>
+
 namespace QtSupport::Internal {
 
-void setupQScxmlcGenerator();
+void setupQScxmlcGenerator(QObject *guard);
 
 } // QtSupport::Internal
