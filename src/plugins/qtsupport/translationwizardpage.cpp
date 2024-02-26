@@ -58,10 +58,10 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr, bool si
 {
     const auto mainLayout = new QVBoxLayout(this);
     const auto descriptionLabel = new QLabel(
-                singleFile ? Tr::tr("Please select a language for which a corresponding "
+                singleFile ? Tr::tr("Select a language for which a corresponding "
                                     "translation (.ts) file will be generated for you.")
                            : Tr::tr("If you plan to provide translations for your project's "
-                                    "user interface via the Qt Linguist tool, please select a "
+                                    "user interface via the Qt Linguist tool, select a "
                                     "language here. A corresponding translation (.ts) file will be "
                                     "generated for you."));
     descriptionLabel->setWordWrap(true);
