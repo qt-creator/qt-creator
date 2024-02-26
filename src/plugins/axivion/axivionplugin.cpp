@@ -816,7 +816,8 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         return;
 
     const FilePath filePath = doc->filePath().relativeChildPath(m_project->projectDirectory());
-    QTC_ASSERT(!filePath.isEmpty(), return);
+    if (filePath.isEmpty())
+        return; // Empty is fine
 
     const auto handler = [this](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
