@@ -1499,7 +1499,7 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
             //: Failed to run p4 "where" to resolve a Perforce file name to a local
             //: file system name.
             VcsOutputWindow::appendError(
-                Tr::tr("Error running \"where\" on %1: The file is not mapped")
+                Tr::tr("Error running \"where\" on %1: The file is not mapped.")
                     .arg(QDir::toNativeSeparators(perforceName)));
         }
         return {};
