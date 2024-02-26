@@ -850,7 +850,10 @@ void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), &Process::done, this, [this] { onProcessIdChanged({-1, -1}); });
+        connect(m_psIsAlive.get(), &Process::done, this, [this] {
+            m_psIsAlive.release()->deleteLater();
+            onProcessIdChanged({-1, -1});
+        });
     }
 }
 
