@@ -108,12 +108,11 @@ private:
                      const Utils::Environment &env);
 };
 
-class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
+class PROJECTEXPLORER_EXPORT ExtraCompilerFactory
 {
-    Q_OBJECT
 public:
-    explicit ExtraCompilerFactory(QObject *parent = nullptr);
-    ~ExtraCompilerFactory() override;
+    ExtraCompilerFactory();
+    virtual ~ExtraCompilerFactory();
 
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;

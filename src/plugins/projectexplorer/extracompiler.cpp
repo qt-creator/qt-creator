@@ -301,8 +301,7 @@ void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
     }
 }
 
-ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent)
-    : QObject(parent)
+ExtraCompilerFactory::ExtraCompilerFactory()
 {
     factories->append(this);
 }
