@@ -61,7 +61,7 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
         if (y > 1 && y < height() - 2) { // TODO improve
             const int pos = position.x();
             const int logical = logicalIndexAt(pos);
-            const int end = sectionPosition(logical) + sectionSize(logical);
+            const int end = sectionViewportPosition(logical) + sectionSize(logical);
             const int start = end - ICON_SIZE - 2;
             m_maybeToggleSort = start < pos && end > pos;
         }
