@@ -43,6 +43,7 @@ public:
 
     void setExpectedRowCount(int expected);
     void setHeader(const QStringList &header);
+    void setAlignments(const QList<Qt::Alignment> &alignments);
 
     QModelIndex indexForItem(const ListItem *item) const;
 
@@ -55,6 +56,7 @@ private:
 
     QHash<int, ListItem *> m_children;
     QStringList m_header;
+    QList<Qt::Alignment> m_alignments;
     QTimer m_fetchMoreTimer;
     std::optional<int> m_expectedRowCount = {};
     int m_fetchStart = -1;

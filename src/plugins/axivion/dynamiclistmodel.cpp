@@ -61,8 +61,13 @@ QVariant DynamicListModel::data(const QModelIndex &index, int role) const
         return {};
 
     auto item = m_children.constFind(row);
-    if (item != m_children.cend())
+    if (item != m_children.cend()) {
+        if (role == Qt::TextAlignmentRole) {
+            if (!m_alignments.isEmpty() && index.column() < m_alignments.size())
+                return QVariant::fromValue(m_alignments.at(index.column()));
+        }
         return item.value()->data(index.column(), role);
+    }
 
     if ((row < m_lastFetch || row > m_lastFetchEnd) && (row < m_fetchStart || row > m_fetchEnd))
         const_cast<DynamicListModel *>(this)->onNeedFetch(row);
@@ -136,6 +141,11 @@ void DynamicListModel::setHeader(const QStringList &header)
 {
     m_header = header;
     m_columnCount = m_header.size();
+}
+
+void DynamicListModel::setAlignments(const QList<Qt::Alignment> &alignments)
+{
+    m_alignments = alignments;
 }
 
 QModelIndex DynamicListModel::indexForItem(const ListItem *item) const

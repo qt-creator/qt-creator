@@ -380,6 +380,17 @@ void IssuesWidget::updateUi()
     fetchTable();
 }
 
+static Qt::Alignment alignmentFromString(const QString &str)
+{
+    if (str == "left")
+        return Qt::AlignLeft;
+    if (str == "right")
+        return Qt::AlignRight;
+    if (str == "center")
+        return Qt::AlignHCenter;
+    return Qt::AlignLeft;
+}
+
 void IssuesWidget::updateTable()
 {
     if (!m_currentTableInfo)
@@ -389,12 +400,14 @@ void IssuesWidget::updateTable()
     QStringList hiddenColumns;
     QList<bool> sortableColumns;
     QList<int> columnWidths;
+    QList<Qt::Alignment> alignments;
     for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
         sortableColumns << column.canSort;
         columnWidths << column.width;
+        alignments << alignmentFromString(column.alignment);
     }
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
@@ -402,6 +415,7 @@ void IssuesWidget::updateTable()
 
     m_issuesModel->clear();
     m_issuesModel->setHeader(columnHeaders);
+    m_issuesModel->setAlignments(alignments);
     m_headerView->setSortableColumns(sortableColumns);
     m_headerView->setColumnWidths(columnWidths);
     int counter = 0;
