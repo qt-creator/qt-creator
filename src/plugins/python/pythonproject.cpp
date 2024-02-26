@@ -35,7 +35,7 @@ Tasks PythonProject::projectIssues(const Kit *k) const
         return {};
     return {
         BuildSystemTask{Task::Error,
-                        Tr::tr("No python interpreter set for kit \"%1\"").arg(k->displayName())}};
+                        Tr::tr("No Python interpreter set for kit \"%1\"").arg(k->displayName())}};
 }
 
 PythonProjectNode::PythonProjectNode(const FilePath &path)
