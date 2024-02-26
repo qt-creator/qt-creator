@@ -49,12 +49,10 @@ void ActionEditor::prepareDialog()
 
     s_lastActionEditor = this;
 
-    m_dialog = new ActionEditorDialog(Core::ICore::dialogParent());
+    m_dialog = Utils::makeUniqueObjectPtr<ActionEditorDialog>(Core::ICore::dialogParent());
 
-    QObject::connect(m_dialog, &AbstractEditorDialog::accepted,
-                     this, &ActionEditor::accepted);
-    QObject::connect(m_dialog, &AbstractEditorDialog::rejected,
-                     this, &ActionEditor::rejected);
+    QObject::connect(m_dialog.get(), &AbstractEditorDialog::accepted, this, &ActionEditor::accepted);
+    QObject::connect(m_dialog.get(), &AbstractEditorDialog::rejected, this, &ActionEditor::rejected);
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -327,13 +325,13 @@ void ActionEditor::prepareConnections()
     for (const QmlModelState &state : QmlItemNode(m_modelNode.view()->rootModelNode()).states().allStates())
         states.append(state.name());
 
-    if (!connections.isEmpty() && !m_dialog.isNull())
+    if (!connections.isEmpty() && m_dialog)
         m_dialog->setAllConnections(connections, singletons, states);
 }
 
 void ActionEditor::updateWindowName(const QString &targetName)
 {
-    if (!m_dialog.isNull()) {
+    if (m_dialog) {
         if (targetName.isEmpty())
             m_dialog->setWindowTitle(m_dialog->defaultTitle());
         else

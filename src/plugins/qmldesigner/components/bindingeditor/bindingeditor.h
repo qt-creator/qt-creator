@@ -8,6 +8,8 @@
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QtQml>
 #include <QObject>
 #include <QPointer>
@@ -72,7 +74,7 @@ private:
     void prepareDialog();
 
 private:
-    QPointer<BindingEditorDialog> m_dialog;
+    Utils::UniqueObjectPtr<BindingEditorDialog> m_dialog;
     QVariant m_backendValue;
     QVariant m_modelNodeBackend;
     QVariant m_stateModelNode;

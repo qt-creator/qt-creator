@@ -37,12 +37,10 @@ void BindingEditor::prepareDialog()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_BINDINGEDITOR_OPENED);
 
-    m_dialog = new BindingEditorDialog(Core::ICore::dialogParent());
+    m_dialog = Utils::makeUniqueObjectPtr<BindingEditorDialog>(Core::ICore::dialogParent());
 
-    QObject::connect(m_dialog, &AbstractEditorDialog::accepted,
-                     this, &BindingEditor::accepted);
-    QObject::connect(m_dialog, &AbstractEditorDialog::rejected,
-                     this, &BindingEditor::rejected);
+    QObject::connect(m_dialog.get(), &AbstractEditorDialog::accepted, this, &BindingEditor::accepted);
+    QObject::connect(m_dialog.get(), &AbstractEditorDialog::rejected, this, &BindingEditor::rejected);
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -273,13 +271,13 @@ void BindingEditor::prepareBindings()
         }
     }
 
-    if (!bindings.isEmpty() && !m_dialog.isNull())
+    if (!bindings.isEmpty() && m_dialog)
         m_dialog->setAllBindings(bindings, m_backendValueType);
 }
 
 void BindingEditor::updateWindowName()
 {
-    if (!m_dialog.isNull() && m_backendValueType) {
+    if (m_dialog && m_backendValueType) {
         QString targetString;
         if constexpr (useProjectStorage()) {
             auto exportedTypeNames = m_backendValueType.exportedTypeNamesForSourceId(

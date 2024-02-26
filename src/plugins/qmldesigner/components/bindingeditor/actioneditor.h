@@ -9,6 +9,8 @@
 #include <modelnode.h>
 #include <signalhandlerproperty.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QtQml>
 #include <QObject>
 #include <QPointer>
@@ -63,7 +65,7 @@ private:
     void prepareDialog();
 
 private:
-    QPointer<ActionEditorDialog> m_dialog;
+    Utils::UniqueObjectPtr<ActionEditorDialog> m_dialog;
     QModelIndex m_index;
     QmlDesigner::ModelNode m_modelNode;
 };
