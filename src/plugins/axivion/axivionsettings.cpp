@@ -108,7 +108,7 @@ AxivionSettings::AxivionSettings()
 
     highlightMarks.setSettingsKey("HighlightMarks");
     highlightMarks.setLabelText(Tr::tr("Highlight marks"));
-    highlightMarks.setToolTip(Tr::tr("Check to enable issue marks on the scroll bar."));
+    highlightMarks.setToolTip(Tr::tr("Marks issues on the scroll bar."));
     highlightMarks.setDefaultValue(false);
     AspectContainer::readSettings();
 
