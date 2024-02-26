@@ -194,7 +194,7 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
         const auto isInvalid = [](QChar c) { return c.isSpace() || !isascii(c.toLatin1()); };
         if (const auto invalidChar = Utils::findOr(value, std::nullopt, isInvalid)) {
             genericProblem = Tr::tr(
-                                 "Build directory contains potentially problematic character '%1'.")
+                                 "Build directory contains potentially problematic character \"%1\".")
                                  .arg(*invalidChar);
             genericProblemLabelString
                 = genericProblem
