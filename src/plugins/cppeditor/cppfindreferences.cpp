@@ -388,7 +388,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     search->setTextToReplace(replacement);
     if (callback)
         search->makeNonInteractive(callback);
-    if (codeModelSettings()->categorizeFindReferences())
+    if (CppCodeModelSettings::instance().categorizeFindReferences())
         search->setFilter(new CppSearchResultFilter);
     setupSearch(search);
     search->setSearchAgainSupported(true);
@@ -397,7 +397,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     CppFindReferencesParameters parameters;
     parameters.symbolId = fullIdForSymbol(symbol);
     parameters.symbolFilePath = symbol->filePath();
-    parameters.categorize = codeModelSettings()->categorizeFindReferences();
+    parameters.categorize = CppCodeModelSettings::instance().categorizeFindReferences();
     parameters.preferLowerCaseFileNames = preferLowerCaseFileNames(
         ProjectManager::projectForFile(symbol->filePath()));
 
@@ -408,7 +408,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     }
 
     search->setUserData(QVariant::fromValue(parameters));
-    findAll_helper(search, symbol, context, codeModelSettings()->categorizeFindReferences());
+    findAll_helper(search, symbol, context,
+                   CppCodeModelSettings::instance().categorizeFindReferences());
 }
 
 void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol,

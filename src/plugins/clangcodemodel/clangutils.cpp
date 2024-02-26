@@ -166,7 +166,7 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
     }
     compileCommandsFile.write("[");
 
-    const UsePrecompiledHeaders usePch = getPchUsage();
+    const UsePrecompiledHeaders usePch = CppCodeModelSettings::instance().usePrecompiledHeaders();
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
         QTC_ASSERT(projectInfo, continue);

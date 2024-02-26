@@ -407,7 +407,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         saveAndOpen(outFilePath, content.append(preprocessedDoc->utf8Source()), inNextSplit);
     };
 
-    if (codeModelSettings()->useBuiltinPreprocessor()) {
+    if (CppCodeModelSettings::instance().useBuiltinPreprocessor()) {
         useBuiltinPreprocessor();
         return;
     }
@@ -1349,10 +1349,12 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const QSet<QString> filteredFiles = filteredFilesRemoved(transform(sourceFiles, &FilePath::toString),
-                                                             indexerFileSizeLimitInMb(),
-                                                             codeModelSettings()->ignoreFiles(),
-                                                             codeModelSettings()->ignorePattern());
+    const CppCodeModelSettings &settings = CppCodeModelSettings::instance();
+    const QSet<QString> filteredFiles
+        = filteredFilesRemoved(transform(sourceFiles, &FilePath::toString),
+                               settings.effectiveIndexerFileSizeLimitInMb(),
+                               settings.ignoreFiles(),
+                               settings.ignorePattern());
 
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }

@@ -348,9 +348,9 @@ void CppEditorPlugin::addPerSymbolActions()
     findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
     findRefsCategorized.addOnTriggered(this, [] {
         if (const auto w = currentCppEditorWidget()) {
-            codeModelSettings()->setCategorizeFindReferences(true);
+            CppCodeModelSettings::instance().setCategorizeFindReferences(true);
             w->findUsages();
-            codeModelSettings()->setCategorizeFindReferences(false);
+            CppCodeModelSettings::instance().setCategorizeFindReferences(false);
         }
     });
 

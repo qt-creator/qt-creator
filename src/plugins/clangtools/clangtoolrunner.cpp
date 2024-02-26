@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -24,7 +25,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>
-
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
@@ -49,7 +49,9 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
                                           actualClangIncludeDir);
     file = fileInfo.file;
     arguments = extraClangToolsPrependOptions();
-    arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));
+    arguments.append(
+        optionsBuilder.build(fileInfo.kind,
+                             CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders()));
     arguments.append(extraClangToolsAppendOptions());
 }
 

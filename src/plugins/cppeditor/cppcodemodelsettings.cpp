@@ -4,6 +4,7 @@
 #include "cppcodemodelsettings.h"
 
 #include "clangdiagnosticconfigsmodel.h"
+#include "compileroptionsbuilder.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cpptoolsreuse.h"
@@ -125,6 +126,12 @@ void CppCodeModelSettings::toSettings(QtcSettings *s)
     emit changed(); // TODO: Why?
 }
 
+CppCodeModelSettings &CppCodeModelSettings::instance()
+{
+    static CppCodeModelSettings theCppCodeModelSettings(Core::ICore::settings());
+    return theCppCodeModelSettings;
+}
+
 void CppCodeModelSettings::setData(const Data &data)
 {
     if (m_data != data) {
@@ -132,6 +139,18 @@ void CppCodeModelSettings::setData(const Data &data)
         toSettings(Core::ICore::settings());
         emit changed();
     }
+}
+
+UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders() const
+{
+    if (instance().pchUsage() == CppCodeModelSettings::PchUse_None)
+        return UsePrecompiledHeaders::No;
+    return UsePrecompiledHeaders::Yes;
+}
+
+int CppCodeModelSettings::effectiveIndexerFileSizeLimitInMb() const
+{
+    return instance().skipIndexingBigFiles() ? instance().indexerFileSizeLimitInMb() : -1;
 }
 
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
@@ -576,12 +595,6 @@ int ClangdSettings::Data::defaultCompletionResults()
     bool ok = false;
     const int userValue = qtcEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
     return ok ? userValue : 100;
-}
-
-CppCodeModelSettings &cppCodeModelSettings()
-{
-    static CppCodeModelSettings theCppCodeModelSettings(Core::ICore::settings());
-    return theCppCodeModelSettings;
 }
 
 } // namespace CppEditor

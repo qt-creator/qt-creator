@@ -418,7 +418,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
-        const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
+        const CppEditor::UsePrecompiledHeaders usePch
+            = CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders();
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, globalClangOptions());
         const QJsonArray clangOptions = clangOptionsForFile({}, optionsBuilder.projectPart(),
@@ -599,7 +600,7 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
         }
     }
 
-    const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
+    const bool categorize = CppEditor::CppCodeModelSettings::instance().categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
@@ -919,8 +920,13 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
                                       CppEditor::ProjectFile::classify(filePath.toString()));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
-    addToCompilationDb(cdbChanges, *projectPart, CppEditor::getPchUsage(), projectPartOptions,
-                       filePath.parentDir(), file, optionsBuilder.isClStyle());
+    addToCompilationDb(cdbChanges,
+                       *projectPart,
+                       CppEditor::CppCodeModelSettings::instance().usePrecompiledHeaders(),
+                       projectPartOptions,
+                       filePath.parentDir(),
+                       file,
+                       optionsBuilder.isClStyle());
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;

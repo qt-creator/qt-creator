@@ -357,22 +357,6 @@ CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
     return new Internal::InternalCppCompletionAssistProcessor();
 }
 
-CppCodeModelSettings *codeModelSettings()
-{
-    return &cppCodeModelSettings();
-}
-
-int indexerFileSizeLimitInMb()
-{
-    const CppCodeModelSettings *settings = codeModelSettings();
-    QTC_ASSERT(settings, return -1);
-
-    if (settings->skipIndexingBigFiles())
-        return settings->indexerFileSizeLimitInMb();
-
-    return -1;
-}
-
 bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 {
     if (sizeLimitInMb <= 0)
@@ -390,14 +374,6 @@ bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
     }
 
     return false;
-}
-
-UsePrecompiledHeaders getPchUsage()
-{
-    const CppCodeModelSettings *cms = codeModelSettings();
-    if (cms->pchUsage() == CppCodeModelSettings::PchUse_None)
-        return UsePrecompiledHeaders::No;
-    return UsePrecompiledHeaders::Yes;
 }
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)

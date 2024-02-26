@@ -22,6 +22,7 @@ class MacroExpander;
 } // namespace Utils
 
 namespace CppEditor {
+enum class UsePrecompiledHeaders;
 
 class CPPEDITOR_EXPORT CppCodeModelSettings : public QObject
 {
@@ -52,16 +53,18 @@ public:
         QString ignorePattern;
     };
 
-    CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
+    static CppCodeModelSettings &instance();
 
     void setData(const Data &data);
     Data data() const { return m_data; }
 
     PCHUsage pchUsage() const { return m_data.pchUsage; }
+    UsePrecompiledHeaders usePrecompiledHeaders() const;
     bool interpretAmbigiousHeadersAsC() const { return m_data.interpretAmbigiousHeadersAsC; }
     bool skipIndexingBigFiles() const { return m_data.skipIndexingBigFiles; }
     bool useBuiltinPreprocessor() const { return m_data.useBuiltinPreprocessor; }
     int indexerFileSizeLimitInMb() const { return m_data.indexerFileSizeLimitInMb; }
+    int effectiveIndexerFileSizeLimitInMb() const;
     bool categorizeFindReferences() const { return m_data.categorizeFindReferences; }
     bool ignoreFiles() const { return m_data.ignoreFiles; }
     QString ignorePattern() const { return m_data.ignorePattern; }
@@ -73,6 +76,7 @@ signals:
 
 private:
     CppCodeModelSettings() = default;
+    CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
 
     void toSettings(Utils::QtcSettings *s);
     void fromSettings(Utils::QtcSettings *s);
@@ -223,7 +227,5 @@ private:
     bool m_useGlobalSettings = true;
     bool m_blockIndexing = false;
 };
-
-CppCodeModelSettings &cppCodeModelSettings();
 
 } // namespace CppEditor

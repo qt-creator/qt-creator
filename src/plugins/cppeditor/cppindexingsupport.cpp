@@ -5,6 +5,7 @@
 
 #include "builtineditordocumentparser.h"
 #include "cppchecksymbols.h"
+#include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppsourceprocessor.h"

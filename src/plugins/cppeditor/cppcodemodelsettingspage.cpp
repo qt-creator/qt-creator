@@ -54,7 +54,7 @@ public:
     CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data);
 
 private:
-    void apply() final { codeModelSettings()->setData(data()); }
+    void apply() final { CppCodeModelSettings::instance().setData(data()); }
 
     CppCodeModelSettings::Data data() const;
 
@@ -152,7 +152,8 @@ public:
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("C++"));
         setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
-        setWidgetCreator([] { return new CppCodeModelSettingsWidget(codeModelSettings()->data()); });
+        setWidgetCreator(
+            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::instance().data()); });
     }
 };
 
