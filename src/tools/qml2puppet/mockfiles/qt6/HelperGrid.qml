@@ -1,9 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 6.0
-import QtQuick3D 6.0
-import GridGeometry 1.0
+import QtQuick
+import QtQuick3D
+import GridGeometry
 
 Node {
     id: grid
@@ -74,6 +74,10 @@ Node {
             name: "3D Edit View Helper Grid"
         }
 
+        castsShadows: false
+        receivesShadows: false
+        castsReflections: false
+
         materials: [
             GridMaterial {
                 id: mainGridMaterial
@@ -94,6 +98,10 @@ Node {
             name: "3D Edit View Helper Grid subdivisions"
         }
 
+        castsShadows: false
+        receivesShadows: false
+        castsReflections: false
+
         materials: [
             GridMaterial {
                 id: subGridMaterial
@@ -113,6 +121,11 @@ Node {
             isCenterLine: true
             name: "3D Edit View Helper Grid Z Axis"
         }
+
+        castsShadows: false
+        receivesShadows: false
+        castsReflections: false
+
         materials: [
             GridMaterial {
                 id: vCenterLineMaterial
@@ -132,6 +145,11 @@ Node {
             isCenterLine: true
             name: "3D Edit View Helper Grid X Axis"
         }
+
+        castsShadows: false
+        receivesShadows: false
+        castsReflections: false
+
         materials: [
             GridMaterial {
                 id: hCenterLineMaterial
