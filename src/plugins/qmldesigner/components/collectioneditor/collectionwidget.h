@@ -44,7 +44,7 @@ public:
                                 const QUrl &url,
                                 const bool &firstRowIsHeader = true);
 
-    Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
+    Q_INVOKABLE void addCollectionToDataStore(const QString &collectionName);
     Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
     Q_INVOKABLE void openCollection(const QString &collectionName);
     Q_INVOKABLE ModelNode dataStoreNode() const;

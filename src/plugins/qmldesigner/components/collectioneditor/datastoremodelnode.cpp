@@ -163,11 +163,9 @@ void DataStoreModelNode::reloadModel()
     if (!m_model.get())
         return;
 
-    m_model->setFileUrl(dataStoreQmlUrl);
-
-    m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
-
     if (forceUpdate) {
+        m_model->setFileUrl(dataStoreQmlUrl);
+        m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
         preloadFile();
         update();
     }

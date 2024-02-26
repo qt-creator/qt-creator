@@ -25,7 +25,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QJsonObject>
 #include <QTimer>
 
 namespace {
@@ -140,27 +139,11 @@ void CollectionView::modelAttached(Model *model)
 void CollectionView::modelAboutToBeDetached([[maybe_unused]] Model *model)
 {
     m_libraryInfoIsUpdated = false;
+    m_reloadCounter = 0;
+    m_rewriterAmended = false;
+    m_dataStoreTypeFound = false;
     disconnect(m_documentUpdateConnection);
-}
-
-void CollectionView::nodeReparented(const ModelNode &node,
-                                    [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
-                                    [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
-                                    [[maybe_unused]] PropertyChangeFlags propertyChange)
-{
-    if (!isStudioCollectionModel(node))
-        return;
-
-    refreshModel();
-
-    m_widget->sourceModel()->selectSource(node);
-}
-
-void CollectionView::nodeAboutToBeRemoved(const ModelNode &removedNode)
-{
-    // removing the model lib node
-    if (isStudioCollectionModel(removedNode))
-        m_widget->sourceModel()->removeSource(removedNode);
+    QTC_ASSERT(m_delayedTasks.isEmpty(), m_delayedTasks.clear());
 }
 
 void CollectionView::nodeRemoved(const ModelNode &removedNode,
@@ -311,6 +294,17 @@ void CollectionView::assignCollectionToSelectedNode(const QString &collectionNam
     assignCollectionToNode(collectionName, singleSelectedModelNode());
 }
 
+void CollectionView::addNewCollection(const QString &collectionName, const QJsonObject &localCollection)
+{
+    addTask(QSharedPointer<CollectionTask>(
+        new AddCollectionTask(this, m_widget->sourceModel(), localCollection, collectionName)));
+}
+
+void CollectionView::openCollection(const QString &collectionName)
+{
+    m_widget->openCollection(collectionName);
+}
+
 void CollectionView::registerDeclarativeType()
 {
     CollectionDetails::registerDeclarativeType();
@@ -319,8 +313,38 @@ void CollectionView::registerDeclarativeType()
 
 void CollectionView::resetDataStoreNode()
 {
-    QTimer::singleShot(0, this, [&] { m_dataStore->reloadModel(); });
-    refreshModel();
+    m_dataStore->reloadModel();
+
+    ModelNode dataStore = m_dataStore->modelNode();
+    if (!dataStore || m_widget->sourceModel()->sourceIndex(dataStore) > -1)
+        return;
+
+    bool dataStoreSingletonFound = false;
+    if (m_libraryInfoIsUpdated && rewriterView() && rewriterView()->isAttached()) {
+        const QList<QmlTypeData> types = rewriterView()->getQMLTypes();
+        for (const QmlTypeData &cppTypeData : types) {
+            if (cppTypeData.isSingleton && cppTypeData.typeName == "DataStore") {
+                dataStoreSingletonFound = true;
+                break;
+            }
+        }
+        if (!dataStoreSingletonFound && !m_rewriterAmended) {
+            rewriterView()->forceAmend();
+            m_rewriterAmended = true;
+        }
+    }
+
+    if (dataStoreSingletonFound) {
+        m_widget->sourceModel()->setSource(dataStore);
+        m_dataStoreTypeFound = true;
+
+        while (!m_delayedTasks.isEmpty())
+            m_delayedTasks.takeFirst()->process();
+    } else if (++m_reloadCounter < 50) {
+        QTimer::singleShot(200, this, &CollectionView::resetDataStoreNode);
+    } else {
+        QTC_ASSERT(false, m_delayedTasks.clear());
+    }
 }
 
 ModelNode CollectionView::dataStoreNode() const
@@ -368,17 +392,6 @@ QString CollectionView::collectionNameFromDataStoreChildren(const PropertyName &
         .toString();
 }
 
-void CollectionView::refreshModel()
-{
-    if (!model())
-        return;
-
-    ModelNode dataStore = m_dataStore->modelNode();
-    QTC_ASSERT(dataStore, return);
-
-    m_widget->sourceModel()->setSource(dataStore);
-}
-
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const
 {
     return model()->metaInfo(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME);
@@ -399,16 +412,9 @@ void CollectionView::ensureStudioModelImport()
 
 void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
 {
-    ensureDataStoreExists();
-    CollectionSourceModel *sourceModel = m_widget->sourceModel();
-
     if (node.metaInfo().isQtQuickListView()) {
-        const QString newCollectionName = sourceModel->getUniqueCollectionName("ListModel");
-        sourceModel->addCollectionToSource(dataStoreNode(),
-                                           newCollectionName,
-                                           CollectionEditorUtils::defaultColorCollection());
-        m_widget->openCollection(newCollectionName);
-        new DelayedAssignCollectionToItem(this, node, newCollectionName);
+        addTask(QSharedPointer<CollectionTask>(
+            new DropListViewTask(this, m_widget->sourceModel(), node)));
     }
 }
 
@@ -423,47 +429,70 @@ void CollectionView::onDocumentUpdated(const QSharedPointer<const QmlJS::Documen
     }
 }
 
-DelayedAssignCollectionToItem::DelayedAssignCollectionToItem(CollectionView *parent,
-                                                             const ModelNode &node,
-                                                             const QString &collectionName)
-    : QObject(parent)
-    , m_collectionView(parent)
-    , m_node(node)
-    , m_name(collectionName)
+void CollectionView::addTask(QSharedPointer<CollectionTask> task)
 {
-    checkAndAssign();
+    ensureDataStoreExists();
+    if (m_dataStoreTypeFound)
+        task->process();
+    else if (m_dataStore->modelNode())
+        m_delayedTasks << task;
 }
 
-void DelayedAssignCollectionToItem::checkAndAssign()
+CollectionTask::CollectionTask(CollectionView *view, CollectionSourceModel *sourceModel)
+    : m_collectionView(view)
+    , m_sourceModel(sourceModel)
+{}
+
+DropListViewTask::DropListViewTask(CollectionView *view,
+                                   CollectionSourceModel *sourceModel,
+                                   const ModelNode &node)
+    : CollectionTask(view, sourceModel)
+    , m_node(node)
+{}
+
+void DropListViewTask::process()
 {
     AbstractView *view = m_node.view();
-
-    if (!m_node || !m_collectionView || !view || ++m_counter > 50) {
-        deleteLater();
+    if (!m_node || !m_collectionView || !m_sourceModel || !view)
         return;
-    }
 
-    bool dataStoreFound = false;
+    const QString newCollectionName = m_sourceModel->getUniqueCollectionName("ListModel");
+    m_sourceModel->addCollectionToSource(m_collectionView->dataStoreNode(),
+                                         newCollectionName,
+                                         CollectionEditorUtils::defaultColorCollection());
+    m_collectionView->openCollection(newCollectionName);
+    m_collectionView->assignCollectionToNode(newCollectionName, m_node);
+}
 
-    if (m_collectionView->isDataStoreReady()) {
-        const QList<QmlTypeData> types = view->rewriterView()->getQMLTypes();
-        for (const QmlTypeData &cppTypeData : types) {
-            if (cppTypeData.isSingleton && cppTypeData.typeName == "DataStore")
-                dataStoreFound = true;
-        }
-        if (!dataStoreFound && !m_rewriterAmended) {
-            m_collectionView->model()->rewriterView()->forceAmend();
-            m_rewriterAmended = true;
-        }
-    }
+AddCollectionTask::AddCollectionTask(CollectionView *view,
+                                     CollectionSourceModel *sourceModel,
+                                     const QJsonObject &localJsonObject,
+                                     const QString &collectionName)
+    : CollectionTask(view, sourceModel)
+    , m_localJsonObject(localJsonObject)
+    , m_name(collectionName)
+{}
 
-    if (!dataStoreFound) {
-        QTimer::singleShot(100, this, &DelayedAssignCollectionToItem::checkAndAssign);
+void AddCollectionTask::process()
+{
+    if (!m_sourceModel)
         return;
-    }
 
-    m_collectionView->assignCollectionToNode(m_name, m_node);
-    deleteLater();
+    QString errorMsg;
+
+    const QString newCollectionName = m_sourceModel->collectionExists(m_name)
+                                          ? m_sourceModel->getUniqueCollectionName(m_name)
+                                          : m_name;
+
+    bool added = m_sourceModel->addCollectionToSource(m_collectionView->dataStoreNode(),
+                                                      newCollectionName,
+                                                      m_localJsonObject,
+                                                      &errorMsg);
+
+    if (!added) {
+        emit m_sourceModel->warning(m_sourceModel->tr("Can not add a model to the JSON file"),
+                                    errorMsg);
+    }
 }
 
 } // namespace QmlDesigner

@@ -7,11 +7,17 @@
 #include "datastoremodelnode.h"
 #include "modelnode.h"
 
+#include <QJsonObject>
+
 namespace QmlJS {
 class Document;
 }
+
 namespace QmlDesigner {
 
+class CollectionDetails;
+class CollectionSourceModel;
+class CollectionTask;
 class CollectionWidget;
 class DataStoreModelNode;
 
@@ -27,13 +33,6 @@ public:
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
-
-    void nodeReparented(const ModelNode &node,
-                        const NodeAbstractProperty &newPropertyParent,
-                        const NodeAbstractProperty &oldPropertyParent,
-                        PropertyChangeFlags propertyChange) override;
-
-    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
 
     void nodeRemoved(const ModelNode &removedNode,
                      const NodeAbstractProperty &parentProperty,
@@ -54,6 +53,9 @@ public:
 
     void assignCollectionToNode(const QString &collectionName, const ModelNode &node);
     void assignCollectionToSelectedNode(const QString &collectionName);
+    void addNewCollection(const QString &collectionName, const QJsonObject &localCollection);
+
+    void openCollection(const QString &collectionName);
 
     static void registerDeclarativeType();
 
@@ -62,40 +64,64 @@ public:
     void ensureDataStoreExists();
     QString collectionNameFromDataStoreChildren(const PropertyName &childPropertyName) const;
 
-    bool isDataStoreReady() const { return m_libraryInfoIsUpdated; }
-
 private:
-    void refreshModel();
+    friend class CollectionTask;
+
     NodeMetaInfo jsonCollectionMetaInfo() const;
     void ensureStudioModelImport();
     void onItemLibraryNodeCreated(const ModelNode &node);
     void onDocumentUpdated(const QSharedPointer<const QmlJS::Document> &doc);
+    void addTask(QSharedPointer<CollectionTask> task);
 
     QPointer<CollectionWidget> m_widget;
     std::unique_ptr<DataStoreModelNode> m_dataStore;
     QSet<Utils::FilePath> m_expectedDocumentUpdates;
+    QList<QSharedPointer<CollectionTask>> m_delayedTasks;
     QMetaObject::Connection m_documentUpdateConnection;
     bool m_libraryInfoIsUpdated = false;
+    bool m_dataStoreTypeFound = false;
+    bool m_rewriterAmended = false;
+    int m_reloadCounter = 0;
 };
 
-class DelayedAssignCollectionToItem : public QObject
+class CollectionTask
 {
-    Q_OBJECT
-
 public:
-    DelayedAssignCollectionToItem(CollectionView *parent,
-                                  const ModelNode &node,
-                                  const QString &collectionName);
+    CollectionTask(CollectionView *view, CollectionSourceModel *sourceModel);
+    CollectionTask() = delete;
+    virtual ~CollectionTask() = default;
 
-public slots:
-    void checkAndAssign();
+    virtual void process() = 0;
+
+protected:
+    QPointer<CollectionView> m_collectionView;
+    QPointer<CollectionSourceModel> m_sourceModel;
+};
+
+class DropListViewTask : public CollectionTask
+{
+public:
+    DropListViewTask(CollectionView *view, CollectionSourceModel *sourceModel, const ModelNode &node);
+
+    void process() override;
 
 private:
-    QPointer<CollectionView> m_collectionView;
     ModelNode m_node;
+};
+
+class AddCollectionTask : public CollectionTask
+{
+public:
+    AddCollectionTask(CollectionView *view,
+                      CollectionSourceModel *sourceModel,
+                      const QJsonObject &localJsonObject,
+                      const QString &collectionName);
+
+    void process() override;
+
+private:
+    QJsonObject m_localJsonObject;
     QString m_name;
-    int m_counter = 0;
-    bool m_rewriterAmended = false;
 };
 
 } // namespace QmlDesigner

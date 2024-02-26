@@ -207,18 +207,9 @@ bool CollectionWidget::importFile(const QString &collectionName,
                                   const bool &firstRowIsHeader)
 {
     using Utils::FilePath;
-    m_view->ensureDataStoreExists();
-
-    const ModelNode node = dataStoreNode();
-    if (!node.isValid()) {
-        warn(tr("Can not import to the main model"), tr("The data store is not available."));
-        return false;
-    }
 
     FilePath fileInfo = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
                                                                   : url.toString());
-    bool added = false;
-    QString errorMsg;
     CollectionDetails loadedCollection;
     QByteArray fileContent;
 
@@ -250,39 +241,18 @@ bool CollectionWidget::importFile(const QString &collectionName,
     }
 
     if (loadedCollection.columns()) {
-        const QString newCollectionName = m_sourceModel->getUniqueCollectionName(collectionName);
-        added = m_sourceModel->addCollectionToSource(node,
-                                                     newCollectionName,
-                                                     loadedCollection.toLocalJson(),
-                                                     &errorMsg);
+        m_view->addNewCollection(collectionName, loadedCollection.toLocalJson());
+        return true;
     } else {
-        errorMsg = tr("The imported model is empty or is not supported.");
+        warn(tr("Can not add a model to the JSON file"),
+             tr("The imported model is empty or is not supported."));
     }
-
-    if (!added)
-        warn(tr("Can not add a model to the JSON file"), errorMsg);
-
-    return added;
+    return false;
 }
 
-bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
+void CollectionWidget::addCollectionToDataStore(const QString &collectionName)
 {
-    m_view->ensureDataStoreExists();
-    const ModelNode node = dataStoreNode();
-    if (!node.isValid()) {
-        warn(tr("Can not import to the main model"), tr("The default model node is not available."));
-        return false;
-    }
-
-    QString errorMsg;
-    bool added = m_sourceModel->addCollectionToSource(node,
-                                                      m_sourceModel->getUniqueCollectionName(collectionName),
-                                                      CollectionEditorUtils::defaultCollection(),
-                                                      &errorMsg);
-    if (!added)
-        warn(tr("Failed to add a model to the default model group"), errorMsg);
-
-    return added;
+    m_view->addNewCollection(collectionName, CollectionEditorUtils::defaultCollection());
 }
 
 void CollectionWidget::assignCollectionToSelectedNode(const QString collectionName)
