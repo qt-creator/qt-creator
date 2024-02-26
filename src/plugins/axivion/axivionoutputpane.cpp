@@ -469,6 +469,7 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
     for (const auto &row : rows) {
         QString id;
         QStringList data;
+        QStringList toolTips;
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
@@ -477,10 +478,15 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
                     value.prepend(m_currentPrefix);
                     id = value;
                 }
+                toolTips << value;
+                if (column.key.toLower().endsWith("path")) {
+                    const FilePath fp = FilePath::fromUserInput(value);
+                    value = QString("%1 [%2]").arg(fp.fileName(), fp.path());
+                }
                 data << value;
             }
         }
-        IssueListItem *it = new IssueListItem(startRow++, id, data, data);
+        IssueListItem *it = new IssueListItem(startRow++, id, data, toolTips);
         it->setLinks(linksForIssue(row, tableColumns));
         items.append(it);
     }
