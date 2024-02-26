@@ -27,16 +27,13 @@
 
 namespace QmlDesigner {
 
-ColorTool::ColorTool()
-{
-}
+ColorTool::ColorTool() = default;
 
 ColorTool::~ColorTool() = default;
 
 void ColorTool::clear()
 {
-    if (m_colorDialog)
-        m_colorDialog.data()->deleteLater();
+    m_colorDialog.reset();
 
     AbstractFormEditorTool::clear();
 }
@@ -87,7 +84,7 @@ void ColorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGr
 
 void ColorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    if (m_colorDialog.isNull())
+    if (!m_colorDialog)
         return;
 
     if (removedItemList.contains(m_formEditorItem))
@@ -96,7 +93,7 @@ void ColorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemLis
 
 void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
-    if (m_colorDialog.data() && m_oldColor.isValid())
+    if (m_colorDialog && m_oldColor.isValid())
         m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
 
     if (!itemList.isEmpty()
@@ -108,15 +105,19 @@ void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
         else
             m_oldColor = m_formEditorItem->qmlItemNode().modelValue("color").value<QColor>();
 
-        if (m_colorDialog.isNull()) {
-            m_colorDialog = new QColorDialog(view()->formEditorWidget()->parentWidget());
-            m_colorDialog.data()->setCurrentColor(m_oldColor);
+        if (!m_colorDialog) {
+            m_colorDialog = Utils::makeUniqueObjectLatePtr<QColorDialog>(
+                view()->formEditorWidget()->parentWidget());
+            m_colorDialog->setCurrentColor(m_oldColor);
 
-            connect(m_colorDialog.data(), &QDialog::accepted, this, &ColorTool::colorDialogAccepted);
-            connect(m_colorDialog.data(), &QDialog::rejected, this, &ColorTool::colorDialogRejected);
-            connect(m_colorDialog.data(), &QColorDialog::currentColorChanged, this, &ColorTool::currentColorChanged);
+            connect(m_colorDialog.get(), &QDialog::accepted, this, &ColorTool::colorDialogAccepted);
+            connect(m_colorDialog.get(), &QDialog::rejected, this, &ColorTool::colorDialogRejected);
+            connect(m_colorDialog.get(),
+                    &QColorDialog::currentColorChanged,
+                    this,
+                    &ColorTool::currentColorChanged);
 
-            m_colorDialog.data()->exec();
+            m_colorDialog->exec();
         }
     } else {
         view()->changeToSelectionTool();
