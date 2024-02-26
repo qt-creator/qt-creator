@@ -334,6 +334,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
 
     m_issuesView = new BaseTreeView(this);
+    m_issuesView->setFrameShape(QFrame::StyledPanel); // Bring back Qt default
+    m_issuesView->setFrameShadow(QFrame::Sunken);     // Bring back Qt default
     m_headerView = new IssueHeaderView(this);
     connect(m_headerView, &IssueHeaderView::sortTriggered,
             this, &IssuesWidget::onSearchParameterChanged);
