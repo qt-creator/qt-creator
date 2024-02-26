@@ -1665,8 +1665,7 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
     case ProcessResult::Canceled:
         // TODO: We might want to format it nicely when bigger than 1 second, e.g. 1,324 s.
         //       Also when it's bigger than 1 minute, 1 hour, etc...
-        return Tr::tr("The command \"%1\" was canceled after (%2 ms).")
-            .arg(cmd).arg(duration.count());
+        return Tr::tr("The command \"%1\" was canceled after %2 ms.").arg(cmd).arg(duration.count());
     }
     return {};
 }
