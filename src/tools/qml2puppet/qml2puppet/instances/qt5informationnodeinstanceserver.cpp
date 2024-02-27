@@ -40,6 +40,7 @@
 #include "requestmodelnodepreviewimagecommand.h"
 #include "changeauxiliarycommand.h"
 
+#include "../editor3d/boxgeometry.h"
 #include "../editor3d/generalhelper.h"
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
@@ -482,6 +483,7 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
     qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
     qmlRegisterType<QmlDesigner::Internal::LineGeometry>("LineGeometry", 1, 0, "LineGeometry");
+    qmlRegisterType<QmlDesigner::Internal::BoxGeometry>("BoxGeometry", 1, 0, "BoxGeometry");
 
     auto helper = new QmlDesigner::Internal::GeneralHelper();
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,

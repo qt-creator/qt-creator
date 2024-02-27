@@ -104,11 +104,13 @@ Item {
                                                        "cameraLookAt": cameraControls[i]._lookAtPoint,
                                                        "z": 1,
                                                        "sceneEnv.debugSettings.materialOverride": materialOverrides[i],
-                                                       "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i]});
+                                                       "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i],
+                                                       "selectedNode": selectedNode});
                 editViews[i].usePerspective = Qt.binding(function() {return usePerspective;});
                 editViews[i].showSceneLight = Qt.binding(function() {return showEditLight;});
                 editViews[i].showGrid = Qt.binding(function() {return showGrid;});
                 editViews[i].gridColor = Qt.binding(function() {return gridColor;});
+                editViews[i].selectedNode = Qt.binding(function() {return selectedNode;});
             }
             editViews[0].cameraLookAt = Qt.binding(function() {return cameraControl0._lookAtPoint;});
             editViews[1].cameraLookAt = Qt.binding(function() {return cameraControl1._lookAtPoint;});

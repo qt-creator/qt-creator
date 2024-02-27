@@ -102,6 +102,7 @@ extend_qtc_executable(qml2puppet
     selectionboxgeometry.cpp selectionboxgeometry.h
     linegeometry.cpp linegeometry.h
     icongizmoimageprovider.cpp icongizmoimageprovider.h
+    boxgeometry.cpp boxgeometry.h
 )
 
 find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)

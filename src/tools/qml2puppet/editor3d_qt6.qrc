@@ -47,6 +47,7 @@
         <file>mockfiles/qt6/PlanarDraggable.qml</file>
         <file>mockfiles/qt6/PlanarMoveHandle.qml</file>
         <file>mockfiles/qt6/PlanarScaleHandle.qml</file>
+        <file>mockfiles/qt6/ReflectionProbeBox.qml</file>
         <file>mockfiles/qt6/RotateGizmo.qml</file>
         <file>mockfiles/qt6/RotateRing.qml</file>
         <file>mockfiles/qt6/ScaleGizmo.qml</file>
