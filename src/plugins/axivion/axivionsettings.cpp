@@ -10,6 +10,7 @@
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -27,8 +28,7 @@ namespace Axivion::Internal {
 
 bool AxivionServer::operator==(const AxivionServer &other) const
 {
-    return id == other.id && dashboard == other.dashboard && username == other.username
-            && description == other.description && token == other.token;
+    return id == other.id && dashboard == other.dashboard && username == other.username;
 }
 
 bool AxivionServer::operator!=(const AxivionServer &other) const
@@ -42,9 +42,13 @@ QJsonObject AxivionServer::toJson() const
     result.insert("id", id.toString());
     result.insert("dashboard", dashboard);
     result.insert("username", username);
-    result.insert("description", description);
-    result.insert("token", token);
     return result;
+}
+
+static QString fixUrl(const QString &url)
+{
+    const QString trimmed = Utils::trimBack(url, ' ');
+    return trimmed.endsWith('/') ? trimmed : trimmed + '/';
 }
 
 AxivionServer AxivionServer::fromJson(const QJsonObject &json)
@@ -59,14 +63,7 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     const QJsonValue username = json.value("username");
     if (username == QJsonValue::Undefined)
         return invalidServer;
-    const QJsonValue description = json.value("description");
-    if (description == QJsonValue::Undefined)
-        return invalidServer;
-    const QJsonValue token = json.value("token");
-    if (token == QJsonValue::Undefined)
-        return invalidServer;
-    return {Id::fromString(id.toString()), dashboard.toString(), username.toString(),
-            description.toString(), token.toString()};
+    return {Id::fromString(id.toString()), fixUrl(dashboard.toString()), username.toString()};
 }
 
 static FilePath tokensFilePath()
@@ -109,6 +106,10 @@ AxivionSettings::AxivionSettings()
 {
     setSettingsGroup("Axivion");
 
+    highlightMarks.setSettingsKey("HighlightMarks");
+    highlightMarks.setLabelText(Tr::tr("Highlight marks"));
+    highlightMarks.setToolTip(Tr::tr("Marks issues on the scroll bar."));
+    highlightMarks.setDefaultValue(false);
     AspectContainer::readSettings();
 
     server = readTokenFile(tokensFilePath());
@@ -161,8 +162,6 @@ private:
     Id m_id;
     StringAspect m_dashboardUrl;
     StringAspect m_username;
-    StringAspect m_description;
-    StringAspect m_token;
     BoolAspect m_valid;
 };
 
@@ -181,23 +180,12 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
     m_username.setDisplayStyle(labelStyle);
     m_username.setPlaceHolderText(Tr::tr("User name"));
 
-    m_description.setLabelText(Tr::tr("Description:"));
-    m_description.setDisplayStyle(labelStyle);
-    m_description.setPlaceHolderText(Tr::tr("Non-empty description"));
-
-    m_token.setLabelText(Tr::tr("Access token:"));
-    m_token.setDisplayStyle(labelStyle);
-    m_token.setPlaceHolderText(Tr::tr("IDE Access Token"));
-    m_token.setVisible(mode == Edit);
-
     using namespace Layouting;
 
     Form {
         m_dashboardUrl, br,
         m_username, br,
-        m_description, br,
-        m_token, br,
-        mode == Edit ? normalMargin : noMargin
+        noMargin
     }.attachTo(this);
 
     if (mode == Edit) {
@@ -208,8 +196,6 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
         };
         connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
         connect(&m_username, &BaseAspect::changed, this, checkValidity);
-        connect(&m_description, &BaseAspect::changed, this, checkValidity);
-        connect(&m_token, &BaseAspect::changed, this, checkValidity);
     }
 }
 
@@ -220,10 +206,8 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
         result.id = m_id;
     else
         result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
-    result.dashboard = m_dashboardUrl();
+    result.dashboard = fixUrl(m_dashboardUrl());
     result.username = m_username();
-    result.description = m_description();
-    result.token = m_token();
     return result;
 }
 
@@ -232,13 +216,11 @@ void DashboardSettingsWidget::setDashboardServer(const AxivionServer &server)
     m_id = server.id;
     m_dashboardUrl.setValue(server.dashboard);
     m_username.setValue(server.username);
-    m_description.setValue(server.description);
-    m_token.setValue(server.token);
 }
 
 bool DashboardSettingsWidget::isValid() const
 {
-    return !m_token().isEmpty() && !m_description().isEmpty() && isUrlValid(m_dashboardUrl());
+    return isUrlValid(m_dashboardUrl());
 }
 
 class AxivionSettingsWidget : public IOptionsPageWidget
@@ -262,10 +244,15 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     m_dashboardDisplay = new DashboardSettingsWidget(DashboardSettingsWidget::Display, this);
     m_dashboardDisplay->setDashboardServer(settings().server);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
-    Row {
-        Form {
-            m_dashboardDisplay, br,
-        }, Column { m_edit, st }
+    Column {
+        Row {
+            Form {
+                m_dashboardDisplay, br
+            }, st,
+            Column { m_edit },
+        },
+        Space(10), br,
+        Row { settings().highlightMarks }, st
     }.attachTo(this);
 
     connect(m_edit, &QPushButton::clicked, this, &AxivionSettingsWidget::showEditServerDialog);

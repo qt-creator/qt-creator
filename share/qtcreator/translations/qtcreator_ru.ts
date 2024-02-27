@@ -2745,12 +2745,8 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Логировать сигналы и слоты</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>Рекомендуется вывод в формате XML, так как исключает проблемы при разборе. Простой же текст более удобен для чтения человеком.
-
-Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>Рекомендуется вывод в формате XML, так как исключает проблемы при разборе. Простой же текст более удобен для чтения человеком.&lt;p&gt;Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>
@@ -22984,8 +22980,8 @@ Ids must begin with a lowercase letter.</source>
         <translation>Запустить эмулятор</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Невозможно запустить эмулятор (%1, %2) в текущем состоянии: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Невозможно запустить эмулятор (%1, %2) в текущем состоянии: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

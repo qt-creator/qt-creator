@@ -420,7 +420,7 @@ class DumperBase():
 
     def charType(self):
         result = self.lookupType('char')
-        self.intType = lambda: result
+        self.charType = lambda: result
         return result
 
     def ptrSize(self):
@@ -635,7 +635,7 @@ class DumperBase():
     def putCharArrayValue(self, data, length, charSize,
                           displayFormat=DisplayFormat.Automatic):
         shown = self.computeLimit(length, self.displayStringLimit)
-        mem = self.readMemory(data, shown)
+        mem = self.readMemory(data, shown * charSize)
         if charSize == 1:
             if displayFormat in (DisplayFormat.Latin1String, DisplayFormat.SeparateLatin1String):
                 encodingType = 'latin1'

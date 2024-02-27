@@ -566,8 +566,8 @@ static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
 {
     if (QStandardPaths::standardLocations(location).contains(dirPath)) {
         if (error) {
-            *error = Tr::tr("Refusing to remove your %1 directory.").arg(
-                QStandardPaths::displayName(location));
+            *error = Tr::tr("Refusing to remove the standard directory \"%1\".")
+                         .arg(QStandardPaths::displayName(location));
         }
         return false;
     }

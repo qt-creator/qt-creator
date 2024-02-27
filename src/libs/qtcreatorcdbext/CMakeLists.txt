@@ -205,7 +205,7 @@ if (_library_enabled)
   # Deploy lldb.exe and its Python dependency
   find_package(Clang QUIET)
   if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
-    foreach(lldb_file lldb.exe lldb-vscode.exe liblldb.dll python311.zip python311.dll)
+    foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
       if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
         install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
                 DESTINATION bin/clang/bin

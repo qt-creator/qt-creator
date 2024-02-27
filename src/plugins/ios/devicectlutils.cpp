@@ -46,7 +46,7 @@ expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
     }
     const QJsonValue resultValue = jsonOutput["result"];
     if (resultValue.isUndefined()) {
-        return make_unexpected(Tr::tr("Failed to parse devicectl output: 'result' is missing"));
+        return make_unexpected(Tr::tr("Failed to parse devicectl output: \"result\" is missing."));
     }
     return resultValue;
 }

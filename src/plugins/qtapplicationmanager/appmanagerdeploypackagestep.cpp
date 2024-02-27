@@ -95,9 +95,9 @@ private:
         };
         const auto onDone = [this](DoneWith result) {
             if (result == DoneWith::Success)
-                emit addOutput(Tr::tr("Uploading finished"), OutputFormat::NormalMessage);
+                emit addOutput(Tr::tr("Uploading finished."), OutputFormat::NormalMessage);
             else
-                emit addOutput(Tr::tr("Uploading failed"), OutputFormat::ErrorMessage);
+                emit addOutput(Tr::tr("Uploading failed."), OutputFormat::ErrorMessage);
         };
         return FileStreamerTask(onSetup, onDone);
     }

@@ -24,34 +24,34 @@ function(create_python_xy PythonExe PythonZipFilePath)
     cgi.py               nntplib.py       tarfile.py
     cgitb.py             nturl2path.py    telnetlib.py
     chunk.py             numbers.py       tempfile.py
-    cmd.py               optparse.py      textwrap.py
-    code.py              pathlib.py       this.py
-    codeop.py            pdb.py           timeit.py
-    colorsys.py          pickle.py        trace.py
-    compileall.py        pickletools.py   tracemalloc.py
-    configparser.py      pipes.py         tty.py
-    contextvars.py       plistlib.py      turtle.py
-    cProfile.py          poplib.py        typing.py
-    crypt.py             pprint.py        uu.py
-    csv.py               profile.py       uuid.py
-    dataclasses.py       pstats.py        wave.py
-    datetime.py          pty.py           webbrowser.py
-    decimal.py           pyclbr.py        xdrlib.py
-    difflib.py           py_compile.py    zipapp.py
-    doctest.py           queue.py         zipfile.py
-    dummy_threading.py   quopri.py        zipimport.py
-    filecmp.py           random.py        _compat_pickle.py
-    fileinput.py         rlcompleter.py   _compression.py
-    formatter.py         runpy.py         _dummy_thread.py
-    fractions.py         sched.py         _markupbase.py
-    ftplib.py            secrets.py       _osx_support.py
-    getopt.py            selectors.py     _pydecimal.py
-    getpass.py           shelve.py        _pyio.py
-    gettext.py           shlex.py         _py_abc.py
-    gzip.py              shutil.py        _strptime.py
-    hashlib.py           smtpd.py         _threading_local.py
-    hmac.py              smtplib.py       __future__.py
-    imaplib.py           sndhdr.py        __phello__.foo.py
+    cmd.py               optparse.py      this.py
+    code.py              pathlib.py       timeit.py
+    codeop.py            pdb.py           trace.py
+    colorsys.py          pickle.py        tracemalloc.py
+    compileall.py        pickletools.py   tty.py
+    configparser.py      pipes.py         turtle.py
+    contextvars.py       plistlib.py      typing.py
+    cProfile.py          poplib.py        uu.py
+    crypt.py             pprint.py        uuid.py
+    csv.py               profile.py       wave.py
+    dataclasses.py       pstats.py        webbrowser.py
+    datetime.py          pty.py           xdrlib.py
+    decimal.py           pyclbr.py        zipapp.py
+    difflib.py           py_compile.py    zipfile.py
+    doctest.py           queue.py         zipimport.py
+    dummy_threading.py   quopri.py        _compat_pickle.py
+    filecmp.py           random.py        _compression.py
+    fileinput.py         rlcompleter.py   _dummy_thread.py
+    formatter.py         runpy.py         _markupbase.py
+    fractions.py         sched.py         _osx_support.py
+    ftplib.py            secrets.py       _pydecimal.py
+    getopt.py            selectors.py     _pyio.py
+    getpass.py           shelve.py        _py_abc.py
+    gettext.py           shlex.py         _strptime.py
+    gzip.py              shutil.py        _threading_local.py
+    hashlib.py           smtpd.py         __future__.py
+    hmac.py              smtplib.py       __phello__.foo.py
+    imaplib.py           sndhdr.py
     )
     list(FIND python_lib_files "${python_lib_dir}/${not_needed}" found_not_needed)
     if (NOT found_not_needed STREQUAL "-1")

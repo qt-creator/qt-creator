@@ -129,8 +129,9 @@ FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(Process *process)
 class QScxmlcGeneratorFactory final : public ExtraCompilerFactory
 {
 public:
-    QScxmlcGeneratorFactory() = default;
+    explicit QScxmlcGeneratorFactory(QObject *guard) : m_guard(guard) {}
 
+private:
     FileType sourceType() const final { return FileType::StateChart; }
 
     QString sourceTag() const final { return QStringLiteral("scxml"); }
@@ -139,13 +140,15 @@ public:
                           const FilePath &source,
                           const FilePaths &targets) final
     {
-        return new QScxmlcGenerator(project, source, targets, this);
+        return new QScxmlcGenerator(project, source, targets, m_guard);
     }
+
+    QObject *m_guard;
 };
 
-void setupQScxmlcGenerator()
+void setupQScxmlcGenerator(QObject *guard)
 {
-    static QScxmlcGeneratorFactory theQScxmlcGeneratorFactory;
+    static QScxmlcGeneratorFactory theQScxmlcGeneratorFactory(guard);
 }
 
 } // QtSupport::Internal

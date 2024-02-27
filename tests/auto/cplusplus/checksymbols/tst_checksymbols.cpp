@@ -109,7 +109,7 @@ public:
                                                 const UseList &expectedUsesMacros = UseList())
     {
         LookupContext context(document, snapshot);
-        CheckSymbols::Future future = CheckSymbols::go(document, context, expectedUsesMacros);
+        CheckSymbols::Future future = CheckSymbols::go(document, {}, context, expectedUsesMacros);
         future.waitForFinished();
         return future;
     }

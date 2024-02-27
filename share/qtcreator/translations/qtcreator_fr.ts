@@ -798,7 +798,7 @@ Une valeur positive augmente la réverbération pour les hautes fréquences et �
     </message>
 </context>
 <context>
-    <name>Axivion</name>
+    <name>QtC::Axivion</name>
     <message>
         <source>Project:</source>
         <translation>Projet&#xa0;:</translation>
@@ -12063,12 +12063,8 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
         <translation>Utilise la sortie XML</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>La sortie XML est recommandée&#xa0;: elle évite des problèmes d&apos;analyse, alors que le texte brut est plus lisible pour un humain.
-
-Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, telle que la durée.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>La sortie XML est recommandée&#xa0;: elle évite des problèmes d&apos;analyse, alors que le texte brut est plus lisible pour un humain.&lt;p&gt;Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, telle que la durée.</translation>
     </message>
     <message>
         <source>Verbose benchmarks</source>
@@ -12099,10 +12095,8 @@ Avertissement&#xa0;: le texte brut ne contient pas toutes les informations, tell
         <translation>Vérifier la présence de tests dérivés de Qt Quick</translation>
     </message>
     <message>
-        <source>Search for Qt Quick tests that are derived from TestCase.
-Warning: Enabling this feature significantly increases scan time.</source>
-        <translation>Recherche des tests Qt Quick dérivé de TestCase.
-Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente significativement le temps de recherche.</translation>
+        <source>Search for Qt Quick tests that are derived from TestCase.&lt;p&gt;Warning: Enabling this feature significantly increases scan time.</source>
+        <translation>Recherche des tests Qt Quick dérivé de TestCase.&lt;p&gt;Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente significativement le temps de recherche.</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
@@ -33467,8 +33461,8 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         </translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Impossible de démarrer le simulateur (%1, %2) dans l&apos;état actuel&#xa0;: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Impossible de démarrer le simulateur (%1, %2) dans l&apos;état actuel&#xa0;: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

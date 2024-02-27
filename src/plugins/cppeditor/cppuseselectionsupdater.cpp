@@ -3,17 +3,18 @@
 
 #include "cppuseselectionsupdater.h"
 
-#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsreuse.h"
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <utils/futuresynchronizer.h>
+#include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
 #include <QTextBlock>
 #include <QTextCursor>
-
-#include <utils/qtcassert.h>
 
 enum { updateUseSelectionsInternalInMs = 500 };
 
@@ -67,13 +68,14 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
             m_runnerWatcher->cancel();
 
         m_runnerWatcher.reset(new QFutureWatcher<CursorInfo>);
-        connect(m_runnerWatcher.data(), &QFutureWatcherBase::finished,
+        connect(m_runnerWatcher.get(), &QFutureWatcherBase::finished,
                 this, &CppUseSelectionsUpdater::onFindUsesFinished);
 
         m_runnerRevision = m_editorWidget->document()->revision();
         m_runnerWordStartPosition = params.textCursor.position();
 
         m_runnerWatcher->setFuture(cppEditorDocument->cursorInfo(params));
+        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_runnerWatcher->future());
         return RunnerInfo::Started;
     } else { // synchronous case
         abortSchedule();
@@ -142,7 +144,7 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
 
     processResults(m_runnerWatcher->result());
 
-    m_runnerWatcher.reset();
+    m_runnerWatcher.release()->deleteLater();
 }
 
 CppUseSelectionsUpdater::ExtraSelections

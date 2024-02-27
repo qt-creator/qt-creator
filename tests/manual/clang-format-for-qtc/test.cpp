@@ -68,7 +68,7 @@ void lala(int foo)
 {
     Q_UNUSED(foo)
     Q_UNUSED(foo);
-    QTC_ASSERT(true, return ); // NOTE: Ops, extra space with QTC_ASSERT macro and return keyword
+    QTC_ASSERT(true, return);
     QTC_ASSERT(true, return;);
     while (true)
         QTC_ASSERT(true, break); // ...but this is fine
@@ -184,7 +184,7 @@ template<class T>
 void fancyTemplateFunction();
 
 template<typename... Type>
-void variadicTemplateFunction(Type *... arg);
+void variadicTemplateFunction(Type *...arg);
 
 // -------------------------------------------------------------------------------------------------
 // Inside functions
@@ -325,11 +325,8 @@ void penaltyTests(bool isThatTrue)
                                                 : (QIODevice::ReadOnly | QIODevice::Text);
 
     const auto someValue10 = functionToCall(valueX, valueY, valueXTimesY);
-    const auto someValue11 = functionToCall(valueX,
-                                            valueY,
-                                            valueXTimesY,
-                                            unbelievableBigValue,
-                                            unbelievableBigValue);
+    const auto someValue11
+        = functionToCall(valueX, valueY, valueXTimesY, unbelievableBigValue, unbelievableBigValue);
     const auto someValue12 = functionToCall(valueX,
                                             valueY,
                                             valueXTimesY,
@@ -370,9 +367,8 @@ void penaltyTests(bool isThatTrue)
                       | unlimitedValueunbelievableBigValue);
 
     const QString path;
-    const bool someLongerNameNNNNNNNNNN = functionToCallSt(path,
-                                                           QStringList(
-                                                               QLatin1String("-print-env")));
+    const bool someLongerNameNNNNNNNNNN
+        = functionToCallSt(path, QStringList(QLatin1String("-print-env")));
 }
 
 // -------------------------------------------------------------------------------------------------

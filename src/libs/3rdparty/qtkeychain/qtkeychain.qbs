@@ -72,6 +72,7 @@ QtcLibrary {
         Group {
             name: "qtkeychain dbus support"
             cpp.defines: outer.concat(["KEYCHAIN_DBUS=1"])
+            cpp.cxxFlags: outer.concat("-Wno-cast-function-type")
             files: [
                 "gnomekeyring.cpp",
                 "gnomekeyring_p.h",

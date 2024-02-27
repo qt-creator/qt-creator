@@ -1717,12 +1717,8 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
         <translation>Perf</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
-        <translation>XML-output anbefales, fordi det forhindre parsing-problemer, mens ren tekst er lettere at læse for mennesker.
-
-Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
+        <translation>XML-output anbefales, fordi det forhindre parsing-problemer, mens ren tekst er lettere at læse for mennesker.&lt;p&gt;Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>
@@ -18346,8 +18342,8 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Simulator start</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Kan ikke starte simulator (%1, %2) i aktuelle tilstand: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Kan ikke starte simulator (%1, %2) i aktuelle tilstand: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>

@@ -248,7 +248,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         Constants::SUBVERSION_LOG_EDITOR_ID,
-        VcsBase::Tr::tr("Subversion File Log Editor"),
+        ::VcsBase::Tr::tr("Subversion File Log Editor"),
         Constants::SUBVERSION_LOG_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
@@ -257,7 +257,7 @@ public:
     VcsEditorFactory blameEditorFactory {{
         AnnotateOutput,
         Constants::SUBVERSION_BLAME_EDITOR_ID,
-        VcsBase::Tr::tr("Subversion Annotation Editor"),
+        ::VcsBase::Tr::tr("Subversion Annotation Editor"),
         Constants::SUBVERSION_BLAME_MIMETYPE,
         [] { return new SubversionEditorWidget; },
         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
@@ -468,7 +468,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::SUBVERSION_SUBMIT_MIMETYPE,
         Constants::SUBVERSION_COMMIT_EDITOR_ID,
-        VcsBase::Tr::tr("Subversion Commit Editor"),
+        ::VcsBase::Tr::tr("Subversion Commit Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new SubversionSubmitEditor; },
     });

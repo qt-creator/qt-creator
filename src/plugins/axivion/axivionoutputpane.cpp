@@ -6,17 +6,21 @@
 #include "axivionplugin.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
+#include "issueheaderview.h"
+#include "dynamiclistmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/ioutputpane.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
 
@@ -28,9 +32,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QScrollBar>
 #include <QStackedWidget>
-#include <QTextBrowser>
 #include <QToolButton>
 
 #include <map>
@@ -59,22 +61,24 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     : QScrollArea(parent)
 {
     QWidget *widget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-    QFormLayout *projectLayout = new QFormLayout;
     m_project = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Project:"), m_project);
     m_loc = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Lines of code:"), m_loc);
     m_timestamp = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Analysis timestamp:"), m_timestamp);
-    layout->addLayout(projectLayout);
-    layout->addSpacing(10);
-    auto row = new QHBoxLayout;
+
     m_gridLayout = new QGridLayout;
-    row->addLayout(m_gridLayout);
-    row->addStretch(1);
-    layout->addLayout(row);
-    layout->addStretch(1);
+
+    using namespace Layouting;
+    Column {
+        Form {
+            Tr::tr("Project:"), m_project, br,
+            Tr::tr("Lines of code:"), m_loc, br,
+            Tr::tr("Analysis timestamp:"), m_timestamp
+        },
+        Space(10),
+        Row { m_gridLayout, st },
+        st
+    }.attachTo(widget);
+
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
@@ -187,32 +191,59 @@ void DashboardWidget::updateUi()
     addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
-class IssueTreeItem final : public StaticTreeItem
+struct LinkWithColumns
+{
+    Link link;
+    QList<int> columns;
+};
+
+class IssueListItem final : public ListItem
 {
 public:
-    IssueTreeItem(const QStringList &data, const QStringList &toolTips)
-        : StaticTreeItem(data, toolTips)
+    IssueListItem(int row, const QString &id, const QStringList &data, const QStringList &toolTips)
+        : ListItem(row)
+        , m_id(id)
+        , m_data(data)
+        , m_toolTips(toolTips)
     {}
 
-    void setLinks(const Links &links) { m_links = links; }
+    void setLinks(const QList<LinkWithColumns> &links) { m_links = links; }
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole && column >= 0 && column < m_data.size())
+            return m_data.at(column);
+        if (role == Qt::ToolTipRole && column >= 0 && column < m_toolTips.size())
+            return m_toolTips.at(column);
+        return {};
+    }
 
     bool setData(int column, const QVariant &value, int role) final
     {
-        if (role == BaseTreeView::ItemActivatedRole && !m_links.isEmpty()) {
-            // TODO for now only simple - just the first..
-            Link link = m_links.first();
-            Project *project = ProjectManager::startupProject();
-            FilePath baseDir = project ? project->projectDirectory() : FilePath{};
-            link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
-            if (link.targetFilePath.exists())
-                EditorManager::openEditorAt(link);
+        if (role == BaseTreeView::ItemActivatedRole) {
+            if (!m_links.isEmpty()) {
+                Link link
+                        = Utils::findOr(m_links, m_links.first(), [column](const LinkWithColumns &link) {
+                    return link.columns.contains(column);
+                }).link;
+                Project *project = ProjectManager::startupProject();
+                FilePath baseDir = project ? project->projectDirectory() : FilePath{};
+                link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
+                if (link.targetFilePath.exists())
+                    EditorManager::openEditorAt(link);
+            }
+            if (!m_id.isEmpty())
+                fetchIssueInfo(m_id);
             return true;
         }
-        return StaticTreeItem::setData(column, value, role);
+        return ListItem::setData(column, value, role);
     }
 
 private:
-    Links m_links;
+    const QString m_id;
+    QStringList m_data;
+    QStringList m_toolTips;
+    QList<LinkWithColumns> m_links;
 };
 
 class IssuesWidget : public QScrollArea
@@ -220,24 +251,23 @@ class IssuesWidget : public QScrollArea
 public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi();
-    void setTableDto(const Dto::TableInfoDto &dto);
-    void addIssues(const Dto::IssueTableDto &dto);
 
 private:
+    void updateTable();
+    void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
     void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
-    void updateTableView();
     void setFiltersEnabled(bool enabled);
     IssueListSearch searchFromUi() const;
+    void fetchTable();
     void fetchIssues(const IssueListSearch &search);
-    void fetchMoreIssues();
+    void onFetchRequested(int startRow, int limit);
 
     QString m_currentPrefix;
     QString m_currentProject;
     std::optional<Dto::TableInfoDto> m_currentTableInfo;
     QHBoxLayout *m_typesLayout = nullptr;
     QButtonGroup *m_typesButtonGroup = nullptr;
-    QHBoxLayout *m_filtersLayout = nullptr;
     QPushButton *m_addedFilter = nullptr;
     QPushButton *m_removedFilter = nullptr;
     QComboBox *m_ownerFilter = nullptr;
@@ -246,9 +276,9 @@ private:
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
-    TreeModel<> *m_issuesModel = nullptr;
+    IssueHeaderView *m_headerView = nullptr;
+    DynamicListModel *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
-    int m_lastRequestedOffset = 0;
     QStringList m_userNames;
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
@@ -258,79 +288,71 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     : QScrollArea(parent)
 {
     QWidget *widget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(widget);
     // row with issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
     // row with added/removed and some filters (assignee, path glob, (named filter))
     // table, columns depend on chosen issue type
-    QHBoxLayout *top = new QHBoxLayout;
-    layout->addLayout(top);
     m_typesButtonGroup = new QButtonGroup(this);
     m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
-    top->addLayout(m_typesLayout);
-    top->addStretch(1);
+
     m_versionStart = new QComboBox(this);
     m_versionStart->setMinimumContentsLength(25);
-    top->addWidget(m_versionStart);
+    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+
     m_versionEnd = new QComboBox(this);
     m_versionEnd->setMinimumContentsLength(25);
-    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
     connect(m_versionEnd, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
-    top->addWidget(m_versionEnd);
-    top->addStretch(1);
-    m_filtersLayout = new QHBoxLayout;
+
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
     m_addedFilter->setText("0");
     m_addedFilter->setCheckable(true);
-    m_filtersLayout->addWidget(m_addedFilter);
-    m_removedFilter = new QPushButton(this);
-    m_removedFilter->setIcon(trendIcon(0, 1));
-    m_removedFilter->setText("0");
-    m_removedFilter->setCheckable(true);
-    m_filtersLayout->addWidget(m_removedFilter);
     connect(m_addedFilter, &QPushButton::clicked, this, [this](bool checked) {
         if (checked && m_removedFilter->isChecked())
             m_removedFilter->setChecked(false);
         onSearchParameterChanged();
     });
+
+    m_removedFilter = new QPushButton(this);
+    m_removedFilter->setIcon(trendIcon(0, 1));
+    m_removedFilter->setText("0");
+    m_removedFilter->setCheckable(true);
     connect(m_removedFilter, &QPushButton::clicked, this, [this](bool checked) {
         if (checked && m_addedFilter->isChecked())
             m_addedFilter->setChecked(false);
         onSearchParameterChanged();
     });
-    m_filtersLayout->addSpacing(1);
+
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
     m_ownerFilter->setMinimumContentsLength(25);
     connect(m_ownerFilter, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
-    m_filtersLayout->addWidget(m_ownerFilter);
+
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
     connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
-    m_filtersLayout->addWidget(m_pathGlobFilter);
-    layout->addLayout(m_filtersLayout);
+
     m_issuesView = new BaseTreeView(this);
+    m_headerView = new IssueHeaderView(this);
+    connect(m_headerView, &IssueHeaderView::sortTriggered,
+            this, &IssuesWidget::onSearchParameterChanged);
+    m_issuesView->setHeader(m_headerView);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
-    m_issuesModel = new TreeModel(this);
+    m_issuesModel = new DynamicListModel(this);
     m_issuesView->setModel(m_issuesModel);
-    auto sb = m_issuesView->verticalScrollBar();
-    if (QTC_GUARD(sb)) {
-        connect(sb, &QAbstractSlider::valueChanged, sb, [this, sb](int value) {
-            if (value >= sb->maximum() - 50) {
-                if (m_issuesModel->rowCount() < m_totalRowCount)
-                    fetchMoreIssues();
-            }
-        });
-    }
-    layout->addWidget(m_issuesView);
+    connect(m_issuesModel, &DynamicListModel::fetchRequested, this, &IssuesWidget::onFetchRequested);
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
-    QHBoxLayout *bottom = new QHBoxLayout;
-    layout->addLayout(bottom);
-    bottom->addStretch(1);
-    bottom->addWidget(m_totalRows);
+
+    using namespace Layouting;
+    Column {
+        Row { m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
+        m_issuesView,
+        Row { st, m_totalRows }
+    }.attachTo(widget);
+
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
@@ -355,50 +377,81 @@ void IssuesWidget::updateUi()
 
     if (info.issueKinds.size())
         m_currentPrefix = info.issueKinds.front().prefix;
-    updateTableView();
+    fetchTable();
 }
 
-void IssuesWidget::setTableDto(const Dto::TableInfoDto &dto)
+static Qt::Alignment alignmentFromString(const QString &str)
 {
-    m_currentTableInfo.emplace(dto);
+    if (str == "left")
+        return Qt::AlignLeft;
+    if (str == "right")
+        return Qt::AlignRight;
+    if (str == "center")
+        return Qt::AlignHCenter;
+    return Qt::AlignLeft;
+}
 
-    // update issues table layout - for now just simple approach
-    TreeModel<> *issuesModel = new TreeModel(this);
+void IssuesWidget::updateTable()
+{
+    if (!m_currentTableInfo)
+        return;
+
     QStringList columnHeaders;
     QStringList hiddenColumns;
-    for (const Dto::ColumnInfoDto &column : dto.columns) {
+    QList<bool> sortableColumns;
+    QList<int> columnWidths;
+    QList<Qt::Alignment> alignments;
+    for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
+        sortableColumns << column.canSort;
+        columnWidths << column.width;
+        alignments << alignmentFromString(column.alignment);
     }
     m_addedFilter->setText("0");
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
 
-    issuesModel->setHeader(columnHeaders);
-
-    auto oldModel = m_issuesModel;
-    m_issuesModel = issuesModel;
-    m_issuesView->setModel(issuesModel);
-    delete oldModel;
+    m_issuesModel->clear();
+    m_issuesModel->setHeader(columnHeaders);
+    m_issuesModel->setAlignments(alignments);
+    m_headerView->setSortableColumns(sortableColumns);
+    m_headerView->setColumnWidths(columnWidths);
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
+    m_headerView->resizeSections(QHeaderView::ResizeToContents);
 }
 
-static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
+static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &issueRow,
+                                            const std::vector<Dto::ColumnInfoDto> &columnInfos)
 {
-    Links links;
+    QList<LinkWithColumns> links;
 
     auto end = issueRow.end();
-    auto findAndAppend = [&links, &issueRow, &end](const QString &path, const QString &line) {
+    auto findColumn = [columnInfos](const QString &columnKey) {
+        int col = 0;
+        for (auto it = columnInfos.cbegin(), end = columnInfos.cend(); it != end; ++it) {
+            if (it->key == columnKey)
+                return col;
+            ++col;
+        }
+        return -1;
+    };
+    auto findAndAppend = [&links, &issueRow, &findColumn, &end](const QString &path,
+            const QString &line) {
+        QList<int> columns;
         auto it = issueRow.find(path);
         if (it != end) {
             Link link{ FilePath::fromUserInput(it->second.getString()) };
+            columns.append(findColumn(it->first));
             it = issueRow.find(line);
-            if (it != end)
+            if (it != end) {
                 link.targetLine = it->second.getDouble();
-            links.append(link);
+                columns.append(findColumn(it->first));
+            }
+            links.append({link, columns});
         }
     };
     // do these always? or just for their "expected" kind
@@ -411,11 +464,12 @@ static Links linksForIssue(const std::map<QString, Dto::Any> &issueRow)
     return links;
 }
 
-void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
+void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     if (dto.totalRowCount.has_value()) {
         m_totalRowCount = dto.totalRowCount.value();
+        m_issuesModel->setExpectedRowCount(m_totalRowCount);
         m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(m_totalRowCount));
     }
     if (dto.totalAddedCount.has_value())
@@ -425,21 +479,32 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto)
 
     const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;
+    QList<ListItem *> items;
     for (const auto &row : rows) {
+        QString id;
         QStringList data;
+        QStringList toolTips;
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
                 QString value = anyToSimpleString(it->second);
-                if (column.key == "id")
+                if (column.key == "id") {
                     value.prepend(m_currentPrefix);
+                    id = value;
+                }
+                toolTips << value;
+                if (column.key.toLower().endsWith("path")) {
+                    const FilePath fp = FilePath::fromUserInput(value);
+                    value = QString("%1 [%2]").arg(fp.fileName(), fp.path());
+                }
                 data << value;
             }
         }
-        IssueTreeItem *it = new IssueTreeItem(data, data);
-        it->setLinks(linksForIssue(row));
-        m_issuesModel->rootItem()->appendChild(it);
+        IssueListItem *it = new IssueListItem(startRow++, id, data, toolTips);
+        it->setLinks(linksForIssue(row, tableColumns));
+        items.append(it);
     }
+    m_issuesModel->setItems(items);
 }
 
 void IssuesWidget::onSearchParameterChanged()
@@ -448,10 +513,9 @@ void IssuesWidget::onSearchParameterChanged()
     m_removedFilter->setText("0");
     m_totalRows->setText(Tr::tr("Total rows:"));
 
-    m_issuesModel->rootItem()->removeChildren();
+    m_issuesModel->clear();
     // new "first" time lookup
     m_totalRowCount = 0;
-    m_lastRequestedOffset = 0;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
     fetchIssues(search);
@@ -503,7 +567,7 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
-            updateTableView();
+            fetchTable();
         });
         m_typesButtonGroup->addButton(button, ++buttonId);
         m_typesLayout->addWidget(button);
@@ -535,27 +599,6 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
 }
 
-void IssuesWidget::updateTableView()
-{
-    QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
-    // fetch table dto and apply, on done fetch first data for the selected issues
-    const auto tableHandler = [this](const Dto::TableInfoDto &dto) { setTableDto(dto); };
-    const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
-    const auto doneHandler = [this](DoneWith result) {
-        if (result == DoneWith::Error) {
-            m_issuesView->hideProgressIndicator();
-            return;
-        }
-        // first time lookup... should we cache and maybe represent old data?
-        m_totalRowCount = 0;
-        m_lastRequestedOffset = 0;
-        IssueListSearch search = searchFromUi();
-        search.computeTotalRowCount = true;
-        fetchIssues(search);
-    };
-    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
-}
-
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
     m_addedFilter->setEnabled(enabled);
@@ -581,143 +624,168 @@ IssueListSearch IssuesWidget::searchFromUi() const
         search.state = "added";
     else if (m_removedFilter->isChecked())
         search.state = "removed";
+    if (int column = m_headerView->currentSortColumn() != -1) {
+        QTC_ASSERT(m_currentTableInfo, return search);
+        QTC_ASSERT((ulong)column < m_currentTableInfo->columns.size(), return search);
+        search.sort = m_currentTableInfo->columns.at(m_headerView->currentSortColumn()).key
+                + (m_headerView->currentSortOrder() == SortOrder::Ascending ? " asc" : " desc");
+    }
+
     return search;
+}
+
+void IssuesWidget::fetchTable()
+{
+    QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
+    // fetch table dto and apply, on done fetch first data for the selected issues
+    const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
+        m_currentTableInfo.emplace(dto);
+    };
+    const auto setupHandler = [this](TaskTree *) {
+        m_totalRowCount = 0;
+        m_currentTableInfo.reset();
+        m_issuesView->showProgressIndicator();
+    };
+    const auto doneHandler = [this](DoneWith result) {
+        if (result == DoneWith::Error) {
+            m_issuesView->hideProgressIndicator();
+            return;
+        }
+        // first time lookup... should we cache and maybe represent old data?
+        updateTable();
+        IssueListSearch search = searchFromUi();
+        search.computeTotalRowCount = true;
+        fetchIssues(search);
+    };
+    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
 }
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
-    const auto issuesHandler = [this](const Dto::IssueTableDto &dto) { addIssues(dto); };
+    const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
+        addIssues(dto, startRow);
+    };
     const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
     const auto doneHandler = [this](DoneWith) { m_issuesView->hideProgressIndicator(); };
     m_taskTreeRunner.start(issueTableRecipe(search, issuesHandler), setupHandler, doneHandler);
 }
 
-void IssuesWidget::fetchMoreIssues()
+void IssuesWidget::onFetchRequested(int startRow, int limit)
 {
-    if (m_lastRequestedOffset == m_issuesModel->rowCount())
+    if (m_taskTreeRunner.isRunning())
         return;
 
     IssueListSearch search = searchFromUi();
-    m_lastRequestedOffset = m_issuesModel->rowCount();
-    search.offset = m_lastRequestedOffset;
+    search.offset = startRow;
+    search.limit = limit;
     fetchIssues(search);
 }
 
-AxivionOutputPane::AxivionOutputPane(QObject *parent)
-    : IOutputPane(parent)
+class AxivionOutputPane final : public IOutputPane
 {
-    setId("Axivion");
-    setDisplayName(Tr::tr("Axivion"));
-    setPriorityInStatusBar(-50);
+public:
+    explicit AxivionOutputPane(QObject *parent)
+        : IOutputPane(parent)
+    {
+        setId("Axivion");
+        setDisplayName(Tr::tr("Axivion"));
+        setPriorityInStatusBar(-50);
 
-    m_outputWidget = new QStackedWidget;
-    DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
-    m_outputWidget->addWidget(dashboardWidget);
-    IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
-    m_outputWidget->addWidget(issuesWidget);
-    QTextBrowser *browser = new QTextBrowser(m_outputWidget);
-    m_outputWidget->addWidget(browser);
-}
+        m_outputWidget = new QStackedWidget;
+        DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
+        m_outputWidget->addWidget(dashboardWidget);
+        IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
+        m_outputWidget->addWidget(issuesWidget);
 
-AxivionOutputPane::~AxivionOutputPane()
-{
-    if (!m_outputWidget->parent())
-        delete m_outputWidget;
-}
+        QPalette pal = m_outputWidget->palette();
+        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::Color::BackgroundColorNormal));
+        m_outputWidget->setPalette(pal);
 
-QWidget *AxivionOutputPane::outputWidget(QWidget *parent)
-{
-    if (m_outputWidget)
-        m_outputWidget->setParent(parent);
-    else
-        QTC_CHECK(false);
-    return m_outputWidget;
-}
+        m_showDashboard = new QToolButton(m_outputWidget);
+        m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
+        m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
+        m_showDashboard->setCheckable(true);
+        m_showDashboard->setChecked(true);
+        connect(m_showDashboard, &QToolButton::clicked, this, [this] {
+            QTC_ASSERT(m_outputWidget, return);
+            m_outputWidget->setCurrentIndex(0);
+        });
 
-QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
-{
-    QList<QWidget *> buttons;
-    auto showDashboard = new QToolButton(m_outputWidget);
-    showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
-    showDashboard->setToolTip(Tr::tr("Show dashboard"));
-    connect(showDashboard, &QToolButton::clicked, this, [this]{
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(0);
-    });
-    buttons.append(showDashboard);
-    auto showIssues = new QToolButton(m_outputWidget);
-    showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
-    showIssues->setToolTip(Tr::tr("Search for issues"));
-    connect(showIssues, &QToolButton::clicked, this, [this]{
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(1);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
-            issues->updateUi();
-    });
-    buttons.append(showIssues);
-    return buttons;
-}
+        m_showIssues = new QToolButton(m_outputWidget);
+        m_showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
+        m_showIssues->setToolTip(Tr::tr("Search for issues"));
+        m_showIssues->setCheckable(true);
+        connect(m_showIssues, &QToolButton::clicked, this, [this] {
+            QTC_ASSERT(m_outputWidget, return);
+            m_outputWidget->setCurrentIndex(1);
+            if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+                issues->updateUi();
+        });
 
-void AxivionOutputPane::clearContents()
-{
-}
-
-void AxivionOutputPane::setFocus()
-{
-}
-
-bool AxivionOutputPane::hasFocus() const
-{
-    return false;
-}
-
-bool AxivionOutputPane::canFocus() const
-{
-    return true;
-}
-
-bool AxivionOutputPane::canNavigate() const
-{
-    return true;
-}
-
-bool AxivionOutputPane::canNext() const
-{
-    return false;
-}
-
-bool AxivionOutputPane::canPrevious() const
-{
-    return false;
-}
-
-void AxivionOutputPane::goToNext()
-{
-}
-
-void AxivionOutputPane::goToPrev()
-{
-}
-
-void AxivionOutputPane::updateDashboard()
-{
-    if (auto dashboard = static_cast<DashboardWidget *>(m_outputWidget->widget(0))) {
-        dashboard->updateUi();
-        m_outputWidget->setCurrentIndex(0);
-        if (dashboard->hasProject())
-            flash();
+        connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
+            m_showDashboard->setChecked(idx == 0);
+            m_showIssues->setChecked(idx == 1);
+        });
     }
-}
 
-void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
-{
-    if (auto browser = static_cast<QTextBrowser *>(m_outputWidget->widget(2))) {
-        browser->setText(ruleHtml);
-        if (!ruleHtml.isEmpty()) {
-            m_outputWidget->setCurrentIndex(2);
-            popup(IOutputPane::NoModeSwitch);
+    ~AxivionOutputPane()
+    {
+        if (!m_outputWidget->parent())
+            delete m_outputWidget;
+    }
+
+    QWidget *outputWidget(QWidget *parent) final
+    {
+        if (m_outputWidget)
+            m_outputWidget->setParent(parent);
+        else
+            QTC_CHECK(false);
+        return m_outputWidget;
+    }
+
+    QList<QWidget *> toolBarWidgets() const final
+    {
+        return {m_showDashboard, m_showIssues};
+    }
+
+    void clearContents() final {}
+    void setFocus() final {}
+    bool hasFocus() const final { return false; }
+    bool canFocus() const final { return true; }
+    bool canNavigate() const final { return true; }
+    bool canNext() const final { return false; }
+    bool canPrevious() const final { return false; }
+    void goToNext() final {}
+    void goToPrev() final {}
+
+    void updateDashboard()
+    {
+        if (auto dashboard = static_cast<DashboardWidget *>(m_outputWidget->widget(0))) {
+            dashboard->updateUi();
+            m_outputWidget->setCurrentIndex(0);
+            if (dashboard->hasProject())
+                flash();
         }
     }
+
+private:
+    QStackedWidget *m_outputWidget = nullptr;
+    QToolButton *m_showDashboard = nullptr;
+    QToolButton *m_showIssues = nullptr;
+};
+
+
+static QPointer<AxivionOutputPane> theAxivionOutputPane;
+
+void setupAxivionOutputPane(QObject *guard)
+{
+    theAxivionOutputPane = new AxivionOutputPane(guard);
+}
+
+void updateDashboard()
+{
+    QTC_ASSERT(theAxivionOutputPane, return);
+    theAxivionOutputPane->updateDashboard();
 }
 
 } // Axivion::Internal

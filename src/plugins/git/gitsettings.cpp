@@ -33,7 +33,7 @@ GitSettings::GitSettings()
     path.setLabelText(Tr::tr("Prepend to PATH:"));
     path.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    binaryPath.setLabelText(Tr::tr("Git Command"));
+    binaryPath.setLabelText(Tr::tr("Git command:"));
     binaryPath.setDefaultValue("git");
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter("Git.Command.History");

@@ -292,7 +292,7 @@ public:
     VcsEditorFactory commandLogEditorFactory {{
         OtherContent,
         CVS_COMMANDLOG_EDITOR_ID,
-        VcsBase::Tr::tr("CVS Command Log Editor"), // display name
+        ::VcsBase::Tr::tr("CVS Command Log Editor"), // display name
         "text/vnd.qtcreator.cvs.commandlog",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
@@ -301,7 +301,7 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         CVS_FILELOG_EDITOR_ID,
-        VcsBase::Tr::tr("CVS File Log Editor"),   // display name
+        ::VcsBase::Tr::tr("CVS File Log Editor"),   // display name
         "text/vnd.qtcreator.cvs.log",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
@@ -310,7 +310,7 @@ public:
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         CVS_ANNOTATION_EDITOR_ID,
-        VcsBase::Tr::tr("CVS Annotation Editor"),  // display name
+        ::VcsBase::Tr::tr("CVS Annotation Editor"),  // display name
         "text/vnd.qtcreator.cvs.annotation",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
@@ -319,7 +319,7 @@ public:
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         CVS_DIFF_EDITOR_ID,
-        VcsBase::Tr::tr("CVS Diff Editor"),  // display name
+        ::VcsBase::Tr::tr("CVS Diff Editor"),  // display name
         "text/x-patch",
         [] { return new CvsEditorWidget; },
         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
@@ -449,7 +449,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     setupVcsSubmitEditor(this, {
         CVS_SUBMIT_MIMETYPE,
         CVSCOMMITEDITOR_ID,
-        VcsBase::Tr::tr("CVS Commit Editor"),
+        ::VcsBase::Tr::tr("CVS Commit Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CvsSubmitEditor; },
     });

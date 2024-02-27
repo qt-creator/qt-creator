@@ -264,7 +264,7 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
 
 void DeviceCtlRunner::reportStoppedImpl()
 {
-    appendMessage(Tr::tr("\"%1\" exited").arg(m_bundlePath.toUserOutput()),
+    appendMessage(Tr::tr("\"%1\" exited.").arg(m_bundlePath.toUserOutput()),
                   Utils::NormalMessageFormat);
     reportStopped();
 }

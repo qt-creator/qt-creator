@@ -1011,14 +1011,15 @@ void ICore::removeAdditionalContext(const Context &context)
     Registers a \a window with the specified \a context. Registered windows are
     shown in the \uicontrol Window menu and get registered for the various
     window related actions, like the minimize, zoom, fullscreen and close
-    actions.
+    actions. The context for the actions is \a context by default, but can be
+    overridden with \a actionContext.
 
     Whenever the application focus is in \a window, its \a context is made
     active.
 */
-void ICore::registerWindow(QWidget *window, const Context &context)
+void ICore::registerWindow(QWidget *window, const Context &context, const Context &actionContext)
 {
-    new WindowSupport(window, context); // deletes itself when widget is destroyed
+    new WindowSupport(window, context, actionContext); // deletes itself when widget is destroyed
 }
 
 /*!
@@ -1970,14 +1971,32 @@ void ICorePrivate::registerDefaultActions()
         toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
         toggleMenubarAction.addOnToggled(this, [](bool visible) {
             if (!visible) {
-                const QString keys = ActionManager::command(Constants::TOGGLE_MENUBAR)
-                                         ->keySequence().toString(QKeySequence::NativeText);
-                CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                                 Tr::tr("Hide Menu Bar"),
-                                                 Tr::tr("This will hide the menu bar completely. "
-                                                        "You can show it again by typing %1.")
-                                                     .arg(keys),
-                                                 Key("ToogleMenuBarHint"));
+                auto keySequenceAndText = [](const Utils::Id &actionName) {
+                    const auto command = ActionManager::command(actionName);
+
+                    const QString keySequence = command->keySequence().toString(
+                        QKeySequence::NativeText);
+                    const QString text = command->action()->text();
+
+                    return QPair<QString, QString>(keySequence, text);
+                };
+
+                auto [menuBarKeys, menuBarText] = keySequenceAndText(Constants::TOGGLE_MENUBAR);
+                auto [actionsFromMenuKeys, actionsFromMenuText] = keySequenceAndText(
+                    "Locator.Actions from the menu");
+
+                CheckableMessageBox::information(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Hide Menu Bar"),
+                    Tr::tr("This will hide the menu bar completely. "
+                           "You can show it again by typing %1."
+                           "<br><br>"
+                           "Or, trigger the \"%2\" action from the \"%3\" locator filter (%4).")
+                        .arg(menuBarKeys)
+                        .arg(menuBarText)
+                        .arg(actionsFromMenuText)
+                        .arg(actionsFromMenuKeys),
+                    Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });

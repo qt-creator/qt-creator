@@ -41,7 +41,7 @@
         \row
             \li \b {\l{Getting Started}}
                 \list
-                    \li \l{IDE Overview}
+                    \li \l{Overview}
                     \li \l{User Interface}
                     \li \l{Configuring Qt Creator}
                     \li \l{Building and Running an Example}

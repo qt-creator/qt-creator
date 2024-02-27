@@ -140,6 +140,7 @@ class PresetsData
 {
 public:
     int version = 0;
+    bool havePresets = false;
     QVersionNumber cmakeMinimimRequired;
     QHash<QString, QString> vendor;
     std::optional<QStringList> include;

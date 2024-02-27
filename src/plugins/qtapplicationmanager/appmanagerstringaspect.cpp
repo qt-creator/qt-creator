@@ -24,7 +24,7 @@ AppManagerIdAspect::AppManagerIdAspect(Utils::AspectContainer *container)
 {
     setSettingsKey("ApplicationManagerPlugin.ApplicationId");
     setDisplayStyle(StringAspect::LineEditDisplay);
-    setLabelText(Tr::tr("Application id:"));
+    setLabelText(Tr::tr("Application ID:"));
     //        setReadOnly(true);
 }
 
@@ -33,9 +33,9 @@ AppManagerInstanceIdAspect::AppManagerInstanceIdAspect(Utils::AspectContainer *c
 {
     setSettingsKey("ApplicationManagerPlugin.InstanceId");
     setDisplayStyle(StringAspect::LineEditDisplay);
-    setLabelText(Tr::tr("AppMan instance id:"));
+    setLabelText(Tr::tr("Application Manager instance ID:"));
 
-    makeCheckable(Utils::CheckBoxPlacement::Right, Tr::tr("Default Instance"),
+    makeCheckable(Utils::CheckBoxPlacement::Right, Tr::tr("Default instance"),
                   "ApplicationManagerPlugin.InstanceIdDefault");
     setChecked(true);
 
@@ -52,16 +52,16 @@ AppManagerDocumentUrlAspect::AppManagerDocumentUrlAspect(Utils::AspectContainer 
 {
     setSettingsKey("ApplicationManagerPlugin.DocumentUrl");
     setDisplayStyle(StringAspect::LineEditDisplay);
-    setLabelText(Tr::tr("Document url:"));
+    setLabelText(Tr::tr("Document URL:"));
 }
 
 AppManagerCustomizeAspect::AppManagerCustomizeAspect(Utils::AspectContainer *container)
     : BoolAspect(container)
 {
     setSettingsKey("ApplicationManagerPlugin.CustomizeStep");
-    setLabelText(Tr::tr("Customize Step"));
+    setLabelText(Tr::tr("Customize step"));
     setToolTip(Tr::tr("Disables the automatic updates based on the current run configuration and "
-                      "allows customizing the values"));
+                      "allows customizing the values."));
 }
 
 AppManagerControllerAspect::AppManagerControllerAspect(Utils::AspectContainer *container)

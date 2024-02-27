@@ -88,8 +88,8 @@ void QtSupportPlugin::initialize()
     setupGettingStartedWelcomePage();
     setupQtSettingsPage();
     setupQtOutputFormatter();
-    setupUicGenerator();
-    setupQScxmlcGenerator();
+    setupUicGenerator(this);
+    setupQScxmlcGenerator(this);
 
     setupExternalDesigner(this);
     setupExternalLinguist();

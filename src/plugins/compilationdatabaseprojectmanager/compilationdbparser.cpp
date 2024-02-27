@@ -8,9 +8,12 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/treescanner.h>
 
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/mimeutils.h>
 
 #include <QCryptographicHash>
@@ -187,6 +190,7 @@ void CompilationDbParser::start()
                                    "CompilationDatabase.Parse");
     ++m_runningParserJobs;
     m_parserWatcher.setFuture(future);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 
 void CompilationDbParser::stop()

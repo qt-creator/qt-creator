@@ -7,6 +7,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanagertr.h"
+#include "presetsmacros.h"
 
 #include <coreplugin/icontext.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -301,6 +302,18 @@ void CMakeProject::readPresets()
 
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);
+
+    for (const auto &configPreset : m_presetsData.configurePresets) {
+        if (configPreset.hidden.value())
+            continue;
+
+        if (configPreset.condition) {
+            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectFilePath()))
+                continue;
+        }
+        m_presetsData.havePresets = true;
+        break;
+    }
 }
 
 bool CMakeProject::setupTarget(Target *t)

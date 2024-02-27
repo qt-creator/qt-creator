@@ -24,6 +24,7 @@ public:
 
 class EffectComposerView : public QmlDesigner::AbstractView
 {
+    Q_DECLARE_TR_FUNCTIONS(EffectComposer::EffectComposerView)
 public:
     EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies);
     ~EffectComposerView() override;

@@ -204,9 +204,11 @@ void IosSettingsWidget::onStart()
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         if (!info.isShutdown()) {
-            statusDialog->addMessage(Tr::tr("Cannot start simulator (%1, %2) in current state: %3")
-                                    .arg(info.name).arg(info.runtimeName).arg(info.state),
-                                    Utils::StdErrFormat);
+            statusDialog->addMessage(Tr::tr("Cannot start simulator (%1, %2) in current state: %3.")
+                                         .arg(info.name)
+                                         .arg(info.runtimeName)
+                                         .arg(info.state),
+                                     Utils::StdErrFormat);
         } else {
             futureList << QFuture<void>(Utils::onResultReady(
                 SimulatorControl::startSimulator(info.identifier), this,

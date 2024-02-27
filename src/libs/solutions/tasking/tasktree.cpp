@@ -7,10 +7,12 @@
 #include <QEventLoop>
 #include <QFutureWatcher>
 #include <QHash>
+#include <QMetaEnum>
 #include <QMutex>
 #include <QPromise>
 #include <QPointer>
 #include <QSet>
+#include <QTime>
 #include <QTimer>
 
 using namespace std::chrono;
@@ -1191,6 +1193,17 @@ const GroupItem stopOnSuccessOrError = workflowPolicy(WorkflowPolicy::StopOnSucc
 const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
+// Please note the thread_local keyword below guarantees a separate instance per thread.
+// The s_activeTaskTrees is currently used internally only and is not exposed in the public API.
+// It serves for withLog() implementation now. Add a note here when a new usage is introduced.
+static thread_local QList<TaskTree *> s_activeTaskTrees = {};
+
+static TaskTree *activeTaskTree()
+{
+    QT_ASSERT(s_activeTaskTrees.size(), return nullptr);
+    return s_activeTaskTrees.back();
+}
+
 DoneResult toDoneResult(bool success)
 {
     return success ? DoneResult::Success : DoneResult::Error;
@@ -1402,8 +1415,8 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
     }
 }
 
-GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
-                                 const std::function<void()> &handler)
+ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
+                                           const std::function<void()> &handler) const
 {
     const auto onSetup = [timeout](milliseconds &timeoutData) { timeoutData = timeout; };
     return Group {
@@ -1414,7 +1427,41 @@ GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
             handler ? TimeoutTask(onSetup, [handler] { handler(); }, CallDoneIf::Success)
                     : TimeoutTask(onSetup)
         },
-        item
+        *this
+    };
+}
+
+static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateWithMs); }
+
+ExecutableItem ExecutableItem::withLog(const QString &logName) const
+{
+    const auto header = [logName] {
+        return QString("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
+    };
+    struct LogStorage
+    {
+        time_point<system_clock, nanoseconds> start;
+        int asyncCount = 0;
+    };
+    const Storage<LogStorage> storage;
+    return Group {
+        storage,
+        onGroupSetup([storage, header] {
+            storage->start = system_clock::now();
+            storage->asyncCount = activeTaskTree()->asyncCount();
+            qDebug().noquote() << header() << "started.";
+        }),
+        *this,
+        onGroupDone([storage, header](DoneWith result) {
+            const auto elapsed = duration_cast<milliseconds>(system_clock::now() - storage->start);
+            const int asyncCountDiff = activeTaskTree()->asyncCount() - storage->asyncCount;
+            QT_CHECK(asyncCountDiff >= 0);
+            const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
+            const QString syncType = asyncCountDiff ? QString("asynchronously")
+                                                    : QString("synchronously");
+            qDebug().noquote().nospace() << header() << " finished " << syncType << " with "
+                << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
+        })
     };
 }
 
@@ -1427,16 +1474,26 @@ class RuntimeTask;
 class ExecutionContextActivator
 {
 public:
-    ExecutionContextActivator(RuntimeIteration *iteration) { activateContext(iteration); }
-    ExecutionContextActivator(RuntimeContainer *container) { activateContext(container); }
+    ExecutionContextActivator(RuntimeIteration *iteration) {
+        activateTaskTree(iteration);
+        activateContext(iteration);
+    }
+    ExecutionContextActivator(RuntimeContainer *container) {
+        activateTaskTree(container);
+        activateContext(container);
+    }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
             m_activeStorages[i].m_storageData->threadData().popStorage();
         for (int i = m_activeLoops.size() - 1; i >= 0; --i) // iterate in reverse order
             m_activeLoops[i].m_loopData->threadData().popIteration();
+        QT_ASSERT(s_activeTaskTrees.size(), return);
+        s_activeTaskTrees.pop_back();
     }
 
 private:
+    void activateTaskTree(RuntimeIteration *iteration);
+    void activateTaskTree(RuntimeContainer *container);
     void activateContext(RuntimeIteration *iteration);
     void activateContext(RuntimeContainer *container);
     QList<Loop> m_activeLoops;
@@ -1490,9 +1547,8 @@ public:
 
     void start();
     void stop();
+    void bumpAsyncCount();
     void advanceProgress(int byValue);
-    void emitStartedAndProgress();
-    void emitProgress();
     void emitDone(DoneWith result);
     void callSetupHandler(StorageBase storage, StoragePtr storagePtr) {
         callStorageHandler(storage, storagePtr, &StorageHandler::m_setupHandler);
@@ -1552,6 +1608,7 @@ public:
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
+    int m_asyncCount = 0;
     QSet<StorageBase> m_storages;
     QHash<StorageBase, StorageHandler> m_storageHandlers;
     std::optional<TaskNode> m_root;
@@ -1666,6 +1723,16 @@ static bool isProgressive(RuntimeContainer *container)
     return iteration ? iteration->m_isProgressive : true;
 }
 
+void ExecutionContextActivator::activateTaskTree(RuntimeIteration *iteration)
+{
+    activateTaskTree(iteration->m_container);
+}
+
+void ExecutionContextActivator::activateTaskTree(RuntimeContainer *container)
+{
+    s_activeTaskTrees.push_back(container->m_containerNode.m_taskTreePrivate->q);
+}
+
 void ExecutionContextActivator::activateContext(RuntimeIteration *iteration)
 {
     std::optional<Loop> loop = iteration->loop();
@@ -1696,8 +1763,14 @@ void TaskTreePrivate::start()
 {
     QT_ASSERT(m_root, return);
     QT_ASSERT(!m_runtimeRoot, return);
+    m_asyncCount = 0;
     m_progressValue = 0;
-    emitStartedAndProgress();
+    {
+        GuardLocker locker(m_guard);
+        emit q->started();
+        emit q->asyncCountChanged(m_asyncCount);
+        emit q->progressValueChanged(m_progressValue);
+    }
     // TODO: check storage handlers for not existing storages in tree
     for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
         QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
@@ -1705,6 +1778,7 @@ void TaskTreePrivate::start()
     }
     m_runtimeRoot.reset(new RuntimeTask{*m_root});
     start(m_runtimeRoot.get());
+    bumpAsyncCount();
 }
 
 void TaskTreePrivate::stop()
@@ -1717,6 +1791,15 @@ void TaskTreePrivate::stop()
     emitDone(DoneWith::Cancel);
 }
 
+void TaskTreePrivate::bumpAsyncCount()
+{
+    if (!m_runtimeRoot)
+        return;
+    ++m_asyncCount;
+    GuardLocker locker(m_guard);
+    emit q->asyncCountChanged(m_asyncCount);
+}
+
 void TaskTreePrivate::advanceProgress(int byValue)
 {
     if (byValue == 0)
@@ -1724,18 +1807,6 @@ void TaskTreePrivate::advanceProgress(int byValue)
     QT_CHECK(byValue > 0);
     QT_CHECK(m_progressValue + byValue <= m_root->taskCount());
     m_progressValue += byValue;
-    emitProgress();
-}
-
-void TaskTreePrivate::emitStartedAndProgress()
-{
-    GuardLocker locker(m_guard);
-    emit q->started();
-    emit q->progressValueChanged(m_progressValue);
-}
-
-void TaskTreePrivate::emitProgress()
-{
     GuardLocker locker(m_guard);
     emit q->progressValueChanged(m_progressValue);
 }
@@ -2037,10 +2108,12 @@ SetupResult TaskTreePrivate::start(RuntimeTask *node)
         node->m_task.release()->deleteLater();
         RuntimeIteration *parentIteration = node->m_parentIteration;
         parentIteration->deleteChild(node);
-        if (parentIteration->m_container->isStarting())
+        if (parentIteration->m_container->isStarting()) {
             *unwindAction = toSetupResult(result);
-        else
+        } else {
             childDone(parentIteration, result);
+            bumpAsyncCount();
+        }
     });
 
     node->m_task->start();
@@ -2962,6 +3035,38 @@ DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future,
 }
 
 /*!
+    Returns the current real count of asynchronous chains of invocations.
+
+    The returned value indicates how many times the control returns to the caller's
+    event loop while the task tree is running. Initially, this value is 0.
+    If the execution of the task tree finishes fully synchronously, this value remains 0.
+    If the task tree contains any asynchronous tasks that are successfully started during
+    a call to start(), this value is bumped to 1 just before the call to start() finishes.
+    Later, when any asynchronous task finishes and any possible continuations are started,
+    this value is bumped again. The bumping continues until the task tree finishes.
+    When the task tree emits the done() signal, the bumping stops.
+    The asyncCountChanged() signal is emitted on every bump of this value.
+
+    \sa asyncCountChanged()
+*/
+int TaskTree::asyncCount() const
+{
+    return d->m_asyncCount;
+}
+
+/*!
+    \fn void TaskTree::asyncCountChanged(int count)
+
+    This signal is emitted when the running task tree is about to return control to the caller's
+    event loop. When the task tree is started, this signal is emitted with \a count value of 0,
+    and emitted later on every asyncCount() value bump with an updated \a count value.
+    Every signal sent (except the initial one with the value of 0) guarantees that the task tree
+    is still running asynchronously after the emission.
+
+    \sa asyncCount()
+*/
+
+/*!
     Returns the number of asynchronous tasks contained in the stored recipe.
 
     \note The returned number doesn't include \l {Tasking::Sync} {Sync} tasks.
@@ -3006,7 +3111,7 @@ int TaskTree::taskCount() const
     When the task tree is started, this number is set to \c 0.
     When the task tree is finished, this number always equals progressMaximum().
 
-    \sa progressMaximum()
+    \sa progressMaximum(), progressValueChanged()
 */
 int TaskTree::progressValue() const
 {

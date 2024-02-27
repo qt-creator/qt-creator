@@ -527,11 +527,11 @@ public:
         }
 
         case PanelWidgetRole:
-        case ActiveItemRole:
-            if (m_currentChildIndex == 0)
-                return m_targetsItem->data(column, role);
-            if (m_currentChildIndex == 1)
-                return m_miscItem->data(column, role);
+        case ActiveItemRole: {
+            TreeItem *child = childAt(m_currentChildIndex);
+            if (child)
+                return child->data(column, role);
+        }
         }
         return {};
     }

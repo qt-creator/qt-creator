@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <QObject>
+
 namespace QtSupport::Internal {
 
-void setupUicGenerator();
+void setupUicGenerator(QObject *guard);
 
 } // QtSupport::Internal

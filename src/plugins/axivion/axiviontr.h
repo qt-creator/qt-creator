@@ -9,7 +9,7 @@ namespace Axivion {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Axivion)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Axivion)
 };
 
 } // Axivion

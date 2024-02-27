@@ -349,6 +349,8 @@ public:
     void pasteWithoutFormat();
     void switchUtf8bom();
 
+    void increaseFontZoom();
+    void decreaseFontZoom();
     void zoomF(float delta);
     void zoomReset();
 

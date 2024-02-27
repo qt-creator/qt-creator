@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -19,6 +19,8 @@
     share these settings between several projects as a \e {.shared} file. It
     has the same XML structure as a \e {.user} file, but only has the
     settings to share.
+
+    \note Use \l{CMake Presets} to share CMake project settings.
 
     \section1 Create a shared settings file
 
@@ -70,5 +72,5 @@
     a permanent sticky setting that was created just because you wanted to try
     something out.
 
-    \sa {Configuring Projects}
+    \sa {Configuring Projects}, {CMake Presets}
 */

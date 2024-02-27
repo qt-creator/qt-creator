@@ -18,7 +18,7 @@ public:
     static QFuture<CursorInfo> run(const CursorInfoParams &params);
 
     static SemanticInfo::LocalUseMap
-    findLocalUses(const CPlusPlus::Document::Ptr &document, int line, int column);
+    findLocalUses(const CPlusPlus::Document::Ptr &document, const QString &content, int line, int column);
 };
 
 } // namespace CppEditor

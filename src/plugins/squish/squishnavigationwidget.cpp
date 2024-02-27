@@ -340,7 +340,12 @@ void SquishNavigationWidget::onRemoveSharedFileTriggered(const QModelIndex &idx)
         = CheckableMessageBox::question(Core::ICore::dialogParent(),
                                         Tr::tr("Remove Shared File"),
                                         detail,
-                                        Key("RemoveSharedSquishScript"));
+                                        Key("RemoveSharedSquishScript"),
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        /*defaultButton=*/QMessageBox::No,
+                                        /*acceptButton=*/QMessageBox::Yes,
+                                        {{QMessageBox::Yes, Tr::tr("Delete")},
+                                         {QMessageBox::No, Tr::tr("Cancel")}});
     if (pressed != QMessageBox::Yes)
         return;
 

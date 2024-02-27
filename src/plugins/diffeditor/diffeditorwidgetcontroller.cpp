@@ -267,9 +267,12 @@ void DiffEditorWidgetController::addPatchAction(QMenu *menu, int fileIndex, int 
     const QString actionName = patchAction == PatchAction::Apply ? Tr::tr("Apply Chunk...")
                                                                  : Tr::tr("Revert Chunk...");
     QAction *action = menu->addAction(actionName);
-    connect(action, &QAction::triggered, this, [this, fileIndex, chunkIndex, patchAction] {
-        patch(patchAction, fileIndex, chunkIndex);
-    });
+    connect(
+        action,
+        &QAction::triggered,
+        this,
+        [this, fileIndex, chunkIndex, patchAction] { patch(patchAction, fileIndex, chunkIndex); },
+        Qt::QueuedConnection);
     const bool enabled = chunkExists(fileIndex, chunkIndex)
             && (patchAction == PatchAction::Revert || fileNamesAreDifferent(fileIndex));
     action->setEnabled(enabled);

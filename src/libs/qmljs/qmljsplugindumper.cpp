@@ -569,6 +569,9 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
     Utils::onFinished(loadQmlTypeDescription(qmltypesFilePaths), this,
             [this, qmltypesFilePaths, libraryPath, libraryInfo]
             (const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
+        if (typesFuture.isCanceled() || typesFuture.resultCount() == 0)
+            return;
+
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
@@ -576,6 +579,9 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
                                                QSharedPointer<QSet<FilePath>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {
+                if (loadFuture.isCanceled() || loadFuture.resultCount() == 0)
+                    return;
+
                 PluginDumper::DependencyInfo loadResult = loadFuture.result();
                 QStringList errors = typesResult.errors;
                 QStringList warnings = typesResult.errors;

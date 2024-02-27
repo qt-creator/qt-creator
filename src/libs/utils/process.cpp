@@ -847,7 +847,9 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    QTextCodec *m_codec = QTextCodec::codecForLocale();
+    QTextCodec *m_stdOutCodec = QTextCodec::codecForLocale();
+    QTextCodec *m_stdErrCodec = QTextCodec::codecForLocale();
+
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
@@ -1102,9 +1104,9 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 void ProcessPrivate::clearForRun()
 {
     m_stdOut.clearForRun();
-    m_stdOut.codec = m_codec;
+    m_stdOut.codec = m_stdOutCodec;
     m_stdErr.clearForRun();
-    m_stdErr.codec = m_codec;
+    m_stdErr.codec = m_stdErrCodec;
     m_result = ProcessResult::StartFailed;
     m_startTimestamp = {};
     m_doneTimestamp = {};
@@ -1663,8 +1665,7 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
     case ProcessResult::Canceled:
         // TODO: We might want to format it nicely when bigger than 1 second, e.g. 1,324 s.
         //       Also when it's bigger than 1 minute, 1 hour, etc...
-        return Tr::tr("The command \"%1\" was canceled after (%2 ms).")
-            .arg(cmd).arg(duration.count());
+        return Tr::tr("The command \"%1\" was canceled after %2 ms.").arg(cmd).arg(duration.count());
     }
     return {};
 }
@@ -1729,13 +1730,13 @@ QByteArray Process::rawStdErr() const
 QString Process::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
-    return d->m_codec->toUnicode(d->m_stdOut.rawData);
+    return d->m_stdOutCodec->toUnicode(d->m_stdOut.rawData);
 }
 
 QString Process::stdErr() const
 {
     QTC_CHECK(d->m_stdErr.keepRawData);
-    return d->m_codec->toUnicode(d->m_stdErr.rawData);
+    return d->m_stdErrCodec->toUnicode(d->m_stdErr.rawData);
 }
 
 QString Process::cleanedStdOut() const
@@ -1850,7 +1851,20 @@ void ChannelBuffer::handleRest()
 void Process::setCodec(QTextCodec *c)
 {
     QTC_ASSERT(c, return);
-    d->m_codec = c;
+    d->m_stdOutCodec = c;
+    d->m_stdErrCodec = c;
+}
+
+void Process::setStdOutCodec(QTextCodec *c)
+{
+    QTC_ASSERT(c, return);
+    d->m_stdOutCodec = c;
+}
+
+void Process::setStdErrCodec(QTextCodec *c)
+{
+    QTC_ASSERT(c, return);
+    d->m_stdErrCodec = c;
 }
 
 void Process::setTimeOutMessageBoxEnabled(bool v)

@@ -476,8 +476,8 @@ ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const 
     using namespace std::chrono_literals;
     process.runBlocking(2s);
     if (process.result() == ProcessResult::Canceled) {
-        Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
-                                               "The device might have been disconnected.")
+        Core::MessageManager::writeFlashing(Tr::tr("Can't send control signal to the %1 device. "
+                                                   "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
     return process.result();
@@ -1485,23 +1485,24 @@ public:
 private:
     void startImpl() final
     {
-        m_currentIndex = 0;
-        startNextFile();
+        // Note: This assumes that files do not get renamed when transferring.
+        for (auto it = m_setup.m_files.cbegin(); it != m_setup.m_files.cend(); ++it)
+            m_batches[it->m_target.parentDir()] << *it;
+        startNextBatch();
     }
 
     void doneImpl() final
     {
-        if (m_setup.m_files.size() == 0 || m_currentIndex == m_setup.m_files.size() - 1)
+        if (m_batches.isEmpty())
             return handleDone();
 
         if (handleError())
             return;
 
-        ++m_currentIndex;
-        startNextFile();
+        startNextBatch();
     }
 
-    void startNextFile()
+    void startNextBatch()
     {
         process().close();
 
@@ -1510,12 +1511,14 @@ private:
                     << fullConnectionOptions(), OsTypeLinux);
         QStringList options{"-e", sshCmdLine, m_setup.m_rsyncFlags};
 
-        if (!m_setup.m_files.isEmpty()) { // NormalRun
-            const FileToTransfer file = m_setup.m_files.at(m_currentIndex);
-            const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
-            const auto fixedPaths = fixPaths(fixedFile, userAtHost());
-
-            options << fixedPaths.first << fixedPaths.second;
+        if (!m_batches.isEmpty()) { // NormalRun
+            const auto batchIt = m_batches.begin();
+            for (auto filesIt = batchIt->cbegin(); filesIt != batchIt->cend(); ++filesIt) {
+                const FileToTransfer fixedFile = fixLocalFileOnWindows(*filesIt, options);
+                options << fixedLocalPath(fixedFile.m_source);
+            }
+            options << fixedRemotePath(batchIt.key(), userAtHost());
+            m_batches.erase(batchIt);
         } else { // TestRun
             options << "-n" << "--exclude=*" << (userAtHost() + ":/tmp");
         }
@@ -1542,18 +1545,17 @@ private:
         return fixedFile;
     }
 
-    QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost) const
+    QString fixedLocalPath(const FilePath &file) const
     {
-        FilePath localPath = file.m_source;
-        FilePath remotePath = file.m_target;
-        const QString local = (localPath.isDir() && localPath.path().back() != '/')
-                ? localPath.path() + '/' : localPath.path();
-        const QString remote = remoteHost + ':' + remotePath.path();
-
-        return qMakePair(local, remote);
+        return file.isDir() && file.path().back() != '/' ? file.path() + '/' : file.path();
     }
 
-    int m_currentIndex = 0;
+    QString fixedRemotePath(const FilePath &file, const QString &remoteHost) const
+    {
+        return remoteHost + ':' + file.path();
+    }
+
+    QHash<FilePath, FilesToTransfer> m_batches;
 };
 
 class GenericTransferImpl : public FileTransferInterface

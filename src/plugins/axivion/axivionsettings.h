@@ -26,8 +26,6 @@ public:
     Utils::Id id;
     QString dashboard;
     QString username;
-    QString description;
-    QString token;
 
     bool validateCert = true;
 };
@@ -40,6 +38,7 @@ public:
     void toSettings() const;
 
     AxivionServer server; // shall we have more than one?
+    Utils::BoolAspect highlightMarks{this};
 };
 
 AxivionSettings &settings();

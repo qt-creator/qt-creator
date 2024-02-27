@@ -12692,8 +12692,7 @@ See also Google Test settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search for Qt Quick tests that are derived from TestCase.
-Warning: Enabling this feature significantly increases scan time.</source>
+        <source>Search for Qt Quick tests that are derived from TestCase.&lt;p&gt;Warning: Enabling this feature significantly increases scan time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12713,9 +12712,7 @@ Warning: Enabling this feature significantly increases scan time.</source>
         <translation>Używaj XML na wyjściu</translation>
     </message>
     <message>
-        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
-
-Warning: Plain text misses some information, such as duration.</source>
+        <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33930,8 +33927,8 @@ Czy nadpisać je?</translation>
         <translation>Uruchomienie symulatora</translation>
     </message>
     <message>
-        <source>Cannot start simulator (%1, %2) in current state: %3</source>
-        <translation>Nie można uruchomić symulatora (%1, %2) w bieżącym stanie: %3</translation>
+        <source>Cannot start simulator (%1, %2) in current state: %3.</source>
+        <translation>Nie można uruchomić symulatora (%1, %2) w bieżącym stanie: %3.</translation>
     </message>
     <message>
         <source>simulator start</source>
