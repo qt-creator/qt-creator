@@ -59,9 +59,14 @@ clang::format::FormatStyle calculateQtcStyle()
     style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
     style.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
     style.AllowShortLoopsOnASingleLine = false;
-    style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
     style.AlwaysBreakBeforeMultilineStrings = false;
+#if LLVM_VERSION_MAJOR >= 19
+    style.BreakAfterReturnType = FormatStyle::RTBS_None;
+    style.BreakTemplateDeclarations = FormatStyle::BTDS_Yes;
+#else
+    style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
     style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
+#endif
     style.BinPackArguments = false;
     style.BinPackParameters = false;
     style.BraceWrapping.AfterClass = true;
