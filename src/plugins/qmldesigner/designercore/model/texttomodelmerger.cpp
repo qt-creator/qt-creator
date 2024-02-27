@@ -1222,9 +1222,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             return;
 
         if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
-            qWarning() << "Preempting Node sync. Type differs" << modelNode <<
-                          modelNode.majorVersion() << modelNode.minorVersion();
-            return; // the difference handler will create a new node, so we're done.
+            qWarning() << "Preempting Node sync. Type differs" << modelNode
+                       << modelNode.majorVersion() << modelNode.minorVersion();
+
+            // Don't return when validating. We want node offset to be calculated and aux data
+            // to be correct.
+            if (differenceHandler.isAmender())
+                return; // the difference handler will create a new node, so we're done.
         }
     }
 
