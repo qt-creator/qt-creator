@@ -44,7 +44,6 @@ public:
     ProjectExplorer::HeaderPaths headerPaths;
     WorkingCopy workingCopy;
     QSet<QString> sourceFiles;
-    int indexerFileSizeLimitInMb = -1;
 };
 
 class WriteTaskFileForDiagnostics
@@ -161,7 +160,6 @@ static void indexFindErrors(QPromise<void> &promise, const ParseParams params)
 static void index(QPromise<void> &promise, const ParseParams params)
 {
     QScopedPointer<Internal::CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
-    sourceProcessor->setFileSizeLimitInMb(params.indexerFileSizeLimitInMb);
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
@@ -305,7 +303,6 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &source
                                                      CppModelManager::ProgressNotificationMode mode)
 {
     ParseParams params;
-    params.indexerFileSizeLimitInMb = indexerFileSizeLimitInMb();
     params.headerPaths = CppModelManager::headerPaths();
     params.workingCopy = CppModelManager::workingCopy();
     params.sourceFiles = sourceFiles;
