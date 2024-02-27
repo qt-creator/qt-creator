@@ -14,7 +14,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/filepath.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>

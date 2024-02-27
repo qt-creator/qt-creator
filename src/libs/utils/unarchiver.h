@@ -6,7 +6,7 @@
 #include "utils_global.h"
 
 #include "commandline.h"
-#include "process.h"
+#include "qtcprocess.h"
 
 #include <solutions/tasking/tasktree.h>
 

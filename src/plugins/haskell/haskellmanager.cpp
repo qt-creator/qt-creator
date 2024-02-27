@@ -13,7 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/mimeutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>

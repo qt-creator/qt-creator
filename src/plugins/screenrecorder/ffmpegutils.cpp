@@ -12,7 +12,7 @@
 #endif // WITH_TESTS
 
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <coreplugin/messagemanager.h>

@@ -7,7 +7,7 @@
 #include <coreplugin/settingsdatabase.h>
 
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/hostosinfo.h>
 
 #include <QCache>

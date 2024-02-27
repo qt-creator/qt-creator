@@ -14,7 +14,7 @@
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
 #include <utils/commandline.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Tasking;

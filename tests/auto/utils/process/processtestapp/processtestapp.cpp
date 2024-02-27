@@ -3,7 +3,7 @@
 
 #include "processtestapp.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDebug>

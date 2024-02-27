@@ -13,7 +13,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 

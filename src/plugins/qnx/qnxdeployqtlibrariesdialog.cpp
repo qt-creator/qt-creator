@@ -18,7 +18,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 

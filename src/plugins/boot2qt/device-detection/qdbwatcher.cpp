@@ -8,7 +8,7 @@
 #include "../qdbutils.h"
 
 #include <utils/filepath.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QTimer>

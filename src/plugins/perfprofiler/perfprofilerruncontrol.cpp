@@ -18,7 +18,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QMessageBox>

@@ -6,7 +6,7 @@
 #include "autotesttr.h"
 #include "testtreeitem.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>

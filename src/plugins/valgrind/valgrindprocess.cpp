@@ -9,7 +9,7 @@
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/tasktreerunner.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 

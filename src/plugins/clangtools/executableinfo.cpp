@@ -8,7 +8,7 @@
 
 #include <utils/datafromprocess.h>
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>

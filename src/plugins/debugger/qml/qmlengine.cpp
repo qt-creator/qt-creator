@@ -38,7 +38,7 @@
 
 #include <utils/basetreeview.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 

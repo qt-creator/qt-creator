@@ -19,7 +19,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

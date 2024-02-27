@@ -11,7 +11,7 @@
 #include "xmlprotocol/status.h"
 #include "xmlprotocol/suppression.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 
 #include <QFileInfo>

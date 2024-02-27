@@ -29,7 +29,7 @@
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QCheckBox>

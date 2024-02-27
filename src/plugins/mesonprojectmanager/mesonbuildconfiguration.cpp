@@ -28,7 +28,7 @@
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/progressindicator.h>
 #include <utils/utilsicons.h>
 

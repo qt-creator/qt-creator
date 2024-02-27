@@ -27,7 +27,7 @@
 #include <qmldebug/qmloutputparser.h>
 
 #include <utils/fileutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>

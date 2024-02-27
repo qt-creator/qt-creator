@@ -16,7 +16,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>

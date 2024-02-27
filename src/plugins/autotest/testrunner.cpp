@@ -33,7 +33,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformat.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QComboBox>

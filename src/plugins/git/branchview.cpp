@@ -21,7 +21,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>

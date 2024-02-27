@@ -4,7 +4,7 @@
 #include "mcusupportversiondetection.h"
 #include "mcuhelpers.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QRegularExpression>

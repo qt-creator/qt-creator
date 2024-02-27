@@ -9,7 +9,7 @@
 #include "suiteconf.h"
 
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QStringList>

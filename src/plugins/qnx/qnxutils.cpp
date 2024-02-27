@@ -5,7 +5,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>

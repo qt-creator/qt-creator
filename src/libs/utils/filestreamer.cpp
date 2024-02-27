@@ -4,7 +4,7 @@
 #include "filestreamer.h"
 
 #include "async.h"
-#include "process.h"
+#include "qtcprocess.h"
 
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/tasktreerunner.h>

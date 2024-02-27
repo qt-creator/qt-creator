@@ -35,7 +35,7 @@
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QInputDialog>
 

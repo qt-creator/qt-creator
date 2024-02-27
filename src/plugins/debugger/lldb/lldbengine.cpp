@@ -29,7 +29,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 

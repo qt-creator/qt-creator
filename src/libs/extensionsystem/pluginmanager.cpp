@@ -17,7 +17,7 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/threadutils.h>

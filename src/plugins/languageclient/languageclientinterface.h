@@ -8,7 +8,7 @@
 #include <languageserverprotocol/jsonrpcmessages.h>
 
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QBuffer>

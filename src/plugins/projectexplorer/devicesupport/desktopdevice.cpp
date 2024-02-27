@@ -14,7 +14,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>

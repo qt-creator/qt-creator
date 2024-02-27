@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QStringList>

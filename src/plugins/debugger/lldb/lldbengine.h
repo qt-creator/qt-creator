@@ -11,7 +11,7 @@
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggerprotocol.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QPointer>
 #include <QProcess>

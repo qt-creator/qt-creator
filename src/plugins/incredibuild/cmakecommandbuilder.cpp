@@ -8,7 +8,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h> // Compile-time only
 

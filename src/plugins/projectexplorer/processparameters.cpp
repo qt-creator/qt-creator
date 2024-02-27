@@ -5,7 +5,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 #include <utils/utilstr.h>
 

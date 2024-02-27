@@ -12,7 +12,7 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>

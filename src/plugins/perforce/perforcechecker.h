@@ -4,7 +4,7 @@
 #pragma once
 
 #include <utils/filepath.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 namespace Perforce::Internal {
 

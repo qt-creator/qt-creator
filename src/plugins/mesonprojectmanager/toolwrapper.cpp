@@ -3,7 +3,7 @@
 
 #include "toolwrapper.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QUuid>
 

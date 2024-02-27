@@ -36,7 +36,7 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 

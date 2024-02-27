@@ -10,7 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 

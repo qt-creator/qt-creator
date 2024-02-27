@@ -46,7 +46,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

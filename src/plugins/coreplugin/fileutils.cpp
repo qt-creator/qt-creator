@@ -17,7 +17,7 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/textfileformat.h>

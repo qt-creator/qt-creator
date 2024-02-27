@@ -18,7 +18,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/qtcassert.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <modelnodeoperations.h>
 

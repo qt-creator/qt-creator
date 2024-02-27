@@ -7,7 +7,7 @@
 #include "commandline.h"
 #include "environment.h"
 #include "filepath.h"
-#include "process.h"
+#include "qtcprocess.h"
 
 #include <QDateTime>
 #include <QHash>

@@ -10,7 +10,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QElapsedTimer>
 

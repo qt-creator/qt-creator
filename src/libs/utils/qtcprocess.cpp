@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "process.h"
+#include "qtcprocess.h"
 
 #include "algorithm.h"
 #include "environment.h"
@@ -2175,4 +2175,4 @@ void ProcessTaskAdapter::start()
 
 } // namespace Utils
 
-#include "process.moc"
+#include "qtcprocess.moc"

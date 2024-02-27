@@ -5,7 +5,7 @@
 #pragma once
 
 #include <utils/commandline.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <solutions/terminal/surfaceintegration.h>
 

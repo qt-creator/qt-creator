@@ -16,7 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/store.h>
 

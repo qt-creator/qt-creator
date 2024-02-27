@@ -32,7 +32,7 @@
 
 #include <utils/async.h>
 #include <utils/infobar.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QFutureWatcher>
 #include <QJsonDocument>

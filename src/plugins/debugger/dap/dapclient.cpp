@@ -4,7 +4,7 @@
 #include "dapclient.h"
 #include "qjsonarray.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QJsonDocument>

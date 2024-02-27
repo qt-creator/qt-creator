@@ -15,7 +15,7 @@
 #include <remotelinux/linuxprocessinterface.h>
 
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 

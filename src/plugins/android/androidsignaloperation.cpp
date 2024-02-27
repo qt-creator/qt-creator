@@ -4,7 +4,7 @@
 #include "androidconfigurations.h"
 #include "androidsignaloperation.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;

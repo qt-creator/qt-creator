@@ -5,7 +5,7 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>

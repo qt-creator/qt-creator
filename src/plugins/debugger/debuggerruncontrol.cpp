@@ -35,7 +35,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
