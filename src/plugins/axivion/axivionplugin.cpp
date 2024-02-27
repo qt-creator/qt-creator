@@ -333,11 +333,17 @@ static constexpr int httpStatusCodeOk = 200;
 constexpr char s_htmlContentType[] = "text/html";
 constexpr char s_jsonContentType[] = "application/json";
 
+static bool isServerAccessEstablished()
+{
+    return dd->m_serverAccess == ServerAccess::NoAuthorization
+           || (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken);
+}
+
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
     // TODO: Refactor so that it's a common code with fetchDataRecipe().
     const auto onQuerySetup = [url](NetworkQuery &query) {
-        if (dd->m_serverAccess == ServerAccess::Unknown)
+        if (!isServerAccessEstablished())
             return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
         QNetworkRequest request(url);
@@ -506,7 +512,7 @@ static Group authorizationRecipe()
 {
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
     const auto onUnauthorizedGroupSetup = [unauthorizedDashboardStorage] {
-        if (dd->m_serverAccess != ServerAccess::NoAuthorization)
+        if (isServerAccessEstablished())
             return SetupResult::StopWithSuccess;
 
         unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
@@ -636,10 +642,11 @@ static Group fetchDataRecipe(const QUrl &url, const std::function<void(const Dto
     const Storage<GetDtoStorage<DtoType>> dtoStorage;
 
     const auto onDtoSetup = [dtoStorage, url] {
-        if (!dd->m_apiToken)
+        if (!isServerAccessEstablished())
             return SetupResult::StopWithError;
 
-        dtoStorage->credential = "AxToken " + *dd->m_apiToken;
+        if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
+            dtoStorage->credential = "AxToken " + *dd->m_apiToken;
         dtoStorage->url = url;
         return SetupResult::Continue;
     };
