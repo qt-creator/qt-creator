@@ -361,7 +361,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                   return true;
               return cppSnapshot.contains(fn);
           });
-    m_withTaskProgress = filteredFiles.size() > 5;
+    m_withTaskProgress = isFullParse || filteredFiles.size() > 20;
 
     qCDebug(LOG) << "Starting scan of" << filteredFiles.size() << "(" << files.size() << ")"
                  << "files with" << codeParsers.size() << "parsers";
