@@ -23,6 +23,8 @@ namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
+constexpr int DefaultSearchLimit = 2048;
+
 struct IssueListSearch
 {
     QString kind;
@@ -33,7 +35,7 @@ struct IssueListSearch
     QString filter_path;
     QString sort;
     int offset = 0;
-    int limit = 150;
+    int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;
 
     QString toQuery() const;
