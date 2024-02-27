@@ -29,12 +29,9 @@
             instance is generated as a respective component instance in the
             component files generated when you \l{Importing 2D Assets}{import}
             the design into \QDS.
-        \li Create components in Figma and export them to \QDS before you
-            start making instances of them. In \QDS, add functionality to the
-            components, such as button states and then bring them back to Figma
-            as assets. If you use functional \QDS components in Figma, you will
-            find it easier to merge new iterations of the design to \QDS and
-            continue to build the screens there.
+        \li Create components with instances in Figma and export them to \QDS.
+            \QDS friendly Figma components make it easier to create, for example, button states,
+            connections, animations, and transitions.
         \li \QBF does not support exporting changes in component instances.
             If you make changes to component instances in Figma, you must
             detach the instances before exporting them. Similarly, if your
