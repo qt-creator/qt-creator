@@ -1,16 +1,17 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-coco.html
     \page creator-axivion.html
-    \nextpage creator-valgrind-overview.html
+    \previouspage creator-how-tos.html
 
-    \title Static Code Analysis
+    \ingroup creator-how-to-analyze
+
+    \title Prevent code erosion
 
     \l{https://www.axivion.com/en/products/axivion-suite/}{Axivion Suite} is
-    a tool suite for protecting software from erosion. Static code analysis,
-    architecture analysis, and code-smells-detection enable you to:
+    a tool suite for protecting software from erosion. With static code analysis,
+    architecture analysis, and code-smells-detection, you can:
 
     \list
         \li Check the source code for potential runtime errors.
@@ -22,50 +23,164 @@
         \li Detect unreachable code.
     \endlist
 
-    The experimental Axivion plugin integrates the Axivion dashboard server into
-    \QC.
+    Connect to an Axivion dashboard server from \QC to view results of code
+    analysis.
 
     \note Enable the Axivion plugin to use it.
 
     To use the plugin, you must set up a project in the Axivion dashboard
-    server and link to it from \QC. You can then see style violations in the
-    \uicontrol Edit mode and descriptions and issue counts in the
-    \uicontrol Axivion view.
+    server and link to it from \QC. You can then see found issues in the
+    \uicontrol Edit mode, issues in the \uicontrol Axivion dashboard, and
+    issue details in the \uicontrol Axivion sidebar view.
 
-    The editor shows style violations as inline annotations. Hover the mouse over
+    The editor shows found issues as inline annotations. Hover the mouse over
     an annotation to bring up a tool tip with a short description of the issue.
 
     \image qtcreator-axivion-annotation.webp {Annotation popup}
 
-    Select the \inlineimage icons/info.png
-    button to view detailed information about the issue in the \uicontrol Axivion
-    view.
+    Select \inlineimage icons/info.png to view detailed information about the
+    issue in the \uicontrol Axivion sidebar view.
 
-    \image qtcreator-axivion-view-rule.webp {Axivion view}
+    \image qtcreator-axivion-view-rule.webp {Axivion sidebar view}
+
+    \section1 View issue counts
 
     To view the issue counts, select \inlineimage icons/home.png
-    (\uicontrol {Show Dashboard}).
+    (\uicontrol {Show Dashboard}) in the \uicontrol Axivion dashboard.
 
-    \section1 Connecting to Axivion Dashboard Servers
+    \image qtcreator-axivion-view.webp {Axivion dashboard}
 
-    To connect to Axivion:
+    The \uicontrol Axivion dashboard lists the numbers of the following types of
+    issues that Axivion found in the linked project:
+
+    \table
+    \header
+        \li Icon
+        \li Type
+        \li Description
+    \row
+        \li \inlineimage icons/axivion-av.png
+        \li \uicontrol AV
+        \li Architecture violations, such as hidden dependencies.
+    \row
+        \li \inlineimage icons/axivion-cl.png
+        \li \uicontrol CL
+        \li Clones, such as duplicates and similar pieces of code.
+    \row
+        \li \inlineimage icons/axivion-cy.png
+        \li \uicontrol CY
+        \li Cyclic dependencies, such as call, component, and include cycles.
+    \row
+        \li \inlineimage icons/axivion-de.png
+        \li \uicontrol DE
+        \li Dead entities are callable entities in the source code that cannot
+            be reached from the entry points of the system under analysis.
+    \row
+        \li \inlineimage icons/axivion-mv.png
+        \li \uicontrol MV
+        \li Violations of metrics based on lines and tokens,
+            nesting, cyclomatic complexity, control flow, and so on.
+    \row
+        \li \inlineimage icons/axivion-sv.png
+        \li \uicontrol SV
+        \li Style violations, such as deviations from the naming
+            or coding conventions.
+    \endtable
+
+    To clear the view, select \inlineimage icons/clean_pane_small.png
+    (\uicontrol Clear).
+
+    To view issues, select \inlineimage icons/zoom.png
+    (\uicontrol {Search for Issues}).
+
+    \section1 Filter issues
+
+    \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
+
+    To filter issues, select:
+
+    \list
+        \li The icon of an issue type.
+        \li Two analyzed versions to compare. Select \uicontrol EMPTY to see
+            issues from the version you select in the right-side version box.
+        \li \inlineimage icons/arrowup.png to see only added issues.
+        \li \inlineimage icons/arrowdown.png to see only removed issues.
+        \li The owner of the issue. Select \uicontrol ANYBODY to see all issues,
+            \uicontrol NOBODY to see issues that are not associated with a user,
+            or a user name to see issues owned by a particular user.
+        \li Path patterns to show issues in the files in the directories that
+            match the pattern.
+    \endlist
+
+    The information you see depends on the issue type. Double-click an issue
+    to see more information about it in the \uicontrol Axivion sidebar view.
+
+    \section1 Jump to issues in the editor
+
+    Typically, the details for cycles and clones show several paths. To view the
+    issues in the editor:
+
+    \list
+        \li Click in a location column (that shows a file or line) to open the
+            respective location (if it can be found).
+        \li Click in other columns to open the first link in the issue details.
+            Usually, it leads to the \uicontrol {Left location} or
+            \uicontrol {Source location}.
+    \endlist
+
+    The easiest way to jump to the \uicontrol {Right location} is to
+    select the link in the details or in the \uicontrol {Right Path}
+    or \uicontrol {Target Path} column.
+
+    \sa {Enable and disable plugins}, {Link projects to Axivion dashboards},
+    {Axivion}
+*/
+
+/*!
+    \page creator-preferences-axivion.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Axivion
+
+    \brief Create a connection to an Axivion dashboard server.
+
+    Set preferences for the Axivion static code analysis tool in
+     \preferences > \uicontrol Axivion.
+
+    \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
+
+    To connect to an Axivion dashboard server:
 
     \list 1
-        \li Select \preferences > \uicontrol Axivion.
-            \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
         \li Select \uicontrol Edit to create a connection to the Axivion
             dashboard server.
             \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
         \li In \uicontrol {Dashboard URL}, enter the URL of the server.
-        \li In \uicontrol Description, enter a free-text description of the
-            server.
-        \li In \uicontrol {Access token}, enter the IDE application token that
-            you created in the server, in user preferences.
+        \li In \uicontrol Username, enter the username to access the server.
     \endlist
 
-    \section1 Linking to Dashboards
+    The first time you access the server, you must enter the password that
+    matches the username. It is stored safely in your keychain that is provided
+    by the OS for later use.
 
-    To link a project to a dashboard:
+    Select \uicontrol {Highlight marks} to highlight found issues on the
+    scrollbar in the editor.
+
+    \sa {Enable and disable plugins}, {Link projects to Axivion dashboards},
+    {Prevent code erosion}
+*/
+
+/*!
+    \page creator-link-axivion-dashboards.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+
+    \title Link projects to Axivion dashboards
+
+    To link a project to an Axivion dashboard:
 
     \list 1
         \li \uicontrol Projects > \uicontrol {Project Settings} >
@@ -78,26 +193,5 @@
 
     To unlink a project, select \uicontrol {Unlink Project}.
 
-    \section1 Viewing Issue Counts
-
-    \image qtcreator-axivion-view.webp {Axivion view}
-
-    The \uicontrol Axivion view lists the numbers of the following types of
-    issues that Axivion found in the linked project:
-
-    \list
-        \li \uicontrol AV - architecture violations, such as hidden dependencies
-        \li \uicontrol CL - duplicates and similar pieces of code
-        \li \uicontrol CY - call, component, and include cycles
-        \li \uicontrol DE - dead code
-        \li \uicontrol MV - violations of metrics based on lines and tokens,
-            nesting, cyclomatic complexity, control flow, and so on.
-        \li \uicontrol SV - style violations, such as deviations from the naming
-            or coding conventions
-    \endlist
-
-    To clear the view, select \inlineimage icons/clean_pane_small.png
-    (\uicontrol Clear).
-
-    \sa {Enable and disable plugins}
+    \sa {Enable and disable plugins}, {Prevent code erosion}, {Axivion}
 */

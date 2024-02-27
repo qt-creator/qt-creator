@@ -102,7 +102,6 @@
             \list
                 \li \l{Profiling QML Applications}
                 \li \l{Checking Code Coverage}
-                \li \l{Static Code Analysis}
                 \li \l{Using Valgrind Code Analysis Tools}
                 \list
                     \li \l{Detecting Memory Leaks with Memcheck}

@@ -79,6 +79,7 @@
     the project:
 
             \list
+                \li \l{Link projects to Axivion dashboards}{Axivion}
                 \li \l{Specify clangd settings}{Clangd}
                 \li \l{Speficy Clang tools settings}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
