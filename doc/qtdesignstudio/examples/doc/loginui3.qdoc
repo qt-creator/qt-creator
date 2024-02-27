@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -17,7 +17,7 @@
     some basic UI components, such as pages, buttons, and entry fields. The
     third tutorial in the series describes how to use \e states to add a
     second page to the UI. On the first page, users can enter a username
-    and password to log in. On the second page, they can register if they
+    and password to log in. On the second page, they can register as users if they
     do not already have an account.
 
     Because the second page will contain most of the same UI components as the
@@ -25,25 +25,22 @@
     when a user selects the \e {Create Account} button.
 
     The starting point for this tutorial is the completed
-    \l{Log In UI - Positioning} project. You can download the project from
+    \l{Log In UI - Positioning} project. You can download the project
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}.
 
-    Additionally, you can download the completed project of this tutorial from
+    Additionally, you can download the completed project of this tutorial
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui3}{here}.
 
-    The \e {Learn More} sections provide additional information relevant to the
-    task at hand.
+    For more information, see \l{Working with states} and \l{Signal and Handler Event System}.
 
     \section1 Adding UI Components
 
     You will add another entry field for verifying the password that users
     enter to create an account. You are already familiar with the tasks in
-    this section from previous parts of the tutorial.
+    this section from the previous \e {Login UI} tutorials.
 
-    To preview the changes that you make to the UI while you make
-    them, select the \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \l {2D} view
-    toolbar or press \key {Alt+P}.
+    To preview the changes that you make, select the \uicontrol {Live Preview} button
+    or press \key {Alt+P}.
 
     To add the entry field needed on the second page to the \e Screen01
     component:
@@ -51,16 +48,17 @@
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects to open it
             in the \uicontrol {2D} view.
-        \li Drag-and-drop an instance of the EntryField component from
+        \li Drag an instance of the EntryField component from
             \uicontrol Components > \uicontrol {My Components} to \e fields in
             \l Navigator.
         \li Select the EntryField instance in \uicontrol Navigator to modify
-        its ID and text in \uicontrol Properties.
+            its ID and text in \uicontrol Properties.
         \li In \uicontrol Component > \uicontrol ID, enter
             \e repeatPassword.
-        \li In \uicontrol {Button Content} > \uicontrol Text, enter
-            \e {Repeat Password} and select \uicontrol tr to mark the text
+        \li In \uicontrol {EntryField} > \uicontrol {Button Content} > \uicontrol Text,
+            enter \e {Repeat Password} and select \uicontrol tr to mark the text
             translatable.
+            \image loginui3-new-entryfield-properties.webp "Entryfield properties"
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -68,10 +66,10 @@
     \e Screen01 should now look something like this in the
     \uicontrol {2D} view:
 
-    \image loginui3-base-state.jpg "Login page with a Repeat Password field"
+    \image loginui3-base-state.webp "Login page with a Repeat Password field"
 
     Next, you will add states for the login page and the account creation page,
-    where you use the visibility property to hide the repeat password field on
+    where you use the visibility property to hide the \e {Repeat Password} field on
     the login page and the \e {Create Account} button on the account creation
     page.
 
@@ -84,23 +82,20 @@
         \li In the \l States view, select \inlineimage icons/plus.png
         .
         \li Enter \e login as the state name.
-            \image loginui3-login-state.jpg "States view"
+            \image loginui3-login-state.webp "States view"
         \li Select \e repeatPassword in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
-        \li In the \uicontrol Visibility section, deselect the
-            \uicontrol Visible check box to hide the repeat
-            password field in the login state.
+        \li In the \uicontrol Visibility section, clear the
+            \uicontrol Visible checkbox to hide the \e {Repeat Password} field in the login state.
             \image loginui3-visibility.png
-        \li In \uicontrol States, select \inlineimage icons/action-icon.png
-            for \e login to open the \uicontrol Actions menu, and then
-            select \uicontrol {Set as Default} to determine that the \e login
-            state is applied when the application starts.
+        \li In \uicontrol States, select \uicontrol Default for \e login to determine that the
+            \e login state is applied when the application starts.
         \li With the base state selected, add another state and name it
             \e createAccount. This state should now look identical to the base
             state.
-        \li Select \e createAccount in the \uicontrol Navigator to display its
+        \li Select the \e createAccount button in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
-        \li In \uicontrol Visibility, deselect the \uicontrol Visible check box
+        \li In \uicontrol Visibility, clear the \uicontrol Visible checkbox
             to hide the \e {Create Account} button in the account creation
             state.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
@@ -109,14 +104,14 @@
 
     You can now see all the states in the \uicontrol States view:
 
-    \image loginui3-states.jpg "All states in the States view"
+    \image loginui3-states.webp "All states in the States view"
 
     The live preview displays the default state, \e login:
 
-    \image loginui3-login-state-preview.jpg "Preview of the login state"
+    \image loginui3-login-state-preview.webp "Preview of the login state"
 
     Next, you will create connections to specify that clicking the
-    \uicontrol {Create Account} button on the login page triggers a
+    \e {Create Account} button on the login page triggers a
     transition to the account creation page.
 
     \section1 Connecting Buttons to States
@@ -137,7 +132,7 @@
         \li In the \uicontrol Connections tab, select the \inlineimage icons/plus.png
             button to open the connection setup options.
         \li Set \uicontrol Signal to \c clicked, \uicontrol Action to
-            \c {Change State}, \uicontrol {State Group} to \c rectangle and
+            \c {Change State}, \uicontrol {State Group} to \c rectangle, and
             \uicontrol State to \c createAccount in the respective
             drop-down menus.
         \li Select the \inlineimage icons/close.png
@@ -148,59 +143,18 @@
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
 
-        \note Or, you can right-click the \e createAccount button in \l Navigator.
-              Then select \uicontrol {Connections} > \uicontrol {Add signal handler} >
-              \uicontrol {clicked} > \uicontrol {Change State to createAccount}.
+            \note Alternatively, right-click the \e createAccount button in
+            \uicontrol Navigator. Then select \uicontrol {Connections} >
+            \uicontrol {Add new Connection} > \uicontrol {clicked} >
+            \uicontrol {Change State to createAccount}.
     \endlist
 
-    In the live preview, you can now click the \uicontrol {Create Account}
+    In the live preview, you can now click the \e {Create Account}
     button to go to the account creation page.
 
     \image loginui3.gif "Moving between login page and account creation page"
 
-    \section1 Learn More
-    \section2 States
-    The \l{Working with States}{state} of a particular visual component is the set of
-    information which describes how and where the individual parts of the visual
-    component are displayed within it, and all the data associated with that
-    state. Most visual components in a UI will have a limited number of states,
-    each with well-defined properties.
-
-    For example, a list item may be either selected or not, and if
-    selected, it may either be the currently active single selection or it
-    may be part of a selection group. Each of those states may have certain
-    associated visual appearance (neutral, highlighted, expanded, and so on).
-
-    Youn can apply states to trigger behavior or animations. UI components
-    typically have a default state that contains all of a component's initial
-    property values and is therefore useful for managing property values before
-    state changes.
-
-    You can specify additional states by adding new states. Each state within a
-    component has a unique name. To change the current state of an component,
-    the state property is set to the name of the state. State changes can be
-    bound to conditions by using the \c when property.
-
-    \section2 Signal and Event Handlers
-
-    UI components need to communicate with each other. For example, a button
-    needs to know that the user has clicked on it. In response, the button may
-    change color to indicate its state and perform an action.
-
-    To accomplish this, a \e {signal-and-handler} mechanism is used, where the
-    \e signal is the event that is responded to through a \e {signal handler}.
-    When a signal is emitted, the corresponding signal handler is invoked.
-    Placing logic, such as a script or other operations, in the handler allows
-    the component to respond to the event.
-
-    For more information, see \l{Signal and Handler Event System}.
-
     \section1 Next Steps
-
-    For a more complicated UI, you would typically use components that specify
-    a view of items provided by a model, such as a \l{List and Grid Views}
-    {List View} or \l StackView. For more information, see
-    \l{Lists and Other Data Models}.
 
     To learn how to use a timeline to animate the transition between the login
     and account creation pages, see the next tutorial in the series,
