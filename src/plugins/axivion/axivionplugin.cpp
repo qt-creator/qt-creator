@@ -69,14 +69,15 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
         return {};
 
     static QHash<Dto::IssueKind, QIcon> prefixToIcon;
+
     auto it = prefixToIcon.constFind(*issueKind);
-    if (it == prefixToIcon.constEnd()) {
-        const auto prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
-        const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
-                          Theme::PaletteButtonText}}, Icon::Tint);
-        it = prefixToIcon.insert(*issueKind, icon.icon());
-    }
-    return it.value();
+    if (it != prefixToIcon.constEnd())
+        return *it;
+
+    const QLatin1String prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
+    const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
+                      Theme::PaletteButtonText}}, Icon::Tint);
+    return prefixToIcon.insert(*issueKind, icon.icon()).value();
 }
 
 QString anyToSimpleString(const Dto::Any &any)
