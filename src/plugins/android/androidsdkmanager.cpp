@@ -405,7 +405,10 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     if (m_packageListingSuccessful) {
         SdkManagerOutputParser parser(m_allPackages);
         parser.parsePackageListing(packageListing);
+    } else {
+        qCWarning(sdkManagerLog) << "Failed parsing packages:" << packageListing;
     }
+
     emit m_sdkManager.packageReloadFinished();
 }
 
