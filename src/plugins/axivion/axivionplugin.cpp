@@ -122,7 +122,7 @@ static QString credentialKey()
         QString escaped = string;
         return escaped.replace('\\', "\\\\").replace('@', "\\@");
     };
-    return escape(settings().server.dashboard) + '@' + escape(settings().server.username);
+    return escape(settings().server.username) + '@' + escape(settings().server.dashboard);
 }
 
 static DashboardInfo toDashboardInfo(const QUrl &source, const Dto::DashboardInfoDto &infoDto)
