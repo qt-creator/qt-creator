@@ -13,13 +13,14 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/progressindicator.h>
 #include <utils/process.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -203,6 +204,47 @@ enum OpenSslValidation {
     OpenSslCmakeListsPathExists
 };
 
+static expected_str<void> testJavaC(const FilePath &jdkPath)
+{
+    if (!jdkPath.isReadableDir())
+        return make_unexpected(Tr::tr("The selected path does not exist or is not readable."));
+
+    const FilePath bin = jdkPath.pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
+
+    if (!bin.isExecutableFile())
+        return make_unexpected(
+            Tr::tr("The selected path does not contain an executable bin/javac."));
+
+    QVersionNumber jdkVersion;
+
+    Process javacProcess;
+    CommandLine cmd(bin, {"-version"});
+    javacProcess.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
+    javacProcess.setCommand(cmd);
+    javacProcess.runBlocking();
+
+    const QString stdOut = javacProcess.stdOut().trimmed();
+
+    if (javacProcess.exitCode() != 0)
+        return make_unexpected(
+            Tr::tr("The selected path does not contain a valid JDK. (javac -version failed: %1)")
+                .arg(stdOut));
+
+    // We expect "javac <version>" where <version> is "major.minor.patch"
+    if (!stdOut.startsWith("javac "))
+        return make_unexpected(Tr::tr("Unexpected output from \"javac -version\": %1").arg(stdOut));
+
+    jdkVersion = QVersionNumber::fromString(stdOut.mid(6).split('\n').first());
+
+    if (jdkVersion.isNull() || jdkVersion.majorVersion() != 17) {
+        return make_unexpected(Tr::tr("Unsupported JDK version (needs to be 17): %1 (parsed: %2)")
+                                   .arg(stdOut)
+                                   .arg(jdkVersion.toString()));
+    }
+
+    return {};
+}
+
 AndroidSettingsWidget::AndroidSettingsWidget()
 {
     setWindowTitle(Tr::tr("Android Configuration"));
@@ -306,6 +348,15 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                          Tr::tr("OpenSSL Settings are OK."),
                                          Tr::tr("OpenSSL settings have errors."),
                                          openSslDetailsWidget);
+
+    m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
+        return Utils::asyncRun([s]() -> expected_str<QString> {
+            expected_str<void> test = testJavaC(FilePath::fromUserInput(s));
+            if (!test)
+                return make_unexpected(test.error());
+            return s;
+        });
+    });
 
     connect(m_openJdkLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateJdk);
@@ -533,10 +584,9 @@ bool AndroidSettingsWidget::isDefaultNdkSelected() const
 void AndroidSettingsWidget::validateJdk()
 {
     androidConfig().setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
-    bool jdkPathExists = androidConfig().openJDKLocation().exists();
-    const FilePath bin = androidConfig().openJDKLocation()
-                                        .pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
-    m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, jdkPathExists && bin.exists());
+    expected_str<void> test = testJavaC(androidConfig().openJDKLocation());
+
+    m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test.has_value());
 
     updateUI();
 
