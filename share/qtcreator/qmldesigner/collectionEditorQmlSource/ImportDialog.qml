@@ -180,6 +180,17 @@ StudioControls.Dialog {
 
         Spacer {}
 
+        StudioControls.CheckBox {
+            id: csvFirstRowIsHeader
+
+            visible: root.fileExists && fileName.text.endsWith(".csv")
+            text: qsTr("Consider first row as headers")
+            checked: true
+            actionIndicatorVisible: false
+        }
+
+        Spacer {}
+
         RowLayout {
             spacing: StudioTheme.Values.sectionRowSpacing
 
@@ -194,7 +205,8 @@ StudioControls.Dialog {
                 onClicked: {
                     let collectionImported = root.backendValue.importFile(
                             collectionName.text,
-                            fileName.text)
+                            fileName.text,
+                            csvFirstRowIsHeader.checked)
 
                     if (collectionImported)
                         root.accept()

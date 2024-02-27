@@ -264,6 +264,29 @@ inline static bool isEmptyJsonValue(const QJsonValue &value)
     return value.isNull() || value.isUndefined() || (value.isString() && value.toString().isEmpty());
 }
 
+QStringList csvReadLine(const QString &line)
+{
+    constexpr QStringView linePattern = u"(?:,\"|^\")(?<value>\"\"|[\\w\\W]*?)(?=\",|\"$)"
+                                        u"|(?:,(?!\")|^(?!\"))(?<quote>[^,]*?)(?=$|,)|(\\r\\n|\\n)";
+
+    static const QRegularExpression lineRegex(linePattern.toString());
+    static const int valueIndex = lineRegex.namedCaptureGroups().indexOf("value");
+    static const int quoteIndex = lineRegex.namedCaptureGroups().indexOf("quote");
+    Q_ASSERT(valueIndex > 0 && quoteIndex > 0);
+
+    QStringList result;
+    QRegularExpressionMatchIterator iterator = lineRegex.globalMatch(line, 0);
+    while (iterator.hasNext()) {
+        const QRegularExpressionMatch match = iterator.next();
+
+        if (match.hasCaptured(valueIndex))
+            result.append(match.captured(2));
+        else if (match.hasCaptured(quoteIndex))
+            result.append(match.captured(quoteIndex));
+    }
+    return result;
+}
+
 class PropertyOrderFinder : public QmlJS::AST::Visitor
 {
 public:
@@ -706,31 +729,35 @@ void CollectionDetails::registerDeclarativeType()
     qmlRegisterUncreatableType<DataTypeWarning>("CollectionDetails", 1, 0, "Warning", "Enum type");
 }
 
-CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document)
+CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document,
+                                                     const bool &firstRowIsHeader)
 {
     QStringList headers;
     QJsonArray importedArray;
 
     QTextStream stream(document);
 
-    if (!stream.atEnd())
-        headers = stream.readLine().split(',');
+    if (firstRowIsHeader && !stream.atEnd()) {
+        headers = Utils::transform(csvReadLine(stream.readLine()),
+                                   [](const QString &value) -> QString { return value.trimmed(); });
+    }
 
-    for (QString &header : headers)
-        header = header.trimmed();
-
-    if (!headers.isEmpty()) {
-        while (!stream.atEnd()) {
-            const QStringList recordDataList = stream.readLine().split(',');
-            int column = -1;
-            QJsonObject recordData;
-            for (const QString &cellData : recordDataList) {
-                if (++column == headers.size())
-                    break;
-                recordData.insert(headers.at(column), cellData);
+    while (!stream.atEnd()) {
+        const QStringList recordDataList = csvReadLine(stream.readLine());
+        int column = -1;
+        QJsonObject recordData;
+        for (const QString &cellData : recordDataList) {
+            if (++column == headers.size()) {
+                QString proposalName;
+                int proposalId = column;
+                do
+                    proposalName = QString("Column %1").arg(++proposalId);
+                while (headers.contains(proposalName));
+                headers.append(proposalName);
             }
-            importedArray.append(recordData);
+            recordData.insert(headers.at(column), cellData);
         }
+        importedArray.append(recordData);
     }
 
     return fromImportedJson(importedArray, headers);

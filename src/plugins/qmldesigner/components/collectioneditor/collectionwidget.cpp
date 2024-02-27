@@ -202,7 +202,9 @@ bool CollectionWidget::isValidUrlToImport(const QUrl &url) const
     return false;
 }
 
-bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url)
+bool CollectionWidget::importFile(const QString &collectionName,
+                                  const QUrl &url,
+                                  const bool &firstRowIsHeader)
 {
     using Utils::FilePath;
     m_view->ensureDataStoreExists();
@@ -244,7 +246,7 @@ bool CollectionWidget::importFile(const QString &collectionName, const QUrl &url
     } else if (fileInfo.suffix() == "csv") {
         if (!loadUrlContent())
             return false;
-        loadedCollection = CollectionDetails::fromImportedCsv(fileContent);
+        loadedCollection = CollectionDetails::fromImportedCsv(fileContent, firstRowIsHeader);
     }
 
     if (loadedCollection.columns()) {

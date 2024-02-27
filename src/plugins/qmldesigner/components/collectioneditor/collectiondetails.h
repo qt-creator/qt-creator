@@ -125,7 +125,8 @@ public:
 
     static void registerDeclarativeType();
 
-    static CollectionDetails fromImportedCsv(const QByteArray &document);
+    static CollectionDetails fromImportedCsv(const QByteArray &document,
+                                             const bool &firstRowIsHeader = true);
     static CollectionDetails fromImportedJson(const QByteArray &json,
                                               QJsonParseError *error = nullptr);
     static CollectionDetails fromLocalJson(const QJsonDocument &document,

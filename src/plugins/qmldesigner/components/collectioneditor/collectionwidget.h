@@ -40,7 +40,10 @@ public:
     Q_INVOKABLE bool isCsvFile(const QUrl &url) const;
     Q_INVOKABLE bool isValidUrlToImport(const QUrl &url) const;
 
-    Q_INVOKABLE bool importFile(const QString &collectionName, const QUrl &url);
+    Q_INVOKABLE bool importFile(const QString &collectionName,
+                                const QUrl &url,
+                                const bool &firstRowIsHeader = true);
+
     Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
     Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
     Q_INVOKABLE void openCollection(const QString &collectionName);
