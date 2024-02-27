@@ -39,6 +39,8 @@ General
   for searching in `Files in File System`
 * Added `Copy to Clipboard` to the `About Qt Creator` dialog
   ([QTCREATORBUG-29886](https://bugreports.qt.io/browse/QTCREATORBUG-29886))
+* Fixed issues with the window actions
+  ([QTCREATORBUG-30381](https://bugreports.qt.io/browse/QTCREATORBUG-30381))
 
 Editing
 -------
@@ -78,6 +80,8 @@ Editing
 * Clangd
     * Fixed that `Follow Symbol Under Cursor` only worked for exact matches
       ([QTCREATORBUG-29814](https://bugreports.qt.io/browse/QTCREATORBUG-29814))
+    * Fixed the version check for remote `clangd` executables
+      ([QTCREATORBUG-30374](https://bugreports.qt.io/browse/QTCREATORBUG-30374))
 
 ### QML
 
@@ -133,6 +137,8 @@ Projects
   ([QTCREATORBUG-29530](https://bugreports.qt.io/browse/QTCREATORBUG-29530))
 * Added a file wizard for Qt translation (`.ts`) files
   ([QTCREATORBUG-29775](https://bugreports.qt.io/browse/QTCREATORBUG-29775))
+* Added an optional warning for special characters in build directories
+  ([QTCREATORBUG-20834](https://bugreports.qt.io/browse/QTCREATORBUG-20834))
 * Improved the environment settings by making the changes explicit in a
   separate, text-based editor
 * Increased the maximum width of the target selector
@@ -184,6 +190,9 @@ Debugging
 ### C++
 
 * Added a pretty printer for `std::tuple`
+* Improved the display of size information for the pretty printer of
+  `QByteArray`
+  ([QTCREATORBUG-30065](https://bugreports.qt.io/browse/QTCREATORBUG-30065))
 * Fixed that breakpoints were not hit while the message dialog about missing
   debug information was shown
   ([QTCREATORBUG-30168](https://bugreports.qt.io/browse/QTCREATORBUG-30168))
@@ -270,6 +279,7 @@ Andre Hartmann
 André Pönitz  
 Andreas Loth  
 Artem Sokolovskii  
+Assam Boudjelthia  
 Brook Cronin  
 Burak Hancerli  
 Christian Kandeler  
@@ -306,6 +316,7 @@ Robert Löhning
 Sami Shalayel  
 Samuel Jose Raposo Vieira Mira  
 Samuel Mira  
+Semih Yavuz  
 Serg Kryvonos  
 Shrief Gabr  
 Sivert Krøvel  
