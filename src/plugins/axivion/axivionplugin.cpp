@@ -63,16 +63,18 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-QIcon iconForIssue(const QString &prefix)
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
 {
-    static QHash<QString, QIcon> prefixToIcon;
-    auto it = prefixToIcon.find(prefix);
+    if (!issueKind)
+        return {};
 
-    if (it == prefixToIcon.end()) {
-        Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix.toLower() + ".png"),
-                    Theme::PaletteButtonText}},
-                  Icon::Tint);
-        it = prefixToIcon.insert(prefix, icon.icon());
+    static QHash<Dto::IssueKind, QIcon> prefixToIcon;
+    auto it = prefixToIcon.constFind(*issueKind);
+    if (it == prefixToIcon.constEnd()) {
+        const auto prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
+        const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
+                          Theme::PaletteButtonText}}, Icon::Tint);
+        it = prefixToIcon.insert(*issueKind, icon.icon());
     }
     return it.value();
 }
@@ -226,7 +228,7 @@ public:
         const QString markText = issue.description;
         const QString id = issue.kind + QString::number(issue.id.value_or(-1));
         setToolTip(id + '\n' + markText);
-        setIcon(iconForIssue(issue.kind));
+        setIcon(iconForIssue(issue.getOptionalKindEnum()));
         if (color)
             setColor(*color);
         setPriority(TextMark::NormalPriority);

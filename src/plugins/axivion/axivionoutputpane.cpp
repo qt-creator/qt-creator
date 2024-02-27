@@ -564,7 +564,7 @@ void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> inf
     int buttonId = 0;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {
         auto button = new QToolButton(this);
-        button->setIcon(iconForIssue(kind.prefix));
+        button->setIcon(iconForIssue(kind.getOptionalPrefixEnum()));
         button->setToolTip(kind.nicePluralName);
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{

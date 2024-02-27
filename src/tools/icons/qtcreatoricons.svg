@@ -3813,7 +3813,7 @@
          r="1.5" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-av"
+       id="src/plugins/axivion/images/button-AV"
        transform="translate(17)">
       <use
          style="display:inline"
@@ -3830,7 +3830,7 @@
          style="fill:none;stroke:#000000" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-cl"
+       id="src/plugins/axivion/images/button-CL"
        transform="translate(34)">
       <use
          style="display:inline"
@@ -3862,7 +3862,7 @@
          d="m 2027.5,579 v 1 m -6,-7 v 1" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-cy"
+       id="src/plugins/axivion/images/button-CY"
        transform="translate(51)">
       <use
          style="display:inline"
@@ -3885,7 +3885,7 @@
          transform="rotate(180,2025,576)" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-de"
+       id="src/plugins/axivion/images/button-DE"
        transform="translate(68)">
       <use
          style="display:inline"
@@ -3916,7 +3916,7 @@
          style="display:inline" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-mv"
+       id="src/plugins/axivion/images/button-MV"
        transform="translate(85)">
       <use
          style="display:inline"
@@ -3933,7 +3933,7 @@
          d="m 2020,573.5 h -1 m 1,3 h -1 m 1,3 h -1 m 2.5,-3 v 3 h 3 z m -3,6 h 13 l -13,-13 z" />
     </g>
     <g
-       id="src/plugins/axivion/images/button-sv"
+       id="src/plugins/axivion/images/button-SV"
        transform="translate(102)">
       <use
          style="display:inline"
