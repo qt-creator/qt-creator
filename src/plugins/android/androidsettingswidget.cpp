@@ -209,16 +209,20 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
     if (!jdkPath.isReadableDir())
         return make_unexpected(Tr::tr("The selected path does not exist or is not readable."));
 
-    const FilePath bin = jdkPath.pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
+    const QString javacCommand("javac");
+    const QString versionParameter("-version");
+    constexpr int requiredMajorVersion = 17;
+    const FilePath bin = jdkPath / "bin" / (javacCommand + QTC_HOST_EXE_SUFFIX);
 
     if (!bin.isExecutableFile())
         return make_unexpected(
-            Tr::tr("The selected path does not contain an executable bin/javac."));
+            Tr::tr("Could not find \"%1\" in the selected path.")
+                .arg(bin.toUserOutput()));
 
     QVersionNumber jdkVersion;
 
     Process javacProcess;
-    CommandLine cmd(bin, {"-version"});
+    const CommandLine cmd(bin, {versionParameter});
     javacProcess.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     javacProcess.setCommand(cmd);
     javacProcess.runBlocking();
@@ -227,17 +231,22 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 
     if (javacProcess.exitCode() != 0)
         return make_unexpected(
-            Tr::tr("The selected path does not contain a valid JDK. (javac -version failed: %1)")
+            Tr::tr("The selected path does not contain a valid JDK. (%1 failed: %2)")
+                .arg(cmd.toUserOutput())
                 .arg(stdOut));
 
     // We expect "javac <version>" where <version> is "major.minor.patch"
-    if (!stdOut.startsWith("javac "))
-        return make_unexpected(Tr::tr("Unexpected output from \"javac -version\": %1").arg(stdOut));
+    const QString outputPrefix = javacCommand + " ";
+    if (!stdOut.startsWith(outputPrefix))
+        return make_unexpected(Tr::tr("Unexpected output from \"%1\": %2")
+                                   .arg(cmd.toUserOutput())
+                                   .arg(stdOut));
 
-    jdkVersion = QVersionNumber::fromString(stdOut.mid(6).split('\n').first());
+    jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
-    if (jdkVersion.isNull() || jdkVersion.majorVersion() != 17) {
-        return make_unexpected(Tr::tr("Unsupported JDK version (needs to be 17): %1 (parsed: %2)")
+    if (jdkVersion.isNull() || jdkVersion.majorVersion() != requiredMajorVersion) {
+        return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
+                                   .arg(requiredMajorVersion)
                                    .arg(stdOut)
                                    .arg(jdkVersion.toString()));
     }
