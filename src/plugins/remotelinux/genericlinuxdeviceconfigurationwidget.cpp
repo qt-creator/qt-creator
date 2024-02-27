@@ -98,7 +98,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     const int dmCount = dm->deviceCount();
     for (int i = 0; i < dmCount; ++i) {
         IDevice::ConstPtr dev =  dm->deviceAt(i);
-        m_linkDeviceComboBox->addItem(dev->displayName(), dev->id().toSetting());
+        if (dev->id() != device->id())
+            m_linkDeviceComboBox->addItem(dev->displayName(), dev->id().toSetting());
     }
 
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
@@ -307,13 +308,18 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     Id linkDeviceId = Id::fromSetting(device()->extraData(Constants::LinkDevice));
     auto dm = DeviceManager::instance();
     int found = -1;
+    int minus = 0;
     for (int i = 0, n = dm->deviceCount(); i < n; ++i) {
-        if (dm->deviceAt(i)->id() == linkDeviceId) {
+        const auto otherId = dm->deviceAt(i)->id();
+        if (otherId == linkDeviceId) {
             found = i;
             break;
+        } else if (otherId == device()->id()) {
+            // Since we ourselves do not appear in the combo box, we need to adjust the index.
+            minus = 1;
         }
     }
-    m_linkDeviceComboBox->setCurrentIndex(found + 1); // There's the "Direct" entry first.
+    m_linkDeviceComboBox->setCurrentIndex(found + 1 - minus); // There's the "Direct" entry first.
 
     m_hostLineEdit->setText(sshParams.host());
     m_sshPortSpinBox->setValue(sshParams.port());
