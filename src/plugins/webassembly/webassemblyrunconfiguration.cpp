@@ -18,7 +18,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>

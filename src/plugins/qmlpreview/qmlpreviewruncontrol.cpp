@@ -20,7 +20,7 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/port.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QFutureWatcher>

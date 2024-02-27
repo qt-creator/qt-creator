@@ -37,7 +37,7 @@
 #include <utils/detailswidget.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

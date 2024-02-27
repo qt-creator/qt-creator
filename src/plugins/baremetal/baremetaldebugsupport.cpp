@@ -24,7 +24,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 using namespace Debugger;

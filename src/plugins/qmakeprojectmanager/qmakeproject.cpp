@@ -51,7 +51,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/mimeconstants.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>

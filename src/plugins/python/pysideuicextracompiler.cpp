@@ -3,7 +3,7 @@
 
 #include "pysideuicextracompiler.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

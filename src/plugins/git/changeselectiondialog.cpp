@@ -12,7 +12,7 @@
 #include <utils/completinglineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QCompleter>

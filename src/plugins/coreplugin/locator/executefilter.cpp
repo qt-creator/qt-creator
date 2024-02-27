@@ -11,7 +11,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QJsonArray>

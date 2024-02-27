@@ -16,8 +16,8 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QMessageBox>
 #include <QProgressDialog>

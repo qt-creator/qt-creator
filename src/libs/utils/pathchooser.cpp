@@ -11,7 +11,7 @@
 #include "hostosinfo.h"
 #include "macroexpander.h"
 #include "optionpushbutton.h"
-#include "process.h"
+#include "qtcprocess.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 

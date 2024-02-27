@@ -20,7 +20,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/persistentcachestore.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QReadLocker>
 

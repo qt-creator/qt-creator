@@ -36,7 +36,7 @@
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/winutils.h>
 

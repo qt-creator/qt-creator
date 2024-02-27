@@ -20,7 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 

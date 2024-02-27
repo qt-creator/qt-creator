@@ -9,7 +9,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QPromise>

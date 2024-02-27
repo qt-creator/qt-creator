@@ -22,7 +22,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/xcodebuildparser.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QDir>

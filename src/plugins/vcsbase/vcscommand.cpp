@@ -10,7 +10,7 @@
 
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/threadutils.h>
 

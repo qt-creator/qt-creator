@@ -47,7 +47,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QClipboard>

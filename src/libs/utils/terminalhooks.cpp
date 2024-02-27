@@ -5,7 +5,7 @@
 
 #include "externalterminalprocessimpl.h"
 #include "filepath.h"
-#include "process.h"
+#include "qtcprocess.h"
 #include "utilstr.h"
 
 #include <QMutex>

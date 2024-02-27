@@ -23,7 +23,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QDomDocument>

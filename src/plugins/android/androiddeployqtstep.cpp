@@ -38,7 +38,7 @@
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>

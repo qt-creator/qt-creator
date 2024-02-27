@@ -13,7 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/aspects.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

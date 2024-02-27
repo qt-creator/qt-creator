@@ -20,7 +20,7 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <solutions/tasking/tasktree.h>
 

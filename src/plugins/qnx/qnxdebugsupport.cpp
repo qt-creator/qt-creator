@@ -33,7 +33,7 @@
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 

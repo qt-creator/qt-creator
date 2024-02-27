@@ -10,7 +10,7 @@
 
 #include <projectexplorer/runcontrol.h> // for RunWorker
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 namespace Utils { class PathChooser; }
 

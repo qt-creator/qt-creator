@@ -4,7 +4,7 @@
 #include "buildablehelperlibrary.h"
 #include "environment.h"
 #include "hostosinfo.h"
-#include "process.h"
+#include "qtcprocess.h"
 
 #include <QDebug>
 #include <QRegularExpression>

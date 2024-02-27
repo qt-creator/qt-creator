@@ -123,7 +123,6 @@ add_qtc_library(Utils
     port.cpp port.h
     portlist.cpp portlist.h
     predicates.h
-    process.cpp process.h
     processenums.h
     processhandle.cpp processhandle.h
     processhelper.cpp processhelper.h
@@ -136,6 +135,7 @@ add_qtc_library(Utils
     qrcparser.cpp qrcparser.h
     qtcassert.cpp qtcassert.h
     qtcolorbutton.cpp qtcolorbutton.h
+    qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h

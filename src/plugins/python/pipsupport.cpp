@@ -16,7 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/mimeutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 

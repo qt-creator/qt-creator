@@ -16,7 +16,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/detailswidget.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

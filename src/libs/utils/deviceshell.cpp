@@ -3,7 +3,7 @@
 
 #include "deviceshell.h"
 
-#include "process.h"
+#include "qtcprocess.h"
 #include "processinterface.h"
 #include "qtcassert.h"
 #include "utilstr.h"

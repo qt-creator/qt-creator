@@ -54,7 +54,7 @@
 
 #include <utils/appinfo.h>
 #include <utils/mimeutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QGuiApplication>

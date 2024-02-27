@@ -12,7 +12,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/persistentcachestore.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 

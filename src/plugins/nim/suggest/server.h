@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 namespace Nim::Suggest {
 

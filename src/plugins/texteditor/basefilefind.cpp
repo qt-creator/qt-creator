@@ -21,7 +21,7 @@
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/futuresynchronizer.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>

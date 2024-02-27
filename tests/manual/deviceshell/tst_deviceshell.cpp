@@ -6,7 +6,7 @@
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/launcherinterface.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>

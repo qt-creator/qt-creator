@@ -19,7 +19,7 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

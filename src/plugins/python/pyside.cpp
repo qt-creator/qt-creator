@@ -19,7 +19,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/infobar.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QBoxLayout>

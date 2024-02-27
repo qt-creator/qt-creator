@@ -13,7 +13,7 @@
 #include <coreplugin/terminal/searchableterminal.h>
 
 #include <utils/link.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
 
 #include <QFutureWatcher>

@@ -7,7 +7,7 @@
 #include "projectexplorertr.h"
 
 #include <utils/detailswidget.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>

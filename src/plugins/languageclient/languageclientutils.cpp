@@ -22,7 +22,7 @@
 
 #include <utils/environment.h>
 #include <utils/infobar.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/textutils.h>
 #include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>

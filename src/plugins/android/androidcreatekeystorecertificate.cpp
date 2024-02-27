@@ -7,7 +7,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QDialog>

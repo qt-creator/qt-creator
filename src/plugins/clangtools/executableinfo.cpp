@@ -7,7 +7,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/environment.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>

@@ -11,7 +11,7 @@
 #include <utils/filepath.h>
 #include <utils/filestreamer.h>
 #include <utils/filestreamermanager.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/scopedtimer.h>
 

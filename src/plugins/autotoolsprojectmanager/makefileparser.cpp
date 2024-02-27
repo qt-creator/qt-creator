@@ -5,7 +5,7 @@
 
 #include "autotoolsprojectmanagertr.h"
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

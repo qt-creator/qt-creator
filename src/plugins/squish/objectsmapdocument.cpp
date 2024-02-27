@@ -9,7 +9,7 @@
 #include "squishtr.h"
 
 #include <utils/fileutils.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore5Compat/QTextCodec>
 

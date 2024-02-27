@@ -4,7 +4,7 @@
 #pragma once
 
 #include <utils/id.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 

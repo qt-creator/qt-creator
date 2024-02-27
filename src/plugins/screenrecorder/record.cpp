@@ -11,7 +11,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>

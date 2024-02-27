@@ -21,7 +21,7 @@
 
 #include <solutions/tasking/tasktree.h>
 
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QFile>

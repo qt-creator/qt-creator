@@ -29,7 +29,7 @@
 #include <remotelinux/remotelinux_constants.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 using namespace Core;
 using namespace ProjectExplorer;

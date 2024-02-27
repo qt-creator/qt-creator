@@ -4,7 +4,7 @@
 #include "externalterminalprocessimpl.h"
 
 #include "algorithm.h"
-#include "process.h"
+#include "qtcprocess.h"
 #include "terminalcommand.h"
 #include "utilstr.h"
 

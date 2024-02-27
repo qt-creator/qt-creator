@@ -15,7 +15,7 @@
 #include <debugger/outputcollector.h>
 
 #include <utils/id.h>
-#include <utils/process.h>
+#include <utils/qtcprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
