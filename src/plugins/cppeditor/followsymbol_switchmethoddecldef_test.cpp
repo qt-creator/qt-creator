@@ -494,8 +494,10 @@ void FollowSymbolTest::initTestCase()
         return;
 
     // Find suitable kit.
+    // Qt is not actually required for the tests, but we need it for consistency with
+    // configureAsExampleProject().
     F2TestCase::m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid();
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
     });
     if (!F2TestCase::m_testKit)
         QSKIP("This test requires at least one kit to be present");
