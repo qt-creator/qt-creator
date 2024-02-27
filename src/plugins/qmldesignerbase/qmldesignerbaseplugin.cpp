@@ -38,7 +38,7 @@ QmlDesignerBasePlugin *global;
 QmlDesignerBasePlugin::QmlDesignerBasePlugin()
 {
     global = this;
-};
+}
 
 QmlDesignerBasePlugin::~QmlDesignerBasePlugin() = default;
 
@@ -71,6 +71,16 @@ QByteArray QmlDesignerBasePlugin::experimentalFeaturesSettingsKey()
     version.remove('.');
 
     return QByteArray(experimentalFeatures) + version.toLatin1();
+}
+
+void QmlDesignerBasePlugin::enbableLiteMode()
+{
+    global->m_enableLiteMode = true;
+}
+
+bool QmlDesignerBasePlugin::isLiteModeEnabled()
+{
+    return global->m_enableLiteMode;
 }
 
 bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)
