@@ -301,8 +301,24 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     continue;
 
                 const FilePath buildDir = relativeLibs ? buildDirectory : currentBuildDir;
-                FilePath tmp = buildDir.resolvePath(part);
+                std::optional<QString> dllName;
 
+                if (buildDir.osType() == OsTypeWindows && (f.role == "libraries")) {
+                    // Skip object libraries on Windows. This case can happen with static qml plugins
+                    if (part.endsWith(".obj") || part.endsWith(".o"))
+                        continue;
+
+                    // Only consider dlls, not static libraries
+                    for (const QString &suffix :
+                         {QString(".lib"), QString(".dll.a"), QString(".a")}) {
+                        if (part.endsWith(suffix) && !dllName)
+                            dllName = FilePath::fromUserInput(
+                                          part.chopped(suffix.length()).append(".dll"))
+                                          .fileName();
+                    }
+                }
+
+                FilePath tmp = buildDir.resolvePath(part);
                 if (f.role == "libraries")
                     tmp = tmp.parentDir();
 
@@ -312,19 +328,20 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     // "/usr/local/lib" since these are usually in the standard search
                     // paths. There probably are more, but the naming schemes are arbitrary
                     // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
-                    if (buildDir.osType() == OsTypeWindows
-                        || !isChildOf(tmp,
-                                      {"/lib",
-                                       "/lib64",
-                                       "/usr/lib",
-                                       "/usr/lib64",
-                                       "/usr/local/lib"})) {
+                    if (buildDir.osType() != OsTypeWindows
+                        && !isChildOf(tmp,
+                                      {"/lib", "/lib64", "/usr/lib", "/usr/lib64", "/usr/local/lib"}))
                         librarySeachPaths.append(tmp);
+
+                    if (buildDir.osType() == OsTypeWindows && dllName) {
+                        if (tmp.pathAppended(*dllName).exists())
+                            librarySeachPaths.append(tmp);
+
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
                         if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir())
+                            if (path.isDir() && path.pathAppended(*dllName).exists())
                                 librarySeachPaths.append(path);
                         }
                     }
