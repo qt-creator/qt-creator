@@ -737,7 +737,7 @@ bool ToolBarBackend::projectOpened() const
 
 bool ToolBarBackend::isSharingEnabled()
 {
-    return !QmlDesigner::checkOpenSourceLicense();
+    return QmlDesigner::checkEnterpriseLicense();
 }
 
 void ToolBarBackend::launchGlobalAnnotations()
