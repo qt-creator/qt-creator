@@ -61,7 +61,7 @@ public:
     void setRelativeLineSpacing(int relativeLineSpacing);
 
     QFont font() const;
-    int fontNormalWeight() const;
+    QFont::Weight fontNormalWeight() const;
 
     bool antialias() const;
     void setAntialias(bool antialias);
