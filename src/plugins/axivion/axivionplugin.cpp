@@ -540,11 +540,19 @@ static Group authorizationRecipe()
     };
     const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage] {
         if (unauthorizedDashboardStorage->dtoData) {
-            dd->m_serverAccess = ServerAccess::NoAuthorization;
-            dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
-        } else {
-            dd->m_serverAccess = ServerAccess::WithAuthorization;
+            const Dto::DashboardInfoDto &dashboardInfo = *unauthorizedDashboardStorage->dtoData;
+            const QString &username = settings().server.username;
+            if (username.isEmpty()
+                || (dashboardInfo.username && *dashboardInfo.username == username)) {
+                dd->m_serverAccess = ServerAccess::NoAuthorization;
+                dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
+                return;
+            }
+            MessageManager::writeFlashing(QString("Axivion: %1")
+                .arg(Tr::tr("Unauthenticated access failed (wrong user), "
+                            "using authenticated access...")));
         }
+        dd->m_serverAccess = ServerAccess::WithAuthorization;
     };
 
     const auto onCredentialLoopCondition = [](int) {
