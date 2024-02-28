@@ -1583,7 +1583,8 @@ class Dumper(DumperBase):
                 result += ',ignorecount="%d"' % loc.GetIgnoreCount()
                 result += ',file="%s"' % toCString(lineEntry.GetFileSpec())
                 result += ',line="%d"' % lineEntry.GetLine()
-                result += ',addr="%s"},' % addr.GetFileAddress()
+                result += ',addr="%s"' % addr.GetLoadAddress(self.target)
+                result += ',faddr="%s"},' % addr.GetFileAddress()
             result += ']'
             if lineEntry is not None:
                 result += ',file="%s"' % toCString(lineEntry.GetFileSpec())
