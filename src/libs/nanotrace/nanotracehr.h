@@ -500,9 +500,10 @@ using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringA
 template<Tracing isEnabled>
 using StringEventQueue = EventQueue<StringTraceEvent, isEnabled>;
 
-extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
+    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
 class EventQueueData : public EventQueue<TraceEvent, isEnabled>

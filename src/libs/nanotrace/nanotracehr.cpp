@@ -263,8 +263,9 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
     }
 }
 
-template class EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-template class EventQueue<StringTraceEvent, Tracing::IsEnabled>;
-template class EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE
+    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 } // namespace NanotraceHR
