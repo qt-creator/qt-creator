@@ -12,8 +12,6 @@
 #include "cppsourceprocessertesthelper.h"
 #include "cpptoolssettings.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -5406,12 +5404,6 @@ void QuickfixTest::testInsertDefsFromDecls()
 
 void QuickfixTest::testInsertAndFormatDefsFromDecls()
 {
-    static const auto isClangFormatPresent = [] {
-        using namespace ExtensionSystem;
-        return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
-            return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
-        });
-    };
     if (!isClangFormatPresent())
         QSKIP("This test reqires ClangFormat");
 

@@ -495,6 +495,14 @@ void DoxygenTest::runTest(const QByteArray &original,
     QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
     const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
 
+    if (isClangFormatPresent()) {
+        QEXPECT_FAIL("noContinuationForExpressionAndComment1",
+                     "ClangFormat indents differently",
+                     Continue);
+        QEXPECT_FAIL("noContinuationForExpressionAndComment2",
+                     "ClangFormat indents differently",
+                     Continue);
+    }
     QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
     testDocument.m_editorWidget->undo();
