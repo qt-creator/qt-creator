@@ -99,7 +99,7 @@
     \section2 Supported GDB Versions
 
     Use GDB 7.5, or later, with the Python scripting extension and Python version
-    3.3, or later.
+    3.5, or later.
 
     For remote debugging using GDB and GDB server, the minimum supported version
     of GDB server on the target \l{glossary-device}{device} is 7.0.
@@ -121,34 +121,25 @@
 
     On Linux, the minimum supported version is LLDB 3.8.
 
-    \omit
-
-    \section2 GDB Adapter Modes
-
-    [Advanced Topic]
+    \section2 GDB Run Modes
 
     The GDB native debugger used internally by the debugger plugin runs in
-    different adapter modes to cope with the variety of supported platforms and
-    environments. All GDB adapters inherit from  AbstractGdbAdapter:
+    different modes to cope with the variety of supported platforms and
+    environments:
 
     \list
 
-        \li PlainGdbAdapter debugs locally started GUI processes. It is
-            physically split into parts that are relevant only when Python is
-            available, parts relevant only when Python is not available, and
-            mixed code.
+        \li Plain mode debugs locally started processes that do not need console input.
 
-        \li TermGdbAdapter debugs locally started processes that need a console.
+        \li Terminal mode debugs locally started processes that need a console.
 
-        \li AttachGdbAdapter debugs local processes started outside \QC.
+        \li Attach mode debugs local processes started outside \QC.
 
-        \li CoreGdbAdapter debugs core files generated from crashes.
+        \li Core mode debugs core files generated from crashes.
 
-        \li RemoteGdbAdapter interacts with the GDB server running on Linux.
+        \li Remote mode interacts with the GDB server running on Linux.
 
     \endlist
-
-    \endomit
 
     \section1 Installing Native Debuggers
 
