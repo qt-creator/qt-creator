@@ -20,7 +20,7 @@ add_qtc_library(SqliteInternal OBJECT
 
 extend_qtc_library(SqliteInternal
   CONDITION QTC_STATIC_BUILD
-  PROPERTIES COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIsqlite_static_config.h,-includesqlite_static_config.h>
+  PRIVATE_COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIsqlite_static_config.h,-includesqlite_static_config.h>
 )
 
 if (APPLE)
@@ -80,5 +80,5 @@ extend_qtc_library(Sqlite
 
 extend_qtc_library(Sqlite
   CONDITION QTC_STATIC_BUILD
-  PROPERTIES COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIsqlite_static_config.h,-includesqlite_static_config.h>
+  PRIVATE_COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIsqlite_static_config.h,-includesqlite_static_config.h>
 )
