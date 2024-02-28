@@ -345,7 +345,9 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
 
 static QUrl urlForProject(const QString &projectName)
 {
-    return QUrl(settings().server.dashboard).resolved(QString("api/projects/")).resolved(projectName);
+    if (!dd->m_dashboardInfo)
+        return {};
+    return dd->m_dashboardInfo->source.resolved(QString("api/projects/")).resolved(projectName);
 }
 
 static constexpr int httpStatusCodeOk = 200;
@@ -582,7 +584,7 @@ static Group authorizationRecipe()
 
         apiTokenStorage->credential = dashboardStorage->credential;
         apiTokenStorage->url
-            = QUrl(settings().server.dashboard).resolved(*dashboardDto.userApiTokenUrl);
+            = dd->m_dashboardInfo->source.resolved(*dashboardDto.userApiTokenUrl);
         apiTokenStorage->csrfToken = dashboardDto.csrfToken.toUtf8();
         const Dto::ApiTokenCreationRequestDto requestDto{*passwordStorage, "IdePlugin",
                                                          apiTokenDescription(), 0};
@@ -790,8 +792,8 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
             handleOpenedDocs();
         };
 
-        const QUrl url(settings().server.dashboard);
-        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(url.resolved(*it), handler));
+        taskTree.setRecipe(
+            fetchDataRecipe<Dto::ProjectInfoDto>(m_dashboardInfo->source.resolved(*it), handler));
         return SetupResult::Continue;
     };
 
