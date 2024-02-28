@@ -3870,6 +3870,10 @@ void GdbEngine::handleGdbStarted()
     runCommand({"show version", CB(handleShowVersion)});
     runCommand({"show debug-file-directory", CB(handleDebugInfoLocation)});
 
+    // Show supported architectures.
+    runCommand({"set max-completions 1000"}); // gdb-multiarch needs ~250
+    runCommand({"complete set arch "}); // Keep the space!
+
     //runCommand("-enable-timings");
     //rurun print static-members off"); // Seemingly doesn't work.
     //runCommand("set debug infrun 1");
