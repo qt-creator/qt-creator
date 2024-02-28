@@ -35,6 +35,7 @@ private:
     void onToggleSort(int index, SortOrder order);
     bool m_dragging = false;
     bool m_maybeToggleSort = false;
+    int m_lastToggleLogicalPos = -1;
     int m_currentSortIndex = -1;
     SortOrder m_currentSortOrder = SortOrder::None;
     QList<bool> m_sortableColumns;

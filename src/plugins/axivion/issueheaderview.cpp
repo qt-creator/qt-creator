@@ -61,8 +61,10 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
         if (y > 1 && y < height() - 2) { // TODO improve
             const int pos = position.x();
             const int logical = logicalIndexAt(pos);
-            const int end = sectionViewportPosition(logical) + sectionSize(logical);
-            const int start = end - ICON_SIZE - 2;
+            m_lastToggleLogicalPos = logical;
+            const int margin = style()->pixelMetric(QStyle::PM_HeaderGripMargin, nullptr, this);
+            const int end = sectionViewportPosition(logical) + sectionSize(logical) - margin;
+            const int start = end - ICON_SIZE;
             m_maybeToggleSort = start < pos && end > pos;
         }
     }
@@ -79,7 +81,8 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
         const QPoint position = event->position().toPoint();
         const int y = position.y();
         const int logical = logicalIndexAt(position.x());
-        if (logical > -1 && logical < m_sortableColumns.size()) {
+        if (logical == m_lastToggleLogicalPos
+                && logical > -1 && logical < m_sortableColumns.size()) {
             if (m_sortableColumns.at(logical)) { // ignore non-sortable
                 if (y < height() / 2) // TODO improve
                     onToggleSort(logical, SortOrder::Ascending);
@@ -88,6 +91,7 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
             }
         }
     }
+    m_lastToggleLogicalPos = -1;
     QHeaderView::mouseReleaseEvent(event);
 }
 
@@ -118,8 +122,10 @@ QSize IssueHeaderView::sectionSizeFromContents(int logicalIndex) const
     const QSize oldSize = QHeaderView::sectionSizeFromContents(logicalIndex);
     const QSize newSize = logicalIndex < m_columnWidths.size()
         ? QSize(qMax(m_columnWidths.at(logicalIndex), oldSize.width()), oldSize.height()) : oldSize;
-    // add icon size and margin (2)
-    return QSize{newSize.width() + ICON_SIZE + 2, qMax(newSize.height(), ICON_SIZE)};
+
+    const int margin = style()->pixelMetric(QStyle::PM_HeaderGripMargin, nullptr, this);
+    // add icon size and margin (default resize handle margin + 1)
+    return QSize{newSize.width() + ICON_SIZE + margin, qMax(newSize.height(), ICON_SIZE)};
 }
 
 void IssueHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
@@ -132,9 +138,10 @@ void IssueHeaderView::paintSection(QPainter *painter, const QRect &rect, int log
     if (!m_sortableColumns.at(logicalIndex))
         return;
 
+    const int margin = style()->pixelMetric(QStyle::PM_HeaderGripMargin, nullptr, this);
     const QIcon icon = iconForSorted(logicalIndex == m_currentSortIndex ? m_currentSortOrder : SortOrder::None);
     const int offset = qMax((rect.height() - ICON_SIZE), 0) / 2;
-    const QRect iconRect(rect.left() + rect.width() - ICON_SIZE - 2, offset, ICON_SIZE, ICON_SIZE);
+    const QRect iconRect(rect.left() + rect.width() - ICON_SIZE - margin, offset, ICON_SIZE, ICON_SIZE);
     icon.paint(painter, iconRect);
 }
 
