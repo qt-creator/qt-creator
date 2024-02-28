@@ -10,6 +10,8 @@ add_qtc_library(Nanotrace
     VISIBILITY_INLINES_HIDDEN OFF
 )
 
+target_compile_options(Nanotrace PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/wd5030>)
+
 option(DESIGNSTUDIO_USE_NANOTRACE
        "Enables collecting performance data with nanotrace for Design Studio" OFF)
 extend_qtc_library(Nanotrace
