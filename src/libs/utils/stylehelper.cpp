@@ -936,7 +936,7 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
 static const QStringList &applicationFontFamilies()
 {
     const static QStringList families = [] {
-        constexpr QLatin1String familyName("Inter");
+        const QLatin1String familyName("Inter");
         // Font is either installed in the system, or was loaded from share/qtcreator/fonts/
         return QFontDatabase::hasFamily(familyName) ? QStringList(familyName) : QStringList();
     }();
