@@ -5,7 +5,9 @@
 
 #include <qcompilerdetection.h>
 
-#if __cplusplus >= 202002L
+// The (Apple) Clang implementation of span is incomplete until LLVM 15 / Xcode 14.3 / macOS 13
+#if __cplusplus >= 202002L \
+    && !(defined(__apple_build_version__) && __apple_build_version__ < 14030022)
 #include <span>
 
 namespace Utils {
@@ -22,6 +24,11 @@ QT_WARNING_PUSH
 #elif defined(Q_CC_GNU) || defined(Q_CC_CLANG)
 #pragma GCC system_header
 #endif
+
+// disable automatic usage of std::span in span-lite
+// since we make that decision ourselves at the top of this header
+#define span_CONFIG_SELECT_SPAN span_SPAN_NONSTD
+
 #include <3rdparty/span/span.hpp>
 namespace Utils {
 using namespace nonstd;
