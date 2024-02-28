@@ -144,6 +144,7 @@ void CollectionView::modelAboutToBeDetached([[maybe_unused]] Model *model)
     m_dataStoreTypeFound = false;
     disconnect(m_documentUpdateConnection);
     QTC_ASSERT(m_delayedTasks.isEmpty(), m_delayedTasks.clear());
+    m_widget->sourceModel()->reset();
 }
 
 void CollectionView::nodeRemoved(const ModelNode &removedNode,
@@ -319,8 +320,8 @@ void CollectionView::resetDataStoreNode()
     if (!dataStore || m_widget->sourceModel()->sourceIndex(dataStore) > -1)
         return;
 
-    bool dataStoreSingletonFound = false;
-    if (m_libraryInfoIsUpdated && rewriterView() && rewriterView()->isAttached()) {
+    bool dataStoreSingletonFound = m_dataStoreTypeFound;
+    if (!dataStoreSingletonFound && rewriterView() && rewriterView()->isAttached()) {
         const QList<QmlTypeData> types = rewriterView()->getQMLTypes();
         for (const QmlTypeData &cppTypeData : types) {
             if (cppTypeData.isSingleton && cppTypeData.typeName == "DataStore") {

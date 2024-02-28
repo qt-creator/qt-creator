@@ -214,13 +214,18 @@ void CollectionSourceModel::setSource(const ModelNode &source)
     updateSelectedSource(true);
 }
 
-void CollectionSourceModel::removeSource(const ModelNode &node)
+void CollectionSourceModel::reset()
 {
-    int nodePlace = m_sourceIndexHash.value(node.internalId(), -1);
-    if (nodePlace < 0)
-        return;
+    beginResetModel();
+    m_collectionSources.clear();
+    m_sourceIndexHash.clear();
+    m_collectionList.clear();
+    m_previousSelectedList.clear();
+    setSelectedCollectionName({});
 
-    removeRow(nodePlace);
+    updateEmpty();
+    endResetModel();
+    updateSelectedSource();
 }
 
 int CollectionSourceModel::sourceIndex(const ModelNode &node) const
