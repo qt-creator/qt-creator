@@ -3502,18 +3502,19 @@ bool TextEditorWidget::singleShotAfterHighlightingDone(std::function<void()> &&f
                 [f = std::move(f)] { f(); }, Qt::SingleShotConnection);
         return true;
     }
-
     return false;
 }
 
 void TextEditorWidget::restoreState(const QByteArray &state)
 {
-    if (singleShotAfterHighlightingDone([this, state] { restoreState(state); }))
-        return;
-
     const auto callFoldLicenseHeader = [this] {
-        if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->foldLicenseHeader();
+        auto callFold = [this] {
+            if (d->m_displaySettings.m_autoFoldFirstComment)
+                d->foldLicenseHeader();
+        };
+
+        if (!singleShotAfterHighlightingDone(callFold))
+            callFold();
     };
 
     if (state.isEmpty()) {
@@ -3536,21 +3537,25 @@ void TextEditorWidget::restoreState(const QByteArray &state)
     if (version >= 1) {
         QList<int> collapsedBlocks;
         stream >> collapsedBlocks;
-        QTextDocument *doc = document();
-        bool layoutChanged = false;
-        for (const int blockNumber : std::as_const(collapsedBlocks)) {
-            QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
-            if (block.isValid()) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
-                layoutChanged = true;
+        auto foldingRestore = [this, collapsedBlocks] {
+            QTextDocument *doc = document();
+            bool layoutChanged = false;
+            for (const int blockNumber : std::as_const(collapsedBlocks)) {
+                QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
+                if (block.isValid()) {
+                    TextDocumentLayout::doFoldOrUnfold(block, false);
+                    layoutChanged = true;
+                }
             }
-        }
-        if (layoutChanged) {
-            auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-            QTC_ASSERT(documentLayout, return );
-            documentLayout->requestUpdate();
-            documentLayout->emitDocumentSizeChanged();
-        }
+            if (layoutChanged) {
+                auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->documentLayout());
+                QTC_ASSERT(documentLayout, return);
+                documentLayout->requestUpdate();
+                documentLayout->emitDocumentSizeChanged();
+            }
+        };
+        if (!singleShotAfterHighlightingDone(foldingRestore))
+            foldingRestore();
     } else {
         callFoldLicenseHeader();
     }
