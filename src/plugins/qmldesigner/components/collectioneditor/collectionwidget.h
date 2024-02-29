@@ -13,7 +13,7 @@ namespace QmlDesigner {
 
 class CollectionDetailsModel;
 class CollectionDetailsSortFilterModel;
-class CollectionSourceModel;
+class CollectionListModel;
 class CollectionView;
 class ModelNode;
 
@@ -27,7 +27,7 @@ public:
     CollectionWidget(CollectionView *view);
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
-    QPointer<CollectionSourceModel> sourceModel() const;
+    QPointer<CollectionListModel> listModel() const;
     QPointer<CollectionDetailsModel> collectionDetailsModel() const;
 
     void reloadQmlSource();
@@ -61,7 +61,7 @@ private:
     QString generateUniqueCollectionName(const ModelNode &node, const QString &name);
 
     QPointer<CollectionView> m_view;
-    QPointer<CollectionSourceModel> m_sourceModel;
+    QPointer<CollectionListModel> m_listModel;
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
     std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;

@@ -6,7 +6,7 @@
 #include "collectiondetailsmodel.h"
 #include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
-#include "collectionsourcemodel.h"
+#include "collectionlistmodel.h"
 #include "collectionwidget.h"
 #include "datastoremodelnode.h"
 #include "designmodecontext.h"
@@ -81,29 +81,33 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 
         auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.data());
         Core::ICore::addContextObject(collectionEditorContext);
-        CollectionSourceModel *sourceModel = m_widget->sourceModel().data();
+        CollectionListModel *listModel = m_widget->listModel().data();
 
-        connect(sourceModel,
-                &CollectionSourceModel::collectionSelected,
+        connect(listModel,
+                &CollectionListModel::selectedCollectionNameChanged,
                 this,
                 [this](const QString &collection) {
                     m_widget->collectionDetailsModel()->loadCollection(dataStoreNode(), collection);
                 });
 
-        connect(sourceModel, &CollectionSourceModel::isEmptyChanged, this, [this](bool isEmpty) {
+        connect(listModel, &CollectionListModel::isEmptyChanged, this, [this](bool isEmpty) {
             if (isEmpty)
                 m_widget->collectionDetailsModel()->loadCollection({}, {});
         });
 
-        connect(sourceModel,
-                &CollectionSourceModel::collectionNamesInitialized,
-                this,
-                [this](const QStringList &collectionNames) {
-                    m_dataStore->setCollectionNames(collectionNames);
-                });
+        connect(listModel, &CollectionListModel::modelReset, this, [this] {
+            CollectionListModel *listModel = m_widget->listModel().data();
+            if (listModel->sourceNode() == m_dataStore->modelNode())
+                m_dataStore->setCollectionNames(listModel->collections());
+        });
 
-        connect(sourceModel,
-                &CollectionSourceModel::collectionRenamed,
+        connect(listModel,
+                &CollectionListModel::collectionAdded,
+                this,
+                [this](const QString &collectionName) { m_dataStore->addCollection(collectionName); });
+
+        connect(listModel,
+                &CollectionListModel::collectionNameChanged,
                 this,
                 [this](const QString &oldName, const QString &newName) {
                     m_dataStore->renameCollection(oldName, newName);
@@ -112,13 +116,15 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                                                                          newName);
                 });
 
-        connect(sourceModel,
-                &CollectionSourceModel::collectionRemoved,
+        connect(listModel,
+                &CollectionListModel::collectionsRemoved,
                 this,
-                [this](const QString &collectionName) {
-                    m_dataStore->removeCollection(collectionName);
-                    m_widget->collectionDetailsModel()->removeCollection(dataStoreNode(),
-                                                                         collectionName);
+                [this](const QStringList &collectionNames) {
+                    m_dataStore->removeCollections(collectionNames);
+                    for (const QString &collectionName : collectionNames) {
+                        m_widget->collectionDetailsModel()->removeCollection(dataStoreNode(),
+                                                                             collectionName);
+                    }
                 });
     }
 
@@ -144,29 +150,7 @@ void CollectionView::modelAboutToBeDetached([[maybe_unused]] Model *model)
     m_dataStoreTypeFound = false;
     disconnect(m_documentUpdateConnection);
     QTC_ASSERT(m_delayedTasks.isEmpty(), m_delayedTasks.clear());
-    m_widget->sourceModel()->reset();
-}
-
-void CollectionView::nodeRemoved(const ModelNode &removedNode,
-                                 [[maybe_unused]] const NodeAbstractProperty &parentProperty,
-                                 [[maybe_unused]] PropertyChangeFlags propertyChange)
-{
-    if (isStudioCollectionModel(removedNode))
-        m_widget->sourceModel()->updateSelectedSource(true);
-}
-
-void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                              [[maybe_unused]] PropertyChangeFlags propertyChange)
-{
-    for (const VariantProperty &property : propertyList) {
-        ModelNode node(property.parentModelNode());
-        if (isStudioCollectionModel(node)) {
-            if (property.name() == "objectName")
-                m_widget->sourceModel()->updateNodeName(node);
-            else if (property.name() == CollectionEditorConstants::SOURCEFILE_PROPERTY)
-                m_widget->sourceModel()->updateNodeSource(node);
-        }
-    }
+    m_widget->listModel()->setDataStoreNode();
 }
 
 void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -190,11 +174,6 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     // More than one model is selected. So ignore them
     if (selectedCollectionNodes.size() > 1)
         return;
-
-    if (selectedCollectionNodes.size() == 1) { // If exactly one model is selected
-        m_widget->sourceModel()->selectSource(selectedCollectionNodes.first());
-        return;
-    }
 }
 
 void CollectionView::customNotification(const AbstractView *,
@@ -298,7 +277,7 @@ void CollectionView::assignCollectionToSelectedNode(const QString &collectionNam
 void CollectionView::addNewCollection(const QString &collectionName, const QJsonObject &localCollection)
 {
     addTask(QSharedPointer<CollectionTask>(
-        new AddCollectionTask(this, m_widget->sourceModel(), localCollection, collectionName)));
+        new AddCollectionTask(this, m_widget->listModel(), localCollection, collectionName)));
 }
 
 void CollectionView::openCollection(const QString &collectionName)
@@ -309,7 +288,6 @@ void CollectionView::openCollection(const QString &collectionName)
 void CollectionView::registerDeclarativeType()
 {
     CollectionDetails::registerDeclarativeType();
-    CollectionJsonSourceFilterModel::registerDeclarativeType();
 }
 
 void CollectionView::resetDataStoreNode()
@@ -317,7 +295,7 @@ void CollectionView::resetDataStoreNode()
     m_dataStore->reloadModel();
 
     ModelNode dataStore = m_dataStore->modelNode();
-    if (!dataStore || m_widget->sourceModel()->sourceIndex(dataStore) > -1)
+    if (!dataStore || m_widget->listModel()->sourceNode() == dataStore)
         return;
 
     bool dataStoreSingletonFound = m_dataStoreTypeFound;
@@ -336,7 +314,7 @@ void CollectionView::resetDataStoreNode()
     }
 
     if (dataStoreSingletonFound) {
-        m_widget->sourceModel()->setSource(dataStore);
+        m_widget->listModel()->setDataStoreNode(dataStore);
         m_dataStoreTypeFound = true;
 
         while (!m_delayedTasks.isEmpty())
@@ -415,7 +393,7 @@ void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
 {
     if (node.metaInfo().isQtQuickListView()) {
         addTask(QSharedPointer<CollectionTask>(
-            new DropListViewTask(this, m_widget->sourceModel(), node)));
+            new DropListViewTask(this, m_widget->listModel(), node)));
     }
 }
 
@@ -439,61 +417,49 @@ void CollectionView::addTask(QSharedPointer<CollectionTask> task)
         m_delayedTasks << task;
 }
 
-CollectionTask::CollectionTask(CollectionView *view, CollectionSourceModel *sourceModel)
+CollectionTask::CollectionTask(CollectionView *view, CollectionListModel *listModel)
     : m_collectionView(view)
-    , m_sourceModel(sourceModel)
+    , m_listModel(listModel)
 {}
 
 DropListViewTask::DropListViewTask(CollectionView *view,
-                                   CollectionSourceModel *sourceModel,
+                                   CollectionListModel *listModel,
                                    const ModelNode &node)
-    : CollectionTask(view, sourceModel)
+    : CollectionTask(view, listModel)
     , m_node(node)
 {}
 
 void DropListViewTask::process()
 {
     AbstractView *view = m_node.view();
-    if (!m_node || !m_collectionView || !m_sourceModel || !view)
+    if (!m_node || !m_collectionView || !m_listModel || !view)
         return;
 
-    const QString newCollectionName = m_sourceModel->getUniqueCollectionName("ListModel");
-    m_sourceModel->addCollectionToSource(m_collectionView->dataStoreNode(),
-                                         newCollectionName,
-                                         CollectionEditorUtils::defaultColorCollection());
+    const QString newCollectionName = m_listModel->getUniqueCollectionName("ListModel");
+    m_listModel->addCollection(newCollectionName, CollectionEditorUtils::defaultColorCollection());
     m_collectionView->openCollection(newCollectionName);
     m_collectionView->assignCollectionToNode(newCollectionName, m_node);
 }
 
 AddCollectionTask::AddCollectionTask(CollectionView *view,
-                                     CollectionSourceModel *sourceModel,
+                                     CollectionListModel *listModel,
                                      const QJsonObject &localJsonObject,
                                      const QString &collectionName)
-    : CollectionTask(view, sourceModel)
+    : CollectionTask(view, listModel)
     , m_localJsonObject(localJsonObject)
     , m_name(collectionName)
 {}
 
 void AddCollectionTask::process()
 {
-    if (!m_sourceModel)
+    if (!m_listModel)
         return;
 
-    QString errorMsg;
-
-    const QString newCollectionName = m_sourceModel->collectionExists(m_name)
-                                          ? m_sourceModel->getUniqueCollectionName(m_name)
+    const QString newCollectionName = m_listModel->collectionExists(m_name)
+                                          ? m_listModel->getUniqueCollectionName(m_name)
                                           : m_name;
 
-    bool added = m_sourceModel->addCollectionToSource(m_collectionView->dataStoreNode(),
-                                                      newCollectionName,
-                                                      m_localJsonObject,
-                                                      &errorMsg);
-
-    if (!added) {
-        emit m_sourceModel->warning(m_sourceModel->tr("Can not add a model to the JSON file"),
-                                    errorMsg);
-    }
+    m_listModel->addCollection(newCollectionName, m_localJsonObject);
 }
 
 } // namespace QmlDesigner

@@ -16,7 +16,7 @@ class Document;
 namespace QmlDesigner {
 
 class CollectionDetails;
-class CollectionSourceModel;
+class CollectionListModel;
 class CollectionTask;
 class CollectionWidget;
 class DataStoreModelNode;
@@ -33,13 +33,6 @@ public:
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
-
-    void nodeRemoved(const ModelNode &removedNode,
-                     const NodeAbstractProperty &parentProperty,
-                     PropertyChangeFlags propertyChange) override;
-
-    void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                  PropertyChangeFlags propertyChange) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
@@ -87,7 +80,7 @@ private:
 class CollectionTask
 {
 public:
-    CollectionTask(CollectionView *view, CollectionSourceModel *sourceModel);
+    CollectionTask(CollectionView *view, CollectionListModel *listModel);
     CollectionTask() = delete;
     virtual ~CollectionTask() = default;
 
@@ -95,13 +88,13 @@ public:
 
 protected:
     QPointer<CollectionView> m_collectionView;
-    QPointer<CollectionSourceModel> m_sourceModel;
+    QPointer<CollectionListModel> m_listModel;
 };
 
 class DropListViewTask : public CollectionTask
 {
 public:
-    DropListViewTask(CollectionView *view, CollectionSourceModel *sourceModel, const ModelNode &node);
+    DropListViewTask(CollectionView *view, CollectionListModel *listModel, const ModelNode &node);
 
     void process() override;
 
@@ -113,7 +106,7 @@ class AddCollectionTask : public CollectionTask
 {
 public:
     AddCollectionTask(CollectionView *view,
-                      CollectionSourceModel *sourceModel,
+                      CollectionListModel *listModel,
                       const QJsonObject &localJsonObject,
                       const QString &collectionName);
 

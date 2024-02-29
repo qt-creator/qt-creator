@@ -176,15 +176,6 @@ bool variantIslessThan(const QVariant &a, const QVariant &b, DataType type)
     return std::visit(LessThanVisitor{}, valueToVariant(a, type), valueToVariant(b, type));
 }
 
-CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const ModelNode &node)
-{
-    using namespace QmlDesigner;
-    if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
-        return CollectionEditorConstants::SourceFormat::Json;
-
-    return CollectionEditorConstants::SourceFormat::Unknown;
-}
-
 QString getSourceCollectionType(const ModelNode &node)
 {
     using namespace QmlDesigner;

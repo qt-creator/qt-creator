@@ -31,8 +31,9 @@ public:
     ModelNode modelNode() const;
 
     void setCollectionNames(const QStringList &newCollectionNames);
+    void addCollection(const QString &collectionName);
     void renameCollection(const QString &oldName, const QString &newName);
-    void removeCollection(const QString &collectionName);
+    void removeCollections(const QStringList &collectionNames);
 
     void assignCollectionToNode(AbstractView *view,
                                 const ModelNode &targetNode,

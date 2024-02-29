@@ -838,7 +838,6 @@ extend_qtc_plugin(QmlDesigner
     collectioneditorconstants.h
     collectioneditorutils.cpp collectioneditorutils.h
     collectionlistmodel.cpp collectionlistmodel.h
-    collectionsourcemodel.cpp collectionsourcemodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h
     datastoremodelnode.cpp datastoremodelnode.h

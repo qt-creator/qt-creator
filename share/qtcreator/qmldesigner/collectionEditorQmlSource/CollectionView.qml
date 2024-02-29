@@ -144,34 +144,13 @@ Item {
                 }
             }
 
-            Item { // Model Groups
+            CollectionListView { // Model Groups
                 Layout.fillWidth: true
                 Layout.minimumHeight: bottomSpacer.isExpanded ? 150 : 0
                 Layout.fillHeight: !bottomSpacer.isExpanded
-                Layout.preferredHeight: sourceListView.contentHeight
-                Layout.maximumHeight: sourceListView.contentHeight
+                Layout.preferredHeight: contentHeight
+                Layout.maximumHeight: contentHeight
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-
-                MouseArea {
-                    anchors.fill: parent
-                    propagateComposedEvents: true
-                    onClicked: (event) => {
-                        root.model.deselect()
-                        event.accepted = true
-                    }
-                }
-
-                ListView {
-                    id: sourceListView
-
-                    anchors.fill: parent
-                    model: root.model
-
-                    delegate: ModelSourceItem {
-                        implicitWidth: sourceListView.width
-                        hasSelectedTarget: root.rootView.targetNodeSelected
-                    }
-                }
             }
 
             HelperWidgets.IconButton {

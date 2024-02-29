@@ -7,7 +7,7 @@
 #include "collectiondetailsmodel.h"
 #include "collectiondetailssortfiltermodel.h"
 #include "collectioneditorutils.h"
-#include "collectionsourcemodel.h"
+#include "collectionlistmodel.h"
 #include "collectionview.h"
 #include "designmodewidget.h"
 #include "qmldesignerconstants.h"
@@ -56,7 +56,7 @@ namespace QmlDesigner {
 CollectionWidget::CollectionWidget(CollectionView *view)
     : QFrame()
     , m_view(view)
-    , m_sourceModel(new CollectionSourceModel)
+    , m_listModel(new CollectionListModel)
     , m_collectionDetailsModel(new CollectionDetailsModel)
     , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
     , m_quickWidget(new StudioQuickWidget(this))
@@ -69,7 +69,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     icontext->setContext(context);
     icontext->setWidget(this);
 
-    connect(m_sourceModel, &CollectionSourceModel::warning, this, &CollectionWidget::warn);
+    connect(m_listModel, &CollectionListModel::warning, this, &CollectionWidget::warn);
 
     m_collectionDetailsSortFilterModel->setSourceModel(m_collectionDetailsModel);
 
@@ -90,7 +90,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     auto map = m_quickWidget->registerPropertyMap("CollectionEditorBackend");
     map->setProperties({
         {"rootView", QVariant::fromValue(this)},
-        {"model", QVariant::fromValue(m_sourceModel.data())},
+        {"model", QVariant::fromValue(m_listModel.data())},
         {"collectionDetailsModel", QVariant::fromValue(m_collectionDetailsModel.data())},
         {"collectionDetailsSortFilterModel",
          QVariant::fromValue(m_collectionDetailsSortFilterModel.get())},
@@ -112,9 +112,9 @@ void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback)
         callback({});
 }
 
-QPointer<CollectionSourceModel> CollectionWidget::sourceModel() const
+QPointer<CollectionListModel> CollectionWidget::listModel() const
 {
-    return m_sourceModel;
+    return m_listModel;
 }
 
 QPointer<CollectionDetailsModel> CollectionWidget::collectionDetailsModel() const
@@ -262,7 +262,7 @@ void CollectionWidget::assignCollectionToSelectedNode(const QString collectionNa
 
 void CollectionWidget::openCollection(const QString &collectionName)
 {
-    m_sourceModel->selectCollection(QVariant::fromValue(m_view->dataStoreNode()), collectionName);
+    m_listModel->selectCollectionName(collectionName);
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("CollectionEditor", true);
 }
 

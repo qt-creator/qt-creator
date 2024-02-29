@@ -19,8 +19,6 @@ namespace QmlDesigner::CollectionEditorUtils {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
-CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
-
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);

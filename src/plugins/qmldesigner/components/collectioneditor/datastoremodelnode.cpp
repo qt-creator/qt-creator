@@ -390,6 +390,14 @@ void DataStoreModelNode::setCollectionNames(const QStringList &newCollectionName
     update();
 }
 
+void DataStoreModelNode::addCollection(const QString &collectionName)
+{
+    if (!m_collectionPropertyNames.contains(collectionName)) {
+        m_collectionPropertyNames.insert(collectionName, {});
+        update();
+    }
+}
+
 void DataStoreModelNode::renameCollection(const QString &oldName, const QString &newName)
 {
     ModelNode dataStoreNode = modelNode();
@@ -420,12 +428,18 @@ void DataStoreModelNode::renameCollection(const QString &oldName, const QString 
                << QString("There is no old collection name registered with this name \"%1\"").arg(oldName);
 }
 
-void DataStoreModelNode::removeCollection(const QString &collectionName)
+void DataStoreModelNode::removeCollections(const QStringList &collectionNames)
 {
-    if (m_collectionPropertyNames.contains(collectionName)) {
-        m_collectionPropertyNames.remove(collectionName);
-        update();
+    bool updateRequired = false;
+    for (const QString &collectionName : collectionNames) {
+        if (m_collectionPropertyNames.contains(collectionName)) {
+            m_collectionPropertyNames.remove(collectionName);
+            updateRequired = true;
+        }
     }
+
+    if (updateRequired)
+        update();
 }
 
 void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
