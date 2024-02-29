@@ -3492,13 +3492,36 @@ QByteArray TextEditorWidget::saveState() const
     return state;
 }
 
+bool TextEditorWidget::singleShotAfterHighlightingDone(std::function<void()> &&f)
+{
+    if (d->m_document->syntaxHighlighterRunner()
+        && !d->m_document->syntaxHighlighterRunner()->syntaxInfoUpdated()) {
+        connect(d->m_document->syntaxHighlighterRunner(),
+                &SyntaxHighlighterRunner::highlightingFinished,
+                this,
+                [f = std::move(f)] { f(); }, Qt::SingleShotConnection);
+        return true;
+    }
+    return false;
+}
+
 void TextEditorWidget::restoreState(const QByteArray &state)
 {
+    const auto callFoldLicenseHeader = [this] {
+        auto callFold = [this] {
+            if (d->m_displaySettings.m_autoFoldFirstComment)
+                d->foldLicenseHeader();
+        };
+
+        if (!singleShotAfterHighlightingDone(callFold))
+            callFold();
+    };
+
     if (state.isEmpty()) {
-        if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->foldLicenseHeader();
+        callFoldLicenseHeader();
         return;
     }
+
     int version;
     int vval;
     int hval;
@@ -3514,24 +3537,27 @@ void TextEditorWidget::restoreState(const QByteArray &state)
     if (version >= 1) {
         QList<int> collapsedBlocks;
         stream >> collapsedBlocks;
-        QTextDocument *doc = document();
-        bool layoutChanged = false;
-        for (const int blockNumber : std::as_const(collapsedBlocks)) {
-            QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
-            if (block.isValid()) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
-                layoutChanged = true;
+        auto foldingRestore = [this, collapsedBlocks] {
+            QTextDocument *doc = document();
+            bool layoutChanged = false;
+            for (const int blockNumber : std::as_const(collapsedBlocks)) {
+                QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
+                if (block.isValid()) {
+                    TextDocumentLayout::doFoldOrUnfold(block, false);
+                    layoutChanged = true;
+                }
             }
-        }
-        if (layoutChanged) {
-            auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-            QTC_ASSERT(documentLayout, return );
-            documentLayout->requestUpdate();
-            documentLayout->emitDocumentSizeChanged();
-        }
+            if (layoutChanged) {
+                auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->documentLayout());
+                QTC_ASSERT(documentLayout, return);
+                documentLayout->requestUpdate();
+                documentLayout->emitDocumentSizeChanged();
+            }
+        };
+        if (!singleShotAfterHighlightingDone(foldingRestore))
+            foldingRestore();
     } else {
-        if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->foldLicenseHeader();
+        callFoldLicenseHeader();
     }
 
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
@@ -6642,6 +6668,9 @@ void TextEditorWidget::ensureCursorVisible()
 
 void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
 {
+    if (singleShotAfterHighlightingDone([this, block] { ensureBlockIsUnfolded(block); }))
+        return;
+
     if (!block.isVisible()) {
         auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
         QTC_ASSERT(documentLayout, return);
@@ -8215,6 +8244,9 @@ void TextEditorWidget::foldCurrentBlock()
 
 void TextEditorWidget::fold(const QTextBlock &block)
 {
+    if (singleShotAfterHighlightingDone([this, block] { fold(block); }))
+        return;
+
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -8235,6 +8267,9 @@ void TextEditorWidget::fold(const QTextBlock &block)
 
 void TextEditorWidget::unfold(const QTextBlock &block)
 {
+    if (singleShotAfterHighlightingDone([this, block] { unfold(block); }))
+        return;
+
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -8254,6 +8289,9 @@ void TextEditorWidget::unfoldCurrentBlock()
 
 void TextEditorWidget::unfoldAll()
 {
+    if (singleShotAfterHighlightingDone([this] { unfoldAll(); }))
+        return;
+
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);

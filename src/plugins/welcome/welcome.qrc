@@ -8,8 +8,8 @@
         <file>images/project@2x.png</file>
         <file>images/session.png</file>
         <file>images/session@2x.png</file>
-        <file>images/expandarrow.png</file>
-        <file>images/expandarrow@2x.png</file>
         <file>images/border.png</file>
+        <file>images/link.png</file>
+        <file>images/link@2x.png</file>
     </qresource>
 </RCC>

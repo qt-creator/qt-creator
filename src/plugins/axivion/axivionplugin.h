@@ -23,6 +23,8 @@ namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
+constexpr int DefaultSearchLimit = 2048;
+
 struct IssueListSearch
 {
     QString kind;
@@ -33,7 +35,7 @@ struct IssueListSearch
     QString filter_path;
     QString sort;
     int offset = 0;
-    int limit = 150;
+    int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;
 
     QString toQuery() const;
@@ -71,7 +73,7 @@ void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 
-QIcon iconForIssue(const QString &prefix);
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
 QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 

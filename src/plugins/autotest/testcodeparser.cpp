@@ -55,6 +55,7 @@ TestCodeParser::TestCodeParser()
             m_qmlEditorRev.remove(filePath);
     });
     m_reparseTimer.setSingleShot(true);
+    m_reparseTimer.setInterval(1000);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
     connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
         if (m_withTaskProgress) {
@@ -238,27 +239,10 @@ bool TestCodeParser::postponed(const QSet<FilePath> &filePaths)
         if (filePaths.size() == 1) {
             if (m_reparseTimerTimedOut)
                 return false;
-            const FilePath filePath = *filePaths.begin();
-            switch (m_postponedFiles.size()) {
-            case 0:
-                m_postponedFiles.insert(filePath);
-                m_reparseTimer.setInterval(1000);
-                m_reparseTimer.start();
-                return true;
-            case 1:
-                if (m_postponedFiles.contains(filePath)) {
-                    m_reparseTimer.start();
-                    return true;
-                }
-                Q_FALLTHROUGH();
-            default:
-                m_postponedFiles.insert(filePath);
-                m_reparseTimer.stop();
-                m_reparseTimer.setInterval(0);
-                m_reparseTimerTimedOut = false;
-                m_reparseTimer.start();
-                return true;
-            }
+
+            m_postponedFiles.insert(*filePaths.begin());
+            m_reparseTimer.start();
+            return true;
         }
         return false;
     case PartialParse:
@@ -377,7 +361,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                   return true;
               return cppSnapshot.contains(fn);
           });
-    m_withTaskProgress = filteredFiles.size() > 5;
+    m_withTaskProgress = isFullParse || filteredFiles.size() > 20;
 
     qCDebug(LOG) << "Starting scan of" << filteredFiles.size() << "(" << files.size() << ")"
                  << "files with" << codeParsers.size() << "parsers";

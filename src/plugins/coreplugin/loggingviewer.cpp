@@ -559,10 +559,16 @@ private:
 
         const QString timestamp = QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
 
-        if (rowCount() >= 1000000) // limit log to 1000000 items
-            destroyItem(itemForIndex(index(0, 0)));
+        auto append = [this, timestamp, type, category, msg] {
+            if (rowCount() >= 1000000) // limit log to 1000000 items
+                destroyItem(itemForIndex(index(0, 0)));
+            appendItem(LogEntry{timestamp, messageTypeToString(type), category, msg});
+        };
 
-        appendItem(LogEntry{timestamp, messageTypeToString(type), category, msg});
+        if (QThread::currentThread() != thread())
+            QMetaObject::invokeMethod(this, append, Qt::QueuedConnection);
+        else
+            append();
     }
 
 private:

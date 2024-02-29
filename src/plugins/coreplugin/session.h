@@ -34,6 +34,7 @@ public:
     static QStringList sessions();
     static QDateTime sessionDateTime(const QString &session);
     static QDateTime lastActiveTime(const QString &session);
+    static int sessionsCount();
 
     static bool createSession(const QString &session);
 

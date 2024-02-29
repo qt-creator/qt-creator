@@ -25,10 +25,14 @@ int main(int argc, char *argv[])
         { StyleHelper::UiElementH5, "H5" },
         { StyleHelper::UiElementH6, "H6" },
         { StyleHelper::UiElementH6Capital, "H6 CAPITAL" },
+        { StyleHelper::UiElementBody1, "Body-01" },
+        { StyleHelper::UiElementBody2, "Body-02" },
+        { StyleHelper::UiElementButtonMedium, "Button Medium" },
+        { StyleHelper::UiElementButtonSmall, "Button Small" },
         { StyleHelper::UiElementCaptionStrong, "Caption strong" },
         { StyleHelper::UiElementCaption, "Caption" },
-        { StyleHelper::UIElementIconStandard, "Icon Standard" },
-        { StyleHelper::UIElementIconActive, "Icon Active" },
+        { StyleHelper::UiElementIconStandard, "Icon Standard" },
+        { StyleHelper::UiElementIconActive, "Icon Active" },
     };
     static const QString textSample("AaBbCcXxYyZz123");
 

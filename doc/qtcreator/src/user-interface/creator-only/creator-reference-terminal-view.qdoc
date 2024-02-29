@@ -15,9 +15,8 @@
     application or the \uicontrol {Open Terminal} button to open a terminal,
     it opens as an output view.
 
-    To open the terminal in a separate window, select \preferences >
-    \uicontrol Terminal, and deselet the \uicontrol {Use internal terminal}
-    check box.
+    To open the terminal in a separate window, go to \preferences >
+    \uicontrol Terminal, and clear \uicontrol {Use internal terminal}.
 
     On Linux and \macos, you can set the terminal to open by selecting
     \preferences > \uicontrol Environment > \uicontrol System.
@@ -39,7 +38,8 @@
             .
 
         \li To select a word in a terminal, double-click it. To select the whole line,
-            triple-click it.
+            triple-click it. To select all text, select \uicontrol {Select All}
+            in the context menu or press \key {Ctrl+A}.
 
         \li To open links in a browser, files in the editor, or folders in the
             \l Projects view, hover the mouse over them, and press \key Ctrl.

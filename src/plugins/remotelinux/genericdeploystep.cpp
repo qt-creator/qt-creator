@@ -155,11 +155,16 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
             }
         }
         if (!m_emittedDowngradeWarning && transferMethod != preferredTransferMethod) {
-            addWarningMessage(Tr::tr("Transfer method was downgraded from \"%1\" to \"%2\". If "
-                                     "this is unexpected, please re-test device \"%3\".")
-                                  .arg(FileTransfer::transferMethodName(preferredTransferMethod),
-                                       FileTransfer::transferMethodName(transferMethod),
-                                       deviceConfiguration()->displayName()));
+            const QString message
+                = Tr::tr("Transfer method was downgraded from \"%1\" to \"%2\". If "
+                         "this is unexpected, please re-test device \"%3\".")
+                      .arg(FileTransfer::transferMethodName(preferredTransferMethod),
+                           FileTransfer::transferMethodName(transferMethod),
+                           deviceConfiguration()->displayName());
+            if (transferMethod == FileTransferMethod::GenericCopy)
+                addWarningMessage(message);
+            else
+                addProgressMessage(message);
             m_emittedDowngradeWarning = true;
         }
         transfer.setTransferMethod(transferMethod);

@@ -63,18 +63,21 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-QIcon iconForIssue(const QString &prefix)
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
 {
-    static QHash<QString, QIcon> prefixToIcon;
-    auto it = prefixToIcon.find(prefix);
+    if (!issueKind)
+        return {};
 
-    if (it == prefixToIcon.end()) {
-        Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix.toLower() + ".png"),
-                    Theme::PaletteButtonText}},
-                  Icon::Tint);
-        it = prefixToIcon.insert(prefix, icon.icon());
-    }
-    return it.value();
+    static QHash<Dto::IssueKind, QIcon> prefixToIcon;
+
+    auto it = prefixToIcon.constFind(*issueKind);
+    if (it != prefixToIcon.constEnd())
+        return *it;
+
+    const QLatin1String prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
+    const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
+                      Theme::PaletteButtonText}}, Icon::Tint);
+    return prefixToIcon.insert(*issueKind, icon.icon()).value();
 }
 
 QString anyToSimpleString(const Dto::Any &any)
@@ -122,11 +125,30 @@ static QString credentialKey()
         QString escaped = string;
         return escaped.replace('\\', "\\\\").replace('@', "\\@");
     };
-    return escape(settings().server.dashboard) + '@' + escape(settings().server.username);
+    return escape(settings().server.username) + '@' + escape(settings().server.dashboard);
 }
 
-static DashboardInfo toDashboardInfo(const QUrl &source, const Dto::DashboardInfoDto &infoDto)
+template <typename DtoType>
+struct GetDtoStorage
 {
+    QUrl url;
+    std::optional<QByteArray> credential;
+    std::optional<DtoType> dtoData;
+};
+
+template <typename DtoType>
+struct PostDtoStorage
+{
+    QUrl url;
+    std::optional<QByteArray> credential;
+    QByteArray csrfToken;
+    QByteArray writeData;
+    std::optional<DtoType> dtoData;
+};
+
+static DashboardInfo toDashboardInfo(const GetDtoStorage<Dto::DashboardInfoDto> &dashboardStorage)
+{
+    const Dto::DashboardInfoDto &infoDto = *dashboardStorage.dtoData;
     const QVersionNumber versionNumber = infoDto.dashboardVersionNumber
         ? QVersionNumber::fromString(*infoDto.dashboardVersionNumber) : QVersionNumber();
 
@@ -139,7 +161,7 @@ static DashboardInfo toDashboardInfo(const QUrl &source, const Dto::DashboardInf
             projectUrls.insert(project.name, project.url);
         }
     }
-    return {source, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
+    return {dashboardStorage.url, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
 }
 
 QString IssueListSearch::toQuery() const
@@ -226,7 +248,7 @@ public:
         const QString markText = issue.description;
         const QString id = issue.kind + QString::number(issue.id.value_or(-1));
         setToolTip(id + '\n' + markText);
-        setIcon(iconForIssue(issue.kind));
+        setIcon(iconForIssue(issue.getOptionalKindEnum()));
         if (color)
             setColor(*color);
         setPriority(TextMark::NormalPriority);
@@ -323,18 +345,26 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
 
 static QUrl urlForProject(const QString &projectName)
 {
-    return QUrl(settings().server.dashboard).resolved(QString("api/projects/")).resolved(projectName);
+    if (!dd->m_dashboardInfo)
+        return {};
+    return dd->m_dashboardInfo->source.resolved(QString("api/projects/")).resolved(projectName);
 }
 
 static constexpr int httpStatusCodeOk = 200;
 constexpr char s_htmlContentType[] = "text/html";
 constexpr char s_jsonContentType[] = "application/json";
 
+static bool isServerAccessEstablished()
+{
+    return dd->m_serverAccess == ServerAccess::NoAuthorization
+           || (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken);
+}
+
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
     // TODO: Refactor so that it's a common code with fetchDataRecipe().
     const auto onQuerySetup = [url](NetworkQuery &query) {
-        if (dd->m_serverAccess == ServerAccess::Unknown)
+        if (!isServerAccessEstablished())
             return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
         QNetworkRequest request(url);
@@ -367,24 +397,6 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
     return {NetworkQueryTask(onQuerySetup, onQueryDone)};
 }
 
-template <typename DtoType>
-struct GetDtoStorage
-{
-    QUrl url;
-    std::optional<QByteArray> credential;
-    std::optional<DtoType> dtoData;
-};
-
-template <typename DtoType>
-struct PostDtoStorage
-{
-    QUrl url;
-    std::optional<QByteArray> credential;
-    QByteArray csrfToken;
-    QByteArray writeData;
-    std::optional<DtoType> dtoData;
-};
-
 template <typename DtoType, template <typename> typename DtoStorageType>
 static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 {
@@ -410,7 +422,8 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
     };
 
-    const auto onNetworkQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onNetworkQueryDone = [storage, dtoStorage](const NetworkQuery &query,
+                                                          DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -423,6 +436,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
             && contentType == s_jsonContentType) {
             *storage = reply->readAll();
+            dtoStorage->url = reply->url();
             return DoneResult::Success;
         }
 
@@ -503,7 +517,7 @@ static Group authorizationRecipe()
 {
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
     const auto onUnauthorizedGroupSetup = [unauthorizedDashboardStorage] {
-        if (dd->m_serverAccess != ServerAccess::NoAuthorization)
+        if (isServerAccessEstablished())
             return SetupResult::StopWithSuccess;
 
         unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
@@ -512,8 +526,7 @@ static Group authorizationRecipe()
     const auto onUnauthorizedGroupDone = [unauthorizedDashboardStorage] {
         if (unauthorizedDashboardStorage->dtoData) {
             dd->m_serverAccess = ServerAccess::NoAuthorization;
-            dd->m_dashboardInfo = toDashboardInfo(settings().server.dashboard,
-                                                  *unauthorizedDashboardStorage->dtoData);
+            dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
         } else {
             dd->m_serverAccess = ServerAccess::WithAuthorization;
         }
@@ -540,7 +553,7 @@ static Group authorizationRecipe()
 
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const auto onDashboardGroupSetup = [passwordStorage, dashboardStorage] {
+    const auto onPasswordGroupSetup = [passwordStorage, dashboardStorage] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
 
@@ -563,8 +576,7 @@ static Group authorizationRecipe()
         if (!dashboardStorage->dtoData)
             return SetupResult::StopWithSuccess;
 
-        dd->m_dashboardInfo = toDashboardInfo(settings().server.dashboard,
-                                              *dashboardStorage->dtoData);
+        dd->m_dashboardInfo = toDashboardInfo(*dashboardStorage);
 
         const Dto::DashboardInfoDto &dashboardDto = *dashboardStorage->dtoData;
         if (!dashboardDto.userApiTokenUrl)
@@ -572,7 +584,7 @@ static Group authorizationRecipe()
 
         apiTokenStorage->credential = dashboardStorage->credential;
         apiTokenStorage->url
-            = QUrl(settings().server.dashboard).resolved(*dashboardDto.userApiTokenUrl);
+            = dd->m_dashboardInfo->source.resolved(*dashboardDto.userApiTokenUrl);
         apiTokenStorage->csrfToken = dashboardDto.csrfToken.toUtf8();
         const Dto::ApiTokenCreationRequestDto requestDto{*passwordStorage, "IdePlugin",
                                                          apiTokenDescription(), 0};
@@ -598,6 +610,29 @@ static Group authorizationRecipe()
         return DoneResult::Success;
     };
 
+    const auto onDashboardGroupSetup = [dashboardStorage] {
+        if (dd->m_dashboardInfo || dd->m_serverAccess != ServerAccess::WithAuthorization
+            || !dd->m_apiToken) {
+            return SetupResult::StopWithSuccess; // Unauthorized access should have collect dashboard before
+        }
+        dashboardStorage->credential = "AxToken " + *dd->m_apiToken;
+        dashboardStorage->url = QUrl(settings().server.dashboard);
+        return SetupResult::Continue;
+    };
+    const auto onDeleteCredentialSetup = [dashboardStorage](CredentialQuery &credential) {
+        if (dashboardStorage->dtoData) {
+            dd->m_dashboardInfo = toDashboardInfo(*dashboardStorage);
+            return SetupResult::StopWithSuccess;
+        }
+        dd->m_apiToken = {};
+        MessageManager::writeFlashing(QString("Axivion: %1")
+            .arg(Tr::tr("The stored ApiToken is not valid anymore, removing it.")));
+        credential.setOperation(CredentialOperation::Delete);
+        credential.setService(s_axivionKeychainService);
+        credential.setKey(credentialKey());
+        return SetupResult::Continue;
+    };
+
     return {
         Group {
             unauthorizedDashboardStorage,
@@ -611,7 +646,7 @@ static Group authorizationRecipe()
             Group {
                 passwordStorage,
                 dashboardStorage,
-                onGroupSetup(onDashboardGroupSetup),
+                onGroupSetup(onPasswordGroupSetup),
                 Group { // GET DashboardInfoDto
                     finishAllAndSuccess,
                     dtoRecipe(dashboardStorage)
@@ -622,6 +657,13 @@ static Group authorizationRecipe()
                     dtoRecipe(apiTokenStorage),
                     CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDoneIf::Error)
                 }
+            },
+            Group {
+                finishAllAndSuccess,
+                dashboardStorage,
+                onGroupSetup(onDashboardGroupSetup),
+                dtoRecipe(dashboardStorage),
+                CredentialQueryTask(onDeleteCredentialSetup)
             }
         }
     };
@@ -633,10 +675,11 @@ static Group fetchDataRecipe(const QUrl &url, const std::function<void(const Dto
     const Storage<GetDtoStorage<DtoType>> dtoStorage;
 
     const auto onDtoSetup = [dtoStorage, url] {
-        if (!dd->m_apiToken)
+        if (!isServerAccessEstablished())
             return SetupResult::StopWithError;
 
-        dtoStorage->credential = "AxToken " + *dd->m_apiToken;
+        if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
+            dtoStorage->credential = "AxToken " + *dd->m_apiToken;
         dtoStorage->url = url;
         return SetupResult::Continue;
     };
@@ -661,27 +704,22 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
 {
     const auto onSetup = [handler] {
         if (dd->m_dashboardInfo) {
-            if (handler)
-                handler(*dd->m_dashboardInfo);
+            handler(*dd->m_dashboardInfo);
             return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [handler] {
-        if (handler)
-            handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
-    };
-
-    const auto resultHandler = [handler](const Dto::DashboardInfoDto &data) {
-        dd->m_dashboardInfo = toDashboardInfo(settings().server.dashboard, data);
-        if (handler)
+    const auto onDone = [handler](DoneWith result) {
+        if (result == DoneWith::Success && dd->m_dashboardInfo)
             handler(*dd->m_dashboardInfo);
+        else
+            handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
     };
 
     const Group root {
         onGroupSetup(onSetup), // Stops if cache exists.
-        fetchDataRecipe<Dto::DashboardInfoDto>(settings().server.dashboard, resultHandler),
-        onGroupDone(onDone, CallDoneIf::Error)
+        authorizationRecipe(),
+        onGroupDone(onDone)
     };
     return root;
 }
@@ -754,13 +792,13 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
             handleOpenedDocs();
         };
 
-        const QUrl url(settings().server.dashboard);
-        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(url.resolved(*it), handler));
+        taskTree.setRecipe(
+            fetchDataRecipe<Dto::ProjectInfoDto>(m_dashboardInfo->source.resolved(*it), handler));
         return SetupResult::Continue;
     };
 
     const Group root {
-        dashboardInfoRecipe(),
+        authorizationRecipe(),
         TaskTreeTask(onTaskTreeSetup)
     };
     m_taskTreeRunner.start(root);

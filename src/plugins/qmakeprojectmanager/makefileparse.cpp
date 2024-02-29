@@ -56,6 +56,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
     static const QRegularExpression regExp(QLatin1String("^([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)$"));
     bool after = false;
     bool ignoreNext = false;
+    bool nextIsQtConfArg = false;
     m_unparsedArguments = args;
     ProcessArgs::ArgIterator ait(&m_unparsedArguments);
     while (ait.next()) {
@@ -63,10 +64,17 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
             // Ignoring
             ignoreNext = false;
             ait.deleteArg();
+        } else if (nextIsQtConfArg) {
+            nextIsQtConfArg = false;
+            m_qtConfFile = FilePath::fromUserInput(ait.value());
+            ait.deleteArg();
         } else if (ait.value() == project) {
             ait.deleteArg();
         } else if (ait.value() == QLatin1String("-after")) {
             after = true;
+            ait.deleteArg();
+        } else if (ait.value() == "-qtconf") {
+            nextIsQtConfArg = true;
             ait.deleteArg();
         } else if (ait.value().contains(QLatin1Char('='))) {
             const QRegularExpressionMatch match = regExp.match(ait.value());

@@ -247,18 +247,6 @@ public:
         Token_Notification_Neutral,
         Token_Notification_Danger,
 
-        /* Welcome Plugin */
-
-        Welcome_TextColor,
-        Welcome_ForegroundPrimaryColor,
-        Welcome_ForegroundSecondaryColor,
-        Welcome_BackgroundPrimaryColor,
-        Welcome_BackgroundSecondaryColor,
-        Welcome_HoverColor,
-        Welcome_AccentColor,
-        Welcome_LinkColor,
-        Welcome_DisabledLinkColor,
-
         /* Timeline Library */
         Timeline_TextColor,
         Timeline_BackgroundColor1,

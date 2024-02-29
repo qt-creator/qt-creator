@@ -645,6 +645,7 @@ private:
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
 
+    bool singleShotAfterHighlightingDone(std::function<void()> &&f);
     void updateVisualWrapColumn();
 };
 

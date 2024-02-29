@@ -3,14 +3,13 @@
 
 #include "dynamiclistmodel.h"
 
+#include "axivionplugin.h"
 #include "axiviontr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
 namespace Axivion::Internal {
-
-constexpr int pageSize = 150;
 
 DynamicListModel::DynamicListModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -161,7 +160,7 @@ QModelIndex DynamicListModel::indexForItem(const ListItem *item) const
 void DynamicListModel::onNeedFetch(int row)
 {
     m_fetchStart = row;
-    m_fetchEnd = row + pageSize;
+    m_fetchEnd = row + DefaultSearchLimit;
     if (m_fetchStart < 0)
         return;
     m_fetchMoreTimer.start();
@@ -171,14 +170,14 @@ void DynamicListModel::fetchNow()
 {
     const int old = m_lastFetch;
     m_lastFetch = m_fetchStart; // we need the "original" fetch request to avoid endless loop
-    m_lastFetchEnd = m_fetchStart + pageSize;
+    m_lastFetchEnd = m_fetchStart + DefaultSearchLimit;
 
     if (old != -1) {
         const int diff = old - m_fetchStart;
-        if (0 < diff && diff < pageSize) {
-            m_fetchStart = qMax(old - pageSize, 0);
-        } else if (0 > diff && diff > -pageSize) {
-            m_fetchStart = old + pageSize;
+        if (0 < diff && diff < DefaultSearchLimit) {
+            m_fetchStart = qMax(old - DefaultSearchLimit, 0);
+        } else if (0 > diff && diff > - DefaultSearchLimit) {
+            m_fetchStart = old + DefaultSearchLimit;
             if (m_expectedRowCount && m_fetchStart > *m_expectedRowCount)
                 m_fetchStart = *m_expectedRowCount;
         }
@@ -186,7 +185,7 @@ void DynamicListModel::fetchNow()
 
     QTC_CHECK(m_expectedRowCount ? m_fetchStart <= *m_expectedRowCount
                                  : m_fetchStart >= m_children.size());
-    emit fetchRequested(m_fetchStart, pageSize);
+    emit fetchRequested(m_fetchStart, DefaultSearchLimit);
     m_fetchStart = -1;
     m_fetchEnd = -1;
 }

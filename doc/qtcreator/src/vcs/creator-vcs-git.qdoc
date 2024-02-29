@@ -309,10 +309,11 @@
     \section2 Working with Branches
 
     To work with Git branches, select \uicontrol {Branches}. The
-    \uicontrol {Git Branches} sidebar view shows the checked out
-    branch in bold and underlined in the list of branches.
+    \uicontrol {Git Branches} view shows a list of branches, as well
+    as the differences between your local branches and their origin.
+    The branch you checked out is shown in bold and underlined.
 
-    \image qtcreator-vcs-gitbranch.png {Git Branches sidebar view}
+    \image qtcreator-git-branches.webp {Git Branches view}
 
     Old entries and tags are filtered out of the list of branches
     by default. To include them, select \inlineimage icons/filtericon.png
@@ -331,6 +332,20 @@
 
     To refresh the list of branches, select \inlineimage icons/reload_gray.png
     (\uicontrol Refresh).
+
+    \section3 Adding Branches
+
+    To create a new tracking or non-tracking branch, select
+    \inlineimage icons/plus.png.
+
+    \image qtcreator-git-add-branch.webp {Add Branch dialog}
+
+    To check out the branch when creating it, select
+    \uicontrol {Checkout new branch}.
+
+    To track the selected branch, select \uicontrol {Track local branch}.
+
+    \section3 Managing Branches
 
     The context menu for a branch has the following functions:
 

@@ -9,9 +9,10 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
-#include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDesktopServices>
 #include <QLabel>
@@ -44,38 +45,34 @@ class QtMarketplacePageWidget : public QWidget
 public:
     QtMarketplacePageWidget()
     {
-        auto searchBox = new Core::SearchBox(this);
-        m_searcher = searchBox->m_lineEdit;
+        m_searcher = new Core::SearchBox(this);
         m_searcher->setPlaceholderText(Tr::tr("Search in Marketplace..."));
 
-        auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(0, 0, 0, Core::WelcomePageHelpers::ItemGap);
-        vbox->setSpacing(Core::WelcomePageHelpers::ItemGap);
-
-        auto searchBar = Core::WelcomePageHelpers::panelBar();
-        auto hbox = new QHBoxLayout(searchBar);
-        hbox->setContentsMargins(Core::WelcomePageHelpers::HSpacing, 0,
-                                 Core::WelcomePageHelpers::HSpacing, 0);
-        hbox->addWidget(searchBox);
-        vbox->addWidget(searchBar);
         m_errorLabel = new QLabel(this);
         m_errorLabel->setVisible(false);
-        vbox->addWidget(m_errorLabel);
 
-        auto resultWidget = new QWidget(this);
-        auto resultHBox = new QHBoxLayout(resultWidget);
-        resultHBox->setContentsMargins(Core::WelcomePageHelpers::HSpacing, 0, 0, 0);
         m_sectionedProducts = new SectionedProducts(this);
         auto progressIndicator = new Utils::ProgressIndicator(ProgressIndicatorSize::Large, this);
         progressIndicator->attachToWidget(m_sectionedProducts);
         progressIndicator->hide();
-        resultHBox->addWidget(m_sectionedProducts);
-        vbox->addWidget(resultWidget);
+
+        using namespace StyleHelper::SpacingTokens;
+
+        using namespace Layouting;
+        Column {
+            Row {
+                m_searcher,
+                customMargin({0, 0, ExVPaddingGapXl, 0}),
+            },
+            m_sectionedProducts,
+            spacing(VPaddingL),
+            customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+        }.attachTo(this);
 
         connect(m_sectionedProducts, &SectionedProducts::toggleProgressIndicator,
                 progressIndicator, &Utils::ProgressIndicator::setVisible);
         connect(m_sectionedProducts, &SectionedProducts::errorOccurred, this,
-                [this, progressIndicator, searchBox](int, const QString &message) {
+                [this, progressIndicator](int, const QString &message) {
             progressIndicator->hide();
             progressIndicator->deleteLater();
             m_errorLabel->setAlignment(Qt::AlignHCenter);
@@ -89,7 +86,7 @@ public:
                         "</p><br/><p><small><i>Error: %1</i></small></p>").arg(message);
             m_errorLabel->setText(txt);
             m_errorLabel->setVisible(true);
-            searchBox->setVisible(false);
+            m_searcher->setVisible(false);
             connect(m_errorLabel, &QLabel::linkActivated,
                     this, []() { QDesktopServices::openUrl(QUrl("https://marketplace.qt.io")); });
         });

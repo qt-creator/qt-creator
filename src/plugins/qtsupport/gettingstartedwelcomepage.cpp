@@ -21,13 +21,13 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/winutils.h>
 
-#include <QComboBox>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
@@ -249,8 +249,9 @@ protected:
             painter->setFont(option.font);
             painter->setCompositionMode(QPainter::CompositionMode_Difference);
             painter->setPen(Qt::white);
-            painter->drawText(currentPixmapRect.translated(0, -WelcomePageHelpers::ItemGap),
-                              exampleItem->videoLength, Qt::AlignBottom | Qt::AlignHCenter);
+            painter->drawText(
+                currentPixmapRect.translated(0, -StyleHelper::SpacingTokens::VPaddingXxs),
+                exampleItem->videoLength, Qt::AlignBottom | Qt::AlignHCenter);
             painter->restore();
             static const QPixmap playOverlay =
                     StyleHelper::dpiSpecificImageFile(":/qtsupport/images/icons/playoverlay.png");
@@ -274,29 +275,25 @@ public:
     {
         m_exampleDelegate.setShowExamples(isExamples);
 
-        auto searchBox = new SearchBox(this);
-        m_searcher = searchBox->m_lineEdit;
+        using namespace StyleHelper::SpacingTokens;
 
-        auto grid = new QGridLayout(this);
-        grid->setContentsMargins(0, 0, 0, WelcomePageHelpers::ItemGap);
-        grid->setHorizontalSpacing(0);
-        grid->setVerticalSpacing(WelcomePageHelpers::ItemGap);
+        using namespace Layouting;
+        Row titleRow {
+            customMargin({0, 0, ExVPaddingGapXl, 0}),
+            spacing(ExVPaddingGapXl),
+        };
 
-        auto searchBar = WelcomePageHelpers::panelBar(this);
-        auto hbox = new QHBoxLayout(searchBar);
-        hbox->setContentsMargins(0, 0, 0, 0);
+        m_searcher = new SearchBox;
         if (m_isExamples) {
             m_searcher->setPlaceholderText(Tr::tr("Search in Examples..."));
 
-            auto exampleSetSelector = new QComboBox(this);
-            QPalette pal = exampleSetSelector->palette();
-            // for macOS dark mode
-            pal.setColor(QPalette::Text, Utils::creatorTheme()->color(Theme::Welcome_TextColor));
-            exampleSetSelector->setPalette(pal);
-            exampleSetSelector->setMinimumWidth(Core::WelcomePageHelpers::GridItemWidth);
-            exampleSetSelector->setMaximumWidth(Core::WelcomePageHelpers::GridItemWidth);
+            auto exampleSetSelector = new ComboBox;
+            exampleSetSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            exampleSetSelector->setMinimumWidth(ListItemDelegate::itemSize().width()
+                                                - ExVPaddingGapXl);
             exampleSetSelector->setModel(s_exampleSetModel);
             exampleSetSelector->setCurrentIndex(s_exampleSetModel->selectedExampleSet());
+            titleRow.addItem(exampleSetSelector);
             connect(exampleSetSelector,
                     &QComboBox::activated,
                     s_exampleSetModel,
@@ -305,23 +302,23 @@ public:
                     &ExampleSetModel::selectedExampleSetChanged,
                     exampleSetSelector,
                     &QComboBox::setCurrentIndex);
-
-            hbox->setSpacing(Core::WelcomePageHelpers::HSpacing);
-            hbox->addWidget(exampleSetSelector);
         } else {
             m_searcher->setPlaceholderText(Tr::tr("Search in Tutorials..."));
         }
-        hbox->addWidget(searchBox);
-        grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 0);
-        grid->addWidget(searchBar, 0, 1);
-        grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
+        titleRow.addItem(m_searcher);
 
-        auto gridView = new SectionedGridView(this);
+        auto gridView = new SectionedGridView;
         m_viewController
             = new ExamplesViewController(s_exampleSetModel, gridView, m_searcher, isExamples, this);
 
         gridView->setItemDelegate(&m_exampleDelegate);
-        grid->addWidget(gridView, 1, 1, 1, 2);
+
+        Column {
+            titleRow,
+            gridView,
+            spacing(ExVPaddingGapXl),
+            customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+        }.attachTo(this);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
