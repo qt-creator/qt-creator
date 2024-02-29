@@ -3552,6 +3552,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
                 QTC_ASSERT(documentLayout, return);
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
+                d->updateCursorPosition();
             }
         };
         if (!singleShotAfterHighlightingDone(foldingRestore))
@@ -6696,6 +6697,9 @@ void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
 
 void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 {
+    if (q->singleShotAfterHighlightingDone([this, block] { toggleBlockVisible(block); }))
+        return;
+
     auto documentLayout = qobject_cast<TextDocumentLayout*>(q->document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
