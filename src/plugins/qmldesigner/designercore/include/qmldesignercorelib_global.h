@@ -33,4 +33,13 @@ enum AnchorLineType {
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
 
+constexpr bool isUsingQmlDesignerLite()
+{
+#ifdef QTC_USE_QML_DESIGNER_LITE
+    return true;
+#else
+    return false;
+#endif
+}
+
 } // namespace QmlDesigner

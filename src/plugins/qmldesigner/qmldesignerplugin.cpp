@@ -73,10 +73,11 @@
 #include <utils/qtcassert.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <qplugin.h>
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
-#include <qplugin.h>
+#include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QQuickItem>
 #include <QScreen>
@@ -259,6 +260,15 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
+    if constexpr (isUsingQmlDesignerLite()) {
+        if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 tr("Qml Designer Lite"),
+                                 tr("The Qml Designer Lite plugin is not enabled."));
+            return false;
+        }
+    }
+
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
 
