@@ -24,11 +24,12 @@ public:
     void addWindow(QWidget *window);
     void removeWindow(QWidget *window);
     void setActiveWindow(QWidget *window);
-    void setWindowVisible(QWidget *window, bool visible);
+    void updateVisibility(QWidget *window);
 
 private:
     void activateWindow(QAction *action);
-    void updateTitle(QWidget *window);
+    void updateTitle(QWidget *window, int index = -1);
+    void updateVisibility(QWidget *window, int index);
 
     QMenu *m_dockMenu = nullptr;
     QList<QWidget *> m_windows;
@@ -40,7 +41,7 @@ class WindowSupport : public QObject
 {
     Q_OBJECT
 public:
-    WindowSupport(QWidget *window, const Context &context);
+    WindowSupport(QWidget *window, const Context &context, const Context &actionContext = {});
     ~WindowSupport() override;
 
     void setCloseActionEnabled(bool enabled);

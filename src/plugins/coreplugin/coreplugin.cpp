@@ -33,6 +33,8 @@
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
+#include <utils/networkaccessmanager.h>
+#include <utils/passworddialog.h>
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
 #include <utils/store.h>
@@ -41,6 +43,7 @@
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
+#include <QAuthenticator>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
@@ -136,6 +139,30 @@ void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
         Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
 }
 
+static void initProxyAuthDialog()
+{
+    QObject::connect(Utils::NetworkAccessManager::instance(),
+                     &QNetworkAccessManager::proxyAuthenticationRequired,
+                     Utils::NetworkAccessManager::instance(),
+                     [](const QNetworkProxy &, QAuthenticator *authenticator) {
+                         static bool doNotAskAgain = false;
+
+                         std::optional<QPair<QString, QString>> answer
+                             = Utils::PasswordDialog::getUserAndPassword(
+                                 Tr::tr("Proxy Authentication Required"),
+                                 authenticator->realm(),
+                                 Tr::tr("Do not ask again."),
+                                 {},
+                                 &doNotAskAgain,
+                                 Core::ICore::dialogParent());
+
+                         if (answer) {
+                             authenticator->setUser(answer->first);
+                             authenticator->setPassword(answer->second);
+                         }
+                     });
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
@@ -144,6 +171,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
             continue;
         loadMimeFromPlugin(plugin);
     }
+
+    initProxyAuthDialog();
 
     if (ThemeEntry::availableThemes().isEmpty()) {
         *errorMessage = Tr::tr("No themes found in installation.");
@@ -234,9 +263,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                [] { return QUuid::createUuid().toString(); });
 
     expander->registerPrefix("#:", Tr::tr("A comment."), [](const QString &) { return QString(); });
-    expander->registerPrefix("Asciify:", Tr::tr("Convert string into pure ascii."),
-                             [expander] (const QString &s) {
-                                 return asciify(expander->expand(s)); });
+    expander->registerPrefix("Asciify:",
+                             Tr::tr("Convert string to pure ASCII."),
+                             [expander](const QString &s) { return asciify(expander->expand(s)); });
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
@@ -283,13 +312,13 @@ static void registerActionsForOptions()
         const Id commandId = generateOpenPageCommandId(page);
         if (!commandId.isValid())
             continue;
-        const QString actionTitle = Tr::tr("%1 > %2 Preferences...")
-            .arg(categoryDisplay.value(page->category()), page->displayName());
-        auto action = new QAction(actionTitle, m_instance);
-        QObject::connect(action, &QAction::triggered, m_instance, [id = page->id()] {
-            ICore::showOptionsDialog(id);
-        });
-        ActionManager::registerAction(action, commandId);
+
+        ActionBuilder(m_instance, commandId)
+            .setText(Tr::tr("%1 > %2 Preferences...")
+                         .arg(categoryDisplay.value(page->category()), page->displayName()))
+            .addOnTriggered(m_instance, [id = page->id()] {
+                ICore::showOptionsDialog(id);
+            });
     }
 }
 

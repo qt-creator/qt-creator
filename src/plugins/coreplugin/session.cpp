@@ -267,6 +267,11 @@ QDateTime SessionManager::lastActiveTime(const QString &session)
     return d->m_lastActiveTimes.value(session);
 }
 
+int SessionManager::sessionsCount()
+{
+    return d->m_sessions.count();
+}
+
 FilePath SessionManager::sessionNameToFileName(const QString &session)
 {
     return ICore::userResourcePath(session + ".qws");

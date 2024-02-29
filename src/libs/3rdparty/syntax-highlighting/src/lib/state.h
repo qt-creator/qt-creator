@@ -10,10 +10,14 @@
 #include "ksyntaxhighlighting_export.h"
 
 #include <QExplicitlySharedDataPointer>
+#include <QHash>
 
 namespace KSyntaxHighlighting
 {
+class State;
 class StateData;
+
+KSYNTAXHIGHLIGHTING_EXPORT std::size_t qHash(const State &state, std::size_t seed = 0);
 
 /** Opaque handle to the state of the highlighting engine.
  *  This needs to be fed into AbstractHighlighter for every line of text
@@ -29,9 +33,11 @@ public:
      *  in a document.
      */
     State();
-    State(const State &other);
+    State(State &&other) noexcept;
+    State(const State &other) noexcept;
     ~State();
-    State &operator=(const State &rhs);
+    State &operator=(State &&rhs) noexcept;
+    State &operator=(const State &rhs) noexcept;
 
     /** Compares two states for equality.
      *  For two equal states and identical text input, AbstractHighlighter
@@ -56,13 +62,13 @@ public:
 
 private:
     friend class StateData;
+    KSYNTAXHIGHLIGHTING_EXPORT friend std::size_t qHash(const State &, std::size_t);
     QExplicitlySharedDataPointer<StateData> d;
 };
-
 }
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(KSyntaxHighlighting::State, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(KSyntaxHighlighting::State, Q_RELOCATABLE_TYPE);
 QT_END_NAMESPACE
 
 #endif // KSYNTAXHIGHLIGHTING_STATE_H

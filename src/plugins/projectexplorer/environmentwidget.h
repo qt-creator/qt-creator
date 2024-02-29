@@ -57,7 +57,7 @@ private:
     void linkActivated(const QString &link);
 
     using PathListModifier = std::function<QString(const QString &oldList, const QString &newDir)>;
-    void amendPathList(Utils::NameValueItem::Operation op);
+    void amendPathList(Utils::EnvironmentItem::Operation op);
 
     class Private;
     const std::unique_ptr<Private> d;

@@ -413,6 +413,7 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     QTimer::singleShot(10000, &session, [&session] { session.d->eventLoop.exit(1); });
     connect(&session, &QbsSession::errorOccurred, [&] {
         bgInfo.error = ErrorInfo(Tr::tr("Failed to load qbs build graph."));
+        session.d->eventLoop.quit();
     });
     connect(&session, &QbsSession::projectResolved, [&](const ErrorInfo &error) {
         bgInfo.error = error;
@@ -453,7 +454,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
             setError(Error::VersionMismatch);
             return;
         }
-        if (packet.value("api-level").toInt() > 4) {
+        if (parent() && packet.value("api-level").toInt() > 4) {
             const QString lspSocket = packet.value("lsp-socket").toString();
             if (!lspSocket.isEmpty())
                 d->languageClient = new QbsLanguageClient(lspSocket,

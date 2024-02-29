@@ -7,7 +7,6 @@
 
 #include <QFuture>
 #include <QList>
-#include <QNetworkAccessManager>
 #include <QString>
 #include <QUrl>
 

@@ -29,6 +29,7 @@ public:
     std::string module() const;
     ULONG64 moduleId() const;
     int arrayElements() const;
+    bool resolved() const { return m_resolved.value_or(false); }
 
     struct TemplateArgument
     {

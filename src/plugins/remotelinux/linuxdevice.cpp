@@ -38,6 +38,7 @@
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 
+#include <QApplication>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -312,8 +313,11 @@ public:
     explicit LinuxDevicePrivate(LinuxDevice *parent);
     ~LinuxDevicePrivate();
 
-    bool setupShell(const SshParameters &sshParameters);
+    bool setupShell(const SshParameters &sshParameters, bool announce);
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
+    void announceConnectionAttempt();
+    void unannounceConnectionAttempt();
+    Id announceId() const { return q->id().withPrefix("announce_"); }
 
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
@@ -472,8 +476,8 @@ ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const 
     using namespace std::chrono_literals;
     process.runBlocking(2s);
     if (process.result() == ProcessResult::Canceled) {
-        Core::MessageManager::writeFlashing(tr("Can't send control signal to the %1 device. "
-                                               "The device might have been disconnected.")
+        Core::MessageManager::writeFlashing(Tr::tr("Can't send control signal to the %1 device. "
+                                                   "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
     return process.result();
@@ -1166,17 +1170,23 @@ void LinuxDevicePrivate::checkOsType()
 }
 
 // Call me with shell mutex locked
-bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters)
+bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
     if (m_handler->isRunning(sshParameters))
         return true;
 
     invalidateEnvironmentCache();
 
+    if (announce)
+        announceConnectionAttempt();
+
     bool ok = false;
     QMetaObject::invokeMethod(m_handler, [this, sshParameters] {
         return m_handler->start(sshParameters);
     }, Qt::BlockingQueuedConnection, &ok);
+
+    if (announce)
+        unannounceConnectionAttempt();
 
     if (ok) {
         setDisconnected(false);
@@ -1194,11 +1204,34 @@ RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArra
     DEBUG(cmd.toUserOutput());
     if (checkDisconnectedWithWarning())
         return {};
-    const bool isSetup = setupShell(q->sshParameters());
+    const bool isSetup = setupShell(q->sshParameters(), true);
     if (checkDisconnectedWithWarning())
         return {};
     QTC_ASSERT(isSetup, return {});
     return m_handler->runInShell(cmd, data);
+}
+
+void LinuxDevicePrivate::announceConnectionAttempt()
+{
+    const auto announce = [id = announceId(), name = q->displayName()] {
+        Core::ICore::infoBar()->addInfo(
+            InfoBarEntry(id,
+                         Tr::tr("Establishing initial connection to device \"%1\". "
+                                "This might take a moment.")
+                             .arg(name)));
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // Yes, twice.
+    };
+    if (QThread::currentThread() == qApp->thread())
+        announce();
+    else
+        QMetaObject::invokeMethod(Core::ICore::infoBar(), announce, Qt::BlockingQueuedConnection);
+}
+
+void LinuxDevicePrivate::unannounceConnectionAttempt()
+{
+    QMetaObject::invokeMethod(Core::ICore::infoBar(),
+                              [id = announceId()] { Core::ICore::infoBar()->removeInfo(id); });
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
@@ -1207,11 +1240,12 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
         return false;
 
     QMetaObject::invokeMethod(Core::ICore::infoBar(), [id = q->id(), name = q->displayName()] {
-        if (!Core::ICore::infoBar()->canInfoBeAdded(id))
+        const Id errorId = id.withPrefix("error_");
+        if (!Core::ICore::infoBar()->canInfoBeAdded(errorId))
             return;
         const QString warnStr
             = Tr::tr("Device \"%1\" is currently marked as disconnected.").arg(name);
-        InfoBarEntry info(id, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
+        InfoBarEntry info(errorId, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
         info.setDetailsWidgetCreator([] {
             const auto label = new QLabel(Tr::tr(
                 "The device was not available when trying to connect previously.<br>"
@@ -1451,23 +1485,24 @@ public:
 private:
     void startImpl() final
     {
-        m_currentIndex = 0;
-        startNextFile();
+        // Note: This assumes that files do not get renamed when transferring.
+        for (auto it = m_setup.m_files.cbegin(); it != m_setup.m_files.cend(); ++it)
+            m_batches[it->m_target.parentDir()] << *it;
+        startNextBatch();
     }
 
     void doneImpl() final
     {
-        if (m_setup.m_files.size() == 0 || m_currentIndex == m_setup.m_files.size() - 1)
+        if (m_batches.isEmpty())
             return handleDone();
 
         if (handleError())
             return;
 
-        ++m_currentIndex;
-        startNextFile();
+        startNextBatch();
     }
 
-    void startNextFile()
+    void startNextBatch()
     {
         process().close();
 
@@ -1476,12 +1511,14 @@ private:
                     << fullConnectionOptions(), OsTypeLinux);
         QStringList options{"-e", sshCmdLine, m_setup.m_rsyncFlags};
 
-        if (!m_setup.m_files.isEmpty()) { // NormalRun
-            const FileToTransfer file = m_setup.m_files.at(m_currentIndex);
-            const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
-            const auto fixedPaths = fixPaths(fixedFile, userAtHost());
-
-            options << fixedPaths.first << fixedPaths.second;
+        if (!m_batches.isEmpty()) { // NormalRun
+            const auto batchIt = m_batches.begin();
+            for (auto filesIt = batchIt->cbegin(); filesIt != batchIt->cend(); ++filesIt) {
+                const FileToTransfer fixedFile = fixLocalFileOnWindows(*filesIt, options);
+                options << fixedLocalPath(fixedFile.m_source);
+            }
+            options << fixedRemotePath(batchIt.key(), userAtHost());
+            m_batches.erase(batchIt);
         } else { // TestRun
             options << "-n" << "--exclude=*" << (userAtHost() + ":/tmp");
         }
@@ -1508,18 +1545,17 @@ private:
         return fixedFile;
     }
 
-    QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost) const
+    QString fixedLocalPath(const FilePath &file) const
     {
-        FilePath localPath = file.m_source;
-        FilePath remotePath = file.m_target;
-        const QString local = (localPath.isDir() && localPath.path().back() != '/')
-                ? localPath.path() + '/' : localPath.path();
-        const QString remote = remoteHost + ':' + remotePath.path();
-
-        return qMakePair(local, remote);
+        return file.isDir() && file.path().back() != '/' ? file.path() + '/' : file.path();
     }
 
-    int m_currentIndex = 0;
+    QString fixedRemotePath(const FilePath &file, const QString &remoteHost) const
+    {
+        return remoteHost + ':' + file.path();
+    }
+
+    QHash<FilePath, FilesToTransfer> m_batches;
 };
 
 class GenericTransferImpl : public FileTransferInterface
@@ -1638,7 +1674,7 @@ QFuture<bool> LinuxDevice::tryToConnect()
 {
     return Utils::asyncRun([this] {
         QMutexLocker locker(&d->m_shellMutex);
-        return d->setupShell(sshParameters());
+        return d->setupShell(sshParameters(), false);
     });
 }
 

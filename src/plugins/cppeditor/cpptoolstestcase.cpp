@@ -13,6 +13,9 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -20,10 +23,11 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
 #include <texteditor/storagesettings.h>
+#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -37,6 +41,14 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor::Internal::Tests {
+
+bool isClangFormatPresent()
+{
+    using namespace ExtensionSystem;
+    return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
+        return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+    });
+};
 
 CppTestDocument::CppTestDocument(const QByteArray &fileName, const QByteArray &source,
                                          char cursorMarker)
@@ -221,6 +233,17 @@ bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEdito
             s.m_addFinalNewLine = false;
             e->textDocument()->setStorageSettings(s);
         }
+
+        if (!QTest::qWaitFor(
+                [e] {
+                    return e->editorWidget()
+                        ->textDocument()
+                        ->syntaxHighlighterRunner()
+                        ->syntaxInfoUpdated();
+                },
+                5000))
+            return false;
+
         if (editorWidget) {
             if (CppEditorWidget *w = dynamic_cast<CppEditorWidget *>(e->editorWidget())) {
                 *editorWidget = w;

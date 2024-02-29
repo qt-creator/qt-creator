@@ -180,7 +180,7 @@ public:
                                    const McuTarget *mcuTarget,
                                    const McuPackagePtr &qtForMCUsSdkPackage)
     {
-        NameValueItems dependencies;
+        EnvironmentItems dependencies;
 
         auto processPackage = [&dependencies](const McuPackagePtr &package) {
             const auto cmakeVariableName = package->cmakeVariableName();

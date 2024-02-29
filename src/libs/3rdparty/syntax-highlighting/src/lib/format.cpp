@@ -98,7 +98,7 @@ QString Format::name() const
     return d->name;
 }
 
-quint16 Format::id() const
+int Format::id() const
 {
     return d->id;
 }

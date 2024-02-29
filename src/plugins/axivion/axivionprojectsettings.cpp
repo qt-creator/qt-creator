@@ -14,6 +14,7 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QPushButton>
@@ -117,34 +118,33 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
     setGlobalSettingsId("Axivion.Settings.General"); // FIXME move id to constants
-    // setup ui
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
 
     m_linkedProject = new QLabel(this);
-    verticalLayout->addWidget(m_linkedProject);
 
     m_dashboardProjects = new QTreeWidget(this);
     m_dashboardProjects->setHeaderHidden(true);
     m_dashboardProjects->setRootIsDecorated(false);
-    verticalLayout->addWidget(new QLabel(Tr::tr("Dashboard projects:")));
-    verticalLayout->addWidget(m_dashboardProjects);
 
     m_infoLabel = new InfoLabel(this);
     m_infoLabel->setVisible(false);
-    verticalLayout->addWidget(m_infoLabel);
 
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     m_fetchProjects = new QPushButton(Tr::tr("Fetch Projects"));
-    horizontalLayout->addWidget(m_fetchProjects);
+
     m_link = new QPushButton(Tr::tr("Link Project"));
     m_link->setEnabled(false);
-    horizontalLayout->addWidget(m_link);
+
     m_unlink = new QPushButton(Tr::tr("Unlink Project"));
     m_unlink->setEnabled(false);
-    horizontalLayout->addWidget(m_unlink);
-    verticalLayout->addLayout(horizontalLayout);
+
+    using namespace Layouting;
+    Column {
+        noMargin,
+        m_linkedProject,
+        Tr::tr("Dashboard projects:"),
+        m_dashboardProjects,
+        m_infoLabel,
+        Row { m_fetchProjects, m_link, m_unlink, st }
+    }.attachTo(this);
 
     connect(m_dashboardProjects, &QTreeWidget::itemSelectionChanged,
             this, &AxivionProjectSettingsWidget::updateEnabledStates);
@@ -220,8 +220,7 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = !settings().server.dashboard.isEmpty()
-            && !settings().server.token.isEmpty();
+    const bool hasDashboardSettings = !settings().server.dashboard.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()
             && !m_dashboardProjects->selectedItems().isEmpty();

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -30,25 +30,28 @@
 
     \list 1
 
-        \li  Click the \uicontrol {Build and Run Kit Selector} icon (1) or select
+        \li  Select the \uicontrol {Build and Run Kit Selector} icon or go to
              \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
              build and run \l{glossary-buildandrun-kit}{kit} or an
              \l{Managing Android Virtual Devices (AVD)}{Android device}.
 
-        \image qtcreator-kit-selector.png "Kit selector"
+            \image qtcreator-kit-selector.webp {Kit selector}
 
         \li  Choose \uicontrol Build > \uicontrol {Build Project} or press
              \key {Ctrl+B}.
 
-             You can also select the \uicontrol Run button (2) to also deploy and run
-             the application after building it.
+             Or, select \inlineimage icons/run_small.png (\uicontrol Run) to
+             deploy and run the application after building it.
 
     \endlist
 
-    While the application is being built, the \uicontrol Build button (3)
-    changes to a \uicontrol {Cancel Build} button. To cancel the build, select
+    While the application is being built, the \inlineimage icons/build.png
+    (\uicontrol Build) button changes to a \inlineimage icons/cancel-build.png
+    (\uicontrol {Cancel Build}) button. To cancel the build, select
     the button, press \key {Alt+Backspace}, or select \uicontrol Build >
-    \uicontrol {Cancel Build}. If you selected a build command and
+    \uicontrol {Cancel Build}.
+
+    If you selected a build command and
     decide you would also like to run the application, you can select the
     \uicontrol Run button to schedule running the project after building is done.
 

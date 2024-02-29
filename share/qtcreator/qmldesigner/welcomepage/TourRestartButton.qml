@@ -18,7 +18,7 @@ Rectangle {
     Text {
         id: text2
         color: "#ffffff"
-        text: qsTrId("Restart")
+        text: qsTr("Restart")
         anchors.verticalCenter: parent.verticalCenter
         font.pixelSize: 12
         anchors.horizontalCenter: parent.horizontalCenter

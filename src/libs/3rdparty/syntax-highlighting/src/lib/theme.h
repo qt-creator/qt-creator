@@ -67,11 +67,6 @@ class KSYNTAXHIGHLIGHTING_EXPORT Theme
     Q_PROPERTY(QString name READ name)
     Q_PROPERTY(QString translatedName READ translatedName)
 public:
-    // TODO KF6:
-    // - make TextStyle an enum class
-    // - move out of Theme into KSyntaxHighlighting
-    // - do the same for EditorColorRole
-
     /**
      * Default styles that can be referenced from syntax definition XML files.
      * Make sure to choose readable colors with good contrast especially in
@@ -342,7 +337,7 @@ private:
     /**
      * Constructor taking a shared ThemeData instance.
      */
-    explicit Theme(ThemeData *data);
+    KSYNTAXHIGHLIGHTING_NO_EXPORT explicit Theme(ThemeData *data);
     friend class RepositoryPrivate;
     friend class ThemeData;
 
@@ -356,7 +351,7 @@ private:
 }
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(KSyntaxHighlighting::Theme, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(KSyntaxHighlighting::Theme, Q_RELOCATABLE_TYPE);
 QT_END_NAMESPACE
 
 #endif // KSYNTAXHIGHLIGHTING_THEME_H

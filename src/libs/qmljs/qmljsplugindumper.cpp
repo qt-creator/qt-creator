@@ -427,6 +427,10 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
 
     Utils::onFinished(loadQmlTypeDescription(dependenciesPaths), const_cast<PluginDumper*>(this),
             [this, iface, visited](const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
+        if (typesFuture.resultCount() == 0 || typesFuture.isCanceled()) {
+            iface->reportCanceled();
+            return;
+        }
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         FilePaths newDependencies = FileUtils::toFilePathList(typesResult.dependencies);
 
@@ -565,6 +569,9 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
     Utils::onFinished(loadQmlTypeDescription(qmltypesFilePaths), this,
             [this, qmltypesFilePaths, libraryPath, libraryInfo]
             (const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
+        if (typesFuture.isCanceled() || typesFuture.resultCount() == 0)
+            return;
+
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
@@ -572,6 +579,9 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
                                                QSharedPointer<QSet<FilePath>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {
+                if (loadFuture.isCanceled() || loadFuture.resultCount() == 0)
+                    return;
+
                 PluginDumper::DependencyInfo loadResult = loadFuture.result();
                 QStringList errors = typesResult.errors;
                 QStringList warnings = typesResult.errors;

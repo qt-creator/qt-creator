@@ -1,0 +1,53 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-run-on-qnx.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-run
+
+    \title Run on QNX devices
+
+    To build an application and run it on a device:
+
+    \list 1
+        \li Connect the device to the computer or to the Wi-Fi network.
+        \li Configure the device and specify a connection to it.
+        \li Make sure that your kit has your QNX device set.
+        \li Select \inlineimage icons/run_small.png (\uicontrol Run).
+    \endlist
+
+    \QC uses the compiler specified in the QNX tool chain to build the
+    application.
+
+    \note Debugging is currently only fully supported on Linux and \macos.
+    It is not possible to insert breakpoints during runtime on Windows.
+
+    \section1 Troubleshoot errors
+
+    To support running, debugging, and stopping applications from \QC, the QNX
+    Neutrino RTOS has additional command-line tools and services, as described
+    in \l {Qt for QNX}.
+
+    \section2 Debug output cannot be shown
+
+    For the command-line output to show up in the \uicontrol{Application Output},
+    \QC has to create an SSH connection to the device.
+    This is only possible if QNX Momentics is not running, and the SSH key
+    configured for the device is a 4096-bit key.
+
+    If these conditions are not met, you will get an error message saying debug
+    output cannot be shown.
+
+    \section2 Cannot run, debug, or stop applications
+
+    The board support package (BSP) for the QNX device might be missing some
+    of the following applications that \QC needs to run, debug, and stop
+    applications on QNX devices: \c awk, \c grep, \c kill, \c netstat, \c print,
+    \c printf, \c ps, \c read, \c sed, \c sleep, \c uname, \c slog2info, and
+    \c cat.
+
+    \sa {Connecting QNX Devices}, {Run on many platforms}, {Compilers},
+    {Embedded Platforms}, {kit-preferences}{Kits}
+*/

@@ -41,7 +41,7 @@ using PluginSpecList = QList<const PluginSpec *>;
 using Tags = QStringList;
 
 constexpr QSize itemSize = {330, 86};
-constexpr int gapSize = 2 * WelcomePageHelpers::GridItemGap;
+constexpr int gapSize = StyleHelper::SpacingTokens::ExVPaddingGapXl;
 constexpr QSize cellSize = {itemSize.width() + gapSize, itemSize.height() + gapSize};
 
 enum Role {
@@ -60,16 +60,6 @@ ItemData itemData(const QModelIndex &index)
         index.data(RoleTags).toStringList(),
         index.data(RolePluginSpecs).value<PluginSpecList>(),
     };
-}
-
-void setBackgroundColor(QWidget *widget, Theme::Color colorRole)
-{
-    QPalette palette = creatorTheme()->palette();
-    palette.setColor(QPalette::Window,
-                     creatorTheme()->color(colorRole));
-    widget->setPalette(palette);
-    widget->setBackgroundRole(QPalette::Window);
-    widget->setAutoFillBackground(true);
 }
 
 static QColor colorForExtensionName(const QString &name)
@@ -339,10 +329,13 @@ public:
         {
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
-            const QColor fillColor = creatorTheme()->color(hovered ? Theme::Token_Foreground_Muted
-                                                                   : Theme::Token_Background_Muted);
-            const QColor strokeColor = creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
-                                                                      : Theme::Token_Stroke_Subtle);
+            const QColor fillColor =
+                creatorTheme()->color(hovered ? WelcomePageHelpers::cardHoverBackground
+                                              : WelcomePageHelpers::cardDefaultBackground);
+            const QColor strokeColor =
+                creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
+                                      : hovered ? WelcomePageHelpers::cardHoverStroke
+                                                : WelcomePageHelpers::cardDefaultStroke);
             WelcomePageHelpers::drawCardBackground(painter, itemRect, fillColor, strokeColor);
         }
         {
@@ -390,7 +383,7 @@ public:
         }
         {
             constexpr int textX = 80;
-            constexpr int rightMargin = 2 * WelcomePageHelpers::ItemGap;
+            constexpr int rightMargin = StyleHelper::SpacingTokens::ExVPaddingGapXl;
             constexpr int maxTextWidth = itemSize.width() - textX - rightMargin;
             constexpr Qt::TextElideMode elideMode = Qt::ElideRight;
 
@@ -440,8 +433,7 @@ ExtensionsBrowser::ExtensionsBrowser()
     m_searchBox = new Core::SearchBox;
     m_searchBox->setFixedWidth(itemSize.width());
 
-    m_updateButton = new WelcomePageButton;
-    m_updateButton->setText(Tr::tr("Install..."));
+    m_updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
 
     m_filterProxyModel = new QSortFilterProxyModel(this);
     m_filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -469,9 +461,10 @@ ExtensionsBrowser::ExtensionsBrowser()
         noMargin(), spacing(0),
     }.attachTo(this);
 
-    setBackgroundColor(this, Theme::Token_Background_Default);
-    setBackgroundColor(m_extensionsView, Theme::Token_Background_Default);
-    setBackgroundColor(m_extensionsView->viewport(), Theme::Token_Background_Default);
+    WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
+    WelcomePageHelpers::setBackgroundColor(m_extensionsView, Theme::Token_Background_Default);
+    WelcomePageHelpers::setBackgroundColor(m_extensionsView->viewport(),
+                                           Theme::Token_Background_Default);
 
     auto updateModel = [this] {
         m_model.reset(extensionsModel());
@@ -488,7 +481,7 @@ ExtensionsBrowser::ExtensionsBrowser()
 
     connect(ExtensionSystem::PluginManager::instance(),
             &ExtensionSystem::PluginManager::pluginsChanged, this, updateModel);
-    connect(m_searchBox->m_lineEdit, &Utils::FancyLineEdit::textChanged,
+    connect(m_searchBox, &QLineEdit::textChanged,
             m_filterProxyModel, &QSortFilterProxyModel::setFilterWildcard);
 }
 

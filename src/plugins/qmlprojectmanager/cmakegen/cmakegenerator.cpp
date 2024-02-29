@@ -278,7 +278,7 @@ QString CMakeGenerator::makeEnvironmentVariable(const QString &key) const
         auto envItems = m_buildSystem->environment();
         auto confEnv = std::find_if(envItems.begin(),
                                     envItems.end(),
-                                    [key](Utils::NameValueItem &item) { return item.name == key; });
+                                    [key](Utils::EnvironmentItem &item) { return item.name == key; });
         if (confEnv != envItems.end())
             value = confEnv->value;
     }

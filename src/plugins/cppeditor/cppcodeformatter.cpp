@@ -151,6 +151,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_OPERATOR:    enter(operator_declaration); break;
             case T_GREATER_GREATER: break;
             case T_LBRACKET: break;
+            case T_NAMESPACE:   leave(); enter(namespace_start); break;
             default:            tryExpression(true); break;
             } break;
 

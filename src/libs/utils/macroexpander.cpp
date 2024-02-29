@@ -375,7 +375,7 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
  * Convenience function to register several variables with the same \a prefix, that have a file
  * as a value. Takes the prefix and registers variables like \c{prefix:FilePath} and
  * \c{prefix:Path}, with descriptions that start with the given \a heading.
- * For example \c{registerFileVariables("CurrentDocument", tr("Current Document"))} registers
+ * For example \c{registerFileVariables("CurrentDocument", Tr::tr("Current Document"))} registers
  * variables such as \c{CurrentDocument:FilePath} with description
  * "Current Document: Full path including file name."
  *

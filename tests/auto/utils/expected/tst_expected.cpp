@@ -51,6 +51,17 @@ private slots:
         QVERIFY(e1 == e2);
         QVERIFY(!(e1 != e2));
     }
+
+    void defaultConstructorHasValue()
+    {
+        expected_str<QString> e1;
+        QVERIFY(e1.has_value());
+        QVERIFY(e1->isEmpty());
+
+        expected_str<QString> e2{};
+        QVERIFY(e2.has_value());
+        QVERIFY(e2->isEmpty());
+    }
 };
 QTEST_GUILESS_MAIN(tst_expected)
 

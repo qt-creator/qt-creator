@@ -419,7 +419,7 @@ class Dumper(DumperBase):
                     targetTypeName = typeName[0:pos1].strip()
                 #DumperBase.warn("TARGET TYPENAME: %s" % targetTypeName)
                 targetType = self.fromNativeType(nativeTargetType)
-                targetType.tdata = targetType.tdata.copy()
+                targetType.setTdata(targetType.tdata.copy())
                 targetType.tdata.name = targetTypeName
                 return self.createArrayType(targetType, count)
             if hasattr(nativeType, 'GetVectorElementType'):  # New in 3.8(?) / 350.x
@@ -1583,7 +1583,8 @@ class Dumper(DumperBase):
                 result += ',ignorecount="%d"' % loc.GetIgnoreCount()
                 result += ',file="%s"' % toCString(lineEntry.GetFileSpec())
                 result += ',line="%d"' % lineEntry.GetLine()
-                result += ',addr="%s"},' % addr.GetFileAddress()
+                result += ',addr="%s"' % addr.GetLoadAddress(self.target)
+                result += ',faddr="%s"},' % addr.GetFileAddress()
             result += ']'
             if lineEntry is not None:
                 result += ',file="%s"' % toCString(lineEntry.GetFileSpec())

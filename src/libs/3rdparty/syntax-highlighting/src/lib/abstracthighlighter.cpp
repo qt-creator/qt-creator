@@ -12,6 +12,7 @@
 #include "format.h"
 #include "ksyntaxhighlighting_logging.h"
 #include "repository.h"
+#include "repository_p.h"
 #include "rule_p.h"
 #include "state.h"
 #include "state_p.h"
@@ -97,13 +98,6 @@ static inline int firstNonSpaceChar(QStringView text)
     return text.size();
 }
 
-#if KSYNTAXHIGHLIGHTING_BUILD_DEPRECATED_SINCE(5, 87)
-State AbstractHighlighter::highlightLine(const QString &text, const State &state)
-{
-    return highlightLine(QStringView(text), state);
-}
-#endif
-
 State AbstractHighlighter::highlightLine(QStringView text, const State &state)
 {
     Q_D(AbstractHighlighter);
@@ -116,43 +110,47 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
         return State();
     }
 
+    // limit the cache for unification to some reasonable size
+    // we use here at the moment 64k elements to not hog too much memory
+    // and to make the clearing no big stall
+    if (defData->unify.size() > 64 * 1024)
+        defData->unify.clear();
+
     // verify/initialize state
     auto newState = state;
     auto stateData = StateData::get(newState);
-    const auto definitionId = DefinitionData::get(d->m_definition)->id;
-    if (!stateData->isEmpty() && stateData->m_defId != definitionId) {
+    bool isSharedData = true;
+    if (Q_UNLIKELY(stateData && stateData->m_defId != defData->id)) {
         qCDebug(Log) << "Got invalid state, resetting.";
-        stateData->clear();
+        stateData = nullptr;
     }
-    if (stateData->isEmpty()) {
+    if (Q_UNLIKELY(!stateData)) {
+        stateData = StateData::reset(newState);
         stateData->push(defData->initialContext(), QStringList());
-        stateData->m_defId = definitionId;
+        stateData->m_defId = defData->id;
+        isSharedData = false;
     }
 
     // process empty lines
-    if (text.isEmpty()) {
+    if (Q_UNLIKELY(text.isEmpty())) {
         /**
          * handle line empty context switches
          * guard against endless loops
          * see https://phabricator.kde.org/D18509
          */
         int endlessLoopingCounter = 0;
-        while (!stateData->topContext()->lineEmptyContext().isStay() || !stateData->topContext()->lineEndContext().isStay()) {
+        while (!stateData->topContext()->lineEmptyContext().isStay()) {
             /**
              * line empty context switches
              */
-            if (!stateData->topContext()->lineEmptyContext().isStay()) {
-                if (!d->switchContext(stateData, stateData->topContext()->lineEmptyContext(), QStringList())) {
-                    /**
-                     * end when trying to #pop the main context
-                     */
-                    break;
-                }
+            if (!d->switchContext(stateData, stateData->topContext()->lineEmptyContext(), QStringList(), newState, isSharedData)) {
                 /**
-                 * line end context switches only when lineEmptyContext is #stay. This avoids
-                 * skipping empty lines after a line continuation character (see bug 405903)
+                 * end when trying to #pop the main context
                  */
-            } else if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList())) {
+                break;
+            }
+
+            if (stateData->topContext()->stopEmptyLineContextSwitchLoop()) {
                 break;
             }
 
@@ -165,8 +163,10 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
         }
         auto context = stateData->topContext();
         applyFormat(0, 0, context->attributeFormat());
-        return newState;
+        return *defData->unify.insert(newState);
     }
+
+    auto &dynamicRegexpCache = RepositoryPrivate::get(defData->repo)->m_dynamicRegexpCache;
 
     int offset = 0;
     int beginOffset = 0;
@@ -178,10 +178,10 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
      *   - store the result of the first position that matches (or -1 for no match in the full line) in the skipOffsets hash for re-use
      *   - have capturesForLastDynamicSkipOffset as guard for dynamic regexes to invalidate the cache if they might have changed
      */
-    QVarLengthArray<QPair<Rule *, int>, 8> skipOffsets;
+    QVarLengthArray<QPair<const Rule *, int>, 8> skipOffsets;
     QStringList capturesForLastDynamicSkipOffset;
 
-    auto getSkipOffsetValue = [&skipOffsets](Rule *r) -> int {
+    auto getSkipOffsetValue = [&skipOffsets](const Rule *r) -> int {
         auto i = std::find_if(skipOffsets.begin(), skipOffsets.end(), [r](const auto &v) {
             return v.first == r;
         });
@@ -190,7 +190,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
         return i->second;
     };
 
-    auto insertSkipOffset = [&skipOffsets](Rule *r, int i) {
+    auto insertSkipOffset = [&skipOffsets](const Rule *r, int i) {
         auto it = std::find_if(skipOffsets.begin(), skipOffsets.end(), [r](const auto &v) {
             return v.first == r;
         });
@@ -237,7 +237,8 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
         bool isLookAhead = false;
         int newOffset = 0;
         const Format *newFormat = nullptr;
-        for (const auto &rule : stateData->topContext()->rules()) {
+        for (const auto &ruleShared : stateData->topContext()->rules()) {
+            auto rule = ruleShared.get();
             /**
              * filter out rules that require a specific column
              */
@@ -265,29 +266,33 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
                 }
             }
 
-            /**
-             * shall we skip application of this rule? two cases:
-             *   - rule can't match at all => currentSkipOffset < 0
-             *   - rule will only match for some higher offset => currentSkipOffset > offset
-             *
-             * we need to invalidate this if we are dynamic and have different captures then last time
-             */
-            if (rule->isDynamic() && (capturesForLastDynamicSkipOffset != stateData->topCaptures())) {
-                skipOffsets.clear();
-            }
-            const auto currentSkipOffset = getSkipOffsetValue(rule.get());
-            if (currentSkipOffset < 0 || currentSkipOffset > offset) {
-                continue;
+            int currentSkipOffset = 0;
+            if (Q_UNLIKELY(rule->hasSkipOffset())) {
+                /**
+                 * shall we skip application of this rule? two cases:
+                 *   - rule can't match at all => currentSkipOffset < 0
+                 *   - rule will only match for some higher offset => currentSkipOffset > offset
+                 *
+                 * we need to invalidate this if we are dynamic and have different captures then last time
+                 */
+                if (rule->isDynamic() && (capturesForLastDynamicSkipOffset != stateData->topCaptures())) {
+                    skipOffsets.clear();
+                } else {
+                    currentSkipOffset = getSkipOffsetValue(rule);
+                    if (currentSkipOffset < 0 || currentSkipOffset > offset) {
+                        continue;
+                    }
+                }
             }
 
-            const auto newResult = rule->doMatch(text, offset, stateData->topCaptures());
+            auto newResult = rule->doMatch(text, offset, stateData->topCaptures(), dynamicRegexpCache);
             newOffset = newResult.offset();
 
             /**
              * update skip offset if new one rules out any later match or is larger than current one
              */
             if (newResult.skipOffset() < 0 || newResult.skipOffset() > currentSkipOffset) {
-                insertSkipOffset(rule.get(), newResult.skipOffset());
+                insertSkipOffset(rule, newResult.skipOffset());
 
                 // remember new captures, if dynamic to enforce proper reset above on change!
                 if (rule->isDynamic()) {
@@ -316,12 +321,12 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
 
             if (rule->isLookAhead()) {
                 Q_ASSERT(!rule->context().isStay());
-                d->switchContext(stateData, rule->context(), newResult.captures());
+                d->switchContext(stateData, rule->context(), std::move(newResult.captures()), newState, isSharedData);
                 isLookAhead = true;
                 break;
             }
 
-            d->switchContext(stateData, rule->context(), newResult.captures());
+            d->switchContext(stateData, rule->context(), std::move(newResult.captures()), newState, isSharedData);
             newFormat = rule->attributeFormat().isValid() ? &rule->attributeFormat() : &stateData->topContext()->attributeFormat();
             if (newOffset == text.size() && rule->isLineContinue()) {
                 lineContinuation = true;
@@ -334,7 +339,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
 
         if (newOffset <= offset) { // no matching rule
             if (stateData->topContext()->fallthrough()) {
-                d->switchContext(stateData, stateData->topContext()->fallthroughContext(), QStringList());
+                d->switchContext(stateData, stateData->topContext()->fallthroughContext(), QStringList(), newState, isSharedData);
                 continue;
             }
 
@@ -381,7 +386,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
     {
         int endlessLoopingCounter = 0;
         while (!stateData->topContext()->lineEndContext().isStay() && !lineContinuation) {
-            if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList())) {
+            if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList(), newState, isSharedData)) {
                 break;
             }
 
@@ -394,18 +399,30 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
         }
     }
 
-    return newState;
+    return *defData->unify.insert(newState);
 }
 
-bool AbstractHighlighterPrivate::switchContext(StateData *data, const ContextSwitch &contextSwitch, const QStringList &captures)
+bool AbstractHighlighterPrivate::switchContext(StateData *&data, const ContextSwitch &contextSwitch, QStringList &&captures, State &state, bool &isSharedData)
 {
+    const auto popCount = contextSwitch.popCount();
+    const auto context = contextSwitch.context();
+    if (popCount <= 0 && !context) {
+        return true;
+    }
+
+    // a modified state must be detached before modification
+    if (isSharedData) {
+        data = StateData::detach(state);
+        isSharedData = false;
+    }
+
     // kill as many items as requested from the stack, will always keep the initial context alive!
-    const bool initialContextSurvived = data->pop(contextSwitch.popCount());
+    const bool initialContextSurvived = data->pop(popCount);
 
     // if we have a new context to add, push it
     // then we always "succeed"
-    if (contextSwitch.context()) {
-        data->push(contextSwitch.context(), captures);
+    if (context) {
+        data->push(context, std::move(captures));
         return true;
     }
 

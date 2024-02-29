@@ -6,10 +6,17 @@
 #include "core_global.h"
 #include "iwelcomepage.h"
 
+#include <utils/fancylineedit.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
+
+#include <QComboBox>
 #include <QElapsedTimer>
+#include <QLabel>
 #include <QListView>
 #include <QPen>
 #include <QPointer>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QStyledItemDelegate>
@@ -24,31 +31,115 @@ namespace Core {
 
 namespace WelcomePageHelpers {
 
-constexpr int HSpacing = 20;
-constexpr int ItemGap = 4;
+constexpr QSize WelcomeThumbnailSize(214, 160);
 
-constexpr int GridItemGap = 3 * ItemGap;
-constexpr int GridItemWidth = 240 + GridItemGap;               // Extra GridItemGap as "spacing"
-constexpr int GridItemHeight = GridItemWidth;
-constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
-                                      - 2 * (GridItemGap + 1), // Horizontal margins + 1 pixel
-                                  GridItemHeight - GridItemGap
-                                      - GridItemGap - 1        // Upper margin + 1 pixel
-                                      - 67);                   // Bottom margin (for title + tags)
+class CORE_EXPORT TextFormat {
+public:
+    QColor color() const
+    {
+        return Utils::creatorTheme()->color(themeColor);
+    }
 
-CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
+    QFont font(bool underlined = false) const
+    {
+        QFont result = Utils::StyleHelper::uiFont(uiElement);
+        result.setUnderline(underlined);
+        return result;
+    }
+
+    int lineHeight() const
+    {
+        return Utils::StyleHelper::uiFontLineHeight(uiElement);
+    }
+
+    const Utils::Theme::Color themeColor;
+    const Utils::StyleHelper::UiElement uiElement;
+    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip;
+};
+
+CORE_EXPORT void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);
+constexpr qreal defaultCardBackgroundRounding = 3.75;
+constexpr Utils::Theme::Color cardDefaultBackground = Utils::Theme::Token_Background_Muted;
+constexpr Utils::Theme::Color cardDefaultStroke = Utils::Theme::Token_Stroke_Subtle;
+constexpr Utils::Theme::Color cardHoverBackground = Utils::Theme::Token_Foreground_Subtle;
+constexpr Utils::Theme::Color cardHoverStroke = cardHoverBackground;
 CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
                                     const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
-                                    qreal rounding = 5.0);
+                                    qreal rounding = defaultCardBackgroundRounding);
+CORE_EXPORT QWidget *createRule(Qt::Orientation orientation, QWidget *parent = nullptr);
 
 } // namespace WelcomePageHelpers
 
-class CORE_EXPORT SearchBox : public WelcomePageFrame
+class CORE_EXPORT Button : public QPushButton
+{
+public:
+    enum Role {
+        MediumPrimary,
+        MediumSecondary,
+        SmallPrimary,
+        SmallSecondary,
+        SmallList,
+        SmallLink,
+    };
+
+    explicit Button(const QString &text, Role role, QWidget *parent = nullptr);
+
+    QSize minimumSizeHint() const override;
+
+    void setPixmap(const QPixmap &newPixmap);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    void updateMargins();
+
+    const Role m_role = MediumPrimary;
+    QPixmap m_pixmap;
+};
+
+class CORE_EXPORT Label : public QLabel
+{
+public:
+    enum Role {
+        Primary,
+        Secondary,
+    };
+
+    explicit Label(const QString &text, Role role, QWidget *parent = nullptr);
+
+private:
+    const Role m_role = Primary;
+};
+
+class CORE_EXPORT SearchBox : public QLineEdit
 {
 public:
     explicit SearchBox(QWidget *parent = nullptr);
 
-    Utils::FancyLineEdit *m_lineEdit = nullptr;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+protected:
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+};
+
+class CORE_EXPORT ComboBox : public QComboBox
+{
+public:
+    explicit ComboBox(QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+protected:
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 };
 
 class CORE_EXPORT GridView : public QListView
@@ -146,7 +237,9 @@ class CORE_EXPORT ListItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    ListItemDelegate();
+    ListItemDelegate() = default;
+
+    static QSize itemSize();
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
@@ -164,13 +257,6 @@ protected:
     virtual void clickAction(const ListItem *item) const;
 
     void goon();
-
-    const QColor backgroundPrimaryColor;
-    const QColor backgroundSecondaryColor;
-    const QColor foregroundPrimaryColor;
-    const QColor foregroundSecondaryColor;
-    const QColor hoverColor;
-    const QColor textColor;
 
 private:
     mutable QPersistentModelIndex m_previousIndex;

@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 @if !%{HasLoadFromModule}
-    const QUrl url(u"qrc:/%{JS: value('ProjectName')}/Main.qml"_qs);
+    const QUrl url(QStringLiteral("qrc:/%{JS: value('ProjectName')}/Main.qml"));
 @endif
 @if %{HasFailureSignal}
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,

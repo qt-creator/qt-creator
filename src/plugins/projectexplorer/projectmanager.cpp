@@ -740,7 +740,8 @@ void ProjectExplorerTest::testSessionSwitch()
                 = ProjectExplorerPlugin::openProject(
                     FilePath::fromString(sessionSpec.projectFile.fileName()));
         if (openResult.errorMessage().contains("text/plain"))
-            QSKIP("This test requires the presence of QmakeProjectManager to be fully functional");
+            QSKIP("This test requires the presence of QmakeProjectManager to be fully functional. "
+                  "Hint: run this test with \"-load QmakeProjectManager\" option.");
         QVERIFY(openResult);
         QCOMPARE(openResult.projects().count(), 1);
         QVERIFY(openResult.project());

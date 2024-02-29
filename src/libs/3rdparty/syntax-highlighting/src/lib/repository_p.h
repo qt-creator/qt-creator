@@ -8,11 +8,11 @@
 #define KSYNTAXHIGHLIGHTING_REPOSITORY_P_H
 
 #include <QHash>
-#include <QVector>
+#include <QList>
+#include <QMap>
+#include <QString>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+#include "dynamicregexpcache_p.h"
 
 namespace KSyntaxHighlighting
 {
@@ -36,22 +36,24 @@ public:
     void loadThemeFolder(const QString &path);
     void addTheme(const Theme &theme);
 
-    quint16 foldingRegionId(const QString &defName, const QString &foldName);
-    quint16 nextFormatId();
+    int foldingRegionId(const QString &defName, const QString &foldName);
+    int nextFormatId();
 
-    QVector<QString> m_customSearchPaths;
+    QList<QString> m_customSearchPaths;
 
     // sorted map to have deterministic iteration order for e.g. definitionsForFileName
     QMap<QString, Definition> m_defs;
 
     // this vector is sorted by translated sections/names
-    QVector<Definition> m_sortedDefs;
+    QList<Definition> m_sortedDefs;
 
-    QVector<Theme> m_themes;
+    QList<Theme> m_themes;
 
-    QHash<QPair<QString, QString>, quint16> m_foldingRegionIds;
-    quint16 m_foldingRegionId = 0;
-    quint16 m_formatId = 0;
+    QHash<QPair<QString, QString>, int> m_foldingRegionIds;
+    int m_foldingRegionId = 0;
+    int m_formatId = 0;
+
+    DynamicRegexpCache m_dynamicRegexpCache;
 };
 }
 

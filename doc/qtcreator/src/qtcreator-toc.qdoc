@@ -15,7 +15,7 @@
     \list
         \li \l{Getting Started}
         \list
-            \li \l{IDE Overview}
+            \li \l{Overview}
         \list
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
@@ -36,11 +36,6 @@
                 \li \l{Using Text Editing Macros}
                 \li \l{Comparing Files}
             \endlist
-            \li \l{Finding}
-            \list
-                \li \l{Finding and Replacing}
-                \li \l{Searching with the Locator}
-            \endlist
             \li \l{Refactoring}
             \li \l{Configuring the Editor}
             \li \l{Using GitHub Copilot}
@@ -54,7 +49,6 @@
                 \li \l{Previewing in Browsers}
             \endlist
             \li \l{Building for Multiple Platforms}
-            \li \l{Running on Multiple Platforms}
             \li \l{Deploying to Devices}
             \list
                 \li \l{Deploying to Android}
@@ -74,7 +68,6 @@
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
             \endlist
-            \li \l{Customizing the Build Process}
         \endlist
         \li \l{Testing}
         \list
@@ -149,6 +142,8 @@
                         \generatelist creator-how-to-configure-editors
                     \li Manage Language Servers
                         \generatelist creator-how-to-lsp
+                    \li Search
+                        \generatelist creator-how-to-search
                 \endlist
             \li Manage Kits
                 \generatelist creator-how-to-manage-kits
@@ -157,7 +152,7 @@
                 \list
                     \li Create Projects
                         \generatelist creator-how-to-projects-create
-                    \li Create Files
+                    \li Add Files
                         \generatelist creator-how-to-projects-files
                     \li Configure Projects
                         \generatelist creator-how-to-projects-configure

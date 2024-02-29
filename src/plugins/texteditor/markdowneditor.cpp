@@ -138,12 +138,12 @@ public:
         agg->add(m_widget.get());
 
         m_togglePreviewVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEPREVIEW_ACTION);
-        m_togglePreviewVisible->setCheckable(true);
+        m_togglePreviewVisible->defaultAction()->setCheckable(true);
         m_togglePreviewVisible->setChecked(showPreview);
         m_previewWidget->setVisible(showPreview);
 
         m_toggleEditorVisible = Command::createToolButtonWithShortcutToolTip(TOGGLEEDITOR_ACTION);
-        m_toggleEditorVisible->setCheckable(true);
+        m_toggleEditorVisible->defaultAction()->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 

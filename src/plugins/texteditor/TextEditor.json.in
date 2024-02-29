@@ -15,5 +15,15 @@
     "Category" : "Core",
     "Description" : "Text editor framework and the implementation of the basic text editor.",
     "Url" : "http://www.qt.io",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/vnd.qtcreator.devicetree.source'>",
+        "        <comment>Device tree source files</comment>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <glob pattern='*.dts' weight='80'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

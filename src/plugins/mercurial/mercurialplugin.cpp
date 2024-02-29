@@ -146,27 +146,27 @@ public:
     VcsEditorFactory logEditorFactory {{
         LogOutput,
         Constants::FILELOG_ID,
-        VcsBase::Tr::tr("Mercurial File Log Editor"),
+        ::VcsBase::Tr::tr("Mercurial File Log Editor"),
         Constants::LOGAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 
     VcsEditorFactory annotateEditorFactory {{
         AnnotateOutput,
         Constants::ANNOTATELOG_ID,
-        VcsBase::Tr::tr("Mercurial Annotation Editor"),
+        ::VcsBase::Tr::tr("Mercurial Annotation Editor"),
         Constants::ANNOTATEAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 
     VcsEditorFactory diffEditorFactory {{
         DiffOutput,
         Constants::DIFFLOG_ID,
-        VcsBase::Tr::tr("Mercurial Diff Editor"),
+        ::VcsBase::Tr::tr("Mercurial Diff Editor"),
         Constants::DIFFAPP,
-        [this] { return new MercurialEditorWidget; },
+        [] { return new MercurialEditorWidget; },
         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     }};
 };
@@ -181,7 +181,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     setupVcsSubmitEditor(this, {
         Constants::COMMITMIMETYPE,
         Constants::COMMIT_ID,
-        VcsBase::Tr::tr("Mercurial Commit Log Editor"),
+        ::VcsBase::Tr::tr("Mercurial Commit Log Editor"),
         VcsBaseSubmitEditorParameters::DiffFiles,
         [] { return new CommitEditor; }
     });

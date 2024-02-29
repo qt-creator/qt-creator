@@ -269,7 +269,7 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
         if (pixmap.loadFromData(data, imageFormat.toLatin1())) {
             const QString url = imageUrl.toString();
             const int dpr = qApp->devicePixelRatio();
-            pixmap = pixmap.scaled(WelcomePageHelpers::GridItemImageSize * dpr,
+            pixmap = pixmap.scaled(WelcomePageHelpers::WelcomeThumbnailSize * dpr,
                                    Qt::KeepAspectRatio,
                                    Qt::SmoothTransformation);
             pixmap.setDevicePixelRatio(dpr);

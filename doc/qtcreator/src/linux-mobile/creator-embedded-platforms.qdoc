@@ -76,7 +76,7 @@
         \li \l{Connecting Remote Linux Devices}
         \li \l{Deploying to Remote Linux}
         \li \l{Remote Linux Run Settings}
-        \li \l{Running on Remote Linux Devices}
+        \li \l{Run on remote Linux devices}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
     \endlist
@@ -110,7 +110,7 @@
         \li \l{Connecting QNX Devices}
         \li \l{Deploying to QNX Neutrino}
         \li \l{QNX Run Settings}
-        \li \l{Running on QNX Devices}
+        \li \l{Run on QNX devices}
         \li \l{Qt for QNX}
     \endlist
 

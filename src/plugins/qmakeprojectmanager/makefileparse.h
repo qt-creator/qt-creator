@@ -30,6 +30,7 @@ public:
     MakefileState makeFileState() const;
     Utils::FilePath qmakePath() const;
     Utils::FilePath srcProFile() const;
+    Utils::FilePath qtConfPath() const { return m_qtConfFile;}
     QMakeStepConfig config() const;
 
     QString unparsedArguments() const;
@@ -59,6 +60,7 @@ private:
     MakefileState m_state;
     Utils::FilePath m_qmakePath;
     Utils::FilePath m_srcProFile;
+    Utils::FilePath m_qtConfFile;
 
     QmakeBuildConfig m_qmakeBuildConfig;
     QMakeStepConfig m_config;

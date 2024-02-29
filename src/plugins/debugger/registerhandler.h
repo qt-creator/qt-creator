@@ -72,7 +72,7 @@ public:
     RegisterValue value;
     RegisterValue previousValue;
     QString description;
-    QSet<QString> groups;
+    QStringList groups;
     int size = 0;
     RegisterKind kind = UnknownRegister;
 };

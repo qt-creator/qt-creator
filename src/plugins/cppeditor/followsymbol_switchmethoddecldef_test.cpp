@@ -396,6 +396,12 @@ F2TestCase::F2TestCase(CppEditorAction action,
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
+    if (useClangd) {
+        QEXPECT_FAIL("matchFunctionSignatureFuzzy1Forward", "clangd returns decl loc", Abort);
+        QEXPECT_FAIL("matchFunctionSignatureFuzzy2Forward", "clangd returns decl loc", Abort);
+        QEXPECT_FAIL("matchFunctionSignatureFuzzy1Backward", "clangd returns def loc", Abort);
+        QEXPECT_FAIL("matchFunctionSignatureFuzzy2Backward", "clangd returns def loc", Abort);
+    }
     QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     if (useClangd && expectedVirtualFunctionProposal.size() == 1) {
@@ -494,8 +500,11 @@ void FollowSymbolTest::initTestCase()
         return;
 
     // Find suitable kit.
+    // Qt is not actually required for the tests, but we need it for consistency with
+    // configureAsExampleProject().
+    // FIXME: Make configureAsExampleProject() work with non-Qt kits.
     F2TestCase::m_testKit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid();
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
     });
     if (!F2TestCase::m_testKit)
         QSKIP("This test requires at least one kit to be present");

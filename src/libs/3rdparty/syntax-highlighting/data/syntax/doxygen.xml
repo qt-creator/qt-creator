@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd"
+<!DOCTYPE language
 [
     <!ENTITY wordsep "(?:[][,?;()]|\.$|\.?\s|$)">   <!-- things that end a TagWord -->
     <!ENTITY sl_word ".*?(?=&wordsep;)">
     <!ENTITY ml_word ".*?(?=&wordsep;|\*/)">
 ]>
 <language name="Doxygen"
-          version="14"
+          version="15"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -586,7 +586,7 @@
         <Detect2Chars attribute="Tags" context="#pop!LanguageId" char="@" char1="~" />
         <keyword attribute="Error" context="#pop" String="TagEnd" />
         <RegExpr attribute="Error" context="#pop" String="[@\\]f[]}]" />
-        <RegExpr attribute="Tags" context="#pop" String="[@\\](?:[#$%&amp;&lt;&gt;&quot;@\\.]|::|---?)(?=&wordsep;)" />
+        <RegExpr attribute="Escape sequence" context="#pop" String="[@\\](?:[#$%&amp;&lt;&gt;&quot;@\\.~=|]|::|---?)" />
         <RegExpr attribute="Custom Tags" context="#pop" String="[@\\](?:[^@\\ \t\*]|\*(?!/))+" />
         <AnyChar attribute="Comment" context="#pop" String="\@" />
       </context>
@@ -598,6 +598,7 @@
   </contexts>
     <itemDatas>
       <itemData name="Normal Text"  defStyleNum="dsNormal" />
+      <itemData name="Escape sequence" defStyleNum="dsSpecialChar" />
       <itemData name="Tags"         defStyleNum="dsAnnotation" bold="1" />
       <itemData name="Custom Tags"  defStyleNum="dsAnnotation" />
       <itemData name="Word"         defStyleNum="dsCommentVar" bold="1" italic="0" />

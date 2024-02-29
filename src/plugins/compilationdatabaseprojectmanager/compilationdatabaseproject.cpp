@@ -332,11 +332,7 @@ CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
             this, &CompilationDatabaseBuildSystem::updateDeploymentData);
 }
 
-CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
-{
-    m_parserWatcher.cancel();
-    m_parserWatcher.waitForFinished();
-}
+CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem() = default;
 
 void CompilationDatabaseBuildSystem::triggerParsing()
 {

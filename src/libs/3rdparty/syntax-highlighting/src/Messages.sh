@@ -8,4 +8,4 @@ sed -i -e 's/^i18nc/QT_TRANSLATE_NOOP/' rc.cpp
 grep --no-filename '"name"' ../data/themes/*.theme | \
   sed -r -e 's/"name"/QT_TRANSLATE_NOOP("Theme", /; s/://; s/,?$/);/' >> rc.cpp
 
-$EXTRACT_TR_STRINGS `find . -name \*.cpp -o -name \*.h -o -name \*.ui -o -name \*.qml` -o $podir/syntaxhighlighting5_qt.pot
+$EXTRACT_TR_STRINGS `find . -name \*.cpp -o -name \*.h -o -name \*.ui -o -name \*.qml` -o $podir/syntaxhighlighting6_qt.pot

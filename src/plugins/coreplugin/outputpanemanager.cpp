@@ -230,16 +230,17 @@ void IOutputPane::setupContext(const Context &context, QWidget *widget)
     m_context->setWidget(widget);
     ICore::addContextObject(m_context);
 
-    const auto zoomInAction = new QAction(this);
-    Core::ActionManager::registerAction(zoomInAction, Constants::ZOOM_IN, m_context->context());
-    connect(zoomInAction, &QAction::triggered, this, [this] { emit zoomInRequested(1); });
-    const auto zoomOutAction = new QAction(this);
-    Core::ActionManager::registerAction(zoomOutAction, Constants::ZOOM_OUT, m_context->context());
-    connect(zoomOutAction, &QAction::triggered, this, [this] { emit zoomOutRequested(1); });
-    const auto resetZoomAction = new QAction(this);
-    Core::ActionManager::registerAction(resetZoomAction, Constants::ZOOM_RESET,
-                                        m_context->context());
-    connect(resetZoomAction, &QAction::triggered, this, &IOutputPane::resetZoomRequested);
+    ActionBuilder(this, Constants::ZOOM_IN)
+        .setContext(context)
+        .addOnTriggered(this, [this] { emit zoomInRequested(1); });
+
+    ActionBuilder(this, Constants::ZOOM_OUT)
+        .setContext(context)
+        .addOnTriggered(this, [this] { emit zoomOutRequested(1); });
+
+    ActionBuilder(this, Constants::ZOOM_RESET)
+        .setContext(context)
+        .addOnTriggered(this, &IOutputPane::resetZoomRequested);
 }
 
 void IOutputPane::setZoomButtonsEnabled(bool enabled)

@@ -49,7 +49,6 @@ private:
 
     const CMakeProject *m_project;
     Utils::TemporaryDirectory m_presetsTempDir;
-    bool m_hasCMakePresets = false;
 };
 
 #ifdef WITH_TESTS

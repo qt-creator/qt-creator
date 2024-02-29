@@ -242,27 +242,6 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
 
-    // optimization: if only the brace depth changes, we adjust subsequent blocks
-    // to have QSyntaxHighlighter stop the rehighlighting
-    int currentState = currentBlockState();
-    if (currentState != -1) {
-        int oldState = currentState & 0xff;
-        int oldBraceDepth = currentState >> 8;
-        if (oldState == tokenize.state() && oldBraceDepth != braceDepth) {
-            TextDocumentLayout::FoldValidator foldValidor;
-            foldValidor.setup(qobject_cast<TextDocumentLayout *>(document()->documentLayout()));
-            int delta = braceDepth - oldBraceDepth;
-            QTextBlock block = currentBlock().next();
-            while (block.isValid() && block.userState() != -1) {
-                TextDocumentLayout::changeBraceDepth(block, delta);
-                TextDocumentLayout::changeFoldingIndent(block, delta);
-                foldValidor.process(block);
-                block = block.next();
-            }
-            foldValidor.finalize();
-        }
-    }
-
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
     TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(),
                                                    tokenize.expectedRawStringSuffix());

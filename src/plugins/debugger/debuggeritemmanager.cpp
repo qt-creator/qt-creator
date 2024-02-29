@@ -9,6 +9,8 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -19,6 +21,7 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -480,14 +483,14 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     if (!m_generic) {
         m_updateWatcher.cancel();
 
-        DebuggerItem tmp;
         if (m_binaryChooser->filePath().isExecutableFile()) {
-            tmp = item();
-            m_updateWatcher.setFuture(Utils::asyncRun([tmp]() mutable {
+            m_updateWatcher.setFuture(Utils::asyncRun([tmp = item()]() mutable {
                 tmp.reinitializeFromFile();
                 return tmp;
             }));
+            ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_updateWatcher.future());
         } else {
+            const DebuggerItem tmp;
             setAbis(tmp.abiNames());
             m_version->setText(tmp.version());
             m_engineType = tmp.engineType();

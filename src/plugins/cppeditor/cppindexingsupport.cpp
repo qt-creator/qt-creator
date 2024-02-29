@@ -147,7 +147,7 @@ static void indexFindErrors(QPromise<void> &promise, const ParseParams params)
 
         // Look up symbols
         CPlusPlus::LookupContext context(document, parser.snapshot());
-        CheckSymbols::go(document, context, QList<CheckSymbols::Result>()).waitForFinished();
+        CheckSymbols::go(document, {}, context, QList<CheckSymbols::Result>()).waitForFinished();
 
         document->releaseSourceAndAST();
 

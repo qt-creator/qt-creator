@@ -554,7 +554,6 @@ protected:
     void bufferToGui() override;
     bool guiToBuffer() override;
 
-private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
 
@@ -812,6 +811,13 @@ public:
 
     TriState defaultValue() const;
     void setDefaultValue(TriState setting);
+
+    void setOptionTexts(const QString &onString,
+                        const QString &offString,
+                        const QString &defaultString);
+private:
+    void addOption(const QString &displayName, const QString &toolTip = {}) = delete;
+    void addOption(const Option &option) = delete;
 };
 
 class QTCREATOR_UTILS_EXPORT StringListAspect : public TypedAspect<QStringList>

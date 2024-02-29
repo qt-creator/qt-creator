@@ -4,10 +4,11 @@ QtcPlugin {
     name: "Axivion"
 
     Depends { name: "Core" }
+    Depends { name: "ExtensionSystem" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
+    Depends { name: "qtkeychain" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.network" }
 
@@ -22,6 +23,12 @@ QtcPlugin {
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axiviontr.h",
+        "credentialquery.cpp",
+        "credentialquery.h",
+        "dynamiclistmodel.cpp",
+        "dynamiclistmodel.h",
+        "issueheaderview.cpp",
+        "issueheaderview.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

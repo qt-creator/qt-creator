@@ -73,9 +73,10 @@ QtTestFramework::QtTestFramework()
     useXMLOutput.setSettingsKey("UseXMLOutput");
     useXMLOutput.setDefaultValue(true);
     useXMLOutput.setLabelText(Tr::tr("Use XML output"));
-    useXMLOutput.setToolTip(Tr::tr("XML output is recommended, because it avoids parsing issues, "
-                                   "while plain text is more human readable.\n\nWarning: "
-                                   "Plain text misses some information, such as duration."));
+    useXMLOutput.setToolTip("<html>"
+                            + Tr::tr("XML output is recommended, because it avoids parsing issues, "
+                                     "while plain text is more human readable.<p>Warning: "
+                                     "Plain text misses some information, such as duration."));
 
     verboseBench.setSettingsKey("VerboseBench");
     verboseBench.setLabelText(Tr::tr("Verbose benchmarks"));
@@ -98,18 +99,22 @@ QtTestFramework::QtTestFramework()
     quickCheckForDerivedTests.setDefaultValue(false);
     quickCheckForDerivedTests.setLabelText(Tr::tr("Check for derived Qt Quick tests"));
     quickCheckForDerivedTests.setToolTip(
-        Tr::tr("Search for Qt Quick tests that are derived from TestCase.\nWarning: Enabling this "
-               "feature significantly increases scan time."));
+        "<html>"
+        + Tr::tr(
+            "Search for Qt Quick tests that are derived from TestCase.<p>Warning: Enabling this "
+            "feature significantly increases scan time."));
 
     parseMessages.setSettingsKey("ParseMessages");
     parseMessages.setDefaultValue(false);
     parseMessages.setLabelText(Tr::tr("Find user-defined locations"));
     parseMessages.setToolTip(
-        Tr::tr("Parse messages for the pattern \"file://filepath:line\", where \":line\" is "
-               "optional, and use this as location information.\n"
-               "Warning: If the patterns are used in code, the location information for debug "
-               "messages and other messages might improve,\n"
-               "at the risk of some incorrect locations and lower performance."));
+        "<html>"
+        + Tr::tr("Parse messages for the following pattern and use it as location information:"
+                 "<pre>file://filepath:line</pre>"
+                 "where \":line\" is optional."
+                 "<p>Warning: If the patterns are used in code, the location information for debug "
+                 "messages and other messages might improve,"
+                 "at the risk of some incorrect locations and lower performance."));
     readSettings();
 
     maxWarnings.setEnabler(&limitWarnings);

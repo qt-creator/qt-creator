@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
-<language version="7" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
+<!DOCTYPE language>
+<language version="8" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item>ALERT</item>
@@ -36,6 +36,8 @@
         <WordDetect attribute="Region Marker" context="#stay" String="END" endRegion="AlertRegion2" />
         <keyword attribute="Alert Level 1" context="#stay" String="alerts_hi" />
         <keyword attribute="Alert Level 2" context="#stay" String="alerts_mid" />
+        <!-- Some (Python?) linters use `noqa:` (small case w/ colon) -->
+        <WordDetect attribute="Alert Level 2" context="#stay" String="noqa:" />
         <keyword attribute="Alert Level 3" context="#stay" String="alerts_lo" />
       </context>
     </contexts>

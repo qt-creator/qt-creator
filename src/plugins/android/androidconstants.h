@@ -78,6 +78,8 @@ const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 // SDK Tools
 const char cmdlineToolsName[] = "cmdline-tools";
 const char ndkPackageName[] = "ndk";
+const char platformsPackageName[] = "platforms";
+const char buildToolsPackageName[] = "build-tools";
 
 // For AndroidQtVersion
 const char ArmToolsDisplayName[] = "arm";

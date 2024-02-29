@@ -227,8 +227,6 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
 
     QShortcut *saveSC = new QShortcut(QKeySequence("Ctrl+S"), this);
     connect(saveSC, &QShortcut::activated, this, [this] { apply(); });
-
-    m_editorScrollArea->show();
 }
 
 void ClangFormatConfigWidget::initPreview(TextEditor::ICodeStylePreferences *codeStyle)

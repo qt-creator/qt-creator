@@ -293,10 +293,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
 }
 
-ClangModelManagerSupport::~ClangModelManagerSupport()
-{
-    m_generatorSynchronizer.waitForFinished();
-}
+ClangModelManagerSupport::~ClangModelManagerSupport() = default;
 
 void ClangModelManagerSupport::followSymbol(const CursorInEditor &data,
                                             const LinkHandler &processLinkCallback,

@@ -79,14 +79,16 @@ void CatchCodeParser::handleIdentifier()
                || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
         handleParameterizedTestCase(false);
     } else if (unprefixed == "TEST_CASE_METHOD") {
-        handleFixtureOrRegisteredTestCase(true);
+        handleFixtureOrRegisteredTestCase(/*fixture=*/true, /*scenario=*/false);
+    } else if (unprefixed == "SCENARIO_METHOD") {
+        handleFixtureOrRegisteredTestCase(/*fixture=*/true, /*scenario=*/true);
     } else if (unprefixed == "TEMPLATE_TEST_CASE_METHOD_SIG"
                || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
                || unprefixed == "TEMPLATE_TEST_CASE_METHOD"
                || unprefixed == "TEMPLATE_LIST_TEST_CASE_METHOD") {
         handleParameterizedTestCase(true);
     } else if (unprefixed == "METHOD_AS_TEST_CASE" || unprefixed == "REGISTER_TEST_CASE") {
-        handleFixtureOrRegisteredTestCase(false);
+        handleFixtureOrRegisteredTestCase(/*fixture=*/false, /*scenario=*/false);
     }
 }
 
@@ -124,7 +126,7 @@ void CatchCodeParser::handleParameterizedTestCase(bool isFixture)
     if (!skipCommentsUntil(T_LPAREN))
         return;
 
-    if (isFixture && !skipFixtureParameter())
+    if (isFixture && !skipParameter())
         return;
 
     CatchTestCodeLocationAndType locationAndType
@@ -154,18 +156,13 @@ void CatchCodeParser::handleParameterizedTestCase(bool isFixture)
     m_testCases.append(locationAndType);
 }
 
-void CatchCodeParser::handleFixtureOrRegisteredTestCase(bool isFixture)
+void CatchCodeParser::handleFixtureOrRegisteredTestCase(bool isFixture, bool isScenario)
 {
     if (!skipCommentsUntil(T_LPAREN))
         return;
 
-    if (isFixture) {
-        if (!skipFixtureParameter())
+    if (!skipParameter())
             return;
-    } else {
-        if (!skipFunctionParameter())
-            return;
-    }
 
     CatchTestCodeLocationAndType locationAndType
             = locationAndTypeFromToken(m_tokens.at(m_currentIndex));
@@ -182,6 +179,9 @@ void CatchCodeParser::handleFixtureOrRegisteredTestCase(bool isFixture)
 
     if (stoppedAt != T_RPAREN)
         return;
+
+    if (isScenario)
+        testCaseName.prepend("Scenario: "); // use a flag?
 
     locationAndType.m_name = testCaseName;
     locationAndType.tags = parseTags(tagsString);
@@ -245,19 +245,12 @@ Kind CatchCodeParser::skipUntilCorrespondingRParen()
     return T_ERROR;
 }
 
-bool CatchCodeParser::skipFixtureParameter()
-{
-    if (!skipCommentsUntil(T_IDENTIFIER))
-        return false;
-    return skipCommentsUntil(T_COMMA);
-}
-
-bool CatchCodeParser::skipFunctionParameter()
+bool CatchCodeParser::skipParameter()
 {
     if (!skipCommentsUntil(T_IDENTIFIER))
         return false;
     if (skipCommentsUntil(T_COLON_COLON))
-        return skipFunctionParameter();
+        return skipParameter();
 
     return skipCommentsUntil(T_COMMA);
 }

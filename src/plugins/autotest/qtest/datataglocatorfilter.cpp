@@ -70,7 +70,7 @@ DataTagLocatorFilter::DataTagLocatorFilter()
 {
     setId("Locate Qt Test data tags");
     setDisplayName(Tr::tr("Locate Qt Test data tags"));
-    setDescription(Tr::tr("Locates a Qt Test data tag found inside the active project."));
+    setDescription(Tr::tr("Locates Qt Test data tags found inside the active project."));
     setDefaultShortcutString("qdt");
     setPriority(Medium);
     using namespace ProjectExplorer;

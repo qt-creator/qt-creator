@@ -49,6 +49,7 @@ static FilePath evaluateLatestQmlls()
             if (latestQmakeFilePath == qmakeNow && latestUniqueId >= v->uniqueId())
                 continue;
         }
+        latestVersion = vNow;
         latestQmlls = qmllsNow;
         latestQmakeFilePath = qmakeNow;
         latestUniqueId = uniqueIdNow;

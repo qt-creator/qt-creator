@@ -386,8 +386,6 @@ void doSemanticHighlighting(
         }
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
-        qCDebug(clangdLogHighlight) << "adding highlighting result"
-                                    << token.line << token.column << token.length << int(styles.mainStyle);
         return HighlightingResult(token.line, token.column, token.length, styles);
     };
 
@@ -420,6 +418,8 @@ void doSemanticHighlighting(
         }
         QList<Range> virtualRanges;
         for (const HighlightingResult &r : results) {
+            qCDebug(clangdLogHighlight)
+                << '\t' << r.line << r.column << r.length << int(r.textStyles.mainStyle);
             if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
                 continue;
             const Position startPos(r.line - 1, r.column - 1);

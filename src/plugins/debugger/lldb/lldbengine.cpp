@@ -841,18 +841,23 @@ void LldbEngine::readLldbStandardError()
 
 void LldbEngine::readLldbStandardOutput()
 {
-    QByteArray outba = m_lldbProc.readAllRawStandardOutput();
-    outba.replace("\r\n", "\n");
-    QString out = QString::fromUtf8(outba);
-    showMessage(out, LogOutput);
+    const QByteArray out = m_lldbProc.readAllRawStandardOutput();
+    showMessage(QString::fromUtf8(out), LogOutput);
     m_inbuffer.append(out);
     while (true) {
-        int pos = m_inbuffer.indexOf("@\n");
-        if (pos == -1)
-            break;
-        QString response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 2);
-        emit outputReady(response);
+        if (int pos = m_inbuffer.indexOf("@\n"); pos >= 0) {
+            const QByteArray response = m_inbuffer.left(pos).trimmed();
+            m_inbuffer = m_inbuffer.mid(pos + 2);
+            emit outputReady(QString::fromUtf8(response));
+            continue;
+        }
+        if (int pos = m_inbuffer.indexOf("@\r\n"); pos >= 0) {
+            const QByteArray response = m_inbuffer.left(pos).trimmed();
+            m_inbuffer = m_inbuffer.mid(pos + 3);
+            emit outputReady(QString::fromUtf8(response));
+            continue;
+        }
+        break;
     }
 }
 

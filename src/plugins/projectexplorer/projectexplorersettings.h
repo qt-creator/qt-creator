@@ -36,6 +36,7 @@ public:
                 && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
                 && p1.abortBuildAllOnError == p2.abortBuildAllOnError
                 && p1.appEnvChanges == p2.appEnvChanges
+                && p1.warnAgainstNonAsciiBuildDir == p2.warnAgainstNonAsciiBuildDir
                 && p1.lowBuildPriority == p2.lowBuildPriority;
     }
 
@@ -50,6 +51,7 @@ public:
     bool clearIssuesOnRebuild = true;
     bool abortBuildAllOnError = true;
     bool lowBuildPriority = false;
+    bool warnAgainstNonAsciiBuildDir = true;
     StopBeforeBuild stopBeforeBuild = Utils::HostOsInfo::isWindowsHost()
                                           ? StopBeforeBuild::SameProject
                                           : StopBeforeBuild::None;

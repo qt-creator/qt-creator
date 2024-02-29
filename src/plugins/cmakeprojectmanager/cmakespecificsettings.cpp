@@ -93,16 +93,16 @@ CMakeSpecificSettings::CMakeSpecificSettings()
         "UseJunctionsForSourceAndBuildDirectories");
     useJunctionsForSourceAndBuildDirectories.setDefaultValue(false);
     useJunctionsForSourceAndBuildDirectories.setLabelText(::CMakeProjectManager::Tr::tr(
-        "Use Junctions for CMake configuration and build operations"));
+        "Use junctions for CMake configuration and build operations"));
     useJunctionsForSourceAndBuildDirectories.setVisible(Utils::HostOsInfo().isWindowsHost());
     useJunctionsForSourceAndBuildDirectories.setToolTip(::CMakeProjectManager::Tr::tr(
-        "Create and use junctions for the source and build directories. This helps to overcome "
+        "Create and use junctions for the source and build directories to overcome "
         "issues with long paths on Windows.<br><br>"
-        "They are stored under <tt>C:\\ProgramData\\QtCreator\\Links</tt> (overridable via "
-        "<tt>QTC_CMAKE_JUNCTIONS_DIR</tt> environment variable).<br><br>"
-        "With <tt>QTC_CMAKE_JUNCTIONS_HASH_LENGTH</tt> the MD5 hash key length can be shortened "
+        "Junctions are stored under <tt>C:\\ProgramData\\QtCreator\\Links</tt> (overridable via "
+        "the <tt>QTC_CMAKE_JUNCTIONS_DIR</tt> environment variable).<br><br>"
+        "With <tt>QTC_CMAKE_JUNCTIONS_HASH_LENGTH</tt>, you can shorten the MD5 hash key length "
         "to a value smaller than the default length value of 32.<br><br>"
-        "They are used for CMake configure, build and install operations."));
+        "Junctions are used for CMake configure, build and install operations."));
 
     readSettings();
 }

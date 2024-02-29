@@ -1,4 +1,4 @@
-/*
+﻿/*
     SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
     SPDX-FileCopyrightText: 2018 Christoph Cullmann <cullmann@kde.org>
 
@@ -14,36 +14,23 @@
 
 using namespace KSyntaxHighlighting;
 
-StateData *StateData::get(State &state)
+StateData *StateData::reset(State &state)
 {
-    // create state data on demand, to make default state construction cheap
-    if (!state.d) {
-        state.d = new StateData();
-    } else {
-        state.d.detach();
-    }
+    auto *p = new StateData();
+    state.d.reset(p);
+    return p;
+}
+
+StateData *StateData::detach(State &state)
+{
+    state.d.detach();
     return state.d.data();
 }
 
-bool StateData::isEmpty() const
-{
-    return m_contextStack.isEmpty();
-}
-
-void StateData::clear()
-{
-    m_contextStack.clear();
-}
-
-int StateData::size() const
-{
-    return m_contextStack.size();
-}
-
-void StateData::push(Context *context, const QStringList &captures)
+void StateData::push(Context *context, QStringList &&captures)
 {
     Q_ASSERT(context);
-    m_contextStack.push_back(qMakePair(context, captures));
+    m_contextStack.push_back(StackValue{context, std::move(captures)});
 }
 
 bool StateData::pop(int popCount)
@@ -54,42 +41,23 @@ bool StateData::pop(int popCount)
     }
 
     // keep the initial context alive in any case
-    Q_ASSERT(!isEmpty());
-    const bool initialContextSurvived = m_contextStack.size() > popCount;
+    Q_ASSERT(!m_contextStack.empty());
+    const bool initialContextSurvived = int(m_contextStack.size()) > popCount;
     m_contextStack.resize(std::max(1, int(m_contextStack.size()) - popCount));
     return initialContextSurvived;
 }
 
-Context *StateData::topContext() const
-{
-    Q_ASSERT(!isEmpty());
-    return m_contextStack.last().first;
-}
+State::State() = default;
 
-const QStringList &StateData::topCaptures() const
-{
-    Q_ASSERT(!isEmpty());
-    return m_contextStack.last().second;
-}
+State::State(State &&other) noexcept = default;
 
-State::State()
-{
-}
+State::State(const State &other) noexcept = default;
 
-State::State(const State &other)
-    : d(other.d)
-{
-}
+State::~State() = default;
 
-State::~State()
-{
-}
+State &State::operator=(State &&other) noexcept = default;
 
-State &State::operator=(const State &other)
-{
-    d = other.d;
-    return *this;
-}
+State &State::operator=(const State &other) noexcept = default;
 
 bool State::operator==(const State &other) const
 {
@@ -104,8 +72,13 @@ bool State::operator!=(const State &other) const
 
 bool State::indentationBasedFoldingEnabled() const
 {
-    if (!d || d->m_contextStack.isEmpty()) {
+    if (!d || d->m_contextStack.empty()) {
         return false;
     }
-    return d->m_contextStack.last().first->indentationBasedFoldingEnabled();
+    return d->m_contextStack.back().context->indentationBasedFoldingEnabled();
+}
+
+std::size_t KSyntaxHighlighting::qHash(const State &state, std::size_t seed)
+{
+    return state.d ? qHashMulti(seed, *state.d) : 0;
 }

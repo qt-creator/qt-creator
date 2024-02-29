@@ -3432,7 +3432,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
         reg.name = parts.at(0);
         reg.size = parts.at(4).toInt();
         reg.reportedType = parts.at(5);
-        reg.groups = Utils::toSet(parts.at(6).split(','));
+        reg.groups = parts.at(6).split(',');
         m_registers[gdbRegisterNumber] = reg;
     }
 }
@@ -3870,6 +3870,10 @@ void GdbEngine::handleGdbStarted()
     runCommand({"show version", CB(handleShowVersion)});
     runCommand({"show debug-file-directory", CB(handleDebugInfoLocation)});
 
+    // Show supported architectures.
+    runCommand({"set max-completions 1000"}); // gdb-multiarch needs ~250
+    runCommand({"complete set arch "}); // Keep the space!
+
     //runCommand("-enable-timings");
     //rurun print static-members off"); // Seemingly doesn't work.
     //runCommand("set debug infrun 1");
@@ -4093,7 +4097,7 @@ void GdbEngine::setEnvironmentVariables()
 
     Environment baseEnv = runParameters().debugger.environment;
     Environment runEnv = runParameters().inferior.environment;
-    const NameValueItems items = baseEnv.diff(runEnv);
+    const EnvironmentItems items = baseEnv.diff(runEnv);
     for (const EnvironmentItem &item : items) {
         // imitate the weird windows gdb behavior of setting the case of the path environment
         // variable name to an all uppercase PATH

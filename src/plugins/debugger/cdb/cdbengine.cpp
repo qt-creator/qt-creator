@@ -1078,6 +1078,8 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         };
 
         runCommand(cmd);
+        cmd.arg("passexceptions", true);
+        m_lastDebuggableCommand = cmd;
     } else {
 
         const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
@@ -2094,9 +2096,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
     }
 
     if (what == "debuggee_output") {
-        const QByteArray decoded = QByteArray::fromHex(message.toUtf8());
-        showMessage(QString::fromUtf16(reinterpret_cast<const char16_t *>(decoded.data()), decoded.size() / 2),
-                    AppOutput);
+        const QByteArray encoded = QByteArray::fromHex(message.toUtf8());
+        const QString message = QString::fromUtf16(reinterpret_cast<const char16_t *>(
+                                                       encoded.data()),
+                                                   encoded.size() / 2);
+        showMessage(message.endsWith('\n') ? message : message + '\n', AppOutput);
         return;
     }
 
@@ -2966,6 +2970,11 @@ BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
         result.ignoreCount = *ignoreCount - 1;
     result.threadSpec = gdbmiChildToInt(gdbmi, "thread").value_or(result.threadSpec);
     return result;
+}
+
+void CdbEngine::debugLastCommand()
+{
+    runCommand(m_lastDebuggableCommand);
 }
 
 void CdbEngine::handleBreakPoints(const DebuggerResponse &response)

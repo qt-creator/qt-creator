@@ -70,6 +70,7 @@ private:
     QCheckBox *m_clearIssuesCheckBox;
     QCheckBox *m_abortBuildAllOnErrorCheckBox;
     QCheckBox *m_lowBuildPriorityCheckBox;
+    QCheckBox *m_warnAgainstNonAsciiBuildDirCheckBox;
     QComboBox *m_buildBeforeDeployComboBox;
     QComboBox *m_stopBeforeBuildComboBox;
     QComboBox *m_terminalModeComboBox;
@@ -95,6 +96,12 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     m_clearIssuesCheckBox = new QCheckBox(Tr::tr("Clear issues list on new build"));
     m_abortBuildAllOnErrorCheckBox = new QCheckBox(Tr::tr("Abort on error when building all projects"));
     m_lowBuildPriorityCheckBox = new QCheckBox(Tr::tr("Start build processes with low priority"));
+    m_warnAgainstNonAsciiBuildDirCheckBox = new QCheckBox(
+        Tr::tr("Warn against build directories with spaces or non-ASCII characters"));
+    m_warnAgainstNonAsciiBuildDirCheckBox->setToolTip(
+        Tr::tr("Some legacy build tools do not deal well with paths that contain \"special\" "
+               "characters such as spaces, potentially resulting in spurious build errors.<p>"
+               "Uncheck this option if you do not work with such tools."));
     m_buildBeforeDeployComboBox = new QComboBox;
     m_buildBeforeDeployComboBox->addItem(Tr::tr("Do Not Build Anything"),
                                          int(BuildBeforeRunMode::Off));
@@ -172,6 +179,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                 m_clearIssuesCheckBox,
                 m_abortBuildAllOnErrorCheckBox,
                 m_lowBuildPriorityCheckBox,
+                m_warnAgainstNonAsciiBuildDirCheckBox,
                 Form {
                     appEnvDescriptionLabel, Row{m_appEnvLabel, appEnvButton, st}, br,
                     Tr::tr("Build before deploying:"), m_buildBeforeDeployComboBox, br,
@@ -219,6 +227,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.clearIssuesOnRebuild = m_clearIssuesCheckBox->isChecked();
     m_settings.abortBuildAllOnError = m_abortBuildAllOnErrorCheckBox->isChecked();
     m_settings.lowBuildPriority = m_lowBuildPriorityCheckBox->isChecked();
+    m_settings.warnAgainstNonAsciiBuildDir = m_warnAgainstNonAsciiBuildDirCheckBox->isChecked();
     m_settings.appEnvChanges = m_appEnvChanges;
     return m_settings;
 }
@@ -242,6 +251,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_clearIssuesCheckBox->setChecked(m_settings.clearIssuesOnRebuild);
     m_abortBuildAllOnErrorCheckBox->setChecked(m_settings.abortBuildAllOnError);
     m_lowBuildPriorityCheckBox->setChecked(m_settings.lowBuildPriority);
+    m_warnAgainstNonAsciiBuildDirCheckBox->setChecked(m_settings.warnAgainstNonAsciiBuildDir);
 }
 
 FilePath ProjectExplorerSettingsWidget::projectsDirectory() const

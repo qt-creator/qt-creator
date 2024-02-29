@@ -5,6 +5,8 @@
 
 #include <projectexplorer/runconfigurationaspects.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 
 namespace Python::Internal {
@@ -69,6 +71,7 @@ private:
     QString m_defaultInterpreterId;
     bool m_pylsEnabled = true;
     QString m_pylsConfiguration;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 
     static void saveSettings();
 };

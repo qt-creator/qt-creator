@@ -13,8 +13,6 @@
 
 #include <utils/filesystemwatcher.h>
 
-#include <QFutureWatcher>
-
 namespace ProjectExplorer {
 class Kit;
 class ProjectUpdater;
@@ -51,7 +49,6 @@ public:
     void updateDeploymentData();
     void buildTreeAndProjectParts();
 
-    QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
     MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;

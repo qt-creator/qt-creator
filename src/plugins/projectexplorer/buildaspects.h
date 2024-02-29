@@ -31,7 +31,8 @@ private:
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
-    void updateProblemLabel();
+    void updateProblemLabels();
+    QString updateProblemLabelsHelper(const QString &value);
 
     class Private;
     Private * const d;

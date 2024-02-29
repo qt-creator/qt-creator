@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -12,147 +12,243 @@
     \page creator-overview.html
     \nextpage creator-quick-tour.html
 
-    \title IDE Overview
+    \title Overview
 
-    \QC is an integrated development environment (IDE) that has tools for
-    designing and developing applications with the Qt application framework.
-    With Qt you can develop applications and user interfaces once and deploy
-    them to several desktop, embedded, and mobile operating systems or
-    web browsers (experimental). \QC has the tools for accomplishing your tasks
+    \QC is a cross-platform, complete integrated development environment
+    (IDE) that you can use to create applications for desktop, embedded,
+    and mobile operating systems, or web browsers.
+
+    With Qt, you can develop applications and user interfaces once and deploy
+    them to many platforms. \QC has the tools for accomplishing your tasks
     throughout the whole application development life-cycle, from creating a
-    project to deploying the application to the target platforms.
+    project, designing a UI, and writing code to building applications and
+    deploying them to the target platforms for running and debugging.
 
-    \table
-        \row
-            \li \inlineimage front-projects.png
-            \li \inlineimage front-ui.png
-            \li \inlineimage front-coding.png
-        \row
-            \li \b {Managing Projects}
+    \image qt-app-dev-flow.webp {Application development life-cycle}
+    \caption Application development life-cycle
 
-                To be able to build and run applications, \QC needs the same
-                information as a compiler would need. It stores the information
-                in the project settings.
+    \section1 Projects
 
-                You can share projects with other designers and developers across
-                different development platforms with a common tool for design,
-                development, and debugging.
+    First, you need a \e project. \QC relies on a separate build system, such as
+    CMake, qmake, or Qbs for building the project. From the build system, \QC
+    gets most of the information it needs to offer services for writing, editing,
+    and navigating source code, as well as to deploy and run applications. It
+    stores additional information in the project settings.
 
-                \list
-                    \li \l{Creating Projects}
+    Share projects with other designers and developers across different
+    development platforms with a common tool for design, development, and
+    debugging.
 
-                        To set up a project, you first have to decide what kind
-                        of an application you want to develop: do you want a user
-                        interface based on \l{User Interfaces}
-                        {Qt Quick or Qt Widgets}. Second, you have to choose the
-                        programming language to implement the application logic:
-                        C++ or Python.
-                    \li \l{Version Control Systems}
+    \list
+        \li \l{Creating Projects}
 
-                        The recommended way to set up a project is to use a
-                        version control system. Store and edit only project
-                        source files and configuration files. Do not store
-                        generated files.
-                    \li \l{Configuring Projects}
+            To set up a project, you first have to decide what kind
+            of an application you want to develop: do you want a user
+            interface based on \l{User Interfaces}
+            {Qt Quick or Qt Widgets}. Second, you have to choose the
+            programming language to implement the application logic:
+            C++ or Python.
+        \li \l{Version Control Systems}
 
-                        Installation programs and project wizards create default
-                        configurations for \QC and your projects. You can change
-                        the configurations in the \uicontrol Projects mode.
-                \endlist
-                For more information, see \l{Manage Projects}
-                {How To: Manage Projects}.
-            \li \b {Designing User Interfaces}
+            The recommended way to set up a project is to use a
+            version control system. Store and edit only project
+            source files and configuration files. Do not store
+            generated files.
+        \li \l{Configuring Projects}
 
-                To create intuitive, modern-looking, fluid user interfaces, you
-                can use \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}:
+            Installation programs and project wizards create default
+            configurations for \QC and your projects. Change the
+            configurations in the \uicontrol Projects mode.
+    \endlist
 
-                \list
-                    \li \l {\QMLD}
+    For more information, see \l{Manage Projects}{How To: Manage Projects}.
 
-                        Or, you can enable the \QMLD plugin to visually edit
-                        \l{UI Files}{UI files} (.ui.qml).
-                    \li \l {Converting UI Projects to Applications}
+    \section1 User Interfaces
 
-                        Qt Quick UI Prototype projects (.qmlproject) are useful
-                        for creating user interfaces. To use them for application
-                        development, you have to convert them to Qt Quick
-                        Application projects that have project configuration
-                        files (CMakeLists.txt or .pro), .cpp, and .qrc files.
-                    \li \l {UI Files}
+    \image heartgame-start.webp {Heart Rate Game}
 
-                        If you switch between \QC and \QDS or cooperate with
-                        designers on a project, you might encounter .ui.qml files.
-                        They are intended to be edited in \QDS only, so you need
-                        to be careful not to break the code. To visually edit the
-                        files in \QC, enable the \QMLD plugin.
-                    \li \l{Using QML Modules with Plugins}
+    To create intuitive, modern-looking, fluid user interfaces, use \l{Qt Quick}
+    and \l{Qt Design Studio Manual}{\QDS}:
 
-                        You can load C++ plugins for QML to simulate data.
-                \endlist
+    \list
+        \li \l {\QMLD}
 
-                If you need a traditional user interface that has a clear
-                structure and enforces a platform look and feel, use
-                \l{Qt Widgets} and the integrated \l{\QD}.
+            Or, enable the \QMLD plugin to visually edit \l{UI Files}{UI files}
+            (.ui.qml).
+        \li \l {Converting UI Projects to Applications}
 
-                For more information, see
-                \l{Design UIs}{How To: Design UIs}.
-            \li \b {\l{Coding}}
+            Qt Quick UI Prototype projects (.qmlproject) are useful
+            for creating user interfaces. To use them for application
+            development, you have to convert them to Qt Quick
+            Application projects that have project configuration
+            files (CMakeLists.txt or .pro), .cpp, and .qrc files.
+        \li \l {UI Files}
 
-                As an IDE, \QC differs from a text editor in that it knows how
-                to build and run applications. It understands the C++ and QML
-                languages as code, not just as plain text. Therefore, it can
-                offer useful features, such as semantic highlighting,
-                checking code syntax, code completion, and refactoring actions.
-                \QC supports some of these services also for other programming
-                languages, such as Python, for which a \e {language server} is
-                available that provides information about the code to IDEs.
+            If you switch between \QC and \QDS or cooperate with
+            designers on a project, you might encounter .ui.qml files.
+            They are intended to be edited in \QDS only, so you need
+            to be careful not to break the code. To visually edit the
+            files in \QC, enable the \QMLD plugin.
+        \li \l{Using QML Modules with Plugins}
 
-                For more information, see \l{Edit Code}{How To: Edit Code}.
-        \row
-            \li \inlineimage front-preview.png
-            \li \inlineimage front-testing.png
-            \li \inlineimage front-publishing.png
-        \row
-            \li \b {\l{Building and Running}}
+            Load C++ plugins for QML to simulate data.
+    \endlist
 
-                \QC integrates cross-platform systems for build
-                automation: qmake, Qbs, CMake, and Autotools. In addition, you
-                can import
-                projects as \e {generic projects} and fully control the steps
-                and commands used to build the project.
+    If you need a traditional user interface that has a clear structure and
+    enforces a platform look and feel, use \l{Qt Widgets} and the integrated
+    \l{\QD}.
 
-                You can build applications for, deploy them to, and run them on
-                the desktop environment or a \l{glossary-device}{device}.
-                \l{glossary-buildandrun-kit}{Kits}, build, run, and deployment
-                settings allow you to quickly switch between different setups and
-                target platforms.
+    For more information, see \l{Design UIs}{How To: Design UIs} and
+    \l{UI Design}.
 
-                For more information, see \l{Build and Run}
-                {How To: Build and Run}.
-            \li \b {\l{Testing}}
+    \section1 Code
 
-                \QC integrates several external native debuggers that you can use
-                to inspect the state of your application while debugging.
+    Writing, editing, and navigating in source code are core tasks in application
+    development. Therefore, the code editor is one of the key components of \QC.
+    Use the code editor in the \l {Edit Mode}{Edit mode}.
 
-                Devices have limited memory and CPU power, so you should use them
-                carefully. \QC integrates code analysis tools for detecting
-                memory leaks, profiling function execution, analyzing CPU use,
-                and eliminating unnecessary complexity of code. Other tools
-                provide code coverage and visualize trace events.
+    As an IDE, \QC differs from a text editor in that it knows how to build and
+    run applications. It understands the C++ and QML languages as code, not just
+    as plain text. Therefore, it can offer useful features, such as semantic
+    highlighting, checking code syntax, code completion, and refactoring actions.
 
-                \QC integrates several testing frameworks for unit testing
-                applications and libraries. You can use \QC to create, build,
-                and run autotests.
+    \QC supports some of these services also for other programming languages,
+    such as Python, for which a \e {language server} is available that provides
+    information about the code to IDEs.
 
-                For more information, see \l{Testing}.
-            \li \b {Publishing}
+    \section2 Find
 
-                \QC enables you to create installation packages for mobile
-                devices that you can publish to application stores
-                and other channels. You must make sure that the package contents
-                meet the requirements for publishing on the channel.
+    Use the incremental and advanced search to search in currently open projects
+    or files on the file system or use the locator to browse through projects,
+    files, classes, functions, documentation, and file systems.
 
-                For more information, see \l{Publishing to Google Play}.
-\endtable
+    \section2 Refactor
 
+    \e {Code refactoring} is the process of improving and simplifying code
+    without modifying the existing functionality of an application. Find
+    and rename symbols and apply predefined actions to refactor code.
+
+    Refactor code to:
+
+    \list
+        \li Improve internal quality of your application
+        \li Improve performance and extensibility
+        \li Improve code readability and maintainability
+        \li Simplify code structure
+    \endlist
+
+    \section2 Configure the Editor
+
+    Configure the text editor to suit your specific needs. Change the fonts,
+    colors, highlighting, and indentation.
+
+    If you are used to the Vim editor, run the main editor in the
+    \l {FakeVim Modes and Commands}{FakeVim mode}.
+
+    For more information, see \l{Edit Code}{How To: Edit Code} and \l{Editors}.
+
+    \section1 Build, Deploy, and Run
+
+    Run and deploy Qt applications that you build for different target
+    platforms or with different compilers, debuggers, or Qt versions.
+    \l{glossary-buildandrun-kit}{Kits} define the tools, \l{glossary-device}
+    {device} type and other settings to use when building and running your
+    project.
+
+    \QC integrates cross-platform systems for build automation: CMake,
+    qmake, Qbs, and Autotools. In addition, you can import projects as
+    \e {generic projects} and fully control the steps and commands to
+    build the project.
+
+    Build applications for, deploy them to, and run them on the desktop
+    environment or a device. With kits, as well as build, run, and deployment
+    configurations, you can quickly switch between different setups and
+    target platforms.
+
+    For more information, see \l{Build and Run}{How To: Build and Run},
+    \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
+
+    \section2 On Devices
+
+    When you install tool chains for device types as part of a Qt distribution,
+    the build and run configurations for the devices might be set up
+    automatically. However, you might need to install and configure some
+    additional software on the devices to be able to connect to them
+    from the computer.
+
+    Deployment configurations handle the packaging and copying of the necessary
+    files to a location you want to run the executable at, such as the file
+    system of a device.
+
+    For more information, see \l{Connecting Devices} and \l{Deploying to Devices}.
+
+    \section2 Preview QML
+
+    Use the QML live preview to preview a QML file or an entire Qt Quick
+    application on the desktop, as well as on Android and embedded Linux
+    devices. The changes you make to the UI are instantly visible to you
+    in the preview.
+
+    For more information, see \l{Validating with Target Hardware}.
+
+    \section1 Debug
+
+    A debugger lets you see what happens \e inside an application while it runs
+    or when it crashes. A debugger can do the following to help you find errors
+    in the application:
+
+    \list
+        \li Start the application with parameters that specify its behavior.
+        \li Stop the application when conditions are met.
+        \li Examine what happens when the application stops.
+        \li Make changes in the application when you fix an error and continue
+            to find the next one.
+    \endlist
+
+    \QC integrates several external native debuggers for inspecting the state of
+    your application while debugging. The debugger plugin automatically selects
+    a suitable native debugger for each kit from the ones it finds on the
+    computer. Edit the kits to override this choice.
+
+    Connect devices to your computer to debug processes running on the devices.
+
+    For more information, see \l{Debugging}.
+
+    \section1 Analyze
+
+    Devices have limited memory and CPU power, so you should use them carefully.
+    \QC integrates code analysis tools for detecting memory leaks, profiling
+    function execution, analyzing CPU use, and eliminating unnecessary complexity
+    of code. Other tools provide code coverage and visualize trace events.
+
+    Install and configure the tools on your system to use them from \QC.
+    However, the QML Profiler is installed as part of \QC for profiling
+    Qt Quick applications.
+
+    For more information, see \l{Analyzing Code}.
+
+    \section1 Autotest
+
+    Create, build and run Qt tests, Qt Quick tests, Google tests, and Boost tests
+    to unit test applications and libraries.
+
+    Map AUTs (Application Under Test) to \QC and run Squish test suites
+    and cases from it.
+
+    For more information, see \l{Running Autotests} and \l{Using Squish}.
+
+    \section1 Publish
+
+    Create installation packages for mobile devices that you publish to
+    application stores and other channels. You must make sure that the
+    package contents meet the requirements for publishing on the channel.
+
+    For more information, see \l{Publishing to Google Play}.
+
+    \section1 Qt Tools
+
+    \QC is one of many Qt tools for designing and developing applications.
+
+    \image qt-tools.webp {Tools for Qt application development}
+    \caption Tools for Qt application development
 */

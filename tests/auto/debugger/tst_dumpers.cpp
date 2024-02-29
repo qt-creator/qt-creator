@@ -41,6 +41,15 @@ enum class Language
     Fortran90
 };
 
+// for tests using custom allocator
+#define MY_ALLOCATOR \
+    "template<class T>\n" \
+    "struct myallocator : public std::allocator<T> {\n" \
+    "template<typename U> struct rebind { typedef myallocator<U> other; };\n" \
+    "myallocator() = default;\n" \
+    "template<typename U> myallocator(const myallocator<U>&) {}\n" \
+    "};\n"
+
 // Copied from msvctoolchain.cpp to avoid plugin dependency.
 static bool generateEnvironmentSettings(Utils::Environment &env,
                                         const QString &batchFile,
@@ -5263,13 +5272,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("StdBasicString")
 
             << Data("#include <string>\n"
-                    "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {\n"
-                    "template<typename _Tp1>\n"
-                    "struct rebind {\n"
-                    "typedef myallocator<_Tp1> other;\n"
-                    "};\n"
-                    "};\n",
+                    MY_ALLOCATOR,
 
                     "std::basic_string<char, std::char_traits<char>, myallocator<char>> str(\"hello\");",
 
@@ -5349,7 +5352,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("StdTuple")
-            << Data("#include <string>\n",
+            << Data("#include <string>\n"
+                    "#include <tuple>\n",
 
                     "std::tuple<int, std::string, int> tuple = std::make_tuple(123, std::string(\"hello\"), 456);\n",
 
@@ -5432,14 +5436,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("StdVector")
             << Data("#include <vector>\n"
                     "#include <list>\n"
-                    "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {\n"
-                    "using std::allocator<T>::allocator;\n"
-                    "template<typename _Tp1>\n"
-                    "struct rebind {\n"
-                    "typedef myallocator<_Tp1> other;\n"
-                    "};\n"
-                    "};\n",
+                    MY_ALLOCATOR,
 
                     "std::vector<double> v0, v1;\n"
                     "v1.push_back(1);\n"

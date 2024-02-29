@@ -16,10 +16,6 @@
 
 #include <vector>
 
-QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-QT_END_NAMESPACE
-
 namespace KSyntaxHighlighting
 {
 class DefinitionData;
@@ -52,7 +48,17 @@ public:
 
     bool fallthrough() const
     {
-        return m_fallthrough;
+        return !m_fallthroughContext.isStay();
+    }
+
+    bool hasDynamicRule() const
+    {
+        return m_hasDynamicRule;
+    }
+
+    bool stopEmptyLineContextSwitchLoop() const
+    {
+        return m_stopEmptyLineContextSwitchLoop;
     }
 
     const ContextSwitch &fallthroughContext() const
@@ -96,7 +102,8 @@ private:
     Format m_attributeFormat;
 
     ResolveState m_resolveState = Unresolved;
-    bool m_fallthrough = false;
+    bool m_hasDynamicRule = false;
+    bool m_stopEmptyLineContextSwitchLoop = true;
     bool m_indentationBasedFolding;
 };
 }

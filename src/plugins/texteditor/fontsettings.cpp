@@ -356,13 +356,14 @@ QFont FontSettings::font() const
 {
     QFont f(family(), fontSize());
     f.setStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
+    f.setWeight(fontNormalWeight());
     return f;
 }
 
-int FontSettings::fontNormalWeight() const
+QFont::Weight FontSettings::fontNormalWeight() const
 {
     // TODO: Fix this when we upgrade "Source Code Pro" to a version greater than 2.0.30
-    int weight = QFont::Normal;
+    QFont::Weight weight = QFont::Normal;
     if (Utils::HostOsInfo::isMacHost() && m_family == g_sourceCodePro)
         weight = QFont::Medium;
     return weight;

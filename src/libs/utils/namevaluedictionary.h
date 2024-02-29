@@ -48,9 +48,9 @@ public:
     QString value(const QString &key) const;
     void set(const QString &key, const QString &value, bool enabled = true);
     void unset(const QString &key);
-    void modify(const NameValueItems &items);
+    void modify(const EnvironmentItems &items);
     /// Return the KeyValueDictionary changes necessary to modify this into the other environment.
-    NameValueItems diff(const NameValueDictionary &other, bool checkAppendPrepend = false) const;
+    EnvironmentItems diff(const NameValueDictionary &other, bool checkAppendPrepend = false) const;
     bool hasKey(const QString &key) const;
     OsType osType() const;
     Qt::CaseSensitivity nameCaseSensitivity() const;

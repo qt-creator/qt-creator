@@ -349,6 +349,8 @@ public:
     void pasteWithoutFormat();
     void switchUtf8bom();
 
+    void increaseFontZoom();
+    void decreaseFontZoom();
     void zoomF(float delta);
     void zoomReset();
 
@@ -643,6 +645,7 @@ private:
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
 
+    bool singleShotAfterHighlightingDone(std::function<void()> &&f);
     void updateVisualWrapColumn();
 };
 

@@ -213,7 +213,8 @@
                             \endlist
                         \li \l{Finding}
                             \list
-                                \li \l{Finding and Replacing}
+                                \li \l{Search in current file}
+                                \li \l{Search in projects or file systems}
                                 \li \l{Searching with the Locator}
                                 \li \l{Jump to the Code}
                             \endlist

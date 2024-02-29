@@ -819,15 +819,13 @@ void AndroidRunnerWorker::removeForwardPort(const QString &port)
 
 void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
 {
-    qint64 pid = pidUser.first;
-    qint64 user = pidUser.second;
     // Don't write to m_psProc from a different thread
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
-                                 << "to:" << pid;
-    m_processPID = pid;
-    m_processUser = user;
-    if (pid == -1) {
+                                 << "to:" << pidUser.first;
+    m_processPID = pidUser.first;
+    m_processUser = pidUser.second;
+    if (m_processPID == -1) {
         emit remoteProcessFinished(QLatin1String("\n\n") + Tr::tr("\"%1\" died.")
                                    .arg(m_packageName));
         // App died/killed. Reset log, monitor, jdb & gdbserver/lldb-server processes.
@@ -852,7 +850,10 @@ void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), &Process::done, this, [this] { onProcessIdChanged({-1, -1}); });
+        connect(m_psIsAlive.get(), &Process::done, this, [this] {
+            m_psIsAlive.release()->deleteLater();
+            onProcessIdChanged({-1, -1});
+        });
     }
 }
 

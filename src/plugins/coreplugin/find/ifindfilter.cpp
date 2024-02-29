@@ -92,7 +92,7 @@ using namespace Utils;
     Returns the name of the find filter or scope as presented to the user.
 
     This is the name that appears in the scope selection combo box, for example.
-    Always return a translatable string. That is, use \c tr() for the return
+    Always return a translatable string. That is, use \c {Tr::tr()} for the return
     value.
 */
 

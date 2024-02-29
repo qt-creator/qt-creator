@@ -180,7 +180,7 @@
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.
 
-    Press \key {Ctrl+F} to \l{Finding and Replacing}{search} for a string from
+    Press \key {Ctrl+F} to \l{Search in current file}{search} for a string in
     the output.
 
     To increase or decrease the output text size, select \inlineimage icons/plus.png
@@ -188,7 +188,7 @@
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-.
 
     To hide the output, select the \inlineimage icons/rightsidebaricon.png
-    (\uicontrol {Hide/Show Right Sidebar}) button or press \key {Alt+Shift+0}.
+    (\uicontrol {Hide Right Sidebar}) button or press \key {Alt+Shift+0}.
 
     \section1 CLICOLOR_FORCE Environment Variable
 
@@ -275,6 +275,7 @@
 
     The build errors and warnings are parsed and displayed in \l Issues.
 
-    \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}, {CMake}
+    \sa {Activate kits for a project}, {Add custom output parsers},
+    {Configure projects for building}, {Configure projects for running},
+    {Open projects}, {CMake}
 */

@@ -17,10 +17,6 @@ namespace Axivion::Internal {
 class AxivionServer
 {
 public:
-    AxivionServer() = default;
-    AxivionServer(const Utils::Id &id, const QString &dashboardUrl,
-                  const QString &description, const QString &token);
-
     bool operator==(const AxivionServer &other) const;
     bool operator!=(const AxivionServer &other) const;
 
@@ -29,8 +25,7 @@ public:
 
     Utils::Id id;
     QString dashboard;
-    QString description;
-    QString token;
+    QString username;
 
     bool validateCert = true;
 };
@@ -43,6 +38,7 @@ public:
     void toSettings() const;
 
     AxivionServer server; // shall we have more than one?
+    Utils::BoolAspect highlightMarks{this};
 };
 
 AxivionSettings &settings();

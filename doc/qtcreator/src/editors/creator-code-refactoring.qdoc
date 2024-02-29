@@ -8,20 +8,6 @@
 
     \title Refactoring
 
-    \e {Code refactoring} is the process of improving and simplifying code
-    without modifying the existing functionality of an application. You
-    can easily find and rename symbols and apply predefined actions to
-    refactor code.
-
-    Refactor code to:
-
-    \list
-        \li Improve internal quality of your application
-        \li Improve performance and extensibility
-        \li Improve code readability and maintainability
-        \li Simplify code structure
-    \endlist
-
     To quickly and conveniently apply actions to refactor your
     code, \l{Apply quick fixes}{select quick fixes in a context menu}.
 
@@ -51,13 +37,6 @@
     \image qtcreator-search-cpp-symbols.png
     \endif
 
-    \section1 Finding QML Types
-
-    To find instances of a specific QML type in a project, place the cursor on
-    the type and select \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Find References to Symbol Under Cursor} or press
-    \key {Ctrl+Shift+U}.
-
     \section1 Viewing Search Results
 
     \QC searches from the following locations:
@@ -71,7 +50,7 @@
         \endif
     \endlist
 
-    \l{Search Results} shows the location and number of search hits in the
+    \l{Search Results View} shows the location and number of search hits in the
     current project.
 
     \if defined(qtcreator)

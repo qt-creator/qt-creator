@@ -283,7 +283,7 @@ function(add_qtc_doc_attribution target attribution_file output_file qdocconf_fi
   file(MAKE_DIRECTORY ${output_dir})
   # add target
   add_custom_target(${target}
-      Qt6::qtattributionsscanner -o "${output_file}" ${attribution_file}
+      Qt6::qtattributionsscanner -o "${output_file}" --basedir "${PROJECT_SOURCE_DIR}" ${attribution_file}
     COMMENT "Create attributions ${output_file} from ${attribution_file}"
     DEPENDS "${attribution_file}"
     SOURCES "${attribution_file}"

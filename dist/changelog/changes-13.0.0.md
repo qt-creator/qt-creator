@@ -18,7 +18,7 @@ What's new?
 ### Qt Application Manager
 
 Adds support for Qt 6 based applications with CMake for creating, building,
-deploying, running, and debugging on devices that use the
+deploying, running, and debugging for devices that use the
 [Qt Application Manager](https://doc.qt.io/QtApplicationManager/).
 
 ([Documentation](https://doc.qt.io/qtcreator/creator-overview-qtasam.html))
@@ -39,6 +39,12 @@ General
   for searching in `Files in File System`
 * Added `Copy to Clipboard` to the `About Qt Creator` dialog
   ([QTCREATORBUG-29886](https://bugreports.qt.io/browse/QTCREATORBUG-29886))
+* Fixed issues with the window actions
+  ([QTCREATORBUG-30381](https://bugreports.qt.io/browse/QTCREATORBUG-30381))
+* Known Issues
+    * Installers provided by The Qt Company mostly display English text, not
+      the system's language
+      ([QTIFW-3310](https://bugreports.qt.io/browse/QTIFW-3310))
 
 Editing
 -------
@@ -63,6 +69,7 @@ Editing
   ([QTCREATORBUG-21826](https://bugreports.qt.io/browse/QTCREATORBUG-21826))
 * Improved the coding style settings by separating Clang Format and other coding
   style settings, and using a plain text editor for custom Clang Format settings
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-preferences-cpp-code-style.html))
 * Fixed that the class wizards used the class name for the include guard
   instead of the file name
   ([QTCREATORBUG-30140](https://bugreports.qt.io/browse/QTCREATORBUG-30140))
@@ -77,6 +84,8 @@ Editing
 * Clangd
     * Fixed that `Follow Symbol Under Cursor` only worked for exact matches
       ([QTCREATORBUG-29814](https://bugreports.qt.io/browse/QTCREATORBUG-29814))
+    * Fixed the version check for remote `clangd` executables
+      ([QTCREATORBUG-30374](https://bugreports.qt.io/browse/QTCREATORBUG-30374))
 
 ### QML
 
@@ -96,6 +105,7 @@ Editing
 
 * Added automatic setup up of language servers for `YAML`, `JSON`, and `Bash`
   (requires `npm`)
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-language-servers.html#adding-language-servers))
 
 ### Widget Designer
 
@@ -123,6 +133,7 @@ Projects
 * Added a section `Vanished Targets` to `Projects` mode in case the project
   was configured for kits that have vanished, as a replacement for the automatic
   creation of "Replacement" kits
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-how-to-activate-kits.html#copy-custom-settings-from-vanished-targets))
 * Added the status of devices to the device lists
   ([QTCREATORBUG-20941](https://bugreports.qt.io/browse/QTCREATORBUG-20941))
 * Added the `Preferences > Build & Run > General > Application environment`
@@ -130,6 +141,10 @@ Projects
   ([QTCREATORBUG-29530](https://bugreports.qt.io/browse/QTCREATORBUG-29530))
 * Added a file wizard for Qt translation (`.ts`) files
   ([QTCREATORBUG-29775](https://bugreports.qt.io/browse/QTCREATORBUG-29775))
+* Added an optional warning for special characters in build directories
+  ([QTCREATORBUG-20834](https://bugreports.qt.io/browse/QTCREATORBUG-20834))
+* Improved the environment settings by making the changes explicit in a
+  separate, text-based editor
 * Increased the maximum width of the target selector
   ([QTCREATORBUG-30038](https://bugreports.qt.io/browse/QTCREATORBUG-30038))
 * Fixed that the `Left` cursor key did not always collapse the current item
@@ -164,10 +179,12 @@ Projects
 
 * Added `Generate Kit` to the Python interpreter preferences for generating a
   Python kit with this interpreter
-* Added the target setup page when loading unconfigured Python projects
+* Added the `Kit Selection` page for creating and opening Python projects
 * Added a `requirements.txt` file to the application wizard
 * Fixed that the same Python interpreter could be auto-detected multiple times
   under different names
+
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-python-development.html))
 
 Debugging
 ---------
@@ -177,6 +194,9 @@ Debugging
 ### C++
 
 * Added a pretty printer for `std::tuple`
+* Improved the display of size information for the pretty printer of
+  `QByteArray`
+  ([QTCREATORBUG-30065](https://bugreports.qt.io/browse/QTCREATORBUG-30065))
 * Fixed that breakpoints were not hit while the message dialog about missing
   debug information was shown
   ([QTCREATORBUG-30168](https://bugreports.qt.io/browse/QTCREATORBUG-30168))
@@ -244,6 +264,7 @@ Platforms
 * Fixed deployment and running applications for iOS 17 devices
   (application output, debugging, and profiling are not supported)
   ([QTCREATORBUG-29682](https://bugreports.qt.io/browse/QTCREATORBUG-29682))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-developing-ios.html))
 
 ### Remote Linux
 
@@ -262,6 +283,7 @@ Andre Hartmann
 André Pönitz  
 Andreas Loth  
 Artem Sokolovskii  
+Assam Boudjelthia  
 Brook Cronin  
 Burak Hancerli  
 Christian Kandeler  
@@ -298,6 +320,7 @@ Robert Löhning
 Sami Shalayel  
 Samuel Jose Raposo Vieira Mira  
 Samuel Mira  
+Semih Yavuz  
 Serg Kryvonos  
 Shrief Gabr  
 Sivert Krøvel  

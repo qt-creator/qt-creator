@@ -273,7 +273,7 @@ ClangdSettings::ClangdSettings()
 
 bool ClangdSettings::useClangd() const
 {
-    return m_data.useClangd && clangdVersion() >= QVersionNumber(14);
+    return m_data.useClangd && clangdVersion(clangdFilePath()) >= minimumClangdVersion();
 }
 
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }

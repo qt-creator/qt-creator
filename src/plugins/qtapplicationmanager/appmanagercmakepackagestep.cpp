@@ -42,7 +42,7 @@ public:
             QObject::connect(step->project(), &Project::displayNameChanged, step, updaterSlot);
         });
 
-        setDisplayName(Tr::tr("Create Appman package with CMake"));
+        setDisplayName(Tr::tr("Create Application Manager package with CMake"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };

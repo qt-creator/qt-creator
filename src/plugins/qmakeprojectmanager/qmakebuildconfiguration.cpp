@@ -490,7 +490,9 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileIncompatible;
     }
 
-    if (version->qmakeFilePath() != parse.qmakePath()) {
+    if (version->qmakeFilePath() != parse.qmakePath()
+        && (parse.qtConfPath().isEmpty() // QTCREATORBUG-30354
+            || version->qmakeFilePath().parentDir() != parse.qtConfPath().parentDir())) {
         qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeFilePath()
                       << " Makefile:" << parse.qmakePath();
         return MakefileForWrongProject;

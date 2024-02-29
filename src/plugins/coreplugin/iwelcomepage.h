@@ -7,13 +7,10 @@
 
 #include <utils/id.h>
 
-#include <QWidget>
 #include <QObject>
 
-#include <functional>
-
 QT_BEGIN_NAMESPACE
-class QPixmap;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -35,45 +32,6 @@ public:
     virtual QWidget *createWidget() const = 0;
 
     static const QList<IWelcomePage *> allWelcomePages();
-};
-
-class WelcomePageButtonPrivate;
-
-class CORE_EXPORT WelcomePageFrame : public QWidget
-{
-public:
-    WelcomePageFrame(QWidget *parent);
-
-    void paintEvent(QPaintEvent *event) override;
-
-    static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText);
-};
-
-class CORE_EXPORT WelcomePageButton : public WelcomePageFrame
-{
-public:
-    enum Size {
-        SizeSmall,
-        SizeLarge,
-    };
-
-    explicit WelcomePageButton(QWidget *parent = nullptr);
-    ~WelcomePageButton() override;
-
-    void mousePressEvent(QMouseEvent *) override;
-    void enterEvent(QEnterEvent *) override;
-    void leaveEvent(QEvent *) override;
-
-    void setText(const QString &text);
-    void setSize(enum Size);
-    void setWithAccentColor(bool withAccent);
-    void setOnClicked(const std::function<void ()> &value);
-    void setActiveChecker(const std::function<bool ()> &value);
-    void recheckActive();
-    void click();
-
-private:
-    WelcomePageButtonPrivate *d;
 };
 
 } // Core

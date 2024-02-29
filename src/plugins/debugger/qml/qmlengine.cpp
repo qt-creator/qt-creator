@@ -547,9 +547,10 @@ void QmlEngine::setupEngine()
 
     if (isPrimaryEngine()) {
         // QML only.
-        if (runParameters().startMode == AttachToRemoteServer)
+        const DebuggerStartMode startMode = runParameters().startMode;
+        if (startMode == AttachToQmlServer || startMode == AttachToRemoteServer)
             tryToConnect();
-        else if (runParameters().startMode == AttachToRemoteProcess)
+        else if (startMode == AttachToRemoteProcess)
             beginConnection();
         else
             startProcess();

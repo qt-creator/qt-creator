@@ -35,8 +35,6 @@ QtcPlugin {
         "protocol.h",
         "settings.cpp",
         "settings.h",
-        "stickynotespasteprotocol.cpp",
-        "stickynotespasteprotocol.h",
         "urlopenprotocol.cpp",
         "urlopenprotocol.h",
     ]

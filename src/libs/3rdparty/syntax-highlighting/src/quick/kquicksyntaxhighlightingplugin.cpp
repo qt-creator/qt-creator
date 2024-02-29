@@ -7,7 +7,6 @@
 
 #include "kquicksyntaxhighlightingplugin.h"
 #include "kquicksyntaxhighlighter.h"
-#include "repositorywrapper.h"
 
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Repository>
@@ -30,17 +29,18 @@ void KQuickSyntaxHighlightingPlugin::registerTypes(const char *uri)
 {
     Q_ASSERT(QLatin1String(uri) == QLatin1String("org.kde.syntaxhighlighting"));
     qRegisterMetaType<Definition>();
-    qRegisterMetaType<QVector<Definition>>();
+    qRegisterMetaType<QList<Definition>>();
     qRegisterMetaType<Theme>();
-    qRegisterMetaType<QVector<Theme>>();
+    qRegisterMetaType<QList<Theme>>();
     qmlRegisterType<KQuickSyntaxHighlighter>(uri, 1, 0, "SyntaxHighlighter");
-    qmlRegisterUncreatableType<Definition>(uri, 1, 0, "Definition", {});
-    qmlRegisterUncreatableType<Theme>(uri, 1, 0, "Theme", {});
-    qmlRegisterSingletonType<RepositoryWrapper>(uri, 1, 0, "Repository", [](auto engine, auto scriptEngine) {
+    qmlRegisterUncreatableMetaObject(Definition::staticMetaObject, uri, 1, 0, "Definition", {});
+    qmlRegisterUncreatableMetaObject(Theme::staticMetaObject, uri, 1, 0, "Theme", {});
+    qmlRegisterSingletonType<Repository>(uri, 1, 0, "Repository", [](auto engine, auto scriptEngine) {
         (void)engine;
-        (void)scriptEngine;
-        auto repo = new RepositoryWrapper;
-        repo->m_repository = defaultRepository();
-        return repo;
+        auto repo = defaultRepository();
+        scriptEngine->setObjectOwnership(repo, QJSEngine::CppOwnership);
+        return defaultRepository();
     });
 }
+
+#include "moc_kquicksyntaxhighlightingplugin.cpp"

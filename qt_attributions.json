@@ -258,8 +258,21 @@
         "Description": "Syntax highlighting definition ruby.xml",
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.0 or later",
-        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
         "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel Sabaté (mikisabate@gmail.com)."
+    },
+    {
+        "Id": "ksyntaxhighlighting-toml",
+        "Name": "KSyntaxHighlighting: toml.xml",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for the generic highlighter for text files.",
+        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Description": "Syntax highlighting definition toml.xml",
+        "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
+        "License": "GNU Lesser General Public License v2.0",
+        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
+        "Copyright": "Copyright (C) flying-sheep@web.de"
     },
     {
         "Id": "ksyntaxhighlighting-valgrind-suppression",
@@ -299,6 +312,19 @@
         "License": "GNU Lesser General Public License v2.1",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
         "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo González <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
+    },
+    {
+        "Id": "ksyntaxhighlighting-yaml",
+        "Name": "KSyntaxHighlighting: yaml.xml",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for the generic highlighter for text files.",
+        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Description": "Syntax highlighting definition yaml.xml",
+        "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
+        "License": "GNU Lesser General Public License v2.1",
+        "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
+        "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo González (nibgonz@gmail.com)"
     },
     {
         "Id": "std-span-martinmoene",
@@ -374,34 +400,6 @@
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/json/LICENSE.MIT",
         "Copyright": "Copyright 2013-2022 Niels Lohmann"
-    },
-    {
-        "Id": "litehtml-gumbo",
-        "Name": "Gumbo",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used by litehtml.",
-        "Path": "src/libs/qlitehtml/src/3rdparty/litehtml/src/gumbo",
-        "Description": "Gumbo is an implementation of the HTML5 parsing algorithm implemented as a pure C99 library with no outside dependencies.",
-        "Homepage": "https://github.com/google/gumbo-parser",
-        "Version": "0.10.1",
-        "License": "Apache License 2.0 AND MIT",
-        "LicenseFile": "src/libs/qlitehtml/src/3rdparty/litehtml/src/gumbo/LICENSE",
-        "CopyrightFile": "src/libs/qlitehtml/src/3rdparty/GUMBO-AUTHORS.txt"
-    },
-    {
-        "Id": "litehtml",
-        "Name": "litehtml",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for the help viewer.",
-        "Path": "src/libs/qlitehtml/src/3rdparty/litehtml",
-        "Description": "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support.",
-        "Homepage": "https://github.com/litehtml/litehtml",
-        "Version": "v0.5-64-gdb7f59d",
-        "License": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "LicenseFile": "src/libs/qlitehtml/src/3rdparty/litehtml/LICENSE",
-        "Copyright": "Copyright (c) 2013, Yuri Kobets (tordex)"
     },
     {
         "Id": "conan.cmake",

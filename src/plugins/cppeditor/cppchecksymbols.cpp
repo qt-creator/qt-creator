@@ -270,28 +270,40 @@ static bool acceptName(NameAST *ast, unsigned *referenceToken)
             && !ast->asOperatorFunctionId();
 }
 
-CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Result> &macroUses)
+CheckSymbols::Future CheckSymbols::go(Document::Ptr doc,
+                                      const QString &content,
+                                      const LookupContext &context,
+                                      const QList<CheckSymbols::Result> &macroUses)
 {
     QTC_ASSERT(doc, return Future());
     QTC_ASSERT(doc->translationUnit(), return Future());
     QTC_ASSERT(doc->translationUnit()->ast(), return Future());
 
-    return (new CheckSymbols(doc, context, macroUses))->start();
+    return (new CheckSymbols(doc, content, context, macroUses))->start();
 }
 
-CheckSymbols * CheckSymbols::create(Document::Ptr doc, const LookupContext &context,
-                                    const QList<CheckSymbols::Result> &macroUses)
+CheckSymbols *CheckSymbols::create(Document::Ptr doc,
+                                   const QString &content,
+                                   const LookupContext &context,
+                                   const QList<CheckSymbols::Result> &macroUses)
 {
     QTC_ASSERT(doc, return nullptr);
     QTC_ASSERT(doc->translationUnit(), return nullptr);
     QTC_ASSERT(doc->translationUnit()->ast(), return nullptr);
 
-    return new CheckSymbols(doc, context, macroUses);
+    return new CheckSymbols(doc, content, context, macroUses);
 }
 
-CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Result> &macroUses)
-    : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
-    , _lineOfLastUsage(0), _macroUses(macroUses)
+CheckSymbols::CheckSymbols(Document::Ptr doc,
+                           const QString &content,
+                           const LookupContext &context,
+                           const QList<CheckSymbols::Result> &macroUses)
+    : ASTVisitor(doc->translationUnit())
+    , _doc(doc)
+    , _content(content)
+    , _context(context)
+    , _lineOfLastUsage(0)
+    , _macroUses(macroUses)
 {
     int line = 0;
     getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, nullptr);
@@ -1114,7 +1126,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     accept(ast->ctor_initializer);
     accept(ast->function_body);
 
-    const Internal::LocalSymbols locals(_doc, ast);
+    const Internal::LocalSymbols locals(_doc, _content, ast);
     for (const QList<Result> &uses : std::as_const(locals.uses)) {
         for (const Result &u : uses)
             addUse(u);

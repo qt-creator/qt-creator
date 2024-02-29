@@ -7,11 +7,11 @@
 #include "cpptoolsreuse.h"
 #include "semantichighlighter.h"
 
-#include <coreplugin/documentmanager.h>
 #include <cplusplus/declarationcomments.h>
 #include <cplusplus/Overview.h>
-#include <texteditor/textdocument.h>
 #include <utils/textutils.h>
+
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 
@@ -22,8 +22,8 @@ namespace {
 class FindLocalSymbols: protected ASTVisitor
 {
 public:
-    explicit FindLocalSymbols(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()), _doc(doc)
+    explicit FindLocalSymbols(Document::Ptr doc, const QString &content)
+        : ASTVisitor(doc->translationUnit()), _doc(doc), _content(content)
     { }
 
     // local and external uses.
@@ -49,35 +49,26 @@ public:
         if (localUses.isEmpty())
             return;
 
-        // For tst_checkSymbols
-        if (!Core::DocumentManager::instance())
-            return;
-
         // Look for parameter occurrences in function comments.
-        const TextEditor::TextDocument * const editorDoc
-            = TextEditor::TextDocument::textDocumentForFilePath(_doc->filePath());
-        if (!editorDoc)
+        if (_content.isEmpty())
             return;
-        QTextDocument * const textDoc = editorDoc->document();
-        if (!textDoc)
-            return;
-        const QString &content = textDoc->toPlainText();
-        const QStringView docView(content);
+        QTextDocument textDoc(_content);
+        const QStringView docView(_content);
         for (auto it = localUses.begin(); it != localUses.end(); ++it) {
             Symbol * const symbol = it.key();
             if (!symbol->asArgument())
                 continue;
-            const QList<Token> commentTokens = commentsForDeclaration(symbol, ast, *textDoc, _doc);
+            const QList<Token> commentTokens = commentsForDeclaration(symbol, ast, textDoc, _doc);
             if (commentTokens.isEmpty())
                 continue;
             const QString symbolName = Overview().prettyName(symbol->name());
             for (const Token &tok : commentTokens) {
-                const int commentPos = translationUnit()->getTokenPositionInDocument(tok, textDoc);
+                const int commentPos = translationUnit()->getTokenPositionInDocument(tok, &textDoc);
                 const int commentEndPos = translationUnit()->getTokenEndPositionInDocument(
-                    tok, textDoc);
+                    tok, &textDoc);
                 const QStringView commentView = docView.mid(commentPos, commentEndPos - commentPos);
                 const QList<Utils::Text::Range> ranges = symbolOccurrencesInText(
-                    *textDoc, commentView, commentPos, symbolName);
+                    textDoc, commentView, commentPos, symbolName);
                 for (const Utils::Text::Range &range : ranges) {
                     it.value().append(HighlightingResult(range.begin.line, range.begin.column + 1,
                                                          symbolName.size(),
@@ -323,14 +314,15 @@ protected:
 private:
     QList<Scope *> _scopeStack;
     Document::Ptr _doc;
+    const QString _content;
 };
 
 } // end of anonymous namespace
 
 
-LocalSymbols::LocalSymbols(Document::Ptr doc, DeclarationAST *ast)
+LocalSymbols::LocalSymbols(Document::Ptr doc, const QString &content, DeclarationAST *ast)
 {
-    FindLocalSymbols findLocalSymbols(doc);
+    FindLocalSymbols findLocalSymbols(doc, content);
     findLocalSymbols(ast);
     uses = findLocalSymbols.localUses;
 }

@@ -14,18 +14,6 @@
 
     \title Debugging
 
-    A debugger lets you see what happens \e inside an application while it runs
-    or when it crashes. A debugger can do the following to help you find errors
-    in the application:
-
-    \list
-        \li Start the application with parameters that specify its behavior.
-        \li Stop the application when conditions are met.
-        \li Examine what happens when the application stops.
-        \li Make changes in the application when you fix an error and continue
-            to find the next one.
-    \endlist
-
     The \QC debugger plugin acts as an interface between the \QC
     core and external native debuggers that you can use to:
 
@@ -127,9 +115,17 @@
 
     \title Launching the Debugger
 
-    To start an application from an open project under the control of a
-    debugger, select the \inlineimage icons/qtcreator-debug-button.png
-    (\uicontrol {Start Debugging of Startup Project}) button or press \key F5.
+    You can start an application from an open project under the control of a
+    debugger in the following ways:
+
+    \list
+        \li Select \inlineimage icons/qtcreator-debug-button.png
+            (\uicontrol {Start Debugging of Startup Project}).
+        \li Press \key F5.
+        \li Enter \c {dr} in the locator, and select the project to debug.
+        \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start Debugging of Startup Project}.
+    \endlist
 
     \QC checks whether the compiled application is up-to-date, and rebuilds and
     deploys it if you set the \uicontrol {Build before deploying} field to
@@ -1985,7 +1981,7 @@
 
         \li Select the \inlineimage icons/run_small.png
             (\uicontrol Run) button to verify that the
-            \l {Running on Multiple Platforms}{build and run kit selector}
+            \l {Run on many platforms}{build and run kit selector}
             picked a runnable target and you can run the application.
 
         \li Make sure the debugger is \l{Setting Up Debugger}{set up properly}.

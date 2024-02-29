@@ -160,7 +160,7 @@ void LocalSymbolsTest::test()
     FindFirstFunctionDefinition find(document->translationUnit());
     CPlusPlus::DeclarationAST *functionDefinition = find();
 
-    LocalSymbols localSymbols(document, functionDefinition);
+    LocalSymbols localSymbols(document, QString::fromUtf8(source), functionDefinition);
 
     const QList<Result> actualUses = Result::fromLocalUses(localSymbols.uses);
 //    for (const Result &result : actualUses)

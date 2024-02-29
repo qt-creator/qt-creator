@@ -53,9 +53,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+using namespace Layouting;
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Layouting;
 
 namespace Python::Internal {
 
@@ -645,12 +645,15 @@ void PythonSettings::disableOutdatedPyls()
     }
 }
 
-static QList<Interpreter> pythonsFromRegistry()
+static void pythonsFromRegistry(QPromise<QList<Interpreter>> &promise)
 {
     QList<Interpreter> pythons;
     QSettings pythonRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore",
                              QSettings::NativeFormat);
     for (const QString &versionGroup : pythonRegistry.childGroups()) {
+        if (promise.isCanceled())
+            return;
+
         pythonRegistry.beginGroup(versionGroup);
         QString name = pythonRegistry.value("DisplayName").toString();
         QVariant regVal = pythonRegistry.value("InstallPath/ExecutablePath");
@@ -671,14 +674,17 @@ static QList<Interpreter> pythonsFromRegistry()
         }
         pythonRegistry.endGroup();
     }
-    return pythons;
+    promise.addResult(pythons);
 }
 
-static QList<Interpreter> pythonsFromPath()
+static void pythonsFromPath(QPromise<QList<Interpreter>> &promise)
 {
     QList<Interpreter> pythons;
     if (HostOsInfo::isWindowsHost()) {
         for (const FilePath &executable : FilePath("python").searchAllInPath()) {
+            if (promise.isCanceled())
+                return;
+
             // Windows creates empty redirector files that may interfere
             if (executable.toFileInfo().size() == 0)
                 continue;
@@ -695,6 +701,9 @@ static QList<Interpreter> pythonsFromPath()
         for (const FilePath &path : dirs) {
             const QDir dir(path.toString());
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
+                if (promise.isCanceled())
+                    return;
+
                 const FilePath executable = FilePath::fromUserInput(fi.canonicalFilePath());
                 if (!used.contains(executable) && executable.exists()) {
                     used.insert(executable);
@@ -703,7 +712,7 @@ static QList<Interpreter> pythonsFromPath()
             }
         }
     }
-    return pythons;
+    promise.addResult(pythons);
 }
 
 static QString idForPythonFromPath(const QList<Interpreter> &pythons)
@@ -732,41 +741,6 @@ static bool alreadyRegistered(const Interpreter &candidate)
                         });
 }
 
-static void scanPath()
-{
-    auto watcher = new QFutureWatcher<QList<Interpreter>>();
-    QObject::connect(watcher, &QFutureWatcher<QList<Interpreter>>::finished, [watcher]() {
-        for (const Interpreter &interpreter : watcher->result()) {
-            if (!alreadyRegistered(interpreter))
-                settingsInstance->addInterpreter(interpreter);
-        }
-        watcher->deleteLater();
-    });
-    watcher->setFuture(Utils::asyncRun(pythonsFromPath));
-}
-
-static void scanRegistry()
-{
-    auto watcher = new QFutureWatcher<QList<Interpreter>>();
-    QObject::connect(watcher, &QFutureWatcher<QList<Interpreter>>::finished, [watcher]() {
-        for (const Interpreter &interpreter : watcher->result()) {
-            if (!alreadyRegistered(interpreter))
-                settingsInstance->addInterpreter(interpreter);
-        }
-        watcher->deleteLater();
-        scanPath();
-    });
-    watcher->setFuture(Utils::asyncRun(pythonsFromRegistry));
-}
-
-static void scanSystemForInterpreters()
-{
-    if (Utils::HostOsInfo::isWindowsHost())
-        scanRegistry();
-    else
-        scanPath();
-}
-
 PythonSettings::PythonSettings()
 {
     QTC_ASSERT(!settingsInstance, return);
@@ -777,7 +751,32 @@ PythonSettings::PythonSettings()
 
     initFromSettings(Core::ICore::settings());
 
-    scanSystemForInterpreters();
+    const auto onRegistrySetup = [](Async<QList<Interpreter>> &task) {
+        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        task.setConcurrentCallData(pythonsFromRegistry);
+    };
+    const auto onPathSetup = [](Async<QList<Interpreter>> &task) {
+        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        task.setConcurrentCallData(pythonsFromPath);
+    };
+    const auto onTaskDone = [](const Async<QList<Interpreter>> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        const auto interpreters = task.result();
+        for (const Interpreter &interpreter : interpreters) {
+            if (!alreadyRegistered(interpreter))
+                settingsInstance->addInterpreter(interpreter);
+        }
+    };
+
+    const Tasking::Group recipe {
+        Tasking::finishAllAndSuccess,
+        Utils::HostOsInfo::isWindowsHost()
+            ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : Tasking::nullItem,
+        AsyncTask<QList<Interpreter>>(onPathSetup, onTaskDone)
+    };
+    m_taskTreeRunner.start(recipe);
 
     if (m_defaultInterpreterId.isEmpty())
         m_defaultInterpreterId = idForPythonFromPath(m_interpreters);

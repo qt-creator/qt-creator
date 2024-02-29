@@ -14,8 +14,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <texteditor/refactoroverlay.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
@@ -23,7 +21,13 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <texteditor/refactoroverlay.h>
+#include <texteditor/texteditorconstants.h>
+
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
@@ -41,21 +45,20 @@ namespace Internal {
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
-{
-}
+{}
 
 void FunctionDeclDefLinkFinder::onFutureDone()
 {
     std::shared_ptr<FunctionDeclDefLink> link = m_watcher->result();
-    m_watcher.reset();
+    m_watcher.release()->deleteLater();
     if (link) {
         link->linkSelection = m_scannedSelection;
         link->nameSelection = m_nameSelection;
         if (m_nameSelection.selectedText() != link->nameInitial)
             link.reset();
     }
-    m_scannedSelection = QTextCursor();
-    m_nameSelection = QTextCursor();
+    m_scannedSelection = {};
+    m_nameSelection = {};
     if (link)
         emit foundLink(link);
 }
@@ -234,8 +237,9 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // handle the rest in a thread
     m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
-    connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
+    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
 }
 
 bool FunctionDeclDefLink::isValid() const
@@ -890,7 +894,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         // for function definitions, rename the local usages
         FunctionDefinitionAST *targetDefinition = targetDeclaration->asFunctionDefinition();
         if (targetDefinition && !renamedTargetParameters.isEmpty()) {
-            const LocalSymbols localSymbols(targetFile->cppDocument(), targetDefinition);
+            const LocalSymbols localSymbols(targetFile->cppDocument(), {}, targetDefinition);
             const int endOfArguments = targetFile->endOf(targetFunctionDeclarator->rparen_token);
 
             for (auto it = renamedTargetParameters.cbegin(), end = renamedTargetParameters.cend();

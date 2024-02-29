@@ -195,7 +195,7 @@
     To view the available AVDs, select \preferences > \uicontrol Devices.
     You can add more AVDs.
 
-    \image qtcreator-android-avd-manager.png {Android device in Devices}
+    \image qtcreator-android-avd-manager.webp {Android device in Devices}
 
     You can see the status of the selected device in \uicontrol {Current state}.
     To update the status information, select \uicontrol Refresh.

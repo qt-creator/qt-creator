@@ -277,7 +277,7 @@ const QString projectEnvironmentVariable(const QString &key)
 
     if (auto buildSystem = QmlBuildSystem::getStartupBuildSystem()) {
         auto envItems = buildSystem->environment();
-        auto confEnv = std::find_if(envItems.begin(), envItems.end(), [key](NameValueItem &item) {
+        auto confEnv = std::find_if(envItems.begin(), envItems.end(), [key](EnvironmentItem &item) {
             return item.name == key;
         });
         if (confEnv != envItems.end())

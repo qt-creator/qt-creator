@@ -108,26 +108,29 @@ public:
             result << BuildSystemTask(Task::Error, Tr::tr("No Python setup."));
         } else if (!path.exists()) {
             result << BuildSystemTask(Task::Error,
-                                    Tr::tr("Python %1 not found.").arg(path.toUserOutput()));
+                                      Tr::tr("Python \"%1\" not found.").arg(path.toUserOutput()));
         } else if (!path.isExecutableFile()) {
             result << BuildSystemTask(Task::Error,
-                                      Tr::tr("Python %1 not executable.").arg(path.toUserOutput()));
+                                      Tr::tr("Python \"%1\" is not executable.")
+                                          .arg(path.toUserOutput()));
         } else {
             if (!pipIsUsable(path)) {
                 result << BuildSystemTask(
                     Task::Warning,
-                    Tr::tr("Python %1 does not contain a usable pip. Pip is used to install python "
-                           "packages from the Python Package Index, like PySide and the python "
-                           "language server. If you want to use any of that functionality "
-                           "ensure pip is installed for that python.")
+                    Tr::tr("Python \"%1\" does not contain a usable pip. pip is needed to install "
+                           "Python "
+                           "packages from the Python Package Index, like PySide and the Python "
+                           "language server. To use any of that functionality "
+                           "ensure that pip is installed for that Python.")
                         .arg(path.toUserOutput()));
             }
             if (!venvIsUsable(path)) {
                 result << BuildSystemTask(
                     Task::Warning,
-                    Tr::tr("Python %1 does not contain a usable venv. venv is the recommended way "
-                           "to isolate a development environment for a project from the globally "
-                           "installed python.")
+                    Tr::tr(
+                        "Python \"%1\" does not contain a usable venv. venv is the recommended way "
+                        "to isolate a development environment for a project from the globally "
+                        "installed Python.")
                         .arg(path.toUserOutput()));
             }
         }

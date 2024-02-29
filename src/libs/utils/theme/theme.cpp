@@ -245,7 +245,6 @@ void Theme::readSettingsInternal(QSettings &settings)
         QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QTC_ASSERT(settings.contains(key), return );
             d->flags[i] = settings.value(key).toBool();
         }
         settings.endGroup();

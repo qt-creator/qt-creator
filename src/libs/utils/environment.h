@@ -37,7 +37,7 @@ public:
     void set(const QString &key, const QString &value, bool enabled = true);
     void setFallback(const QString &key, const QString &value);
     void unset(const QString &key);
-    void modify(const NameValueItems &items);
+    void modify(const EnvironmentItems &items);
 
     bool hasChanges() const;
 
@@ -79,7 +79,7 @@ public:
     QStringList expandVariables(const QStringList &input) const;
 
     NameValueDictionary toDictionary() const; // FIXME: avoid
-    NameValueItems diff(const Environment &other, bool checkAppendPrepend = false) const; // FIXME: avoid
+    EnvironmentItems diff(const Environment &other, bool checkAppendPrepend = false) const; // FIXME: avoid
 
     struct Entry { QString key; QString value; bool enabled; };
     using FindResult = std::optional<Entry>;
@@ -117,7 +117,7 @@ public:
         QString,                                     // UnsetValue (key)
         std::tuple<QString, QString, PathSeparator>, // PrependOrSet (key, value, separator)
         std::tuple<QString, QString, PathSeparator>, // AppendOrSet (key, value, separator)
-        NameValueItems,                              // Modify
+        EnvironmentItems,                              // Modify
         std::monostate,                              // SetupEnglishOutput
         FilePath                                     // SetupSudoAskPass (file path of qtc-askpass or ssh-askpass)
         >;

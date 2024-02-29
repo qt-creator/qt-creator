@@ -77,14 +77,14 @@ std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
     std::vector<MesonTools::Tool_t> result;
     for (auto toolIndex = 0; toolIndex < entry_count; toolIndex++) {
         Key name = entryName(toolIndex);
-        if (data.contains(name)) {
-            const auto map = data[name].toMap();
-            auto type = map.value(ToolsSettings::TOOL_TYPE_KEY, ToolsSettings::TOOL_TYPE_MESON);
-            if (type == ToolsSettings::TOOL_TYPE_NINJA)
-                result.emplace_back(fromVariantMap<NinjaWrapper *>(storeFromVariant(data[name])));
-            else
-                result.emplace_back(fromVariantMap<MesonWrapper *>(storeFromVariant(data[name])));
-        }
+        Store store = storeFromVariant(data[name]);
+        QString type = store.value(ToolsSettings::TOOL_TYPE_KEY).toString();
+        if (type == ToolsSettings::TOOL_TYPE_NINJA)
+            result.emplace_back(fromVariantMap<NinjaWrapper *>(storeFromVariant(data[name])));
+        else if (type == ToolsSettings::TOOL_TYPE_MESON)
+            result.emplace_back(fromVariantMap<MesonWrapper *>(storeFromVariant(data[name])));
+        else
+            QTC_CHECK(false);
     }
     return result;
 }

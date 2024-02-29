@@ -11,8 +11,8 @@ class McuDependenciesKitAspect final
 {
 public:
     static Utils::Id id();
-    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *kit);
-    static void setDependencies(ProjectExplorer::Kit *kit, const Utils::NameValueItems &dependencies);
+    static Utils::EnvironmentItems dependencies(const ProjectExplorer::Kit *kit);
+    static void setDependencies(ProjectExplorer::Kit *kit, const Utils::EnvironmentItems &dependencies);
     static Utils::NameValuePairs configuration(const ProjectExplorer::Kit *kit);
 };
 
