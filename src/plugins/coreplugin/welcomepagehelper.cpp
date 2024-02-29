@@ -856,10 +856,8 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->save();
     painter->translate(bgRGlobal.topLeft());
 
-    const QColor fill(themeColor(hovered ? Theme::Token_Foreground_Muted
-                                         : Theme::Token_Background_Muted));
-    const QPen pen(themeColor(hovered ? Theme::Token_Foreground_Muted
-                                      : Theme::Token_Stroke_Subtle), itemOutlineWidth);
+    const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
+    const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke), itemOutlineWidth);
     WelcomePageHelpers::drawCardBackground(painter, bgR, fill, pen, itemCornerRounding);
 
     const int shiftY = thumbnailAreaR.bottom();
@@ -915,7 +913,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 constexpr int filterMargin = hoverBlurRadius;
                 QImage thumbnail(bgR.size() + QSize(filterMargin, filterMargin) * 2,
                                  QImage::Format_ARGB32_Premultiplied);
-                thumbnail.fill(themeColor(Theme::Token_Foreground_Muted));
+                thumbnail.fill(themeColor(cardHoverBackground));
                 QPainter thumbnailPainter(&thumbnail);
                 thumbnailPainter.translate(filterMargin, filterMargin);
                 thumbnailPainter.fillRect(thumbnailAreaR,
@@ -924,8 +922,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 thumbnailPainter.setPen(titleTF.color());
                 drawPixmapOverlay(item, &thumbnailPainter, option, thumbnailAreaR);
                 thumbnailPainter.setOpacity(1.0 - hoverBlurOpacity);
-                thumbnailPainter.fillRect(thumbnail.rect(),
-                                          themeColor(Theme::Token_Foreground_Muted));
+                thumbnailPainter.fillRect(thumbnail.rect(), themeColor(cardHoverBackground));
                 thumbnailPainter.end();
                 qt_blurImage(thumbnail, hoverBlurRadius, false, false);
 
@@ -944,7 +941,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             const QPixmap thumbnailPortionPM = m_blurredThumbnail.copy(backgroundPortionR);
             painter->drawPixmap(backgroundPortionR.topLeft(), thumbnailPortionPM);
         } else {
-            painter->fillRect(thumbnailAreaR, themeColor(Theme::Token_Foreground_Muted));
+            painter->fillRect(thumbnailAreaR, themeColor(cardHoverBackground));
         }
     }
 

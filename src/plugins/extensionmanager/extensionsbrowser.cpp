@@ -329,10 +329,13 @@ public:
         {
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
-            const QColor fillColor = creatorTheme()->color(hovered ? Theme::Token_Foreground_Muted
-                                                                   : Theme::Token_Background_Muted);
-            const QColor strokeColor = creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
-                                                                      : Theme::Token_Stroke_Subtle);
+            const QColor fillColor =
+                creatorTheme()->color(hovered ? WelcomePageHelpers::cardHoverBackground
+                                              : WelcomePageHelpers::cardDefaultBackground);
+            const QColor strokeColor =
+                creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
+                                      : hovered ? WelcomePageHelpers::cardHoverStroke
+                                                : WelcomePageHelpers::cardDefaultStroke);
             WelcomePageHelpers::drawCardBackground(painter, itemRect, fillColor, strokeColor);
         }
         {
