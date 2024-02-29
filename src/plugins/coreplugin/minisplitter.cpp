@@ -90,10 +90,9 @@ public:
     {
         setMask(QRegion(contentsRect()));
         setAttribute(Qt::WA_MouseNoMask, true);
-        if (generalSettings().provideSplitterCursors())
-            setCursor(orientation == Qt::Horizontal ? hsplitCursor() : vsplitCursor());
     }
 protected:
+    bool event(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
@@ -106,6 +105,17 @@ private:
 
 using namespace Core;
 using namespace Core::Internal;
+
+bool MiniSplitterHandle::event(QEvent *event)
+{
+    if (generalSettings().provideSplitterCursors()) {
+        if (event->type() == QEvent::HoverEnter)
+            setCursor(orientation() == Qt::Horizontal ? hsplitCursor() : vsplitCursor());
+        else if (event->type() == QEvent::HoverLeave)
+            unsetCursor();
+    }
+    return QSplitterHandle::event(event);
+}
 
 void MiniSplitterHandle::resizeEvent(QResizeEvent *event)
 {
