@@ -173,7 +173,7 @@ private:
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
     QString getGeneratedMessage() const;
-    QString getDesignerSpecifics(const QString &name) const;
+    QString getDesignerSpecifics() const;
 
     void connectCompositionNode(CompositionNode *node);
 

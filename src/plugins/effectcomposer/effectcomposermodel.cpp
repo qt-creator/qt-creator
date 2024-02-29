@@ -584,7 +584,7 @@ R"(
     return s;
 }
 
-QString EffectComposerModel::getDesignerSpecifics(const QString &name) const
+QString EffectComposerModel::getDesignerSpecifics() const
 {
     QString s;
 
@@ -1014,7 +1014,7 @@ void EffectComposerModel::saveResources(const QString &name)
 
     // Create designer property sheet
     // Since this is in subdir, no need to add it to newFileNames
-    QString specContent = getDesignerSpecifics(name);
+    QString specContent = getDesignerSpecifics();
     QString specFileName("%1SpecificsDynamic.qml");
     specFileName = specFileName.arg(name);
     Utils::FilePath specPath = designerPath.resolvePath(specFileName);
