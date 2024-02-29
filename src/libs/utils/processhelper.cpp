@@ -59,9 +59,6 @@ void ProcessStartHandler::setWindowsSpecificStartupFlags(bool belowNormalPriorit
                                                          bool createConsoleWindow)
 {
 #ifdef Q_OS_WIN
-    if (!belowNormalPriority && !createConsoleWindow)
-        return;
-
     m_process->setCreateProcessArgumentsModifier(
         [belowNormalPriority, createConsoleWindow](QProcess::CreateProcessArguments *args) {
             if (createConsoleWindow) {
@@ -71,6 +68,8 @@ void ProcessStartHandler::setWindowsSpecificStartupFlags(bool belowNormalPriorit
 
             if (belowNormalPriority)
                 args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
+
+            args->flags |= CREATE_DEFAULT_ERROR_MODE;
         });
 #else // Q_OS_WIN
     Q_UNUSED(belowNormalPriority)
