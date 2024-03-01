@@ -93,6 +93,18 @@
 
     \generatelist creator-how-to-get-help
 
+    \section1 Test
+
+    \QC supports both \e {code based tests} and \e {build system based tests}.
+    Code based testing offers special handling for particular testing
+    frameworks that strongly ties to the underlying code models or
+    specialized parsers. Build system based testing is independent from any
+    testing frameworks. It retrieves information directly from the underlying
+    build system and uses it or even the build system as such to execute the
+    respective tests.
+
+    \generatelist creator-how-to-test
+
     \section1 Use \QC
 
     \generatelist creator-how-to-use

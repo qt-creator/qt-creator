@@ -68,7 +68,7 @@
                 \li \l{Building Applications for the Web}
             \endlist
         \endlist
-        \li \l{Testing}
+        \li \l{Debugging and Analyzing}
         \list
             \li \l{Debugging}
             \list
@@ -112,7 +112,6 @@
                 \li \l{Analyzing Code with Cppcheck}
                 \li \l{Visualizing Chrome Trace Events}
             \endlist
-            \li \l{Running Autotests}
             \li \l{Using Squish}
         \endlist
         \li \l{How To}
@@ -157,6 +156,8 @@
                 \endlist
             \li Read Documentation
                 \generatelist creator-how-to-get-help
+            \li Test
+                \generatelist creator-how-to-test
             \li Use \QC
                 \generatelist creator-how-to-use
             \li Use the UI

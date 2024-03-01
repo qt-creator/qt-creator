@@ -49,7 +49,7 @@
     \section1 Select run targets
 
     If your project has several run targets defined, such as
-    \l{Running Autotests}{tests}, you can select them in the kit selector.
+    \l{Build and run tests}{tests}, you can select them in the kit selector.
 
     \image qtcreator-kit-selector-run-targets.png {Run targets in the kit selector}
 

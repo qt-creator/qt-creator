@@ -74,8 +74,8 @@
         \li Empty Nim source and script files.
     \endtable
 
-    \sa {Add Files}{How To: Add Files}, {Create UML-style models},
-    {Use project wizards}
+    \sa {Add Files}{How To: Add Files}, {Add tests to existing test projects},
+    {Create UML-style models}, {Use project wizards}
 */
 
 /*!

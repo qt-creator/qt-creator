@@ -27,7 +27,7 @@
     \image qt-app-dev-flow.webp {Application development life-cycle}
     \caption Application development life-cycle
 
-    \section1 Projects
+    \section1 Managing Projects
 
     First, you need a \e project. \QC relies on a separate build system, such as
     CMake, qmake, or Qbs for building the project. From the build system, \QC
@@ -63,12 +63,12 @@
 
     For more information, see \l{Manage Projects}{How To: Manage Projects}.
 
-    \section1 User Interfaces
+    \section1 Designing User Interfaces
 
     \image heartgame-start.webp {Heart Rate Game}
 
-    To create intuitive, modern-looking, fluid user interfaces, use \l{Qt Quick}
-    and \l{Qt Design Studio Manual}{\QDS}:
+    To create intuitive, modern-looking, fluid user interfaces (UI), use
+    \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}:
 
     \list
         \li \l {\QMLD}
@@ -101,7 +101,7 @@
     For more information, see \l{Design UIs}{How To: Design UIs} and
     \l{UI Design}.
 
-    \section1 Code
+    \section1 Editing Code
 
     Writing, editing, and navigating in source code are core tasks in application
     development. Therefore, the code editor is one of the key components of \QC.
@@ -116,13 +116,13 @@
     such as Python, for which a \e {language server} is available that provides
     information about the code to IDEs.
 
-    \section2 Find
+    \section2 Finding
 
     Use the incremental and advanced search to search in currently open projects
     or files on the file system or use the locator to browse through projects,
     files, classes, functions, documentation, and file systems.
 
-    \section2 Refactor
+    \section2 Refactoring Code
 
     \e {Code refactoring} is the process of improving and simplifying code
     without modifying the existing functionality of an application. Find
@@ -137,7 +137,7 @@
         \li Simplify code structure
     \endlist
 
-    \section2 Configure the Editor
+    \section2 Configuring the Text Editor
 
     Configure the text editor to suit your specific needs. Change the fonts,
     colors, highlighting, and indentation.
@@ -147,7 +147,7 @@
 
     For more information, see \l{Edit Code}{How To: Edit Code} and \l{Editors}.
 
-    \section1 Build, Deploy, and Run
+    \section1 Building, Deploying, and Running Applications
 
     Run and deploy Qt applications that you build for different target
     platforms or with different compilers, debuggers, or Qt versions.
@@ -182,7 +182,7 @@
 
     For more information, see \l{Connecting Devices} and \l{Deploying to Devices}.
 
-    \section2 Preview QML
+    \section2 Previewing QML
 
     Use the QML live preview to preview a QML file or an entire Qt Quick
     application on the desktop, as well as on Android and embedded Linux
@@ -191,7 +191,7 @@
 
     For more information, see \l{Validating with Target Hardware}.
 
-    \section1 Debug
+    \section1 Debugging Applications
 
     A debugger lets you see what happens \e inside an application while it runs
     or when it crashes. A debugger can do the following to help you find errors
@@ -214,7 +214,7 @@
 
     For more information, see \l{Debugging}.
 
-    \section1 Analyze
+    \section1 Analyzing Source Code
 
     Devices have limited memory and CPU power, so you should use them carefully.
     \QC integrates code analysis tools for detecting memory leaks, profiling
@@ -227,17 +227,42 @@
 
     For more information, see \l{Analyzing Code}.
 
-    \section1 Autotest
+    \section1 Running Tests
 
-    Create, build and run Qt tests, Qt Quick tests, Google tests, and Boost tests
-    to unit test applications and libraries.
+    \QC supports both \e {code based tests} and \e {build system based tests}.
+    Code based testing offers special handling for particular testing
+    frameworks that strongly ties to the underlying code models or
+    specialized parsers. Build system based testing is independent from any
+    testing frameworks. It retrieves information directly from the underlying
+    build system and uses it or even the build system as such to execute the
+    respective tests.
+
+    \QC integrates the following testing frameworks for unit testing
+    applications and libraries:
+
+    \list
+        \li \l{https://www.boost.org/doc/libs/1_81_0/libs/test/doc/html/index.html}
+            {Boost.Test}
+        \li \l{https://github.com/catchorg/Catch2}{Catch2 test framework}
+        \li \l{https://github.com/google/googletest}{Google C++ Testing Framework}
+        \li \l{Qt Quick Test} framework
+        \li \l{Qt Test} framework
+    \endlist
+
+    In addition, \QC offers build system based support for
+    \l{https://cmake.org/cmake/help/latest/manual/ctest.1.html}{CTest}.
+
+    You can use \QC to create, build, and run code based tests for your
+    projects.
+
+    \image qtcreator-autotests.png
 
     Map AUTs (Application Under Test) to \QC and run Squish test suites
     and cases from it.
 
-    For more information, see \l{Running Autotests} and \l{Using Squish}.
+    For more information, see \l{Test}{How To: Test} and \l{Using Squish}.
 
-    \section1 Publish
+    \section1 Publishing Applications
 
     Create installation packages for mobile devices that you publish to
     application stores and other channels. You must make sure that the
