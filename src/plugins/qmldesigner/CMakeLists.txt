@@ -510,7 +510,6 @@ add_qtc_plugin(QmlDesigner
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
     dynamiclicensecheck.h
-    generateresource.cpp generateresource.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h
     puppetenvironmentbuilder.cpp puppetenvironmentbuilder.h
     qmldesigner_global.h
@@ -619,6 +618,7 @@ extend_qtc_plugin(QmlDesigner
     propertycomponentgeneratorinterface.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
+    resourcegenerator.cpp resourcegenerator.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
@@ -910,7 +910,6 @@ extend_qtc_plugin(QmlDesigner
     include/propertybinding.h
     include/qml3dnode.h
     include/qmlvisualnode.h
-
 )
 
 extend_qtc_plugin(QmlDesigner

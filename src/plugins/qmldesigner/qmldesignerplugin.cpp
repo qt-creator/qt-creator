@@ -10,12 +10,12 @@
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
 #include "exception.h"
-#include "generateresource.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
+#include "resourcegenerator.h"
 #include "settingspage.h"
 #include "shortcutmanager.h"
 #include "toolbar.h"
@@ -276,7 +276,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
     if (Core::ICore::isQtDesignStudio())
-        GenerateResource::generateMenuEntry(this);
+        ResourceGenerator::generateMenuEntry(this);
 
     const QString fontPath
         = Core::ICore::resourcePath(
