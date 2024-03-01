@@ -389,7 +389,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     removeCompilerBtn->setToolTip(Tr::tr("Remove Compiler"));
     connect(removeCompilerBtn, &QToolButton::clicked, this, &CompilerWidget::remove);
 
-    compile(m_sourceSettings->source());
+    compile(m_sourceSettings->source.volatileValue());
 
     connect(&m_sourceSettings->source, &Utils::StringAspect::volatileValueChanged, this, [this] {
         compile(m_sourceSettings->source.volatileValue());
@@ -459,7 +459,7 @@ void CompilerWidget::doCompile()
 {
     using namespace Api;
 
-    QString compilerId = m_compilerSettings->compiler();
+    QString compilerId = m_compilerSettings->compiler.volatileValue();
     if (compilerId.isEmpty())
         compilerId = "clang_trunk";
 
