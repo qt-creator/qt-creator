@@ -39,7 +39,8 @@ public:
 
     Api::Config apiConfig() const
     {
-        return Api::Config(Utils::NetworkAccessManager::instance(), compilerExplorerUrl());
+        return Api::Config(Utils::NetworkAccessManager::instance(),
+                           compilerExplorerUrl.volatileValue());
     }
 };
 
