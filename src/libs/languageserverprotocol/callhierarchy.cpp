@@ -25,4 +25,9 @@ CallHierarchyOutgoingCallsRequest::CallHierarchyOutgoingCallsRequest(
     : Request(methodName, params)
 {}
 
+std::optional<QList<SymbolTag>> CallHierarchyItem::symbolTags() const
+{
+    return Internal::getSymbolTags(*this);
+}
+
 } // namespace LanguageServerProtocol

@@ -131,11 +131,30 @@ public:
         void clearValueSet() { remove(valueSetKey); }
     };
 
+    class LANGUAGESERVERPROTOCOL_EXPORT SymbolTagCapabilities : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        /*
+         * The client supports tags on `SymbolInformation` and `WorkspaceSymbol`.
+         * Clients supporting tags have to handle unknown tags gracefully.
+         */
+        std::optional<QList<SymbolTag>> valueSet() const;
+        void setValueSet(const QList<SymbolTag> &valueSet);
+        void clearValueSet() { remove(valueSetKey); }
+    };
+
     // Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
     std::optional<SymbolKindCapabilities> symbolKind() const
     { return optionalValue<SymbolKindCapabilities>(symbolKindKey); }
     void setSymbolKind(const SymbolKindCapabilities &symbolKind) { insert(symbolKindKey, symbolKind); }
     void clearSymbolKind() { remove(symbolKindKey); }
+
+    std::optional<SymbolTagCapabilities> symbolTag() const
+    { return optionalValue<SymbolTagCapabilities>(tagSupportKey); }
+    void setSymbolTag(const SymbolTagCapabilities &symbolTag) { insert(tagSupportKey, symbolTag); }
+    void clearSymbolTag() { remove(tagSupportKey); }
 
     std::optional<bool> hierarchicalDocumentSymbolSupport() const
     { return optionalValue<bool>(hierarchicalDocumentSymbolSupportKey); }

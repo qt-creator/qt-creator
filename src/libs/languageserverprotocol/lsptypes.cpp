@@ -6,6 +6,7 @@
 #include "languageserverprotocoltr.h"
 #include "lsputils.h"
 
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 
 #include <QFile>
@@ -487,4 +488,27 @@ bool DeleteFileOperation::isValid() const
     return contains(uriKey) && value(kindKey) == "delete";
 }
 
+namespace Internal {
+std::optional<QList<SymbolTag>> getSymbolTags(const JsonObject &o)
+{
+    const QJsonObject &obj = o;
+    const QJsonValue &val = obj.value(tagsKey);
+    if (val.isUndefined() || !val.isArray())
+        return std::nullopt;
+
+    return Utils::transform<QList<SymbolTag>>(val.toArray(), [](const QJsonValue &v) {
+        return static_cast<SymbolTag>(v.toInt());
+    });
+}
+} // namespace Internal
+
+std::optional<QList<SymbolTag>> SymbolInformation::symbolTags() const
+{
+    return Internal::getSymbolTags(*this);
+}
+
+std::optional<QList<SymbolTag>> DocumentSymbol::symbolTags() const
+{
+    return Internal::getSymbolTags(*this);
+}
 } // namespace LanguageServerProtocol

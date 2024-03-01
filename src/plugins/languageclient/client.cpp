@@ -437,6 +437,9 @@ static ClientCapabilities generateClientCapabilities()
          SymbolKind::EnumMember, SymbolKind::Struct,       SymbolKind::Event,
          SymbolKind::Operator,   SymbolKind::TypeParameter});
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
+    SymbolCapabilities::SymbolTagCapabilities symbolTagCapabilities;
+    symbolTagCapabilities.setValueSet({SymbolTag::Deprecated});
+    symbolCapabilities.setSymbolTag(symbolTagCapabilities);
     symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);
 
