@@ -44,6 +44,8 @@ QtcLibrary {
         "shutdownmessages.h",
         "textsynchronization.cpp",
         "textsynchronization.h",
+        "typehierarchy.cpp",
+        "typehierarchy.h",
         "workspace.cpp",
         "workspace.h",
     ]

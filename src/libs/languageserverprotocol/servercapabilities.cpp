@@ -196,6 +196,28 @@ void ServerCapabilities::setCallHierarchyProvider(
     insert(callHierarchyProviderKey, val);
 }
 
+std::optional<std::variant<bool, WorkDoneProgressOptions>> ServerCapabilities::typeHierarchyProvider()
+    const
+{
+    const QJsonValue &provider = value(typeHierarchyProviderKey);
+    if (provider.isBool())
+        return provider.toBool();
+    else if (provider.isObject())
+        return WorkDoneProgressOptions(provider.toObject());
+    return std::nullopt;
+}
+
+void ServerCapabilities::setTypeHierarchyProvider(
+    const std::variant<bool, WorkDoneProgressOptions> &typeHierarchyProvider)
+{
+    QJsonValue val;
+    if (std::holds_alternative<bool>(typeHierarchyProvider))
+        val = std::get<bool>(typeHierarchyProvider);
+    else if (std::holds_alternative<WorkDoneProgressOptions>(typeHierarchyProvider))
+        val = QJsonObject(std::get<WorkDoneProgressOptions>(typeHierarchyProvider));
+    insert(typeHierarchyProviderKey, val);
+}
+
 std::optional<std::variant<bool, WorkDoneProgressOptions>>
 ServerCapabilities::workspaceSymbolProvider() const
 {

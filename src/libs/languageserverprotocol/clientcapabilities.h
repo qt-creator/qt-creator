@@ -529,6 +529,12 @@ public:
     void setCallHierarchy(const DynamicRegistrationCapabilities &callHierarchy)
     { insert(callHierarchyKey, callHierarchy); }
     void clearCallHierarchy() { remove(callHierarchyKey); }
+
+    std::optional<DynamicRegistrationCapabilities> typeHierarchy() const
+    { return optionalValue<DynamicRegistrationCapabilities>(typeHierarchyKey); }
+    void setTypeHierarchy(const DynamicRegistrationCapabilities &typeHierarchy)
+    { insert(typeHierarchyKey, typeHierarchy); }
+    void clearTypeHierarchy() { remove(typeHierarchyKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensWorkspaceClientCapabilities : public JsonObject

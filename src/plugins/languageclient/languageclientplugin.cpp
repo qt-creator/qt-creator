@@ -1,7 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "callhierarchy.h"
+#include "callandtypehierarchy.h"
 #include "languageclientmanager.h"
 #include "languageclientoutline.h"
 #include "languageclientsettings.h"
@@ -43,6 +43,7 @@ void LanguageClientPlugin::initialize()
     using namespace Core;
 
     setupCallHierarchyFactory();
+    setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();
     setupLanguageClientManager(this);
 

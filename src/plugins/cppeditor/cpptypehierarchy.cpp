@@ -420,7 +420,7 @@ class CppTypeHierarchyFactory final : public TextEditor::TypeHierarchyWidgetFact
         if (!textEditor)
             return nullptr;
         const auto cppDoc = qobject_cast<CppEditorDocument *>(textEditor->textDocument());
-        if (!cppDoc /* || cppDoc->usesClangd() */)
+        if (!cppDoc || cppDoc->usesClangd())
             return nullptr;
 
         return new CppTypeHierarchyWidget;

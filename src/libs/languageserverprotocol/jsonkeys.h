@@ -218,6 +218,8 @@ constexpr Key trimTrailingWhitespaceKey{"trimTrailingWhitespace"};
 constexpr Key typeDefinitionKey{"typeDefinition"};
 constexpr Key typeDefinitionProviderKey{"typeDefinitionProvider"};
 constexpr Key typeKey{"type"};
+constexpr Key typeHierarchyKey{"typeHierarchy"};
+constexpr Key typeHierarchyProviderKey{"typeHierarchyProvider"};
 constexpr Key unregistrationsKey{"unregistrations"};
 constexpr Key uriKey{"uri"};
 constexpr Key valueKey{"value"};

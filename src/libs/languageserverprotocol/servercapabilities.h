@@ -330,6 +330,10 @@ public:
     void setCallHierarchyProvider(const std::variant<bool, WorkDoneProgressOptions> &callHierarchyProvider);
     void clearCallHierarchyProvider() { remove(callHierarchyProviderKey); }
 
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> typeHierarchyProvider() const;
+    void setTypeHierarchyProvider(const std::variant<bool, WorkDoneProgressOptions> &typeHierarchyProvider);
+    void clearTypeHierarchyProvider() { remove(typeHierarchyProviderKey); }
+
     // The server provides workspace symbol support.
     std::optional<std::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;
     void setWorkspaceSymbolProvider(std::variant<bool, WorkDoneProgressOptions> workspaceSymbolProvider);

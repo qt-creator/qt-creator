@@ -3,7 +3,7 @@
 
 #include "client.h"
 
-#include "callhierarchy.h"
+#include "callandtypehierarchy.h"
 #include "diagnosticmanager.h"
 #include "documentsymbolcache.h"
 #include "languageclientcompletionassist.h"
@@ -527,6 +527,7 @@ static ClientCapabilities generateClientCapabilities()
     tokens.setFormats({"relative"});
     documentCapabilities.setSemanticTokens(tokens);
     documentCapabilities.setCallHierarchy(allowDynamicRegistration);
+    documentCapabilities.setTypeHierarchy(allowDynamicRegistration);
     capabilities.setTextDocument(documentCapabilities);
 
     WindowClientClientCapabilities window;
@@ -1013,6 +1014,8 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
         if (supportsCallHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
+        if (supportsTypeHierarchy(this, textEditor->document()))
+            optionalActions |= TextEditor::TextEditorActionHandler::TypeHierarchy;
         widget->setOptionalActions(optionalActions);
     }
 }
