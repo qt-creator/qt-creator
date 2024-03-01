@@ -11,7 +11,7 @@
     \page creator-project-managing-sessions.html
     \if defined(qtdesignstudio)
     \previouspage creator-project-managing-workspaces.html
-    \nextpage qtdesignstudio-keyboard-shortcuts.html
+    \nextpage studio-keyboard-shortcuts.html
     \else
     \previouspage creator-how-tos.html
     \nextpage creator-keyboard-shortcuts.html

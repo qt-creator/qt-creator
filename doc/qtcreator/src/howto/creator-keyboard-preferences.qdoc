@@ -10,7 +10,7 @@
 /*!
     \page creator-how-to-assign-keyboard-shortcuts.html
     \if defined(qtdesignstudio)
-    \previouspage qtdesignstudio-keyboard-shortcuts.html
+    \previouspage studio-keyboard-shortcuts.html
     \nextpage studio-projects.html
     \else
     \previouspage creator-how-tos.html
@@ -70,7 +70,7 @@
 /*!
     \page creator-how-to-find-keyboard-shortcuts.html
     \if defined(qtdesignstudio)
-    \previouspage qtdesignstudio-keyboard-shortcuts.html
+    \previouspage studio-keyboard-shortcuts.html
     \nextpage studio-projects.html
     \else
     \previouspage creator-how-tos.html
@@ -103,7 +103,7 @@
 /*!
     \page creator-how-to-change-keyboard-shortcuts.html
     \if defined(qtdesignstudio)
-    \previouspage qtdesignstudio-keyboard-shortcuts.html
+    \previouspage studio-keyboard-shortcuts.html
     \nextpage studio-projects.html
     \else
     \previouspage creator-how-tos.html
