@@ -506,7 +506,7 @@ static QList<std::pair<Path, FileName>> documentationFiles(QtVersion *v)
         {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
     for (const QString &docPath : docPaths) {
         const QDir versionHelpDir(docPath);
-        for (const QString &helpFile : versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
+        for (const QString &helpFile : versionHelpDir.entryList(QStringList("q*.qch"), QDir::Files))
             files.append({docPath, helpFile});
     }
     return files;
