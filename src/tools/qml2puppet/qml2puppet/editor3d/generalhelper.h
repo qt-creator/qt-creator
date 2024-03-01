@@ -10,6 +10,7 @@
 #include <QMatrix4x4>
 #include <QObject>
 #include <QPointer>
+#include <QPointF>
 #include <QQuaternion>
 #include <QTimer>
 #include <QUrl>
@@ -52,6 +53,15 @@ public:
                                     const QVector3D &startPosition, const QVector3D &startLookAt,
                                     const QVector3D &pressPos, const QVector3D &currentPos,
                                     float zoomFactor);
+    Q_INVOKABLE QVector3D moveCamera(QQuick3DCamera *camera,const QVector3D &startLookAt,
+                                     float zoomFactor, const QVector3D &moveVector);
+    Q_INVOKABLE QVector3D rotateCamera(QQuick3DCamera *camera, const QPointF &angles,
+                                       const QVector3D &lookAtPoint);
+
+    Q_INVOKABLE void startCameraMove(QQuick3DCamera *camera, const QVector3D moveVector);
+    Q_INVOKABLE void stopCameraMove(const QVector3D moveVector);
+    Q_INVOKABLE void stopAllCameraMoves();
+
     Q_INVOKABLE float zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
@@ -149,6 +159,8 @@ signals:
     void minGridStepChanged();
     void updateDragTooltip();
     void sceneEnvDataChanged();
+    void requestCameraMove(QQuick3DCamera *camera, const QVector3D &moveVector);
+    void requestRender();
 
 private:
     void handlePendingToolStateUpdate();
@@ -163,6 +175,15 @@ private:
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
+    void updateCombinedCameraMoveVector();
+
+    struct CameraMoveKeyData {
+        QQuick3DCamera *camera;
+        QList<QVector3D> moveVectors;
+        QVector3D combinedMoveVector;
+        QTimer timer;
+    };
+    CameraMoveKeyData m_camMoveData;
 
     struct SceneEnvData {
         QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes backgroundMode;

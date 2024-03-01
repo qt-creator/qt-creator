@@ -49,7 +49,11 @@ enum class View3DActionType {
     SetBakeLightsView3D,
     SplitViewToggle,
     MaterialOverride,
-    ShowWireframe
+    ShowWireframe,
+    FlyModeToggle,
+    EditCameraRotation,
+    EditCameraMove,
+    EditCameraStopAllMoves
 };
 
 constexpr bool isNanotraceEnabled()

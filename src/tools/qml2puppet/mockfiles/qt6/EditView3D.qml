@@ -37,6 +37,7 @@ Item {
     property color gridColor: "#cccccc"
     property bool syncEnvBackground: false
     property bool splitView: false
+    property bool flyMode: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -129,6 +130,7 @@ Item {
 
             selectionBoxCount = 0;
             editViewsChanged();
+            cameraControls[activeSplit].forceActiveFocus();
             return true;
         }
         return false;
@@ -350,6 +352,11 @@ Item {
             else if (resetToDefault)
                 cameraControls[i].restoreDefaultState();
         }
+
+        if ("flyMode" in toolStates)
+            flyMode = toolStates.flyMode;
+        else if (resetToDefault)
+            flyMode = false;
 
         if ("splitView" in toolStates)
             splitView = toolStates.splitView;
@@ -598,6 +605,16 @@ Item {
         return activeOverlayView.gizmoAt(splitPoint.x, splitPoint.y);
     }
 
+    function rotateEditCamera(angles)
+    {
+        cameraControls[activeSplit].rotateCamera(angles);
+    }
+
+    function moveEditCamera(amounts)
+    {
+        cameraControls[activeSplit].moveCamera(amounts);
+    }
+
     Component.onCompleted: {
         createEditViews();
         selectObjects([]);
@@ -822,6 +839,9 @@ Item {
                 property bool initialMoveBlock: false
 
                 onPressed: (mouse) => {
+                    if (viewRoot.flyMode)
+                        return;
+
                     viewRoot.updateActiveSplit(mouse.x, mouse.y);
 
                     let splitPoint = viewRoot.resolveSplitPoint(mouse.x, mouse.y);

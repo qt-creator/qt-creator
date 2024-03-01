@@ -449,11 +449,13 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
 void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d)
 {
     if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu) {
-        // Make sure right-clicked item is selected. Due to a bug in puppet side right-clicking an item
-        // while the context-menu is shown doesn't select the item.
-        if (modelNode.isValid() && !modelNode.isSelected())
-            setSelectedModelNode(modelNode);
-        m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
+        m_contextMenuPos3D = pos3d;
+        if (m_edit3DWidget->canvas()->isFlyMode()) {
+            m_contextMenuPendingNode = modelNode;
+        } else {
+            m_nodeAtPosReqType = NodeAtPosReqType::None;
+            showContextMenu();
+        }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::ComponentDrop) {
         ModelNode createdNode;
         executeInTransaction(__FUNCTION__, [&] {
@@ -679,6 +681,49 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     return pos;
 }
 
+void Edit3DView::showContextMenu()
+{
+    // If request for context menu is still pending, skip for now
+    if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu)
+        return;
+
+    if (m_contextMenuPendingNode.isValid() && !m_contextMenuPendingNode.isSelected())
+        setSelectedModelNode(m_contextMenuPendingNode);
+    m_edit3DWidget->showContextMenu(m_contextMenuPosMouse, m_contextMenuPendingNode, m_contextMenuPos3D);
+    m_contextMenuPendingNode = {};
+}
+
+void Edit3DView::setFlyMode(bool enabled)
+{
+    emitView3DAction(View3DActionType::FlyModeToggle, enabled);
+
+    // Disable any actions with conflicting hotkeys
+    if (enabled) {
+        m_flyModeDisabledActions.clear();
+        const QList<QKeySequence> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
+                                                 Qt::Key_D, Qt::Key_Q, Qt::Key_E,
+                                                 Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
+                                                 Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp};
+        for (auto i = m_edit3DActions.cbegin(), end = m_edit3DActions.cend(); i != end; ++i) {
+            for (const QKeySequence &controlKey : controlKeys) {
+                if (Core::Command *cmd = m_edit3DWidget->actionToCommandHash().value(i.value()->action())) {
+                    if (cmd->keySequence().matches(controlKey) == QKeySequence::ExactMatch) {
+                        if (i.value()->action()->isEnabled()) {
+                            m_flyModeDisabledActions.append(i.value());
+                            i.value()->action()->setEnabled(false);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        for (Edit3DAction *action : std::as_const(m_flyModeDisabledActions))
+            action->action()->setEnabled(true);
+        m_flyModeDisabledActions.clear();
+    }
+}
+
 void Edit3DView::syncSnapAuxPropsToSettings()
 {
     if (!model())
@@ -720,6 +765,11 @@ void Edit3DView::setSplitToolState(int splitIndex, const SplitToolState &state)
 int Edit3DView::activeSplit() const
 {
     return m_activeSplit;
+}
+
+bool Edit3DView::isSplitView() const
+{
+    return m_splitViewAction->action()->isChecked();
 }
 
 void Edit3DView::createEdit3DActions()
@@ -850,7 +900,7 @@ void Edit3DView::createEdit3DActions()
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX,
         View3DActionType::ShowSelectionBox,
         QCoreApplication::translate("ShowSelectionBoxAction", "Show Selection Boxes"),
-        QKeySequence(Qt::Key_S),
+        QKeySequence(Qt::Key_B),
         true,
         true,
         QIcon(),
@@ -1189,7 +1239,7 @@ void Edit3DView::addQuick3DImport()
 // context menu is created when nodeAtPosReady() is received from puppet
 void Edit3DView::startContextMenu(const QPoint &pos)
 {
-    m_contextMenuPos = pos;
+    m_contextMenuPosMouse = pos;
     m_nodeAtPosReqType = NodeAtPosReqType::ContextMenu;
 }
 

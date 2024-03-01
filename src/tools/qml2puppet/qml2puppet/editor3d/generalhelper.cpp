@@ -66,6 +66,11 @@ GeneralHelper::GeneralHelper()
     QList<QColor> defaultBg;
     defaultBg.append(QColor());
     m_bgColor = QVariant::fromValue(defaultBg);
+
+    m_camMoveData.timer.setInterval(16);
+    QObject::connect(&m_camMoveData.timer, &QTimer::timeout, this, [this]() {
+        emit requestCameraMove(m_camMoveData.camera, m_camMoveData.combinedMoveVector);
+    });
 }
 
 void GeneralHelper::requestOverlayUpdate()
@@ -142,12 +147,109 @@ QVector3D GeneralHelper::panCamera(QQuick3DCamera *camera, const QMatrix4x4 star
     const float *dataPtr(startTransform.data());
     const QVector3D xAxis = QVector3D(dataPtr[0], dataPtr[1], dataPtr[2]).normalized();
     const QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
-    const QVector3D xDelta = -1.f * xAxis * dragVector.x();
+    const QVector3D xDelta = xAxis * dragVector.x();
     const QVector3D yDelta = yAxis * dragVector.y();
-    const QVector3D delta = (xDelta + yDelta) * zoomFactor;
+    const QVector3D delta = (yDelta - xDelta) * zoomFactor;
 
     camera->setPosition(startPosition + delta);
     return startLookAt + delta;
+}
+
+// Moves camera in 3D space and returns new look-at point
+QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &startLookAt,
+                                    float zoomFactor, const QVector3D &moveVector)
+{
+
+    if (moveVector.length() < 0.001f)
+        return startLookAt;
+
+    QMatrix4x4 m = camera->sceneTransform(); // Works because edit camera is at scene root
+    const float *dataPtr(m.data());
+    const QVector3D xAxis = QVector3D(dataPtr[0], dataPtr[1], dataPtr[2]).normalized();
+    const QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
+    const QVector3D zAxis = QVector3D(dataPtr[8], dataPtr[9], dataPtr[10]).normalized();
+    const QVector3D xDelta = xAxis * moveVector.x();
+    const QVector3D yDelta = yAxis * moveVector.y();
+    const QVector3D zDelta = zAxis * moveVector.z();
+    const QVector3D delta = (yDelta - xDelta - zDelta) * zoomFactor;
+
+    camera->setPosition(camera->position() + delta);
+
+    return startLookAt + delta;
+}
+
+// Rotates camera and returns the new look-at point
+QVector3D GeneralHelper::rotateCamera(QQuick3DCamera *camera, const QPointF &angles,
+                                      const QVector3D &lookAtPoint)
+{
+    float lookAtDist = (camera->scenePosition() - lookAtPoint).length();
+
+    if (qAbs(angles.y()) > 0.001f)
+        camera->rotate(angles.y(), QVector3D(1.f, 0.f, 0.f), QQuick3DNode::LocalSpace);
+    // Rotation around Y-axis is done in scene space to keep horizon level
+    if (qAbs(angles.x()) > 0.001f)
+        camera->rotate(angles.x(), QVector3D(0.f, 1.f, 0.f), QQuick3DNode::SceneSpace);
+
+    QMatrix4x4 m = camera->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
+
+    newLookVector.normalize();
+    newLookVector *= lookAtDist;
+
+    return camera->scenePosition() - newLookVector;
+}
+
+void GeneralHelper::updateCombinedCameraMoveVector()
+{
+    QVector3D combinedVec;
+    for (const QVector3D &vec : std::as_const(m_camMoveData.moveVectors))
+        combinedVec += vec;
+    m_camMoveData.combinedMoveVector = combinedVec;
+}
+
+// Key events can be buffered and there are repeat delays imposed by OS, so to get smooth camera
+// movement in response to keys, register start/stop of moves along each axis and use timer to
+// trigger new moves along registered axes.
+void GeneralHelper::startCameraMove(QQuick3DCamera *camera, const QVector3D moveVector)
+{
+    if (moveVector.isNull())
+        return;
+
+    if (m_camMoveData.camera != camera) {
+        m_camMoveData.camera = camera;
+        m_camMoveData.moveVectors.clear();
+    }
+
+    if (!m_camMoveData.moveVectors.contains(moveVector)) {
+        m_camMoveData.moveVectors.append(moveVector);
+        updateCombinedCameraMoveVector();
+    }
+
+    if (!m_camMoveData.timer.isActive()) {
+        m_camMoveData.timer.start();
+        emit requestCameraMove(camera, m_camMoveData.combinedMoveVector);
+    }
+}
+
+void GeneralHelper::stopCameraMove(const QVector3D moveVector)
+{
+    if (moveVector.isNull())
+        return;
+
+    m_camMoveData.moveVectors.removeOne(moveVector);
+
+    updateCombinedCameraMoveVector();
+
+    if (m_camMoveData.moveVectors.isEmpty())
+        m_camMoveData.timer.stop();
+}
+
+void GeneralHelper::stopAllCameraMoves()
+{
+    m_camMoveData.moveVectors.clear();
+    m_camMoveData.combinedMoveVector = {};
+    m_camMoveData.timer.stop();
 }
 
 float GeneralHelper::zoomCamera([[maybe_unused]] QQuick3DViewport *viewPort,

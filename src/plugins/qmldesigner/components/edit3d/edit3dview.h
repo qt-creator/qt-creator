@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QVector>
+#include <QVector3D>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -73,6 +74,7 @@ public:
 
     void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
+    void showContextMenu();
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
     void dropBundleEffect(const QPointF &pos);
@@ -88,6 +90,8 @@ public:
     void setSplitToolState(int splitIndex, const SplitToolState &state);
 
     int activeSplit() const;
+    bool isSplitView() const;
+    void setFlyMode(bool enabled);
 
 private slots:
     void onEntriesChanged();
@@ -167,7 +171,8 @@ private:
     ItemLibraryEntry m_droppedEntry;
     QString m_droppedFile;
     NodeAtPosReqType m_nodeAtPosReqType;
-    QPoint m_contextMenuPos;
+    QPoint m_contextMenuPosMouse;
+    QVector3D m_contextMenuPos3D;
     QTimer m_compressionTimer;
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
@@ -175,6 +180,8 @@ private:
     int m_activeSplit = 0;
 
     QList<SplitToolState> m_splitToolStates;
+    QList<Edit3DAction *> m_flyModeDisabledActions;
+    ModelNode m_contextMenuPendingNode;
 
     friend class Edit3DAction;
 };

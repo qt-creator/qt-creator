@@ -26,8 +26,9 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
-    readonly property real _keyPanAmount: 5
+    readonly property real _keyPanAmount: 10
     property bool ignoreToolState: false
+    property bool flyMode: viewRoot.flyMode
 
     z: 10
     anchors.fill: parent
@@ -150,6 +151,58 @@ Item {
                                                 _lookAtPoint, _zoomFactor, true);
     }
 
+    function rotateCamera(angles)
+    {
+        cameraCtrl._lookAtPoint = _generalHelper.rotateCamera(camera, angles, _lookAtPoint);
+    }
+
+    function moveCamera(moveVec)
+    {
+        cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint,  _zoomFactor,
+                                                            moveVec);
+    }
+
+    function getMoveVectorForKey(key) {
+        if (flyMode) {
+            switch (key) {
+            case Qt.Key_A:
+            case Qt.Key_Left:
+                return Qt.vector3d(_keyPanAmount, 0, 0);
+            case Qt.Key_D:
+            case Qt.Key_Right:
+                return Qt.vector3d(-_keyPanAmount, 0, 0);
+            case Qt.Key_E:
+            case Qt.Key_PageUp:
+                return Qt.vector3d(0, _keyPanAmount, 0);
+            case Qt.Key_Q:
+            case Qt.Key_PageDown:
+                return Qt.vector3d(0, -_keyPanAmount, 0);
+            case Qt.Key_W:
+            case Qt.Key_Up:
+                return Qt.vector3d(0, 0, _keyPanAmount);
+            case Qt.Key_S:
+            case Qt.Key_Down:
+                return Qt.vector3d(0, 0, -_keyPanAmount);
+            default:
+                break;
+            }
+        } else {
+            switch (key) {
+            case Qt.Key_Left:
+                return Qt.vector3d(_keyPanAmount, 0, 0);
+            case Qt.Key_Right:
+                return Qt.vector3d(-_keyPanAmount, 0, 0);
+            case Qt.Key_Up:
+                return Qt.vector3d(0, _keyPanAmount, 0);
+            case Qt.Key_Down:
+                return Qt.vector3d(0, -_keyPanAmount, 0);
+            default:
+                break;
+            }
+        }
+        return Qt.vector3d(0, 0, 0);
+    }
+
     onCameraChanged: {
         if (camera && _prevCamera) {
             // Reset zoom on previous camera to ensure it's properties are good to copy to new cam
@@ -164,6 +217,25 @@ Item {
                                       _zoomFactor, false);
         }
         _prevCamera = camera;
+    }
+
+    onFlyModeChanged: {
+        if (cameraCtrl._dragging) {
+            cameraCtrl._dragging = false;
+            cameraCtrl.storeCameraState(0);
+        }
+        _generalHelper.stopAllCameraMoves()
+    }
+
+    Connections {
+        target: _generalHelper
+        enabled: viewRoot.activeSplit === cameraCtrl.splitId
+        function onRequestCameraMove(camera, moveVec) {
+            if (camera === cameraCtrl.camera) {
+                cameraCtrl.moveCamera(moveVec);
+                _generalHelper.requestRender();
+            }
+        }
     }
 
     MouseArea {
@@ -190,6 +262,8 @@ Item {
             }
         }
         onPressed: (mouse) => {
+            if (cameraCtrl.flyMode)
+                return;
             viewRoot.activeSplit = cameraCtrl.splitId
             if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier) {
                 cameraCtrl._dragging = true;
@@ -215,6 +289,8 @@ Item {
         onCanceled: handleRelease()
 
         onWheel: (wheel) => {
+            if (cameraCtrl.flyMode && cameraCtrl.splitId !== viewRoot.activeSplit)
+                return;
             viewRoot.activeSplit = cameraCtrl.splitId
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
@@ -225,33 +301,13 @@ Item {
     }
 
     Keys.onPressed: (event) => {
-        var pressPoint = Qt.vector3d(view3d.width / 2, view3d.height / 2, 0);
-        var currentPoint;
+        event.accepted = true;
+        _generalHelper.startCameraMove(cameraCtrl.camera, cameraCtrl.getMoveVectorForKey(event.key));
+    }
 
-        switch (event.key) {
-        case Qt.Key_Left:
-            currentPoint = pressPoint.plus(Qt.vector3d(_keyPanAmount, 0, 0));
-            break;
-        case Qt.Key_Right:
-            currentPoint = pressPoint.plus(Qt.vector3d(-_keyPanAmount, 0, 0));
-            break;
-        case Qt.Key_Up:
-            currentPoint = pressPoint.plus(Qt.vector3d(0, _keyPanAmount, 0));
-            break;
-        case Qt.Key_Down:
-            currentPoint = pressPoint.plus(Qt.vector3d(0, -_keyPanAmount, 0));
-            break;
-        default:
-            break;
-        }
-
-        if (currentPoint) {
-            _lookAtPoint = _generalHelper.panCamera(
-                        camera, cameraCtrl.camera.sceneTransform,
-                        cameraCtrl.camera.position, _lookAtPoint,
-                        pressPoint, currentPoint, _zoomFactor);
-            event.accepted = true;
-        }
+    Keys.onReleased: (event) => {
+        event.accepted = true;
+        _generalHelper.stopCameraMove(cameraCtrl.getMoveVectorForKey(event.key));
     }
 
     OriginGizmo {

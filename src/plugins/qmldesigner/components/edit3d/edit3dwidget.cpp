@@ -122,6 +122,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
                 // Register action as creator command to make it configurable
                 Core::Command *command = Core::ActionManager::registerAction(
                             a, action->menuId().constData(), context);
+                m_actionToCommandHash.insert(a, command);
                 command->setDefaultKeySequence(a->shortcut());
                 if (proxyGroup)
                     proxyGroup->addAction(command->action());

@@ -254,8 +254,11 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                 QGuiApplication::sendEvent(m_editView3DData.window, &me);
 
                 // Context menu requested
-                if (command.button() == Qt::RightButton && command.modifiers() == Qt::NoModifier)
+                if (command.type() == QEvent::MouseButtonPress
+                    && command.buttons() == Qt::RightButton
+                    && command.modifiers() == Qt::NoModifier) {
                     getNodeAtPos(command.pos());
+                }
             }
         }
 
@@ -488,6 +491,9 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     auto helper = new QmlDesigner::Internal::GeneralHelper();
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
                      this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
+    QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::requestRender, this, [this]() {
+        render3DEditView(1);
+    });
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
     engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
                                new QmlDesigner::Internal::IconGizmoImageProvider);
@@ -2417,6 +2423,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     if (!m_editView3DSetupDone)
         return;
 
+#ifdef QUICK3D_MODULE
     QVariantMap updatedToolState;
     QVariantMap updatedViewState;
     int renderCount = 1;
@@ -2498,16 +2505,31 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionType::ParticlesSeek:
         m_particleAnimationDriver->setSeekerPosition(command.position());
         break;
-#endif
-#ifdef QUICK3D_MODULE
+#endif // QUICK3D_PARTICLES_MODULE
     case View3DActionType::GetNodeAtPos: {
         getNodeAtPos(command.value().toPointF());
         return;
     }
-#endif
     case View3DActionType::SplitViewToggle:
         updatedToolState.insert("splitView", command.isEnabled());
         break;
+    case View3DActionType::FlyModeToggle:
+        updatedToolState.insert("flyMode", command.isEnabled());
+        break;
+    case View3DActionType::EditCameraRotation:
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "rotateEditCamera",
+                                  Q_ARG(QVariant, command.value()));
+        break;
+    case View3DActionType::EditCameraMove:
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "moveEditCamera",
+                                  Q_ARG(QVariant, command.value()));
+        break;
+    case View3DActionType::EditCameraStopAllMoves: {
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper)
+            emit helper->stopAllCameraMoves();
+        break;
+    }
     case View3DActionType::ShowWireframe:
         updatedToolState.insert("showWireframe", command.value().toList());
         break;
@@ -2531,6 +2553,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     }
 
     render3DEditView(renderCount);
+#endif // QUICK3D_MODULE
 }
 
 void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
