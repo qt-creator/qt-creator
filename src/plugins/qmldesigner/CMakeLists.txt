@@ -28,7 +28,7 @@ add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
-    Qt::Gui Utils Qt::QmlPrivate Core
+    Qt::Gui Utils Qt::QmlPrivate
 
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
