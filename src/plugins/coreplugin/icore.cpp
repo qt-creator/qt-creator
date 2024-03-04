@@ -2189,15 +2189,17 @@ void ICorePrivate::openFileFromDevice()
 static void acceptModalDialogs()
 {
     const QWidgetList topLevels = QApplication::topLevelWidgets();
-    QList<QDialog *> dialogsToClose;
+    QList<QPointer<QDialog>> dialogsToClose;
     for (QWidget *topLevel : topLevels) {
         if (auto dialog = qobject_cast<QDialog *>(topLevel)) {
             if (dialog->isModal())
                 dialogsToClose.append(dialog);
         }
     }
-    for (QDialog *dialog : dialogsToClose)
-        dialog->accept();
+    for (QDialog *dialog : dialogsToClose) {
+        if (dialog)
+            dialog->accept();
+    }
 }
 
 } // Internal
