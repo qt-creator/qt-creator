@@ -210,7 +210,7 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
 {
     for (auto &buildPreset : presetsData.buildPresets) {
         if (buildPreset.inheritConfigureEnvironment) {
-            if (!buildPreset.configurePreset) {
+            if (!buildPreset.configurePreset && !buildPreset.hidden) {
                 TaskHub::addTask(BuildSystemTask(
                     Task::TaskType::Error,
                     Tr::tr("Build preset %1 is missing a corresponding configure preset.")
