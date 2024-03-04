@@ -264,6 +264,7 @@ private:
     PropertyTreeModel m_propertyTreeModel;
     PropertyListProxyModel m_propertyListProxyModel;
     bool m_blockReflection = false;
+    QPointer<ConnectionModel> m_model = nullptr;
 };
 
 class ConnectionModel : public QStandardItemModel

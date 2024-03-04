@@ -683,7 +683,7 @@ ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *
     , m_conditionListModel(model)
     , m_propertyTreeModel(model->connectionView())
     , m_propertyListProxyModel(&m_propertyTreeModel)
-
+    , m_model(model)
 {
     connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
         handleTargetChanged();
@@ -737,7 +737,7 @@ void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
 {
     QTC_ASSERT(actionType != ConnectionModelStatementDelegate::Custom, return );
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
 
     QTC_ASSERT(model, return );
     QTC_ASSERT(model->connectionView()->isAttached(), return );
@@ -901,7 +901,7 @@ void ConnectionModelBackendDelegate::update()
     m_propertyTreeModel.resetModel();
     m_propertyListProxyModel.setRowAndInternalId(0, internalRootIndex);
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
 
     QTC_ASSERT(model, return );
     if (!model->connectionView()->isAttached())
@@ -940,7 +940,7 @@ void ConnectionModelBackendDelegate::update()
 
 void ConnectionModelBackendDelegate::jumpToCode()
 {
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
 
     QTC_ASSERT(model, return );
     QTC_ASSERT(model->connectionView()->isAttached(), return );
@@ -1053,7 +1053,7 @@ void ConnectionModelBackendDelegate::setupCondition()
 
 void ConnectionModelBackendDelegate::setupHandlerAndStatements()
 {
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
     QTC_ASSERT(model, return );
     SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
 
@@ -1109,7 +1109,7 @@ void ConnectionModelBackendDelegate::setupHandlerAndStatements()
 
 void ConnectionModelBackendDelegate::handleTargetChanged()
 {
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
 
     QTC_ASSERT(model, return );
 
@@ -1182,8 +1182,8 @@ void ConnectionModelBackendDelegate::handleKOStatementChanged()
 
 void ConnectionModelBackendDelegate::handleConditionChanged()
 {
+    ConnectionModel *model = m_model;
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
     QTC_ASSERT(model, return );
     QTC_ASSERT(model->connectionView()->isAttached(), return );
 
@@ -1197,7 +1197,7 @@ void ConnectionModelBackendDelegate::handleConditionChanged()
 
 void ConnectionModelBackendDelegate::commitNewSource(const QString &source)
 {
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    ConnectionModel *model = m_model;
 
     QTC_ASSERT(model, return );
 
