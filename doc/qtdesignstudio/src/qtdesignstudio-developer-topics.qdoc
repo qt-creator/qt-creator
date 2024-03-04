@@ -4,7 +4,7 @@
 /*!
     \previouspage studio-packaging.html
     \page studio-developer-topics.html
-    \nextpage creator-vcs-git.html
+    \nextpage studio-finding-the-qt-runtime-version.html
 
     \title Developer Topics
 
@@ -17,6 +17,11 @@
     \endtable
 
     \list
+        \li \l{Finding the Qt Runtime Version}
+
+            \QDS runs projects using a specific version of Qt. Identify
+            which version of Qt your \QDS uses.
+
         \li \l{Using Git}
 
             You can add the project files to the Git version control, so that

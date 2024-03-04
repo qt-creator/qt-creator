@@ -120,9 +120,7 @@
     the emulation layer must be built with the same Qt version and compiler
     as the QML modules.
 
-    In \QDS, find the Qt version in the bottom toolbar next to
-    \inlineimage icons/settings.png.
-    \image studio-qt-development-kit.webp
+   \include qtdesignstudio-qt-runtime-version.qdocinc qt-runtime-version
 
     A plugin should behave differently depending on whether it is run by the
     emulation layer or an application. For example, animations should not be run

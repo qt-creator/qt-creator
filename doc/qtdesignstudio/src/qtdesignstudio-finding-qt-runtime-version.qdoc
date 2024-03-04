@@ -1,0 +1,38 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-developer-topics.html
+    \page studio-finding-the-qt-runtime-version.html
+    \nextpage creator-vcs-git.html
+
+    \title Finding the Qt Runtime Version
+
+    \include qtdesignstudio-qt-runtime-version.qdocinc qt-runtime-version
+
+    Find Qt runtime versions for previous \QDS releases in the table below.
+
+    \table
+        \header
+            \li \QDS
+            \li Qt Runtime Version
+        \row
+            \li 4.0
+            \li 6.4.1 and 5.15.5
+        \row
+            \li 4.1
+            \li 6.5.1
+        \row
+            \li 4.2
+            \li 6.5.1
+        \row
+            \li 4.3
+            \li 6.5.2
+        \row
+            \li 4.3.2
+            \li 6.6.0
+        \row
+            \li 4.4
+            \li 6.6.2
+    \endtable
+*/

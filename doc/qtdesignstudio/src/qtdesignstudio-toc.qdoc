@@ -253,6 +253,7 @@
             \endlist
         \li \l{Developer Topics}
             \list
+                \li \l{Finding the Qt Runtime Version}
                 \li \l{Using Git}
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
