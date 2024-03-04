@@ -3027,11 +3027,9 @@ bool NodeMetaInfo::isQmlComponent() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
-        return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
-               || type == "QML.Component" || type == "QtQml.Base.Component";
+        return type == "Component" || type == "QQmlComponent";
     }
 }
 
@@ -3041,7 +3039,7 @@ bool NodeMetaInfo::isFont() const
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
     } else {
-        return isValid() && m_privateData->qualfiedTypeName() == "font";
+        return isValid() && simplifiedTypeName() == "font";
     }
 }
 
@@ -3054,9 +3052,9 @@ bool NodeMetaInfo::isColor() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
-        return type == "QColor" || type == "color" || type == "QtQuick.color";
+        return type == "QColor" || type == "color" || type == "color";
     }
 }
 
