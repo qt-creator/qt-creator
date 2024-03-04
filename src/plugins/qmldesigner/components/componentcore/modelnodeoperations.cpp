@@ -1662,7 +1662,7 @@ void openEffectComposer(const QString &filePath)
     if (ModelNodeOperations::isEffectComposerActivated()) {
         QmlDesignerPlugin::instance()->viewManager()
             .emitCustomNotification("open_effectcomposer_composition", {}, {filePath});
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Composer", true);
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("EffectComposer", true);
     } else {
         ModelNodeOperations::openOldEffectMaker(filePath);
     }
