@@ -3449,10 +3449,10 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
     if constexpr (!useProjectStorage()) {
         const QVariant variant = value;
         QVariant copyVariant = variant;
-        if (isEnumType() || variant.canConvert<Enumeration>())
-            return variant;
-
         const TypeName &typeName = propertyTypeName();
+        // skip casting flags and keep them as int. TODO: use flags as enums
+        if (isEnumType() || variant.canConvert<Enumeration>() || typeName.endsWith("Flags"))
+            return variant;
 
         QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 

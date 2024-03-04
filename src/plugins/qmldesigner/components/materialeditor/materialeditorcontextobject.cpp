@@ -3,35 +3,30 @@
 
 #include "materialeditorcontextobject.h"
 
-#include <abstractview.h>
 #include <bindingproperty.h>
 #include <documentmanager.h>
 #include <nodemetainfo.h>
-#include <rewritingexception.h>
-#include <qmldesignerplugin.h>
-#include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QCursor>
 #include <QMessageBox>
+#include <QQmlComponent>
 #include <QQmlContext>
-#include <QWindow>
-
-#include <coreplugin/icore.h>
+#include <QQmlPropertyMap>
+#include <QQuickWidget>
 
 namespace QmlDesigner {
 
-MaterialEditorContextObject::MaterialEditorContextObject(QQmlContext *context, QObject *parent)
+MaterialEditorContextObject::MaterialEditorContextObject(QQuickWidget *widget, QObject *parent)
     : QObject(parent)
-    , m_qmlContext(context)
+    , m_quickWidget(widget)
 {
     qmlRegisterUncreatableType<MaterialEditorContextObject>("MaterialToolBarAction", 1, 0, "ToolBarAction", "Enum type");
 }
@@ -41,7 +36,7 @@ QQmlComponent *MaterialEditorContextObject::specificQmlComponent()
     if (m_specificQmlComponent)
         return m_specificQmlComponent;
 
-    m_specificQmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
+    m_specificQmlComponent = new QQmlComponent(m_quickWidget->rootContext()->engine(), this);
     m_specificQmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile("specifics.qml"));
 
     return m_specificQmlComponent;
@@ -541,6 +536,20 @@ void MaterialEditorContextObject::goIntoComponent()
 {
     QTC_ASSERT(m_model, return);
     DocumentManager::goIntoComponent(m_selectedMaterial);
+}
+
+QRect MaterialEditorContextObject::screenRect() const
+{
+    if (m_quickWidget && m_quickWidget->screen())
+        return m_quickWidget->screen()->availableGeometry();
+    return  {};
+}
+
+QPoint MaterialEditorContextObject::globalPos(const QPoint &point) const
+{
+    if (m_quickWidget)
+        return m_quickWidget->mapToGlobal(point);
+    return point;
 }
 
 } // QmlDesigner

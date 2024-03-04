@@ -14,7 +14,6 @@ StudioControls.ComboBox {
     required property var itemsModel
 
     required property Item mainRoot
-    required property var rootView
 
     readonly property int popupHeight: Math.min(800, col.height + 2)
 
@@ -27,23 +26,23 @@ StudioControls.ComboBox {
     }
 
     function calculateWindowGeometry() {
-        let globalPos = root.rootView.globalPos(mainRoot.mapFromItem(root, 0, 0))
-        let screenRect = root.rootView.screenRect();
+        let gPos = globalPos(mainRoot.mapFromItem(root, 0, 0))
+        let scrRect = screenRect();
 
         window.width = col.width + 2 // 2: scrollView left and right 1px margins
 
-        let newX = globalPos.x + root.width - window.width
-        if (newX < screenRect.x)
-            newX = globalPos.x
+        let newX = gPos.x + root.width - window.width
+        if (newX < scrRect.x)
+            newX = gPos.x
 
-        let newY = Math.min(screenRect.y + screenRect.height,
-                            Math.max(screenRect.y, globalPos.y + root.height - 1))
+        let newY = Math.min(scrRect.y + scrRect.height,
+                            Math.max(scrRect.y, gPos.y + root.height - 1))
 
         // Check if we have more space above or below the control, and put control on that side,
         // unless we have enough room for maximum size popup under the control
         let newHeight
-        let screenY = newY - screenRect.y
-        let availableHeight = screenRect.height - screenY
+        let screenY = newY - scrRect.y
+        let availableHeight = scrRect.height - screenY
         if (availableHeight > screenY || availableHeight > root.popupHeight) {
             newHeight = Math.min(root.popupHeight, availableHeight)
         } else {

@@ -7,6 +7,8 @@
 #include "qmlanchorbindingproxy.h"
 #include "qmlmodelnodeproxy.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <nodemetainfo.h>
 
 class PropertyEditorValue;
@@ -58,13 +60,13 @@ private:
                                    MaterialEditorView *materialEditor);
     PropertyName auxNamePostFix(const PropertyName &propertyName);
 
-    QQuickWidget *m_view = nullptr;
+    Utils::UniqueObjectPtr<QQuickWidget> m_quickWidget = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<MaterialEditorTransaction> m_materialEditorTransaction;
     QScopedPointer<MaterialEditorContextObject> m_contextObject;
-    MaterialEditorImageProvider *m_materialEditorImageProvider = nullptr;
+    QPointer<MaterialEditorImageProvider> m_materialEditorImageProvider;
 };
 
 } // namespace QmlDesigner
