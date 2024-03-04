@@ -29,7 +29,6 @@
         \list
         \li \l{Writing Code}
             \list
-                \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
             \endlist
             \li \l{Configuring the Editor}

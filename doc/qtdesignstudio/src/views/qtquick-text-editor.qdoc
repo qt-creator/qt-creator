@@ -20,12 +20,20 @@
     The view offers the following features:
 
     \list
-        \li \l{Semantic Highlighting}
         \li \l{Checking Code Syntax}
         \li \l{Complete code}
         \li \l{Indent text or code}
         \li \l{Edit properties of QML types}
     \endlist
+
+    \section1 Semantic Highlighting
+
+    To help you write well formatted code, the \uicontrol Code view highlights
+    code elements and blocks. \QDS reads the source code, analyzes it, and
+    highlights it based on semantic checks.
+
+    To select the color scheme for semantic highlighting, go to
+    \preferences > \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
     \section1 Refactoring Code
 
@@ -44,5 +52,6 @@
         \li Select \key Ctrl + \key {F} (or \key Cmd + \key F on \macos).
     \endlist
 
-    \sa {Finding}, {Apply quick fixes}, {QML Quick Fixes}
+    \sa {Finding}, {Apply quick fixes}, {Download highlight definitions},
+    {Highlight code blocks}, {QML Quick Fixes}
 */

@@ -23,12 +23,6 @@
     in-line error indicators while you are typing.
 
     \list
-        \li \l{Semantic Highlighting}
-
-            \QC enables you to write well formatted code by highlighting
-            code elements and blocks. You can use syntax highlighting
-            also for other types of files than C++ or QML.
-
         \li \l{Checking Code Syntax}
 
             \QC checks for errors when you write code and displays inline

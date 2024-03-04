@@ -35,16 +35,16 @@
         \li Set the \l{Font & Colors}{font preferences and
             apply color schemes} for syntax highlighting in
             \uicontrol {Font & Colors}.
-        \li Specify \l{Generic Highlighting}
+        \li Specify \l{Download highlight definitions}
             {definition files for syntax highlighting} for other types of files
              than C++ or QML in \uicontrol {Generic Highlighter}.
 
         \li Set \l{Indent text or code}{tabs, indentation, the handling of
             whitespace, and mouse operations} in \uicontrol Behavior.
 
-        \li Set various display properties, such as \l{Highlighting Blocks}
-            {highlighting} or \l{Folding Blocks}{folding} blocks or text
-            wrapping in \uicontrol Display.
+        \li Set various display properties, such as \l{Highlight code blocks}
+            {highlighting} or folding code blocks and text wrapping in
+            \uicontrol Display.
 
         \li Add, modify, and remove \l{Snippets}{code snippets} in
             \uicontrol Snippets.

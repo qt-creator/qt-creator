@@ -247,7 +247,7 @@
 
     \title Complete CMake code
 
-    \QC uses \l{Generic Highlighting}{generic highlighting} to provide
+    \QC uses \l{Download highlight definitions}{generic highlighting} to provide
     code completion specific arguments for the CMake commands. For
     example, only source file properties are suggested for the
     \l {CMake: set_source_files_properties command}, not the test or
