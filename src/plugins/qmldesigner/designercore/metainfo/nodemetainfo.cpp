@@ -2029,10 +2029,6 @@ QString NodeMetaInfo::componentFileName() const
         if (isValid()) {
             return m_privateData->componentFileName();
         }
-    } else {
-        if (isValid()) {
-            return m_privateData->componentFileName();
-        }
     }
 
     return {};
