@@ -27,7 +27,7 @@
 
         \li Syntactic and \l{Semantic Highlighting}{semantic highlighting}
 
-        \li Navigating in the code by using the \l{Searching with the Locator}
+        \li Navigating in the code by using the \l{Navigate with locator}
             {locator}, \l{Move to symbol definition or declaration}
             {following symbols}, and so on
 

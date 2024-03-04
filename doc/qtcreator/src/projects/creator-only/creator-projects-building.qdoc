@@ -81,7 +81,7 @@
 
     Select \uicontrol {Build for Run Configuration} to
     build the executable that corresponds to the selected run configuration.
-    You can also use the \c cm filter in the \l {Searching with the Locator}
+    You can also use the \c cm filter in the \l {Navigate with locator}
     {locator}.
 
     To remove all build artifacts, select one of \uicontrol {Clean} menu commands.

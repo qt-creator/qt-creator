@@ -18,9 +18,8 @@
     \image qtcreator-new-file.webp {New File wizard}
 
     \note You can also use the \c f locator filter to create a new
-    file and open it in the editor. For more information, see
-    \l {Creating Files and Directories from Locator}. However, you must
-    manually add the created file to a project.
+    file and open it in the editor. However, you must manually add
+    the created file to a project.
 
     \section1 Select file type
 
@@ -74,8 +73,9 @@
         \li Empty Nim source and script files.
     \endtable
 
-    \sa {Add Files}{How To: Add Files}, {Add tests to existing test projects},
-    {Create UML-style models}, {Use project wizards}
+    \sa {Navigate with locator}, {Add Files}{How To: Add Files},
+    {Add tests to existing test projects}, {Create UML-style models},
+    {Use project wizards}
 */
 
 /*!

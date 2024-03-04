@@ -131,7 +131,7 @@
     \page creator-how-to-advanced-search.html
     \if defined(qtdesignstudio)
     \previouspage creator-editor-finding.html
-    \nextpage creator-editor-locator.html
+    \nextpage creator-how-to-rename-symbols.html
     \else
     \previouspage creator-how-tos.html
     \endif

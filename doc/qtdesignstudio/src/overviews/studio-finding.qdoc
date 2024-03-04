@@ -24,12 +24,6 @@
 
            Search for QML types and rename them in all files in a project.
 
-        \li \l{Searching with the Locator}
-
-            Use the locator to browse
-            through projects, files, classes, functions, documentation and
-            file systems.
-
         \li \l{Jump to the Code}
 
             Jump to the code for a specific component directly from

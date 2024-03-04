@@ -230,13 +230,99 @@
 
     \title Perform calculations
 
-    Open the \uicontrol Locator with \key {Ctrl+K} and type =, followed by a space.
-    You can now do basic calculations, with options to copy the results to the clipboard
-    by navigating through the entries and pressing \key {Enter}.
+    To do basic calculations in the locator:
 
-    \image qtcreator-locator.webp "List of locator filters"
+    \list 1
+        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
+        \li Enter \c =, followed by a space.
+        \image qtcreator-locator.webp {List of locator filters}
+        \li Perform calculations.
+    \endlist
 
-    \sa {Executing JavaScript}
+    Navigate through the entries and press \key {Enter} to copy the results to
+    the clipboard
+
+    \section1 Built-in functions
+
+    Beside simple mathematical operations, like ((1 + 2) * 3), the following
+    built-in functions exist:
+
+    \table
+        \header
+            \li  Function
+            \li  Purpose
+        \row
+            \li  abs(x)
+            \li  Returns the absolute value of x
+        \row
+            \li  acos(x)
+            \li  Returns the arccosine of x, in radians
+        \row
+            \li  asin(x)
+            \li  Returns the arcsine of x, in radians
+        \row
+            \li  atan(x)
+            \li  Returns the arctangent of x, in radians
+        \row
+            \li  atan2(x, y)
+            \li  Returns the arctangent of the quotient of its arguments
+        \row
+            \li  bin(x)
+            \li  Returns the binary representation of x
+        \row
+            \li  ceil(x)
+            \li  Returns the value of x rounded up to the next integer
+        \row
+            \li  cos(x)
+            \li  Returns the cosine of x (x is in radians)
+        \row
+            \li  exp(x)
+            \li  Returns the value of E to the power of x
+        \row
+            \li  e()
+            \li  Returns Euler's number E (2.71828...)
+        \row
+            \li  floor(x)
+            \li  Returns the value of x rounded down to the next integer
+        \row
+            \li  hex(x)
+            \li  Returns the hexadecimal representation of x
+        \row
+            \li  log(x)
+            \li  Returns the natural logarithm (base E) of x
+        \row
+            \li  max([value1[, value2[, ...]]])
+            \li  Returns the highest value of the given numbers
+        \row
+            \li  min([value1[, value2[, ...]]])
+            \li  Returns the lowest value of the given numbers
+        \row
+            \li  oct(x)
+            \li  Returns the octal representation of x
+        \row
+            \li  pi()
+            \li  Returns PI (3.14159...)
+        \row
+            \li  pow(x, y)
+            \li  Returns the value of x to the power of y
+        \row
+            \li  random()
+            \li  Returns a random number between 0 and 1
+        \row
+            \li  round(x)
+            \li  Returns the value of x rounded to the next integer
+        \row
+            \li  sin(x)
+            \li  Returns the sine of x (x is in radians)
+        \row
+            \li  sqrt(x)
+            \li  Returns the square root of x
+        \row
+            \li  tan(x)
+            \li  Returns the tangent of x (x is in radians)
+        \endtable
+
+    \sa {Navigate with locator}, {Locator}
 */
 
 /*!
@@ -281,7 +367,7 @@
         \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Searching with the Locator}
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Navigate with locator}
 */
 
 /*!
