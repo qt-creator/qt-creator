@@ -782,7 +782,7 @@ void AndroidRunnerWorker::handleJdbSettled()
         return false;
     };
 
-    const QStringList commands{"threads", "cont", "exit"};
+    const QStringList commands{"suspend", "resume", "cont", "exit"};
 
     for (const QString &command : commands) {
         if (waitForCommand()) {
