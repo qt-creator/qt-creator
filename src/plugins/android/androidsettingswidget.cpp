@@ -10,6 +10,7 @@
 #include "androidtr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -361,8 +362,10 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
         return Utils::asyncRun([s]() -> expected_str<QString> {
             expected_str<void> test = testJavaC(FilePath::fromUserInput(s));
-            if (!test)
+            if (!test) {
+                Core::MessageManager::writeSilently(test.error());
                 return make_unexpected(test.error());
+            }
             return s;
         });
     });
