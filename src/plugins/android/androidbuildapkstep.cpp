@@ -228,11 +228,12 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         m_step->setBuildToolsVersion(buildToolsSdkComboBox->itemData(idx).value<QVersionNumber>());
     });
 
-    const int initIdx = (m_step->buildToolsVersion().majorVersion() < 1)
-            ? buildToolsVersions.indexOf(buildToolsVersions.last())
-            : buildToolsVersions.indexOf(m_step->buildToolsVersion());
-    buildToolsSdkComboBox->setCurrentIndex(initIdx);
-
+    if (!buildToolsVersions.isEmpty()) {
+        const int initIdx = (m_step->buildToolsVersion().majorVersion() < 1)
+                                ? buildToolsVersions.indexOf(buildToolsVersions.last())
+                                : buildToolsVersions.indexOf(m_step->buildToolsVersion());
+        buildToolsSdkComboBox->setCurrentIndex(initIdx);
+    }
 
     auto createAndroidTemplatesButton = new QPushButton(Tr::tr("Create Templates"));
     createAndroidTemplatesButton->setToolTip(
