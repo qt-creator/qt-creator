@@ -650,16 +650,30 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
 
 void KitManager::deregisterKit(Kit *k)
 {
-    QTC_ASSERT(KitManager::isLoaded(), return);
+    deregisterKits({k});
+}
 
-    if (!k || !Utils::contains(d->m_kitList, k))
-        return;
-    auto taken = Utils::take(d->m_kitList, k);
-    if (defaultKit() == k) {
-        Kit *newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
-        setDefaultKit(newDefault);
+void KitManager::deregisterKits(const QList<Kit *> kitList)
+{
+    QTC_ASSERT(KitManager::isLoaded(), return);
+    std::vector<std::unique_ptr<Kit>> removed; // to keep them alive until the end of the function
+    Kit *newDefault = nullptr;
+    for (Kit *k : kitList) {
+        if (!k)
+            continue;
+        std::optional<std::unique_ptr<Kit>> taken = Utils::take(d->m_kitList, k);
+        if (!taken)
+            continue;
+        removed.push_back(std::move(*taken));
+        if (defaultKit() == k) {
+            newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
+        }
     }
-    emit instance()->kitRemoved(k);
+    if (newDefault)
+        setDefaultKit(newDefault);
+
+    for (auto it = removed.cbegin(); it != removed.cend(); ++it)
+        emit instance()->kitRemoved(it->get());
     emit instance()->kitsChanged();
 }
 

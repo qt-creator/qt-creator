@@ -1470,8 +1470,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
     // cleanup any mess that might have existed before, by removing all Android kits that
     // existed before, but weren't re-used
-    for (Kit *k : unhandledKits)
-        KitManager::deregisterKit(k);
+    KitManager::deregisterKits(unhandledKits);
 }
 
 Environment AndroidConfig::toolsEnvironment() const

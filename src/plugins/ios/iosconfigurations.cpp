@@ -305,8 +305,7 @@ void IosConfigurations::updateAutomaticKitList()
     existingKits.subtract(resultingKits);
     qCDebug(kitSetupLog) << "Removing unused kits:";
     printKits(existingKits);
-    for (Kit *kit : std::as_const(existingKits))
-        KitManager::deregisterKit(kit);
+    KitManager::deregisterKits(toList(existingKits));
 }
 
 static IosConfigurations *m_instance = nullptr;
