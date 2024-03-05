@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,31 +9,31 @@
 
 /*!
     \page creator-diff-editor.html
-    \if defined(qtdesignstudio)
-    \previouspage qt-quick-toolbars.html
-    \nextpage studio-finding.html
-    \else
-    \previouspage creator-macros.html
-    \nextpage creator-clang-codemodel.html
-    \endif
+    \previouspage creator-how-tos.html
 
-    \title Comparing Files
+    \ingroup creator-how-to-edit
 
-    You can use a diff editor to display unsaved changes in the current file or
-    all open files or to compare any two text files that can be either versions
-    of the same file or arbitrary files.
+    \title Compare files
 
-    To view unsaved changes in the current file, select \uicontrol Tools >
+    You can view unsaved changes in the current file or all open files,
+    as well as compare any two text files. They can be either versions of
+    the same file or arbitrary files.
+
+    \section1 View unsaved changes
+
+    To view unsaved changes in the current file, go to \uicontrol Tools >
     \uicontrol Diff > \uicontrol {Diff Current File}.
 
-    To view unsaved changes in all open files, select \uicontrol Tools >
+    To view unsaved changes in all open files, go to \uicontrol Tools >
     \uicontrol Diff > \uicontrol {Diff Open Files}.
+
+    \section1 Compare two files
 
     To compare two files:
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Diff >
+        \li Go to \uicontrol Tools > \uicontrol Diff >
             \uicontrol {Diff External Files}.
 
         \li Select two files to compare.
@@ -41,35 +41,31 @@
     \endlist
 
     To compare the currently opened file against another file in a project
-    or the filesystem:
+    or the file system:
 
     \list 1
 
         \li Open the first file in an editor.
 
-        \li Right click on the second file in the \uicontrol Projects
+        \li Right-click the second file in the \uicontrol Projects
             or \uicontrol {File System} view and select
             \uicontrol {Diff Against Current File}.
 
     \endlist
 
     If \QC cannot detect the encoding of the files to compare, an info bar
-    appears that displays the option to reload the document using some other
+    displays the option to reload the document using some other
     encoding. For more information, see \l {Change text encoding}.
 
-    \section1 Viewing the Changes
+    \section1 View changes
 
-    \image creator-diff-editor.png "Diff editor output in the Edit mode"
+    \image creator-diff-editor.png {Diff editor output in the Edit mode}
 
-    The changes are displayed in the \uicontrol Edit mode. Color coding is
+    View the changes in the \uicontrol Edit mode. Color coding is
     used to mark changed lines. By default, red indicates lines that contain
     removed text (painted another shade of red) in the left pane and green
     indicates lines that contain added text (painted another shade of green)
     in the right pane.
-
-    To revert the changes, right-click added text and then select
-    \uicontrol {Revert Chunk} in the context menu. To apply the changes, select
-    removed text and then select \uicontrol {Apply Chunk}.
 
     To view the differences in a unified view where changed rows are placed
     below each other, select \inlineimage icons/unifieddiff.png
@@ -85,22 +81,34 @@
     show in \uicontrol {Context lines}.
 
     By default, the horizontal scroll bars in the left and right pane are
-    synchronized. To use them independently of each other, select the
+    synchronized. To use them independently of each other, select
     \inlineimage icons/linkicon.png
-    (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
+    (\uicontrol {Synchronize Horizontal Scroll Bars}).
+
+    \section1 Revert and apply changes
+
+    To revert the changes, right-click added text and then select
+    \uicontrol {Revert Chunk} in the context menu.
+
+    To apply the changes, select removed text and then select
+    \uicontrol {Apply Chunk}.
+
+    \section1 Reload files
 
     If the files change outside \QC, select \inlineimage icons/reload_gray.png
     (\uicontrol {Reload Editor}) to compare them again and to show the results.
 
     \if defined(qtcreator)
+    \section1 Paste changes for review
+
     To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
     {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
     context menu.
     \endif
 
-    \section1 Changing the Colors
+    \section1 Change colors
 
-    To change the default colors, select \preferences >
+    To change the default colors, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}. Create your own color
     scheme and select new colors for the following items:
 

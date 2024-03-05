@@ -83,8 +83,10 @@
             new filename.
         \li Remove existing files.
         \li Create new folders.
+        \if defined(qtcreator)
         \li Compare the selected file with the currently open file in the diff
-            editor. For more information, see \l{Comparing Files}.
+            editor. For more information, see \l{Compare files}.
+        \endif
         \li Display the contents of a particular directory in the view.
         \li Collapse all open folders.
     \endlist

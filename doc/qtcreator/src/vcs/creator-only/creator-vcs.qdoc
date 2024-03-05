@@ -142,7 +142,7 @@
     \image qtcreator-vcs-diff.png
 
     With Git, Mercurial, and Subversion, the diff is displayed side-by-side in
-    a \l{Comparing Files}{diff editor} by default. To use the inline diff view
+    a \l{Compare files}{diff editor} by default. To use the inline diff view
     instead, select the \uicontrol {Switch to Text Diff Editor} (1) option from
     the toolbar. In the inline
     diff view, you can use context menu commands to apply, revert, stage, and

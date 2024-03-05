@@ -79,7 +79,7 @@
 
     \image qtcreator-vcs-diff.png
 
-    The \l{Comparing Files}{diff editor} displays the diff side-by-side. To use
+    The diff editor displays the diff side-by-side. To use
     the unified diff view instead, select the
     \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
     In both views, you can use context menu commands to apply, revert, stage,
@@ -638,6 +638,7 @@
     visible only when you have merge conflicts to resolve.
 
     \if defined(qtcreator)
-    \sa {Set up version control systems}, {Version Control Systems}
+    \sa {Compare files}, {Set up version control systems},
+        {Version Control Systems}
     \endif
 */

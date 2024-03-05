@@ -75,6 +75,6 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Comparing Files}
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
     \endif
 */
