@@ -37,6 +37,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/examples/transitions \
                 ../../qtcreator/src/analyze \
                 ../../qtcreator/src/android \
+                ../../qtcreator/src/appman \
                 ../../qtcreator/src/baremetal \
                 ../../qtcreator/src/cmake \
                 ../../qtcreator/src/conan \

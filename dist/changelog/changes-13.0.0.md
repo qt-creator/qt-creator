@@ -21,7 +21,7 @@ Adds support for Qt 6 based applications with CMake for creating, building,
 deploying, running, and debugging for devices that use the
 [Qt Application Manager](https://doc.qt.io/QtApplicationManager/).
 
-([Documentation](https://doc.qt.io/qtcreator/creator-overview-qtasam.html))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-13.0/creator-how-to-run-in-app-manager.html))
 
 General
 -------

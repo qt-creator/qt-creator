@@ -1,0 +1,154 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-run-in-app-manager.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-run
+
+    \title Run in Qt Application Manager
+
+    If you have set up \l{Qt Application Manager}, you can deploy, run, and
+    debug applications on the desktop, remote generic SSH Linux targets, or
+    \l{Boot2Qt}{Boot2Qt devices}. The applications can be either
+    \e {built-in applications} or \e {third-party applications}. The former
+    are part of the System UI or the base installation, while the latter
+    are dynamically installed, updated, and uninstalled.
+
+    \note Enable the experimental Application Manager plugin to use it.
+
+    To build a Qt Application Manager project, deploy it, and run selected apps
+    in the System UI:
+
+    \list 1
+        \li Open an application manager project.
+        \li In \uicontrol Projects > \uicontrol {Build & Run}, select a kit that
+            specifies the Qt version and the device to use.
+        \li Go to \preferences > \uicontrol Devices and specify a connection to
+            the device.
+        \li In \uicontrol Projects > \uicontrol {Build & Run}, specify settings
+            for deploying and running the application with the selected kit.
+        \li In the kit selector, select \inlineimage icons/run_small.png for the
+            run target.
+    \endlist
+
+    You can see command-line output in the \l {Application Output} view. You
+    can start, stop, and debug applications from there.
+
+    On Linux, running a multi-process application starts a new process that you
+    can stop. If the application uses a runtime of the type \c qml-inprocess, or
+    you are running on Windows or \macos, you cannot debug it as an individual
+    process. However, you can debug it as a part of the System UI.
+
+    Debugging works transparently if you set it up for the run target.
+
+    \section1 Application manager CMake functions
+
+    Since Qt 6.7, when using CMake as the build system, use the following
+    functions in the CMakeLists.txt file to indicate, which applications
+    to create as built-in packages and which to create as installable packages:
+
+    \list
+        \li \l {qt6_am_create_builtin_package}
+        \li \l {qt6_am_create_installable_package}
+    \endlist
+
+    \section1 Customize the installation
+
+    To change the settings for deploying and running the application with the
+    selected kit, go to \uicontrol Projects and select \uicontrol {Build & Run}
+    > \uicontrol Run.
+
+    \image qtcreator-appman-deploy-settings.webp {Deploy to application manager}
+
+    \section2 Automatic deployment configuration selection
+
+    In an application manager project, the targets need different deployment
+    mechanisms. The System UI is deployed with the \e {default deployment
+    configuration}, while all application manager packages use an
+    \e {automatic application manager deploy configuration}, which deploys only
+    the package itself when a installable package should be started.
+
+    The appropriate deployment configuration is automatically selected when the
+    current run configuration changes.
+
+    \section2 Deployment configuration
+
+    In \uicontrol Method, \uicontrol {Automatic Application Manager
+    Deploy Configuration} adds the necessary CMake and tool arguments, as well as
+    \uicontrol Targets to the effective \uicontrol Build command. You can select
+    the targets in the kit selector to deploy and run applications on them.
+
+    \image qtcreator-appman-kit-selector.webp {Automatically generated run targets in the kit selector}
+
+    \section2 Installation settings
+
+    In \uicontrol {Install Application Manager Package}, you can customize the
+    \c {install-package} command.
+
+    \QC uses the compiler from the kit (toolchain) to build the application.
+    Then, it installs the application package into the target system using the
+    \uicontrol Controller executable that must be running on the target. It
+    is delivered with Qt Application Manager.
+
+    In \uicontrol {Command line arguments}, the \c --acknowledge argument
+    automatically acknowledges the installation. If the System UI implemented
+    a confirmation dialog, you can remove this flag to show the dialog to the
+    user when installing the package.
+
+    To install some other package, select \uicontrol {Customize step}, and
+    then enter the path to the package file in \uicontrol {Package file}.
+
+    \section1 Application manager run settings
+
+    To specify settings for running applications, go to \uicontrol Projects >
+    \uicontrol {Run Settings}.
+
+    \image qtcreator-appman-run-settings.webp {Run in Qt Application Manager}
+
+    The following table summarizes the run settings for each application.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Controller}
+        \li The path to the controller that installs the application package into
+            the target system.
+
+            When you run applications on a Boot2Qt device, you can see the device
+            ID here.
+    \row
+        \li \uicontrol {Application ID}
+        \li The ID of the \c ApplicationManager application.
+    \row
+        \li \uicontrol {Document URL}
+        \li The URL is passed to the started application, which can use it to
+            start an action, such as opening the passed file URL.
+    \row
+        \li \uicontrol {Application Manager instance ID}
+        \li The name of this application manager instance. Only useful if you are
+            running multiple instances at the same time and you need to address
+            them from the controller. A unique number is appended to this ID to
+            disambiguate instances with the same ID.
+
+            If you have several application manager instances running, you can
+            override the instance ID in the \c config.yaml file.
+    \row
+        \li \uicontrol {Default instance}
+        \li Always communicates with the default instance.
+    \endtable
+
+    \section1 Profile Qt Quick applications
+
+    You can use the \l{Profiling QML Applications}{QML Profiler} to find causes
+    for typical performance problems in your Qt Quick applications, such as
+    slowness and unresponsive, stuttering user interfaces. You cannot profile an
+    in-process runtime as an individual process.
+
+    \sa {Activate kits for a project}, {Connecting Boot2Qt Devices},
+    {Connecting Remote Linux Devices}, {Enable and disable plugins},
+    {Run on many platforms}, {Debugging}, {Profiling QML Applications}
+*/
