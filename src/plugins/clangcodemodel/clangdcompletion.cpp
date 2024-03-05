@@ -102,13 +102,52 @@ private:
     QElapsedTimer m_timer;
 };
 
+class ClangdFunctionHintProposalModel : public FunctionHintProposalModel
+{
+public:
+    using FunctionHintProposalModel::FunctionHintProposalModel;
+
+private:
+    int activeArgument(const QString &prefix) const override
+    {
+        const int arg = activeArgumenForPrefix(prefix);
+        if (arg < 0)
+            return -1;
+        m_currentArg = arg;
+        return arg;
+    }
+
+    QString text(int index) const override
+    {
+        using Parameters = QList<ParameterInformation>;
+        if (index < 0 || m_sigis.signatures().size() <= index)
+            return {};
+        const SignatureInformation signature = m_sigis.signatures().at(index);
+        QString label = signature.label();
+
+        const QList<QString> parameters = Utils::transform(signature.parameters().value_or(Parameters()),
+                                                           &ParameterInformation::label);
+        if (parameters.size() <= m_currentArg)
+            return label;
+
+        const QString &parameterText = parameters.at(m_currentArg);
+        const int start = label.indexOf(parameterText);
+        const int end = start + parameterText.length();
+        return label.mid(0, start).toHtmlEscaped() + "<b>" + parameterText.toHtmlEscaped() + "</b>"
+               + label.mid(end).toHtmlEscaped();
+    }
+
+    mutable int m_currentArg = 0;
+};
+
 class ClangdFunctionHintProcessor : public FunctionHintProcessor
 {
 public:
-    ClangdFunctionHintProcessor(ClangdClient *client);
+    ClangdFunctionHintProcessor(ClangdClient *client, int basePosition);
 
 private:
     IAssistProposal *perform() override;
+    IFunctionHintProposalModel *createModel(const SignatureHelp &signatureHelp) const override;
 
     ClangdClient * const m_client;
 };
@@ -138,7 +177,8 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
     switch (contextAnalyzer.completionAction()) {
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
         qCDebug(clangdLogCompletion) << "creating function hint processor";
-        return new ClangdFunctionHintProcessor(m_client);
+        return new ClangdFunctionHintProcessor(m_client,
+                                               contextAnalyzer.positionForProposal());
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
         qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
@@ -606,8 +646,8 @@ QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCo
     return itemGenerator(items);
 }
 
-ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client)
-    : FunctionHintProcessor(client)
+ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client, int basePosition)
+    : FunctionHintProcessor(client, basePosition)
     , m_client(client)
 {}
 
@@ -621,6 +661,12 @@ IAssistProposal *ClangdFunctionHintProcessor::perform()
     return FunctionHintProcessor::perform();
 }
 
+IFunctionHintProposalModel *ClangdFunctionHintProcessor::createModel(
+    const SignatureHelp &signatureHelp) const
+{
+    return new ClangdFunctionHintProposalModel(signatureHelp);
+}
+
 ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)
     : TextDocumentClientCapabilities::CompletionCapabilities(object)
 {
@@ -629,6 +675,20 @@ ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &obj
         completionItemCaps->setSnippetSupport(false);
         setCompletionItem(*completionItemCaps);
     }
+}
+
+ClangdFunctionHintProvider::ClangdFunctionHintProvider(ClangdClient *client)
+    : FunctionHintAssistProvider(client)
+    , m_client(client)
+{}
+
+IAssistProcessor *ClangdFunctionHintProvider::createProcessor(
+    const AssistInterface *interface) const
+{
+    ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
+                                                   interface->position(), false, {});
+    contextAnalyzer.analyze();
+    return new ClangdFunctionHintProcessor(m_client, contextAnalyzer.positionForProposal());
 }
 
 } // namespace ClangCodeModel::Internal

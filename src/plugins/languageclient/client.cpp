@@ -1630,6 +1630,12 @@ void Client::setCompletionAssistProvider(LanguageClientCompletionAssistProvider 
     d->m_clientProviders.completionAssistProvider = provider;
 }
 
+void Client::setFunctionHintAssistProvider(FunctionHintAssistProvider *provider)
+{
+    delete d->m_clientProviders.functionHintProvider;
+    d->m_clientProviders.functionHintProvider = provider;
+}
+
 void Client::setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider)
 {
     delete d->m_clientProviders.quickFixAssistProvider;

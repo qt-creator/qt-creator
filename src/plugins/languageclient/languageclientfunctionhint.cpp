@@ -17,24 +17,6 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-class FunctionHintProposalModel : public IFunctionHintProposalModel
-{
-public:
-    explicit FunctionHintProposalModel(SignatureHelp signature)
-        : m_sigis(signature)
-    {}
-    void reset() override {}
-    int size() const override
-    { return m_sigis.signatures().size(); }
-    QString text(int index) const override;
-
-    int activeArgument(const QString &/*prefix*/) const override
-    { return m_sigis.activeParameter().value_or(0); }
-
-private:
-    LanguageServerProtocol::SignatureHelp m_sigis;
-};
-
 QString FunctionHintProposalModel::text(int index) const
 {
     using Parameters = QList<ParameterInformation>;
@@ -62,18 +44,19 @@ QString FunctionHintProposalModel::text(int index) const
            + label.mid(end).toHtmlEscaped();
 }
 
-FunctionHintProcessor::FunctionHintProcessor(Client *client)
+FunctionHintProcessor::FunctionHintProcessor(Client *client, int basePosition)
     : m_client(client)
+    , m_pos(basePosition)
 {}
 
 IAssistProposal *FunctionHintProcessor::perform()
 {
     QTC_ASSERT(m_client, return nullptr);
-    m_pos = interface()->position();
-    QTextCursor cursor(interface()->textDocument());
-    cursor.setPosition(m_pos);
+    if (m_pos < 0)
+        m_pos = interface()->position();
     auto uri = m_client->hostPathToServerUri(interface()->filePath());
-    SignatureHelpRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
+    SignatureHelpRequest request(
+        (TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(interface()->cursor()))));
     request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });
     m_client->addAssistProcessor(this);
     m_client->sendMessage(request);
@@ -89,6 +72,12 @@ void FunctionHintProcessor::cancel()
         m_client->removeAssistProcessor(this);
         m_currentRequest.reset();
     }
+}
+
+IFunctionHintProposalModel *FunctionHintProcessor::createModel(
+    const SignatureHelp &signatureHelp) const
+{
+    return new FunctionHintProposalModel(signatureHelp);
 }
 
 void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::Response &response)
@@ -107,7 +96,7 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
     if (signatureHelp.signatures().isEmpty()) {
         setAsyncProposalAvailable(nullptr);
     } else {
-        FunctionHintProposalModelPtr model(new FunctionHintProposalModel(signatureHelp));
+        FunctionHintProposalModelPtr model(createModel(signatureHelp));
         setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
     }
 }

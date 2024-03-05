@@ -45,6 +45,8 @@ bool CPPEDITOR_EXPORT isValidFirstIdentifierChar(const QChar &ch);
 bool CPPEDITOR_EXPORT isValidIdentifierChar(const QChar &ch);
 bool CPPEDITOR_EXPORT isValidIdentifier(const QString &s);
 
+int CPPEDITOR_EXPORT activeArgumenForPrefix(const QString &prefix);
+
 QStringList CPPEDITOR_EXPORT identifierWordsUnderCursor(const QTextCursor &tc);
 QString CPPEDITOR_EXPORT identifierUnderCursor(QTextCursor *cursor);
 
