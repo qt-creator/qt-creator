@@ -365,7 +365,11 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
         NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQuickConnectionsMetaInfo();
 
         if (nodeMetaInfo.isValid()) {
-            ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+            ModelNode selectedNode;
+            if (connectionView()->selectedModelNodes().isEmpty())
+                selectedNode = connectionView()->rootModelNode();
+            else
+                selectedNode = connectionView()->selectedModelNodes().constFirst();
 
             PropertyName signalHandlerName = signalName;
             if (signalHandlerName.isEmpty())
