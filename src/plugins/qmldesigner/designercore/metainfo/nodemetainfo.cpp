@@ -1718,7 +1718,7 @@ bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
     if constexpr (useProjectStorage())
         return isValid() && bool(propertyId(*m_projectStorage, m_typeId, propertyName));
     else
-        return isValid() && m_privateData->properties().contains(propertyName);
+        return isValid() && m_privateData->properties().contains(QByteArrayView(propertyName));
 }
 
 PropertyMetaInfos NodeMetaInfo::properties() const
