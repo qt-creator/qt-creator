@@ -754,6 +754,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     m_jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     m_jdbProcess->setCommand({jdbPath, jdbArgs});
     m_jdbProcess->setReaperTimeout(s_jdbTimeout);
+    m_jdbProcess->setProcessMode(ProcessMode::Writer);
     m_jdbProcess->start();
     if (!m_jdbProcess->waitForStarted()) {
         emit remoteProcessFinished(Tr::tr("Failed to start JDB."));
