@@ -8759,6 +8759,11 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
         if (!menu->actions().contains(action))
             menu->addAction(action);
     }
+    if (optionalActions() & TextEditorActionHandler::TypeHierarchy) {
+        const auto action = ActionManager::command(Constants::OPEN_TYPE_HIERARCHY)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
+    }
 
     menu->addSeparator();
     appendMenuActionsFromContext(menu, Constants::M_STANDARDCONTEXTMENU);

@@ -38,7 +38,8 @@ public:
         JumpToFileUnderCursor = 32,
         RenameSymbol = 64,
         FindUsage = 128,
-        CallHierarchy = 256
+        CallHierarchy = 256,
+        TypeHierarchy = 512,
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 

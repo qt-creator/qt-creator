@@ -9,6 +9,7 @@
 #include "linenumberfilter.h"
 #include "texteditortr.h"
 #include "texteditorsettings.h"
+#include "typehierarchy.h"
 
 #include <aggregation/aggregate.h>
 
@@ -16,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/navigationwidget.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -137,6 +139,7 @@ public:
     QAction *m_followToTypeInNextSplitAction = nullptr;
     QAction *m_findUsageAction = nullptr;
     QAction *m_openCallHierarchyAction = nullptr;
+    QAction *m_openTypeHierarchyAction = nullptr;
     QAction *m_renameSymbolAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
@@ -269,7 +272,17 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, F2") : Tr::tr("Ctrl+E, F2")).toString());
     m_openCallHierarchyAction = registerAction(OPEN_CALL_HIERARCHY,
             [] (TextEditorWidget *w) { w->openCallHierarchy(); }, true, Tr::tr("Open Call Hierarchy"));
-
+    m_openTypeHierarchyAction = registerAction(
+        OPEN_TYPE_HIERARCHY,
+        [](TextEditorWidget *) {
+            updateTypeHierarchy(
+                NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_FACTORY_ID,
+                                                    Side::Left));
+        },
+        true,
+        Tr::tr("Open Type Hierarchy"),
+        QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+Shift+T")
+                                                    : Tr::tr("Ctrl+Shift+T")));
     registerAction(VIEW_PAGE_UP,
             [] (TextEditorWidget *w) { w->viewPageUp(); }, true, Tr::tr("Move the View a Page Up and Keep the Cursor Position"),
             QKeySequence(Tr::tr("Ctrl+PgUp")));
@@ -550,6 +563,8 @@ void TextEditorActionHandlerPrivate::updateOptionalActions()
         optionalActions & TextEditorActionHandler::RenameSymbol);
     m_openCallHierarchyAction->setEnabled(
         optionalActions & TextEditorActionHandler::CallHierarchy);
+    m_openTypeHierarchyAction->setEnabled(
+        optionalActions & TextEditorActionHandler::TypeHierarchy);
 
     bool formatEnabled = (optionalActions & TextEditorActionHandler::Format)
                          && m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();

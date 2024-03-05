@@ -113,6 +113,7 @@ add_qtc_plugin(TextEditor
     textindenter.cpp textindenter.h
     textmark.cpp textmark.h
     textstyles.h
+    typehierarchy.cpp typehierarchy.h
     typingsettings.cpp typingsettings.h
 )
 

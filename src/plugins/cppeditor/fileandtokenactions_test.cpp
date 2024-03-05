@@ -9,7 +9,6 @@
 #include "cppinsertvirtualmethods.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
-#include "cpptypehierarchy.h"
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
 
@@ -18,6 +17,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/typehierarchy.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
@@ -383,7 +383,7 @@ public:
 
 void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
-    openCppTypeHierarchy();
+    TextEditor::openTypeHierarchy();
     QApplication::processEvents();
 }
 

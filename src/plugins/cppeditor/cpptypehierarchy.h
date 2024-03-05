@@ -4,8 +4,5 @@
 #pragma once
 
 namespace CppEditor::Internal {
-
-void openCppTypeHierarchy();
 void setupCppTypeHierarchy();
-
 } // CppEditor::Internal

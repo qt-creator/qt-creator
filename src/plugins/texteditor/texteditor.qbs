@@ -137,7 +137,8 @@ QtcPlugin {
         "texteditor.cpp",
         "texteditor.h",
         "texteditor.qrc",
-        "texteditor_global.h", "texteditortr.h",
+        "texteditor_global.h",
+        "texteditortr.h",
         "texteditoractionhandler.cpp",
         "texteditoractionhandler.h",
         "texteditorconstants.cpp",
@@ -152,6 +153,8 @@ QtcPlugin {
         "textmark.cpp",
         "textmark.h",
         "textstyles.h",
+        "typehierarchy.cpp",
+        "typehierarchy.h",
         "typingsettings.cpp",
         "typingsettings.h",
     ]

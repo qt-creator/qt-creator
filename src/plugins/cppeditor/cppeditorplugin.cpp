@@ -144,6 +144,7 @@ public:
                                 | TextEditorActionHandler::FollowSymbolUnderCursor
                                 | TextEditorActionHandler::FollowTypeUnderCursor
                                 | TextEditorActionHandler::RenameSymbol
+                                | TextEditorActionHandler::TypeHierarchy
                                 | TextEditorActionHandler::FindUsage);
     }
 };
@@ -358,6 +359,7 @@ void CppEditorPlugin::addPerSymbolActions()
 
     setupCppTypeHierarchy();
 
+    addSymbolActionToMenus(TextEditor::Constants::OPEN_TYPE_HIERARCHY);
     addSymbolActionToMenus(TextEditor::Constants::OPEN_CALL_HIERARCHY);
 
     // Refactoring sub-menu

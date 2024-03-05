@@ -26,6 +26,7 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textmark.h"
+#include "typehierarchy.h"
 #include "typingsettings.h"
 
 #ifdef WITH_TESTS
@@ -105,6 +106,7 @@ void TextEditorPlugin::initialize()
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();
+    setupTypeHierarchyFactory();
     setupLineNumberFilter(); // Goto line functionality for quick open
 
     setupPlainTextEditor();
