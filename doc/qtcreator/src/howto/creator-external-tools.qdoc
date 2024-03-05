@@ -117,7 +117,7 @@
     \sa {Run QML files}, {Use external text editors}, {Use Qt Linguist}
 
     \if defined(qtcreator)
-    \sa {Batch edit environment settings}, {Specify the environment for projects},
+    \sa {Edit environment settings}, {Specify the environment for projects},
     {Use Qt Creator variables}
     \endif
 */

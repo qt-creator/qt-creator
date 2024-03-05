@@ -152,7 +152,7 @@
         \li Select \uicontrol Change to modify environment variable values for
             build environments in the \uicontrol {Edit Environment Changes}
             dialog. For more information about how to add and remove variable
-            values, see \l{Batch edit environment settings}.
+            values, see \l{Edit environment settings}.
     \row
         \li \uicontrol {Force UTF-8 MSVC compiler output}
         \li Either switches the language of MSVC to English or keeps the
