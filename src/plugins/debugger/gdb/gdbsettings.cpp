@@ -187,9 +187,9 @@ GdbSettings::GdbSettings()
        "calls and is very likely to destroy your debugging session.</p></body></html>"));
 
     gdbWatchdogTimeout.setSettingsKey("WatchdogTimeout");
-    gdbWatchdogTimeout.setDefaultValue(20);
+    gdbWatchdogTimeout.setDefaultValue(40);
     gdbWatchdogTimeout.setSuffix(Tr::tr("sec"));
-    gdbWatchdogTimeout.setRange(20, 1000000);
+    gdbWatchdogTimeout.setRange(10, 1000000);
     gdbWatchdogTimeout.setLabelText(Tr::tr("GDB timeout:"));
     gdbWatchdogTimeout.setToolTip(Tr::tr(
         "The number of seconds before a non-responsive GDB process is terminated.\n"

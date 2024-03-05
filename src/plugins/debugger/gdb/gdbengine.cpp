@@ -784,8 +784,8 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         }
 
         // Start Watchdog.
-        if (m_commandTimer.interval() <= 20000)
-            m_commandTimer.setInterval(commandTimeoutTime());
+        const int watchDogMilliSecs = settings().gdbWatchdogTimeout() * 1000;
+        m_commandTimer.setInterval(watchDogMilliSecs);
         // The process can die for external reason between the "-gdb-exit" was
         // sent and a response could be retrieved. We don't want the watchdog
         // to bark in that case since the only possible outcome is a dead
@@ -796,12 +796,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         //if (cmd.flags & LosesChild)
         //    notifyInferiorIll();
     }
-}
-
-int GdbEngine::commandTimeoutTime() const
-{
-    const int time = settings().gdbWatchdogTimeout();
-    return 1000 * qMax(20, time);
 }
 
 void GdbEngine::commandTimeout()
