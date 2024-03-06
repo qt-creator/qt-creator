@@ -581,9 +581,14 @@ static void addSignal(const QString &typeName,
                       const QString &itemId,
                       const QString &signalName,
                       bool isRootModelNode,
-                      ExternalDependenciesInterface &externanDependencies)
+                      ExternalDependenciesInterface &externanDependencies,
+                      [[maybe_unused]] Model *otherModel)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = otherModel->createModel("Item");
+#else
     auto model = Model::create("Item", 2, 0);
+#endif
     RewriterView rewriterView(externanDependencies, RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
@@ -709,14 +714,16 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                               itemId,
                               dialog->signal(),
                               isModelNodeRoot,
-                              selectionState.view()->externalDependencies());
+                              selectionState.view()->externalDependencies(),
+                              selectionState.view()->model());
                 });
 
                 addSignal(typeName,
                           itemId,
                           dialog->signal(),
                           isModelNodeRoot,
-                          selectionState.view()->externalDependencies());
+                          selectionState.view()->externalDependencies(),
+                          selectionState.view()->model());
 
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();

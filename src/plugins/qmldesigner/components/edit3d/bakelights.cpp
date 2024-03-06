@@ -143,9 +143,12 @@ void BakeLights::bakeLights()
     m_rewriterView = new RewriterView{m_view->externalDependencies(), RewriterView::Amend};
     m_nodeInstanceView = new NodeInstanceView{*m_connectionManager, m_view->externalDependencies()};
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    m_model = m_view->model()->createModel("Item");
+#else
     m_model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
     m_model->setFileUrl(m_view->model()->fileUrl());
-
+#endif
     // Take the current unsaved state of the main model and apply it to our copy
     auto textDocument = std::make_unique<QTextDocument>(
                 m_view->model()->rewriterView()->textModifier()->textDocument()->toRawText());
@@ -252,7 +255,11 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
     }
 
     RewriterView rewriter{m_view->externalDependencies(), RewriterView::Amend};
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto compModel = m_view->model()->createModel("Item");
+#else
     ModelPointer compModel = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
+#endif
     const Utils::FilePath compFilePath = Utils::FilePath::fromString(componentFilePath);
     QByteArray src = compFilePath.fileContents().value();
 

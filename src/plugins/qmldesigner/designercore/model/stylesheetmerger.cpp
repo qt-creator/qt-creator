@@ -621,7 +621,11 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
 
     QTC_ASSERT(parentModel, return );
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto templateModel = model->createModel("Item");
+#else
     auto templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+#endif
     Q_ASSERT(templateModel.get());
 
     templateModel->setFileUrl(parentModel->fileUrl());
@@ -647,9 +651,12 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
     QTC_ASSERT(templateRootNode.isValid(), return );
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto styleModel = model->createModel("Item");
+#else
     auto styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(styleModel.get());
-
+#endif
     styleModel->setFileUrl(parentModel->fileUrl());
 
     QPlainTextEdit textEditStyle;

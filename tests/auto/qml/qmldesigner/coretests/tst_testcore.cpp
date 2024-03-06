@@ -182,8 +182,11 @@ ModelPointer createModel(const QString &typeName,
 {
     QApplication::processEvents();
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = metaInfoPropxyModel->createModel(typeName.toUtf8());
+#else
     auto model = QmlDesigner::Model::create(typeName.toUtf8(), major, minor, metaInfoPropxyModel);
-
+#endif
     QPlainTextEdit *textEdit = new QPlainTextEdit;
     QObject::connect(model.get(), &QObject::destroyed, textEdit, &QObject::deleteLater);
     textEdit->setPlainText(QString("import %1 %3.%4; %2{}")

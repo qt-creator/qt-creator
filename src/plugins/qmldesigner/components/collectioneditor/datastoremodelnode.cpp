@@ -145,6 +145,12 @@ void DataStoreModelNode::reloadModel()
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
         if (!m_model.get() || m_model->fileUrl() != dataStoreQmlUrl) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            m_model = model()->createModel("JsonListModel");
+            forceUpdate = true;
+            Import import = Import::createLibraryImport("QtQuick.Studio.Utils");
+            m_model->changeImports({import}, {});
+#else
             m_model = Model::create(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
             forceUpdate = true;
             Import import = Import::createLibraryImport(
@@ -155,6 +161,7 @@ void DataStoreModelNode::reloadModel()
             } catch (const Exception &) {
                 QTC_ASSERT(false, return);
             }
+#endif
         }
     } else {
         reset();

@@ -162,13 +162,15 @@ const AbstractView *DesignDocument::view() const
 
 ModelPointer DesignDocument::createInFileComponentModel()
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = m_documentModel->createModel("Item", std::make_unique<ModelResourceManagement>());
+#else
     auto model = Model::create("QtQuick.Item",
                                1,
                                0,
                                nullptr,
                                std::make_unique<ModelResourceManagement>());
     model->setFileUrl(m_documentModel->fileUrl());
-#ifndef QDS_USE_PROJECTSTORAGE
     model->setMetaInfo(m_documentModel->metaInfo());
 #endif
 
