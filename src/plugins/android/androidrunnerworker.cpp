@@ -754,6 +754,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     m_jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     m_jdbProcess->setCommand({jdbPath, jdbArgs});
     m_jdbProcess->setReaperTimeout(s_jdbTimeout);
+    m_jdbProcess->setProcessMode(ProcessMode::Writer);
     m_jdbProcess->start();
     if (!m_jdbProcess->waitForStarted()) {
         emit remoteProcessFinished(Tr::tr("Failed to start JDB."));
@@ -770,6 +771,7 @@ void AndroidRunnerWorker::handleJdbSettled()
         for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500ms);
             const QByteArray lines = m_jdbProcess->readAllRawStandardOutput();
+            qCDebug(androidRunWorkerLog) << "JDB output:" << lines;
             const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
                 auto msg = line.trimmed();
@@ -780,11 +782,13 @@ void AndroidRunnerWorker::handleJdbSettled()
         return false;
     };
 
-    const QStringList commands{"threads", "cont", "exit"};
+    const QStringList commands{"suspend", "resume", "cont", "exit"};
 
     for (const QString &command : commands) {
-        if (waitForCommand())
+        if (waitForCommand()) {
+            qCDebug(androidRunWorkerLog) << "JDB input:" << command;
             m_jdbProcess->write(QString("%1\n").arg(command));
+        }
     }
 
     if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {

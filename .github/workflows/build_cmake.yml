@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.6.0
+  QT_VERSION: 6.6.2
   MACOS_DEPLOYMENT_TARGET: 11.0
   CLANG_VERSION: 17.0.1
   ELFUTILS_VERSION: 0.175
@@ -202,12 +202,12 @@ jobs:
           set(url_os "linux_x64")
           set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_6-GCC-Linux-RHEL_8_6-X86_64")
+          set(qt_package_suffix "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(qt_package_arch_suffix "clang_64")
           set(qt_dir_prefix "${qt_version}/macos")
-          set(qt_package_suffix "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64")
+          set(qt_package_suffix "-MacOS-MacOS_13-Clang-MacOS-MacOS_13-X86_64-ARM64")
         endif()
 
         set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}")

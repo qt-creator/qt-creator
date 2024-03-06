@@ -28,7 +28,7 @@
     \uicontrol Keyboard. For more information, see \l{Assign keyboard shortcuts}.
 
     You can also use the \c rm locator filter to run a macro. For more
-    information, see \l{Searching with the Locator}.
+    information, see \l{Navigate with locator}.
 
     To view and remove saved macros, select \preferences >
     \uicontrol {Text Editor} > \uicontrol Macros.

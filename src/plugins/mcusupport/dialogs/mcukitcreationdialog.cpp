@@ -78,12 +78,18 @@ McuKitCreationDialog::McuKitCreationDialog(const MessagesList &messages,
     QPushButton *fixButton = buttonBox->addButton(Tr::tr("Fix"), QDialogButtonBox::ActionRole);
     QPushButton *helpButton = buttonBox->addButton(Tr::tr("Help"), QDialogButtonBox::HelpRole);
 
-    if (messages.size() == 1) {
+    if (messages.empty()) {
+        fixButton->setVisible(false);
+        m_informationLabel->setText(
+            QCoreApplication::translate("QtC::Autotest", "No errors detected"));
+    }
+
+    if (messages.size() < 2) {
         m_nextButton->setVisible(false);
         m_previousButton->setVisible(false);
     }
     //display first message
-    if (messages.size() > 1)
+    if (!messages.empty())
         updateMessage(1);
 
     if (qtMCUPackage->isValidStatus())

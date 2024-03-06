@@ -13,6 +13,9 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -38,6 +41,14 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor::Internal::Tests {
+
+bool isClangFormatPresent()
+{
+    using namespace ExtensionSystem;
+    return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
+        return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+    });
+};
 
 CppTestDocument::CppTestDocument(const QByteArray &fileName, const QByteArray &source,
                                          char cursorMarker)

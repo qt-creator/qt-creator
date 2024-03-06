@@ -29,15 +29,15 @@
         \li \l{Semantic Highlighting}{Semantic highlighting}, as defined in
             \l{https://github.com/microsoft/vscode-languageserver-node/pull/367}
             {Proposal of the semantic highlighting protocol extension}
-        \li Navigating in the code by using the \l{Searching with the Locator}
+        \li Navigating in the code by using the \l{Navigate with locator}
             {locator} or \l{Move to symbol definition or declaration}
             {moving to the symbol definition}
         \li Inspecting code by viewing the document outline in the
             \l{Outline} view or in the \uicontrol Symbols list on the
             \l{Edit Mode}{editor toolbar}
         \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
-        \li \l{Finding Symbols}{Finding references to symbols}
-        \li \l{Renaming Symbols}{Renaming the symbol under cursor}
+        \li \l{Find references to a symbol}{Finding references to symbols}
+        \li \l{Rename symbols}{Renaming the symbol under the cursor}
         \li Code actions
         \li Displaying diagnostics from the language server as tooltips. You can
             also select a code range to display diagnostics for.

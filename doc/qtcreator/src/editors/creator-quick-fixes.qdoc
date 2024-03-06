@@ -4,12 +4,14 @@
 /*!
     \page creator-editor-quick-fixes.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-refactoring.html
+    \previouspage creator-jump-to-the-code.html
+    \nextpage creator-reference-qml-quick-fixes.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-edit
+    \ingroup studio-code-view
 
     \title Apply quick fixes
 
@@ -34,6 +36,10 @@
 
     Or, press \key {Alt+Enter} to open a context menu that has
     quick fixes available in the current cursor position.
+
+    By default, the refactored files are saved automatically. To turn off
+    this feature, go to \preferences > \uicontrol Environment >
+    \uicontrol System and select \uicontrol {Auto-save files after refactoring}.
 
     \if defined(qtcreator)
     \section1 Create functions
@@ -85,21 +91,24 @@
 
     \image qtcreator-refactoring-constructor.png "Constructor dialog"
 
-    \sa {Specify settings for quick fixes}, {Quick Fixes}, {C++ Quick Fixes}
+    \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
+    {C++ Quick Fixes}
     \endif
 
-    \sa {QML Quick Fixes}, {Refactoring}
+    \sa {Rename symbols}, {QML Quick Fixes}
 */
 
 /*!
     \page creator-reference-qml-quick-fixes.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-refactoring.html
+    \previouspage creator-editor-quick-fixes.html
+    \nextpage creator-editor-options.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference
+    \ingroup studio-code-view
 
     \title QML Quick Fixes
 
@@ -168,10 +177,10 @@
 
     \endtable
 
-    \sa {Apply quick fixes}, {Refactoring}
+    \sa {Apply quick fixes}, {Rename symbols}
 
     \if defined(qtcreator)
-    \sa {Exclude files from to-do lists}, {Specify settings for quick fixes},
-    {Quick Fixes}, {C++ Quick Fixes}
+    \sa {Exclude files from to-do lists}, {Find symbols},
+    {Specify settings for quick fixes}, {Quick Fixes}, {C++ Quick Fixes}
     \endif
 */

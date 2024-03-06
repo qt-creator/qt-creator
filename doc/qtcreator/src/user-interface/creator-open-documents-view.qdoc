@@ -49,7 +49,7 @@
             automatically save changed files at the intervals specified in
             the \uicontrol Interval field.
         \li Select the \uicontrol {Auto-save files after refactoring} check
-            box to automatically save \l{Refactoring}{refactored files}.
+            box to automatically save refactored files.
         \li Select the \uicontrol {Auto-suspend unmodified files} check
             box to automatically free the resources of open files after
             prolonged inactivity. The files are still listed in the
@@ -62,4 +62,10 @@
             field, set the number of recently opened files listed in
             \uicontrol File > \uicontrol {Recent Files}.
     \endlist
+
+    \sa {Apply quick fixes}, {Rename symbols}
+
+    \if defined(qtcreator)
+    \sa {Find symbols}
+    \endif
 */

@@ -41,6 +41,10 @@ General
   ([QTCREATORBUG-29886](https://bugreports.qt.io/browse/QTCREATORBUG-29886))
 * Fixed issues with the window actions
   ([QTCREATORBUG-30381](https://bugreports.qt.io/browse/QTCREATORBUG-30381))
+* Known Issues
+    * Installers provided by The Qt Company mostly display English text, not
+      the system's language
+      ([QTIFW-3310](https://bugreports.qt.io/browse/QTIFW-3310))
 
 Editing
 -------
@@ -206,7 +210,7 @@ Analyzer
 
 ### Clang
 
-* Added `Edit Checks as Strings` for Clazy
+* Added `Edit Checks as String` for Clazy
   ([QTCREATORBUG-24846](https://bugreports.qt.io/browse/QTCREATORBUG-24846))
 
 ### Axivion

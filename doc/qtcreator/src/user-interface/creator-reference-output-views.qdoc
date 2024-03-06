@@ -142,8 +142,14 @@
     \list
         \li To clear the search results, select
             \inlineimage icons/clean_pane_small.png (\uicontrol Clear).
+        \li To move between instances, select \inlineimage icons/next.png
+            (\uicontrol {Next Item}) and \inlineimage icons/prev.png
+            (\uicontrol {Previous Item}).
         \li To expand and collapse the search results, select
             \inlineimage icons/qtcreator-expand.png (\uicontrol {Expand All}).
+        \li To filter the search results for the usage of symbols according to
+            access type, such as read, write, or declaration, select
+            \inlineimage icons/filtericon.png (\uicontrol {Filter Tree}).
         \li To start a new search, select
             \inlineimage icons/qtcreator-new-search-icon.png
             (\uicontrol {New Search}).

@@ -19,7 +19,6 @@
 namespace ProjectExplorer { class Project; }
 namespace Utils {
 class MacroExpander;
-class Store;
 } // namespace Utils
 
 namespace CppEditor {
@@ -135,32 +134,22 @@ public:
         ClangDiagnosticConfigs customDiagnosticConfigs;
         Utils::Id diagnosticConfigId;
 
-        int workerThreadLimit = DefaultWorkerThreadLimit;
-        int documentUpdateThreshold = DefaultDocumentUpdateThreshold;
-        qint64 sizeThresholdInKb = DefaultSizeThresholdInKb;
-        bool useClangd = DefaultUseClangd;
-        IndexingPriority indexingPriority = DefaultIndexingPriority;
+        int workerThreadLimit = 0;
+        int documentUpdateThreshold = 500;
+        qint64 sizeThresholdInKb = 1024;
+        bool useClangd = true;
+        IndexingPriority indexingPriority = IndexingPriority::Low;
         QString projectIndexPathTemplate = defaultProjectIndexPathTemplate();
         QString sessionIndexPathTemplate = defaultSessionIndexPathTemplate();
-        HeaderSourceSwitchMode headerSourceSwitchMode = DefaultHeaderSourceSwitchMode;
-        CompletionRankingModel completionRankingModel = DefaultCompletionRankingModel;
-        bool autoIncludeHeaders = DefaultAutoIncludeHeaders;
-        bool sizeThresholdEnabled = DefaultSizeThresholdEnabled;
+        HeaderSourceSwitchMode headerSourceSwitchMode = HeaderSourceSwitchMode::Both;
+        CompletionRankingModel completionRankingModel = CompletionRankingModel::Default;
+        bool autoIncludeHeaders = false;
+        bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
         int completionResults = defaultCompletionResults();
 
     private:
         static int defaultCompletionResults();
-
-        static constexpr auto DefaultWorkerThreadLimit = 0;
-        static constexpr auto DefaultDocumentUpdateThreshold = 500;
-        static constexpr auto DefaultSizeThresholdInKb = 1024ll;
-        static constexpr auto DefaultUseClangd = true;
-        static constexpr auto DefaultIndexingPriority = ClangdSettings::IndexingPriority::Low;
-        static constexpr auto DefaultHeaderSourceSwitchMode = HeaderSourceSwitchMode::Both;
-        static constexpr auto DefaultCompletionRankingModel = CompletionRankingModel::Default;
-        static constexpr auto DefaultAutoIncludeHeaders = false;
-        static constexpr auto DefaultSizeThresholdEnabled = false;
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}

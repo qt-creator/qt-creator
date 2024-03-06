@@ -676,7 +676,8 @@ void RegisterHandler::updateRegister(const Register &r)
 {
     bool sort = false;
     bool changed = false;
-    for (const QString &group : r.groups) {
+    const QStringList groups = r.groups.isEmpty() ? QStringList{"all"} : r.groups;
+    for (const QString &group : groups) {
         RegisterGroup *regGr = m_registerGroups.value(group, nullptr);
         if (!regGr) {
             sort = true;

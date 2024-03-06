@@ -25,7 +25,7 @@
 
     \image qtcreator-projects-view-edit.png {Projects view in the sidebar}
 
-    \note Usually, \l{Searching with the Locator}{searching with the locator}
+    \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project.
     \else

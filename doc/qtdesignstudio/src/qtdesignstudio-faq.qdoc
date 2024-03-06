@@ -109,7 +109,7 @@
     However, you can rename symbols in all files within a project. To rename a
     QML type in a project, select \uicontrol Tools > \uicontrol QML/JS >
     \uicontrol {Rename Symbol Under Cursor} or press \key Ctrl+Shift+R. For more
-    information, see \l {Renaming Symbols}.
+    information, see \l {Rename symbols}.
 
     \section2 How can I add .qml files to my project in Qt Creator?
 

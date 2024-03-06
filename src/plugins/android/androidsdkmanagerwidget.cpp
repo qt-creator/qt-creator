@@ -7,6 +7,8 @@
 #include "androidsdkmodel.h"
 #include "androidtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
@@ -275,7 +277,7 @@ void AndroidSdkManagerWidget::installEssentials()
 {
     m_sdkModel->selectMissingEssentials();
     if (!m_sdkModel->missingEssentials().isEmpty()) {
-        QMessageBox::warning(this,
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Android SDK Changes"),
                              Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
                                     "Install them manually after the current operation is done.\n")
@@ -321,8 +323,11 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     QString message = Tr::tr("%n Android SDK packages shall be updated.", "", packagesToUpdate.count());
     if (!extraMessage.isEmpty())
         message.prepend(extraMessage + "\n\n");
-    QMessageBox messageDlg(QMessageBox::Information, Tr::tr("Android SDK Changes"),
-                           message, QMessageBox::Ok | QMessageBox::Cancel, this);
+    QMessageBox messageDlg(QMessageBox::Information,
+                           Tr::tr("Android SDK Changes"),
+                           message,
+                           QMessageBox::Ok | QMessageBox::Cancel,
+                           Core::ICore::dialogParent());
 
     QString details;
     if (!uninstallPackages.isEmpty())

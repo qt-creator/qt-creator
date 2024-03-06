@@ -15,8 +15,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started')
-    if not test.verify(all((wsButtonFrame, wsButtonLabel)),
+    if not test.verify(object.exists(getWelcomeScreenSideBarButton('Get Started')),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
         test.fatal("Something's wrong - leaving test.")
         invokeMenuItem("File", "Exit")

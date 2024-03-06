@@ -784,8 +784,8 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         }
 
         // Start Watchdog.
-        if (m_commandTimer.interval() <= 20000)
-            m_commandTimer.setInterval(commandTimeoutTime());
+        const int watchDogMilliSecs = settings().gdbWatchdogTimeout() * 1000;
+        m_commandTimer.setInterval(watchDogMilliSecs);
         // The process can die for external reason between the "-gdb-exit" was
         // sent and a response could be retrieved. We don't want the watchdog
         // to bark in that case since the only possible outcome is a dead
@@ -796,12 +796,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         //if (cmd.flags & LosesChild)
         //    notifyInferiorIll();
     }
-}
-
-int GdbEngine::commandTimeoutTime() const
-{
-    const int time = settings().gdbWatchdogTimeout();
-    return 1000 * qMax(20, time);
 }
 
 void GdbEngine::commandTimeout()
@@ -3442,7 +3436,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
         reg.name = parts.at(0);
         reg.size = parts.at(4).toInt();
         reg.reportedType = parts.at(5);
-        reg.groups = Utils::toSet(parts.at(6).split(','));
+        reg.groups = parts.at(6).split(',');
         m_registers[gdbRegisterNumber] = reg;
     }
 }
@@ -3879,6 +3873,10 @@ void GdbEngine::handleGdbStarted()
     showMessage("GDB STARTED, INITIALIZING IT");
     runCommand({"show version", CB(handleShowVersion)});
     runCommand({"show debug-file-directory", CB(handleDebugInfoLocation)});
+
+    // Show supported architectures.
+    runCommand({"set max-completions 1000"}); // gdb-multiarch needs ~250
+    runCommand({"complete set arch "}); // Keep the space!
 
     //runCommand("-enable-timings");
     //rurun print static-members off"); // Seemingly doesn't work.

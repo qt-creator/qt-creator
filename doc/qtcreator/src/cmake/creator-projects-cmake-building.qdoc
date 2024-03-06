@@ -94,9 +94,9 @@
     You can select several variables and apply an action to them. To clear
     the selection, click anywhere in the view.
 
-    To change the environment variable values for the CMake build environment,
-    select \uicontrol {Batch Edit}. For more information, see
-    \l{Batch edit environment settings}.
+    To batch edit variable values, select \uicontrol {Batch Edit}.
+
+    \image qtcreator-edit-cmake-configuration.webp {Edit CMake Configuration dialog}
 
     To build using the current configuration, select \uicontrol {Run CMake}.
     While building, the button text changes to \uicontrol {Stop CMake}. Select
@@ -199,6 +199,26 @@
     setting \c CLICOLOR_FORCE to \e 0 in \uicontrol {Use Build Environment}.
 
     \image qtcreator-build-configuration-set-clicolor-force.webp {Build Environment with CLICOLOR_FORCE set}
+
+    \section1 Using Junction Points on Windows
+
+    To overcome issues with long paths on Windows, create and use
+    \l{https://learn.microsoft.com/en-us/sysinternals/downloads/junction}
+    {junction points} for the source and build directories. At a junction point,
+    a directory serves as an alias to another directory on the computer.
+
+    To use the junction points for CMake configure, build, and install
+    operations, go to \preferences > \uicontrol CMake > \uicontrol General and
+    select \uicontrol {Use junctions for CMake configuration and build operations}.
+
+    \image qtcreator-preferences-cmake-general.webp {CMake General preferences}
+
+    \QC stores junction points in \c {C:\ProgramData\QtCreator\Links}. To use
+    another path, set it as the value of the \c QTC_CMAKE_JUNCTIONS_DIR
+    environment variable.
+
+    Set the \c QTC_CMAKE_JUNCTIONS_HASH_LENGTH environment variable to shorten
+    the MD5 hash key length from the default length value of 32.
 
     \section1 CMake Build Steps
 

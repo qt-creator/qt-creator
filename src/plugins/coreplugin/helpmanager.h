@@ -38,6 +38,7 @@ enum HelpViewerLocation {
 CORE_EXPORT QString documentationPath();
 
 CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
+CORE_EXPORT void setBlockedDocumentation(const QStringList &fileNames);
 CORE_EXPORT void unregisterDocumentation(const QStringList &fileNames);
 
 CORE_EXPORT QMultiMap<QString, QUrl> linksForIdentifier(const QString &id);

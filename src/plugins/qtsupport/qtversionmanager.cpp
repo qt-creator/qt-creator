@@ -120,7 +120,8 @@ public:
 
     void updateDocumentation(const QtVersions &added,
                              const QtVersions &removed,
-                             const QtVersions &allNew);
+                             const QtVersions &allNew,
+                             bool updateBlockedDocumentation = false);
 
     void setNewQtVersions(const QtVersions &newVersions);
     QString qmakePath(const QString &qtchooser, const QString &version);
@@ -174,7 +175,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
     } // exists
 
     const QtVersions vs = QtVersionManager::versions();
-    updateDocumentation(vs, {}, vs);
+    updateDocumentation(vs, {}, vs, /*updateBlockedDocumentation=*/true);
 }
 
 bool QtVersionManager::isLoaded()
@@ -499,20 +500,34 @@ void QtVersionManager::registerExampleSet(const QString &displayName,
 
 using Path = QString;
 using FileName = QString;
-static QList<std::pair<Path, FileName>> documentationFiles(QtVersion *v)
+using DocumentationFile = std::pair<Path, FileName>;
+using DocumentationFiles = QList<DocumentationFile>;
+using AllDocumentationFiles = QHash<QtVersion *, DocumentationFiles>;
+
+static DocumentationFiles allDocumentationFiles(QtVersion *v)
 {
-    QList<std::pair<Path, FileName>> files;
+    DocumentationFiles files;
     const QStringList docPaths = QStringList(
         {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
     for (const QString &docPath : docPaths) {
         const QDir versionHelpDir(docPath);
-        for (const QString &helpFile : versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
+        for (const QString &helpFile : versionHelpDir.entryList(QStringList("q*.qch"), QDir::Files))
             files.append({docPath, helpFile});
     }
     return files;
 }
 
-static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = false)
+static AllDocumentationFiles allDocumentationFiles(const QtVersions &versions)
+{
+    AllDocumentationFiles result;
+    for (QtVersion *v : versions)
+        result.insert(v, allDocumentationFiles(v));
+    return result;
+}
+
+static QStringList documentationFiles(const QtVersions &vs,
+                                      const AllDocumentationFiles &allDocumentationFiles,
+                                      bool highestOnly = false)
 {
     // if highestOnly is true, register each file only once per major Qt version, even if
     // multiple minor or patch releases of that major version are installed
@@ -522,7 +537,8 @@ static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = f
     for (QtVersion *v : versions) {
         const int majorVersion = v->qtVersion().majorVersion();
         QSet<QString> &majorVersionFileNames = includedFileNames[majorVersion];
-        for (const std::pair<Path, FileName> &file : documentationFiles(v)) {
+        const DocumentationFiles files = allDocumentationFiles.value(v);
+        for (const std::pair<Path, FileName> &file : files) {
             if (!highestOnly || !majorVersionFileNames.contains(file.second)) {
                 filePaths.insert(file.first + file.second);
                 majorVersionFileNames.insert(file.second);
@@ -532,15 +548,23 @@ static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = f
     return filePaths.values();
 }
 
+static QStringList documentationFiles(const QtVersions &vs)
+{
+    return documentationFiles(vs, allDocumentationFiles(vs));
+}
+
 void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
                                                const QtVersions &removed,
-                                               const QtVersions &allNew)
+                                               const QtVersions &allNew,
+                                               bool updateBlockedDocumentation)
 {
     using DocumentationSetting = QtVersionManager::DocumentationSetting;
     const DocumentationSetting setting = QtVersionManager::documentationSetting();
+    const AllDocumentationFiles allNewDocFiles = allDocumentationFiles(allNew);
     const QStringList docsOfAll = setting == DocumentationSetting::None
                                       ? QStringList()
                                       : documentationFiles(allNew,
+                                                           allNewDocFiles,
                                                            setting
                                                                == DocumentationSetting::HighestOnly);
     const QStringList docsToRemove = Utils::filtered(documentationFiles(removed),
@@ -551,6 +575,17 @@ void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
                                                   [&docsOfAll](const QString &f) {
                                                       return docsOfAll.contains(f);
                                                   });
+
+    if (updateBlockedDocumentation) {
+        // The online installer registers documentation for Qt versions explicitly via an install
+        // setting, which defeats that we only register the Qt versions matching the setting.
+        // So the Qt support explicitly blocks the files that we do _not_ want to register, so the
+        // Help plugin knows about this.
+        const QSet<QString> reallyAllFiles = toSet(documentationFiles(allNew, allNewDocFiles));
+        const QSet<QString> toBlock = reallyAllFiles - toSet(docsOfAll);
+        Core::HelpManager::setBlockedDocumentation(toList(toBlock));
+    }
+
     Core::HelpManager::unregisterDocumentation(docsToRemove);
     Core::HelpManager::registerDocumentation(docsToAdd);
 }

@@ -414,9 +414,8 @@ QStringList lastSessionArgument()
 QString crashReportsPath()
 {
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
-    QFileInfo(settings->fileName()).path() + "/crashpad_reports";
     if (Utils::HostOsInfo::isMacHost())
-        return QFileInfo(createUserSettings()->fileName()).path() + "/crashpad_reports";
+        return QFileInfo(settings->fileName()).path() + "/crashpad_reports";
     else
         return QCoreApplication::applicationDirPath()
                 + '/' + RELATIVE_LIBEXEC_PATH + "crashpad_reports";

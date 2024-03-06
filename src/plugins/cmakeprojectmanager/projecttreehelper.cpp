@@ -35,7 +35,8 @@ void addCMakeVFolder(FolderNode *base,
                      int priority,
                      const QString &displayName,
                      std::vector<std::unique_ptr<FileNode>> &&files,
-                     bool sourcesOrHeaders)
+                     bool sourcesOrHeaders,
+                     bool listInProject)
 {
     if (files.size() == 0)
         return;
@@ -44,6 +45,10 @@ void addCMakeVFolder(FolderNode *base,
         auto newFolder = createCMakeVFolder(basePath, priority, displayName, sourcesOrHeaders);
         folder = newFolder.get();
         base->addNode(std::move(newFolder));
+    }
+    if (!listInProject) {
+        for (auto it = files.begin(); it != files.end(); ++it)
+            (*it)->setListInProject(false);
     }
     folder->addNestedNodes(std::move(files));
     folder->forEachFolderNode([] (FolderNode *fn) { fn->compress(); });
@@ -68,10 +73,7 @@ void addCMakeInputs(FolderNode *root,
     std::unique_ptr<ProjectNode> cmakeVFolder = std::make_unique<CMakeInputsNode>(root->filePath());
 
     QSet<Utils::FilePath> knownFiles;
-    root->forEachGenericNode([&knownFiles](const Node *n) {
-        if (n->listInProject())
-            knownFiles.insert(n->filePath());
-    });
+    root->forEachGenericNode([&knownFiles](const Node *n) { knownFiles.insert(n->filePath()); });
 
     addCMakeVFolder(cmakeVFolder.get(),
                     sourceDir,
@@ -87,7 +89,9 @@ void addCMakeInputs(FolderNode *root,
                     Utils::FilePath(),
                     10,
                     Tr::tr("<Other Locations>"),
-                    removeKnownNodes(knownFiles, std::move(rootInputs)));
+                    removeKnownNodes(knownFiles, std::move(rootInputs)),
+                    /*sourcesOrHeaders=*/false,
+                    /*listInProject=*/false);
 
     root->addNode(std::move(cmakeVFolder));
 }

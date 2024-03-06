@@ -35,6 +35,8 @@ class CppEditorWidget;
 
 namespace Internal::Tests {
 
+bool isClangFormatPresent();
+
 class CppTestDocument;
 typedef QSharedPointer<CppTestDocument> TestDocumentPtr;
 
