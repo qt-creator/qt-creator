@@ -147,11 +147,16 @@ Button::Button(const QString &text, Role role, QWidget *parent)
 
 QSize Button::minimumSizeHint() const
 {
-    const TextFormat &tf = buttonTF(m_role, WidgetStateHovered);
-    const QFontMetrics fm(tf.font());
-    const QSize textS = fm.size(Qt::TextShowMnemonic, text());
+    int maxTextWidth = 0;
+    for (WidgetState state : {WidgetStateDefault, WidgetStateChecked, WidgetStateHovered} ) {
+        const TextFormat &tf = buttonTF(m_role, state);
+        const QFontMetrics fm(tf.font());
+        const QSize textS = fm.size(Qt::TextShowMnemonic, text());
+        maxTextWidth = qMax(maxTextWidth, textS.width());
+    }
+    const TextFormat &tf = buttonTF(m_role, WidgetStateDefault);
     const QMargins margins = contentsMargins();
-    return {margins.left() + textS.width() + margins.right(),
+    return {margins.left() + maxTextWidth + margins.right(),
             margins.top() + tf.lineHeight() + margins.bottom()};
 }
 
