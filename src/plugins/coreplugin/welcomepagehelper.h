@@ -70,7 +70,7 @@ CORE_EXPORT QWidget *createRule(Qt::Orientation orientation, QWidget *parent = n
 
 } // namespace WelcomePageHelpers
 
-class CORE_EXPORT Button : public QPushButton
+class CORE_EXPORT Button : public QAbstractButton
 {
 public:
     enum Role {

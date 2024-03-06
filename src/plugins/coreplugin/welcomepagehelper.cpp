@@ -134,12 +134,10 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
 }
 
 Button::Button(const QString &text, Role role, QWidget *parent)
-    : QPushButton(text, parent)
+    : QAbstractButton(parent)
     , m_role(role)
 {
-    // Prevent QMacStyle::subElementRect(SE_PushButtonLayoutItem) from changing our geometry
-    setFlat(true);
-
+    setText(text);
     updateMargins();
     if (m_role == SmallList)
         setCheckable(true);

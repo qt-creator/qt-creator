@@ -73,7 +73,7 @@ private:
     TopArea *m_topArea;
     SideArea *m_sideArea;
     QList<IWelcomePage *> m_pluginList;
-    QList<QPushButton *> m_pageButtons;
+    QList<QAbstractButton *> m_pageButtons;
     QButtonGroup *m_buttonGroup;
     Id m_activePage;
     Id m_defaultPage;
