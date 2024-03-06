@@ -836,24 +836,27 @@ public:
         setCombinedIcon(":/android/images/androiddevicesmall.png",
                         ":/android/images/androiddevice.png");
         setConstructionFunction(&AndroidDevice::create);
-        if (androidConfig().sdkToolsOk()) {
-            setCreator([] {
-                AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
-                if (dialog.exec() != QDialog::Accepted)
-                    return IDevice::Ptr();
+        setCreator([] {
+            if (!androidConfig().sdkToolsOk()) {
+                AndroidDeviceWidget::infoDialog(Tr::tr("Android support is not yet configured."));
+                return IDevice::Ptr();
+            }
 
-                const IDevice::Ptr dev = dialog.device();
-                if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
-                    qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
-                            qPrintable(androidDev->avdName()));
-                } else {
-                    AndroidDeviceWidget::criticalDialog(
-                        Tr::tr("The device info returned from AvdDialog is invalid."));
-                }
+            AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
+            if (dialog.exec() != QDialog::Accepted)
+                return IDevice::Ptr();
 
-                return IDevice::Ptr(dev);
-            });
-        }
+            const IDevice::Ptr dev = dialog.device();
+            if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
+                qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                        qPrintable(androidDev->avdName()));
+            } else {
+                AndroidDeviceWidget::criticalDialog(
+                    Tr::tr("The device info returned from AvdDialog is invalid."));
+            }
+
+            return IDevice::Ptr(dev);
+        });
     }
 };
 
