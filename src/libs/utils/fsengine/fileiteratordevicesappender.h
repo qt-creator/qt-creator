@@ -47,7 +47,6 @@ public:
         if (m_status == State::Ended)
             return QString();
 
-        setPath();
         checkStatus();
 
         if (m_status == State::BaseIteratorEnd) {
@@ -75,7 +74,6 @@ public:
         if (m_status == State::Ended)
             return FilePath::specialRootPath();
 
-        setPath();
         checkStatus();
         return m_baseIterator->currentFileName();
     }
@@ -83,22 +81,26 @@ public:
     {
         if (m_status == State::Ended)
             return QFileInfo(FilePath::specialRootPath());
-        setPath();
         checkStatus();
         return m_baseIterator->currentFileInfo();
     }
 
 private:
+    QString setStatus() const
+    {
+        // path() can be "/somedir/.." so we need to clean it first.
+        // We only need QDir::cleanPath here, as the path is always
+        // a fs engine path and will not contain scheme:// etc.
+        QString p = QDir::cleanPath(path());
+        if (p.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
+            m_status = State::IteratingRoot;
+        return p;
+    }
+
     void setPath() const
     {
         if (!m_hasSetPath) {
-            // path() can be "/somedir/.." so we need to clean it first.
-            // We only need QDir::cleanPath here, as the path is always
-            // a fs engine path and will not contain scheme:// etc.
-            const QString p = QDir::cleanPath(path());
-            if (p.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
-                m_status = State::IteratingRoot;
-
+            const QString &p = setStatus();
             ((*m_baseIterator).*get(QAFEITag()))(p);
             m_hasSetPath = true;
         }
