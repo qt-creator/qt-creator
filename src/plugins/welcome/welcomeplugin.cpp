@@ -156,12 +156,16 @@ public:
 
         using namespace Layouting;
 
-        Row {
-            ideIconLabel,
-            welcomeLabel,
-            st,
-            spacing(ExVPaddingGapXl),
-            customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+        Column {
+            Row {
+                ideIconLabel,
+                welcomeLabel,
+                st,
+                spacing(ExVPaddingGapXl),
+                customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+            },
+            createRule(Qt::Horizontal),
+            noMargin(), spacing(0),
         }.attachTo(this);
     }
 };
@@ -182,7 +186,7 @@ public:
 
         using namespace Layouting;
 
-        Column mainLayout {
+        Column mainColumn {
             spacing(0),
             customMargin({ExVPaddingGapXl, 0, ExVPaddingGapXl, 0}),
         };
@@ -224,8 +228,8 @@ public:
         }
 
         essentials.attachTo(m_essentials);
-        mainLayout.addItem(m_essentials);
-        mainLayout.addItem(st);
+        mainColumn.addItem(m_essentials);
+        mainColumn.addItem(st);
 
         {
             auto label = new Label(Tr::tr("Explore more"), Label::Secondary);
@@ -263,10 +267,17 @@ public:
 
             m_links = new QWidget;
             linksLayout.attachTo(m_links);
-            mainLayout.addItem(m_links);
+            mainColumn.addItem(m_links);
         }
 
-        QWidget *mainWidget = mainLayout.emerge();
+        QWidget *mainWidget = new QWidget;
+
+        Row {
+            mainColumn,
+            createRule(Qt::Vertical),
+            noMargin(), spacing(0),
+        }.attachTo(mainWidget);
+
         setWidget(mainWidget);
     }
 
@@ -327,10 +338,8 @@ WelcomeMode::WelcomeMode()
     Column {
         new StyledBar,
         m_topArea,
-        createRule(Qt::Horizontal),
         Row {
             m_sideArea,
-            createRule(Qt::Vertical),
             m_pageStack,
         },
         noMargin(),
