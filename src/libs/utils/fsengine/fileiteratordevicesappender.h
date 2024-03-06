@@ -106,9 +106,6 @@ private:
 
     void checkStatus() const
     {
-        if (m_status == State::NotIteratingRoot) {
-            return;
-        }
         if (m_status == State::IteratingRoot) {
             if (m_baseIterator->hasNext() == false) {
                 m_status = State::BaseIteratorEnd;
