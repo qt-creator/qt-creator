@@ -47,8 +47,6 @@ public:
         if (m_status == State::Ended)
             return QString();
 
-        checkStatus();
-
         if (m_status == State::BaseIteratorEnd) {
             m_status = State::Ended;
             return FilePath::specialRootName();
@@ -62,27 +60,26 @@ public:
             return false;
 
         setPath();
-        checkStatus();
 
-        if (m_status == State::BaseIteratorEnd)
+        const bool res = m_baseIterator->hasNext();
+        if (m_status == State::IteratingRoot && !res) {
+            // m_baseIterator finished, but we need to advance one last time, so that
+            // e.g. next() and currentFileName() return FilePath::specialRootPath().
+            m_status = State::BaseIteratorEnd;
             return true;
+        }
 
-        return m_baseIterator->hasNext();
+        return res;
     }
     QString currentFileName() const override
     {
-        if (m_status == State::Ended)
-            return FilePath::specialRootPath();
-
-        checkStatus();
-        return m_baseIterator->currentFileName();
+        return m_status == State::Ended ? FilePath::specialRootPath()
+                                        : m_baseIterator->currentFileName();
     }
     QFileInfo currentFileInfo() const override
     {
-        if (m_status == State::Ended)
-            return QFileInfo(FilePath::specialRootPath());
-        checkStatus();
-        return m_baseIterator->currentFileInfo();
+        return m_status == State::Ended ? QFileInfo(FilePath::specialRootPath())
+                                        : m_baseIterator->currentFileInfo();
     }
 
 private:
@@ -103,15 +100,6 @@ private:
             const QString &p = setStatus();
             ((*m_baseIterator).*get(QAFEITag()))(p);
             m_hasSetPath = true;
-        }
-    }
-
-    void checkStatus() const
-    {
-        if (m_status == State::IteratingRoot) {
-            if (m_baseIterator->hasNext() == false) {
-                m_status = State::BaseIteratorEnd;
-            }
         }
     }
 
