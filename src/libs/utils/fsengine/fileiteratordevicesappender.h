@@ -52,7 +52,7 @@ public:
 
         if (m_status == State::BaseIteratorEnd) {
             m_status = State::Ended;
-            return "__qtc__devices__";
+            return FilePath::specialRootName();
         }
 
         return m_baseIterator->next();
