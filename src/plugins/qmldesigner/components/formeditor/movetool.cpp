@@ -21,14 +21,14 @@
 namespace QmlDesigner {
 
 MoveTool::MoveTool(FormEditorView *editorView)
-    : AbstractFormEditorTool(editorView),
-    m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
-    m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_rotationIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_bindingIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem())
+    : AbstractFormEditorTool(editorView)
+    , m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
+    , m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_resizeIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_rotationIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_bindingIndicator(editorView->scene()->manipulatorLayerItem())
+
 {
     m_selectionIndicator.setCursor(Qt::SizeAllCursor);
 }
@@ -44,7 +44,6 @@ void MoveTool::clear()
     m_rotationIndicator.clear();
     m_anchorIndicator.clear();
     m_bindingIndicator.clear();
-    m_contentNotEditableIndicator.clear();
 
     AbstractFormEditorTool::clear();
     if (view()->formEditorWidget()->graphicsView())
@@ -142,9 +141,6 @@ void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         view()->changeToSelectionTool();
         return;
     }
-
-
-    m_contentNotEditableIndicator.setItems(toFormEditorItemList(itemList));
 }
 
 void MoveTool::keyPressEvent(QKeyEvent *event)
@@ -381,7 +377,6 @@ void MoveTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
     m_rotationIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
     m_bindingIndicator.updateItems(selectedItemList);
-    m_contentNotEditableIndicator.updateItems(selectedItemList);
 }
 
 void MoveTool::focusLost()

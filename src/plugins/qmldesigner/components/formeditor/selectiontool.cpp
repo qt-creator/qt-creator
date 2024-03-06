@@ -31,7 +31,6 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     , m_rotationIndicator(editorView->scene()->manipulatorLayerItem())
     , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
     , m_bindingIndicator(editorView->scene()->manipulatorLayerItem())
-    , m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem())
 {
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
@@ -143,8 +142,6 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
     }
 
     scene()->highlightBoundingRect(topSelectableItem);
-
-    m_contentNotEditableIndicator.setItems(toFormEditorItemList(itemList));
 }
 
 void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
@@ -250,7 +247,6 @@ void SelectionTool::clear()
     m_rotationIndicator.clear();
     m_anchorIndicator.clear();
     m_bindingIndicator.clear();
-    m_contentNotEditableIndicator.clear();
 
     AbstractFormEditorTool::clear();
 }
@@ -273,7 +269,6 @@ void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemLis
     m_rotationIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
     m_bindingIndicator.updateItems(selectedItemList);
-    m_contentNotEditableIndicator.updateItems(selectedItemList);
 }
 
 void SelectionTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

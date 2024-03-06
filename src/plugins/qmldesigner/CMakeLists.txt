@@ -667,7 +667,6 @@ extend_qtc_plugin(QmlDesigner
     backgroundaction.cpp backgroundaction.h
     bindingindicator.cpp bindingindicator.h
     bindingindicatorgraphicsitem.cpp bindingindicatorgraphicsitem.h
-    contentnoteditableindicator.cpp contentnoteditableindicator.h
     controlelement.cpp controlelement.h
     dragtool.cpp dragtool.h
     formeditor.qrc

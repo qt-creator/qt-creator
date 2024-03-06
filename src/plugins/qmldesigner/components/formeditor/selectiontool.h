@@ -10,7 +10,6 @@
 #include "rotationindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
-#include "contentnoteditableindicator.h"
 
 #include <QElapsedTimer>
 #include <QTime>
@@ -67,7 +66,6 @@ private:
     RotationIndicator m_rotationIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
-    ContentNotEditableIndicator m_contentNotEditableIndicator;
     QElapsedTimer m_mousePressTimer;
     QCursor m_cursor;
     bool m_itemSelectedAndMovable = false;
