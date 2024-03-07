@@ -48,10 +48,13 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
-    static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType, const QmlObjectNode &node);
-
+#ifndef QDS_USE_PROJECTSTORAGE
+    static QString templateGeneration(const NodeMetaInfo &type,
+                                      const NodeMetaInfo &superType,
+                                      const QmlObjectNode &node);
     static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info);
     static std::tuple<QUrl, NodeMetaInfo> getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode);
+#endif
 
     static bool checkIfUrlExists(const QUrl &url);
 
@@ -80,10 +83,12 @@ private:
                                   PropertyEditorView *propertyEditor,
                                   const NodeMetaInfo &type);
 
-    static TypeName qmlFileName(const NodeMetaInfo &nodeInfo);
     static QUrl fileToUrl(const QString &filePath);
     static QString fileFromUrl(const QUrl &url);
+#ifndef QDS_USE_PROJECTSTORAGE
+    static TypeName qmlFileName(const NodeMetaInfo &nodeInfo);
     static QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath);
+#endif
     static TypeName fixTypeNameForPanes(const TypeName &typeName);
 
 private:

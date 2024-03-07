@@ -176,22 +176,22 @@ bool isType(const TypeName &first, const TypeName &second, const Tuple &...types
 
 bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType)
 {
-    if constexpr (useProjectStorage()) {
-        return targetType.isVariant() || sourceType.isVariant() || targetType == sourceType
-               || (targetType.isNumber() && sourceType.isNumber())
-               || (targetType.isColor() && sourceType.isColor())
-               || (targetType.isString() && sourceType.isString());
-    } else {
-        const TypeName source = sourceType.simplifiedTypeName();
-        const TypeName target = targetType.simplifiedTypeName();
+#ifdef QDS_USE_PROJECTSTORAGE
+    return targetType.isVariant() || sourceType.isVariant() || targetType == sourceType
+           || (targetType.isNumber() && sourceType.isNumber())
+           || (targetType.isColor() && sourceType.isColor())
+           || (targetType.isString() && sourceType.isString());
+#else
+    const TypeName source = sourceType.simplifiedTypeName();
+    const TypeName target = targetType.simplifiedTypeName();
 
-        static constexpr auto variantTypes = std::make_tuple("alias", "unknown", "variant", "var");
+    static constexpr auto variantTypes = std::make_tuple("alias", "unknown", "variant", "var");
 
-        return isType(variantTypes, target) || isType(variantTypes, source) || target == source
-               || targetType == sourceType || isType(target, source, "double", "real", "int")
-               || isType(target, source, "QColor", "color")
-               || isType(target, source, "QString", "string");
-    }
+    return isType(variantTypes, target) || isType(variantTypes, source) || target == source
+           || targetType == sourceType || isType(target, source, "double", "real", "int")
+           || isType(target, source, "QColor", "color")
+           || isType(target, source, "QString", "string");
+#endif
 }
 } // namespace
 
@@ -287,8 +287,13 @@ void BindingEditor::updateWindowName()
                                + exportedTypeNames.front().name.toQString() + "]";
             }
         } else {
+#ifdef QDS_USE_PROJECTSTORAGE
+            targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
+                           + QString::fromUtf8(m_backendValueType.displayName()) + "]";
+#else
             targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
                            + QString::fromUtf8(m_backendValueType.simplifiedTypeName()) + "]";
+#endif
         }
 
         m_dialog->setWindowTitle(m_dialog->defaultTitle() + targetString);

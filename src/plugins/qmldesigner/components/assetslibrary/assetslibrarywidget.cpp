@@ -273,8 +273,11 @@ void AssetsLibraryWidget::setHasSceneEnv(bool b)
     emit hasSceneEnvChanged();
 }
 
-void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
+void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList &effectNames)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+// That code has to rewritten with modules. Seem try to find all effects nodes.
+#else
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!document)
         return;
@@ -340,6 +343,7 @@ void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
         document->clearUndoRedoStacks();
 
     m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
+#endif
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)

@@ -218,14 +218,18 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     const ModelNode rootModelNode = view->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-        NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
+#ifndef QDS_USE_PROJECTSTORAGE
+        NodeMetaInfo nodeMetaInfo = view->model()->qtQmlConnectionsMetaInfo();
         if (nodeMetaInfo.isValid()) {
-            view->executeInTransaction("ConnectionModel::addConnection",
-                                       [this, view, nodeMetaInfo, targetModelIndex, modelIndex,
-                                        buttonModelIndex, signalName, &rootModelNode] {
+#endif
+            view->executeInTransaction("ConnectionModel::addConnection", [&] {
+#ifdef QDS_USE_PROJECTSTORAGE
+                ModelNode newNode = view->createModelNode("Connections");
+#else
                 ModelNode newNode = view->createModelNode("QtQuick.Connections",
                                                           nodeMetaInfo.majorVersion(),
                                                           nodeMetaInfo.minorVersion());
+#endif
                 const QString source = m_modelNode.validId() + ".trigger()";
 
                 if (QmlItemNode::isValidQmlItemNode(m_modelNode))
@@ -240,7 +244,9 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
                 m_model->setConnected(modelIndex.row(), true);
                 m_model->setData(buttonModelIndex, newNode.internalId(), SignalListModel::ConnectionsInternalIdRole);
             });
+#ifndef QDS_USE_PROJECTSTORAGE
         }
+#endif
     }
 }
 

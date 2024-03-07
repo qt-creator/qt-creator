@@ -48,7 +48,7 @@ QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &pr
 
 bool isConnection(const QmlDesigner::ModelNode &modelNode)
 {
-    return (modelNode.metaInfo().simplifiedTypeName() == "Connections");
+    return modelNode.metaInfo().isQtQmlConnections();
 }
 
 } //namespace
@@ -361,15 +361,14 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
     ModelNode rootModelNode = connectionView()->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-
-        NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQuickConnectionsMetaInfo();
+#ifndef QDS_USE_PROJECTSTORAGE
+        NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQmlConnectionsMetaInfo();
 
         if (nodeMetaInfo.isValid()) {
-            ModelNode selectedNode;
-            if (connectionView()->selectedModelNodes().isEmpty())
+#endif
+            ModelNode selectedNode = connectionView()->firstSelectedModelNode();
+            if (!selectedNode)
                 selectedNode = connectionView()->rootModelNode();
-            else
-                selectedNode = connectionView()->selectedModelNodes().constFirst();
 
             PropertyName signalHandlerName = signalName;
             if (signalHandlerName.isEmpty())
@@ -378,12 +377,14 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
             signalHandlerName = addOnToSignalName(QString::fromUtf8(signalHandlerName)).toUtf8();
 
             connectionView()
-                ->executeInTransaction("ConnectionModel::addConnection",
-                                       [this, nodeMetaInfo, signalHandlerName, &rootModelNode] {
-                    ModelNode newNode = connectionView()
-                                            ->createModelNode("QtQuick.Connections",
-                                                              nodeMetaInfo.majorVersion(),
-                                                              nodeMetaInfo.minorVersion());
+                ->executeInTransaction("ConnectionModel::addConnection", [&] {
+#ifdef QDS_USE_PROJECTSTORAGE
+                    ModelNode newNode = connectionView()->createModelNode("Connections");
+#else
+                    ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
+                                                                          nodeMetaInfo.majorVersion(),
+                                                                          nodeMetaInfo.minorVersion());
+#endif
                     QString source = "console.log(\"clicked\")";
 
                     if (connectionView()->selectedModelNodes().size() == 1) {
@@ -411,7 +412,9 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
 
                     selectProperty(newNode.signalHandlerProperty(signalHandlerName));
                 });
+#ifndef QDS_USE_PROJECTSTORAGE
         }
+#endif
     }
 }
 

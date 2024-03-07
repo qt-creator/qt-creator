@@ -579,6 +579,15 @@ void PropertyEditorNodeWrapper::add(const QString &type)
     TypeName propertyType = type.toUtf8();
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (propertyType.isEmpty()) {
+            auto node = m_editorValue->modelNode();
+            auto metaInfo = node.metaInfo().property(m_editorValue->name()).propertyType();
+            auto exportedTypeName = node.model()->exportedTypeNameForMetaInfo(metaInfo);
+            propertyType = exportedTypeName.name.toQByteArray();
+        }
+        m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType);
+#else
         if (propertyType.isEmpty()) {
             propertyType = m_editorValue->modelNode()
                                .metaInfo()
@@ -589,6 +598,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
         while (propertyType.contains('*')) // strip star
             propertyType.chop(1);
         m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);
+#endif
         m_editorValue->modelNode().nodeAbstractProperty(m_editorValue->name()).reparentHere(m_modelNode);
         if (!m_modelNode.isValid())
             qWarning("PropertyEditorNodeWrapper::add failed");

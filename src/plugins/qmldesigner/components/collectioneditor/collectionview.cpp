@@ -29,10 +29,9 @@
 
 namespace {
 
-inline bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
+bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
 {
-    using namespace QmlDesigner::CollectionEditorConstants;
-    return node.metaInfo().typeName() == JSONCOLLECTIONMODEL_TYPENAME;
+    return node.metaInfo().isQtQuickStudioUtilsJsonListModel();
 }
 
 inline void setVariantPropertyValue(const QmlDesigner::ModelNode &node,
@@ -201,11 +200,14 @@ void CollectionView::addResource(const QUrl &url, const QString &name)
         } else {
             sourceAddress = url.toString();
         }
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        ModelNode resourceNode = createModelNode("JsonListModel");
+#else
         const NodeMetaInfo resourceMetaInfo = jsonCollectionMetaInfo();
         ModelNode resourceNode = createModelNode(resourceMetaInfo.typeName(),
                                                  resourceMetaInfo.majorVersion(),
                                                  resourceMetaInfo.minorVersion());
+#endif
         VariantProperty sourceProperty = resourceNode.variantProperty(
             CollectionEditorConstants::SOURCEFILE_PROPERTY);
         VariantProperty nameProperty = resourceNode.variantProperty("objectName");

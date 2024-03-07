@@ -1192,11 +1192,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     int majorVersion = -1;
     int minorVersion = -1;
 
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
@@ -1563,11 +1563,12 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
 
     int majorVersion = -1;
     int minorVersion = -1;
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
@@ -2104,11 +2105,11 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
 
     int majorVersion = -1;
     int minorVersion = -1;
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     const bool propertyTakesComponent = propertyHasImplicitComponentType(modelProperty, info);
 

@@ -371,10 +371,13 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
         else
             metaInfo = model->metaInfo(entry.typeName());
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        bool valid = metaInfo.isValid();
+#else
         bool valid = metaInfo.isValid()
                      && (metaInfo.majorVersion() >= entry.majorVersion()
                          || metaInfo.majorVersion() < 0);
-
+#endif
         bool isItem = valid && metaInfo.isQtQuickItem();
         bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 

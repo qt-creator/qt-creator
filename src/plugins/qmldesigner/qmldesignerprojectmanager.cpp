@@ -281,12 +281,12 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 }
 
 namespace {
-ProjectStorage<Sqlite::Database> *dummyProjectStorage()
+[[maybe_unused]] ProjectStorage<Sqlite::Database> *dummyProjectStorage()
 {
     return nullptr;
 }
 
-ProjectStorageUpdater::PathCache *dummyPathCache()
+[[maybe_unused]] ProjectStorageUpdater::PathCache *dummyPathCache()
 {
     return nullptr;
 }
@@ -383,7 +383,7 @@ void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
     }
 }
 
-void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+[[maybe_unused]] void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
@@ -395,10 +395,20 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
         collectQmldirPaths(importPath, qmldirPaths);
 }
 
-void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+[[maybe_unused]] void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     if constexpr (useProjectStorage())
         collectQmldirPaths(qmlPath(target).toString(), qmldirPaths);
+}
+
+[[maybe_unused]] void qtQmldirPathsForLiteDesigner(::ProjectExplorer::Target *target,
+                                                   QStringList &qmldirPaths)
+{
+    if constexpr (useProjectStorage()) {
+        auto qmlRootPath = qmlPath(target).toString();
+        collectQmldirPaths(qmlRootPath + "/QtQml", qmldirPaths);
+        collectQmldirPaths(qmlRootPath + "/QtQuick", qmldirPaths);
+    }
 }
 
 QStringList directories(::ProjectExplorer::Target *target)
@@ -409,8 +419,12 @@ QStringList directories(::ProjectExplorer::Target *target)
     QStringList qmldirPaths;
     qmldirPaths.reserve(100);
 
-    qtQmldirPaths(target, qmldirPaths);
-    projectQmldirPaths(target, qmldirPaths);
+    if constexpr (isUsingQmlDesignerLite()) {
+        qtQmldirPathsForLiteDesigner(target, qmldirPaths);
+    } else {
+        qtQmldirPaths(target, qmldirPaths);
+        projectQmldirPaths(target, qmldirPaths);
+    }
 
     std::sort(qmldirPaths.begin(), qmldirPaths.end());
     qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());

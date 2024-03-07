@@ -22,6 +22,16 @@ QT_BEGIN_NAMESPACE
 class QDeclarativeContext;
 QT_END_NAMESPACE
 
+#ifdef QDS_USE_PROJECTSTORAGE
+#  define DEPRECATED_TYPENAME [[deprecated("Don't use string based types anymore!")]]
+#  define DEPRECATED_VERSION_NUMBER \
+      [[deprecated( \
+          "In most cases you don't need them anymore because the import is setting them!")]]
+#else
+#  define DEPRECATED_TYPENAME
+#  define DEPRECATED_VERSION_NUMBER
+#endif
+
 namespace QmlDesigner {
 
 class MetaInfo;
@@ -92,10 +102,11 @@ public:
 
     bool defaultPropertyIsComponent() const;
 
-    TypeName typeName() const;
-    TypeName simplifiedTypeName() const;
-    int majorVersion() const;
-    int minorVersion() const;
+    TypeName displayName() const;
+    DEPRECATED_TYPENAME TypeName typeName() const;
+    DEPRECATED_TYPENAME TypeName simplifiedTypeName() const;
+    DEPRECATED_VERSION_NUMBER int majorVersion() const;
+    DEPRECATED_VERSION_NUMBER int minorVersion() const;
 
     Storage::Info::ExportedTypeNames allExportedTypeNames() const;
     Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
@@ -155,6 +166,7 @@ public:
     bool isQmlComponent() const;
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
+    bool isQtQmlConnections() const;
     bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
@@ -202,6 +214,7 @@ public:
     bool isQtQuickState() const;
     bool isQtQuickStateOperation() const;
     bool isQtQuickStudioComponentsGroupItem() const;
+    bool isQtQuickStudioUtilsJsonListModel() const;
     bool isQtQuickText() const;
     bool isQtQuickTimelineKeyframe() const;
     bool isQtQuickTimelineKeyframeGroup() const;

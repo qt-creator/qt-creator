@@ -95,6 +95,13 @@ public:
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
                               const QString &behaviorPropertyName = {});
 
+    ModelNode createModelNode(const TypeName &typeName,
+                              const PropertyListType &propertyList,
+                              const AuxiliaryDatas &auxPropertyList = {},
+                              const QString &nodeSource = {},
+                              ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
+                              const QString &behaviorPropertyName = {});
+
     ModelNode rootModelNode() const;
     ModelNode rootModelNode();
 

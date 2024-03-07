@@ -110,19 +110,23 @@ public:
                                       fileUrl,
                                       std::move(resourceManagement)));
     }
-    static ModelPointer create(ProjectStorageDependencies m_projectStorageDependencies,
+
+    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
                                const TypeName &typeName,
                                int major = 1,
                                int minor = 1,
                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(new Model(m_projectStorageDependencies,
+        return ModelPointer(new Model(projectStorageDependencies,
                                       typeName,
                                       major,
                                       minor,
                                       nullptr,
                                       std::move(resourceManagement)));
     }
+
+    ModelPointer createModel(const TypeName &typeName,
+                             std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
 
     QUrl fileUrl() const;
     SourceId fileUrlSourceId() const;
@@ -150,6 +154,7 @@ public:
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
     NodeMetaInfo qmlQtObjectMetaInfo() const;
+    NodeMetaInfo qtQmlConnectionsMetaInfo() const;
     NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
     NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
@@ -164,7 +169,6 @@ public:
     NodeMetaInfo qtQuick3DPrincipledMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DSpotLightMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
-    NodeMetaInfo qtQuickConnectionsMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
@@ -215,6 +219,10 @@ public:
     QString pathForImport(const Import &import);
     QStringList importPaths() const;
     Import highestPossibleImport(const QString &importPath);
+
+    ModuleIds moduleIds() const;
+
+    Storage::Info::ExportedTypeName exportedTypeNameForMetaInfo(const NodeMetaInfo &metaInfo) const;
 
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);

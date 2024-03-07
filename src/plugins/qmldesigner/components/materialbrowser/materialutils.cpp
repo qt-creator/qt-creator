@@ -47,10 +47,14 @@ void MaterialUtils::assignMaterialTo3dModel(AbstractView *view, const ModelNode 
 
         // if no valid material, create a new default material
         if (!newMaterialNode.isValid()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            newMaterialNode = view->createModelNode("PrincipledMaterial");
+#else
             NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
             newMaterialNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
                                                     metaInfo.majorVersion(),
                                                     metaInfo.minorVersion());
+#endif
             newMaterialNode.validId();
         }
     }

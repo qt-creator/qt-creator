@@ -26,6 +26,12 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
+// remove that if the old code model is removed
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
+QT_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+QT_WARNING_DISABLE_MSVC(4996)
+
 namespace QmlDesigner {
 
 /*!
@@ -1924,6 +1930,11 @@ bool NodeMetaInfo::defaultPropertyIsComponent() const
     return false;
 }
 
+TypeName NodeMetaInfo::displayName() const
+{
+    return {};
+}
+
 TypeName NodeMetaInfo::typeName() const
 {
     if (isValid())
@@ -2362,6 +2373,16 @@ bool NodeMetaInfo::isQtObject() const
         return isBasedOnCommonType<QML, QtObject>(m_projectStorage, m_typeId);
     } else {
         return isValid() && (isSubclassOf("QtQuick.QtObject") || isSubclassOf("QtQml.QtObject"));
+    }
+}
+
+bool NodeMetaInfo::isQtQmlConnections() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && simplifiedTypeName() == "Connections";
     }
 }
 
@@ -3011,6 +3032,17 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
         return isBasedOnCommonType<QtQuick_Studio_Components, GroupItem>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Studio.Components.GroupItem");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, JsonListModel>(m_projectStorage,
+                                                                             m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Utils.JsonListModel");
     }
 }
 
@@ -3689,3 +3721,5 @@ CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(Prope
 }
 
 } // namespace QmlDesigner
+
+QT_WARNING_POP

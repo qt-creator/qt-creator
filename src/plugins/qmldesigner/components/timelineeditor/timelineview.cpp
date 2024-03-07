@@ -278,6 +278,7 @@ TimelineWidget *TimelineView::widget() const
     return m_timelineWidget;
 }
 
+namespace {
 QList<QmlModelState> getAllStates(TimelineView* view)
 {
     QmlVisualNode visNode(view->rootModelNode());
@@ -315,6 +316,7 @@ void enableInCurrentState(
         }
     }
 }
+} // namespace
 
 const QmlTimeline TimelineView::addNewTimeline()
 {
@@ -329,21 +331,24 @@ const QmlTimeline TimelineView::addNewTimeline()
     } catch (const Exception &e) {
         e.showException();
     }
-
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo metaInfo = model()->metaInfo(timelineType);
 
     QTC_ASSERT(metaInfo.isValid(), return QmlTimeline());
-
+#endif
     ModelNode timelineNode;
 
-    executeInTransaction("TimelineView::addNewTimeline",
-                         [this, timelineType, metaInfo, &timelineNode] {
+    executeInTransaction("TimelineView::addNewTimeline", [&] {
         bool hasTimelines = getTimelines().isEmpty();
         QString currentStateName = getStateName(this, hasTimelines);
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        timelineNode = createModelNode("Timeline");
+#else
         timelineNode = createModelNode(timelineType,
                                        metaInfo.majorVersion(),
                                        metaInfo.minorVersion());
+#endif
         timelineNode.validId();
 
         timelineNode.variantProperty("startFrame").setValue(0);
@@ -366,21 +371,25 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
     QTC_ASSERT(isAttached(), return ModelNode());
 
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo metaInfo = model()->metaInfo(animationType);
 
     QTC_ASSERT(metaInfo.isValid(), return ModelNode());
-
+#endif
     ModelNode animationNode;
 
-    executeInTransaction("TimelineView::addAnimation",
-                         [this, timeline, animationType, metaInfo, &animationNode] {
+    executeInTransaction("TimelineView::addAnimation", [&] {
         bool hasAnimations = getAnimations(timeline).isEmpty();
         QString currentStateName = getStateName(this, hasAnimations);
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        animationNode = createModelNode("TimelineAnimation");
+#else
         animationNode = createModelNode(animationType,
                                         metaInfo.majorVersion(),
                                         metaInfo.minorVersion());
         animationNode.variantProperty("duration").setValue(timeline.duration());
+#endif
         animationNode.validId();
 
         animationNode.variantProperty("from").setValue(timeline.startKeyframe());

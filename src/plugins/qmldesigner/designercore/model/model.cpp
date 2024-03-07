@@ -1731,11 +1731,31 @@ Model::Model(const TypeName &typeName,
         this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
+ModelPointer Model::createModel(const TypeName &typeName,
+                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+{
+    return Model::create({*d->projectStorage, *d->pathCache},
+                         typeName,
+                         imports(),
+                         fileUrl(),
+                         std::move(resourceManagement));
+}
+
 Model::~Model() = default;
 
 const Imports &Model::imports() const
 {
     return d->imports();
+}
+
+ModuleIds Model::moduleIds() const
+{
+    return {};
+}
+
+Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &) const
+{
+    return {};
 }
 
 const Imports &Model::possibleImports() const
@@ -1938,7 +1958,6 @@ void Model::setCurrentStateNode(const ModelNode &node)
     d->notifyCurrentStateChanged(node);
 }
 
-// QTC_TEMP
 ModelNode Model::currentStateNode(AbstractView *view)
 {
     return ModelNode(d->currentStateNode(), this, view);
@@ -2455,13 +2474,13 @@ NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::qtQuickConnectionsMetaInfo() const
+NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Connections>();
+        return createNodeMetaInfo<QtQml, Connections>();
     } else {
-        return metaInfo("QtQuick.Connections");
+        return metaInfo("QtQml.Connections");
     }
 }
 
@@ -2714,12 +2733,12 @@ ModelNode createNode(Model *model,
 
 ModelNode Model::createModelNode(const TypeName &typeName)
 {
-    if constexpr (useProjectStorage()) {
-        return createNode(this, d.get(), typeName, -1, -1);
-    } else {
-        const NodeMetaInfo m = metaInfo(typeName);
-        return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return createNode(this, d.get(), typeName, -1, -1);
+#else
+    const NodeMetaInfo m = metaInfo(typeName);
+    return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
+#endif
 }
 
 void Model::changeRootNodeType(const TypeName &type)

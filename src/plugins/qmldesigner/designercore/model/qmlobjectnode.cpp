@@ -475,7 +475,7 @@ QList<ModelNode> QmlObjectNode::getAllConnections() const
     if (!isValid())
         return {};
 
-    auto list = view()->allModelNodesOfType(model()->qtQuickConnectionsMetaInfo());
+    auto list = view()->allModelNodesOfType(model()->qtQmlConnectionsMetaInfo());
     return Utils::filtered(list, [this](const ModelNode &connection) {
         return connection.hasBindingProperty("target")
                && connection.bindingProperty("target").resolveToModelNode() == modelNode();

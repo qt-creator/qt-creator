@@ -84,10 +84,13 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
 
     ModelNode newTexNode = Utils3D::getTextureDefaultInstance(textureSource, m_view);
     if (!newTexNode.isValid()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        newTexNode = m_view->createModelNode("Texture");
+#else
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
                                              metaInfo.majorVersion(),
                                              metaInfo.minorVersion());
-
+#endif
         newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(assetPath.baseName()));
 
         VariantProperty sourceProp = newTexNode.variantProperty("source");

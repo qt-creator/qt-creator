@@ -380,10 +380,14 @@ void TextureEditorView::handleToolBarAction(int action)
             ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
                 return;
-
+#ifdef QDS_USE_PROJECTSTORAGE
+            ModelNode newTextureNode = createModelNode("Texture");
+#else
             NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                            metaInfo.minorVersion());
+            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture",
+                                                       metaInfo.majorVersion(),
+                                                       metaInfo.minorVersion());
+#endif
             newTextureNode.validId();
             matLib.defaultNodeListProperty().reparentHere(newTextureNode);
         });
@@ -408,6 +412,9 @@ void TextureEditorView::handleToolBarAction(int action)
 
 void TextureEditorView::setupQmlBackend()
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+// This is an copy of the property editor code which is already rewritten. Please reuse that code.
+#else
     QUrl qmlPaneUrl;
     QUrl qmlSpecificsUrl;
     QString specificQmlData;
@@ -475,6 +482,7 @@ void TextureEditorView::setupQmlBackend()
         m_dynamicPropertiesModel->reset();
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
+#endif
 }
 
 void TextureEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -754,9 +762,12 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
             return;
 
         // create the duplicate texture
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlObjectNode duplicateTex = createModelNode(matType);
+#else
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateTex = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-
+#endif
         duplicateTextureNode = duplicateTex .modelNode();
         duplicateTextureNode.validId();
 

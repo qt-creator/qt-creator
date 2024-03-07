@@ -98,10 +98,15 @@ QList<SignalHandlerProperty> QmlConnections::signalProperties() const
 
 ModelNode QmlConnections::createQmlConnections(AbstractView *view)
 {
-    NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
+#ifdef QDS_USE_PROJECTSTORAGE
+    return view->createModelNode("Connections");
+#else
+    NodeMetaInfo nodeMetaInfo = view->model()->qtQmlConnectionsMetaInfo();
+
     return view->createModelNode("QtQuick.Connections",
                                  nodeMetaInfo.majorVersion(),
                                  nodeMetaInfo.minorVersion());
+#endif
 }
 
 } // QmlDesigner

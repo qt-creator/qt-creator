@@ -68,12 +68,12 @@ RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &ide
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName)
 {
-    if constexpr (useProjectStorage()) {
-        return createModelNode(typeName, -1, -1);
-    } else {
-        const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
-        return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return createModelNode(typeName, -1, -1);
+#else
+    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
+    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+#endif
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
@@ -90,6 +90,24 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
                                             behaviorPropertyName), model(), this);
 }
 
+ModelNode AbstractView::createModelNode(const TypeName &typeName,
+                                        const QList<QPair<PropertyName, QVariant>> &propertyList,
+                                        const AuxiliaryDatas &auxPropertyList,
+                                        const QString &nodeSource,
+                                        ModelNode::NodeSourceType nodeSourceType,
+                                        const QString &behaviorPropertyName)
+{
+    return ModelNode(model()->d->createNode(typeName,
+                                            -1,
+                                            -1,
+                                            propertyList,
+                                            auxPropertyList,
+                                            nodeSource,
+                                            nodeSourceType,
+                                            behaviorPropertyName),
+                     model(),
+                     this);
+}
 
 // Returns the constant root model node.
 ModelNode AbstractView::rootModelNode() const
@@ -824,6 +842,7 @@ static int getMajorVersionFromImport(const Model *model)
     return -1;
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
@@ -848,6 +867,7 @@ static int getMinorVersionFromNode(const ModelNode &modelNode)
 
     return 1; // default
 }
+#endif
 
 int AbstractView::majorQtQuickVersion() const
 {
@@ -855,7 +875,11 @@ int AbstractView::majorQtQuickVersion() const
     if (majorVersionFromImport >= 0)
         return majorVersionFromImport;
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    return -1;
+#else
     return getMajorVersionFromNode(rootModelNode());
+#endif
 }
 
 int AbstractView::minorQtQuickVersion() const
@@ -864,7 +888,11 @@ int AbstractView::minorQtQuickVersion() const
     if (minorVersionFromImport >= 0)
         return minorVersionFromImport;
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    return -1;
+#else
     return getMinorVersionFromNode(rootModelNode());
+#endif
 }
 
 } // namespace QmlDesigner

@@ -247,8 +247,10 @@ void TextureEditorQmlBackend::setup(const QmlObjectNode &selectedTextureNode, co
 
         contextObject()->setSelectionChanged(false);
 
+#ifndef QDS_USE_PROJECTSTORAGE
         NodeMetaInfo metaInfo = selectedTextureNode.modelNode().metaInfo();
         contextObject()->setMajorVersion(metaInfo.isValid() ? metaInfo.majorVersion() : -1);
+#endif
     } else {
         context()->setContextProperty("hasTexture", QVariant(false));
     }

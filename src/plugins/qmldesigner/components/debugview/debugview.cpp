@@ -95,7 +95,9 @@ void DebugView::nodeCreated(const ModelNode &createdNode)
         message << createdNode.nodeSource();
         message << "MetaInfo " << createdNode.metaInfo().isValid() << " ";
         if (auto metaInfo = createdNode.metaInfo()) {
+#ifndef QDS_USE_PROJECTSTORAGE
             message << metaInfo.majorVersion() << "." << metaInfo.minorVersion();
+#endif
             message << ModelUtils::componentFilePath(createdNode);
         }
         log("::nodeCreated:", message.readAll());
@@ -283,6 +285,7 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         message << lineBreak;
 
         if (selectedNode.metaInfo().isValid()) {
+#ifndef QDS_USE_PROJECTSTORAGE
             for (const NodeMetaInfo &metaInfo : selectedNode.metaInfo().selfAndPrototypes()) {
                 message << metaInfo.typeName() << " " << metaInfo.majorVersion() << "."
                         << metaInfo.minorVersion() << lineBreak;
@@ -290,6 +293,7 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
 
             message << lineBreak;
             message << selectedNode.metaInfo().typeName();
+#endif
             message << lineBreak;
 
             message << "Node Source" << selectedNode.nodeSource();
@@ -323,10 +327,11 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         message << "Is valid object node: " << QmlItemNode::isValidQmlObjectNode(selectedNode);
         message << lineBreak;
 
+#ifndef QDS_USE_PROJECTSTORAGE
         message << "version: "
                 << QString::number(selectedNode.metaInfo().majorVersion()) + "."
                        + QString::number(selectedNode.metaInfo().minorVersion());
-
+#endif
         message << lineBreak;
 
         QmlItemNode itemNode(selectedNode);

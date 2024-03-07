@@ -287,8 +287,10 @@ void MaterialEditorQmlBackend::setup(const QmlObjectNode &selectedMaterialNode, 
 
         contextObject()->setSelectionChanged(false);
 
+#ifndef QDS_USE_PROJECTSTORAGE
         NodeMetaInfo metaInfo = selectedMaterialNode.modelNode().metaInfo();
         contextObject()->setMajorVersion(metaInfo.isValid() ? metaInfo.majorVersion() : -1);
+#endif
     } else {
         context()->setContextProperty("hasMaterial", QVariant(false));
     }

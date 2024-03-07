@@ -419,11 +419,14 @@ void MaterialEditorView::handleToolBarAction(int action)
             ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
                 return;
-
+#ifdef QDS_USE_PROJECTSTORAGE
+            ModelNode newMatNode = createModelNode("PrincipledMaterial");
+#else
             NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
             ModelNode newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
                                                    metaInfo.majorVersion(),
                                                    metaInfo.minorVersion());
+#endif
             renameMaterial(newMatNode, "New Material");
             matLib.defaultNodeListProperty().reparentHere(newMatNode);
         });
@@ -526,6 +529,10 @@ void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
 
 void MaterialEditorView::setupQmlBackend()
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+// TODO unify implementation with property editor view
+#else
+
     QUrl qmlPaneUrl;
     QUrl qmlSpecificsUrl;
     QString specificQmlData;
@@ -603,6 +610,7 @@ void MaterialEditorView::setupQmlBackend()
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
     m_stackedWidget->setMinimumSize({400, 300});
+#endif
 }
 
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -1037,9 +1045,12 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
             return;
 
         // create the duplicate material
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlObjectNode duplicateMat = createModelNode(matType);
+#else
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateMat = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-
+#endif
         duplicateMatNode = duplicateMat.modelNode();
 
         // set name and id
