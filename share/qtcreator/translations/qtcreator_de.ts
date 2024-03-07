@@ -13693,178 +13693,181 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <name>QtC::Axivion</name>
     <message>
         <source>Project:</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Lines of code:</source>
-        <translation type="unfinished"></translation>
+        <translation>Codezeilen:</translation>
     </message>
     <message>
         <source>Analysis timestamp:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitstempel der Analyse:</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">unbekannt</translation>
+        <translation>unbekannt</translation>
     </message>
     <message>
         <source>Total:</source>
-        <translation type="unfinished"></translation>
+        <translation>Summe:</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigentümer</translation>
     </message>
     <message>
         <source>Path globbing</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad-Globbing</translation>
     </message>
     <message>
         <source>Total rows:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamtzeilen:</translation>
     </message>
     <message>
         <source>Axivion</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion</translation>
     </message>
     <message>
         <source>Show dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Search for issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme durchsuchen</translation>
     </message>
     <message>
         <source>Show rule details</source>
-        <translation type="unfinished"></translation>
+        <translation>Regeldetails anzeigen</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unknown Dto structure deserialization error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler in der Dto-Struktur beim Deserialisieren.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be read in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelesen werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be stored in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gespeichert werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be deleted in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelöscht werden.</translation>
     </message>
     <message>
         <source>Key chain message: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldung der Schlüsselverwaltung: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Enter the password for:
 Dashboard: %1
 User: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie das Passwort ein für:
+Dashboard: %1
+Benutzer: %2</translation>
     </message>
     <message>
         <source>Axivion Server Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion Server-Passwort</translation>
     </message>
     <message>
         <source>The stored ApiToken is not valid anymore, removing it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gespeicherte ApiToken ist nicht mehr gültig und wird entfernt.</translation>
     </message>
     <message>
         <source>Fetching DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der DashboardInfo.</translation>
     </message>
     <message>
         <source>The DashboardInfo doesn&apos;t contain project &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die DashboardInfo enthält das Projekt &quot;%1&quot; nicht.</translation>
     </message>
     <message>
         <source>The activated link appears to be external.
 Do you want to open &quot;%1&quot; with its default application?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der aktivierte Link scheint extern zu sein.
+Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Open External Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Links öffnen</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekte abrufen</translation>
     </message>
     <message>
         <source>Link Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt verknüpfen</translation>
     </message>
     <message>
         <source>Unlink Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverknüpfung aufheben</translation>
     </message>
     <message>
         <source>Dashboard projects:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Projekte:</translation>
     </message>
     <message>
         <source>This project is not linked to a dashboard project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist nicht mit einem Dashboard-Projekt verknüpft.</translation>
     </message>
     <message>
         <source>This project is linked to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist mit &quot;%1&quot; verknüpft.</translation>
     </message>
     <message>
         <source>Incomplete or misconfigured settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige oder fehlerhafte Einstellungen.</translation>
     </message>
     <message>
         <source>Highlight marks</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierungen hervorheben</translation>
     </message>
     <message>
         <source>Marks issues on the scroll bar.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert Probleme in der Bildlaufleiste.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-URL:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation type="unfinished">Benutzername</translation>
+        <translation>Benutzername</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration bearbeiten</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Fetching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufe ab...</translation>
     </message>
 </context>
 <context>
