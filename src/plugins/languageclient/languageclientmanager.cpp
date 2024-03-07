@@ -110,8 +110,9 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
             managerInstance, [client]() {
                 QTC_ASSERT(!managerInstance->m_clients.contains(client),
                            managerInstance->m_clients.removeAll(client));
-                for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
+                for (QList<Client *> &clients : managerInstance->m_clientsForSetting) {
                     QTC_CHECK(clients.removeAll(client) == 0);
+                }
             });
 
     ProjectExplorer::Project *project = client->project();
