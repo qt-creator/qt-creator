@@ -657,20 +657,20 @@ void KitManager::deregisterKits(const QList<Kit *> kitList)
 {
     QTC_ASSERT(KitManager::isLoaded(), return);
     std::vector<std::unique_ptr<Kit>> removed; // to keep them alive until the end of the function
-    Kit *newDefault = nullptr;
+    bool defaultKitRemoved = false;
     for (Kit *k : kitList) {
-        if (!k)
-            continue;
+        QTC_ASSERT(k, continue);
         std::optional<std::unique_ptr<Kit>> taken = Utils::take(d->m_kitList, k);
-        if (!taken)
-            continue;
+        QTC_ASSERT(taken, continue);
+        if (defaultKit() == k)
+            defaultKitRemoved = true;
         removed.push_back(std::move(*taken));
-        if (defaultKit() == k) {
-            newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
-        }
     }
-    if (newDefault)
-        setDefaultKit(newDefault);
+
+    if (defaultKitRemoved) {
+        d->m_defaultKit = Utils::findOrDefault(kits(), &Kit::isValid);
+        emit instance()->defaultkitChanged();
+    }
 
     for (auto it = removed.cbegin(); it != removed.cend(); ++it)
         emit instance()->kitRemoved(it->get());
