@@ -429,9 +429,11 @@ void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePref
     const bool enable = !preferences->isReadOnly() && (!preferences->isTemporarilyReadOnly()
                                                        || !preferences->isAdditionalTabVisible());
 
-    d->m_categoryTab->setTabVisible(0, preferences->isAdditionalTabVisible());
-    for (int i = 1; i < d->m_categoryTab->count(); ++i)
-        d->m_categoryTab->setTabVisible(i, !preferences->isAdditionalTabVisible());
+    if (preferences->additionalTabExist()) {
+        d->m_categoryTab->setTabVisible(0, preferences->isAdditionalTabVisible());
+        for (int i = 1; i < d->m_categoryTab->count(); ++i)
+            d->m_categoryTab->setTabVisible(i, !preferences->isAdditionalTabVisible());
+    }
 
     for (QWidget *widget : d->m_controllers)
         widget->setEnabled(enable);
