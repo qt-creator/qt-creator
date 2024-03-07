@@ -35,11 +35,11 @@ public:
         if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
-            m_highlighter->setParent(m_document);
         } else {
             m_document = document;
         }
 
+        m_highlighter->setParent(m_document);
         m_highlighter->setDocument(m_document);
 
         connect(m_highlighter,
@@ -66,45 +66,67 @@ public:
 
     void setExtraFormats(const QMap<int, QList<QTextLayout::FormatRange>> &formatMap)
     {
+        QTC_ASSERT(m_highlighter, return);
         for (auto it = formatMap.cbegin(); it != formatMap.cend(); ++it)
             m_highlighter->setExtraFormats(m_document->findBlockByNumber(it.key()), it.value());
     }
 
     void clearExtraFormats(const QList<int> &blockNumbers)
     {
+        QTC_ASSERT(m_highlighter, return);
         for (auto it = blockNumbers.cbegin(); it != blockNumbers.cend(); ++it)
             m_highlighter->clearExtraFormats(m_document->findBlockByNumber(*it));
     }
 
-    void clearAllExtraFormats() { m_highlighter->clearAllExtraFormats(); }
+    void clearAllExtraFormats()
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->clearAllExtraFormats();
+    }
 
     void setFontSettings(const TextEditor::FontSettings &fontSettings)
     {
+        QTC_ASSERT(m_highlighter, return);
         m_highlighter->setFontSettings(fontSettings);
     }
 
     void setDefinitionName(const QString &name)
     {
-        return m_highlighter->setDefinitionName(name);
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setDefinitionName(name);
     }
 
     void setLanguageFeaturesFlags(unsigned int flags)
     {
+        QTC_ASSERT(m_highlighter, return);
         m_highlighter->setLanguageFeaturesFlags(flags);
     }
 
-    void setEnabled(bool enabled) { m_highlighter->setEnabled(enabled); }
+    void setEnabled(bool enabled)
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setEnabled(enabled);
+    }
 
-    void rehighlight() { m_highlighter->rehighlight(); }
+    void rehighlight()
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->rehighlight();
+    }
 
     void reformatBlocks(int from, int charsRemoved, int charsAdded)
     {
+        QTC_ASSERT(m_highlighter, return);
         m_highlighter->reformatBlocks(from, charsRemoved, charsAdded);
     }
 
-    void setInterrupted(bool interrupted) { m_highlighter->setInterrupted(interrupted); }
+    void setInterrupted(bool interrupted)
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setInterrupted(interrupted);
+    }
 
-    SyntaxHighlighter *m_highlighter = nullptr;
+    QPointer<SyntaxHighlighter> m_highlighter = nullptr;
     QTextDocument *m_document = nullptr;
 
 signals:
@@ -200,7 +222,6 @@ SyntaxHighlighterRunner::~SyntaxHighlighterRunner()
         m_thread->quit();
         m_thread->wait();
     } else {
-        delete d->m_highlighter;
         delete d;
     }
 }
