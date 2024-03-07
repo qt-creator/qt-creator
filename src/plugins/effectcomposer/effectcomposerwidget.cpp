@@ -197,6 +197,11 @@ QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const
     return m_effectComposerNodesModel->defaultImagesForNode(nodeName).value(uniformName);
 }
 
+QString EffectComposerWidget::imagesPath() const
+{
+    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes/images").toString();
+}
+
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};

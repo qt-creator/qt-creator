@@ -28,6 +28,9 @@ Row {
     // Current item
     property string absoluteFilePath: ""
 
+    // If this property is set, this path will be opened instead of the default path
+    property string resourcesPath
+
     property alias comboBox: comboBox
     property alias spacer: spacer
     property alias actionIndicatorVisible: comboBox.actionIndicatorVisible
@@ -525,7 +528,7 @@ Row {
         icon: StudioTheme.Constants.addFile
         iconColor: root.textColor
         onClicked: {
-            fileModel.openFileDialog()
+            fileModel.openFileDialog(resourcesPath)
             if (fileModel.fileName !== "") {
                 root.backendValue.value = fileModel.fileName
                 root.absoluteFilePath = fileModel.resolve(root.backendValue.value)

@@ -69,7 +69,7 @@ public:
 
     void refreshModel();
 
-    Q_INVOKABLE void openFileDialog();
+    Q_INVOKABLE void openFileDialog(const QString &customPath = {});
     Q_INVOKABLE QString resolve(const QString &relative) const;
     Q_INVOKABLE bool isLocal(const QString &path) const;
 

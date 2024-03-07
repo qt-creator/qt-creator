@@ -114,9 +114,9 @@ QList<FileResourcesItem> FileResourcesModel::model() const
     return m_model;
 }
 
-void FileResourcesModel::openFileDialog()
+void FileResourcesModel::openFileDialog(const QString &customPath)
 {
-    QString resourcePath = m_path.toLocalFile();
+    QString resourcePath = customPath.isEmpty() ? m_path.toLocalFile() : customPath;
     bool resourcePathChanged = m_lastResourcePath != resourcePath;
     m_lastResourcePath = resourcePath;
 

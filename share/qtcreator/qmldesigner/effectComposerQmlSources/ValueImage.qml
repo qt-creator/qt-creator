@@ -13,6 +13,7 @@ Row {
 
     HelperWidgets.UrlChooser {
         backendValue: uniformBackendValue
+        resourcesPath: EffectComposerBackend.rootView.imagesPath()
 
         actionIndicatorVisible: false
         comboBox.width: Math.min(parent.width - 70, 300)
