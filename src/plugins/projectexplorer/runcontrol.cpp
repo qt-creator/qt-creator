@@ -500,7 +500,7 @@ RunWorker *RunControl::createWorker(Id workerId)
 {
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(workerId, deviceType, QString()))
+        if (factory->canCreate(workerId, deviceType, d->runConfigId.toString()))
             return factory->create(this);
     }
     return nullptr;

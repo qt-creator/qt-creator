@@ -298,6 +298,7 @@ public:
         setProduct<QdbDevicePerfProfilerSupport>();
         addSupportedRunMode("PerfRecorder");
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedRunConfig(Constants::QdbRunConfigurationId);
     }
 };
 
