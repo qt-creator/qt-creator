@@ -16792,7 +16792,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Update Potentially Stale Clangd Index Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Potenziell veraltete Clangd-Indexeinträge aktualisieren</translation>
     </message>
     <message>
         <source>Generate Compilation Database</source>
@@ -16940,11 +16940,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Warning: </source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: </translation>
     </message>
     <message>
         <source>The current ClangFormat (C++ &gt; Code Style &gt; ClangFormat) settings are not valid. Are you sure you want to apply them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die aktuellen Einstellungen für ClangFormat (C++ &gt; Coding-Stil &gt; ClangFormat) sind ungültig. Sind Sie sicher, dass Sie diese anwenden wollen?</translation>
     </message>
     <message>
         <source>Open Used .clang-format Configuration File</source>
@@ -16974,11 +16974,11 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Use custom settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Use built-in indenter</source>
-        <translation type="unfinished"></translation>
+        <translation>Integriertes Codemodell für das Einrücken benutzen</translation>
     </message>
     <message>
         <source>Use global settings</source>
@@ -16986,7 +16986,7 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Please note that the current project includes a .clang-format file, which will be used for code indenting and formatting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beachten Sie, dass das aktuelle Projekt eine .clang-format-Datei enthält, welche für das Einrücken und die Formatierung von Code benutzt werden wird.</translation>
     </message>
     <message>
         <source>ClangFormat settings:</source>
@@ -17331,7 +17331,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnose</translation>
     </message>
     <message>
         <source>Failed to start the analyzer.</source>
@@ -22468,7 +22468,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Move Definition Here</source>
-        <translation type="unfinished"></translation>
+        <translation>Definition hierher verschieben</translation>
     </message>
     <message>
         <source>Move Definition to Class</source>
@@ -23125,11 +23125,11 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Headers</source>
-        <translation type="unfinished">Header-Dateien</translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>S&amp;uffix:</source>
@@ -23682,7 +23682,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished">Automatisch</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <source>Ignore files greater than</source>
@@ -31860,7 +31860,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Git command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Git-Kommando:</translation>
     </message>
     <message>
         <source>Set &quot;HOME&quot; environment variable</source>
@@ -35466,43 +35466,43 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Install npm Package</source>
-        <translation type="unfinished"></translation>
+        <translation>npm-Paket installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished">Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
+        <translation>Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
+        <translation>Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by the user.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
+        <translation>Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
+        <translation>Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install %1 language server via npm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere den Language Server für %1 über npm.</translation>
     </message>
     <message>
         <source>Setup %1 language server (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server für %1 einrichten (%2).</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>%1 Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Language Server</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -35725,7 +35725,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Langu
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Alle einklappen</translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Client Message</source>
@@ -38169,7 +38169,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     <message>
         <source>Error running &quot;where&quot; on %1: The file is not mapped.</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Ausführen von &quot;where&quot; auf %1: Die Datei ist nicht zugeordnet.</translation>
     </message>
     <message>
         <source>p4 revert</source>
@@ -52978,7 +52978,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Custom settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Einstellungen:</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -53300,7 +53300,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>%1 [customizable]</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 [anpassbar]</translation>
     </message>
     <message>
         <source>Files in File System</source>
@@ -53701,11 +53701,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&amp;Highlight selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus&amp;wahl hervorheben</translation>
     </message>
     <message>
         <source>Adds a colored background and a marker to the scrollbar to occurrences of the selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hebt Vorkommen des ausgewählten Texts mit einem farbigen Hintergrund hervor und fügt Markierungen zur Bildlaufleiste hinzu.</translation>
     </message>
     <message>
         <source>Next to editor content</source>
@@ -54419,7 +54419,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>&amp;Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen &amp;sortieren</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -55634,7 +55634,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Git Blame</source>
-        <translation type="unfinished">Git Blame</translation>
+        <translation>Git Blame</translation>
     </message>
     <message>
         <source>Copy SHA1 to Clipboard</source>
@@ -55643,11 +55643,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
         <extracomment>%1 and %2 are the &quot;ignore whitespace changes&quot; and &quot;ignore line moves&quot; options</extracomment>
-        <translation type="unfinished">&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished">Sie selbst</translation>
+        <translation>Sie selbst</translation>
     </message>
     <message>
         <source>Show Preview</source>
@@ -58646,7 +58646,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Running in &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe in &quot;%1&quot; aus: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>
