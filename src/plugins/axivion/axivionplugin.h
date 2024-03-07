@@ -77,5 +77,7 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
 QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 
+const std::optional<DashboardInfo> currentDashboardInfo();
+
 } // Axivion::Internal
 

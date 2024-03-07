@@ -1014,6 +1014,12 @@ void fetchIssueInfo(const QString &id)
     dd->fetchIssueInfo(id);
 }
 
+const std::optional<DashboardInfo> currentDashboardInfo()
+{
+    QTC_ASSERT(dd, return std::nullopt);
+    return dd->m_dashboardInfo;
+}
+
 } // Axivion::Internal
 
 #include "axivionplugin.moc"
