@@ -914,19 +914,23 @@ bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type
 void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator,
                                           bool threaded)
 {
-    if (d->m_highlighterRunner)
-        delete d->m_highlighterRunner;
+    delete d->m_highlighterRunner;
 
-    static const bool envValue
-        = qtcEnvironmentVariable("QTC_USE_THREADED_HIGHLIGHTER", "TRUE").toUpper()
-          == QLatin1String("TRUE");
+    static const std::optional<bool> envValue = []() -> std::optional<bool> {
+        const QString key("QTC_USE_THREADED_HIGHLIGHTER");
+        if (qtcEnvironmentVariableIsSet(key)) {
+            const QString value = qtcEnvironmentVariable(key).toUpper();
+            return value != "FALSE" && value != "0";
+        }
+        return {};
+    }();
 
     SyntaxHighlighter *highlighter = creator();
     highlighter->setFontSettings(TextEditorSettings::fontSettings());
     highlighter->setMimeType(mimeType());
     d->m_highlighterRunner = new SyntaxHighlighterRunner(highlighter,
                                                          document(),
-                                                         threaded && envValue);
+                                                         envValue.value_or(threaded));
 }
 
 void TextDocument::cleanWhitespace(const QTextCursor &cursor)
