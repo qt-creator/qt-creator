@@ -4,5 +4,7 @@
     <file>wizard/cpp/file.qtce</file>
     <file>wizard/python/wizard.json</file>
     <file>wizard/python/file.qtce</file>
+    <file>wizard/qtcpp/file.qtce</file>
+    <file>wizard/qtcpp/wizard.json</file>
   </qresource>
 </RCC>
