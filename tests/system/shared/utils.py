@@ -464,13 +464,6 @@ def setFixedHelpViewer(helpViewer):
     selectFromCombo(":Startup.contextHelpComboBox_QComboBox", mode)
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
-def removePackagingDirectory(projectPath):
-    qtcPackaging = os.path.join(projectPath, "qtc_packaging")
-    if os.path.exists(qtcPackaging):
-        test.log("Removing old packaging directory '%s'" % qtcPackaging)
-        deleteDirIfExists(qtcPackaging)
-    else:
-        test.log("Couldn't remove packaging directory '%s' - did not exist." % qtcPackaging)
 
 # returns the indices from a QAbstractItemModel
 def dumpIndices(model, parent=None, column=0):
