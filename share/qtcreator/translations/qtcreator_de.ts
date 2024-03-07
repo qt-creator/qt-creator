@@ -12218,123 +12218,123 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     <name>QtC::AppManager</name>
     <message>
         <source>Create Application Manager package with CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket mit CMake erstellen</translation>
     </message>
     <message>
         <source>Create Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket erstellen</translation>
     </message>
     <message>
         <source>Source directory:</source>
-        <translation type="unfinished">Quellverzeichnis:</translation>
+        <translation>Quellverzeichnis:</translation>
     </message>
     <message>
         <source>Package file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketdatei:</translation>
     </message>
     <message>
         <source>Automatic Application Manager Deploy Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Deployment-Konfiguration für Application Manager</translation>
     </message>
     <message>
         <source>Deploy Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment des Application Manager-Pakets</translation>
     </message>
     <message>
         <source>Target directory:</source>
-        <translation type="unfinished">Zielverzeichnis:</translation>
+        <translation>Zielverzeichnis:</translation>
     </message>
     <message>
         <source>Uploading finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen beendet.</translation>
     </message>
     <message>
         <source>Uploading failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket installieren</translation>
     </message>
     <message>
         <source>Starting command &quot;%1&quot;.</source>
-        <translation type="unfinished">Starte Kommando &quot;%1&quot;.</translation>
+        <translation>Starte Kommando &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Command finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Process failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess schlug fehl: %1</translation>
     </message>
     <message>
         <source>Process finished with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Run an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen</translation>
     </message>
     <message>
         <source>Run and Debug an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen und debuggen</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Saubere Umgebung</translation>
+        <translation>Saubere Umgebung</translation>
     </message>
     <message>
         <source>%1 exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wurde beendet.</translation>
     </message>
     <message>
         <source>Starting Application Manager debugging...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Application Manager-Debuggen...</translation>
     </message>
     <message>
         <source>Using: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze: %1.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen: Es werden nur QML- und native Anwendungen unterstützt.</translation>
     </message>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
-        <translation type="unfinished">Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
+        <translation>Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
     </message>
     <message>
         <source>Application ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungs-ID:</translation>
     </message>
     <message>
         <source>Application Manager instance ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID der Application Manager-Instanz:</translation>
     </message>
     <message>
         <source>Default instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Instanz</translation>
     </message>
     <message>
         <source>Document URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument-URL:</translation>
     </message>
     <message>
         <source>Customize step</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritt anpassen</translation>
     </message>
     <message>
         <source>Disables the automatic updates based on the current run configuration and allows customizing the values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert die auf der aktuellen Ausführungskonfiguration basierenden automatischen Aktualisierungen und erlaubt, die Werte anzupassen.</translation>
     </message>
     <message>
         <source>Controller:</source>
-        <translation type="unfinished"></translation>
+        <translation>Controller:</translation>
     </message>
     <message>
         <source>Packager:</source>
-        <translation type="unfinished"></translation>
+        <translation>Packager:</translation>
     </message>
 </context>
 <context>
@@ -49746,7 +49746,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Remote command finished successfully.</source>
-        <translation>Das entfernte Kommando wurde erfolgreich ausgeführt.</translation>
+        <translation>Das entfernte Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>WizardPage</source>
