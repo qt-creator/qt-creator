@@ -8,7 +8,7 @@
 
 #include <debugger/analyzer/analyzerrunconfigwidget.h>
 
-namespace PerfProfiler {
+namespace PerfProfiler::Internal {
 
 PerfRunConfigurationAspect::PerfRunConfigurationAspect(ProjectExplorer::Target *target)
 {
@@ -21,4 +21,4 @@ PerfRunConfigurationAspect::PerfRunConfigurationAspect(ProjectExplorer::Target *
     setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
 }
 
-} // namespace PerfProfiler
+} // PerfProfiler::Internal
