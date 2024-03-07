@@ -1264,6 +1264,7 @@ public:
 
     bool m_stopReported = false;
     bool m_stopForced = false;
+    bool m_suppressDefaultStdOutHandling = false;
 
     void forwardStarted();
     void forwardDone();
@@ -1372,6 +1373,9 @@ void SimpleTargetRunnerPrivate::handleDone()
 
 void SimpleTargetRunnerPrivate::handleStandardOutput()
 {
+    if (m_suppressDefaultStdOutHandling)
+        return;
+
     const QByteArray data = m_process.readAllRawStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
@@ -1380,6 +1384,9 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
 
 void SimpleTargetRunnerPrivate::handleStandardError()
 {
+    if (m_suppressDefaultStdOutHandling)
+        return;
+
     const QByteArray data = m_process.readAllRawStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
@@ -1569,6 +1576,16 @@ void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
 void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
 {
     d->m_process.setProcessMode(processMode);
+}
+
+Process *SimpleTargetRunner::process() const
+{
+    return &d->m_process;
+}
+
+void SimpleTargetRunner::suppressDefaultStdOutHandling()
+{
+    d->m_suppressDefaultStdOutHandling = true;
 }
 
 void SimpleTargetRunner::forceRunOnHost()
