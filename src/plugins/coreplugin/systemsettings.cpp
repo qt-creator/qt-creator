@@ -104,7 +104,7 @@ SystemSettings::SystemSettings()
 
     autoSuspendMinDocumentCount.setSettingsKey("EditorManager/AutoSuspendMinDocuments");
     autoSuspendMinDocumentCount.setRange(1, 500);
-    autoSuspendMinDocumentCount.setDefaultValue(30);
+    autoSuspendMinDocumentCount.setDefaultValue(10);
     autoSuspendMinDocumentCount.setLabelText(Tr::tr("Files to keep open:"));
     autoSuspendMinDocumentCount.setToolTip(
         Tr::tr("Minimum number of open documents that should be kept in memory. Increasing this "
