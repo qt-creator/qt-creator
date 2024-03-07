@@ -6,7 +6,7 @@ def __childrenOfType__(parentObject, typeName):
 
 
 def getWelcomeScreenSideBarButton(buttonLabel):
-    return ("{text='%s' type='QPushButton' unnamed='1' visible='1' "
+    return ("{text='%s' type='QAbstractButton' unnamed='1' visible='1' "
             "window=':Qt Creator_Core::Internal::MainWindow'}" % buttonLabel)
 
 
