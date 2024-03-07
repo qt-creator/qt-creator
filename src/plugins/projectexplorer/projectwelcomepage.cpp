@@ -232,10 +232,8 @@ static QPixmap pixmap(const QString &id, const Theme::Color color)
 
 static void drawBackgroundRect(QPainter *painter, const QRectF &rect, bool hovered)
 {
-    const QColor fill(themeColor(hovered ? Theme::Token_Foreground_Muted
-                                         : Theme::Token_Background_Muted));
-    const QPen pen(themeColor(hovered ? Theme::Token_Foreground_Muted
-                                      : Theme::Token_Stroke_Subtle));
+    const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
+    const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke));
 
     const qreal rounding = s(defaultCardBackgroundRounding * 1000) / 1000.0;
     const qreal saneRounding = rounding <= 2 ? 0 : rounding;

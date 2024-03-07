@@ -59,6 +59,10 @@ public:
 
 CORE_EXPORT void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);
 constexpr qreal defaultCardBackgroundRounding = 3.75;
+constexpr Utils::Theme::Color cardDefaultBackground = Utils::Theme::Token_Background_Muted;
+constexpr Utils::Theme::Color cardDefaultStroke = Utils::Theme::Token_Stroke_Subtle;
+constexpr Utils::Theme::Color cardHoverBackground = Utils::Theme::Token_Foreground_Subtle;
+constexpr Utils::Theme::Color cardHoverStroke = cardHoverBackground;
 CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
                                     const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
                                     qreal rounding = defaultCardBackgroundRounding);

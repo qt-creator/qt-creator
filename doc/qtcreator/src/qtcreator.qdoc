@@ -50,7 +50,6 @@
             \li \b {\l{Coding}}
                 \list
                     \li \l{Writing Code}
-                    \li \l{Refactoring}
                     \li \l{Configuring the Editor}
                 \endlist
             \li \b {\l{Building and Running}}
@@ -65,11 +64,10 @@
             \li \inlineimage front-help.png
             \li \inlineimage front-advanced.png
         \row
-            \li \b {\l{Testing}}
+            \li \b {\l{Debugging and Analyzing}}
                 \list
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
-                    \li \l{Running Autotests}
                     \li \l{Using Squish}
                 \endlist
             \li \b {\l{How To}}
@@ -80,6 +78,10 @@
                     \li \l{Design UIs}
                     \li \l{Edit Code}
                     \li \l{Manage Projects}
+                    \li \l{Read Documentation}
+                    \li \l{Test}
+                    \li \l{Use \QC}
+                    \li \l{Use the UI}
                     \li \l{How To}{See More...}
                 \endlist
             \li \b {\l{Reference}}

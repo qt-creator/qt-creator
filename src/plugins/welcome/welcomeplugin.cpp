@@ -36,6 +36,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -292,25 +293,25 @@ WelcomeMode::WelcomeMode()
 
     m_modeWidget = new ResizeSignallingWidget;
     setBackgroundColor(m_modeWidget, Theme::Token_Background_Default);
-    connect(m_modeWidget, &ResizeSignallingWidget::resized, this,
+    connect(m_modeWidget,
+            &ResizeSignallingWidget::resized,
+            this,
             [this](const QSize &size, const QSize &) {
-        const QSize essentialsS = m_sideArea->m_essentials->size();
-        const QSize linksS = m_sideArea->m_links->size();
-        const QSize sideAreaS = m_sideArea->size();
-        const QSize topAreaS = m_topArea->size();
-        const QSize mainWindowS = ICore::mainWindow()->size();
+                const QSize sideAreaS = m_sideArea->size();
+                const QSize topAreaS = m_topArea->size();
+                const QSize mainWindowS = ICore::mainWindow()->size();
 
-        const bool showSideArea = sideAreaS.width() < size.width() / 4;
-        const bool showTopArea = topAreaS.height() < mainWindowS.height() / 7.75;
-        const bool showLinks =
-            linksS.height() + essentialsS.height() < sideAreaS.height() && showTopArea;
+                const bool showSideArea = sideAreaS.width() < size.width() / 4;
+                const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
+                const bool showLinks = true;
 
-        m_sideArea->m_links->setVisible(showLinks);
-        m_sideArea->setVisible(showSideArea);
-        m_topArea->setVisible(showTopArea);
-    });
+                m_sideArea->m_links->setVisible(showLinks);
+                m_sideArea->setVisible(showSideArea);
+                m_topArea->setVisible(showTopArea);
+            });
 
     m_sideArea = new SideArea(m_modeWidget);
+    m_sideArea->verticalScrollBar()->setEnabled(false);
 
     m_buttonGroup = new QButtonGroup(m_modeWidget);
     m_buttonGroup->setExclusive(true);

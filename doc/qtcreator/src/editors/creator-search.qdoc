@@ -131,7 +131,7 @@
     \page creator-how-to-advanced-search.html
     \if defined(qtdesignstudio)
     \previouspage creator-editor-finding.html
-    \nextpage creator-editor-locator.html
+    \nextpage creator-how-to-rename-symbols.html
     \else
     \previouspage creator-how-tos.html
     \endif
@@ -215,7 +215,7 @@
     \l {Preserve case when replacing} apply here as well.
 
     \if defined(qtcreator)
-    \sa {Search}{How To: Search}, {Finding Symbols}, {Turn on Silver Searcher}
+    \sa {Search}{How To: Search}, {Find symbols}, {Turn on Silver Searcher}
     \else
     \sa {Search in current file}
     \endif

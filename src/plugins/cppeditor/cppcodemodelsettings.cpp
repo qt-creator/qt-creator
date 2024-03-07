@@ -86,26 +86,15 @@ bool operator==(const CppEditor::CppCodeModelSettings::Data &s1,
 
 Store CppCodeModelSettings::Data::toMap() const
 {
-    const CppCodeModelSettings::Data def;
     Store store;
-    store.insertValueWithDefault(enableLowerClazyLevelsKey(),
-                                 enableLowerClazyLevels,
-                                 def.enableLowerClazyLevels);
-    store.insertValueWithDefault(pchUsageKey(), pchUsage, def.pchUsage);
-    store.insertValueWithDefault(interpretAmbiguousHeadersAsCHeadersKey(),
-                                 interpretAmbigiousHeadersAsC,
-                                 def.interpretAmbigiousHeadersAsC);
-    store.insertValueWithDefault(skipIndexingBigFilesKey(),
-                                 skipIndexingBigFiles,
-                                 def.skipIndexingBigFiles);
-    store.insertValueWithDefault(ignoreFilesKey(), ignoreFiles, def.ignoreFiles);
-    store.insertValueWithDefault(ignorePatternKey(), ignorePattern, def.ignorePattern);
-    store.insertValueWithDefault(useBuiltinPreprocessorKey(),
-                                 useBuiltinPreprocessor,
-                                 def.useBuiltinPreprocessor);
-    store.insertValueWithDefault(indexerFileSizeLimitKey(),
-                                 indexerFileSizeLimitInMb,
-                                 def.indexerFileSizeLimitInMb);
+    store.insert(enableLowerClazyLevelsKey(), enableLowerClazyLevels);
+    store.insert(pchUsageKey(), pchUsage);
+    store.insert(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsC);
+    store.insert(skipIndexingBigFilesKey(), skipIndexingBigFiles);
+    store.insert(ignoreFilesKey(), ignoreFiles);
+    store.insert(ignorePatternKey(), ignorePattern);
+    store.insert(useBuiltinPreprocessorKey(), useBuiltinPreprocessor);
+    store.insert(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb);
     return store;
 }
 
@@ -136,7 +125,8 @@ void CppCodeModelSettings::fromSettings(QtcSettings *s)
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    storeToSettings(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap());
+    const Data def;
+    storeToSettingsWithDefault(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap(), def.toMap());
     emit changed(); // TODO: Why?
 }
 
@@ -432,7 +422,11 @@ void ClangdSettings::loadSettings()
 void ClangdSettings::saveSettings()
 {
     const auto settings = Core::ICore::settings();
-    Utils::storeToSettings(clangdSettingsKey(), settings, m_data.toMap());
+    const ClangdSettings::Data defaultData;
+    Utils::storeToSettingsWithDefault(clangdSettingsKey(),
+                                      settings,
+                                      m_data.toMap(),
+                                      defaultData.toMap());
     settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
     settings->endGroup();
@@ -534,70 +528,37 @@ Store ClangdSettings::Data::toMap() const
 {
     Store map;
 
-    map.insertValueWithDefault(useClangdKey(), useClangd, DefaultUseClangd);
+    map.insert(useClangdKey(), useClangd);
 
-    const QString clangdPath = executableFilePath != fallbackClangdFilePath()
-                                   ? executableFilePath.toString()
-                                   : QString();
+    map.insert(clangdPathKey(),
+               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
+                                                              : QString());
 
-    map.insertValueWithDefault(clangdPathKey(), clangdPath);
-
-    map.insertValueWithDefault(clangdIndexingKey(), indexingPriority != IndexingPriority::Off, true);
-    map.insertValueWithDefault(clangdIndexingPriorityKey(),
-                               int(indexingPriority),
-                               int(DefaultIndexingPriority));
-    map.insertValueWithDefault(clangdProjectIndexPathKey(), projectIndexPathTemplate,
-                               defaultProjectIndexPathTemplate());
-    map.insertValueWithDefault(clangdSessionIndexPathKey(), sessionIndexPathTemplate,
-                               defaultSessionIndexPathTemplate());
-
-    map.insertValueWithDefault(clangdHeaderSourceSwitchModeKey(),
-                               int(headerSourceSwitchMode),
-                               int(DefaultHeaderSourceSwitchMode));
-
-    map.insertValueWithDefault(clangdCompletionRankingModelKey(),
-                               int(completionRankingModel),
-                               int(DefaultCompletionRankingModel));
-
-    map.insertValueWithDefault(clangdHeaderInsertionKey(),
-                               autoIncludeHeaders,
-                               DefaultAutoIncludeHeaders);
-
-    map.insertValueWithDefault(clangdThreadLimitKey(), workerThreadLimit, DefaultWorkerThreadLimit);
-
-    map.insertValueWithDefault(clangdDocumentThresholdKey(),
-                               documentUpdateThreshold,
-                               DefaultDocumentUpdateThreshold);
-
-    map.insertValueWithDefault(clangdSizeThresholdEnabledKey(),
-                               sizeThresholdEnabled,
-                               DefaultSizeThresholdEnabled);
-
-    map.insertValueWithDefault(clangdSizeThresholdKey(),
-                               sizeThresholdInKb,
-                               DefaultSizeThresholdInKb);
-
-    map.insertValueWithDefault(sessionsWithOneClangdKey(), sessionsWithOneClangd);
-
-    map.insertValueWithDefault(diagnosticConfigIdKey(),
-                               diagnosticConfigId.toSetting(),
-                               initialClangDiagnosticConfigId().toSetting());
-
+    map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
+    map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
+    map.insert(clangdProjectIndexPathKey(), projectIndexPathTemplate);
+    map.insert(clangdSessionIndexPathKey(), sessionIndexPathTemplate);
+    map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
+    map.insert(clangdCompletionRankingModelKey(), int(completionRankingModel));
+    map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
+    map.insert(clangdThreadLimitKey(), workerThreadLimit);
+    map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
+    map.insert(clangdSizeThresholdEnabledKey(), sizeThresholdEnabled);
+    map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
+    map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
+    map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
     if (haveCheckedHardwareReqirements != false)
         map.insert(checkedHardwareKey(), true);
-
-    map.insertValueWithDefault(completionResultsKey(),
-                               completionResults,
-                               defaultCompletionResults());
+    map.insert(completionResultsKey(), completionResults);
     return map;
 }
 
 void ClangdSettings::Data::fromMap(const Store &map)
 {
-    useClangd = map.value(useClangdKey(), DefaultUseClangd).toBool();
+    useClangd = map.value(useClangdKey(), true).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
     indexingPriority = IndexingPriority(
-        map.value(clangdIndexingPriorityKey(), int(DefaultIndexingPriority)).toInt());
+        map.value(clangdIndexingPriorityKey(), int(this->indexingPriority)).toInt());
     const auto it = map.find(clangdIndexingKey());
     if (it != map.end() && !it->toBool())
         indexingPriority = IndexingPriority::Off;
@@ -605,17 +566,15 @@ void ClangdSettings::Data::fromMap(const Store &map)
         = map.value(clangdProjectIndexPathKey(), defaultProjectIndexPathTemplate()).toString();
     sessionIndexPathTemplate
         = map.value(clangdSessionIndexPathKey(), defaultSessionIndexPathTemplate()).toString();
-    headerSourceSwitchMode = HeaderSourceSwitchMode(
-        map.value(clangdHeaderSourceSwitchModeKey(), int(DefaultHeaderSourceSwitchMode)).toInt());
-    completionRankingModel = CompletionRankingModel(
-        map.value(clangdCompletionRankingModelKey(), int(DefaultCompletionRankingModel)).toInt());
-    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), DefaultAutoIncludeHeaders).toBool();
-    workerThreadLimit = map.value(clangdThreadLimitKey(), DefaultWorkerThreadLimit).toInt();
-    documentUpdateThreshold
-        = map.value(clangdDocumentThresholdKey(), DefaultDocumentUpdateThreshold).toInt();
-    sizeThresholdEnabled
-        = map.value(clangdSizeThresholdEnabledKey(), DefaultSizeThresholdEnabled).toBool();
-    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), DefaultSizeThresholdInKb).toLongLong();
+    headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
+                                                              int(headerSourceSwitchMode)).toInt());
+    completionRankingModel = CompletionRankingModel(map.value(clangdCompletionRankingModelKey(),
+                                                              int(completionRankingModel)).toInt());
+    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
+    workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
+    documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
+    sizeThresholdEnabled = map.value(clangdSizeThresholdEnabledKey(), false).toBool();
+    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), 1024).toLongLong();
     sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));

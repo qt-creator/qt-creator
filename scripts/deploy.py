@@ -236,7 +236,7 @@ def deploy_qt_conf_files(qtc_binary_path):
     if common.is_linux_platform():
         qt_prefix_path = os.path.join(qtc_binary_path, '..', 'lib', 'Qt')
         add_qt_conf(os.path.join(qtc_binary_path, '..', 'libexec', 'qtcreator'), qt_prefix_path)
-        add_qt_conf(os.path.join(qtc_binary_path, '..', 'lib', 'Qt', 'bin'), qt_prefix_path) # qtdiag
+        add_qt_conf(os.path.join(qtc_binary_path, '..', 'lib', 'Qt', 'bin'), qt_prefix_path) # qtdiag etc
         add_qt_conf(qtc_binary_path, qt_prefix_path) # QtC itself
     if common.is_windows_platform():
         add_qt_conf(qtc_binary_path, qtc_binary_path) # QtC itself, libexec, and qtdiag etc
@@ -409,8 +409,9 @@ def deploy_qt_mac(qtc_binary_path, qt_install):
     puppets = glob(os.path.join(libexec_path, 'qml2puppet*'))
     for puppet in puppets:
         additional_paths.append(puppet)
-    # qtdiag
+    # qtdiag, qtplugininfo
     additional_paths.append(os.path.join(bin_path, 'qtdiag'))
+    additional_paths.append(os.path.join(bin_path, 'qtplugininfo'))
     # other libexec
     additional_paths.append(os.path.join(libexec_path, 'sdktool'))
     additional_paths.append(os.path.join(libexec_path, 'qtpromaker'))
@@ -470,6 +471,7 @@ def main():
                              else os.path.dirname(args.qtcreator_binary))
 
     deploy_binary('qtdiag', qtcreator_binary_path, qt_install)
+    deploy_binary('qtplugininfo', qtcreator_binary_path, qt_install)
     deploy_binary('qsb', qtcreator_binary_path, qt_install)
     deploy_plugins(qtcreator_binary_path, qt_install)
     deploy_imports(qtcreator_binary_path, qt_install)

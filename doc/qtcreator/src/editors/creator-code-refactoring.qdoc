@@ -2,100 +2,35 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \page creator-editor-refactoring.html
-    \previouspage creator-jump-to-the-code.html
-    \nextpage creator-editor-options.html
-
-    \title Refactoring
-
-    To quickly and conveniently apply actions to refactor your
-    code, \l{Apply quick fixes}{select quick fixes in a context menu}.
-
-    By default, the refactored files are saved automatically. To disable
-    this feature, deselect \preferences > \uicontrol Environment >
-    \uicontrol System > \uicontrol {Auto-save files after refactoring}.
-
-    \if defined(qtcreator)
-    \section1 Finding Symbols
-
-    To find instances of a specific symbol in your Qt C++ project, place the
-    cursor on the symbol in the editor and select \uicontrol Tools >
-    \uicontrol {C++} > \uicontrol {Find References to Symbol Under Cursor} or
-    press \key {Ctrl+Shift+U}.
-
-    \image qtcreator-find-references-to-symbol-under-cursor.png {Search results for finding references to symbols}
-
-    To view the same results color-coded according to the access type, such as
-    read, write, or declaration, select \uicontrol Tools > \uicontrol {C++} >
-    \uicontrol {Find References with Access Type}.
-
-    \note Select \uicontrol Edit > \uicontrol {Find/Replace} >
-    \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
-    classes, functions, enums, and declarations (including type aliases) either
-    from files listed as part of the project or from all files that are used by
-    the code, such as include files.
-    \image qtcreator-search-cpp-symbols.png
-    \endif
-
-    \section1 Viewing Search Results
-
-    \QC searches from the following locations:
-
-    \list
-        \li Files listed as a part of the project
-        \li Files directly used by the project files (for example, generated
-            files)
-        \if defined(qtcreator)
-        \li Header files of used frameworks and libraries
-        \endif
-    \endlist
-
-    \l{Search Results View} shows the location and number of search hits in the
-    current project.
-
-    \if defined(qtcreator)
-    \image qtcreator-refactoring-find.png
+    \page creator-how-to-rename-symbols.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-finding.html
     \else
-    \image qml-find-usages.png
+    \previouspage creator-how-tos.html
     \endif
 
-    Browse the search results in the following ways:
+    \ingroup creator-how-to-search
 
-    \list
-        \li To go directly to an instance, double-click the instance in
-            \uicontrol {Search Results}.
-        \li To move between instances, click the \inlineimage icons/next.png
-            (\uicontrol {Next Item}) button and \inlineimage icons/prev.png
-            (\uicontrol {Previous Item}) button in \uicontrol {Search Results}.
-        \li To expand and collapse the list of all instances, click the
-            \inlineimage icons/qtcreator-expand.png
-            (\uicontrol {Expand All}) button.
-        \li To filter the search results for the usage of symbols according to
-            access type, such as read, write, or declaration, click the
-            \inlineimage icons/filtericon.png
-            (\uicontrol {Filter Tree}) button and select the access type.
-        \li To clear the search results, click the
-            \inlineimage icons/clean_pane_small.png
-            (\uicontrol Clear) button.
-        \li To start a new search, click the
-            \inlineimage icons/qtcreator-new-search-icon.png
-            (\uicontrol {New Search}) button.
-    \endlist
-
-    \section1 Renaming Symbols
+    \title Rename symbols
 
     You can rename symbols in all files in a project.
+
     \if defined(qtcreator)
     When you rename a class, you can also change filenames that match the
     class name.
 
-    To rename a C++ symbol in a project, place the cursor
-    on it and select \uicontrol Tools > \uicontrol {C++} >
-    \uicontrol {Rename Symbol Under Cursor} or press \key {Ctrl+Shift+R}.
-    Use the keyboard shortcut to rename Python symbols.
+    To rename a C++ symbol in a project:
+
+    \list 1
+        \li Place the cursor on the symbol in the editor.
+        \li Go to \uicontrol Tools > \uicontrol {C++} >
+            \uicontrol {Rename Symbol Under Cursor}, or press \key {Ctrl+Shift+R}.
+
+            Use the keyboard shortcut to rename Python symbols.
+    \endlist
     \endif
 
-    To rename a QML type in a project, select \uicontrol Tools >
+    To rename a QML type in a project, go to \uicontrol Tools >
     \uicontrol {QML/JS} > \uicontrol {Rename Symbol Under Cursor}
     or press \key {Ctrl+Shift+R}.
 
@@ -109,23 +44,23 @@
     \endif
 
     To replace all selected instances, enter the name of the new symbol
-    in the \uicontrol {Replace with} text box, and select \uicontrol Replace.
-    To omit an instance, deselect the check box next to the instance.
+    in \uicontrol {Replace with}, and select \uicontrol Replace.
+    To omit an instance, clear the check box next to the instance.
 
     \note This action replaces all selected instances of the symbol in
     all files listed in \uicontrol {Search Results}. You cannot
     undo this action.
 
     \if defined(qtcreator)
-    If the symbol is a class, select the \uicontrol {Rename files} check
-    box to also change the filenames that match the class name.
+    If the symbol is a class, select \uicontrol {Rename files} to also change
+    the filenames that match the class name.
 
     \note Renaming local symbols does not open \uicontrol {Search Results}.
     The instances of the symbol are highlighted in code, and you can edit
     the symbol. All instances of the local symbol are changed as you type.
 
-    \sa {Specify settings for quick fixes}, {Quick Fixes}, {C++ Quick Fixes}
-
+    \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
+    {C++ Quick Fixes}
     \endif
 
     \sa {Apply quick fixes}, {QML Quick Fixes}

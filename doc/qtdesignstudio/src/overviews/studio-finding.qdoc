@@ -20,11 +20,9 @@
             With advanced search, you can search in currently open projects or
             files on the file system.
 
-        \li \l{Searching with the Locator}
+        \li \l{Rename symbols}
 
-            Use the locator to browse
-            through projects, files, classes, functions, documentation and
-            file systems.
+           Search for QML types and rename them in all files in a project.
 
         \li \l{Jump to the Code}
 

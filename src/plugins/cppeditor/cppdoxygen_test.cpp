@@ -225,26 +225,30 @@ void DoxygenTest::testBasic_data()
 
     /// test cpp style doxygen comment when inside a indented scope
     QTest::newRow("cpp_styleA_indented") << _(
-         "    bool preventFolding;\n"
+         "void func() {\n"
          "    ///|\n"
          "    int a;\n"
+         "}\n"
         ) << _(
-         "    bool preventFolding;\n"
+         "void func() {\n"
          "    ///\n"
          "    /// \\brief a\n"
          "    ///\n"
-         "    int a;\n") << int(CommandPrefix::Auto);
+         "    int a;\n"
+         "}\n") << int(CommandPrefix::Auto);
 
     QTest::newRow("cpp_styleB_indented") << _(
-         "    bool preventFolding;\n"
+         "void func() {\n"
          "    //!|\n"
          "    int a;\n"
+         "}\n"
         ) << _(
-         "    bool preventFolding;\n"
+         "void func() {\n"
          "    //!\n"
          "    //! \\brief a\n"
          "    //!\n"
-         "    int a;\n") << int(CommandPrefix::Auto);
+         "    int a;\n"
+         "}\n") << int(CommandPrefix::Auto);
 
     QTest::newRow("cpp_styleA_indented_preserve_mixed_indention_continuation") << _(
          "\t bool preventFolding;\n"
@@ -491,6 +495,14 @@ void DoxygenTest::runTest(const QByteArray &original,
     QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
     const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
 
+    if (isClangFormatPresent()) {
+        QEXPECT_FAIL("noContinuationForExpressionAndComment1",
+                     "ClangFormat indents differently",
+                     Continue);
+        QEXPECT_FAIL("noContinuationForExpressionAndComment2",
+                     "ClangFormat indents differently",
+                     Continue);
+    }
     QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
     testDocument.m_editorWidget->undo();

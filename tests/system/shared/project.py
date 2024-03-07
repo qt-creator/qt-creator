@@ -9,11 +9,11 @@ def openQbsProject(projectPath):
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Open Project...')
-        if not all((wsButtonFrame, wsButtonLabel)):
+        wsButton = getWelcomeScreenSideBarButton('Open Project...')
+        if not object.exists(wsButton):
             test.fatal("Could not find 'Open Project...' button on Welcome Page.")
             return []
-        mouseClick(wsButtonLabel)
+        mouseClick(wsButton)
     else:
         invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
@@ -60,11 +60,11 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     if fromWelcome:
         if not isProject:
             test.fatal("'Create Project...' on Welcome screen only handles projects nowadays.")
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton("Create Project...")
-        if not all((wsButtonFrame, wsButtonLabel)):
+        wsButton = getWelcomeScreenSideBarButton("Create Project...")
+        if not object.exists(wsButton):
             test.fatal("Could not find 'Create Project...' button on Welcome Page")
             return []
-        mouseClick(wsButtonLabel)
+        mouseClick(wsButton)
     elif isProject:
         invokeMenuItem("File", "New Project...")
     else:

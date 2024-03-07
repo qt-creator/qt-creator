@@ -389,7 +389,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     removeCompilerBtn->setToolTip(Tr::tr("Remove Compiler"));
     connect(removeCompilerBtn, &QToolButton::clicked, this, &CompilerWidget::remove);
 
-    compile(m_sourceSettings->source());
+    compile(m_sourceSettings->source.volatileValue());
 
     connect(&m_sourceSettings->source, &Utils::StringAspect::volatileValueChanged, this, [this] {
         compile(m_sourceSettings->source.volatileValue());
@@ -446,6 +446,22 @@ Core::SearchableTerminal *CompilerWidget::createTerminal()
 
     m_resultTerminal->setColors(colors);
 
+    auto setFontSize = [this](const TextEditor::FontSettings &fontSettings) {
+        QFont f;
+        f.setFixedPitch(true);
+        f.setFamily(TerminalSolution::defaultFontFamily());
+        f.setPointSize(TerminalSolution::defaultFontSize() * (fontSettings.fontZoom() / 100.0f));
+
+        m_resultTerminal->setFont(f);
+    };
+
+    setFontSize(TextEditorSettings::instance()->fontSettings());
+
+    connect(TextEditorSettings::instance(),
+            &TextEditorSettings::fontSettingsChanged,
+            this,
+            setFontSize);
+
     return m_resultTerminal;
 }
 
@@ -459,7 +475,7 @@ void CompilerWidget::doCompile()
 {
     using namespace Api;
 
-    QString compilerId = m_compilerSettings->compiler();
+    QString compilerId = m_compilerSettings->compiler.volatileValue();
     if (compilerId.isEmpty())
         compilerId = "clang_trunk";
 
@@ -924,6 +940,14 @@ EditorFactory::EditorFactory()
 
     m_actionHandler.setUnhandledCallback(
         [undoStackFromEditor](Utils::Id cmdId, Core::IEditor *editor) {
+            if (cmdId == TextEditor::Constants::INCREASE_FONT_SIZE) {
+                TextEditor::TextEditorSettings::instance()->increaseFontZoom();
+                return true;
+            } else if (cmdId == TextEditor::Constants::DECREASE_FONT_SIZE) {
+                TextEditor::TextEditorSettings::instance()->decreaseFontZoom();
+                return true;
+            }
+
             if (cmdId != Core::Constants::UNDO && cmdId != Core::Constants::REDO)
                 return false;
 

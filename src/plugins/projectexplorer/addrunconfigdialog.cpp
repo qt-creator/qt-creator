@@ -9,6 +9,7 @@
 
 #include <utils/itemviews.h>
 #include <utils/fancylineedit.h>
+#include <utils/fuzzymatcher.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
@@ -129,7 +130,7 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Create"));
 
     connect(filterEdit, &FancyLineEdit::textChanged, this, [proxyModel](const QString &text) {
-        proxyModel->setFilterRegularExpression(QRegularExpression(text, QRegularExpression::CaseInsensitiveOption));
+        proxyModel->setFilterRegularExpression(FuzzyMatcher::createRegExp(text));
     });
     connect(m_view, &TreeView::doubleClicked, this, [this] { accept(); });
     const auto updateOkButton = [buttonBox, this] {

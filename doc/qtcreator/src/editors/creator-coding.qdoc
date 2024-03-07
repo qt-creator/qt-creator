@@ -46,13 +46,6 @@
             and file systems.
         \endif
 
-        \li \l{Refactoring}
-
-            Code refactoring is the process of improving and simplifying code
-            without modifying the existing functionality of an application. You
-            can easily find and rename symbols and apply predefined actions to
-            refactor code.
-
         \li \l{Configuring the Editor}
 
             You can change the fonts, colors, highlighting, and indentation.
@@ -65,5 +58,7 @@
 
     \if defined(qtcreator)
     \sa {Using GitHub Copilot}
+    \else
+    \sa {Apply quick fixes}
     \endif
 */

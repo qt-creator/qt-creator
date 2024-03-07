@@ -173,7 +173,7 @@
 
     \sa {Edit Code}{How To: Edit Code},
     {Manage Language Servers}{How To: Manage Language Servers},
-    {Searching with the Locator}, {Keyboard Shortcuts}, {Sidebar Views}
+    {Navigate with locator}, {Keyboard Shortcuts}, {Sidebar Views}
 */
 
 /*!
@@ -258,7 +258,7 @@
     \endlist
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode},
-    {Searching with the Locator}, {File System}, {Projects}
+    {Navigate with locator}, {File System}, {Projects}
 */
 
 /*!
@@ -378,7 +378,7 @@
     \image qtcreator-add-resource.png {Resource Browser}
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Editing Keyboard Shortcuts},
-    {Searching with the Locator}
+    {Navigate with locator}
 */
 
 /*!

@@ -1,0 +1,60 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-editor-how-to-find-symbols.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-search
+
+    \title Find symbols
+
+    You can search for references to a particular symbol or search for symbols
+    with a name that matches a pattern.
+
+    \section1 Find references to a symbol
+
+    To find instances of a particular symbol in your Qt C++ project:
+
+    \list 1
+        \li Place the cursor on the symbol in the editor.
+        \li Go to \uicontrol Tools > \uicontrol {C++} >
+            \uicontrol {Find References to Symbol Under Cursor},
+            or press \key {Ctrl+Shift+U}.
+            \image qtcreator-find-references-to-symbol-under-cursor.png {Search results for finding references to symbols}
+    \endlist
+
+    \section2 Color-code access type
+
+    To view the same results color-coded according to the access type, such as
+    read, write, or declaration, go to \uicontrol Tools > \uicontrol {C++} >
+    \uicontrol {Find References with Access Type}.
+
+    \section1 Find symbols that match search criteria
+
+    Go to \uicontrol Edit > \uicontrol {Find/Replace} >
+    \uicontrol {Advanced Find} and select \uicontrol {C++ Symbols} to search for
+    classes, functions, enums, and declarations (including type aliases) either
+    from files listed as part of the project or from all files that are used by
+    the code, such as include files.
+
+    \image qtcreator-search-cpp-symbols.png
+
+    \QC searches from the following locations:
+
+    \list
+        \li Files listed as a part of the project
+        \li Files directly used by the project files (for example, generated
+            files)
+        \li Header files of used frameworks and libraries
+    \endlist
+
+    \section1 View found symbols
+
+    \l{Search Results View} shows the location and number of search hits in the
+    current project.
+
+    \image qtcreator-refactoring-find.png
+
+    \sa {Search}{How To: Search}, {Search Results View}
+*/

@@ -29,6 +29,7 @@ public:
     static QString collectionFilePath();
 
     void registerDocumentation(const QStringList &fileNames) override;
+    void setBlockedDocumentation(const QStringList &fileNames) override;
     void unregisterDocumentation(const QStringList &fileNames) override;
 
     static void registerUserDocumentation(const QStringList &filePaths);

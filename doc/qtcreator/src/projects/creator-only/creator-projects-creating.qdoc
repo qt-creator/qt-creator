@@ -168,8 +168,8 @@
     \uicontrol Impl there.
 
     \sa {Assign keyboard shortcuts}, {Activate kits for a project},
-    {Create files}, {Create Projects}{How To: Create Projects},
-    {Creating Projects}
+    {Create files}, {Test}{How To: Test},
+    {Create Projects}{How To: Create Projects}, {Creating Projects}
 */
 
 /*!
@@ -198,7 +198,7 @@
     directory in the \l {File System} view.
 
     Declaring files as a part of the project also makes them visible to the
-    \l{Searching with the Locator}{locator} and
+    \l{Navigate with locator}{locator} and
     \l{Search in projects or file systems}{project-wide search}.
 
     \section1 CMake Projects

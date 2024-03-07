@@ -103,6 +103,7 @@ void TargetSetupWidget::setKitSelected(bool b)
     b &= hasSelectedBuildConfigurations();
     const GuardLocker locker(m_ignoreChanges);
     m_detailsWidget->setChecked(b);
+    m_detailsWidget->setState(b ? DetailsWidget::Expanded : DetailsWidget::Collapsed);
     m_detailsWidget->widget()->setEnabled(b);
 }
 
@@ -168,12 +169,7 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
     if (m_ignoreChanges.isLocked())
         return;
     m_detailsWidget->widget()->setEnabled(b);
-    if (b && (contains(m_infoStore, &BuildInfoStore::hasIssues)
-              || !contains(m_infoStore, &BuildInfoStore::isEnabled))) {
-        m_detailsWidget->setState(DetailsWidget::Expanded);
-    } else if (!b) {
-        m_detailsWidget->setState(DetailsWidget::Collapsed);
-    }
+    m_detailsWidget->setState(b ? DetailsWidget::Expanded : DetailsWidget::Collapsed);
     emit selectedToggled();
 }
 

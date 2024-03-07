@@ -66,6 +66,8 @@ private:
     void activateEditor(const QModelIndex &index);
     void closeDocument(const QModelIndex &index);
 
+    bool userWantsContextMenu(const QMouseEvent *) const final;
+
     ProxyModel *m_model;
 };
 
@@ -136,6 +138,13 @@ void OpenEditorsWidget::closeDocument(const QModelIndex &index)
     EditorManager::closeDocuments({DocumentModel::entryAtRow(m_model->mapToSource(index).row())});
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());
+}
+
+bool OpenEditorsWidget::userWantsContextMenu(const QMouseEvent *e) const
+{
+    // block activating on entry on right click otherwise we might switch into another mode
+    // see QTCREATORBUG-30357
+    return e->button() == Qt::RightButton;
 }
 
 void OpenEditorsWidget::contextMenuRequested(QPoint pos)

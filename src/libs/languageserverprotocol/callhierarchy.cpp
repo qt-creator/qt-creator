@@ -7,7 +7,7 @@ namespace LanguageServerProtocol {
 
 bool CallHierarchyItem::isValid() const
 {
-    return contains(nameKey) && contains(symbolKindKey) && contains(rangeKey) && contains(uriKey)
+    return contains(nameKey) && contains(kindKey) && contains(rangeKey) && contains(uriKey)
            && contains(selectionRangeKey);
 }
 

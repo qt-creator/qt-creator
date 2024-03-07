@@ -3552,6 +3552,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
                 QTC_ASSERT(documentLayout, return);
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
+                d->updateCursorPosition();
             }
         };
         if (!singleShotAfterHighlightingDone(foldingRestore))
@@ -4153,10 +4154,17 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
         l = match.capturedLength();
         if (l == 0)
             break;
-        if ((m_findFlags & FindWholeWords)
-            && ((idx && text.at(idx-1).isLetterOrNumber())
-                || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
-            continue;
+        if (m_findFlags & FindWholeWords) {
+            auto posAtWordSeparator = [](const QString &text, int idx) {
+                if (idx < 0 || idx >= text.length())
+                    return false;
+                const QChar c = text.at(idx);
+                return !c.isLetterOrNumber() && c != QLatin1Char('_');
+            };
+            if (!posAtWordSeparator(text, idx - 1) || !posAtWordSeparator(text, idx + l))
+                continue;
+        }
+
 
         const int start = blockPosition + idx;
         const int end = start + l;
@@ -6696,6 +6704,9 @@ void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
 
 void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 {
+    if (q->singleShotAfterHighlightingDone([this, block] { toggleBlockVisible(block); }))
+        return;
+
     auto documentLayout = qobject_cast<TextDocumentLayout*>(q->document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
 

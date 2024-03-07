@@ -207,6 +207,9 @@ public:
         // do not handle messages while shutting down
         disconnect(m_clientInterface, &InterfaceController::messageReceived,
                    q, &Client::handleMessage);
+        delete m_clientProviders.completionAssistProvider;
+        delete m_clientProviders.functionHintProvider;
+        delete m_clientProviders.quickFixAssistProvider;
         delete m_diagnosticManager;
         delete m_clientInterface;
     }

@@ -32,8 +32,8 @@ struct SearchHit
     bool operator==(const SearchHit &other) const { return !operator!=(other); }
 };
 
-QString defaultFontFamily();
-int defaultFontSize();
+QString TERMINAL_EXPORT defaultFontFamily();
+int TERMINAL_EXPORT defaultFontSize();
 
 class TERMINAL_EXPORT TerminalView : public QAbstractScrollArea
 {

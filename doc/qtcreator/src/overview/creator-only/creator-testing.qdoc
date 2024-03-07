@@ -12,7 +12,7 @@
     \page creator-testing.html
     \nextpage creator-debugging.html
 
-    \title Testing
+    \title Debugging and Analyzing
 
     \image front-testing.png
 
@@ -34,11 +34,6 @@
             must install and configure the tools on your system to use them
             from \QC. However, the QML Profiler is installed as part of \QC
             for profiling Qt Quick applications.
-
-        \li \l{Running Autotests}
-
-            Create, build and run Qt tests, Qt Quick tests, Google
-            tests, and Boost tests using \QC.
 
         \li \l{Using Squish}
 
