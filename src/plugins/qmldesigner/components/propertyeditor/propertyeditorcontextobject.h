@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <model.h>
-#include <modelnode.h>
+#include "model.h"
+#include "modelnode.h"
+#include "quick2propertyeditorview.h"
 
 #include <QColor>
 #include <QObject>
@@ -13,8 +14,6 @@
 #include <QQmlComponent>
 #include <QQmlPropertyMap>
 #include <QUrl>
-
-#include <QMouseEvent>
 
 namespace QmlDesigner {
 
@@ -42,9 +41,9 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(bool hasActiveTimeline READ hasActiveTimeline NOTIFY hasActiveTimelineChanged)
 
-    Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
+    Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
-    Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
+    Q_PROPERTY(QQmlComponent *specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
 
     Q_PROPERTY(bool hasMultiSelection READ hasMultiSelection WRITE setHasMultiSelection NOTIFY
                    hasMultiSelectionChanged)
@@ -53,7 +52,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
 public:
-    PropertyEditorContextObject(QObject *parent = nullptr);
+    PropertyEditorContextObject(Quick2PropertyEditorView *widget, QObject *parent = nullptr);
 
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
@@ -63,7 +62,7 @@ public:
     bool isBaseState() const { return m_isBaseState; }
     bool selectionChanged() const { return m_selectionChanged; }
 
-    QQmlPropertyMap* backendValues() const { return m_backendValues; }
+    QQmlPropertyMap *backendValues() const { return m_backendValues; }
 
     Q_INVOKABLE QString convertColorToString(const QVariant &color);
     Q_INVOKABLE QColor colorFromString(const QString &colorString);
@@ -91,6 +90,9 @@ public:
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
 
     Q_INVOKABLE void verifyInsightImport();
+
+    Q_INVOKABLE QRect screenRect() const;
+    Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
     QString activeDragSuffix() const;
     void setActiveDragSuffix(const QString &suffix);
@@ -154,7 +156,7 @@ public slots:
 
      void setSelectionChanged(bool newSelectionChanged);
 
-     void setBackendValues(QQmlPropertyMap* newBackendValues);
+     void setBackendValues(QQmlPropertyMap *newBackendValues);
 
      void setModel(Model *model);
 
@@ -171,7 +173,7 @@ private:
     bool m_isBaseState;
     bool m_selectionChanged;
 
-    QQmlPropertyMap* m_backendValues;
+    QQmlPropertyMap *m_backendValues;
 
     int m_majorVersion = 1;
     int m_minorVersion = 1;
@@ -179,6 +181,7 @@ private:
     int m_minorQtQuickVersion = -1;
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
+    Quick2PropertyEditorView *m_quickWidget = nullptr;
 
     QPoint m_lastPos;
 
