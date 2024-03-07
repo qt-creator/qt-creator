@@ -15,6 +15,8 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerkitaspect.h>
 
+#include <perfprofiler/perfprofilerconstants.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -99,15 +101,10 @@ public:
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
         setEssential(true);
 
-        connect(&m_launcher, &Process::started, this, &RunWorker::reportStarted);
-        connect(&m_launcher, &Process::done, this, &RunWorker::reportStopped);
-
-        connect(&m_launcher, &Process::readyReadStandardOutput, this, [this] {
-            appendMessage(m_launcher.readAllStandardOutput(), StdOutFormat);
-        });
-        connect(&m_launcher, &Process::readyReadStandardError, this, [this] {
-            appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
-        });
+        if (usePerf) {
+            suppressDefaultStdOutHandling();
+            runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
+        }
 
         m_portsGatherer = new Debugger::DebugServerPortsGatherer(runControl);
         m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
@@ -123,7 +120,6 @@ public:
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
 
-//            const int perfPort = m_portsGatherer->gdbServer().port();
             const int gdbServerPort = m_portsGatherer->gdbServer().port();
             const int qmlServerPort = m_portsGatherer->qmlServer().port();
 
@@ -147,14 +143,10 @@ public:
                 }
                 cmd.addArg(debugArgs.join(' '));
             }
-            //FIXME UNTESTED CODE
             if (m_usePerf) {
-                Store settingsData = runControl->settingsData("Analyzer.Perf.Settings");
-                QVariant perfRecordArgs = settingsData.value("Analyzer.Perf.RecordArguments");
-                QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
-                                   return arg.replace(',', ",,");
-                               }).join(',');
-                cmd.addArg(QString("perf record %1 -o - --").arg(args));
+                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+                const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
+                cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
             }
 
             cmd.addArg("-eio");
@@ -185,7 +177,6 @@ private:
     bool m_useGdbServer;
     bool m_useQmlServer;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
-    Process m_launcher;
 };
 
 
@@ -300,6 +291,25 @@ private:
     RunWorker *m_worker = nullptr;
 };
 
+// AppManagerDevicePerfProfilerSupport
+
+class AppManagerPerfProfilerSupport final : public RunWorker
+{
+public:
+    explicit AppManagerPerfProfilerSupport(RunControl *runControl)
+        : RunWorker(runControl)
+    {
+        setId("AppManagerPerfProfilerSupport");
+
+        m_profilee = new AppManInferiorRunner(runControl, true, false, false,
+                                              QmlDebug::NoQmlDebugServices);
+        addStartDependency(m_profilee);
+        addStopDependency(m_profilee);
+    }
+
+private:
+    AppManInferiorRunner *m_profilee = nullptr;
+};
 
 // Factories
 
@@ -338,6 +348,17 @@ public:
     }
 };
 
+class AppManagerPerfProfilerWorkerFactory final : public RunWorkerFactory
+{
+public:
+    AppManagerPerfProfilerWorkerFactory()
+    {
+        setProduct<AppManagerPerfProfilerSupport>();
+        addSupportedRunMode("PerfRecorder");
+        addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
+    }
+};
+
 void setupAppManagerRunWorker()
 {
     static AppManagerRunWorkerFactory theAppManagerRunWorkerFactory;
@@ -351,6 +372,11 @@ void setupAppManagerDebugWorker()
 void setupAppManagerQmlToolingWorker()
 {
     static AppManagerQmlToolingWorkerFactory theAppManagerQmlToolingWorkerFactory;
+}
+
+void setupAppManagerPerfProfilerWorker()
+{
+    static AppManagerPerfProfilerWorkerFactory theAppManagerPerfProfilerWorkerFactory;
 }
 
 } // AppManager::Internal

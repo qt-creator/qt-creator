@@ -10,5 +10,6 @@ namespace AppManager::Internal {
 void setupAppManagerRunWorker();
 void setupAppManagerDebugWorker();
 void setupAppManagerQmlToolingWorker();
+void setupAppManagerPerfProfilerWorker();
 
 } // AppManager::Internal
