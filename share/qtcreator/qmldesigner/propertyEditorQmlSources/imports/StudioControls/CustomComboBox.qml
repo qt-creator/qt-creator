@@ -29,7 +29,7 @@ StudioControls.ComboBox {
         let gPos = globalPos(mainRoot.mapFromItem(root, 0, 0))
         let scrRect = screenRect();
 
-        window.width = col.width + 2 // 2: scrollView left and right 1px margins
+        window.width = Math.max(root.width - root.actionIndicator.width, col.width + 2) // 2: scrollView left and right 1px margins
 
         let newX = gPos.x + root.width - window.width
         if (newX < scrRect.x)
