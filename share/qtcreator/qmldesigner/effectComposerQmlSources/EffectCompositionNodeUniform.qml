@@ -18,7 +18,10 @@ Item {
 
     Component.onCompleted: {
         if (uniformType === "int") {
-            valueLoader.source = "ValueInt.qml"
+            if (uniformControlType === "channel")
+                valueLoader.source = "ValueChannel.qml"
+            else
+                valueLoader.source = "ValueInt.qml"
         } else if (uniformType === "vec2") {
             valueLoader.source = "ValueVec2.qml"
         } else if (uniformType === "vec3") {

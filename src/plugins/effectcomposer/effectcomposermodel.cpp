@@ -424,6 +424,7 @@ QString variantAsDataString(const Uniform::Type type, const Uniform::Type contro
         s = variant.toBool() ? QString("true") : QString("false");
         break;
     case Uniform::Type::Int:
+    case Uniform::Type::Channel:
         s = QString::number(variant.toInt());
         break;
     case Uniform::Type::Float:
@@ -497,8 +498,10 @@ QJsonObject nodeToJson(const CompositionNode &node)
         QJsonObject uniformObject;
         uniformObject.insert("name", QString(uniform->name()));
         QString type = Uniform::stringFromType(uniform->type());
+
         uniformObject.insert("type", type);
-        if (uniform->type() == Uniform::Type::Define) {
+
+        if (uniform->type() == Uniform::Type::Define || uniform->type() == Uniform::Type::Channel) {
             QString controlType = Uniform::stringFromType(uniform->controlType());
             if (controlType != type)
                 uniformObject.insert("controlType", controlType);
@@ -1140,6 +1143,8 @@ QString EffectComposerModel::valueAsString(const Uniform &uniform)
         return getImageElementName(uniform, true);
     } else if (uniform.type() == Uniform::Type::Color) {
         return QString("\"%1\"").arg(uniform.value().toString());
+    } else if (uniform.type() == Uniform::Type::Channel) {
+        return QString::number(uniform.value().toInt());
     } else if (uniform.type() == Uniform::Type::Define) {
         if (uniform.controlType() == Uniform::Type::Int)
             return QString::number(uniform.value().toInt());
@@ -1159,6 +1164,7 @@ QString EffectComposerModel::valueAsBinding(const Uniform &uniform)
         || uniform.type() == Uniform::Type::Int
         || uniform.type() == Uniform::Type::Float
         || uniform.type() == Uniform::Type::Color
+        || uniform.type() == Uniform::Type::Channel
         || uniform.type() == Uniform::Type::Define) {
         return "g_propertyData." + uniform.name();
     } else if (uniform.type() == Uniform::Type::Vec2) {
@@ -1205,6 +1211,8 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
     } else if (uniform.type() == Uniform::Type::Color) {
         QColor c = uniform.value().value<QColor>();
         return QString("vec4(%1, %2, %3, %4)").arg(c.redF(), c.greenF(), c.blueF(), c.alphaF());
+    } else if (uniform.type() == Uniform::Type::Channel) {
+        return QString::number(uniform.value().toInt());
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
         return QString();

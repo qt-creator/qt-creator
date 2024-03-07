@@ -22,7 +22,6 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
     m_name = propObj.value("name").toString();
     m_description = propObj.value("description").toString();
     m_type = Uniform::typeFromString(propObj.value("type").toString());
-    m_controlType = m_type;
     defaultValue = propObj.value("defaultValue").toString();
 
     m_displayName = propObj.value("displayName").toString();
@@ -45,11 +44,8 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
         g_propertyData[mipmapProperty] = m_enableMipmap;
     }
 
-    if (m_type == Type::Define) {
-        QString controlType = propObj.value("controlType").toString();
-        if (!controlType.isEmpty())
-            m_controlType = Uniform::typeFromString(controlType);
-    }
+    QString controlType = propObj.value("controlType").toString();
+    m_controlType = controlType.isEmpty() ? m_type : Uniform::typeFromString(controlType);
 
     m_customValue = propObj.value("customValue").toString();
     m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
@@ -245,8 +241,9 @@ R"(
         break;
     }
     case Type::Int: {
-        QString typeSpec =
-R"(
+        if (m_controlType == Uniform::Type::Int) {
+            QString typeSpec =
+    R"(
                 SpinBox {
                     minimumValue: %1
                     maximumValue: %2
@@ -257,10 +254,25 @@ R"(
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                 }
-)";
-        specs += typeSpec.arg(m_minValue.toString(), m_maxValue.toString(), m_name);
-        break;
+    )";
+            specs += typeSpec.arg(m_minValue.toString(), m_maxValue.toString(), m_name);
+        } else if (m_controlType == Uniform::Type::Channel) {
+            QString typeSpec =
+    R"(
+                ComboBox {
+                    model: ["R", "G", "B", "A"]
+                    backendValue: backendValues.%1
+                    manualMapping: true
+
+                    onCompressedActivated: backendValue.value = currentIndex
+                    onValueFromBackendChanged: currentIndex = backendValue.value
+                    Component.onCompleted: currentIndex = backendValue.value
+                }
+    )";
+            specs += typeSpec.arg(m_name);
+        }
     }
+    break;
     case Type::Float: {
         QString typeSpec =
 R"(
@@ -410,6 +422,8 @@ QVariant Uniform::getInitializedVariant(bool maxValue)
         return maxValue ? QVector4D(1.0, 1.0, 1.0, 1.0) : QVector4D(0.0, 0.0, 0.0, 0.0);
     case Uniform::Type::Color:
         return maxValue ? QColor::fromRgbF(1.0f, 1.0f, 1.0f, 1.0f) : QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f);
+    case Uniform::Type::Channel:
+        return 3; // sets default channel to alpha
     case Uniform::Type::Define:
         if (m_controlType == Uniform::Type::Bool)
             return maxValue ? true : false;
@@ -460,6 +474,7 @@ QVariant Uniform::valueStringToVariant(const QString &value)
     }
     break;
     case Type::Sampler:
+    case Type::Channel:
         variant = value;
         break;
     case Uniform::Type::Define:
@@ -491,6 +506,8 @@ QString Uniform::stringFromType(Uniform::Type type, bool isShader)
         return isShader ? QString("vec4") : QString("color");
     else if (type == Type::Sampler)
         return "sampler2D";
+    else if (type == Type::Channel)
+        return "channel";
     else if (type == Type::Define)
         return "define";
 
@@ -516,6 +533,8 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
         return Uniform::Type::Color;
     else if (typeString == "sampler2D" || typeString == "image") //TODO: change image to sample2D in all QENs
         return Uniform::Type::Sampler;
+    else if (typeString == "channel")
+        return Uniform::Type::Channel;
     else if (typeString == "define")
         return Uniform::Type::Define;
 
@@ -539,6 +558,8 @@ QString Uniform::typeToProperty(Uniform::Type type)
         return "vector4d";
     else if (type == Uniform::Type::Color)
         return "color";
+    else if (type == Uniform::Type::Channel)
+        return "channel";
     else if (type == Uniform::Type::Sampler || type == Uniform::Type::Define)
         return "var";
 

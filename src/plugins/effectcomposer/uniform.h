@@ -41,6 +41,7 @@ public:
         Vec4,
         Color,
         Sampler,
+        Channel,
         Define
     };
 
