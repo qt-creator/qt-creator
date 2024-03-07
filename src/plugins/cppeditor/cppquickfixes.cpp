@@ -808,9 +808,10 @@ int tokenToInsertOpeningBraceAfter(const Statement *statement)
 template<typename Statement> class AddBracesToControlStatementOp : public CppQuickFixOperation
 {
 public:
-    AddBracesToControlStatementOp(const CppQuickFixInterface &interface, const Statement *statement)
+    AddBracesToControlStatementOp(const CppQuickFixInterface &interface,
+                                  const QList<Statement *> &statements)
         : CppQuickFixOperation(interface, 0)
-        , _statement(statement)
+        , m_statements(statements)
     {
         setDescription(Tr::tr("Add Curly Braces"));
     }
@@ -821,26 +822,24 @@ public:
         CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
-
-        const int start = currentFile->endOf(tokenToInsertOpeningBraceAfter(_statement));
-        changes.insert(start, QLatin1String(" {"));
-
-        if constexpr (std::is_same_v<Statement, DoStatementAST>) {
-            const int end = currentFile->startOf(_statement->while_token);
-            changes.insert(end, QLatin1String("} "));
-        } else {
-            const int end = currentFile->endOf(_statement->statement->lastToken() - 1);
-            changes.insert(end, QLatin1String("\n}"));
+        for (Statement * const statement : m_statements) {
+            const int start = currentFile->endOf(tokenToInsertOpeningBraceAfter(statement));
+            changes.insert(start, QLatin1String(" {"));
+            if constexpr (std::is_same_v<Statement, DoStatementAST>) {
+                const int end = currentFile->startOf(statement->while_token);
+                changes.insert(end, QLatin1String("} "));
+            } else {
+                const int end = currentFile->endOf(statement->statement->lastToken() - 1);
+                changes.insert(end, QLatin1String("\n}"));
+            }
         }
 
-        // TODO: For if statements, also bracify all else cases.
-        //       Also check all else cases in the factory.
         currentFile->setChangeSet(changes);
         currentFile->apply();
     }
 
 private:
-    const Statement * const _statement;
+    const QList<Statement *> m_statements;
 };
 
 } // anonymous namespace
@@ -854,7 +853,7 @@ bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFi
 
     if (interface.isCursorOn(triggerToken(statement)) && statement->statement
         && !statement->statement->asCompoundStatement()) {
-        result << new AddBracesToControlStatementOp(interface, statement);
+        result << new AddBracesToControlStatementOp(interface, QList{statement});
     }
     return true;
 }
@@ -865,7 +864,8 @@ void checkControlStatements(const CppQuickFixInterface &interface, QuickFixOpera
     (... || checkControlStatementsHelper<Statements>(interface, result));
 }
 
-void AddBracesToControlStatement::doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void AddBracesToControlStatement::doMatch(const CppQuickFixInterface &interface,
+                                          QuickFixOperations &result)
 {
     if (interface.path().isEmpty())
         return;
