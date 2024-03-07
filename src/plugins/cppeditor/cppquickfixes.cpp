@@ -809,9 +809,11 @@ template<typename Statement> class AddBracesToControlStatementOp : public CppQui
 {
 public:
     AddBracesToControlStatementOp(const CppQuickFixInterface &interface,
-                                  const QList<Statement *> &statements)
+                                  const QList<Statement *> &statements,
+                                  StatementAST *elseStatement,
+                                  int elseToken)
         : CppQuickFixOperation(interface, 0)
-        , m_statements(statements)
+        , m_statements(statements), m_elseStatement(elseStatement), m_elseToken(elseToken)
     {
         setDescription(Tr::tr("Add Curly Braces"));
     }
@@ -828,10 +830,22 @@ public:
             if constexpr (std::is_same_v<Statement, DoStatementAST>) {
                 const int end = currentFile->startOf(statement->while_token);
                 changes.insert(end, QLatin1String("} "));
+            } else if constexpr (std::is_same_v<Statement, IfStatementAST>) {
+                 if (statement->else_statement) {
+                     changes.insert(currentFile->startOf(statement->else_token), "} ");
+                 } else {
+                     changes.insert(currentFile->endOf(statement->statement->lastToken() - 1),
+                                    "\n}");
+                 }
+
             } else {
                 const int end = currentFile->endOf(statement->statement->lastToken() - 1);
                 changes.insert(end, QLatin1String("\n}"));
             }
+        }
+        if (m_elseStatement) {
+            changes.insert(currentFile->endOf(m_elseToken), " {");
+            changes.insert(currentFile->endOf(m_elseStatement->lastToken() - 1), "\n}");
         }
 
         currentFile->setChangeSet(changes);
@@ -840,6 +854,8 @@ public:
 
 private:
     const QList<Statement *> m_statements;
+    StatementAST * const m_elseStatement;
+    const int m_elseToken;
 };
 
 } // anonymous namespace
@@ -851,10 +867,30 @@ bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFi
     if (!statement)
         return false;
 
+    QList<Statement *> statements;
     if (interface.isCursorOn(triggerToken(statement)) && statement->statement
         && !statement->statement->asCompoundStatement()) {
-        result << new AddBracesToControlStatementOp(interface, QList{statement});
+        statements << statement;
     }
+
+    StatementAST *elseStmt = nullptr;
+    int elseToken = 0;
+    if constexpr (std::is_same_v<Statement, IfStatementAST>) {
+        IfStatementAST *currentIfStmt = statement;
+        for (elseStmt = currentIfStmt->else_statement, elseToken = currentIfStmt->else_token;
+             elseStmt && (currentIfStmt = elseStmt->asIfStatement());
+             elseStmt = currentIfStmt->else_statement, elseToken = currentIfStmt->else_token) {
+            if (currentIfStmt->statement && !currentIfStmt->statement->asCompoundStatement())
+                statements << currentIfStmt;
+        }
+        if (elseStmt && (elseStmt->asIfStatement() || elseStmt->asCompoundStatement())) {
+            elseStmt = nullptr;
+            elseToken = 0;
+        }
+    }
+
+    if (!statements.isEmpty() || elseStmt)
+        result << new AddBracesToControlStatementOp(interface, statements, elseStmt, elseToken);
     return true;
 }
 

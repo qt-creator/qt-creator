@@ -8244,6 +8244,298 @@ void MyObject::f()
     original = R"delim(
 void MyObject::f()
 {
+    @if (true)
+        emit mySig();
+    else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    @if (true) {
+        emit mySig();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if with one else, unbraced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (true) {
+        emit mySig();
+    } else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    @if (true) {
+        emit mySig();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if with one else, if braced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (true)
+        emit mySig();
+    else {
+        emit otherSig();
+    }
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    @if (true) {
+        emit mySig();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if with one else, else braced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (true) {
+        emit mySig();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    expected.clear();
+    QTest::newRow("if with one else, both braced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2)
+        emit sig2();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    }
+})delim";
+    QTest::newRow("if-else chain without final else, unbraced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1) {
+        emit sig1();
+    } else if (x == 2)
+        emit sig2();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    }
+})delim";
+    QTest::newRow("if-else chain without final else, partially braced 1") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2) {
+        emit sig2();
+    }
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    }
+})delim";
+    QTest::newRow("if-else chain without final else, partially braced 2") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    }
+})delim";
+    expected.clear();
+    QTest::newRow("if-else chain without final else, fully braced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2)
+        emit sig2();
+    else if (x == 3)
+        emit sig3();
+    else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if-else chain, unbraced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1) {
+        emit sig1();
+    } else if (x == 2)
+        emit sig2();
+    else if (x == 3)
+        emit sig3();
+    else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if-else chain, partially braced 1") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2) {
+        emit sig2();
+    } else if (x == 3)
+        emit sig3();
+    else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if-else chain, partially braced 2") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2)
+        emit sig2();
+    else if (x == 3) {
+        emit sig3();
+    } else
+        emit otherSig();
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if-else chain, partially braced 3") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1)
+        emit sig1();
+    else if (x == 2)
+        emit sig2();
+    else if (x == 3)
+        emit sig3();
+    else {
+        emit otherSig();
+    }
+})delim";
+    expected = R"delim(
+void MyObject::f()
+{
+    if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    QTest::newRow("if-else chain, partially braced 4") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
+    @if (x == 1) {
+        emit sig1();
+    } else if (x == 2) {
+        emit sig2();
+    } else if (x == 3) {
+        emit sig3();
+    } else {
+        emit otherSig();
+    }
+})delim";
+    expected.clear();
+    QTest::newRow("if-else chain, fully braced") << original << expected;
+
+    original = R"delim(
+void MyObject::f()
+{
     @while (true)
         emit mySig();
 })delim";
