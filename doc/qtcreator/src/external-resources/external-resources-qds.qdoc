@@ -61,3 +61,11 @@
     \externalpage https://doc.qt.io/QtForMCUs/qtul-known-issues.html
     \title \QMCU Known Issues or Limitations
 */
+/*!
+    \externalpage https://doc.qt.io/qt/qt-edu-for-designers.html
+    \title Qt Edu for Designers
+*/
+/*!
+    \externalpage https://www.qt.io/download
+    \title Try Qt
+*/
