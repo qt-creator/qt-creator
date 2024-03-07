@@ -6,8 +6,6 @@
 #include "perfdatareader.h"
 #include "perfprofilertool.h"
 #include "perfprofilertr.h"
-#include "perfrunconfigurationaspect.h"
-#include "perfsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -97,11 +95,6 @@ public:
 
     void start() final
     {
-        auto perfAspect = runControl()->aspect<PerfRunConfigurationAspect>();
-        QTC_ASSERT(perfAspect, reportFailure(); return);
-        PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
-        QTC_ASSERT(settings, reportFailure(); return);
-
         m_process = new Process(this);
 
         connect(m_process, &Process::started, this, &RunWorker::reportStarted);
@@ -121,8 +114,11 @@ public:
             reportStopped();
         });
 
+        const Store perfArgs = runControl()->settingsData(PerfProfiler::Constants::PerfSettingsId);
+        const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
+
         CommandLine cmd({device()->filePath("perf"), {"record"}});
-        settings->addPerfRecordArguments(&cmd);
+        cmd.addArgs(recordArgs, CommandLine::Raw);
         cmd.addArgs({"-o", "-", "--"});
         cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 

@@ -20,7 +20,8 @@ public:
     void readGlobalSettings();
     void writeGlobalSettings() const;
 
-    void addPerfRecordArguments(Utils::CommandLine *cmd) const;
+    void toMap(Utils::Store &map) const override;
+    QString perfRecordArguments() const;
 
     void resetToDefault();
 

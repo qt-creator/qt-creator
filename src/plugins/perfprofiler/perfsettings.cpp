@@ -371,6 +371,8 @@ PerfSettings &globalSettings()
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
 {
     setAutoApply(false);
+    setId(Constants::PerfSettingsId);
+
     period.setSettingsKey("Analyzer.Perf.Frequency");
     period.setRange(250, 2147483647);
     period.setDefaultValue(250);
@@ -448,7 +450,13 @@ void PerfSettings::writeGlobalSettings() const
     settings->endGroup();
 }
 
-void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
+void PerfSettings::toMap(Store &map) const
+{
+    AspectContainer::toMap(map);
+    map[Constants::PerfRecordArgsId] = perfRecordArguments();
+}
+
+QString PerfSettings::perfRecordArguments() const
 {
     QString callgraphArg = callgraphMode.itemValue().toString();
     if (callgraphArg == Constants::PerfCallgraphDwarf)
@@ -463,11 +471,13 @@ void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
         }
     }
 
-    cmd->addArgs({"-e", events,
-                  "--call-graph", callgraphArg,
-                  sampleMode.itemValue().toString(),
-                  QString::number(period())});
-    cmd->addArgs(extraArguments(), CommandLine::Raw);
+    CommandLine cmd;
+    cmd.addArgs({"-e", events,
+                 "--call-graph", callgraphArg,
+                 sampleMode.itemValue().toString(),
+                 QString::number(period())});
+    cmd.addArgs(extraArguments(), CommandLine::Raw);
+    return cmd.arguments();
 }
 
 void PerfSettings::resetToDefault()
