@@ -46,6 +46,7 @@ enum class View3DActionType {
     ParticlesSeek,
     SyncEnvBackground,
     GetNodeAtPos,
+    GetNodeAtMainScenePos,
     SetBakeLightsView3D,
     SplitViewToggle,
     MaterialOverride,

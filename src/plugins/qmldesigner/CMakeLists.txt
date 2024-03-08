@@ -706,6 +706,7 @@ extend_qtc_plugin(QmlDesigner
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
     transitiontool.cpp transitiontool.h
+    view3dtool.cpp view3dtool.h
 )
 
 extend_qtc_plugin(QmlDesigner

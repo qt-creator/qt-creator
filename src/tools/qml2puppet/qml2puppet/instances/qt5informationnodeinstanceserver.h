@@ -128,6 +128,7 @@ private:
     void updateColorSettings(const QVector<PropertyValueContainer> &valueChanges);
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
     void getNodeAtPos(const QPointF &pos);
+    void getNodeAtMainScenePos(const QPointF &pos, qint32 viewId);
 
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
 #ifdef QUICK3D_PARTICLES_MODULE
@@ -136,7 +137,7 @@ private:
     void handleParticleSystemDeselected();
 #endif
     void setSceneEnvironmentData(qint32 instanceId);
-    QVariantList alignCameraList() const;
+    QVariantList alignCameraList(bool preferCurrentSceneCamera = false) const;
     void updateSceneEnvToHelper();
     bool isSceneEnvironmentBgProperty(const PropertyName &name) const;
 

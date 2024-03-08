@@ -434,8 +434,16 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
                                     [[maybe_unused]] const QList<ModelNode> &nodeList,
                                     [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "asset_import_update")
+    if (identifier == "asset_import_update") {
         resetPuppet();
+    } else if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
+        // Pick via 2D view, data has pick coordinates in main scene coordinates
+        QTimer::singleShot(0, this, [=]() {
+            emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
+                             QVariantList{data[0], nodeList[0].internalId()});
+            m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
+        });
+    }
 }
 
 /**
@@ -483,6 +491,10 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (!m_droppedFile.isEmpty() && isModel)
             emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
+        if (modelNode.isValid())
+            setSelectedModelNode(modelNode);
+        emitView3DAction(View3DActionType::AlignViewToCamera, true);
     }
 
     m_droppedModelNode = {};

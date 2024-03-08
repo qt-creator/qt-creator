@@ -105,6 +105,7 @@ private:
         TextureDrop,
         ContextMenu,
         AssetDrop,
+        MainScenePick,
         None
     };
 

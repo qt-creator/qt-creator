@@ -474,6 +474,42 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::getNodeAtMainScenePos(
+    [[maybe_unused]] const QPointF &pos, [[maybe_unused]] qint32 viewId)
+{
+#ifdef QUICK3D_MODULE
+    // Pick a Quick3DModel at scene position in the main scene
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+
+    if (!helper || !hasInstanceForId(viewId))
+        return;
+
+    ServerNodeInstance view = instanceForId(viewId);
+    auto viewObj = qobject_cast<QQuick3DViewport *>(view.internalObject());
+
+    if (viewObj) {
+        // Render the main view to make sure everything is up to date
+        updateNodesRecursive(viewObj);
+        renderWindow();
+
+        QPointF viewPos = viewObj->mapFromScene(pos);
+
+        QQuick3DModel *hitModel = helper->pickViewAt(viewObj, viewPos.x(), viewPos.y()).objectHit();
+        QObject *resolvedPick = helper->resolvePick(hitModel);
+
+        qint32 instanceId = -1;
+        if (hasInstanceForObject(resolvedPick))
+            instanceId = instanceForObject(resolvedPick).instanceId();
+
+        QVariantList data;
+        data.append(instanceId);
+        data.append(QVector3D());
+        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::NodeAtPos,
+                                                            QVariant::fromValue(data)});
+    }
+#endif
+}
+
 void Qt5InformationNodeInstanceServer::createEditView3D()
 {
 #ifdef QUICK3D_MODULE
@@ -2283,14 +2319,15 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentData(
 }
 
 // Returns list of camera objects to align
-// If m_selectedCameras contains cameras, return those
+// If m_selectedCameras contains cameras, return those, unless preferCurrentSceneCamera is true
 // If no cameras have been selected yet, return camera associated with current view3D, if any
 // If scene is not View3D scene, return first camera in the scene
-QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
+QVariantList Qt5InformationNodeInstanceServer::alignCameraList(
+    [[maybe_unused]] bool preferCurrentSceneCamera) const
 {
     QVariantList cameras;
 #ifdef QUICK3D_MODULE
-    if (m_selectedCameras.contains(m_active3DScene)) {
+    if (!preferCurrentSceneCamera && m_selectedCameras.contains(m_active3DScene)) {
         const QObjectList cameraList = m_selectedCameras[m_active3DScene];
         for (const auto camera : cameraList) {
             if (hasInstanceForObject(camera) && find3DSceneRoot(camera) == m_active3DScene)
@@ -2445,10 +2482,14 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignCamerasToView",
                                   Q_ARG(QVariant, alignCameraList()));
         break;
-    case View3DActionType::AlignViewToCamera:
+    case View3DActionType::AlignViewToCamera: {
+        bool preferCurrentSceneCamera = false;
+        if (!command.value().isNull())
+            preferCurrentSceneCamera = command.value().toBool();
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera",
-                                  Q_ARG(QVariant, alignCameraList()));
+                                  Q_ARG(QVariant, alignCameraList(preferCurrentSceneCamera)));
         break;
+    }
     case View3DActionType::SelectionModeToggle:
         updatedToolState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
@@ -2508,6 +2549,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 #endif // QUICK3D_PARTICLES_MODULE
     case View3DActionType::GetNodeAtPos: {
         getNodeAtPos(command.value().toPointF());
+        return;
+    }
+    case View3DActionType::GetNodeAtMainScenePos: {
+        QVariantList data = command.value().toList();
+        if (data.size() == 2)
+            getNodeAtMainScenePos(data[0].toPointF(), qint32(data[1].toInt()));
         return;
     }
     case View3DActionType::SplitViewToggle:
