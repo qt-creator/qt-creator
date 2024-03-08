@@ -26,11 +26,15 @@ itemsModel: ListModel {
 StudioControls.CustomComboBox {
     id: root
 
+    required property var itemsModel
+
     property variant backendValue
 
     property bool showExtendedFunctionButton: true
 
     Connections {
+        id: backendValueConnection
+
         target: backendValue
 
         function onValueChangedQml() {
@@ -39,7 +43,7 @@ StudioControls.CustomComboBox {
 
             for (let i = 1; i < root.itemsModel.count; ++i) {
                 let flag = (root.backendValue.value >> (i - 1)) & 1;
-                root.itemAt(i).checked = flag
+                root.popupItem.itemAt(i).checked = flag
 
                 if (flag) {
                     selectedItem = root.itemsModel.get(i).name
@@ -54,21 +58,38 @@ StudioControls.CustomComboBox {
         }
     }
 
+    Component.onCompleted: backendValueConnection.onValueChangedQml()
+
     model: [qsTr("empty")]
 
-    itemDelegate: StudioControls.CheckBox {
-        text: name
-        actionIndicatorVisible: false
+    popupComponent: Column {
+        padding: 5
+        spacing: 2
 
-        onToggled: {
-            if (index === 0) { // Clear
-                root.itemAt(0).checked = false
-                root.backendValue.value = 0
-            } else {
-                if (root.itemAt(index).checked)
-                    root.backendValue.value |= flag
-                else
-                    root.backendValue.value &= ~flag
+        function itemAt(idx) {
+            return repeater.itemAt(idx)
+        }
+
+        Repeater {
+            id: repeater
+
+            model: root.itemsModel
+            delegate: StudioControls.CheckBox {
+                text: name
+                actionIndicatorVisible: false
+                checked: (root.backendValue.value >> (index - 1)) & 1
+
+                onToggled: {
+                    if (index === 0) { // Clear
+                        root.popupItem.itemAt(0).checked = false
+                        root.backendValue.value = 0
+                    } else {
+                        if (root.popupItem.itemAt(index).checked)
+                            root.backendValue.value |= flag
+                        else
+                            root.backendValue.value &= ~flag
+                    }
+                }
             }
         }
     }

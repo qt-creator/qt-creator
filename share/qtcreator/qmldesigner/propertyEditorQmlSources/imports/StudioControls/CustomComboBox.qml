@@ -10,26 +10,23 @@ import StudioTheme as StudioTheme
 StudioControls.ComboBox {
     id: root
 
-    required property Component itemDelegate
-    required property var itemsModel
+    required property Component popupComponent
 
     required property Item mainRoot
 
-    readonly property int popupHeight: Math.min(800, col.height + 2)
+    readonly property int popupHeight: Math.min(800, popupLoader.height + 2)
+
+    property alias popupItem: popupLoader.item
 
     // hide default popup
     popup.width: 0
     popup.height: 0
 
-    function itemAt(idx) {
-        return repeater.itemAt(idx)
-    }
-
     function calculateWindowGeometry() {
         let gPos = globalPos(mainRoot.mapFromItem(root, 0, 0))
         let scrRect = screenRect();
 
-        window.width = Math.max(root.width - root.actionIndicator.width, col.width + 2) // 2: scrollView left and right 1px margins
+        window.width = Math.max(root.width - root.actionIndicator.width, popupLoader.width + 2) // 2: scrollView left and right 1px margins
 
         let newX = gPos.x + root.width - window.width
         if (newX < scrRect.x)
@@ -94,18 +91,9 @@ StudioControls.ComboBox {
                 anchors.fill: parent
                 anchors.margins: 1
 
-                Column {
-                    id: col
-
-                    padding: 5
-                    spacing: 2
-
-                    Repeater {
-                        id: repeater
-
-                        model: root.itemsModel
-                        delegate: root.itemDelegate
-                    }
+                Loader {
+                    id: popupLoader
+                    sourceComponent: root.popupComponent
                 }
             }
 
