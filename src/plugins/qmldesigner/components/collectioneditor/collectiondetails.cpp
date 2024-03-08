@@ -54,9 +54,8 @@ public:
 
 inline static bool isValidColorName(const QString &colorName)
 {
-    constexpr QStringView colorPattern(
-        u"(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)");
-    static const QRegularExpression colorRegex(colorPattern.toString());
+    static const QRegularExpression colorRegex{
+        "(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)"};
     return colorRegex.match(colorName).hasMatch();
 }
 
@@ -79,19 +78,19 @@ inline static bool getCustomUrl(const QString &value,
                                 QUrl *urlResult = nullptr,
                                 QString *subType = nullptr)
 {
-    constexpr QStringView urlPattern(
-        u"^(?<MimeType>"
-        u"(?<MainType>image)\\/"
-        u"(?<SubType>apng|avif|gif|jpeg|png|(?:svg\\+xml)|webp|xyz)\\:)?" // end of MimeType
-        u"(?<Address>"
-        u"(?<Url>https?:\\/\\/"
-        u"(?:www\\.|(?!www))[A-z0-9][A-z0-9-]+[A-z0-9]\\.[^\\s]{2,}|www\\.[A-z0-9][A-z0-9-]+"
-        u"[A-z0-9]\\.[^\\s]{2,}|https?:\\/\\/"
-        u"(?:www\\.|(?!www))[A-z0-9]+\\.[^\\s]{2,}|www\\.[A-z0-9]+\\.[^\\s]{2,})|" // end of Url
-        u"(?<LocalFile>("
-        u"?:(?:[A-z]:)|(?:(?:\\\\|\\/){1,2}\\w+)\\$?)(?:(?:\\\\|\\/)(?:\\w[\\w ]*.*))+)" // end of LocalFile
-        u"){1}$"); // end of Address
-    static const QRegularExpression urlRegex(urlPattern.toString());
+    static const QRegularExpression urlRegex{
+        "^(?<MimeType>"
+        "(?<MainType>image)\\/"
+        "(?<SubType>apng|avif|gif|jpeg|png|(?:svg\\+xml)|webp|xyz)\\:)?" // end of MimeType
+        "(?<Address>"
+        "(?<Url>https?:\\/\\/"
+        "(?:www\\.|(?!www))[A-z0-9][A-z0-9-]+[A-z0-9]\\.[^\\s]{2,}|www\\.[A-z0-9][A-z0-9-]+"
+        "[A-z0-9]\\.[^\\s]{2,}|https?:\\/\\/"
+        "(?:www\\.|(?!www))[A-z0-9]+\\.[^\\s]{2,}|www\\.[A-z0-9]+\\.[^\\s]{2,})|" // end of Url
+        "(?<LocalFile>("
+        "?:(?:[A-z]:)|(?:(?:\\\\|\\/){1,2}\\w+)\\$?)(?:(?:\\\\|\\/)(?:\\w[\\w ]*.*))+)" // end of LocalFile
+        "){1}$" // end of Address
+    };
 
     const QRegularExpressionMatch match = urlRegex.match(value);
     if (match.hasMatch()) {
@@ -267,10 +266,9 @@ inline static bool isEmptyJsonValue(const QJsonValue &value)
 
 QStringList csvReadLine(const QString &line)
 {
-    constexpr QStringView linePattern = u"(?:,\"|^\")(?<value>\"\"|[\\w\\W]*?)(?=\",|\"$)"
-                                        u"|(?:,(?!\")|^(?!\"))(?<quote>[^,]*?)(?=$|,)|(\\r\\n|\\n)";
-
-    static const QRegularExpression lineRegex(linePattern.toString());
+    static const QRegularExpression lineRegex{
+        "(?:,\\\"|^\\\")(?<value>\\\"\\\"|[\\w\\W]*?)(?=\\\",|\\\"$)"
+        "|(?:,(?!\\\")|^(?!\\\"))(?<quote>[^,]*?)(?=$|,)|(\\\\r\\\\n|\\\\n)"};
     static const int valueIndex = lineRegex.namedCaptureGroups().indexOf("value");
     static const int quoteIndex = lineRegex.namedCaptureGroups().indexOf("quote");
     Q_ASSERT(valueIndex > 0 && quoteIndex > 0);
@@ -281,7 +279,7 @@ QStringList csvReadLine(const QString &line)
         const QRegularExpressionMatch match = iterator.next();
 
         if (match.hasCaptured(valueIndex))
-            result.append(match.captured(2));
+            result.append(match.captured(valueIndex));
         else if (match.hasCaptured(quoteIndex))
             result.append(match.captured(quoteIndex));
     }
@@ -737,6 +735,7 @@ CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document,
     QJsonArray importedArray;
 
     QTextStream stream(document);
+    stream.setEncoding(QStringConverter::Latin1);
 
     if (firstRowIsHeader && !stream.atEnd()) {
         headers = Utils::transform(csvReadLine(stream.readLine()),
