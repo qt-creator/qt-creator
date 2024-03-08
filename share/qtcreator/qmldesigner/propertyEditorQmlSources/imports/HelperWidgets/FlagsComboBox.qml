@@ -2,17 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import StudioControls as StudioControls
+import HelperWidgets as HelperWidgets
+import StudioTheme as StudioTheme
 
 /*
- A ComboBox of flags, it expects a list mode as below, first item will act as clear:
+ A ComboBox of flags, it expects a list model as below
 
 itemsModel: ListModel {
-    ListElement {
-        name: qsTr("Clear")
-        flag: 0
-    }
     ListElement {
         name: "..."
         flag: ...
@@ -41,11 +38,12 @@ StudioControls.CustomComboBox {
             let numSelected = 0
             let selectedItem = ""
 
-            for (let i = 1; i < root.itemsModel.count; ++i) {
-                let flag = (root.backendValue.value >> (i - 1)) & 1;
-                root.popupItem.itemAt(i).checked = flag
+            for (let i = 0; i < root.itemsModel.count; ++i) {
+                let flag = root.itemsModel.get(i).flag
+                let flagActive = root.backendValue.value & flag
+                root.popupItem.itemAt(i).checked = flagActive
 
-                if (flag) {
+                if (flagActive) {
                     selectedItem = root.itemsModel.get(i).name
                     ++numSelected
                 }
@@ -70,6 +68,27 @@ StudioControls.CustomComboBox {
             return repeater.itemAt(idx)
         }
 
+        Row {
+            spacing: 5
+
+            HelperWidgets.Button {
+                text: qsTr("Select All")
+
+                onClicked: {
+                    let allFlags = 0
+                    for (let i = 0; i < root.itemsModel.count; ++i)
+                        allFlags += root.itemsModel.get(i).flag
+
+                    root.backendValue.value = allFlags
+                }
+            }
+            HelperWidgets.Button {
+                text: qsTr("Select None")
+
+                onClicked: root.backendValue.value = 0
+            }
+        }
+
         Repeater {
             id: repeater
 
@@ -77,18 +96,12 @@ StudioControls.CustomComboBox {
             delegate: StudioControls.CheckBox {
                 text: name
                 actionIndicatorVisible: false
-                checked: (root.backendValue.value >> (index - 1)) & 1
 
                 onToggled: {
-                    if (index === 0) { // Clear
-                        root.popupItem.itemAt(0).checked = false
-                        root.backendValue.value = 0
-                    } else {
-                        if (root.popupItem.itemAt(index).checked)
-                            root.backendValue.value |= flag
-                        else
-                            root.backendValue.value &= ~flag
-                    }
+                    if (root.popupItem.itemAt(index).checked)
+                        root.backendValue.value |= flag
+                    else
+                        root.backendValue.value &= ~flag
                 }
             }
         }
