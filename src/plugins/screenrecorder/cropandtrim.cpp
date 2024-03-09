@@ -641,6 +641,7 @@ CropAndTrimDialog::CropAndTrimDialog(const ClipInfo &clip, QWidget *parent)
     , m_clipInfo(clip)
 {
     setWindowTitle(Tr::tr("Crop and Trim"));
+    setWindowFlags(Qt::Dialog | Qt::WindowMinMaxButtonsHint); // Make maximizable
 
     m_cropWidget = new CropWidget;
 
