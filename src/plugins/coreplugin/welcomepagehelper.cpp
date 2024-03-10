@@ -111,13 +111,12 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
     static const TextFormat smallListDefaultTF
         {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
          Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip};
-    static const TextFormat smallListCheckedTF
-        {smallListDefaultTF.themeColor, StyleHelper::UiElement::UiElementIconActive,
-                                               smallListDefaultTF.drawTextFlags};
+    static const TextFormat smallListCheckedTF = smallListDefaultTF;
     static const TextFormat smallLinkDefaultTF
-        {Theme::Token_Text_Default, smallListDefaultTF.uiElement, smallListDefaultTF.drawTextFlags};
+        {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
+         smallListDefaultTF.drawTextFlags};
     static const TextFormat smallLinkHoveredTF
-        {Theme::Token_Accent_Default, smallListCheckedTF.uiElement,
+        {Theme::Token_Text_Accent, smallLinkDefaultTF.uiElement,
          smallLinkDefaultTF.drawTextFlags};
 
     switch (role) {
@@ -754,7 +753,7 @@ bool ListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const ListItem *, boo
 constexpr TextFormat titleTF {Theme::Token_Text_Default, StyleHelper::UiElementIconActive};
 constexpr TextFormat descriptionTF {titleTF.themeColor, StyleHelper::UiElementCaption};
 constexpr TextFormat tagsLabelTF {Theme::Token_Text_Muted, StyleHelper::UiElementCaptionStrong};
-constexpr TextFormat tagsTF {Theme::Token_Accent_Default, tagsLabelTF.uiElement};
+constexpr TextFormat tagsTF {Theme::Token_Text_Accent, tagsLabelTF.uiElement};
 
 constexpr qreal itemOutlineWidth = 1;
 constexpr qreal itemCornerRounding = 6;
@@ -1157,7 +1156,7 @@ static QLabel *createTitleLabel(const QString &text, QWidget *parent = nullptr)
 
 static QLabel *createLinkLabel(const QString &text, QWidget *parent)
 {
-    constexpr TextFormat headerLinkTF {Theme::Token_Accent_Default, StyleHelper::UiElementH6};
+    constexpr TextFormat headerLinkTF {Theme::Token_Text_Accent, StyleHelper::UiElementH6};
     const QString linkColor = themeColor(headerLinkTF.themeColor).name();
     auto link = new QLabel("<a href=\"link\" style=\"color: " + linkColor + ";\">"
                                + text + "</a>", parent);

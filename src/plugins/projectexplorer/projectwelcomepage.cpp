@@ -47,7 +47,7 @@ const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 namespace ProjectExplorer {
 namespace Internal {
 
-constexpr TextFormat projectNameTF {Theme::Token_Accent_Default, StyleHelper::UiElementH5};
+constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH5};
 constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementIconActive};
 constexpr TextFormat sessionNameTF {projectNameTF.themeColor, projectNameTF.uiElement};
 constexpr TextFormat sessionProjetNameTF {Theme::Token_Text_Default, projectNameTF.uiElement};
