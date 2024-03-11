@@ -34767,15 +34767,15 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Deployment canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment abgebrochen.</translation>
     </message>
     <message>
         <source>Failed to run devicectl: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen von devicectl ist fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... deployment might have failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Ausgabe von devicectl ... Deployment könnte fehlgeschlagen sein.</translation>
     </message>
     <message>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
@@ -34893,7 +34893,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Debugging and profiling is currently not supported for devices with iOS 17 and later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen und Profiling wird für Geräte mit iOS 17 und später im Moment nicht unterstützt.</translation>
     </message>
     <message>
         <source>Device type:</source>
@@ -34917,7 +34917,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Simulator not running. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Start der Anwendung im Simulator ist fehlgeschlagen. Der Simulator läuft nicht. %1</translation>
     </message>
     <message>
         <source>Application install on simulator failed. %1</source>
@@ -34941,23 +34941,23 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Running failed. No iOS device found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführen fehlgeschlagen. Kein iOS-Gerät gefunden.</translation>
     </message>
     <message>
         <source>Running canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführen abgebrochen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>Failed to determine bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ermittlung des Bundle-Identifiers ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; on %2...</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe &quot;%1&quot; auf %2 aus...</translation>
     </message>
     <message>
         <source>Could not find %1.</source>
@@ -35323,79 +35323,79 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung der Ausgabe von devicectl ist fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Operation failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Operation fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: &quot;result&quot; is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung der Ausgabe von devicectl ist fehlgeschlagen: &quot;result&quot; fehlt.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... running failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Ausgabe von devicectl ... Ausführen ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to start process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Process was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Process was forced to exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde gezwungenermaßen abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot find xcrun.</source>
-        <translation type="unfinished"></translation>
+        <translation>xcrun wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>xcrun is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>xcrun ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Invalid Empty UDID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige leere UDID.</translation>
     </message>
     <message>
         <source>Failed to start simulator app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulator-Anwendung konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Simulator device is not available. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulator-Gerät ist nicht verfügbar. (%1)</translation>
     </message>
     <message>
         <source>Simulator start was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Start des Simulators wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Previous instance taking too long to shut down. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Die vorherige Instanz braucht zu lange, um herunterzufahren. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in shutdown state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Der Simulator ist nicht im &quot;shutdown&quot;-Zustand. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in booted state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Der Simulator ist nicht im &quot;booted&quot;-Zustand. (%1)</translation>
     </message>
     <message>
         <source>Bundle path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad des Bundles existiert nicht.</translation>
     </message>
     <message>
         <source>Invalid (empty) bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger (leerer) Bundle-Identifier.</translation>
     </message>
     <message>
         <source>Failed to convert inferior pid. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die PID des zu debuggenden Prozesses konnte nicht ermittelt werden. (%1)</translation>
     </message>
 </context>
 <context>
