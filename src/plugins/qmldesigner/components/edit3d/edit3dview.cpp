@@ -438,10 +438,13 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
         resetPuppet();
     } else if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
         // Pick via 2D view, data has pick coordinates in main scene coordinates
-        QTimer::singleShot(0, this, [=]() {
-            emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
-                             QVariantList{data[0], nodeList[0].internalId()});
-            m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
+        QTimer::singleShot(0, this, [=, self = QPointer{this}]() {
+            if (!self)
+                return;
+
+            self->emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
+                                   QVariantList{data[0], nodeList[0].internalId()});
+            self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
         });
     }
 }
