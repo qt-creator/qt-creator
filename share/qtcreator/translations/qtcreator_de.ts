@@ -18861,12 +18861,13 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Override cursors for views</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauszeiger für Ansichten überschreiben</translation>
     </message>
     <message>
         <source>Provide cursors for resizing views.
 If the system cursors for resizing views are not displayed properly, you can use the cursors provided by %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt separate Mauszeiger für das Verändern der Größe von Ansichten.
+Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrekt dargestellt werden, können von %1 bereitgestellte Zeiger benutzt werden.</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -18898,11 +18899,11 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>The following environment variables are set and can influence the UI scaling behavior of %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Umgebungsvariablen sind gesetzt und können das Skalierungsverhalten der Benutzeroberfläche von %1 beeinflussen:</translation>
     </message>
     <message>
         <source>Environment influences UI scaling behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Umgebung beeinflusst das Skalierungsverhalten der Benutzeroberfläche.</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
@@ -19148,7 +19149,7 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.&lt;br&gt;&lt;br&gt;Or, trigger the &quot;%2&quot; action from the &quot;%3&quot; locator filter (%4).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies versteckt die Menüleiste vollständig. Sie können sie mit der Tastenkombination %1 wieder anzeigen.&lt;br&gt;&lt;br&gt;Oder führen Sie die Aktion &quot;%2&quot; über den Locator-Filter &quot;%3&quot; aus (%4).</translation>
     </message>
     <message>
         <source>Change Log...</source>
@@ -19471,7 +19472,7 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>Copy and Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren und schließen</translation>
     </message>
     <message>
         <source>&lt;br/&gt;From revision %1&lt;br/&gt;</source>
@@ -20395,11 +20396,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Cannot Create File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht erstellt werden</translation>
     </message>
     <message>
         <source>Cannot create file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Create Directory</source>
@@ -20649,7 +20650,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Show Paths in Relation to Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade in Bezug auf das aktive Projekt anzeigen</translation>
     </message>
     <message>
         <source>Filter Results</source>
@@ -20665,7 +20666,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Show Full Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständigen Pfad anzeigen</translation>
     </message>
     <message>
         <source>Search Results</source>
@@ -20833,11 +20834,11 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Proxy Authentication Required</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Authentifizierung erforderlich</translation>
     </message>
     <message>
         <source>Do not ask again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht noch einmal nachfragen.</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -20921,7 +20922,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Convert string to pure ASCII.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkette in reines ASCII umwandeln.</translation>
     </message>
     <message>
         <source>Create Folder</source>
@@ -29868,7 +29869,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translation type="unfinished">Beschreibung zu %1</translation>
+        <translation>Beschreibung zu %1</translation>
     </message>
     <message>
         <source>Group:</source>
@@ -30137,7 +30138,7 @@ Grund: %3</translation>
     <message>
         <source>%1 (deprecated)</source>
         <extracomment>%1 is a plugin name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (veraltet)</translation>
     </message>
     <message>
         <source>%1 (experimental)</source>
@@ -30212,7 +30213,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
@@ -30228,7 +30229,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Multiple versions of the same plugin have been found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden mehrere Versionen des gleichen Plugins gefunden.</translation>
     </message>
     <message>
         <source>%1 &gt; About Plugins</source>
@@ -56353,7 +56354,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; was canceled after %2 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando &quot;%1&quot; wurde nach %2 ms abgebrochen.</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -56397,7 +56398,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to start terminal process. The stub exited before the inferior was started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminalprozess konnte nicht gestartet werden. Der Kontrollprozess wurde beendet, bevor der Unterprozess gestartet werden konnte.</translation>
     </message>
     <message>
         <source>Cannot set permissions on temporary directory &quot;%1&quot;: %2</source>
@@ -56437,7 +56438,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
@@ -56496,7 +56497,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Device is not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist nicht verbunden</translation>
     </message>
     <message>
         <source>Failed reading file &quot;%1&quot;: %2</source>
@@ -56552,7 +56553,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot create temporary file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Overwrite File?</source>
@@ -58991,7 +58992,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Willkommen bei %1</translation>
     </message>
     <message>
         <source>Create Project...</source>
@@ -59003,7 +59004,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Explore more</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfahre mehr</translation>
     </message>
     <message>
         <source>Get Started</source>
