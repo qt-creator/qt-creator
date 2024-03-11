@@ -65,12 +65,6 @@
             colleagues to review a change that you plan to submit to a
             version control system.
 
-        \li \l{Using Text Editing Macros}
-
-            When you have a file open in the code editor, you can record a
-            keyboard sequence as a macro. You can then play the macro to
-            repeat the sequence. You can save the latest macro and assign a
-            keyboard shortcut for running it or run it from the locator.
         \endif
     \endlist
 
