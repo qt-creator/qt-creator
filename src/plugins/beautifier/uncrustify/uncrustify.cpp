@@ -225,6 +225,8 @@ public:
             settings().apply();
             s.save();
         });
+
+        setOnCancel([] { settings().cancel(); });
     }
 };
 

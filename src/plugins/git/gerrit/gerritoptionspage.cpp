@@ -63,8 +63,14 @@ public:
             Git::Tr::tr("P&rotocol:"), httpsCheckBox
         }.attachTo(this);
 
-        setOnApply([this, hostLineEdit, userLineEdit, sshChooser,
-                    curlChooser, portSpinBox, httpsCheckBox, onChanged] {
+        setOnApply([this,
+                    hostLineEdit,
+                    userLineEdit,
+                    sshChooser,
+                    curlChooser,
+                    portSpinBox,
+                    httpsCheckBox,
+                    onChanged] {
             GerritParameters newParameters;
             newParameters.server = GerritServer(hostLineEdit->text().trimmed(),
                                          static_cast<unsigned short>(portSpinBox->value()),

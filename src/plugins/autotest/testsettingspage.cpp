@@ -153,6 +153,8 @@ TestSettingsWidget::TestSettingsWidget()
         if (!changedIds.isEmpty())
             TestTreeModel::instance()->rebuild(changedIds);
     });
+
+    setOnCancel([] { Internal::testSettings().cancel(); });
 }
 
 enum TestBaseInfo

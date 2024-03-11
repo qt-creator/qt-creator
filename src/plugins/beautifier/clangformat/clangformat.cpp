@@ -300,6 +300,7 @@ public:
             settings().apply();
             settings().save();
         });
+        setOnCancel([] { settings().cancel(); });
 
         s.read();
 

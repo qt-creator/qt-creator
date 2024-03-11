@@ -29,6 +29,7 @@ class IOptionsPageWidgetPrivate
 {
 public:
     std::function<void()> m_onApply;
+    std::function<void()> m_onCancel;
     std::function<void()> m_onFinish;
 };
 
@@ -104,6 +105,11 @@ void IOptionsPageWidget::setOnApply(const std::function<void()> &func)
     d->m_onApply = func;
 }
 
+void IOptionsPageWidget::setOnCancel(const std::function<void()> &func)
+{
+    d->m_onCancel = func;
+}
+
 /*!
     Sets the function that is called by default on finish to \a func.
 */
@@ -120,6 +126,12 @@ void IOptionsPageWidget::apply()
 {
     if (d->m_onApply)
         d->m_onApply();
+}
+
+void IOptionsPageWidget::cancel()
+{
+    if (d->m_onCancel)
+        d->m_onCancel();
 }
 
 /*!
@@ -257,6 +269,19 @@ void IOptionsPage::apply()
             container->apply();
             container->writeSettings();
          }
+    }
+}
+
+void IOptionsPage::cancel()
+{
+    if (auto widget = qobject_cast<IOptionsPageWidget *>(d->m_widget))
+         widget->cancel();
+
+    if (d->m_settingsProvider) {
+         AspectContainer *container = d->m_settingsProvider();
+         QTC_ASSERT(container, return);
+         if (container->isDirty())
+            container->cancel();
     }
 }
 
