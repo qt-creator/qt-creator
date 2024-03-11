@@ -689,9 +689,6 @@ void TerminalWidget::initActions(QObject *parent)
     moveCursorWordRightAction.setText(Tr::tr("Move Cursor Word Right"));
     moveCursorWordRightAction.setContext(context);
     moveCursorWordRightAction.setDefaultKeySequence({QKeySequence("Alt+Right")});
-
-    ActionBuilder closeAction(parent, Core::Constants::CLOSE);
-    closeAction.setText(Tr::tr("Close Terminal"));
 }
 
 void TerminalWidget::unlockGlobalAction(const Utils::Id &commandId)
