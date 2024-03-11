@@ -10612,23 +10612,23 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>The selected path does not exist or is not readable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der ausgewählte Pfad existiert nicht oder ist nicht lesbar.</translation>
     </message>
     <message>
         <source>Could not find &quot;%1&quot; in the selected path.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte im ausgewählten Pfad nicht gefunden werden.</translation>
     </message>
     <message>
         <source>The selected path does not contain a valid JDK. (%1 failed: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Der ausgewählte Pfad enthält kein gültiges JDK. (%1 ist fehlgeschlagen: %2)</translation>
     </message>
     <message>
         <source>Unexpected output from &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Ausgabe von &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Unsupported JDK version (needs to be %1): %2 (parsed: %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>JDK-Version wird nicht unterstützt (muss %1 sein): %2 (erkannt: %3)</translation>
     </message>
     <message>
         <source>OpenSSL path exists.</source>
@@ -13267,11 +13267,11 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Find user-defined locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Positionen finden</translation>
     </message>
     <message>
         <source>Parse messages for the following pattern and use it as location information:&lt;pre&gt;file://filepath:line&lt;/pre&gt;where &quot;:line&quot; is optional.&lt;p&gt;Warning: If the patterns are used in code, the location information for debug messages and other messages might improve,at the risk of some incorrect locations and lower performance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wertet Nachrichten nach den folgenden Mustern aus und benutzt sie als Positionsinformation:&lt;pre&gt;file://dateipfad:zeile&lt;/pre&gt;wobei &quot;:zeile&quot; optional ist.&lt;p&gt;Achtung: Wenn diese Muster im Code benutzt werden, können sich die Positionsinformationen für Debug- und andere Nachrichten verbessern, es besteht aber die Gefahr falscher Positionen und verringerter Leistung.</translation>
     </message>
     <message>
         <source>Callgrind</source>
@@ -13636,11 +13636,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Locate Qt Test data tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Test Data Tags finden</translation>
     </message>
     <message>
         <source>Locates Qt Test data tags found inside the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Qt Test Data Tags im aktiven Projekt.</translation>
     </message>
 </context>
 <context>
@@ -15975,11 +15975,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use junctions for CMake configuration and build operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Junctions für die CMake-Konfiguration und das Erstellen benutzen</translation>
     </message>
     <message>
         <source>Create and use junctions for the source and build directories to overcome issues with long paths on Windows.&lt;br&gt;&lt;br&gt;Junctions are stored under &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; (overridable via the &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt; environment variable).&lt;br&gt;&lt;br&gt;With &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt;, you can shorten the MD5 hash key length to a value smaller than the default length value of 32.&lt;br&gt;&lt;br&gt;Junctions are used for CMake configure, build and install operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt und benutzt Junctions für die Quell- und Build-Verzeichnisse, um Probleme mit langen Pfaden auf Windows zu umgehen.&lt;br&gt;&lt;br&gt;Junctions werden unter &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; gespeichert (überschreibbar mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt;).&lt;br&gt;&lt;br&gt;Sie können mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt; die Länge des MD5-Hashschlüssels auf einen kleineren Wert als die Voreinstellung 32 verkürzen.&lt;br&gt;&lt;br&gt;Junctions werden für das Konfigurieren mit CMake, das Erstellen und die Installation benutzt.</translation>
     </message>
     <message>
         <source>General</source>
@@ -39463,11 +39463,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Debug Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration debuggen</translation>
     </message>
     <message>
         <source>Starts debugging a run configuration of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Startet das Debuggen einer Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Switch Run Configuration</source>
@@ -40109,7 +40109,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Remote process did not finish in time. Connectivity lost?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der entfernte Prozess wurde nicht rechtzeitig beendet. Verbindung verloren?</translation>
     </message>
     <message>
         <source>Starting %1...</source>
@@ -41916,7 +41916,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Include QQuickItem</source>
-        <translation type="unfinished"></translation>
+        <translation>QQuickItem einbinden</translation>
     </message>
     <message>
         <source>Qt 6.2</source>
@@ -42144,23 +42144,23 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Creates a translation file that you can add to a Qt project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine Übersetzungsdatei, die Sie zu einem Qt-Projekt hinzufügen können.</translation>
     </message>
     <message>
         <source>Qt Translation File</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Übersetzungsdatei</translation>
     </message>
     <message>
         <source>2.x</source>
-        <translation type="unfinished"></translation>
+        <translation>2.x</translation>
     </message>
     <message>
         <source>3.x</source>
-        <translation type="unfinished"></translation>
+        <translation>3.x</translation>
     </message>
     <message>
         <source>Catch2 version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2-Version:</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
@@ -42689,7 +42689,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>* Failed to create: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Erstellen fehlgeschlagen: %1
+</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -42821,7 +42822,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Project &quot;%1&quot; was configured for kit &quot;%2&quot; with id %3, which does not exist anymore. You can create a new kit or copy the steps of the vanished kit to another kit in %4 mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt &quot;%1&quot; wurde für das Kit &quot;%2&quot; mit ID %3 konfiguriert, das nicht mehr existiert. Sie können im %4-Modus ein neues Kit erstellen oder die Schritte des verschwundenen Kits in ein anderes Kit kopieren.</translation>
     </message>
     <message>
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
@@ -43073,40 +43074,40 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>The project was configured for kits that no longer exist. Select one of the following options in the context menu to restore the project&apos;s settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt wurde für Kits konfiguriert, die nicht mehr existieren. Wählen Sie eine der folgenden Optionen aus dem Kontextmenü, um die Projekteinstellungen wiederherzustellen:</translation>
     </message>
     <message>
         <source>Create a new kit with the same name for the same device type, with the original build, deploy, and run steps. Other kit settings are not restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle ein neues Kit mit demselben Namen und für denselben Gerätetyp mit den ursprünglichen Schritten zum Erstellen, Deployment und Ausführen. Andere Einstellungen des Kits werden nicht wiederhergestellt.</translation>
     </message>
     <message>
         <source>Copy the build, deploy, and run steps to another kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere die Schritte zum Erstellen, Deployment und Ausführen in ein anderes Kit.</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
         <extracomment>vanished target display role: vanished target name (device type name)</extracomment>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Create a New Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein neues Kit erstellen</translation>
     </message>
     <message>
         <source>Copy Steps to Another Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritte in ein anderes Kit kopieren</translation>
     </message>
     <message>
         <source>Remove Vanished Target &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschwundenes Ziel &quot;%1&quot; entfernen</translation>
     </message>
     <message>
         <source>Remove All Vanished Targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle verschwundenen Ziele entfernen</translation>
     </message>
     <message>
         <source>Vanished Targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschwundene Ziele</translation>
     </message>
     <message>
         <source>Project Settings</source>
@@ -43443,15 +43444,15 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Overriding &lt;code&gt;MAKEFLAGS&lt;/code&gt; environment variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe die &lt;code&gt;MAKEFLAGS&lt;/code&gt; Umgebungsvariable.</translation>
     </message>
     <message>
         <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies a conflicting job count.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;code&gt;MAKEFLAGS&lt;/code&gt; gibt eine zu den Einstellungen widersprüchliche Anzahl Jobs an.</translation>
     </message>
     <message>
         <source>No conflict with &lt;code&gt;MAKEFLAGS&lt;/code&gt; environment variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Konflikt mit der &lt;code&gt;MAKEFLAGS&lt;/code&gt; Umgebungsvariable.</translation>
     </message>
     <message>
         <source>Enable connection sharing:</source>
@@ -43561,11 +43562,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Build directory contains potentially problematic character &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis enthält das möglicherweise problematische Zeichen &quot;%1&quot;.</translation>
     </message>
     <message>
         <source> This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation> Diese Warnung kann &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; unterdrückt werden.</translation>
     </message>
     <message>
         <source>The project is currently being parsed.</source>
@@ -43878,11 +43879,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Warn against build directories with spaces or non-ASCII characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Warne vor Build-Verzeichnissen mit Leerzeichen oder nicht-ASCII-Zeichen</translation>
     </message>
     <message>
         <source>Some legacy build tools do not deal well with paths that contain &quot;special&quot; characters such as spaces, potentially resulting in spurious build errors.&lt;p&gt;Uncheck this option if you do not work with such tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einige ältere Erstellwerkzeuge kommen nicht gut mit Verzeichnissen zurecht, die &quot;spezielle&quot; Zeichen wie Leerzeichen enthalten. Dies kann zu Fehlern beim Erstellen führen.&lt;p&gt;Wählen Sie diese Option ab, wenn Sie nicht mit solchen Werkzeugen arbeiten.</translation>
     </message>
     <message>
         <source>Do Not Build Anything</source>
@@ -43930,11 +43931,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Environment changes to apply to run configurations, but not build configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen der Umgebung, die auf Ausführungskonfigurationen, aber nicht auf Build-Konfigurationen angewendet werden sollen.</translation>
     </message>
     <message>
         <source>Application environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungsumgebung:</translation>
     </message>
     <message>
         <source>Projects Directory</source>
@@ -44976,7 +44977,7 @@ Die betroffenen Dateien sind:
     </message>
     <message>
         <source>Qbs Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Qbs-Editor</translation>
     </message>
 </context>
 <context>
@@ -48822,7 +48823,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source> (on %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (auf %1)</translation>
     </message>
     <message>
         <source>Qt version is not properly installed, please run make install</source>
@@ -49334,11 +49335,11 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Select a language for which a corresponding translation (.ts) file will be generated for you.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Sprache, für die eine Übersetzungsdatei (.ts) erstellt werden soll.</translation>
     </message>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, select a language here. A corresponding translation (.ts) file will be generated for you.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie planen, mit Qt Linguist Übersetzungen der Benutzeroberfläche Ihres Projekts anzubieten, wählen Sie hier eine Sprache. Eine entsprechende Übersetzungsdatei (.ts) wird dann für Sie erstellt.</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
@@ -49574,16 +49575,17 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinde zu Gerät...</translation>
     </message>
     <message>
         <source>Connected. Now doing extended checks.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Verbunden. Führe erweiterte Überprüfungen aus.
+</translation>
     </message>
     <message>
         <source>Basic connectivity test failed, device is considered unusable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Grundlegender Verbindungstest ist fehlgeschlagen, das Gerät wird als unbrauchbar eingestuft.</translation>
     </message>
     <message>
         <source>Device replied to echo with unexpected contents: &quot;%1&quot;</source>
@@ -49887,7 +49889,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <source>Cannot establish SSH connection.
 Control process failed to start.</source>
         <translation>SSH-Verbindung kann nicht hergestellt werden.
-Der Kontrollprozess konnte nicht gestartet werden.</translation>
+Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>SSH connection failure.</source>
@@ -49899,11 +49901,11 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Can&apos;t send control signal to the %1 device. The device might have been disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Senden des Steuersignals zum Gerät %1 ist fehlgeschlagen. Das Gerät ist möglicherweise nicht verbunden.</translation>
     </message>
     <message>
         <source>Remote Linux</source>
@@ -49915,15 +49917,15 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Establishing initial connection to device &quot;%1&quot;. This might take a moment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stelle die erste Verbindung zum Gerät &quot;%1&quot; her. Dies kann einen Moment dauern.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is currently marked as disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; ist zur Zeit als nicht verbunden markiert.</translation>
     </message>
     <message>
         <source>The device was not available when trying to connect previously.&lt;br&gt;No further connection attempts will be made until the device is manually reset by running a successful connection test via the &lt;a href=&quot;dummy&quot;&gt;settings page&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät war bei einem vorherigen Verbindungsversuch nicht erreichbar.&lt;br&gt;Es werden keine weiteren Verbindungsversuche unternommen, bis das Gerät manuell über einen erfolgreichen Verbindungstest in den &lt;a href=&quot;dummy&quot;&gt;Einstellungen&lt;/a&gt; zurückgesetzt wurde.</translation>
     </message>
     <message>
         <source>Failed: %1</source>
@@ -49931,7 +49933,7 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is considered unconnected. Re-run device test to reset state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät ist als nicht verbunden eingestuft. Führen Sie die Gerätetests erneut aus, um die Einstufung zurückzusetzen.</translation>
     </message>
     <message>
         <source>Remote Linux Device</source>
@@ -50069,7 +50071,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Use sftp if available. Otherwise use default transfer.</source>
-        <translation>Benutze SFTP, sofern verfügbar. Sonst Standardmethode verwenden.</translation>
+        <translation>Benutze SFTP, sofern verfügbar. Sonst verwende Standardmethode.</translation>
     </message>
     <message>
         <source>Use default transfer. This might be slow.</source>
@@ -50081,7 +50083,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Transfer method was downgraded from &quot;%1&quot; to &quot;%2&quot;. If this is unexpected, please re-test device &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Übertragungsmethode wurde von &quot;%1&quot; auf &quot;%2&quot; zurückgestuft. Falls dies unerwartet auftritt, führen Sie bitte die Gerätetests für &quot;%3&quot; erneut aus.</translation>
     </message>
     <message>
         <source>rsync failed to start: %1</source>
@@ -50105,7 +50107,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Use rsync or sftp if available, but prefer rsync. Otherwise use default transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze rsync oder sftp, sofern verfügbar, bevorzuge aber rsync. Sonst verwende Standardmethode.</translation>
     </message>
     <message>
         <source>rsync is only supported for transfers between different devices.</source>
@@ -51696,19 +51698,19 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Do you really want to delete &quot;%1&quot; permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie &quot;%1&quot; wirklich endgültig löschen?</translation>
     </message>
     <message>
         <source>Remove Shared File</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsame Datei löschen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Failed to remove &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Remove &quot;%1&quot; from the list of shared folders?</source>
@@ -52674,7 +52676,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <source>Clear Selection</source>
