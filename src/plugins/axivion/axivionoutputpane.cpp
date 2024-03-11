@@ -269,7 +269,7 @@ private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
-    void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
+    void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
     void setFiltersEnabled(bool enabled);
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
@@ -375,7 +375,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 void IssuesWidget::updateUi()
 {
     setFiltersEnabled(false);
-    std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    const std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
     updateBasicProjectInfo(projectInfo);
 
     if (!projectInfo)
@@ -535,7 +535,7 @@ void IssuesWidget::onSearchParameterChanged()
     fetchIssues(search);
 }
 
-void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info)
+void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
 {
     auto cleanOld = [this] {
         const QList<QAbstractButton *> originalList = m_typesButtonGroup->buttons();
