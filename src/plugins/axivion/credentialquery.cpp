@@ -44,6 +44,7 @@ void CredentialQueryTaskAdapter::start()
             task()->m_errorString = job->errorString();
         else if (reader && job->error() == NoError)
             task()->m_data = reader->binaryData();
+        disconnect(job, &Job::finished, this, nullptr);
         emit done(toDoneResult(success));
         m_guard.release()->deleteLater();
     });
