@@ -44335,7 +44335,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>&amp;Generate Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kit erstellen</translation>
     </message>
     <message>
         <source>&amp;Clean Up</source>
@@ -44403,19 +44403,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Installing PySide</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere PySide</translation>
     </message>
     <message>
         <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer benutzen und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu installierende Version aus:</translation>
     </message>
     <message>
         <source>Latest PySide from the PyPI</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte PySide-Version von PyPI</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
@@ -44467,27 +44467,28 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>PySide uic tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide uic-Werkzeug:</translation>
     </message>
     <message>
         <source>Enter location of PySide uic tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort des PySide uic-Werkzeugs ein.</translation>
     </message>
     <message>
         <source>Effective venv:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierende venv:</translation>
     </message>
     <message>
         <source>New Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue virtuelle Umgebung</translation>
     </message>
     <message>
         <source>Global Python</source>
-        <translation type="unfinished"></translation>
+        <translation>Globales Python</translation>
     </message>
     <message>
         <source> Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>python-&gt;name + Tr::tr(&quot; Virtual Environment&quot;);</translatorcomment>
+        <translation> virtuelle Umgebung</translation>
     </message>
     <message>
         <source>REPL</source>
@@ -44567,43 +44568,43 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>The interpreter used for Python based projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der für Python-basierte Projekte benutzte Interpreter.</translation>
     </message>
     <message>
         <source>No Python setup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python eingerichtet.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht ausführbar.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable pip. pip is needed to install Python packages from the Python Package Index, like PySide and the Python language server. To use any of that functionality ensure that pip is installed for that Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares pip. pip wird für das Installieren von Python-Paketen wie PySide und dem Python Language Server vom Python Package Index benötigt. Um diese Funktionen benutzen zu können, stellen Sie sicher, dass pip für dieses Python installiert ist.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable venv. venv is the recommended way to isolate a development environment for a project from the globally installed Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares venv. venv ist der empfohlene Weg, um eine Entwicklungsumgebung für ein Projekt von der globalen Python-Installation zu isolieren.</translation>
     </message>
     <message>
         <source>Name of Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Python-Interpreters</translation>
     </message>
     <message>
         <source>Path to Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Python-Interpreter</translation>
     </message>
     <message>
         <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet</translation>
     </message>
 </context>
 <context>
