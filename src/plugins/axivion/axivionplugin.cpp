@@ -119,13 +119,15 @@ static QString apiTokenDescription()
     return "Automatically created by " + ua + " on " + user + "@" + QSysInfo::machineHostName();
 }
 
+static QString escapeKey(const QString &string)
+{
+    QString escaped = string;
+    return escaped.replace('\\', "\\\\").replace('@', "\\@");
+}
+
 static QString credentialKey()
 {
-    const auto escape = [](const QString &string) {
-        QString escaped = string;
-        return escaped.replace('\\', "\\\\").replace('@', "\\@");
-    };
-    return escape(settings().server.username) + '@' + escape(settings().server.dashboard);
+    return escapeKey(settings().server.username) + '@' + escapeKey(settings().server.dashboard);
 }
 
 template <typename DtoType>
