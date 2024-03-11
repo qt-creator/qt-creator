@@ -280,9 +280,10 @@ void TerminalWidget::setupActions()
     pasteAction.addOnTriggered(this, &TerminalWidget::pasteFromClipboard);
     m_paste = make_registered(pasteAction);
 
-    ActionBuilder closeAction(this, Core::Constants::CLOSE);
-    closeAction.setContext(m_context);
-    closeAction.addOnTriggered(this, &TerminalWidget::closeTerminal);
+    ActionBuilder(this, Core::Constants::CLOSE)
+        .setContext(m_context)
+        .addOnTriggered(this, &TerminalWidget::closeTerminal)
+        .setText(Tr::tr("Close Terminal"));
     // We do not register the close action, as we want it to be blocked if the keyboard is locked.
 
     ActionBuilder clearTerminalAction(this, Constants::CLEAR_TERMINAL);
