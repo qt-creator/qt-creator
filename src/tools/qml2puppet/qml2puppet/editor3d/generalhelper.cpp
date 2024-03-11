@@ -1116,6 +1116,14 @@ void GeneralHelper::setSnapPositionInterval(double interval)
     }
 }
 
+void GeneralHelper::setCameraSpeed(double speed)
+{
+    if (m_cameraSpeed != speed) {
+        m_cameraSpeed = speed;
+        emit cameraSpeedChanged();
+    }
+}
+
 QString GeneralHelper::formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const
 {
     return QObject::tr("x:%L1 y:%L2 z:%L3%L4")

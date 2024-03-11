@@ -124,7 +124,7 @@ private:
     void resolveImportSupport();
     void updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges);
     void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
-    void updateSnapSettings(const QVector<PropertyValueContainer> &valueChanges);
+    void updateSnapAndCameraSettings(const QVector<PropertyValueContainer> &valueChanges);
     void updateColorSettings(const QVector<PropertyValueContainer> &valueChanges);
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
     void getNodeAtPos(const QPointF &pos);

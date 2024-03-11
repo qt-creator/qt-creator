@@ -26,7 +26,7 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
-    readonly property real _keyPanAmount: 10
+    readonly property real _keyPanAmount: _generalHelper.cameraSpeed
     property bool ignoreToolState: false
     property bool flyMode: viewRoot.flyMode
 

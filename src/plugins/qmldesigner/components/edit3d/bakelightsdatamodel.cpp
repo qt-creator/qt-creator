@@ -15,6 +15,8 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
+#include <utils3d.h>
+
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -140,7 +142,7 @@ bool BakeLightsDataModel::reset()
     beginResetModel();
     m_dataList.clear();
 
-    m_view3dNode = BakeLights::resolveView3dNode(m_view);
+    m_view3dNode = Utils3D::activeView3dNode(m_view);
 
     // Find all models and lights in active View3D
     QList<ModelNode> nodes = m_view3dNode.allSubModelNodes();

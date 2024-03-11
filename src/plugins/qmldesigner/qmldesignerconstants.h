@@ -75,6 +75,7 @@ inline constexpr char EDIT3D_BACKGROUND_COLOR_ACTIONS[]
 inline constexpr char EDIT3D_BAKE_LIGHTS[] = "QmlDesigner.Editor3D.BakeLights";
 inline constexpr char EDIT3D_SNAP_TOGGLE[] = "QmlDesigner.Editor3D.SnapToggle";
 inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
+inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
 inline constexpr char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 inline constexpr char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";

@@ -5,6 +5,7 @@
 
 #include "backgroundcolorselection.h"
 #include "bakelights.h"
+#include "cameraspeedconfiguration.h"
 #include "designeractionmanager.h"
 #include "designericons.h"
 #include "designersettings.h"
@@ -270,6 +271,8 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
     if (m_bakeLightsAction)
         m_bakeLightsAction->currentContextChanged(selectionContext);
+
+    syncCameraSpeedToNewView();
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -764,6 +767,48 @@ void Edit3DView::syncSnapAuxPropsToSettings()
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
 }
 
+void Edit3DView::setCameraSpeedAuxData(double speed, double multiplier)
+{
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    node.setAuxiliaryData(edit3dCameraSpeedDocProperty, speed);
+    node.setAuxiliaryData(edit3dCameraSpeedMultiplierDocProperty, multiplier);
+    rootModelNode().setAuxiliaryData(edit3dCameraTotalSpeedProperty, (speed * multiplier));
+    m_previousCameraSpeed = speed;
+    m_previousCameraMultiplier = multiplier;
+}
+
+void Edit3DView::getCameraSpeedAuxData(double &speed, double &multiplier)
+{
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    auto speedProp = node.auxiliaryData(edit3dCameraSpeedDocProperty);
+    auto multProp = node.auxiliaryData(edit3dCameraSpeedMultiplierDocProperty);
+    speed = speedProp ? speedProp->toDouble() : CameraSpeedConfiguration::defaultSpeed;
+    multiplier = multProp ? multProp->toDouble() : CameraSpeedConfiguration::defaultMultiplier;
+}
+
+void Edit3DView::syncCameraSpeedToNewView()
+{
+    // Camera speed is inherited from previous active view if explicit values have not been
+    // stored for the currently active view
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    auto speedProp = node.auxiliaryData(edit3dCameraSpeedDocProperty);
+    auto multProp = node.auxiliaryData(edit3dCameraSpeedMultiplierDocProperty);
+    double speed = CameraSpeedConfiguration::defaultSpeed;
+    double multiplier = CameraSpeedConfiguration::defaultMultiplier;
+
+    if (!speedProp || !multProp) {
+        if (m_previousCameraSpeed > 0 && m_previousCameraMultiplier > 0) {
+            speed = m_previousCameraSpeed;
+            multiplier = m_previousCameraMultiplier;
+        }
+    } else {
+        speed = speedProp->toDouble();
+        multiplier = multProp->toDouble();
+    }
+
+    setCameraSpeedAuxData(speed, multiplier);
+}
+
 const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
 {
     return m_splitToolStates;
@@ -1156,6 +1201,30 @@ void Edit3DView::createEdit3DActions()
         toolbarIcon(DesignerIcons::SplitViewIcon),
         this);
 
+    SelectionContextOperation cameraSpeedConfigTrigger = [this](const SelectionContext &) {
+        if (!m_cameraSpeedConfiguration) {
+            m_cameraSpeedConfiguration = new CameraSpeedConfiguration(this);
+            connect(m_cameraSpeedConfiguration.data(), &CameraSpeedConfiguration::totalSpeedChanged,
+                    this, [this] {
+                        setCameraSpeedAuxData(m_cameraSpeedConfiguration->speed(),
+                                              m_cameraSpeedConfiguration->multiplier());
+            });
+        }
+        m_cameraSpeedConfiguration->showConfigDialog(resolveToolbarPopupPos(m_cameraSpeedConfigAction.get()));
+    };
+
+    m_cameraSpeedConfigAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_CAMERA_SPEED_CONFIG,
+        View3DActionType::Empty,
+        QCoreApplication::translate("CameraSpeedConfigAction", "Open camera speed configuration dialog"),
+        QKeySequence(),
+        false,
+        false,
+        toolbarIcon(DesignerIcons::SnappingConfIcon), // TODO proper icon
+        this,
+        cameraSpeedConfigTrigger);
+
+
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -1174,6 +1243,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << nullptr;
     m_leftActions << m_alignCamerasAction.get();
     m_leftActions << m_alignViewAction.get();
+    m_leftActions << m_cameraSpeedConfigAction.get();
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgroundColorMenuAction.get();

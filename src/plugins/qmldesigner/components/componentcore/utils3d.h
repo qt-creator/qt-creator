@@ -21,5 +21,8 @@ void ensureMaterialLibraryNode(AbstractView *view);
 bool isPartOfMaterialLibrary(const ModelNode &node);
 ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view);
 
+ModelNode activeView3dNode(AbstractView *view);
+QString activeView3dId(AbstractView *view);
+
 } // namespace Utils3D
 } // namespace QmlDesigner

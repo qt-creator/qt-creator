@@ -62,7 +62,7 @@ BakeLights::BakeLights(AbstractView *view)
     : QObject(view)
     , m_view(view)
 {
-    m_view3dId = resolveView3dId(view);
+    m_view3dId = Utils3D::activeView3dId(view);
 
     if (m_view3dId.isEmpty()) {
         // It should never get here, baking controls should be disabled in this case
@@ -77,38 +77,6 @@ BakeLights::BakeLights(AbstractView *view)
 BakeLights::~BakeLights()
 {
     cleanup();
-}
-
-ModelNode BakeLights::resolveView3dNode(AbstractView *view)
-{
-    if (!view || !view->model())
-        return {};
-
-    ModelNode activeView3D;
-    ModelNode activeScene = Utils3D::active3DSceneNode(view);
-
-    if (activeScene.isValid()) {
-        if (activeScene.metaInfo().isQtQuick3DView3D()) {
-            activeView3D = activeScene;
-        } else {
-            ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
-            if (sceneParent.metaInfo().isQtQuick3DView3D())
-                activeView3D = sceneParent;
-        }
-        return activeView3D;
-    }
-
-    return {};
-}
-
-QString BakeLights::resolveView3dId(AbstractView *view)
-{
-    ModelNode activeView3D = resolveView3dNode(view);
-
-    if (activeView3D.isValid())
-        return activeView3D.id();
-
-    return {};
 }
 
 void BakeLights::raiseDialog()

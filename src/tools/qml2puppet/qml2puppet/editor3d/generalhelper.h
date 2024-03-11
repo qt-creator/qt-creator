@@ -38,6 +38,7 @@ class GeneralHelper : public QObject
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
     Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
+    Q_PROPERTY(double cameraSpeed READ cameraSpeed NOTIFY cameraSpeedChanged FINAL)
 
 public:
     GeneralHelper();
@@ -135,12 +136,14 @@ public:
     void setSnapPositionInterval(double interval);
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
+    void setCameraSpeed(double speed);
 
     Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
     Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
     Q_INVOKABLE QString snapScaleDragTooltip(const QVector3D &scale) const;
 
     double minGridStep() const;
+    double cameraSpeed() const { return m_cameraSpeed; }
 
     void setBgColor(const QVariant &colors);
     QVariant bgColor() const { return m_bgColor; }
@@ -161,6 +164,7 @@ signals:
     void sceneEnvDataChanged();
     void requestCameraMove(QQuick3DCamera *camera, const QVector3D &moveVector);
     void requestRender();
+    void cameraSpeedChanged();
 
 private:
     void handlePendingToolStateUpdate();
@@ -214,6 +218,7 @@ private:
     double m_snapPositionInterval = 50.;
     double m_snapRotationInterval = 5.;
     double m_snapScaleInterval = .1;
+    double m_cameraSpeed = 10.;
 
     QVariant m_bgColor;
 };

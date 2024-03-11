@@ -41,9 +41,6 @@ public:
     bool manualMode() const;
     void setManualMode(bool enabled);
 
-    static ModelNode resolveView3dNode(AbstractView *view);
-    static QString resolveView3dId(AbstractView *view);
-
 signals:
     void finished();
     void progress(const QString &msg);

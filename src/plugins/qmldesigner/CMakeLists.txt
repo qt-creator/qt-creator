@@ -652,6 +652,7 @@ extend_qtc_plugin(QmlDesigner
   backgroundcolorselection.cpp backgroundcolorselection.h
   bakelights.cpp bakelights.h
   snapconfiguration.cpp snapconfiguration.h
+  cameraspeedconfiguration.cpp cameraspeedconfiguration.h
   bakelightsdatamodel.cpp bakelightsdatamodel.h
   bakelightsconnectionmanager.cpp bakelightsconnectionmanager.h
   edit3d.qrc

@@ -343,7 +343,7 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::updateSnapSettings(
+void Qt5InformationNodeInstanceServer::updateSnapAndCameraSettings(
     [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
@@ -372,6 +372,8 @@ void Qt5InformationNodeInstanceServer::updateSnapSettings(
             } else if (container.name() == "snapAbs3d") {
                 helper->setSnapAbsolute(container.value().toBool());
                 changed = true;
+            } else if (container.name() == "cameraTotalSpeed3d") {
+                helper->setCameraSpeed(container.value().toDouble());
             }
         }
         if (changed)
@@ -2103,7 +2105,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
         setup3DEditView(instanceList, command);
         updateRotationBlocks(command.auxiliaryChanges);
         updateMaterialPreviewData(command.auxiliaryChanges);
-        updateSnapSettings(command.auxiliaryChanges);
+        updateSnapAndCameraSettings(command.auxiliaryChanges);
         updateColorSettings(command.auxiliaryChanges);
     }
 
@@ -2613,7 +2615,7 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
 {
     updateRotationBlocks(command.auxiliaryChanges);
     updateMaterialPreviewData(command.auxiliaryChanges);
-    updateSnapSettings(command.auxiliaryChanges);
+    updateSnapAndCameraSettings(command.auxiliaryChanges);
     updateColorSettings(command.auxiliaryChanges);
     Qt5NodeInstanceServer::changeAuxiliaryValues(command);
     render3DEditView();

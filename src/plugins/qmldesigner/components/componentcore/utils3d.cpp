@@ -121,5 +121,37 @@ ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view)
     return {};
 }
 
+ModelNode activeView3dNode(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    ModelNode activeView3D;
+    ModelNode activeScene = Utils3D::active3DSceneNode(view);
+
+    if (activeScene.isValid()) {
+        if (activeScene.metaInfo().isQtQuick3DView3D()) {
+            activeView3D = activeScene;
+        } else {
+            ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
+            if (sceneParent.metaInfo().isQtQuick3DView3D())
+                activeView3D = sceneParent;
+        }
+        return activeView3D;
+    }
+
+    return {};
+}
+
+QString activeView3dId(AbstractView *view)
+{
+    ModelNode activeView3D = activeView3dNode(view);
+
+    if (activeView3D.isValid())
+        return activeView3D.id();
+
+    return {};
+}
+
 } // namespace Utils3D
 } // namespace QmlDesigner

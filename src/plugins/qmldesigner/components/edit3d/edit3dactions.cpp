@@ -9,6 +9,8 @@
 #include "qmldesignerconstants.h"
 #include "seekerslider.h"
 
+#include <utils3d.h>
+
 #include <utils/algorithm.h>
 
 namespace QmlDesigner {
@@ -149,7 +151,7 @@ bool Edit3DBakeLightsAction::isVisible(const SelectionContext &) const
 bool Edit3DBakeLightsAction::isEnabled(const SelectionContext &) const
 {
     return m_view->isBakingLightsSupported()
-            && !BakeLights::resolveView3dId(m_view).isEmpty();
+            && !Utils3D::activeView3dId(m_view).isEmpty();
 }
 
 }

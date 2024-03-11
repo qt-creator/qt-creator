@@ -25,6 +25,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class BakeLights;
+class CameraSpeedConfiguration;
 class Edit3DWidget;
 class SnapConfiguration;
 
@@ -85,6 +86,8 @@ public:
     bool isBakingLightsSupported() const;
 
     void syncSnapAuxPropsToSettings();
+    void setCameraSpeedAuxData(double speed, double multiplier);
+    void getCameraSpeedAuxData(double &speed, double &multiplier);
 
     const QList<SplitToolState> &splitToolStates() const;
     void setSplitToolState(int splitIndex, const SplitToolState &state);
@@ -123,6 +126,7 @@ private:
     void createResetColorAction(QAction *syncEnvBackgroundAction);
     void createSyncEnvBackgroundAction();
     void createSeekerSliderAction();
+    void syncCameraSpeedToNewView();
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
 
@@ -164,6 +168,7 @@ private:
     std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
+    std::unique_ptr<Edit3DAction> m_cameraSpeedConfigAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 
     int particlemode;
@@ -178,11 +183,15 @@ private:
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
     QPointer<SnapConfiguration> m_snapConfiguration;
+    QPointer<CameraSpeedConfiguration> m_cameraSpeedConfiguration;
     int m_activeSplit = 0;
 
     QList<SplitToolState> m_splitToolStates;
     QList<Edit3DAction *> m_flyModeDisabledActions;
     ModelNode m_contextMenuPendingNode;
+
+    double m_previousCameraSpeed = -1.;
+    double m_previousCameraMultiplier = -1.;
 
     friend class Edit3DAction;
 };
