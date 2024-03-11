@@ -1916,7 +1916,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      contextIcon(DesignerIcons::EnterComponentIcon),
                                                      rootCategory,
                                                      QKeySequence(Qt::Key_F2),
-                                                     Priorities::ComponentActions + 2,
+                                                     Priorities::ComponentActions + 3,
                                                      &goIntoComponentOperation,
                                                      &selectionIsEditableComponent));
 
@@ -1964,12 +1964,23 @@ void DesignerActionManager::createDefaultDesignerActions()
     }
 
     addDesignerAction(new ModelNodeContextMenuAction(
+                          editIn3dViewCommandId,
+                          editIn3dViewDisplayName,
+                          contextIcon(DesignerIcons::EditIcon),
+                          rootCategory,
+                          QKeySequence(),
+                          Priorities::ComponentActions + 1,
+                          &editIn3dView,
+                          &singleSelectionView3D,
+                          &singleSelectionView3D));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
                           makeComponentCommandId,
                           makeComponentDisplayName,
                           contextIcon(DesignerIcons::MakeComponentIcon),
                           rootCategory,
                           QKeySequence(),
-                          Priorities::ComponentActions + 1,
+                          Priorities::ComponentActions + 2,
                           &moveToComponent,
                           &singleSelection,
                           &singleSelection));

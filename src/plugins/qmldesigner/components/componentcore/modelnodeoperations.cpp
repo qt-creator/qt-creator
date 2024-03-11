@@ -1689,6 +1689,15 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
     }
 }
 
+void editIn3dView(const SelectionContext &selectionContext)
+{
+    if (selectionContext.view() && selectionContext.hasSingleSelectedModelNode()
+        && selectionContext.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
+        selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+    }
+}
+
 bool isEffectComposerActivated()
 {
     const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();

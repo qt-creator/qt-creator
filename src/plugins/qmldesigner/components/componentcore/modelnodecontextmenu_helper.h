@@ -97,6 +97,12 @@ inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
         && !selectionState.currentSingleSelectedNode().isRootNode();
 }
 
+inline bool singleSelectionView3D(const SelectionContext &selectionState)
+{
+    return selectionState.singleNodeIsSelected()
+           && selectionState.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D();
+}
+
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
 {
     for (const ModelNode &modelNode : selectionState.selectedModelNodes())
