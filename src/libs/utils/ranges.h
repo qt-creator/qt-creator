@@ -3,8 +3,8 @@
 
 #pragma once
 
-#if __cplusplus >= 202002L
-#include <ranges>
+#if __cpp_lib_ranges >= 202002L
+#  include <ranges>
 
 namespace Utils {
 
