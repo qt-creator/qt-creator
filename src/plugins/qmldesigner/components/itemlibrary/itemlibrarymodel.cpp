@@ -323,7 +323,7 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
-            if (excludedImports.contains(import.url()))
+            if (excludedImports.contains(import.url()) || import.url().startsWith("Effects."))
                 continue;
             bool addNew = true;
             bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
