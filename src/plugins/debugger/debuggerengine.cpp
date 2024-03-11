@@ -1438,6 +1438,9 @@ void DebuggerEnginePrivate::updateState()
         return;
     QTC_ASSERT(m_threadLabel, return);
 
+    if (m_isDying)
+        return;
+
     const DebuggerState state = m_state;
     const bool companionPreventsAction = m_engine->companionPreventsActions();
 
