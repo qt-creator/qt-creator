@@ -11,7 +11,7 @@ ListView {
     clip: true
 
     delegate: CollectionItem {
-        implicitWidth: parent.width
+        implicitWidth: root.width
         onDeleteItem: root.model.removeRow(index)
     }
 }

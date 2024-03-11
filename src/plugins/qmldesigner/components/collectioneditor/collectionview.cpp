@@ -3,6 +3,7 @@
 
 #include "collectionview.h"
 
+#include "collectiondatatypemodel.h"
 #include "collectiondetailsmodel.h"
 #include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
@@ -290,6 +291,7 @@ void CollectionView::openCollection(const QString &collectionName)
 void CollectionView::registerDeclarativeType()
 {
     CollectionDetails::registerDeclarativeType();
+    CollectionDataTypeModel::registerDeclarativeType();
 }
 
 void CollectionView::resetDataStoreNode()

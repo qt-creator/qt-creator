@@ -3,6 +3,7 @@
 
 #include "collectiondetails.h"
 
+#include "collectiondatatypemodel.h"
 #include "collectioneditorutils.h"
 
 #include <utils/span.h>
@@ -706,7 +707,7 @@ QJsonObject CollectionDetails::toLocalJson() const
     for (const CollectionProperty &property : std::as_const(d->properties)) {
         QJsonObject columnObject;
         columnObject.insert("name", property.name);
-        columnObject.insert("type", CollectionEditorUtils::dataTypeToString(property.type));
+        columnObject.insert("type", CollectionDataTypeModel::dataTypeToString(property.type));
         columnsArray.append(columnObject);
     }
 
@@ -941,7 +942,7 @@ CollectionDetails CollectionDetails::fromLocalCollection(const QJsonObject &loca
                         result.insertColumn(columnName,
                                             -1,
                                             {},
-                                            CollectionEditorUtils::dataTypeFromString(
+                                            CollectionDataTypeModel::dataTypeFromString(
                                                 column.value("type").toString()));
                     }
                 }

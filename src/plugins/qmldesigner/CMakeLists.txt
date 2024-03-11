@@ -836,6 +836,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/collectioneditor
   SOURCES
+    collectiondatatypemodel.cpp collectiondatatypemodel.h
     collectiondetails.cpp collectiondetails.h
     collectiondetailsmodel.cpp collectiondetailsmodel.h
     collectiondetailssortfiltermodel.cpp collectiondetailssortfiltermodel.h

@@ -8,6 +8,7 @@ import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import CollectionDetails
 import CollectionEditorBackend
 
 Rectangle {
@@ -231,7 +232,9 @@ Rectangle {
 
                 Layout.fillWidth: true
 
-                model: root.model.typesList()
+                model: CollectionDataTypeModel{}
+                textRole: "display"
+                tooltipRole: "toolTip"
                 actionIndicatorVisible: false
             }
 

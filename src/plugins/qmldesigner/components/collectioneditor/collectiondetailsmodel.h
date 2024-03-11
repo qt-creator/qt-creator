@@ -58,7 +58,6 @@ public:
     Q_INVOKABLE bool selectRow(int row);
     Q_INVOKABLE void deselectAll();
     Q_INVOKABLE QString warningToString(DataTypeWarning::Warning warning) const;
-    static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
     void removeCollection(const ModelNode &sourceNode, const QString &collection);

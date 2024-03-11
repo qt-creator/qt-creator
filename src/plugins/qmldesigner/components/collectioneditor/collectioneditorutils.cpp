@@ -31,64 +31,6 @@ namespace {
 
 using CollectionDataVariant = std::variant<QString, bool, double, int, QUrl, QColor>;
 
-class CollectionDataTypeHelper
-{
-private:
-    using DataType = QmlDesigner::CollectionDetails::DataType;
-    friend QString QmlDesigner::CollectionEditorUtils::dataTypeToString(DataType);
-    friend DataType QmlDesigner::CollectionEditorUtils::dataTypeFromString(const QString &);
-    friend QStringList QmlDesigner::CollectionEditorUtils::dataTypesStringList();
-
-    CollectionDataTypeHelper() = delete;
-
-    static QHash<DataType, QString> typeToStringHash()
-    {
-        return {
-            {DataType::Unknown, "Unknown"},
-            {DataType::String, "String"},
-            {DataType::Url, "Url"},
-            {DataType::Real, "Real"},
-            {DataType::Integer, "Integer"},
-            {DataType::Boolean, "Boolean"},
-            {DataType::Image, "Image"},
-            {DataType::Color, "Color"},
-        };
-    }
-
-    static QHash<QString, DataType> stringToTypeHash()
-    {
-        QHash<QString, DataType> stringTypeHash;
-        const QHash<DataType, QString> typeStringHash = typeToStringHash();
-        for (const auto &transferItem : typeStringHash.asKeyValueRange())
-            stringTypeHash.insert(transferItem.second, transferItem.first);
-
-        return stringTypeHash;
-    }
-
-    static QStringList orderedTypeNames()
-    {
-        const QList<DataType> orderedtypes{
-            DataType::String,
-            DataType::Integer,
-            DataType::Real,
-            DataType::Image,
-            DataType::Color,
-            DataType::Url,
-            DataType::Boolean,
-            DataType::Unknown,
-        };
-
-        QStringList orderedNames;
-        QHash<DataType, QString> typeStringHash = typeToStringHash();
-
-        for (const DataType &type : orderedtypes)
-            orderedNames.append(typeStringHash.take(type));
-
-        Q_ASSERT(typeStringHash.isEmpty());
-        return orderedNames;
-    }
-};
-
 inline bool operator<(const QColor &a, const QColor &b)
 {
     return a.name(QColor::HexArgb) < b.name(QColor::HexArgb);
@@ -381,24 +323,6 @@ QJsonObject defaultColorCollection()
     }
 
     return collection.toLocalJson();
-}
-
-QString dataTypeToString(CollectionDetails::DataType dataType)
-{
-    static const QHash<DataType, QString> typeStringHash = CollectionDataTypeHelper::typeToStringHash();
-    return typeStringHash.value(dataType);
-}
-
-CollectionDetails::DataType dataTypeFromString(const QString &dataType)
-{
-    static const QHash<QString, DataType> stringTypeHash = CollectionDataTypeHelper::stringToTypeHash();
-    return stringTypeHash.value(dataType, DataType::Unknown);
-}
-
-QStringList dataTypesStringList()
-{
-    static const QStringList typesList = CollectionDataTypeHelper::orderedTypeNames();
-    return typesList;
 }
 
 bool writeToJsonDocument(const Utils::FilePath &path, const QJsonDocument &document, QString *errorString)

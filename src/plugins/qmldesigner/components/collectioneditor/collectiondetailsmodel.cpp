@@ -3,6 +3,7 @@
 
 #include "collectiondetailsmodel.h"
 
+#include "collectiondatatypemodel.h"
 #include "collectioneditorutils.h"
 #include "modelnode.h"
 
@@ -188,7 +189,7 @@ QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orienta
 {
     if (orientation == Qt::Horizontal) {
         if (role == DataTypeRole)
-            return CollectionEditorUtils::dataTypeToString(m_currentCollection.typeAt(section));
+            return CollectionDataTypeModel::dataTypeToString(m_currentCollection.typeAt(section));
         else
             return m_currentCollection.propertyAt(section);
     }
@@ -227,7 +228,7 @@ QString CollectionDetailsModel::propertyType(int column) const
 {
     QTC_ASSERT(m_currentCollection.hasValidReference(), return {});
 
-    return CollectionEditorUtils::dataTypeToString(m_currentCollection.typeAt(column));
+    return CollectionDataTypeModel::dataTypeToString(m_currentCollection.typeAt(column));
 }
 
 bool CollectionDetailsModel::isPropertyAvailable(const QString &name)
@@ -251,7 +252,7 @@ bool CollectionDetailsModel::addColumn(int column, const QString &name, const QS
     m_currentCollection.insertColumn(name,
                                      column,
                                      {},
-                                     CollectionEditorUtils::dataTypeFromString(propertyType));
+                                     CollectionDataTypeModel::dataTypeFromString(propertyType));
     endInsertColumns();
     return m_currentCollection.containsPropertyName(name);
 }
@@ -298,7 +299,7 @@ bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue
     QTC_ASSERT(m_currentCollection.hasValidReference(), return false);
 
     bool changed = m_currentCollection.setPropertyType(column,
-                                                       CollectionEditorUtils::dataTypeFromString(
+                                                       CollectionDataTypeModel::dataTypeFromString(
                                                            newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
@@ -344,11 +345,6 @@ void CollectionDetailsModel::deselectAll()
 {
     selectColumn(-1);
     selectRow(-1);
-}
-
-QStringList CollectionDetailsModel::typesList()
-{
-    return CollectionEditorUtils::dataTypesStringList();
 }
 
 void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)

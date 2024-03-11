@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
 import HelperWidgets 2.0 as HelperWidgets
+import CollectionDetails
 
 StudioControls.Dialog {
     id: root
@@ -91,7 +92,9 @@ StudioControls.Dialog {
 
                 property string initialType
 
-                model: root.model.typesList()
+                model: CollectionDataTypeModel{}
+                textRole: "display"
+                tooltipRole: "toolTip"
                 actionIndicatorVisible: false
             }
         }
