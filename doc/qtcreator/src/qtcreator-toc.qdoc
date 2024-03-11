@@ -35,7 +35,7 @@
             \endlist
             \li \l{Configuring the Editor}
         \endlist
-        \li \l{Building and Running}
+        \li \l{Running on Devices}
         \list
             \li \l{Validating with Target Hardware}
             \list
@@ -43,7 +43,6 @@
                 \li \l{Previewing on Devices}
                 \li \l{Previewing in Browsers}
             \endlist
-            \li \l{Building for Multiple Platforms}
             \li \l{Deploying to Devices}
             \list
                 \li \l{Deploying to Android}

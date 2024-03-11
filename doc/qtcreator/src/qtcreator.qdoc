@@ -46,10 +46,9 @@
                     \li \l{Writing Code}
                     \li \l{Configuring the Editor}
                 \endlist
-            \li \b {\l{Building and Running}}
+            \li \b {\l{Running on Devices}}
                 \list
                     \li \l{Validating with Target Hardware}
-                    \li \l{Building for Multiple Platforms}
                     \li \l{Deploying to Devices}
                     \li \l{Connecting Devices}
                 \endlist

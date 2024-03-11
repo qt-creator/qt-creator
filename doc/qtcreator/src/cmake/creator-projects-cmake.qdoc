@@ -47,8 +47,8 @@
             Typically, you cannot compile such projects without manual changes.
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
-    {Configure projects for building}, {Configure projects for running},
+    \sa {Configure projects for building}, {Configure projects for running},
+    {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
     {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects},
     {Use compilation databases}
 */
@@ -70,9 +70,8 @@
 
     \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
-    To disable this
-    behavior, select \preferences > \uicontrol CMake > \uicontrol General, and
-    then deselect the \uicontrol {Autorun CMake} check box.
+    To disable this behavior, go to \preferences > \uicontrol CMake >
+    \uicontrol General and clear \uicontrol {Autorun CMake}.
 
     \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
 
@@ -100,7 +99,7 @@
     box. The change takes effect after you select \uicontrol Build >
     \uicontrol {Run CMake}.
 
-    \sa {CMake}, {Manage files in CMake projects}, {Open projects},
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Open projects},
     {File System}, {Projects}
 */
 
@@ -125,7 +124,8 @@
         \li Switching to the Help mode
     \endlist
 
-    \sa {CMake}, {Read Documentation}{How To: Read Documentation}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake},
+    {Read Documentation}{How To: Read Documentation}
 */
 
 /*!
@@ -183,7 +183,8 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {CMake}, {Add kits}, {kits-tab}{Kits}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Add kits},
+    {kits-tab}{Kits}
 */
 
 /*!
@@ -234,8 +235,8 @@
 
     Warnings and errors are displayed in \l {Issues}.
 
-    \sa {CMake}, {Add libraries to CMake projects}, {Complete CMake code},
-    {Format CMake files}, {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */
 
 /*!
@@ -263,7 +264,8 @@
     Press \key Tab or \key Enter to accept the selected suggestion and complete
     the code.
 
-    \sa {CMake}, {Edit CMake configuration files}, {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */
 
 /*!
@@ -297,8 +299,7 @@
             current project.
     \endlist
 
-    \sa {CMake},{Complete CMake code}, {Edit CMake configuration files},
-    {Edit MIME types}
+    \sa {Build with CMake}{How To: Build with CMake}, {Edit MIME types}, {CMake}
 */
 
 /*!
@@ -324,8 +325,7 @@
     When you rename or remove files in the \l {Projects} or \l {File System}
     view, \QC renames them in the CMakeLists.txt file or removes them from it.
 
-    \sa {CMake}, {Add libraries to CMake projects}, {Create files},
-    {Edit CMake configuration files}, {View CMake project contents},
+    \sa {Create files}, {Build with CMake}{How To: Build with CMake}, {CMake},
     {File System}, {Projects}
 */
 
@@ -377,6 +377,6 @@
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
     \endcode
 
-    \sa {CMake}, {Edit CMake configuration files}, {Complete CMake code},
-    {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */
