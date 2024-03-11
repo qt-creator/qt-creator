@@ -2354,7 +2354,7 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
-    d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
+    bufferToGui();
     addLabeledItem(parent, d->m_spinBox);
     connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
             this, &IntegerAspect::handleGuiChanged);
