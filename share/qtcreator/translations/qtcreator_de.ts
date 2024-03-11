@@ -26236,7 +26236,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>%1 of length %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 der Länge %2</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
@@ -27446,23 +27446,23 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Enable %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Debugger aktivieren.</translation>
     </message>
     <message>
         <source>Disable %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Debugger deaktivieren.</translation>
     </message>
     <message>
         <source>Try to determine need for %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, die Notwendigkeit für den %1-Debugger zu ermitteln.</translation>
     </message>
     <message>
         <source>No additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine zusätzlichen Kommandos beim Start.</translation>
     </message>
     <message>
         <source>Use additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze zusätzliche Kommandos beim Start.</translation>
     </message>
     <message>
         <source>C++ debugger:</source>
@@ -27474,7 +27474,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Python debugger:</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Debugger:</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>

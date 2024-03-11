@@ -959,8 +959,10 @@ static QString displayType(const WatchItem *item)
         result += QString(":%1").arg(item->bitsize);
     result.remove('\'');
     result = watchModel(item)->removeNamespaces(result);
-    if (item->valuelen > 0)
+    if (item->valuelen > 0) {
+        //: <type> of length <number>, e.g. for strings and byte arrays
         result = Tr::tr("%1 of length %2").arg(result).arg(item->valuelen);
+    }
     return result;
 }
 
