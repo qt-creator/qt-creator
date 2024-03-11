@@ -648,23 +648,11 @@ private:
         return;
     }
 
-    bool userWantsContextMenu(const QMouseEvent *e) const
+    bool userWantsContextMenu(const QMouseEvent *e) const final
     {
         // On Windows, we get additional mouse events for the item view when right-clicking,
         // causing unwanted kit activation (QTCREATORBUG-24156). Let's suppress these.
         return HostOsInfo::isWindowsHost() && e->button() == Qt::RightButton;
-    }
-
-    void mousePressEvent(QMouseEvent *e) final
-    {
-        if (!userWantsContextMenu(e))
-            BaseTreeView::mousePressEvent(e);
-    }
-
-    void mouseReleaseEvent(QMouseEvent *e) final
-    {
-        if (!userWantsContextMenu(e))
-            BaseTreeView::mouseReleaseEvent(e);
     }
 };
 

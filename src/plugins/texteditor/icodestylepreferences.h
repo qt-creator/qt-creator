@@ -44,6 +44,9 @@ public:
     bool isAdditionalTabVisible() const;
     void setIsAdditionalTabVisible(bool on);
 
+    bool additionalTabExist() const;
+    void setAdditionalTabExist(bool on);
+
     void setTabSettings(const TabSettings &settings);
     TabSettings tabSettings() const;
     TabSettings currentTabSettings() const;

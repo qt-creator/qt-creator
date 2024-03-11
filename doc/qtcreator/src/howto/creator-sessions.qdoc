@@ -83,7 +83,12 @@
 
     \section1 Open sessions
 
-    To switch between sessions, select \uicontrol {Open}.
+    To switch between sessions:
+
+    \list
+        \li Go to \uicontrol File > \uicontrol Sessions, and select a session.
+        \li Select \uicontrol {Open} in \uicontrol {Session Manager}.
+    \endlist
 
     \if defined(qtcreator)
 
@@ -94,17 +99,30 @@
 
     \image qtcreator-welcome-session.png
 
-    You can also use the \c t locator filter to open a session. For more
-    information, see \l{Searching with the Locator}.
-
     To view more information about a session, select the down arrow icon that
     appears when you move the mouse cursor over the session name. Select actions
     to clone, rename, and delete sessions.
 
     When you start \QC from the command line, you can give the name of
-    a session as an argument and \QC will start with this session.
+    a session as an argument to start \QC with this session.
 
-    \sa {Command-Line Options}, {Searching with the Locator}
+    \section1 Open sessions from the locator
+
+    Use the \c t filter that triggers menu commands to open sessions.
+
+    To locate a session:
+
+    \list 1
+        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
+        \li Enter:
+            \list
+                \li \c {t} \e {<session_name>}
+                \li \c {t sess} \e {<session_name>}
+            \endlist
+            where \e <session_name> is the name of the session to open.
+        \li Double-click the session name to open it.
+    \endlist
+
+    \sa {Navigate with locator}, {Command-Line Options}
     \endif
-
 */

@@ -16,13 +16,16 @@ static QIcon iconForSorted(SortOrder order)
 {
     const Utils::Icon UNSORTED(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}});
+                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}},
+                Utils::Icon::MenuTintedStyle);
     const Utils::Icon SORT_ASC(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteText},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}});
+                 {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}},
+                Utils::Icon::MenuTintedStyle);
     const Utils::Icon SORT_DESC(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
-                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteText}});
+                 {":/axivion/images/sortDesc.png", Utils::Theme::PaletteText}},
+                Utils::Icon::MenuTintedStyle);
     static const QIcon unsorted = UNSORTED.icon();
     static const QIcon sortedAsc = SORT_ASC.icon();
     static const QIcon sortedDesc = SORT_DESC.icon();

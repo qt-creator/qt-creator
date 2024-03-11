@@ -198,8 +198,8 @@
     \uicontrol Projects view and select \uicontrol {Open With} >
     \uicontrol {CMake Editor}.
 
-    You can also use the \c cmo filter in the \l {Searching with the Locator}
-    {locator} to open the CMakeLists.txt file for the current run configuration
+    You can also use the \c cmo filter in the \l {Navigate with locator}{locator}
+    to open the CMakeLists.txt file for the current run configuration
     in the editor. This is the same build target as when you select
     \uicontrol Build > \uicontrol {Build for Run Configuration}.
 

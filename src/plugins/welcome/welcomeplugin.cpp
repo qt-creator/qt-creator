@@ -36,6 +36,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -72,7 +73,7 @@ private:
     TopArea *m_topArea;
     SideArea *m_sideArea;
     QList<IWelcomePage *> m_pluginList;
-    QList<QPushButton *> m_pageButtons;
+    QList<QAbstractButton *> m_pageButtons;
     QButtonGroup *m_buttonGroup;
     Id m_activePage;
     Id m_defaultPage;
@@ -155,12 +156,16 @@ public:
 
         using namespace Layouting;
 
-        Row {
-            ideIconLabel,
-            welcomeLabel,
-            st,
-            spacing(ExVPaddingGapXl),
-            customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+        Column {
+            Row {
+                ideIconLabel,
+                welcomeLabel,
+                st,
+                spacing(ExVPaddingGapXl),
+                customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+            },
+            createRule(Qt::Horizontal),
+            noMargin(), spacing(0),
         }.attachTo(this);
     }
 };
@@ -181,7 +186,7 @@ public:
 
         using namespace Layouting;
 
-        Column mainLayout {
+        Column mainColumn {
             spacing(0),
             customMargin({ExVPaddingGapXl, 0, ExVPaddingGapXl, 0}),
         };
@@ -223,8 +228,8 @@ public:
         }
 
         essentials.attachTo(m_essentials);
-        mainLayout.addItem(m_essentials);
-        mainLayout.addItem(st);
+        mainColumn.addItem(m_essentials);
+        mainColumn.addItem(st);
 
         {
             auto label = new Label(Tr::tr("Explore more"), Label::Secondary);
@@ -262,10 +267,17 @@ public:
 
             m_links = new QWidget;
             linksLayout.attachTo(m_links);
-            mainLayout.addItem(m_links);
+            mainColumn.addItem(m_links);
         }
 
-        QWidget *mainWidget = mainLayout.emerge();
+        QWidget *mainWidget = new QWidget;
+
+        Row {
+            mainColumn,
+            createRule(Qt::Vertical),
+            noMargin(), spacing(0),
+        }.attachTo(mainWidget);
+
         setWidget(mainWidget);
     }
 
@@ -292,25 +304,25 @@ WelcomeMode::WelcomeMode()
 
     m_modeWidget = new ResizeSignallingWidget;
     setBackgroundColor(m_modeWidget, Theme::Token_Background_Default);
-    connect(m_modeWidget, &ResizeSignallingWidget::resized, this,
+    connect(m_modeWidget,
+            &ResizeSignallingWidget::resized,
+            this,
             [this](const QSize &size, const QSize &) {
-        const QSize essentialsS = m_sideArea->m_essentials->size();
-        const QSize linksS = m_sideArea->m_links->size();
-        const QSize sideAreaS = m_sideArea->size();
-        const QSize topAreaS = m_topArea->size();
-        const QSize mainWindowS = ICore::mainWindow()->size();
+                const QSize sideAreaS = m_sideArea->size();
+                const QSize topAreaS = m_topArea->size();
+                const QSize mainWindowS = ICore::mainWindow()->size();
 
-        const bool showSideArea = sideAreaS.width() < size.width() / 4;
-        const bool showTopArea = topAreaS.height() < mainWindowS.height() / 7.75;
-        const bool showLinks =
-            linksS.height() + essentialsS.height() < sideAreaS.height() && showTopArea;
+                const bool showSideArea = sideAreaS.width() < size.width() / 4;
+                const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
+                const bool showLinks = true;
 
-        m_sideArea->m_links->setVisible(showLinks);
-        m_sideArea->setVisible(showSideArea);
-        m_topArea->setVisible(showTopArea);
-    });
+                m_sideArea->m_links->setVisible(showLinks);
+                m_sideArea->setVisible(showSideArea);
+                m_topArea->setVisible(showTopArea);
+            });
 
     m_sideArea = new SideArea(m_modeWidget);
+    m_sideArea->verticalScrollBar()->setEnabled(false);
 
     m_buttonGroup = new QButtonGroup(m_modeWidget);
     m_buttonGroup->setExclusive(true);
@@ -326,10 +338,8 @@ WelcomeMode::WelcomeMode()
     Column {
         new StyledBar,
         m_topArea,
-        createRule(Qt::Horizontal),
         Row {
             m_sideArea,
-            createRule(Qt::Vertical),
             m_pageStack,
         },
         noMargin(),

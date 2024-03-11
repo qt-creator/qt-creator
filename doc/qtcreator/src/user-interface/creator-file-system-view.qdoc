@@ -18,7 +18,7 @@
     \brief Shows all the files in the current directory.
 
     \if defined(qtcreator)
-    \note Usually, \l{Searching with the Locator}{searching with the locator}
+    \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project. Use the \e {file system (f)} filter
     to open files from anywhere in the file system.

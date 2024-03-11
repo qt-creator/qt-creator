@@ -6,8 +6,7 @@ source("../../shared/qtcreator.py")
 def checkTypeAndProperties(typePropertiesDetails):
     for (qType, props, detail) in typePropertiesDetails:
         if qType == "QPushButton":
-            wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(props)
-            test.verify(all((wsButtonFrame, wsButtonLabel)),
+            test.verify(object.exists(getWelcomeScreenSideBarButton(props)),
                         "Verifying: Qt Creator displays Welcome Page with %s." % detail)
         elif qType == 'QTreeView':
             treeView = getWelcomeTreeView(props)
@@ -59,8 +58,8 @@ def main():
                    )
     checkTypeAndProperties(typePropDet)
 
-    getStartedF, getStartedL = getWelcomeScreenSideBarButton("Get Started")
-    test.verify(getStartedF is not None and getStartedL is not None, "'Get Started' button found")
+    test.verify(object.exists(getWelcomeScreenSideBarButton("Get Started")),
+                "'Get Started' button found")
 
     # select "Create Project" and try to create a new project
     createNewQtQuickApplication(tempDir(), "SampleApp", fromWelcome = True)

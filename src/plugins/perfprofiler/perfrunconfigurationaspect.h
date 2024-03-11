@@ -3,20 +3,14 @@
 
 #pragma once
 
-#include "perfprofiler_global.h"
-
 #include <projectexplorer/runconfiguration.h>
 
-#include <QObject>
+namespace PerfProfiler::Internal {
 
-namespace PerfProfiler {
-
-class PERFPROFILER_EXPORT PerfRunConfigurationAspect :
-        public ProjectExplorer::GlobalOrProjectAspect
+class PerfRunConfigurationAspect final : public ProjectExplorer::GlobalOrProjectAspect
 {
-    Q_OBJECT
 public:
-    PerfRunConfigurationAspect(ProjectExplorer::Target *target);
+    explicit PerfRunConfigurationAspect(ProjectExplorer::Target *target);
 };
 
-} // namespace PerfProfiler
+} // PerfProfiler::Internal

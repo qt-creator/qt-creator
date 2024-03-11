@@ -190,4 +190,20 @@ void storeToSettings(const Key &groupKey, QtcSettings *s, const Store &store)
     s->endGroup();
 }
 
+void storeToSettingsWithDefault(const Key &groupKey,
+                                QtcSettings *s,
+                                const Store &store,
+                                const Store &defaultStore)
+{
+    QTC_ASSERT(store.size() == defaultStore.size(), storeToSettings(groupKey, s, store); return);
+
+    s->beginGroup(groupKey);
+    for (auto it = store.begin(), defaultIt = defaultStore.begin(), end = store.end(); it != end;
+         ++it, ++defaultIt)
+        s->setValueWithDefault(it.key(),
+                               mapEntryFromStoreEntry(it.value()),
+                               mapEntryFromStoreEntry(defaultIt.value()));
+    s->endGroup();
+}
+
 } // Utils

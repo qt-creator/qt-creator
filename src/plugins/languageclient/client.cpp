@@ -207,6 +207,9 @@ public:
         // do not handle messages while shutting down
         disconnect(m_clientInterface, &InterfaceController::messageReceived,
                    q, &Client::handleMessage);
+        delete m_clientProviders.completionAssistProvider;
+        delete m_clientProviders.functionHintProvider;
+        delete m_clientProviders.quickFixAssistProvider;
         delete m_diagnosticManager;
         delete m_clientInterface;
     }
@@ -1625,6 +1628,12 @@ void Client::setCompletionAssistProvider(LanguageClientCompletionAssistProvider 
 {
     delete d->m_clientProviders.completionAssistProvider;
     d->m_clientProviders.completionAssistProvider = provider;
+}
+
+void Client::setFunctionHintAssistProvider(FunctionHintAssistProvider *provider)
+{
+    delete d->m_clientProviders.functionHintProvider;
+    d->m_clientProviders.functionHintProvider = provider;
 }
 
 void Client::setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider)

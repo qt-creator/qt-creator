@@ -29,9 +29,9 @@ GdbSettings &gdbSettings()
 GdbSettings::GdbSettings()
 {
     setAutoApply(false);
-    setSettingsGroup("DebugMode");
+    const Key debugModeGroup("DebugMode");
 
-    useMessageBoxForSignals.setSettingsKey("UseMessageBoxForSignals");
+    useMessageBoxForSignals.setSettingsKey(debugModeGroup, "UseMessageBoxForSignals");
     useMessageBoxForSignals.setDefaultValue(true);
     useMessageBoxForSignals.setLabelText(Tr::tr(
         "Show a message box when receiving a signal"));
@@ -49,7 +49,7 @@ GdbSettings::GdbSettings()
                  "breakpoint markers in such cases to the location of the true "
                  "breakpoint."));
     adjustBreakpointLocations.setDefaultValue(true);
-    adjustBreakpointLocations.setSettingsKey("AdjustBreakpointLocations");
+    adjustBreakpointLocations.setSettingsKey(debugModeGroup, "AdjustBreakpointLocations");
     adjustBreakpointLocations.setLabelText(Tr::tr(
         "Adjust breakpoint locations"));
     adjustBreakpointLocations.setToolTip(Tr::tr(
@@ -61,41 +61,41 @@ GdbSettings::GdbSettings()
 
 
     breakOnThrow.setLabelText(Tr::tr("Break on \"throw\""));
-    breakOnThrow.setSettingsKey("BreakOnThrow");
+    breakOnThrow.setSettingsKey(debugModeGroup, "BreakOnThrow");
 
     breakOnCatch.setLabelText(Tr::tr("Break on \"catch\""));
-    breakOnCatch.setSettingsKey("BreakOnCatch");
+    breakOnCatch.setSettingsKey(debugModeGroup, "BreakOnCatch");
 
     breakOnWarning.setLabelText(Tr::tr("Break on \"qWarning\""));
-    breakOnWarning.setSettingsKey("BreakOnWarning");
+    breakOnWarning.setSettingsKey(debugModeGroup, "BreakOnWarning");
     // FIXME: Move to common settings page.
     breakOnWarning.setLabelText(msgSetBreakpointAtFunction("qWarning"));
     breakOnWarning.setToolTip(msgSetBreakpointAtFunctionToolTip("qWarning"));
 
     breakOnFatal.setLabelText(Tr::tr("Break on \"qFatal\""));
-    breakOnFatal.setSettingsKey("BreakOnFatal");
+    breakOnFatal.setSettingsKey(debugModeGroup, "BreakOnFatal");
     breakOnFatal.setLabelText(msgSetBreakpointAtFunction("qFatal"));
     breakOnFatal.setToolTip(msgSetBreakpointAtFunctionToolTip("qFatal"));
 
     breakOnAbort.setLabelText(Tr::tr("Break on \"abort\""));
-    breakOnAbort.setSettingsKey("BreakOnAbort");
+    breakOnAbort.setSettingsKey(debugModeGroup, "BreakOnAbort");
     breakOnAbort.setLabelText(msgSetBreakpointAtFunction("abort"));
     breakOnAbort.setToolTip(msgSetBreakpointAtFunctionToolTip("abort"));
 
-    loadGdbInit.setSettingsKey("LoadGdbInit");
+    loadGdbInit.setSettingsKey(debugModeGroup, "LoadGdbInit");
     loadGdbInit.setDefaultValue(true);
     loadGdbInit.setLabelText(Tr::tr("Load .gdbinit file on startup"));
     loadGdbInit.setToolTip(Tr::tr(
         "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
 
-    loadGdbDumpers.setSettingsKey("LoadGdbDumpers2");
+    loadGdbDumpers.setSettingsKey(debugModeGroup, "LoadGdbDumpers2");
     loadGdbDumpers.setLabelText(Tr::tr("Load system GDB pretty printers"));
     loadGdbDumpers.setToolTip(Tr::tr(
         "Uses the default GDB pretty printers installed in your "
         "system or linked to the libraries your application uses."));
 
-    autoEnrichParameters.setSettingsKey("AutoEnrichParameters");
+    autoEnrichParameters.setSettingsKey(debugModeGroup, "AutoEnrichParameters");
     autoEnrichParameters.setDefaultValue(true);
     autoEnrichParameters.setLabelText(Tr::tr(
         "Use common locations for debug information"));
@@ -104,7 +104,7 @@ GdbSettings::GdbSettings()
         "of debug information such as <i>/usr/src/debug</i> "
         "when starting GDB.</body></html>"));
 
-    useDynamicType.setSettingsKey("UseDynamicType");
+    useDynamicType.setSettingsKey(debugModeGroup, "UseDynamicType");
     useDynamicType.setDefaultValue(true);
     useDynamicType.setDisplayName(Tr::tr("Use Dynamic Object Type for Display"));
     useDynamicType.setLabelText(Tr::tr(
@@ -113,7 +113,7 @@ GdbSettings::GdbSettings()
         "Specifies whether the dynamic or the static type of objects will be "
         "displayed. Choosing the dynamic type might be slower."));
 
-    targetAsync.setSettingsKey("TargetAsync");
+    targetAsync.setSettingsKey(debugModeGroup, "TargetAsync");
     targetAsync.setLabelText(Tr::tr(
         "Use asynchronous mode to control the inferior"));
 
@@ -125,7 +125,7 @@ GdbSettings::GdbSettings()
         "<p>To execute arbitrary Python scripts, "
         "use <i>python execfile('/path/to/script.py')</i>.</p>");
 
-    gdbStartupCommands.setSettingsKey("GdbStartupCommands");
+    gdbStartupCommands.setSettingsKey(debugModeGroup, "GdbStartupCommands");
     gdbStartupCommands.setDisplayStyle(StringAspect::TextEditDisplay);
     gdbStartupCommands.setUseGlobalMacroExpander();
     gdbStartupCommands.setToolTip("<html><head/><body><p>" + Tr::tr(
@@ -134,7 +134,7 @@ GdbSettings::GdbSettings()
         "attached, and before the debugging helpers are initialized.") + "</p>"
         + howToUsePython + "</body></html>");
 
-    gdbPostAttachCommands.setSettingsKey("GdbPostAttachCommands");
+    gdbPostAttachCommands.setSettingsKey(debugModeGroup, "GdbPostAttachCommands");
     gdbPostAttachCommands.setDisplayStyle(StringAspect::TextEditDisplay);
     gdbPostAttachCommands.setUseGlobalMacroExpander();
     gdbPostAttachCommands.setToolTip("<html><head/><body><p>" + Tr::tr(
@@ -144,29 +144,29 @@ GdbSettings::GdbSettings()
         "such as \"monitor reset\" or \"load\".") + "</p>"
         + howToUsePython + "</body></html>");
 
-    multiInferior.setSettingsKey("MultiInferior");
+    multiInferior.setSettingsKey(debugModeGroup, "MultiInferior");
     multiInferior.setLabelText(Tr::tr("Debug all child processes"));
     multiInferior.setToolTip(Tr::tr(
         "<html><head/><body>Keeps debugging all children after a fork."
         "</body></html>"));
 
-    intelFlavor.setSettingsKey("IntelFlavor");
+    intelFlavor.setSettingsKey(debugModeGroup, "IntelFlavor");
     intelFlavor.setLabelText(Tr::tr("Use Intel style disassembly"));
     intelFlavor.setToolTip(Tr::tr("GDB shows by default AT&&T style disassembly."));
 
-    usePseudoTracepoints.setSettingsKey("UsePseudoTracepoints");
+    usePseudoTracepoints.setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
     usePseudoTracepoints.setLabelText(Tr::tr("Use pseudo message tracepoints"));
     usePseudoTracepoints.setToolTip(Tr::tr("Uses Python to extend the ordinary GDB breakpoint class."));
     usePseudoTracepoints.setDefaultValue(true);
 
-    useIndexCache.setSettingsKey("UseIndexCache");
+    useIndexCache.setSettingsKey(debugModeGroup, "UseIndexCache");
     useIndexCache.setLabelText(Tr::tr("Use automatic symbol cache"));
     useIndexCache.setToolTip(Tr::tr("It is possible for GDB to automatically save a copy of "
         "its symbol index in a cache on disk and retrieve it from there when loading the same "
         "binary in the future."));
     useIndexCache.setDefaultValue(true);
 
-    skipKnownFrames.setSettingsKey("SkipKnownFrames");
+    skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
     skipKnownFrames.setDisplayName(Tr::tr("Skip Known Frames"));
     skipKnownFrames.setLabelText(Tr::tr("Skip known frames when stepping"));
     skipKnownFrames.setToolTip(Tr::tr(
@@ -176,7 +176,7 @@ GdbSettings::GdbSettings()
         "counting code is skipped, and a single <i>Step Into</i> for a signal\n"
         "emission ends up directly in the slot connected to it."));
 
-    enableReverseDebugging.setSettingsKey("EnableReverseDebugging");
+    enableReverseDebugging.setSettingsKey(debugModeGroup, "EnableReverseDebugging");
     enableReverseDebugging.setIcon(Icons::REVERSE_MODE.icon());
     enableReverseDebugging.setDisplayName(Tr::tr("Enable Reverse Debugging"));
     enableReverseDebugging.setLabelText(Tr::tr("Enable reverse debugging"));
@@ -186,10 +186,10 @@ GdbSettings::GdbSettings()
        "It exhibits unpredictable behavior when going backwards over system "
        "calls and is very likely to destroy your debugging session.</p></body></html>"));
 
-    gdbWatchdogTimeout.setSettingsKey("WatchdogTimeout");
-    gdbWatchdogTimeout.setDefaultValue(20);
+    gdbWatchdogTimeout.setSettingsKey(debugModeGroup, "WatchdogTimeout");
+    gdbWatchdogTimeout.setDefaultValue(40);
     gdbWatchdogTimeout.setSuffix(Tr::tr("sec"));
-    gdbWatchdogTimeout.setRange(20, 1000000);
+    gdbWatchdogTimeout.setRange(10, 1000000);
     gdbWatchdogTimeout.setLabelText(Tr::tr("GDB timeout:"));
     gdbWatchdogTimeout.setToolTip(Tr::tr(
         "The number of seconds before a non-responsive GDB process is terminated.\n"

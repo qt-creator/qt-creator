@@ -116,7 +116,6 @@ private: ////////// General Interface //////////
 
     QHash<int, DebuggerCommand> m_commandForToken;
     QHash<int, int> m_flagsForToken;
-    int commandTimeoutTime() const;
     QTimer m_commandTimer;
 
     QString m_pendingConsoleStreamOutput;

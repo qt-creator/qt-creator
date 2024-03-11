@@ -59,6 +59,22 @@ public:
         BaseT::keyPressEvent(event);
     }
 
+    virtual bool userWantsContextMenu(const QMouseEvent *) const
+    {
+        return false;
+    }
+
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        if (!userWantsContextMenu(e))
+            BaseT::mousePressEvent(e);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        if (!userWantsContextMenu(e))
+            BaseT::mouseReleaseEvent(e);
+    }
 };
 
 class QTCREATOR_UTILS_EXPORT TreeView : public View<QTreeView>

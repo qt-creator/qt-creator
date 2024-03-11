@@ -343,8 +343,8 @@ void ClangFormatConfigWidget::apply()
     }
 
     QMessageBox mBox;
-    mBox.setText(
-        Tr::tr("The current settings are not valid. Are you sure you want to apply them?"));
+    mBox.setText(Tr::tr("The current ClangFormat (C++ > Code Style > ClangFormat) settings are not "
+                        "valid. Are you sure you want to apply them?"));
     mBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
     mBox.setDefaultButton(QMessageBox::No);
     if (mBox.exec() == QMessageBox::Yes)

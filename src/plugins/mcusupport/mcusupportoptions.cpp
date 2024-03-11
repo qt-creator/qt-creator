@@ -255,7 +255,7 @@ McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()
     return McuKitManager::UpgradeOption::Ignore;
 }
 
-void McuSupportOptions::displayKitCreationMessages(const MessagesList &messages,
+void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
                                                    const SettingsHandler::Ptr &settingsHandler,
                                                    McuPackagePtr qtMCUsPackage)
 {
@@ -269,7 +269,7 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList &messages,
                              Tr::tr("Errors while creating Qt for MCUs kits"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
 
-    info.addCustomButton(Tr::tr("Details"), [=] {
+    info.addCustomButton(Tr::tr("Details"), [messages, &settingsHandler, qtMCUsPackage] {
         auto popup = new McuKitCreationDialog(messages, settingsHandler, qtMCUsPackage);
         popup->exec();
         delete popup;

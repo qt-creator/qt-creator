@@ -84,11 +84,11 @@ def createAndSwitchToSession(toSession):
 
 def checkWelcomePage(sessionName, isCurrent=False):
     switchViewTo(ViewConstants.WELCOME)
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Projects')
-    if not all((wsButtonFrame, wsButtonLabel)):
+    wsButton = getWelcomeScreenSideBarButton('Projects')
+    if not object.exists(wsButton):
         test.fatal("Something's pretty wrong - leaving check for WelcomePage.")
         return
-    mouseClick(wsButtonLabel)
+    mouseClick(wsButton)
     treeView = getWelcomeTreeView("Sessions")
     if not treeView:
         test.fatal("Failed to find Sessions tree view - leaving check for WelcomePage.")

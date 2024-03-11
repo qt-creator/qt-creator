@@ -14,25 +14,16 @@ def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
         test.log("Found %s" % str(helpCombo.currentText))
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
-    return test.verify(all((wsButtonFrame, wsButtonLabel)),
+    return test.verify(object.exists(getWelcomeScreenSideBarButton(getStarted)),
                        "Verifying: '%s' button is being displayed." % getStarted)
 def buttonActive(button):
-    # colors of the default theme for active button on Welcome page
-    defaultActiveRGB = (69, 206, 85)
-    # colors of the dark theme for active button on Welcome page
-    darkActiveRGB = (54, 193, 72)
-    # QPalette::Window (used background color of Welcome page buttons)
-    enumQPaletteWindow = 10
-    color = button.palette.color(enumQPaletteWindow)
-    current = (color.red, color.green, color.blue)
-    return current == defaultActiveRGB or current == darkActiveRGB
+    return waitForObject(button).checked
 
 def waitForButtonsState(projectsActive, examplesActive, tutorialsActive, timeout=5000):
-    projButton = getWelcomeScreenSideBarButton('Projects')[0]
-    exmpButton = getWelcomeScreenSideBarButton('Examples')[0]
-    tutoButton = getWelcomeScreenSideBarButton('Tutorials')[0]
-    if not all((projButton, exmpButton, tutoButton)):
+    projButton = getWelcomeScreenSideBarButton('Projects')
+    exmpButton = getWelcomeScreenSideBarButton('Examples')
+    tutoButton = getWelcomeScreenSideBarButton('Tutorials')
+    if not all(map(object.exists, (projButton, exmpButton, tutoButton))):
         return False
     return waitFor('buttonActive(projButton) == projectsActive '
                    'and buttonActive(exmpButton) == examplesActive '
@@ -65,25 +56,25 @@ def main():
 
     buttonsAndState = {'Projects':False, 'Examples':True, 'Tutorials':False}
     for button, state in buttonsAndState.items():
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(button)
-        if test.verify(all((wsButtonFrame, wsButtonLabel)),
+        wsButton = getWelcomeScreenSideBarButton(button)
+        if test.verify(object.exists(wsButton),
                        "Verified whether '%s' button is shown." % button):
-            test.compare(buttonActive(wsButtonFrame), state,
+            test.compare(buttonActive(wsButton), state,
                          "Verifying whether '%s' button is active (%s)." % (button, state))
 
     # select Projects and roughly check this
     switchToSubMode('Projects')
     for button in ['Create Project...', 'Open Project...']:
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(button)
-        if test.verify(all((wsButtonFrame, wsButtonLabel)),
+        wsButton = getWelcomeScreenSideBarButton(button)
+        if test.verify(object.exists(wsButton),
                        "Verified whether '%s' button is shown." % button):
-            test.verify(not buttonActive(wsButtonFrame),
+            test.verify(not buttonActive(wsButton),
                         "Verifying whether '%s' button is inactive." % button)
 
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
-    if test.verify(all((wsButtonFrame, wsButtonLabel)),
+    wsButton = getWelcomeScreenSideBarButton(getStarted)
+    if test.verify(object.exists(wsButton),
                    "Verifying: Qt Creator displays Welcome Page with '%s' button." % getStarted):
-        if clickItemVerifyHelpCombo(wsButtonLabel, "Getting Started | Qt Creator Manual",
+        if clickItemVerifyHelpCombo(wsButton, "Getting Started | Qt Creator Manual",
                                     "Verifying: Help with Creator Documentation is being opened."):
 
             textUrls = {'Online Community':'https://forum.qt.io',
@@ -92,13 +83,14 @@ def main():
                         'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                         }
             for text, url in textUrls.items():
-                button, label = getWelcomeScreenBottomButton(text)
-                if test.verify(all((button, label)),
+                button = getWelcomeScreenSideBarButton(text)
+                if test.verify(object.exists(button),
                                "Verifying whether link button (%s) exists." % text):
-                    test.compare(str(button.toolTip), url, "Verifying URL for %s" % text)
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
-    if wsButtonLabel is not None:
-        mouseClick(wsButtonLabel)
+                    test.compare(str(waitForObject(button).toolTip), url,
+                                 "Verifying URL for %s" % text)
+    wsButton = getWelcomeScreenSideBarButton(getStarted)
+    if object.exists(wsButton):
+        mouseClick(wsButton)
         qcManualQModelIndexStr = getQModelIndexStr("text~='Qt Creator Manual [0-9.]+'",
                                                    ":Qt Creator_QHelpContentWidget")
         if str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText) == "(Untitled)":
@@ -109,8 +101,7 @@ def main():
 
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
-    test.verify(wsButtonFrame is not None and wsButtonLabel is not None,
+    test.verify(object.exists(getWelcomeScreenSideBarButton(getStarted)),
                 "Verifying: Getting Started topic is being displayed.")
     # select Examples and roughly check them
     switchToSubMode('Examples')

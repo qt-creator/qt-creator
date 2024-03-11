@@ -10,13 +10,13 @@ instructions:
         variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_17.0.1-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt"
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.2-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
-        variableValue: 10.15
+        variableValue: 11.0
       - type: EnvironmentVariable
         variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.14
@@ -39,7 +39,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-Linux-RHEL_8_6-GCC-Linux-RHEL_8_6-X86_64.7z"
+            variableValue: "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"
@@ -51,7 +51,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z"
+            variableValue: "-MacOS-MacOS_13-Clang-MacOS-MacOS_13-X86_64-ARM64.7z"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"

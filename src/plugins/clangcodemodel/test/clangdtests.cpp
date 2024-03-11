@@ -29,6 +29,7 @@
 #include <texteditor/blockrange.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textmark.h>
@@ -1832,12 +1833,12 @@ void ClangdTestCompletion::testFunctionHints()
 
     QVERIFY(proposal);
     QVERIFY(hasItem(proposal, "f() -> void"));
-    QVERIFY(hasItem(proposal, "f(int a) -> void"));
-    QVERIFY(hasItem(proposal, "f(const QString &s) -> void"));
-    QVERIFY(hasItem(proposal, "f(char c, int optional = 3) -> void"));
-    QVERIFY(hasItem(proposal, "f(char c, int optional1 = 3, int optional2 = 3) -> void"));
-    QVERIFY(hasItem(proposal, "f(const TType<QString> *t) -> void"));
-    QVERIFY(hasItem(proposal, "f(bool) -> TType<QString>"));
+    QVERIFY(hasItem(proposal, "f(<b>int a</b>) -&gt; void"));
+    QVERIFY(hasItem(proposal, "f(<b>const QString &amp;s</b>) -&gt; void"));
+    QVERIFY(hasItem(proposal, "f(<b>char c</b>, int optional = 3) -&gt; void"));
+    QVERIFY(hasItem(proposal, "f(<b>char c</b>, int optional1 = 3, int optional2 = 3) -&gt; void"));
+    QVERIFY(hasItem(proposal, "f(<b>const TType&lt;QString&gt; *t</b>) -&gt; void"));
+    QVERIFY(hasItem(proposal, "f(<b>bool</b>) -&gt; TType&lt;QString&gt;"));
 }
 
 void ClangdTestCompletion::testFunctionHintsFiltered()
@@ -1855,7 +1856,6 @@ void ClangdTestCompletion::testFunctionHintsFiltered()
     QVERIFY(proposal);
     QCOMPARE(proposal->size(), 2);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>) -&gt; void"));
-    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>, int k) -&gt; void"));
 }
 
@@ -1868,7 +1868,6 @@ void ClangdTestCompletion::testFunctionHintConstructor()
     QVERIFY(!hasItem(proposal, "globalVariable"));
     QVERIFY(!hasItem(proposal, " class"));
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>)"));
-    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>, double)"));
 }
 
@@ -2066,7 +2065,8 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
 {
     const TextDocument * const doc = document(fileName);
     QVERIFY(doc);
-    const int pos = doc->document()->toPlainText().indexOf(" /* COMPLETE HERE */");
+    const QString docContent = doc->document()->toPlainText();
+    const int pos = docContent.indexOf(" /* COMPLETE HERE */");
     QVERIFY(pos != -1);
     if (cursorPos)
         *cursorPos = pos;
@@ -2110,6 +2110,13 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     QVERIFY(timer.isActive());
     QVERIFY(proposal);
     proposalModel = proposal->model();
+    if (auto functionHintModel = proposalModel.dynamicCast<IFunctionHintProposalModel>()) {
+        const int proposalBasePos = proposal->basePosition();
+        // The language client function hint model expects that activeArgument was called before the
+        // text of individual hints is accessed. This is usually done by the proposal widget. But
+        // since we don't have a proposal widget in this test, we have to call it manually.
+        functionHintModel->activeArgument(docContent.mid(proposalBasePos, pos - proposalBasePos));
+    }
     delete proposal;
 
     // The "dot" test files are only used once.
@@ -2207,15 +2214,21 @@ void ClangdTestExternalChanges::test()
     QVERIFY(curDoc->marks().isEmpty());
 
     // Now trigger an external change in an open, but not currently visible file and
-    // verify that we get diagnostics in the current editor.
+    // verify that we get a new client and diagnostics in the current editor.
     TextDocument * const docToChange = document("mainwindow.cpp");
     docToChange->setSilentReload();
     QFile otherSource(filePath("mainwindow.cpp").toString());
     QVERIFY(otherSource.open(QIODevice::WriteOnly));
     otherSource.write("blubb");
     otherSource.close();
+    QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
+                                   &LanguageClientManager::clientAdded, timeOutInMs()));
+    ClangdClient * const newClient = ClangModelManagerSupport::clientForProject(project());
+    QVERIFY(newClient);
+    QVERIFY(newClient != oldClient);
+    newClient->enableTesting();
     if (curDoc->marks().isEmpty())
-        QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::textMarkCreated, timeOutInMs()));
+        QVERIFY(waitForSignalOrTimeout(newClient, &ClangdClient::textMarkCreated, timeOutInMs()));
 }
 
 

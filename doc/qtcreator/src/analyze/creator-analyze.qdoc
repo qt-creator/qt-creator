@@ -44,7 +44,7 @@
             example, and use the results to make the tests more efficient and
             complete.
 
-        \li \l{Static Code Analysis}{Axivion}
+        \li \l{Prevent code erosion}{Axivion}
 
             Do static code analysis and architecture analysis to detect and
             eliminate unnecessary complexity of code.

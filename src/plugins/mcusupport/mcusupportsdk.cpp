@@ -54,7 +54,13 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler
                             .withExecutableSuffix()},                   // detectionPaths
                        Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
                        Legacy::Constants::QUL_CMAKE_VAR,
-                       Legacy::Constants::QUL_ENV_VAR)};
+                       Legacy::Constants::QUL_ENV_VAR,
+                       {},                                              // versions
+                       {},                                              // downloadUrl
+                       nullptr,                                         // versionDetector
+                       false,                                           // addToPath
+                       Utils::PathChooser::Kind::ExistingDirectory,     // valueType
+                       true)};                                          // useNewestVersionKey
 }
 
 namespace Legacy {

@@ -215,10 +215,11 @@
                             \list
                                 \li \l{Search in current file}
                                 \li \l{Search in projects or file systems}
-                                \li \l{Searching with the Locator}
+                                \li \l{Rename symbols}
                                 \li \l{Jump to the Code}
                             \endlist
-                        \li \l{Refactoring}
+                        \li \l{Apply quick fixes}
+                        \li \l{QML quick fixes}
                         \li \l{Configuring the Editor}
                             \list
                                 \li \l{Font & Colors}

@@ -153,6 +153,7 @@ public:
 
     static Kit *registerKit(const std::function<void(Kit *)> &init, Utils::Id id = {});
     static void deregisterKit(Kit *k);
+    static void deregisterKits(const QList<Kit *> kits);
     static void setDefaultKit(Kit *k);
 
     static void saveKits();

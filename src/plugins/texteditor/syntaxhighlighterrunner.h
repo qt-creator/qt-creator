@@ -34,6 +34,7 @@ public:
     void setLanguageFeaturesFlags(unsigned int flags);
     void setEnabled(bool enabled);
     void rehighlight();
+    void reformatBlocks(int from, int charsRemoved, int charsAdded);
 
     QString definitionName();
     void setDefinitionName(const QString &name);
@@ -53,6 +54,21 @@ private:
     SyntaxHighlighterRunnerPrivate *d;
     QPointer<QTextDocument> m_document = nullptr;
     SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
+
+    struct HighlightingStatus
+    {
+        int m_from = 0;
+        int m_addedChars = 0;
+        int m_current = 0;
+        int m_removedChars = 0;
+        int m_newFrom = 0;
+        bool m_interruptionRequested = false;
+
+        void notInterrupted(int from, int charsRemoved, int charsAdded);
+        void interrupted(int from, int charsRemoved, int charsAdded);
+        void applyNewFrom();
+    } m_highlightingStatus;
+
     bool m_useGenericHighlighter = false;
     QString m_definitionName;
     std::optional<QThread> m_thread;

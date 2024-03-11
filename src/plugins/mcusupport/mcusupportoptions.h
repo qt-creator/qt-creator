@@ -59,7 +59,7 @@ public:
     [[nodiscard]] Utils::FilePath qulDirFromSettings() const;
     [[nodiscard]] Utils::FilePath qulDocsDir() const;
     static McuKitManager::UpgradeOption askForKitUpgrades();
-    static void displayKitCreationMessages(const MessagesList &messages,
+    static void displayKitCreationMessages(const MessagesList messages,
                                            const SettingsHandler::Ptr &settingsHandler,
                                            McuPackagePtr qtMCUsPackage);
 

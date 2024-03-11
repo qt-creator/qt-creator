@@ -1910,8 +1910,6 @@ void ICorePrivate::registerDefaultActions()
     // Full Screen Action
     ActionBuilder toggleFullScreenAction(this, Constants::TOGGLE_FULLSCREEN);
     toggleFullScreenAction.setText(Tr::tr("Full Screen"));
-    toggleFullScreenAction.setCheckable(!HostOsInfo::isMacHost());
-    toggleFullScreenAction.setEnabled(false); // actual implementation in WindowSupport
     toggleFullScreenAction.setDefaultKeySequence(Tr::tr("Ctrl+Meta+F"), Tr::tr("Ctrl+Shift+F11"));
     if (HostOsInfo::isMacHost())
         toggleFullScreenAction.setCommandAttribute(Command::CA_UpdateText);
@@ -2189,15 +2187,17 @@ void ICorePrivate::openFileFromDevice()
 static void acceptModalDialogs()
 {
     const QWidgetList topLevels = QApplication::topLevelWidgets();
-    QList<QDialog *> dialogsToClose;
+    QList<QPointer<QDialog>> dialogsToClose;
     for (QWidget *topLevel : topLevels) {
         if (auto dialog = qobject_cast<QDialog *>(topLevel)) {
             if (dialog->isModal())
                 dialogsToClose.append(dialog);
         }
     }
-    for (QDialog *dialog : dialogsToClose)
-        dialog->accept();
+    for (QDialog *dialog : dialogsToClose) {
+        if (dialog)
+            dialog->accept();
+    }
 }
 
 } // Internal

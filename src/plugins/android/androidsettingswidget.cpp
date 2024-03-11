@@ -10,6 +10,7 @@
 #include "androidtr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -55,6 +56,7 @@ class SummaryWidget : public QWidget
     public:
         InfoLabel *m_infoLabel = nullptr;
         bool m_valid = false;
+        QString m_validText;
     };
 
 public:
@@ -72,6 +74,7 @@ public:
         for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
             RowData data;
             data.m_infoLabel = new InfoLabel(itr.value());
+            data.m_validText = itr.value();
             layout->addWidget(data.m_infoLabel);
             m_validationData[itr.key()] = data;
             setPointValid(itr.key(), false);
@@ -80,13 +83,20 @@ public:
         setContentsMargins(0, 0, 0, 0);
     }
 
-    void setPointValid(int key, bool valid)
+    template<class T>
+    void setPointValid(int key, const expected_str<T> &test)
+    {
+        setPointValid(key, test.has_value(), test.has_value() ? QString{} : test.error());
+    }
+
+    void setPointValid(int key, bool valid, const QString errorText = {})
     {
         if (!m_validationData.contains(key))
             return;
         RowData &data = m_validationData[key];
         data.m_valid = valid;
         data.m_infoLabel->setType(valid ? InfoLabel::Ok : InfoLabel::NotOk);
+        data.m_infoLabel->setText(valid || errorText.isEmpty() ? data.m_validText : errorText);
         updateUi();
     }
 
@@ -361,8 +371,10 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
         return Utils::asyncRun([s]() -> expected_str<QString> {
             expected_str<void> test = testJavaC(FilePath::fromUserInput(s));
-            if (!test)
+            if (!test) {
+                Core::MessageManager::writeSilently(test.error());
                 return make_unexpected(test.error());
+            }
             return s;
         });
     });
@@ -595,7 +607,7 @@ void AndroidSettingsWidget::validateJdk()
     androidConfig().setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
     expected_str<void> test = testJavaC(androidConfig().openJDKLocation());
 
-    m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test.has_value());
+    m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test);
 
     updateUI();
 

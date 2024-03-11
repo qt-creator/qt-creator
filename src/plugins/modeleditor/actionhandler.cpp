@@ -7,12 +7,13 @@
 #include "modeleditor_constants.h"
 #include "modeleditortr.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <utils/icon.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -161,11 +162,17 @@ void ActionHandler::createActions()
                     QKeySequence(), QIcon(":/modelinglib/48x48/class.png"));
     registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), Tr::tr("Add Canvas Diagram"),
                     QKeySequence(), QIcon(":/modelinglib/48x48/canvas-diagram.png"));
-    d->synchronizeBrowserAction = registerCommand(
-                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(),
-                Tr::tr("Synchronize Browser and Diagram") + "<br><i><small>"
-                + Tr::tr("Press && Hold for Options") + "</small></i>", QKeySequence(),
-                Utils::Icons::LINK_TOOLBAR.icon())->action();
+    d->synchronizeBrowserAction
+        = registerCommand(
+              Constants::ACTION_SYNC_BROWSER,
+              nullptr,
+              Core::Context(),
+              Tr::tr("Synchronize Browser and Diagram"),
+              QKeySequence(),
+              Utils::Icons::LINK_TOOLBAR.icon(),
+              Tr::tr("Synchronize Browser and Diagram") + "<br><i><small>"
+                  + Utils::stripAccelerator(Tr::tr("Press && Hold for Options")) + "</small></i>")
+              ->action();
     d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(Tr::tr("Edit Element Properties"),
@@ -205,13 +212,20 @@ std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)()
     };
 }
 
-Core::Command *ActionHandler::registerCommand(const Utils::Id &id, void (ModelEditor::*function)(),
-                                              const Core::Context &context, const QString &title,
-                                              const QKeySequence &keySequence, const QIcon &icon)
+Core::Command *ActionHandler::registerCommand(
+    const Utils::Id &id,
+    void (ModelEditor::*function)(),
+    const Core::Context &context,
+    const QString &title,
+    const QKeySequence &keySequence,
+    const QIcon &icon,
+    const QString &toolTip)
 {
     auto action = new QAction(title, this);
     if (!icon.isNull())
         action->setIcon(icon);
+    if (!toolTip.isEmpty())
+        action->setToolTip(toolTip);
     Core::Command *command = Core::ActionManager::registerAction(action, id, context, /*scriptable=*/true);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);

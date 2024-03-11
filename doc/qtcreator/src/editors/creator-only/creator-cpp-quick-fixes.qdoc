@@ -70,8 +70,8 @@
     To return non-trivial objects by using a \c const reference, select the
     \uicontrol {Return non-value types by const reference} check box.
 
-    \sa {Apply quick fixes}, {Specify settings for quick fixes},
-    {C++ Quick Fixes}, {QML Quick Fixes}, {Refactoring}
+    \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
+    {Specify settings for quick fixes}, {C++ Quick Fixes}, {QML Quick Fixes}
 */
 
 /*!
@@ -786,8 +786,8 @@
             \li Documentation comment for a function
     \endtable
 
-    \sa {Apply quick fixes}, {Specify settings for quick fixes},
-    {QML Quick Fixes}, {Quick Fixes}, {Refactoring}
+    \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
+    {Specify settings for quick fixes}, {QML Quick Fixes}, {Quick Fixes}
 */
 
 /*!
@@ -811,6 +811,6 @@
     delete the custom settings, select \uicontrol {Use global settings}, and
     then select \uicontrol {Delete Custom Settings File}.
 
-    \sa {Apply quick fixes}, {C++ Quick Fixes}, {QML Quick Fixes}, {Quick Fixes},
-    {Configuring Projects}, {Refactoring}
+    \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
+    {C++ Quick Fixes}, {QML Quick Fixes}, {Quick Fixes}, {Configuring Projects}
 */

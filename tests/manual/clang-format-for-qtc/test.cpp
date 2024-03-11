@@ -169,14 +169,15 @@ void f3(int parameter1, int parameter2, int parameter3);
 void f3(
     int parameter1, int parameter2, int parameter3, int parameter4, int parameter5, int parameter6);
 
-void f3(int parameter1,
-        int parameter2,
-        int parameter3,
-        int parameter4,
-        int parameter5,
-        int parameter6,
-        int parrameter7,
-        int p = aGlobalInt);
+void f3(
+    int parameter1,
+    int parameter2,
+    int parameter3,
+    int parameter4,
+    int parameter5,
+    int parameter6,
+    int parrameter7,
+    int p = aGlobalInt);
 
 bool operator==(N::Baz, N::Baz);
 
@@ -291,13 +292,14 @@ int functionToCall(
     return 1;
 }
 
-int functionToCall(int paramter1,
-                   int parameter2,
-                   int parameter3,
-                   int parameter4,
-                   int parameter5,
-                   int paramete6,
-                   int parameter6)
+int functionToCall(
+    int paramter1,
+    int parameter2,
+    int parameter3,
+    int parameter4,
+    int parameter5,
+    int paramete6,
+    int parameter6)
 {
     return 1;
 }
@@ -327,44 +329,45 @@ void penaltyTests(bool isThatTrue)
     const auto someValue10 = functionToCall(valueX, valueY, valueXTimesY);
     const auto someValue11
         = functionToCall(valueX, valueY, valueXTimesY, unbelievableBigValue, unbelievableBigValue);
-    const auto someValue12 = functionToCall(valueX,
-                                            valueY,
-                                            valueXTimesY,
-                                            unbelievableBigValue,
-                                            unbelievableBigValue * unbelievableBigValue,
-                                            unbelievableBigValue);
+    const auto someValue12 = functionToCall(
+        valueX,
+        valueY,
+        valueXTimesY,
+        unbelievableBigValue,
+        unbelievableBigValue * unbelievableBigValue,
+        unbelievableBigValue);
 
-    const auto someValue13 = functionToCall(valueX,
-                                            valueY,
-                                            valueXTimesY,
-                                            unbelievableBigValue,
-                                            functionToCall(functionToCall(valueX),
-                                                           functionToCall(valueY)),
-                                            unbelievableBigValue);
+    const auto someValue13 = functionToCall(
+        valueX,
+        valueY,
+        valueXTimesY,
+        unbelievableBigValue,
+        functionToCall(functionToCall(valueX), functionToCall(valueY)),
+        unbelievableBigValue);
 
-    const auto someValue14WithAnOutstandingLongName
-        = functionToCall(valueX,
-                         valueY,
-                         valueXTimesY,
-                         unbelievableBigValue,
-                         functionToCall(functionToCall(valueX), functionToCall(valueY)),
-                         unbelievableBigValue);
+    const auto someValue14WithAnOutstandingLongName = functionToCall(
+        valueX,
+        valueY,
+        valueXTimesY,
+        unbelievableBigValue,
+        functionToCall(functionToCall(valueX), functionToCall(valueY)),
+        unbelievableBigValue);
 
     const bool someValue20 = functionToCall(valueX, valueY, valueXTimesY) || functionToCall(3);
     const bool someValue21 = functionToCall(valueX, valueY, valueXTimesY)
                              || functionToCall(valueX, valueY);
 
-    emitAddOutput(QCoreApplication::tr("Starting: \"%1\" %2")
-                      .arg("/some/very/very/very/very/long/path/to/an/executable", arguments),
-                  functionToCall(3),
-                  functionToCall(3) | valueX);
+    emitAddOutput(
+        QCoreApplication::tr("Starting: \"%1\" %2")
+            .arg("/some/very/very/very/very/long/path/to/an/executable", arguments),
+        functionToCall(3),
+        functionToCall(3) | valueX);
 
-    emitAddOutput(QCoreApplication::tr("Starting: \"%1\" %2")
-                      .arg("/some/very/very/very/very/long/path/to/an/executable",
-                           argumentsVeryLong),
-                  functionToCall(3),
-                  functionToCall(3) | unlimitedValueunbelievableBigValue
-                      | unlimitedValueunbelievableBigValue);
+    emitAddOutput(
+        QCoreApplication::tr("Starting: \"%1\" %2")
+            .arg("/some/very/very/very/very/long/path/to/an/executable", argumentsVeryLong),
+        functionToCall(3),
+        functionToCall(3) | unlimitedValueunbelievableBigValue | unlimitedValueunbelievableBigValue);
 
     const QString path;
     const bool someLongerNameNNNNNNNNNN
@@ -400,12 +403,13 @@ public:
         , data3(d2)
     {}
 
-    MyClass(int initialData1,
-            int initialData2,
-            int initialData3,
-            int initialData4,
-            int initialData5,
-            int initialData6)
+    MyClass(
+        int initialData1,
+        int initialData2,
+        int initialData3,
+        int initialData4,
+        int initialData5,
+        int initialData6)
         : data1(initialData1)
         , data2(initialData2)
         , data3(initialData3)
@@ -636,22 +640,26 @@ void extremeFunction(
                     "super duper long");
 }
 
-void extremeFunction2(int parameter1,
-                      int parameter2,
-                      int parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLong)
+void extremeFunction2(
+    int parameter1,
+    int parameter2,
+    int parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLong)
 {
-    extremeFunction2(parameter1,
-                     parameter2,
-                     parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLong);
+    extremeFunction2(
+        parameter1,
+        parameter2,
+        parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLong);
 }
 
-void extremeFunction3(int parameter1,
-                      int parameter2,
-                      int parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLongNameX)
+void extremeFunction3(
+    int parameter1,
+    int parameter2,
+    int parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLongNameX)
 {
-    extremeFunction3(parameter1,
-                     parameter2,
-                     parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLongNameX);
+    extremeFunction3(
+        parameter1,
+        parameter2,
+        parameter3WithAVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVerVeryVeryLongNameX);
 }
 
 // -------------------------------------------------------------------------------------------------

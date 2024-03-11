@@ -35,11 +35,11 @@ public:
         if (async) {
             m_document = new QTextDocument(this);
             m_document->setDocumentLayout(new TextDocumentLayout(m_document));
-            m_highlighter->setParent(m_document);
         } else {
             m_document = document;
         }
 
+        m_highlighter->setParent(m_document);
         m_highlighter->setDocument(m_document);
 
         connect(m_highlighter,
@@ -66,44 +66,103 @@ public:
 
     void setExtraFormats(const QMap<int, QList<QTextLayout::FormatRange>> &formatMap)
     {
+        QTC_ASSERT(m_highlighter, return);
         for (auto it = formatMap.cbegin(); it != formatMap.cend(); ++it)
             m_highlighter->setExtraFormats(m_document->findBlockByNumber(it.key()), it.value());
     }
 
     void clearExtraFormats(const QList<int> &blockNumbers)
     {
+        QTC_ASSERT(m_highlighter, return);
         for (auto it = blockNumbers.cbegin(); it != blockNumbers.cend(); ++it)
             m_highlighter->clearExtraFormats(m_document->findBlockByNumber(*it));
     }
 
-    void clearAllExtraFormats() { m_highlighter->clearAllExtraFormats(); }
+    void clearAllExtraFormats()
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->clearAllExtraFormats();
+    }
 
     void setFontSettings(const TextEditor::FontSettings &fontSettings)
     {
+        QTC_ASSERT(m_highlighter, return);
         m_highlighter->setFontSettings(fontSettings);
-        rehighlight();
     }
 
     void setDefinitionName(const QString &name)
     {
-        return m_highlighter->setDefinitionName(name);
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setDefinitionName(name);
     }
 
     void setLanguageFeaturesFlags(unsigned int flags)
     {
+        QTC_ASSERT(m_highlighter, return);
         m_highlighter->setLanguageFeaturesFlags(flags);
     }
 
-    void setEnabled(bool enabled) { m_highlighter->setEnabled(enabled); }
+    void setEnabled(bool enabled)
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setEnabled(enabled);
+    }
 
-    void rehighlight() { m_highlighter->rehighlight(); }
+    void rehighlight()
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->rehighlight();
+    }
 
-    SyntaxHighlighter *m_highlighter = nullptr;
+    void reformatBlocks(int from, int charsRemoved, int charsAdded)
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->reformatBlocks(from, charsRemoved, charsAdded);
+    }
+
+    void setInterrupted(bool interrupted)
+    {
+        QTC_ASSERT(m_highlighter, return);
+        m_highlighter->setInterrupted(interrupted);
+    }
+
+    QPointer<SyntaxHighlighter> m_highlighter = nullptr;
     QTextDocument *m_document = nullptr;
+
 signals:
     void resultsReady(const QList<SyntaxHighlighter::Result> &result);
 
 };
+
+void SyntaxHighlighterRunner::HighlightingStatus::notInterrupted(int from,
+                                                                 int charsRemoved,
+                                                                 int charsAdded)
+{
+    m_from = from;
+    m_addedChars = charsAdded;
+    m_removedChars = charsRemoved;
+    m_current = from;
+    m_newFrom = from + m_addedChars;
+    m_interruptionRequested = false;
+}
+
+void SyntaxHighlighterRunner::HighlightingStatus::interrupted(int from,
+                                                              int charsRemoved,
+                                                              int charsAdded)
+{
+    m_newFrom = std::min(m_newFrom, from);
+    m_newFrom = std::min(m_current, m_newFrom);
+    m_removedChars += charsRemoved;
+    m_addedChars += charsAdded;
+    m_interruptionRequested = true;
+}
+
+void SyntaxHighlighterRunner::HighlightingStatus::applyNewFrom()
+{
+    m_from = m_newFrom;
+    m_current = m_newFrom;
+    m_interruptionRequested = false;
+}
 
 SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                                                  QTextDocument *document,
@@ -124,8 +183,8 @@ SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                 this,
                 &SyntaxHighlighterRunner::applyFormatRanges);
 
-        changeDocument(0, 0, document->characterCount());
-        connect(document,
+        changeDocument(0, 0, m_document->characterCount());
+        connect(m_document,
                 &QTextDocument::contentsChange,
                 this,
                 &SyntaxHighlighterRunner::changeDocument);
@@ -136,10 +195,15 @@ SyntaxHighlighterRunner::SyntaxHighlighterRunner(SyntaxHighlighter *highlighter,
                 &SyntaxHighlighterRunnerPrivate::resultsReady,
                 this,
                 [this](const QList<SyntaxHighlighter::Result> &result) {
+                    if (result.size() == 1
+                        && result.at(0).m_state == SyntaxHighlighter::State::Extras)
+                        return;
+
                     auto done = std::find_if(result.cbegin(),
                                              result.cend(),
                                              [](const SyntaxHighlighter::Result &res) {
-                                                 return res.m_state == SyntaxHighlighter::State::Done;
+                                                 return res.m_state
+                                                        == SyntaxHighlighter::State::Done;
                                              });
                     if (done != result.cend()) {
                         m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
@@ -158,7 +222,6 @@ SyntaxHighlighterRunner::~SyntaxHighlighterRunner()
         m_thread->quit();
         m_thread->wait();
     } else {
-        delete d->m_highlighter;
         delete d;
     }
 }
@@ -167,6 +230,34 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
 {
     if (m_document == nullptr)
         return;
+
+    if (m_highlightingStatus.m_interruptionRequested) {
+        d->setInterrupted(false);
+        m_highlightingStatus.applyNewFrom();
+        reformatBlocks(m_highlightingStatus.m_newFrom,
+                       m_highlightingStatus.m_removedChars,
+                       m_highlightingStatus.m_addedChars);
+        return;
+    }
+
+    auto processResult = [this](SyntaxHighlighter::Result result, QTextBlock docBlock) {
+        if (!docBlock.isValid())
+            return;
+
+        result.copyToBlock(docBlock);
+        m_highlightingStatus.m_current = docBlock.position() + docBlock.length() - 1;
+
+        if (result.m_formatRanges != docBlock.layout()->formats()) {
+            docBlock.layout()->setFormats(result.m_formatRanges);
+            m_document->markContentsDirty(docBlock.position(), docBlock.length());
+        }
+    };
+
+    if (results.size() == 1 && results.at(0).m_state == SyntaxHighlighter::State::Extras) {
+        QTextBlock docBlock = m_document->findBlockByNumber(results.at(0).m_blockNumber);
+        processResult(results.at(0), docBlock);
+        return;
+    }
 
     for (const SyntaxHighlighter::Result &result : results) {
         m_syntaxInfoUpdated = result.m_state;
@@ -180,25 +271,18 @@ void SyntaxHighlighterRunner::applyFormatRanges(const QList<SyntaxHighlighter::R
             return;
         }
 
-        QTextBlock docBlock = m_document->findBlock(result.m_blockNumber);
-        if (!docBlock.isValid())
-            return;
-
-        result.copyToBlock(docBlock);
-
-        if (result.m_formatRanges != docBlock.layout()->formats()) {
-            docBlock.layout()->setFormats(result.m_formatRanges);
-            m_document->markContentsDirty(docBlock.position(), docBlock.length());
-        }
-        if (m_syntaxInfoUpdated != SyntaxHighlighter::State::Extras)
-            m_foldValidator.process(docBlock);
+        QTextBlock docBlock = m_document->findBlockByNumber(result.m_blockNumber);
+        processResult(result, docBlock);
+        m_foldValidator.process(docBlock);
     }
 }
 
 void SyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int charsAdded)
 {
     QTC_ASSERT(m_document, return);
+    SyntaxHighlighter::State prevSyntaxInfoUpdated = m_syntaxInfoUpdated;
     m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
+
     QMap<int, BlockPreeditData> blocksPreedit;
     QTextBlock block = m_document->findBlock(from);
     const QTextBlock endBlock = m_document->findBlock(from + charsAdded);
@@ -213,6 +297,14 @@ void SyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int cha
     QMetaObject::invokeMethod(d, [this, from, charsRemoved, text, blocksPreedit] {
         d->changeDocument(from, charsRemoved, text, blocksPreedit);
     });
+
+    if (prevSyntaxInfoUpdated == SyntaxHighlighter::State::InProgress) {
+        m_highlightingStatus.interrupted(from, charsRemoved, charsAdded);
+        d->setInterrupted(true);
+    } else {
+        m_highlightingStatus.notInterrupted(from, charsRemoved, charsAdded);
+        d->setInterrupted(false);
+    }
 }
 
 bool SyntaxHighlighterRunner::useGenericHighlighter() const
@@ -239,6 +331,7 @@ void SyntaxHighlighterRunner::clearAllExtraFormats()
 void SyntaxHighlighterRunner::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
     QMetaObject::invokeMethod(d, [this, fontSettings] { d->setFontSettings(fontSettings); });
+    rehighlight();
 }
 
 void SyntaxHighlighterRunner::setLanguageFeaturesFlags(unsigned int flags)
@@ -253,7 +346,24 @@ void SyntaxHighlighterRunner::setEnabled(bool enabled)
 
 void SyntaxHighlighterRunner::rehighlight()
 {
-    QMetaObject::invokeMethod(d, [this] { d->rehighlight(); });
+    if (m_syntaxInfoUpdated == SyntaxHighlighter::State::InProgress) {
+        m_highlightingStatus.interrupted(0, 0, m_document->characterCount());
+        d->setInterrupted(true);
+    } else {
+        m_highlightingStatus.notInterrupted(0, 0, m_document->characterCount());
+        d->setInterrupted(false);
+        QMetaObject::invokeMethod(d, [this] { d->rehighlight(); });
+    }
+}
+
+
+void SyntaxHighlighterRunner::reformatBlocks(int from, int charsRemoved, int charsAdded)
+{
+    QMetaObject::invokeMethod(
+        d,
+        [this, from, charsRemoved, charsAdded] {
+            d->reformatBlocks(from, charsRemoved, charsAdded);
+        });
 }
 
 QString SyntaxHighlighterRunner::definitionName()

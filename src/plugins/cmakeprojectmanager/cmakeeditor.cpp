@@ -353,18 +353,25 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                 if (buffer.startsWith("${") && buffer.endsWith("}"))
                     buffer = buffer.mid(2, buffer.size() - 3);
 
-                if (cbs->cmakeSymbolsHash().contains(buffer)) {
+                QString functionName;
+                if (funcStart > funcEnd) {
+                    int funcStartPos = findWordStart(funcStart);
+                    functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
+                }
+
+                bool skipTarget = false;
+                if (functionName.toLower() == "add_subdirectory") {
+                    skipTarget = cbs->projectImportedTargets().contains(buffer)
+                                 || cbs->buildTargetTitles().contains(buffer);
+                }
+                if (!skipTarget && cbs->cmakeSymbolsHash().contains(buffer)) {
                     link = cbs->cmakeSymbolsHash().value(buffer);
                     addTextStartEndToLink(link);
                     return processLinkCallback(link);
                 }
 
                 // Handle include(CMakeFileWithoutSuffix) and find_package(Package)
-                QString functionName;
-                if (funcStart > funcEnd) {
-                    int funcStartPos = findWordStart(funcStart);
-                    functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
-
+                if (!functionName.isEmpty()) {
                     struct FunctionToHash
                     {
                         QString functionName;
