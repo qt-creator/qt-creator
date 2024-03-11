@@ -455,6 +455,8 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                 errorString = Error(DashboardError(reply->url(), statusCode,
                     reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
                                      *error)).message();
+            } else {
+                errorString = error.error();
             }
         } else if (statusCode != 0) {
             errorString = Error(HttpError(reply->url(), statusCode,
