@@ -1797,6 +1797,9 @@ void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &resu
     case DebuggerFinished:
         // Nothing to do.
         break;
+    case EngineSetupRequested:
+        notifyEngineSetupFailed();
+        break;
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
         notifyEngineShutdownFinished();
