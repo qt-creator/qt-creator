@@ -28,6 +28,8 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/runcontrol.h>
+
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
@@ -196,6 +198,11 @@ void LldbEngine::setupEngine()
             lldbPythonPath.chop(1);
         if (lldbPythonPath == "/usr/lib/local/lib/python3.10/dist-packages")
             environment.appendOrSet("PYTHONPATH", "/usr/lib/llvm-14/lib/python3.10/dist-packages");
+    }
+
+    if (runParameters().runAsRoot) {
+        ProjectExplorer::RunControl::provideAskPassEntry(environment);
+        m_lldbProc.setRunAsRoot(true);
     }
 
     m_lldbProc.setEnvironment(environment);
