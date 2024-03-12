@@ -15,6 +15,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <exception>
 #include <fstream>
 #include <future>
 #include <mutex>
@@ -436,7 +437,12 @@ class EventQueueTracker
     using Queue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
 public:
-    EventQueueTracker() = default;
+    EventQueueTracker()
+    {
+        terminateHandler = std::get_terminate();
+
+        std::set_terminate([]() { EventQueueTracker::get().terminate(); });
+    }
     EventQueueTracker(const EventQueueTracker &) = delete;
     EventQueueTracker(EventQueueTracker &&) = delete;
     EventQueueTracker &operator=(const EventQueueTracker &) = delete;
@@ -470,8 +476,25 @@ public:
     }
 
 private:
+    void terminate()
+    {
+        flushAll();
+        if (terminateHandler)
+            terminateHandler();
+    }
+
+    void flushAll()
+    {
+        std::lock_guard lock{mutex};
+
+        for (auto queue : queues)
+            queue->flush();
+    }
+
+private:
     std::mutex mutex;
     std::vector<Queue *> queues;
+    std::terminate_handler terminateHandler = nullptr;
 };
 } // namespace Internal
 
