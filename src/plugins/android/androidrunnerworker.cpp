@@ -782,7 +782,7 @@ void AndroidRunnerWorker::handleJdbSettled()
         return false;
     };
 
-    const QStringList commands{"suspend", "resume", "cont", "exit"};
+    const QStringList commands{"ignore uncaught java.lang.Throwable", "threads", "cont", "exit"};
 
     for (const QString &command : commands) {
         if (waitForCommand()) {

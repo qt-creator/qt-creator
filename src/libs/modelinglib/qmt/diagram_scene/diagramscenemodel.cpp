@@ -507,7 +507,9 @@ void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multiSelect)
 {
     if (!multiSelect) {
         if (!item->isSelected()) {
-            for (QGraphicsItem *selectedItem : std::as_const(m_selectedItems)) {
+            // We have to create a copy since "setSelected" may modify m_selectedItems
+            const QSet<QGraphicsItem *> copy = m_selectedItems;
+            for (QGraphicsItem *selectedItem : copy) {
                 if (selectedItem != item)
                     selectedItem->setSelected(false);
             }

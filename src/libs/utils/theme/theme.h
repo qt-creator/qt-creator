@@ -239,6 +239,7 @@ public:
         Token_Text_Default,
         Token_Text_Muted,
         Token_Text_Subtle,
+        Token_Text_Accent,
         Token_Stroke_Strong,
         Token_Stroke_Muted,
         Token_Stroke_Subtle,

@@ -219,6 +219,28 @@ bool isValidIdentifier(const QString &s)
     return true;
 }
 
+int activeArgumenForPrefix(const QString &prefix)
+{
+    int argnr = 0;
+    int parcount = 0;
+    SimpleLexer tokenize;
+    Tokens tokens = tokenize(prefix);
+    for (int i = 0; i < tokens.count(); ++i) {
+        const Token &tk = tokens.at(i);
+        if (tk.is(T_LPAREN))
+            ++parcount;
+        else if (tk.is(T_RPAREN))
+            --parcount;
+        else if (!parcount && tk.is(T_COMMA))
+            ++argnr;
+    }
+
+    if (parcount < 0)
+        return -1;
+
+    return argnr;
+}
+
 bool isQtKeyword(QStringView text)
 {
     switch (text.length()) {
@@ -859,5 +881,5 @@ void decorateCppEditor(TextEditor::TextEditorWidget *editor)
     editor->setAutoCompleter(new CppAutoCompleter);
 }
 
-} // namespace Internal
+} // Internal
 } // CppEditor

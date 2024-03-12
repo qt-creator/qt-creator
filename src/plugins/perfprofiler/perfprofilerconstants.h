@@ -29,6 +29,7 @@ const char AnalyzerSettingsGroupId[]    = "Analyzer";
 
 const char PerfSettingsId[]             = "Analyzer.Perf.Settings";
 const char PerfCallgraphDwarf[]         = "dwarf";
+const char PerfRecordArgsId[]           = "PerfRecordArgsId";
 
 const char PerfStreamMagic[] = "QPERFSTREAM";
 const char PerfZqfileMagic[] = "PTQFILE4.10";

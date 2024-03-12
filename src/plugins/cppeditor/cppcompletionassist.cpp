@@ -372,27 +372,11 @@ QString CppFunctionHintModel::text(int index) const
 
 int CppFunctionHintModel::activeArgument(const QString &prefix) const
 {
-    int argnr = 0;
-    int parcount = 0;
-    SimpleLexer tokenize;
-    Tokens tokens = tokenize(prefix);
-    for (int i = 0; i < tokens.count(); ++i) {
-        const Token &tk = tokens.at(i);
-        if (tk.is(T_LPAREN))
-            ++parcount;
-        else if (tk.is(T_RPAREN))
-            --parcount;
-        else if (!parcount && tk.is(T_COMMA))
-            ++argnr;
-    }
-
-    if (parcount < 0)
+    const int arg = activeArgumenForPrefix(prefix);
+    if (arg < 0)
         return -1;
-
-    if (argnr != m_currentArg)
-        m_currentArg = argnr;
-
-    return argnr;
+    m_currentArg = arg;
+    return arg;
 }
 
 // ---------------------------

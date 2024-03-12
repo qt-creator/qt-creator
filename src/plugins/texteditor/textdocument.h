@@ -127,7 +127,7 @@ public:
     QTextDocument *document() const;
 
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
-    void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator, bool threaded = true);
+    void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator, bool threaded = false);
     SyntaxHighlighterRunner *syntaxHighlighterRunner() const;
 
     bool reload(QString *errorString, QTextCodec *codec);

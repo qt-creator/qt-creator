@@ -8,6 +8,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QSplitterHandle>
@@ -15,8 +16,14 @@
 namespace Core {
 namespace Internal {
 
+static QBitmap scaledBitmap(const QBitmap &other, qreal factor)
+{
+    QTransform trans = QTransform::fromScale(factor, factor);
+    return other.transformed(trans);
+}
+
 // cursor images / masks taken from qplatformcursor.cpp
-static QCursor hsplitCursor()
+static QCursor hsplitCursor(qreal ratio)
 {
     static const uchar hsplit_bits[] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -42,14 +49,13 @@ static QCursor hsplitCursor()
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
     static QBitmap cursorImg = QBitmap::fromData({32, 32}, hsplit_bits);
     static QBitmap mask = QBitmap::fromData({32, 32}, hsplitm_bits);
-    static QCursor cursor(cursorImg, mask, 15, 15);
-    return cursor;
+    return QCursor(scaledBitmap(cursorImg, ratio), scaledBitmap(mask, ratio),
+                   15 * ratio, 15 * ratio);
 }
 
-static QCursor vsplitCursor()
+static QCursor vsplitCursor(qreal ratio)
 {
     static const uchar vsplit_bits[] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -77,8 +83,8 @@ static QCursor vsplitCursor()
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     static QBitmap cursorImg = QBitmap::fromData({32, 32}, vsplit_bits);
     static QBitmap mask = QBitmap::fromData({32, 32}, vsplitm_bits);
-    static QCursor cursor(cursorImg, mask, 15, 15);
-    return cursor;
+    return QCursor(scaledBitmap(cursorImg, ratio), scaledBitmap(mask, ratio),
+                   15 * ratio, 15 * ratio);
 }
 
 class MiniSplitterHandle : public QSplitterHandle
@@ -90,10 +96,9 @@ public:
     {
         setMask(QRegion(contentsRect()));
         setAttribute(Qt::WA_MouseNoMask, true);
-        if (generalSettings().provideSplitterCursors())
-            setCursor(orientation == Qt::Horizontal ? hsplitCursor() : vsplitCursor());
     }
 protected:
+    bool event(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
@@ -106,6 +111,19 @@ private:
 
 using namespace Core;
 using namespace Core::Internal;
+
+bool MiniSplitterHandle::event(QEvent *event)
+{
+    if (generalSettings().provideSplitterCursors()) {
+        if (event->type() == QEvent::HoverEnter) {
+            const qreal ratio = screen()->devicePixelRatio();
+            setCursor(orientation() == Qt::Horizontal ? hsplitCursor(ratio) : vsplitCursor(ratio));
+        } else if (event->type() == QEvent::HoverLeave) {
+            unsetCursor();
+        }
+    }
+    return QSplitterHandle::event(event);
+}
 
 void MiniSplitterHandle::resizeEvent(QResizeEvent *event)
 {

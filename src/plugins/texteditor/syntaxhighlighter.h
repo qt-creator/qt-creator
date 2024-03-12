@@ -56,15 +56,15 @@ public:
     enum State {
         Start,
         InProgress,
-        Extras,
-        Done
+        Done,
+        Extras
     };
 
     struct Result
     {
         void fillByBlock(const QTextBlock &block)
         {
-            m_blockNumber = block.position();
+            m_blockNumber = block.blockNumber();
             m_userState = block.userState();
 
             TextBlockUserData *userDate = TextDocumentLayout::textUserData(block);
@@ -117,6 +117,8 @@ public:
         State m_state = InProgress;
     };
 
+    void setInterrupted(bool interrupted) { m_interrupted = interrupted; }
+    bool isInterrupted() { return m_interrupted; }
     void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);
     virtual void setLanguageFeaturesFlags(unsigned int /*flags*/) {}; // needed for CppHighlighting
     virtual void setEnabled(bool /*enabled*/) {}; // needed for DiffAndLogHighlighter
@@ -126,6 +128,7 @@ public slots:
     virtual void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
     void clearExtraFormats(const QTextBlock &block);
+    void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void clearAllExtraFormats();
 
 protected:
@@ -165,10 +168,10 @@ signals:
 
 private:
     void setTextFormatCategories(const QList<std::pair<int, TextStyle>> &categories);
-    void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void delayedRehighlight();
 
     QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
+    std::atomic<bool> m_interrupted = false;
 
 #ifdef WITH_TESTS
     friend class tst_highlighter;

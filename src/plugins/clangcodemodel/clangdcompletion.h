@@ -1,11 +1,10 @@
-
-#include <languageclient/languageclientcompletionassist.h>
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <languageclient/languageclientcompletionassist.h>
+#include <languageclient/languageclientfunctionhint.h>
 #include <languageserverprotocol/clientcapabilities.h>
 
 namespace TextEditor { class IAssistProcessor; }
@@ -35,6 +34,18 @@ class ClangdCompletionCapabilities
 {
 public:
     explicit ClangdCompletionCapabilities(const JsonObject &object);
+};
+
+class ClangdFunctionHintProvider : public LanguageClient::FunctionHintAssistProvider
+{
+public:
+    ClangdFunctionHintProvider(ClangdClient *client);
+
+private:
+    TextEditor::IAssistProcessor *createProcessor(
+        const TextEditor::AssistInterface *assistInterface) const override;
+
+    ClangdClient * const m_client;
 };
 
 } // namespace ClangCodeModel::Internal

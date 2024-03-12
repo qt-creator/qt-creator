@@ -250,12 +250,8 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
 void GeneralSettingsWidget::apply()
 {
-    bool showRestart = generalSettings().provideSplitterCursors.volatileValue()
-            != generalSettings().provideSplitterCursors.value();
     generalSettings().apply();
     generalSettings().writeSettings();
-    if (showRestart)
-        ICore::askForRestart(Tr::tr("The cursors for resizing views will change after restart."));
 
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());

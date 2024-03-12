@@ -16,6 +16,7 @@
 
 #include <boot2qt/qdbconstants.h>
 #include <remotelinux/remotelinux_constants.h>
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 using namespace ProjectExplorer;
 
@@ -37,6 +38,7 @@ public:
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
+        setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
 
         addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
         addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);

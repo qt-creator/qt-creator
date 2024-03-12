@@ -9,10 +9,10 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QAbstractButton;
 class QItemSelectionModel;
 class QLineEdit;
 class QListView;
-class QPushButton;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
@@ -58,7 +58,7 @@ private:
 
     QScopedPointer<QStandardItemModel> m_model;
     QLineEdit *m_searchBox;
-    QPushButton *m_updateButton;
+    QAbstractButton *m_updateButton;
     QListView *m_extensionsView;
     QItemSelectionModel *m_selectionModel = nullptr;
     QSortFilterProxyModel *m_filterProxyModel;

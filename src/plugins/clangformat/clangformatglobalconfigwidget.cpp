@@ -277,6 +277,7 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
             !m_useCustomSettingsCheckBox->isChecked());
         m_codeStyle->currentPreferences()->setIsAdditionalTabVisible(
             m_useCustomSettingsCheckBox->isEnabled());
+        m_codeStyle->currentPreferences()->setAdditionalTabExist(true);
         ClangFormatSettings::instance().write();
         emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
     };

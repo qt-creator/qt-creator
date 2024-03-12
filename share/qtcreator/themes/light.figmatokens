@@ -10,16 +10,17 @@ Token_Accent_Muted=ff1f9b5d
 Token_Accent_Subtle=ff1a8550
 
 Token_Background_Default=fffcfcfc
-Token_Background_Muted=ffefefef
+Token_Background_Muted=ffF2F2F2
 Token_Background_Subtle=ffe7e7e7
 
-Token_Foreground_Default=ffcdcdcd
-Token_Foreground_Muted=ffd5d5d5
-Token_Foreground_Subtle=ffdddddd
+Token_Foreground_Default=ffD8D8D8
+Token_Foreground_Muted=ffE3E3E3
+Token_Foreground_Subtle=ffEFEFEF
 
 Token_Text_Default=ff393939
 Token_Text_Muted=ff6a6a6a
 Token_Text_Subtle=ffbebebe
+Token_Text_Accent=ff28C878
 
 Token_Stroke_Strong=ff464646
 Token_Stroke_Muted=ff727272
