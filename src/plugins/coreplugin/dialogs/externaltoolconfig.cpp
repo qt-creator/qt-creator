@@ -174,19 +174,27 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
         return false;
     QDataStream stream(&ba, QIODevice::ReadOnly);
     QString category;
-    int pos = -1;
+    qsizetype pos = -1;
     stream >> category;
     stream >> pos;
     QList<ExternalTool *> &items = m_tools[category];
     QTC_ASSERT(pos >= 0 && pos < items.count(), return false);
-    beginRemoveRows(index(m_tools.keys().indexOf(category), 0), pos, pos);
+    const int sourceCategoryIndex = std::distance(m_tools.constBegin(), m_tools.constFind(category));
+    const int targetCategoryIndex
+        = std::distance(m_tools.constBegin(), m_tools.constFind(toCategory));
+    QTC_ASSERT(sourceCategoryIndex >= 0 && targetCategoryIndex >= 0, return false);
+    if (row < 0) // target row can be -1 when dropping onto the category itself
+        row = 0;
+    if (sourceCategoryIndex == targetCategoryIndex) {
+        if (row == pos || row == pos + 1) // would end at the same place, don't
+            return false;
+    }
+    beginMoveRows(index(sourceCategoryIndex, 0), pos, pos, index(targetCategoryIndex, 0), row);
     ExternalTool *tool = items.takeAt(pos);
-    endRemoveRows();
-    if (row < 0)
-        row = m_tools.value(toCategory).count();
-    beginInsertRows(index(m_tools.keys().indexOf(toCategory), 0), row, row);
+    if (category == toCategory && pos < row) // adapt the target row for the removed item
+        --row;
     m_tools[toCategory].insert(row, tool);
-    endInsertRows();
+    endMoveRows();
     return true;
 }
 
