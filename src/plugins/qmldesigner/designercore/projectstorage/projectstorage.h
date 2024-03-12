@@ -1659,6 +1659,10 @@ private:
         };
 
         auto insert = [&](const Storage::Synchronization::ExportedType &type) {
+            using NanotraceHR::keyValue;
+            NanotraceHR::Tracer tracer{"insert exported type"_t,
+                                       projectStorageCategory(),
+                                       keyValue("exported type", NanotraceHR::value(type))};
             if (!type.moduleId)
                 throw QmlDesigner::ModuleDoesNotExists{};
 
@@ -1688,6 +1692,11 @@ private:
         auto update = [&](const Storage::Synchronization::ExportedTypeView &view,
                           const Storage::Synchronization::ExportedType &type) {
             if (view.typeId != type.typeId) {
+                NanotraceHR::Tracer tracer{"update exported type"_t,
+                                           projectStorageCategory(),
+                                           keyValue("exported type", NanotraceHR::value(type)),
+                                           keyValue("exported type view", NanotraceHR::value(view))};
+
                 handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
                 handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                                 relinkableAliasPropertyDeclarations);
@@ -1700,6 +1709,10 @@ private:
         };
 
         auto remove = [&](const Storage::Synchronization::ExportedTypeView &view) {
+            NanotraceHR::Tracer tracer{"remove exported type"_t,
+                                       projectStorageCategory(),
+                                       keyValue("exported type view", NanotraceHR::value(view))};
+
             handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                             relinkableAliasPropertyDeclarations);
@@ -1737,7 +1750,7 @@ private:
         auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
-            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId)};
+            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId), sourceId};
 
         auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
             typeId, value.name, propertyTypeId, value.traits, propertyImportedTypeNameId);
@@ -1779,7 +1792,7 @@ private:
         auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
-            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId)};
+            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId), sourceId};
 
         if (view.traits == value.traits && propertyTypeId == view.typeId
             && propertyImportedTypeNameId == view.typeNameId)
@@ -1996,6 +2009,13 @@ private:
         };
 
         auto insert = [&](const Storage::Import &import) {
+            using NanotraceHR::keyValue;
+            NanotraceHR::Tracer tracer{"insert import"_t,
+                                       projectStorageCategory(),
+                                       keyValue("import", NanotraceHR::value(import)),
+                                       keyValue("import kind", importKind),
+                                       keyValue("source id", import.sourceId)};
+
             auto importId = insertDocumentImport(import, importKind, import.moduleId, ImportId{});
             auto callback = [&](ModuleId exportedModuleId, int majorVersion, int minorVersion) {
                 Storage::Import additionImport{exportedModuleId,
@@ -2006,13 +2026,24 @@ private:
                                               ? Storage::Synchronization::ImportKind::ModuleExportedImport
                                               : Storage::Synchronization::ImportKind::ModuleExportedModuleDependency;
 
-                insertDocumentImport(additionImport, exportedImportKind, import.moduleId, importId);
+                NanotraceHR::Tracer tracer{"insert indirect import"_t,
+                                           projectStorageCategory(),
+                                           keyValue("import", NanotraceHR::value(import)),
+                                           keyValue("import kind", exportedImportKind)};
+
+                auto indirectImportId = insertDocumentImport(additionImport,
+                                                             exportedImportKind,
+                                                             import.moduleId,
+                                                             importId);
+
+                tracer.end(keyValue("import id", indirectImportId));
             };
 
             selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
                                                                          import.moduleId,
                                                                          import.version.major.value,
                                                                          import.version.minor.value);
+            tracer.end(keyValue("import id", importId));
         };
 
         auto update = [](const Storage::Synchronization::ImportView &, const Storage::Import &) {
@@ -2020,6 +2051,12 @@ private:
         };
 
         auto remove = [&](const Storage::Synchronization::ImportView &view) {
+            using NanotraceHR::keyValue;
+            NanotraceHR::Tracer tracer{"remove import"_t,
+                                       projectStorageCategory(),
+                                       keyValue("import id", view.importId),
+                                       keyValue("source id", view.sourceId)};
+
             deleteDocumentImportStatement.write(view.importId);
             deleteDocumentImportsWithParentImportIdStatement.write(view.sourceId, view.importId);
         };
@@ -2321,8 +2358,16 @@ private:
 
     TypeId declareType(Storage::Synchronization::Type &type)
     {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"declare type"_t,
+                                   projectStorageCategory(),
+                                   keyValue("source id", type.sourceId),
+                                   keyValue("type name", type.typeName)};
+
         if (type.typeName.isEmpty()) {
             type.typeId = selectTypeIdBySourceIdStatement.template value<TypeId>(type.sourceId);
+
+            tracer.end(keyValue("type id", type.typeId));
 
             return type.typeId;
         }
@@ -2332,6 +2377,8 @@ private:
         if (!type.typeId)
             type.typeId = selectTypeIdBySourceIdAndNameStatement.template value<TypeId>(type.sourceId,
                                                                                         type.typeName);
+
+        tracer.end(keyValue("type id", type.typeId));
 
         return type.typeId;
     }
@@ -2510,6 +2557,12 @@ private:
     std::pair<TypeId, ImportedTypeNameId> fetchImportedTypeNameIdAndTypeId(
         const Storage::Synchronization::ImportedTypeName &typeName, SourceId sourceId)
     {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"fetch imported type name id and type id"_t,
+                                   projectStorageCategory(),
+                                   keyValue("impoted type name", NanotraceHR::value(typeName)),
+                                   keyValue("source id", sourceId)};
+
         TypeId typeId;
         ImportedTypeNameId typeNameId;
         if (!std::visit([](auto &&typeName_) -> bool { return typeName_.name.isEmpty(); }, typeName)) {
@@ -2517,8 +2570,10 @@ private:
 
             typeId = fetchTypeId(typeNameId);
 
+            tracer.end(keyValue("type id", typeId), keyValue("type name id", typeNameId));
+
             if (!typeId)
-                throw TypeNameDoesNotExists{fetchImportedTypeName(typeNameId)};
+                throw TypeNameDoesNotExists{fetchImportedTypeName(typeNameId), sourceId};
         }
 
         return {typeId, typeNameId};
@@ -2528,6 +2583,14 @@ private:
     {
         if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"synchronize prototype and extension"_t,
+                                   projectStorageCategory(),
+                                   keyValue("prototype", NanotraceHR::value(type.prototype)),
+                                   keyValue("extension", NanotraceHR::value(type.extension)),
+                                   keyValue("type id", type.typeId),
+                                   keyValue("source id", type.sourceId)};
 
         auto [prototypeId, prototypeTypeNameId] = fetchImportedTypeNameIdAndTypeId(type.prototype,
                                                                                    type.sourceId);
@@ -2544,13 +2607,19 @@ private:
             checkForPrototypeChainCycle(type.typeId);
 
         typeIds.push_back(type.typeId);
+
+        tracer.end(keyValue("prototype id", prototypeId),
+                   keyValue("prototype type name id", prototypeTypeNameId),
+                   keyValue("extension id", extensionId),
+                   keyValue("extension type name id", extensionTypeNameId));
     }
 
     void syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
                                      Prototypes &relinkablePrototypes,
                                      Prototypes &relinkableExtensions)
     {
-        NanotraceHR::Tracer tracer{"synchronize prototypes"_t, projectStorageCategory()};
+        NanotraceHR::Tracer tracer{"synchronize prototypes and extensions"_t,
+                                   projectStorageCategory()};
 
         TypeIds typeIds;
         typeIds.reserve(types.size());
@@ -2585,6 +2654,13 @@ private:
         {
             auto operator()(const Storage::Synchronization::ImportedType &importedType)
             {
+                using NanotraceHR::keyValue;
+                NanotraceHR::Tracer tracer{"fetch imported type name id"_t,
+                                           projectStorageCategory(),
+                                           keyValue("imported type name", importedType.name),
+                                           keyValue("source id", sourceId),
+                                           keyValue("type name kind", "exported"sv)};
+
                 return storage.fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::Exported,
                                                        sourceId,
                                                        importedType.name);
@@ -2592,11 +2668,24 @@ private:
 
             auto operator()(const Storage::Synchronization::QualifiedImportedType &importedType)
             {
+                using NanotraceHR::keyValue;
+
+                NanotraceHR::Tracer tracer{"fetch imported type name id"_t,
+                                           projectStorageCategory(),
+                                           keyValue("imported type name", importedType.name),
+                                           keyValue("import", NanotraceHR::value(importedType.import)),
+                                           keyValue("type name kind", "qualified exported"sv)};
+
                 ImportId importId = storage.fetchImportId(sourceId, importedType.import);
 
-                return storage.fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::QualifiedExported,
-                                                       importId,
-                                                       importedType.name);
+                auto importedTypeNameId = storage.fetchImportedTypeNameId(
+                    Storage::Synchronization::TypeNameKind::QualifiedExported,
+                    importId,
+                    importedType.name);
+
+                tracer.end(keyValue("import id", importId), keyValue("source id", sourceId));
+
+                return importedTypeNameId;
             }
 
             ProjectStorage &storage;
@@ -2622,10 +2711,19 @@ private:
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const
     {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"fetch type id with type name kind"_t,
+                                   projectStorageCategory(),
+                                   keyValue("type name id", typeNameId)};
+
         auto kind = selectKindFromImportedTypeNamesStatement
                         .template value<Storage::Synchronization::TypeNameKind>(typeNameId);
 
-        return fetchTypeId(typeNameId, kind);
+        auto typeId = fetchTypeId(typeNameId, kind);
+
+        tracer.end(keyValue("type id", typeId), keyValue("type name kind", to_underlying(kind)));
+
+        return typeId;
     }
 
     Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const
@@ -2635,12 +2733,23 @@ private:
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const
     {
-        if (kind == Storage::Synchronization::TypeNameKind::QualifiedExported) {
-            return selectTypeIdForQualifiedImportedTypeNameNamesStatement.template value<TypeId>(
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"fetch type id"_t,
+                                   projectStorageCategory(),
+                                   keyValue("type name id", typeNameId),
+                                   keyValue("type name kind", to_underlying(kind))};
+
+        TypeId typeId;
+        if (kind == Storage::Synchronization::TypeNameKind::Exported) {
+            typeId = selectTypeIdForImportedTypeNameNamesStatement.template value<TypeId>(typeNameId);
+        } else {
+            typeId = selectTypeIdForQualifiedImportedTypeNameNamesStatement.template value<TypeId>(
                 typeNameId);
         }
 
-        return selectTypeIdForImportedTypeNameNamesStatement.template value<TypeId>(typeNameId);
+        tracer.end(keyValue("type id", typeId));
+
+        return typeId;
     }
 
     class FetchPropertyDeclarationResult

@@ -5,6 +5,8 @@
 
 #include "../include/qmldesignercorelib_global.h"
 
+#include "projectstorageids.h"
+
 #include <exception>
 
 namespace QmlDesigner {
@@ -79,7 +81,7 @@ public:
 class QMLDESIGNERCORE_EXPORT TypeNameDoesNotExists : public ProjectStorageErrorWithMessage
 {
 public:
-    TypeNameDoesNotExists(std::string_view errorMessage);
+    TypeNameDoesNotExists(std::string_view typeName, SourceId sourceId = SourceId{});
 };
 
 class QMLDESIGNERCORE_EXPORT PropertyNameDoesNotExists : public ProjectStorageError

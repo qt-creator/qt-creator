@@ -7,6 +7,7 @@
 #include "projectstorageids.h"
 #include "projectstorageinfotypes.h"
 
+#include <nanotrace/nanotracehr.h>
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
 
@@ -878,3 +879,64 @@ public:
 
 } // namespace Synchronization
 } // namespace QmlDesigner::Storage
+
+namespace NanotraceHR {
+
+inline auto value(const QmlDesigner::Storage::Version &version)
+{
+    return dictonary(keyValue("major version", version.major.value),
+                     keyValue("minor version", version.minor.value));
+}
+
+inline auto value(const QmlDesigner::Storage::Import &import)
+{
+    return dictonary(keyValue("module id", import.moduleId),
+                     keyValue("source id", import.sourceId),
+                     keyValue("version", value(import.version)));
+}
+
+inline auto value(const QmlDesigner::Storage::Synchronization::ExportedType &exportedType)
+{
+    return dictonary(keyValue("name", exportedType.name),
+                     keyValue("module id", exportedType.moduleId),
+                     keyValue("type id", exportedType.typeId),
+                     keyValue("version", value(exportedType.version)));
+}
+
+inline auto value(const QmlDesigner::Storage::Synchronization::ExportedTypeView &exportedType)
+{
+    return dictonary(keyValue("name", exportedType.name),
+                     keyValue("module id", exportedType.moduleId),
+                     keyValue("type id", exportedType.typeId),
+                     keyValue("version", value(exportedType.version)),
+                     keyValue("version", exportedType.exportedTypeNameId));
+}
+
+inline auto value(const QmlDesigner::Storage::Synchronization::ImportedTypeName &typeName)
+{
+    struct Dispatcher
+    {
+        static const QmlDesigner::Storage::Import &nullImport()
+        {
+            static QmlDesigner::Storage::Import import;
+
+            return import;
+        }
+
+        auto operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
+        {
+            return dictonary(keyValue("name", importedType.name),
+                             keyValue("import", value(nullImport())));
+        }
+
+        auto operator()(
+            const QmlDesigner::Storage::Synchronization::QualifiedImportedType &qualifiedImportedType) const
+        {
+            return dictonary(keyValue("name", qualifiedImportedType.name),
+                             keyValue("import", value(qualifiedImportedType.import)));
+        }
+    };
+
+    return std::visit(Dispatcher{}, typeName);
+}
+} // namespace NanotraceHR

@@ -198,7 +198,11 @@ void ProjectStorageUpdater::update(QStringList directories,
         std::move(package.updatedFileStatusSourceIds),
         std::move(notUpdatedSourceIds.fileStatusSourceIds));
 
-    m_projectStorage.synchronize(std::move(package));
+    try {
+        m_projectStorage.synchronize(std::move(package));
+    } catch (...) {
+        qWarning() << "Project storage could not been updated!";
+    }
 
     m_pathWatcher.updateIdPaths(createIdPaths(watchedSourceIds, m_projectPartId));
 }

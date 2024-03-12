@@ -40,8 +40,11 @@ const char *ModuleAlreadyExists::what() const noexcept
     return "The module does already exist!";
 }
 
-TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view errorMessage)
-    : ProjectStorageErrorWithMessage{"TypeNameDoesNotExists"sv, errorMessage}
+TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view typeName, SourceId sourceId)
+    : ProjectStorageErrorWithMessage{
+        "TypeNameDoesNotExists"sv,
+        Utils::SmallString::join(
+            {"type: ", typeName, ", source id: ", Utils::SmallString::number(sourceId.internalId())})}
 {}
 
 const char *PropertyNameDoesNotExists::what() const noexcept
