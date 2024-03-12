@@ -99,7 +99,7 @@ template<typename String, std::size_t size>
 void convertToString(String &string, const char (&text)[size])
 {
     string.append(R"(")");
-    string.append(text);
+    string.append(std::string_view{text, size - 1});
     string.append(R"(")");
 }
 
@@ -230,7 +230,7 @@ void convertDictonaryToString(String &string, const IsDictonary &, Entries &...e
 }
 
 template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary)
+void convertToString(String &string, const std::tuple<IsDictonary, Arguments...> &dictonary)
 {
     std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
 }
@@ -296,6 +296,12 @@ template<typename String, typename... Arguments>
 
 } // namespace Internal
 
+template<typename Key, typename... Arguments>
+void convertToString(Key &&key, const std::tuple<IsDictonary, Arguments...> &value)
+{
+    return std::make_tuple(std::forward<Key>(key), value);
+}
+
 template<typename Key, typename Value>
 auto keyValue(Key &&key, Value &&value)
 {
@@ -305,13 +311,13 @@ auto keyValue(Key &&key, Value &&value)
 template<typename... Entries>
 auto dictonary(Entries &&...entries)
 {
-    return std::forward_as_tuple(isDictonary, std::forward<Entries>(entries)...);
+    return std::make_tuple(isDictonary, std::forward<Entries>(entries)...);
 }
 
 template<typename... Entries>
 auto array(Entries &&...entries)
 {
-    return std::forward_as_tuple(isArray, std::forward<Entries>(entries)...);
+    return std::make_tuple(isArray, std::forward<Entries>(entries)...);
 }
 
 enum class IsFlow : std::size_t { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
@@ -443,6 +449,7 @@ public:
 
         std::set_terminate([]() { EventQueueTracker::get().terminate(); });
     }
+
     EventQueueTracker(const EventQueueTracker &) = delete;
     EventQueueTracker(EventQueueTracker &&) = delete;
     EventQueueTracker &operator=(const EventQueueTracker &) = delete;
