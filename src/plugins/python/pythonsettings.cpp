@@ -419,6 +419,7 @@ public:
         , m_mainGroup(new QGroupBox(Tr::tr("Use Python Language Server")))
 
     {
+        m_editor->setParent(this);
         m_mainGroup->setCheckable(true);
 
         auto mainGroupLayout = new QVBoxLayout;
