@@ -249,19 +249,6 @@ static QSet<Id> versionedIds(const QVersionNumber &version)
                         version.majorVersion(), version.minorVersion());
 }
 
-// Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
-class MacroExpanderWrapper
-{
-public:
-    MacroExpanderWrapper() = default;
-    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other) }
-    MacroExpanderWrapper(MacroExpanderWrapper &&other) = default;
-
-    MacroExpander *macroExpander(const QtVersion *qtversion) const;
-private:
-    mutable std::unique_ptr<MacroExpander> m_expander;
-};
-
 enum HostBinaries { Designer, Linguist, Rcc, Uic, QScxmlc };
 
 class QtVersionPrivate
@@ -329,18 +316,8 @@ public:
     FilePath m_qmlRuntimePath;
     FilePath m_qmlplugindumpPath;
 
-    MacroExpanderWrapper m_expander;
+    std::unique_ptr<MacroExpander> m_expander;
 };
-
-///////////////
-// MacroExpanderWrapper
-///////////////
-MacroExpander *MacroExpanderWrapper::macroExpander(const QtVersion *qtversion) const
-{
-    if (!m_expander)
-        m_expander = QtVersion::createMacroExpander([qtversion]() { return qtversion; });
-    return m_expander.get();
-}
 
 } // Internal
 
@@ -1489,7 +1466,9 @@ FilePaths QtVersion::qtSoPaths() const
 
 MacroExpander *QtVersion::macroExpander() const
 {
-    return d->m_expander.macroExpander(this);
+    if (!d->m_expander)
+        d->m_expander = QtVersion::createMacroExpander([this] { return this; });
+    return d->m_expander.get();
 }
 
 std::unique_ptr<MacroExpander>
