@@ -74,7 +74,7 @@ StudioControls.ComboBox {
     Window {
         id: window
 
-        flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
             if (!window.activeFocusItem && !root.hovered && root.popup.opened)

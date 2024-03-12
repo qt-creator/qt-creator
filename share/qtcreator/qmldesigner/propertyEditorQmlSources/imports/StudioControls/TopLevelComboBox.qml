@@ -110,7 +110,7 @@ T.ComboBox {
         width: control.listView.width
         height: control.listView.height + 2 * control.style.borderWidth
         visible: false
-        flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint | Qt.WindowStaysOnTopHint
+        flags: Qt.FramelessWindowHint | Qt.Tool | Qt.NoDropShadowWindowHint | Qt.WindowStaysOnTopHint
         modality: Qt.NonModal
         transientParent: control.Window.window
         color: "transparent"
