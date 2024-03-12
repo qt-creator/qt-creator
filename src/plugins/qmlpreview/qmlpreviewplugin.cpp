@@ -199,7 +199,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
                 previewFileAction->setVisible(fileNode && fileNode->fileType() == FileType::QML);
             });
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorOpened, this,
-            [runPreviewAction] (Core::IEditor *editor) {
+            [] (Core::IEditor *editor) {
         if (!editor)
             return;
         if (!editor->document())
@@ -225,8 +225,8 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
             {":/utils/images/run_small.png", Utils::Theme::IconsRunToolBarColor},
             {":/utils/images/eyeoverlay.png", Utils::Theme::IconsDebugColor}
         }).icon();
-        Utils::ProxyAction *action =
-            Utils::ProxyAction::proxyActionWithIcon(runPreviewAction, icon);
+        Utils::ProxyAction *action = Utils::ProxyAction::proxyActionWithIcon(
+                    Core::ActionManager::command("QmlPreview.RunPreview")->action(), icon);
         toolBar->insertAction(nullptr, action);
     });
 
