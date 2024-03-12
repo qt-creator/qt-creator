@@ -12,8 +12,6 @@ StudioControls.ComboBox {
 
     required property Component popupComponent
 
-    required property Item mainRoot
-
     readonly property int popupHeight: Math.min(800, popupLoader.height + 2)
 
     property alias popupItem: popupLoader.item
@@ -23,8 +21,8 @@ StudioControls.ComboBox {
     popup.height: 0
 
     function calculateWindowGeometry() {
-        let gPos = globalPos(mainRoot.mapFromItem(root, 0, 0))
-        let scrRect = screenRect();
+        let gPos = globalPos(itemPane.mapFromItem(root, 0, 0))
+        let scrRect = screenRect()
 
         window.width = Math.max(root.width - root.actionIndicator.width, popupLoader.width + 2) // 2: scrollView left and right 1px margins
 
@@ -70,10 +68,18 @@ StudioControls.ComboBox {
         }
     }
 
+    Connections {
+        target: itemPane.scrollView
+
+        function onContentYChanged() {
+            window.hide() // TODO: a better solution is to move the window instead of hiding
+        }
+    }
+
     Window {
         id: window
 
-        flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
             if (!window.activeFocusItem && !root.hovered && root.popup.opened)

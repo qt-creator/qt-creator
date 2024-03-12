@@ -73,6 +73,7 @@ StudioControls.CustomComboBox {
 
             HelperWidgets.Button {
                 text: qsTr("Select All")
+                width: 80
 
                 onClicked: {
                     let allFlags = 0
@@ -84,6 +85,7 @@ StudioControls.CustomComboBox {
             }
             HelperWidgets.Button {
                 text: qsTr("Select None")
+                width: 80
 
                 onClicked: root.backendValue.value = 0
             }
