@@ -57,15 +57,6 @@
             few people can visualize the color \c {#18793f}. To easily edit
             these properties, you can use the Qt Quick Toolbars.
 
-        \if defined(qtcreator)
-        \li \l{Pasting and Fetching Code Snippets}
-
-            You can cooperate with others by pasting and fetching
-            snippets of code from a server. For example, you might ask
-            colleagues to review a change that you plan to submit to a
-            version control system.
-
-        \endif
     \endlist
 
     \if defined(qtcreator)

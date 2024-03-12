@@ -101,7 +101,7 @@
     \if defined(qtcreator)
     \section1 Paste changes for review
 
-    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
+    To send a chunk of changes to a \l{Paste and fetch code snippets}
     {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
     context menu.
     \endif

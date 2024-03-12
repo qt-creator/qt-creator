@@ -32,7 +32,6 @@
                 \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
                 \li \l{Using Qt Quick Toolbars}
-                \li \l{Pasting and Fetching Code Snippets}
             \endlist
             \li \l{Configuring the Editor}
         \endlist
