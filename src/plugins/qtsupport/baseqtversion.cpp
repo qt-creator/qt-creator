@@ -33,7 +33,6 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
-#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -768,12 +767,6 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
     }
     d->m_qmakeCommand = filePath.resolvePath(d->m_qmakeCommand);
 
-    const expected_str<Utils::Store> persistentStore = PersistentCacheStore::byKey(
-        Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()));
-
-    if (persistentStore && !forceRefreshCache)
-        d->m_data.fromMap(*persistentStore);
-
     Store::const_iterator itQtAbis = map.find(QTVERSION_ABIS);
     if (itQtAbis != map.end()) {
         // Only the SDK Tool writes abis to the settings. If we find abis in the settings, we want
@@ -803,11 +796,6 @@ Store QtVersion::toMap() const
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
-
-    if (d->m_data.versionInfoUpToDate) {
-        PersistentCacheStore::write(Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()),
-                                    d->m_data.toMap());
-    }
 
     return result;
 }
@@ -1419,9 +1407,6 @@ void QtVersionPrivate::updateVersionInfo()
 
     m_isUpdating = false;
     m_data.versionInfoUpToDate = true;
-
-    PersistentCacheStore::write(Key("QtVersionData" + m_qmakeCommand.toString().toUtf8()),
-                                m_data.toMap());
 }
 
 QHash<ProKey,ProString> QtVersionPrivate::versionInfo()

@@ -11,7 +11,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
@@ -155,13 +154,13 @@ FilePath CMakeTool::filePath() const
     return m_executable;
 }
 
-bool CMakeTool::isValid(bool ignoreCache) const
+bool CMakeTool::isValid() const
 {
     if (!m_id.isValid() || !m_introspection)
         return false;
 
     if (!m_introspection->m_didAttemptToRun)
-        readInformation(ignoreCache);
+        readInformation();
 
     return m_introspection->m_haveCapabilitites && !m_introspection->m_fileApis.isEmpty();
 }
@@ -324,9 +323,9 @@ CMakeKeywords CMakeTool::keywords()
     return m_introspection->m_keywords;
 }
 
-bool CMakeTool::hasFileApi(bool ignoreCache) const
+bool CMakeTool::hasFileApi() const
 {
-    return isValid(ignoreCache) ? !m_introspection->m_fileApis.isEmpty() : false;
+    return isValid() ? !m_introspection->m_fileApis.isEmpty() : false;
 }
 
 CMakeTool::Version CMakeTool::version() const
@@ -438,7 +437,7 @@ void CMakeTool::openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl)
     Core::HelpManager::showHelpUrl(linkUrl.arg(documentationUrl(version, online)));
 }
 
-void CMakeTool::readInformation(bool ignoreCache) const
+void CMakeTool::readInformation() const
 {
     QTC_ASSERT(m_introspection, return );
     if (!m_introspection->m_haveCapabilitites && m_introspection->m_didAttemptToRun)
@@ -446,7 +445,7 @@ void CMakeTool::readInformation(bool ignoreCache) const
 
     m_introspection->m_didAttemptToRun = true;
 
-    fetchFromCapabilities(ignoreCache);
+    fetchFromCapabilities();
 }
 
 
@@ -625,17 +624,8 @@ QStringList CMakeTool::parseSyntaxHighlightingXml()
     return moduleFunctions;
 }
 
-void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
+void CMakeTool::fetchFromCapabilities() const
 {
-    expected_str<Utils::Store> cache = PersistentCacheStore::byKey(
-        keyFromString("CMake_" + cmakeExecutable().toUserOutput()));
-
-    if (cache && !ignoreCache) {
-        m_introspection->m_haveCapabilitites = true;
-        parseFromCapabilities(cache->value("CleanedStdOut").toString());
-        return;
-    }
-
     Process cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
@@ -646,12 +636,6 @@ void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
         m_introspection->m_haveCapabilitites = false;
     }
-
-    Store newData{{"CleanedStdOut", cmake.cleanedStdOut()}};
-    const auto result
-        = PersistentCacheStore::write(keyFromString("CMake_" + cmakeExecutable().toUserOutput()),
-                                      newData);
-    QTC_ASSERT_EXPECTED(result, return);
 }
 
 static int getVersion(const QVariantMap &obj, const QString &value)

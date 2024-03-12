@@ -19,7 +19,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
-#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 
 #include <QReadLocker>
@@ -201,20 +200,10 @@ static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyStrin
     auto it = cache->find(python);
     if (it == cache->end()) {
         const Key key = keyFromString(keyString);
-        const auto store = PersistentCacheStore::byKey(key);
-        if (store && store->value(keyFromString(python.toString())).toBool()) {
-            cache->insert(python, true);
-            return true;
-        }
         Process process;
         process.setCommand({python, QStringList{"-m", commandArg, "-h"}});
         process.runBlocking();
         const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
-        if (usable) {
-            Store newStore = store.value_or(Store{});
-            newStore.insert(keyFromString(python.toString()), true);
-            PersistentCacheStore::write(key, newStore);
-        }
         it = cache->insert(python, usable);
     }
     return *it;
