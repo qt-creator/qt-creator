@@ -36,13 +36,48 @@ enum {
 };
 }
 
-class CallHierarchyItem : public TreeItem
+class CallHierarchyRootItem : public TreeItem
 {
 public:
-    CallHierarchyItem(const LanguageServerProtocol::CallHierarchyItem &item,
-                      const Direction direction,
-                      Client *client)
+    CallHierarchyRootItem(const CallHierarchyItem &item)
         : m_item(item)
+    {}
+
+    QVariant data(int column, int role) const override
+    {
+        switch (role) {
+        case Qt::DecorationRole:
+            if (hasTag(SymbolTag::Deprecated))
+                return Utils::Icons::WARNING.icon();
+            return symbolIcon(int(m_item.symbolKind()));
+        case Qt::DisplayRole:
+            return m_item.name();
+        case Qt::ToolTipRole:
+            if (hasTag(SymbolTag::Deprecated))
+                return Tr::tr("Deprecated");
+            break;
+        default:
+            break;
+        }
+        return TreeItem::data(column, role);
+    }
+
+protected:
+    const CallHierarchyItem m_item;
+
+    bool hasTag(const SymbolTag tag) const
+    {
+        if (const std::optional<QList<SymbolTag>> tags = m_item.symbolTags())
+            return tags->contains(tag);
+        return false;
+    }
+};
+
+class CallHierarchyTreeItem : public CallHierarchyRootItem
+{
+public:
+    CallHierarchyTreeItem(const CallHierarchyItem &item, const Direction direction, Client *client)
+        : CallHierarchyRootItem(item)
         , m_direction(direction)
         , m_client(client)
     {
@@ -51,12 +86,6 @@ public:
     QVariant data(int column, int role) const override
     {
         switch (role) {
-        case Qt::DecorationRole:
-            if (m_item.symbolTags().value_or(QList<SymbolTag>()).contains(SymbolTag::Deprecated))
-                return Utils::Icons::WARNING.icon();
-            return symbolIcon(int(m_item.symbolKind()));
-        case Qt::DisplayRole:
-            return m_item.name();
         case LinkRole: {
             if (!m_client)
                 return QVariant();
@@ -69,8 +98,9 @@ public:
                 return *detail;
             return {};
         default:
-            return TreeItem::data(column, role);
+            break;
         }
+        return CallHierarchyRootItem::data(column, role);
     }
     bool canFetchMore() const override
     {
@@ -95,7 +125,7 @@ public:
                 if (result && !result->isNull()) {
                     for (const CallHierarchyIncomingCall &item : result->toList()) {
                         if (item.isValid())
-                            appendChild(new CallHierarchyItem(item.from(), m_direction, m_client));
+                            appendChild(new CallHierarchyTreeItem(item.from(), m_direction, m_client));
                     }
                 }
                 if (!hasChildren())
@@ -111,7 +141,7 @@ public:
                 if (result && !result->isNull()) {
                     for (const CallHierarchyOutgoingCall &item : result->toList()) {
                         if (item.isValid())
-                            appendChild(new CallHierarchyItem(item.to(), m_direction, m_client));
+                            appendChild(new CallHierarchyTreeItem(item.to(), m_direction, m_client));
                     }
                 }
                 if (!hasChildren())
@@ -122,58 +152,26 @@ public:
     }
 
 protected:
-    const LanguageServerProtocol::CallHierarchyItem m_item;
     const Direction m_direction;
     bool m_fetchedChildren = false;
     QPointer<Client> m_client;
 };
 
-class CallHierarchyDirectionItem : public CallHierarchyItem
+class CallHierarchyDirectionItem : public CallHierarchyTreeItem
 {
 public:
-    CallHierarchyDirectionItem(const LanguageServerProtocol::CallHierarchyItem &item,
+    CallHierarchyDirectionItem(const CallHierarchyItem &item,
                                const Direction direction,
                                Client *client)
-        : CallHierarchyItem(item, direction, client)
+        : CallHierarchyTreeItem(item, direction, client)
     {}
 
     QVariant data(int column, int role) const override
     {
         if (role == Qt::DisplayRole)
             return m_direction == Incoming ? Tr::tr("Incoming") : Tr::tr("Outgoing");
-        if (role == Qt::DecorationRole)
-            return {};
-        return CallHierarchyItem::data(column, role);
+        return TreeItem::data(column, role);
     }
-};
-
-
-class CallHierarchyRootItem : public TreeItem
-{
-public:
-    CallHierarchyRootItem(const LanguageServerProtocol::CallHierarchyItem &item, Client *client)
-        : m_item(item)
-    {
-        appendChild(new CallHierarchyDirectionItem(m_item, Incoming, client));
-        appendChild(new CallHierarchyDirectionItem(m_item, Outgoing, client));
-    }
-
-    QVariant data(int column, int role) const override
-    {
-        switch (role) {
-        case Qt::DecorationRole:
-            if (m_item.symbolTags().value_or(QList<SymbolTag>()).contains(SymbolTag::Deprecated))
-                return Utils::Icons::WARNING.icon();
-            return symbolIcon(int(m_item.symbolKind()));
-        case Qt::DisplayRole:
-            return m_item.name();
-        default:
-            return TreeItem::data(column, role);
-        }
-    }
-
-private:
-    const LanguageServerProtocol::CallHierarchyItem m_item;
 };
 
 class CallHierarchy : public QWidget
@@ -212,7 +210,7 @@ public:
 
     AnnotatedItemDelegate m_delegate;
     NavigationTreeView *m_view;
-    TreeModel<TreeItem, CallHierarchyRootItem, CallHierarchyDirectionItem, CallHierarchyItem> m_model;
+    TreeModel<TreeItem, CallHierarchyRootItem, CallHierarchyTreeItem> m_model;
 };
 
 void CallHierarchy::updateHierarchyAtCursorPosition()
@@ -254,11 +252,13 @@ void CallHierarchy::handlePrepareResponse(Client *client,
     if (error)
         client->log(*error);
 
-    const std::optional<LanguageClientArray<LanguageServerProtocol::CallHierarchyItem>>
+    const std::optional<LanguageClientArray<CallHierarchyItem>>
         result = response.result();
     if (result && !result->isNull()) {
-        for (const LanguageServerProtocol::CallHierarchyItem &item : result->toList()) {
-            auto newItem = new CallHierarchyRootItem(item, client);
+        for (const CallHierarchyItem &item : result->toList()) {
+            auto newItem = new CallHierarchyRootItem(item);
+            newItem->appendChild(new CallHierarchyDirectionItem(item, Incoming, client));
+            newItem->appendChild(new CallHierarchyDirectionItem(item, Outgoing, client));
             m_model.rootItem()->appendChild(newItem);
             m_view->expand(newItem->index());
             newItem->forChildrenAtLevel(1, [&](const TreeItem *child) {
