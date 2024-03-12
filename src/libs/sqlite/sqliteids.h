@@ -5,6 +5,7 @@
 
 #include <utils/span.h>
 
+#include <nanotrace/nanotracehr.h>
 #include <type_traits>
 #include <vector>
 
@@ -77,6 +78,12 @@ auto toIntegers(const Container &container)
     return Utils::span{data, container.size()};
 }
 
+template<typename String, auto Type, typename InternalIntegerType = long long>
+void convertToString(String &string, BasicId<Type, InternalIntegerType> id)
+{
+    NanotraceHR::convertToString(string, id.internalId());
+}
+
 } // namespace Sqlite
 
 namespace std {
@@ -88,4 +95,5 @@ struct hash<Sqlite::BasicId<Type, InternalIntegerType>>
         return std::hash<InternalIntegerType>{}(id.internalId());
     }
 };
+
 } // namespace std

@@ -103,7 +103,6 @@ std::string getThreadName()
 
 } // namespace
 
-namespace Internal {
 template<typename String>
 void convertToString(String &string, const QImage &image)
 {
@@ -132,13 +131,11 @@ void convertToString(String &string, const QImage &image)
                                                      return "alpha premultiplied"sv;
                                              }))));
 
-    Internal::convertToString(string, dict);
+    convertToString(string, dict);
 }
 
 template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
 template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
-
-} // namespace Internal
 
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,

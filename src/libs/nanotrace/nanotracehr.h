@@ -80,8 +80,6 @@ struct IsDictonary
 
 inline constexpr IsDictonary isDictonary;
 
-namespace Internal {
-
 template<typename String>
 void convertToString(String &string, std::string_view text)
 {
@@ -250,6 +248,8 @@ void convertToString(String &string, const Container<Arguments...> &container)
 
     string.append("]");
 }
+
+namespace Internal {
 
 template<typename String, typename... Arguments>
 String toArguments(Arguments &&...arguments)

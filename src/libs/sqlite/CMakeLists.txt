@@ -31,7 +31,7 @@ endif()
 
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
-  DEPENDS Qt::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteInternal
+  DEPENDS Qt::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteInternal Nanotrace
   INCLUDES
     ../3rdparty/sqlite
   PUBLIC_INCLUDES
