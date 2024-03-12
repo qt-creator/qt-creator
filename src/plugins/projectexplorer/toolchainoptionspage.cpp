@@ -307,7 +307,7 @@ public:
     StaticTreeItem *parentForToolChain(Toolchain *tc);
     QAction *createAction(const QString &name, ToolchainFactory *factory, Utils::Id language)
     {
-        auto action = new QAction(name, nullptr);
+        auto action = new QAction(name, this);
         connect(action, &QAction::triggered, this,
                 [this, factory, language] { createToolChain(factory, language); });
         return action;
