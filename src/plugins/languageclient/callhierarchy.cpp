@@ -141,6 +141,8 @@ public:
     {
         if (role == Qt::DisplayRole)
             return m_direction == Incoming ? Tr::tr("Incoming") : Tr::tr("Outgoing");
+        if (role == Qt::DecorationRole)
+            return {};
         return CallHierarchyItem::data(column, role);
     }
 };
