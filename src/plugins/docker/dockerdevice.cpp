@@ -937,11 +937,6 @@ expected_str<void> DockerDevicePrivate::updateContainerAccess()
             return {};
     }
 
-    if (QThread::currentThread() != thread()) {
-        expected_str<void> result;
-        return make_unexpected(Tr::tr("Cannot start docker device from non-main thread"));
-    }
-
     if (m_isShutdown)
         return make_unexpected(Tr::tr("Device is shut down"));
 
@@ -949,14 +944,16 @@ expected_str<void> DockerDevicePrivate::updateContainerAccess()
         return make_unexpected(Tr::tr("Docker system is not reachable"));
 
     expected_str<void> result = startContainer();
-    if (result) {
-        deviceSettings->containerStatus.setText(Tr::tr("Running"));
-        return result;
-    }
+    QString containerStatus = result ? Tr::tr("Running") : result.error().trimmed();
 
-    const QString error = QString("Failed to start container: %1").arg(result.error());
-    deviceSettings->containerStatus.setText(result.error().trimmed());
-    return make_unexpected(error);
+    if (!result)
+        result = make_unexpected(QString("Failed to start container: %1").arg(result.error()));
+
+    QTimer::singleShot(0, this, [this, containerStatus] {
+        deviceSettings->containerStatus.setText(containerStatus);
+    });
+
+    return result;
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
