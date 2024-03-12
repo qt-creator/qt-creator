@@ -226,6 +226,7 @@ void DefaultImpl::start()
 
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
         arguments.prepend(program);
+        arguments.prepend("-E");
         arguments.prepend("-A");
         program = "sudo";
     }
