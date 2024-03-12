@@ -2017,11 +2017,16 @@ void DebuggerEngine::quitDebugger()
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
         break;
-    case EngineRunFailed:
-    case DebuggerFinished:
+    case DebuggerNotReady:
+    case EngineSetupFailed:
     case InferiorShutdownFinished:
+    case EngineRunFailed:
+    case EngineShutdownFinished:
+    case DebuggerFinished:
         break;
-    default:
+    case InferiorRunRequested:
+    case InferiorRunFailed:
+    case InferiorStopRequested:
         // FIXME: We should disable the actions connected to that.
         notifyInferiorIll();
         break;
