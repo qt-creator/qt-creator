@@ -101,7 +101,7 @@ private:
     QWidget *m_editorWidget = nullptr;
     QScrollArea *m_editorScrollArea = nullptr;
     TextEditor::SnippetEditorWidget *m_preview = nullptr;
-    Core::IEditor *m_editor = nullptr;
+    std::unique_ptr<Core::IEditor> m_editor;
 
     std::unique_ptr<ClangFormatFile> m_config;
 
@@ -156,8 +156,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     updatePreview();
 }
 
-void ClangFormatConfigWidget::slotCodeStyleChanged(
-    TextEditor::ICodeStylePreferences *codeStyle)
+void ClangFormatConfigWidget::slotCodeStyleChanged(TextEditor::ICodeStylePreferences *codeStyle)
 {
     if (!codeStyle)
         return;
@@ -177,7 +176,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
     Core::EditorFactories factories = Core::IEditorFactory::preferredEditorTypes(
         m_config->filePath());
     Core::IEditorFactory *factory = factories.takeFirst();
-    m_editor = factory->createEditor();
+    m_editor.reset(factory->createEditor());
 
     QString errorString;
     m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath());
@@ -186,7 +185,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
     invokeMethodForLanguageClientManager("documentOpened",
                                          Q_ARG(Core::IDocument *, m_editor->document()));
     invokeMethodForLanguageClientManager("editorOpened",
-                                         Q_ARG(Core::IEditor *, m_editor));
+                                         Q_ARG(Core::IEditor *, m_editor.get()));
 
     m_editorWidget = m_editor->widget();
     m_editorWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
@@ -221,7 +220,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
 
     QShortcut *completionSC = new QShortcut(QKeySequence("Ctrl+Space"), this);
     connect(completionSC, &QShortcut::activated, this, [this] {
-        if (auto *editor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor))
+        if (auto *editor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor.get()))
             editor->editorWidget()->invokeAssist(TextEditor::Completion);
     });
 
