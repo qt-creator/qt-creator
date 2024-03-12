@@ -1820,13 +1820,20 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     DebuggerSettings &s = settings();
-    menu->addAction(s.useDebuggingHelpers.action());
+    QAction *debugHelperAction = s.useDebuggingHelpers.action();
+    menu->addAction(debugHelperAction);
     menu->addAction(s.useToolTipsInLocalsView.action());
     menu->addAction(s.autoDerefPointers.action());
     menu->addAction(s.sortStructMembers.action());
-    menu->addAction(s.useDynamicType.action());
+    QAction *dynamicTypeAction = s.useDynamicType.action();
+    menu->addAction(dynamicTypeAction);
     menu->addAction(s.settingsDialog.action());
 
+    // useDebuggingHelpers/useDynamicType have no auto-apply, but need to be persisted on triggered
+    connect(debugHelperAction, &QAction::triggered,
+            &s.useDebuggingHelpers, &BoolAspect::writeSettings, Qt::UniqueConnection);
+    connect(dynamicTypeAction, &QAction::triggered,
+            &s.useDynamicType, &BoolAspect::writeSettings, Qt::UniqueConnection);
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

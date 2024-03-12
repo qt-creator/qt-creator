@@ -5,6 +5,8 @@
 
 #include "qdbconstants.h"
 
+#include <perfprofiler/perfprofilerconstants.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -88,13 +90,10 @@ public:
             upperPort = qmlServerPort;
         }
         if (m_usePerf) {
-            Store settingsData = runControl()->settingsData("Analyzer.Perf.Settings");
-            QVariant perfRecordArgs = settingsData.value("Analyzer.Perf.RecordArguments");
-            QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
-                                    return arg.replace(',', ",,");
-                            }).join(',');
+            const Store perfArgs = runControl()->settingsData(PerfProfiler::Constants::PerfSettingsId);
+            const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
             cmd.addArg("--profile-perf");
-            cmd.addArg(args);
+            cmd.addArgs(recordArgs, CommandLine::Raw);
             lowerPort = upperPort = perfPort;
         }
         cmd.addArg("--port-range");

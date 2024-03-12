@@ -35,12 +35,12 @@ private:
     void populateDeviceTypes(const QList<DeviceTypeInfo> &deviceTypes);
     void populateRuntimes(const DeviceTypeInfo &deviceType);
 
-    Utils::FutureSynchronizer m_futureSync;
     QList<RuntimeInfo> m_runtimes;
 
     QLineEdit *m_nameEdit;
     QComboBox *m_deviceTypeCombo;
     QComboBox *m_runtimeCombo;
+    Utils::FutureSynchronizer m_futureSync; // Keep me last
 };
 
 } // Ios::Internal

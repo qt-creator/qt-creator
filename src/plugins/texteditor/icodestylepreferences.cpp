@@ -25,6 +25,7 @@ public:
     bool m_readOnly = false;
     bool m_temporarilyReadOnly = false;
     bool m_isAdditionalTabVisible = false;
+    bool m_isAdditionalTabExist = false;
     Key m_settingsSuffix;
 };
 
@@ -90,6 +91,16 @@ bool ICodeStylePreferences::isAdditionalTabVisible() const
 void ICodeStylePreferences::setIsAdditionalTabVisible(bool on)
 {
     d->m_isAdditionalTabVisible = on;
+}
+
+bool ICodeStylePreferences::additionalTabExist() const
+{
+    return d->m_isAdditionalTabExist;
+}
+
+void ICodeStylePreferences::setAdditionalTabExist(bool on)
+{
+    d->m_isAdditionalTabExist = on;
 }
 
 void ICodeStylePreferences::setTabSettings(const TabSettings &settings)

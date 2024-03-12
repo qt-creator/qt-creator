@@ -25,15 +25,20 @@
 #include <utils/utilsicons.h>
 
 #include <QButtonGroup>
+#include <QClipboard>
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QFormLayout>
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QToolButton>
+#include <QUrlQuery>
 
 #include <map>
 
@@ -197,6 +202,8 @@ struct LinkWithColumns
     QList<int> columns;
 };
 
+static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+
 class IssueListItem final : public ListItem
 {
 public:
@@ -235,6 +242,10 @@ public:
             if (!m_id.isEmpty())
                 fetchIssueInfo(m_id);
             return true;
+        } else if (role == BaseTreeView::ItemViewEventRole) {
+            ItemViewEvent ev = value.value<ItemViewEvent>();
+            if (ev.as<QContextMenuEvent>())
+                return issueListContextMenuEvent(ev);
         }
         return ListItem::setData(column, value, role);
     }
@@ -252,13 +263,14 @@ public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi();
 
+    const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
+    IssueListSearch searchFromUi() const;
 private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
-    void updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info);
+    void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
     void setFiltersEnabled(bool enabled);
-    IssueListSearch searchFromUi() const;
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
@@ -363,7 +375,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 void IssuesWidget::updateUi()
 {
     setFiltersEnabled(false);
-    std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    const std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
     updateBasicProjectInfo(projectInfo);
 
     if (!projectInfo)
@@ -523,7 +535,7 @@ void IssuesWidget::onSearchParameterChanged()
     fetchIssues(search);
 }
 
-void IssuesWidget::updateBasicProjectInfo(std::optional<Dto::ProjectInfoDto> info)
+void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
 {
     auto cleanOld = [this] {
         const QList<QAbstractButton *> originalList = m_typesButtonGroup->buttons();
@@ -770,6 +782,61 @@ public:
         }
     }
 
+    bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
+    {
+        auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1));
+        std::optional<Dto::TableInfoDto> tableInfoOpt = issues ? issues->currentTableInfo()
+                                                               : std::nullopt;
+        if (!tableInfoOpt)
+            return false;
+        const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
+        if (baseUri.isEmpty())
+            return false;
+        auto info = currentDashboardInfo();
+        if (!info)
+            return false;
+
+        QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
+        QUrl dashboardUrl = info->source.resolved(baseUri);
+        QUrlQuery baseQuery;
+        IssueListSearch search = issues->searchFromUi();
+        baseQuery.addQueryItem("kind", search.kind);
+        if (!search.versionStart.isEmpty())
+            baseQuery.addQueryItem("start", search.versionStart);
+        if (!search.versionEnd.isEmpty())
+            baseQuery.addQueryItem("end", search.versionEnd);
+        issueBaseUrl.setQuery(baseQuery);
+        if (!search.owner.isEmpty())
+            baseQuery.addQueryItem("user", search.owner);
+        if (!search.filter_path.isEmpty())
+            baseQuery.addQueryItem("filter_any path", search.filter_path);
+        if (!search.state.isEmpty())
+            baseQuery.addQueryItem("state", search.state);
+        dashboardUrl.setQuery(baseQuery);
+
+        QMenu *menu = new QMenu;
+        // FIXME Tr::tr() in before QC14
+        auto action = new QAction("Open issue in Dashboard", menu);
+        menu->addAction(action);
+        QObject::connect(action, &QAction::triggered, menu, [issueBaseUrl] {
+            QDesktopServices::openUrl(issueBaseUrl);
+        });
+        action = new QAction("Open table in Dashboard", menu);
+        QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
+            QDesktopServices::openUrl(dashboardUrl);
+        });
+        menu->addAction(action);
+        action = new QAction("Copy Dashboard link to clipboard", menu);
+        QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
+            if (auto clipboard = QGuiApplication::clipboard())
+                clipboard->setText(dashboardUrl.toString());
+        });
+        menu->addAction(action);
+        QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+        menu->popup(e.globalPos());
+        return true;
+    }
+
 private:
     QStackedWidget *m_outputWidget = nullptr;
     QToolButton *m_showDashboard = nullptr;
@@ -788,6 +855,17 @@ void updateDashboard()
 {
     QTC_ASSERT(theAxivionOutputPane, return);
     theAxivionOutputPane->updateDashboard();
+}
+
+static bool issueListContextMenuEvent(const ItemViewEvent &ev)
+{
+    QTC_ASSERT(theAxivionOutputPane, return false);
+    const QModelIndexList selectedIndices = ev.selectedRows();
+    const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
+    if (!first.isValid())
+        return false;
+    const QString issue = first.data().toString();
+    return theAxivionOutputPane->handleContextMenu(issue, ev);
 }
 
 } // Axivion::Internal

@@ -44,6 +44,7 @@ public:
 
         setDisplayName(Tr::tr("Create Application Manager package with CMake"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     }
 };
 

@@ -42,12 +42,12 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
                        const bool addToSystemPath,
-                       const Utils::PathChooser::Kind &valueType)
+                       const Utils::PathChooser::Kind &valueType,
+                       const bool useNewestVersionKey)
     : settingsHandler(settingsHandler)
     , m_label(label)
-    , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPaths(detectionPaths)
-    , m_settingsKey(settingsKey)
+    , m_settingsKey(settingsHandler->getVersionedKey(settingsKey, QSettings::SystemScope, versions, useNewestVersionKey))
     , m_versionDetector(versionDetector)
     , m_versions(versions)
     , m_cmakeVariableName(cmakeVarName)
@@ -56,7 +56,8 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_addToSystemPath(addToSystemPath)
     , m_valueType(valueType)
 {
-    m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
+    m_defaultPath = settingsHandler->getPath(m_settingsKey, QSettings::SystemScope, defaultPath);
+    m_path = settingsHandler->getPath(m_settingsKey, QSettings::UserScope, m_defaultPath);
     if (m_path.isEmpty()) {
         m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     }

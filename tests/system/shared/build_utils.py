@@ -25,13 +25,21 @@ def toggleIssuesFilter(filterName, checked):
 
 
 def getBuildIssues(ignoreCodeModel=True):
+    # Heuristically determine whether the ClandCodeModel is loaded.
+    # The current implementation is inaccurate:
+    # The value may be "True" although the CCM was not loaded due to existing settings or
+    # insufficient memory. This would result in a slightly longer execution and false positive
+    # warnings. Since neither would cause an actual damage and a precise handling would require
+    # a bigger refactoring, this seems acceptable.
+    clangLoaded = " -noload ClangCodeModel" not in currentApplicationContext().commandLine
+
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton" , silent=True)
     model = waitForObject(":Qt Creator.Issues_QListView").model()
-    if ignoreCodeModel:
+    if ignoreCodeModel and clangLoaded:
         # filter out possible code model issues present inside the Issues pane
         toggleIssuesFilter("Clang Code Model", False)
     result = dumpBuildIssues(model)
-    if ignoreCodeModel:
+    if ignoreCodeModel and clangLoaded:
         # reset the filter
         toggleIssuesFilter("Clang Code Model", True)
     return result

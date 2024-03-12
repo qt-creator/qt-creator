@@ -39,6 +39,7 @@ class ClientPrivate;
 class DiagnosticManager;
 class DocumentSymbolCache;
 class DynamicCapabilities;
+class FunctionHintAssistProvider;
 class HoverHandler;
 class InterfaceController;
 class LanguageClientCompletionAssistProvider;
@@ -171,6 +172,7 @@ public:
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
+    void setFunctionHintAssistProvider(FunctionHintAssistProvider *provider);
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
     virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;

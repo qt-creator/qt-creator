@@ -40,7 +40,8 @@ public:
                const McuPackageVersionDetector *versionDetector = nullptr,
                const bool addToPath = false,
                const Utils::PathChooser::Kind &valueType
-               = Utils::PathChooser::Kind::ExistingDirectory);
+               = Utils::PathChooser::Kind::ExistingDirectory,
+               const bool useNewestVersionKey = false);
 
     ~McuPackage() override = default;
 

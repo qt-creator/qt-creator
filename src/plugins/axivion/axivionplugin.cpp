@@ -119,13 +119,15 @@ static QString apiTokenDescription()
     return "Automatically created by " + ua + " on " + user + "@" + QSysInfo::machineHostName();
 }
 
+static QString escapeKey(const QString &string)
+{
+    QString escaped = string;
+    return escaped.replace('\\', "\\\\").replace('@', "\\@");
+}
+
 static QString credentialKey()
 {
-    const auto escape = [](const QString &string) {
-        QString escaped = string;
-        return escaped.replace('\\', "\\\\").replace('@', "\\@");
-    };
-    return escape(settings().server.username) + '@' + escape(settings().server.dashboard);
+    return escapeKey(settings().server.username) + '@' + escapeKey(settings().server.dashboard);
 }
 
 template <typename DtoType>
@@ -440,24 +442,33 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             return DoneResult::Success;
         }
 
-        const auto getError = [&]() -> Error {
-            if (contentType == s_jsonContentType) {
-                try {
-                    return DashboardError(reply->url(), statusCode,
-                                          reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                          Dto::ErrorDto::deserialize(reply->readAll()));
-                } catch (const Dto::invalid_dto_exception &) {
-                    // ignore
+        QString errorString;
+        if (contentType == s_jsonContentType) {
+            const Utils::expected_str<Dto::ErrorDto> error
+                = Dto::ErrorDto::deserializeExpected(reply->readAll());
+
+            if (error) {
+                if constexpr (std::is_same_v<DtoType, Dto::DashboardInfoDto>) {
+                    // Suppress logging error on unauthorized dashboard fetch
+                    if (!dtoStorage->credential && error->type == "UnauthenticatedException")
+                        return DoneResult::Error;
                 }
+
+                errorString = Error(DashboardError(reply->url(), statusCode,
+                    reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                                     *error)).message();
+            } else {
+                errorString = error.error();
             }
-            if (statusCode != 0) {
-                return HttpError(reply->url(), statusCode,
-                                 reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                 QString::fromUtf8(reply->readAll())); // encoding?
-            }
-            return NetworkError(reply->url(), error, reply->errorString());
-        };
-        MessageManager::writeDisrupting(QString("Axivion: %1").arg(getError().message()));
+        } else if (statusCode != 0) {
+            errorString = Error(HttpError(reply->url(), statusCode,
+                reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                                 QString::fromUtf8(reply->readAll()))).message(); // encoding?
+        } else {
+            errorString = Error(NetworkError(reply->url(), error, reply->errorString())).message();
+        }
+
+        MessageManager::writeDisrupting(QString("Axivion: %1").arg(errorString));
         return DoneResult::Error;
     };
 
@@ -1005,6 +1016,12 @@ void fetchIssueInfo(const QString &id)
 {
     QTC_ASSERT(dd, return);
     dd->fetchIssueInfo(id);
+}
+
+const std::optional<DashboardInfo> currentDashboardInfo()
+{
+    QTC_ASSERT(dd, return std::nullopt);
+    return dd->m_dashboardInfo;
 }
 
 } // Axivion::Internal
