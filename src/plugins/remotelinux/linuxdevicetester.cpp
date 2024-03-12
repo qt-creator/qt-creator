@@ -330,8 +330,6 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     d->m_device = std::static_pointer_cast<LinuxDevice>(deviceConfiguration);
 
     d->m_connectionTest = new QFutureWatcher<bool>(this);
-    d->m_connectionTest->setFuture(d->m_device->tryToConnect());
-
     connect(d->m_connectionTest, &QFutureWatcher<bool>::finished, this, [this] {
         const bool success = d->m_connectionTest->result();
         d->m_connectionTest->deleteLater();
@@ -345,6 +343,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
             emit finished(TestFailure);
         }
     });
+    d->m_connectionTest->setFuture(d->m_device->tryToConnect());
 }
 
 void GenericLinuxDeviceTester::stopTest()
