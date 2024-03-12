@@ -280,7 +280,7 @@ QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAs
 QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect);
 
 template <typename ValueType>
-class TypedAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT TypedAspect : public BaseAspect
 {
 public:
     using valueType = ValueType;
