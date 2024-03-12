@@ -28,9 +28,7 @@ public:
     QString cpuDir() const;
 
     Utils::Store toMap() const override;
-    void fromMap(const Utils::Store &map,
-                 const Utils::FilePath &filePath,
-                 bool forceRefreshCache) override;
+    void fromMap(const Utils::Store &map, const Utils::FilePath &filePath) override;
 
     ProjectExplorer::Abis detectQtAbis() const override;
 

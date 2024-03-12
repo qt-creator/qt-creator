@@ -740,7 +740,7 @@ bool QtVersion::hasReleaseBuild() const
     return !d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease;
 }
 
-void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRefreshCache)
+void QtVersion::fromMap(const Store &map, const FilePath &filePath)
 {
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
@@ -2448,13 +2448,13 @@ QtVersion *QtVersionFactory::create() const
     return version;
 }
 
-QtVersion *QtVersion::clone(bool forceRefreshCache) const
+QtVersion *QtVersion::clone() const
 {
     for (QtVersionFactory *factory : std::as_const(g_qtVersionFactories)) {
         if (factory->m_supportedType == d->m_type) {
             QtVersion *version = factory->create();
             QTC_ASSERT(version, return nullptr);
-            version->fromMap(toMap(), {}, forceRefreshCache);
+            version->fromMap(toMap(), {});
 
             // Qt Abis are either provided by SDK Tool, or detected from the binaries.
             // The auto detection is not perfect, and we always want to use the data provided by
