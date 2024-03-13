@@ -17,13 +17,13 @@ struct CollectionDataTypeModel::Details
 
 const QList<CollectionDataTypeModel::Details> CollectionDataTypeModel::m_orderedDetails{
     {DataType::String, "String", "Text"},
-    {DataType::Integer, "Integer", "Whole number"},
+    {DataType::Integer, "Integer", "Whole number that can be positive, negative, or zero"},
     {DataType::Real, "Real", "Number with a decimal"},
     {DataType::Image, "Image", "Image resource"},
     {DataType::Color, "Color", "HEX value"},
     {DataType::Url, "Url", "Resource locator"},
-    {DataType::Boolean, "Boolean", "True/False"},
-    {DataType::Unknown, "Unknown", "Unknown Data Type"},
+    {DataType::Boolean, "Boolean", "True/false"},
+    {DataType::Unknown, "Unknown", "Unknown data type"},
 };
 
 CollectionDataTypeModel::CollectionDataTypeModel(QObject *parent)
