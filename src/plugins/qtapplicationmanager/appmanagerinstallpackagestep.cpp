@@ -74,7 +74,8 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
         const TargetInformation targetInformation(target());
 
-        if (DeviceKitAspect::device(kit())->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        IDeviceConstPtr device = DeviceKitAspect::device(kit());
+        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             packageFile.setDefaultPathValue(targetInformation.packageFilePath);
         } else {
             const Utils::FilePath packageFilePath = targetInformation.runDirectory.pathAppended(
