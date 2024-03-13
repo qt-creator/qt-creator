@@ -31,13 +31,13 @@ using TraceFile = NanotraceHR::TraceFile<sqliteTracingStatus()>;
 
 TraceFile traceFile{"sqlite.json"};
 
-thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, sqliteTracingStatus()>
-    eventQueueData(traceFile);
+thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, sqliteTracingStatus()> eventQueue(
+    traceFile);
 
 NanotraceHR::StringViewCategory<sqliteTracingStatus()> &sqliteLowLevelCategory();
 
 thread_local NanotraceHR::StringViewCategory<sqliteTracingStatus()> sqliteLowLevelCategory_{
-    "sqlite low level"_t, eventQueueData, sqliteLowLevelCategory};
+    "sqlite low level"_t, eventQueue, sqliteLowLevelCategory};
 
 NanotraceHR::StringViewCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
 {
@@ -45,7 +45,7 @@ NanotraceHR::StringViewCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
 }
 
 thread_local NanotraceHR::StringViewCategory<sqliteTracingStatus()> sqliteHighLevelCategory_{
-    "sqlite high level"_t, eventQueueData, sqliteHighLevelCategory};
+    "sqlite high level"_t, eventQueue, sqliteHighLevelCategory};
 } // namespace
 
 NanotraceHR::StringViewCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()

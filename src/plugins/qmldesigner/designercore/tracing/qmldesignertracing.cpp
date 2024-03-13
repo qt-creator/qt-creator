@@ -19,24 +19,23 @@ TraceFile &traceFile()
 
 EventQueue &eventQueue()
 {
-    thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingStatus()>
-        stringViewEventQueueData(traceFile());
+    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingStatus()>
+        stringViewEventQueue(traceFile());
 
-    return stringViewEventQueueData;
+    return stringViewEventQueue;
 }
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    thread_local NanotraceHR::
-        EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingStatus()>
-            stringViewWithStringArgumentsEventQueueData(traceFile());
+    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent, tracingStatus()>
+        stringViewWithStringArgumentsEventQueue(traceFile());
 
-    return stringViewWithStringArgumentsEventQueueData;
+    return stringViewWithStringArgumentsEventQueue;
 }
 
 StringEventQueue &stringEventQueue()
 {
-    thread_local NanotraceHR::EventQueueData<NanotraceHR::StringTraceEvent, 1000, tracingStatus()> eventQueue(
+    thread_local NanotraceHR::EventQueue<NanotraceHR::StringTraceEvent, tracingStatus()> eventQueue(
         traceFile());
 
     return eventQueue;

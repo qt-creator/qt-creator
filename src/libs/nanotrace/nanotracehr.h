@@ -430,6 +430,8 @@ class EventQueue
 {
 public:
     using IsActive = std::false_type;
+
+    template<typename TraceFile> EventQueue(TraceFile &) {}
 };
 
 namespace Internal {
@@ -506,11 +508,12 @@ template<typename TraceEvent>
 class EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
+    using TraceEvents = std::array<TraceEvent, 100>;
 
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile *file);
+    EventQueue(EnabledTraceFile &file);
 
     ~EventQueue();
 
@@ -523,7 +526,9 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    EnabledTraceFile *file = nullptr;
+    EnabledTraceFile &file;
+    std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
+    std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
     TraceEventsSpan eventsOne;
     TraceEventsSpan eventsTwo;
     TraceEventsSpan currentEvents;
@@ -544,35 +549,6 @@ extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTrac
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
-
-template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
-class EventQueueData : public EventQueue<TraceEvent, isEnabled>
-{
-public:
-    using IsActive = std::true_type;
-
-    EventQueueData(TraceFile<Tracing::IsDisabled> &) {}
-};
-
-template<typename TraceEvent, std::size_t eventCount>
-class EventQueueData<TraceEvent, eventCount, Tracing::IsEnabled>
-    : public EventQueue<TraceEvent, Tracing::IsEnabled>
-{
-    using TraceEvents = std::array<TraceEvent, eventCount>;
-    using Base = EventQueue<TraceEvent, Tracing::IsEnabled>;
-
-public:
-    using IsActive = std::true_type;
-
-    EventQueueData(EnabledTraceFile &file)
-        : Base{&file}
-    {
-        Base::setEventsSpans(*eventsOne.get(), *eventsTwo.get());
-    }
-
-    std::unique_ptr<TraceEvents> eventsOne = std::make_unique<TraceEvents>();
-    std::unique_ptr<TraceEvents> eventsTwo = std::make_unique<TraceEvents>();
-};
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -1517,7 +1493,7 @@ private:
             if (category.isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
                 auto &traceEvent = getTraceEvent(category.eventQueue());
-                traceEvent.name = m_name;
+                traceEvent.name = std::move(m_name);
                 traceEvent.category = category.name();
                 traceEvent.time = m_start;
                 traceEvent.duration = duration;
@@ -1530,7 +1506,7 @@ private:
                                                                    std::forward<Arguments>(
                                                                        arguments)...);
                 } else {
-                    traceEvent.arguments = m_arguments;
+                    traceEvent.arguments = std::move(m_arguments);
                 }
             }
         }
