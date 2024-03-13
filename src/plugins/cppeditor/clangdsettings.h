@@ -55,6 +55,7 @@ public:
                    && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
                    && s1.sizeThresholdInKb == s2.sizeThresholdInKb
                    && s1.haveCheckedHardwareReqirements == s2.haveCheckedHardwareReqirements
+                   && s1.updateDependentSources == s2.updateDependentSources
                    && s1.completionResults == s2.completionResults;
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
@@ -76,6 +77,7 @@ public:
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
+        bool updateDependentSources = false;
         int completionResults = defaultCompletionResults();
 
     private:
@@ -101,6 +103,7 @@ public:
     HeaderSourceSwitchMode headerSourceSwitchMode() const { return m_data.headerSourceSwitchMode; }
     CompletionRankingModel completionRankingModel() const { return m_data.completionRankingModel; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
+    bool updateDependentSources() const { return m_data.updateDependentSources; }
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
     qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
@@ -114,7 +117,7 @@ public:
     enum class Granularity { Project, Session };
     Granularity granularity() const;
 
-    void setData(const Data &data);
+    void setData(const Data &data, bool saveAndEmitSignal = true);
     Data data() const { return m_data; }
 
     Utils::FilePath clangdIncludePath() const;

@@ -73,6 +73,7 @@ static Key sessionsWithOneClangdKey() { return "SessionsWithOneClangd"; }
 static Key diagnosticConfigIdKey() { return "diagnosticConfigId"; }
 static Key checkedHardwareKey() { return "checkedHardware"; }
 static Key completionResultsKey() { return "completionResults"; }
+static Key updateDependentSourcesKey() { return "updateDependentSources"; }
 
 QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 {
@@ -245,12 +246,14 @@ ClangdSettings::Granularity ClangdSettings::granularity() const
     return Granularity::Project;
 }
 
-void ClangdSettings::setData(const Data &data)
+void ClangdSettings::setData(const Data &data, bool saveAndEmitSignal)
 {
     if (this == &instance() && data != m_data) {
         m_data = data;
-        saveSettings();
-        emit changed();
+        if (saveAndEmitSignal) {
+            saveSettings();
+            emit changed();
+        }
     }
 }
 
@@ -470,6 +473,7 @@ Store ClangdSettings::Data::toMap() const
     map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
     map.insert(checkedHardwareKey(), haveCheckedHardwareReqirements);
     map.insert(completionResultsKey(), completionResults);
+    map.insert(updateDependentSourcesKey(), updateDependentSources);
     return map;
 }
 
@@ -499,6 +503,7 @@ void ClangdSettings::Data::fromMap(const Store &map)
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));
     haveCheckedHardwareReqirements = map.value(checkedHardwareKey(), false).toBool();
+    updateDependentSources = map.value(updateDependentSourcesKey(), false).toBool();
     completionResults = map.value(completionResultsKey(), defaultCompletionResults()).toInt();
 }
 
@@ -531,6 +536,7 @@ private:
     QComboBox m_headerSourceSwitchComboBox;
     QComboBox m_completionRankingModelComboBox;
     QCheckBox m_autoIncludeHeadersCheckBox;
+    QCheckBox m_updateDependentSourcesCheckBox;
     QCheckBox m_sizeThresholdCheckBox;
     QSpinBox m_threadLimitSpinBox;
     QSpinBox m_documentUpdateThreshold;
@@ -584,6 +590,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "worker threads.");
     const QString autoIncludeToolTip = Tr::tr(
         "Controls whether clangd may insert header files as part of symbol completion.");
+    const QString updateDependentSourcesToolTip = Tr::tr(
+        "<p>Controls whether when editing a header file, clangd should re-parse all source files "
+        "including that header.</p>"
+        "<p>Note that enabling this option can cause considerable CPU load when editing widely "
+        "included headers.</p>"
+        "<p>If this option is disabled, the dependent source files are only re-parsed when the "
+        "header file is saved.</p>");
     const QString documentUpdateToolTip
         //: %1 is the application name (Qt Creator)
         = Tr::tr("Defines the amount of time %1 waits before sending document changes to the "
@@ -634,6 +647,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     m_autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     m_autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     m_autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
+    m_updateDependentSourcesCheckBox.setText(Tr::tr("Update dependent sources"));
+    m_updateDependentSourcesCheckBox.setChecked(settings.updateDependentSources());
+    m_updateDependentSourcesCheckBox.setToolTip(updateDependentSourcesToolTip);
     m_threadLimitSpinBox.setValue(settings.workerThreadLimit());
     m_threadLimitSpinBox.setSpecialValueText(Tr::tr("Automatic"));
     m_threadLimitSpinBox.setToolTip(workerThreadsToolTip);
@@ -718,6 +734,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
 
     formLayout->addRow(QString(), &m_autoIncludeHeadersCheckBox);
+    formLayout->addRow(QString(), &m_updateDependentSourcesCheckBox);
     const auto limitResultsLayout = new QHBoxLayout;
     limitResultsLayout->addWidget(&m_completionResults);
     limitResultsLayout->addStretch(1);
@@ -883,6 +900,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&m_updateDependentSourcesCheckBox, &QCheckBox::toggled,
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_threadLimitSpinBox, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_sizeThresholdCheckBox, &QCheckBox::toggled,
@@ -913,6 +932,7 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.completionRankingModel = ClangdSettings::CompletionRankingModel(
         m_completionRankingModelComboBox.currentData().toInt());
     data.autoIncludeHeaders = m_autoIncludeHeadersCheckBox.isChecked();
+    data.updateDependentSources = m_updateDependentSourcesCheckBox.isChecked();
     data.workerThreadLimit = m_threadLimitSpinBox.value();
     data.documentUpdateThreshold = m_documentUpdateThreshold.value();
     data.sizeThresholdEnabled = m_sizeThresholdCheckBox.isChecked();

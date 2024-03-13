@@ -2240,6 +2240,8 @@ public:
     ClangdTestIndirectChanges();
 
 private slots:
+    void initTestCase() override;
+    void cleanupTestCase();
     void test();
 };
 
@@ -2247,6 +2249,20 @@ ClangdTestIndirectChanges::ClangdTestIndirectChanges()
 {
     setProjectFileName("indirect-changes.pro");
     setSourceFileNames({"main.cpp", "directheader.h", "indirectheader.h", "unrelatedheader.h"});
+}
+
+void ClangdTestIndirectChanges::initTestCase()
+{
+    CppEditor::ClangdSettings &settings = CppEditor::ClangdSettings::instance();
+    CppEditor::ClangdSettings::Data settingsData = settings.data();
+    settingsData.updateDependentSources = true;
+    settings.setData(settingsData, false);
+    ClangdTest::initTestCase();
+}
+
+void ClangdTestIndirectChanges::cleanupTestCase()
+{
+    CppEditor::ClangdSettings::instance().setData({}, false);
 }
 
 void ClangdTestIndirectChanges::test()
