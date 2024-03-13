@@ -56,9 +56,5 @@
 
     \endlist
 
-    \if defined(qtcreator)
-    \sa {Using GitHub Copilot}
-    \else
     \sa {Apply quick fixes}
-    \endif
 */
