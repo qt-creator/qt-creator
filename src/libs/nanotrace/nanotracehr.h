@@ -296,16 +296,13 @@ template<typename String, typename... Arguments>
 
 } // namespace Internal
 
-template<typename Key, typename... Arguments>
-void convertToString(Key &&key, const std::tuple<IsDictonary, Arguments...> &value)
-{
-    return std::make_tuple(std::forward<Key>(key), value);
-}
-
 template<typename Key, typename Value>
-auto keyValue(Key &&key, Value &&value)
+auto keyValue(const Key &key, Value &&value)
 {
-    return std::forward_as_tuple(std::forward<Key>(key), std::forward<Value>(value));
+    if constexpr (std::is_lvalue_reference_v<Value>)
+        return std::tuple<const Key &, const Value &>(key, value);
+    else
+        return std::tuple<const Key &, std::decay_t<Value>>(key, value);
 }
 
 template<typename... Entries>
