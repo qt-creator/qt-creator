@@ -33,7 +33,6 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
-#include <utils/persistentcachestore.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -250,19 +249,6 @@ static QSet<Id> versionedIds(const QVersionNumber &version)
                         version.majorVersion(), version.minorVersion());
 }
 
-// Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
-class MacroExpanderWrapper
-{
-public:
-    MacroExpanderWrapper() = default;
-    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other) }
-    MacroExpanderWrapper(MacroExpanderWrapper &&other) = default;
-
-    MacroExpander *macroExpander(const QtVersion *qtversion) const;
-private:
-    mutable std::unique_ptr<MacroExpander> m_expander;
-};
-
 enum HostBinaries { Designer, Linguist, Rcc, Uic, QScxmlc };
 
 class QtVersionPrivate
@@ -330,18 +316,8 @@ public:
     FilePath m_qmlRuntimePath;
     FilePath m_qmlplugindumpPath;
 
-    MacroExpanderWrapper m_expander;
+    std::unique_ptr<MacroExpander> m_expander;
 };
-
-///////////////
-// MacroExpanderWrapper
-///////////////
-MacroExpander *MacroExpanderWrapper::macroExpander(const QtVersion *qtversion) const
-{
-    if (!m_expander)
-        m_expander = QtVersion::createMacroExpander([qtversion]() { return qtversion; });
-    return m_expander.get();
-}
 
 } // Internal
 
@@ -741,7 +717,7 @@ bool QtVersion::hasReleaseBuild() const
     return !d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease;
 }
 
-void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRefreshCache)
+void QtVersion::fromMap(const Store &map, const FilePath &filePath)
 {
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
@@ -767,12 +743,6 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
         }
     }
     d->m_qmakeCommand = filePath.resolvePath(d->m_qmakeCommand);
-
-    const expected_str<Utils::Store> persistentStore = PersistentCacheStore::byKey(
-        Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()));
-
-    if (persistentStore && !forceRefreshCache)
-        d->m_data.fromMap(*persistentStore);
 
     Store::const_iterator itQtAbis = map.find(QTVERSION_ABIS);
     if (itQtAbis != map.end()) {
@@ -803,11 +773,6 @@ Store QtVersion::toMap() const
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
-
-    if (d->m_data.versionInfoUpToDate) {
-        PersistentCacheStore::write(Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()),
-                                    d->m_data.toMap());
-    }
 
     return result;
 }
@@ -1419,9 +1384,6 @@ void QtVersionPrivate::updateVersionInfo()
 
     m_isUpdating = false;
     m_data.versionInfoUpToDate = true;
-
-    PersistentCacheStore::write(Key("QtVersionData" + m_qmakeCommand.toString().toUtf8()),
-                                m_data.toMap());
 }
 
 QHash<ProKey,ProString> QtVersionPrivate::versionInfo()
@@ -1504,7 +1466,9 @@ FilePaths QtVersion::qtSoPaths() const
 
 MacroExpander *QtVersion::macroExpander() const
 {
-    return d->m_expander.macroExpander(this);
+    if (!d->m_expander)
+        d->m_expander = QtVersion::createMacroExpander([this] { return this; });
+    return d->m_expander.get();
 }
 
 std::unique_ptr<MacroExpander>
@@ -2463,13 +2427,13 @@ QtVersion *QtVersionFactory::create() const
     return version;
 }
 
-QtVersion *QtVersion::clone(bool forceRefreshCache) const
+QtVersion *QtVersion::clone() const
 {
     for (QtVersionFactory *factory : std::as_const(g_qtVersionFactories)) {
         if (factory->m_supportedType == d->m_type) {
             QtVersion *version = factory->create();
             QTC_ASSERT(version, return nullptr);
-            version->fromMap(toMap(), {}, forceRefreshCache);
+            version->fromMap(toMap(), {});
 
             // Qt Abis are either provided by SDK Tool, or detected from the binaries.
             // The auto detection is not perfect, and we always want to use the data provided by

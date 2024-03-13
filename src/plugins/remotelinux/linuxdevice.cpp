@@ -43,6 +43,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMutex>
+#include <QPointer>
 #include <QReadWriteLock>
 #include <QRegularExpression>
 #include <QTemporaryDir>
@@ -865,7 +866,10 @@ public:
 
     void closeShell()
     {
-        m_shell.reset();
+        if (QObject *shell = m_shell.get()) {
+            m_shell = nullptr;
+            shell->deleteLater();
+        }
     }
 
     // Call me with shell mutex locked
@@ -881,10 +885,10 @@ public:
                     << m_displaylessSshParameters.host());
         cmd.addArg("/bin/sh");
 
-        m_shell.reset(new LinuxDeviceShell(cmd,
-            FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHostAndPort()))));
+        m_shell = new LinuxDeviceShell(cmd,
+            FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHostAndPort())));
         connect(m_shell.get(), &DeviceShell::done, this, [this] {
-            m_shell.release()->deleteLater();
+            closeShell();
         });
         auto result = m_shell->start();
         if (!result) {
@@ -981,7 +985,7 @@ private:
     mutable QMutex m_mutex;
     SshParameters m_displaylessSshParameters;
     QList<SshSharedConnection *> m_connections;
-    std::unique_ptr<LinuxDeviceShell> m_shell;
+    QPointer<LinuxDeviceShell> m_shell;
 };
 
 // LinuxDevice

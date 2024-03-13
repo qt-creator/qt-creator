@@ -11,7 +11,7 @@
     \page qt-quick-toolbars.html
     \if defined(qtdesignstudio)
     \previouspage creator-preferences-qtquick-code-style.html
-    \nextpage creator-diff-editor.html
+    \nextpage studio-finding.html
     \else
     \previouspage creator-completing-code.html
     \nextpage creator-editor-codepasting.html

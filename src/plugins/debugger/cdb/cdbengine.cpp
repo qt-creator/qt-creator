@@ -237,15 +237,6 @@ void CdbEngine::adjustOperateByInstruction(bool operateByInstruction)
     runCommand({QLatin1String(m_lastOperateByInstruction ? "l-t" : "l+t"), NoFlags});
 }
 
-bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
-{
-    Q_UNUSED(context)
-    // Tooltips matching local variables are already handled in the
-    // base class. We don't handle anything else here in CDB
-    // as it can slow debugging down.
-    return false;
-}
-
 // Determine full path to the CDB extension library.
 QString CdbEngine::extensionLibraryName(bool is64Bit, bool isArm)
 {

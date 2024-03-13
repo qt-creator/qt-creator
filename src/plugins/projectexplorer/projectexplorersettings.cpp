@@ -196,7 +196,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     m_jomCheckbox->setVisible(HostOsInfo::isWindowsHost());
     jomLabel->setVisible(HostOsInfo::isWindowsHost());
 
-    m_directoryButtonGroup = new QButtonGroup;
+    m_directoryButtonGroup = new QButtonGroup(this);
     m_directoryButtonGroup->setExclusive(true);
     m_directoryButtonGroup->addButton(m_currentDirectoryRadioButton, UseCurrentDirectory);
     m_directoryButtonGroup->addButton(m_directoryRadioButton, UseProjectDirectory);

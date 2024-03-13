@@ -9,7 +9,8 @@
     \title Connecting Boot2Qt Devices
 
     You can connect \l{Boot2Qt} devices to the development PC to run, debug,
-    and analyze applications built for them from \QC.
+    and analyze applications built for them from \QC. For this, you need the
+    appropriate \l{http://qt.io/licensing/}{Qt license}.
 
     If you have a tool chain for building applications for Boot2Qt devices
     installed on the development PC, you can add it to \QC. You can then

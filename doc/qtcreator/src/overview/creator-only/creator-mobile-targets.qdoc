@@ -81,22 +81,5 @@
 
     \endlist
 
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Building Applications for the Web}
-
-            You can use the experimental Qt WebAssembly plugin to build
-            applications in WebAssembly format, to deploy them, and to
-            run them in a web browser.
-
-        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
-            {Qt Creator Plugin for Qt Application Manager}
-
-            You can use the experimental Qt Application Manager plugin
-            (commercial only) to deploy, run, and debug applications on the
-            local Linux PC, remote generic SSH Linux targets, or
-            \l{Boot2Qt}{Boot2Qt devices}.
-    \endlist
+    \sa {Building Applications for the Web}, {Run in Qt Application Manager}
 */

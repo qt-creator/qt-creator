@@ -49,6 +49,7 @@ using namespace Utils;
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
+constexpr int requiredJavaMajorVersion = 17;
 
 class SummaryWidget : public QWidget
 {
@@ -221,7 +222,6 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 
     const QString javacCommand("javac");
     const QString versionParameter("-version");
-    constexpr int requiredMajorVersion = 17;
     const FilePath bin = jdkPath / "bin" / (javacCommand + QTC_HOST_EXE_SUFFIX);
 
     if (!bin.isExecutableFile())
@@ -254,9 +254,9 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
-    if (jdkVersion.isNull() || jdkVersion.majorVersion() != requiredMajorVersion) {
+    if (jdkVersion.isNull() || jdkVersion.majorVersion() != requiredJavaMajorVersion) {
         return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
-                                   .arg(requiredMajorVersion)
+                                   .arg(requiredJavaMajorVersion)
                                    .arg(stdOut)
                                    .arg(jdkVersion.toString()));
     }
@@ -692,10 +692,10 @@ void AndroidSettingsWidget::openNDKDownloadUrl()
 
 void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 {
-    if (HostOsInfo::isLinuxHost())
-        QDesktopServices::openUrl(QUrl::fromUserInput("https://openjdk.java.net/install/"));
-    else
-        QDesktopServices::openUrl(QUrl::fromUserInput("https://adoptopenjdk.net/"));
+    const QString url =
+        QString::fromLatin1("https://adoptium.net/temurin/releases/?package=jdk&version=%1")
+                            .arg(requiredJavaMajorVersion);
+    QDesktopServices::openUrl(QUrl::fromUserInput(url));
 }
 
 void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)

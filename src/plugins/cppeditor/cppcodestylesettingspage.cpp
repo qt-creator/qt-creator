@@ -562,7 +562,7 @@ public:
     CppCodeStyleSettingsPageWidget()
     {
         CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::cppCodeStyle();
-        m_pageCppCodeStylePreferences = new CppCodeStylePreferences();
+        m_pageCppCodeStylePreferences.reset(new CppCodeStylePreferences);
         m_pageCppCodeStylePreferences->setDelegatingPool(
             originalCodeStylePreferences->delegatingPool());
         m_pageCppCodeStylePreferences->setCodeStyleSettings(
@@ -573,7 +573,7 @@ public:
         m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
 
         m_codeStyleEditor = TextEditorSettings::codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-                                ->createCodeStyleEditor(m_pageCppCodeStylePreferences);
+                                ->createCodeStyleEditor(m_pageCppCodeStylePreferences.get());
 
         auto hbox = new QVBoxLayout(this);
         hbox->addWidget(m_codeStyleEditor);
@@ -603,7 +603,7 @@ public:
         m_codeStyleEditor->finish();
     }
 
-    CppCodeStylePreferences *m_pageCppCodeStylePreferences = nullptr;
+    std::unique_ptr<CppCodeStylePreferences> m_pageCppCodeStylePreferences;
     CodeStyleEditorWidget *m_codeStyleEditor;
 };
 

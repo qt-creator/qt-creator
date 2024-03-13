@@ -301,9 +301,14 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     continue;
 
                 const FilePath buildDir = relativeLibs ? buildDirectory : currentBuildDir;
-                std::optional<QString> dllName;
+                FilePath tmp = buildDir.resolvePath(part);
+                if (f.role == "libraries")
+                    tmp = tmp.parentDir();
 
+                std::optional<QString> dllName;
                 if (buildDir.osType() == OsTypeWindows && (f.role == "libraries")) {
+                    part = FilePath::fromUserInput(part).fileName();
+
                     // Skip object libraries on Windows. This case can happen with static qml plugins
                     if (part.endsWith(".obj") || part.endsWith(".o"))
                         continue;
@@ -312,15 +317,17 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     for (const QString &suffix :
                          {QString(".lib"), QString(".dll.a"), QString(".a")}) {
                         if (part.endsWith(suffix) && !dllName)
-                            dllName = FilePath::fromUserInput(
-                                          part.chopped(suffix.length()).append(".dll"))
-                                          .fileName();
+                            dllName = part.chopped(suffix.length()).append(".dll");
                     }
-                }
 
-                FilePath tmp = buildDir.resolvePath(part);
-                if (f.role == "libraries")
-                    tmp = tmp.parentDir();
+                    // MinGW has libQt6Core.a -> Qt6Core.dll
+                    const QString mingwPrefix("lib");
+                    const QString mingwSuffix(".a");
+                    if (part.startsWith(mingwPrefix) && part.endsWith(mingwSuffix))
+                        dllName = part.chopped(mingwSuffix.length())
+                                      .sliced(mingwPrefix.length())
+                                      .append(".dll");
+                }
 
                 if (!tmp.isEmpty() && tmp.isDir()) {
                     // f.role is libraryPath or frameworkPath
@@ -349,6 +356,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
             }
         }
         ct.libraryDirectories = filteredUnique(librarySeachPaths);
+        qCInfo(cmakeLogger) << "libraryDirectories for target" << ct.title << ":" << ct.libraryDirectories;
     }
     return ct;
 }

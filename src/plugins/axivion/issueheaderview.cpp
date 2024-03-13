@@ -144,7 +144,15 @@ void IssueHeaderView::paintSection(QPainter *painter, const QRect &rect, int log
     const int margin = style()->pixelMetric(QStyle::PM_HeaderGripMargin, nullptr, this);
     const QIcon icon = iconForSorted(logicalIndex == m_currentSortIndex ? m_currentSortOrder : SortOrder::None);
     const int offset = qMax((rect.height() - ICON_SIZE), 0) / 2;
-    const QRect iconRect(rect.left() + rect.width() - ICON_SIZE - margin, offset, ICON_SIZE, ICON_SIZE);
+    const int left = rect.left() + rect.width() - ICON_SIZE - margin;
+    const QRect iconRect(left, offset, ICON_SIZE, ICON_SIZE);
+    const QRect clearRect(left, 0, ICON_SIZE + margin, rect.height());
+    painter->save();
+    QStyleOptionHeader opt;
+    initStyleOption(&opt);
+    opt.rect = clearRect;
+    style()->drawControl(QStyle::CE_Header, &opt, painter, this);
+    painter->restore();
     icon.paint(painter, iconRect);
 }
 

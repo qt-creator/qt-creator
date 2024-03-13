@@ -26,8 +26,6 @@ public:
     explicit CdbEngine();
     ~CdbEngine() override;
 
-    bool canHandleToolTip(const DebuggerToolTipContext &context) const override;
-
     void setupEngine() override;
     void runEngine();
     void shutdownInferior() override;

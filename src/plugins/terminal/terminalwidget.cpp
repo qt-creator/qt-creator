@@ -280,9 +280,10 @@ void TerminalWidget::setupActions()
     pasteAction.addOnTriggered(this, &TerminalWidget::pasteFromClipboard);
     m_paste = make_registered(pasteAction);
 
-    ActionBuilder closeAction(this, Core::Constants::CLOSE);
-    closeAction.setContext(m_context);
-    closeAction.addOnTriggered(this, &TerminalWidget::closeTerminal);
+    ActionBuilder(this, Core::Constants::CLOSE)
+        .setContext(m_context)
+        .addOnTriggered(this, &TerminalWidget::closeTerminal)
+        .setText(Tr::tr("Close Terminal"));
     // We do not register the close action, as we want it to be blocked if the keyboard is locked.
 
     ActionBuilder clearTerminalAction(this, Constants::CLEAR_TERMINAL);
@@ -689,9 +690,6 @@ void TerminalWidget::initActions(QObject *parent)
     moveCursorWordRightAction.setText(Tr::tr("Move Cursor Word Right"));
     moveCursorWordRightAction.setContext(context);
     moveCursorWordRightAction.setDefaultKeySequence({QKeySequence("Alt+Right")});
-
-    ActionBuilder closeAction(parent, Core::Constants::CLOSE);
-    closeAction.setText(Tr::tr("Close Terminal"));
 }
 
 void TerminalWidget::unlockGlobalAction(const Utils::Id &commandId)
