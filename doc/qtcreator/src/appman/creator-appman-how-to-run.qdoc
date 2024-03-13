@@ -68,7 +68,7 @@
     mechanisms. The System UI is deployed with the \e {default deployment
     configuration}, while all application manager packages use an
     \e {automatic application manager deploy configuration}, which deploys only
-    the package itself when a installable package should be started.
+    the package itself when an installable package should be started.
 
     The appropriate deployment configuration is automatically selected when the
     current run configuration changes.
