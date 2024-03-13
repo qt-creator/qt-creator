@@ -132,6 +132,8 @@ Item {
                 }
 
                 HelperWidgets.AbstractButton {
+                    id: importCollectionButton
+
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
                     anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin

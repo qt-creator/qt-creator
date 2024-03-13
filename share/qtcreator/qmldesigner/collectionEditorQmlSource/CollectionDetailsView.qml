@@ -395,16 +395,22 @@ Rectangle {
         }
 
         CellContextMenuItem {
+            id: addRowAboveCellMenuItem
+
             itemText: qsTr("Add row above")
             itemIcon: StudioTheme.Constants.addrowabove_medium
             onTriggered: root.model.insertRow(cellContextMenu.rowIndex)
         }
         CellContextMenuItem {
+            id: addRowBelowCellMenuItem
+
             itemText: qsTr("Add row below")
             itemIcon: StudioTheme.Constants.addrowbelow_medium
             onTriggered: root.model.insertRow(cellContextMenu.rowIndex + 1)
         }
         CellContextMenuItem {
+            id: deleteRowCellMenuItem
+
             itemText: qsTr("Delete row")
             itemIcon: StudioTheme.Constants.deleterow_medium
             onTriggered: root.model.removeRows(cellContextMenu.rowIndex, 1)
