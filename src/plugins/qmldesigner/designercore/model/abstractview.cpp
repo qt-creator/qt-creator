@@ -567,8 +567,10 @@ void AbstractView::disableWidget()
 
 void AbstractView::enableWidget()
 {
-    if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
-        widgetInfo().widget->setEnabled(true);
+    if (hasWidget()) {
+        if (auto info = widgetInfo(); info.widgetFlags == DesignerWidgetFlags::DisableOnError)
+            info.widget->setEnabled(true);
+    }
 }
 
 QString AbstractView::contextHelpId() const
