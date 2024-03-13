@@ -88,7 +88,6 @@ private:
     void setCollectionName(const QString &newCollectionName);
     void loadJsonCollection(const QString &filePath, const QString &collection);
     void ensureSingleCell();
-    QVariant variantFromString(const QString &value);
     QJsonDocument readJsonFile(const QUrl &url);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;

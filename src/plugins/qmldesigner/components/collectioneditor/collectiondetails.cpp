@@ -15,6 +15,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
 #include <QVariant>
@@ -52,13 +53,6 @@ public:
     bool isValidRowId(int row) const { return row > -1 && row < dataRecords.size(); }
 };
 
-inline static bool isValidColorName(const QString &colorName)
-{
-    static const QRegularExpression colorRegex{
-        "(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)"};
-    return colorRegex.match(colorName).hasMatch();
-}
-
 /**
  * @brief getCustomUrl
  * MimeType = <MainType/SubType>
@@ -73,10 +67,10 @@ inline static bool isValidColorName(const QString &colorName)
  * will be stored in this parameter, otherwise it will be empty.
  * @return true if the result is either url or image
  */
-inline static bool getCustomUrl(const QString &value,
-                                CollectionDetails::DataType &dataType,
-                                QUrl *urlResult = nullptr,
-                                QString *subType = nullptr)
+static bool getCustomUrl(const QString &value,
+                         CollectionDetails::DataType &dataType,
+                         QUrl *urlResult = nullptr,
+                         QString *subType = nullptr)
 {
     static const QRegularExpression urlRegex{
         "^(?<MimeType>"
@@ -120,6 +114,60 @@ inline static bool getCustomUrl(const QString &value,
     return false;
 }
 
+/**
+ * @brief dataTypeFromString
+ * @param value The string value to be evaluated
+ * @return Unknown if the string is empty, But returns Bool, Color, Integer,
+ * Real, Url, Image if these types are detected within the non-empty string,
+ * Otherwise it returns String.
+ * If the value is integer, but it's out of the int range, it will be
+ * considered as a Real.
+ */
+static CollectionDetails::DataType dataTypeFromString(const QString &value)
+{
+    using DataType = CollectionDetails::DataType;
+    static const QRegularExpression validator{
+        "(?<boolean>^(?:true|false)$)|"
+        "(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|(?:[0-9a-fA-F]){3,4}))$)|"
+        "(?<integer>^\\d+$)|"
+        "(?<real>^(?:-?(?:0|[1-9]\\d*)?(?:\\.\\d*)?(?<=\\d|\\.)"
+        "(?:e-?(?:0|[1-9]\\d*))?|0x[0-9a-f]+)$)"};
+    static const int boolIndex = validator.namedCaptureGroups().indexOf("boolean");
+    static const int colorIndex = validator.namedCaptureGroups().indexOf("color");
+    static const int integerIndex = validator.namedCaptureGroups().indexOf("integer");
+    static const int realIndex = validator.namedCaptureGroups().indexOf("real");
+
+    [[maybe_unused]] static const bool allIndexesFound =
+        [](const std::initializer_list<int> &captureIndexes) {
+            QTC_ASSERT(Utils::allOf(captureIndexes, [](int val) { return val > -1; }), return false);
+            return true;
+        }({boolIndex, colorIndex, integerIndex, realIndex});
+
+    if (value.isEmpty())
+        return DataType::Unknown;
+
+    const QString trimmedValue = value.trimmed();
+    QRegularExpressionMatch match = validator.match(trimmedValue);
+
+    if (match.hasCaptured(boolIndex))
+        return DataType::Boolean;
+    if (match.hasCaptured(colorIndex))
+        return DataType::Color;
+    if (match.hasCaptured(integerIndex)) {
+        bool isInt = false;
+        trimmedValue.toInt(&isInt);
+        return isInt ? DataType::Integer : DataType::Real;
+    }
+    if (match.hasCaptured(realIndex))
+        return DataType::Real;
+
+    DataType urlType;
+    if (getCustomUrl(value, urlType))
+        return urlType;
+
+    return DataType::String;
+}
+
 static CollectionProperty::DataType dataTypeFromJsonValue(const QJsonValue &value)
 {
     using DataType = CollectionDetails::DataType;
@@ -136,21 +184,8 @@ static CollectionProperty::DataType dataTypeFromJsonValue(const QJsonValue &valu
             return DataType::Integer;
         return DataType::Real;
     }
-    case JsonType::String: {
-        const QString stringValue = value.toString();
-
-        if (stringValue.isEmpty())
-            return DataType::Unknown;
-
-        if (isValidColorName(stringValue))
-            return DataType::Color;
-
-        DataType urlType;
-        if (getCustomUrl(stringValue, urlType))
-            return urlType;
-
-        return DataType::String;
-    } break;
+    case JsonType::String:
+        return dataTypeFromString(value.toString());
     default:
         return DataType::Unknown;
     }

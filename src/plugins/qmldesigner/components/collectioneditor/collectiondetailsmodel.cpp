@@ -584,33 +584,6 @@ void CollectionDetailsModel::ensureSingleCell()
     updateEmpty();
 }
 
-QVariant CollectionDetailsModel::variantFromString(const QString &value)
-{
-    constexpr QStringView typesPattern{u"(?<boolean>^(?:true|false)$)|"
-                                       u"(?<number>^(?:-?(?:0|[1-9]\\d*)?(?:\\.\\d*)?(?<=\\d|\\.)"
-                                       u"(?:e-?(?:0|[1-9]\\d*))?|0x[0-9a-f]+)$)|"
-                                       u"(?<color>^(?:#(?:(?:[0-9a-fA-F]{2}){3,4}|"
-                                       u"(?:[0-9a-fA-F]){3,4}))$)|"
-                                       u"(?<string>[A-Za-z][A-Za-z0-9_ -]*)"};
-    static QRegularExpression validator(typesPattern.toString());
-    const QString trimmedValue = value.trimmed();
-    QRegularExpressionMatch match = validator.match(trimmedValue);
-    QVariant variantValue = value;
-
-    if (value.isEmpty())
-        return QVariant();
-    if (!match.captured(u"boolean").isEmpty())
-        return variantValue.toBool();
-    if (!match.captured(u"number").isEmpty())
-        return variantValue.toDouble();
-    if (!match.captured(u"color").isEmpty())
-        return variantValue.value<QColor>();
-    if (!match.captured(u"string").isEmpty())
-        return variantValue.toString();
-
-    return QVariant::fromValue(value);
-}
-
 QJsonDocument CollectionDetailsModel::readJsonFile(const QUrl &url)
 {
     using Utils::FilePath;
