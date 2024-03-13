@@ -54,7 +54,8 @@ public:
 
     const Utils::Theme::Color themeColor;
     const Utils::StyleHelper::UiElement uiElement;
-    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip;
+    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip
+                              | Qt::TextShowMnemonic;
 };
 
 CORE_EXPORT void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);

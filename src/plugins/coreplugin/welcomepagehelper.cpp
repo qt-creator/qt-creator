@@ -100,7 +100,7 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
     using namespace WelcomePageHelpers;
     static const TextFormat mediumPrimaryTF
         {Theme::Token_Basic_White, StyleHelper::UiElement::UiElementButtonMedium,
-         Qt::AlignCenter | Qt::TextDontClip};
+         Qt::AlignCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
     static const TextFormat mediumSecondaryTF
         {Theme::Token_Text_Default, mediumPrimaryTF.uiElement, mediumPrimaryTF.drawTextFlags};
     static const TextFormat smallPrimaryTF
@@ -110,7 +110,7 @@ static const TextFormat &buttonTF(Button::Role role, WidgetState state)
         {mediumSecondaryTF.themeColor, smallPrimaryTF.uiElement, smallPrimaryTF.drawTextFlags};
     static const TextFormat smallListDefaultTF
         {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
-         Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip};
+         Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
     static const TextFormat smallListCheckedTF = smallListDefaultTF;
     static const TextFormat smallLinkDefaultTF
         {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
