@@ -17,6 +17,7 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -723,8 +724,14 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         if (!configurePreset.cmakeExecutable) {
             const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
-            if (cmakeTool)
+            if (cmakeTool) {
                 configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable().toString();
+            } else {
+                configurePreset.cmakeExecutable = QString();
+                TaskHub::addTask(
+                    BuildSystemTask(Task::TaskType::Error, Tr::tr("<No CMake Tool available>")));
+                TaskHub::requestPopup();
+            }
         } else {
             QString cmakeExecutable = configurePreset.cmakeExecutable.value();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
