@@ -602,7 +602,6 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Projec
     }
     case FileState::NotExists:
         throw CannotParseQmlTypesFile{};
-        break;
     }
 
     return state;
