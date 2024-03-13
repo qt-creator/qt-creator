@@ -643,7 +643,9 @@ QString CollectionDetails::toJson() const
         QJsonObject exportedElement;
         for (int i = 0; i < valueCount; ++i) {
             const QJsonValue &value = record.at(i);
-            if (!isEmptyJsonValue(value))
+            if (isEmptyJsonValue(value))
+                exportedElement.insert(d->properties.at(i).name, QJsonValue::Null);
+            else
                 exportedElement.insert(d->properties.at(i).name, value);
         }
 
