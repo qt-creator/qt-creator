@@ -90,7 +90,7 @@ StudioControls.Dialog {
                     EffectComposerBackend.effectComposerModel.saveComposition(nameText.text)
 
                     if (root.clearOnClose) {
-                        EffectComposerBackend.effectComposerModel.clear()
+                        EffectComposerBackend.effectComposerModel.clear(true)
                         root.clearOnClose = false
                     }
 
