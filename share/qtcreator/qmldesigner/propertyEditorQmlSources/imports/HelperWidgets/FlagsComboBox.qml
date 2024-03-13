@@ -12,11 +12,11 @@ import StudioTheme as StudioTheme
 itemsModel: ListModel {
     ListElement {
         name: "..."
-        flag: ...
+        flag: "..."
     }
     ListElement {
         name: "..."
-        flag: ...
+        flag: "..."
     }
     ...
 */
@@ -29,30 +29,36 @@ StudioControls.CustomComboBox {
 
     property bool showExtendedFunctionButton: true
 
+    property string scope: "Qt" // flag prefix scope
+    property string zeroFlag
+
     Connections {
         id: backendValueConnection
 
         target: backendValue
 
         function onValueChangedQml() {
-            let numSelected = 0
             let selectedItem = ""
 
+            let flags = root.backendValue.expression.split(/\s*\|\s*/).filter(Boolean)
+
             for (let i = 0; i < root.itemsModel.count; ++i) {
-                let flag = root.itemsModel.get(i).flag
-                let flagActive = root.backendValue.value & flag
+                let flag = root.scope + "." + root.itemsModel.get(i).flag
+                let flagActive = flags.indexOf(flag) !== -1
                 root.popupItem.itemAt(i).checked = flagActive
 
-                if (flagActive) {
+                if (flagActive)
                     selectedItem = root.itemsModel.get(i).name
-                    ++numSelected
-                }
             }
 
             // update ComboBox text
-            root.model = numSelected == 0 ? [qsTr("empty")]
-                       : numSelected == 1 ? root.model = [selectedItem]
-                                          : [qsTr("%1 items selected").arg(numSelected)]
+            let numSelected = flags.length
+            if (flags.length > 0 && flags[0] === root.scope + "." + root.zeroFlag)
+                --numSelected
+
+            root.model = numSelected === 0 ? [qsTr("empty")]
+                       : numSelected === 1 ? root.model = [selectedItem]
+                                           : [qsTr("%1 items selected").arg(numSelected)]
         }
     }
 
@@ -76,18 +82,23 @@ StudioControls.CustomComboBox {
                 width: 80
 
                 onClicked: {
-                    let allFlags = 0
-                    for (let i = 0; i < root.itemsModel.count; ++i)
-                        allFlags += root.itemsModel.get(i).flag
+                    let allFlags = root.scope + "." + root.itemsModel.get(0).flag
+                    for (let i = 1; i < root.itemsModel.count; ++i)
+                        allFlags += " | " + root.scope + "." + root.itemsModel.get(i).flag
 
-                    root.backendValue.value = allFlags
+                    root.backendValue.expression = allFlags
                 }
             }
             HelperWidgets.Button {
                 text: qsTr("Select None")
                 width: 80
 
-                onClicked: root.backendValue.value = 0
+                onClicked: {
+                    if (root.zeroFlag)
+                        root.backendValue.expression = root.scope + "." + root.zeroFlag
+                    else
+                        root.backendValue.resetValue()
+                }
             }
         }
 
@@ -100,10 +111,19 @@ StudioControls.CustomComboBox {
                 actionIndicatorVisible: false
 
                 onToggled: {
-                    if (root.popupItem.itemAt(index).checked)
-                        root.backendValue.value |= flag
-                    else
-                        root.backendValue.value &= ~flag
+                    let flags = root.backendValue.expression.split(/\s*\|\s*/).filter(Boolean)
+                    let scopedFlag = root.scope + "." + flag
+                    let idx = flags.indexOf(scopedFlag)
+
+                    if (root.popupItem.itemAt(index).checked) {
+                        if (idx === -1)
+                            flags.push(scopedFlag)
+                    } else {
+                        if (idx !== -1)
+                            flags.splice(idx, 1)
+                    }
+
+                    root.backendValue.expression = flags.join(" | ")
                 }
             }
         }
