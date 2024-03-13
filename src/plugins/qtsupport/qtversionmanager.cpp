@@ -89,7 +89,8 @@ static PersistentSettingsWriter *m_writer = nullptr;
 class QtVersionManagerImpl : public QObject
 {
 public:
-    QtVersionManagerImpl()
+    QtVersionManagerImpl(QObject *parent)
+        : QObject(parent)
     {
         qRegisterMetaType<FilePath>();
 
@@ -135,10 +136,18 @@ public:
     QTimer m_fileWatcherTimer;
 };
 
+static QObject *s_guard = nullptr;
+
+void Internal::setupQtVersionManager(QObject *guard)
+{
+    s_guard = guard;
+}
+
 QtVersionManagerImpl &qtVersionManagerImpl()
 {
-    static QtVersionManagerImpl theQtVersionManager;
-    return theQtVersionManager;
+    QTC_CHECK(s_guard);
+    static auto theQtVersionManager = new QtVersionManagerImpl(s_guard);
+    return *theQtVersionManager;
 }
 
 void QtVersionManagerImpl::triggerQtVersionRestore()
