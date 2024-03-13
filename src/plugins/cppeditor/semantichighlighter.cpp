@@ -8,7 +8,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -67,12 +66,15 @@ void SemanticHighlighter::run()
 
 Parentheses SemanticHighlighter::getClearedParentheses(const QTextBlock &block)
 {
-    Parentheses parens = TextDocumentLayout::parentheses(block);
+    Parentheses parens;
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block))
+        parens = userData->parentheses();
     if (m_seenBlocks.insert(block.blockNumber()).second) {
         parens = Utils::filtered(parens, [](const Parenthesis &p) {
             return p.source != parenSource();
         });
     }
+
     return parens;
 }
 
@@ -107,7 +109,7 @@ void SemanticHighlighter::handleHighlighterResults()
     QElapsedTimer t;
     t.start();
 
-    SyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
+    SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap);
 
@@ -195,7 +197,7 @@ void SemanticHighlighter::onHighlighterFinished()
     t.start();
 
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
-        SyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
+        SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
         if (QTC_GUARD(highlighter)) {
             qCDebug(log) << "onHighlighterFinished() - clearing formats";
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());

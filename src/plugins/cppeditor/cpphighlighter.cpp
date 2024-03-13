@@ -84,8 +84,13 @@ void CppHighlighter::highlightBlock(const QString &text)
     const int firstNonSpace = tokens.first().utf16charsBegin();
 
     // Keep "semantic parentheses".
-    Parentheses parentheses = Utils::filtered(TextDocumentLayout::parentheses(currentBlock()),
-            [](const Parenthesis &p) { return p.source.isValid(); });
+    Parentheses parentheses;
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
+        parentheses = Utils::filtered(userData->parentheses(), [](const Parenthesis &p) {
+            return p.source.isValid();
+        });
+    }
+
     const auto insertParen = [&parentheses](const Parenthesis &p) { insertSorted(parentheses, p); };
     parentheses.reserve(5);
 
@@ -235,7 +240,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     // if the block is ifdefed out, we only store the parentheses, but
 
     // do not adjust the brace depth.
-    if (TextDocumentLayout::ifdefedOut(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock());
+            userData && userData->ifdefedOut()) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
     }

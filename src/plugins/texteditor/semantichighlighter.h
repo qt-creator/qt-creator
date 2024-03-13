@@ -21,7 +21,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class SyntaxHighlighter;
-class SyntaxHighlighterRunner;
 
 class TEXTEDITOR_EXPORT HighlightingResult
 {
@@ -74,7 +73,7 @@ using Splitter = std::function<const QList<std::pair<HighlightingResult, QTextBl
 // the (to-1).line result.
 // Requires that results of the Future are ordered by line.
 void TEXTEDITOR_EXPORT
-incrementalApplyExtraAdditionalFormats(SyntaxHighlighterRunner *highlighter,
+incrementalApplyExtraAdditionalFormats(SyntaxHighlighter *highlighter,
                                        const QFuture<HighlightingResult> &future,
                                        int from,
                                        int to,
@@ -85,7 +84,7 @@ incrementalApplyExtraAdditionalFormats(SyntaxHighlighterRunner *highlighter,
 // indicated by Result::kind and kindToFormat to the correct location using
 // SyntaxHighlighter::setExtraFormats. In contrast to
 // incrementalApplyExtraAdditionalFormats the results do not have to be ordered by line.
-void TEXTEDITOR_EXPORT setExtraAdditionalFormats(SyntaxHighlighterRunner *highlighter,
+void TEXTEDITOR_EXPORT setExtraAdditionalFormats(SyntaxHighlighter *highlighter,
                                                  const HighlightingResults &results,
                                                  const QHash<int, QTextCharFormat> &kindToFormat);
 
@@ -93,7 +92,7 @@ void TEXTEDITOR_EXPORT setExtraAdditionalFormats(SyntaxHighlighterRunner *highli
 // until the end of the document.
 // Requires that results of the Future are ordered by line.
 void TEXTEDITOR_EXPORT clearExtraAdditionalFormatsUntilEnd(
-    SyntaxHighlighterRunner *highlighter, const QFuture<HighlightingResult> &future);
+    SyntaxHighlighter *highlighter, const QFuture<HighlightingResult> &future);
 
 } // namespace SemanticHighlighter
 } // namespace TextEditor

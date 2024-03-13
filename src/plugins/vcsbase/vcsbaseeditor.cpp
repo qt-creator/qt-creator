@@ -30,7 +30,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/syntaxhighlighter.h>
 
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
@@ -821,7 +821,7 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
 
 void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
 {
-    textDocument()->syntaxHighlighterRunner()->setEnabled(e);
+    textDocument()->syntaxHighlighter()->setEnabled(e);
 }
 
 FilePath VcsBaseEditorWidget::workingDirectory() const
@@ -1102,7 +1102,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (SyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
+    if (SyntaxHighlighter *ah = textDocument()->syntaxHighlighter()) {
         ah->rehighlight();
     } else {
         BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();

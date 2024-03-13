@@ -10,7 +10,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -146,12 +146,10 @@ public:
         TextEditor::BaseTextEditor *cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor);
         if (!cppEditor)
             return false;
-        if (cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated())
+        if (cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate())
             return true;
         return ::CppEditor::Tests::waitForSignalOrTimeout(
-            cppEditor->textDocument()->syntaxHighlighterRunner(),
-            &SyntaxHighlighterRunner::highlightingFinished,
-            5000);
+            cppEditor->textDocument()->syntaxHighlighter(), &SyntaxHighlighter::finished, 5000);
     }
 
 private:

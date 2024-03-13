@@ -10,7 +10,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
@@ -183,7 +183,7 @@ void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
 void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
 {
     if (m_tokens.contains(doc->filePath())){
-        if (TextEditor::SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner())
+        if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
             highlighter->clearAllExtraFormats();
     }
 }
@@ -413,7 +413,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
         return;
-    SyntaxHighlighterRunner *highlighter = doc->syntaxHighlighterRunner();
+    SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
     if (!highlighter)
         return;
     const VersionedTokens versionedTokens = m_tokens.value(filePath);

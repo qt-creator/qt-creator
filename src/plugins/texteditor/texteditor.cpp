@@ -34,7 +34,6 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "typingsettings.h"
-#include "syntaxhighlighterrunner.h"
 
 #include <aggregation/aggregate.h>
 
@@ -1935,8 +1934,8 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             QStringList commentMarker;
             QStringList docMarker;
             HighlighterHelper::Definition def;
-            if (SyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
-                def = HighlighterHelper::definitionForName(highlighter->definitionName());
+            if (auto highlighter = qobject_cast<Highlighter *>(q->textDocument()->syntaxHighlighter()))
+                def = highlighter->definition();
 
             if (def.isValid()) {
                 for (const QString &marker :
@@ -3494,10 +3493,10 @@ QByteArray TextEditorWidget::saveState() const
 
 bool TextEditorWidget::singleShotAfterHighlightingDone(std::function<void()> &&f)
 {
-    if (d->m_document->syntaxHighlighterRunner()
-        && !d->m_document->syntaxHighlighterRunner()->syntaxInfoUpdated()) {
-        connect(d->m_document->syntaxHighlighterRunner(),
-                &SyntaxHighlighterRunner::highlightingFinished,
+    if (d->m_document->syntaxHighlighter()
+        && !d->m_document->syntaxHighlighter()->syntaxHighlighterUpToDate()) {
+        connect(d->m_document->syntaxHighlighter(),
+                &SyntaxHighlighter::finished,
                 this,
                 [f = std::move(f)] { f(); }, Qt::SingleShotConnection);
         return true;
@@ -3741,10 +3740,11 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
 
     const QString definitionFilesPath
         = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
-    m_document->resetSyntaxHighlighter([definitionFilesPath] {
-        return new Highlighter(definitionFilesPath);
+    m_document->resetSyntaxHighlighter([definitionFilesPath, definition] {
+        auto highlighter = new Highlighter(definitionFilesPath);
+        highlighter->setDefinition(definition);
+        return highlighter;
     });
-    m_document->syntaxHighlighterRunner()->setDefinitionName(definition.name());
 
     m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
@@ -3769,8 +3769,8 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
-    if (SyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
-        return HighlighterHelper::definitionForName(highlighter->definitionName());
+    if (auto *highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter()))
+        return highlighter->definition();
     return {};
 }
 
@@ -5127,7 +5127,8 @@ void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
     blockData.layout = data.block.layout();
 
     QTextOption option = blockData.layout->textOption();
-    if (data.suppressSyntaxInIfdefedOutBlock && TextDocumentLayout::ifdefedOut(data.block)) {
+    if (data.suppressSyntaxInIfdefedOutBlock
+            && TextDocumentLayout::ifdefedOut(data.block)) {
         option.setFlags(option.flags() | QTextOption::SuppressColors);
         painter.setPen(data.ifdefedOutFormat.foreground().color());
     } else {
@@ -5746,8 +5747,8 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     TextBlockUserData *nextBlockUserData = TextDocumentLayout::textUserData(nextBlock);
 
     bool drawBox = nextBlockUserData
-            && TextDocumentLayout::foldingIndent(data.block) < nextBlockUserData->foldingIndent();
-
+            && TextDocumentLayout::foldingIndent(data.block)
+            < nextBlockUserData->foldingIndent();
 
     const int blockNumber = data.block.blockNumber();
     bool active = blockNumber == extraAreaHighlightFoldBlockNumber;
@@ -8183,7 +8184,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
     if (optionFlags != currentOptionFlags) {
-        if (SyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
+        if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
             highlighter->rehighlight();
         QTextOption option = document()->defaultTextOption();
         option.setFlags(optionFlags);

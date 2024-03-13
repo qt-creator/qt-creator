@@ -20,7 +20,6 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
@@ -164,7 +163,7 @@ QByteArray CppEditorDocument::contentsText() const
 
 void CppEditorDocument::applyFontSettings()
 {
-    if (TextEditor::SyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
+    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter())
         highlighter->clearAllExtraFormats(); // Clear all additional formats since they may have changed
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
     if (m_processor)
@@ -408,7 +407,7 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
         connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, this,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
-                    if (SyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
+                    if (SyntaxHighlighter *highlighter = syntaxHighlighter())
                         highlighter->setLanguageFeaturesFlags(document->languageFeatures().flags);
 
                     m_overviewModel.update(usesClangd() ? nullptr : document);

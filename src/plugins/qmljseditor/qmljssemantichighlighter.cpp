@@ -569,7 +569,7 @@ void SemanticHighlighter::applyResults(int from, int to)
 
     if (m_enableHighlighting)
         TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-            m_document->syntaxHighlighterRunner(), m_watcher.future(), from, to, m_extraFormats);
+            m_document->syntaxHighlighter(), m_watcher.future(), from, to, m_extraFormats);
 }
 
 void SemanticHighlighter::finished()
@@ -584,7 +584,7 @@ void SemanticHighlighter::finished()
 
     if (m_enableHighlighting)
         TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-            m_document->syntaxHighlighterRunner(), m_watcher.future());
+            m_document->syntaxHighlighter(), m_watcher.future());
 }
 
 void SemanticHighlighter::run(QPromise<Use> &promise,

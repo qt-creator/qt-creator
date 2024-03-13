@@ -190,7 +190,8 @@ void GlslHighlighter::highlightBlock(const QString &text)
 
     // if the block is ifdefed out, we only store the parentheses, but
     // do not adjust the brace depth.
-    if (TextDocumentLayout::ifdefedOut(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock());
+            userData && userData->ifdefedOut()) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
     }

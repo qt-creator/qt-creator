@@ -1,11 +1,10 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "syntaxhighlighterrunner.h"
-
 #include "highlighter_test.h"
 
 #include "fontsettings.h"
+#include "syntaxhighlighter.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditorsettings.h"
@@ -61,7 +60,7 @@ void GenerigHighlighterTests::initTestCase()
     m_editor->editorWidget()->configureGenericHighlighter(
         Utils::mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     QVERIFY(m_editor);
-    m_editor->textDocument()->syntaxHighlighterRunner()->rehighlight();
+    m_editor->textDocument()->syntaxHighlighter()->rehighlight();
 }
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
@@ -214,7 +213,7 @@ void GenerigHighlighterTests::testPreeditText()
     block.layout()->setPreeditArea(7, "uaf");
     c.endEditBlock();
 
-    m_editor->textDocument()->syntaxHighlighterRunner()->rehighlight();
+    m_editor->textDocument()->syntaxHighlighter()->rehighlight();
 
     const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
                                        {4, 3, toFormat(C_TYPE)},

@@ -10,10 +10,10 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textindenter.h"
 #include "typingsettings.h"
-#include "syntaxhighlighterrunner.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
@@ -64,8 +64,6 @@ public:
 
     ~TextDocumentPrivate()
     {
-        if (m_highlighterRunner)
-            m_highlighterRunner->deleteLater();
     }
 
     MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettings &tabSettings);
@@ -101,7 +99,7 @@ public:
     TextMarks m_marksCache; // Marks not owned
     Utils::Guard m_modificationChangedGuard;
 
-    SyntaxHighlighterRunner *m_highlighterRunner = nullptr;
+    SyntaxHighlighter *m_highlighter = nullptr;
 };
 
 MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
@@ -462,8 +460,8 @@ void TextDocument::applyFontSettings()
         block = block.next();
     }
     updateLayout();
-    if (d->m_highlighterRunner)
-        d->m_highlighterRunner->setFontSettings(d->m_fontSettings);
+    if (d->m_highlighter)
+        d->m_highlighter->setFontSettings(d->m_fontSettings);
 }
 
 const FontSettings &TextDocument::fontSettings() const
@@ -533,6 +531,15 @@ bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
 // the blocks list must be sorted
 void TextDocument::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
 {
+    if (syntaxHighlighter() && !syntaxHighlighter()->syntaxHighlighterUpToDate()) {
+        connect(syntaxHighlighter(),
+                &SyntaxHighlighter::finished,
+                this,
+                [this, blocks] { setIfdefedOutBlocks(blocks); },
+                Qt::SingleShotConnection);
+        return;
+    }
+
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -633,11 +640,6 @@ void TextDocument::setFallbackSaveAsFileName(const QString &suggestedFileName)
 QTextDocument *TextDocument::document() const
 {
     return &d->m_document;
-}
-
-SyntaxHighlighterRunner *TextDocument::syntaxHighlighterRunner() const
-{
-    return d->m_highlighterRunner;
 }
 
 /*!
@@ -911,26 +913,19 @@ bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type
     return reload(errorString);
 }
 
-void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator,
-                                          bool threaded)
+void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator)
 {
-    delete d->m_highlighterRunner;
-
-    static const std::optional<bool> envValue = []() -> std::optional<bool> {
-        const QString key("QTC_USE_THREADED_HIGHLIGHTER");
-        if (qtcEnvironmentVariableIsSet(key)) {
-            const QString value = qtcEnvironmentVariable(key).toUpper();
-            return value != "FALSE" && value != "0";
-        }
-        return {};
-    }();
-
     SyntaxHighlighter *highlighter = creator();
+    highlighter->setParent(this);
+    highlighter->setDocument(this->document());
     highlighter->setFontSettings(TextEditorSettings::fontSettings());
     highlighter->setMimeType(mimeType());
-    d->m_highlighterRunner = new SyntaxHighlighterRunner(highlighter,
-                                                         document(),
-                                                         envValue.value_or(threaded));
+    d->m_highlighter = highlighter;
+}
+
+SyntaxHighlighter *TextDocument::syntaxHighlighter() const
+{
+    return d->m_highlighter;
 }
 
 void TextDocument::cleanWhitespace(const QTextCursor &cursor)

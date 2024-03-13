@@ -34,7 +34,6 @@ class SyntaxHighlighterPrivate;
 class TEXTEDITOR_EXPORT SyntaxHighlighter : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(SyntaxHighlighter)
 public:
     SyntaxHighlighter(QObject *parent = nullptr);
     SyntaxHighlighter(QTextDocument *parent);
@@ -53,79 +52,16 @@ public:
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
     TextEditor::FontSettings fontSettings() const;
 
-    enum State {
-        Start,
-        InProgress,
-        Done,
-        Extras
-    };
-
-    struct Result
-    {
-        void fillByBlock(const QTextBlock &block)
-        {
-            m_blockNumber = block.blockNumber();
-            m_userState = block.userState();
-
-            TextBlockUserData *userDate = TextDocumentLayout::textUserData(block);
-            if (!userDate)
-                return;
-
-            m_hasBlockUserData = true;
-            m_foldingIndent = userDate->foldingIndent();
-            m_ifdefedOut = userDate->ifdefedOut();
-            m_foldingStartIncluded = userDate->foldingStartIncluded();
-            m_foldingEndIncluded = userDate->foldingEndIncluded();
-            m_parentheses = userDate->parentheses();
-            m_expectedRawStringSuffix = userDate->expectedRawStringSuffix();
-        }
-
-        void copyToBlock(QTextBlock &block) const
-        {
-            block.setUserState(m_userState);
-
-            if (!m_hasBlockUserData)
-                return;
-
-            TextBlockUserData *data = TextDocumentLayout::userData(block);
-            data->setExpectedRawStringSuffix(m_expectedRawStringSuffix);
-            data->setFoldingIndent(m_foldingIndent);
-            data->setFoldingStartIncluded(m_foldingStartIncluded);
-            data->setFoldingEndIncluded(m_foldingEndIncluded);
-
-            if (m_ifdefedOut)
-                data->setIfdefedOut();
-            else
-                data->clearIfdefedOut();
-
-            data->setParentheses(m_parentheses);
-        }
-
-        int m_blockNumber;
-        bool m_hasBlockUserData = false;
-
-        int m_foldingIndent : 16;
-        uint m_ifdefedOut : 1;
-        uint m_foldingStartIncluded : 1;
-        uint m_foldingEndIncluded : 1;
-
-        Parentheses m_parentheses;
-        QByteArray m_expectedRawStringSuffix;
-        int m_userState = -1;
-        QList<QTextLayout::FormatRange> m_formatRanges;
-
-        State m_state = InProgress;
-    };
-
-    void setInterrupted(bool interrupted) { m_interrupted = interrupted; }
-    bool isInterrupted() { return m_interrupted; }
     void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);
     virtual void setLanguageFeaturesFlags(unsigned int /*flags*/) {}; // needed for CppHighlighting
     virtual void setEnabled(bool /*enabled*/) {}; // needed for DiffAndLogHighlighter
     virtual void setDefinitionName(const QString & /*definitionName*/) {} // needed for Highlighter
 
+    bool syntaxHighlighterUpToDate() const;
+
 public slots:
     virtual void rehighlight();
+    virtual void scheduleRehighlight();
     void rehighlightBlock(const QTextBlock &block);
     void clearExtraFormats(const QTextBlock &block);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
@@ -160,18 +96,18 @@ protected:
 
     QTextBlock currentBlock() const;
 
-protected:
     virtual void documentChanged(QTextDocument * /*oldDoc*/, QTextDocument * /*newDoc*/) {};
 
 signals:
-    void resultsReady(const QList<Result> &result);
+    void finished();
 
 private:
     void setTextFormatCategories(const QList<std::pair<int, TextStyle>> &categories);
     void delayedRehighlight();
+    void continueRehighlight();
 
-    QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
-    std::atomic<bool> m_interrupted = false;
+    friend class SyntaxHighlighterPrivate;
+    std::unique_ptr<SyntaxHighlighterPrivate> d;
 
 #ifdef WITH_TESTS
     friend class tst_highlighter;
