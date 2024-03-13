@@ -137,6 +137,8 @@ Button::Button(const QString &text, Role role, QWidget *parent)
     , m_role(role)
 {
     setText(text);
+    setAttribute(Qt::WA_Hover);
+
     updateMargins();
     if (m_role == SmallList)
         setCheckable(true);
