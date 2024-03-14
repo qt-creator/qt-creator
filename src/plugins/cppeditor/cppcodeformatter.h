@@ -119,6 +119,8 @@ public: // must be public to make Q_GADGET introspection work
         for_statement_condition, // The condition part of the for statement
         for_statement_expression, // The expression part of the for statement
 
+        catch_statement,
+
         switch_statement, // After 'switch' token
         case_start, // after a 'case' or 'default' token
         case_cont, // after the colon in a case/default

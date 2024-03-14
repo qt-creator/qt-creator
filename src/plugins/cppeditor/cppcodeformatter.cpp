@@ -284,6 +284,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                     && m_currentState.at(m_currentState.size() - 2).type == declaration_start) {
                     leave();
                     leave();
+                } else if (m_currentState.top().type == catch_statement) {
+                    turnInto(substatement);
                 }
                 break;
             default:            tryExpression(); break;
@@ -412,6 +414,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_LPAREN:      enter(for_statement_paren_open); break;
             default:            leave(true); continue;
+            } break;
+
+        case catch_statement:
+            switch (kind) {
+            case T_LPAREN:      enter(arglist_open); break;
             } break;
 
         case for_statement_paren_open:
@@ -964,6 +971,12 @@ bool CodeFormatter::tryStatement()
     case T_DO:
         enter(do_statement);
         enter(substatement);
+        return true;
+    case T_TRY:
+        enter(substatement);
+        return true;
+    case T_CATCH:
+        enter(catch_statement);
         return true;
     case T_CASE:
     case T_DEFAULT:

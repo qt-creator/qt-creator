@@ -109,6 +109,7 @@ private Q_SLOTS:
     void structuredBinding();
     void subscriptOperatorInFunctionCall();
     void statementMacros();
+    void tryCatchClause();
 };
 
 struct Line {
@@ -2229,6 +2230,45 @@ void tst_CodeFormatter::statementMacros()
          << Line("template<int n = 0>")
          << Line("class C;");
     checkIndent(data, settings);
+}
+
+void tst_CodeFormatter::tryCatchClause()
+{
+    CppCodeStyleSettings settings;
+    settings.indentFunctionBody = true;
+    settings.indentFunctionBraces = false;
+    settings.indentBlockBody = false;
+    settings.indentBlockBraces = true;
+    QList<Line> data;
+    data << Line("int main()")
+         << Line("{")
+         << Line("    try")
+         << Line("        {")
+         << Line("        throw;")
+         << Line("        }")
+         << Line("    catch (const E &e)")
+         << Line("        {")
+         << Line("        handle(e);")
+         << Line("        }")
+         << Line("    catch (...)")
+         << Line("        {")
+         << Line("        handle();")
+         << Line("        }")
+         << Line("}");
+    checkIndent(data, settings);
+
+    data.clear();
+    data << Line("int main()")
+         << Line("{")
+         << Line("    try {")
+         << Line("        throw;")
+         << Line("    } catch (const E &e) {")
+         << Line("        handle(e);")
+         << Line("    } catch (...) {")
+         << Line("        handle();")
+         << Line("    }")
+         << Line("}");
+    checkIndent(data);
 }
 
 QTEST_GUILESS_MAIN(tst_CodeFormatter)
