@@ -1421,11 +1421,8 @@ class Tracer<Category, std::true_type>
         , flow{flow}
         , m_category{category}
     {
-        if (category().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments<ArgumentsStringType>(m_arguments,
-                                                           std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
+        if (category().isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<Arguments>(arguments)...);
     }
 
 public:
@@ -1444,11 +1441,8 @@ public:
         : m_name{name}
         , m_category{category}
     {
-        if (category().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments<ArgumentsStringType>(m_arguments,
-                                                           std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
+        if (category().isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<Arguments>(arguments)...);
     }
 
     template<typename... Arguments>
@@ -1463,7 +1457,7 @@ public:
 
     TokenType createToken() { return {0, m_category}; }
 
-    ~Tracer() { sendTrace(); }
+    ~Tracer() { sendEndTrace(); }
 
     template<typename... Arguments>
     Tracer beginDuration(ArgumentType name, Arguments &&...arguments)
@@ -1480,42 +1474,55 @@ public:
     template<typename... Arguments>
     void end(Arguments &&...arguments)
     {
-        sendTrace(std::forward<Arguments>(arguments)...);
+        sendEndTrace(std::forward<Arguments>(arguments)...);
         m_name = {};
     }
 
 private:
     template<typename... Arguments>
-    void sendTrace(Arguments &&...arguments)
+    void sendBeginTrace(Arguments &&...arguments)
+    {
+        auto &category = m_category();
+        if (category.isEnabled == IsEnabled::Yes) {
+            auto &traceEvent = getTraceEvent(category.eventQueue());
+            traceEvent.name = m_name;
+            traceEvent.category = category.name();
+            traceEvent.bindId = m_bindId;
+            traceEvent.flow = flow;
+            traceEvent.type = 'B';
+            if (sizeof...(arguments)) {
+                Internal::appendArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                               std::forward<Arguments>(arguments)...);
+            }
+            traceEvent.time = Clock::now();
+        }
+    }
+
+    template<typename... Arguments>
+    void sendEndTrace(Arguments &&...arguments)
     {
         if (m_name.size()) {
             auto &category = m_category();
             if (category.isEnabled == IsEnabled::Yes) {
-                auto duration = Clock::now() - m_start;
+                auto end = Clock::now();
                 auto &traceEvent = getTraceEvent(category.eventQueue());
                 traceEvent.name = std::move(m_name);
                 traceEvent.category = category.name();
-                traceEvent.time = m_start;
-                traceEvent.duration = duration;
+                traceEvent.time = end;
                 traceEvent.bindId = m_bindId;
                 traceEvent.flow = flow;
-                traceEvent.type = 'X';
+                traceEvent.type = 'E';
                 if (sizeof...(arguments)) {
-                    m_arguments.clear();
                     Internal::appendArguments<ArgumentsStringType>(traceEvent.arguments,
                                                                    std::forward<Arguments>(
                                                                        arguments)...);
-                } else {
-                    traceEvent.arguments = std::move(m_arguments);
                 }
             }
         }
     }
 
 private:
-    TimePoint m_start;
     StringType m_name;
-    ArgumentsStringType m_arguments;
     std::size_t m_bindId;
     IsFlow flow;
     CategoryFunctionPointer m_category;
