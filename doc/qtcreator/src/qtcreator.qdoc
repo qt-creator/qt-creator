@@ -14,7 +14,7 @@
     \title Qt Creator Manual
 
     \QC is a cross-platform, complete integrated development environment
-    (IDE) for application developers to create applications for multiple
+    (IDE) that you can use to create applications for
     \l{Desktop Platforms}{desktop}, \l {Embedded Platforms}{embedded}, and
     \l{Mobile Platforms}{mobile device} platforms, such as \l Android and
     \l iOS. It is available for \l Linux, \l \macos and \l Windows
@@ -38,14 +38,9 @@
                     \li \l{Overview}
                     \li \l{User Interface}
                     \li \l{Configuring Qt Creator}
-                    \li \l{Building and Running an Example}
-                    \li \l{Tutorials}
                 \endlist
-            \li \b {\l{Coding}}
-                \list
-                    \li \l{Writing Code}
-                    \li \l{Configuring the Editor}
-                \endlist
+            \li \b {\l{Tutorials}}
+                \generatelist creator-tutorials
             \li \b {\l{Running on Devices}}
                 \list
                     \li \l{Validating with Target Hardware}

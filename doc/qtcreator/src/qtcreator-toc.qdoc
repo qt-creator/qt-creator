@@ -22,9 +22,9 @@
         \endlist
             \li \l{User Interface}
             \li \l{Configuring Qt Creator}
-            \li \l{Building and Running an Example}
-            \li \l{Tutorials}
         \endlist
+        \li \l{Tutorials}
+            \generatelist creator-tutorials
         \li \l{Coding}
         \list
         \li \l{Writing Code}
@@ -86,8 +86,6 @@
                 \li \l{Debugger Preferences}
                 \li \l{Using Debugging Helpers}
                 \li \l{Debugging Qt Quick Projects}
-                \li \l{Debugging a C++ Example Application}
-                \li \l{Debugging a Qt Quick Example Application}
                 \li \l{Troubleshooting Debugger}
             \endlist
             \li \l{Analyzing Code}
