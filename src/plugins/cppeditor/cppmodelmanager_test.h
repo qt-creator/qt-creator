@@ -28,6 +28,7 @@ private slots:
     void testDefinesPerEditor();
     void testUpdateEditorsAfterProjectUpdate();
     void testPrecompiledHeaders();
+    void testRenameIncludes_data();
     void testRenameIncludes();
     void testRenameIncludesInEditor();
     void testDocumentsAndRevisions();

@@ -1878,16 +1878,15 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
         if (oldFilePath.isEmpty() || newFilePath.isEmpty())
             continue;
 
-        // We just want to handle renamings so return when the file was actually moved.
-        if (oldFilePath.absolutePath() != newFilePath.absolutePath())
-            continue;
-
         const TextEditor::PlainRefactoringFileFactory changes;
 
         QString oldFileName = oldFilePath.fileName();
         QString newFileName = newFilePath.fileName();
         const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+        const bool moved = oldFilePath.absolutePath() != newFilePath.absolutePath();
         if (isUiFile) {
+            if (moved)
+                return; // This is out of scope.
             oldFileName = "ui_" + oldFilePath.baseName() + ".h";
             newFileName = "ui_" + newFilePath.baseName() + ".h";
         }
@@ -1925,12 +1924,26 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
 
             TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
             const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-            const int replaceStart = block.text().indexOf(oldFileName);
-            if (replaceStart > -1) {
+            const FilePath relPathOld = FilePath::fromString(FilePath::calcRelativePath(
+                oldFilePath.toString(), includingFileOld.parentDir().toString()));
+            const FilePath relPathNew = FilePath::fromString(FilePath::calcRelativePath(
+                newFilePath.toString(), includingFileNew.parentDir().toString()));
+            int replaceStart = block.text().indexOf(relPathOld.toString());
+            QString oldString;
+            QString newString;
+            if (isUiFile || replaceStart == -1) {
+                replaceStart = block.text().indexOf(oldFileName);
+                oldString = oldFileName;
+                newString = newFileName;
+            } else {
+                oldString = relPathOld.toString();
+                newString = relPathNew.toString();
+            }
+            if (replaceStart > -1 && oldString != newString) {
                 ChangeSet changeSet;
                 changeSet.replace(block.position() + replaceStart,
-                                  block.position() + replaceStart + oldFileName.length(),
-                                  newFileName);
+                                  block.position() + replaceStart + oldString.length(),
+                                  newString);
                 file->setChangeSet(changeSet);
                 file->apply();
             }

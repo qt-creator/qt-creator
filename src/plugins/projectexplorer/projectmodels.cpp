@@ -802,6 +802,10 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile))
                 failedVcsOp << targetFile;
         }
+        QList<std::pair<FilePath, FilePath>> renameList;
+        for (int i = 0; i < filesToAdd.size(); ++i)
+            renameList.emplaceBack(filesToRemove.at(i), filesToAdd.at(i));
+        emit ProjectExplorerPlugin::instance()->filesRenamed(renameList);
         const RemovedFilesFromProject result
                 = sourceProjectNode->removeFiles(filesToRemove, &failedRemoveFromProject);
         if (result == RemovedFilesFromProject::Wildcard)
