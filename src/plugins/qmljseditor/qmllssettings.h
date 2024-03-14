@@ -16,11 +16,13 @@ struct QmllsSettings
     bool useQmlls = true;
     bool useLatestQmlls = false;
     bool disableBuiltinCodemodel = false;
+    bool generateQmllsIniFiles = false;
 
     friend bool operator==(const QmllsSettings &s1, const QmllsSettings &s2)
     {
         return s1.useQmlls == s2.useQmlls && s1.useLatestQmlls == s2.useLatestQmlls
-               && s1.disableBuiltinCodemodel == s2.disableBuiltinCodemodel;
+               && s1.disableBuiltinCodemodel == s2.disableBuiltinCodemodel
+               && s1.generateQmllsIniFiles == s2.generateQmllsIniFiles;
     }
     friend bool operator!=(const QmllsSettings &s1, const QmllsSettings &s2) { return !(s1 == s2); }
 };

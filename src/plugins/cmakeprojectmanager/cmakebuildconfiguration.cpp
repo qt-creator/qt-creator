@@ -94,6 +94,7 @@ const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMake.Configure.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChanges";
 const char BASE_ENVIRONMENT_KEY[] = "CMake.Configure.BaseEnvironment";
+const char GENERATE_QMLLS_INI_SETTING[] = "J.QtQuick/QmlJSEditor.GenerateQmllsIniFiles";
 
 namespace Internal {
 
@@ -605,6 +606,18 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 {
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
+
+    // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
+    // of the initial CMake arguments yet
+    if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+        if (std::none_of(
+                initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
+                    return item.key == "QT_QML_GENERATE_QMLLS_INI";
+                })) {
+            initialList.append(
+                CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
+        }
+    }
 
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {
         if (!ci.isInitial)
@@ -1543,6 +1556,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         if (qt && qt->isQmlDebuggingSupported())
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
+
+        // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
+        if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
+            cmd.addArg("-DQT_QML_GENERATE_QMLLS_INI:BOOL=ON");
+        }
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
         configureEnv.setUserEnvironmentChanges(
