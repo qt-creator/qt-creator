@@ -86,7 +86,7 @@ static bool getCustomUrl(const QString &value,
         "){1}$" // end of Address
     };
 
-    const QRegularExpressionMatch match = urlRegex.match(value);
+    const QRegularExpressionMatch match = urlRegex.match(value.trimmed());
     if (match.hasMatch()) {
         if (match.hasCaptured("Address")) {
             if (match.hasCaptured("MimeType") && match.captured("MainType") == "image")
@@ -162,7 +162,7 @@ static CollectionDetails::DataType dataTypeFromString(const QString &value)
         return DataType::Real;
 
     DataType urlType;
-    if (getCustomUrl(value, urlType))
+    if (getCustomUrl(trimmedValue, urlType))
         return urlType;
 
     return DataType::String;
