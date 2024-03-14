@@ -8,6 +8,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
@@ -138,6 +140,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
     }
 
     QFuture<bool> future = Utils::asyncRun(&registerDocumentationNow, collectionFilePath(), files);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
@@ -200,6 +203,7 @@ void HelpManager::unregisterDocumentation(const QStringList &files)
 
     d->m_userRegisteredFiles.subtract(Utils::toSet(files));
     QFuture<bool> future = Utils::asyncRun(&unregisterDocumentationNow, collectionFilePath(), files);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
