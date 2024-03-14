@@ -153,7 +153,8 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
     if (m_expression != expression) {
         setExpression(expression);
         m_value.clear();
-        emit expressionChanged(nameAsQString()); // Note that we set the name in this case
+        emit expressionChanged(nameAsQString());
+        emit expressionChangedQml();// Note that we set the name in this case
     }
 }
 
@@ -180,7 +181,7 @@ bool PropertyEditorValue::isInSubState() const
 bool PropertyEditorValue::isBound() const
 {
     const QmlObjectNode objectNode(modelNode());
-    return objectNode.isValid() && objectNode.hasBindingProperty(name());
+    return m_forceBound || (objectNode.isValid() && objectNode.hasBindingProperty(name()));
 }
 
 bool PropertyEditorValue::isInModel() const
@@ -334,6 +335,7 @@ void PropertyEditorValue::resetValue()
         m_expression = QString();
         emit valueChanged(nameAsQString(), QVariant());
         emit expressionChanged({});
+        emit expressionChangedQml();
     }
 }
 
@@ -425,6 +427,34 @@ QStringList PropertyEditorValue::getExpressionAsList() const
     return generateStringList(expression());
 }
 
+QVector<double> PropertyEditorValue::getExpressionAsVector() const
+{
+    const QRegularExpression rx(
+        QRegularExpression::anchoredPattern("Qt.vector(2|3|4)d\\((.*?)\\)"));
+    const QRegularExpressionMatch match = rx.match(expression());
+    if (!match.hasMatch())
+        return {};
+
+    const QStringList floats = match.captured(2).split(',', Qt::SkipEmptyParts);
+
+    bool ok;
+
+    const int num = match.captured(1).toInt();
+
+    if (num != floats.count())
+        return {};
+
+    QVector<double> ret;
+    for (const QString &number : floats) {
+        ret.append(number.toDouble(&ok));
+
+        if (!ok)
+            return {};
+    }
+
+    return ret;
+}
+
 bool PropertyEditorValue::idListAdd(const QString &value)
 {
     const QmlObjectNode objectNode(modelNode());
@@ -505,6 +535,15 @@ void PropertyEditorValue::openMaterialEditor(int idx)
 {
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
     m_modelNode.view()->emitCustomNotification("select_material", {}, {idx});
+}
+
+void PropertyEditorValue::setForceBound(bool b)
+{
+    if (m_forceBound == b)
+        return;
+    m_forceBound = b;
+
+    emit isBoundChanged();
 }
 
 QStringList PropertyEditorValue::generateStringList(const QString &string) const
