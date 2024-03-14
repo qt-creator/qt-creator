@@ -4,7 +4,7 @@
 /*!
     \page creator-completing-code.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-functions.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif

@@ -17,10 +17,20 @@
 
     You can also view and modify other types of text files.
 
-    The view offers the following features:
+    \section1 Editing Code
+
+    The code editor offers semantic highlighting, syntax checking,
+    code completion, code indentation, context sensitive help, and
+    in-line error indicators while you are typing.
+
+    For more information, see:
 
     \list
-        \li \l{Checking Code Syntax}
+        \li \l{Semantic Highlighting}
+        \li \l{Check code syntax}
+        \li \l{JavaScript and QML Checks}
+        \li \l{Qt Quick Code Style}
+        \li \l{Automatically format QML/JS files}
         \li \l{Complete code}
         \li \l{Indent text or code}
         \li \l{Edit properties of QML types}

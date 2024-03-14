@@ -199,12 +199,16 @@
                 \li \l{Designer-Developer Workflow}
                 \li \l{Coding}{Cross-Platform Development}
                     \list
-                        \li \l{Writing Code}
+                        \li Writing Code
                             \list
-                                \li \l{Checking Code Syntax}
+                                \li \l{Semantic Highlighting}
+                                \li \l{Check code syntax}
+                                \li \l{JavaScript and QML Checks}
+                                \li \l{Qt Quick Code Style}
+                                \li \l{Automatically format QML/JS files}
+                                \li \l{Complete code}
                                 \li \l{Indent text or code}
                                 \li \l{Behavior}
-                                \li \l{Qt Quick Code Style}
                             \endlist
                         \li \l{Finding}
                             \list

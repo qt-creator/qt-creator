@@ -33,7 +33,7 @@
     To override the global preferences for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.
 
-    \sa {Indent text or code}
+    \sa {Automatically format QML/JS files}, {Indent text or code}
 
     \if defined(qtcreator)
     \sa {Find preferences}, {Specify code style}

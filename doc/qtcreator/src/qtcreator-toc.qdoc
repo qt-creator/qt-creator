@@ -27,10 +27,6 @@
             \generatelist creator-tutorials
         \li \l{Coding}
         \list
-        \li \l{Writing Code}
-            \list
-                \li \l{Checking Code Syntax}
-            \endlist
             \li \l{Configuring the Editor}
         \endlist
         \li \l{Running on Devices}

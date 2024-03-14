@@ -1,60 +1,74 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-highlighting.html
     \page creator-checking-code-syntax.html
-    \nextpage creator-completing-code.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-text-editor.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
 
-    \title Checking Code Syntax
+    \ingroup creator-how-to-edit
+
+    \title Check code syntax
 
     As you write code, \QC checks code syntax. When \QC spots a syntax error in
     your code, it underlines it, displays an icon, and shows error details when
-    you move the mouse pointer over the error or the icon. If a fix is available,
-    you can apply it by clicking \inlineimage icons/refactormarker.png
-    .
+    you move the mouse pointer over the error or the icon. To apply an available
+    fix, select \inlineimage icons/refactormarker.png.
 
     Similarly, when you are working on an instance of a JavaScript object
     notation (JSON) entity, \QC underlines errors in the JSON data structure.
 
     \if defined(qtcreator)
-    In the following screenshot, \QC annotates an error because a semicolon is
-    missing at the end of the line:
+    \section1 Examples of C++ code errors
+
+    \QC annotates an error because a semicolon is missing at the end of the line:
 
     \image qtcreator-syntaxerror.png {Syntax error in the Edit mode}
 
-    In the following screenshot, \QC issues a warning because the variable is
-    not used:
+    \QC issues a warning because the variable is not used:
 
     \image qtcreator-semanticerror.png
 
-    In the following screenshot, a Qt class name has a typo:
+    A Qt class name has a typo:
 
     \image qtcreator-typo-clang.png {Annotation tooltip in the Edit mode}
 
-    You can use the icons in the tooltip popup to copy the error or
-    warning message to the clipboard, to hide messages of a particular type,
-    or to \l{Clangd}{change the diagnostics settings}. Select
-    the \uicontrol {Annotation Settings} link to specify the position
-    of the line annotations.
+    \section1 Check QML or JavaScript syntax
+    \endif
 
-    To modify the colors used for underlining errors and warnings, select
-    \preferences > \uicontrol {Text Editor} >
-    \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
-    \uicontrol Error and \uicontrol Warning.
-
-    \else
+    \if defined(qtdesignstudio)
     In addition to underlining, errors and warnings are marked with icons and
     annotated.
     \endif
+
     When writing QML or JavaScript code, the annotations may have error codes
     listed in \l{JavaScript and QML Error Codes}.
 
     \image qml-syntax-check.png
 
-    \section1 Specifying Line Annotation Positions
+    \section1 Manage messages
 
-    To specify the position where the annotations are displayed, select
+    Use the icons in the tooltip popup to copy the error or
+    warning message to the clipboard, to hide messages of a particular type,
+    or to change the diagnostics settings.
+
+    To modify the colors used for underlining errors and warnings:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Text Editor} >
+            \uicontrol {Font & Colors} > \uicontrol Copy
+        \li Select new colors for \uicontrol Error and \uicontrol Warning.
+    \endlist
+
+    \section1 Set line annotation positions
+
+    To specify the position of the line annotations when looking at them in the
+    code editor, select \uicontrol {Annotation Settings} in the tooltip popup.
+
+    To specify the position where the annotations are displayed, go to
     \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
     whether to display the annotations directly next to the code, aligned
@@ -62,18 +76,61 @@
     between lines can be useful if there is usually not enough space to
     display annotations next to the text.
 
-    \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
+    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
 
-    If you hide the annotations by deselecting the check box, you can move the
-    mouse pointer over an icon to view them.
+    If you hide the annotations, you can move the mouse pointer over an icon to
+    view them.
+
+    \if defined(qtcreator)
+    \section1 Inspect QML and JavaScript
+
+    To inspect QML and JavaScript properties, methods, and enums, move the
+    cursor over them and go to \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Inspect API for Element Under Cursor}.
+
+    \sa {Clangd}
+    \endif
+
+    \sa {JavaScript and QML Checks}
+*/
+
+/*!
+    \page creator-reference-js-and-qml-error-codes.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-text-editor.html
+    \else
+    \previouspage creator-reference.html
+    \endif
+
+    \ingroup creator-reference-editors
+
+    \title JavaScript and QML Checks
+
+    \brief Run static checks on the QML and JavaScript code in your project to
+    find common problems.
+
+    To run static checks, go to \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
+
+    View the results in the \uicontrol QML and \uicontrol {QML Analysis}
+    filters in \l Issues.
+
+    \section1 Enabling and Disabling Messages
+
+    To enable and disable QML and JavaScript messages:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Qt Quick} >
+            \uicontrol {QML/JS Editing}.
+        \li Select \uicontrol {Use customized static analyzer}.
+            \image qtcreator-preferences-qtquick-qmljs-editing.webp {QML/JS Editing tab in Qt Quick preferences}
+        \li In \uicontrol Enabled, select the messages that you want to see.
+        \li To disable messages for non-Qt Quick UI files, select them in
+            \uicontrol {Disable messages for non Qt Quick UI}. You cannot
+            enable messages just for non-Qt Quick UI files.
+    \endlist
 
     \section1 JavaScript and QML Error Codes
-
-    You can run static checks on the QML and JavaScript code in your project to
-    find common problems. To run the checks, select \uicontrol Tools >
-    \uicontrol {QML/JS} > \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
-    The results are shown in the \uicontrol QML and \uicontrol {QML Analysis}
-    filters in \l Issues.
 
     Many of the error messages are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
@@ -699,23 +756,6 @@
 
     \endtable
 
-    \section1 Enabling and Disabling Messages
-
-    To enable and disable QML and JavaScript messages, select \preferences >
-    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
-    \uicontrol {Use customized static analyzer}.
-
-    \image qtcreator-preferences-qtquick-qmljs-editing.webp {QML/JS Editing tab in Qt Quick preferences}
-
-    In \uicontrol Enabled, select the messages that you want to see.
-    To disable messages for non-Qt Quick UI files, select them in
-    \uicontrol {Disable messages for non Qt Quick UI}. You cannot
-    enable messages just for non-Qt Quick UI files.
-
-    \if defined(qtcreator)
-    \sa {Turn on QML language server}
-    \endif
-
     \section1 Resetting the Code Model
 
     If you change the build and run kit when you have QML files open in the code
@@ -723,7 +763,7 @@
     indicates that this might have happened: \e{Using Qt Quick 1 code model
     instead of Qt Quick 2}.
 
-    You can see the error message when you move the mouse pointer over code that
+    To see the error message, move the mouse pointer over code that
     \QC underlines in the code editor or when you open a QML file in \QDS.
 
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
@@ -735,44 +775,38 @@
     kit.
     \endif
 
-    \section1 Inspecting QML and JavaScript
+    \sa {Check code syntax}
+*/
 
-    To inspect QML and JavaScript properties, methods, and enums, move the
-    cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Inspect API for Element Under Cursor}.
+/*!
+    \page creator-how-to-autoformat-qml-js.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-text-editor.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
 
-    \section1 Automatically Formatting QML/JS Files
+    \ingroup creator-how-to-edit
 
-    To automatically format QML/JS files upon saving, select \preferences >
-    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \title Automatically format QML/JS files
+
+    To automatically format QML/JS files upon saving, go to \preferences >
+    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and select
     \uicontrol {Enable auto format on file save}.
+
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+
     To only format files that belong to the current project, select
     \uicontrol {Restrict to files contained in the current project}.
 
     To use an external tool, such as \l {qmlformat}, which automatically
-    formats QML files according to QML coding conventions, select
-    \uicontrol {Use custom command instead of built-in formatter}. In
-    the \uicontrol Command field, enter the path to the tool. In the
-    \uicontrol Arguments field, enter options for running the tool.
+    formats QML files according to QML coding conventions:
 
-    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+    \list 1
+        \li Select \uicontrol {Use custom command instead of built-in formatter}.
+        \li In \uicontrol Command, enter the path to the tool.
+        \li In \uicontrol Arguments, enter options for running the tool.
+    \endlist
 
-    \if defined(qtcreator)
-    \section1 Inspecting Preprocessed C++ Code
-
-    To analyze the causes of compile errors or errors caused by wrong includes
-    pulled in by dependencies or C++ macros expanding to something unexpected,
-    select \uicontrol {Show Preprocessed Source} in the editor context menu.
-
-    This action expands all C++ macros to their actual code and removes code that
-    is guarded by a currently inactive \c {#ifdef} statements. If you deselect
-    the \uicontrol {Use built-in preprocessor to show pre-processed files} check
-    box in \preferences > \uicontrol C++ > \uicontrol {Code Model}, this action
-    also expands all \c {"#include <foo.h>"} statements to their actual contents.
-
-    \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
-
-
-    \endif
-
+    \sa {Check code syntax}, {Qt Quick Code Style}
 */
