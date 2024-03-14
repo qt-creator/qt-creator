@@ -705,8 +705,13 @@ void Edit3DView::showContextMenu()
     if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu)
         return;
 
-    if (m_contextMenuPendingNode.isValid() && !m_contextMenuPendingNode.isSelected())
-        setSelectedModelNode(m_contextMenuPendingNode);
+    if (m_contextMenuPendingNode.isValid()) {
+        if (!m_contextMenuPendingNode.isSelected())
+            setSelectedModelNode(m_contextMenuPendingNode);
+    } else {
+        clearSelectedModelNodes();
+    }
+
     m_edit3DWidget->showContextMenu(m_contextMenuPosMouse, m_contextMenuPendingNode, m_contextMenuPos3D);
     m_contextMenuPendingNode = {};
 }
