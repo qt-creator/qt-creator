@@ -22,6 +22,8 @@ StudioControls.ComboBox {
 
     readonly property int popupHeight: Math.min(800, row.height + 2)
 
+    property bool nodeJustAdded: false
+
     function calculateWindowGeometry() {
         var globalPos = EffectComposerBackend.rootView.globalPos(mainRoot.mapFromItem(root, 0, 0))
         var screenRect = EffectComposerBackend.rootView.screenRect();
@@ -72,7 +74,7 @@ StudioControls.ComboBox {
     Window {
         id: window
 
-        flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
             if (!window.activeFocusItem && !root.hovered && root.popup.opened)
@@ -117,6 +119,7 @@ StudioControls.ComboBox {
                                     onAddEffectNode: (nodeQenPath) => {
                                         EffectComposerBackend.rootView.addEffectNode(modelData.nodeQenPath)
                                         root.popup.close()
+                                        root.nodeJustAdded = true
                                     }
                                 }
                             }

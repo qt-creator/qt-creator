@@ -39,6 +39,10 @@ class InternalNode;
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 
+using NanotraceHR::dictonary;
+using NanotraceHR::keyValue;
+using namespace std::literals::string_view_literals;
+
 class InternalNode : public std::enable_shared_from_this<InternalNode>
 {
     friend InternalProperty;
@@ -47,13 +51,19 @@ public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
 
-    explicit InternalNode(TypeName typeName, int majorVersion, int minorVersion, qint32 internalId)
+    explicit InternalNode(TypeName typeName,
+                          int majorVersion,
+                          int minorVersion,
+                          qint32 internalId,
+                          ModelTracing::Category::FlowTokenType flowTraceToken)
         : typeName(std::move(typeName))
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
-        , traceToken(ModelTracing::category().beginObject("InternalNode"_t))
+        , traceToken(flowTraceToken.beginAsynchronous("InternalNode"_t,
+                                                      keyValue("type", typeName),
+                                                      keyValue("internal id", internalId)))
     {}
 
     InternalNodeAbstractProperty::Pointer parentProperty() const { return m_parentProperty.lock(); }
@@ -224,7 +234,7 @@ public:
     ModuleId moduleId;
     ImportedTypeNameId importedTypeNameId;
     TypeId typeId;
-    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken;
+    NO_UNIQUE_ADDRESS ModelTracing::AsynchronousToken traceToken;
 
 private:
     AuxiliaryDatas m_auxiliaryDatas;

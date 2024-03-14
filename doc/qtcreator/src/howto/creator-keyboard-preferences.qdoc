@@ -1,0 +1,137 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-how-to-assign-keyboard-shortcuts.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-keyboard-shortcuts.html
+    \nextpage studio-projects.html
+    \else
+    \previouspage creator-how-tos.html
+
+    \endif
+
+    \ingroup creator-how-to-ui
+
+    \title Assign keyboard shortcuts
+
+    If your favorite keyboard shortcut is missing, you can add it. Also, you can
+    assign your own keyboard shortcuts for functions that you can easily perform
+    with a mouse, and that therefore do not appear in menus or have default
+    keyboard shortcuts. For example, selecting and deleting words or lines in an
+    editor.
+
+    To change an existing keyboard shortcut or assign a new one:
+
+    \list 1
+
+        \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
+            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+
+        \li Select a command from the list.
+
+        \li In the \uicontrol{Key Sequence} field, you have the following
+            options:
+
+            \list
+
+                \li Enter the shortcut key you want to associate with the
+                    selected command.
+
+                \li Record a key sequence.
+
+            \endlist
+
+        \li To assign multiple keyboard shortcuts to a function, select
+            \uicontrol Add, and enter or record an additional key combination.
+
+        \li To revert to the default shortcut, select \uicontrol Reset.
+
+    \endlist
+
+    \section1 Record key sequences
+
+    \list 1
+        \li Select \uicontrol Record.
+        \li Press the keys to use as the keyboard shortcut.
+        \li Select \uicontrol {Stop Recording} when you are done.
+    \endlist
+
+    \sa {Keyboard Shortcuts}, {Find keyboard shortcuts},
+        {Import and export keyboard shortcuts}
+*/
+
+/*!
+    \page creator-how-to-find-keyboard-shortcuts.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-keyboard-shortcuts.html
+    \nextpage studio-projects.html
+    \else
+    \previouspage creator-how-tos.html
+
+    \endif
+
+    \ingroup creator-how-to-ui
+
+    \title Find keyboard shortcuts
+
+    \QC has many useful keyboard shortcuts. You can see the keyboard shortcut for
+    a menu command in the menu or the tooltip for a button or in the keyboard
+    preferences.
+
+    To look up keyboard shortcuts:
+
+    \list 1
+        \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
+            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+        \li Start typing the name of a function or shortcut in the
+            \uicontrol Filter field.
+    \endlist
+
+    You can change the existing keyboard shortcuts or import and export them.
+
+    \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
+        {Import and export keyboard shortcuts}
+*/
+
+/*!
+    \page creator-how-to-change-keyboard-shortcuts.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-keyboard-shortcuts.html
+    \nextpage studio-projects.html
+    \else
+    \previouspage creator-how-tos.html
+
+    \endif
+
+    \title Import and export keyboard shortcuts
+
+    You can use different keyboard shortcut mapping schemes that are stored as
+    .kms files.
+
+    To import and export keyboard shortcut mapping schemes:
+
+    \list 1
+
+        \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
+            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+
+        \li To import a keyboard shortcut mapping scheme, click \uicontrol Import
+            and select the .kms file that has the keyboard shortcut mapping scheme
+            you want to import.
+
+        \li To export the current keyboard shortcut mapping scheme, click
+            \uicontrol Export and select the location where you want to save the
+            exported .kms file.
+
+    \endlist
+
+    \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
+        {Find keyboard shortcuts}
+*/

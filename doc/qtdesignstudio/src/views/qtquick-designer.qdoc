@@ -153,6 +153,11 @@
         textures.
         \li
         \li \l{Texture Editor}
+    \row
+        \li \l{Effect Composer}
+        \li Use \uicontrol {Effect Composer} to compose custom effects.
+        \li
+        \li \l{Effect Composer}
     \endtable
 
     \section1 Summary of Main Toolbar Actions

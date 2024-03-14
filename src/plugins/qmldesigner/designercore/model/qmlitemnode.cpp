@@ -81,12 +81,25 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
         }
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        TypeName type("Image");
+        QImageReader reader(imageName);
+        if (reader.supportsAnimation())
+            type = "AnimatedImage";
+
+        newQmlItemNode = QmlItemNode(view->createModelNode(type, propertyPairList));
+#else
+
         TypeName type("QtQuick.Image");
         QImageReader reader(imageName);
         if (reader.supportsAnimation())
             type = "QtQuick.AnimatedImage";
 
-        newQmlItemNode = QmlItemNode(view->createModelNode(type, metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
+        newQmlItemNode = QmlItemNode(view->createModelNode(type,
+                                                           metaInfo.majorVersion(),
+                                                           metaInfo.minorVersion(),
+                                                           propertyPairList));
+#endif
         parentproperty.reparentHere(newQmlItemNode);
 
         QFileInfo fi(relativeImageName);
@@ -129,7 +142,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     QmlItemNode newQmlItemNode;
 
     auto doCreateQmlItemNodeFromFont = [=, &newQmlItemNode, &parentproperty]() {
-        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Text");
         QList<QPair<PropertyName, QVariant>> propertyPairList;
         if (const int intX = qRound(position.x()))
             propertyPairList.append({PropertyName("x"), QVariant(intX)});
@@ -138,9 +150,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
         propertyPairList.append({PropertyName("font.family"), QVariant(fontFamily)});
         propertyPairList.append({PropertyName("font.pointSize"), 20});
         propertyPairList.append({PropertyName("text"), QVariant(fontFamily)});
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        newQmlItemNode = QmlItemNode(view->createModelNode("Text", propertyPairList));
+#else
+        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Text");
         newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Text", metaInfo.majorVersion(),
                                                            metaInfo.minorVersion(), propertyPairList));
+#endif
         parentproperty.reparentHere(newQmlItemNode);
 
         newQmlItemNode.setId(view->model()->generateNewId("text", "text"));
@@ -478,6 +494,11 @@ int QmlItemNode::instancePenWidth() const
 bool QmlItemNode::instanceIsRenderPixmapNull() const
 {
     return nodeInstance().renderPixmap().isNull();
+}
+
+bool QmlItemNode::instanceIsVisible() const
+{
+    return nodeInstance().property("visible").toBool();
 }
 
 QPixmap QmlItemNode::instanceRenderPixmap() const

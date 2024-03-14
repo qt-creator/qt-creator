@@ -7,28 +7,39 @@ namespace QmlDesigner {
 namespace Tracing {
 
 namespace {
+
 using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
 
-TraceFile traceFile{"qml_designer.json"};
-
-thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingStatus()>
-    strinViewEventQueueData(traceFile);
-thread_local NanotraceHR::EventQueue stringViewEventQueue_ = strinViewEventQueueData.createEventQueue();
-
-thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingStatus()>
-    stringViewWithStringArgumentsEventQueueData(traceFile);
-thread_local NanotraceHR::EventQueue stringViewEventWithStringArgumentsQueue_ = stringViewWithStringArgumentsEventQueueData
-                                                                                    .createEventQueue();
+TraceFile &traceFile()
+{
+    static TraceFile traceFile{"qml_designer.json"};
+    return traceFile;
+}
 } // namespace
 
 EventQueue &eventQueue()
 {
-    return stringViewEventQueue_;
+    thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingStatus()>
+        stringViewEventQueueData(traceFile());
+
+    return stringViewEventQueueData;
 }
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    return stringViewEventWithStringArgumentsQueue_;
+    thread_local NanotraceHR::
+        EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingStatus()>
+            stringViewWithStringArgumentsEventQueueData(traceFile());
+
+    return stringViewWithStringArgumentsEventQueueData;
+}
+
+StringEventQueue &stringEventQueue()
+{
+    thread_local NanotraceHR::EventQueueData<NanotraceHR::StringTraceEvent, 1000, tracingStatus()> eventQueue(
+        traceFile());
+
+    return eventQueue;
 }
 
 } // namespace Tracing
@@ -37,7 +48,7 @@ namespace ModelTracing {
 namespace {
 using namespace NanotraceHR::Literals;
 
-thread_local Category category_{"model"_t, Tracing::stringViewEventWithStringArgumentsQueue_, category};
+thread_local Category category_{"model"_t, Tracing::stringEventQueue(), category};
 
 } // namespace
 

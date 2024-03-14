@@ -89,10 +89,10 @@ bool fileComponentExists(const ModelNode &modelNode)
     return QFileInfo::exists(fileName);
 }
 
-bool selectionIsComponent(const SelectionContext &selectionState)
+bool selectionIsEditableComponent(const SelectionContext &selectionState)
 {
-    return selectionState.currentSingleSelectedNode().isComponent()
-           && fileComponentExists(selectionState.currentSingleSelectedNode());
+    ModelNode node = selectionState.currentSingleSelectedNode();
+    return node.isComponent() && !QmlItemNode(node).isEffectItem() && fileComponentExists(node);
 }
 
 bool selectionIsImported3DAsset(const SelectionContext &selectionState)

@@ -863,6 +863,7 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
 void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     QList<FormEditorItem*> changedItems;
+    bool needEffectUpdate = false;
     for (auto &nodePropertyPair : propertyList) {
         const QmlItemNode qmlItemNode(nodePropertyPair.first);
         const PropertyName propertyName = nodePropertyPair.second;
@@ -873,10 +874,14 @@ void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Proper
                     m_scene->synchronizeOtherProperty(item, propertyName);
                     changedItems.append(item);
                 }
+            } else if (propertyName == "visible" && qmlItemNode.isEffectItem()) {
+                needEffectUpdate = true;
             }
         }
     }
     m_currentTool->formEditorItemsChanged(changedItems);
+    if (needEffectUpdate)
+        updateHasEffects();
 }
 
 bool FormEditorView::isMoveToolAvailable() const
@@ -1011,7 +1016,7 @@ void FormEditorView::updateHasEffects()
             FormEditorItem *item = m_scene->itemForQmlItemNode(qmlNode);
             if (item)
                 item->setHasEffect(false);
-            if (qmlNode.isEffectItem()) {
+            if (qmlNode.isEffectItem() && qmlNode.instanceIsVisible()) {
                 FormEditorItem *parentItem = m_scene->itemForQmlItemNode(qmlNode.modelParentItem());
                 if (parentItem)
                     parentItem->setHasEffect(true);

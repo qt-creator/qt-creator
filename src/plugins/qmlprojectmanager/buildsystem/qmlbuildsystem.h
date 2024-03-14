@@ -8,6 +8,8 @@
 #include "../qmlprojectmanager_global.h"
 #include <projectexplorer/buildsystem.h>
 
+#include "qmlprojectmanager/cmakegen/cmakegenerator.h"
+
 namespace QmlProjectManager {
 
 class QmlProject;
@@ -102,6 +104,8 @@ public:
 
     Utils::FilePath getStartupQmlFileWithFallback() const;
 
+    static QmlBuildSystem *getStartupBuildSystem();
+
 signals:
     void projectChanged();
 
@@ -120,6 +124,8 @@ private:
     void registerMenuButtons();
     void updateDeploymentData();
     friend class FilesUpdateBlocker;
+
+    GenerateCmake::CMakeGenerator* m_cmakeGen;
 };
 
 } // namespace QmlProjectManager

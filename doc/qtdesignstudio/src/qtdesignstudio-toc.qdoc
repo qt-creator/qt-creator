@@ -8,7 +8,7 @@
     \list
         \li \l{Getting Started}
             \list
-                \li \l{Installation}
+                \li \l{Installing \QDS}
                 \li \l{Tutorials}
                 \li \l{User Interface}
                     \list
@@ -34,6 +34,7 @@
                                 \li \l{Content Library}
                                 \li \l{Texture Editor}
                                 \li \l{Qt Insight}
+                                \li \l{Effect Composer}
                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Manage sessions}
@@ -125,6 +126,7 @@
                                 \li\l{Connecting Components to Signals}
                                 \li\l{Adding Bindings Between Properties}
                                 \li\l{Specifying Custom Properties}
+                                \li\l{Connecting Properties to JSON Data Source}
                             \endlist
                         \li \l{Working with States}
                     \endlist
@@ -132,11 +134,11 @@
                     \list
                         \li \l{Previewing on Desktop}
                         \li \l{Previewing on Devices}
-                        \li \l{Previewing Android Applications}
                         \li \l{Sharing Applications Online}
                           \list
                             \li \l{Creating a Single Page Navigation Web Application}
                           \endlist
+                        \li \l {Viewing Applications on Android}
                     \endlist
                 \li \l {Asset Creation with Other Tools}
                     \list
@@ -251,6 +253,7 @@
             \endlist
         \li \l{Developer Topics}
             \list
+                \li \l{Finding the Qt Runtime Version}
                 \li \l{Using Git}
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}

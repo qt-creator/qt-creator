@@ -32,12 +32,15 @@ public:
 
     void updateCanBeAdded(const QStringList &uniforms);
 
+    QHash<QString, QString> defaultImagesForNode(const QString &name) const;
+
 private:
     QString nodesSourcesPath() const;
 
     QList<EffectNodesCategory *> m_categories;
     bool m_probeNodesDir = false;
     bool m_modelLoaded = false;
+    QHash<QString, QHash<QString, QString>> m_defaultImagesHash;
 };
 
 } // namespace EffectComposer

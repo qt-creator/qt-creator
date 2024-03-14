@@ -163,8 +163,8 @@ std::vector<PropertyName> properityLists()
     return result;
 }
 
-PropertyTreeModel::PropertyTreeModel(ConnectionView *parent)
-    : QAbstractItemModel(parent), m_connectionView(parent)
+PropertyTreeModel::PropertyTreeModel(ConnectionView *view)
+    : m_connectionView(view)
 {}
 
 void PropertyTreeModel::resetModel()
@@ -883,7 +883,8 @@ QString PropertyListProxyModel::parentName() const
     return m_treeModel->data(m_parentIndex, PropertyTreeModel::UserRoles::PropertyNameRole).toString();
 }
 
-PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m_model(parent)
+PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *view)
+    : m_model(view)
 {
     connect(&m_nameCombboBox, &StudioQmlComboBoxBackend::activated, this, [this] {
         handleNameChanged();

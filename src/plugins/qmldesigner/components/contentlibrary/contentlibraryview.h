@@ -33,7 +33,6 @@ public:
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
-    void active3DSceneChanged(qint32 sceneId) override;
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier,
@@ -42,8 +41,12 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView type,
+                              const QVariant &data) override;
 
 private:
+    void active3DSceneChanged(qint32 sceneId);
     void updateBundleMaterialsImportedState();
     void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();

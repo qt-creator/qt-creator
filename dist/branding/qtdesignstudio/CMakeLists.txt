@@ -1,1 +1,0 @@
-install(DIRECTORY QtProject DESTINATION "${IDE_DATA_PATH}")

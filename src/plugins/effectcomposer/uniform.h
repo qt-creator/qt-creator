@@ -18,14 +18,16 @@ class Uniform : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString uniformName MEMBER m_displayName CONSTANT)
+    Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString uniformDisplayName MEMBER m_displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
+    Q_PROPERTY(QString uniformControlType READ controlTypeName CONSTANT)
     Q_PROPERTY(QString uniformDescription READ description CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
     Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
-    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue CONSTANT)
+    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue NOTIFY uniformDefaultValueChanged)
     Q_PROPERTY(QVariant uniformUseCustomValue MEMBER m_useCustomValue CONSTANT)
 
 public:
@@ -39,16 +41,20 @@ public:
         Vec4,
         Color,
         Sampler,
+        Channel,
         Define
     };
 
     Uniform(const QString &effectName, const QJsonObject &props, const QString &qenPath);
 
     Type type() const;
+    Type controlType() const;
     QString typeName() const;
+    QString controlTypeName() const;
 
     QVariant value() const;
     void setValue(const QVariant &newValue);
+    void setDefaultValue(const QVariant &newValue);
 
     QVariant backendValue() const;
 
@@ -69,6 +75,7 @@ public:
     void setEnabled(bool newEnabled);
 
     bool enableMipmap() const;
+    QString getDesignerSpecifics() const;
 
     static QString stringFromType(Uniform::Type type, bool isShader = false);
     static Uniform::Type typeFromString(const QString &typeString);
@@ -77,6 +84,7 @@ public:
 signals:
     void uniformValueChanged();
     void uniformBackendValueChanged();
+    void uniformDefaultValueChanged();
 
 private:
     QString mipmapPropertyName(const QString &name) const;
@@ -90,6 +98,7 @@ private:
 
     QString m_qenPath;
     Type m_type;
+    Type m_controlType;
     QVariant m_value;
     QVariant m_defaultValue;
     QVariant m_minValue;

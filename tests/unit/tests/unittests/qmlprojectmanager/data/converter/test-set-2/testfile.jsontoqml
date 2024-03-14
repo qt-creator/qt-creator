@@ -6,6 +6,7 @@ import QmlProject
 Project {
     mainFile: "fileSelectors.qml"
     targetDirectory: "/opt/fileSelectors"
+    enableCMakeGeneration: false
     widgetApp: false
     importPaths: [ "imports" ]
 

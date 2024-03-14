@@ -19,6 +19,7 @@
 #include "qmleditormenu.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
+#include <utils3d.h>
 
 #include <auxiliarydataproperties.h>
 #include <designeractionmanager.h>
@@ -121,6 +122,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
                 // Register action as creator command to make it configurable
                 Core::Command *command = Core::ActionManager::registerAction(
                             a, action->menuId().constData(), context);
+                m_actionToCommandHash.insert(a, command);
                 command->setDefaultKeySequence(a->shortcut());
                 if (proxyGroup)
                     proxyGroup->addAction(command->action());
@@ -479,10 +481,7 @@ void Edit3DWidget::onCreateAction(QAction *action)
         if (!m_view->model()->hasImport(import, true, true))
             m_view->model()->changeImports({import}, {});
 
-        int activeScene = -1;
-        auto data = m_view->rootModelNode().auxiliaryData(active3dSceneProperty);
-        if (data)
-            activeScene = data->toInt();
+        int activeScene = Utils3D::active3DSceneId(m_view->model());
         auto modelNode = QmlVisualNode::createQml3DNode(m_view, entry,
                                                         activeScene, m_contextMenuPos3d).modelNode();
         QTC_ASSERT(modelNode.isValid(), return);
@@ -688,7 +687,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
-        if (m_view->active3DSceneNode().isValid())
+        if (Utils3D::active3DSceneNode(m_view).isValid())
             dragEnterEvent->acceptProposedAction();
     } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);

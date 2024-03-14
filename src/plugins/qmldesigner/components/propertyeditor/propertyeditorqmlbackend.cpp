@@ -10,11 +10,12 @@
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
-#include <variantproperty.h>
+#include <projectstorage/sourcepathcache.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
+#include <variantproperty.h>
 
 #include <theme.h>
 
@@ -84,7 +85,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     : m_view(new Quick2PropertyEditorView(imageCache))
     , m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor))
     , m_dummyPropertyEditorValue(new PropertyEditorValue())
-    , m_contextObject(new PropertyEditorContextObject())
+    , m_contextObject(new PropertyEditorContextObject(m_view))
 {
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
@@ -514,6 +515,12 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         NodeMetaInfo metaInfo = qmlObjectNode.modelNode().metaInfo();
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        contextObject()->setMajorVersion(-1);
+        contextObject()->setMinorVersion(-1);
+        contextObject()->setMajorQtQuickVersion(-1);
+        contextObject()->setMinorQtQuickVersion(-1);
+#else
         if (metaInfo.isValid()) {
             contextObject()->setMajorVersion(metaInfo.majorVersion());
             contextObject()->setMinorVersion(metaInfo.minorVersion());
@@ -523,7 +530,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
             contextObject()->setMajorQtQuickVersion(-1);
             contextObject()->setMinorQtQuickVersion(-1);
         }
-
+#endif
         contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
         contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
 
@@ -619,10 +626,20 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     return true;
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaType,
                                                      const NodeMetaInfo &superType,
                                                      const QmlObjectNode &node)
 {
+    // If we have dynamically generated specifics file for the type, prefer using it
+    QUrl dynamicUrl = PropertyEditorQmlBackend::getQmlFileUrl(
+        metaType.typeName() + "SpecificsDynamic", metaType);
+
+    if (checkIfUrlExists(dynamicUrl)) {
+        Utils::FilePath fp = Utils::FilePath::fromString(fileFromUrl(dynamicUrl));
+        return QString::fromUtf8(fp.fileContents().value_or(QByteArray()));
+    }
+
     if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
 
@@ -749,7 +766,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     qmlTemplate += "Column {\n";
     qmlTemplate += "width: parent.width\n";
 
-    if (node.modelNode().isComponent())
+    bool isEditableComponent = node.modelNode().isComponent() && !QmlItemNode(node).isEffectItem();
+    if (isEditableComponent)
         qmlTemplate += "ComponentButton {}\n";
 
     QString qmlInnerTemplate = "";
@@ -839,6 +857,7 @@ QUrl PropertyEditorQmlBackend::getQmlFileUrl(const TypeName &relativeTypeName, c
 {
     return fileToUrl(locateQmlFile(info, QString::fromUtf8(fixTypeNameForPanes(relativeTypeName) + ".qml")));
 }
+#endif // QDS_USE_PROJECTSTORAGE
 
 TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
 {
@@ -873,11 +892,13 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
     return node.metaInfo();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
 {
     const TypeName fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
     return fixedTypeName + "Pane.qml";
 }
+#endif
 
 QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)  {
     QUrl fileUrl;
@@ -953,6 +974,7 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 std::tuple<QUrl, NodeMetaInfo> PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo)
 {
     QString className;
@@ -1016,7 +1038,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
         return QFileInfo::exists(possibleFilePath);
     });
 }
-
+#endif // QDS_USE_PROJECTSTORAGE
 
 } //QmlDesigner
 

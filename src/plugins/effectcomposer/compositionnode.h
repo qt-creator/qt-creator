@@ -56,6 +56,7 @@ signals:
     void uniformsModelChanged();
     void isEnabledChanged();
     void isDepencyChanged();
+    void rebakeRequested();
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);

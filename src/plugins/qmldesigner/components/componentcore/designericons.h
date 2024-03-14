@@ -58,6 +58,7 @@ public:
         CameraIcon,
         CameraOrthographicIcon,
         CameraPerspectiveIcon,
+        CameraSpeedConfigIcon,
         ConnectionsIcon,
         CopyIcon,
         CreateIcon,

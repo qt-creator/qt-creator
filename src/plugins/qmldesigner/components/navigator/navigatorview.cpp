@@ -271,14 +271,20 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         qint32 internalId = mimeData->data(Constants::MIME_TYPE_TEXTURE).toInt();
         ModelNode texNode = modelNodeForInternalId(internalId);
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        m_widget->setDragType(texNode.type());
+#else
         m_widget->setDragType(texNode.metaInfo().typeName());
+#endif
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
         qint32 internalId = mimeData->data(Constants::MIME_TYPE_MATERIAL).toInt();
         ModelNode matNode = modelNodeForInternalId(internalId);
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        m_widget->setDragType(matNode.type());
+#else
         m_widget->setDragType(matNode.metaInfo().typeName());
+#endif
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_TEXTURE);
@@ -700,7 +706,7 @@ void NavigatorView::updateItemSelection()
     blockSelectionChangedSignal(blocked);
 
     if (!selectedModelNodes().isEmpty())
-        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constFirst()));
+        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constLast()));
 
     // make sure selected nodes are visible
     for (const QModelIndex &selectedIndex : itemSelection.indexes()) {

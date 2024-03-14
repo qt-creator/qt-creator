@@ -44,4 +44,6 @@ Project {
 
     /* Required for deployment */
     targetDirectory: "/opt/fileSelectors"
+
+    enableCMakeGeneration: false
 }

@@ -13,7 +13,7 @@ namespace QmlDesigner {
 
 class CollectionDetailsModel;
 class CollectionDetailsSortFilterModel;
-class CollectionSourceModel;
+class CollectionListModel;
 class CollectionView;
 class ModelNode;
 
@@ -27,7 +27,7 @@ public:
     CollectionWidget(CollectionView *view);
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
-    QPointer<CollectionSourceModel> sourceModel() const;
+    QPointer<CollectionListModel> listModel() const;
     QPointer<CollectionDetailsModel> collectionDetailsModel() const;
 
     void reloadQmlSource();
@@ -39,27 +39,20 @@ public:
     Q_INVOKABLE bool isJsonFile(const QUrl &url) const;
     Q_INVOKABLE bool isCsvFile(const QUrl &url) const;
     Q_INVOKABLE bool isValidUrlToImport(const QUrl &url) const;
-    Q_INVOKABLE bool addCollection(const QString &collectionName,
-                                   const QString &collectionType,
-                                   const QUrl &sourceUrl,
-                                   const QVariant &sourceNode);
 
-    Q_INVOKABLE bool importToJson(const QVariant &sourceNode,
-                                  const QString &collectionName,
-                                  const QUrl &url);
+    Q_INVOKABLE bool importFile(const QString &collectionName,
+                                const QUrl &url,
+                                const bool &firstRowIsHeader = true);
 
-    Q_INVOKABLE bool importCollectionToDataStore(const QString &collectionName, const QUrl &url);
-
-    Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
-
+    Q_INVOKABLE void addCollectionToDataStore(const QString &collectionName);
     Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
-
-    Q_INVOKABLE void ensureDataStoreExists();
-
+    Q_INVOKABLE void openCollection(const QString &collectionName);
     Q_INVOKABLE ModelNode dataStoreNode() const;
 
     void warn(const QString &title, const QString &body);
     void setTargetNodeSelected(bool selected);
+
+    void deleteSelectedCollection();
 
 signals:
     void targetNodeSelectedChanged(bool);
@@ -68,7 +61,7 @@ private:
     QString generateUniqueCollectionName(const ModelNode &node, const QString &name);
 
     QPointer<CollectionView> m_view;
-    QPointer<CollectionSourceModel> m_sourceModel;
+    QPointer<CollectionListModel> m_listModel;
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
     std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;

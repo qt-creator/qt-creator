@@ -218,6 +218,9 @@
                 "iconName": "perspectiveCam_small"
             }
         },
+        "CameraSpeedConfigIcon": {
+            "iconName": "camera_medium"
+        },
         "EditColorIcon": {
             "iconName": "colorSelection_medium"
         },

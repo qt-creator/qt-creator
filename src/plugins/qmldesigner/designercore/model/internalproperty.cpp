@@ -4,17 +4,40 @@
 #include "internalproperty.h"
 #include "internalnode_p.h"
 
-namespace QmlDesigner::Internal {
+namespace QmlDesigner {
 
-static auto traceTokenInitArg(const QByteArray &name)
+template<typename String> void convertToString(String &string, PropertyType type)
 {
-    return ModelTracing::category().beginObject("InternalProperty"_t, keyValue("name", name));
+    string.append("\"");
+
+    switch (type) {
+    case PropertyType::None:
+        string.append("None"_sv);
+        break;
+    case PropertyType::Variant:
+        string.append("Variant"_sv);
+        break;
+    case PropertyType::Node:
+        string.append("Node"_sv);
+        break;
+    case PropertyType::NodeList:
+        string.append("NodeList"_sv);
+        break;
+    case PropertyType::Binding:
+        string.append("Binding"_sv);
+        break;
+    case PropertyType::SignalHandler:
+        string.append("SignalHandler"_sv);
+        break;
+    case PropertyType::SignalDeclaration:
+        string.append("SignalDeclaration"_sv);
+        break;
+    }
+
+    string.append("\"");
 }
 
-// Creates invalid InternalProperty
-InternalProperty::InternalProperty()
-    : traceToken(traceTokenInitArg(m_name))
-{}
+namespace Internal {
 
 InternalProperty::~InternalProperty() = default;
 
@@ -24,7 +47,9 @@ InternalProperty::InternalProperty(const PropertyName &name,
     : m_name(name)
     , m_propertyOwner(propertyOwner)
     , m_propertyType(propertyType)
-    , traceToken(traceTokenInitArg(m_name))
+    , traceToken(propertyOwner->traceToken.begin(name,
+                                                 keyValue("owner", propertyOwner->internalId),
+                                                 keyValue("type", propertyType)))
 {}
 
 bool InternalProperty::isValid() const
@@ -44,13 +69,17 @@ TypeName InternalProperty::dynamicTypeName() const
 
 void InternalProperty::setDynamicTypeName(const TypeName &name)
 {
+    traceToken.tick("dynamic type name"_t, keyValue("name", name));
+
     m_dynamicType = name;
 }
 
 void InternalProperty::resetDynamicTypeName()
 {
-   m_dynamicType.clear();
+    traceToken.tick("reset dynamic type name"_t);
+
+    m_dynamicType.clear();
 }
 
-} //namespace QmlDesigner::Internal
-
+} // namespace Internal
+} // namespace QmlDesigner

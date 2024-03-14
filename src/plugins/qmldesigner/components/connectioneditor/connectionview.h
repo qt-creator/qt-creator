@@ -6,6 +6,8 @@
 #include <abstractview.h>
 #include <qmlitemnode.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
@@ -81,15 +83,10 @@ signals:
     void currentIndexChanged();
 
 private:
-    ConnectionModel *m_connectionModel;
-    BindingModel *m_bindingModel;
-    DynamicPropertiesModel *m_dynamicPropertiesModel;
-    BackendModel *m_backendModel;
-    PropertyTreeModel *m_propertyTreeModel;
-    PropertyListProxyModel *m_propertyListProxyModel;
-    int m_currentIndex = 0;
+    struct ConnectionViewData;
 
-    QPointer<ConnectionViewQuickWidget> m_connectionViewQuickWidget;
+private:
+    std::unique_ptr<ConnectionViewData> d;
 };
 
 } // namespace QmlDesigner

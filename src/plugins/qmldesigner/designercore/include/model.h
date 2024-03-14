@@ -20,6 +20,13 @@
 
 #include <import.h>
 
+#ifdef QDS_USE_PROJECTSTORAGE
+#  define DEPRECATED_OLD_CREATE_MODELNODE \
+      [[deprecated("Use unqualified type names and no versions!")]]
+#else
+#  define DEPRECATED_OLD_CREATE_MODELNODE
+#endif
+
 QT_BEGIN_NAMESPACE
 class QPixmap;
 class QUrl;
@@ -87,11 +94,12 @@ public:
 
     ~Model();
 
-    static ModelPointer create(const TypeName &typeName,
-                               int major = 1,
-                               int minor = 1,
-                               Model *metaInfoProxyModel = nullptr,
-                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
+    DEPRECATED_OLD_CREATE_MODELNODE static ModelPointer create(
+        const TypeName &typeName,
+        int major = 1,
+        int minor = 1,
+        Model *metaInfoProxyModel = nullptr,
+        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
         return ModelPointer(
             new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
@@ -110,19 +118,24 @@ public:
                                       fileUrl,
                                       std::move(resourceManagement)));
     }
-    static ModelPointer create(ProjectStorageDependencies m_projectStorageDependencies,
-                               const TypeName &typeName,
-                               int major = 1,
-                               int minor = 1,
-                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
+
+    DEPRECATED_OLD_CREATE_MODELNODE static ModelPointer create(
+        ProjectStorageDependencies projectStorageDependencies,
+        const TypeName &typeName,
+        int major = 1,
+        int minor = 1,
+        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(new Model(m_projectStorageDependencies,
+        return ModelPointer(new Model(projectStorageDependencies,
                                       typeName,
                                       major,
                                       minor,
                                       nullptr,
                                       std::move(resourceManagement)));
     }
+
+    ModelPointer createModel(const TypeName &typeName,
+                             std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
 
     QUrl fileUrl() const;
     SourceId fileUrlSourceId() const;
@@ -150,6 +163,7 @@ public:
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
     NodeMetaInfo qmlQtObjectMetaInfo() const;
+    NodeMetaInfo qtQmlConnectionsMetaInfo() const;
     NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
     NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
@@ -164,7 +178,6 @@ public:
     NodeMetaInfo qtQuick3DPrincipledMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DSpotLightMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
-    NodeMetaInfo qtQuickConnectionsMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
@@ -216,6 +229,10 @@ public:
     QStringList importPaths() const;
     Import highestPossibleImport(const QString &importPath);
 
+    ModuleIds moduleIds() const;
+
+    Storage::Info::ExportedTypeName exportedTypeNameForMetaInfo(const NodeMetaInfo &metaInfo) const;
+
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);
 
@@ -239,11 +256,13 @@ public:
                           std::optional<std::function<bool(const QString &)>> isDuplicate = {}) const;
     QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
-    void setActive3DSceneId(qint32 sceneId);
-    qint32 active3DSceneId() const;
-
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
+
+    void setCurrentStateNode(const ModelNode &node);
+    ModelNode currentStateNode(AbstractView *view = nullptr);
+
+    void setCurrentTimeline(const ModelNode &timeline);
 
     NotNullPointer<const ProjectStorageType> projectStorage() const;
     const PathCacheType &pathCache() const;

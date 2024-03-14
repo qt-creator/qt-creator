@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <QtWidgets/qwidget.h>
-#include <QtGui/qimage.h>
-#include <QtGui/qevent.h>
-#include <QtCore/qelapsedtimer.h>
-#include <QtCore/qpointer.h>
+#include <QEvent>
+#include <QElapsedTimer>
+#include <QImage>
+#include <QPoint>
+#include <QPointer>
+#include <QWidget>
 
 namespace QmlDesigner {
 
@@ -25,6 +26,8 @@ public:
     QImage renderImage() const;
     void setOpacity(qreal opacity);
     QWidget *busyIndicator() const;
+    void setFlyMode(bool enabled, const QPoint &pos = {});
+    bool isFlyMode() const { return m_flyMode; }
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -50,6 +53,12 @@ private:
     QElapsedTimer m_usageTimer;
     qreal m_opacity = 1.0;
     QWidget *m_busyIndicator = nullptr;
+    bool m_flyMode = false;
+    QPoint m_flyModeStartCursorPos;
+    QPoint m_hiddenCursorPos;
+    qint64 m_flyModeStartTime = 0;
+    bool m_flyModeFirstUpdate = false;
+    bool m_contextMenuPending = false;
 };
 
 } // namespace QmlDesigner

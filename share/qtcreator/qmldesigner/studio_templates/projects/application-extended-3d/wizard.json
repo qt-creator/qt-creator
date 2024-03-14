@@ -1,0 +1,397 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "QmlProjectManager.QmlProject" ],
+    "id": "QA.QtStudioUi3DExt",
+    "category": "B.StudioProject",
+    "trDescription": "Creates a project that uses default and 3D components, such as camera, light, model, and materials. Extended scene environment will also be included to enable various built-in effects.",
+    "trDisplayName": "3D Extended",
+    "trDisplayCategory": "General",
+    "icon": "desktop_blank.png",
+    "fontIconName": "wizardsGeneric",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
+    "platformIndependent": true,
+
+    "options":
+        [
+        { "key": "ProjectExecutableName", "value": "%{ProjectName}App" },
+        { "key": "ProjectPluginName", "value": "%{ProjectName}plugin" },
+        { "key": "ProjectPluginClassName", "value": "%{ProjectName}Plugin" },
+        { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qmlproject')}" },
+        { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
+        { "key": "ImportModuleName", "value": "%{ProjectName}" },
+        { "key": "UIClassName", "value": "Screen01" },
+        { "key": "UIClassFileName", "value": "%{JS: Util.fileName('%{UIClassName}', 'ui.qml')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuickVersion}" },
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "QtQuickControlsStyle", "value": "Basic" },
+        { "key": "QtQuickControlsStyleTheme", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyleTheme}" },
+        { "key": "ApplicationImport", "value": "%{JS: value('IsQt6Project') === 'true' ? '%{ImportModuleName}' : '%{ImportModuleName} 1.0'}" },
+        { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },
+        { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
+        { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" },
+        { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" },
+        { "key": "QtQuick3DVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuick3DVersion}" },
+        { "key": "ImportModuleVersion", "value": "%{JS: value('IsQt6Project') === 'true' ? '' : '1.0'}" }
+    ],
+
+    "pages":
+        [
+        {
+            "defaultValues": "qmlapplication-project-page"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+                [
+                {
+                    "name": "ScreenFactor",
+                    "trDisplayName": "Screen Resolution:",
+                    "type": "ComboBox",
+                    "enabled": "%{JS: value('UseStandardResolution')}",
+                    "data":
+                    {
+                        "index": 2,
+                        "items":
+                            [
+                            {
+                                "trKey": "2960 x 1440",
+                                "value":
+                                "({
+                                    'ScreenWidth': '2960',
+                                    'ScreenHeight': '1440'
+                                })"
+                            },
+                            {
+                                "trKey": "2560 x 1440",
+                                "value":
+                                "({
+                                    'ScreenWidth': '2560',
+                                    'ScreenHeight': '1440'
+                                })"
+                            },
+                            {
+                                "trKey": "1920 x 1080",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1920',
+                                    'ScreenHeight': '1080'
+                                })"
+                            },
+                            {
+                                "trKey": "1334 x 750",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1334',
+                                    'ScreenHeight': '750'
+                                })"
+                            },
+                            {
+                                "trKey": "1280 x 960",
+                                "value":
+                                "({
+                                     'ScreenWidth': '1280',
+                                    'ScreenHeight': '960'
+                                })"
+                            },
+                            {
+                                "trKey": "1280 x 720",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1280',
+                                    'ScreenHeight': '720'
+                                })"
+                            },
+                            {
+                                "trKey": "1024 x 768",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1024',
+                                    'ScreenHeight': '768'
+                                })"
+                            },
+                            {
+                                "trKey": "640 x 480",
+                                "value":
+                                "({
+                                    'ScreenWidth': '640',
+                                    'ScreenHeight': '480'
+                                })"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "ControlsStyle",
+                    "trDisplayName": "Qt Quick Controls Style:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                            [
+                            {
+                                "trKey": "Basic",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Basic',
+                                    'QtQuickControlsStyleTheme': ''
+                                })"
+                            },
+                            {
+                                "trKey": "Material Light",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Material',
+                                    'QtQuickControlsStyleTheme': 'Light'
+                                })"
+                            },
+                            {
+                                "trKey": "Material Dark",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Material',
+                                    'QtQuickControlsStyleTheme': 'Dark'
+                                })"
+                            },
+                            {
+                                "trKey": "Universal Light",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Universal',
+                                    'QtQuickControlsStyleTheme': 'Light'
+                                })"
+                            },
+                            {
+                                "trKey": "Universal Dark",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Universal',
+                                    'QtQuickControlsStyleTheme': 'Dark'
+                                })"
+                            },
+                            {
+                                "trKey": "Universal System",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Universal',
+                                    'QtQuickControlsStyleTheme': 'System'
+                                })"
+                            },
+                            {
+                                "trKey": "Fusion",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Fusion',
+                                    'QtQuickControlsStyleTheme': ''
+                                })"
+                            },
+                            {
+                                "trKey": "Imagine",
+                                "value":
+                                "({
+                                    'QtQuickControlsStyle': 'Imagine',
+                                    'QtQuickControlsStyleTheme': ''
+                                })"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "UseVirtualKeyboard",
+                    "trDisplayName": "Use Qt Virtual Keyboard",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{UseVirtualKeyboardDefault}"
+                    }
+                },
+                {
+                    "name": "CustomScreenWidth",
+                    "trDisplayName": "Custom screen width:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[0-9]*$",
+                        "trText": ""
+                    }
+                },
+                {
+                    "name": "CustomScreenHeight",
+                    "trDisplayName": "Custom screen height:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[0-9]*$",
+                        "trText": ""
+                    }
+                },
+                {
+                    "name": "TargetQtVersion",
+                    "trDisplayName": "Target Qt Version:",
+                    "mandatory": true,
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 3,
+                        "items":
+                            [
+                            {
+                                "trKey": "Qt 6.2",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.2',
+                                    'TargetQuick3DVersion': '6.2'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.3",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.3',
+                                    'TargetQuick3DVersion': '6.3'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.4",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.4',
+                                    'TargetQuick3DVersion': '6.4'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.5",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.5',
+                                    'TargetQuick3DVersion': '6.5'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.6",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.6',
+                                    'TargetQuick3DVersion': '6.6'
+                                })"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+
+    ],
+    "generators":
+        [
+        {
+            "typeId": "File",
+            "data":
+                [
+                {
+                    "source": "../common/app.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{QmlProjectFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "../common/CMakeLists.main.txt.tpl",
+                    "target": "%{ProjectDirectory}/CMakeLists.txt"
+                },
+                {
+                    "source": "../common/qmlmodules.tpl",
+                    "target": "%{ProjectDirectory}/qmlmodules"
+                },
+                {
+                    "source": "../common/qmlcomponents.tpl",
+                    "target": "%{ProjectDirectory}/qmlcomponents"
+                },
+                {
+                    "source": "../common/insight.tpl",
+                    "target": "%{ProjectDirectory}/insight"
+                },
+                {
+                    "source": "../common/main.qml",
+                    "target": "%{ProjectDirectory}/main.qml"
+                },
+                {
+                    "source": "../common/qtquickcontrols2.conf.tpl",
+                    "target": "%{ProjectDirectory}/qtquickcontrols2.conf"
+                },
+                {
+                    "source": "../common/main.cpp.tpl",
+                    "target": "%{ProjectDirectory}/src/main.cpp"
+                },
+                {
+                    "source": "../common/app_environment.h.tpl",
+                    "target": "%{ProjectDirectory}/src/app_environment.h"
+                },
+                {
+                    "source": "../common/import_qml_plugins.h.tpl",
+                    "target": "%{ProjectDirectory}/src/import_qml_plugins.h"
+                },
+                {
+                    "source": "../common/import_qml_components_plugins.h.tpl",
+                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h"
+                },
+
+                {
+                    "source": "../common/CMakeLists.content.txt.tpl",
+                    "target": "%{ProjectDirectory}/content/CMakeLists.txt"
+                },
+                {
+                    "source": "../common/App.qml.tpl",
+                    "target": "%{ProjectDirectory}/content/App.qml"
+                },
+                {
+                    "source": "Screen01.ui.qml.tpl",
+                    "target": "%{ProjectDirectory}/content/Screen01.ui.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../common/fonts.txt",
+                    "target": "%{ProjectDirectory}/content/fonts/fonts.txt"
+                },
+                {
+                    "source": "../common/asset_imports.txt",
+                    "target": "%{ProjectDirectory}/asset_imports/asset_imports.txt"
+                },
+                {
+                    "source": "../common/CMakeLists.imports.txt.tpl",
+                    "target": "%{ProjectDirectory}/imports/CMakeLists.txt"
+                },
+                {
+                    "source": "../shared-plugin/name/CMakeLists.importmodule.txt.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/CMakeLists.txt"
+                },
+                {
+                    "source": "../shared-plugin/name/importmodule.qmldir.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/qmldir"
+                },
+                {
+                    "source": "../shared-plugin/name/Constants.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/Constants.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/DirectoryFontLoader.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DirectoryFontLoader.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/EventListModel.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListModel.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/EventListSimulator.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListSimulator.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/designer/plugin.metainfo",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/designer/plugin.metainfo"
+                }
+            ]
+        }
+    ]
+}

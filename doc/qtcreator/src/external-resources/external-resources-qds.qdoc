@@ -22,8 +22,8 @@
     \title \QMCU documentation
 */
 /*!
-    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-traveoii-designui.html
-    \title Designing a UI for Infineon Traveo II
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-traveot2g-designui.html
+    \title Designing a UI for Infineon Traveo T2G
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-miimxrt1170-designui.html
@@ -60,4 +60,12 @@
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-known-issues.html
     \title \QMCU Known Issues or Limitations
+*/
+/*!
+    \externalpage https://doc.qt.io/qt/qt-edu-for-designers.html
+    \title Qt Edu for Designers
+*/
+/*!
+    \externalpage https://www.qt.io/download
+    \title Try Qt
 */

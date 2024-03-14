@@ -5,6 +5,7 @@
 
 #include "backgroundcolorselection.h"
 #include "bakelights.h"
+#include "cameraspeedconfiguration.h"
 #include "designeractionmanager.h"
 #include "designericons.h"
 #include "designersettings.h"
@@ -23,7 +24,9 @@
 #include "seekerslider.h"
 #include "snapconfiguration.h"
 
+#include <auxiliarydataproperties.h>
 #include <model/modelutils.h>
+#include <utils3d.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -143,7 +146,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        model()->setActive3DSceneId(newActiveScene);
+        setActive3DSceneId(newActiveScene);
         updateAlignActionStates();
     }
 
@@ -238,7 +241,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     bool desiredSyncValue = false;
     if (sceneState.contains(syncEnvBgKey))
         desiredSyncValue = sceneState[syncEnvBgKey].toBool();
-    ModelNode checkNode = active3DSceneNode();
+    ModelNode checkNode = Utils3D::active3DSceneNode(this);
     const bool activeSceneValid = checkNode.isValid();
 
     while (checkNode.isValid()) {
@@ -268,6 +271,8 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
     if (m_bakeLightsAction)
         m_bakeLightsAction->currentContextChanged(selectionContext);
+
+    syncCameraSpeedToNewView();
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -385,7 +390,7 @@ void Edit3DView::updateAlignActionStates()
 {
     bool enabled = false;
 
-    ModelNode activeScene = active3DSceneNode();
+    ModelNode activeScene = Utils3D::active3DSceneNode(this);
     if (activeScene.isValid()) {
         const QList<ModelNode> nodes = activeScene.allSubModelNodes();
         enabled = ::Utils::anyOf(nodes, [](const ModelNode &node) {
@@ -395,6 +400,11 @@ void Edit3DView::updateAlignActionStates()
 
     m_alignCamerasAction->action()->setEnabled(enabled);
     m_alignViewAction->action()->setEnabled(enabled);
+}
+
+void Edit3DView::setActive3DSceneId(qint32 sceneId)
+{
+    rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
@@ -427,8 +437,19 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
                                     [[maybe_unused]] const QList<ModelNode> &nodeList,
                                     [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "asset_import_update")
+    if (identifier == "asset_import_update") {
         resetPuppet();
+    } else if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
+        // Pick via 2D view, data has pick coordinates in main scene coordinates
+        QTimer::singleShot(0, this, [=, self = QPointer{this}]() {
+            if (!self)
+                return;
+
+            self->emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
+                                   QVariantList{data[0], nodeList[0].internalId()});
+            self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
+        });
+    }
 }
 
 /**
@@ -442,11 +463,13 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
 void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d)
 {
     if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu) {
-        // Make sure right-clicked item is selected. Due to a bug in puppet side right-clicking an item
-        // while the context-menu is shown doesn't select the item.
-        if (modelNode.isValid() && !modelNode.isSelected())
-            setSelectedModelNode(modelNode);
-        m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
+        m_contextMenuPos3D = pos3d;
+        if (m_edit3DWidget->canvas()->isFlyMode()) {
+            m_contextMenuPendingNode = modelNode;
+        } else {
+            m_nodeAtPosReqType = NodeAtPosReqType::None;
+            showContextMenu();
+        }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::ComponentDrop) {
         ModelNode createdNode;
         executeInTransaction(__FUNCTION__, [&] {
@@ -474,6 +497,10 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (!m_droppedFile.isEmpty() && isModel)
             emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
+        if (modelNode.isValid())
+            setSelectedModelNode(modelNode);
+        emitView3DAction(View3DActionType::AlignViewToCamera, true);
     }
 
     m_droppedModelNode = {};
@@ -672,6 +699,54 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     return pos;
 }
 
+void Edit3DView::showContextMenu()
+{
+    // If request for context menu is still pending, skip for now
+    if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu)
+        return;
+
+    if (m_contextMenuPendingNode.isValid()) {
+        if (!m_contextMenuPendingNode.isSelected())
+            setSelectedModelNode(m_contextMenuPendingNode);
+    } else {
+        clearSelectedModelNodes();
+    }
+
+    m_edit3DWidget->showContextMenu(m_contextMenuPosMouse, m_contextMenuPendingNode, m_contextMenuPos3D);
+    m_contextMenuPendingNode = {};
+}
+
+void Edit3DView::setFlyMode(bool enabled)
+{
+    emitView3DAction(View3DActionType::FlyModeToggle, enabled);
+
+    // Disable any actions with conflicting hotkeys
+    if (enabled) {
+        m_flyModeDisabledActions.clear();
+        const QList<QKeySequence> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
+                                                 Qt::Key_D, Qt::Key_Q, Qt::Key_E,
+                                                 Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
+                                                 Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp};
+        for (auto i = m_edit3DActions.cbegin(), end = m_edit3DActions.cend(); i != end; ++i) {
+            for (const QKeySequence &controlKey : controlKeys) {
+                if (Core::Command *cmd = m_edit3DWidget->actionToCommandHash().value(i.value()->action())) {
+                    if (cmd->keySequence().matches(controlKey) == QKeySequence::ExactMatch) {
+                        if (i.value()->action()->isEnabled()) {
+                            m_flyModeDisabledActions.append(i.value());
+                            i.value()->action()->setEnabled(false);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        for (Edit3DAction *action : std::as_const(m_flyModeDisabledActions))
+            action->action()->setEnabled(true);
+        m_flyModeDisabledActions.clear();
+    }
+}
+
 void Edit3DView::syncSnapAuxPropsToSettings()
 {
     if (!model())
@@ -697,6 +772,48 @@ void Edit3DView::syncSnapAuxPropsToSettings()
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
 }
 
+void Edit3DView::setCameraSpeedAuxData(double speed, double multiplier)
+{
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    node.setAuxiliaryData(edit3dCameraSpeedDocProperty, speed);
+    node.setAuxiliaryData(edit3dCameraSpeedMultiplierDocProperty, multiplier);
+    rootModelNode().setAuxiliaryData(edit3dCameraTotalSpeedProperty, (speed * multiplier));
+    m_previousCameraSpeed = speed;
+    m_previousCameraMultiplier = multiplier;
+}
+
+void Edit3DView::getCameraSpeedAuxData(double &speed, double &multiplier)
+{
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    auto speedProp = node.auxiliaryData(edit3dCameraSpeedDocProperty);
+    auto multProp = node.auxiliaryData(edit3dCameraSpeedMultiplierDocProperty);
+    speed = speedProp ? speedProp->toDouble() : CameraSpeedConfiguration::defaultSpeed;
+    multiplier = multProp ? multProp->toDouble() : CameraSpeedConfiguration::defaultMultiplier;
+}
+
+void Edit3DView::syncCameraSpeedToNewView()
+{
+    // Camera speed is inherited from previous active view if explicit values have not been
+    // stored for the currently active view
+    ModelNode node = Utils3D::active3DSceneNode(this);
+    auto speedProp = node.auxiliaryData(edit3dCameraSpeedDocProperty);
+    auto multProp = node.auxiliaryData(edit3dCameraSpeedMultiplierDocProperty);
+    double speed = CameraSpeedConfiguration::defaultSpeed;
+    double multiplier = CameraSpeedConfiguration::defaultMultiplier;
+
+    if (!speedProp || !multProp) {
+        if (m_previousCameraSpeed > 0 && m_previousCameraMultiplier > 0) {
+            speed = m_previousCameraSpeed;
+            multiplier = m_previousCameraMultiplier;
+        }
+    } else {
+        speed = speedProp->toDouble();
+        multiplier = multProp->toDouble();
+    }
+
+    setCameraSpeedAuxData(speed, multiplier);
+}
+
 const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
 {
     return m_splitToolStates;
@@ -713,6 +830,11 @@ void Edit3DView::setSplitToolState(int splitIndex, const SplitToolState &state)
 int Edit3DView::activeSplit() const
 {
     return m_activeSplit;
+}
+
+bool Edit3DView::isSplitView() const
+{
+    return m_splitViewAction->action()->isChecked();
 }
 
 void Edit3DView::createEdit3DActions()
@@ -843,7 +965,7 @@ void Edit3DView::createEdit3DActions()
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX,
         View3DActionType::ShowSelectionBox,
         QCoreApplication::translate("ShowSelectionBoxAction", "Show Selection Boxes"),
-        QKeySequence(Qt::Key_S),
+        QKeySequence(Qt::Key_B),
         true,
         true,
         QIcon(),
@@ -1084,6 +1206,30 @@ void Edit3DView::createEdit3DActions()
         toolbarIcon(DesignerIcons::SplitViewIcon),
         this);
 
+    SelectionContextOperation cameraSpeedConfigTrigger = [this](const SelectionContext &) {
+        if (!m_cameraSpeedConfiguration) {
+            m_cameraSpeedConfiguration = new CameraSpeedConfiguration(this);
+            connect(m_cameraSpeedConfiguration.data(), &CameraSpeedConfiguration::totalSpeedChanged,
+                    this, [this] {
+                        setCameraSpeedAuxData(m_cameraSpeedConfiguration->speed(),
+                                              m_cameraSpeedConfiguration->multiplier());
+            });
+        }
+        m_cameraSpeedConfiguration->showConfigDialog(resolveToolbarPopupPos(m_cameraSpeedConfigAction.get()));
+    };
+
+    m_cameraSpeedConfigAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_CAMERA_SPEED_CONFIG,
+        View3DActionType::Empty,
+        QCoreApplication::translate("CameraSpeedConfigAction", "Open camera speed configuration dialog"),
+        QKeySequence(),
+        false,
+        false,
+        toolbarIcon(DesignerIcons::CameraSpeedConfigIcon),
+        this,
+        cameraSpeedConfigTrigger);
+
+
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -1102,6 +1248,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << nullptr;
     m_leftActions << m_alignCamerasAction.get();
     m_leftActions << m_alignViewAction.get();
+    m_leftActions << m_cameraSpeedConfigAction.get();
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgroundColorMenuAction.get();
@@ -1182,7 +1329,7 @@ void Edit3DView::addQuick3DImport()
 // context menu is created when nodeAtPosReady() is received from puppet
 void Edit3DView::startContextMenu(const QPoint &pos)
 {
-    m_contextMenuPos = pos;
+    m_contextMenuPosMouse = pos;
     m_nodeAtPosReqType = NodeAtPosReqType::ContextMenu;
 }
 

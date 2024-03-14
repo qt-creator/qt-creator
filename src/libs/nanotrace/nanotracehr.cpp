@@ -222,26 +222,9 @@ template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent>
 template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
-namespace {
-TraceFile<tracingStatus()> globalTraceFile{"global.json"};
-thread_local EventQueueData<StringTraceEvent, 1000, tracingStatus()> globalEventQueueData{
-    globalTraceFile};
-thread_local EventQueue s_globalEventQueue = globalEventQueueData.createEventQueue();
-} // namespace
-
-EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue()
-{
-    return s_globalEventQueue;
-}
-
 template<typename TraceEvent>
-EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
-                                                       TraceEventsSpan eventsOne,
-                                                       TraceEventsSpan eventsTwo)
+EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file)
     : file{file}
-    , eventsOne{eventsOne}
-    , eventsTwo{eventsTwo}
-    , currentEvents{eventsOne}
     , threadId{std::this_thread::get_id()}
 {
     Internal::EventQueueTracker<TraceEvent>::get().addQueue(this);
@@ -262,6 +245,15 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
 }
 
 template<typename TraceEvent>
+void EventQueue<TraceEvent, Tracing::IsEnabled>::setEventsSpans(TraceEventsSpan eventsSpanOne,
+                                                                TraceEventsSpan eventsSpanTwo)
+{
+    eventsOne = eventsSpanOne;
+    eventsTwo = eventsSpanTwo;
+    currentEvents = eventsSpanOne;
+}
+
+template<typename TraceEvent>
 void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
     std::lock_guard lock{mutex};
@@ -271,8 +263,9 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
     }
 }
 
-template class EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-template class EventQueue<StringTraceEvent, Tracing::IsEnabled>;
-template class EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE
+    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 } // namespace NanotraceHR

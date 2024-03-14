@@ -6,13 +6,16 @@
 #include <model.h>
 #include <modelnode.h>
 
-#include <QObject>
-#include <QUrl>
-#include <QQmlPropertyMap>
-#include <QQmlComponent>
 #include <QColor>
+#include <QObject>
 #include <QPoint>
-#include <QMouseEvent>
+#include <QUrl>
+
+QT_BEGIN_NAMESPACE
+class QQmlComponent;
+class QQmlPropertyMap;
+class QQuickWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -44,7 +47,7 @@ class MaterialEditorContextObject : public QObject
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
 public:
-    MaterialEditorContextObject(QQmlContext *context, QObject *parent = nullptr);
+    MaterialEditorContextObject(QQuickWidget *widget, QObject *parent = nullptr);
 
     QUrl specificsUrl() const { return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
@@ -75,6 +78,9 @@ public:
 
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
     Q_INVOKABLE void goIntoComponent();
+
+    Q_INVOKABLE QRect screenRect() const;
+    Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
     enum ToolBarAction {
         ApplyToSelected = 0,
@@ -146,7 +152,7 @@ private:
     QUrl m_specificsUrl;
     QString m_specificQmlData;
     QQmlComponent *m_specificQmlComponent = nullptr;
-    QQmlContext *m_qmlContext = nullptr;
+    QQuickWidget *m_quickWidget = nullptr;
 
     QString m_stateName;
     QStringList m_allStateNames;

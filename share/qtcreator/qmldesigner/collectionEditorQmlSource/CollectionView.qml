@@ -23,6 +23,11 @@ Item {
         warningDialog.open()
     }
 
+    // called from C++ when using the delete key
+    function deleteSelectedCollection() {
+        print("TODO: deleteSelectedCollection")
+    }
+
     ImportDialog {
         id: importDialog
 
@@ -33,8 +38,6 @@ Item {
     NewCollectionDialog {
         id: newCollection
 
-        backendValue: root.rootView
-        sourceModel: root.model
         anchors.centerIn: parent
     }
 
@@ -45,29 +48,78 @@ Item {
         message: ""
     }
 
-    GridLayout {
-        id: grid
-        readonly property bool isHorizontal: width >= 500
+    Rectangle {
+        // Covers the toolbar color on top to prevent the background
+        // color for the margin of splitter
 
-        columnSpacing: 0
-        rowSpacing: 0
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: topToolbar.height
+        color: topToolbar.color
+    }
 
+    SplitView {
+        id: splitView
+
+        readonly property bool isHorizontal: splitView.orientation === Qt.Horizontal
+
+        orientation: width >= 500 ? Qt.Horizontal : Qt.Vertical
         anchors.fill: parent
-        columns: isHorizontal ? 3 : 1
+
+        onOrientationChanged: detailsView.closeDialogs()
+
+        handle: Item {
+            id: handleDelegate
+
+            property color color: SplitHandle.pressed ? StudioTheme.Values.themeControlOutlineInteraction
+                                                      : SplitHandle.hovered ? StudioTheme.Values.themeControlOutlineHover
+                                                                            : StudioTheme.Values.themeControlOutline
+
+            implicitWidth: 1
+            implicitHeight: 1
+
+            Rectangle {
+                id: handleRect
+
+                property real verticalMargin: splitView.isHorizontal ? StudioTheme.Values.splitterMargin : 0
+                property real horizontalMargin: splitView.isHorizontal ? 0 : StudioTheme.Values.splitterMargin
+
+                anchors.fill: parent
+                anchors.topMargin: handleRect.verticalMargin
+                anchors.bottomMargin: handleRect.verticalMargin
+                anchors.leftMargin: handleRect.horizontalMargin
+                anchors.rightMargin: handleRect.horizontalMargin
+
+                color: handleDelegate.color
+            }
+
+            containmentMask: Item {
+                x: splitView.isHorizontal ? ((handleDelegate.width - width) / 2) : 0
+                y: splitView.isHorizontal ? 0 : ((handleDelegate.height - height) / 2)
+                height: splitView.isHorizontal ? handleDelegate.height : StudioTheme.Values.borderHover
+                width: splitView.isHorizontal ? StudioTheme.Values.borderHover : handleDelegate.width
+            }
+        }
 
         ColumnLayout {
             id: collectionsSideBar
             spacing: 0
 
-            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
-            Layout.minimumWidth: 300
-            Layout.fillWidth: !grid.isHorizontal
+            SplitView.minimumWidth: 200
+            SplitView.maximumWidth: 450
+            SplitView.minimumHeight: 200
+            SplitView.maximumHeight: 400
+            SplitView.fillWidth: !splitView.isHorizontal
+            SplitView.fillHeight: splitView.isHorizontal
 
             Rectangle {
+                id: topToolbar
                 color: StudioTheme.Values.themeToolbarBackground
 
                 Layout.preferredHeight: StudioTheme.Values.toolbarHeight
                 Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
@@ -80,6 +132,8 @@ Item {
                 }
 
                 HelperWidgets.AbstractButton {
+                    id: importCollectionButton
+
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
                     anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
@@ -92,32 +146,13 @@ Item {
                 }
             }
 
-            Rectangle { // Model Groups
+            CollectionListView { // Model Groups
                 Layout.fillWidth: true
-                color: StudioTheme.Values.themeBackgroundColorNormal
-                Layout.minimumHeight: 150
-                Layout.preferredHeight: sourceListView.contentHeight
-
-                MouseArea {
-                    anchors.fill: parent
-                    propagateComposedEvents: true
-                    onClicked: (event) => {
-                        root.model.deselect()
-                        event.accepted = true
-                    }
-                }
-
-                ListView {
-                    id: sourceListView
-
-                    anchors.fill: parent
-                    model: root.model
-
-                    delegate: ModelSourceItem {
-                        implicitWidth: sourceListView.width
-                        hasSelectedTarget: root.rootView.targetNodeSelected
-                    }
-                }
+                Layout.minimumHeight: bottomSpacer.isExpanded ? 150 : 0
+                Layout.fillHeight: !bottomSpacer.isExpanded
+                Layout.preferredHeight: contentHeight
+                Layout.maximumHeight: contentHeight
+                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
             }
 
             HelperWidgets.IconButton {
@@ -132,22 +167,24 @@ Item {
                 icon: StudioTheme.Constants.create_medium
                 onClicked: newCollection.open()
             }
-        }
 
-        Rectangle { // Splitter
-            Layout.fillWidth: !grid.isHorizontal
-            Layout.fillHeight: grid.isHorizontal
-            Layout.minimumWidth: 2
-            Layout.minimumHeight: 2
-            color: "black"
+            Item {
+                id: bottomSpacer
+
+                readonly property bool isExpanded: height > 0
+                Layout.minimumWidth: 1
+                Layout.fillHeight: true
+            }
         }
 
         CollectionDetailsView {
+            id: detailsView
+
             model: root.collectionDetailsModel
             backend: root.model
             sortedModel: root.collectionDetailsSortFilterModel
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+            SplitView.fillHeight: true
+            SplitView.fillWidth: true
         }
     }
 }

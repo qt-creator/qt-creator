@@ -16,6 +16,7 @@
 #include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
+#include <utils3d.h>
 
 #include <coreplugin/messagebox.h>
 #include <enumeration.h>
@@ -119,7 +120,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 [&] (const QmlDesigner::TypeName &type) {
             // delete instances of the bundle material that is about to be unimported
             executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                ModelNode matLib = materialLibraryNode();
+                ModelNode matLib = Utils3D::materialLibraryNode(this);
                 if (!matLib.isValid())
                     return;
 
@@ -143,7 +144,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                     QTC_ASSERT(typeName.size(), return);
 
                     if (!m_bundleEffectTarget)
-                        m_bundleEffectTarget = active3DSceneNode();
+                        m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
 
                     QTC_ASSERT(m_bundleEffectTarget, return);
 
@@ -168,7 +169,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                     QTC_ASSERT(metaInfo.isValid(), return);
 
                     if (!m_bundleEffectTarget)
-                        m_bundleEffectTarget = active3DSceneNode();
+                        m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
 
                     QTC_ASSERT(m_bundleEffectTarget, return);
 
@@ -221,12 +222,12 @@ void ContentLibraryView::modelAttached(Model *model)
     updateBundlesQuick3DVersion();
     updateBundleMaterialsImportedState();
 
-    const bool hasLibrary = materialLibraryNode().isValid();
+    const bool hasLibrary = Utils3D::materialLibraryNode(this).isValid();
     m_widget->setHasMaterialLibrary(hasLibrary);
     m_widget->setHasQuick3DImport(m_hasQuick3DImport);
     m_widget->setIsQt6Project(externalDependencies().isQt6Project());
 
-    m_sceneId = model->active3DSceneId();
+    m_sceneId = Utils3D::active3DSceneId(model);
 
     m_widget->setHasActive3DScene(m_sceneId != -1);
     m_widget->clearSearchFilter();
@@ -288,7 +289,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         return;
 
     if (identifier == "drop_bundle_material") {
-        ModelNode matLib = materialLibraryNode();
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
         if (!matLib.isValid())
             return;
 
@@ -310,7 +311,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
         m_draggedBundleMaterial = nullptr;
     } else if (identifier == "drop_bundle_texture") {
-        ModelNode matLib = materialLibraryNode();
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
         if (!matLib.isValid())
             return;
 
@@ -322,7 +323,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
         m_bundleEffectPos = data.size() == 1 ? data.first() : QVariant();
         m_widget->effectsModel()->addInstance(m_draggedBundleEffect);
-        m_bundleEffectTarget = nodeList.first() ? nodeList.first() : active3DSceneNode();
+        m_bundleEffectTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
     }
 }
 
@@ -339,6 +340,14 @@ void ContentLibraryView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.id() == Constants::MATERIAL_LIB_ID)
         m_widget->setHasMaterialLibrary(false);
+}
+
+void ContentLibraryView::auxiliaryDataChanged(const ModelNode &,
+                                              AuxiliaryDataKeyView type,
+                                              const QVariant &data)
+{
+    if (type == Utils3D::active3dSceneProperty)
+        active3DSceneChanged(data.toInt());
 }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -445,7 +454,7 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 
 ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &type)
 {
-    ModelNode matLib = materialLibraryNode();
+    ModelNode matLib = Utils3D::materialLibraryNode(this);
     if (!matLib.isValid())
         return {};
 
@@ -471,7 +480,7 @@ ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &t
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode ContentLibraryView::createMaterial(const TypeName &typeName)
 {
-    ModelNode matLib = materialLibraryNode();
+    ModelNode matLib = Utils3D::materialLibraryNode(this);
     if (!matLib.isValid() || !typeName.size())
         return {};
 
@@ -495,7 +504,7 @@ ModelNode ContentLibraryView::createMaterial(const TypeName &typeName)
 #else
 ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
 {
-    ModelNode matLib = materialLibraryNode();
+    ModelNode matLib = Utils3D::materialLibraryNode(this);
     if (!matLib.isValid() || !metaInfo.isValid())
         return {};
 

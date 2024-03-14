@@ -23,6 +23,7 @@ EditableListView 2.0 EditableListView.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml
 ExpressionTextField 2.0 ExpressionTextField.qml
 ExtendedFunctionLogic 2.0 ExtendedFunctionLogic.qml
+FlagsComboBox 2.0 FlagsComboBox.qml
 FlickableGeometrySection 2.0 FlickableGeometrySection.qml
 FlickableSection 2.0 FlickableSection.qml
 FontComboBox 2.0 FontComboBox.qml

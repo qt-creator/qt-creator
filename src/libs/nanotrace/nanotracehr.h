@@ -10,6 +10,7 @@
 
 #include <QByteArrayView>
 #include <QStringView>
+#include <QVariant>
 
 #include <array>
 #include <atomic>
@@ -32,15 +33,6 @@ static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
 
 enum class Tracing { IsDisabled, IsEnabled };
 
-constexpr Tracing tracingStatus()
-{
-#ifdef NANOTRACEHR_ENABLED
-    return Tracing::IsEnabled;
-#else
-    return Tracing::IsDisabled;
-#endif
-}
-
 #if __cplusplus >= 202002L && __has_cpp_attribute(msvc::no_unique_address)
 #  define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
 #elif __cplusplus >= 202002L && __has_cpp_attribute(no_unique_address) >= 201803L
@@ -59,6 +51,8 @@ struct TracerLiteral
     constexpr operator std::string_view() const { return text; }
 
     operator std::string() const { return std::string{text}; }
+
+    operator Utils::SmallString() const { return text; }
 
 private:
     constexpr TracerLiteral(std::string_view text)
@@ -159,6 +153,18 @@ void convertToString(String &string, double number)
     string.append(Utils::SmallString::number(number));
 }
 
+template<typename String>
+void convertToString(String &string, const QString &text)
+{
+    convertToString(string, QStringView{text});
+}
+
+template<typename String>
+void convertToString(String &string, const QVariant &value)
+{
+    convertToString(string, value.toString());
+}
+
 template<typename String, typename... Arguments>
 void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary);
 
@@ -235,20 +241,16 @@ void convertToString(String &string, const Container<Arguments...> &container)
 template<typename String, typename... Arguments>
 String toArguments(Arguments &&...arguments)
 {
-    if constexpr (tracingStatus() == Tracing::IsEnabled) {
-        String text;
-        constexpr auto argumentCount = sizeof...(Arguments);
-        text.append("{");
-        (convertDictonaryEntryToString(text, arguments), ...);
-        if (argumentCount)
-            text.pop_back();
+    String text;
+    constexpr auto argumentCount = sizeof...(Arguments);
+    text.append("{");
+    (convertDictonaryEntryToString(text, arguments), ...);
+    if (argumentCount)
+        text.pop_back();
 
-        text.append("}");
+    text.append("}");
 
-        return text;
-    } else {
-        return {};
-    }
+    return text;
 }
 
 inline std::string_view toArguments(std::string_view arguments)
@@ -333,7 +335,7 @@ struct TraceEvent
 
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
 using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
-using StringTraceEvent = TraceEvent<std::string, std::string>;
+using StringTraceEvent = TraceEvent<Utils::SmallString, ArgumentsString>;
 
 enum class IsEnabled { No, Yes };
 
@@ -468,9 +470,11 @@ class EventQueue<TraceEvent, Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile *file, TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
+    EventQueue(EnabledTraceFile *file);
 
     ~EventQueue();
+
+    void setEventsSpans(TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
 
     void flush();
 
@@ -496,44 +500,39 @@ using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringA
 template<Tracing isEnabled>
 using StringEventQueue = EventQueue<StringTraceEvent, isEnabled>;
 
-extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
+    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
-class EventQueueData
+class EventQueueData : public EventQueue<TraceEvent, isEnabled>
 {
 public:
     using IsActive = std::true_type;
 
     EventQueueData(TraceFile<Tracing::IsDisabled> &) {}
-
-    EventQueue<TraceEvent, Tracing::IsDisabled> createEventQueue() { return {}; }
 };
 
 template<typename TraceEvent, std::size_t eventCount>
 class EventQueueData<TraceEvent, eventCount, Tracing::IsEnabled>
+    : public EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEvents = std::array<TraceEvent, eventCount>;
+    using Base = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
 public:
     using IsActive = std::true_type;
 
     EventQueueData(EnabledTraceFile &file)
-        : file{file}
-    {}
-
-    EventQueue<TraceEvent, Tracing::IsEnabled> createEventQueue()
+        : Base{&file}
     {
-        return {&file, eventsOne, eventsTwo};
+        Base::setEventsSpans(*eventsOne.get(), *eventsTwo.get());
     }
 
-    EnabledTraceFile &file;
-    TraceEvents eventsOne;
-    TraceEvents eventsTwo;
+    std::unique_ptr<TraceEvents> eventsOne = std::make_unique<TraceEvents>();
+    std::unique_ptr<TraceEvents> eventsTwo = std::make_unique<TraceEvents>();
 };
-
-NANOTRACE_EXPORT EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue();
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -574,6 +573,7 @@ public:
     BasicEnabledToken &operator=(const BasicEnabledToken &) = default;
     BasicEnabledToken(BasicEnabledToken &&other) noexcept = default;
     BasicEnabledToken &operator=(BasicEnabledToken &&other) noexcept = default;
+
     ~BasicEnabledToken() {}
 
     constexpr explicit operator bool() const { return false; }
@@ -672,7 +672,7 @@ public:
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
@@ -727,101 +727,6 @@ using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgum
 using DisabledToken = Token<StringViewCategory<Tracing::IsDisabled>, Tracing::IsDisabled>;
 
 template<typename Category, Tracing isEnabled>
-class ObjectToken : public BasicDisabledToken
-{
-public:
-    using ArgumentType = typename Category::ArgumentType;
-
-    ObjectToken() = default;
-    ObjectToken(const ObjectToken &) = delete;
-    ObjectToken &operator=(const ObjectToken &) = delete;
-    ObjectToken(ObjectToken &&other) noexcept = default;
-    ObjectToken &operator=(ObjectToken &&other) noexcept = default;
-    ~ObjectToken() = default;
-
-    template<typename... Arguments>
-    void change(ArgumentType, Arguments &&...)
-    {}
-};
-
-template<typename Category>
-class ObjectToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
-{
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
-
-    ObjectToken(std::string_view name, std::size_t id, CategoryFunctionPointer category)
-        : m_name{name}
-        , m_id{id}
-        , m_category{category}
-    {}
-
-public:
-    using StringType = typename Category::StringType;
-    using ArgumentType = typename Category::ArgumentType;
-
-    friend Category;
-
-    ObjectToken(const ObjectToken &other)
-        : m_name{other.m_name}
-        , m_category{other.m_category}
-    {
-        if (other.m_id)
-            m_id = m_category().beginObject(m_name).m_id;
-    }
-
-    ObjectToken &operator=(const ObjectToken &other)
-    {
-        if (this != &other) {
-            ~ObjectToken();
-            if (other.m_id) {
-                m_category = other.m_category;
-                m_name = other.m_name;
-                m_id = other.m_category->beginObject(other.m_name).m_id;
-            }
-        }
-    }
-
-    ObjectToken(ObjectToken &&other) noexcept
-        : m_name{std::move(other.m_name)}
-        , m_id{std::exchange(other.m_id, 0)}
-        , m_category{std::exchange(other.m_category, nullptr)}
-    {}
-
-    ObjectToken &operator=(ObjectToken &&other) noexcept
-    {
-        if (&other != this) {
-            m_name = std::move(other.m_name);
-            m_id = std::exchange(other.m_id, 0);
-            m_category = std::exchange(other.m_category, nullptr);
-        }
-
-        return *this;
-    }
-
-    ~ObjectToken()
-    {
-        if (m_id)
-            m_category().end('e', m_id, std::move(m_name));
-
-        m_id = 0;
-    }
-
-    template<typename... Arguments>
-    void change(ArgumentType name, Arguments &&...arguments)
-    {
-        if (m_id) {
-            m_category().tick(
-                'n', m_id, std::move(name), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-        }
-    }
-
-private:
-    StringType m_name;
-    std::size_t m_id = 0;
-    CategoryFunctionPointer m_category = nullptr;
-};
-
-template<typename Category, Tracing isEnabled>
 class AsynchronousToken : public BasicDisabledToken
 {
 public:
@@ -847,6 +752,12 @@ public:
     }
 
     template<typename... Arguments>
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, Arguments &&...)
+    {
+        return {};
+    }
+
+    template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType,
                                                                             Arguments &&...)
     {
@@ -858,6 +769,10 @@ public:
     {}
 
     template<typename... Arguments>
+    void tick(const FlowTokenType &, ArgumentType, Arguments &&...)
+    {}
+
+    template<typename... Arguments>
     FlowTokenType tickWithFlow(ArgumentType, Arguments &&...)
     {
         return {};
@@ -866,8 +781,9 @@ public:
     template<typename... Arguments>
     void end(Arguments &&...)
     {}
-};
 
+    static constexpr bool categoryIsActive() { return Category::isActive(); }
+};
 
 using DisabledAsynchronousToken = AsynchronousToken<StringViewCategory<Tracing::IsDisabled>,
                                                     Tracing::IsDisabled>;
@@ -938,19 +854,35 @@ public:
     }
 
     template<typename... Arguments>
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &flowToken,
+                                          ArgumentType name,
+                                          Arguments &&...arguments)
+    {
+        if (m_id)
+            m_category().begin('b',
+                               m_id,
+                               name,
+                               flowToken.bindId(),
+                               IsFlow::In,
+                               std::forward<Arguments>(arguments)...);
+
+        return AsynchronousToken{std::move(name), m_id, m_category};
+    }
+
+    template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType name,
                                                                             Arguments &&...arguments)
     {
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
 
         return {std::piecewise_construct,
-                std::forward_as_tuple(std::move(name), m_id, m_category),
+                std::forward_as_tuple(PrivateTag{}, std::move(name), m_id, m_category),
                 std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
     }
 
@@ -964,17 +896,30 @@ public:
     }
 
     template<typename... Arguments>
+    void tick(const FlowTokenType &flowToken, ArgumentType name, Arguments &&...arguments)
+    {
+        if (m_id) {
+            m_category().tick('n',
+                              m_id,
+                              std::move(name),
+                              flowToken.bindId(),
+                              IsFlow::In,
+                              std::forward<Arguments>(arguments)...);
+        }
+    }
+
+    template<typename... Arguments>
     FlowTokenType tickWithFlow(ArgumentType name, Arguments &&...arguments)
     {
         std::size_t bindId = 0;
 
         if (m_id) {
-            auto category = m_category();
+            auto &category = m_category();
             bindId = category.createBindId();
             category.tick('n', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
         }
 
-        return {std::move(name), bindId, m_category};
+        return {PrivateTag{}, std::move(name), bindId, m_category};
     }
 
     template<typename... Arguments>
@@ -985,6 +930,8 @@ public:
 
         m_id = 0;
     }
+
+    static constexpr bool categoryIsActive() { return Category::isActive(); }
 
 private:
     StringType m_name;
@@ -1087,9 +1034,9 @@ public:
         std::size_t id = 0;
 
         if (m_bindId) {
-            auto category = m_category();
+            auto &category = m_category();
             id = category.createId();
-            category->begin('b', id, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
+            category.begin('b', id, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
         }
 
         return {std::move(name), id, m_category};
@@ -1103,10 +1050,10 @@ public:
         std::size_t bindId = 0;
 
         if (m_bindId) {
-            auto category = m_category();
+            auto &category = m_category();
             id = category.createId();
             bindId = category.createBindId();
-            category->begin('b', id, name, bindId, IsFlow::InOut, std::forward<Arguments>(arguments)...);
+            category.begin('b', id, name, bindId, IsFlow::InOut, std::forward<Arguments>(arguments)...);
         }
 
         return {std::piecewise_construct,
@@ -1153,6 +1100,8 @@ public:
         m_category().tick('i', 0, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
     }
 
+    std::size_t bindId() const { return m_bindId; }
+
 private:
     StringType m_name;
     std::size_t m_bindId = 0;
@@ -1167,7 +1116,6 @@ public:
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsDisabled>;
-    using ObjectTokenType = ObjectToken<Category, Tracing::IsDisabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsDisabled>;
     using TracerType = Tracer<Category, std::false_type>;
     using TokenType = Token<Category, Tracing::IsDisabled>;
@@ -1188,12 +1136,6 @@ public:
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
         ArgumentType, Arguments &&...)
     {}
-
-    template<typename... Arguments>
-    [[nodiscard]] ObjectTokenType beginObject(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
 
     template<typename... Arguments>
     [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
@@ -1223,14 +1165,12 @@ public:
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using StringType = typename TraceEvent::StringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsEnabled>;
-    using ObjectTokenType = ObjectToken<Category, Tracing::IsEnabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsEnabled>;
     using TracerType = Tracer<Category, std::true_type>;
     using TokenType = Token<Category, Tracing::IsEnabled>;
     using CategoryFunctionPointer = Category &(*) ();
 
     friend AsynchronousTokenType;
-    friend ObjectTokenType;
     friend TokenType;
     friend FlowTokenType;
     friend TracerType;
@@ -1246,6 +1186,9 @@ public:
         m_idCounter = m_globalIdCounter += 1ULL << 32;
         m_bindIdCounter = m_globalBindIdCounter += 1ULL << 32;
     }
+
+    Category(const Category &) = delete;
+    Category &operator=(const Category &) = delete;
 
     template<typename... Arguments>
     [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType traceName,
@@ -1270,16 +1213,6 @@ public:
         return {std::piecewise_construct,
                 std::forward_as_tuple(PrivateTag{}, traceName, id, m_self),
                 std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] ObjectTokenType beginObject(ArgumentType traceName, Arguments &&...arguments)
-    {
-        std::size_t id = createId();
-
-        begin('b', id, std::move(traceName), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-
-        return {traceName, id, m_self};
     }
 
     template<typename... Arguments>
@@ -1568,52 +1501,5 @@ private:
 template<typename Category, typename... Arguments>
 Tracer(typename Category::ArgumentType name, Category &category, Arguments &&...)
     -> Tracer<Category, typename Category::IsActive>;
-
-#ifdef NANOTRACEHR_ENABLED
-class GlobalTracer
-{
-public:
-    template<typename... Arguments>
-    [[nodiscard]] GlobalTracer(std::string name, std::string category, Arguments &&...arguments)
-        : m_name{std::move(name)}
-        , m_category{std::move(category)}
-    {
-        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments(m_arguments, std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
-    }
-
-    ~GlobalTracer()
-    {
-        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
-            auto duration = Clock::now() - m_start;
-            auto &traceEvent = getTraceEvent(globalEventQueue());
-            traceEvent.name = std::move(m_name);
-            traceEvent.category = std::move(m_category);
-            traceEvent.arguments = std::move(m_arguments);
-            traceEvent.time = std::move(m_start);
-            traceEvent.duration = std::move(duration);
-            traceEvent.type = 'X';
-        }
-    }
-
-private:
-    TimePoint m_start;
-    std::string m_name;
-    std::string m_category;
-    std::string m_arguments;
-};
-#else
-class GlobalTracer
-{
-public:
-    GlobalTracer(std::string_view, std::string_view, std::string_view) {}
-
-    GlobalTracer(std::string_view, std::string_view) {}
-
-    ~GlobalTracer() {}
-};
-#endif
 
 } // namespace NanotraceHR

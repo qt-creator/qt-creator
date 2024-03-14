@@ -274,6 +274,11 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
                         nodeList.append(node);
                 }
                 view()->setSelectedModelNodes(nodeList);
+
+                bool itemLibraryJustCreated = hasItemLibraryInfo(event->mimeData())
+                                              && nodeList.size() == 1;
+                if (itemLibraryJustCreated)
+                    view()->emitCustomNotification("item_library_created_by_drop", nodeList);
             }
             m_dragNodes.clear();
         }
@@ -382,7 +387,7 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSc
     }
 }
 
-void  DragTool::end()
+void DragTool::end()
 {
     m_moveManipulator.end();
     clear();

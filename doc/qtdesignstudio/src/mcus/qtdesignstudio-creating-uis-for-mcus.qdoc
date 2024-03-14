@@ -42,7 +42,7 @@
     to use \QDS to design a UI for a specific MCU target device, see:
 
     \list
-        \li \l {Designing a UI for Infineon Traveo II}
+        \li \l {Designing a UI for Infineon Traveo T2G}
         \li \l {Designing a UI for NXP i.MX RT1170}
         \li \l {Designing a UI for Renesas RA6M3G}
         \li \l {Designing a UI for Renesas RH850-D1M1A}

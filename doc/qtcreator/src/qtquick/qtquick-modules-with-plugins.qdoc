@@ -120,27 +120,12 @@
     the emulation layer must be built with the same Qt version and compiler
     as the QML modules.
 
-    On Windows, select \uicontrol Help > \uicontrol {About Qt Design Studio} to
-    check the Qt version and compiler that you need to use to build your plugin.
-    For example: \c {Based on Qt 5.15.2 (MSVC 2019, 64 bit)}.
-
-    On macOS, select \uicontrol {Qt Design Studio} >
-    \uicontrol {About Qt Design Studio} to see something like:
-    \c {Based on Qt 5.15.2 (Clang 10.0 (Apple), 64 bit)}.
+   \include qtdesignstudio-qt-runtime-version.qdocinc qt-runtime-version
 
     A plugin should behave differently depending on whether it is run by the
     emulation layer or an application. For example, animations should not be run
     in the \uicontrol Design mode. You can use the value of the \c QML_PUPPET_MODE
     environment variable to check whether the plugin is currently being run
     by an application or edited in the \uicontrol Design mode.
-
-    If you want to use a different module in the \uicontrol Design mode
-    than in your actual application for example to mockup C++ items,
-    you can use \c{QML_DESIGNER_IMPORT_PATH}
-    in the \c{.pro} file (for qmake projects), or declare and set the property
-    \c qmlDesignerImportPaths in your product (for Qbs projects).
-    Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be
-    used only in the \uicontrol Design mode.
-    For an example, see \l {Qt Quick Controls - Contact List}.
     \endif
 */

@@ -125,6 +125,7 @@ QtObject {
     property real controlLabelGap: 5
 
     property real controlGap: 5 // TODO different name
+    property real splitterMargin: 5
     property real twoControlColumnGap: values.controlLabelGap
                                        + values.controlLabelWidth
                                        + values.controlGap
@@ -350,6 +351,7 @@ QtObject {
     property color themeControlOutline: Theme.color(Theme.DScontrolOutline)
     property color themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
     property color themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
+    property color themeControlOutlineHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
 
     // Panels & Panes
     property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)

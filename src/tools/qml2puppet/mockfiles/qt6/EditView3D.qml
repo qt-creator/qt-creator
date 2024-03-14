@@ -37,6 +37,7 @@ Item {
     property color gridColor: "#cccccc"
     property bool syncEnvBackground: false
     property bool splitView: false
+    property bool flyMode: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -104,11 +105,13 @@ Item {
                                                        "cameraLookAt": cameraControls[i]._lookAtPoint,
                                                        "z": 1,
                                                        "sceneEnv.debugSettings.materialOverride": materialOverrides[i],
-                                                       "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i]});
+                                                       "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i],
+                                                       "selectedNode": selectedNode});
                 editViews[i].usePerspective = Qt.binding(function() {return usePerspective;});
                 editViews[i].showSceneLight = Qt.binding(function() {return showEditLight;});
                 editViews[i].showGrid = Qt.binding(function() {return showGrid;});
                 editViews[i].gridColor = Qt.binding(function() {return gridColor;});
+                editViews[i].selectedNode = Qt.binding(function() {return selectedNode;});
             }
             editViews[0].cameraLookAt = Qt.binding(function() {return cameraControl0._lookAtPoint;});
             editViews[1].cameraLookAt = Qt.binding(function() {return cameraControl1._lookAtPoint;});
@@ -127,6 +130,7 @@ Item {
 
             selectionBoxCount = 0;
             editViewsChanged();
+            cameraControls[activeSplit].forceActiveFocus();
             return true;
         }
         return false;
@@ -348,6 +352,11 @@ Item {
             else if (resetToDefault)
                 cameraControls[i].restoreDefaultState();
         }
+
+        if ("flyMode" in toolStates)
+            flyMode = toolStates.flyMode;
+        else if (resetToDefault)
+            flyMode = false;
 
         if ("splitView" in toolStates)
             splitView = toolStates.splitView;
@@ -596,6 +605,16 @@ Item {
         return activeOverlayView.gizmoAt(splitPoint.x, splitPoint.y);
     }
 
+    function rotateEditCamera(angles)
+    {
+        cameraControls[activeSplit].rotateCamera(angles);
+    }
+
+    function moveEditCamera(amounts)
+    {
+        cameraControls[activeSplit].moveCamera(amounts);
+    }
+
     Component.onCompleted: {
         createEditViews();
         selectObjects([]);
@@ -820,6 +839,9 @@ Item {
                 property bool initialMoveBlock: false
 
                 onPressed: (mouse) => {
+                    if (viewRoot.flyMode)
+                        return;
+
                     viewRoot.updateActiveSplit(mouse.x, mouse.y);
 
                     let splitPoint = viewRoot.resolveSplitPoint(mouse.x, mouse.y);

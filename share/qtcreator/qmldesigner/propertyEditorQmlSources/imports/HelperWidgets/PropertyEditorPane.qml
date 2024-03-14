@@ -17,6 +17,7 @@ Rectangle {
     Component.onCompleted: Controller.mainScrollView = mainScrollView
 
     default property alias content: mainColumn.children
+    property alias scrollView: mainScrollView
 
     // Called from C++ to close context menu on focus out
     function closeContextMenu() {

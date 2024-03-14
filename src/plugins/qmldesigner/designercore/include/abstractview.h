@@ -86,10 +86,18 @@ public:
 
     ModelNode createModelNode(const TypeName &typeName);
 
+#
     ModelNode createModelNode(const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
                               const PropertyListType &propertyList = PropertyListType(),
+                              const AuxiliaryDatas &auxPropertyList = {},
+                              const QString &nodeSource = {},
+                              ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
+                              const QString &behaviorPropertyName = {});
+
+    ModelNode createModelNode(const TypeName &typeName,
+                              const PropertyListType &propertyList,
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
@@ -223,18 +231,10 @@ public:
 
     virtual void view3DAction(View3DActionType type, const QVariant &value);
 
-    virtual void active3DSceneChanged(qint32 sceneId);
-
     virtual void dragStarted(QMimeData *mimeData);
     virtual void dragEnded();
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
-
-    void ensureMaterialLibraryNode();
-    ModelNode materialLibraryNode();
-    bool isPartOfMaterialLibrary(const ModelNode &node);
-    ModelNode active3DSceneNode();
-    ModelNode getTextureDefaultInstance(const QString &source);
 
     const NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;

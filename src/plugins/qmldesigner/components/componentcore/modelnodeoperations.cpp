@@ -484,11 +484,13 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
             selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction",[=](){
 
                 QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-
+#ifdef QDS_USE_PROJECTSTORAGE
+                const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType);
+#else
                 NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(layoutType);
 
                 const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
-
+#endif
                 reparentTo(layoutNode, parentNode);
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
@@ -579,9 +581,14 @@ static void addSignal(const QString &typeName,
                       const QString &itemId,
                       const QString &signalName,
                       bool isRootModelNode,
-                      ExternalDependenciesInterface &externanDependencies)
+                      ExternalDependenciesInterface &externanDependencies,
+                      [[maybe_unused]] Model *otherModel)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = otherModel->createModel("Item");
+#else
     auto model = Model::create("Item", 2, 0);
+#endif
     RewriterView rewriterView(externanDependencies, RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
@@ -707,14 +714,16 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                               itemId,
                               dialog->signal(),
                               isModelNodeRoot,
-                              selectionState.view()->externalDependencies());
+                              selectionState.view()->externalDependencies(),
+                              selectionState.view()->model());
                 });
 
                 addSignal(typeName,
                           itemId,
                           dialog->signal(),
                           isModelNodeRoot,
-                          selectionState.view()->externalDependencies());
+                          selectionState.view()->externalDependencies(),
+                          selectionState.view()->model());
 
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
@@ -833,6 +842,30 @@ void editMaterial(const SelectionContext &selectionContext)
     }
 }
 
+// Open a collection in the collection editor
+void editCollection(const SelectionContext &selectionContext)
+{
+    ModelNode modelNode = selectionContext.targetNode();
+
+    if (!modelNode)
+        modelNode = selectionContext.currentSingleSelectedNode();
+
+    if (!modelNode)
+        return;
+
+    const QString dataStoreExpression = "DataStore.";
+
+    BindingProperty prop = modelNode.bindingProperty("model");
+    if (!prop.exists() || !prop.expression().startsWith(dataStoreExpression))
+        return;
+
+    AbstractView *view = selectionContext.view();
+    const QString collectionId = prop.expression().mid(dataStoreExpression.size());
+
+    // to CollectionEditor...
+    view->emitCustomNotification("open_collection_by_id", {}, {collectionId});
+}
+
 void addItemToStackedContainer(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();
@@ -862,15 +895,26 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
 
         NodeMetaInfo itemMetaInfo = view->model()->metaInfo("QtQuick.Item", -1, -1);
         QTC_ASSERT(itemMetaInfo.isValid(), return);
-        QTC_ASSERT(itemMetaInfo.majorVersion() == 2, return);
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlDesigner::ModelNode itemNode = view->createModelNode("Item");
+#else
         QmlDesigner::ModelNode itemNode =
                 view->createModelNode("QtQuick.Item", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
-
+#endif
         container.defaultNodeListProperty().reparentHere(itemNode);
 
         if (potentialTabBar.isValid()) {// The stacked container is hooked up to a TabBar
-            NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
+#ifdef QDS_USE_PROJECTSTORAGE
+            const int buttonIndex = potentialTabBar.directSubModelNodes().size();
+            ModelNode tabButtonNode = view->createModelNode("TabButton");
+
+            tabButtonNode.variantProperty("text").setValue(
+                QString::fromLatin1("Tab %1").arg(buttonIndex));
+            potentialTabBar.defaultNodeListProperty().reparentHere(tabButtonNode);
+#else
+            NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton",
+                                                                     -1,
+                                                                     -1);
             if (tabButtonMetaInfo.isValid()) {
                 const int buttonIndex = potentialTabBar.directSubModelNodes().size();
                 ModelNode tabButtonNode =
@@ -882,6 +926,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
                 potentialTabBar.defaultNodeListProperty().reparentHere(tabButtonNode);
 
             }
+#endif
         }
     });
 }
@@ -981,6 +1026,7 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     QTC_ASSERT(container.isValid(), return);
     QTC_ASSERT(container.metaInfo().isValid(), return);
 
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo tabBarMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabBar", -1, -1);
     QTC_ASSERT(tabBarMetaInfo.isValid(), return);
     QTC_ASSERT(tabBarMetaInfo.majorVersion() == 2, return);
@@ -988,6 +1034,7 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
     QTC_ASSERT(tabButtonMetaInfo.isValid(), return);
     QTC_ASSERT(tabButtonMetaInfo.majorVersion() == 2, return);
+#endif
 
     QmlItemNode containerItemNode(container);
     QTC_ASSERT(containerItemNode.isValid(), return);
@@ -995,14 +1042,15 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     const PropertyName indexPropertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(indexPropertyName), return);
 
-    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer",
-                               [view, container, containerItemNode, tabBarMetaInfo, tabButtonMetaInfo, indexPropertyName](){
-
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [&]() {
+#ifdef QDS_USE_PROJECTSTORAGE
+        ModelNode tabBarNode = view->createModelNode("TabBar");
+#else
         ModelNode tabBarNode =
                 view->createModelNode("QtQuick.Controls.TabBar",
                                       tabBarMetaInfo.majorVersion(),
                                       tabBarMetaInfo.minorVersion());
-
+#endif
         container.parentProperty().reparentHere(tabBarNode);
 
         const int maxValue = container.directSubModelNodes().size();
@@ -1014,11 +1062,14 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
         tabBarItem.anchors().setAnchor(AnchorLineBottom, containerItemNode, AnchorLineTop);
 
         for (int i = 0; i < maxValue; ++i) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            ModelNode tabButtonNode = view->createModelNode("TabButton");
+#else
             ModelNode tabButtonNode =
                     view->createModelNode("QtQuick.Controls.TabButton",
                                           tabButtonMetaInfo.majorVersion(),
                                           tabButtonMetaInfo.minorVersion());
-
+#endif
             tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(i));
             tabBarNode.defaultNodeListProperty().reparentHere(tabButtonNode);
         }
@@ -1029,7 +1080,6 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
         const QString expression = id + "." + QString::fromLatin1(indexPropertyName);
         container.bindingProperty(indexPropertyName).setExpression(expression);
     });
-
 }
 
 AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
@@ -1146,23 +1196,22 @@ void createFlowActionArea(const SelectionContext &selectionContext)
 
     const QPointF pos = selectionContext.scenePosition().isNull() ? QPointF() : selectionContext.scenePosition() - QmlItemNode(container).flowPosition();
 
-    view->executeInTransaction("DesignerActionManager:createFlowActionArea",
-                               [view, container, actionAreaMetaInfo, pos](){
-
-                                   ModelNode flowActionNode =
-                                       view->createModelNode("FlowView.FlowActionArea",
+    view->executeInTransaction("DesignerActionManager:createFlowActionArea", [&]() {
+#ifdef QDS_USE_PROJECTSTORAGE
+        ModelNode flowActionNode = view->createModelNode("FlowActionArea");
+#else
+            ModelNode flowActionNode = view->createModelNode("FlowView.FlowActionArea",
                                                              actionAreaMetaInfo.majorVersion(),
                                                              actionAreaMetaInfo.minorVersion());
+#endif
+        if (!pos.isNull()) {
+            flowActionNode.variantProperty("x").setValue(pos.x());
+            flowActionNode.variantProperty("y").setValue(pos.y());
+        }
 
-                                   if (!pos.isNull()) {
-                                       flowActionNode.variantProperty("x").setValue(pos.x());
-                                       flowActionNode.variantProperty("y").setValue(pos.y());
-                                   }
-
-                                   container.defaultNodeListProperty().reparentHere(flowActionNode);
-                                   view->setSelectedModelNode(flowActionNode);
-                               });
-
+        container.defaultNodeListProperty().reparentHere(flowActionNode);
+        view->setSelectedModelNode(flowActionNode);
+    });
 }
 
 void addTransition(const SelectionContext &selectionContext)
@@ -1197,17 +1246,18 @@ void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typ
    NodeMetaInfo effectMetaInfo = view->model()->metaInfo("FlowView." + typeName, -1, -1);
    QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
 
-   view->executeInTransaction("DesignerActionManager:addFlowEffect", [=]() {
+   view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
        if (container.hasProperty("effect"))
            container.removeProperty("effect");
 
        if (effectMetaInfo.isQtObject()) {
-           ModelNode effectNode = view->createModelNode(useProjectStorage()
-                                                            ? typeName
-                                                            : effectMetaInfo.typeName(),
+#ifdef QDS_USE_PROJECTSTORAGE
+           ModelNode effectNode = view->createModelNode(typeName);
+#else
+           ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
                                                         effectMetaInfo.majorVersion(),
                                                         effectMetaInfo.minorVersion());
-
+#endif
            container.nodeProperty("effect").reparentHere(effectNode);
            view->setSelectedModelNode(effectNode);
        }
@@ -1275,7 +1325,6 @@ void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
 
 void addToGroupItem(const SelectionContext &selectionContext)
 {
-    const TypeName typeName = "QtQuick.Studio.Components.GroupItem";
 
     try {
         if (!hasStudioComponentsImport(selectionContext)) {
@@ -1291,20 +1340,28 @@ void addToGroupItem(const SelectionContext &selectionContext)
 
             if (qmlItemNode.hasInstanceParentItem()) {
                 ModelNode groupNode;
-                selectionContext.view()->executeInTransaction("DesignerActionManager|addToGroupItem1",[=, &groupNode](){
+                selectionContext.view()
+                    ->executeInTransaction("DesignerActionManager|addToGroupItem1", [&]() {
+                        QmlItemNode parentNode = qmlItemNode.instanceParentItem();
+#ifdef QDS_USE_PROJECTSTORAGE
+                        groupNode = selectionContext.view()->createModelNode("GroupItem");
+#else
+                        const TypeName typeName = "QtQuick.Studio.Components.GroupItem";
 
-                    QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-                    NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(typeName);
-                    groupNode = selectionContext.view()->createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
-                    reparentTo(groupNode, parentNode);
-                });
-                selectionContext.view()->executeInTransaction("DesignerActionManager|addToGroupItem2",[=](){
+                        NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(typeName);
+                        groupNode = selectionContext.view()->createModelNode(typeName,
+                                                                             metaInfo.majorVersion(),
+                                                                             metaInfo.minorVersion());
+#endif
+                        reparentTo(groupNode, parentNode);
+                    });
+                selectionContext.view()
+                    ->executeInTransaction("DesignerActionManager|addToGroupItem2", [&]() {
+                        QList<ModelNode> selectedNodes = selectionContext.selectedModelNodes();
+                        setUpperLeftPostionToNode(groupNode, selectedNodes);
 
-                    QList<ModelNode> selectedNodes = selectionContext.selectedModelNodes();
-                    setUpperLeftPostionToNode(groupNode, selectedNodes);
-
-                    reparentToNodeAndAdjustPosition(groupNode, selectedNodes);
-                });
+                        reparentToNodeAndAdjustPosition(groupNode, selectedNodes);
+                    });
             }
         }
     } catch (RewritingException &e) {
@@ -1363,7 +1420,6 @@ static void getTypeAndImport(const SelectionContext &selectionContext,
 
 void addCustomFlowEffect(const SelectionContext &selectionContext)
 {
-
     TypeName typeName;
 
     QString typeString;
@@ -1392,23 +1448,27 @@ void addCustomFlowEffect(const SelectionContext &selectionContext)
     QTC_ASSERT(container.metaInfo().isValid(), return);
     QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
 
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo effectMetaInfo = view->model()->metaInfo(typeName, -1, -1);
     QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
-
-    view->executeInTransaction("DesignerActionManager:addFlowEffect", [=]() {
+#endif
+    view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
         if (container.hasProperty("effect"))
             container.removeProperty("effect");
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        ModelNode effectNode = view->createModelNode(typeName);
+        container.nodeProperty("effect").reparentHere(effectNode);
+        view->setSelectedModelNode(effectNode);
+#else
         if (effectMetaInfo.isValid()) {
-            ModelNode effectNode = view->createModelNode(useProjectStorage()
-                                                             ? typeName
-                                                             : effectMetaInfo.typeName(),
+            ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
                                                          effectMetaInfo.majorVersion(),
                                                          effectMetaInfo.minorVersion());
-
             container.nodeProperty("effect").reparentHere(effectNode);
             view->setSelectedModelNode(effectNode);
         }
+#endif
     });
 }
 
@@ -1426,7 +1486,6 @@ static QString fromCamelCase(const QString &s)
 
 QString getTemplateDialog(const Utils::FilePath &projectPath)
 {
-
     const Utils::FilePath templatesPath = projectPath.pathAppended("templates");
 
     const QStringList templateFiles = QDir(templatesPath.toString()).entryList({"*.qml"});
@@ -1574,23 +1633,30 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
         return;
     }
 
-    selectionContext.view()->executeInTransaction("DesignerActionManager|addMouseAreaFill", [selectionContext]() {
-        ModelNode modelNode = selectionContext.currentSingleSelectedNode();
-        if (modelNode.isValid()) {
-            NodeMetaInfo itemMetaInfo = selectionContext.view()->model()->metaInfo("QtQuick.MouseArea", -1, -1);
-            QTC_ASSERT(itemMetaInfo.isValid(), return);
+    selectionContext.view()
+        ->executeInTransaction("DesignerActionManager|addMouseAreaFill", [selectionContext]() {
+            ModelNode modelNode = selectionContext.currentSingleSelectedNode();
+            if (modelNode.isValid()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+                QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
+                    "MouseArea");
+#else
+                NodeMetaInfo itemMetaInfo = selectionContext.view()->model()->metaInfo(
+                    "QtQuick.MouseArea", -1, -1);
+                QTC_ASSERT(itemMetaInfo.isValid(), return);
 
-            QmlDesigner::ModelNode mouseAreaNode =
-                selectionContext.view()->createModelNode("QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
-            mouseAreaNode.validId();
+                QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
+                    "QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
+#endif
+                mouseAreaNode.validId();
 
-            modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);
-            QmlItemNode mouseAreaItemNode(mouseAreaNode);
-            if (mouseAreaItemNode.isValid()) {
-                mouseAreaItemNode.anchors().fill();
+                modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);
+                QmlItemNode mouseAreaItemNode(mouseAreaNode);
+                if (mouseAreaItemNode.isValid()) {
+                    mouseAreaItemNode.anchors().fill();
+                }
             }
-        }
-    });
+        });
 }
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
@@ -1623,6 +1689,15 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
     }
 }
 
+void editIn3dView(const SelectionContext &selectionContext)
+{
+    if (selectionContext.view() && selectionContext.hasSingleSelectedModelNode()
+        && selectionContext.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
+        selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+    }
+}
+
 bool isEffectComposerActivated()
 {
     const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
@@ -1638,7 +1713,7 @@ void openEffectComposer(const QString &filePath)
     if (ModelNodeOperations::isEffectComposerActivated()) {
         QmlDesignerPlugin::instance()->viewManager()
             .emitCustomNotification("open_effectcomposer_composition", {}, {filePath});
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Composer", true);
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("EffectComposer", true);
     } else {
         ModelNodeOperations::openOldEffectMaker(filePath);
     }
@@ -1654,7 +1729,8 @@ void openOldEffectMaker(const QString &filePath)
 
     Utils::FilePath projectPath = target->project()->projectDirectory();
     QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects/" + effectName;
+    QString effectResDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER)
+                           + "/" + effectName;
     Utils::FilePath effectResPath = projectPath.pathAppended(effectResDir);
     if (!effectResPath.exists())
         QDir().mkpath(effectResPath.toString());
@@ -1693,7 +1769,7 @@ void openOldEffectMaker(const QString &filePath)
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    QString defaultDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects";
+    QString defaultDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER);
     Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
 

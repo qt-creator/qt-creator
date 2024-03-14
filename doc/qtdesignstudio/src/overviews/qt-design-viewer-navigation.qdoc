@@ -3,9 +3,9 @@
 
 /*!
 
-    \page design-viewer-single-page-navigation.html
     \previouspage qt-design-viewer.html
-    \nextpage studio-exporting-and-importing.html
+    \page design-viewer-single-page-navigation.html
+    \nextpage qt-ui-viewer.html
 
 
     \title Creating a Single Page Navigation Web Application

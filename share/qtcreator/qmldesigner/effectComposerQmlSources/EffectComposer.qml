@@ -22,6 +22,7 @@ ColumnLayout {
     property int moveFromIdx: 0
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
+    property var expandStates: null
 
     // Invoked after save changes is done
     property var onSaveChangesCallback: () => {}
@@ -31,6 +32,28 @@ ColumnLayout {
         root.onSaveChangesCallback = () => { EffectComposerBackend.rootView.doOpenComposition() }
 
         saveChangesDialog.open()
+    }
+
+    // Invoked from C++ side before resetting the model to store current expanded state of nodes
+    function storeExpandStates() {
+        expandStates = new Map()
+
+        for (let i = 0; i < repeater.count; ++i) {
+            var curItem = repeater.itemAt(i)
+            expandStates.set(curItem.caption, curItem.expanded)
+        }
+    }
+
+    // Invoked after model has been reset to restore expanded state for nodes
+    function restoreExpandStates() {
+        if (expandStates) {
+            for (let i = 0; i < repeater.count; ++i) {
+                var curItem = repeater.itemAt(i)
+                if (expandStates.has(curItem.caption))
+                    curItem.expanded = expandStates.get(curItem.caption)
+            }
+            expandStates = null
+        }
     }
 
     Connections {
@@ -63,6 +86,11 @@ ColumnLayout {
         onDiscard: {
             root.onSaveChangesCallback()
         }
+    }
+
+    ConfirmClearAllDialog {
+        id: confirmClearAllDialog
+        anchors.centerIn: parent
     }
 
     EffectComposerTopBar {
@@ -140,6 +168,8 @@ ColumnLayout {
                 color: StudioTheme.Values.themeToolbarBackground
 
                 EffectNodesComboBox {
+                    id: nodesComboBox
+
                     mainRoot: root
 
                     anchors.verticalCenter: parent.verticalCenter
@@ -155,9 +185,14 @@ ColumnLayout {
                     style: StudioTheme.Values.viewBarButtonStyle
                     buttonIcon: StudioTheme.Constants.clearList_medium
                     tooltip: qsTr("Remove all effect nodes.")
-                    enabled: !root.backendModel.isEmpty
+                    enabled: root.backendModel ? !root.backendModel.isEmpty : false
 
-                    onClicked: root.backendModel.clear()
+                    onClicked: {
+                        if (root.backendModel.hasUnsavedChanges)
+                            confirmClearAllDialog.open()
+                        else
+                            root.backendModel.clear()
+                    }
                 }
 
                 HelperWidgets.AbstractButton {
@@ -181,14 +216,24 @@ ColumnLayout {
                 HelperWidgets.ScrollView {
                     id: scrollView
 
+                    readonly property int dragScrollMargin: 50
+
                     anchors.fill: parent
                     clip: true
                     interactive: !HelperWidgets.Controller.contextMenuOpened
 
                     onContentHeightChanged: {
-                        if (scrollView.contentItem.height > scrollView.height) {
+                        // Expand states are stored before full model reset.
+                        // Content height change indicates the model has been updated after full
+                        // reset, so we restore expand states if any are stored.
+                        root.restoreExpandStates()
+
+                        // If content height change was because a recent node addition, we want to
+                        // scroll to the end of the content so the newly added item is visible.
+                        if (nodesComboBox.nodeJustAdded && scrollView.contentItem.height > scrollView.height) {
                             let lastItemH = repeater.itemAt(repeater.count - 1).height
                             scrollView.contentY = scrollView.contentItem.height - lastItemH
+                            nodesComboBox.nodeJustAdded = false
                         }
                     }
 
@@ -211,7 +256,10 @@ ColumnLayout {
                                 width: parent.width
                                 modelIndex: index
 
+                                property bool wasExpanded: false
+
                                 Behavior on y {
+                                    id: dragAnimation
                                     PropertyAnimation {
                                         duration: 300
                                         easing.type: Easing.InOutQuad
@@ -221,68 +269,118 @@ ColumnLayout {
                                 onStartDrag: (section) => {
                                     root.draggedSec = section
                                     root.moveFromIdx = index
-
+                                    // We only need to animate non-dragged sections
+                                    dragAnimation.enabled = false
+                                    wasExpanded = expanded
+                                    expanded = false
                                     highlightBorder = true
-
                                     root.secsY = []
-                                    for (let i = 0; i < repeater.count; ++i)
-                                        root.secsY[i] = repeater.itemAt(i).y
                                 }
 
                                 onStopDrag: {
-                                    if (root.moveFromIdx === root.moveToIdx)
-                                        root.draggedSec.y = root.secsY[root.moveFromIdx]
-                                    else
-                                        root.backendModel.moveNode(root.moveFromIdx, root.moveToIdx)
+                                    if (root.secsY.length !== 0) {
+                                        if (root.moveFromIdx === root.moveToIdx)
+                                            root.draggedSec.y = root.secsY[root.moveFromIdx]
+                                        else
+                                            root.backendModel.moveNode(root.moveFromIdx, root.moveToIdx)
+                                    }
 
                                     highlightBorder = false
                                     root.draggedSec = null
+                                    expanded = wasExpanded
+                                    dragAnimation.enabled = true
                                 }
                             }
                         } // Repeater
-
-                        Timer {
-                            running: root.draggedSec
-                            interval: 50
-                            repeat: true
-
-                            onTriggered: {
-                                root.moveToIdx = root.moveFromIdx
-                                for (let i = 0; i < repeater.count; ++i) {
-                                    let currItem = repeater.itemAt(i)
-                                    if (i > root.moveFromIdx) {
-                                        if (root.draggedSec.y > currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                            currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
-                                            root.moveToIdx = i
-                                        } else {
-                                            currItem.y = root.secsY[i]
-                                        }
-                                    } else if (i < root.moveFromIdx) {
-                                        if (!repeater.model.isDependencyNode(i)
-                                                && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
-                                            currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
-                                            root.moveToIdx = Math.min(root.moveToIdx, i)
-                                        } else {
-                                            currItem.y = root.secsY[i]
-                                        }
-                                    }
-                                }
-                            }
-                        } // Timer
                     } // Column
                 } // ScrollView
 
                 Text {
-                    text: root.backendModel.isEnabled ? qsTr("Add an effect node to start")
-                                                      : qsTr("Effect Composer is disabled on MCU projects")
+                    text: root.backendModel ? root.backendModel.isEnabled
+                                              ? qsTr("Add an effect node to start")
+                                              : qsTr("Effect Composer is disabled on MCU projects")
+                                            : ""
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: StudioTheme.Values.baseFontSize
 
                     anchors.centerIn: parent
 
-                    visible: root.backendModel.isEmpty
+                    visible: root.backendModel ? root.backendModel.isEmpty : false
                 }
             } // Item
         } // Column
     } // SplitView
+
+    function handleDragMove() {
+        dragTimer.stop()
+        if (root.secsY.length === 0) {
+            for (let i = 0; i < repeater.count; ++i)
+                root.secsY[i] = repeater.itemAt(i).y
+        }
+
+        let oldContentY = scrollView.contentY
+        if (root.draggedSec.y < scrollView.dragScrollMargin + scrollView.contentY
+                && scrollView.contentY > 0) {
+            scrollView.contentY -= scrollView.dragScrollMargin / 2
+        } else if (root.draggedSec.y > scrollView.contentY + scrollView.height - scrollView.dragScrollMargin
+                    && scrollView.contentY < scrollView.contentHeight - scrollView.height) {
+            scrollView.contentY += scrollView.dragScrollMargin / 2
+            if (scrollView.contentY > scrollView.contentHeight - scrollView.height)
+                scrollView.contentY = scrollView.contentHeight - scrollView.height
+        }
+        if (scrollView.contentY < 0)
+            scrollView.contentY = 0
+
+        if (oldContentY !== scrollView.contentY) {
+            // Changing dragged section position in drag handler doesn't seem to stick
+            // when triggered by mouse move, so do it again async
+            dragTimer.targetY = root.draggedSec.y - oldContentY + scrollView.contentY
+            dragTimer.restart()
+            dragConnection.enabled = false
+            root.draggedSec.y = dragTimer.targetY
+            dragConnection.enabled = true
+        }
+
+        root.moveToIdx = root.moveFromIdx
+        for (let i = 0; i < repeater.count; ++i) {
+            let currItem = repeater.itemAt(i)
+            if (i > root.moveFromIdx) {
+                if (root.draggedSec.y > currItem.y) {
+                    currItem.y = root.secsY[i] - root.draggedSec.height - nodesCol.spacing
+                    root.moveToIdx = i
+                } else {
+                    currItem.y = root.secsY[i]
+                }
+            } else if (i < root.moveFromIdx) {
+                if (!repeater.model.isDependencyNode(i) && root.draggedSec.y < currItem.y) {
+                    currItem.y = root.secsY[i] + root.draggedSec.height + nodesCol.spacing
+                    root.moveToIdx = Math.min(root.moveToIdx, i)
+                } else {
+                    currItem.y = root.secsY[i]
+                }
+            }
+        }
+    }
+
+    Connections {
+        id: dragConnection
+        target: root.draggedSec
+        onYChanged: root.handleDragMove()
+    }
+
+    Timer {
+        id: dragTimer
+        running: false
+        interval: 16
+        repeat: false
+
+        property real targetY: -1
+
+        onTriggered: {
+            // Ensure we get position change triggers even if user holds mouse still to
+            // make scrolling smooth
+            root.draggedSec.y = targetY
+            root.handleDragMove()
+        }
+    } // Timer
 }

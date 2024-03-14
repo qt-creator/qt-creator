@@ -64,6 +64,9 @@ Components that want to be informed about changes in the model can register a su
 */
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+
 namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -136,12 +139,15 @@ ModelPrivate::ModelPrivate(Model *model,
 
 ModelPrivate::~ModelPrivate()
 {
+    removeNode(rootNode());
     if constexpr (useProjectStorage())
         projectStorage->removeObserver(this);
 };
 
 void ModelPrivate::detachAllViews()
 {
+    auto tracer = traceToken.begin("detach all views"_t);
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
 
@@ -175,6 +181,8 @@ Storage::Imports createStorageImports(const Imports &imports,
 
 void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedImports)
 {
+    auto tracer = traceToken.begin("change imports"_t);
+
     std::sort(toBeAddedImports.begin(), toBeAddedImports.end());
     std::sort(toBeRemovedImports.begin(), toBeRemovedImports.end());
 
@@ -250,6 +258,8 @@ void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors,
 
 void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 {
+    auto tracer = traceToken.begin("file url"_t);
+
     QUrl oldPath = m_fileUrl;
 
     if (oldPath != fileUrl) {
@@ -294,7 +304,11 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
-    auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
+    auto newNode = std::make_shared<InternalNode>(typeName,
+                                                  majorVersion,
+                                                  minorVersion,
+                                                  internalId,
+                                                  traceToken.tickWithFlow("create node"_t));
 
     setTypeId(newNode.get(), typeName);
 
@@ -338,6 +352,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     if (!node->id.isEmpty())
         m_idNodeHash.remove(node->id);
     node->isValid = false;
+    node->traceToken.end();
     m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
 }
@@ -480,7 +495,7 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
     const QString oldId = node->id;
 
     node->id = id;
-    node->traceToken.change("id"_t, std::forward_as_tuple("id", id));
+    node->traceToken.tick("id"_t, std::forward_as_tuple("id", id));
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())
@@ -675,7 +690,6 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &mode
 
 void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
-    m_currentStateNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentStateChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -683,7 +697,6 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
 void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 {
-    m_currentTimelineNode = node.internalNode();
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentTimelineChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -718,11 +731,6 @@ void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVect
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
 {
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
-}
-
-void ModelPrivate::notifyActive3DSceneIdChanged(qint32 sceneId)
-{
-    notifyInstanceChanges([&](AbstractView *view) { view->active3DSceneChanged(sceneId); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
@@ -1102,14 +1110,38 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNo
     if (sortedSelectedList == m_selectedInternalNodeList)
         return;
 
+    auto flowToken = traceToken.tickWithFlow("selected model nodes"_t);
+
+    if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
+        std::set_difference(sortedSelectedList.begin(),
+                            sortedSelectedList.end(),
+                            m_selectedInternalNodeList.begin(),
+                            m_selectedInternalNodeList.end(),
+                            Utils::make_iterator([&](const auto &node) {
+                                node->traceToken.tick(flowToken, "select model node"_t);
+                            }));
+    }
+
     const QList<InternalNodePointer> lastSelectedNodeList = m_selectedInternalNodeList;
     m_selectedInternalNodeList = sortedSelectedList;
+
+    if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
+        std::set_difference(lastSelectedNodeList.begin(),
+                            lastSelectedNodeList.end(),
+                            m_selectedInternalNodeList.begin(),
+                            m_selectedInternalNodeList.end(),
+                            Utils::make_iterator([&](const auto &node) {
+                                node->traceToken.tick(flowToken, "deselect model node"_t);
+                            }));
+    }
 
     changeSelectedNodes(sortedSelectedList, lastSelectedNodeList);
 }
 
 void ModelPrivate::clearSelectedNodes()
 {
+    auto tracer = traceToken.begin("clear selected model nodes"_t);
+
     const QList<InternalNodePointer> lastSelectedNodeList = m_selectedInternalNodeList;
     m_selectedInternalNodeList.clear();
     changeSelectedNodes(m_selectedInternalNodeList, lastSelectedNodeList);
@@ -1486,6 +1518,8 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
 {
     Q_ASSERT(rootNode());
 
+    m_rootInternalNode->traceToken.tick("type name"_t, keyValue("type name", type));
+
     m_rootInternalNode->typeName = type;
     m_rootInternalNode->majorVersion = majorVersion;
     m_rootInternalNode->minorVersion = minorVersion;
@@ -1495,6 +1529,8 @@ void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, in
 
 void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList)
 {
+    m_rootInternalNode->traceToken.tick("script function"_t);
+
     node->scriptFunctions = scriptFunctionList;
 
     notifyScriptFunctionsChanged(node, scriptFunctionList);
@@ -1502,6 +1538,8 @@ void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QSt
 
 void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString &nodeSource)
 {
+    m_rootInternalNode->traceToken.tick("node source"_t);
+
     node->nodeSource = nodeSource;
     notifyNodeSourceChanged(node, nodeSource);
 }
@@ -1693,11 +1731,31 @@ Model::Model(const TypeName &typeName,
         this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
+ModelPointer Model::createModel(const TypeName &typeName,
+                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+{
+    return Model::create({*d->projectStorage, *d->pathCache},
+                         typeName,
+                         imports(),
+                         fileUrl(),
+                         std::move(resourceManagement));
+}
+
 Model::~Model() = default;
 
 const Imports &Model::imports() const
 {
     return d->imports();
+}
+
+ModuleIds Model::moduleIds() const
+{
+    return {};
+}
+
+Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &) const
+{
+    return {};
 }
 
 const Imports &Model::possibleImports() const
@@ -1717,6 +1775,8 @@ void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
 
 void Model::setPossibleImports(Imports possibleImports)
 {
+    auto tracer = d->traceToken.begin("possible imports"_t);
+
     std::sort(possibleImports.begin(), possibleImports.end());
 
     if (d->m_possibleImportList != possibleImports) {
@@ -1727,6 +1787,8 @@ void Model::setPossibleImports(Imports possibleImports)
 
 void Model::setUsedImports(Imports usedImports)
 {
+    auto tracer = d->traceToken.begin("used imports"_t);
+
     std::sort(usedImports.begin(), usedImports.end());
 
     if (d->m_usedImportList != usedImports) {
@@ -1871,24 +1933,6 @@ QString Model::generateIdFromName(const QString &name, const QString &fallbackId
     return newId;
 }
 
-void Model::setActive3DSceneId(qint32 sceneId)
-{
-    auto activeSceneAux = d->rootNode()->auxiliaryData(active3dSceneProperty);
-    if (activeSceneAux && activeSceneAux->toInt() == sceneId)
-        return;
-
-    d->rootNode()->setAuxiliaryData(active3dSceneProperty, sceneId);
-    d->notifyActive3DSceneIdChanged(sceneId);
-}
-
-qint32 Model::active3DSceneId() const
-{
-    auto sceneId = d->rootNode()->auxiliaryData(active3dSceneProperty);
-    if (sceneId)
-        return sceneId->toInt();
-    return -1;
-}
-
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 {
     d->notifyDragStarted(mimeData);
@@ -1905,6 +1949,25 @@ void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 void Model::endDrag()
 {
     d->notifyDragEnded();
+}
+
+void Model::setCurrentStateNode(const ModelNode &node)
+{
+    Internal::WriteLocker locker(this);
+    d->m_currentStateNode = node.internalNode();
+    d->notifyCurrentStateChanged(node);
+}
+
+ModelNode Model::currentStateNode(AbstractView *view)
+{
+    return ModelNode(d->currentStateNode(), this, view);
+}
+
+void Model::setCurrentTimeline(const ModelNode &timeline)
+{
+    d->m_currentTimelineNode = timeline.internalNode();
+
+    d->notifyCurrentTimelineChanged(timeline);
 }
 
 NotNullPointer<const ProjectStorageType> Model::projectStorage() const
@@ -2411,13 +2474,13 @@ NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::qtQuickConnectionsMetaInfo() const
+NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Connections>();
+        return createNodeMetaInfo<QtQml, Connections>();
     } else {
-        return metaInfo("QtQuick.Connections");
+        return metaInfo("QtQml.Connections");
     }
 }
 
@@ -2570,6 +2633,10 @@ The view is informed that it has been registered within the model by a call to A
 */
 void Model::attachView(AbstractView *view)
 {
+    auto traceToken = d->traceToken.begin("attachView"_t,
+                                          keyValue("name",
+                                                   std::string_view{view->metaObject()->className()}));
+
     //    Internal::WriteLocker locker(d);
     auto castedRewriterView = qobject_cast<RewriterView *>(view);
     if (castedRewriterView) {
@@ -2597,6 +2664,10 @@ void Model::attachView(AbstractView *view)
 */
 void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 {
+    auto traceToken = d->traceToken.begin("detachView"_t,
+                                          keyValue("name",
+                                                   std::string_view{view->metaObject()->className()}));
+
     //    Internal::WriteLocker locker(d);
     bool emitNotify = (emitDetachNotify == NotifyView);
 
@@ -2662,12 +2733,12 @@ ModelNode createNode(Model *model,
 
 ModelNode Model::createModelNode(const TypeName &typeName)
 {
-    if constexpr (useProjectStorage()) {
-        return createNode(this, d.get(), typeName, -1, -1);
-    } else {
-        const NodeMetaInfo m = metaInfo(typeName);
-        return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return createNode(this, d.get(), typeName, -1, -1);
+#else
+    const NodeMetaInfo m = metaInfo(typeName);
+    return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
+#endif
 }
 
 void Model::changeRootNodeType(const TypeName &type)

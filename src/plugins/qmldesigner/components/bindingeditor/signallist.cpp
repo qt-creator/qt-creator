@@ -54,12 +54,8 @@ bool SignalListFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
             || sourceModel()->data(signalIndex).toString().contains(filterRegularExpression()));
 }
 
-
-
-
 SignalList::SignalList(QObject *)
-    : m_dialog(QPointer<SignalListDialog>())
-    , m_model(new SignalListModel(this))
+    : m_model(Utils::makeUniqueObjectPtr<SignalListModel>(this))
     , m_modelNode()
 {
 }
@@ -71,9 +67,9 @@ SignalList::~SignalList()
 
 void SignalList::prepareDialog()
 {
-    m_dialog = new SignalListDialog(Core::ICore::dialogParent());
+    m_dialog = Utils::makeUniqueObjectPtr<SignalListDialog>(Core::ICore::dialogParent());
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_dialog->initialize(m_model);
+    m_dialog->initialize(m_model.get());
     m_dialog->setWindowTitle(::QmlDesigner::SignalList::tr("Signal List for %1")
                              .arg(m_modelNode.validId()));
 
@@ -98,13 +94,14 @@ void SignalList::hideWidget()
 
 SignalList* SignalList::showWidget(const ModelNode &modelNode)
 {
-    auto signalList = new SignalList();
+    auto signalList = new SignalList;
     signalList->setModelNode(modelNode);
     signalList->prepareSignals();
     signalList->showWidget();
 
-    connect(signalList->m_dialog, &QDialog::destroyed,
-            [signalList]() { signalList->deleteLater(); } );
+    connect(signalList->m_dialog.get(), &QDialog::destroyed, [signalList]() {
+        signalList->deleteLater();
+    });
 
     return signalList;
 }
@@ -221,14 +218,18 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     const ModelNode rootModelNode = view->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-        NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
+#ifndef QDS_USE_PROJECTSTORAGE
+        NodeMetaInfo nodeMetaInfo = view->model()->qtQmlConnectionsMetaInfo();
         if (nodeMetaInfo.isValid()) {
-            view->executeInTransaction("ConnectionModel::addConnection",
-                                       [this, view, nodeMetaInfo, targetModelIndex, modelIndex,
-                                        buttonModelIndex, signalName, &rootModelNode] {
+#endif
+            view->executeInTransaction("ConnectionModel::addConnection", [&] {
+#ifdef QDS_USE_PROJECTSTORAGE
+                ModelNode newNode = view->createModelNode("Connections");
+#else
                 ModelNode newNode = view->createModelNode("QtQuick.Connections",
                                                           nodeMetaInfo.majorVersion(),
                                                           nodeMetaInfo.minorVersion());
+#endif
                 const QString source = m_modelNode.validId() + ".trigger()";
 
                 if (QmlItemNode::isValidQmlItemNode(m_modelNode))
@@ -243,7 +244,9 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
                 m_model->setConnected(modelIndex.row(), true);
                 m_model->setData(buttonModelIndex, newNode.internalId(), SignalListModel::ConnectionsInternalIdRole);
             });
+#ifndef QDS_USE_PROJECTSTORAGE
         }
+#endif
     }
 }
 
@@ -265,20 +268,24 @@ void SignalList::removeConnection(const QModelIndex &modelIndex)
 
     ModelNode node = targetSignal.parentModelNode();
     if (node.isValid()) {
-        view->executeInTransaction("ConnectionModel::removeConnection",
-                                   [this, modelIndex, buttonModelIndex, targetSignal, &node] {
-            QList<SignalHandlerProperty> allSignals = node.signalProperties();
-            if (allSignals.size() > 1) {
-                const auto targetSignalWithPrefix = SignalHandlerProperty::prefixAdded(targetSignal.name());
-                for (const SignalHandlerProperty &signal : allSignals)
-                    if (signal.name() == targetSignalWithPrefix)
-                        node.removeProperty(targetSignalWithPrefix);
-            } else {
-                node.destroy();
-            }
-            m_model->setConnected(modelIndex.row(), false);
-            m_model->setData(buttonModelIndex, QVariant(), SignalListModel::ConnectionsInternalIdRole);
-        });
+        view->executeInTransaction(
+            "ConnectionModel::removeConnection",
+            [this, modelIndex, buttonModelIndex, targetSignal, &node] {
+                const QList<SignalHandlerProperty> allSignals = node.signalProperties();
+                if (allSignals.size() > 1) {
+                    const auto targetSignalWithPrefix = SignalHandlerProperty::prefixAdded(
+                        targetSignal.name());
+                    for (const SignalHandlerProperty &signal : allSignals)
+                        if (signal.name() == targetSignalWithPrefix)
+                            node.removeProperty(targetSignalWithPrefix);
+                } else {
+                    node.destroy();
+                }
+                m_model->setConnected(modelIndex.row(), false);
+                m_model->setData(buttonModelIndex,
+                                 QVariant(),
+                                 SignalListModel::ConnectionsInternalIdRole);
+            });
     }
 }
 

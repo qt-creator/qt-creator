@@ -20,6 +20,7 @@
 #include <qmljstools/qmljscodestylepreferences.h>
 #include <qmljstools/qmljstoolssettings.h>
 
+#include <coreplugin/documentmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -144,6 +145,12 @@ void DataStoreModelNode::reloadModel()
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
         if (!m_model.get() || m_model->fileUrl() != dataStoreQmlUrl) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            m_model = model()->createModel("JsonListModel");
+            forceUpdate = true;
+            Import import = Import::createLibraryImport("QtQuick.Studio.Utils");
+            m_model->changeImports({import}, {});
+#else
             m_model = Model::create(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
             forceUpdate = true;
             Import import = Import::createLibraryImport(
@@ -154,17 +161,18 @@ void DataStoreModelNode::reloadModel()
             } catch (const Exception &) {
                 QTC_ASSERT(false, return);
             }
+#endif
         }
     } else {
         reset();
     }
 
-    QTC_ASSERT(m_model.get(), return);
-    m_model->setFileUrl(dataStoreQmlUrl);
-
-    m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
+    if (!m_model.get())
+        return;
 
     if (forceUpdate) {
+        m_model->setFileUrl(dataStoreQmlUrl);
+        m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
         preloadFile();
         update();
     }
@@ -182,7 +190,8 @@ Model *DataStoreModelNode::model() const
 
 ModelNode DataStoreModelNode::modelNode() const
 {
-    QTC_ASSERT(m_model.get(), return {});
+    if (!m_model.get())
+        return {};
     return m_model->rootModelNode();
 }
 
@@ -298,6 +307,7 @@ void DataStoreModelNode::updateSingletonFile()
         imports += QStringLiteral("import %1\n").arg(import.toString(true));
 
     QString content = pragmaSingleTone + imports + getModelQmlText();
+    Core::DocumentManager::expectFileChange(dataStoreQmlFilePath());
     FileSaver file(dataStoreQmlFilePath());
     file.write(content.toLatin1());
     file.finalize();
@@ -387,6 +397,14 @@ void DataStoreModelNode::setCollectionNames(const QStringList &newCollectionName
     update();
 }
 
+void DataStoreModelNode::addCollection(const QString &collectionName)
+{
+    if (!m_collectionPropertyNames.contains(collectionName)) {
+        m_collectionPropertyNames.insert(collectionName, {});
+        update();
+    }
+}
+
 void DataStoreModelNode::renameCollection(const QString &oldName, const QString &newName)
 {
     ModelNode dataStoreNode = modelNode();
@@ -417,17 +435,25 @@ void DataStoreModelNode::renameCollection(const QString &oldName, const QString 
                << QString("There is no old collection name registered with this name \"%1\"").arg(oldName);
 }
 
-void DataStoreModelNode::removeCollection(const QString &collectionName)
+void DataStoreModelNode::removeCollections(const QStringList &collectionNames)
 {
-    if (m_collectionPropertyNames.contains(collectionName)) {
-        m_collectionPropertyNames.remove(collectionName);
-        update();
+    bool updateRequired = false;
+    for (const QString &collectionName : collectionNames) {
+        if (m_collectionPropertyNames.contains(collectionName)) {
+            m_collectionPropertyNames.remove(collectionName);
+            updateRequired = true;
+        }
     }
+
+    if (updateRequired)
+        update();
 }
 
 void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
                                                 const ModelNode &targetNode,
-                                                const QString &collectionName)
+                                                const QString &collectionName,
+                                                CollectionColumnFinder collectionHasColumn,
+                                                FirstColumnProvider firstColumnProvider)
 {
     QTC_ASSERT(targetNode.isValid(), return);
 
@@ -452,8 +478,16 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
 
     view->executeInTransaction("assignCollectionToNode", [&]() {
         QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
+
+        // Remove the old model node property if exists
+        NodeProperty modelNodeProperty = targetNode.nodeProperty("model");
+        if (modelNodeProperty.modelNode())
+            modelNodeProperty.modelNode().destroy();
+
+        // Assign the collection to the node
         BindingProperty modelProperty = targetNode.bindingProperty("model");
         modelProperty.setExpression(identifier);
+
         if (CollectionEditorUtils::hasTextRoleProperty(targetNode)) {
             VariantProperty textRoleProperty = targetNode.variantProperty("textRole");
             const QVariant currentTextRoleValue = textRoleProperty.value();
@@ -461,14 +495,14 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
             if (currentTextRoleValue.isValid() && !currentTextRoleValue.isNull()) {
                 if (currentTextRoleValue.type() == QVariant::String) {
                     const QString currentTextRole = currentTextRoleValue.toString();
-                    if (CollectionEditorUtils::collectionHasColumn(collectionName, currentTextRole))
+                    if (collectionHasColumn(collectionName, currentTextRole))
                         return;
                 } else {
                     return;
                 }
             }
 
-            QString textRoleValue = CollectionEditorUtils::getFirstColumnName(collectionName);
+            QString textRoleValue = firstColumnProvider(collectionName);
             textRoleProperty.setValue(textRoleValue);
         }
     });

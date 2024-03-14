@@ -96,8 +96,9 @@ PropertyEditorView::~PropertyEditorView()
     qDeleteAll(m_qmlBackendHash);
 }
 
-void PropertyEditorView::setupPane(const TypeName &typeName)
+void PropertyEditorView::setupPane([[maybe_unused]] const TypeName &typeName)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
     QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl("Qt/ItemPane", metaInfo);
@@ -118,6 +119,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
     } else {
         qmlBackend->initialSetup(typeName, qmlSpecificsFile, this);
     }
+#endif // QDS_USE_PROJECTSTORAGE
 }
 
 void PropertyEditorView::changeValue(const QString &name)
@@ -448,6 +450,7 @@ void PropertyEditorView::resetView()
 
 namespace {
 
+#ifndef QDS_USE_PROJECTSTORAGE
 [[maybe_unused]] std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
                                                          const NodeMetaInfo &specificsClassMetaInfo)
 {
@@ -483,6 +486,7 @@ namespace {
 
     return {};
 }
+#endif // QDS_USE_PROJECTSTORAGE
 
 PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend *> &qmlBackendHash,
                                         const QUrl &qmlFileUrl,
@@ -572,61 +576,56 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 
 void PropertyEditorView::setupQmlBackend()
 {
-    if constexpr (useProjectStorage()) {
-        auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
-        auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
-                                                                         m_selectedNode.isComponent());
-        auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes,
-                                                                  model()->pathCache());
-        PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                    QUrl::fromLocalFile(
-                                                                        QString{panePath}),
-                                                                    m_imageCache,
-                                                                    m_stackedWidget,
-                                                                    this);
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
+    bool isEditableComponent = m_selectedNode.isComponent()
+                               && !QmlItemNode(m_selectedNode).isEffectItem();
+    auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
+                                                                     isEditableComponent);
+    auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes, model()->pathCache());
+    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
+                                                                QUrl::fromLocalFile(QString{panePath}),
+                                                                m_imageCache,
+                                                                m_stackedWidget,
+                                                                this);
 
-        setupCurrentQmlBackend(currentQmlBackend,
-                               m_selectedNode,
-                               QUrl::fromLocalFile(QString{specificsPath}),
-                               currentState(),
-                               this,
-                               specificQmlData);
+    setupCurrentQmlBackend(currentQmlBackend,
+                           m_selectedNode,
+                           QUrl::fromLocalFile(QString{specificsPath}),
+                           currentState(),
+                           this,
+                           specificQmlData);
 
-        setupWidget(currentQmlBackend, this, m_stackedWidget);
+    setupWidget(currentQmlBackend, this, m_stackedWidget);
 
-        m_qmlBackEndForCurrentType = currentQmlBackend;
+    m_qmlBackEndForCurrentType = currentQmlBackend;
 
-        setupInsight(rootModelNode(), currentQmlBackend);
-    } else {
-        const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(
-            m_selectedNode);
+    setupInsight(rootModelNode(), currentQmlBackend);
+#else
+    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
 
-        const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
-            commonAncestor);
+    const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
+        commonAncestor);
 
-        auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
+    auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
 
-        QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
+    QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
 
-        PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                    qmlFileUrl,
-                                                                    m_imageCache,
-                                                                    m_stackedWidget,
-                                                                    this);
+    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
+                                                                qmlFileUrl,
+                                                                m_imageCache,
+                                                                m_stackedWidget,
+                                                                this);
 
-        setupCurrentQmlBackend(currentQmlBackend,
-                               m_selectedNode,
-                               qmlSpecificsFile,
-                               currentState(),
-                               this,
-                               specificQmlData);
+    setupCurrentQmlBackend(
+        currentQmlBackend, m_selectedNode, qmlSpecificsFile, currentState(), this, specificQmlData);
 
-        setupWidget(currentQmlBackend, this, m_stackedWidget);
+    setupWidget(currentQmlBackend, this, m_stackedWidget);
 
-        m_qmlBackEndForCurrentType = currentQmlBackend;
+    m_qmlBackEndForCurrentType = currentQmlBackend;
 
-        setupInsight(rootModelNode(), currentQmlBackend);
-    }
+    setupInsight(rootModelNode(), currentQmlBackend);
+#endif // QDS_USE_PROJECTSTORAGE
 }
 
 void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)

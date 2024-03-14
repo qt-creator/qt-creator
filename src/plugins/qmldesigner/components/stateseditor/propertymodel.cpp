@@ -64,12 +64,19 @@ QVariant PropertyModel::data(const QModelIndex &index, int role) const
 
         if (!propertyChanges.target().isValid())
             return {};
-
+#ifdef QDS_USE_PROJECTSTORAGE
+        return propertyChanges.target()
+            .metaInfo()
+            .property(m_properties.at(index.row()).name())
+            .propertyType()
+            .displayName();
+#else
         return propertyChanges.target()
             .metaInfo()
             .property(m_properties.at(index.row()).name())
             .propertyType()
             .typeName();
+#endif
     }
     }
     return {};

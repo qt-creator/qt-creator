@@ -1,0 +1,465 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-keyboard-shortcuts.html
+    \previouspage creator-project-managing-sessions.html
+    \nextpage studio-projects.html
+
+    \title Keyboard Shortcuts
+
+    \brief Default keyboard shortcuts.
+
+    \QDS has various keyboard shortcuts that speed up your development process.
+    To view all \QDS functions in and their keyboard shortcuts, select
+    \preferences > \uicontrol Environment > \uicontrol Keyboard.
+
+    \image qtcreator-keyboard-shortcuts.png
+
+    The shortcuts that are displayed in red color are associated with several
+    functions. \QDS executes the function that is available in the current
+    context. If several functions are available for the same shortcut at a
+    time, there is a conflict and \QDS cannot execute any function.
+
+    A keyboard shortcut might also conflict with a shortcut that a window
+    manager uses for its own purposes. In that case, \QDS shortcuts do not work.
+    Typically, you can configure the shortcuts in the window manager, but if
+    that is not allowed, you can change the \QDS shortcuts.
+
+
+    To override the platform default value that determines whether
+    keyboard shortcuts are shown in the labels of context menu items,
+    select \preferences > \uicontrol Environment >
+    \uicontrol Interface. The label of the \uicontrol {Show keyboard shortcuts
+    in context menus} check box indicates whether the platform default value
+    is \c on or \c off.
+
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+
+    The following tables list the default keyboard shortcuts. They are
+    categorized by actions.
+
+    \section1 General Keyboard Shortcuts
+
+    \table
+        \header
+            \li  Action
+            \li  Keyboard shortcut
+        \row
+            \li  Open file or project
+            \li  \key{Ctrl+O}
+        \row
+            \li  New project
+            \li  \key{Ctrl+Shift+N}
+        \row
+            \li  New file
+            \li  \key{Ctrl+N}
+        \row
+            \li  Select all
+            \li  \key{Ctrl+A}
+        \row
+            \li  Delete
+            \li  \key{Del}
+        \row
+            \li  Cut
+            \li  \key{Ctrl+X}
+        \row
+            \li  Copy
+            \li  \key{Ctrl+C}
+        \row
+            \li  Paste
+            \li  \key{Ctrl+V}
+        \row
+            \li  Undo
+            \li  \key{Ctrl+Z}
+        \row
+            \li  Redo
+            \li  \key{Ctrl+Y}
+        \row
+            \li  Print
+            \li  \key{Ctrl+P}
+        \row
+            \li  Save
+            \li  \key{Ctrl+S}
+        \row
+            \li  Save all
+            \li  \key{Ctrl+Shift+S}
+        \row
+            \li  Close window
+            \li  \key{Ctrl+W}
+        \row
+            \li  Close all
+            \li  \key{Ctrl+Shift+W}
+        \row
+            \li  Close current file
+            \li  \key{Ctrl+F4}
+        \row
+            \li  Go back
+            \li  \key{Alt+Left}
+        \row
+            \li  Go forward
+            \li  \key{Alt+Right}
+        \row
+            \li  Go to line
+            \li  \key{Ctrl+L}
+        \row
+            \li Locate files and other content within the project
+            \li \key{Ctrl+K}
+        \row
+            \li  Next open document in history
+            \li  \key{Ctrl+Shift+Tab}
+        \row
+            \li  Previous open document in history
+            \li  \key{Ctrl+Tab}
+        \row
+            \li  Switch to \uicontrol Welcome mode
+            \li  \key{Ctrl+1}
+        \row
+            \li  Switch to \uicontrol Edit mode
+            \li  \key{Ctrl+2}
+        \row
+            \li  Switch to \uicontrol Design mode
+            \li  \key{Ctrl+3}
+        \row
+            \li  Switch to \uicontrol Debug mode
+            \li  \key{Ctrl+4}
+        \row
+            \li  Switch to \uicontrol Projects mode
+            \li  \key{Ctrl+5}
+        \row
+            \li  Switch to \uicontrol Help mode
+            \li  \key{Ctrl+6}
+        \row
+            \li  Toggle \uicontrol{Issues}
+            \li  \key{Alt+1} (\key{Cmd+1} on \macos)
+        \row
+            \li  Toggle \uicontrol{Search Results}
+            \li  \key{Alt+2} (\key{Cmd+2} on \macos)
+        \row
+            \li  Toggle \uicontrol{Application Output}
+            \li  \key{Alt+3} (\key{Cmd+3} on \macos)
+        \row
+            \li  Toggle \uicontrol{Compile Output}
+            \li  \key{Alt+4} (\key{Cmd+4} on \macos)
+        \row
+            \li  Toggle \uicontrol{Terminal}
+            \li  \key{Alt+5} (\key{Cmd+5} on \macos)
+        \row
+            \li  Toggle \uicontrol{Version Control}
+            \li  \key{Alt+6} (\key{Cmd+6} on \macos)
+        \row
+            \li  Toggle \uicontrol{QML Debugger Console}
+            \li  \key{Alt+7} (\key{Cmd+7} on \macos)
+        \row
+            \li  Toggle \uicontrol{General Messages}
+            \li  \key{Alt+8} (\key{Cmd+8} on \macos)
+        \row
+            \li  Maximize output views
+            \li  \key{Alt+Shift+9}
+        \row
+            \li  Move to next item in output
+            \li  \key{F6}
+        \row
+            \li  Move to previous item in output
+            \li  \key{Shift+F6}
+        \row
+            \li  Activate \uicontrol Projects view
+            \li  \key{Alt+X}
+        \row
+            \li  Activate \uicontrol{Open Documents} view
+            \li  \key{Alt+O}
+        \row
+            \li  Activate \uicontrol{File System} view
+            \li  \key{Alt+Y}, \key{Alt+F}
+        \row
+            \li  Toggle left sidebar
+            \li  \key{Alt+0} (\key{Cmd+0} on \macos)
+        \row
+            \li  Toggle right sidebar
+            \li  \key{Alt+Shift+0}
+        \row
+            \li  Full screen
+            \li  \key{Ctrl+Shift+F11}
+        \row
+            \li  Exit \QDS
+
+                 By default, \QDS exits without asking for confirmation, unless
+                 there are unsaved changes in open files. To always be asked,
+                 select the \uicontrol {Ask for confirmation before exiting}
+                 check box in \preferences > \uicontrol Environment >
+                 \uicontrol System.
+            \li  \key{Ctrl+Q}
+    \endtable
+
+    \section1 Design Mode Keyboard Shortcuts
+
+    You can use the following keyboard shortcuts when editing QML files in the
+    \uicontrol Design mode.
+
+    \table
+        \header
+            \li  Action
+            \li  Keyboard shortcut
+        \row
+            \li  Open the QML file that defines the selected component
+            \li  \key{F2}
+        \row
+            \li  Jump to the \uicontrol {Code} view.
+            \li  \key{F4}
+    \endtable
+
+    \section1 Editing Keyboard Shortcuts
+
+    \table
+        \header
+            \li  Action
+            \li  Keyboard shortcut
+        \row
+            \li  Auto-indent selection
+            \li  \key{Ctrl+I}
+        \row
+            \li  Collapse
+            \li  \key{Ctrl+<}
+        \row
+            \li  Expand
+            \li  \key{Ctrl+>}
+        \row
+            \li  Trigger a completion in this scope
+            \li  \key{Ctrl+Space}
+        \row
+            \li  Display tooltips for function signatures regardless of the
+                 cursor position in the function call
+            \li  \key{Ctrl+Shift+D}
+        \row
+            \li  Copy line
+            \li  \key{Ctrl+Ins}
+        \row
+            \li  Copy line down
+            \li  \key{Ctrl+Alt+Down}
+        \row
+            \li  Copy line up
+            \li  \key{Ctrl+Alt+Up}
+        \row
+            \li  Paste from the clipboard history
+            \li  \key{Ctrl+Shift+V}
+        \row
+            \li  Cut line
+            \li  \key{Shift+Del}
+        \row
+            \li  Join lines
+            \li  \key{Ctrl+J}
+        \row
+            \li  Insert line above current line
+            \li  \key{Ctrl+Shift+Enter}
+        \row
+            \li  Insert line below current line
+            \li  \key{Ctrl+Enter}
+        \row
+            \li  Decrease font size
+            \li  \key{Ctrl+-} (\key{Ctrl+Roll mouse wheel down})
+        \row
+            \li  Increase font size
+            \li  \key{Ctrl++} (\key{Ctrl+Roll mouse wheel up})
+        \row
+            \li  Reset font size
+            \li  \key{Ctrl+0}
+        \row
+            \li  Split
+            \li  \key{Ctrl+E}, \key{2}
+        \row
+            \li  Split side by side
+            \li  \key{Ctrl+E}, \key{3}
+        \row
+            \li  Remove all splits
+            \li  \key{Ctrl+E}, \key{1}
+        \row
+            \li  Remove current split
+            \li  \key{Ctrl+E}, \key{0}
+        \row
+            \li  Go to next split
+            \li  \key{Ctrl+E, O}
+        \row
+            \li  Select all
+            \li  \key{Ctrl+A}
+        \row
+            \li  Go to block end
+            \li  \key{Ctrl+]}
+        \row
+            \li  Go to block start
+            \li  \key{Ctrl+[}
+        \row
+            \li  Go to block end and select the lines between the current cursor
+                 position and the end of the block
+            \li  \key{Ctrl+Shift+]}
+        \row
+            \li  Go to block start and select the lines between the current
+                 cursor position and the beginning of the block
+            \li  \key{Ctrl+Shift+[}
+        \row
+            \li  Select the current block
+
+                 The second press extends the selection to the parent block. To
+                 enable this behavior, select \preferences >
+                 \uicontrol {Text Editor} > \uicontrol Behavior >
+                 \uicontrol {Enable smart selection changing}.
+            \li  \key{Ctrl+U}
+        \row
+            \li  Undo the latest smart block selection
+            \li  \key{Ctrl+Alt+Shift+U}
+        \row
+            \li  Move current line down
+            \li  \key{Ctrl+Shift+Down}
+        \row
+            \li  Move current line up
+            \li  \key{Ctrl+Shift+Up}
+        \row
+            \li  Trigger a refactoring action in this scope
+            \li  \key{Alt+Enter}
+        \row
+            \li  Rewrap paragraph
+            \li  \key{Ctrl+E}, \key{R}
+        \row
+            \li  Enable text wrapping
+            \li  \key{Ctrl+E}, \key{Ctrl+W}
+        \row
+            \li  Toggle comment for selection
+            \li  \key{Ctrl+/}
+        \row
+            \li  Visualize whitespace
+            \li  \key{Ctrl+E}, \key{Ctrl+V}
+        \row
+            \li  Find references to symbol under cursor
+            \li  \key{Ctrl+Shift+U}
+        \row
+            \li  Follow symbol under cursor
+
+               Works with namespaces, classes, functions, variables, include
+               statements, and macros, as well as CMake functions, macros,
+               targets, and packages. Also, opens URLs in the default browser.
+            \li  \key{F2}
+        \row
+            \li  Rename symbol under cursor
+            \li  \key{Ctrl+Shift+R}
+        \row
+            \li  Switch between function declaration and definition
+            \li  \key{Shift+F2}
+        \row
+            \li  Open type hierarchy
+            \li  \key{Ctrl+Shift+T}
+        \row
+            \li Add a cursor at the next occurrence of selected text for
+                multi-cursor editing
+            \li  \key{Ctrl+D}
+        \row
+            \li  Turn selected text into lowercase
+            \li  \key{Alt+U}
+        \row
+            \li  Turn selected text into uppercase
+            \li  \key{Alt+Shift+U}
+        \row
+            \li  Sort selected lines alphabetically
+            \li  \key{Alt+Shift+S}
+        \row
+            \li  Run static checks on JavaScript code to find common problems
+            \li  \key{Ctrl+Shift+C}
+        \row
+            \li  Find and replace
+            \li  \key{Ctrl+F}
+        \row
+            \li  Find next
+            \li  \key{F3}
+        \row
+            \li  Find previous
+            \li  \key{Shift+F3}
+        \row
+            \li  Find next occurrence of selected text
+            \li  \key{Ctrl+F3}
+        \row
+            \li  Find previous occurrence of selected text
+            \li  \key{Ctrl+Shift+F3}
+        \row
+            \li  Replace next
+            \li  \key{Ctrl+=}
+        \row
+            \li  Open advanced find
+            \li  \key{Ctrl+Shift+F}
+    \endtable
+
+    \section1 Project Keyboard Shortcuts
+
+    \table
+        \header
+            \li  Action
+            \li  Keyboard shortcut
+        \row
+            \li  New project
+            \li  \key{Ctrl+Shift+N}
+        \row
+            \li  Load project
+            \li  \key{Ctrl+Shift+O}
+        \row
+            \li  Run
+            \li  \key{Ctrl+R}
+    \endtable
+
+    \section1 Help Keyboard Shortcuts
+
+    \table
+        \header
+            \li  Action
+            \li  Keyboard shortcut
+        \row
+            \li  View context-sensitive help
+            \li  \key{F1}
+        \row
+            \li  Add bookmark in \uicontrol Help mode
+            \li  \key{Ctrl+M}
+        \row
+            \li  Activate index in \uicontrol Help mode
+            \li  \key{Ctrl+Shift+I}
+        \row
+            \li  Activate search in \uicontrol Help mode
+            \li  \key{Ctrl+Shift+/}
+        \row
+            \li  Activate bookmarks in \uicontrol Help mode
+            \li \key{ Ctrl+Shift+B}
+        \row
+            \li  Activate contents in \uicontrol Help mode
+            \li  \key{Ctrl+Shift+C}
+    \endtable
+
+    \section1 Version Control Keyboard Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Keyboard shortcut
+        \row
+            \li Stage file for commit
+            \li \key{Alt+G}, \key{Alt+A}
+        \row
+            \li Commit
+            \li \key{Alt+G}, \key{Alt+C}
+        \row
+            \li Diff current file
+            \li \key{Alt+G}, \key{Alt+D}
+        \row
+            \li Diff project
+            \li \key{Alt+G}, \key{Alt+Shift+D}
+        \row
+            \li Blame
+            \li \key{Alt+G}, \key{Alt+B}
+        \row
+            \li Log current file
+            \li \key{Alt+G}, \key{Alt+L}
+        \row
+            \li Log project
+            \li \key{Alt+G}, \key{Alt+K}
+        \row
+            \li Reset
+            \li \key{Alt+G}, \key{Alt+U}
+    \endtable
+
+    \sa {Assign keyboard shortcuts}, {Find keyboard shortcuts},
+    {Import and export keyboard shortcuts}
+*/

@@ -8,6 +8,7 @@ import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import CollectionDetails
 import CollectionEditorBackend
 
 Rectangle {
@@ -45,6 +46,8 @@ Rectangle {
             spacing: StudioTheme.Values.sectionRowSpacing
 
             IconButton {
+                id: addColumnLeftButton
+
                 buttonIcon: StudioTheme.Constants.addcolumnleft_medium
                 tooltip: qsTr("Add property left")
                 enabled: root.model.selectedColumn > -1
@@ -52,6 +55,8 @@ Rectangle {
             }
 
             IconButton {
+                id: addColumnRightButton
+
                 buttonIcon: StudioTheme.Constants.addcolumnright_medium
                 tooltip: qsTr("Add property right")
                 enabled: root.model.selectedColumn > -1
@@ -59,6 +64,8 @@ Rectangle {
             }
 
             IconButton {
+                id: deleteColumnButton
+
                 buttonIcon: StudioTheme.Constants.deletecolumn_medium
                 tooltip: qsTr("Delete selected property")
                 enabled: root.model.selectedColumn > -1
@@ -71,6 +78,8 @@ Rectangle {
             }
 
             IconButton {
+                id: addRowBelowButton
+
                 buttonIcon: StudioTheme.Constants.addrowbelow_medium
                 tooltip: qsTr("Insert row below")
                 enabled: root.model.selectedRow > -1
@@ -78,6 +87,8 @@ Rectangle {
             }
 
             IconButton {
+                id: addRowAboveButton
+
                 buttonIcon: StudioTheme.Constants.addrowabove_medium
                 tooltip: qsTr("Insert row above")
                 enabled: root.model.selectedRow > -1
@@ -85,6 +96,8 @@ Rectangle {
             }
 
             IconButton {
+                id: deleteSelectedRowButton
+
                 buttonIcon: StudioTheme.Constants.deleterow_medium
                 tooltip: qsTr("Delete selected row")
                 enabled: root.model.selectedRow > -1
@@ -100,6 +113,8 @@ Rectangle {
             Layout.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
 
             IconButton {
+                id: saveCollectionButton
+
                 buttonIcon: StudioTheme.Constants.save_medium
                 tooltip: qsTr("Save changes")
                 enabled: root.model.collectionName !== ""
@@ -107,6 +122,8 @@ Rectangle {
             }
 
             IconButton {
+                id: exportCollectionButton
+
                 buttonIcon: StudioTheme.Constants.export_medium
                 tooltip: qsTr("Export model")
                 enabled: root.model.collectionName !== ""
@@ -231,7 +248,9 @@ Rectangle {
 
                 Layout.fillWidth: true
 
-                model: root.model.typesList()
+                model: CollectionDataTypeModel{}
+                textRole: "display"
+                tooltipRole: "toolTip"
                 actionIndicatorVisible: false
             }
 

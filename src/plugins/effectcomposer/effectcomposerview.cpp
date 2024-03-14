@@ -69,9 +69,15 @@ void EffectComposerView::customNotification([[maybe_unused]] const AbstractView 
                                          [[maybe_unused]] const QList<QmlDesigner::ModelNode> &nodeList,
                                          const QList<QVariant> &data)
 {
-    if (identifier == "open_effectcomposer_composition" && data.count() > 0) {
+    if (data.size() < 1)
+        return;
+
+    if (identifier == "open_effectcomposer_composition") {
         const QString compositionPath = data[0].toString();
         m_widget->openComposition(compositionPath);
+    } else if (identifier == "effectcomposer_effects_deleted") {
+        if (data[0].toStringList().contains(m_widget->effectComposerModel()->currentComposition()))
+            m_widget->effectComposerModel()->clear(true);
     }
 }
 
@@ -79,19 +85,19 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_widget->effectComposerNodesModel()->loadModel();
 
     QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
 
     if (m_currProjectPath != currProjectPath) { // starting a new project
+        m_widget->effectComposerNodesModel()->loadModel();
         m_widget->effectComposerModel()->clear(true);
         m_widget->effectComposerModel()->setIsEnabled(
             !QmlDesigner::DesignerMcuManager::instance().isMCUProject());
+        m_widget->initView();
     }
 
     m_currProjectPath = currProjectPath;
 
-    m_widget->initView();
 }
 
 void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)

@@ -32,6 +32,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include "projectexplorer/projectmanager.h"
 #include "projectitem/qmlprojectitem.h"
 #include "projectnode/qmlprojectnodes.h"
 
@@ -76,6 +77,7 @@ void updateMcuBuildStep(Target *target, bool mcuEnabled)
 
 QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
+    , m_cmakeGen(new GenerateCmake::CMakeGenerator(this, this))
 {
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(RefreshOptions::Project);
@@ -85,10 +87,12 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 
     connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
+        m_cmakeGen->initialize(qmlProject());
         updateMcuBuildStep(target, qtForMCUs());
     });
     connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
+        m_cmakeGen->initialize(qmlProject());
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
 
@@ -219,6 +223,13 @@ void QmlBuildSystem::initProjectItem()
             &QmlProjectItem::qmlFilesChanged,
             this,
             &QmlBuildSystem::refreshFiles);
+
+    connect(m_projectItem.get(),
+            &QmlProjectItem::qmlFilesChanged,
+            m_cmakeGen,
+            &GenerateCmake::CMakeGenerator::update);
+
+    m_cmakeGen->setEnabled(m_projectItem->enableCMakeGeneration());
 }
 
 void QmlBuildSystem::parseProjectFiles()
@@ -387,6 +398,16 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
         return projectFile;
 
     return {};
+}
+
+QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
+        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            project->activeTarget()->buildSystem());
+    }
+    return nullptr;
 }
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const

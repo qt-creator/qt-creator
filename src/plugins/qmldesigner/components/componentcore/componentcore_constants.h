@@ -69,6 +69,7 @@ const char mergeTemplateCommandId[] = "MergeTemplate";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char makeComponentCommandId[] = "MakeComponent";
 const char editMaterialCommandId[] = "EditMaterial";
+const char editCollectionCommandId[] = "EditCollection";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
 const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
 const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
@@ -80,6 +81,7 @@ const char fitRootToScreenCommandId[] = "FitRootToScreen";
 const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 const char editAnnotationsCommandId[] = "EditAnnotation";
 const char addMouseAreaFillCommandId[] = "AddMouseAreaFill";
+const char editIn3dViewCommandId[] = "editIn3dView";
 
 const char openSignalDialogCommandId[] = "OpenSignalDialog";
 const char update3DAssetCommandId[] = "Update3DAsset";
@@ -126,8 +128,10 @@ const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Component");
 const char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Material");
+const char editCollectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Model");
 const char editAnnotationsDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotations");
 const char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Mouse Area");
+const char editIn3dViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit in 3D View");
 
 const char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Signal Dialog");
 const char update3DAssetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Update 3D Asset");
@@ -209,6 +213,8 @@ enum PrioritiesEnum : int {
     SelectionCategory,
     ArrangeCategory,
     EditCategory,
+    EditListModel,
+    EditCollection,
     /******** Section *****************************/
     PositionSection = 2000,
     SnappingCategory,

@@ -16,6 +16,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
@@ -85,16 +86,6 @@ enum ProjectDirectoryError {
 
 const QString MENU_ITEM_GENERATE = Tr::tr("Generate CMake Build Files...");
 
-const QmlBuildSystem *getBuildSystem()
-{
-    auto project = ProjectExplorer::ProjectManager::startupProject();
-    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
-        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-            project->activeTarget()->buildSystem());
-    }
-    return nullptr;
-}
-
 void generateMenuEntry(QObject *parent)
 {
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
@@ -118,7 +109,7 @@ void generateMenuEntry(QObject *parent)
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
                      &ProjectExplorer::ProjectManager::startupProjectChanged,
                      [action]() {
-                         if (auto buildSystem = getBuildSystem())
+                         if (auto buildSystem = QmlBuildSystem::getStartupBuildSystem())
                              action->setEnabled(!buildSystem->qtForMCUs());
                      });
 }
@@ -284,7 +275,7 @@ const QString projectEnvironmentVariable(const QString &key)
 {
     QString value = {};
 
-    if (auto buildSystem = getBuildSystem()) {
+    if (auto buildSystem = QmlBuildSystem::getStartupBuildSystem()) {
         auto envItems = buildSystem->environment();
         auto confEnv = std::find_if(envItems.begin(), envItems.end(), [key](EnvironmentItem &item) {
             return item.name == key;
@@ -636,7 +627,7 @@ bool CmakeFileGenerator::generateMainCpp(const FilePath &dir)
     bool envHeaderOk = true;
     QString environment;
 
-    if (auto buildSystem = getBuildSystem()) {
+    if (auto buildSystem = QmlBuildSystem::getStartupBuildSystem()) {
         for (EnvironmentItem &envItem : buildSystem->environment()) {
             QString key = envItem.name;
             QString value = envItem.value;

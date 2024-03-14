@@ -336,7 +336,9 @@ Rectangle {
             anchors.rightMargin: 8
             iconFont: StudioTheme.Constants.font
             buttonIcon: qsTr("Share")
-            visible: !root.flyoutEnabled
+            visible: !root.flyoutEnabled && backend.isSharingEnabled
+            enabled: backend.isSharingEnabled
+            tooltip: shareButton.enabled ? qsTr("Share your project online.") : qsTr("Sharing your project online is disabled in the Community Version.")
 
             onClicked: backend.shareApplicationOnline()
         }
@@ -458,6 +460,8 @@ Rectangle {
                             width: shareButton.width
                             iconFont: StudioTheme.Constants.font
                             buttonIcon: qsTr("Share")
+                            enabled: backend.isSharingEnabled
+                            tooltip: shareButton.enabled ? qsTr("Share your project online.") : qsTr("Sharing your project online is disabled in the Community Version.")
 
                             onClicked: backend.shareApplicationOnline()
                         }

@@ -18,6 +18,10 @@ class Model;
 class DataStoreModelNode
 {
 public:
+    using CollectionColumnFinder = std::function<bool(const QString &collectionName,
+                                                      const QString &columnName)>;
+    using FirstColumnProvider = std::function<QString(const QString &collectionName)>;
+
     DataStoreModelNode();
 
     void reloadModel();
@@ -27,12 +31,15 @@ public:
     ModelNode modelNode() const;
 
     void setCollectionNames(const QStringList &newCollectionNames);
+    void addCollection(const QString &collectionName);
     void renameCollection(const QString &oldName, const QString &newName);
-    void removeCollection(const QString &collectionName);
+    void removeCollections(const QStringList &collectionNames);
 
     void assignCollectionToNode(AbstractView *view,
                                 const ModelNode &targetNode,
-                                const QString &collectionName);
+                                const QString &collectionName,
+                                CollectionColumnFinder collectionHasColumn,
+                                FirstColumnProvider firstColumnProvider);
 
 private:
     QString getModelQmlText();

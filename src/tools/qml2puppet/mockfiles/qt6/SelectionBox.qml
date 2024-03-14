@@ -1,9 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 6.0
-import QtQuick3D 6.0
-import SelectionBoxGeometry 1.0
+import QtQuick
+import QtQuick3D
+import SelectionBoxGeometry
 
 Node {
     id: selectionBox
@@ -36,6 +36,7 @@ Node {
 
         castsShadows: false
         receivesShadows: false
+        castsReflections: false
 
         DefaultMaterial {
             id: boxMaterial

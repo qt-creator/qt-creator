@@ -187,7 +187,7 @@ void EventList::initialize(EventListPluginView *parent)
         QByteArray unqualifiedTypeName = "ListModel";
         auto metaInfo = parent->model()->metaInfo(unqualifiedTypeName);
 #ifdef QDS_USE_PROJECTSTORAGE
-        m_model = Model::create(unqualifiedTypeName, -1, -1);
+        m_model = parent->model()->createModel(unqualifiedTypeName);
 #else
         QByteArray fullTypeName = metaInfo.typeName();
         int minorVersion = metaInfo.minorVersion();
@@ -195,7 +195,6 @@ void EventList::initialize(EventListPluginView *parent)
 
         m_model = Model::create(fullTypeName, majorVersion, minorVersion);
 #endif
-        m_model->setParent(parent);
     }
 
     if (!m_eventView) {

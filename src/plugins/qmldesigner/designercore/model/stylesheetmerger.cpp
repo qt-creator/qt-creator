@@ -169,6 +169,11 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
             continue;
         propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
     }
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    ModelNode newNode(m_templateView->createModelNode(
+        styleNode.type(), propertyList, {}, styleNode.nodeSource(), styleNode.nodeSourceType()));
+#else
     ModelNode newNode(m_templateView->createModelNode(styleNode.type(),
                                                       nodeMetaInfo.majorVersion(),
                                                       nodeMetaInfo.minorVersion(),
@@ -176,6 +181,7 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
                                                       {},
                                                       styleNode.nodeSource(),
                                                       styleNode.nodeSourceType()));
+#endif
 
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode);
@@ -436,10 +442,14 @@ void StylesheetMerger::syncStateNode(ModelNode &outputState, const ModelNode &in
             changeSet = itr->second;
         } else {
             const QByteArray typeName = inputChangeset.type();
+#ifdef QDS_USE_PROJECTSTORAGE
+            changeSet = m_templateView->createModelNode(typeName);
+#else
             NodeMetaInfo metaInfo = m_templateView->model()->metaInfo(typeName);
             int major = metaInfo.majorVersion();
             int minor = metaInfo.minorVersion();
             changeSet = m_templateView->createModelNode(typeName, major, minor);
+#endif
             outputState.nodeListProperty("changes").reparentHere(changeSet);
             outputChangeSets.insert({key, changeSet});
         }
@@ -611,7 +621,11 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
 
     QTC_ASSERT(parentModel, return );
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto templateModel = model->createModel("Item");
+#else
     auto templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+#endif
     Q_ASSERT(templateModel.get());
 
     templateModel->setFileUrl(parentModel->fileUrl());
@@ -637,9 +651,12 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
     QTC_ASSERT(templateRootNode.isValid(), return );
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto styleModel = model->createModel("Item");
+#else
     auto styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(styleModel.get());
-
+#endif
     styleModel->setFileUrl(parentModel->fileUrl());
 
     QPlainTextEdit textEditStyle;

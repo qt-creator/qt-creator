@@ -6,6 +6,8 @@
 #include "abstractcustomtool.h"
 #include "selectionindicator.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QHash>
 #include <QPointer>
 #include <QColorDialog>
@@ -59,7 +61,7 @@ private:
     void currentColorChanged(const QColor &color);
 
 private:
-    QPointer<QColorDialog> m_colorDialog;
+    Utils::UniqueObjectLatePtr<QColorDialog> m_colorDialog;
     FormEditorItem *m_formEditorItem = nullptr;
     QColor m_oldColor;
     QString m_oldExpression;

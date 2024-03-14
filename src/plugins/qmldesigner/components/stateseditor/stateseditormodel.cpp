@@ -343,6 +343,9 @@ bool StatesEditorModel::renameActiveStateGroup(const QString &name)
 void StatesEditorModel::addStateGroup(const QString &name)
 {
     m_statesEditorView->executeInTransaction("createStateGroup", [this, name]() {
+#ifdef QDS_USE_PROJECTSTORAGE
+        auto stateGroupNode = m_statesEditorView->createModelNode("StateGroup");
+#else
         const TypeName typeName = "QtQuick.StateGroup";
         auto metaInfo = m_statesEditorView->model()->metaInfo(typeName);
         int minorVersion = metaInfo.minorVersion();
@@ -350,6 +353,7 @@ void StatesEditorModel::addStateGroup(const QString &name)
         auto stateGroupNode = m_statesEditorView->createModelNode(typeName,
                                                                   majorVersion,
                                                                   minorVersion);
+#endif
         stateGroupNode.setIdWithoutRefactoring(m_statesEditorView->model()->generateNewId(name));
 
         m_statesEditorView->rootModelNode().defaultNodeAbstractProperty().reparentHere(

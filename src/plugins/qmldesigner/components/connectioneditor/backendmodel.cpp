@@ -19,9 +19,8 @@
 
 namespace QmlDesigner {
 
-BackendModel::BackendModel(ConnectionView *parent) :
-    QStandardItemModel(parent)
-    ,m_connectionView(parent)
+BackendModel::BackendModel(ConnectionView *view)
+    : m_connectionView(view)
 {
     connect(this, &QStandardItemModel::dataChanged, this, &BackendModel::handleDataChanged);
 }
@@ -229,16 +228,17 @@ void BackendModel::addNewBackend()
         if (!dialog.isSingleton()) {
             m_connectionView->executeInTransaction("BackendModel::addNewBackend",
                                                    [this, metaInfo, typeName, propertyName, &dialog] {
-                int minorVersion = metaInfo.minorVersion();
-                int majorVersion = metaInfo.majorVersion();
 
                 if (dialog.localDefinition()) {
-                    ModelNode newNode = m_connectionView->createModelNode(useProjectStorage()
-                                                                              ? typeName.toUtf8()
-                                                                              : metaInfo.typeName(),
+#ifdef QDS_USE_PROJECTSTORAGE
+                    ModelNode newNode = m_connectionView->createModelNode(typeName.toUtf8());
+#else
+                    int minorVersion = metaInfo.minorVersion();
+                    int majorVersion = metaInfo.majorVersion();
+                    ModelNode newNode = m_connectionView->createModelNode(metaInfo.typeName(),
                                                                           majorVersion,
                                                                           minorVersion);
-
+#endif
                     m_connectionView->rootModelNode().nodeProperty(propertyName.toUtf8()).setDynamicTypeNameAndsetModelNode(
                                 typeName.toUtf8(), newNode);
                 } else {

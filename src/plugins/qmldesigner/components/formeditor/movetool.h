@@ -9,7 +9,6 @@
 #include "rotationindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
-#include "contentnoteditableindicator.h"
 
 namespace QmlDesigner {
 
@@ -66,7 +65,6 @@ private:
     RotationIndicator m_rotationIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
-    ContentNotEditableIndicator m_contentNotEditableIndicator;
     QList<FormEditorItem*> m_movingItems;
 };
 

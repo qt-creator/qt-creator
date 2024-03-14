@@ -36,6 +36,8 @@ T.ComboBox {
 
     property string preFocusText: ""
 
+    property string tooltipRole: ""
+
     signal compressedActivated(int index, int reason)
 
     enum ActivatedReason { EditingFinished, Other }
@@ -153,6 +155,17 @@ T.ComboBox {
             font: control.font
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
+
+            ToolTipArea {
+                anchors.fill: parent
+                text: control.tooltipRole ? (Array.isArray(control.model)
+                                             ? modelData[control.tooltipRole]
+                                             : model[control.tooltipRole])
+                                          : ""
+                enabled: text
+                onClicked: itemDelegate.clicked()
+                onDoubleClicked: itemDelegate.doubleClicked()
+            }
         }
 
         highlighted: control.highlightedIndex === index

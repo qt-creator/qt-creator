@@ -19,6 +19,8 @@ QVariant InternalVariantProperty::value() const
 
 void InternalVariantProperty::setValue(const QVariant &value)
 {
+    traceToken.tick("value"_t, keyValue("value", value));
+
     m_value = value;
 }
 

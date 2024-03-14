@@ -35,6 +35,7 @@ macro.QMLD              = "Qt Quick Designer"
 macro.QQV               = "Qt QML Viewer"
 macro.QSDK              = "Qt"
 macro.QUL               = "Qt Quick Ultralite"
+macro.QUV               = "Qt UI Viewer"
 macro.QOI               = "Qt Online Installer"
 macro.QMT               = "Qt Maintenance Tool"
 macro.qtcversion        = $QTC_VERSION

@@ -10,6 +10,7 @@
 #include <QMatrix4x4>
 #include <QObject>
 #include <QPointer>
+#include <QPointF>
 #include <QQuaternion>
 #include <QTimer>
 #include <QUrl>
@@ -37,6 +38,7 @@ class GeneralHelper : public QObject
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
     Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
+    Q_PROPERTY(double cameraSpeed READ cameraSpeed NOTIFY cameraSpeedChanged FINAL)
 
 public:
     GeneralHelper();
@@ -52,6 +54,15 @@ public:
                                     const QVector3D &startPosition, const QVector3D &startLookAt,
                                     const QVector3D &pressPos, const QVector3D &currentPos,
                                     float zoomFactor);
+    Q_INVOKABLE QVector3D moveCamera(QQuick3DCamera *camera,const QVector3D &startLookAt,
+                                     float zoomFactor, const QVector3D &moveVector);
+    Q_INVOKABLE QVector3D rotateCamera(QQuick3DCamera *camera, const QPointF &angles,
+                                       const QVector3D &lookAtPoint);
+
+    Q_INVOKABLE void startCameraMove(QQuick3DCamera *camera, const QVector3D moveVector);
+    Q_INVOKABLE void stopCameraMove(const QVector3D moveVector);
+    Q_INVOKABLE void stopAllCameraMoves();
+
     Q_INVOKABLE float zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
@@ -125,12 +136,14 @@ public:
     void setSnapPositionInterval(double interval);
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
+    void setCameraSpeed(double speed);
 
     Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
     Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
     Q_INVOKABLE QString snapScaleDragTooltip(const QVector3D &scale) const;
 
     double minGridStep() const;
+    double cameraSpeed() const { return m_cameraSpeed; }
 
     void setBgColor(const QVariant &colors);
     QVariant bgColor() const { return m_bgColor; }
@@ -149,6 +162,9 @@ signals:
     void minGridStepChanged();
     void updateDragTooltip();
     void sceneEnvDataChanged();
+    void requestCameraMove(QQuick3DCamera *camera, const QVector3D &moveVector);
+    void requestRender();
+    void cameraSpeedChanged();
 
 private:
     void handlePendingToolStateUpdate();
@@ -163,6 +179,15 @@ private:
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
+    void updateCombinedCameraMoveVector();
+
+    struct CameraMoveKeyData {
+        QQuick3DCamera *camera;
+        QList<QVector3D> moveVectors;
+        QVector3D combinedMoveVector;
+        QTimer timer;
+    };
+    CameraMoveKeyData m_camMoveData;
 
     struct SceneEnvData {
         QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes backgroundMode;
@@ -193,6 +218,7 @@ private:
     double m_snapPositionInterval = 50.;
     double m_snapRotationInterval = 5.;
     double m_snapScaleInterval = .1;
+    double m_cameraSpeed = 10.;
 
     QVariant m_bgColor;
 };

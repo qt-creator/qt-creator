@@ -30,6 +30,7 @@ public:
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,
+        DisplayNameRole,
         DescriptionRole,
         ValueRole,
         BackendValueRole,
@@ -37,6 +38,7 @@ private:
         MaxValueRole,
         MinValueRole,
         TypeRole,
+        ControlTypeRole,
         UseCustomValueRole
     };
 

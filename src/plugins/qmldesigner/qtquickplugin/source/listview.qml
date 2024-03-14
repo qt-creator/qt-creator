@@ -4,40 +4,38 @@
 import QtQuick 1.0
 
 ListView {
-    width: 110
-    height: 160
+    width: 160
+    height: 80
     model:  ListModel {
-        ListElement {
-            name: "Grey"
-            colorCode: "grey"
-        }
         ListElement {
             name: "Red"
             colorCode: "red"
+        }
+        ListElement {
+            name: "Green"
+            colorCode: "green"
         }
         ListElement {
             name: "Blue"
             colorCode: "blue"
         }
         ListElement {
-            name: "Green"
-            colorCode: "green"
+            name: "White"
+            colorCode: "white"
         }
     }
 
-    delegate:  Item {
-        width: 80
-        height: 40
-        x: 5
-        Row {
-            id: row1
-            spacing: 10
-            Rectangle { width: 40; height: 40; color: colorCode; }
-            Text {
-                text: name
-                anchors.verticalCenter: parent.verticalCenter
-                font.bold: true
-            }
+    delegate: Row {
+        spacing: 5
+        Rectangle {
+            width: 100
+            height: 20
+            color: colorCode
+        }
+
+        Text {
+            width: 100
+            text: name
         }
     }
 }

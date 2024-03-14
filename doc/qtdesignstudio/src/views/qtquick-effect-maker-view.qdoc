@@ -1,0 +1,89 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtquick-effect-composer-view.html
+    \previouspage studio-qt-insight.html
+    \nextpage creator-project-managing-workspaces.html
+
+    \title Effect Composer
+
+    Use \uicontrol {Effect Composer} to create post-processing effects that
+    can be applied to 2D or 3D components. The effects created with \uicontrol {Effect Composer}
+    are shader effects, which can be used in any \QDS projects.
+
+    \image studio-effect-composer.webp "The Effect Composer view in Qt Design Studio."
+
+    \section1 Composing a Custom Effect
+
+    \list 1
+        \li To create a new custom effect, do one of the following:
+            \list
+                \li Right-click anywhere in the \uicontrol Assets view (1) and select
+                    \uicontrol {New Effect} in the dialog. Give your new custom
+                    effect a name and select \uicontrol Create.
+                \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
+                    and then select the effects you wish to use from the dropdown menu.
+                    The added effects appear in the effect stack (3). You cannot add some of the
+                    effects to the same custom effect.
+            \endlist
+        \li Adjust the effect parameters to modify your custom effect. View the preview panel (4) to
+            see how your effect affects a component before assigning it to one. Use the preview panel
+            toolbar to select the preview image and the preview panel background color.
+        \li Finally, select \inlineimage icons/save-effect-composer.png to save your
+            custom effect. If the custom effect is still \e Untitled, name it, and then select
+            \uicontrol Save. Select \inlineimage icons/save-as-effect-composer.png to save the custom
+            effect under a different name, for example to create variations of the effect you
+            composed.
+    \endlist
+
+    \image studio-effect-composer-assets.webp "Effect Composer and the Assets view"
+
+    The saved custom effects appear in the \uicontrol {Assets} view. Double-click a
+    custom effect in \uicontrol Assets to view and edit it in \uicontrol {Effect Composer}.
+    To delete a custom effect, right-click it in the \uicontrol {Assets} view, and then
+    select \uicontrol {Delete File}.
+
+    \section1 Assigning a Custom Effect to a Component
+
+    To assign your newly created custom effect to a 2D or 3D component,
+    do one of the following:
+
+    \list
+        \li Select a component in the \uicontrol Navigator, \uicontrol 2D, or
+            \uicontrol 3D view, and then select \inlineimage icons/assign-effect-composer.png
+            in \uicontrol {Effect Composer}.
+        \li Drag the custom effect from \uicontrol Assets to the component in
+            \uicontrol Navigator or the \uicontrol {2D} view.
+    \endlist
+
+    \note To assign an effect to a component, you need to save it first.
+
+    \section1 Stacking Effects
+
+    To compose complex custom effects, add multiple effects to your stack in
+    \uicontrol {Effect Composer}. The order of effects in the \uicontrol {Effect Composer}
+    stack determines the order they are rendered, which affects the final output of
+    the custom effects.
+
+    To change the position of an effect in the stack, drag the effect by the handle
+    (\inlineimage icons/dragmarks-effect-composer.png) to the desired position.
+
+    To determine whether or not each of the effects in the stack is rendered, toggle the
+    visibility on (\inlineimage icons/visibilityon.png) and off (\inlineimage icons/visibility-off.png).
+
+    To clear the effect stack, select \inlineimage icons/studio-clear-effect-stack.png.
+
+    \section1 Using Animated Effects
+
+    Some of the effects in \uicontrol {Effect Composer} are animated. Preview the
+    animation in the preview panel using the play, pause, and restart animation
+    buttons.
+
+    When an animated effect has been applied to a component, the animation plays
+    by default in \uicontrol {Live Preview} and when you run the project.
+    To define whether the animation plays or not, select the assigned effect in
+    \uicontrol Navigator, and in \uicontrol Properties >
+    \uicontrol {Exposed Custom Properties}, select or clear the
+    \uicontrol timeRunning checkbox.
+

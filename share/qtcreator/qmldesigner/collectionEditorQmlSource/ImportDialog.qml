@@ -32,6 +32,11 @@ StudioControls.Dialog {
         fileName.text = ""
     }
 
+    function acceptIfIsValid() {
+        if (btnImport.enabled)
+            btnImport.onClicked()
+    }
+
     RegularExpressionValidator {
         id: fileNameValidator
         regularExpression: /^(\w[^*><?|]*)[^/\\:*><?|]$/
@@ -67,6 +72,10 @@ StudioControls.Dialog {
     contentItem: ColumnLayout {
         spacing: 2
 
+        Keys.onEnterPressed: root.acceptIfIsValid()
+        Keys.onReturnPressed: root.acceptIfIsValid()
+        Keys.onEscapePressed: root.reject()
+
         Text {
             text: qsTr("File name")
             color: StudioTheme.Values.themeTextColor
@@ -86,10 +95,6 @@ StudioControls.Dialog {
                 actionIndicator.visible: false
                 translationIndicator.visible: false
                 validator: fileNameValidator
-
-                Keys.onEnterPressed: btnImport.onClicked()
-                Keys.onReturnPressed: btnImport.onClicked()
-                Keys.onEscapePressed: root.reject()
 
                 onTextChanged: root.fileExists = root.backendValue.isValidUrlToImport(fileName.text)
             }
@@ -121,10 +126,6 @@ StudioControls.Dialog {
             validator: RegularExpressionValidator {
                 regularExpression: /^[\w ]+$/
             }
-
-            Keys.onEnterPressed: btnImport.onClicked()
-            Keys.onReturnPressed: btnImport.onClicked()
-            Keys.onEscapePressed: root.reject()
         }
 
         Spacer { implicitHeight: StudioTheme.Values.controlLabelGap }
@@ -180,6 +181,17 @@ StudioControls.Dialog {
 
         Spacer {}
 
+        StudioControls.CheckBox {
+            id: csvFirstRowIsHeader
+
+            visible: root.fileExists && fileName.text.endsWith(".csv")
+            text: qsTr("Consider first row as headers")
+            checked: true
+            actionIndicatorVisible: false
+        }
+
+        Spacer {}
+
         RowLayout {
             spacing: StudioTheme.Values.sectionRowSpacing
 
@@ -192,9 +204,10 @@ StudioControls.Dialog {
                 enabled: root.fileExists && collectionName.text !== ""
 
                 onClicked: {
-                    let collectionImported = root.backendValue.importCollectionToDataStore(
+                    let collectionImported = root.backendValue.importFile(
                             collectionName.text,
-                            fileName.text)
+                            fileName.text,
+                            csvFirstRowIsHeader.checked)
 
                     if (collectionImported)
                         root.accept()

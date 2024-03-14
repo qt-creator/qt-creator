@@ -50,6 +50,9 @@ public:
     Q_INVOKABLE void doOpenComposition();
     Q_INVOKABLE QRect screenRect() const;
     Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
+    Q_INVOKABLE QString uniformDefaultImage(const QString &nodeName,
+                                            const QString &uniformName) const;
+    Q_INVOKABLE QString imagesPath() const;
 
     QSize sizeHint() const override;
 

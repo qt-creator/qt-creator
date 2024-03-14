@@ -20,18 +20,22 @@ Column {
     // The delay in ms to wait until updating the effect
     readonly property int updateDelay: 100
 
+    readonly property int previewMargin: 5
+
+    property real previewScale: 1
+
     // Create a dummy parent to host the effect qml object
     function createNewComponent() {
         // If we have a working effect, do not show preview image as it shows through
         // transparent parts of the final image
-        source.visible = false;
+        placeHolder.visible = false;
 
         var oldComponent = componentParent.children[0];
         if (oldComponent)
             oldComponent.destroy();
         try {
             const newObject = Qt.createQmlObject(
-                effectComposerModel.qmlComponentString,
+                effectComposerModel.qmlComponentString(),
                 componentParent,
                 ""
             );
@@ -46,7 +50,7 @@ Column {
                 errorLine = e.lineNumber;
             }
             effectComposerModel.setEffectError(errorString, 0, errorLine);
-            source.visible = true;
+            placeHolder.visible = true;
         }
     }
 
@@ -82,35 +86,42 @@ Column {
             anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale < 2
+                enabled: root.previewScale < 3
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
                 tooltip: qsTr("Zoom In")
 
                 onClicked: {
-                    sourceImage.scale += .2
+                    imageScaler.enableAnim(true)
+                    root.previewScale += .2
+                    imageScaler.enableAnim(false)
+                    zoomIndicator.show()
                 }
             }
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale > .4
+                enabled: root.previewScale > .4
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomOut_medium
                 tooltip: qsTr("Zoom out")
 
                 onClicked: {
-                    sourceImage.scale -= .2
+                    imageScaler.enableAnim(true)
+                    root.previewScale -= .2
+                    imageScaler.enableAnim(false)
+                    zoomIndicator.show()
                 }
             }
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale !== 1
+                enabled: root.previewScale !== 1 || imageScaler.x !== root.previewMargin
+                                                 || imageScaler.y !== root.previewMargin
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.fitAll_medium
-                tooltip: qsTr("Zoom Fit")
+                tooltip: qsTr("Reset View")
 
                 onClicked: {
-                    sourceImage.scale = 1
+                    imageScaler.resetTransforms()
                 }
             }
         }
@@ -167,27 +178,85 @@ Column {
         height: root.height - y
         clip: true
 
+        MouseArea {
+            id: mouseArea
+
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+
+            property real pressX: 0
+            property real pressY: 0
+            property bool panning: false
+
+            onPressed:  {
+                pressX = mouseX - imageScaler.x
+                pressY = mouseY - imageScaler.y
+                panning = true
+            }
+
+            onReleased: {
+                panning = false
+            }
+
+            onWheel: (wheel) => {
+                let oldPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
+
+                if (wheel.angleDelta.y > 0) {
+                    if (root.previewScale < 3)
+                        root.previewScale += .2
+                } else {
+                    if (root.previewScale > .4)
+                        root.previewScale -= .2
+                }
+
+                let newPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
+                imageScaler.x -= (oldPoint.x - newPoint.x) * imageScaler.scale
+                imageScaler.y -= (oldPoint.y - newPoint.y) * imageScaler.scale
+
+                imageScaler.checkBounds()
+                zoomIndicator.show()
+            }
+
+            Timer { // pan timer
+                running: parent.panning
+                interval: 16
+                repeat: true
+
+                onTriggered: {
+                    imageScaler.x = mouseArea.mouseX - mouseArea.pressX
+                    imageScaler.y = mouseArea.mouseY - mouseArea.pressY
+                    imageScaler.checkBounds()
+                }
+            }
+        }
+
+        Image {
+            id: placeHolder
+            anchors.fill: parent
+            anchors.margins: root.previewMargin
+            fillMode: Image.PreserveAspectFit
+            source: imagesComboBox.selectedImage
+            smooth: true
+        }
+
         Item { // Source item as a canvas (render target) for effect
             id: source
-            anchors.fill: parent
+            width: sourceImage.sourceSize.width
+            height: sourceImage.sourceSize.height
             layer.enabled: true
             layer.mipmap: true
             layer.smooth: true
+            visible: false
 
             Image {
                 id: sourceImage
-                anchors.margins: 5
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
+
+                onSourceChanged: imageScaler.resetTransforms()
+
+                fillMode: Image.Pad
+
                 source: imagesComboBox.selectedImage
                 smooth: true
-
-                Behavior on scale {
-                    NumberAnimation {
-                        duration: 200
-                        easing.type: Easing.OutQuad
-                    }
-                }
             }
         }
 
@@ -199,14 +268,116 @@ Column {
         }
 
         Item {
-            id: componentParent
-            width: source.width
-            height: source.height
-            anchors.centerIn: parent
-            // Cache the layer. This way heavy shaders rendering doesn't
-            // slow down code editing & rest of the UI.
-            layer.enabled: true
-            layer.smooth: true
+            id: imageScaler
+            x: root.previewMargin
+            y: root.previewMargin
+            width: parent.width - root.previewMargin * 2
+            height: parent.height - root.previewMargin * 2
+
+            scale: root.previewScale * (width > height ? height / sourceImage.sourceSize.height
+                                                       : width / sourceImage.sourceSize.width)
+
+            Behavior on x {
+                id: xBehavior
+
+                enabled: false
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            Behavior on y {
+                id: yBehavior
+
+                enabled: false
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            Behavior on scale {
+                id: scaleBehavior
+
+                enabled: false
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            function checkBounds() {
+                let edgeMargin = 10
+                // correction factor to account for an observation that edgeMargin decreases
+                // with increased zoom
+                let corrFactor = 10 * imageScaler.scale
+                let imgW2 = sourceImage.paintedWidth * imageScaler.scale * .5
+                let imgH2 = sourceImage.paintedHeight * imageScaler.scale * .5
+                let srcW2 = width * .5
+                let srcH2 = height * .5
+
+                if (imageScaler.x < -srcW2 - imgW2 + edgeMargin + corrFactor)
+                    imageScaler.x = -srcW2 - imgW2 + edgeMargin + corrFactor
+                else if (x > srcW2 + imgW2 - edgeMargin - corrFactor)
+                    imageScaler.x = srcW2 + imgW2 - edgeMargin - corrFactor
+
+                if (imageScaler.y < -srcH2 - imgH2 + edgeMargin + corrFactor)
+                    imageScaler.y = -srcH2 - imgH2 + edgeMargin + corrFactor
+                else if (y > srcH2 + imgH2 - edgeMargin - corrFactor)
+                    imageScaler.y = srcH2 + imgH2 - edgeMargin - corrFactor
+            }
+
+            function resetTransforms() {
+                imageScaler.enableAnim(true)
+                root.previewScale = 1
+                imageScaler.x = root.previewMargin
+                imageScaler.y = root.previewMargin
+                imageScaler.enableAnim(false)
+            }
+
+            function enableAnim(flag) {
+                xBehavior.enabled = flag
+                yBehavior.enabled = flag
+                scaleBehavior.enabled = flag
+            }
+
+            Item {
+                id: componentParent
+                width: source.width
+                height: source.height
+                anchors.centerIn: parent
+                // Cache the layer. This way heavy shaders rendering doesn't
+                // slow down code editing & rest of the UI.
+                layer.enabled: true
+                layer.smooth: true
+            }
+        }
+
+        Rectangle {
+            id: zoomIndicator
+
+            width: 40
+            height: 20
+            color: StudioTheme.Values.themeDialogBackground
+            visible: false
+
+            function show() {
+                zoomIndicator.visible = true
+                zoomIndicatorTimer.start()
+            }
+
+            Text {
+                text: Math.round(root.previewScale * 100) + "%"
+                color: StudioTheme.Values.themeTextColor
+                anchors.centerIn: parent
+            }
+
+            Timer {
+                id: zoomIndicatorTimer
+                interval: 1000
+                onTriggered: zoomIndicator.visible = false
+            }
         }
 
         Connections {

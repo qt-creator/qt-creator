@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QVector>
+#include <QVector3D>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -24,6 +25,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class BakeLights;
+class CameraSpeedConfiguration;
 class Edit3DWidget;
 class SnapConfiguration;
 
@@ -73,6 +75,7 @@ public:
 
     void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
+    void showContextMenu();
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
     void dropBundleEffect(const QPointF &pos);
@@ -83,11 +86,15 @@ public:
     bool isBakingLightsSupported() const;
 
     void syncSnapAuxPropsToSettings();
+    void setCameraSpeedAuxData(double speed, double multiplier);
+    void getCameraSpeedAuxData(double &speed, double &multiplier);
 
     const QList<SplitToolState> &splitToolStates() const;
     void setSplitToolState(int splitIndex, const SplitToolState &state);
 
     int activeSplit() const;
+    bool isSplitView() const;
+    void setFlyMode(bool enabled);
 
 private slots:
     void onEntriesChanged();
@@ -101,6 +108,7 @@ private:
         TextureDrop,
         ContextMenu,
         AssetDrop,
+        MainScenePick,
         None
     };
 
@@ -111,12 +119,14 @@ private:
     void handleEntriesChanged();
     void showMaterialPropertiesView();
     void updateAlignActionStates();
+    void setActive3DSceneId(qint32 sceneId);
 
     void createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction);
     void createGridColorSelectionAction();
     void createResetColorAction(QAction *syncEnvBackgroundAction);
     void createSyncEnvBackgroundAction();
     void createSeekerSliderAction();
+    void syncCameraSpeedToNewView();
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
 
@@ -158,6 +168,7 @@ private:
     std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
+    std::unique_ptr<Edit3DAction> m_cameraSpeedConfigAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 
     int particlemode;
@@ -166,14 +177,21 @@ private:
     ItemLibraryEntry m_droppedEntry;
     QString m_droppedFile;
     NodeAtPosReqType m_nodeAtPosReqType;
-    QPoint m_contextMenuPos;
+    QPoint m_contextMenuPosMouse;
+    QVector3D m_contextMenuPos3D;
     QTimer m_compressionTimer;
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
     QPointer<SnapConfiguration> m_snapConfiguration;
+    QPointer<CameraSpeedConfiguration> m_cameraSpeedConfiguration;
     int m_activeSplit = 0;
 
     QList<SplitToolState> m_splitToolStates;
+    QList<Edit3DAction *> m_flyModeDisabledActions;
+    ModelNode m_contextMenuPendingNode;
+
+    double m_previousCameraSpeed = -1.;
+    double m_previousCameraMultiplier = -1.;
 
     friend class Edit3DAction;
 };

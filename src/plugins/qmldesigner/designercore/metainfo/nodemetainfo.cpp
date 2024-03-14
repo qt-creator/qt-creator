@@ -26,6 +26,12 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
+// remove that if the old code model is removed
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
+QT_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+QT_WARNING_DISABLE_MSVC(4996)
+
 namespace QmlDesigner {
 
 /*!
@@ -1924,6 +1930,11 @@ bool NodeMetaInfo::defaultPropertyIsComponent() const
     return false;
 }
 
+TypeName NodeMetaInfo::displayName() const
+{
+    return {};
+}
+
 TypeName NodeMetaInfo::typeName() const
 {
     if (isValid())
@@ -2026,10 +2037,6 @@ SourceId NodeMetaInfo::sourceId() const
 QString NodeMetaInfo::componentFileName() const
 {
     if constexpr (!useProjectStorage()) {
-        if (isValid()) {
-            return m_privateData->componentFileName();
-        }
-    } else {
         if (isValid()) {
             return m_privateData->componentFileName();
         }
@@ -2366,6 +2373,16 @@ bool NodeMetaInfo::isQtObject() const
         return isBasedOnCommonType<QML, QtObject>(m_projectStorage, m_typeId);
     } else {
         return isValid() && (isSubclassOf("QtQuick.QtObject") || isSubclassOf("QtQml.QtObject"));
+    }
+}
+
+bool NodeMetaInfo::isQtQmlConnections() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && simplifiedTypeName() == "Connections";
     }
 }
 
@@ -2766,6 +2783,16 @@ bool NodeMetaInfo::isQtQuickListModel() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickListView() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, ListView>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && (isSubclassOf("QtQuick.ListView"));
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {
@@ -3008,6 +3035,17 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Studio_Components, JsonListModel>(m_projectStorage,
+                                                                             m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Studio.Utils.JsonListModel");
+    }
+}
+
 bool NodeMetaInfo::isQmlComponent() const
 {
     if constexpr (useProjectStorage()) {
@@ -3017,11 +3055,9 @@ bool NodeMetaInfo::isQmlComponent() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
-        return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
-               || type == "QML.Component" || type == "QtQml.Base.Component";
+        return type == "Component" || type == "QQmlComponent";
     }
 }
 
@@ -3031,7 +3067,7 @@ bool NodeMetaInfo::isFont() const
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
     } else {
-        return isValid() && m_privateData->qualfiedTypeName() == "font";
+        return isValid() && simplifiedTypeName() == "font";
     }
 }
 
@@ -3044,9 +3080,9 @@ bool NodeMetaInfo::isColor() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
-        return type == "QColor" || type == "color" || type == "QtQuick.color";
+        return type == "QColor" || type == "color" || type == "color";
     }
 }
 
@@ -3141,7 +3177,7 @@ bool NodeMetaInfo::isUrl() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "url" || type == "QUrl";
     }
@@ -3445,10 +3481,10 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
     if constexpr (!useProjectStorage()) {
         const QVariant variant = value;
         QVariant copyVariant = variant;
-        if (isEnumType() || variant.canConvert<Enumeration>())
-            return variant;
-
         const TypeName &typeName = propertyTypeName();
+        // skip casting flags and keep them as int. TODO: use flags as enums
+        if (isEnumType() || variant.canConvert<Enumeration>() || typeName.endsWith("Flags"))
+            return variant;
 
         QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 
@@ -3685,3 +3721,5 @@ CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(Prope
 }
 
 } // namespace QmlDesigner
+
+QT_WARNING_POP

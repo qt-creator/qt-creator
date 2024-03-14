@@ -7,6 +7,7 @@ import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
+import CollectionEditorBackend
 
 Item {
     id: root
@@ -15,8 +16,6 @@ Item {
     implicitHeight: boundingRect.height + 3
 
     property color textColor
-    property string sourceType
-    property bool hasSelectedTarget
 
     signal selectItem(int itemIndex)
     signal deleteItem()
@@ -116,7 +115,7 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Assign to the selected node")
-            enabled: root.hasSelectedTarget
+            enabled: CollectionEditorBackend.rootView.targetNodeSelected
             onTriggered: rootView.assignCollectionToSelectedNode(collectionName)
         }
     }
@@ -141,16 +140,9 @@ Item {
 
                 wrapMode: Text.WordWrap
                 color: StudioTheme.Values.themeTextColor
-                text: {
-                    if (root.sourceType === "json") {
-                        qsTr("Are you sure that you want to delete model \"%1\"?"
-                             + "\nThe model will be deleted permanently.").arg(collectionName)
-                    } else if (root.sourceType === "csv") {
-                        qsTr("Are you sure that you want to delete model \"%1\"?"
-                             + "\nThe model will be removed from the project "
-                             + "but the file will not be deleted.").arg(collectionName)
-                    }
-                }
+                text: qsTr("Are you sure that you want to delete model \"%1\"?"
+                           + "\nThe model will be deleted permanently.").arg(collectionName)
+
             }
 
             Spacer {}

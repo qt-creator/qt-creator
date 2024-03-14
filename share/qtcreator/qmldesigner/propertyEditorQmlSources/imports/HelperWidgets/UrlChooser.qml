@@ -28,6 +28,9 @@ Row {
     // Current item
     property string absoluteFilePath: ""
 
+    // If this property is set, this path will be opened instead of the default path
+    property string resourcesPath
+
     property alias comboBox: comboBox
     property alias spacer: spacer
     property alias actionIndicatorVisible: comboBox.actionIndicatorVisible
@@ -425,7 +428,7 @@ Row {
         // QtDS very slow. This will happen when selecting different items in the scene.
         comboBox.model = {}
 
-        let nameSet = new Set;
+        let nameMap = new Map;
 
         if (root.defaultItems !== undefined) {
             for (var i = 0; i < root.defaultItems.length; ++i) {
@@ -437,22 +440,32 @@ Row {
                     name: root.defaultItems[i],
                     group: 0
                 })
-                nameSet.add(root.defaultItems[i])
+                nameMap.set(root.defaultItems[i], i)
             }
         }
 
         const myModel = fileModel.model
         for (var j = 0; j < myModel.length; ++j) {
             let item = myModel[j]
-
-            if (!root.hideDuplicates || !nameSet.has(item.fileName)) {
+            if (root.hideDuplicates && nameMap.has(item.fileName)) {
+                // Prefer hiding imported asset files rather than other project files
+                let listIndex = nameMap.get(item.fileName)
+                if (comboBox.listModel.get(listIndex).absoluteFilePath.includes("/asset_imports/")) {
+                    comboBox.listModel.set(listIndex, {
+                        absoluteFilePath: item.absoluteFilePath,
+                        relativeFilePath: item.relativeFilePath,
+                        name: item.fileName,
+                        group: 1
+                    })
+                }
+            } else {
                 comboBox.listModel.append({
                     absoluteFilePath: item.absoluteFilePath,
                     relativeFilePath: item.relativeFilePath,
                     name: item.fileName,
                     group: 1
                 })
-                nameSet.add(item.fileName)
+                nameMap.set(item.fileName, comboBox.listModel.count - 1)
             }
         }
 
@@ -515,7 +528,7 @@ Row {
         icon: StudioTheme.Constants.addFile
         iconColor: root.textColor
         onClicked: {
-            fileModel.openFileDialog()
+            fileModel.openFileDialog(resourcesPath)
             if (fileModel.fileName !== "") {
                 root.backendValue.value = fileModel.fileName
                 root.absoluteFilePath = fileModel.resolve(root.backendValue.value)

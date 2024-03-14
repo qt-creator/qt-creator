@@ -34,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils3d.h>
 #include <qmldesignerplugin.h>
 
 #include <QApplication>
@@ -65,9 +66,10 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
             && model()->rewriterView()->errors().isEmpty()) {
             DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (doc && !doc->inFileComponentModelActive())
-                ensureMaterialLibraryNode();
+                Utils3D::ensureMaterialLibraryNode(this);
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
+                    Utils3D::materialLibraryNode(this).isValid());
             m_ensureMatLibTimer.stop();
         }
     });
@@ -375,13 +377,17 @@ void TextureEditorView::handleToolBarAction(int action)
         if (!model())
             break;
         executeInTransaction("TextureEditorView:handleToolBarAction", [&] {
-            ModelNode matLib = materialLibraryNode();
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
                 return;
-
+#ifdef QDS_USE_PROJECTSTORAGE
+            ModelNode newTextureNode = createModelNode("Texture");
+#else
             NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                            metaInfo.minorVersion());
+            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture",
+                                                       metaInfo.majorVersion(),
+                                                       metaInfo.minorVersion());
+#endif
             newTextureNode.validId();
             matLib.defaultNodeListProperty().reparentHere(newTextureNode);
         });
@@ -406,11 +412,15 @@ void TextureEditorView::handleToolBarAction(int action)
 
 void TextureEditorView::setupQmlBackend()
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+// This is an copy of the property editor code which is already rewritten. Please reuse that code.
+#else
     QUrl qmlPaneUrl;
     QUrl qmlSpecificsUrl;
     QString specificQmlData;
 
-    if (m_selectedTexture.isValid() && m_hasQuick3DImport && (materialLibraryNode().isValid() || m_hasTextureRoot)) {
+    if (m_selectedTexture.isValid() && m_hasQuick3DImport
+        && (Utils3D::materialLibraryNode(this).isValid() || m_hasTextureRoot)) {
         qmlPaneUrl = QUrl::fromLocalFile(textureEditorResourcesPath() + "/TextureEditorPane.qml");
 
         TypeName diffClassName;
@@ -457,7 +467,8 @@ void TextureEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
+    currentQmlBackend->contextObject()->setHasMaterialLibrary(
+        Utils3D::materialLibraryNode(this).isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
     currentQmlBackend->contextObject()->setHasSingleModelSelection(hasValidSelection);
@@ -471,6 +482,7 @@ void TextureEditorView::setupQmlBackend()
         m_dynamicPropertiesModel->reset();
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
+#endif
 }
 
 void TextureEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -745,14 +757,17 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
     QList<AbstractProperty> dynamicProps;
 
     executeInTransaction(__FUNCTION__, [&] {
-        ModelNode matLib = materialLibraryNode();
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
         if (!matLib.isValid())
             return;
 
         // create the duplicate texture
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlObjectNode duplicateTex = createModelNode(matType);
+#else
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateTex = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-
+#endif
         duplicateTextureNode = duplicateTex .modelNode();
         duplicateTextureNode.validId();
 

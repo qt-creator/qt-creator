@@ -152,9 +152,17 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,
                                     const QHash<QString, QString> &idRenamingHash,
                                     AbstractView *view, const MergePredicate &mergePredicate)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    ModelNode newNode = view->createModelNode(modelNode.type(),
+                                              {},
+                                              {},
+                                              modelNode.nodeSource(),
+                                              modelNode.nodeSourceType());
+#else
     NodeMetaInfo nodeMetaInfo = view->model()->metaInfo(modelNode.type());
     ModelNode newNode(view->createModelNode(modelNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
                                             {}, {}, modelNode.nodeSource(), modelNode.nodeSourceType()));
+#endif
     syncVariantProperties(newNode, modelNode);
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode, idRenamingHash);

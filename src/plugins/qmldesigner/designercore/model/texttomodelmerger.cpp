@@ -917,13 +917,13 @@ QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
 
 QmlDesigner::Imports createQt5Modules()
 {
-    return {QmlDesigner::Import::createLibraryImport("QtQuick", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Controls", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Window", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtCharts", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtDataVisulaization", "5.15"),
+    return {QmlDesigner::Import::createLibraryImport("QtQuick", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Controls", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Window", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "1.0"),
+            QmlDesigner::Import::createLibraryImport("QtCharts", "2.15"),
+            QmlDesigner::Import::createLibraryImport("QtDataVisulaization", "2.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Controls", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Effects", "1.0"),
             QmlDesigner::Import::createLibraryImport("FlowView", "1.0"),
@@ -1192,11 +1192,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     int majorVersion = -1;
     int minorVersion = -1;
 
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
@@ -1222,9 +1222,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             return;
 
         if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
-            qWarning() << "Preempting Node sync. Type differs" << modelNode <<
-                          modelNode.majorVersion() << modelNode.minorVersion();
-            return; // the difference handler will create a new node, so we're done.
+            qWarning() << "Preempting Node sync. Type differs" << modelNode
+                       << modelNode.majorVersion() << modelNode.minorVersion();
+
+            // Don't return when validating. We want node offset to be calculated and aux data
+            // to be correct.
+            if (differenceHandler.isAmender())
+                return; // the difference handler will create a new node, so we're done.
         }
     }
 
@@ -1559,11 +1563,12 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
 
     int majorVersion = -1;
     int minorVersion = -1;
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
@@ -2100,11 +2105,11 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
 
     int majorVersion = -1;
     int minorVersion = -1;
-    if constexpr (!useProjectStorage()) {
-        typeName = info.typeName();
-        majorVersion = info.majorVersion();
-        minorVersion = info.minorVersion();
-    }
+#ifndef QDS_USE_PROJECTSTORAGE
+    typeName = info.typeName();
+    majorVersion = info.majorVersion();
+    minorVersion = info.minorVersion();
+#endif
 
     const bool propertyTakesComponent = propertyHasImplicitComponentType(modelProperty, info);
 

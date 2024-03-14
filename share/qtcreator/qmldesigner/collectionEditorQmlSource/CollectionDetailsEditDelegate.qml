@@ -91,6 +91,11 @@ Item {
                     realStepSize: 1.0
                     decimals: 6
                     trailingZeroes: false
+
+                    onActiveFocusChanged: {
+                        if (realField.activeFocus)
+                            realField.contentItem.focus = true
+                    }
                 }
             }
         }
@@ -112,6 +117,11 @@ Item {
                     from: -2147483647
                     to: 2147483647
                     decimals: 0
+
+                    onActiveFocusChanged: {
+                        if (integerField.activeFocus)
+                            integerField.contentItem.focus = true
+                    }
                 }
             }
         }
@@ -161,6 +171,14 @@ Item {
 
             function onEscapePressed() {
                 editorLoader.changesAccepted = false
+                editorPopup.close()
+            }
+
+            function onReturnPressed() {
+                editorPopup.close()
+            }
+
+            function onEnterPressed() {
                 editorPopup.close()
             }
         }

@@ -11,6 +11,7 @@ Project {
 
     QDS.importPaths: [ "imports", "asset_imports" ]
     QDS.targetDirectory: "/opt/targetDirectory"
+    QDS.enableCMakeGeneration: true
     QDS.fileSelectors: [ "WXGA", "darkTheme", "ShowIndicator"]
 
     QDS.qdsVersion: "3.9"

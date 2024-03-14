@@ -49,14 +49,14 @@
             \endif
 
         \if defined(qtdesignstudio)
-        \li \l{Previewing Android applications}
-
-            Preview Android applications live using an Android emulator.
-
         \li \l{Sharing Applications Online}
 
             Share applications online and view them in a web browser.
 
+        \li \l{Viewing Applications on Android}
+
+           Preview your \QDS projects with \QUV. It is an application
+           that runs on your Android device.
         \else
         \li \l{Previewing in Browsers}
 

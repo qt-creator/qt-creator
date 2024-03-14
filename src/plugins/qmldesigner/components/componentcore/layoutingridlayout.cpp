@@ -169,9 +169,12 @@ void LayoutInGridLayout::doIt()
 
             m_selectionContext.view()->executeInTransaction("LayoutInGridLayout1",[this, &layoutNode, layoutType](){
                 QTC_ASSERT(m_selectionContext.view()->model()->hasNodeMetaInfo(layoutType), return);
-
+#ifdef QDS_USE_PROJECTSTORAGE
+                layoutNode = m_selectionContext.view()->createModelNode(layoutType);
+#else
                 NodeMetaInfo metaInfo = m_selectionContext.view()->model()->metaInfo(layoutType);
                 layoutNode = m_selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
+#endif
                 reparentTo(layoutNode, m_parentNode);
             });
 
@@ -387,10 +390,13 @@ void LayoutInGridLayout::fillEmptyCells()
                 if (y > 0)
                     yPos = m_yTopOffsets.at(y-1);
 
+#ifdef QDS_USE_PROJECTSTORAGE
+                ModelNode newNode = m_selectionContext.view()->createModelNode("Item");
+#else
                 NodeMetaInfo metaInfo = m_selectionContext.view()->model()->metaInfo("QtQuick.Item");
 
                 ModelNode newNode = m_selectionContext.view()->createModelNode("QtQuick.Item", metaInfo.majorVersion(), metaInfo.minorVersion());
-
+#endif
                 reparentTo(newNode, m_parentNode);
 
                 m_spacerNodes.append(newNode);

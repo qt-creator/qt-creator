@@ -90,6 +90,8 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/UntitledProject13"
 
+    enableCMakeGeneration: false
+
     qdsVersion: "4.0"
 
     quickVersion: "6.2"

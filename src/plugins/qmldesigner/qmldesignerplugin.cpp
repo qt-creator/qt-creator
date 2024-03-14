@@ -10,12 +10,12 @@
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
 #include "exception.h"
-#include "generateresource.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
+#include "resourcegenerator.h"
 #include "settingspage.h"
 #include "shortcutmanager.h"
 #include "toolbar.h"
@@ -26,6 +26,7 @@
 #include <designeractionmanager.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
+#include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
 #include <windowmanager.h>
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -73,10 +74,11 @@
 #include <utils/qtcassert.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <qplugin.h>
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
-#include <qplugin.h>
+#include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QQuickItem>
 #include <QScreen>
@@ -259,6 +261,15 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
+    if constexpr (isUsingQmlDesignerLite()) {
+        if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 tr("Qml Designer Lite"),
+                                 tr("The Qml Designer Lite plugin is not enabled."));
+            return false;
+        }
+    }
+
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
 
@@ -276,7 +287,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
     if (Core::ICore::isQtDesignStudio())
-        GenerateResource::generateMenuEntry(this);
+        ResourceGenerator::generateMenuEntry(this);
 
     const QString fontPath
         = Core::ICore::resourcePath(
@@ -381,6 +392,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
     Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
+    Core::Context qmlDesignerCollectionEditorContext(Constants::C_QMLCOLLECTIONEDITOR);
 
     context->context().add(qmlDesignerMainContext);
     context->context().add(qmlDesignerFormEditorContext);
@@ -388,6 +400,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     context->context().add(qmlDesignerNavigatorContext);
     context->context().add(qmlDesignerMaterialBrowserContext);
     context->context().add(qmlDesignerAssetsLibraryContext);
+    context->context().add(qmlDesignerCollectionEditorContext);
     context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
@@ -644,6 +657,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<PathTool>(d->externalDependencies));
     d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<View3DTool>());
 
     if (Core::ICore::isQtDesignStudio()) {
         d->mainWidget.initialize();

@@ -12,6 +12,10 @@
 #include <itemlibraryentry.h>
 #include <modelnode.h>
 
+namespace Core {
+class Command;
+}
+
 namespace QmlDesigner {
 
 class Edit3DView;
@@ -51,6 +55,8 @@ public:
 
     void showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d);
     void updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList);
+
+    const QHash<QAction *, Core::Command *> &actionToCommandHash() { return m_actionToCommandHash; }
 
 private slots:
     void onCreateAction(QAction *action);
@@ -100,6 +106,7 @@ private:
     QVector3D m_contextMenuPos3d;
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
     ItemLibraryEntry m_draggedEntry;
+    QHash<QAction *, Core::Command *> m_actionToCommandHash;
 };
 
 } // namespace QmlDesigner

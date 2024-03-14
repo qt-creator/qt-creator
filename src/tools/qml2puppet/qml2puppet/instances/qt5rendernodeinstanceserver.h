@@ -17,6 +17,7 @@ public:
     void clearScene(const ClearSceneCommand &command) override;
     void completeComponent(const CompleteComponentCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void changePropertyValues(const ChangeValuesCommand &command) override;
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -24,6 +25,8 @@ protected:
     void resizeCanvasToRootItem() override;
 
 private:
+    void makeDirtyRecursive(const ServerNodeInstance &instance);
+
     QSet<ServerNodeInstance> m_dirtyInstanceSet;
 };
 

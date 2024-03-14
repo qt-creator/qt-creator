@@ -15,6 +15,8 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
+#include <utils3d.h>
+
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -140,7 +142,7 @@ bool BakeLightsDataModel::reset()
     beginResetModel();
     m_dataList.clear();
 
-    m_view3dNode = BakeLights::resolveView3dNode(m_view);
+    m_view3dNode = Utils3D::activeView3dNode(m_view);
 
     // Find all models and lights in active View3D
     QList<ModelNode> nodes = m_view3dNode.allSubModelNodes();
@@ -353,10 +355,14 @@ void BakeLightsDataModel::apply()
         if (node.hasBindingProperty(propName))
             blmNode = node.bindingProperty(propName).resolveToModelNode();
         if (!blmNode.isValid() && data.enabled) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            blmNode = m_view->createModelNode("BakedLightmap");
+#else
             NodeMetaInfo metaInfo = m_view->model()->qtQuick3DBakedLightmapMetaInfo();
             blmNode = m_view->createModelNode("QtQuick3D.BakedLightmap",
                                           metaInfo.majorVersion(),
                                           metaInfo.minorVersion());
+#endif
             QString idPart;
             if (data.aliasProp.isEmpty())
                 idPart = data.id;

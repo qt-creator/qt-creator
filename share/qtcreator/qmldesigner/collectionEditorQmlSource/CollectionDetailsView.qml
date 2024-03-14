@@ -20,6 +20,10 @@ Rectangle {
     implicitHeight: 400
     color: StudioTheme.Values.themeControlBackground
 
+    function closeDialogs() {
+        editPropertyDialog.close()
+    }
+
     Column {
         id: topRow
 
@@ -245,7 +249,7 @@ Rectangle {
                             let row = index % tableView.model.rowCount()
 
                             tableView.model.selectRow(row)
-                            cellContextMenu.popup()
+                            cellContextMenu.showMenu(row)
                         }
                     }
 
@@ -295,66 +299,12 @@ Rectangle {
                         }
                     }
 
-                    StudioControls.Menu {
-                        id: cellContextMenu
+                    Connections {
+                        target: tableView.model
 
-                        width: 140
-
-                        StudioControls.MenuItem {
-                            HelperWidgets.IconLabel {
-                                icon: StudioTheme.Constants.addrowabove_medium
-
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    text: qsTr("Add row above")
-                                    color: StudioTheme.Values.themeTextColor
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 10
-                                }
-                            }
-
-                            onTriggered: root.model.insertRow(root.model.selectedRow)
-                        }
-
-                        StudioControls.MenuItem {
-                            HelperWidgets.IconLabel {
-                                icon: StudioTheme.Constants.addrowabove_medium
-
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    text: qsTr("Add row below")
-                                    color: StudioTheme.Values.themeTextColor
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 10
-                                }
-                            }
-
-                            onTriggered: root.model.insertRow(root.model.selectedRow + 1)
-                        }
-
-                        StudioControls.MenuItem {
-                            HelperWidgets.IconLabel {
-                                icon: StudioTheme.Constants.addrowabove_medium
-
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    text: qsTr("Delete this row")
-                                    color: StudioTheme.Values.themeTextColor
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 10
-                                }
-                            }
-
-                            onTriggered: root.model.removeRows(root.model.selectedRow, 1)
+                        function onModelReset() {
+                            tableView.clearColumnWidths()
+                            tableView.clearRowHeights()
                         }
                     }
                 }
@@ -432,6 +382,41 @@ Rectangle {
         text: "Xq"
     }
 
+    StudioControls.Menu {
+        id: cellContextMenu
+
+        property int rowIndex: -1
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        function showMenu(rowIndex) {
+            cellContextMenu.rowIndex = rowIndex
+            cellContextMenu.popup()
+        }
+
+        CellContextMenuItem {
+            id: addRowAboveCellMenuItem
+
+            itemText: qsTr("Add row above")
+            itemIcon: StudioTheme.Constants.addrowabove_medium
+            onTriggered: root.model.insertRow(cellContextMenu.rowIndex)
+        }
+        CellContextMenuItem {
+            id: addRowBelowCellMenuItem
+
+            itemText: qsTr("Add row below")
+            itemIcon: StudioTheme.Constants.addrowbelow_medium
+            onTriggered: root.model.insertRow(cellContextMenu.rowIndex + 1)
+        }
+        CellContextMenuItem {
+            id: deleteRowCellMenuItem
+
+            itemText: qsTr("Delete row")
+            itemIcon: StudioTheme.Constants.deleterow_medium
+            onTriggered: root.model.removeRows(cellContextMenu.rowIndex, 1)
+        }
+    }
+
     component HeaderDelegate: Rectangle {
         id: headerItem
 
@@ -490,14 +475,52 @@ Rectangle {
         ]
     }
 
+    component CellContextMenuItem: StudioControls.MenuItem {
+        id: cellContextMenuItemComponent
+
+        property alias itemText: cellContextMenuText.text
+        property alias itemIcon: cellContextMenuIcon.text
+        text: ""
+
+        implicitWidth: cellContextMenuRow.width
+        implicitHeight: cellContextMenuRow.height
+
+        Row {
+            id: cellContextMenuRow
+
+            property color textColor : cellContextMenuItemComponent.enabled
+                                       ? cellContextMenuItemComponent.highlighted
+                                         ? cellContextMenuItemComponent.style.text.selectedText
+                                         : cellContextMenuItemComponent.style.text.idle
+                                       : cellContextMenuItemComponent.style.text.disabled
+
+            spacing: 2 * StudioTheme.Values.contextMenuHorizontalPadding
+            height: StudioTheme.Values.defaultControlHeight
+            leftPadding: StudioTheme.Values.contextMenuHorizontalPadding
+            rightPadding: StudioTheme.Values.contextMenuHorizontalPadding
+
+            Text {
+                id: cellContextMenuIcon
+
+                color: cellContextMenuRow.textColor
+                text: StudioTheme.Constants.addrowabove_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: StudioTheme.Values.myIconFontSize
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                id: cellContextMenuText
+
+                color: cellContextMenuRow.textColor
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+    }
+
     EditPropertyDialog {
         id: editPropertyDialog
         model: root.model
-    }
-
-    Connections {
-        target: root.parent
-        function onIsHorizontalChanged() { editPropertyDialog.close() }
     }
 
     StudioControls.Dialog {

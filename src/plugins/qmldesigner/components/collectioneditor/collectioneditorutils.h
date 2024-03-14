@@ -8,6 +8,7 @@
 
 QT_BEGIN_NAMESPACE
 class QJsonArray;
+class QJsonObject;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -18,8 +19,6 @@ namespace QmlDesigner::CollectionEditorUtils {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
-CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
-
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
@@ -27,6 +26,10 @@ QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
 Utils::FilePath dataStoreJsonFilePath();
 
 Utils::FilePath dataStoreQmlFilePath();
+
+bool writeToJsonDocument(const Utils::FilePath &path,
+                         const QJsonDocument &document,
+                         QString *errorString = nullptr);
 
 bool isDataStoreNode(const ModelNode &dataStoreNode);
 
@@ -36,14 +39,8 @@ bool canAcceptCollectionAsModel(const ModelNode &node);
 
 bool hasTextRoleProperty(const ModelNode &node);
 
-QJsonArray defaultCollectionArray();
+QJsonObject defaultCollection();
 
-QJsonArray loadAsSingleJsonCollection(const QUrl &url);
-
-QJsonArray loadAsCsvCollection(const QUrl &url);
-
-QString getFirstColumnName(const QString &collectionName);
-
-bool collectionHasColumn(const QString &collectionName, const QString &columnName);
+QJsonObject defaultColorCollection();
 
 } // namespace QmlDesigner::CollectionEditorUtils

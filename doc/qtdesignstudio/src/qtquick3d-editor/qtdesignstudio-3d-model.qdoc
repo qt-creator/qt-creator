@@ -9,9 +9,9 @@
     \title 3D Models
 
     The \l Components view features some built-in primitive 3D models. This allows
-    you to add cubes, cones, cylinders, and planes (rectangles) to your scene.
+    you to add cubes, cones, cylinders, spheres, and planes (rectangles) to your scene.
 
-    \image studio-3d-models.png "Various 3D models in the 3D view"
+    \image studio-3d-models.webp "Various 3D models in the 3D view"
 
     A model component loads mesh data from a file. You can modify how the
     component is shaded by using materials. For more information, see

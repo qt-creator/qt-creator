@@ -387,8 +387,7 @@
     separate doc build folder, not in the project folder.
 
     To get the correct product name and version when building \QDS Manual, you
-    must run CMake with the branding option. The branding data is located in
-    the \QDS (private) repository, \c tqtc-plugin-qtquickdesigner.
+    must run CMake with the BUILD_DESIGNSTUDIO option.
 
     To build docs with CMake in a separate doc build folder:
 
@@ -408,12 +407,12 @@
         \li To also build Extending \QC Manual, add the following option:
             \c {-DBUILD_DEVELOPER_DOCS=ON}
         \li To also build the \QDS Manual, add the following option:
-            \c {"-DCMAKE_MODULE_PATH=<absolute_path_to_qtquickdesignerrepo>/studiodata/branding/"}
+            \c {-DBUILD_DESIGNSTUDIO=ON}
 
             For example:
             \badcode
             C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON -DBUILD_DEVELOPER_DOCS=ON
-                "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
+                -DBUILD_DESIGNSTUDIO=ON
                 "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
@@ -425,7 +424,7 @@
             \badcode
             C:\dev\qtc-doc-build>cmake -DWITH_ONLINE_DOCS=ON
                 -DBUILD_DEVELOPER_DOCS=ON
-                "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
+                -DBUILD_DESIGNSTUDIO=ON
                 "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
                 C:\dev\qtc-super\qtcreator
             \endcode

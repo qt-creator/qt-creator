@@ -17,6 +17,39 @@ class BindingModelBackendDelegate;
 class BindingModelItem;
 class ConnectionView;
 
+class BindingModelBackendDelegate : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QString targetNode READ targetNode NOTIFY targetNodeChanged)
+    Q_PROPERTY(StudioQmlComboBoxBackend *property READ property CONSTANT)
+    Q_PROPERTY(StudioQmlComboBoxBackend *sourceNode READ sourceNode CONSTANT)
+    Q_PROPERTY(StudioQmlComboBoxBackend *sourceProperty READ sourceProperty CONSTANT)
+
+signals:
+    void targetNodeChanged();
+
+public:
+    BindingModelBackendDelegate();
+
+    void update(const BindingProperty &property, AbstractView *view);
+
+private:
+    QString targetNode() const;
+    void sourceNodeChanged();
+    void sourcePropertyNameChanged() const;
+    void targetPropertyNameChanged() const;
+
+    StudioQmlComboBoxBackend *property();
+    StudioQmlComboBoxBackend *sourceNode();
+    StudioQmlComboBoxBackend *sourceProperty();
+
+    QString m_targetNode;
+    StudioQmlComboBoxBackend m_property;
+    StudioQmlComboBoxBackend m_sourceNode;
+    StudioQmlComboBoxBackend m_sourceNodeProperty;
+};
+
 class BindingModel : public QStandardItemModel
 {
     Q_OBJECT
@@ -29,10 +62,10 @@ public:
     Q_PROPERTY(BindingModelBackendDelegate *delegate READ delegate CONSTANT)
 
 public:
-    BindingModel(ConnectionView *parent = nullptr);
+    BindingModel(ConnectionView *view);
 
     ConnectionView *connectionView() const;
-    BindingModelBackendDelegate *delegate() const;
+    BindingModelBackendDelegate *delegate();
 
     int currentIndex() const;
     BindingProperty currentProperty() const;
@@ -63,41 +96,9 @@ private:
 
 private:
     ConnectionView *m_connectionView = nullptr;
-    BindingModelBackendDelegate *m_delegate = nullptr;
+    BindingModelBackendDelegate m_delegate;
     int m_currentIndex = -1;
 };
 
-class BindingModelBackendDelegate : public QObject
-{
-    Q_OBJECT
-
-    Q_PROPERTY(QString targetNode READ targetNode NOTIFY targetNodeChanged)
-    Q_PROPERTY(StudioQmlComboBoxBackend *property READ property CONSTANT)
-    Q_PROPERTY(StudioQmlComboBoxBackend *sourceNode READ sourceNode CONSTANT)
-    Q_PROPERTY(StudioQmlComboBoxBackend *sourceProperty READ sourceProperty CONSTANT)
-
-signals:
-    void targetNodeChanged();
-
-public:
-    BindingModelBackendDelegate(BindingModel *parent = nullptr);
-
-    void update(const BindingProperty &property, AbstractView *view);
-
-private:
-    QString targetNode() const;
-    void sourceNodeChanged();
-    void sourcePropertyNameChanged() const;
-    void targetPropertyNameChanged() const;
-
-    StudioQmlComboBoxBackend *property();
-    StudioQmlComboBoxBackend *sourceNode();
-    StudioQmlComboBoxBackend *sourceProperty();
-
-    QString m_targetNode;
-    StudioQmlComboBoxBackend m_property;
-    StudioQmlComboBoxBackend m_sourceNode;
-    StudioQmlComboBoxBackend m_sourceNodeProperty;
-};
 
 } // namespace QmlDesigner

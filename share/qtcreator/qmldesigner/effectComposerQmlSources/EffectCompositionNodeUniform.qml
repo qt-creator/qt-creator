@@ -17,24 +17,33 @@ Item {
     visible: !uniformUseCustomValue
 
     Component.onCompleted: {
-        if (uniformType === "int")
-            valueLoader.source = "ValueInt.qml"
-        else if (uniformType === "vec2")
+        if (uniformType === "int") {
+            if (uniformControlType === "channel")
+                valueLoader.source = "ValueChannel.qml"
+            else
+                valueLoader.source = "ValueInt.qml"
+        } else if (uniformType === "vec2") {
             valueLoader.source = "ValueVec2.qml"
-        else if (uniformType === "vec3")
+        } else if (uniformType === "vec3") {
             valueLoader.source = "ValueVec3.qml"
-        else if (uniformType === "vec4")
+        } else if (uniformType === "vec4") {
             valueLoader.source = "ValueVec4.qml"
-        else if (uniformType === "bool")
+        } else if (uniformType === "bool") {
             valueLoader.source = "ValueBool.qml"
-        else if (uniformType === "color")
+        } else if (uniformType === "color") {
             valueLoader.source = "ValueColor.qml"
-        else if (uniformType === "sampler2D")
+        } else if (uniformType === "sampler2D") {
             valueLoader.source = "ValueImage.qml"
-        else if (uniformType === "define")
-            valueLoader.source = "ValueDefine.qml"
-        else
+        } else if (uniformType === "define") {
+            if (uniformControlType === "int")
+                valueLoader.source = "ValueInt.qml"
+            else if (uniformControlType === "bool")
+                valueLoader.source = "ValueBool.qml"
+            else
+                valueLoader.source = "ValueDefine.qml"
+        } else {
             valueLoader.source = "ValueFloat.qml"
+        }
     }
 
     RowLayout {
@@ -44,7 +53,7 @@ Item {
         anchors.fill: parent
 
         Text {
-            text: uniformName
+            text: uniformDisplayName
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             horizontalAlignment: Text.AlignRight

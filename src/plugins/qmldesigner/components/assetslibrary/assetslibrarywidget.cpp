@@ -9,11 +9,12 @@
 #include "assetslibraryview.h"
 #include "designeractionmanager.h"
 #include "import.h"
-#include "nodemetainfo.h"
 #include "modelnodeoperations.h"
+#include "nodemetainfo.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "theme.h"
+#include <utils3d.h>
 
 #include <studioquickwidget.h>
 
@@ -229,25 +230,28 @@ int AssetsLibraryWidget::qtVersion() const
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute(filePaths, AddTextureMode::Texture,
-                                 m_assetsView->model()->active3DSceneId());
+        m_createTextures.execute(filePaths,
+                                 AddTextureMode::Texture,
+                                 Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
 void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute({filePath}, AddTextureMode::LightProbe,
-                                 m_assetsView->model()->active3DSceneId());
+        m_createTextures.execute({filePath},
+                                 AddTextureMode::LightProbe,
+                                 Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
 void AssetsLibraryWidget::updateContextMenuActionsEnableState()
 {
-    setHasMaterialLibrary(m_assetsView->materialLibraryNode().isValid()
+    setHasMaterialLibrary(Utils3D::materialLibraryNode(m_assetsView).isValid()
                           && m_assetsView->model()->hasImport("QtQuick3D"));
 
-    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(m_assetsView->model()->active3DSceneId());
+    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(
+        Utils3D::active3DSceneId(m_assetsView->model()));
     setHasSceneEnv(activeSceneEnv.isValid());
 }
 
@@ -269,8 +273,11 @@ void AssetsLibraryWidget::setHasSceneEnv(bool b)
     emit hasSceneEnvChanged();
 }
 
-void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
+void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList &effectNames)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+// That code has to rewritten with modules. Seem try to find all effects nodes.
+#else
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!document)
         return;
@@ -334,6 +341,9 @@ void AssetsLibraryWidget::handleDeleteEffects(const QStringList &effectNames)
     // contain only unworkable states.
     if (clearStacks)
         document->clearUndoRedoStacks();
+
+    m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
+#endif
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)

@@ -8,6 +8,7 @@
 #include "nodemetainfo.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
+#include <utils3d.h>
 
 #include <utils/qtcassert.h>
 
@@ -24,7 +25,7 @@ void MaterialUtils::assignMaterialTo3dModel(AbstractView *view, const ModelNode 
 {
     QTC_ASSERT(modelNode.isValid() && modelNode.metaInfo().isQtQuick3DModel(), return);
 
-    ModelNode matLib = view->materialLibraryNode();
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
 
     if (!matLib.isValid())
         return;
@@ -46,10 +47,14 @@ void MaterialUtils::assignMaterialTo3dModel(AbstractView *view, const ModelNode 
 
         // if no valid material, create a new default material
         if (!newMaterialNode.isValid()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+            newMaterialNode = view->createModelNode("PrincipledMaterial");
+#else
             NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
             newMaterialNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
                                                     metaInfo.majorVersion(),
                                                     metaInfo.minorVersion());
+#endif
             newMaterialNode.validId();
         }
     }

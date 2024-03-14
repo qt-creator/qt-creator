@@ -10,6 +10,7 @@ ColorEditorPopup 1.0 impl/ColorEditorPopup.qml
 ColorPalette 1.0 impl/ColorPalette.qml
 ColorPicker 1.0 impl/ColorPicker.qml
 ComboBox 1.0 ComboBox.qml
+CustomComboBox 1.0 CustomComboBox.qml
 ComboBoxInput 1.0 ComboBoxInput.qml
 ContextMenu 1.0 ContextMenu.qml
 Dialog 1.0 Dialog.qml

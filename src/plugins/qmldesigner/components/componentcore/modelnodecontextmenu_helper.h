@@ -69,6 +69,18 @@ inline bool modelHasMaterial(const SelectionContext &selectionState)
     return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveToModelNodeList().empty());
 }
 
+inline bool hasCollectionAsModel(const SelectionContext &selectionState)
+{
+    if (!selectionState.isInBaseState() || !selectionState.singleNodeIsSelected())
+        return false;
+
+    const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
+
+    return singleSelectedNode.metaInfo().isQtQuickListView()
+           && singleSelectedNode.property("model").toBindingProperty().expression().startsWith(
+               "DataStore.");
+}
+
 inline bool selectionEnabled(const SelectionContext &selectionState)
 {
     return selectionState.showSelectionTools();
@@ -83,6 +95,12 @@ inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 {
     return selectionState.singleNodeIsSelected()
         && !selectionState.currentSingleSelectedNode().isRootNode();
+}
+
+inline bool singleSelectionView3D(const SelectionContext &selectionState)
+{
+    return selectionState.singleNodeIsSelected()
+           && selectionState.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D();
 }
 
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
@@ -112,7 +130,7 @@ inline bool singleSelectedItem(const SelectionContext &selectionState)
 }
 
 bool selectionHasSameParent(const SelectionContext &selectionState);
-bool selectionIsComponent(const SelectionContext &selectionState);
+bool selectionIsEditableComponent(const SelectionContext &selectionState);
 bool singleSelectionItemIsAnchored(const SelectionContext &selectionState);
 bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);
 bool selectionIsImported3DAsset(const SelectionContext &selectionState);

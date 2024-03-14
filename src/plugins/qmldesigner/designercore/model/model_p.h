@@ -5,6 +5,8 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include "abstractview.h"
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include "metainfo.h"
@@ -36,6 +38,8 @@ class NodeInstanceView;
 class NodeMetaInfoPrivate;
 
 namespace Internal {
+
+using namespace NanotraceHR::Literals;
 
 class InternalNode;
 class InternalProperty;
@@ -133,7 +137,6 @@ public:
 
     /*factory methods for internal use in model and rewriter*/
     void removeNodeAndRelatedResources(const InternalNodePointer &node);
-    void removeNode(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);
     void changeNodeType(const InternalNodePointer &node, const TypeName &typeName, int majorVersion, int minorVersion);
 
@@ -310,6 +313,7 @@ public:
 
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
+    void removeNode(const InternalNodePointer &node);
 
 private:
     void removePropertyWithoutNotification(InternalProperty *property);
@@ -329,6 +333,7 @@ private:
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
+    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model"_t);
 
 private:
     Model *m_model = nullptr;
@@ -353,6 +358,7 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
+
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };

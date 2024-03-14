@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,44 +6,51 @@
     \previouspage studio-getting-started.html
     \nextpage {Tutorials}
 
-    \title Installation
+    \title Installing \QDS
 
-    You can install \QDS either using a stand-alone installation package or \QOI.
-    The installers copy all the modules and tools you need
-    to design UIs and preview them on the desktop to your computer and configure
-    them for you. \QDS is available for Linux, \macOS, and Windows operating
-    systems. For more information, see \l{Supported Platforms}.
+    Install \QDS using \QOI. If you have Qt installed, install \QDS using
+    \QMT. If your business wants to explore \QDS, get
+    the free Qt evaluation package. If you're a student or a teacher,
+    get \QDS using the Qt Edu license.
 
-    To begin, create a \l{Qt Account}. This account gives you access to a web
-    portal to manage your licenses and download the standalone \QDS package or
-    \QOI. Alternatively, you can download an evaluation
-    package \l{https://www.qt.io/product/ui-design-tools}{here}.
-
-    After the installation, you can start exploring \QDS by following
-    \l{Tutorials}{tutorials}, opening
-    \l{Examples}{examples}, watching videos, and reading
-    this manual.
-
-    \section1 Stand-Alone Installation
-
-    You can download the \QDS installer for your operating system (\macos,
-    Linux, or Windows) from your Qt Account. Start the installation as you
-    would for any other software, and follow the instructions of the
-    installer to complete it.
+    \QDS is available on several operating systems. For more information, see
+    \l{Supported Platforms}.
 
     \section1 Using \QOI
 
-    You can download \QOI for your operating system
-    from your Qt Account.
+    Download \QOI from your Qt Account. If you don't have a Qt Account,
+    create one \l {Qt Account}{here}.
 
     \list 1
-        \li Start \QOI.
-        \li Select \uicontrol {Design Tools}.
-            \image studio-installation.png "Design Tools selected in Qt Online Installer"
+        \li Open \QOI.
+        \li Select \uicontrol {\QDS}.
+            \image studio-installation.webp "Qt Design Studio selected in Qt Online Installer"
         \li Select \uicontrol Next and follow the instructions of the
             installer to complete the installation.
     \endlist
 
-    For more information about the installation process, see
-    \l{Getting Started with Qt}.
+    If you can't use \QOI, use \QDS offline installer instead. Get \QDS offline installer
+    from your Qt Account under \uicontrol Downloads > \uicontrol Products.
+
+    \section1 Using \QMT
+
+    \QMT is included in each Qt installation. If you already have Qt, use \QMT to install \QDS.
+
+    \list 1
+        \li Open \QMT.
+        \li Select \uicontrol {Add or remove components}.
+        \li Select \uicontrol {\QDS}.
+        \li Select \uicontrol Next and follow the instructions of the installer to complete
+            the installation.
+    \endlist
+
+    \section1 Using Qt Evaluation
+
+    Businesses can get a free Qt evaluation package. To start the trial of \QDS, fill the
+    evaluation form \l{Try Qt}{here}.
+
+    \section1 Using Qt Edu license
+
+    Students and teachers can get a licensing package for learning purposes.
+    To apply for the educational license and install \QDS, see \l {Qt Edu for Designers}.
 */

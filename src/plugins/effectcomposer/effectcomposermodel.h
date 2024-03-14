@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QRegularExpression>
 #include <QTemporaryFile>
+#include <QTimer>
 
 namespace ProjectExplorer {
 class Target;
@@ -47,7 +48,6 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
-    Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
@@ -83,7 +83,7 @@ public:
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
 
-    const QString &qmlComponentString() const;
+    Q_INVOKABLE QString qmlComponentString() const;
 
     Q_INVOKABLE void updateQmlComponent();
 
@@ -170,14 +170,17 @@ private:
     void bakeShaders();
     void saveResources(const QString &name);
 
-    QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
+    QString getGeneratedMessage() const;
+    QString getDesignerSpecifics() const;
+
+    void connectCompositionNode(CompositionNode *node);
 
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
-    bool m_isEmpty = true;
+    bool m_isEmpty = false;  // Init to false to force initial bake after setup
     bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
@@ -208,6 +211,7 @@ private:
     bool m_loadComponentImages = true;
     bool m_isEnabled = true;
     QString m_currentComposition;
+    QTimer m_rebakeTimer;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

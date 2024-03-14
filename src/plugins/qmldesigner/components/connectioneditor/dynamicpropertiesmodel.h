@@ -7,7 +7,10 @@
 
 #include "nodeinstanceglobal.h"
 #include "studioquickwidget.h"
+
 #include <QStandardItemModel>
+
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -28,7 +31,7 @@ public:
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
     Q_PROPERTY(DynamicPropertiesModelBackendDelegate *delegate READ delegate CONSTANT)
 
-    DynamicPropertiesModel(bool explicitSelection, AbstractView *parent);
+    DynamicPropertiesModel(bool explicitSelection, AbstractView *view);
 
     AbstractView *view() const;
     DynamicPropertiesModelBackendDelegate *delegate() const;
@@ -76,7 +79,7 @@ public:
 
 private:
     AbstractView *m_view = nullptr;
-    DynamicPropertiesModelBackendDelegate *m_delegate = nullptr;
+    std::unique_ptr<DynamicPropertiesModelBackendDelegate> m_delegate;
     int m_currentIndex = -1;
 
     // TODO: Remove.
@@ -94,7 +97,7 @@ class DynamicPropertiesModelBackendDelegate : public QObject
     Q_PROPERTY(StudioQmlTextBackend *value READ value CONSTANT)
 
 public:
-    DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel *parent = nullptr);
+    DynamicPropertiesModelBackendDelegate();
 
     void update(const AbstractProperty &property);
 

@@ -225,8 +225,19 @@ ModelNode TransitionEditorView::addNewTransition()
 
     if (!idPropertyList.isEmpty()) {
         executeInTransaction(
-                    " TransitionEditorView::addNewTransition", [&transition, idPropertyList, root, this]() {
+            " TransitionEditorView::addNewTransition", [&transition, idPropertyList, root, this]() {
 
+#ifdef QDS_USE_PROJECTSTORAGE
+                transition = createModelNode("Transition",
+                                             {{
+                                                  "from",
+                                                  "*",
+                                              },
+                                              {
+                                                  "to",
+                                                  "*",
+                                              }});
+#else
             const NodeMetaInfo transitionMetaInfo = model()->metaInfo("QtQuick.Transition");
             transition = createModelNode("QtQuick.Transition",
                                          transitionMetaInfo.majorVersion(),
@@ -239,28 +250,38 @@ ModelNode TransitionEditorView::addNewTransition()
                                               "to",
                                               "*",
                                           }});
-            transition.setAuxiliaryData(transitionDurationProperty, 2000);
-            transition.validId();
-            root.nodeListProperty("transitions").reparentHere(transition);
+#endif
+                transition.setAuxiliaryData(transitionDurationProperty, 2000);
+                transition.validId();
+                root.nodeListProperty("transitions").reparentHere(transition);
 
-            for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
-                ModelNode parallelAnimation = createModelNode("QtQuick.ParallelAnimation");
-                transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
-                for (const QString &property : it.value()) {
-                    ModelNode sequentialAnimation
-                            = createModelNode("QtQuick.SequentialAnimation");
-                    parallelAnimation.defaultNodeAbstractProperty().reparentHere(
-                                sequentialAnimation);
+                for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
+                    ModelNode parallelAnimation = createModelNode("QtQuick.ParallelAnimation");
+                    transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
+                    for (const QString &property : it.value()) {
+                        ModelNode sequentialAnimation = createModelNode(
+                            "QtQuick.SequentialAnimation");
+                        parallelAnimation.defaultNodeAbstractProperty().reparentHere(
+                            sequentialAnimation);
 
+#ifdef QDS_USE_PROJECTSTORAGE
+                        ModelNode pauseAnimation = createModelNode("PauseAnimation",
+                                                                   {{"duration", 50}});
+#else
                     const NodeMetaInfo pauseMetaInfo = model()->metaInfo("QtQuick.PauseAnimation");
 
                     ModelNode pauseAnimation = createModelNode("QtQuick.PauseAnimation",
                                                                pauseMetaInfo.majorVersion(),
                                                                pauseMetaInfo.minorVersion(),
                                                                {{"duration", 50}});
-                    sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
-                                pauseAnimation);
+#endif
+                        sequentialAnimation.defaultNodeAbstractProperty().reparentHere(pauseAnimation);
 
+#ifdef QDS_USE_PROJECTSTORAGE
+                        ModelNode propertyAnimation = createModelNode("PropertyAnimation",
+                                                                      {{"property", property},
+                                                                       {"duration", 150}});
+#else
                     const NodeMetaInfo propertyMetaInfo = model()->metaInfo("QtQuick.PauseAnimation");
 
                     ModelNode propertyAnimation = createModelNode("QtQuick.PropertyAnimation",
@@ -268,11 +289,12 @@ ModelNode TransitionEditorView::addNewTransition()
                                                                   propertyMetaInfo.minorVersion(),
                                                                   {{"property", property},
                                                                    {"duration", 150}});
-                    propertyAnimation.bindingProperty("target").setExpression(it.key());
-                    sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
-                                propertyAnimation);
+#endif
+                        propertyAnimation.bindingProperty("target").setExpression(it.key());
+                        sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
+                            propertyAnimation);
+                    }
                 }
-            }
             });
     } else {
         QString properties;

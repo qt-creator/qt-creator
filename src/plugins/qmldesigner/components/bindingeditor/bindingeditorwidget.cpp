@@ -132,14 +132,14 @@ void BindingDocument::applyFontSettings()
 {
     TextDocument::applyFontSettings();
     m_semanticHighlighter->updateFontSettings(fontSettings());
-    if (!isSemanticInfoOutdated())
+    if (!isSemanticInfoOutdated() && semanticInfo().isValid())
         m_semanticHighlighter->rerun(semanticInfo());
 }
 
 void BindingDocument::triggerPendingUpdates()
 {
     TextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
-    if (!isSemanticInfoOutdated())
+    if (!isSemanticInfoOutdated() && semanticInfo().isValid())
         m_semanticHighlighter->rerun(semanticInfo());
 }
 

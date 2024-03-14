@@ -42,6 +42,19 @@ Row {
 
     property bool __block: false
 
+    function getColorFromEditValue() {
+        if (!edit)
+            return "white" // default color for Rectangle
+
+        if (colorEditor.isVector3D) {
+            return Qt.rgba(__editColor.x,
+                           __editColor.y,
+                           __editColor.z, 1)
+        }
+
+        return __editColor
+    }
+
     function resetShapeColor() {
         if (edit)
             edit = ""
@@ -64,7 +77,7 @@ Row {
     // Syncing color from backend to frontend and block reflection
     function syncColor() {
         colorEditor.__block = true
-        colorEditor.color = colorEditor.value
+        colorEditor.color = colorEditor.getColorFromEditValue()
         hexTextField.syncColor()
         colorEditor.__block = false
     }
@@ -201,10 +214,10 @@ Row {
             }
 
             function isSolid() {
-                 if (!loader.active)
-                     return true
+                if (!loader.active)
+                    return true
 
-                 return popupDialog.loaderItem.isSolid()
+                return popupDialog.loaderItem.isSolid()
             }
 
             function isLinearGradient(){
@@ -221,6 +234,7 @@ Row {
 
             function open() {
                 popupDialog.ensureLoader()
+                popupDialog.loaderItem.initEditor()
                 popupDialog.show(preview)
             }
 

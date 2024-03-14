@@ -31,13 +31,13 @@ using namespace NanotraceHR::Literals;
 constexpr NanotraceHR::Tracing projectStorageTracingStatus()
 {
 #ifdef ENABLE_PROJECT_STORAGE_TRACING
-    return NanotraceHR::tracingStatus();
+    return NanotraceHR::Tracing::IsEnabled;
 #else
     return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory();
+[[gnu::pure]] NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory();
 
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface

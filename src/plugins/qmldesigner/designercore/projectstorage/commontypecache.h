@@ -55,6 +55,7 @@ inline constexpr char InstanceListEntry[] = "InstanceListEntry";
 inline constexpr char InstanceList[] = "InstanceList";
 inline constexpr char IntType[] = "int";
 inline constexpr char Item[] = "Item";
+inline constexpr char JsonListModel[] = "JsonListModel";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
 inline constexpr char Keyframe[] = "Keyframe";
 inline constexpr char Layout[] = "Layout";
@@ -171,11 +172,11 @@ class CommonTypeCache
                                    CacheType<QML, var>,
                                    CacheType<QML_cppnative, FloatType>,
                                    CacheType<QML_cppnative, UIntType>,
+                                   CacheType<QtQml, Connections>,
                                    CacheType<QtMultimedia, SoundEffect>,
                                    CacheType<QtQml_Models, ListElement>,
                                    CacheType<QtQml_Models, ListModel>,
                                    CacheType<QtQuick, BorderImage>,
-                                   CacheType<QtQuick, Connections>,
                                    CacheType<QtQuick, GridView>,
                                    CacheType<QtQuick, Image>,
                                    CacheType<QtQuick, Item>,
@@ -243,6 +244,7 @@ class CommonTypeCache
                                    CacheType<QtQuick_Extras, Picture>,
                                    CacheType<QtQuick_Layouts, Layout>,
                                    CacheType<QtQuick_Studio_Components, GroupItem>,
+                                   CacheType<QtQuick_Studio_Components, JsonListModel>,
                                    CacheType<QtQuick_Templates, Control>,
                                    CacheType<QtQuick_Timeline, Keyframe>,
                                    CacheType<QtQuick_Timeline, KeyframeGroup>,

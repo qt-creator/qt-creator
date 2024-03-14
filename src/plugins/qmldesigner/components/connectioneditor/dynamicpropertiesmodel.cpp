@@ -23,10 +23,9 @@
 
 namespace QmlDesigner {
 
-DynamicPropertiesModel::DynamicPropertiesModel(bool exSelection, AbstractView *parent)
-    : QStandardItemModel(parent)
-    , m_view(parent)
-    , m_delegate(new DynamicPropertiesModelBackendDelegate(this))
+DynamicPropertiesModel::DynamicPropertiesModel(bool exSelection, AbstractView *view)
+    : m_view(view)
+    , m_delegate(std::make_unique<DynamicPropertiesModelBackendDelegate>())
     , m_explicitSelection(exSelection)
 {
     setHorizontalHeaderLabels(DynamicPropertiesItem::headerLabels());
@@ -39,7 +38,7 @@ AbstractView *DynamicPropertiesModel::view() const
 
 DynamicPropertiesModelBackendDelegate *DynamicPropertiesModel::delegate() const
 {
-    return m_delegate;
+    return m_delegate.get();
 }
 
 int DynamicPropertiesModel::currentIndex() const
@@ -383,9 +382,8 @@ void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
     reset();
 }
 
-DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel *parent)
-    : QObject(parent)
-    , m_internalNodeId(std::nullopt)
+DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate()
+    : m_internalNodeId(std::nullopt)
 {
     m_type.setModel({"int", "bool", "var", "real", "string", "url", "color"});
     connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this] { handleTypeChanged(); });

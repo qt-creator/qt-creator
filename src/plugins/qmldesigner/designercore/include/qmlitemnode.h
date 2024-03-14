@@ -111,6 +111,7 @@ public:
     QSizeF instanceSize() const;
     int instancePenWidth() const;
     bool instanceIsRenderPixmapNull() const;
+    bool instanceIsVisible() const;
 
     QPixmap instanceRenderPixmap() const;
     QPixmap instanceBlurredRenderPixmap() const;

@@ -323,7 +323,7 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
-            if (excludedImports.contains(import.url()))
+            if (excludedImports.contains(import.url()) || import.url().startsWith("Effects."))
                 continue;
             bool addNew = true;
             bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
@@ -371,10 +371,13 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
         else
             metaInfo = model->metaInfo(entry.typeName());
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        bool valid = metaInfo.isValid();
+#else
         bool valid = metaInfo.isValid()
                      && (metaInfo.majorVersion() >= entry.majorVersion()
                          || metaInfo.majorVersion() < 0);
-
+#endif
         bool isItem = valid && metaInfo.isQtQuickItem();
         bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
