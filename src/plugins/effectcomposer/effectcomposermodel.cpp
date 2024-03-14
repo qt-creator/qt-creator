@@ -1729,6 +1729,19 @@ void EffectComposerModel::setIsEnabled(bool enabled)
     emit isEnabledChanged();
 }
 
+bool EffectComposerModel::hasValidTarget() const
+{
+    return m_hasValidTarget;
+}
+
+void EffectComposerModel::setHasValidTarget(bool validTarget)
+{
+    if (m_hasValidTarget == validTarget)
+        return;
+    m_hasValidTarget = validTarget;
+    emit hasValidTargetChanged();
+}
+
 QString EffectComposerModel::getQmlImagesString(bool localFiles)
 {
     QString imagesString;

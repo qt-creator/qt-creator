@@ -4,6 +4,7 @@
 #pragma once
 
 #include "abstractview.h"
+#include "modelnode.h"
 
 #include <coreplugin/icontext.h>
 
@@ -35,6 +36,8 @@ public:
     // AbstractView
     void modelAttached(QmlDesigner::Model *model) override;
     void modelAboutToBeDetached(QmlDesigner::Model *model) override;
+    void selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
+                              const QList<QmlDesigner::ModelNode> &lastSelectedNodeList) override;
 
 private:
     void customNotification(const AbstractView *view, const QString &identifier,

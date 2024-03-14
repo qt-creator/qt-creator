@@ -48,6 +48,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
+    Q_PROPERTY(bool hasValidTarget READ hasValidTarget WRITE setHasValidTarget NOTIFY hasValidTargetChanged)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
@@ -76,6 +77,9 @@ public:
 
     bool isEnabled() const;
     void setIsEnabled(bool enabled);
+
+    bool hasValidTarget() const;
+    void setHasValidTarget(bool validTarget);
 
     QString fragmentShader() const;
     void setFragmentShader(const QString &newFragmentShader);
@@ -110,6 +114,7 @@ signals:
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void isEnabledChanged();
+    void hasValidTargetChanged();
     void shadersBaked();
     void currentCompositionChanged();
     void nodesChanged();
@@ -210,6 +215,7 @@ private:
     QString m_qmlComponentString;
     bool m_loadComponentImages = true;
     bool m_isEnabled = true;
+    bool m_hasValidTarget = false;
     QString m_currentComposition;
     QTimer m_rebakeTimer;
 

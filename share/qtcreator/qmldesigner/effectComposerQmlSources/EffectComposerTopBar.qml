@@ -58,7 +58,8 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.assignTo_medium
             tooltip: qsTr("Assign current composition to selected item")
-            enabled: root.backendModel ? root.backendModel.isEnabled
+            enabled: root.backendModel ? root.backendModel.hasValidTarget
+                                         && root.backendModel.isEnabled
                                          && root.backendModel.currentComposition !== ""
                                        : false
 

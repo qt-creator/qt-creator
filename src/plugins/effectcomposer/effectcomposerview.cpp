@@ -105,4 +105,19 @@ void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
+void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> & selectedNodeList,
+                                              const QList<QmlDesigner::ModelNode> & /*lastSelectedNodeList*/)
+{
+    bool hasValidTarget = false;
+
+    for (const QmlDesigner::ModelNode &node : selectedNodeList) {
+        if (node.metaInfo().isQtQuickItem()) {
+            hasValidTarget = true;
+            break;
+        }
+    }
+
+    m_widget->effectComposerModel()->setHasValidTarget(hasValidTarget);
+}
+
 } // namespace EffectComposer
