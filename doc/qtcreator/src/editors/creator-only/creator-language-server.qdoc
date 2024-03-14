@@ -238,12 +238,13 @@
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
-    When using \c qmlls from Qt 6.7 or later, it is recommended
-    to set \l{QT_QML_GENERATE_QMLLS_INI} to \c{ON} in
-    \uicontrol {Initial Configuration}.
+    When using \c qmlls from Qt 6.7 or later, set \l{QT_QML_GENERATE_QMLLS_INI}
+    to \c{ON} in \uicontrol Projects > \uicontrol {Build Settings}
+    > \uicontrol {Initial Configuration}.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {Language Servers}
+    {Enabling and Disabling Messages}, {CMake Build Configuration},
+    {Language Servers}
 */
 
 /*!
