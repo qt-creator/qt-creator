@@ -153,6 +153,19 @@ void convertToString(String &string, double number)
     string.append(Utils::SmallString::number(number));
 }
 
+template<typename Enumeration>
+constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
+template<typename String, typename Enumeration, typename = std::enable_if_t<std::is_enum_v<Enumeration>>>
+void convertToString(String &string, Enumeration enumeration)
+{
+    string.append(Utils::SmallString::number(to_underlying(enumeration)));
+}
+
 template<typename String>
 void convertToString(String &string, const QString &text)
 {
