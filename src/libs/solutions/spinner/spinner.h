@@ -27,6 +27,7 @@ class SPINNER_EXPORT Spinner : public QObject
 public:
     explicit Spinner(SpinnerSize size, QWidget *parent = nullptr);
     void setSize(SpinnerSize size);
+    void setColor(const QColor &color);
     void show();
     void hide();
     bool isVisible() const;

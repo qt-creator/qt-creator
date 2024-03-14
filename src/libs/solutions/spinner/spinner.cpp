@@ -72,6 +72,8 @@ public:
 
     void setUpdateCallback(const UpdateCallback &cb) { m_callback = cb; }
 
+    void setColor(const QColor &color);
+
     QSize size() const { return m_pixmap.size() / m_pixmap.devicePixelRatio(); }
     void paint(QPainter &painter, const QRect &rect) const;
     void startAnimation() { m_timer.start(); }
@@ -87,6 +89,7 @@ private:
     QTimer m_timer;
     mutable QPixmap m_pixmap;
     UpdateCallback m_callback;
+    QColor m_color;
 };
 
 static QString imageFileNameForSpinnerSize(SpinnerSize size)
@@ -102,12 +105,12 @@ static QString imageFileNameForSpinnerSize(SpinnerSize size)
     return {};
 }
 
-static QPixmap themedPixmapForSpinnerSize(SpinnerSize size, qreal dpr)
+static QPixmap themedPixmapForSpinnerSize(SpinnerSize size, const QColor &color, qreal dpr)
 {
     QImage mask(qt_findAtNxFile(imageFileNameForSpinnerSize(size), dpr));
     mask.invertPixels();
     QImage themedImage(mask.size(), QImage::Format_ARGB32);
-    themedImage.fill(qApp->palette().text().color());
+    themedImage.fill(color);
     themedImage.setAlphaChannel(mask);
     QPixmap themedPixmap = QPixmap::fromImage(themedImage);
     themedPixmap.setDevicePixelRatio(mask.devicePixelRatio());
@@ -115,6 +118,7 @@ static QPixmap themedPixmapForSpinnerSize(SpinnerSize size, qreal dpr)
 }
 
 SpinnerPainter::SpinnerPainter(SpinnerSize size)
+    : m_color(qApp->palette().text().color())
 {
     m_timer.setSingleShot(false);
     QObject::connect(&m_timer, &QTimer::timeout, &m_timer, [this] {
@@ -130,14 +134,20 @@ void SpinnerPainter::setSize(SpinnerSize size)
     m_size = size;
     m_rotationStep = size == SpinnerSize::Small ? 45 : 30;
     m_timer.setInterval(size == SpinnerSize::Small ? 100 : 80);
-    m_pixmap = themedPixmapForSpinnerSize(size, qApp->devicePixelRatio());
+    m_pixmap = themedPixmapForSpinnerSize(size, m_color, qApp->devicePixelRatio());
+}
+
+void SpinnerPainter::setColor(const QColor &color)
+{
+    m_color = color;
+    m_pixmap = themedPixmapForSpinnerSize(m_size, m_color, qApp->devicePixelRatio());
 }
 
 void SpinnerPainter::paint(QPainter &painter, const QRect &rect) const
 {
     const qreal dpr = painter.device()->devicePixelRatioF();
     if (!qFuzzyCompare(m_pixmap.devicePixelRatio(), dpr))
-        m_pixmap = themedPixmapForSpinnerSize(m_size, dpr);
+        m_pixmap = themedPixmapForSpinnerSize(m_size, m_color, dpr);
     painter.save();
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     QPoint translate(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);
@@ -172,6 +182,11 @@ public:
         updateGeometry();
     }
     QSize sizeHint() const final { return m_paint.size(); }
+
+    void setColor(const QColor &color)
+    {
+        m_paint.setColor(color);
+    }
 
 protected:
     void showEvent(QShowEvent *) final { m_paint.startAnimation(); }
@@ -229,6 +244,14 @@ Spinner::Spinner(SpinnerSize size, QWidget *parent)
 void Spinner::setSize(SpinnerSize size)
 {
     m_widget->setSize(size);
+}
+
+/*!
+    Sets the color of the spinner to the given color.
+*/
+void Spinner::setColor(const QColor &color)
+{
+    m_widget->setColor(color);
 }
 
 /*!

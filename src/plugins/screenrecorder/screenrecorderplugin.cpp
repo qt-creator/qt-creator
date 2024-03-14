@@ -86,6 +86,7 @@ public:
         });
 
         m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, this);
+        m_spinner->setColor(creatorTheme()->color(Theme::IconsBaseColor));
         m_spinner->hide();
 
         layout()->setSizeConstraint(QLayout::SetFixedSize);
