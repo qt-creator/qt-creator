@@ -10,13 +10,13 @@
 /*!
     \page creator-preferences-text-editor-font-colors.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-options.html
-    \nextpage studio-debugging.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference-preferences-text-editor
+    \ingroup studio-preferences-code
 
     \title Font & Colors
 
@@ -50,13 +50,13 @@
 /*!
     \page creator-how-to-change-editor-colors.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-options.html
-    \nextpage studio-debugging.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-configure-editors
+    \ingroup studio-how-to-code
 
     \title Change editor colors
 

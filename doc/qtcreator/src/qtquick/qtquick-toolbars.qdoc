@@ -16,6 +16,7 @@
     \endif
 
     \ingroup creator-how-to-edit
+    \ingroup studio-how-to-code
 
     \title Edit properties of QML types
 

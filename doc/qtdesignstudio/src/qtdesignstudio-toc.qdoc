@@ -28,6 +28,10 @@
                                 \li \l{Timeline}
                                 \li \l{Curves}
                                 \li \l{Code}
+                                    \generatelist studio-how-to-code
+                                    \generatelist studio-how-to-refactor-code
+                                    \generatelist studio-how-to-search
+                                    \generatelist studio-preferences-code
                                 \li \l{Projects}
                                 \li \l{File System}
                                 \li \l{Open Documents}
@@ -197,33 +201,6 @@
         \li \l{Implementing Applications}
             \list
                 \li \l{Designer-Developer Workflow}
-                \li \l{Coding}{Cross-Platform Development}
-                    \list
-                        \li Writing Code
-                            \list
-                                \li \l{Semantic Highlighting}
-                                \li \l{Check code syntax}
-                                \li \l{JavaScript and QML Checks}
-                                \li \l{Qt Quick Code Style}
-                                \li \l{Automatically format QML/JS files}
-                                \li \l{Complete code}
-                                \li \l{Indent text or code}
-                                \li \l{Behavior}
-                            \endlist
-                        \li \l{Finding}
-                            \list
-                                \li \l{Search in current file}
-                                \li \l{Search in projects or file systems}
-                                \li \l{Rename symbols}
-                                \li \l{Jump to the Code}
-                            \endlist
-                        \li \l{Apply quick fixes}
-                        \li \l{QML quick fixes}
-                        \li \l{Configuring the Editor}
-                            \list
-                                \li \l{Font & Colors}
-                            \endlist
-                    \endlist
                 \li \l{Debugging and Profiling}
                     \list
                         \li \l{Debugging Qt Quick Projects}

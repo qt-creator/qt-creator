@@ -25,10 +25,6 @@
         \endlist
         \li \l{Tutorials}
             \generatelist creator-tutorials
-        \li \l{Coding}
-        \list
-            \li \l{Configuring the Editor}
-        \endlist
         \li \l{Running on Devices}
         \list
             \li \l{Validating with Target Hardware}

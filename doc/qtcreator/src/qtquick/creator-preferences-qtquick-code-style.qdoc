@@ -4,13 +4,13 @@
 /*!
     \page creator-preferences-qtquick-code-style.html
     \if defined(qtdesignstudio)
-    \previouspage creator-preferences-text-editor-behavior.html
-    \nextpage qt-quick-toolbars.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference-preferences
+    \ingroup studio-preferences-code
 
     \title Qt Quick Code Style
 

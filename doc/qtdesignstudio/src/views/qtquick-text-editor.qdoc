@@ -8,10 +8,10 @@
 
     \title Code
 
-    In the \uicontrol {Code} view, you can view and modify the code in a
-    \l{UI Files}{UI file} (.ui.qml) or component file (.qml) that is generated
-    when you create components in the \l {2D} or \l {3D} view and specify
-    their properties in \l Properties.
+    To view and modify the code in a \l{UI Files}{UI file} (.ui.qml) or
+    component file (.qml), go to \uicontrol View and select \uicontrol Views >
+    \uicontrol Code. \QDS generates the code when you create components in the
+    \l {2D} or \l {3D} view and specify their properties in \l Properties.
 
     \image qtquick-text-editor.png "The Code view"
 
@@ -19,22 +19,13 @@
 
     \section1 Editing Code
 
-    The code editor offers semantic highlighting, syntax checking,
+    The \uicontrol Code view offers semantic highlighting, syntax checking,
     code completion, code indentation, context sensitive help, and
     in-line error indicators while you are typing.
 
     For more information, see:
 
-    \list
-        \li \l{Semantic Highlighting}
-        \li \l{Check code syntax}
-        \li \l{JavaScript and QML Checks}
-        \li \l{Qt Quick Code Style}
-        \li \l{Automatically format QML/JS files}
-        \li \l{Complete code}
-        \li \l{Indent text or code}
-        \li \l{Edit properties of QML types}
-    \endlist
+    \generatelist studio-how-to-code
 
     \section1 Semantic Highlighting
 
@@ -45,6 +36,10 @@
     To select the color scheme for semantic highlighting, go to
     \preferences > \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
+    For more information, see:
+
+    \generatelist studio-how-to-highlight-code
+
     \section1 Refactoring Code
 
     Code refactoring is the process of improving and simplifying code without
@@ -52,7 +47,14 @@
     and rename symbols and apply quick fixes in the \uicontrol Code view to
     refactor code.
 
+    For more information, see:
+
+    \generatelist studio-how-to-refactor-code
+
     \section1 Searching in Code
+
+    The incremental search highlights the matching strings in the
+    \uicontrol Code view while you type.
 
     To open the search dialog in the \uicontrol {Code} view:
 
@@ -62,6 +64,25 @@
         \li Select \key Ctrl + \key {F} (or \key Cmd + \key F on \macos).
     \endlist
 
-    \sa {Finding}, {Apply quick fixes}, {Download highlight definitions},
-    {Highlight code blocks}, {QML Quick Fixes}
+    With advanced search, you can search in currently open projects or
+    files on the file system.
+
+    For more information, see:
+
+    \generatelist studio-how-to-search
+
+    \section1 Setting Code view Preferences
+
+    To set preference for the \uicontrol Code view, go to \preferences >
+    \uicontrol {Text Editor}.
+
+    \image qtcreator-font-colors.png {Text Editor preferences}
+
+    The settings you specify apply globally to all projects.
+
+    For more information, see:
+
+    \generatelist studio-preferences-code
+
+    \sa {Jump to the Code}
 */

@@ -10,6 +10,7 @@
     \endif
 
     \ingroup creator-how-to-edit
+    \ingroup studio-how-to-highlight-code
 
     \title Download highlight definitions
 
@@ -77,6 +78,7 @@
     \endif
 
     \ingroup creator-how-to-edit
+    \ingroup studio-how-to-highlight-code
 
     \title Highlight code blocks
 
