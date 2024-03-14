@@ -330,7 +330,7 @@ function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
     "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PLUGIN_MANUAL_DEPENDS;PROPERTIES"
     ${ARGN}
   )
 
@@ -421,6 +421,21 @@ function(add_qtc_plugin target_name)
       "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
     )
   endforeach(i)
+  list(LENGTH _arg_PLUGIN_MANUAL_DEPENDS manualdep_len)
+  math(EXPR manualdep_maxindex "${manualdep_len}-1")
+  if(manualdep_len GREATER 0)
+    # three items per entry: name, version, typeofdependency
+    foreach (i RANGE 0 ${manualdep_maxindex} 3)
+      math(EXPR dep_version_i "${i} + 1")
+      math(EXPR dep_type_i "${i} + 2")
+      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_name)
+      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_version_i} dep_version)
+      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_type_i} dep_type)
+      string(APPEND _arg_DEPENDENCY_STRING
+        "        { \"Name\" : \"${dep_name}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
+      )
+    endforeach()
+  endif()
 
   string(REPLACE "}        {" "},\n        {"
     _arg_DEPENDENCY_STRING "${_arg_DEPENDENCY_STRING}"

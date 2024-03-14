@@ -154,7 +154,7 @@
 
     For \l {Creating a Qt for Python Application with Qt Widgets}{Python} projects,
     start debugging the \c main.py file. If you encounter problems, check the
-    active build target in the \l{Building for Multiple Platforms}{kit selector}.
+    active build target in the \l{Build for many platforms}{kit selector}.
 
     \section1 Debugger Operating Modes
 
@@ -1992,7 +1992,7 @@
             the right hand side to find out what went wrong. Always attach the
             contents of the pane to debugger-related questions to the \QC
             mailing list (qt-creator@qt-project.org) or paste them to a
-            \l{Pasting and Fetching Code Snippets}{code pasting service} before
+            \l{Paste and fetch code snippets}{code pasting service} before
             asking questions in the IRC (on the #qt-creator channel at Libera.Chat).
 
             \note Error 135 usually means that a dependent DLL cannot be found.

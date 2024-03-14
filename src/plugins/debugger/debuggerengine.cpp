@@ -1438,6 +1438,9 @@ void DebuggerEnginePrivate::updateState()
         return;
     QTC_ASSERT(m_threadLabel, return);
 
+    if (m_isDying)
+        return;
+
     const DebuggerState state = m_state;
     const bool companionPreventsAction = m_engine->companionPreventsActions();
 
@@ -1762,6 +1765,10 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
             d->m_logWindow->showInput(LogInput, msg);
             d->m_logWindow->showOutput(LogInput, msg);
             break;
+        case LogOutput:
+        case LogWarning:
+            d->m_logWindow->showOutput(channel, msg);
+            break;
         case LogError:
             d->m_logWindow->showInput(LogError, "ERROR: " + msg);
             d->m_logWindow->showOutput(LogError, "ERROR: " + msg);
@@ -1776,7 +1783,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
             emit appendMessageRequested(msg, StdErrFormat, false);
             break;
         default:
-            d->m_logWindow->showOutput(channel, msg);
+            d->m_logWindow->showOutput(channel, QString("[%1] %2").arg(debuggerName(), msg));
             break;
     }
 }
@@ -1793,6 +1800,9 @@ void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &resu
     switch (state()) {
     case DebuggerFinished:
         // Nothing to do.
+        break;
+    case EngineSetupRequested:
+        notifyEngineSetupFailed();
         break;
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
@@ -2011,11 +2021,16 @@ void DebuggerEngine::quitDebugger()
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
         break;
-    case EngineRunFailed:
-    case DebuggerFinished:
+    case DebuggerNotReady:
+    case EngineSetupFailed:
     case InferiorShutdownFinished:
+    case EngineRunFailed:
+    case EngineShutdownFinished:
+    case DebuggerFinished:
         break;
-    default:
+    case InferiorRunRequested:
+    case InferiorRunFailed:
+    case InferiorStopRequested:
         // FIXME: We should disable the actions connected to that.
         notifyInferiorIll();
         break;

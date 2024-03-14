@@ -48,5 +48,5 @@
     use with CMake.
 
     \sa {Conan Build Configuration}, {Enable and disable plugins},
-    {Using CMake with Conan}
+    {Using CMake with Package Managers}
 */

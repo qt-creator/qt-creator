@@ -78,7 +78,7 @@ DetailsButton::DetailsButton(QWidget *parent)
 
 QSize DetailsButton::sizeHint() const
 {
-    const QSize textSize = fontMetrics().size(Qt::TextSingleLine, text());
+    const QSize textSize = fontMetrics().size(Qt::TextSingleLine | Qt::TextShowMnemonic, text());
     return QSize(spacing + textSize.width() + spacing + 16 + spacing,
                  spacing + fontMetrics().height() + spacing);
 }
@@ -107,7 +107,7 @@ void DetailsButton::paintEvent(QPaintEvent *e)
         qDrawPlainRect(&p, rect(), outlineColor());
 
     const QRect textRect(spacing + 3, 0, width(), height());
-    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());
+    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, text());
     if (creatorTheme()->flag(Theme::FlatProjectsMode) || HostOsInfo::isMacHost()) {
         const QRect iconRect(width() - spacing - 15, 0, 16, height());
         icon().paint(&p, iconRect);

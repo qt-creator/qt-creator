@@ -181,7 +181,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
             this, &LanguageClientSettingsPageWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(Tr::tr("&Add"));
-    auto addMenu = new QMenu;
+    auto addMenu = new QMenu(this);
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
         auto action = new QAction(type.name);

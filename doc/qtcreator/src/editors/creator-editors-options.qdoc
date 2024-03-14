@@ -49,11 +49,6 @@
         \li Add, modify, and remove \l{Snippets}{code snippets} in
             \uicontrol Snippets.
 
-        \if defined(qtcreator)
-        \li View and remove \l{Using Text Editing Macros}{text editing macros}
-            in \uicontrol Macros.
-        \endif
-
         \li Configure \l{Completion}{code completion} in \uicontrol Completion.
 
     \endlist

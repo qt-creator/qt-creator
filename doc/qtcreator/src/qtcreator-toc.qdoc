@@ -32,14 +32,10 @@
                 \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
                 \li \l{Using Qt Quick Toolbars}
-                \li \l{Pasting and Fetching Code Snippets}
-                \li \l{Using Text Editing Macros}
-                \li \l{Comparing Files}
             \endlist
             \li \l{Configuring the Editor}
-            \li \l{Using GitHub Copilot}
         \endlist
-        \li \l{Building and Running}
+        \li \l{Running on Devices}
         \list
             \li \l{Validating with Target Hardware}
             \list
@@ -47,7 +43,6 @@
                 \li \l{Previewing on Devices}
                 \li \l{Previewing in Browsers}
             \endlist
-            \li \l{Building for Multiple Platforms}
             \li \l{Deploying to Devices}
             \list
                 \li \l{Deploying to Android}

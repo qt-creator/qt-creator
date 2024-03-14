@@ -116,9 +116,9 @@ Store QnxQtVersion::toMap() const
     return result;
 }
 
-void QnxQtVersion::fromMap(const Store &map, const FilePath &, bool forceRefreshCache)
+void QnxQtVersion::fromMap(const Store &map, const FilePath &)
 {
-    QtVersion::fromMap(map, {}, forceRefreshCache);
+    QtVersion::fromMap(map, {});
     setSdpPath(FilePath::fromSettings(map.value(SDP_PATH_KEY)));
 }
 

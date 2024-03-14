@@ -139,7 +139,7 @@ public:
             const QPixmap croppedLogo = logo.copy(cropR);
             const int lineHeight = welcomeTF.lineHeight();
             const QPixmap scaledCroppedLogo =
-                croppedLogo.scaledToHeight((lineHeight - 12) * devicePixelRatioF(),
+                croppedLogo.scaledToHeight((lineHeight - 12) * croppedLogo.devicePixelRatioF(),
                                            Qt::SmoothTransformation);
             ideIconLabel->setPixmap(scaledCroppedLogo);
             ideIconLabel->setFixedHeight(lineHeight);

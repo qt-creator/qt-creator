@@ -87,8 +87,13 @@ bool DynamicListModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QVariant DynamicListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < m_header.size())
+    if (orientation == Qt::Vertical || section < 0 || section >= m_header.size())
+        return {};
+    if (role == Qt::DisplayRole)
         return m_header.at(section);
+    if (role == Qt::TextAlignmentRole)
+        return int(Qt::AlignLeft | Qt::AlignVCenter);
+
     return {};
 }
 

@@ -11,6 +11,7 @@
 #include <QCommonStyle>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QIcon>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
@@ -856,11 +857,7 @@ QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 
 QString StyleHelper::imageFileWithResolution(const QString &fileName, int dpr)
 {
-    const QFileInfo fi(fileName);
-    return dpr == 1 ? fileName :
-                      fi.path() + QLatin1Char('/') + fi.completeBaseName()
-                      + QLatin1Char('@') + QString::number(dpr)
-                      + QLatin1String("x.") + fi.suffix();
+    return qt_findAtNxFile(fileName, dpr);
 }
 
 QList<int> StyleHelper::availableImageResolutions(const QString &fileName)

@@ -81,7 +81,7 @@ McuKitCreationDialog::McuKitCreationDialog(const MessagesList &messages,
     if (messages.empty()) {
         fixButton->setVisible(false);
         m_informationLabel->setText(
-            QCoreApplication::translate("QtC::Autotest", "No errors detected"));
+            QCoreApplication::translate("QtC::Autotest", "No errors detected."));
     }
 
     if (messages.size() < 2) {

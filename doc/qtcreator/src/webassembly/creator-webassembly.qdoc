@@ -109,7 +109,7 @@
     \endlist
 
     You can now build Qt applications in WebAssembly format and run them in
-    a web browser as described in \l {Building for Multiple Platforms} and
+    a web browser as described in \l {Build for many platforms} and
     \l{Run on many platforms}.
 
     \sa {Enable and disable plugins}

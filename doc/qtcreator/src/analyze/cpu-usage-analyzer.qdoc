@@ -505,4 +505,6 @@
 
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
+
+    \sa {Profiling Function Execution}
 */

@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-language-servers.html
     \page creator-copilot.html
-    \nextpage creator-mime-types.html
+    \previouspage creator-how-tos.html
 
-    \title Using GitHub Copilot
+    \ingroup creator-how-to-edit
+
+    \title Use GitHub Copilot
 
     The Copilot plugin (disabled by default) integrates
     \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
@@ -31,44 +32,43 @@
             {Copilot.vim/Readme.md}.
     \endlist
 
-    \section1 Setting Copilot Preferences
+    \section1 Set Copilot preferences
 
     To set preferences for using Copilot:
 
     \list 1
-        \li Select \preferences > \uicontrol Copilot.
+        \li Go to \preferences > \uicontrol Copilot.
             \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
-        \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
+        \li Select \uicontrol {Enable Copilot} to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
             your device, and authorize the GitHub Copilot plugin.
 
             The button turns into a \uicontrol {Sign Out} button.
-        \li In the \uicontrol {Node.js path} field, enter the full path to the
+        \li In \uicontrol {Node.js path}, enter the full path to the
             Node.js executable.
-        \li In the \uicontrol {Path to agent.js} field, enter the path to
+        \li In \uicontrol {Path to agent.js}, enter the path to
             agent.js in the Copilot Neovim plugin installation folder.
-        \li Select the \uicontrol {Auto request} check box to receive suggestions
+        \li Select \uicontrol {Auto request} to receive suggestions
             for the current text cursor position when you make changes.
-        \li Select the \uicontrol {Use proxy} check box to use a proxy server to
+        \li Select \uicontrol {Use proxy} to use a proxy server to
             connect to Copilot servers.
-        \li In the \uicontrol {Proxy host} field, enter the host name of the
+        \li In \uicontrol {Proxy host}, enter the host name of the proxy server.
+        \li In \uicontrol {Proxy port}, enter the port number of the
             proxy server.
-        \li In the \uicontrol {Proxy port} field, enter the port number of the
-            proxy server.
-        \li Select the \uicontrol {Reject unauthorized} check box to prevent the
+        \li Select \uicontrol {Reject unauthorized} to prevent the
             security risk presented by accepting unauthorized certificates from
             the proxy server.
-        \li In the \uicontrol {Proxy user} field, enter the user name to
+        \li In \uicontrol {Proxy user}, enter the user name to
             authenticate to the proxy server.
-        \li Select the \uicontrol {Save proxy password} check box to save the
+        \li Select \uicontrol {Save proxy password} to save the
             password to authenticate to the proxy server.
             \note The password is saved insecurely.
-        \li In the \uicontrol {Proxy password} field, enter the password to save.
-            To see the password as you type, select the \inlineimage icons/original-size.png
-            button.
+        \li In \uicontrol {Proxy password}, enter the password to save.
+            To see the password as you type, select
+            \inlineimage icons/original-size.png.
     \endlist
 
-    \section1 Receiving Suggestions
+    \section1 Receive suggestions
 
     When you write code in the \l {Edit Mode}{Edit} mode and
     \uicontrol {Auto request} is enabled, Copilot automatically makes
@@ -93,20 +93,19 @@
 
     To reject a suggestion, press \key Esc or the arrow keys.
 
-    \section1 Enabling and Disabling Suggestions
+    \section1 Turn suggestions on and off
 
-    You can enable and disable the Copilot suggestions either globally for all
+    You can turn the Copilot suggestions on and off either globally for all
     projects or at project level for a particular project.
 
-    To enable or disable Copilot suggestions globally, select the
-    \inlineimage icons/copilot.png
-    (\uicontrol {Toggle Copilot}) button. This also sets the value of the
-    \uicontrol {Enable Copilot} check box in \preferences accordingly.
+    To turn Copilot suggestions on or off globally, select
+    \inlineimage icons/copilot.png (\uicontrol {Toggle Copilot}). This also
+    sets the value of \uicontrol {Enable Copilot} in \preferences >
+    \uicontrol Copilot accordingly.
 
-    To enable or disable Copilot suggestions for a particular project,
-    select \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol Copilot, and then select or deselect the
-    \uicontrol {Enable Copilot} check box.
+    To turn Copilot suggestions on or off for a particular project,
+    go to \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol Copilot and then select or clear \uicontrol {Enable Copilot}.
 
-    \sa {Enable and disable plugins}
+    \sa {Enable and disable plugins}, {Edit Mode}
 */

@@ -77,7 +77,7 @@ private:
     DeviceManager * const m_deviceManager;
     DeviceManagerModel * const m_deviceManagerModel;
     QList<QPushButton *> m_additionalActionButtons;
-    IDeviceWidget *m_configWidget;
+    IDeviceWidget *m_configWidget = nullptr;
 
     QLabel *m_configurationLabel;
     QComboBox *m_configurationComboBox;
@@ -97,7 +97,6 @@ private:
 DeviceSettingsWidget::DeviceSettingsWidget()
     : m_deviceManager(DeviceManager::cloneInstance())
     , m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this))
-    , m_configWidget(nullptr)
 {
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
@@ -116,7 +115,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     connect(addButton, &OptionPushButton::clicked, this, &DeviceSettingsWidget::addDevice);
 
     QMenu *deviceTypeMenu = new QMenu(addButton);
-    QAction *defaultAction = new QAction(Tr::tr("&Start Wizard to Add Device..."));
+    QAction *defaultAction = new QAction(Tr::tr("&Start Wizard to Add Device..."), this);
     connect(defaultAction, &QAction::triggered, this, &DeviceSettingsWidget::addDevice);
     deviceTypeMenu->addAction(defaultAction);
     deviceTypeMenu->addSeparator();
@@ -128,7 +127,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             continue;
 
         //: Add <Device Type Name>
-        QAction *action = new QAction(Tr::tr("Add %1").arg(factory->displayName()));
+        QAction *action = new QAction(Tr::tr("Add %1").arg(factory->displayName()), this);
         deviceTypeMenu->addAction(action);
 
         connect(action, &QAction::triggered, this, [factory, this] {

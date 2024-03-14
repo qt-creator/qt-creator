@@ -402,7 +402,7 @@ static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QBy
 template <typename DtoType, template <typename> typename DtoStorageType>
 static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 {
-    const Storage<QByteArray> storage;
+    const Storage<std::optional<QByteArray>> storage;
 
     const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
         QNetworkRequest request(dtoStorage->url);
@@ -451,7 +451,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                 if constexpr (std::is_same_v<DtoType, Dto::DashboardInfoDto>) {
                     // Suppress logging error on unauthorized dashboard fetch
                     if (!dtoStorage->credential && error->type == "UnauthenticatedException")
-                        return DoneResult::Error;
+                        return DoneResult::Success;
                 }
 
                 errorString = Error(DashboardError(reply->url(), statusCode,
@@ -473,11 +473,15 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
     };
 
     const auto onDeserializeSetup = [storage](Async<expected_str<DtoType>> &task) {
+        if (!*storage)
+            return SetupResult::StopWithSuccess;
+
         const auto deserialize = [](QPromise<expected_str<DtoType>> &promise, const QByteArray &input) {
             promise.addResult(DtoType::deserializeExpected(input));
         };
         task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        task.setConcurrentCallData(deserialize, *storage);
+        task.setConcurrentCallData(deserialize, **storage);
+        return SetupResult::Continue;
     };
 
     const auto onDeserializeDone = [dtoStorage](const Async<expected_str<DtoType>> &task,
@@ -534,14 +538,21 @@ static Group authorizationRecipe()
         unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
         return SetupResult::Continue;
     };
-    const auto onUnauthorizedGroupDone = [unauthorizedDashboardStorage] {
+    const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage] {
         if (unauthorizedDashboardStorage->dtoData) {
-            dd->m_serverAccess = ServerAccess::NoAuthorization;
-            dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
-        } else {
-            dd->m_serverAccess = ServerAccess::WithAuthorization;
+            const Dto::DashboardInfoDto &dashboardInfo = *unauthorizedDashboardStorage->dtoData;
+            const QString &username = settings().server.username;
+            if (username.isEmpty()
+                || (dashboardInfo.username && *dashboardInfo.username == username)) {
+                dd->m_serverAccess = ServerAccess::NoAuthorization;
+                dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
+                return;
+            }
+            MessageManager::writeFlashing(QString("Axivion: %1")
+                .arg(Tr::tr("Unauthenticated access failed (wrong user), "
+                            "using authenticated access...")));
         }
-        return DoneResult::Success;
+        dd->m_serverAccess = ServerAccess::WithAuthorization;
     };
 
     const auto onCredentialLoopCondition = [](int) {
@@ -649,7 +660,7 @@ static Group authorizationRecipe()
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
             dtoRecipe(unauthorizedDashboardStorage),
-            onGroupDone(onUnauthorizedGroupDone)
+            Sync(onUnauthorizedDashboard)
         },
         Group {
             LoopUntil(onCredentialLoopCondition),

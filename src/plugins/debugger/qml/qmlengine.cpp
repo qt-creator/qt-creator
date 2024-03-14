@@ -478,12 +478,11 @@ void QmlEngine::gotoLocation(const Location &location)
 
 void QmlEngine::closeConnection()
 {
-    if (d->connectionTimer.isActive()) {
-        d->connectionTimer.stop();
-    } else {
-        if (QmlDebugConnection *connection = d->connection())
-            connection->close();
-    }
+    d->automaticConnect = false;
+    d->retryOnConnectFail = false;
+    d->connectionTimer.stop();
+    if (QmlDebugConnection *connection = d->connection())
+        connection->close();
 }
 
 void QmlEngine::startProcess()
@@ -515,8 +514,8 @@ void QmlEngine::shutdownInferior()
     d->runCommand({DISCONNECT});
 
     resetLocation();
-    stopProcess();
     closeConnection();
+    stopProcess();
 
     notifyInferiorShutdownFinished();
 }
@@ -574,6 +573,10 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
+    if (isDying()) {
+        notifyInferiorStopOk();
+        return;
+    }
     showMessage(INTERRUPT, LogInput);
     d->runDirectCommand(INTERRUPT);
     showStatusMessage(Tr::tr("Waiting for JavaScript engine to interrupt on next statement."));
@@ -948,6 +951,8 @@ Context QmlEngine::languageContext() const
 
 void QmlEngine::disconnected()
 {
+    if (isDying())
+        return;
     showMessage(Tr::tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
 }
@@ -1122,6 +1127,8 @@ bool QmlEngine::isConnected() const
 
 void QmlEngine::showConnectionStateMessage(const QString &message)
 {
+    if (isDying())
+        return;
     showMessage("QML Debugger: " + message, LogStatus);
 }
 

@@ -602,7 +602,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
 
     // Add changed/added items:
     for (int a : std::as_const(toAdd)) {
-        QtVersion *version = QtVersionManager::version(a)->clone(true);
+        QtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
         // Insert in the right place:

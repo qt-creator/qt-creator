@@ -60,8 +60,7 @@
         \li \l{Connecting Boot2Qt Devices}
         \li \l{Boot2Qt Run Settings}
         \li \l{Deploying to Boot2Qt}
-        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
-            {Qt Creator Plugin for Qt Application Manager}
+        \li \l{Run in Qt Application Manager}
     \endlist
 
     \section1 Remote Linux
@@ -77,8 +76,7 @@
         \li \l{Deploying to Remote Linux}
         \li \l{Remote Linux Run Settings}
         \li \l{Run on remote Linux devices}
-        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
-            {Qt Creator Plugin for Qt Application Manager}
+        \li \l{Run in Qt Application Manager}
     \endlist
 
     \section1 Microcontroller Units (MCU)

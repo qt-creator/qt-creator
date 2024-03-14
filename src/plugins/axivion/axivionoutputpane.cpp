@@ -349,6 +349,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_issuesView->setFrameShape(QFrame::StyledPanel); // Bring back Qt default
     m_issuesView->setFrameShadow(QFrame::Sunken);     // Bring back Qt default
     m_headerView = new IssueHeaderView(this);
+    m_headerView->setSectionsMovable(true);
     connect(m_headerView, &IssueHeaderView::sortTriggered,
             this, &IssuesWidget::onSearchParameterChanged);
     m_issuesView->setHeader(m_headerView);

@@ -454,8 +454,10 @@ bool ExamplesViewController::isVisible() const
 
 void ExampleSetModel::updateQtVersionList()
 {
-    QtVersions versions = QtVersionManager::sortVersions(QtVersionManager::versions(
-        [](const QtVersion *v) { return v->hasExamples() || v->hasDemos(); }));
+    QtVersions versions = QtVersionManager::sortVersions(
+        QtVersionManager::versions([](const QtVersion *v) {
+            return !v->qmakeFilePath().needsDevice() && (v->hasExamples() || v->hasDemos());
+        }));
 
     // prioritize default qt version
     ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();

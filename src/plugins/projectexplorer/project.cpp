@@ -465,7 +465,6 @@ void Project::removeAllVanishedTargets()
 
 Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
 {
-    const Id id = idFromMap(store);
     Id deviceTypeId = Id::fromSetting(store.value(Target::deviceTypeKey()));
     if (!deviceTypeId.isValid())
         deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
@@ -478,8 +477,7 @@ Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
             kit->setUnexpandedDisplayName(kitName);
             DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
             kit->setup();
-        },
-        id);
+        });
     QTC_ASSERT(k, return nullptr);
     auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
     if (!t->fromMap(store))

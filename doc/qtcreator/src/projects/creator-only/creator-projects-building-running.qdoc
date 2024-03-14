@@ -12,9 +12,7 @@
     \page creator-building-running.html
     \nextpage creator-live-preview.html
 
-    \title Building and Running
-
-    \image front-preview.png
+    \title Running on Devices
 
     \QC supports running and deploying Qt applications that you build
     for different target platforms or with different compilers, debuggers, or
@@ -30,12 +28,6 @@
             entire Qt Quick application on the desktop, as well as on
             Android and embedded Linux devices. The changes you make to
             the UI are instantly visible to you in the preview.
-
-        \li \l{Building for Multiple Platforms}
-
-            \e {Build configurations} have everything you need to compile
-            the sources into binaries. Build configurations use the tools and settings
-            defined in their corresponding kit.
 
         \li \l{Deploying to Devices}
 

@@ -173,3 +173,11 @@
     \externalpage https://developer.android.com/studio/install
     \title Android Studio Installation Guide
 */
+/*!
+    \externalpage https://doc-snapshots.qt.io/applicationmanager-dev/cmake-qt6-am-create-builtin-package.html
+    \title qt6_am_create_builtin_package
+*/
+/*!
+    \externalpage https://doc-snapshots.qt.io/applicationmanager-dev/cmake-qt6-am-create-installable-package.html
+    \title qt6_am_create_installable_package
+*/

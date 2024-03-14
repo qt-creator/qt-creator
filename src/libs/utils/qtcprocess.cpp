@@ -226,6 +226,7 @@ void DefaultImpl::start()
 
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
         arguments.prepend(program);
+        arguments.prepend("-E");
         arguments.prepend("-A");
         program = "sudo";
     }
@@ -1933,7 +1934,7 @@ void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
 #endif
     } else {
         handleStart();
-        if (!waitForFinished(timeout))
+        if (state() != QProcess::NotRunning && !waitForFinished(timeout))
             handleTimeout();
     }
     if (blockingThresholdMs > 0) {
