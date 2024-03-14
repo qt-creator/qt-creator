@@ -37,26 +37,6 @@
             JavaScript object notation (JSON) entity. In addition, you can run
             static checks on the QML and JavaScript code in your project to find
             common problems.
-
-        \li \l{Complete code}
-
-            \QC anticipates what you are going to write and completes code
-            and code snippets for elements, properties, and IDs.
-
-        \li \l{Indent text or code}
-
-            \QC indents text and code according to rules that you
-            specify separately for files that have C++, QML, or
-            Nim (experimental) code and for other text files.
-
-        \li \l{Using Qt Quick Toolbars}
-
-            When you edit QML code in the code editor, you specify the
-            properties of QML components. For some properties, such as
-            colors and font names, this is not a trivial task. For example,
-            few people can visualize the color \c {#18793f}. To easily edit
-            these properties, you can use the Qt Quick Toolbars.
-
     \endlist
 
     \if defined(qtcreator)

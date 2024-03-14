@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -10,56 +10,47 @@
 /*!
     \page qt-quick-toolbars.html
     \if defined(qtdesignstudio)
-    \previouspage creator-preferences-qtquick-code-style.html
-    \nextpage studio-finding.html
+    \previouspage qtquick-text-editor.html
     \else
-    \previouspage creator-completing-code.html
-    \nextpage creator-editor-codepasting.html
+    \previouspage creator-how-tos.html
     \endif
 
-    \title Using Qt Quick Toolbars
+    \ingroup creator-how-to-edit
 
-    When you select a QML type in the code and a toolbar is available,
-    a light bulb icon appears: \inlineimage icons/refactormarker.png
-    . Select the icon to open the toolbar.
+    \title Edit properties of QML types
 
-    To open toolbars immediately when you select a QML type, select
-    \preferences > \uicontrol {Qt Quick} >
-    \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
+    When you edit QML code in the code editor, you specify the properties of QML
+    types. For some properties, such as colors and font names, this is not a
+    trivial task. For example, few people can visualize the color \c {#18793f}.
+    To easily edit these properties, use the Qt Quick toolbars.
 
-    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+    When you select a QML type in the code and a light bulb icon appears
+    (\inlineimage icons/refactormarker.png), select it to open a toolbar
+    for changing the properties of that type.
 
-    Drag the toolbar to pin it to another location. Select
-    \inlineimage icons/pin.png
-    to unpin the toolbar and move it to its default location. To pin toolbars
-    by default, select \uicontrol {Pin Qt Quick Toolbar}.
+    \section1 Preview images
 
-    \section1 Previewing Images
-
-    The Qt Quick Toolbar for images allows you to edit the properties of
+    Edit the properties of
     \l {Border Image} and
     \if defined(qtdesignstudio)
-    \l {Images}{Image} items.
+    \l {Images}{Image} items
     \else
-    \l Image items.
+    \l Image items
     \endif
-
-    You can scale and tile the images, replace them with other images,
+    to scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
-    \image qml-toolbar-image.png "Qt Quick Toolbar for images"
+    \image qml-toolbar-image.png {Qt Quick Toolbar for images}
 
     To preview an image, double-click it on the toolbar. In the preview
     dialog, you can zoom the image. Drag the image margins to change them.
 
-    \image qml-toolbar-image-preview.png "Image preview dialog"
+    \image qml-toolbar-image-preview.png {Image preview dialog}
 
-    \section1 Formatting Text
+    \section1 Format text
 
-    The Qt Quick Toolbar for text allows you to edit the properties of
-    \l{Text} items.
-    You can change the font family and size as well as text formatting, style,
-    alignment, and color.
+    Edit the properties of \l{Text} items to change the font family and size,
+    as well as text formatting, style, alignment, and color.
 
     \note Move the mouse pointer over a color hex value in the code editor to
     see the color as a tooltip.
@@ -68,35 +59,53 @@
     cannot use the toolbar to edit it. The button for editing the property
     is disabled.
 
-    \image qml-toolbar-text.png "Qt Quick Toolbar for text"
+    \image qml-toolbar-text.png {Qt Quick Toolbar for text}
 
     By default, font size is specified as pixels. To use points, instead,
     change \uicontrol px to \uicontrol pt in the size field.
 
-    \section1 Previewing Animation
+    \section1 Preview animations
 
-    The Qt Quick Toolbar for animation allows you to edit the properties of
-    PropertyAnimation items and the items that inherit it. You can
-    change the easing curve type and duration. For some curves, you can also
+    Edit the properties of PropertyAnimation items and the items that inherit it
+    to change the easing curve type and duration. For some curves, you can also
     specify amplitude, period, and overshoot values.
 
-    \image qml-toolbar-animation.png "Qt Quick Toolbar for animation"
+    \image qml-toolbar-animation.png {Qt Quick Toolbar for animation}
 
     Select the play button to preview your changes.
 
-    \section1 Editing Rectangles
+    \section1 Edit rectangles
 
-    The Qt Quick Toolbar for rectangles allows you to edit the properties of
+    Edit the properties of
     \if defined(qtdesignstudio)
     \l {basic-rectangle}{Rectangle}
     \else
     Rectangle
     \endif
-    items. You can change the fill and border colors and add gradients.
+    items to change the fill and border colors and add gradients.
 
-    \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
+    \image qml-toolbar-rectangle.png {Qt Quick Toolbar for rectangles}
 
     To add gradient stop points, click above the gradient bar. To remove
     stop points, drag them upwards.
 
+    \section1 Show toolbars immediately
+
+    To open toolbars immediately when you select a QML type, select
+    \preferences > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
+
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+
+    \section1 Pin toolbars
+
+    Drag the toolbar to pin it to another location. Select
+    \inlineimage icons/pin.png to unpin the toolbar and move
+    it to its default location.
+
+    To pin toolbars by default, select \uicontrol {Pin Qt Quick Toolbar}.
+
+    \if defined(qtcreator)
+    \sa {Creating a Qt Quick Application}
+    \endif
 */

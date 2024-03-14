@@ -24,7 +24,7 @@
         \li \l{Checking Code Syntax}
         \li \l{Complete code}
         \li \l{Indent text or code}
-        \li \l{Using Qt Quick Toolbars}
+        \li \l{Edit properties of QML types}
     \endlist
 
     \section1 Refactoring Code
