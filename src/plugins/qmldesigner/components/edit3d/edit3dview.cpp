@@ -1225,7 +1225,7 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(),
         false,
         false,
-        toolbarIcon(DesignerIcons::SnappingConfIcon), // TODO proper icon
+        toolbarIcon(DesignerIcons::CameraSpeedConfigIcon),
         this,
         cameraSpeedConfigTrigger);
 

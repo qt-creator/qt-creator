@@ -57,7 +57,7 @@ Rectangle {
 
                 HelperWidgets.IconIndicator {
                     anchors.fill: parent
-                    icon: StudioTheme.Constants.snapping_conf_medium // TODO update icon
+                    icon: StudioTheme.Constants.camera_medium
                     pixelSize: StudioTheme.Values.myIconFontSize * 1.4
                     iconColor: StudioTheme.Values.themeLinkIndicatorColorHover
                     enabled: false
