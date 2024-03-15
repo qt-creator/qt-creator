@@ -15,28 +15,28 @@
     GitLab servers and use \l{Git} to manage your local and remote
     repositories.
 
-    To use GitLab, you must create a connection to the GitLab server and clone
-    the projects you want to work on. You can also link previously cloned
-    projects to GitLab in the project settings. This enables you to receive
-    event notifications in the \l {View output}{Version Control} pane.
+    To use GitLab, create a connection to the GitLab server and clone the
+    projects you want to work on. Link previously cloned projects to GitLab
+    in the project settings to receive event notifications in the
+    \l {View output}{Version Control} view.
 
     \note Enable the GitLab plugin to use it.
 
     \section1 Connecting to GitLab Servers
 
-    To connect to a GitLab server, you need to specify the server host name and
+    To connect to a GitLab server, specify the server host name and
     port number, as well as an access token that you create in GitLab for \QC.
     The permission scope of the token must be at least \c read_api or \c api.
 
-    To specify connections to GitLab servers, select \preferences >
+    To specify connections to GitLab servers, go to \preferences >
     \uicontrol {Version Control} > \uicontrol GitLab:
 
-    \image qtcreator-gitlab-preferences.png
+    \image qtcreator-gitlab-preferences.png {GitLab tab in Version Control Preferences}
 
     To add GitLab servers:
 
     \list 1
-        \li Select \uicontrol Add to open the \uicontrol {Add Server} dialog:
+        \li Select \uicontrol Add to open the \uicontrol {Add Server} dialog.
             \image qtcreator-gitlab-preferences-add-server.png
         \li In \uicontrol Host, enter the host name of the GitLab server.
         \li In \uicontrol Description, enter a free-form text that is displayed
@@ -45,14 +45,14 @@
             \QC in the GitLab server, in \uicontrol Preferences >
             \uicontrol {Access Tokens}.
         \li In \uicontrol Port, enter a port number.
-        \li Deselect the \uicontrol HTTPS check box to use an HTTP connection
-            instead of a secure connection.
+        \li Clear \uicontrol HTTPS to use an HTTP connection instead of a secure
+            connection.
         \li Select \uicontrol Add to create the connection.
     \endlist
 
     In the \uicontrol GitLab tab, \uicontrol curl displays the path to the
-    \c curl tool used for HTTP connections. You can specify another path to
-    use another instance of the tool than the one found by \QC.
+    \c curl tool used for HTTP connections. Specify another path to
+    use another instance of the tool than the one \QC found.
 
     To edit the selected connection, select \uicontrol Edit.
 
@@ -68,20 +68,20 @@
     To clone projects from GitLab:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol GitLab to view a list of
-            connected GitLab servers and available projects in each server:
+        \li Go to \uicontrol Tools > \uicontrol GitLab to view a list of
+            connected GitLab servers and available projects in each server.
             \image qtcreator-gitlab-project-list.png
         \li In \uicontrol Remote, select a GitLab server.
         \li In \uicontrol Projects, select the project to clone.
         \li Select \uicontrol Clone to open the \uicontrol {Clone Repository}
-            dialog:
-            \image qtcreator-gitlab-clone-repository.png
+            dialog.
+            \image qtcreator-gitlab-clone-repository.png {Clone Repository dialog}
         \li In \uicontrol Repository, specify the URL of the repository.
         \li In \uicontrol Path, specify the path where to clone the repository.
         \li In \uicontrol Directory, specify the name of the directory for the
             cloned repository.
-        \li Select the \uicontrol Recursive check box to also clone submodules
-            of the repository.
+        \li Select \uicontrol Recursive to also clone submodules of the
+            repository.
         \li Select \uicontrol Clone to clone the project to the specified
             directory.
     \endlist
@@ -89,12 +89,22 @@
     \QC automatically opens the project. If the cloned project has several
     project files (such as CMakeList.txt, .pro, and .qbs), \QC prompts you to
     select the one to open. If it does not have a project file that \QC can
-    open, select \uicontrol File > \uicontrol {New Project} >
-    \uicontrol {Import Project} > \uicontrol {Import Existing Project} to
-    import the project as a generic project. For more information, see
-    \l {Use project wizards}.
+    open, go to \uicontrol File > \uicontrol {New Project} >
+    \uicontrol {Import Project} > \uicontrol {Import Existing Project} and
+    import the project as a generic project.
 
-    \section1 Linking Projects with GitLab
+    \sa {Enable and disable plugins}, {Link projects with GitLab},
+    {Set up version control systems}, {Use common VCS functions},
+    {Use project wizards}, {Version Control Systems}, {Git}
+*/
+
+/*!
+    \page creator-build-dependencies.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+
+    \title Link projects with GitLab
 
     Link a project with a GitLab token to receive notifications on events, such
     as merge requests, issues, or comments, in the \uicontrol {Version Control}
@@ -106,9 +116,10 @@
     To link with GitLab:
 
     \list 1
-        \li In the \uicontrol Projects mode, select \uicontrol {GitLab} to view
-            the GitLab settings for the currently active project:
-            \image qtcreator-gitlab-preferences-project.png
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {GitLab} to view the GitLab settings for the currently
+            active project.
+            \image qtcreator-gitlab-preferences-project.png {GitLab settings for a project}
         \li In \uicontrol Host, select the URL of the GitLab server.
         \li In \uicontrol {Linked GitLab configuration}, select the GitLab
             server settings to use.
@@ -123,5 +134,6 @@
     \uicontrol {Unlink from GitLab}.
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Version Control Systems}, {Git}
+    {Use common VCS functions}, {Configuring Projects}, {Version Control Systems},
+    {Git}, {GitLab}
 */

@@ -82,14 +82,17 @@
                 \li \l{Link projects to Axivion dashboards}{Axivion}
                 \li \l{Specify clangd settings}{Clangd}
                 \li \l{Speficy Clang tools settings}{Clang Tools}
+                \li \l{Set Copilot preferences}{Copilot}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specify the environment for projects}{Environment}
+                \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language server workspace}{Language Server}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
+                \li \l{Testing}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
