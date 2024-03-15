@@ -173,6 +173,9 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
 
 
     m_commandLineGetter = [this] {
+        Launcher launcher;
+        if (const auto launcherAspect = aspect<LauncherAspect>())
+            launcher = launcherAspect->currentLauncher();
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
             executable = executableAspect->executable();
@@ -180,7 +183,14 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
             arguments = argumentsAspect->arguments();
 
-        return CommandLine{executable, arguments, CommandLine::Raw};
+        if (launcher.command.isEmpty())
+            return CommandLine{executable, arguments, CommandLine::Raw};
+
+        CommandLine launcherCommand(launcher.command, launcher.arguments);
+        launcherCommand.addArg(executable.toString());
+        launcherCommand.addArgs(arguments, CommandLine::Raw);
+
+        return launcherCommand;
     };
 }
 

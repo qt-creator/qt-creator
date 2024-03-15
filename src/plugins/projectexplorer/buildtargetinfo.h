@@ -5,12 +5,15 @@
 
 #include "projectexplorer_export.h"
 
+#include "runconfiguration.h"
+
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
 #include <QList>
 
 namespace ProjectExplorer {
+class Launcher;
 
 class PROJECTEXPLORER_EXPORT BuildTargetInfo
 {
@@ -19,6 +22,7 @@ public:
     QString displayName;
     QString displayNameUniquifier;
 
+    QList<Launcher> launchers;
     Utils::FilePath targetFilePath;
     Utils::FilePath projectFilePath;
     Utils::FilePath workingDirectory;

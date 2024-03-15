@@ -197,6 +197,7 @@ public:
     QList<Utils::FilePath> artifacts;
     QString installPrefix;
     std::vector<InstallDestination> installDestination;
+    QList<ProjectExplorer::LauncherInfo> launcherInfos;
     std::optional<LinkInfo> link;
     std::optional<ArchiveInfo> archive;
     std::vector<DependencyInfo> dependencies;

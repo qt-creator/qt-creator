@@ -11,6 +11,7 @@
 #include <projectexplorer/rawprojectpart.h>
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QGuiApplication>
@@ -649,6 +650,19 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
                                                                 o.value("parent").toInt(-1),
                                                             };
                                                         });
+    }
+    {
+        const QJsonArray launchers = root.value("launchers").toArray();
+        if (launchers.size() > 0) {
+            t.launcherInfos = transform<QList>(launchers, [](const QJsonValue &v) {
+                const QJsonObject o = v.toObject();
+                QList<QString> arguments;
+                for (const QJsonValue &arg : o.value("arguments").toArray())
+                    arguments.append(arg.toString());
+                FilePath command = FilePath::fromString(o.value("command").toString());
+                return ProjectExplorer::LauncherInfo { o.value("type").toString(), command, arguments };
+            });
+        }
     }
 
     return t;

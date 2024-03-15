@@ -1977,6 +1977,9 @@ static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &b
 
 const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 {
+    const CMakeConfig &cm = configurationFromCMake();
+    QString emulator = cm.stringValueOf("CMAKE_CROSSCOMPILING_EMULATOR");
+
     QList<BuildTargetInfo> appTargetList;
     const bool forAndroid = DeviceTypeKitAspect::deviceTypeId(kit())
                             == Android::Constants::ANDROID_DEVICE_TYPE;
@@ -1989,6 +1992,15 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 
             BuildTargetInfo bti;
             bti.displayName = ct.title;
+            if (ct.launchers.size() > 0)
+                bti.launchers = ct.launchers;
+            else if (!emulator.isEmpty()) {
+                // fallback for cmake < 3.29
+                QStringList args = emulator.split(";");
+                FilePath command = FilePath::fromString(args.takeFirst());
+                LauncherInfo launcherInfo = { "emulator", command, args };
+                bti.launchers.append(Launcher(launcherInfo, ct.sourceDirectory));
+            }
             bti.targetFilePath = ct.executable;
             bti.projectFilePath = ct.sourceDirectory.cleanPath();
             bti.workingDirectory = ct.workingDirectory;

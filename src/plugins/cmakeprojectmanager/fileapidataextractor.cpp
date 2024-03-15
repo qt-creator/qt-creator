@@ -342,6 +342,22 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
         }
         ct.libraryDirectories = filteredUnique(librarySeachPaths);
         qCInfo(cmakeLogger) << "libraryDirectories for target" << ct.title << ":" << ct.libraryDirectories;
+
+        // If there are start programs, there should also be an option to select none
+        if (!t.launcherInfos.isEmpty()) {
+            LauncherInfo info { "unused", Utils::FilePath(), QStringList() };
+            ct.launchers.append(Launcher(info, sourceDirectory));
+        }
+        // if there is a test and an emulator launcher, add the emulator and
+        // also a combination as the last entry, but not the "test" launcher
+        // as it will not work for cross-compiled executables
+        if (t.launcherInfos.size() == 2 && t.launcherInfos[0].type == "test" && t.launcherInfos[1].type == "emulator") {
+            ct.launchers.append(Launcher(t.launcherInfos[1], sourceDirectory));
+            ct.launchers.append(Launcher(t.launcherInfos[0], t.launcherInfos[1], sourceDirectory));
+        } else if (t.launcherInfos.size() == 1) {
+            Launcher launcher(t.launcherInfos[0], sourceDirectory);
+            ct.launchers.append(launcher);
+        }
     }
     return ct;
 }
