@@ -5,6 +5,8 @@
 
 #include "nanotraceglobals.h"
 
+#include "staticstring.h"
+
 #include <utils/smallstring.h>
 #include <utils/span.h>
 
@@ -42,7 +44,7 @@ enum class Tracing { IsDisabled, IsEnabled };
 #  define NO_UNIQUE_ADDRESS
 #endif
 
-using ArgumentsString = Utils::BasicSmallString<510>;
+using ArgumentsString = StaticString<1016>;
 
 namespace Literals {
 struct TracerLiteral
@@ -258,9 +260,8 @@ void convertToString(String &string, const Container<Arguments...> &container)
 namespace Internal {
 
 template<typename String, typename... Arguments>
-String toArguments(Arguments &&...arguments)
+void toArguments(String &text, Arguments &&...arguments)
 {
-    String text;
     constexpr auto argumentCount = sizeof...(Arguments);
     text.append('{');
     (convertDictonaryEntryToString(text, arguments), ...);
@@ -268,8 +269,6 @@ String toArguments(Arguments &&...arguments)
         text.pop_back();
 
     text.append('}');
-
-    return text;
 }
 
 inline std::string_view toArguments(std::string_view arguments)
@@ -280,7 +279,10 @@ inline std::string_view toArguments(std::string_view arguments)
 template<typename String>
 void setArguments(String &eventArguments)
 {
-    eventArguments = {};
+    if constexpr (std::is_same_v<String, std::string_view>)
+        eventArguments = {};
+    else
+        eventArguments.clear();
 }
 
 template<typename String>
@@ -296,7 +298,11 @@ template<typename String, typename... Arguments>
         !std::is_same_v<String, std::string_view>,
         R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral (""_t).)");
 
-    eventArguments = Internal::toArguments<String>(std::forward<Arguments>(arguments)...);
+    if constexpr (std::is_same_v<String, std::string_view>)
+        eventArguments = {};
+    else
+        eventArguments.clear();
+    Internal::toArguments(eventArguments, std::forward<Arguments>(arguments)...);
 }
 
 } // namespace Internal
@@ -513,7 +519,7 @@ template<typename TraceEvent>
 class EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
-    using TraceEvents = std::array<TraceEvent, 100>;
+    using TraceEvents = std::array<TraceEvent, 1000>;
 
 public:
     using IsActive = std::true_type;

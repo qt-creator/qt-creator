@@ -67,7 +67,7 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
             out << R"(,"flow_in":true)";
     }
 
-    if (event.arguments.size())
+    if (event.arguments.size() && event.arguments.size() != std::numeric_limits<std::size_t>::max())
         out << R"(,"args":)" << event.arguments;
 
     out << "}";
