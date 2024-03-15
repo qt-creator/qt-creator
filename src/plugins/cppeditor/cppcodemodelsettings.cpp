@@ -184,9 +184,7 @@ bool CppCodeModelSettings::categorizeFindReferences()
 
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
 {
-    Data d = globalInstance().data();
-    d.categorizeFindReferences = categorize;
-    globalInstance().setGlobalData(d);
+    globalInstance().m_data.categorizeFindReferences = categorize;
 }
 
 CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)
