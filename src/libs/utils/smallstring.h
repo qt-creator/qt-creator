@@ -432,6 +432,33 @@ public:
         setSize(newSize);
     }
 
+    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    void append(Type number)
+    {
+#if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
+        // 2 bytes for the sign and because digits10 returns the floor
+        char buffer[std::numeric_limits<Type>::digits10 + 2];
+        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+        auto endOfConversionString = result.ptr;
+
+        append({buffer, endOfConversionString});
+#else
+        if constexpr (std::is_floating_point_v<Type>) {
+            QLocale locale{QLocale::Language::C};
+            append(locale.toString(number));
+            return;
+        } else {
+            // 2 bytes for the sign and because digits10 returns the floor
+            char buffer[std::numeric_limits<Type>::digits10 + 2];
+            auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+            auto endOfConversionString = result.ptr;
+
+            append({buffer, endOfConversionString});
+        }
+
+#endif
+    }
+
     void append(QStringView string) noexcept
     {
         QStringEncoder encoder{QStringEncoder::Utf8};
@@ -474,6 +501,14 @@ public:
     BasicSmallString &operator+=(QStringView string) noexcept
     {
         append(string);
+
+        return *this;
+    }
+
+    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    BasicSmallString &operator+=(Type number) noexcept
+    {
+        append(number);
 
         return *this;
     }
@@ -582,28 +617,12 @@ public:
         return joinedString;
     }
 
-    template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
-    static BasicSmallString number(Integer number)
+    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    static BasicSmallString number(Type number)
     {
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<Integer>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-    }
-
-    static BasicSmallString number(double number) noexcept
-    {
-#if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<double>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-#else
-        QLocale locale{QLocale::Language::C};
-        return BasicSmallString{locale.toString(number)};
-#endif
+        BasicSmallString string;
+        string.append(number);
+        return string;
     }
 
     char &operator[](std::size_t index) noexcept { return *(data() + index); }
@@ -648,7 +667,6 @@ public:
     friend BasicSmallString operator+(const BasicSmallString &first,
                                       const char (&second)[ArraySize]) noexcept
     {
-
         return operator+(first, SmallStringView(second));
     }
 

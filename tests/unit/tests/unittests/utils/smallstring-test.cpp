@@ -941,6 +941,24 @@ TEST(SmallString, append_empty_initializer_list)
     ASSERT_THAT(text, Eq("some text"));
 }
 
+TEST(SmallString, append_int)
+{
+    SmallString text("some text");
+
+    text += 123;
+
+    ASSERT_THAT(text, Eq("some text123"));
+}
+
+TEST(SmallString, append_float)
+{
+    SmallString text("some text");
+
+    text += 123.456;
+
+    ASSERT_THAT(text, Eq("some text123.456"));
+}
+
 TEST(SmallString, to_byte_array)
 {
     SmallString text("some text");
@@ -1839,6 +1857,8 @@ TEST(SmallString, number_to_string)
     ASSERT_THAT(SmallString::number(std::numeric_limits<long long int>::min()), "-9223372036854775808");
     ASSERT_THAT(SmallString::number(1.2), "1.2");
     ASSERT_THAT(SmallString::number(-1.2), "-1.2");
+    ASSERT_THAT(SmallString::number(1.2f), "1.2");
+    ASSERT_THAT(SmallString::number(-1.2f), "-1.2");
 }
 
 TEST(SmallString, string_view_plus_operator)
