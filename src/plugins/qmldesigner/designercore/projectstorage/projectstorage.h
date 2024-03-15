@@ -3773,12 +3773,19 @@ public:
         "etn.minorVersion DESC NULLS FIRST LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
-        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
-        "importOrSourceId=sourceId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
-        "itn.kind=1 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
-        "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
-        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY di.kind, etn.majorVersion DESC "
-        "NULLS FIRST, etn.minorVersion DESC NULLS FIRST LIMIT 1",
+        "WITH "
+        "  importTypeNames(moduleId, name, kind, majorVersion, minorVersion) AS MATERIALIZED ( "
+        "    SELECT moduleId, name, di.kind, majorVersion, minorVersion "
+        "    FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "      importOrSourceId=sourceId "
+        "    WHERE "
+        "      importedTypeNameId=?1 AND itn.kind=1) "
+        "SELECT typeId FROM importTypeNames AS itn "
+        "  JOIN exportedTypeNames AS etn USING(moduleId, name) "
+        "WHERE (itn.majorVersion IS NULL OR (itn.majorVersion=etn.majorVersion "
+        "  AND (itn.minorVersion IS NULL OR itn.minorVersion>=etn.minorVersion))) "
+        "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS FIRST "
+        "LIMIT 1",
         database};
     WriteStatement<0> deleteAllSourcesStatement{"DELETE FROM sources", database};
     WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
