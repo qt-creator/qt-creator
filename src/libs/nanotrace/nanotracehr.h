@@ -92,7 +92,6 @@ void convertToString(String &string, std::string_view text)
 template<typename String>
 void convertToString(String &string, const QImage &image);
 
-extern template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
 extern template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
 template<typename String, std::size_t size>

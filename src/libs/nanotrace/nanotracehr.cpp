@@ -134,7 +134,6 @@ void convertToString(String &string, const QImage &image)
     convertToString(string, dict);
 }
 
-template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
 template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
 template<typename TraceEvent>
