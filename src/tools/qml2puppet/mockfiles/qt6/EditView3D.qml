@@ -271,26 +271,15 @@ Item {
         for (var i = 0; i < 4; ++i) {
             if (syncEnvBackground) {
                 if (_generalHelper.hasSceneEnvironmentData(sceneId)) {
-                    let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
-                    if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
-                        || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
-                        editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Color;
-                    } else {
-                        editViews[i].sceneEnv.backgroundMode = bgMode;
-                    }
-                    editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
-                    editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
-                    editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
+                    _generalHelper.setEditorEnvProps(viewRoot.sceneId, editViews[i].sceneEnv);
                 } else if (activeScene) {
+                    // TODO: Handle full extended env for this feature
                     _generalHelper.updateSceneEnvToLast(editViews[i].sceneEnv,
                                                         editViews[i].defaultLightProbe,
                                                         editViews[i].defaultCubeMap);
                 }
             } else {
-                editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Transparent;
-                editViews[i].sceneEnv.lightProbe = null;
-                editViews[i].sceneEnv.skyBoxCubeMap = null;
-                editViews[i].sceneEnv.clearColor = "transparent";
+                _generalHelper.setEditEnvPropsToDefault(editViews[i].sceneEnv);
             }
         }
     }

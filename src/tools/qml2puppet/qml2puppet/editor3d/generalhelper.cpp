@@ -82,6 +82,10 @@ GeneralHelper::GeneralHelper()
     QObject::connect(&m_camMoveData.timer, &QTimer::timeout, this, [this]() {
         emit requestCameraMove(m_camMoveData.camera, m_camMoveData.combinedMoveVector);
     });
+
+    QQuick3DObject obj3d;
+    const QMetaObject *superMeta = obj3d.metaObject();
+    m_sceneEnvironmentData.superPropCount = superMeta->propertyCount();
 }
 
 void GeneralHelper::requestOverlayUpdate()
@@ -777,7 +781,7 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
         QVariant theState;
         // Convert JS arrays to QVariantLists for easier handling down the line
         // metaType().id() which only exist in Qt6 is the same as typeId()
-        if (state.typeId() != QMetaType::QString && state.canConvert(QMetaType::QVariantList))
+        if (state.typeId() != QMetaType::QString && state.canConvert(QMetaType(QMetaType::QVariantList)))
             theState = state.value<QVariantList>();
         else
             theState = state;
@@ -789,54 +793,148 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
     }
 }
 
-void GeneralHelper::setSceneEnvironmentData(const QString &sceneId,
-                                            QQuick3DSceneEnvironment *env)
+bool GeneralHelper::isBlacklistedEnvProperty(const QByteArray &prop) const
 {
-    if (env) {
-        SceneEnvData &data = m_sceneEnvironmentData[sceneId];
-        data.backgroundMode = env->backgroundMode();
-        data.clearColor = env->clearColor();
+    // debugSettings property is used for material overrides feature, so we don't want to touch that
+    // effects disabled as it is QQmlListProperty and doesn't work with simple assignment
+    // it needs custom handling (completely disabled for now)
+    static QSet<QByteArray> blackSet {"debugSettings", "effects"};
+    return blackSet.contains(prop);
+}
 
-        if (data.lightProbe)
-            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
-        data.lightProbe = env->lightProbe();
-        if (env->lightProbe())
-            connect(env->lightProbe(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+void GeneralHelper::handleSceneEnvPropertyDestruction(QObject *destroyedObj)
+{
+    for (auto it = m_sceneEnvironmentData.scenePropertyHash.begin();
+         it != m_sceneEnvironmentData.scenePropertyHash.end(); ++it) {
+        const QHash<QByteArray, QVariant> &propertyHash = it.value();
+        for (auto it2 = propertyHash.begin(); it2 != propertyHash.end(); ++it2) {
+            if (it2.value().canConvert(QMetaType(QMetaType::QObjectStar))) {
+                QObject *obj = it2.value().value<QObject *>();
+                if (obj == destroyedObj)
+                    m_sceneEnvironmentData.scenePropertyHash[it.key()][it2.key()] = {};
+            }
+        }
+    }
 
-        if (data.skyBoxCubeMap)
-            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
-        data.skyBoxCubeMap = env->skyBoxCubeMap();
-        if (env->skyBoxCubeMap())
-            connect(env->skyBoxCubeMap(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+    emit sceneEnvDataChanged();
+}
 
-        emit sceneEnvDataChanged();
+void GeneralHelper::setSceneEnvironmentData(const QString &sceneId, QQuick3DSceneEnvironment *env)
+{
+    if (!env)
+        return;
+
+    const QMetaObject *meta = env->metaObject();
+    const int propCount = meta->propertyCount();
+
+    const QHash<QByteArray, QVariant> currentData = m_sceneEnvironmentData.scenePropertyHash[sceneId];
+    for (auto it = currentData.constBegin(); it != currentData.constEnd(); ++it) {
+        if (it.value().canConvert(QMetaType(QMetaType::QObjectStar))) {
+            QObject *obj = it.value().value<QObject *>();
+            if (obj)
+                disconnect(obj, &QObject::destroyed, this, &GeneralHelper::handleSceneEnvPropertyDestruction);
+        }
+    }
+
+    QHash<QByteArray, QVariant> newData;
+
+    for (int i = m_sceneEnvironmentData.superPropCount; i < propCount; ++i) {
+        QMetaProperty prop = meta->property(i);
+        const QByteArray propName = prop.name();
+
+        if (isBlacklistedEnvProperty(propName))
+            continue;
+
+        QVariant propVal = prop.read(env);
+        newData.insert(propName, propVal);
+
+        if (propVal.canConvert(QMetaType(QMetaType::QObjectStar))) {
+            QObject *obj = propVal.value<QObject *>();
+            if (obj) {
+                connect(obj, &QObject::destroyed, this, &GeneralHelper::handleSceneEnvPropertyDestruction,
+                        Qt::DirectConnection);
+            }
+        }
+    }
+
+    m_sceneEnvironmentData.scenePropertyHash[sceneId] = newData;
+
+    emit sceneEnvDataChanged();
+}
+
+void GeneralHelper::setEditorEnvProps(const QString &sceneId,
+                                      QQuick3DSceneEnvironment *env) const
+{
+    if (!env || !m_sceneEnvironmentData.defaultPropertyHash.contains(env))
+        return;
+
+    const QMetaObject *meta = env->metaObject();
+    const int propCount = meta->propertyCount();
+    QHash<QByteArray, QVariant> currentProps = m_sceneEnvironmentData.scenePropertyHash.value(sceneId);
+    for (int i = m_sceneEnvironmentData.superPropCount; i < propCount; ++i) {
+        QMetaProperty prop = meta->property(i);
+        const QByteArray propName = prop.name();
+
+        if (isBlacklistedEnvProperty(propName))
+            continue;
+
+        QQmlProperty qmlProp(env, QString::fromUtf8(propName), m_context);
+        QVariant propVal = qmlProp.read();
+
+        if (currentProps.contains(propName)) {
+            if (propVal != currentProps[propName])
+                qmlProp.write(currentProps[propName]);
+        } else {
+            const QVariant &resetVal = m_sceneEnvironmentData.defaultPropertyHash[env][propName];
+            if (propVal != resetVal)
+                qmlProp.write(resetVal);
+        }
     }
 }
 
-bool GeneralHelper::hasSceneEnvironmentData(const QString &sceneId) const
+void QmlDesigner::Internal::GeneralHelper::setEditEnvPropsToDefault(QQuick3DSceneEnvironment *env)
 {
-    return m_sceneEnvironmentData.contains(sceneId);
+    if (!env || !m_sceneEnvironmentData.defaultPropertyHash.contains(env))
+        return;
+
+    const QMetaObject *meta = env->metaObject();
+    const int propCount = meta->propertyCount();
+    for (int i = m_sceneEnvironmentData.superPropCount; i < propCount; ++i) {
+        QMetaProperty prop = meta->property(i);
+        const QByteArray propName = prop.name();
+
+        if (isBlacklistedEnvProperty(propName))
+            continue;
+
+        QQmlProperty qmlProp(env, QString::fromUtf8(propName), m_context);
+        QVariant propVal = qmlProp.read();
+        QVariant defaultVal = m_sceneEnvironmentData.defaultPropertyHash[env][propName];
+        if (propVal != defaultVal)
+            qmlProp.write(defaultVal);
+    }
 }
 
-QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes GeneralHelper::sceneEnvironmentBgMode(
-    const QString &sceneId) const
+void QmlDesigner::Internal::GeneralHelper::storeDefaultEditEnvProps(QQuick3DSceneEnvironment *env)
 {
-    return m_sceneEnvironmentData[sceneId].backgroundMode;
-}
+    if (!env)
+        return;
 
-QColor GeneralHelper::sceneEnvironmentColor(const QString &sceneId) const
-{
-    return m_sceneEnvironmentData[sceneId].clearColor;
-}
+    connect(env, &QObject::destroyed, this, [this, env]() {
+            m_sceneEnvironmentData.defaultPropertyHash.remove(env);
+        }, Qt::DirectConnection);
 
-QQuick3DTexture *GeneralHelper::sceneEnvironmentLightProbe(const QString &sceneId) const
-{
-    return m_sceneEnvironmentData[sceneId].lightProbe.data();
-}
+    const QMetaObject *meta = env->metaObject();
+    const int propCount = meta->propertyCount();
+    for (int i = m_sceneEnvironmentData.superPropCount; i < propCount; ++i) {
+        QMetaProperty prop = meta->property(i);
+        const QByteArray propName = prop.name();
 
-QQuick3DCubeMapTexture *GeneralHelper::sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const
-{
-    return m_sceneEnvironmentData[sceneId].skyBoxCubeMap.data();
+        if (isBlacklistedEnvProperty(propName))
+            continue;
+
+        QVariant propVal = prop.read(env);
+        m_sceneEnvironmentData.defaultPropertyHash[env][propName] = propVal;
+    }
 }
 
 void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
@@ -844,6 +942,8 @@ void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3D
 {
     if (!env)
         return;
+
+    // TODO: needs proper support for full extended env. For now, just do it the old way.
 
     if (m_lastSceneEnvData.contains(_bgProp)) {
         Enumeration enumeration = m_lastSceneEnvData[_bgProp].value<Enumeration>();
@@ -886,12 +986,19 @@ void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3D
     }
 }
 
+bool GeneralHelper::hasSceneEnvironmentData(const QString &sceneId) const
+{
+    return m_sceneEnvironmentData.scenePropertyHash.contains(sceneId);
+}
+
 bool GeneralHelper::sceneHasLightProbe(const QString &sceneId)
 {
     // From editor perspective, a scene is considered to have a light probe if scene itself
     // has a light probe or scene has no env data and last scene had a light probe
-    if (m_sceneEnvironmentData.contains(sceneId)) {
-        return bool(m_sceneEnvironmentData[sceneId].lightProbe);
+    if (m_sceneEnvironmentData.scenePropertyHash.contains(sceneId)
+        && m_sceneEnvironmentData.scenePropertyHash[sceneId].contains("lightProbe")) {
+        QVariant probeVar = m_sceneEnvironmentData.scenePropertyHash[sceneId]["lightProbe"];
+        return bool(probeVar.value<QObject *>());
     } else {
         if (m_lastSceneEnvData.contains(_lightProbeProp)) {
             QVariantMap props = m_lastSceneEnvData[_sourceProp].toMap();
@@ -904,14 +1011,20 @@ bool GeneralHelper::sceneHasLightProbe(const QString &sceneId)
 
 void GeneralHelper::clearSceneEnvironmentData()
 {
-    for (const SceneEnvData &data : std::as_const(m_sceneEnvironmentData)) {
-        if (data.lightProbe)
-            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
-        if (data.skyBoxCubeMap)
-            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+    for (const QHash<QByteArray, QVariant> &propertyHash : std::as_const(m_sceneEnvironmentData.scenePropertyHash)) {
+        for (auto it2 = propertyHash.constBegin(); it2 != propertyHash.constEnd(); ++it2) {
+            if (it2.value().canConvert(QMetaType(QMetaType::QObjectStar))) {
+                QObject *obj = it2.value().value<QObject *>();
+                if (obj)
+                    disconnect(obj, &QObject::destroyed, this, &GeneralHelper::handleSceneEnvPropertyDestruction);
+            }
+        }
     }
+    m_sceneEnvironmentData.scenePropertyHash.clear();
 
-    m_sceneEnvironmentData.clear();
+    // Default property value data for environments is not cleaned up, that is stored for the
+    // lifetime of the environments themselves
+
     emit sceneEnvDataChanged();
 }
 
@@ -1657,6 +1770,11 @@ void GeneralHelper::showSingleEditorView3D(QQuickItemPrivate *visibleViewP, bool
                 data.overlayView->derefFromEffectItem(hide);
         }
     }
+}
+
+void GeneralHelper::setQmlContext(QQmlContext *context)
+{
+    m_context = context;
 }
 
 }

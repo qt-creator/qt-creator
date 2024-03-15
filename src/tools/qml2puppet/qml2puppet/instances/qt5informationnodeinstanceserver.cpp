@@ -578,6 +578,7 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
     engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
                                new QmlDesigner::Internal::IconGizmoImageProvider);
+    helper->setQmlContext(context());
     m_3dHelper = helper;
     Internal::MouseArea3D::setGeneralHelper(helper);
 
@@ -2493,7 +2494,7 @@ void Qt5InformationNodeInstanceServer::updateSceneEnvToHelper()
             continue;
 
         QQuick3DSceneEnvironment *env = view3D->environment();
-        if (!env)
+        if (!env || !hasInstanceForObject(env))
             continue;
 
         ServerNodeInstance sceneInstance;
@@ -2507,12 +2508,6 @@ void Qt5InformationNodeInstanceServer::updateSceneEnvToHelper()
         helper->setSceneEnvironmentData(sceneId, env);
     }
 #endif
-}
-
-bool Qt5InformationNodeInstanceServer::isSceneEnvironmentBgProperty(const PropertyName &name) const
-{
-    return name == "backgroundMode" || name == "clearColor"
-           || name == "lightProbe" || name == "skyBoxCubeMap";
 }
 
 void Qt5InformationNodeInstanceServer::resolveAllSceneView3Ds()
@@ -2550,14 +2545,11 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
 {
     bool hasDynamicProperties = false;
     const QVector<PropertyValueContainer> values = command.valueChanges();
-    QSet<qint32> sceneEnvs;
+    QSet<qint32> instances;
     for (const PropertyValueContainer &container : values) {
         if (!container.isReflected()) {
             hasDynamicProperties |= container.isDynamic();
-
-            if (isSceneEnvironmentBgProperty(container.name()))
-                sceneEnvs.insert(container.instanceId());
-
+            instances.insert(container.instanceId());
             setInstancePropertyVariant(container);
         }
     }
@@ -2565,7 +2557,7 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
     if (hasDynamicProperties)
         refreshBindings();
 
-    for (const qint32 id : std::as_const(sceneEnvs))
+    for (const qint32 id : std::as_const(instances))
         setSceneEnvironmentData(id);
 
     startRenderTimer();
@@ -2786,13 +2778,11 @@ void Qt5InformationNodeInstanceServer::changePropertyBindings(const ChangeBindin
 {
     Qt5NodeInstanceServer::changePropertyBindings(command);
 
-    QSet<qint32> sceneEnvs;
-    for (const PropertyBindingContainer &container : std::as_const(command.bindingChanges)) {
-        if (isSceneEnvironmentBgProperty(container.name()))
-            sceneEnvs.insert(container.instanceId());
-    }
+    QSet<qint32> instances;
+    for (const PropertyBindingContainer &container : std::as_const(command.bindingChanges))
+        instances.insert(container.instanceId());
 
-    for (const qint32 id : std::as_const(sceneEnvs))
+    for (const qint32 id : std::as_const(instances))
         setSceneEnvironmentData(id);
 
     render3DEditView();
@@ -2835,16 +2825,14 @@ void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &com
 void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
     const QVector<PropertyAbstractContainer> props = command.properties();
-    QSet<qint32> sceneEnvs;
+    QSet<qint32> instances;
 
-    for (const PropertyAbstractContainer &container : props) {
-        if (isSceneEnvironmentBgProperty(container.name()))
-            sceneEnvs.insert(container.instanceId());
-    }
+    for (const PropertyAbstractContainer &container : props)
+        instances.insert(container.instanceId());
 
     Qt5NodeInstanceServer::removeProperties(command);
 
-    for (const qint32 id : std::as_const(sceneEnvs))
+    for (const qint32 id : std::as_const(instances))
         setSceneEnvironmentData(id);
 
     render3DEditView();

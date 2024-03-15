@@ -22,6 +22,7 @@
 #include <QtQuick3D/private/qquick3dtexture_p.h>
 
 QT_BEGIN_NAMESPACE
+class QQmlContext;
 class QQuick3DCamera;
 class QQuick3DNode;
 class QQuick3DViewport;
@@ -123,14 +124,12 @@ public:
 
     void setSceneEnvironmentData(const QString &sceneId, QQuick3DSceneEnvironment *env);
     Q_INVOKABLE bool hasSceneEnvironmentData(const QString &sceneId) const;
-    Q_INVOKABLE QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes sceneEnvironmentBgMode(
-        const QString &sceneId) const;
-    Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
-    Q_INVOKABLE QQuick3DTexture *sceneEnvironmentLightProbe(const QString &sceneId) const;
-    Q_INVOKABLE QQuick3DCubeMapTexture *sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const;
     Q_INVOKABLE void updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
                                           QQuick3DCubeMapTexture *cubeMap);
     Q_INVOKABLE bool sceneHasLightProbe(const QString &sceneId);
+    Q_INVOKABLE void setEditorEnvProps(const QString &sceneId, QQuick3DSceneEnvironment *env) const;
+    Q_INVOKABLE void setEditEnvPropsToDefault(QQuick3DSceneEnvironment *env);
+    Q_INVOKABLE void storeDefaultEditEnvProps(QQuick3DSceneEnvironment *env);
 
     void clearSceneEnvironmentData();
     void setLastSceneEnvironmentData(const QVariantMap &data);
@@ -189,6 +188,7 @@ public:
     Q_INVOKABLE void addEditorView3D(QObject *mainView, QObject *overlayView, const QRect &rect);
     void showSingleEditorView3D(QQuickItemPrivate *visibleViewP, bool ref);
     const QList<EditorViewData> &editorView3Ds() const { return m_editorView3Ds; }
+    void setQmlContext(QQmlContext *context);
 
 signals:
     void overlayUpdateNeeded();
@@ -221,6 +221,10 @@ private:
     QHash<QString, QVariantMap> m_toolStatesPending;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
     void updateCombinedCameraMoveVector();
+    bool isBlacklistedEnvProperty(const QByteArray &prop) const;
+    void handleSceneEnvPropertyDestruction(QObject *destroyedObj);
+
+    QQmlContext *m_context = {};
 
     struct CameraMoveKeyData {
         QQuick3DCamera *camera;
@@ -231,12 +235,12 @@ private:
     CameraMoveKeyData m_camMoveData;
 
     struct SceneEnvData {
-        QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes backgroundMode;
-        QColor clearColor;
-        QPointer<QQuick3DTexture> lightProbe;
-        QPointer<QQuick3DCubeMapTexture> skyBoxCubeMap;
+        // <sceneId, <property name, property value>>
+        QHash<QString, QHash<QByteArray, QVariant>> scenePropertyHash;
+        QHash<QQuick3DSceneEnvironment *, QHash<QByteArray, QVariant>> defaultPropertyHash;
+        int superPropCount = 0;
     };
-    QHash<QString, SceneEnvData> m_sceneEnvironmentData;
+    SceneEnvData m_sceneEnvironmentData;
     QVariantMap m_lastSceneEnvData;
 
     struct MultiSelData {
@@ -245,7 +249,6 @@ private:
         QQuaternion startRot;
         QQuaternion startSceneRot;
     };
-
     QHash<QQuick3DNode *, MultiSelData> m_multiSelDataMap;
     QVariantList m_multiSelNodes;
     MultiSelData m_multiSelNodeData;

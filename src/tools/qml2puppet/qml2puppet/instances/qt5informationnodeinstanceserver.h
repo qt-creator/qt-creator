@@ -139,7 +139,6 @@ private:
     void setSceneEnvironmentData(qint32 instanceId);
     QVariantList alignCameraList(bool preferCurrentSceneCamera = false) const;
     void updateSceneEnvToHelper();
-    bool isSceneEnvironmentBgProperty(const PropertyName &name) const;
     void setEditViewVisible();
     void resolveAllSceneView3Ds();
     void hideSceneView3Ds(bool hide);

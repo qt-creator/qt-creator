@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick3D
+import QtQuick3D.Helpers
 
 View3D {
     id: sceneView
@@ -59,7 +60,7 @@ View3D {
         }
     }
 
-    SceneEnvironment {
+    ExtendedSceneEnvironment {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
@@ -71,6 +72,7 @@ View3D {
         CubeMapTexture {
             id: defaultCubeMap
         }
+        Component.onCompleted: _generalHelper.storeDefaultEditEnvProps(sceneEnv)
     }
 
     Node {
