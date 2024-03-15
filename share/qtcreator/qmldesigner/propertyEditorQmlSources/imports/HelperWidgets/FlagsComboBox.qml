@@ -132,6 +132,8 @@ StudioControls.CustomComboBox {
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: root.backendValue
+
+        onMenuVisibleChanged: root.popup.visible = false
     }
 
     actionIndicator.icon.color: extFuncLogic.color
