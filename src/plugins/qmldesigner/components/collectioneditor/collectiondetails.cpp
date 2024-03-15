@@ -724,7 +724,7 @@ QString CollectionDetails::toCsv() const
             if (value.isDouble())
                 content += QString::number(value.toDouble()) + ',';
             else if (value.isBool())
-                content += value.toBool() ? "true," : "false,";
+                content += value.toBool() ? QString("true,") : QString("false,");
             else
                 content += value.toString() + ',';
         }
