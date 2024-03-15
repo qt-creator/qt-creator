@@ -136,25 +136,25 @@ void convertToString(String &string, Callable &&callable)
 template<typename String>
 void convertToString(String &string, int number)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(number);
 }
 
 template<typename String>
 void convertToString(String &string, long long number)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(number);
 }
 
 template<typename String>
 void convertToString(String &string, std::size_t number)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(number);
 }
 
 template<typename String>
 void convertToString(String &string, double number)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(number);
 }
 
 template<typename Enumeration>
@@ -167,7 +167,7 @@ constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumerat
 template<typename String, typename Enumeration, typename = std::enable_if_t<std::is_enum_v<Enumeration>>>
 void convertToString(String &string, Enumeration enumeration)
 {
-    string.append(Utils::SmallString::number(to_underlying(enumeration)));
+    string.append(to_underlying(enumeration));
 }
 
 template<typename String>
