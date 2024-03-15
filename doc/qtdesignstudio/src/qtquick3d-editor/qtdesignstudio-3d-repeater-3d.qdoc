@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -7,10 +7,6 @@
     \nextpage studio-3d-loader-3d.html
 
     \title Repeater3D
-
-    \note The \uicontrol Repeater3D component is released as a tech preview
-    feature in \QDS 2.2, and its functionality will be improved in future
-    releases.
 
     The \uicontrol Repeater3D component is used to create multiple
     similar items. Like other view types, \uicontrol Repeater3D needs a model
@@ -100,90 +96,58 @@
     \endlist
     \image repeater3d-numeric-model.webp
 
-    \section1 Adding a Repeater3D Component with a List Model
+    \section1 Adding a Repeater3D Component with a Model
 
     This section explains how to add a \uicontrol Repeater3D component with
-    a ListModel to your \QDS project:
+    a model to your \QDS project:
 
     To add a \uicontrol Repeater3D component:
 
     \list 1
       \li Drag a \uicontrol Repeater3D component from \uicontrol Components to
       \e scene in \uicontrol Navigator.
-      \li You need to enter the QML code for the \uicontrol ListModel manually.
-      Go to the \uicontrol {Code} view and enter the following code somewhere
-      inside the root object:
-      \code qml
-        ListModel {
-            id: planetModel
-            ListElement {
-                name: "Mars"
-                radius: 3.39
-            }
-            ListElement {
-                name: "Earth"
-                radius: 6.37
-            }
-            ListElement {
-                name: "Venus"
-                radius: 6.05
-            }
-        }
-        \endcode
-      The default root object for a \QDS project is \uicontrol Rectangle, so
-      you can paste the \uicontrol ListModel code, for example, like this:
-      \code qml
-      Rectangle {
-        width: Constants.width
-        height: Constants.height
-        color: Constants.backgroundColor
-
-        ListModel {
-            id: planetModel
-            ListElement {
-                name: "Mars"
-                radius: 3.39
-            }
-            ListElement {
-                name: "Earth"
-                radius: 6.37
-            }
-            ListElement {
-                name: "Venus"
-                radius: 6.05
-            }
-        }
-
-        View3D {
-            id: view3D
-            anchors.fill: parent
-            ...
-    \endcode
-    \li In the \uicontrol {Code} view, add \c {model: planetModel} to the
-    \uicontrol Repeater3D object to tell that you want to use your
-    \uicontrol ListModel as the model for the \uicontrol Repeater3D object.
-    \code qml
-    Repeater3D {
-        id: repeater3D
-        model: planetModel
-    }
-    \endcode
+      \li Go to \uicontrol {Model Editor} and create a new model with the name
+      \e planetModel.
+      \li Add the following columns and data to the model.
+        \raw HTML
+        <table>
+          <tr>
+            <th>name (<i>String</i>)</th>
+            <th>radius (<i>Real</i>)</th>
+          </tr>
+          <tr>
+            <td>Mars</td>
+            <td>3.39</td>
+          </tr>
+          <tr>
+            <td>Earth</td>
+            <td>6.37</td>
+          </tr>
+          <tr>
+            <td>Venus</td>
+            <td>6.05</td>
+          </tr>
+        </table>
+        \endraw
+        \note You can also import a model in JSON or CSV format. See \l {Importing a Data Model}.
+        \image repeater3d-model-editor.webp
+      \li In \uicontrol Navigator, select \e{_3DRepeater}.
+      \li In \uicontrol Properties, set \uicontrol Model to \e {DataStore.planetModel}.
     \endlist
-
     Now, you have set up the \uicontrol Repeater3D component to use a
     \uicontrol ListModel to draw the items. Next, you need to add the
-    item to draw. In this example we are using a \uicontrol Sphere.
+    item to draw. In this example, you are using a \uicontrol Sphere.
 
     \list 1
-      \li From \uicontrol Components, drag a \uicontrol Sphere to \e repeater3D
+      \li From \uicontrol Components, drag a \uicontrol Sphere to \e _3DRepeater
       in \uicontrol Navigator.
       \image repeater3d-listmodel-navigator.png
-      \li Select \e sphere in \uicontrol Navigator and select
+      \li Select \e sphere in \uicontrol Navigator and in the \Properties view, select
       \inlineimage icons/action-icon.png
       next to \uicontrol Scale > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{radius}. This sets the X
-      scale to the radius value defined in the ListModel for each of the sphere
+      scale to the radius value defined in the model for each of the sphere
       instances.
       \image repeater3d-radius-binding.png
       \li Select \uicontrol OK.
@@ -195,7 +159,7 @@
     position so you need to change the position to see all spheres.
 
     \list 1
-      \li Select \e sphere in \uicontrol Navigator and select
+      \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
       \inlineimage icons/action-icon.png
       next to \uicontrol Translation > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
