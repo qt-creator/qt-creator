@@ -84,9 +84,9 @@ inline constexpr IsDictonary isDictonary;
 template<typename String>
 void convertToString(String &string, std::string_view text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(text);
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
@@ -97,25 +97,25 @@ extern template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, c
 template<typename String, std::size_t size>
 void convertToString(String &string, const char (&text)[size])
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(std::string_view{text, size - 1});
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
 void convertToString(String &string, QStringView text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(Utils::PathString{text});
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
 void convertToString(String &string, const QByteArray &text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(std::string_view(text.data(), Utils::usize(text)));
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
@@ -201,11 +201,11 @@ void convertArrayEntryToString(String &string, const Value &value)
 template<typename String, typename... Entries>
 void convertArrayToString(String &string, const IsArray &, Entries &...entries)
 {
-    string.append(R"([)");
+    string.append('[');
     (convertArrayEntryToString(string, entries), ...);
     if (sizeof...(entries))
         string.pop_back();
-    string.append("]");
+    string.append(']');
 }
 
 template<typename String, typename... Arguments>
@@ -219,19 +219,19 @@ void convertDictonaryEntryToString(String &string, const std::tuple<Key, Value> 
 {
     const auto &[key, value] = argument;
     convertToString(string, key);
-    string.append(":");
+    string.append(':');
     convertToString(string, value);
-    string.append(",");
+    string.append(',');
 }
 
 template<typename String, typename... Entries>
 void convertDictonaryToString(String &string, const IsDictonary &, Entries &...entries)
 {
-    string.append(R"({)");
+    string.append('{');
     (convertDictonaryEntryToString(string, entries), ...);
     if (sizeof...(entries))
         string.pop_back();
-    string.append("}");
+    string.append('}');
 }
 
 template<typename String, typename... Arguments>
@@ -243,16 +243,16 @@ void convertToString(String &string, const std::tuple<IsDictonary, Arguments...>
 template<typename String, template<typename...> typename Container, typename... Arguments>
 void convertToString(String &string, const Container<Arguments...> &container)
 {
-    string.append("[");
+    string.append('[');
     for (const auto &entry : container) {
         convertToString(string, entry);
-        string.append(",");
+        string.append(',');
     }
 
     if (container.size())
         string.pop_back();
 
-    string.append("]");
+    string.append(']');
 }
 
 namespace Internal {
@@ -262,12 +262,12 @@ String toArguments(Arguments &&...arguments)
 {
     String text;
     constexpr auto argumentCount = sizeof...(Arguments);
-    text.append("{");
+    text.append('{');
     (convertDictonaryEntryToString(text, arguments), ...);
     if (argumentCount)
         text.pop_back();
 
-    text.append("}");
+    text.append('}');
 
     return text;
 }
