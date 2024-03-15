@@ -147,6 +147,12 @@ void convertToString(String &string, long long number)
 }
 
 template<typename String>
+void convertToString(String &string, std::size_t number)
+{
+    string.append(Utils::SmallString::number(number));
+}
+
+template<typename String>
 void convertToString(String &string, double number)
 {
     string.append(Utils::SmallString::number(number));

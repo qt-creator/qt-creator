@@ -582,20 +582,11 @@ public:
         return joinedString;
     }
 
-    static
-    BasicSmallString number(int number)
+    template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
+    static BasicSmallString number(Integer number)
     {
         // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<int>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-    }
-
-    static BasicSmallString number(long long int number) noexcept
-    {
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<long long int>::digits10 + 2];
+        char buffer[std::numeric_limits<Integer>::digits10 + 2];
         auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);

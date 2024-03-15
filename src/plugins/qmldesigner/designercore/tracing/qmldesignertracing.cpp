@@ -3,6 +3,8 @@
 
 #include "qmldesignertracing.h"
 
+#include <sqlitebasestatement.h>
+
 namespace QmlDesigner {
 namespace Tracing {
 
@@ -10,10 +12,14 @@ namespace {
 
 using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
 
-TraceFile &traceFile()
+auto &traceFile()
 {
-    static TraceFile traceFile{"qml_designer.json"};
-    return traceFile;
+    if constexpr (std::is_same_v<Sqlite::TraceFile, TraceFile>) {
+        return Sqlite::traceFile();
+    } else {
+        static TraceFile traceFile{"tracing.json"};
+        return traceFile;
+    }
 }
 } // namespace
 
