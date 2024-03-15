@@ -1619,6 +1619,7 @@ private:
                                   Prototypes &relinkablePrototypes,
                                   Prototypes &relinkableExtensions)
     {
+        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"synchronize exported types"_t, projectStorageCategory()};
 
         std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
@@ -1662,7 +1663,7 @@ private:
             using NanotraceHR::keyValue;
             NanotraceHR::Tracer tracer{"insert exported type"_t,
                                        projectStorageCategory(),
-                                       keyValue("exported type", NanotraceHR::value(type))};
+                                       keyValue("exported type", type)};
             if (!type.moduleId)
                 throw QmlDesigner::ModuleDoesNotExists{};
 
@@ -1694,8 +1695,8 @@ private:
             if (view.typeId != type.typeId) {
                 NanotraceHR::Tracer tracer{"update exported type"_t,
                                            projectStorageCategory(),
-                                           keyValue("exported type", NanotraceHR::value(type)),
-                                           keyValue("exported type view", NanotraceHR::value(view))};
+                                           keyValue("exported type", type),
+                                           keyValue("exported type view", view)};
 
                 handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
                 handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
@@ -1711,7 +1712,7 @@ private:
         auto remove = [&](const Storage::Synchronization::ExportedTypeView &view) {
             NanotraceHR::Tracer tracer{"remove exported type"_t,
                                        projectStorageCategory(),
-                                       keyValue("exported type view", NanotraceHR::value(view))};
+                                       keyValue("exported type view", view)};
 
             handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
@@ -2012,7 +2013,7 @@ private:
             using NanotraceHR::keyValue;
             NanotraceHR::Tracer tracer{"insert import"_t,
                                        projectStorageCategory(),
-                                       keyValue("import", NanotraceHR::value(import)),
+                                       keyValue("import", import),
                                        keyValue("import kind", importKind),
                                        keyValue("source id", import.sourceId)};
 
@@ -2028,7 +2029,7 @@ private:
 
                 NanotraceHR::Tracer tracer{"insert indirect import"_t,
                                            projectStorageCategory(),
-                                           keyValue("import", NanotraceHR::value(import)),
+                                           keyValue("import", import),
                                            keyValue("import kind", exportedImportKind)};
 
                 auto indirectImportId = insertDocumentImport(additionImport,
@@ -2560,7 +2561,7 @@ private:
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"fetch imported type name id and type id"_t,
                                    projectStorageCategory(),
-                                   keyValue("impoted type name", NanotraceHR::value(typeName)),
+                                   keyValue("impoted type name", typeName),
                                    keyValue("source id", sourceId)};
 
         TypeId typeId;
@@ -2587,8 +2588,8 @@ private:
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"synchronize prototype and extension"_t,
                                    projectStorageCategory(),
-                                   keyValue("prototype", NanotraceHR::value(type.prototype)),
-                                   keyValue("extension", NanotraceHR::value(type.extension)),
+                                   keyValue("prototype", type.prototype),
+                                   keyValue("extension", type.extension),
                                    keyValue("type id", type.typeId),
                                    keyValue("source id", type.sourceId)};
 
@@ -2673,7 +2674,7 @@ private:
                 NanotraceHR::Tracer tracer{"fetch imported type name id"_t,
                                            projectStorageCategory(),
                                            keyValue("imported type name", importedType.name),
-                                           keyValue("import", NanotraceHR::value(importedType.import)),
+                                           keyValue("import", importedType.import),
                                            keyValue("type name kind", "qualified exported"sv)};
 
                 ImportId importId = storage.fetchImportId(sourceId, importedType.import);

@@ -54,6 +54,17 @@ public:
 
 using Imports = std::vector<Import>;
 
+template<typename String>
+void convertToString(String &string, const Import &import)
+{
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+    auto dict = dictonary(keyValue("module id", import.moduleId),
+                          keyValue("source id", import.sourceId),
+                          keyValue("version", import.version));
+    convertToString(string, dict);
+}
+
 namespace Synchronization {
 
 enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
@@ -274,6 +285,19 @@ public:
 
 using ExportedTypes = std::vector<ExportedType>;
 
+template<typename String>
+void convertToString(String &string, const ExportedType &exportedType)
+{
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+    auto dict = dictonary(keyValue("name", exportedType.name),
+                          keyValue("module id", exportedType.moduleId),
+                          keyValue("type id", exportedType.typeId),
+                          keyValue("version", exportedType.version));
+
+    convertToString(string, dict);
+}
+
 class ExportedTypeView
 {
 public:
@@ -304,7 +328,58 @@ public:
     ExportedTypeNameId exportedTypeNameId;
 };
 
+template<typename String>
+void convertToString(String &string, const ExportedTypeView &exportedType)
+{
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+    auto dict = dictonary(keyValue("name", exportedType.name),
+                          keyValue("module id", exportedType.moduleId),
+                          keyValue("type id", exportedType.typeId),
+                          keyValue("version", exportedType.version),
+                          keyValue("version", exportedType.exportedTypeNameId));
+
+    convertToString(string, dict);
+}
+
 using ImportedTypeName = std::variant<ImportedType, QualifiedImportedType>;
+
+template<typename String>
+void convertToString(String &string, const ImportedTypeName &typeName)
+{
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+
+    struct Dispatcher
+    {
+        static const QmlDesigner::Storage::Import &nullImport()
+        {
+            static QmlDesigner::Storage::Import import;
+
+            return import;
+        }
+
+        void operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
+        {
+            auto dict = dictonary(keyValue("name", importedType.name), keyValue("import", "empty"));
+
+            convertToString(string, dict);
+        }
+
+        void operator()(
+            const QmlDesigner::Storage::Synchronization::QualifiedImportedType &qualifiedImportedType) const
+        {
+            auto dict = dictonary(keyValue("name", qualifiedImportedType.name),
+                                  keyValue("import", qualifiedImportedType.import));
+
+            convertToString(string, dict);
+        }
+
+        String &string;
+    };
+
+    std::visit(Dispatcher{string}, typeName);
+}
 
 class EnumeratorDeclaration
 {
@@ -879,64 +954,3 @@ public:
 
 } // namespace Synchronization
 } // namespace QmlDesigner::Storage
-
-namespace NanotraceHR {
-
-inline auto value(const QmlDesigner::Storage::Version &version)
-{
-    return dictonary(keyValue("major version", version.major.value),
-                     keyValue("minor version", version.minor.value));
-}
-
-inline auto value(const QmlDesigner::Storage::Import &import)
-{
-    return dictonary(keyValue("module id", import.moduleId),
-                     keyValue("source id", import.sourceId),
-                     keyValue("version", value(import.version)));
-}
-
-inline auto value(const QmlDesigner::Storage::Synchronization::ExportedType &exportedType)
-{
-    return dictonary(keyValue("name", exportedType.name),
-                     keyValue("module id", exportedType.moduleId),
-                     keyValue("type id", exportedType.typeId),
-                     keyValue("version", value(exportedType.version)));
-}
-
-inline auto value(const QmlDesigner::Storage::Synchronization::ExportedTypeView &exportedType)
-{
-    return dictonary(keyValue("name", exportedType.name),
-                     keyValue("module id", exportedType.moduleId),
-                     keyValue("type id", exportedType.typeId),
-                     keyValue("version", value(exportedType.version)),
-                     keyValue("version", exportedType.exportedTypeNameId));
-}
-
-inline auto value(const QmlDesigner::Storage::Synchronization::ImportedTypeName &typeName)
-{
-    struct Dispatcher
-    {
-        static const QmlDesigner::Storage::Import &nullImport()
-        {
-            static QmlDesigner::Storage::Import import;
-
-            return import;
-        }
-
-        auto operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
-        {
-            return dictonary(keyValue("name", importedType.name),
-                             keyValue("import", value(nullImport())));
-        }
-
-        auto operator()(
-            const QmlDesigner::Storage::Synchronization::QualifiedImportedType &qualifiedImportedType) const
-        {
-            return dictonary(keyValue("name", qualifiedImportedType.name),
-                             keyValue("import", value(qualifiedImportedType.import)));
-        }
-    };
-
-    return std::visit(Dispatcher{}, typeName);
-}
-} // namespace NanotraceHR

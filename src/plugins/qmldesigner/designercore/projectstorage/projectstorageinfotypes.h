@@ -206,6 +206,17 @@ public:
     VersionNumber major;
     VersionNumber minor;
 };
+
+template<typename String>
+void convertToString(String &string, const Version &version)
+{
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+    auto dict = dictonary(keyValue("major version", version.major.value),
+                          keyValue("minor version", version.minor.value));
+
+    convertToString(string, dict);
+}
 } // namespace QmlDesigner::Storage
 
 namespace QmlDesigner::Storage::Info {
