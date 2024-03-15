@@ -50,6 +50,7 @@ QtcPlugin {
             "generatecmakelists.cpp", "generatecmakelists.h",
             "generatecmakelistsconstants.h",
             "checkablefiletreeitem.cpp", "checkablefiletreeitem.h",
+            "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakegeneratordialogtreemodel.cpp", "cmakegeneratordialogtreemodel.h",
             "cmakegeneratordialog.cpp", "cmakegeneratordialog.h",
             "cmakeprojectconverter.cpp", "cmakeprojectconverter.h",
