@@ -959,6 +959,15 @@ TEST(SmallString, append_float)
     ASSERT_THAT(text, Eq("some text123.456"));
 }
 
+TEST(SmallString, append_character)
+{
+    SmallString text("some text");
+
+    text += 'x';
+
+    ASSERT_THAT(text, Eq("some textx"));
+}
+
 TEST(SmallString, to_byte_array)
 {
     SmallString text("some text");

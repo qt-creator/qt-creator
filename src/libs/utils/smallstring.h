@@ -425,10 +425,25 @@ public:
         size_type oldSize = size();
         size_type newSize = oldSize + string.size();
 
-        reserve(optimalCapacity(newSize));
+        if (fitsNotInCapacity(newSize))
+            reserve(optimalCapacity(newSize));
+
         std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(oldSize)),
                                      string.data(),
                                      string.size());
+        setSize(newSize);
+    }
+
+    void append(char character) noexcept
+    {
+        size_type oldSize = size();
+        size_type newSize = oldSize + 1;
+
+        if (fitsNotInCapacity(newSize))
+            reserve(optimalCapacity(newSize));
+
+        auto current = std::next(data(), static_cast<std::ptrdiff_t>(oldSize));
+        *current = character;
         setSize(newSize);
     }
 
@@ -494,6 +509,13 @@ public:
     BasicSmallString &operator+=(SmallStringView string) noexcept
     {
         append(string);
+
+        return *this;
+    }
+
+    BasicSmallString &operator+=(char character) noexcept
+    {
+        append(character);
 
         return *this;
     }
@@ -698,8 +720,10 @@ unittest_public:
 
     bool fitsNotInCapacity(size_type capacity) const noexcept
     {
-        return (isShortString() && capacity > shortStringCapacity())
-               || (!isShortString() && capacity > m_data.reference.capacity);
+        if (isShortString())
+            return capacity > shortStringCapacity();
+
+        return capacity > m_data.reference.capacity;
     }
 
     static size_type optimalHeapCapacity(const size_type size) noexcept
