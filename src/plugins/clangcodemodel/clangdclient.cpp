@@ -57,6 +57,7 @@
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/clangutils.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/mimeconstants.h>

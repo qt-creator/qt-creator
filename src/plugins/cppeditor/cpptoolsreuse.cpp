@@ -4,6 +4,7 @@
 #include "cpptoolsreuse.h"
 
 #include "clangdiagnosticconfigsmodel.h"
+#include "clangdsettings.h"
 #include "cppautocompleter.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelsettings.h"

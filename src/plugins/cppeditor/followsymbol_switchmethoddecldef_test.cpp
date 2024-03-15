@@ -3,6 +3,7 @@
 
 #include "followsymbol_switchmethoddecldef_test.h"
 
+#include "clangdsettings.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditorwidget.h"
 #include "cppfollowsymbolundercursor.h"

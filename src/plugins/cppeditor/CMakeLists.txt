@@ -93,6 +93,7 @@ add_qtc_plugin(CppEditor
     cppvirtualfunctionassistprovider.cpp cppvirtualfunctionassistprovider.h
     cppvirtualfunctionproposalitem.cpp cppvirtualfunctionproposalitem.h
     cppworkingcopy.cpp cppworkingcopy.h
+    clangdsettings.cpp clangdsettings.h
     cursorineditor.h
     doxygengenerator.cpp doxygengenerator.h
     editordocumenthandle.cpp editordocumenthandle.h

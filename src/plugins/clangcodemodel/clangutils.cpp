@@ -9,8 +9,8 @@
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdsettings.h>
 #include <cppeditor/compileroptionsbuilder.h>
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>

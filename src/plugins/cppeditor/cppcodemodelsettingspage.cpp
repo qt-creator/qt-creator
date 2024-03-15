@@ -5,6 +5,7 @@
 
 #include "clangdiagnosticconfigsselectionwidget.h"
 #include "clangdiagnosticconfigswidget.h"
+#include "clangdsettings.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
@@ -18,6 +19,7 @@
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
+#include <utils/clangutils.h>
 #include <utils/fancylineedit.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>

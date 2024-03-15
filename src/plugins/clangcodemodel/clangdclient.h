@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cppeditor/baseeditordocumentparser.h>
-#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
