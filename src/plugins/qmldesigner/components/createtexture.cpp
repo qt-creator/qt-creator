@@ -17,6 +17,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <QTimer>
+#include <QUrl>
 
 namespace QmlDesigner {
 
@@ -94,7 +95,7 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
         newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(assetPath.baseName()));
 
         VariantProperty sourceProp = newTexNode.variantProperty("source");
-        sourceProp.setValue(textureSource);
+        sourceProp.setValue(QUrl(textureSource));
         matLib.defaultNodeListProperty().reparentHere(newTexNode);
     }
 
