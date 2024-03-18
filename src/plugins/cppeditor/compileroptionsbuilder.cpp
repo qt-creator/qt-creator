@@ -692,8 +692,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
     if (path.type == HeaderPathType::BuiltIn) {
         systemPath = true;
     } else if (path.type == HeaderPathType::System) {
-        if (m_useSystemHeader == UseSystemHeader::Yes)
-            systemPath = true;
+        systemPath = true;
     } else {
         // ProjectExplorer::HeaderPathType::User
         if (m_useSystemHeader == UseSystemHeader::Yes && m_projectPart.hasProject()
