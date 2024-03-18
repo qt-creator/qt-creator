@@ -187,8 +187,14 @@ QVector3D GeneralHelper::rotateCamera(QQuick3DCamera *camera, const QPointF &ang
     if (qAbs(angles.y()) > 0.001f)
         camera->rotate(angles.y(), QVector3D(1.f, 0.f, 0.f), QQuick3DNode::LocalSpace);
     // Rotation around Y-axis is done in scene space to keep horizon level
-    if (qAbs(angles.x()) > 0.001f)
-        camera->rotate(angles.x(), QVector3D(0.f, 1.f, 0.f), QQuick3DNode::SceneSpace);
+    if (qAbs(angles.x()) > 0.001f) {
+        // Since we are rotating in scene space, adjust direction according to camera up-vector
+        float angle = angles.x();
+        if (camera->up().y() <= 0)
+            angle = -angle;
+
+        camera->rotate(angle, QVector3D(0.f, 1.f, 0.f), QQuick3DNode::SceneSpace);
+    }
 
     QMatrix4x4 m = camera->sceneTransform();
     const float *dataPtr(m.data());
