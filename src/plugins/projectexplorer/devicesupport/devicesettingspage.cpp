@@ -156,7 +156,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     }.attachTo(scrollAreaWidget);
 
     // Just a placeholder for the device name edit widget.
-    m_deviceNameEditWidget = new QWidget();
+    m_deviceNameEditWidget = new QWidget;
 
     // clang-format off
     Form {
@@ -341,8 +341,9 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     Layouting::Column item{Layouting::noMargin()};
     device->settings()->displayName.addToLayout(item);
     QWidget *newEdit = item.emerge();
-    m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);
-
+    QLayoutItem *oldItem = m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);
+    QTC_CHECK(oldItem);
+    delete oldItem;
     delete m_deviceNameEditWidget;
     m_deviceNameEditWidget = newEdit;
 
