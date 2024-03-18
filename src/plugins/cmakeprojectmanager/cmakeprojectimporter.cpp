@@ -245,6 +245,8 @@ static CMakeConfig configurationFromPresetProbe(
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
                                               "\n"
                                               "project(preset-probe)\n"
+                                              "set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\" CACHE FILEPATH \"\" FORCE)\n"
+                                              "set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\" CACHE FILEPATH \"\" FORCE)\n"
                                               "\n"));
 
     Process cmake;
