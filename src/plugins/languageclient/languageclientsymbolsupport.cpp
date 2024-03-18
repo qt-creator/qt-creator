@@ -274,6 +274,10 @@ struct ItemData
     Utils::Text::Range range;
     QVariant userData;
 };
+bool operator==(const ItemData &id1, const ItemData &id2)
+{
+    return id1.range == id2.range && id1.userData == id2.userData;
+}
 
 QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
 {
@@ -342,15 +346,32 @@ Utils::SearchResultItems generateSearchResultItems(
     return result;
 }
 
+using ItemDataPerPath = QMap<Utils::FilePath, QList<ItemData>>;
+void filterFileAliases(ItemDataPerPath &itemDataPerPath)
+{
+    QSet<Utils::FilePath> canonicalPaths;
+    for (auto it = itemDataPerPath.begin(); it != itemDataPerPath.end(); ) {
+        const Utils::FilePath canonicalPath = it.key().canonicalPath();
+        if (!Utils::insert(canonicalPaths, canonicalPath)
+            && it.value() == itemDataPerPath.value(canonicalPath)) { // QTCREATORBUG-30546
+            it = itemDataPerPath.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 Utils::SearchResultItems generateSearchResultItems(
     const LanguageClientArray<Location> &locations, const DocumentUri::PathMapper &pathMapper)
 {
     if (locations.isNull())
         return {};
-    QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
-    for (const Location &location : locations.toList())
+    ItemDataPerPath rangesInDocument;
+    for (const Location &location : locations.toList()) {
         rangesInDocument[location.uri().toFilePath(pathMapper)]
             << ItemData{SymbolSupport::convertRange(location.range()), {}};
+    }
+    filterFileAliases(rangesInDocument);
     return generateSearchResultItems(rangesInDocument);
 }
 
@@ -552,7 +573,7 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
             return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(edit)};
         });
     };
-    QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
+    ItemDataPerPath rangesInDocument;
     auto documentChanges = edits.documentChanges().value_or(QList<DocumentChange>());
     if (!documentChanges.isEmpty()) {
         for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
@@ -588,6 +609,7 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
         for (auto it = changes.begin(), end = changes.end(); it != end; ++it)
             rangesInDocument[it.key().toFilePath(pathMapper)] = convertEdits(it.value());
     }
+    filterFileAliases(rangesInDocument);
     items += generateSearchResultItems(rangesInDocument, search, limitToProjects);
     return items;
 }
