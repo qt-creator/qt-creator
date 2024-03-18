@@ -300,8 +300,9 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
 
 Utils::SearchResultItems generateSearchResultItems(
     const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
-    Core::SearchResult *search = nullptr,
-    bool limitToProjects = false)
+    Client *client,
+    Core::SearchResult *search,
+    bool limitToProjects)
 {
     Utils::SearchResultItems result;
     const bool renaming = search && search->supportsReplace();
@@ -321,8 +322,15 @@ Utils::SearchResultItems generateSearchResultItems(
         if (renaming && limitToProjects) {
             const ProjectExplorer::Node * const node
                 = ProjectExplorer::ProjectTree::nodeForFile(filePath);
-            item.setSelectForReplacement(node && !node->isGenerated());
-            if (node
+            if (node) {
+                item.setSelectForReplacement(!node->isGenerated());
+            } else {
+                item.setSelectForReplacement(
+                    client->project()
+                    && ProjectExplorer::ProjectManager::isInProjectSourceDir(
+                        filePath, *client->project()));
+            }
+            if (item.selectForReplacement()
                 && filePath.baseName().compare(oldSymbolName, Qt::CaseInsensitive) == 0) {
                 fileRenameCandidates << filePath;
             }
@@ -362,17 +370,17 @@ void filterFileAliases(ItemDataPerPath &itemDataPerPath)
 }
 
 Utils::SearchResultItems generateSearchResultItems(
-    const LanguageClientArray<Location> &locations, const DocumentUri::PathMapper &pathMapper)
+    const LanguageClientArray<Location> &locations, Client *client)
 {
     if (locations.isNull())
         return {};
     ItemDataPerPath rangesInDocument;
     for (const Location &location : locations.toList()) {
-        rangesInDocument[location.uri().toFilePath(pathMapper)]
+        rangesInDocument[location.uri().toFilePath(client->hostPathMapper())]
             << ItemData{SymbolSupport::convertRange(location.range()), {}};
     }
     filterFileAliases(rangesInDocument);
-    return generateSearchResultItems(rangesInDocument);
+    return generateSearchResultItems(rangesInDocument, client, nullptr, false);
 }
 
 void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Response &response,
@@ -388,7 +396,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     if (result) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             Tr::tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
-        search->addResults(generateSearchResultItems(*result, m_client->hostPathMapper()),
+        search->addResults(generateSearchResultItems(*result, m_client),
                            Core::SearchResult::AddOrdered);
         connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
             Core::EditorManager::openEditorAtSearchResult(item);
@@ -563,9 +571,9 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
 }
 
 Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
+                                              Client *client,
                                               Core::SearchResult *search,
-                                              bool limitToProjects,
-                                              const DocumentUri::PathMapper &pathMapper)
+                                              bool limitToProjects)
 {
     Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {
@@ -575,6 +583,7 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
     };
     ItemDataPerPath rangesInDocument;
     auto documentChanges = edits.documentChanges().value_or(QList<DocumentChange>());
+    const DocumentUri::PathMapper &pathMapper = client->hostPathMapper();
     if (!documentChanges.isEmpty()) {
         for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
             if (std::holds_alternative<TextDocumentEdit>(documentChange)) {
@@ -610,7 +619,7 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
             rangesInDocument[it.key().toFilePath(pathMapper)] = convertEdits(it.value());
     }
     filterFileAliases(rangesInDocument);
-    items += generateSearchResultItems(rangesInDocument, search, limitToProjects);
+    items += generateSearchResultItems(rangesInDocument, client, search, limitToProjects);
     return items;
 }
 
@@ -686,7 +695,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
         const Utils::SearchResultItems items = generateReplaceItems(
-            *edits, search, m_limitRenamingToProjects, m_client->hostPathMapper());
+            *edits, m_client, search, m_limitRenamingToProjects);
         search->addResults(items, Core::SearchResult::AddOrdered);
         if (m_renameResultsEnhancer) {
             Utils::SearchResultItems additionalItems = m_renameResultsEnhancer(items);
