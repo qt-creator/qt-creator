@@ -927,7 +927,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = VcsBaseClient::createVcsCommand(checkoutPath,
+    auto command = VcsBaseClient::createVcsCommand(this, checkoutPath,
                                                    fossilClient().processEnvironment(checkoutPath));
 
     if (!isLocalRepository

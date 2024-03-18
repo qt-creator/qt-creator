@@ -1769,7 +1769,7 @@ VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
     QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;
 
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
+    auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
                                                    gitClient().processEnvironment(baseDirectory));
     command->addFlags(RunFlags::SuppressStdErr);
     command->addJob({gitClient().vcsBinary(baseDirectory), args}, -1);
