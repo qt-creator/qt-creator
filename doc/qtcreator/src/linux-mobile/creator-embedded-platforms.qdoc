@@ -72,6 +72,7 @@
     for remote Linux devices:
 
     \list
+        \li \l{Adding Docker Devices}
         \li \l{Connecting Remote Linux Devices}
         \li \l{Deploying to Remote Linux}
         \li \l{Remote Linux Run Settings}
