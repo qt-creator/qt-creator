@@ -1177,6 +1177,10 @@ public:
         return std::pair<TracerType, FlowTokenType>();
     }
 
+    template<typename... Arguments>
+    void threadEvent(ArgumentType, Arguments &&...)
+    {}
+
     static constexpr bool isActive() { return false; }
 };
 
@@ -1262,6 +1266,24 @@ public:
                                       m_self,
                                       std::forward<Arguments>(arguments)...),
                 std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
+    }
+
+    template<typename... Arguments>
+    void threadEvent(ArgumentType traceName, Arguments &&...arguments)
+    {
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+
+        traceEvent.time = Clock::now();
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = traceName;
+        traceEvent.type = 'i';
+        traceEvent.id = 0;
+        traceEvent.bindId = 0;
+        traceEvent.flow = IsFlow::No;
+        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
     EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
