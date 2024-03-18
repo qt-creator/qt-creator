@@ -23,12 +23,14 @@ public:
 class SQLITE_EXPORT ExceptionWithMessage : public Exception
 {
 public:
-    ExceptionWithMessage(Utils::SmallString &&sqliteErrorMessage = Utils::SmallString{})
+    ExceptionWithMessage(Utils::SmallString &&sqliteErrorMessage = {})
         : m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {}
 
     const char *what() const noexcept override;
     void printWarning() const;
+
+    std::string_view message() const noexcept { return m_sqliteErrorMessage; }
 
 private:
     Utils::SmallString m_sqliteErrorMessage;
@@ -37,7 +39,7 @@ private:
 class SQLITE_EXPORT StatementIsBusy : public ExceptionWithMessage
 {
 public:
-    using ExceptionWithMessage::ExceptionWithMessage;
+    StatementIsBusy(Utils::SmallString &&sqliteErrorMessage);
     const char *what() const noexcept override;
 };
 
@@ -90,7 +92,8 @@ public:
 class SQLITE_EXPORT StatementHasError : public ExceptionWithMessage
 {
 public:
-    using ExceptionWithMessage::ExceptionWithMessage;
+    StatementHasError(Utils::SmallString &&sqliteErrorMessage);
+
     const char *what() const noexcept override;
 };
 

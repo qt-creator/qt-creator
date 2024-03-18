@@ -26,37 +26,7 @@ extern "C" int sqlite3_carray_bind(
 
 namespace Sqlite {
 
-TraceFile &traceFile()
-{
-    static TraceFile traceFile{"tracing.json"};
-
-    return traceFile;
-}
-
-namespace {
-
-thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent,
-                                     sqliteTracingStatus()>
-    eventQueue(traceFile());
-
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
-{
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteLowLevelCategory_{"sqlite low level"_t, eventQueue, sqliteLowLevelCategory};
-    return sqliteLowLevelCategory_;
-}
-
 using NanotraceHR::keyValue;
-
-} // namespace
-
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()
-{
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteHighLevelCategory_{"sqlite high level"_t, eventQueue, sqliteHighLevelCategory};
-
-    return sqliteHighLevelCategory_;
-}
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
     : m_database(database)

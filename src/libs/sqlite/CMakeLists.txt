@@ -58,7 +58,7 @@ add_qtc_library(Sqlite
     sqlitesessionchangeset.cpp sqlitesessionchangeset.h
     sqlitesessions.cpp sqlitesessions.h
     sqlitetable.h
-    sqlitetransaction.h
+    sqlitetracing.cpp sqlitetracing.h
     sqlitetransaction.h
     sqlitevalue.h
     sqlitewritestatement.h

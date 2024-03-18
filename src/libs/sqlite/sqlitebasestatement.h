@@ -9,6 +9,7 @@
 #include "sqliteblob.h"
 #include "sqliteexception.h"
 #include "sqliteids.h"
+#include "sqlitetracing.h"
 #include "sqlitetransaction.h"
 #include "sqlitevalue.h"
 
@@ -30,8 +31,6 @@ using std::int64_t;
 
 namespace Sqlite {
 
-using namespace NanotraceHR::Literals;
-
 class Database;
 class DatabaseBackend;
 
@@ -43,22 +42,6 @@ constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration e
     static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
-
-constexpr NanotraceHR::Tracing sqliteTracingStatus()
-{
-#ifdef ENABLE_SQLITE_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
-#else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
-}
-
-using TraceFile = NanotraceHR::TraceFile<sqliteTracingStatus()>;
-
-SQLITE_EXPORT TraceFile &traceFile();
-
-SQLITE_EXPORT NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &
-sqliteHighLevelCategory();
 
 class SQLITE_EXPORT BaseStatement
 {
