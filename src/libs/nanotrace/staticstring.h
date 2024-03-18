@@ -55,7 +55,7 @@ public:
         }
     }
 
-    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     void append(Type number)
     {
 #if !(defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L))

@@ -46,6 +46,17 @@ public:
                < std::tie(second.sourceId, second.moduleId, second.version);
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const Import &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("module id", import.moduleId),
+                              keyValue("source id", import.sourceId),
+                              keyValue("version", import.version));
+        convertToString(string, dict);
+    }
+
 public:
     Storage::Version version;
     ModuleId moduleId;
@@ -54,26 +65,54 @@ public:
 
 using Imports = std::vector<Import>;
 
-template<typename String>
-void convertToString(String &string, const Import &import)
-{
-    using NanotraceHR::dictonary;
-    using NanotraceHR::keyValue;
-    auto dict = dictonary(keyValue("module id", import.moduleId),
-                          keyValue("source id", import.sourceId),
-                          keyValue("version", import.version));
-    convertToString(string, dict);
-}
-
 namespace Synchronization {
 
 enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
 
+template<typename String>
+void convertToString(String &string, const TypeNameKind &kind)
+{
+    switch (kind) {
+    case TypeNameKind::Exported:
+        convertToString(string, "Exported");
+        break;
+    case TypeNameKind::QualifiedExported:
+        convertToString(string, "QualifiedExported");
+        break;
+    }
+}
+
 enum class FileType : char { QmlTypes, QmlDocument };
+
+template<typename String>
+void convertToString(String &string, const FileType &type)
+{
+    switch (type) {
+    case FileType::QmlTypes:
+        convertToString(string, "QmlTypes");
+        break;
+    case FileType::QmlDocument:
+        convertToString(string, "QmlDocument");
+        break;
+    }
+}
 
 enum class IsQualified : int { No, Yes };
 
-inline int operator-(IsQualified first, IsQualified second)
+template<typename String>
+void convertToString(String &string, const IsQualified &isQualified)
+{
+    switch (isQualified) {
+    case IsQualified::No:
+        convertToString(string, "No");
+        break;
+    case IsQualified::Yes:
+        convertToString(string, "Yes");
+        break;
+    }
+}
+
+inline int operator-(IsQualified first, const IsQualified &second)
 {
     return static_cast<int>(first) - static_cast<int>(second);
 }
@@ -89,6 +128,25 @@ enum class ImportKind : char {
     ModuleExportedImport,
     ModuleExportedModuleDependency
 };
+
+template<typename String>
+void convertToString(String &string, const ImportKind &kind)
+{
+    switch (kind) {
+    case ImportKind::Import:
+        convertToString(string, "Import");
+        break;
+    case ImportKind::ModuleDependency:
+        convertToString(string, "ModuleDependency");
+        break;
+    case ImportKind::ModuleExportedImport:
+        convertToString(string, "ModuleExportedImport");
+        break;
+    case ImportKind::ModuleExportedModuleDependency:
+        convertToString(string, "ModuleExportedModuleDependency");
+        break;
+    }
+}
 
 class ImportView
 {
@@ -109,6 +167,19 @@ public:
                && first.version == second.version;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const ImportView &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("import id", import.importId),
+                              keyValue("source id", import.sourceId),
+                              keyValue("module id", import.moduleId),
+                              keyValue("version", import.version));
+
+        convertToString(string, dict);
+    }
+
 public:
     ImportId importId;
     SourceId sourceId;
@@ -117,6 +188,19 @@ public:
 };
 
 enum class IsAutoVersion : char { No, Yes };
+
+template<typename String>
+void convertToString(String &string, const IsAutoVersion &isAutoVersion)
+{
+    switch (isAutoVersion) {
+    case IsAutoVersion::No:
+        convertToString(string, "No");
+        break;
+    case IsAutoVersion::Yes:
+        convertToString(string, "Yes");
+        break;
+    }
+}
 
 constexpr bool operator<(IsAutoVersion first, IsAutoVersion second)
 {
@@ -147,6 +231,19 @@ public:
     {
         return std::tie(first.moduleId, first.exportedModuleId, first.isAutoVersion, first.version)
                < std::tie(second.moduleId, second.exportedModuleId, second.isAutoVersion, second.version);
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const ModuleExportedImport &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("module id", import.moduleId),
+                              keyValue("exported module id", import.exportedModuleId),
+                              keyValue("version", import.version),
+                              keyValue("is auto version", import.isAutoVersion));
+
+        convertToString(string, dict);
     }
 
 public:
@@ -183,6 +280,20 @@ public:
                && first.version == second.version && first.isAutoVersion == second.isAutoVersion;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const ModuleExportedImportView &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("module exported import id", import.moduleExportedImportId),
+                              keyValue("module id", import.moduleId),
+                              keyValue("exported module id", import.exportedModuleId),
+                              keyValue("version", import.version),
+                              keyValue("is auto version", import.isAutoVersion));
+
+        convertToString(string, dict);
+    }
+
 public:
     ModuleExportedImportId moduleExportedImportId;
     Storage::Version version;
@@ -204,6 +315,16 @@ public:
         return first.name == second.name;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const ImportedType &importedType)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", importedType.name));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeNameString name;
 };
@@ -220,6 +341,17 @@ public:
     friend bool operator==(const QualifiedImportedType &first, const QualifiedImportedType &second)
     {
         return first.name == second.name && first.import == second.import;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const QualifiedImportedType &importedType)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", importedType.name),
+                              keyValue("import", importedType.import));
+
+        convertToString(string, dict);
     }
 
 public:
@@ -276,6 +408,19 @@ public:
                < std::tie(second.moduleId, second.name, second.version);
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const ExportedType &exportedType)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", exportedType.name),
+                              keyValue("module id", exportedType.moduleId),
+                              keyValue("type id", exportedType.typeId),
+                              keyValue("version", exportedType.version));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallString name;
     Storage::Version version;
@@ -284,19 +429,6 @@ public:
 };
 
 using ExportedTypes = std::vector<ExportedType>;
-
-template<typename String>
-void convertToString(String &string, const ExportedType &exportedType)
-{
-    using NanotraceHR::dictonary;
-    using NanotraceHR::keyValue;
-    auto dict = dictonary(keyValue("name", exportedType.name),
-                          keyValue("module id", exportedType.moduleId),
-                          keyValue("type id", exportedType.typeId),
-                          keyValue("version", exportedType.version));
-
-    convertToString(string, dict);
-}
 
 class ExportedTypeView
 {
@@ -320,6 +452,20 @@ public:
         , exportedTypeNameId{exportedTypeNameId}
     {}
 
+    template<typename String>
+    friend void convertToString(String &string, const ExportedTypeView &exportedType)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", exportedType.name),
+                              keyValue("module id", exportedType.moduleId),
+                              keyValue("type id", exportedType.typeId),
+                              keyValue("version", exportedType.version),
+                              keyValue("version", exportedType.exportedTypeNameId));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallStringView name;
     Storage::Version version;
@@ -327,20 +473,6 @@ public:
     ModuleId moduleId;
     ExportedTypeNameId exportedTypeNameId;
 };
-
-template<typename String>
-void convertToString(String &string, const ExportedTypeView &exportedType)
-{
-    using NanotraceHR::dictonary;
-    using NanotraceHR::keyValue;
-    auto dict = dictonary(keyValue("name", exportedType.name),
-                          keyValue("module id", exportedType.moduleId),
-                          keyValue("type id", exportedType.typeId),
-                          keyValue("version", exportedType.version),
-                          keyValue("version", exportedType.exportedTypeNameId));
-
-    convertToString(string, dict);
-}
 
 using ImportedTypeName = std::variant<ImportedType, QualifiedImportedType>;
 
@@ -361,7 +493,7 @@ void convertToString(String &string, const ImportedTypeName &typeName)
 
         void operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
         {
-            auto dict = dictonary(keyValue("name", importedType.name), keyValue("import", "empty"));
+            auto dict = dictonary(keyValue("name", importedType.name));
 
             convertToString(string, dict);
         }
@@ -401,6 +533,18 @@ public:
                && first.hasValue == second.hasValue;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const EnumeratorDeclaration &enumeratorDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", enumeratorDeclaration.name),
+                              keyValue("value", enumeratorDeclaration.value),
+                              keyValue("has value", enumeratorDeclaration.hasValue));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallString name;
     long long value = 0;
@@ -425,6 +569,18 @@ public:
                && first.enumeratorDeclarations == second.enumeratorDeclarations;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const EnumerationDeclaration &enumerationDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", enumerationDeclaration.name),
+                              keyValue("enumerator declarations",
+                                       enumerationDeclaration.enumeratorDeclarations));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeNameString name;
     EnumeratorDeclarations enumeratorDeclarations;
@@ -443,6 +599,20 @@ public:
         , enumeratorDeclarations{std::move(enumeratorDeclarations)}
         , id{id}
     {}
+
+    template<typename String>
+    friend void convertToString(String &string,
+                                const EnumerationDeclarationView &enumerationDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", enumerationDeclaration.name),
+                              keyValue("enumerator declarations",
+                                       enumerationDeclaration.enumeratorDeclarations),
+                              keyValue("id", enumerationDeclaration.id));
+
+        convertToString(string, dict);
+    }
 
 public:
     ::Utils::SmallStringView name;
@@ -466,6 +636,18 @@ public:
     {
         return first.name == second.name && first.typeName == second.typeName
                && first.traits == second.traits;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const ParameterDeclaration &parameterDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", parameterDeclaration.name),
+                              keyValue("type name", parameterDeclaration.typeName),
+                              keyValue("traits", parameterDeclaration.traits));
+
+        convertToString(string, dict);
     }
 
 public:
@@ -494,6 +676,17 @@ public:
         return first.name == second.name && first.parameters == second.parameters;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const SignalDeclaration &signalDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", signalDeclaration.name),
+                              keyValue("parameters", signalDeclaration.parameters));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallString name;
     ParameterDeclarations parameters;
@@ -512,6 +705,18 @@ public:
         , signature{signature}
         , id{id}
     {}
+
+    template<typename String>
+    friend void convertToString(String &string, const SignalDeclarationView &signalDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", signalDeclaration.name),
+                              keyValue("signature", signalDeclaration.signature),
+                              keyValue("id", signalDeclaration.id));
+
+        convertToString(string, dict);
+    }
 
 public:
     ::Utils::SmallStringView name;
@@ -543,6 +748,18 @@ public:
                && first.parameters == second.parameters;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const FunctionDeclaration &functionDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", functionDeclaration.name),
+                              keyValue("return type name", functionDeclaration.returnTypeName),
+                              keyValue("parameters", functionDeclaration.parameters));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallString name;
     TypeNameString returnTypeName;
@@ -565,6 +782,19 @@ public:
         , id{id}
     {}
 
+    template<typename String>
+    friend void convertToString(String &string, const FunctionDeclarationView &functionDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", functionDeclaration.name),
+                              keyValue("return type name", functionDeclaration.returnTypeName),
+                              keyValue("signature", functionDeclaration.signature),
+                              keyValue("id", functionDeclaration.id));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallStringView name;
     ::Utils::SmallStringView returnTypeName;
@@ -573,6 +803,19 @@ public:
 };
 
 enum class PropertyKind { Property, Alias };
+
+template<typename String>
+void convertToString(String &string, const PropertyKind &kind)
+{
+    switch (kind) {
+    case PropertyKind::Property:
+        convertToString(string, "Property");
+        break;
+    case PropertyKind::Alias:
+        convertToString(string, "Alias");
+        break;
+    }
+}
 
 class PropertyDeclaration
 {
@@ -643,6 +886,24 @@ public:
                && first.traits == second.traits && first.kind == second.kind;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const PropertyDeclaration &propertyDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", propertyDeclaration.name),
+                              keyValue("type name", propertyDeclaration.typeName),
+                              keyValue("alias property name", propertyDeclaration.aliasPropertyName),
+                              keyValue("alias property name tail",
+                                       propertyDeclaration.aliasPropertyNameTail),
+                              keyValue("traits", propertyDeclaration.traits),
+                              keyValue("type id", propertyDeclaration.typeId),
+                              keyValue("property type id", propertyDeclaration.propertyTypeId),
+                              keyValue("kind", to_underlying(propertyDeclaration.kind)));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallString name;
     ImportedTypeName typeName;
@@ -673,6 +934,21 @@ public:
         , aliasId{aliasId}
     {}
 
+    template<typename String>
+    friend void convertToString(String &string, const PropertyDeclarationView &propertyDeclaration)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("name", propertyDeclaration.name),
+                              keyValue("traits", propertyDeclaration.traits),
+                              keyValue("type id", propertyDeclaration.typeId),
+                              keyValue("type name id", propertyDeclaration.typeNameId),
+                              keyValue("id", propertyDeclaration.id),
+                              keyValue("alias id", propertyDeclaration.aliasId));
+
+        convertToString(string, dict);
+    }
+
 public:
     ::Utils::SmallStringView name;
     PropertyDeclarationTraits traits = {};
@@ -683,6 +959,22 @@ public:
 };
 
 enum class ChangeLevel : char { Full, Minimal, ExcludeExportedTypes };
+
+template<typename String>
+void convertToString(String &string, const ChangeLevel &changeLevel)
+{
+    switch (changeLevel) {
+    case ChangeLevel::Full:
+        convertToString(string, "Full");
+        break;
+    case ChangeLevel::Minimal:
+        convertToString(string, "Minimal");
+        break;
+    case ChangeLevel::ExcludeExportedTypes:
+        convertToString(string, "ExcludeExportedTypes");
+        break;
+    }
+}
 
 class Type
 {
@@ -793,6 +1085,27 @@ public:
                && first.sourceId == second.sourceId;
     }
 
+    template<typename String>
+    friend void convertToString(String &string, const Type &type)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("type name", type.typeName),
+                              keyValue("prototype", type.prototype),
+                              keyValue("extension", type.extension),
+                              keyValue("exported types", type.exportedTypes),
+                              keyValue("property declarations", type.propertyDeclarations),
+                              keyValue("function declarations", type.functionDeclarations),
+                              keyValue("signal declarations", type.signalDeclarations),
+                              keyValue("enumeration declarations", type.enumerationDeclarations),
+                              keyValue("traits", type.traits),
+                              keyValue("source id", type.sourceId),
+                              keyValue("change level", to_underlying(type.changeLevel)),
+                              keyValue("default property name", type.defaultPropertyName));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeNameString typeName;
     ::Utils::SmallString defaultPropertyName;
@@ -823,6 +1136,20 @@ public:
         , moduleId{moduleId}
     {}
 
+    template<typename String>
+    friend void convertToString(String &string, const PropertyEditorQmlPath &propertyEditorQmlPath)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("type name", propertyEditorQmlPath.typeName),
+                              keyValue("type id", propertyEditorQmlPath.typeId),
+                              keyValue("path id", propertyEditorQmlPath.pathId),
+                              keyValue("directory id", propertyEditorQmlPath.directoryId),
+                              keyValue("module id", propertyEditorQmlPath.moduleId));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeNameString typeName;
     TypeId typeId;
@@ -848,6 +1175,19 @@ public:
         return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
                && first.moduleId.internalId() == second.moduleId.internalId()
                && first.fileType == second.fileType;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const ProjectData &projectData)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("project source id", projectData.projectSourceId),
+                              keyValue("source id", projectData.sourceId),
+                              keyValue("module id", projectData.moduleId),
+                              keyValue("file type", to_underlying(projectData.fileType)));
+
+        convertToString(string, dict);
     }
 
 public:
@@ -880,6 +1220,23 @@ public:
         , moduleId{moduleId}
         , traits{traits}
     {}
+
+    template<typename String>
+    friend void convertToString(String &string, const TypeAnnotation &typeAnnotation)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("type name", typeAnnotation.typeName),
+                              keyValue("icon path", typeAnnotation.iconPath),
+                              keyValue("item library json", typeAnnotation.itemLibraryJson),
+                              keyValue("hints json", typeAnnotation.hintsJson),
+                              keyValue("type id", typeAnnotation.typeId),
+                              keyValue("source id", typeAnnotation.sourceId),
+                              keyValue("module id", typeAnnotation.moduleId),
+                              keyValue("traits", typeAnnotation.traits));
+
+        convertToString(string, dict);
+    }
 
 public:
     TypeNameString typeName;

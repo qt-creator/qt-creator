@@ -65,6 +65,15 @@ public:
 
     [[noreturn, deprecated]] InternalIntegerType operator&() const { throw std::exception{}; }
 
+    template<typename String>
+    friend void convertToString(String &string, BasicId id)
+    {
+        if (id.isValid())
+            NanotraceHR::convertToString(string, id.internalId());
+        else
+            NanotraceHR::convertToString(string, "invalid");
+    }
+
 private:
     InternalIntegerType id = 0;
 };
@@ -76,12 +85,6 @@ auto toIntegers(const Container &container)
     const DataType *data = reinterpret_cast<const DataType *>(container.data());
 
     return Utils::span{data, container.size()};
-}
-
-template<typename String, auto Type, typename InternalIntegerType = long long>
-void convertToString(String &string, BasicId<Type, InternalIntegerType> id)
-{
-    NanotraceHR::convertToString(string, id.internalId());
 }
 
 } // namespace Sqlite

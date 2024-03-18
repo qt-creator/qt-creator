@@ -11,7 +11,9 @@
 #include <utils/span.h>
 
 #include <QByteArrayView>
+#include <QList>
 #include <QStringView>
+#include <QVarLengthArray>
 #include <QVariant>
 
 #include <array>
@@ -44,7 +46,7 @@ enum class Tracing { IsDisabled, IsEnabled };
 #  define NO_UNIQUE_ADDRESS
 #endif
 
-using ArgumentsString = StaticString<1016>;
+using ArgumentsString = StaticString<3700>;
 
 namespace Literals {
 struct TracerLiteral
@@ -129,32 +131,14 @@ void convertToString(String &string, bool isTrue)
         string.append("false");
 }
 
-template<typename String, typename Callable, typename = std::enable_if_t<std::is_invocable_v<Callable>>>
+template<typename String, typename Callable, typename std::enable_if_t<std::is_invocable_v<Callable>, bool> = true>
 void convertToString(String &string, Callable &&callable)
 {
     convertToString(string, callable());
 }
 
-template<typename String>
-void convertToString(String &string, int number)
-{
-    string.append(number);
-}
-
-template<typename String>
-void convertToString(String &string, long long number)
-{
-    string.append(number);
-}
-
-template<typename String>
-void convertToString(String &string, std::size_t number)
-{
-    string.append(number);
-}
-
-template<typename String>
-void convertToString(String &string, double number)
+template<typename String, typename Number, typename std::enable_if_t<std::is_arithmetic_v<Number>, bool> = true>
+void convertToString(String &string, Number number)
 {
     string.append(number);
 }
@@ -166,7 +150,7 @@ constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumerat
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
-template<typename String, typename Enumeration, typename = std::enable_if_t<std::is_enum_v<Enumeration>>>
+template<typename String, typename Enumeration, typename std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
 void convertToString(String &string, Enumeration enumeration)
 {
     string.append(to_underlying(enumeration));
@@ -184,14 +168,14 @@ void convertToString(String &string, const QVariant &value)
     convertToString(string, value.toString());
 }
 
-template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary);
-
-template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list);
-
-template<typename String, template<typename...> typename Container, typename... Arguments>
-void convertToString(String &string, const Container<Arguments...> &container);
+template<typename String, typename Type>
+void convertToString(String &string, const std::optional<Type> &value)
+{
+    if (value)
+        convertToString(string, *value);
+    else
+        convertToString(string, "empty optional");
+}
 
 template<typename String, typename Value>
 void convertArrayEntryToString(String &string, const Value &value)
@@ -211,7 +195,7 @@ void convertArrayToString(String &string, const IsArray &, Entries &...entries)
 }
 
 template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list)
+void convertToString(String &string, const std::tuple<IsArray, Arguments...> &list)
 {
     std::apply([&](auto &&...entries) { convertArrayToString(string, entries...); }, list);
 }
@@ -242,16 +226,31 @@ void convertToString(String &string, const std::tuple<IsDictonary, Arguments...>
     std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
 }
 
-template<typename String, template<typename...> typename Container, typename... Arguments>
-void convertToString(String &string, const Container<Arguments...> &container)
+template<typename T>
+struct is_container : std::false_type
+{};
+
+template<typename... Arguments>
+struct is_container<std::vector<Arguments...>> : std::true_type
+{};
+
+template<typename... Arguments>
+struct is_container<QList<Arguments...>> : std::true_type
+{};
+
+template<typename T, qsizetype Prealloc>
+struct is_container<QVarLengthArray<T, Prealloc>> : std::true_type
+{};
+
+template<typename String, typename Container, typename std::enable_if_t<is_container<Container>::value, bool> = true>
+void convertToString(String &string, const Container &values)
 {
     string.append('[');
-    for (const auto &entry : container) {
-        convertToString(string, entry);
-        string.append(',');
-    }
 
-    if (container.size())
+    for (const auto &value : values)
+        convertToString(string, value);
+
+    if (values.size())
         string.pop_back();
 
     string.append(']');
@@ -337,7 +336,7 @@ inline bool operator&(IsFlow first, IsFlow second)
 }
 
 template<typename String, typename ArgumentsString>
-struct TraceEvent
+struct alignas(4096) TraceEvent
 {
     using StringType = String;
     using ArgumentType = std::conditional_t<std::is_same_v<String, std::string_view>, TracerLiteral, String>;
@@ -352,13 +351,13 @@ struct TraceEvent
 
     String name;
     String category;
-    ArgumentsString arguments;
     TimePoint time;
     Duration duration;
     std::size_t id = 0;
     std::size_t bindId : 62;
     IsFlow flow : 2;
     char type = ' ';
+    ArgumentsString arguments;
 };
 
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;

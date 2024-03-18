@@ -93,7 +93,7 @@ public:
                            static_cast<std::size_t>(std::distance(begin, end))}
     {}
 
-    template<typename Type, typename = std::enable_if_t<std::is_pointer<Type>::value>>
+    template<typename Type, typename std::enable_if_t<std::is_pointer<Type>::value, bool> = true>
     BasicSmallString(Type characterPointer) noexcept
         : BasicSmallString(characterPointer, std::char_traits<char>::length(characterPointer))
     {
@@ -118,7 +118,7 @@ public:
 
     template<typename BeginIterator,
              typename EndIterator,
-             typename = std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value>>
+             typename std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value, bool> = true>
     BasicSmallString(BeginIterator begin, EndIterator end) noexcept
         : BasicSmallString(&(*begin), size_type(end - begin))
     {}
@@ -447,7 +447,7 @@ public:
         setSize(newSize);
     }
 
-    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     void append(Type number)
     {
 #if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
@@ -527,7 +527,7 @@ public:
         return *this;
     }
 
-    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     BasicSmallString &operator+=(Type number) noexcept
     {
         append(number);
@@ -639,7 +639,7 @@ public:
         return joinedString;
     }
 
-    template<typename Type, typename = std::enable_if_t<std::is_arithmetic_v<Type>>>
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
     static BasicSmallString number(Type number)
     {
         BasicSmallString string;
