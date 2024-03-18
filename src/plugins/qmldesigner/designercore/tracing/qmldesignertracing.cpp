@@ -6,6 +6,9 @@
 #include <sqlitebasestatement.h>
 
 namespace QmlDesigner {
+
+using namespace NanotraceHR::Literals;
+
 namespace Tracing {
 
 namespace {
@@ -51,7 +54,6 @@ StringEventQueue &stringEventQueue()
 
 namespace ModelTracing {
 namespace {
-using namespace NanotraceHR::Literals;
 
 thread_local Category category_{"model"_t, Tracing::stringEventQueue(), category};
 
@@ -63,4 +65,19 @@ Category &category()
 }
 
 } // namespace ModelTracing
+
+namespace ProjectStorageTracing {
+
+NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()> &projectStorageCategory()
+{
+    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()>
+        projectStorageCategory_{"project storage"_t,
+                                Tracing::eventQueueWithStringArguments(),
+                                projectStorageCategory};
+
+    return projectStorageCategory_;
+}
+
+} // namespace ProjectStorageTracing
+
 } // namespace QmlDesigner

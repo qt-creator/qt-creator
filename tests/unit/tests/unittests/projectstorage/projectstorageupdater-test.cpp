@@ -3210,7 +3210,8 @@ TEST_F(ProjectStorageUpdater, errors_for_watcher_updates_are_handled)
                       SecondType 2.2 Second.qml)"};
     setContent(u"/path/qmldir", qmldir);
 
-    ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Throw(QmlDesigner::ProjectStorageError{}));
+    ON_CALL(projectStorageMock, synchronize(_))
+        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
 
     ASSERT_NO_THROW(updater.pathsWithIdsChanged({{directoryProjectChunkId, {directoryPathSourceId}}}));
 }
@@ -3227,7 +3228,8 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens)
         {{directoryPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
          {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
-    ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Throw(QmlDesigner::ProjectStorageError{}));
+    ON_CALL(projectStorageMock, synchronize(_))
+        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());
@@ -3286,7 +3288,8 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens_and_
         {{directoryPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
          {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
-    ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Throw(QmlDesigner::ProjectStorageError{}));
+    ON_CALL(projectStorageMock, synchronize(_))
+        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());
@@ -3348,7 +3351,8 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens_and_
          {directoryPathSourceId, qmlDocumentSourceId1, QmlDesigner::ModuleId{}, FileType::QmlDocument},
          {directoryPathSourceId, qmlDocumentSourceId1, QmlDesigner::ModuleId{}, FileType::QmlDocument}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
-    ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Throw(QmlDesigner::ProjectStorageError{}));
+    ON_CALL(projectStorageMock, synchronize(_))
+        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmlDocumentProjectChunkId, {qmlDocumentSourceId1, qmlDocumentSourceId2}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());
