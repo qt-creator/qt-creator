@@ -1637,6 +1637,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     //                     bp.setThreadSpec(threadId);
     //           });
 
+    menu->addSeparator();
+
     addAction(this, menu,
               selectedBreakpoints.size() > 1
                   ? breakpointsEnabled ? Tr::tr("Disable Selected Breakpoints") : Tr::tr("Enable Selected Breakpoints")
@@ -1650,6 +1652,37 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                     }
               }
     );
+
+    QList<Breakpoint> enabledBreakpoints;
+    QList<Breakpoint> disabledBreakpoints;
+    forItemsAtLevel<1>([&enabledBreakpoints, &disabledBreakpoints](Breakpoint bp) {
+        if (bp) {
+            if (bp->isEnabled())
+                enabledBreakpoints.append(bp);
+            else
+                disabledBreakpoints.append(bp);
+         }
+    });
+
+    addAction(this, menu, Tr::tr("Disable All Breakpoints"),
+              !enabledBreakpoints.isEmpty(),
+              [this, enabledBreakpoints] {
+        for (Breakpoint bp : enabledBreakpoints) {
+            if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                gbp->setEnabled(false, false);
+            requestBreakpointEnabling(bp, false);
+        }
+    });
+
+    addAction(this, menu, Tr::tr("Enable All Breakpoints"),
+              !disabledBreakpoints.isEmpty(),
+              [this, disabledBreakpoints] {
+        for (Breakpoint bp : disabledBreakpoints) {
+            if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                gbp->setEnabled(true, false);
+            requestBreakpointEnabling(bp, true);
+        }
+    });
 
     addAction(this, menu,
               selectedLocations.size() > 1
@@ -2660,6 +2693,31 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
                         gbp->setEnabled(!breakpointsEnabled);
               }
     );
+
+    QList<GlobalBreakpoint> enabledBreakpoints;
+    QList<GlobalBreakpoint> disabledBreakpoints;
+    forItemsAtLevel<1>([&enabledBreakpoints, &disabledBreakpoints](GlobalBreakpoint gbp) {
+        if (gbp) {
+            if (gbp->isEnabled())
+                enabledBreakpoints.append(gbp);
+            else
+                disabledBreakpoints.append(gbp);
+         }
+    });
+
+    addAction(this, menu, Tr::tr("Disable All Breakpoints"),
+              !enabledBreakpoints.isEmpty(),
+              [enabledBreakpoints] {
+        for (GlobalBreakpoint gbp : enabledBreakpoints)
+            gbp->setEnabled(false);
+    });
+
+    addAction(this, menu, Tr::tr("Enable All Breakpoints"),
+              !disabledBreakpoints.isEmpty(),
+              [disabledBreakpoints] {
+        for (GlobalBreakpoint gbp : disabledBreakpoints)
+            gbp->setEnabled(true);
+    });
 
     menu->addSeparator();
 
