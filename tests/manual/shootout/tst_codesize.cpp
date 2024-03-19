@@ -100,6 +100,8 @@ private:
 
 void tst_CodeSize::initTestCase()
 {
+    m_env = QProcessEnvironment::systemEnvironment();
+
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
