@@ -53,8 +53,8 @@
         \li Move Component Instances into Separate Files
         \li \l{Turning Component Instances into Custom Components}
     \row
-        \li Add New Signal Handler
-        \li \l{Adding Signal Handlers}
+        \li Connecting Components to Signals
+        \li \l{Connecting Components to Signals in the Connection View}
     \row
         \li Go to Implementation
         \li \l{Using UI Files}

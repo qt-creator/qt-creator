@@ -69,3 +69,39 @@
     \externalpage https://www.qt.io/download
     \title Try Qt
 */
+/*!
+    \externalpage https://doc.qt.io/qt-5/custom-material-reference.html
+    \title Qt Quick 3D Custom Material Reference
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-arealight.html
+    \title AreaLight
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-shaderinfo.html
+    \title ShaderInfo
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-bufferblit.html
+    \title BufferBlit
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-cullmode.html
+    \title CullMode
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-depthinput.html
+    \title DepthInput
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-5/qml-qtquick3d-renderstate.html
+    \title RenderState
+*/
+/*!
+    \externalpage https://doc.qt.io/qt/i18n-source-translation.html#mark-strings-for-translation
+    \title Mark Strings for Translation
+*/
+/*!
+    \externalpage https://doc.qt.io/qt/linguist-id-based-i18n.html
+    \title Text ID based translations
+*/

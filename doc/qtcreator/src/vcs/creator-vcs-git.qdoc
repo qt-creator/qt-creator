@@ -30,10 +30,6 @@
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
 
-    \if defined(qtdesignstudio)
-    \include creator-vcs-options.qdocinc vcs options
-    \endif
-
     \if defined(qtcreator)
     \section1 Using Git for Windows
 

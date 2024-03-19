@@ -104,6 +104,17 @@
     selected, the camera is pointed at the world origin. This does not affect
     the camera zoom level.
 
+    \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
+
+    You can use scene cameras (2) to view the \uicontrol View3D component from a
+    specific angle in the \l {2D} view while editing scenes. Different types of
+    cameras are available in \uicontrol Components
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
+    about using cameras in the scene, the available camera types, and their
+    properties, see \l{Cameras}.
+
+    \section2 Using Split View
+
     To view the scene in a split view of four different point of views, select
     \inlineimage icons/split-view.png.
 
@@ -113,15 +124,6 @@
     a blue frame. Use the world axis helper to change the point of view for each pane
     independently. Navigate each split by panning, rotating, and zooming, as
     described above.
-
-    \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
-
-    You can use scene cameras (2) to view the \uicontrol View3D component from a
-    specific angle in the \l {2D} view while editing scenes. Different types of
-    cameras are available in \uicontrol Components
-    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
-    about using cameras in the scene, the available camera types, and their
-    properties, see \l{Cameras}.
 
     \section1 Using Global and Local Orientation
 

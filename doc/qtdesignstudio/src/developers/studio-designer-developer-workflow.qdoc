@@ -46,7 +46,7 @@
         \li Select \uicontrol {File} > \uicontrol {Export Project} > \uicontrol {Generate CMake Build Files}.
             \image studio-project-export.webp "Export the \QDS project for Qt Creator"
 
-        \li Select \uicontrol {Details} to access the \l {Advanced Options}.
+        \li Select \uicontrol {Details} to access the \uicontrol {Advanced Options}.
             \image studio-project-export-advanced.webp "Access Advanced Options in the project exporter"
 
             \note The project exporter has default settings selected. This works better if the project
@@ -68,7 +68,7 @@
     After exporting the project from the \QDS, you have to open it from Qt Creator.
 
     If you have used any version before \QDS 4.0 to create the project, manually include this code
-    in the \l {CMakeLists.txt} file so the exported project works in Qt Creator.
+    in the \e {CMakeLists.txt} file so the exported project works in Qt Creator.
 
     \code
         set(BUILD_QDS_COMPONENTS ON CACHE BOOL "Build design studio components")
@@ -83,6 +83,6 @@
     \endcode
 
     \note If you have created the project with the \QDS version 4.0 or above, you already have this code in
-          \l {CMakeLists.txt} by default.
+          \e {CMakeLists.txt} by default.
 
 */
