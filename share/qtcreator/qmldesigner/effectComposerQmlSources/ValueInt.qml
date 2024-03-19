@@ -14,6 +14,10 @@ Row {
     HelperWidgets.DoubleSpinBox {
         id: spinBox
 
+        // value: uniformValue binding can get overwritten by normal operation of the control
+        property double resetValue: uniformValue
+        onResetValueChanged: value = resetValue
+
         width: 60
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
@@ -22,7 +26,7 @@ Row {
         value: uniformValue
         stepSize: 1
         decimals: 0
-        onValueChanged: uniformValue = Math.round(value)
+        onValueModified: uniformValue = Math.round(value)
     }
 
     StudioControls.Slider {

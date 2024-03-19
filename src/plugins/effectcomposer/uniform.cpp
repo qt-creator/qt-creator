@@ -94,7 +94,13 @@ void Uniform::setValue(const QVariant &newValue)
 {
     if (m_value != newValue) {
         m_value = newValue;
+
         emit uniformValueChanged();
+
+        if (m_type == Type::Sampler) {
+            m_backendValue->setValue(newValue);
+            emit uniformBackendValueChanged();
+        }
     }
 }
 

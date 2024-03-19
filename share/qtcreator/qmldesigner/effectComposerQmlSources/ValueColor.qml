@@ -15,8 +15,14 @@ Row {
     StudioControls.ColorEditor {
         actionIndicatorVisible: false
 
-        Component.onCompleted: color = uniformValue
+        // color: uniformValue binding can get overwritten by normal operation of the control
+        property color resetValue: uniformValue
 
-        onColorChanged: uniformValue = color
+        onResetValueChanged: color = uniformValue
+        Component.onCompleted: color = uniformValue
+        onColorChanged: {
+            if (uniformValue !== color)
+                uniformValue = color
+        }
     }
 }
