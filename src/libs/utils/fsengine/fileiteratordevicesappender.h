@@ -6,8 +6,8 @@
 #include "../filepath.h"
 #include "../hostosinfo.h"
 
-#include <QtVersionChecks>
 #include <QtCore/private/qabstractfileengine_p.h>
+#include <QtGlobal>
 
 namespace Utils {
 namespace Internal {

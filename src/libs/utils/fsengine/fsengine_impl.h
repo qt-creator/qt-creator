@@ -7,8 +7,8 @@
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
+#include <QtGlobal>
 #include <QTemporaryFile>
-#include <QtVersionChecks>
 
 namespace Utils {
 namespace Internal {
