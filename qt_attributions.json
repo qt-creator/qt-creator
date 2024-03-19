@@ -454,6 +454,19 @@
         "Copyright": "Copyright (c) 2019 Vitaly Petrov"
     },
     {
+        "Id": "ptyqt-conpty",
+        "Name": "Pty-Qt/ConPty",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for the integrated terminal.",
+        "Path": "src/libs/3rdparty/libptyqt",
+        "Description": "Major parts of conptyprocess.cpp have been ported from microsofts terminal source code and integrated into ptyqt's class.",
+        "Homepage": "https://github.com/microsoft/terminal",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE-CONPTY",
+        "Copyright": "Copyright (c) Microsoft Corporation"
+    },
+    {
         "Id": "libvterm",
         "Name": "libvterm",
         "QDocModule": "qtcreator",
