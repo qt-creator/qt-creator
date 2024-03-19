@@ -11,11 +11,11 @@
     \page creator-modeling.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference
+    \ingroup creator-reference-editors
 
     \title Model Editor
 
-    \brief Editor for Universal Modeling Language (UML) style models with
+    \brief Create Universal Modeling Language (UML) style models with
     structured and behavioral diagrams.
 
     Use the model editor to create Universal Modeling Language (UML)
