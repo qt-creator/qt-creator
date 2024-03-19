@@ -8,7 +8,7 @@
 
 #include <QFileInfo>
 #include <QString>
-#include <QtVersionChecks>
+#include <QtGlobal>
 
 #include <QtCore/private/qabstractfileengine_p.h>
 

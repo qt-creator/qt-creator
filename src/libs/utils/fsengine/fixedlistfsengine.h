@@ -9,7 +9,7 @@
 #include "../stringutils.h"
 
 #include <QtCore/private/qabstractfileengine_p.h>
-#include <QtVersionChecks>
+#include <QtGlobal>
 
 namespace Utils {
 namespace Internal {
