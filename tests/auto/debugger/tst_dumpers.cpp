@@ -3338,6 +3338,31 @@ void tst_Dumpers::dumper_data()
                + Check("sf0", "(-1.0, -1.0)", "@QSizeF")
                + Check("sf", "(100.5, 200.5)", "@QSizeF");
 
+    QTest::newRow("QPair")
+            << Data("#include <QPair>\n"
+                    "#include <QString>\n",
+                    "QString s = \"sss\";\n"
+                    "QString t = \"ttt\";\n"
+                    "QPair<int, int> pii(1, 2);\n"
+                    "QPair<int, QString> pis(1, t);\n"
+                    "QPair<QString, int> psi(s, 2);\n"
+                    "QPair<QString, QString> pss(s, t);\n",
+                    "&pii, &pis, &psi, &pss")
+
+               + CoreProfile()
+
+               + Check("pii", "(1, 2)", "@QPair")
+               + Check("pii.first", "1", "int")
+               + Check("pii.second", "2", "int")
+               + Check("pis", "(1, ...)", "@QPair")
+               + Check("pis.first", "1", "int")
+               + Check("pis.second", "\"ttt\"", "@QString")
+               + Check("psi", "(..., 2)", "@QPair")
+               + Check("psi.first", "\"sss\"", "@QString")
+               + Check("psi.second", "2", "int")
+               + Check("pss", "(..., ...)", "@QPair")
+               + Check("pss.first", "\"sss\"", "@QString")
+               + Check("pss.second", "\"ttt\"", "@QString");
 
     QTest::newRow("QRegion")
             << Data("#include <QRegion>\n"
