@@ -624,8 +624,7 @@ Store ClangdSettings::Data::toMap() const
     map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
     map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
     map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
-    if (haveCheckedHardwareReqirements != false)
-        map.insert(checkedHardwareKey(), true);
+    map.insert(checkedHardwareKey(), haveCheckedHardwareReqirements);
     map.insert(completionResultsKey(), completionResults);
     return map;
 }
