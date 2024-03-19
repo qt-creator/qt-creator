@@ -450,8 +450,10 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             if (error) {
                 if constexpr (std::is_same_v<DtoType, Dto::DashboardInfoDto>) {
                     // Suppress logging error on unauthorized dashboard fetch
-                    if (!dtoStorage->credential && error->type == "UnauthenticatedException")
+                    if (!dtoStorage->credential && error->type == "UnauthenticatedException") {
+                        dtoStorage->url = reply->url();
                         return DoneResult::Success;
+                    }
                 }
 
                 errorString = Error(DashboardError(reply->url(), statusCode,
@@ -530,13 +532,11 @@ static void handleCredentialError(const CredentialQuery &credential)
 
 static Group authorizationRecipe()
 {
+    const Storage<QUrl> serverUrlStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
-    const auto onUnauthorizedGroupSetup = [unauthorizedDashboardStorage] {
-        if (isServerAccessEstablished())
-            return SetupResult::StopWithSuccess;
-
-        unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
-        return SetupResult::Continue;
+    const auto onUnauthorizedGroupSetup = [serverUrlStorage, unauthorizedDashboardStorage] {
+        unauthorizedDashboardStorage->url = *serverUrlStorage;
+        return isServerAccessEstablished() ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
     const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage] {
         if (unauthorizedDashboardStorage->dtoData) {
@@ -575,7 +575,7 @@ static Group authorizationRecipe()
 
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const auto onPasswordGroupSetup = [passwordStorage, dashboardStorage] {
+    const auto onPasswordGroupSetup = [serverUrlStorage, passwordStorage, dashboardStorage] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
 
@@ -589,7 +589,7 @@ static Group authorizationRecipe()
 
         const QString credential = settings().server.username + ':' + *passwordStorage;
         dashboardStorage->credential = "Basic " + credential.toUtf8().toBase64();
-        dashboardStorage->url = QUrl(settings().server.dashboard);
+        dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
     };
 
@@ -632,13 +632,13 @@ static Group authorizationRecipe()
         return DoneResult::Success;
     };
 
-    const auto onDashboardGroupSetup = [dashboardStorage] {
+    const auto onDashboardGroupSetup = [serverUrlStorage, dashboardStorage] {
         if (dd->m_dashboardInfo || dd->m_serverAccess != ServerAccess::WithAuthorization
             || !dd->m_apiToken) {
             return SetupResult::StopWithSuccess; // Unauthorized access should have collect dashboard before
         }
         dashboardStorage->credential = "AxToken " + *dd->m_apiToken;
-        dashboardStorage->url = QUrl(settings().server.dashboard);
+        dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
     };
     const auto onDeleteCredentialSetup = [dashboardStorage](CredentialQuery &credential) {
@@ -656,11 +656,16 @@ static Group authorizationRecipe()
     };
 
     return {
+        serverUrlStorage,
+        onGroupSetup([serverUrlStorage] { *serverUrlStorage = QUrl(settings().server.dashboard); }),
         Group {
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
             dtoRecipe(unauthorizedDashboardStorage),
-            Sync(onUnauthorizedDashboard)
+            Sync(onUnauthorizedDashboard),
+            onGroupDone([serverUrlStorage, unauthorizedDashboardStorage] {
+                *serverUrlStorage = unauthorizedDashboardStorage->url;
+            }),
         },
         Group {
             LoopUntil(onCredentialLoopCondition),
