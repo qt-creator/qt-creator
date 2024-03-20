@@ -133,7 +133,7 @@
     \skipto set_property
     \printuntil )
 
-    Because the CMake version is older than 3.19, add a manual
+    For compatibility with CMake versions older than 3.19, add a manual
     finalization step to the \c qt_add_executable function:
 
     \quotefromfile accelbubble/CMakeLists.txt
