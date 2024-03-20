@@ -7,6 +7,7 @@ import %{ApplicationImport}
 @endif
 
 %{RootItem} {
+  id: root
 @if %{UseImport}
     width: Constants.width
     height: Constants.height
