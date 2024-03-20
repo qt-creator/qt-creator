@@ -247,14 +247,12 @@
     \endlist
 
     The title of the topic to use for automatically generating the navigation
-    links is set as the value of the \c indexTitle option in the document
-    configuration file:
+    links is set as the value of the \c navigation.toctitles option in the
+    document configuration file:
 
     \list
-        \li \QC: \c qhp.qtcreator.subprojects.manual.indexTitle in
-            \c {\doc\qtcreator\config\qtcreator-project.qdocconf}
-        \li \QDS: \c qhp.qtdesignstudio.subprojects.manual.indexTitle in
-            \c {\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}
+        \li \QC: \c {\doc\qtcreator\config\qtcreator-project.qdocconf}
+        \li \QDS: \c {\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}
     \endlist
 
     When you add new topics, you must add them either to the TOC or to a
