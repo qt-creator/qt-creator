@@ -48,8 +48,9 @@
     \image qtcreator-custom-wizard.png {Wizard details in the New Project dialog}
 
     In most project wizards, you can choose the build system to use for
-    building the project: qmake, CMake, or Qbs. If you do not get to choose,
-    the project uses qmake as the build system.
+    building the project: qmake, CMake, Qbs, and possibly others, depending on
+    which plugins you have installed. If you do not get to choose,
+    the project usually uses CMake as the build system.
 
     \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
 
