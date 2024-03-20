@@ -6,13 +6,13 @@ import QtQuick 2.15
 import LandingPageTheme
 
 QtObject {
-    readonly property color text: Theme.color(Theme.Welcome_TextColor)
-    readonly property color foregroundPrimary: Theme.color(Theme.Welcome_ForegroundPrimaryColor)
-    readonly property color foregroundSecondary: Theme.color(Theme.Welcome_ForegroundSecondaryColor)
-    readonly property color backgroundPrimary: Theme.color(Theme.Welcome_BackgroundPrimaryColor)
-    readonly property color backgroundSecondary: Theme.color(Theme.Welcome_BackgroundSecondaryColor)
-    readonly property color hover: Theme.color(Theme.Welcome_HoverColor)
-    readonly property color accent: Theme.color(Theme.Welcome_AccentColor)
-    readonly property color link: Theme.color(Theme.Welcome_LinkColor)
-    readonly property color disabledLink: Theme.color(Theme.Welcome_DisabledLinkColor)
+    readonly property color text: Theme.color(Theme.Token_Text_Default)
+    readonly property color foregroundPrimary: Theme.color(Theme.Token_Foreground_Default)
+    readonly property color foregroundSecondary: Theme.color(Theme.Token_Foreground_Muted)
+    readonly property color backgroundPrimary: Theme.color(Theme.Token_Background_Default)
+    readonly property color backgroundSecondary: Theme.color(Theme.Token_Background_Muted)
+    readonly property color hover: Theme.color(Theme.Token_Background_Subtle)
+    readonly property color accent: Theme.color(Theme.Token_Accent_Default)
+    readonly property color link: Theme.color(Theme.Token_Text_Accent)
+    readonly property color disabledLink: Theme.color(Theme.Token_Text_Subtle)
 }

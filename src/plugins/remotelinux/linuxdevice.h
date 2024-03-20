@@ -50,7 +50,7 @@ public:
     bool isDisconnected() const;
     void setDisconnected(bool disconnected);
 
-    QFuture<bool> tryToConnect();
+    bool tryToConnect();
 
 protected:
     LinuxDevice();

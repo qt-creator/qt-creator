@@ -6,7 +6,6 @@
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditor.h"
 #include "vcsbaseeditorconfig.h"
-#include "vcsbaseplugin.h"
 #include "vcsbasetr.h"
 #include "vcscommand.h"
 #include "vcsoutputwindow.h"
@@ -72,7 +71,8 @@ FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
 VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
                                              VcsBaseEditorWidget *editor) const
 {
-    auto cmd = createVcsCommand(workingDirectory, processEnvironment(workingDirectory));
+    auto cmd = createVcsCommand(const_cast<VcsBaseClientImpl *>(this),
+                                workingDirectory, processEnvironment(workingDirectory));
     if (editor) {
         editor->setCommand(cmd);
         connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
@@ -212,6 +212,14 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
                                                 const Environment &environment)
 {
     return new VcsCommand(defaultWorkingDir, environment);
+}
+
+VcsCommand *VcsBaseClientImpl::createVcsCommand(QObject *parent, const FilePath &defaultWorkingDir,
+                                                const Environment &environment)
+{
+    auto command = new VcsCommand(defaultWorkingDir, environment);
+    command->setParent(parent);
+    return command;
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,

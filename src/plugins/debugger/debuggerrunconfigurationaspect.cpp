@@ -77,10 +77,15 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
         const auto setSummaryText = [this, details] {
             const auto describe = [](const TriStateAspect &aspect, const QString &name) {
-                if (aspect() == TriState::Enabled)
+                if (aspect() == TriState::Enabled) {
+                    //: %1 is C++, QML, or Python
                     return Tr::tr("Enable %1 debugger.").arg(name);
-                if (aspect() == TriState::Disabled)
+                }
+                if (aspect() == TriState::Disabled) {
+                    //: %1 is C++, QML, or Python
                     return Tr::tr("Disable %1 debugger.").arg(name);
+                }
+                //: %1 is C++, QML, or Python
                 return Tr::tr("Try to determine need for %1 debugger.").arg(name);
             };
 

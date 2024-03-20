@@ -8,28 +8,32 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-debugging-qml.html
     \page creator-debugging-example.html
-    \nextpage creator-qml-debugging-example.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-how-tos.html
 
-    \title Debugging a C++ Example Application
+    \ingroup creator-tutorials
 
-    This section uses the \l{Creating a Qt Widget Based Application}{TextFinder}
+    \title Debugging a C++ Application
+
+    \brief How to debug a C++ application.
+
+    This tutorial uses the \l{Creating a Qt Widget Based Application}{TextFinder}
     example to illustrate how to debug Qt C++ applications in the
     \uicontrol Debug mode.
 
     TextFinder reads a text file into QString and then displays it with
-    QTextEdit. To look at the TextFinder class and see the stored data, place
-    a breakpoint in textfinder.cpp, as follows:
+    QTextEdit. To look at the TextFinder class and see the stored data:
 
     \list 1
 
-        \li Click in between the line number and the window border on the line
-            where we change the cursor position to set a breakpoint.
+        \li In textfinder.cpp, click between the line number and the window
+            border on the line where we change the cursor position to set a
+            breakpoint.
 
             \image qtcreator-setting-breakpoint1.png
 
-        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+        \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging of Startup Project} or press \key F5.
 
         \li To view information about the breakpoint, go to the
@@ -91,4 +95,5 @@
     (\uicontrol {Step Into}), and \inlineimage icons/debugger_stepout_small.png
     (\uicontrol {Step Out}).
 
+    \sa {Creating a Qt Widget Based Application}, {Debugging}
 */

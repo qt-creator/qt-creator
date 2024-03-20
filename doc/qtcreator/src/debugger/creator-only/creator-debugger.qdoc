@@ -90,11 +90,11 @@
             objects and user interfaces, as well as execute JavaScript
             expressions.
 
-        \li \l{Debugging a C++ Example Application}
+        \li \l{Debugging a C++ Application}
 
             Illustrates how to debug C++ applications in \QC.
 
-        \li \l{Debugging a Qt Quick Example Application}
+        \li \l{Debugging a Qt Quick Application}
 
             Illustrates how to debug Qt Quick applications in \QC.
 

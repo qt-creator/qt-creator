@@ -233,21 +233,41 @@
     Save screenshots and other illustrations in \c {\qtdesignstudio\images}.
 
     If you add new topics to the \QDS Manual, add links to them to the table
-    of contents in \c {qtdesignstudio-toc.qdoc} and check the values of the
-    navigation links around them.
+    of contents in \c {qtdesignstudio-toc.qdoc}.
 
     \section2 Updating Next and Previous Links
 
-    QDoc automatically generates links to the previous
-    and next page in the \QC Manual based on the list in
-    \c {\qtcreator\doc\qtcreator\src\qtcreator-toc.qdoc}. So, when you add
-    new topics, you must either add them to the TOC or to a group of topics
-    (\c {\ingroup}). You can see the current groups in the \e {How To} and
+    QDoc automatically generates links to the previous and next page in each
+    manual based on the list in a topic with the title \e {All Topics}, which
+    is in the following files:
+
+    \list
+        \li \QC: \c {\qtcreator\doc\qtcreator\src\qtcreator-toc.qdoc}
+        \li \QDS: \c {\qtcreator\doc\qtdesignstudio\src\qtdesignstudio-toc.qdoc}
+    \endlist
+
+    The title of the topic to use for automatically generating the navigation
+    links is set as the value of the \c indexTitle option in the document
+    configuration file:
+
+    \list
+        \li \QC: \c qhp.qtcreator.subprojects.manual.indexTitle in
+            \c {\doc\qtcreator\config\qtcreator-project.qdocconf}
+        \li \QDS: \c qhp.qtdesignstudio.subprojects.manual.indexTitle in
+            \c {\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}
+    \endlist
+
+    When you add new topics, you must add them either to the TOC or to a
+    group of topics (\c {\ingroup}) that is used to generate a list in the TOC
+    (\l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#generatelist-command}
+    {\c {\generatelist}}).
+
+    In the \QC Manual, you can see the current groups in the \e {How To} and
     \e {Reference} sections of the TOC. You can add new groups.
 
-    When you add new topics to the \QDS Manual, you must add links to them from
-    \c {\doc\qtdesignstudio\src\qtdesignstudio-toc.qdoc} and change the
-    navigation links of the topics around them.
+    \note You do not need to manually change the navigation links, but they must
+    be there with some initial values for QDoc to replace with the values from
+    the TOC when you build the docs.
 
     \section1 Adding Documentation for Independent Plugins
 

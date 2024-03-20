@@ -24,7 +24,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
@@ -1674,12 +1673,10 @@ void LinuxDevice::setDisconnected(bool disconnected)
     d->setDisconnected(disconnected);
 }
 
-QFuture<bool> LinuxDevice::tryToConnect()
+bool LinuxDevice::tryToConnect()
 {
-    return Utils::asyncRun([this] {
-        QMutexLocker locker(&d->m_shellMutex);
-        return d->setupShell(sshParameters(), false);
-    });
+    QMutexLocker locker(&d->m_shellMutex);
+    return d->setupShell(sshParameters(), false);
 }
 
 namespace Internal {

@@ -55,9 +55,15 @@
 
     \section1 Edit Code
 
+    The code editor offers useful features, such as semantic highlighting,
+    checking code syntax, code completion, and refactoring actions.
+
     \generatelist creator-how-to-edit
 
     \section2 Configure Editors
+
+    Configure the code and text editor to suit your specific needs by
+    changing the fonts, colors, highlighting, and indentation.
 
     \generatelist creator-how-to-configure-editors
 
@@ -449,9 +455,22 @@
 
     \ingroup creator-how-to-edit
 
-    \title Select the enclosing block in C++
+    \title Select the current code block
 
-    Press \key {Ctrl+U}.
+    To select the current block of C++ code in the code editor, press
+    \key Ctrl+U.
+
+    Press \key Ctrl+U a second time to extend the selection to the parent block.
+
+    To undo the last selection, press \key {Ctrl+Alt+Shift+U}.
+
+    \section1 Turn on smart block selection
+
+    To turn on smart block selection, go to \preferences
+    > \uicontrol {Text Editor} > \uicontrol Behavior and select
+    \uicontrol {Enable smart selection changing}.
+
+    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */

@@ -56,7 +56,7 @@
     \ingroup creator-how-to-design
     \ingroup studio-how-to-image-viewer
 
-    \title Export SVG images
+    \title Create pixmaps from SVG images
 
     If you have a freely scalable icon in the SVG format, you can open it in the
     \l{View images}{image viewer} to export it to several images of different

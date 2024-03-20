@@ -98,7 +98,7 @@
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-highlighting.html#generic-highlighting}
-            {Generic Highlighting}
+            {Download highlight definitions}
         \li \l{https://docs.kde.org/stable5/en/applications/katepart/highlight.html}
             {Working with Syntax Highlighting}
     \endlist

@@ -116,6 +116,30 @@
     such as Python, for which a \e {language server} is available that provides
     information about the code to IDEs.
 
+    \section2 Semantic Highlighting
+
+    To help you write well formatted code, \QC highlights code elements and
+    blocks. It understands the C++, QML, and JavaScript languages as code, not
+    as plain text, so it reads the source code, analyzes it, and highlights it
+    based on the semantic checks that it does for code elements, such as:
+
+    \list
+        \li Types (such as classes, structs, and type definitions)
+        \li Local variables
+        \li Class fields
+        \li Virtual functions
+    \endlist
+
+    You can select the color scheme to use for semantic highlighting in the text
+    editor preferences.
+
+    \QC supports syntax highlighting also for other types of files than C++,
+    QML, or JavaScript. It uses the
+    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
+    {KSyntaxHighlighting} syntax highlighting engine with Kate syntax
+    definitions. It comes with most of the commonly used Kate definitions,
+    and you can download more definitions in the text editor preferences.
+
     \section2 Finding
 
     Use the incremental and advanced search to search in currently open projects
@@ -145,7 +169,8 @@
     If you are used to the Vim editor, run the main editor in the
     \l {FakeVim Modes and Commands}{FakeVim mode}.
 
-    For more information, see \l{Edit Code}{How To: Edit Code} and \l{Editors}.
+    For more information, see \l{Edit Code}{How To: Edit Code}, \l{Editors},
+    and \l{Text Editor}.
 
     \section1 Building, Deploying, and Running Applications
 

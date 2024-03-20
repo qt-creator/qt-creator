@@ -193,7 +193,7 @@ public:
         m_toolChainView->expandAll();
 
         m_addButton = new QPushButton(Tr::tr("Add"), this);
-        auto addMenu = new QMenu;
+        auto addMenu = new QMenu(this);
         for (ToolchainFactory *factory : std::as_const(m_factories)) {
             QList<Utils::Id> languages = factory->supportedLanguages();
             if (languages.isEmpty())
