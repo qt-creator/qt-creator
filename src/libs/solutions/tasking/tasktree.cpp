@@ -1430,6 +1430,17 @@ ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
 
 static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateWithMs); }
 
+/*!
+    Attaches a custom debug printout to a copy of \c this ExecutableItem,
+    issued on task startup and after the task is finished, and returns the coupled item.
+
+    The debug printout includes a timestamp of the event (start or finish)
+    and \a logName to identify the specific task in the debug log.
+
+    The finish printout contains the additional information whether the execution was
+    synchronous or asynchronous, its result (the value described by the DoneWith enum),
+    and the total execution time in milliseconds.
+*/
 ExecutableItem ExecutableItem::withLog(const QString &logName) const
 {
     const auto header = [logName] {
