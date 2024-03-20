@@ -39,8 +39,7 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     m_messageLabel->setWordWrap(true);
     m_messageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    m_ignoreWarningsCheckBox->setText(tr("Always ignore these warnings about features "
-                                         "not supported by Qt Quick Designer."));
+    m_ignoreWarningsCheckBox->setText(tr("Turn off warnings about unsupported Qt Design Studio features."));
 
     connect(m_navigateLabel, &QLabel::linkActivated, this, [this](const QString &link) {
         if (link == QLatin1String("goToCode")) {
