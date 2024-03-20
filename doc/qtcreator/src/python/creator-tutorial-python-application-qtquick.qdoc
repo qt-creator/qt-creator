@@ -59,7 +59,8 @@
         \li \c {main.py}, which has some boilerplate code.
         \li \c {main.qml}, which imports Qt Quick controls.
         \li \c {reguirements.txt}, which stores the PySide version of the
-            generated code.
+            generated code. You can use this file to install the required PySide version
+            using pip.
     \endlist
 
     \section1 Adding Qt Quick Imports
