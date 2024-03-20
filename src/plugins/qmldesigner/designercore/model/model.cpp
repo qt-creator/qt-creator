@@ -1869,8 +1869,9 @@ QString Model::generateNewId(const QString &prefixName,
 
     int counter = 0;
 
-    QString newBaseId = QStringView(u"%1").arg(firstCharToLower(prefixName));
-    newBaseId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
+    static const QRegularExpression nonWordCharsRegex("\\W");
+    QString newBaseId = firstCharToLower(prefixName);
+    newBaseId.remove(nonWordCharsRegex);
 
     if (!newBaseId.isEmpty()) {
         QChar firstChar = newBaseId.at(0);
