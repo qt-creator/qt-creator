@@ -4,12 +4,13 @@
 /*!
     \page creator-completing-code.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-functions.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-edit
+    \ingroup studio-how-to-code
 
     \title Complete code
 
@@ -129,12 +130,13 @@
 /*!
     \page creator-preferences-text-editor-completion.html
     \if defined(qtdesignstudio)
-    \previouspage creator-completing-code.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference-preferences-text-editor
+    \ingroup studio-preferences-code
 
     \title Completion
 
@@ -192,12 +194,13 @@
 /*!
     \page creator-preferences-text-editor-shippets.html
     \if defined(qtdesignstudio)
-    \previouspage creator-completing-code.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference-preferences-text-editor
+    \ingroup studio-preferences-code
 
     \title Snippets
 
@@ -330,12 +333,13 @@
 /*!
     \page creator-how-to-add-code-snippets.html
     \if defined(qtdesignstudio)
-    \previouspage creator-completing-code.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-configure-editors
+    \ingroup studio-how-to-code
 
     \title Add code snippets to the auto-complete menu
 

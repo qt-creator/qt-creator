@@ -161,7 +161,7 @@ class SystemSettingsWidget : public IOptionsPageWidget
 {
 public:
     SystemSettingsWidget()
-        : m_fileSystemCaseSensitivityChooser(new QComboBox)
+        : m_fileSystemCaseSensitivityChooser(HostOsInfo::isMacHost() ? new QComboBox : nullptr)
         , m_externalFileBrowserEdit(new QLineEdit)
         , m_terminalComboBox(new QComboBox)
         , m_terminalOpenArgs(new QLineEdit)
@@ -188,9 +188,6 @@ public:
         m_terminalOpenArgs->setToolTip(
             Tr::tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
 
-        auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));
-        fileSystemCaseSensitivityLabel->setToolTip(
-            Tr::tr("Influences how file names are matched to decide if they are the same."));
         auto resetFileBrowserButton = new QPushButton(Tr::tr("Reset"));
         resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
         auto helpExternalFileBrowserButton = new QToolButton;
@@ -223,6 +220,9 @@ public:
         }
         grid.addRow({Span(4, s.patchCommand)});
         if (HostOsInfo::isMacHost()) {
+            auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));
+            fileSystemCaseSensitivityLabel->setToolTip(
+                Tr::tr("Influences how file names are matched to decide if they are the same."));
             grid.addRow({fileSystemCaseSensitivityLabel,
                          m_fileSystemCaseSensitivityChooser});
         }

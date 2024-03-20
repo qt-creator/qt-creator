@@ -357,7 +357,7 @@
                Works with namespaces, classes, functions, variables, include
                statements, and macros, as well as CMake functions, macros,
                targets, and packages. Also, opens URLs in the default browser
-               and Qt resource files (.qrc) in the \l{Resource Files}
+               and Qt resource files (.qrc) in the \l{Create resource files}
                {resource editor}
             \li  F2
         \row

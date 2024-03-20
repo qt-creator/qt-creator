@@ -9,13 +9,12 @@
 
     \title Paste and fetch code snippets
 
-    To paste snippets of code to a server or fetch snippets of code from the
+    To paste snippets of code or whole files to a server or fetch them from the
     server, use one of the following code pasting services:
 
     \list
-        \li \uicontrol {Pastebin.Com}
-        \li \uicontrol {Pastecode.Xyz}
-        \li \uicontrol {Shared network drives}
+        \li DPaste.com
+        \li Pastebin.com
     \endlist
 
     For example, you might ask colleagues to review a change that you plan to
@@ -33,16 +32,26 @@
 
     \section1 Paste snippets
 
-    To paste a snippet of code onto the server, go to \uicontrol Tools >
-    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet} or press
-    \key {Alt+C,Alt+P}. By default, \QC copies the URL of the snippet to the
+    To paste a snippet of code onto the server:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol {Code Pasting} >
+            \uicontrol {Paste Snippet} or press \key {Alt+C,Alt+P}.
+            \image qtcreator-send-to-codepaster.webp {Send to Codepaster dialog}
+        \li In \uicontrol Protocol, select the code pasting service to use.
+        \li In \uicontrol {Expires after}, specify the time to keep
+            the pasted snippet on the server.
+        \li In \uicontrol Username and \uicontrol Description, enter your
+            username and add information about the pasted content.
+        \li Check and edit the content to paste.
+        \li Select \uicontrol Paste.
+    \endlist
+
+    By default, \QC copies the URL of the snippet to the
     clipboard and displays the URL in \uicontrol {General Messages}.
 
-    To paste any content that you copied to the clipboard, go to
-    \uicontrol Tools > \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
-
-    To paste content from the \l{Compare files}{diff editor}, right-click a
-    chunk and select \uicontrol {Send Chunk to CodePaster} in the context menu.
+    To paste a \l{Compare files}{diff}, right-click a chunk and select
+    \uicontrol {Send Chunk to CodePaster} in the context menu.
 
     \section1 Fetch snippets
 
@@ -85,5 +94,5 @@
     The code snippets are copied to the drive as simple files. You have to
     delete obsolete files from the drive manually.
 
-    \sa {Git}
+    \sa {Compare files}, {Git}
 */

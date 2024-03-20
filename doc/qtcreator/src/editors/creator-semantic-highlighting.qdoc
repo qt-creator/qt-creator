@@ -4,125 +4,140 @@
 /*!
     \page creator-highlighting.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-functions.html
+    \previouspage qtquick-text-editor.html
     \else
-    \previouspage creator-coding-navigating.html
+    \previouspage creator-how-tos.html
     \endif
-    \nextpage creator-checking-code-syntax.html
 
-    \title Semantic Highlighting
+    \ingroup creator-how-to-edit
+    \ingroup studio-how-to-highlight-code
 
-    \QC understands the C++, QML, and JavaScript languages as code, not as plain
-    text. It reads the source code, analyzes it, and highlights it based on the
-    semantic checks that it does for the following code elements:
+    \title Download highlight definitions
 
-    \list
-        \li Types (such as classes, structs, and type definitions)
-        \li Local variables
-        \li Class fields
-        \li Virtual functions
-    \endlist
-
-    To specify the color scheme to use for semantic highlighting, select
-    \preferences > \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
-
-    \QC supports syntax highlighting also for other types of files than C++,
-    QML, or JavaScript.
-
-    \section1 Generic Highlighting
-
-    \QC uses
-    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
-    {KSyntaxHighlighting}, which is the syntax highlighting engine for Kate
-    syntax definitions. \QC comes with most of the commonly used syntax files,
-    and you can download additional files. For more information about the
-    definition files, see
-    \l{https://docs.kde.org/trunk5/en/kate/katepart/highlight.html}
+    \QC uses the \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
+    {KSyntaxHighlighting} syntax highlighting engine with Kate syntax definitions.
+    It comes with most of the commonly used Kate definitions, and you can download
+    more definitions. For more information about the definition files, see
+    \l{https://docs.kde.org/stable5/en/kate/katepart/highlight.html}
     {Working with Syntax Highlighting}.
 
     Font attributes that a syntax definition file explicitly specifies, such as
     bold, italic, underline, or strike through, are applied. Colors are applied
     if they are readable with \QC themes.
 
+    \section2 Remember preferred definitions
+
     If more than one highlight definition is available for the file that you
-    open for editing, the editor asks you to select the one to use. To save
-    the selection, select \uicontrol {Remember My Choice}. To reset the
-    remembered definitions, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} >
+    open for editing, the editor asks you to select the one to use.
+
+    To save the selection, select \uicontrol {Remember My Choice}.
+
+    To reset the remembered definitions, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and select
     \uicontrol {Reset Remembered Definitions}.
+
+    \image qtcreator-syntax-highlighter.png {Generic Highlighter preferences}
+
+    \section2 Download definitions
 
     If the editor cannot find the highlight definition for a file that you open
     for editing, it prompts you to download additional highlight definition
     files. Select \uicontrol {Download Definitions} to download the files.
+
     To view information about the downloaded files, open the \l{View output}
     {General Messages} view.
 
-    To suppress the message for a particular file pattern, select \preferences >
+    \section2 Ignore file patterns
+
+    To suppress the message for a particular file pattern, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and add the
-    pattern to the \uicontrol {Ignored file patterns} field.
+    pattern to \uicontrol {Ignored file patterns}.
 
-    \image qtcreator-syntax-highlighter.png "Generic Highlighter preferences"
+    \section2 Add your own definitions
 
-    If you have written your own syntax definition files, you
-    can add a definition search path in the
-    \uicontrol {User Highlight Definition Files} field. To
-    apply the changes you make to the definition files, select
+    If you have written your own syntax definition files, add a definition search
+    path in \uicontrol {User Highlight Definition Files}.
+
+    To apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.
 
-    \section1 Highlighting Blocks
+    \if defined(qtdesignstudio)
+    \sa Code
+    \else
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \endif
+*/
 
-    Use block highlighting to visually separate parts of the code that belong
-    together. For example, when you place the cursor within the braces, the code
+/*!
+    \page creator-how-to-use-code-blocks.html
+
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-text-editor.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-edit
+    \ingroup studio-how-to-highlight-code
+
+    \title Highlight code blocks
+
+    Block highlighting visually separates parts of the code that belong together.
+    For example, when you place the cursor within a set of braces, the code
     enclosed in braces is highlighted.
 
-    \image qtcreator-blockhighlighting.png
+    \image qtcreator-blockhighlighting.png {A code block highlighted in the editor}
 
-    To enable block highlighting, select \preferences > \uicontrol {Text Editor}
-    > \uicontrol Display > \uicontrol {Highlight blocks}.
+    To enable block highlighting, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display and select \uicontrol {Highlight blocks}.
 
-    \section1 Folding Blocks
+    \section1 Fold code blocks
 
-    Use the folding markers to collapse and expand blocks of code within braces.
-    Click the folding marker to collapse or expand a block. In the figure above,
-    the folding markers are located between the line number and the text pane.
+    Select the folding markers to collapse and expand blocks of code within braces.
+    In the image above, the folding markers are located between the line number
+    and the text pane.
 
-    To show the folding markers, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol Display >
+    To show the folding markers, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol Display and select
     \uicontrol {Display folding markers}. This option is enabled by default.
 
-    \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
+    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
 
-    \section2 Folding All Comment Blocks
+    \if defined(qtcreator)
+    \section1 Fold all comment blocks
 
-    To fold all comment blocks, select \uicontrol Tools > \uicontrol C++ >
-    \uicontrol {Fold All Comment Blocks}. To unfold all comment blocks, select
-    \uicontrol {Unfold All Comment Blocks}.
+    To fold all comment blocks, go to \uicontrol Tools > \uicontrol C++ >
+    \uicontrol {Fold All Comment Blocks}.
 
-    \section1 Animating Matching Braces
+    To unfold all comment blocks, select \uicontrol {Unfold All Comment Blocks}.
+    \endif
+
+    \section1 Animate matching braces
 
     When the cursor is on a brace, the matching brace is animated by default.
 
-    To turn off the animation and just highlight the block and the braces, select
-    \preferences > \uicontrol {Text Editor} > \uicontrol Display and deselect
+    To turn off the animation and just highlight the block and the braces, go to
+    \preferences > \uicontrol {Text Editor} > \uicontrol Display and clear
     \uicontrol {Animate matching parentheses}.
 
-    \section1 Moving Between Blocks
+    \if defined(qtcreator)
+    \section1 Move between code blocks
 
-    You can use keyboard shortcuts to move within and between blocks. To go to
-    block end, press \key {Ctrl+]} and to go to block start, press
-    \key {Ctrl+[}. To also select the lines from the cursor position to the end
+    Use keyboard shortcuts to move within and between code blocks:
+
+    \list
+        \li To go to block end, press \key {Ctrl+]}.
+        \li To go to block start, press \key {Ctrl+[}.
+    \endlist
+
+    To also select the lines from the cursor position to the end
     or beginning of the block, press \key {Ctrl+Shift+]} and
     \key {Ctrl+Shift+[}, respectively.
+    \endif
 
-    \section1 Selecting the Current Block
-
-    To select the current block, press \key Ctrl+U. A second key press extends
-    the selection to the parent block. To undo the last selection, press
-    \key {Ctrl+Alt+Shift+U}.
-
-    To enable smart block selection, select \preferences
-    > \uicontrol {Text Editor} > \uicontrol Behavior >
-    \uicontrol {Enable smart selection changing}.
-
-    \image qtcreator-preferences-texteditor-behavior.webp "Text Editor Behavior preferences"
+    \if defined(qtdesignstudio)
+    \sa Code
+    \else
+    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \endif
 */

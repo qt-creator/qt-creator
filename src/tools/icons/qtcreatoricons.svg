@@ -7030,36 +7030,42 @@
          style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       transform="translate(-209,274)"
+       transform="translate(-210,274)"
        id="src/plugins/welcome/images/session">
       <use
          x="0"
          y="0"
-         xlink:href="#backgroundRect_24"
+         xlink:href="#backgroundRect"
          id="use9"
-         transform="translate(233,-210)" />
+         transform="translate(226,-226)"
+         width="100%"
+         height="100%" />
       <path
          id="path8101"
          style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
-         d="m 219,210 6,4 -6,4 z m -7,-5 h 18 v 18 h -18 z" />
+         d="m 216,215 5,3 -5,3 z m -4,-3 h 12 v 12 h -12 z"
+         sodipodi:nodetypes="ccccccccc" />
     </g>
     <g
-       transform="translate(19,478)"
+       transform="translate(8,478)"
        id="src/plugins/welcome/images/project">
       <use
          x="0"
          y="0"
-         xlink:href="#backgroundRect_24"
+         xlink:href="#backgroundRect"
          id="use9-5"
-         transform="translate(30,-414)" />
+         transform="translate(25,-430)"
+         width="100%"
+         height="100%" />
       <path
-         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round"
-         d="m 16,3 c 1,0 2,1 2,2 0,0 0,1 1,1 h 6 c 1,0 2,1 2,2 v 7 c 0,1 -1,2 -2,2 H 11 C 10,17 9,16 9,15 V 5 C 9,4 10,3 11,3 Z"
-         id="path2761-3"
-         sodipodi:nodetypes="cscccccccccc" />
+         d="m 13,9 h 2.5 c 1,0 1,2 2,2 H 21 c 1,0 2,1 2,2 v 4 c 0,1 -1,2 -2,2 h -8 c -1,0 -2,-1 -2,-2 v -6 c 0,-1 1,-2 2,-2 z"
+         stroke-width="2"
+         id="path4726"
+         sodipodi:nodetypes="sccssssssss"
+         style="fill:none;stroke:#000000;stroke-opacity:1" />
     </g>
     <g
-       transform="translate(44,478)"
+       transform="translate(28,478)"
        id="src/plugins/welcome/images/link">
       <use
          x="0"
@@ -7075,14 +7081,16 @@
          d="m 22.5,5.5 -10,10 M 16,5 h 7 v 7" />
     </g>
     <g
-       transform="translate(-81,276)"
+       transform="translate(-97,276)"
        id="src/plugins/coreplugin/images/expandarrow">
       <use
          x="0"
          y="0"
          xlink:href="#backgroundRect"
          id="use15-0"
-         transform="translate(172,-228)" />
+         transform="translate(172,-228)"
+         width="100%"
+         height="100%" />
       <path
          style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
          d="m 159,214.5 5,5 5,-5"
@@ -7090,14 +7098,16 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       transform="translate(86,478)"
+       transform="translate(70,478)"
        id="src/plugins/coreplugin/images/search">
       <use
          x="0"
          y="0"
          xlink:href="#backgroundRect"
          id="use15"
-         transform="translate(22,-430)" />
+         transform="translate(22,-430)"
+         width="100%"
+         height="100%" />
       <path
          id="path10"
          style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round"

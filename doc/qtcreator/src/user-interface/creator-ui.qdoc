@@ -129,8 +129,8 @@
     The following topics describe how to use the image viewer:
 
      \list
-        \li \l {Export SVG images}
         \li \l {View images}
+        \li \l {Create pixmaps from SVG images}
     \endlist
 
     \endif

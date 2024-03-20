@@ -65,6 +65,7 @@ class VCSBASE_EXPORT VcsCommand final : public QObject
     Q_OBJECT
 
 public:
+    // TODO: For master, make c'tor private and make it a friend to VcsBaseClientImpl.
     VcsCommand(const Utils::FilePath &workingDirectory, const Utils::Environment &environment);
     ~VcsCommand() override;
 

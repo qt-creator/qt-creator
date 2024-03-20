@@ -958,10 +958,13 @@ void TerminalView::applySizeChange()
     };
 
     if (newLiveSize.height() <= 0)
-        newLiveSize.setHeight(1);
+        return;
 
     if (newLiveSize.width() <= 0)
         newLiveSize.setWidth(1);
+
+    if (d->m_surface->liveSize() == newLiveSize)
+        return;
 
     resizePty(newLiveSize);
     d->m_surface->resize(newLiveSize);

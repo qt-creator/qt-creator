@@ -4,14 +4,13 @@
 /*!
     \page creator-editor-quick-fixes.html
     \if defined(qtdesignstudio)
-    \previouspage creator-jump-to-the-code.html
-    \nextpage creator-reference-qml-quick-fixes.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-code-view
+    \ingroup studio-how-to-refactor-code
 
     \title Apply quick fixes
 
@@ -101,14 +100,13 @@
 /*!
     \page creator-reference-qml-quick-fixes.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-quick-fixes.html
-    \nextpage creator-editor-options.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
-    \ingroup creator-reference
-    \ingroup studio-code-view
+    \ingroup creator-reference-editors
+    \ingroup studio-how-to-refactor-code
 
     \title QML Quick Fixes
 

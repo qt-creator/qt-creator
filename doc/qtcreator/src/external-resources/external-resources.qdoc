@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \externalpage https://doc.qt.io/qt/qtqml-index.html
+    \title Qt Qml
+*/
+/*!
     \externalpage https://doc.qt.io/QtForMCUs/index.html
     \title \QMCU
 */

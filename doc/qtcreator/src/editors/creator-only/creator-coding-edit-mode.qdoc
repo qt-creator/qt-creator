@@ -26,7 +26,7 @@
             code elements and blocks. You can use syntax highlighting
             also for other types of files than C++ or QML.
 
-        \li \l {Checking Code Syntax}{Checking code syntax}
+        \li \l {Check code syntax}{Checking code syntax}
 
             \QC checks for errors when you write code and displays inline
             error and warning messages. Similarly, it checks the  data

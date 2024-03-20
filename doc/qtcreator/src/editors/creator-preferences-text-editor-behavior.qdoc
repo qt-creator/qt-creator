@@ -4,13 +4,13 @@
 /*!
     \page creator-preferences-text-editor-behavior.html
     \if defined(qtdesignstudio)
-    \previouspage creator-indenting-code.html
-    \nextpage creator-preferences-qtquick-code-style.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference-preferences-text-editor
+    \ingroup studio-preferences-code
 
     \title Behavior
 

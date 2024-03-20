@@ -231,7 +231,7 @@
     To disable the embedded code model and use the QML language server for everything,
     select \uicontrol {Use QML Language Server advanced features}.
 
-    Also,\QC tries to use the QML language server shipped with
+    Also, \QC tries to use the QML language server shipped with
     the Qt version in your current kit. To override that behavior and always use the
     QML language server of the highest registered Qt version, select
     \uicontrol {Use QML Language Server from latest Qt version}.

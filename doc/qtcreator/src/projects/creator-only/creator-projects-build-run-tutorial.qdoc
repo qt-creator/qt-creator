@@ -8,13 +8,17 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-configuring.html
     \page creator-build-example-application.html
-    \nextpage creator-tutorials.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-how-tos.html
+
+    \ingroup creator-tutorials
 
     \title Building and Running an Example
 
-    You can test that your \QSDK installation is successful by opening an existing
+    \brief How to build and run a Qt example.
+
+    To test that your \QOI installation is successful, open an existing
     example application project.
 
     To run an example application on an Android or iOS device, you must set up
