@@ -68,14 +68,22 @@ Category &category()
 
 namespace ProjectStorageTracing {
 
-NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()> &projectStorageCategory()
+Category &projectStorageCategory()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()>
-        projectStorageCategory_{"project storage"_t,
-                                Tracing::eventQueueWithStringArguments(),
-                                projectStorageCategory};
+    thread_local Category category{"project storage"_t,
+                                   Tracing::eventQueueWithStringArguments(),
+                                   projectStorageCategory};
 
-    return projectStorageCategory_;
+    return category;
+}
+
+Category &projectStorageUpdaterCategory()
+{
+    thread_local Category category{"project storage updater"_t,
+                                   Tracing::eventQueueWithStringArguments(),
+                                   projectStorageCategory};
+
+    return category;
 }
 
 } // namespace ProjectStorageTracing

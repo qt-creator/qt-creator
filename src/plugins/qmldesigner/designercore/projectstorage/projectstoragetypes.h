@@ -899,7 +899,7 @@ public:
                               keyValue("traits", propertyDeclaration.traits),
                               keyValue("type id", propertyDeclaration.typeId),
                               keyValue("property type id", propertyDeclaration.propertyTypeId),
-                              keyValue("kind", to_underlying(propertyDeclaration.kind)));
+                              keyValue("kind", propertyDeclaration.kind));
 
         convertToString(string, dict);
     }
@@ -1100,7 +1100,7 @@ public:
                               keyValue("enumeration declarations", type.enumerationDeclarations),
                               keyValue("traits", type.traits),
                               keyValue("source id", type.sourceId),
-                              keyValue("change level", to_underlying(type.changeLevel)),
+                              keyValue("change level", type.changeLevel),
                               keyValue("default property name", type.defaultPropertyName));
 
         convertToString(string, dict);
@@ -1185,7 +1185,7 @@ public:
         auto dict = dictonary(keyValue("project source id", projectData.projectSourceId),
                               keyValue("source id", projectData.sourceId),
                               keyValue("module id", projectData.moduleId),
-                              keyValue("file type", to_underlying(projectData.fileType)));
+                              keyValue("file type", projectData.fileType));
 
         convertToString(string, dict);
     }

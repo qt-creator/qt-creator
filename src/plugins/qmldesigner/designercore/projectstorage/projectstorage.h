@@ -3491,7 +3491,7 @@ private:
         NanotraceHR::Tracer tracer{"fetch imported type name id"_t,
                                    projectStorageCategory(),
                                    keyValue("imported type name", typeName),
-                                   keyValue("kind", to_underlying(kind))};
+                                   keyValue("kind", kind)};
 
         auto importedTypeNameId = selectImportedTypeNameIdStatement
                                       .template value<ImportedTypeNameId>(kind, id, typeName);
@@ -3517,7 +3517,7 @@ private:
 
         auto typeId = fetchTypeId(typeNameId, kind);
 
-        tracer.end(keyValue("type id", typeId), keyValue("type name kind", to_underlying(kind)));
+        tracer.end(keyValue("type id", typeId), keyValue("type name kind", kind));
 
         return typeId;
     }
@@ -3533,7 +3533,7 @@ private:
         NanotraceHR::Tracer tracer{"fetch type id"_t,
                                    projectStorageCategory(),
                                    keyValue("type name id", typeNameId),
-                                   keyValue("type name kind", to_underlying(kind))};
+                                   keyValue("type name kind", kind)};
 
         TypeId typeId;
         if (kind == Storage::Synchronization::TypeNameKind::Exported) {
@@ -3566,7 +3566,7 @@ private:
             using NanotraceHR::keyValue;
             auto dict = dictonary(keyValue("property type id", result.propertyTypeId),
                                   keyValue("property declaration id", result.propertyDeclarationId),
-                                  keyValue("property traits", to_underlying(result.propertyTraits)));
+                                  keyValue("property traits", result.propertyTraits));
 
             convertToString(string, dict);
         }

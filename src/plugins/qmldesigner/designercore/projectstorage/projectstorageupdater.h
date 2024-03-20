@@ -11,6 +11,8 @@
 #include "projectstoragetypes.h"
 #include "sourcepath.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <qmljs/parser/qmldirparser_p.h>
 
 #include <QStringList>
@@ -141,6 +143,16 @@ private:
                          Storage::Synchronization::SynchronizationPackage &package,
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIdsIds &watchedSourceIdsIds);
+    void updateDirectoryChanged(std::string_view directoryPath,
+                                FileState qmldirState,
+                                SourcePath qmldirSourcePath,
+                                SourceId qmldirSourceId,
+                                SourceId directorySourceId,
+                                SourceContextId directoryId,
+                                Storage::Synchronization::SynchronizationPackage &package,
+                                NotUpdatedSourceIds &notUpdatedSourceIds,
+                                WatchedSourceIdsIds &watchedSourceIdsIds,
+                                ProjectStorageTracing::Category::TracerType &tracer);
 
     void updatePropertyEditorPaths(const QString &propertyEditorResourcesPath,
                                    Storage::Synchronization::SynchronizationPackage &package,

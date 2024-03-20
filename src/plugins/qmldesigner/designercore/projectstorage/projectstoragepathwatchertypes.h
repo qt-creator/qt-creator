@@ -12,6 +12,28 @@ namespace QmlDesigner {
 
 enum class SourceType : int { Qml, QmlUi, QmlTypes, QmlDir, Directory };
 
+template<typename String>
+void convertToString(String &string, SourceType sourceType)
+{
+    switch (sourceType) {
+    case SourceType::Qml:
+        convertToString(string, "Qml");
+        break;
+    case SourceType::QmlUi:
+        convertToString(string, "QmlUi");
+        break;
+    case SourceType::QmlTypes:
+        convertToString(string, "QmlTypes");
+        break;
+    case SourceType::QmlDir:
+        convertToString(string, "QmlDir");
+        break;
+    case SourceType::Directory:
+        convertToString(string, "Directory");
+        break;
+    }
+}
+
 class ProjectChunkId
 {
 public:
@@ -46,6 +68,17 @@ public:
     friend bool operator<(ProjectChunkId first, ProjectPartId second) { return first.id < second; }
 
     friend bool operator<(ProjectPartId first, ProjectChunkId second) { return first < second.id; }
+
+    template<typename String>
+    friend void convertToString(String &string, const ProjectChunkId &id)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("project part id", id.id),
+                              keyValue("source type", id.sourceType));
+
+        convertToString(string, dict);
+    }
 };
 
 using ProjectChunkIds = std::vector<ProjectChunkId>;
@@ -65,6 +98,16 @@ public:
     friend bool operator==(IdPaths first, IdPaths second)
     {
         return first.id == second.id && first.sourceIds == second.sourceIds;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const IdPaths &idPaths)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("id", idPaths.id), keyValue("source ids", idPaths.sourceIds));
+
+        convertToString(string, dict);
     }
 
 public:

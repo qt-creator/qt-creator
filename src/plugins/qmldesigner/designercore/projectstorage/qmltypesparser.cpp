@@ -5,6 +5,8 @@
 
 #include "projectstorage.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <sqlitedatabase.h>
 
 #ifdef QDS_BUILD_QMLPARSER
@@ -21,6 +23,10 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
+constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
+using NanotraceHR::keyValue;
+using Tracer = ProjectStorageTracing::Category::TracerType;
+
 namespace QmlDom = QQmlJS::Dom;
 
 namespace {
@@ -31,6 +37,8 @@ using Storage::TypeNameString;
 
 ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQmlJSExportedScope> &objects)
 {
+    NanotraceHR::Tracer tracer{"parse qmltypes file"_t, category()};
+
     ComponentWithoutNamespaces componentWithoutNamespaces;
 
     for (const auto &object : objects) {
@@ -46,13 +54,15 @@ ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQml
                                           name);
     }
 
+    tracer.end(keyValue("components without namespace", componentWithoutNamespaces));
+
     return componentWithoutNamespaces;
 }
 
-void appendImports(Storage::Imports &imports,
-                   const QString &dependency,
-                   SourceId sourceId,
-                   QmlTypesParser::ProjectStorage &storage)
+const Storage::Import &appendImports(Storage::Imports &imports,
+                                     const QString &dependency,
+                                     SourceId sourceId,
+                                     QmlTypesParser::ProjectStorage &storage)
 {
     auto spaceFound = std::find_if(dependency.begin(), dependency.end(), [](QChar c) {
         return c.isSpace();
@@ -62,7 +72,7 @@ void appendImports(Storage::Imports &imports,
     moduleName.append("-cppnative");
     ModuleId cppModuleId = storage.moduleId(moduleName);
 
-    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
 
 void addImports(Storage::Imports &imports,
@@ -71,13 +81,25 @@ void addImports(Storage::Imports &imports,
                 QmlTypesParser::ProjectStorage &storage,
                 ModuleId cppModuleId)
 {
-    for (const QString &dependency : dependencies)
-        appendImports(imports, dependency, sourceId, storage);
+    NanotraceHR::Tracer tracer{
+        "add imports"_t,
+        category(),
+        keyValue("source id", sourceId),
+        keyValue("module id", cppModuleId),
+    };
 
-    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    for (const QString &dependency : dependencies) {
+        const auto &import = appendImports(imports, dependency, sourceId, storage);
+        tracer.tick("append import"_t, keyValue("import", import), keyValue("dependency", dependency));
+    }
 
-    if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId)
-        imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+    const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    tracer.tick("append import"_t, keyValue("import", import));
+
+    if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId) {
+        const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+        tracer.tick("append import"_t, keyValue("import", import));
+    }
 }
 
 Storage::TypeTraits createAccessTypeTraits(QQmlJSScope::AccessSemantics accessSematics)
@@ -412,6 +434,11 @@ void addType(Storage::Synchronization::Types &types,
              QmlTypesParser::ProjectStorage &storage,
              const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
+    NanotraceHR::Tracer tracer{"add type"_t,
+                               category(),
+                               keyValue("source id", sourceId),
+                               keyValue("module id", cppModuleId)};
+
     const auto &component = *exportScope.scope;
 
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
@@ -421,7 +448,7 @@ void addType(Storage::Synchronization::Types &types,
     auto exports = exportScope.exports;
 
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
-    types.emplace_back(
+    const auto &type = types.emplace_back(
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
         Storage::Synchronization::ImportedType{TypeNameString{component.extensionTypeName()}},
@@ -432,6 +459,7 @@ void addType(Storage::Synchronization::Types &types,
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
         createEnumeration(enumerations));
+    tracer.end(keyValue("type", type));
 }
 
 void addTypes(Storage::Synchronization::Types &types,
@@ -440,6 +468,7 @@ void addTypes(Storage::Synchronization::Types &types,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
 {
+    NanotraceHR::Tracer tracer{"add types"_t, category()};
     types.reserve(Utils::usize(objects) + types.size());
 
     for (const auto &object : objects)
@@ -458,6 +487,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Synchronization::Types &types,
                            const Storage::Synchronization::ProjectData &projectData)
 {
+    NanotraceHR::Tracer tracer{"qmltypes parser parse"_t, category()};
+
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
     QList<QQmlJSExportedScope> components;
     QStringList dependencies;

@@ -55,7 +55,11 @@ constexpr NanotraceHR::Tracing projectStorageTracingStatus()
 #endif
 }
 
-[[gnu::pure]] NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()> &
-projectStorageCategory();
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()>;
+
+[[gnu::pure]] Category &projectStorageCategory();
+
+[[gnu::pure]] Category &projectStorageUpdaterCategory();
+
 } // namespace ProjectStorageTracing
 } // namespace QmlDesigner
