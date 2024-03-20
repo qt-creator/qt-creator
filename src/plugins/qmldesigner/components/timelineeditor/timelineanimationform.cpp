@@ -13,6 +13,7 @@
 #include <variantproperty.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>
+#include <dialogutils.h>
 
 #include <coreplugin/messagebox.h>
 
@@ -141,8 +142,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         bool error = false;
 
         if (!ModelNode::isValidId(newId)) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
-                                                  tr("%1 is an invalid id.").arg(newId));
+            DialogUtils::showWarningForInvalidId(newId);
             error = true;
         } else if (animation().view()->hasId(newId)) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Id"),

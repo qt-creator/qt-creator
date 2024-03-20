@@ -9,9 +9,8 @@
 #include "navigatortreeview.h"
 #include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
-#include "qproxystyle.h"
-
 #include <model/modelutils.h>
+#include <dialogutils.h>
 #include <modelnodecontextmenu.h>
 #include <theme.h>
 #include <qmldesignerconstants.h>
@@ -169,8 +168,7 @@ static void setId(const QModelIndex &index, const QString &newId)
         return;
 
     if (!ModelNode::isValidId(newId)) {
-        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
-                                              NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
+        DialogUtils::showWarningForInvalidId(newId);
     } else if (modelNode.view()->hasId(newId)) {
         Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
                                               NavigatorTreeView::tr("%1 already exists.").arg(newId));

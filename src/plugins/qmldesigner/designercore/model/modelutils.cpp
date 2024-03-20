@@ -9,6 +9,8 @@
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
 
+#include <coreplugin/messagebox.h>
+
 #include <utils/expected.h>
 #include <utils/ranges.h>
 
