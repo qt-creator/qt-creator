@@ -35,7 +35,7 @@
         \li In \uicontrol {Name}, enter the project name. For example,
             \e {hello_world_quick}.
         \li In \uicontrol {Create in}, enter the path for the project files.
-            For example, \c {C:\Qt\examples}.
+            For example, \c {C:\Examples}.
         \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
             (on \macos) to open the \uicontrol {Define Project Details} dialog.
             \image qtcreator-new-qt-for-python-app-project-details.webp {Define Project Details dialog}
