@@ -310,13 +310,13 @@
 
     \title Manage files in CMake projects
 
-    When you use project wizard templates to \l{Create files}{add files} to
+    When you \l{Create files}{add new or existing files} to
     a project, \QC automatically adds them to the \l {qt_add_executable},
     \l{CMake: add_executable command}{add_executable}, or \l {qt_add_library}
     function in the CMakeLists.txt file.
 
-    If you use custom API, \QC uses the \l{CMake: target_sources command}
-    {target_sources} function to add the files.
+    If \QC cannot recognize where the target is created, it will use the
+    \l{CMake: target_sources command} {target_sources} function to add the files.
 
     For Qt Quick projects, the files are added to the \l {qt_add_qml_module}
     function, prefixed with the \c QML_FILES, \c SOURCES, or \c RESOURCES
