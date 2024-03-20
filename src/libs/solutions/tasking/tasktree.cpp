@@ -548,18 +548,6 @@ private:
 */
 
 /*!
-    \fn GroupItem Group::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
-
-    Attaches \c TimeoutTask to a copy of \c this group, elapsing after \a timeout in milliseconds,
-    with an optionally provided timeout \a handler, and returns the coupled item.
-
-    When the group finishes before \a timeout passes,
-    the returned item finishes immediately with the group's result.
-    Otherwise, the \a handler is invoked (if provided), the group's tasks are canceled,
-    and the returned item finishes with an error.
-*/
-
-/*!
     \class Tasking::Sync
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -756,17 +744,6 @@ private:
     only on a successful or failed execution.
 
     \sa TaskSetupHandler, TaskDoneHandler
-*/
-
-/*!
-    \fn template <typename Adapter> GroupItem CustomTask<Adapter>::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
-
-    Attaches \c TimeoutTask to a copy of \c this task, elapsing after \a timeout in milliseconds,
-    with an optionally provided timeout \a handler, and returns the coupled item.
-
-    When the task finishes before \a timeout passes, the returned item finishes immediately
-    with the task's result. Otherwise, \a handler is invoked (if provided),
-    the task is canceled, and the returned item finishes with an error.
 */
 
 /*!
@@ -1415,6 +1392,14 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
     }
 }
 
+/*!
+    Attaches \c TimeoutTask to a copy of \c this ExecutableItem, elapsing after \a timeout
+    in milliseconds, with an optionally provided timeout \a handler, and returns the coupled item.
+
+    When the ExecutableItem finishes before \a timeout passes, the returned item finishes
+    immediately with the task's result. Otherwise, \a handler is invoked (if provided),
+    the task is canceled, and the returned item finishes with an error.
+*/
 ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
                                            const std::function<void()> &handler) const
 {
