@@ -35,8 +35,9 @@
     \image qtcreator-build-configurations.png {Build configurations}
 
     Different build configurations allow you to quickly switch between
-    different build settings. By default, \QC creates the following
-    configurations:
+    different build settings. \QC creates some configurations by default,
+    depending on the build system used. They usually include at least
+    the following:
 
     \list
         \li Debug
