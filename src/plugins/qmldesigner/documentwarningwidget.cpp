@@ -92,7 +92,7 @@ void DocumentWarningWidget::refreshContent()
         m_ignoreWarningsCheckBox->hide();
         m_continueButton->setText(tr("OK"));
     } else {
-        m_headerLabel->setText(tr("This QML file contains features which are not supported by Qt Quick Designer at:"));
+        m_headerLabel->setText(tr("This QML file contains features which are not supported by Qt Design Studio at:"));
         {
             QSignalBlocker blocker(m_ignoreWarningsCheckBox);
             m_ignoreWarningsCheckBox->setChecked(!warningsEnabled());
