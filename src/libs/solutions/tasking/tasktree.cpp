@@ -1393,6 +1393,18 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
 }
 
 /*!
+    \class Tasking::ExecutableItem
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief Base class for executable task items.
+    \reentrant
+
+    \c ExecutableItem provides an additional interface for items containing executable tasks.
+    Use withTimeout() to attach a timeout to a task.
+    Use withLog() to include debugging information about the task startup and the execution result.
+*/
+
+/*!
     Attaches \c TimeoutTask to a copy of \c this ExecutableItem, elapsing after \a timeout
     in milliseconds, with an optionally provided timeout \a handler, and returns the coupled item.
 
