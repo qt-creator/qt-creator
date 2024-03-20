@@ -75,6 +75,13 @@ class Dumper(DumperBase):
         self.outputLock = threading.Lock()
         self.isCdb = True
 
+        #FIXME
+        typeid = self.typeid_for_string('@QVariantMap')
+        del self.type_code_cache[typeid]
+        del self.type_target_cache[typeid]
+        del self.type_size_cache[typeid]
+        del self.type_alignment_cache[typeid]
+
     def enumValue(self, nativeValue):
         val = nativeValue.nativeDebuggerValue()
         # remove '0n' decimal prefix of the native cdb value output
@@ -117,6 +124,7 @@ class Dumper(DumperBase):
         elif not nativeValue.type().resolved and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
             val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == nativeValue.type().name()
+        val.typeid = self.from_native_type(nativeValue.type())
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
         val.lbitsize = nativeValue.bitsize()
@@ -137,14 +145,10 @@ class Dumper(DumperBase):
                               for f in nativeType.fields()])
         return typeId
 
-    def nativeValueType(self, nativeValue):
-        return self.fromNativeType(nativeValue.type())
-
-    def fromNativeType(self, nativeType):
+    def from_native_type(self, nativeType):
         self.check(isinstance(nativeType, cdbext.Type))
-        typeId = self.nativeTypeId(nativeType)
-        if self.typeData.get(typeId, None) is not None:
-            return self.Type(self, typeId)
+        typeid = self.typeid_for_string(self.nativeTypeId(nativeType))
+        self.type_nativetype_cache[typeid] = nativeType
 
         if nativeType.name().startswith('void'):
             nativeType = FakeVoidType(nativeType.name(), self)
@@ -154,70 +158,61 @@ class Dumper(DumperBase):
             if nativeType.name().startswith('<function>'):
                 code = TypeCode.Function
             elif nativeType.targetName() != nativeType.name():
-                return self.createPointerType(nativeType.targetName())
+                return self.create_pointer_typeid(self.typeid_for_string(nativeType.targetName()))
 
         if code == TypeCode.Array:
             # cdb reports virtual function tables as arrays those ar handled separetly by
             # the DumperBase. Declare those types as structs prevents a lookup to a
             # none existing type
             if not nativeType.name().startswith('__fptr()') and not nativeType.name().startswith('<gentype '):
-                targetName = nativeType.targetName()
-                count = nativeType.arrayElements()
-                if targetName.endswith(']'):
-                    (prefix, suffix, inner_count) = self.splitArrayType(targetName)
-                    type_name = '%s[%d][%d]%s' % (prefix, count, inner_count, suffix)
-                else:
-                    type_name = '%s[%d]' % (targetName, count)
-                tdata = self.TypeData(self, typeId)
-                tdata.name = type_name
-                tdata.code = TypeCode.Array
-                tdata.ltarget = targetName
-                tdata.lbitsize = lambda: nativeType.bitsize()
-                return self.Type(self, typeId)
+                targetName = nativeType.targetName().strip()
+                self.type_name_cache[typeid] = nativeType.name()
+                self.type_code_cache[typeid] = code
+                self.type_target_cache[typeid] = self.typeid_for_string(targetName)
+                self.type_size_cache[typeid] = nativeType.bitsize() // 8
+                return typeid
 
             code = TypeCode.Struct
 
-        tdata = self.TypeData(self, typeId)
-        tdata.name = nativeType.name()
-        tdata.lbitsize = lambda: nativeType.bitsize()
-        tdata.code = code
-        tdata.moduleName = lambda: nativeType.module()
-        if code == TypeCode.Struct:
-            tdata.lfields = lambda value: \
-                self.listFields(nativeType, value)
-            tdata.lalignment = lambda: \
-                self.nativeStructAlignment(nativeType)
-        tdata.enumDisplay = lambda intval, addr, form: \
+        self.type_name_cache[typeid] = nativeType.name()
+        self.type_size_cache[typeid] = nativeType.bitsize() // 8
+        self.type_code_cache[typeid] = code
+        self.type_modulename_cache[typeid] = nativeType.module()
+        self.type_enum_display_cache[typeid] = lambda intval, addr, form: \
             self.nativeTypeEnumDisplay(nativeType, intval, form)
-        tdata.templateArguments = lambda: \
-            self.listTemplateParameters(nativeType.name())
-        return self.Type(self, typeId)
+        return typeid
 
-    def listNativeValueChildren(self, nativeValue):
+    def listNativeValueChildren(self, nativeValue, include_bases):
+        fields = []
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
         while nativeMember:
+            # Why this restriction to things with address? Can't nativeValue
+            # be e.g. located in registers, without address?
             if nativeMember.address() != 0:
-                yield self.fromNativeValue(nativeMember)
+                if include_bases or nativeMember.name() != nativeMember.type().name():
+                    field = self.fromNativeValue(nativeMember)
+                    fields.append(field)
             index += 1
             nativeMember = nativeValue.childFromIndex(index)
+        return fields
 
-    def listValueChildren(self, value):
+    def listValueChildren(self, value, include_bases=True):
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), self.lookupNativeType(value.type.name, 0))
-        return self.listNativeValueChildren(nativeValue)
+        return self.listNativeValueChildren(nativeValue, include_bases)
 
-    def listFields(self, nativeType, value):
+    def nativeListMembers(self, value, native_type, include_bases):
         nativeValue = value.nativeValue
         if nativeValue is None:
-            nativeValue = cdbext.createValue(value.address(), nativeType)
-        return self.listNativeValueChildren(nativeValue)
+            nativeValue = cdbext.createValue(value.address(), native_type)
+        return self.listNativeValueChildren(nativeValue, include_bases)
 
     def nativeStructAlignment(self, nativeType):
         #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
         def handleItem(nativeFieldType, align):
-            a = self.fromNativeType(nativeFieldType).alignment()
+            a = self.type_alignment(self.from_native_type(nativeFieldType))
             return a if a > align else align
         align = 1
         for f in nativeType.fields():
@@ -398,20 +393,6 @@ class Dumper(DumperBase):
         else:
             return typeName
 
-    def lookupType(self, typeNameIn, module=0):
-        if len(typeNameIn) == 0:
-            return None
-        typeName = self.stripQintTypedefs(typeNameIn)
-        if self.typeData.get(typeName, None) is None:
-            nativeType = self.lookupNativeType(typeName, module)
-            if nativeType is None:
-                return None
-            _type = self.fromNativeType(nativeType)
-            if _type.typeId != typeName:
-                self.registerTypeAlias(_type.typeId, typeName)
-            return _type
-        return self.Type(self, typeName)
-
     def lookupNativeType(self, name, module=0):
         if name.startswith('void'):
             return FakeVoidType(name, self)
@@ -439,9 +420,6 @@ class Dumper(DumperBase):
             ptr = cdbext.getAddressByName(type.name + '::staticMetaObject')
         return ptr
 
-    def warn(self, msg):
-        self.put('{name="%s",value="",type="",numchild="0"},' % msg)
-
     def fetchVariables(self, args):
         self.resetStats()
         (ok, res) = self.tryFetchInterpreterVariables(args)
@@ -458,13 +436,17 @@ class Dumper(DumperBase):
         self.anonNumber = 0
 
         variables = []
-        for val in cdbext.listOfLocals(self.partialVariable):
-            dumperVal = self.fromNativeValue(val)
-            dumperVal.lIsInScope = dumperVal.name not in self.uninitialized
-            variables.append(dumperVal)
+        try:
+            for val in cdbext.listOfLocals(self.partialVariable):
+                dumperVal = self.fromNativeValue(val)
+                dumperVal.lIsInScope = dumperVal.name not in self.uninitialized
+                variables.append(dumperVal)
 
-        self.handleLocals(variables)
-        self.handleWatches(args)
+            self.handleLocals(variables)
+            self.handleWatches(args)
+        except Exception:
+            t,v,tb = sys.exc_info()
+            self.showException("FETCH VARIABLES", t, v, tb)
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
         self.put(',timings=%s' % self.timings)
@@ -484,9 +466,6 @@ class Dumper(DumperBase):
 
     def findValueByExpression(self, exp):
         return cdbext.parseAndEvaluate(exp)
-
-    def nativeDynamicTypeName(self, address, baseType):
-        return None  # Does not work with cdb
 
     def nativeValueDereferenceReference(self, value):
         return self.nativeValueDereferencePointer(value)
@@ -518,7 +497,7 @@ class Dumper(DumperBase):
         else:
             val = self.Value(self)
             val.laddress = value.pointer()
-            val._type = DumperBase.Type(self, value.type.targetName)
+            val.typeid = self.typeid_for_string(value.type.targetName)
             val.nativeValue = value.nativeValue
 
         return val
@@ -540,13 +519,10 @@ class Dumper(DumperBase):
         res = self.nativeParseAndEvaluate(symbolName)
         return None if res is None else res.address()
 
-    def putItemX(self, value):
-        #DumperBase.warn('PUT ITEM: %s' % value.stringify())
+    def putItem(self, value: DumperBase.Value):
 
         typeobj = value.type  # unqualified()
         typeName = typeobj.name
-
-        self.addToCache(typeobj)  # Fill type cache
 
         if not value.lIsInScope:
             self.putSpecialValue('optimizedout')
@@ -571,8 +547,7 @@ class Dumper(DumperBase):
             return
 
         self.putAddress(value.address())
-        if value.lbitsize is not None:
-            self.putField('size', value.lbitsize // 8)
+        self.putField('size', self.type_size(value.typeid))
 
         if typeobj.code == TypeCode.Function:
             #DumperBase.warn('FUNCTION VALUE: %s' % value)
@@ -738,7 +713,7 @@ class Dumper(DumperBase):
         #DumperBase.warn('INAME: %s' % self.currentIName)
         if self.autoDerefPointers:
             # Generic pointer type with AutomaticFormat, but never dereference char types:
-            if value.type.targetName not in (
+            if value.type.targetName.strip() not in (
                 'char',
                 'signed char',
                 'int8_t',
@@ -769,7 +744,7 @@ class Dumper(DumperBase):
 
     def putCStyleArray(self, value):
         arrayType = value.type
-        innerType = arrayType.ltarget
+        innerType = arrayType.target()
         address = value.address()
         if address:
             self.putValue('@0x%x' % address, priority=-1)
@@ -783,7 +758,7 @@ class Dumper(DumperBase):
 
         p = value.address()
         if displayFormat != DisplayFormat.Raw and p:
-            if innerType.name in (
+            if innerType.name.strip() in (
                 'char',
                 'int8_t',
                 'qint8',
@@ -828,7 +803,7 @@ class Dumper(DumperBase):
         innerSize = innerType.size()
         self.putNumChild(n)
         #DumperBase.warn('ADDRESS: 0x%x INNERSIZE: %s INNERTYPE: %s' % (addrBase, innerSize, innerType))
-        enc = innerType.simpleEncoding()
+        enc = self.type_encoding_cache.get(innerType.typeid, None)
         maxNumChild = self.maxArrayCount()
         if enc:
             self.put('childtype="%s",' % innerType.name)
@@ -863,12 +838,8 @@ class Dumper(DumperBase):
 
             if innerType in ('wchar_t', 'WCHAR'):
                 self.putType(typeName)
-                charSize = self.lookupType('wchar_t').size()
-                (length, data) = self.encodeCArray(ptr, charSize, limit)
-                if charSize == 2:
-                    self.putValue(data, 'utf16', length=length)
-                else:
-                    self.putValue(data, 'ucs4', length=length)
+                (length, data) = self.encodeCArray(ptr, 2, limit)
+                self.putValue(data, 'utf16', length=length)
                 return True
 
         if displayFormat == DisplayFormat.Latin1String:
@@ -931,19 +902,12 @@ class Dumper(DumperBase):
         self.putItem(derefValue)
         self.currentChildType = savedCurrentChildType
 
-    def extractPointer(self, value):
-        code = 'I' if self.ptrSize() == 4 else 'Q'
-        return self.extractSomething(value, code, 8 * self.ptrSize())
-
     def createValue(self, datish, typish):
-        if self.isInt(datish):  # Used as address.
+        if isinstance(datish, int):  # Used as address.
             return self.createValueFromAddressAndType(datish, typish)
         if isinstance(datish, bytes):
             val = self.Value(self)
-            if isinstance(typish, self.Type):
-                val._type = typish
-            else:
-                val._type = self.Type(self, typish)
+            val.typeid = self.create_typeid(typish)
             #DumperBase.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(datish)))
             val.ldata = datish
             val.check()
@@ -952,11 +916,8 @@ class Dumper(DumperBase):
 
     def createValueFromAddressAndType(self, address, typish):
         val = self.Value(self)
-        if isinstance(typish, self.Type):
-            val._type = typish
-        else:
-            val._type = self.Type(self, typish)
+        val.typeid = self.create_typeid(typish)
         val.laddress = address
         if self.useDynamicType:
-            val._type = val.type.dynamicType(address)
+            val.typeid = self.dynamic_typeid_at_address(val.typeid, address)
         return val

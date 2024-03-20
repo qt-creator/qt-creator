@@ -221,15 +221,15 @@ def qdump__Qt__ItemDataRole(d, value):
 
 
 def qdump__QStandardItemData(d, value):
-    d.createType('@Qt::ItemDataRole') # warm up cache
+    #d.createType('@Qt::ItemDataRole') # warm up cache
     role, pad, val = value.split('{@Qt::ItemDataRole}@{@QVariant}')
     d.putPairContents(role.value(), (role, val), 'role', 'value')
 
 
 def qdump__QStandardItem(d, value):
-    d.createType('@QStandardItemData') # warm up cache
-    d.createType('@QStandardItem')
-    d.createType('@QStandardItem*')
+    #d.createType('@QStandardItemData') # warm up cache
+    #d.createType('@QStandardItem')
+    #d.createType('@QStandardItem*')
 
     vtable, dptr = value.split('pp')
     if d.qtVersion() >= 0x060000:
@@ -549,14 +549,11 @@ def qdump__QDir(d, value):
                 #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
                 #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
                 with SubItem(d, 'absolutePath'):
-                    typ = d.lookupType(ns + 'QString')
-                    d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
+                    d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, '@QString'))
                 with SubItem(d, 'entryInfoList'):
-                    typ = d.lookupType(ns + 'QFileInfo')
-                    qdumpHelper_QList(d, privAddress + fileInfosOffset, typ)
+                    qdumpHelper_QList(d, privAddress + fileInfosOffset, '@QFileInfo')
                 with SubItem(d, 'entryList'):
-                    typ = d.lookupType(ns + 'QStringList')
-                    d.putItem(d.createValue(privAddress + filesOffset, typ))
+                    d.putItem(d.createValue(privAddress + filesOffset, '@QStringList'))
             d.putFields(value)
 
 
@@ -1095,14 +1092,15 @@ def qform__QList():
 
 
 def qdump__QList(d, value):
-    return qdumpHelper_QList(d, value, d.createType(value.type[0]))
+    return qdumpHelper_QList(d, value, value.type[0])
 
 
 def qdump__QVariantList(d, value):
-    qdumpHelper_QList(d, value, d.createType('@QVariant'))
+    qdumpHelper_QList(d, value, '@QVariant')
 
 
-def qdumpHelper_QList(d, value, innerType):
+def qdumpHelper_QList(d, value, inner_typish):
+    innerType = d.createType(inner_typish)
     data, size = d.listData(value, check=True)
     d.putItemCount(size)
 
@@ -1224,7 +1222,8 @@ def qdump__QLocale(d, value):
     #        index = int(value['d']['d']['m_data']...)
     #d.check(index >= 0)
     #d.check(index <= qqLocalesCount)
-    if d.qtVersion() < 0x50000:
+    qtVersion = d.qtVersion()
+    if qtVersion < 0x50000:
         d.putStringValue(d.call('const char *', value, 'name'))
         d.putPlainChildren(value)
         return
@@ -1238,14 +1237,20 @@ def qdump__QLocale(d, value):
         = d.split('2s{short}2s'
                   + '{@QChar}{@QChar}{short}{@QChar}{@QChar}'
                   + '{@QChar}{@QChar}{@QChar}', data)
+
+    prefix = ns + 'QLocale::'
     try:
-        d.putStringValue(d.call('const char *', value, 'name'))
+        if qtVersion >= 0x060700:
+            res = d.call('const char *', value, 'name', prefix + 'TagSeparator::Underscore')
+        else:
+            res = d.call('const char *', value, 'name')
+        d.putStringValue(res)
     except:
         pass
+
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            prefix = ns + 'QLocale::'
             d.putSubItem('country', d.createValue(countryId, prefix + 'Country'))
             d.putSubItem('language', d.createValue(languageId, prefix + 'Language'))
             d.putSubItem('numberOptions', d.createValue(numberOptions, prefix + 'NumberOptions'))
@@ -1425,7 +1430,9 @@ if False:
             d.putSpecialValue('minimumitemcount', 0)
 
 
-def qdump__QPair(d, value):
+# FIXME: Qt 5
+# remvign the _xxxx makes GDB work with Qt 5 but breaks LLDB
+def qdump__QPair_xxxx(d, value):
     typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
     first, pad, second = value.split(typeCode)
     with Children(d):
@@ -1857,7 +1864,7 @@ def qdump__QStringRef(d, value):
 
 
 def qdump__QStringList(d, value):
-    qdumpHelper_QList(d, value, d.createType('@QString'))
+    qdumpHelper_QList(d, value, '@QString')
     d.putBetterType(value.type)
 
 
@@ -2304,22 +2311,22 @@ def qdump__QVector(d, value):
     if d.qtVersion() >= 0x060000:
         data, length = d.listData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType(value.type.ltarget[0]))
+        d.putPlotData(data, length, value.type.target()[0])
         # g++ 9.3 does not add the template parameter list to the debug info.
         # Fake it for the common case:
         if value.type.name == d.qtNamespace() + "QVector":
-            d.putBetterType(value.type.name + '<' + value.type.ltarget[0].name + '>')
+            d.putBetterType(value.type.name + '<' + value.type.target()[0].name + '>')
     else:
         data, length = d.vectorData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType(value.type[0]))
+        d.putPlotData(data, length, value.type[0])
 
 
 if False:
     def qdump__QObjectConnectionList(d, value):
         data, length = d.vectorData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType('@QObjectPrivate::ConnectionList'))
+        d.putPlotData(data, length, '@QObjectPrivate::ConnectionList')
 
 
 def qdump__QVarLengthArray(d, value):
@@ -2913,15 +2920,13 @@ def qdump_64__QJSValue_6(d, value):
         elif typ > 7:
             val = d.Value(d)
             val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
-            val._type = d.createType('double')
-            d.putItem(val)
+            d.putItem(val.cast('double'))
             d.putType(value.type.name + ' (double)')
         elif typ <= 3: # Heap
             if dd & 1: # String
                 val = d.Value(d)
                 val.ldata = struct.pack('q', dd & ~1)
-                val._type = d.createType('@QString*')
-                d.putItem(val)
+                d.putItem(val.cast('@QString*'))
                 d.putType(value.type.name + ' (QString)')
             else:
                 # FIXME: Arrays, Objects missing.
@@ -2955,16 +2960,13 @@ def qdump_64__QJSValue_6(d, value):
             val = d.Value(d)
             val.ldata = struct.pack('q', pointer)
             if typ == 1:
-                val._type = d.createType('double*')
-                d.putItem(val)
+                d.putItem(val.cast('double*'))
                 d.putType(value.type.name + ' (double)')
             elif typ == 3:
-                val._type = d.createType('@QV4::Value*')
-                d.putItem(val)
+                d.putItem(val.cast('@QV4::Value*'))
                 d.putType(value.type.name + ' (QV4::Value)')
             elif typ == 5:
-                val._type = d.createType('@QString*')
-                d.putItem(val)
+                d.putItem(val.cast('@QString*'))
                 d.putType(value.type.name + ' (QString)')
 
         else:
@@ -3538,7 +3540,7 @@ def qdump__QCborValue(d, value):
     d.putPlainChildren(value)
 
 def qdump__QCborValue_proxy(d, value):
-    item_data, container_ptr, item_type, is_cbor = value.data()
+    item_data, container_ptr, item_type, is_cbor = value.ldata
 
     def typename(key, is_cbor):
         if is_cbor:
