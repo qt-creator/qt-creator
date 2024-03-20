@@ -3352,19 +3352,23 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
 
                + Check("pii", "(1, 2)", "@QPair<int,int>") % Qt5
-               + Check("pii", "(1, 2)", TypeDef("std::pair<int,int>", "@QPair")) % Qt6
+               + Check("pii", "(1, 2)", TypeDef("std::pair<int,int>", "@QPair")) % Qt6 % NoLldbEngine
+               + Check("pii", "(1, 2)", TypePattern("@QPair(<int,int>)?")) % Qt6 % LldbEngine
                + Check("pii.first", "1", "int")
                + Check("pii.second", "2", "int")
                + Check("pis", "(1, ...)", "@QPair<int,QString>") % Qt5
-               + Check("pis", "(1, ...)", TypeDef("std::pair<int,QString>", "@QPair")) % Qt6
+               + Check("pis", "(1, ...)", TypeDef("std::pair<int,QString>", "@QPair")) % Qt6 % NoLldbEngine
+               + Check("pis", "(1, ...)", TypePattern("@QPair(<int,QString>)?")) % Qt6 % LldbEngine
                + Check("pis.first", "1", "int")
                + Check("pis.second", "\"ttt\"", "@QString")
                + Check("psi", "(..., 2)", "@QPair<QString,int>") % Qt5
-               + Check("psi", "(..., 2)", TypeDef("std::pair<QString,int>", "@QPair")) % Qt6
+               + Check("psi", "(..., 2)", TypeDef("std::pair<QString,int>", "@QPair")) % Qt6 % NoLldbEngine
+               + Check("psi", "(..., 2)", TypePattern("@QPair(<QString,int>)?")) % Qt6 % LldbEngine
                + Check("psi.first", "\"sss\"", "@QString")
                + Check("psi.second", "2", "int")
                + Check("pss", "(..., ...)", "@QPair<QString,QString>") % Qt5
-               + Check("pss", "(..., ...)", TypeDef("std::pair<QString,QString>", "@QPair")) % Qt6
+               + Check("pss", "(..., ...)", TypeDef("std::pair<QString,QString>", "@QPair")) % Qt6 % NoLldbEngine
+               + Check("pss", "(..., ...)", TypePattern("@QPair(<QString,QString>)?")) % Qt6 % LldbEngine
                + Check("pss.first", "\"sss\"", "@QString")
                + Check("pss.second", "\"ttt\"", "@QString");
 
