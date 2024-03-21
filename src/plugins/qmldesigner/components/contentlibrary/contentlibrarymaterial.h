@@ -30,7 +30,7 @@ public:
                            const QUrl &icon,
                            const QStringList &files,
                            const QString &downloadPath,
-                           const QString &baseWebUrl);
+                           const QString &baseWebUrl = {});
 
     bool filter(const QString &searchText);
 

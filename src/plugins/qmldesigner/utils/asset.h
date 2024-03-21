@@ -37,6 +37,7 @@ public:
 
     const QString suffix() const;
     const QString id() const;
+    const QString fileName() const;
     bool hasSuffix() const;
 
     Type type() const;
@@ -58,6 +59,7 @@ private:
     void resolveType();
 
     QString m_filePath;
+    QString m_fileName;
     QString m_suffix;
     Type m_type = Unknown;
 };

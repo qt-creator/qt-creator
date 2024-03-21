@@ -1,15 +1,16 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <QImageReader>
-
 #include "asset.h"
+
+#include <QImageReader>
 
 namespace QmlDesigner {
 
 Asset::Asset(const QString &filePath)
     : m_filePath(filePath)
 {
+    m_fileName = filePath.split('/').last();
     const QStringList split = filePath.split('.');
     if (split.size() > 1)
         m_suffix = "*." + split.last().toLower();
@@ -173,6 +174,11 @@ const QString Asset::suffix() const
 const QString Asset::id() const
 {
     return m_filePath;
+}
+
+const QString Asset::fileName() const
+{
+    return m_fileName;
 }
 
 bool Asset::isSupported() const

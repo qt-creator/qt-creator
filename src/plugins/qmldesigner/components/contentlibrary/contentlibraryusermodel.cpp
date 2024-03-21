@@ -7,9 +7,9 @@
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
+#include "qmldesignerconstants.h"
 
 #include <designerpaths.h>
-#include "qmldesignerconstants.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -85,6 +85,59 @@ void ContentLibraryUserModel::updateIsEmpty()
     }
 }
 
+void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qml,
+                                          const QUrl &icon, const QStringList &files)
+{
+    auto libMat = new ContentLibraryMaterial(this, name, qml, qmlToModule(qml), icon, files,
+                                             Paths::bundlesPathSetting().append("/User/materials"));
+
+    m_userMaterials.append(libMat);
+    int matSectionIdx = 0;
+    emit dataChanged(index(matSectionIdx, 0), index(matSectionIdx, 0));
+}
+
+// returns unique library material's name and qml component
+QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(const QString &matName) const
+{
+    QTC_ASSERT(!m_bundleObj.isEmpty(), return {});
+
+    const QJsonObject matsObj = m_bundleObj.value("materials").toObject();
+    const QStringList matNames = matsObj.keys();
+
+    QStringList matQmls;
+    for (const QString &matName : matNames)
+        matQmls.append(matsObj.value(matName).toObject().value("qml").toString().chopped(4)); // remove .qml
+
+    QString retName = matName.isEmpty() ? "Material" : matName;
+    retName = retName.trimmed();
+
+    QString retQml = retName;
+    retQml.remove(' ');
+    if (retQml.at(0).isLower())
+        retQml[0] = retQml.at(0).toUpper();
+    retQml.prepend("My");
+
+    int num = 1;
+    if (matNames.contains(retName) || matQmls.contains(retQml)) {
+        while (matNames.contains(retName + QString::number(num))
+             || matQmls.contains(retQml + QString::number(num))) {
+            ++num;
+        }
+
+        retName += QString::number(num);
+        retQml += QString::number(num);
+    }
+
+    return {retName, retQml + ".qml"};
+}
+
+TypeName ContentLibraryUserModel::qmlToModule(const QString &qmlName) const
+{
+    return QLatin1String("%1.%2.%3").arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
+                                         m_bundleId,
+                                         qmlName.chopped(4)).toLatin1(); // chopped(4): remove .qml
+}
+
 QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
@@ -134,6 +187,11 @@ void ContentLibraryUserModel::createImporter(const QString &bundlePath, const QS
     updateIsEmpty();
 }
 
+QJsonObject &ContentLibraryUserModel::bundleJsonObjectRef()
+{
+    return m_bundleObj;
+}
+
 void ContentLibraryUserModel::loadUserBundle()
 {
     if (m_matBundleExists)
@@ -158,7 +216,7 @@ void ContentLibraryUserModel::loadUserBundle()
         }
     }
 
-    QString bundleId = m_bundleObj.value("id").toString();
+    m_bundleId = m_bundleObj.value("id").toString();
 
     // parse materials
     const QJsonObject matsObj = m_bundleObj.value("materials").toObject();
@@ -174,10 +232,7 @@ void ContentLibraryUserModel::loadUserBundle()
         QUrl icon = QUrl::fromLocalFile(bundleDir.filePath(matObj.value("icon").toString()));
         QString qml = matObj.value("qml").toString();
 
-        TypeName type = QLatin1String("%1.%2.%3").arg(
-                                QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
-                                bundleId,
-                                qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+        TypeName type = qmlToModule(qml);
 
         auto userMat = new ContentLibraryMaterial(this, matName, qml, type, icon, files,
                                                   bundleDir.path(), "");
@@ -190,7 +245,7 @@ void ContentLibraryUserModel::loadUserBundle()
     for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
-    createImporter(bundleDir.path(), bundleId, sharedFiles);
+    createImporter(bundleDir.path(), m_bundleId, sharedFiles);
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();

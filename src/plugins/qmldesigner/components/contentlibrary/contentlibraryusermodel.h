@@ -8,6 +8,8 @@
 #include <QAbstractListModel>
 #include <QJsonObject>
 
+QT_FORWARD_DECLARE_CLASS(QUrl)
+
 namespace QmlDesigner {
 
 class ContentLibraryEffect;
@@ -43,6 +45,9 @@ public:
     void setSearchText(const QString &searchText);
     void updateImportedState(const QStringList &importedMats);
 
+    QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &matName) const;
+    TypeName qmlToModule(const QString &qmlName) const;
+
     void setQuick3DImportVersion(int major, int minor);
 
     bool hasRequiredQuick3DImport() const;
@@ -54,6 +59,11 @@ public:
 
     void resetModel();
     void updateIsEmpty();
+
+    void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
+
+    void setBundleObj(const QJsonObject &newBundleObj);
+    QJsonObject &bundleJsonObjectRef();
 
     Internal::ContentLibraryBundleImporter *bundleImporter() const;
 
@@ -90,6 +100,7 @@ private:
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
+    QString m_bundleId;
 
     QList<ContentLibraryMaterial *> m_userMaterials;
     QList<ContentLibraryTexture *> m_userTextures;
