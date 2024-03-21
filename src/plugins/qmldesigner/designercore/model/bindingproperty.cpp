@@ -37,9 +37,10 @@ BindingProperty::BindingProperty(const PropertyName &propertyName, const Interna
 
 void BindingProperty::setExpression(const QString &expression)
 {
-    Internal::WriteLocker locker(model());
     if (!isValid())
         return;
+
+    Internal::WriteLocker locker(model());
 
     if (isDynamic())
         qWarning() << "Calling BindingProperty::setExpression on dynamic property.";
