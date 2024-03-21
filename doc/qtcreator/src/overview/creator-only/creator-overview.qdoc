@@ -8,11 +8,11 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-getting-started.html
+    \previouspage index.html
     \page creator-overview.html
-    \nextpage creator-quick-tour.html
+    \nextpage creator-getting-started.html
 
-    \title Overview
+    \title Developing with \QC
 
     \QC is a cross-platform, complete integrated development environment
     (IDE) that you can use to create applications for desktop, embedded,
@@ -234,6 +234,11 @@
     your application while debugging. The debugger plugin automatically selects
     a suitable native debugger for each kit from the ones it finds on the
     computer. Edit the kits to override this choice.
+
+    If you install \QC with \QOI, the GNU Symbolic Debugger is installed
+    automatically and you should be ready to start debugging after you create
+    a new project. However, you can change the setup to use debugging tools for
+    Windows, for example.
 
     Connect devices to your computer to debug processes running on the devices.
 

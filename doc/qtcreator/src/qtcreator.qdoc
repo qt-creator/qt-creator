@@ -9,7 +9,7 @@
 
 /*!
     \page index.html
-    \nextpage creator-getting-started.html
+    \nextpage creator-overview.html
 
     \title Qt Creator Manual
 
@@ -27,37 +27,27 @@
 
     \table
         \row
-            \li {4,1} \b {\l{All Topics}{Click Here for a List of All Topics}}
+            \li {4,1} \b {\l{All Topics}}
         \row
             \li \inlineimage front-gs.png
             \li \inlineimage front-coding.png
-            \li \inlineimage front-preview.png
-        \row
-            \li \b {\l{Getting Started}}
-                \list
-                    \li \l{Overview}
-                    \li \l{User Interface}
-                    \li \l{Configuring Qt Creator}
-                \endlist
-            \li \b {\l{Tutorials}}
-                \generatelist creator-tutorials
-            \li \b {\l{Running on Devices}}
-                \list
-                    \li \l{Validating with Target Hardware}
-                    \li \l{Deploying to Devices}
-                    \li \l{Connecting Devices}
-                \endlist
-        \row
-            \li \inlineimage front-testing.png
             \li \inlineimage front-help.png
             \li \inlineimage front-advanced.png
         \row
-            \li \b {\l{Debugging and Analyzing}}
+            \li \b {\l{Developing with \QC}}
                 \list
+                    \li \l{Getting Started}
+                    \li \l{Creating Projects}
+                    \li \l{Configuring Projects}
+                    \li \l{Validating with Target Hardware}
+                    \li \l{Connecting Devices}
+                    \li \l{Deploying to Devices}
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
                     \li \l{Using Squish}
                 \endlist
+            \li \b {\l{Tutorials}}
+                \generatelist creator-tutorials
             \li \b {\l{How To}}
                 \list
                     \li \l{Analyze}
@@ -70,7 +60,6 @@
                     \li \l{Test}
                     \li \l{Use \QC}
                     \li \l{Use the UI}
-                    \li \l{How To}{See All}
                 \endlist
             \li \b {\l{Reference}}
                 \list
@@ -83,7 +72,6 @@
                     \li \l {Supported Platforms}
                     \li \l {Version Control Systems}
                     \li \l {Views}
-                    \li \l {Reference}{See All}
                 \endlist
     \endtable
 */
