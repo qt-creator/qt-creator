@@ -112,6 +112,9 @@
             \li  Previous open document in history
             \li  \key{Ctrl+Tab}
         \row
+            \li  Toggle \uicontrol {Menu Bar} visibility
+            \li  \key{Ctrl+Alt+M}
+        \row
             \li  Switch to \uicontrol Welcome mode
             \li  \key{Ctrl+1}
         \row
