@@ -366,7 +366,7 @@ auto array(Entries &&...entries)
     return std::make_tuple(isArray, std::forward<Entries>(entries)...);
 }
 
-enum class IsFlow : std::size_t { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
+enum class IsFlow : char { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
 
 inline bool operator&(IsFlow first, IsFlow second)
 {
@@ -393,8 +393,8 @@ struct alignas(4096) TraceEvent
     TimePoint time;
     Duration duration;
     std::size_t id = 0;
-    std::size_t bindId : 62;
-    IsFlow flow : 2;
+    std::size_t bindId = 0;
+    IsFlow flow = IsFlow::No;
     char type = ' ';
     ArgumentsString arguments;
 };
@@ -1589,8 +1589,8 @@ private:
 
 private:
     StringType m_name;
-    std::size_t m_bindId;
-    IsFlow flow;
+    std::size_t m_bindId = 0;
+    IsFlow flow = IsFlow::No;
     CategoryFunctionPointer m_category;
 };
 
