@@ -35,6 +35,9 @@ public:
 namespace AndroidManager
 {
 
+// With Qt 5.4, a couple of android tooling features moved over from Qt Creator to Qt.
+constexpr auto firstQtWithAndroidDeployQt = {5, 4, 0};
+
 QString packageName(const ProjectExplorer::Target *target);
 QString packageName(const Utils::FilePath &manifestFile);
 QString activityName(const ProjectExplorer::Target *target);
