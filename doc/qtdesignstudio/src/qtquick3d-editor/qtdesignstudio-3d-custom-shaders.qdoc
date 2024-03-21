@@ -218,7 +218,7 @@
 
     \row
         \li \l Blending
-        \li \inlineimage ok.png
+        \li
         \li A pass command that specifies the source blending function.
 
             The \uicontrol Source property specifies the source blending
