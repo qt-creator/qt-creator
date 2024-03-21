@@ -45,6 +45,18 @@ unsigned int getUnsignedIntegerHash(std::thread::id id)
     return static_cast<unsigned int>(std::hash<std::thread::id>{}(id) & 0xFFFFFFFF);
 }
 
+template<std::size_t capacity>
+constexpr bool isArgumentValid(const StaticString<capacity> &string)
+{
+    return string.isValid() && string.size();
+}
+
+template<typename String>
+constexpr bool isArgumentValid(const String &string)
+{
+    return string.size();
+}
+
 template<typename TraceEvent>
 void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, std::thread::id threadId)
 {
@@ -67,8 +79,9 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
             out << R"(,"flow_in":true)";
     }
 
-    if (event.arguments.size() && event.arguments.size() != std::numeric_limits<std::size_t>::max())
+    if (isArgumentValid(event.arguments)) {
         out << R"(,"args":)" << event.arguments;
+    }
 
     out << "}";
 }

@@ -31,13 +31,13 @@ public:
     {
         auto newSize = m_size + string.size();
 
-        if (newSize < Capacity) {
+        if (newSize <= Capacity) {
             std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(m_size)),
                                          string.data(),
                                          string.size());
             m_size = newSize;
         } else {
-            m_size = std::numeric_limits<std::size_t>::max();
+            m_size = Capacity + 1;
         }
     }
 
@@ -45,13 +45,13 @@ public:
     {
         auto newSize = m_size + 1;
 
-        if (newSize < Capacity) {
+        if (newSize <= Capacity) {
             auto current = std::next(data(), static_cast<std::ptrdiff_t>(m_size));
             *current = character;
 
             m_size = newSize;
         } else {
-            m_size = std::numeric_limits<std::size_t>::max();
+            m_size = Capacity + 1;
         }
     }
 
@@ -97,7 +97,7 @@ public:
         return *this;
     }
 
-    bool isValid() const { return m_size != std::numeric_limits<std::size_t>::max(); }
+    bool isValid() const { return m_size <= Capacity; }
 
     std::size_t size() const { return m_size; }
 
