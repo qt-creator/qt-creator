@@ -12,6 +12,7 @@
 
 #include <QByteArrayView>
 #include <QList>
+#include <QMap>
 #include <QStringView>
 #include <QVarLengthArray>
 #include <QVariant>
@@ -247,13 +248,51 @@ void convertToString(String &string, const Container &values)
 {
     string.append('[');
 
-    for (const auto &value : values)
+    for (const auto &value : values) {
         convertToString(string, value);
+        string.append(',');
+    }
 
     if (values.size())
         string.pop_back();
 
     string.append(']');
+}
+
+template<typename T>
+struct is_map : std::false_type
+{};
+
+template<typename... Arguments>
+struct is_map<QtPrivate::QKeyValueRange<Arguments...>> : std::true_type
+{};
+
+template<typename... Arguments>
+struct is_map<std::map<Arguments...>> : std::true_type
+{};
+
+template<typename String, typename Map, typename std::enable_if_t<is_map<Map>::value, bool> = true>
+void convertToString(String &string, const Map &map)
+{
+    string.append('{');
+
+    for (const auto &[key, value] : map) {
+        convertToString(string, key);
+        string.append(':');
+        convertToString(string, value);
+        string.append(',');
+    }
+
+    if (map.begin() != map.end())
+        string.pop_back();
+
+    string.append('}');
+}
+
+template<typename String, typename Key, typename Value>
+void convertToString(String &string, const QMap<Key, Value> &dictonary)
+{
+    convertToString(string, dictonary.asKeyValueRange());
 }
 
 namespace Internal {
