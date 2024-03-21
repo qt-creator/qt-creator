@@ -363,7 +363,7 @@ void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 {
     NanotraceHR::Tracer tracer{"prepare"_t,
                                sqliteLowLevelCategory(),
-                               keyValue("sqlite statement", handle())};
+                               keyValue("sql statement", sqlStatement)};
 
     if (!m_database.isLocked())
         throw DatabaseIsNotLocked{};
@@ -390,7 +390,7 @@ void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 
-    tracer.end(keyValue("sql statement", handle()));
+    tracer.end(keyValue("sqlite statement", handle()));
 }
 
 sqlite3 *BaseStatement::sqliteDatabaseHandle() const
