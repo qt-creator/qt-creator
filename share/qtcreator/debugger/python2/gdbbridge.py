@@ -772,7 +772,7 @@ class Dumper(DumperBase):
 
     def makeStdString(init):
         # Works only for small allocators, but they are usually empty.
-        gdb.execute('set $d=(std::string*)calloc(sizeof(std::string), 2)')
+        gdb.execute('set $d=(std::string*)calloc(2, sizeof(std::string))')
         gdb.execute('call($d->basic_string("' + init +
                     '",*(std::allocator<char>*)(1+$d)))')
         value = gdb.parse_and_eval('$d').dereference()
@@ -787,7 +787,7 @@ class Dumper(DumperBase):
         h = self.hexencode(data)
         #DumperBase.warn('DATA: %s' % h)
         string = ''.join('\\x' + h[2 * i:2 * i + 2] for i in range(size))
-        exp = '(%s*)memcpy(calloc(%d, 1), "%s", %d)' \
+        exp = '(%s*)memcpy(calloc(1, %d), "%s", %d)' \
             % (value.type.name, size, string, size)
         #DumperBase.warn('EXP: %s' % exp)
         res = gdb.parse_and_eval(exp)
