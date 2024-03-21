@@ -49,10 +49,24 @@ static bool isType(const std::string &typeName, const std::vector<std::string> &
 
 static bool isIntegralType(const std::string &typeName)
 {
-    static const std::vector<std::string> integralTypes({"bool",
-            "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
-            "short", "unsigned short", "int", "unsigned int",
-            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
+    static const std::vector<std::string> integralTypes(
+                {"bool",
+                 "char",
+                 "unsigned char",
+                 "char16_t",
+                 "char32_t",
+                 "wchar_t",
+                 "short",
+                 "unsigned short",
+                 "int",
+                 "unsigned int",
+                 "long",
+                 "unsigned long",
+                 "int64",
+                 "unsigned int64",
+                 "__int64",
+                 "unsigned __int64",
+                 "HRESULT"});
     return isType(typeName, integralTypes);
 }
 
