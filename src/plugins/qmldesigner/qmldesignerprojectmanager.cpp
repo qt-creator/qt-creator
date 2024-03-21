@@ -375,6 +375,10 @@ void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
 {
     QDirIterator dirIterator{path, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories};
 
+    QString rootQmldirPath = path + "/qmldir";
+    if (!skipPath(path) && QFileInfo::exists(rootQmldirPath))
+        qmldirPaths.push_back(path);
+
     while (dirIterator.hasNext()) {
         auto directoryPath = dirIterator.next();
 
