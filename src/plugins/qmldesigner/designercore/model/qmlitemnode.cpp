@@ -748,7 +748,6 @@ void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowIt
 
      ModelNode transition = flowView.addTransition(flowParent.modelNode(),
                                                    flowItem.modelNode());
-
      modelNode().bindingProperty("target").setExpression(transition.validId());
 }
 
