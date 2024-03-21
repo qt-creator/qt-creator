@@ -181,6 +181,7 @@ private:
     QString getDesignerSpecifics() const;
 
     void connectCompositionNode(CompositionNode *node);
+    void updateExtraMargin();
 
     QList<CompositionNode *> m_nodes;
 
@@ -218,6 +219,7 @@ private:
     bool m_hasValidTarget = false;
     QString m_currentComposition;
     QTimer m_rebakeTimer;
+    int m_extraMargin = 0;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

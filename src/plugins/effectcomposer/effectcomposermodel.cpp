@@ -490,6 +490,8 @@ QJsonObject nodeToJson(const CompositionNode &node)
     nodeObject.insert("enabled", node.isEnabled());
     nodeObject.insert("version", 1);
     nodeObject.insert("id", node.id());
+    if (node.extraMargin())
+        nodeObject.insert("extraMargin", node.extraMargin());
 
     // Add properties
     QJsonArray propertiesArray;
@@ -676,8 +678,42 @@ R"(
 )";
             s += frameProp.arg(tr("Frame"), tr("This property allows explicit control of current animation frame."));
         }
+
         s += "        }\n";
         s += "    }\n";
+    }
+
+    if (m_shaderFeatures.enabled(ShaderFeatures::Source) && m_extraMargin) {
+        QString generalSection =
+            R"(
+    Section {
+        caption: "%1"
+        width: parent.width
+
+        SectionLayout {
+            PropertyLabel {
+                text: "%2"
+                tooltip: "%3"
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1000
+                    decimals: 0
+                    stepSize: 1
+                    sliderIndicatorVisible: true
+                    backendValue: backendValues.extraMargin
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+                ExpandingSpacer {}
+            }
+        }
+    }
+)";
+        s += generalSection.arg(tr("General"), tr("Extra Margin"),
+                                tr("This property specifies how much of extra space is reserved for the effect outside the parent geometry."));
     }
 
     for (const auto &node : std::as_const(m_nodes)) {
@@ -739,8 +775,34 @@ Item {
     s += header;
 
     if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
-        s += "    // This is the main source for the effect. Set internally to the current parent item. Do not modify.\n";
-        s += "    property Item source: null\n";
+        QString sourceStr{
+R"(
+    // This is the main source for the effect. Set internally to the current parent item. Do not modify.
+    property Item source: null
+)"
+        };
+
+        QString extraMarginStr{
+R"(
+    // This property specifies how much of extra space is reserved for the effect outside the parent geometry.
+    // It should be sufficient for most use cases but if the application uses extreme values it may be necessary to
+    // increase this value.
+    property int extraMargin: %1
+
+    onExtraMarginChanged: setupSourceRect()
+
+    function setupSourceRect() {
+        if (rootItem.source) {
+            var width = source.width + extraMargin * 2
+            var height = source.height + extraMargin * 2
+            source.layer.sourceRect = Qt.rect(-extraMargin, -extraMargin, width, height)
+        }
+    }
+)"
+        };
+        s += sourceStr;
+        if (m_extraMargin)
+            s += extraMarginStr.arg(m_extraMargin);
     }
     if (m_shaderFeatures.enabled(ShaderFeatures::Time)
         || m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
@@ -773,6 +835,7 @@ R"(
                 parent.layer.effect = effectComponent
             }
             %1
+            %3
         }
     }
 
@@ -781,6 +844,7 @@ R"(
             parent.layer.enabled = true
             parent.layer.effect = effectComponent
             source = parent
+            %3
         } else {
             parent.layer.enabled = false
             parent.layer.effect = null
@@ -805,10 +869,13 @@ R"(
         parentChanged = parentChanged.arg(mipmap1, mipmap2);
     }
 
-    parentChanged = parentChanged.arg(m_shaderFeatures.enabled(ShaderFeatures::Source)
-                                          ? QString("source = parent") : QString(),
-                                      m_shaderFeatures.enabled(ShaderFeatures::Source)
-                                          ? QString("source = null") : QString());
+    if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
+        parentChanged = parentChanged.arg(QString("source = parent"),
+                                          QString("source = null"),
+                                          m_extraMargin ? QString("setupSourceRect()") : QString());
+    } else {
+        parentChanged = parentChanged.arg(QString(), QString(), QString());
+    }
     s += parentChanged;
 
     // Custom properties
@@ -853,6 +920,8 @@ void EffectComposerModel::saveComposition(const QString &name)
         qWarning() << error;
         return;
     }
+
+    updateExtraMargin();
 
     QJsonObject json;
     // File format version
@@ -1844,6 +1913,12 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
     s += l2 + "vertexShader: 'file:///" + vertFile + "'\n";
     s += l2 + "fragmentShader: 'file:///" + fragFile + "'\n";
     s += l2 + "anchors.fill: " + (localFiles ? "rootItem.source" : "parent") + "\n";
+    if (localFiles) {
+        if (m_extraMargin)
+            s += l2 + "anchors.margins: -rootItem.extraMargin\n";
+    } else {
+        s += l2 + "anchors.margins: -root.extraMargin\n";
+    }
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth())
                                             .arg(m_shaderFeatures.gridMeshHeight());
@@ -1877,6 +1952,13 @@ void EffectComposerModel::connectCompositionNode(CompositionNode *node)
         // This can come multiple times in a row in response to property changes, so let's buffer it
         m_rebakeTimer.start(200);
     });
+}
+
+void EffectComposerModel::updateExtraMargin()
+{
+    m_extraMargin = 0;
+    for (CompositionNode *node : std::as_const(m_nodes))
+        m_extraMargin = qMax(node->extraMargin(), m_extraMargin);
 }
 
 QString EffectComposerModel::currentComposition() const
