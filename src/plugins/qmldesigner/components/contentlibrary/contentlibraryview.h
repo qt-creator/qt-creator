@@ -46,8 +46,10 @@ public:
                               const QVariant &data) override;
 
 private:
+    void connectUserBundle();
     void active3DSceneChanged(qint32 sceneId);
     void updateBundleMaterialsImportedState();
+    void updateBundleUserMaterialsImportedState();
     void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
 #ifdef QDS_USE_PROJECTSTORAGE

@@ -10,6 +10,7 @@
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryiconprovider.h"
+#include "contentlibraryusermodel.h"
 
 #include "utils/filedownloader.h"
 #include "utils/fileextractor.h"
@@ -126,6 +127,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
     , m_effectsModel(new ContentLibraryEffectsModel(this))
+    , m_userModel(new ContentLibraryUserModel(this))
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
@@ -177,7 +179,8 @@ ContentLibraryWidget::ContentLibraryWidget()
                         {"materialsModel",    QVariant::fromValue(m_materialsModel.data())},
                         {"texturesModel",     QVariant::fromValue(m_texturesModel.data())},
                         {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())},
-                        {"effectsModel",      QVariant::fromValue(m_effectsModel.data())}});
+                        {"effectsModel",      QVariant::fromValue(m_effectsModel.data())},
+                        {"userModel",         QVariant::fromValue(m_userModel.data())}});
 
     reloadQmlSource();
 }
@@ -601,6 +604,12 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
+bool ContentLibraryWidget::userBundleEnabled() const
+{
+    // TODO: this method is to be removed after user bundle implementation is complete
+    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
+}
+
 QSize ContentLibraryWidget::sizeHint() const
 {
     return {420, 420};
@@ -715,6 +724,7 @@ void ContentLibraryWidget::updateSearch()
     m_effectsModel->setSearchText(m_filterText);
     m_texturesModel->setSearchText(m_filterText);
     m_environmentsModel->setSearchText(m_filterText);
+    m_userModel->setSearchText(m_filterText);
     m_quickWidget->update();
 }
 
@@ -819,6 +829,11 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() 
 QPointer<ContentLibraryEffectsModel> ContentLibraryWidget::effectsModel() const
 {
     return m_effectsModel;
+}
+
+QPointer<ContentLibraryUserModel> ContentLibraryWidget::userModel() const
+{
+    return m_userModel;
 }
 
 } // namespace QmlDesigner

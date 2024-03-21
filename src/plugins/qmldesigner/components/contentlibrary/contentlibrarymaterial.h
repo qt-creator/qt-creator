@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
+#include "nodeinstanceglobal.h"
 
-#include <QDataStream>
 #include <QObject>
 #include <QUrl>
 

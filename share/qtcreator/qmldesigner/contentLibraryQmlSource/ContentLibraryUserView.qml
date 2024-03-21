@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
@@ -14,8 +14,8 @@ HelperWidgets.ScrollView {
     interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
                  && !HelperWidgets.Controller.contextMenuOpened
 
-    property int cellWidth: 100
-    property int cellHeight: 100
+    property real cellWidth: 100
+    property real cellHeight: 120
     property int numColumns: 4
 
     property int count: 0
@@ -28,10 +28,8 @@ HelperWidgets.ScrollView {
     }
 
     required property var searchBox
-    required property var model
-    required property string sectionCategory
 
-    signal unimport(var bundleMat)
+    signal unimport(var bundleItem);
 
     function closeContextMenu() {
         ctxMenu.close()
@@ -46,16 +44,22 @@ HelperWidgets.ScrollView {
     }
 
     Column {
-        ContentLibraryTextureContextMenu {
+        ContentLibraryMaterialContextMenu {
             id: ctxMenu
 
-            hasSceneEnv: root.model.hasSceneEnv
+            hasModelSelection: ContentLibraryBackend.userModel.hasModelSelection
+            importerRunning: ContentLibraryBackend.userModel.importerRunning
+
+            onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenu.targetMaterial, add)
+
+            onUnimport: root.unimport(ctxMenu.targetMaterial)
+            onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenu.targetMaterial)
         }
 
         Repeater {
             id: categoryRepeater
 
-            model: root.model
+            model: ContentLibraryBackend.userModel
 
             delegate: HelperWidgets.Section {
                 id: section
@@ -66,23 +70,25 @@ HelperWidgets.ScrollView {
                 topPadding: StudioTheme.Values.sectionPadding
                 bottomPadding: StudioTheme.Values.sectionPadding
 
-                caption: bundleCategoryName
-                visible: bundleCategoryVisible && !root.model.isEmpty
-                expanded: bundleCategoryExpanded
+                caption: categoryName
+                visible: categoryVisible
+                expanded: categoryExpanded
                 expandOnClick: false
-                category: root.sectionCategory
+                category: "ContentLib_User"
 
-                onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
-                onExpand: bundleCategoryExpanded = true
-                onCollapse: bundleCategoryExpanded = false
+                onToggleExpand: categoryExpanded = !categoryExpanded
+                onExpand: categoryExpanded = true
+                onCollapse: categoryExpanded = false
 
                 function expandSection() {
-                    bundleCategoryExpanded = true
+                    categoryExpanded = true
                 }
 
                 property alias count: repeater.count
 
                 onCountChanged: root.assignMaxCount()
+
+                property int numVisibleItem: 1 // initially, the tab is invisible so this will be 0
 
                 Grid {
                     width: section.width - section.leftPadding - section.rightPadding
@@ -91,17 +97,32 @@ HelperWidgets.ScrollView {
 
                     Repeater {
                         id: repeater
-                        model: bundleCategoryTextures
+                        model: categoryItems
 
-                        delegate: ContentLibraryTexture {
+                        delegate: ContentLibraryMaterial {
                             width: root.cellWidth
                             height: root.cellHeight
 
+                            importerRunning: ContentLibraryBackend.userModel.importerRunning
+
                             onShowContextMenu: ctxMenu.popupMenu(modelData)
+                            onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
+
+                            onVisibleChanged: {
+                                section.numVisibleItem += visible ? 1 : -1
+                            }
                         }
 
                         onCountChanged: root.assignMaxCount()
                     }
+                }
+
+                Text {
+                    text: qsTr("No match found.");
+                    color: StudioTheme.Values.themeTextColor
+                    font.pixelSize: StudioTheme.Values.baseFontSize
+                    leftPadding: 10
+                    visible: !searchBox.isEmpty() && section.numVisibleItem === 0
                 }
             }
         }
@@ -109,10 +130,14 @@ HelperWidgets.ScrollView {
         Text {
             id: infoText
             text: {
-                if (!root.model.texBundleExists)
-                    qsTr("No textures available. Make sure you have internet connection.")
-                else if (!searchBox.isEmpty())
-                    qsTr("No match found.")
+                if (!ContentLibraryBackend.effectsModel.bundleExists)
+                    qsTr("User bundle couldn't be found.")
+                else if (!ContentLibraryBackend.rootView.isQt6Project)
+                    qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
+                else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
+                    qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
+                    qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                 else
                     ""
             }
@@ -120,7 +145,7 @@ HelperWidgets.ScrollView {
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: root.model.isEmpty
+            visible: ContentLibraryBackend.effectsModel.isEmpty
         }
     }
 }

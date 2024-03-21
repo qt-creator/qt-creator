@@ -10,6 +10,7 @@
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
+#include "contentlibraryusermodel.h"
 #include "contentlibrarywidget.h"
 #include "externaldependenciesinterface.h"
 #include "nodelistproperty.h"
@@ -204,6 +205,8 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
         connect(effectsModel, &ContentLibraryEffectsModel::bundleItemUnimported, this,
                 &ContentLibraryView::updateBundleEffectsImportedState);
+
+        connectUserBundle();
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -211,6 +214,64 @@ WidgetInfo ContentLibraryView::widgetInfo()
                             WidgetInfo::LeftPane,
                             0,
                             tr("Content Library"));
+}
+
+void ContentLibraryView::connectUserBundle()
+{
+    ContentLibraryUserModel *userModel = m_widget->userModel().data();
+
+    connect(userModel,
+            &ContentLibraryUserModel::applyToSelectedTriggered,
+            this,
+            [&](ContentLibraryMaterial *bundleMat, bool add) {
+                if (m_selectedModels.isEmpty())
+                    return;
+
+                m_bundleMaterialTargets = m_selectedModels;
+                m_bundleMaterialAddToSelected = add;
+
+                ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
+                if (defaultMat.isValid())
+                    applyBundleMaterialToDropTarget(defaultMat);
+                else
+                    m_widget->userModel()->addToProject(bundleMat);
+            });
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(userModel,
+            &ContentLibraryUserModel::bundleMaterialImported,
+            this,
+            [&](const QmlDesigner::TypeName &typeName) {
+                applyBundleMaterialToDropTarget({}, typeName);
+                updateBundleUserMaterialsImportedState();
+            });
+#else
+    connect(userModel,
+            &ContentLibraryUserModel::bundleMaterialImported,
+            this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+                applyBundleMaterialToDropTarget({}, metaInfo);
+                updateBundleUserMaterialsImportedState();
+            });
+#endif
+
+    connect(userModel, &ContentLibraryUserModel::bundleMaterialAboutToUnimport, this,
+            [&] (const QmlDesigner::TypeName &type) {
+                // delete instances of the bundle material that is about to be unimported
+                executeInTransaction("ContentLibraryView::connectUserModel", [&] {
+                    ModelNode matLib = Utils3D::materialLibraryNode(this);
+                    if (!matLib.isValid())
+                        return;
+
+                    Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
+                        if (mat.isValid() && mat.type() == type)
+                            QmlObjectNode(mat).destroy();
+                    });
+                });
+            });
+
+    connect(userModel, &ContentLibraryUserModel::bundleMaterialUnimported, this,
+            &ContentLibraryView::updateBundleUserMaterialsImportedState);
 }
 
 void ContentLibraryView::modelAttached(Model *model)
@@ -276,6 +337,7 @@ void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNo
     });
 
     m_widget->materialsModel()->setHasModelSelection(!m_selectedModels.isEmpty());
+    m_widget->userModel()->setHasModelSelection(!m_selectedModels.isEmpty());
 }
 
 void ContentLibraryView::customNotification(const AbstractView *view,
@@ -546,6 +608,25 @@ void ContentLibraryView::updateBundleMaterialsImportedState()
     }
 
     m_widget->materialsModel()->updateImportedState(importedBundleMats);
+}
+
+void ContentLibraryView::updateBundleUserMaterialsImportedState()
+{
+    using namespace Utils;
+
+    if (!m_widget->userModel()->bundleImporter())
+        return;
+
+    QStringList importedBundleMats;
+
+    FilePath bundlePath = m_widget->userModel()->bundleImporter()->resolveBundleImportPath();
+
+    if (bundlePath.exists()) {
+        importedBundleMats = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                       [](const FilePath &f) { return f.fileName().chopped(4); });
+    }
+
+    m_widget->userModel()->updateImportedState(importedBundleMats);
 }
 
 void ContentLibraryView::updateBundleEffectsImportedState()

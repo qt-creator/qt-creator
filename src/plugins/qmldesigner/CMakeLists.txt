@@ -826,6 +826,7 @@ extend_qtc_plugin(QmlDesigner
     contentlibraryeffect.cpp contentlibraryeffect.h
     contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
     contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
+    contentlibraryusermodel.cpp contentlibraryusermodel.h
 )
 
 extend_qtc_plugin(QmlDesigner
