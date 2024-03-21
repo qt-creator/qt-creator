@@ -70,7 +70,7 @@
                     \li \l{Test}
                     \li \l{Use \QC}
                     \li \l{Use the UI}
-                    \li \l{How To}{See More...}
+                    \li \l{How To}{See All}
                 \endlist
             \li \b {\l{Reference}}
                 \list
@@ -81,7 +81,9 @@
                     \li \l {Keyboard Shortcuts}
                     \li \l {Preferences}
                     \li \l {Supported Platforms}
-                    \li \l {Reference}{See More...}
+                    \li \l {Version Control Systems}
+                    \li \l {Views}
+                    \li \l {Reference}{See All}
                 \endlist
     \endtable
 */
