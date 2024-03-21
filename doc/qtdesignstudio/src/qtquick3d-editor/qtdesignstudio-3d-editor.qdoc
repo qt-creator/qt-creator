@@ -71,6 +71,8 @@
 
     \section1 Controlling the 3D View Camera
 
+    \section2 Toggling Camera Mode
+
     To switch to perspective camera mode, select
     \inlineimage perspective_camera.png
     (\uicontrol {Toggle Perspective/Orthographic Edit Camera}).
@@ -78,14 +80,16 @@
     \inlineimage orthographic_camera.png
     . You can also Toggle the camera mode by using the keyboard shortcut \key T.
 
+    \section2 Navigating in the 3D Scene
+
     You can navigate the scene by panning, rotating, and zooming the 3D view
     camera:
 
     \list
         \li To pan, press \key Alt (or \key Option on \macos) and use the
             middle mouse button to click and drag anywhere in the rendered
-            view to slide the view around.
-            \note It is not possible to pan using Magic Mouse.
+            view to slide the view around. Alternatively, press and hold \key {right mouse
+            button} and \key {left mouse button} and drag anywhere in the view to pan.
         \li To orbit, press \key Alt and click and drag anywhere in the rendered
             view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
@@ -124,6 +128,45 @@
     a blue frame. Use the world axis helper to change the point of view for each pane
     independently. Navigate each split by panning, rotating, and zooming, as
     described above.
+
+    \section2 Using Fly Mode
+
+    You can move around freely in the 3D scene with fly mode. To navigate the scene with
+    fly mode, keep the \key {right mouse button} pressed and use the listed keys to move
+    around the scene.
+
+    \table
+    \header
+        \li Key
+        \li Action
+    \row
+        \li \key W or \key {Up arrow}
+        \li Move forward.
+    \row
+        \li \key S or \key {Down arrow}
+        \li Move backward.
+    \row
+        \li \key A or \key {Left arrow}
+        \li Move left.
+    \row
+        \li \key D or \key {Right arrow}
+        \li Move right.
+    \row
+        \li \key E or \key {Page up}
+        \li Move up.
+    \row
+        \li \key Q or \key {Page down}
+        \li Move down.
+    \endtable
+
+    To adjust the movement speed, select \inlineimage icons/camera_speed.png in the
+    \uicontrol 3D view toolbar to open the configuration dialog.
+
+    In the configuration dialog, you can:
+    \list
+        \li Adjust the movement speed of the camera with a slider.
+        \li Set a value multiplier for the speed slider.
+    \endlist
 
     \section1 Using Global and Local Orientation
 
@@ -498,6 +541,11 @@
         \li Align View to Selected Camera
         \li
         \li \l{Aligning Views and Cameras}
+    \row
+        \li \inlineimage icons/camera_speed.png
+        \li Open camera speed configuration dialog
+        \li
+        \li\l{Using Fly Mode}
     \row
         \li \inlineimage icons/visibilityon.png
         \li Visibility Toggles
