@@ -45,21 +45,22 @@
         \li Profile
     \endlist
 
-    A debug build has debug symbols that you need for debugging the application
-    but that you can leave out from the release version. Generally, you use the
-    debug configuration for testing and the release configuration for creating
+    A \e Debug build has debug symbols that you need for debugging the application
+    but that you should leave out from the release version. Generally, you use the
+    debug configuration for testing and the \e Release configuration for creating
     the final installation binary package.
 
-    If you selected CMake as the build system for the project, you can
-    use a \e {minimum size release} build configuration to create the
+    A \e Profile build is an optimized release build with debug information.
+    It is best suited for analyzing applications.
+
+    If you selected CMake as the build system for the project, a
+    \e {Release with Debug Information} build configuration is also available.
+    It is similar to a \e profile configuration, but with
+    \l{Debugging Qt Quick Projects}{QML debugging and profiling} explicitly turned off.
+    You can also use a \e {Minimum Size Release} build configuration to create the
     final installation binary package. It is a release build that makes the size
     of the binary package as small as possible, even if this makes the
     application slower.
-
-    A profile build (which is called \e {release with debug information}
-    when using CMake) is an optimized release build that is delivered
-    with separate debug information. It is best suited for analyzing
-    applications.
 
     \section1 Specifying Run Settings
 
