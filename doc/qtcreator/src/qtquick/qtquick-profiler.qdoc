@@ -172,7 +172,7 @@
     The \uicontrol Timeline view displays graphical representations of QML and
     JavaScript execution and a condensed view of all recorded events.
 
-    \image qtcreator-qml-performance-monitor.png "QML Profiler"
+    \image qtcreator-qml-profiler.webp {QML Profiler}
 
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and

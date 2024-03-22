@@ -33,7 +33,7 @@
         \li In \uicontrol Projects > \uicontrol {Build & Run}, enable the kit
             predefined for the device type (1).
         \li Select the kit for the device in the kit selector (2).
-            \image qtcreator-live-preview-kit.png
+            \image qtcreator-kit-selector-devices.webp {Kit selector}
         \else
         \li In the bottom toolbar, select \inlineimage icons/settings.png
             and enable the kit predefined for the device type.

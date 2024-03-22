@@ -45,7 +45,7 @@
     \uicontrol {New File} dialogs you can see an icon (1), a display name (2),
     and a description (3) of the wizard.
 
-    \image qtcreator-custom-wizard.png {Wizard details in the New Project dialog}
+    \image qtcreator-custom-wizard.webp {Wizard details in the New File dialog}
 
     In most project wizards, you can choose the build system to use for
     building the project: qmake, CMake, Qbs, and possibly others, depending on

@@ -52,7 +52,7 @@
             (\uicontrol Start) button to start the application from the
             \uicontrol {Performance Analyzer}.
 
-            \inlineimage qtcreator-performance-analyzer-toolbar.png "Performance Analyzer toolbar"
+            \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer toolbar}
 
     \endlist
 
