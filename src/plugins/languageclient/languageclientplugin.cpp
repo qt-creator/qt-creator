@@ -14,6 +14,8 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/taskhub.h>
+
 #include <QAction>
 #include <QMenu>
 
@@ -59,6 +61,11 @@ void LanguageClientPlugin::initialize()
     inspectAction.setText(Tr::tr("Inspect Language Clients..."));
     inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
     inspectAction.addOnTriggered(this, &LanguageClientManager::showInspector);
+
+    ProjectExplorer::TaskHub::addCategory(
+                {Constants::TASK_CATEGORY_DIAGNOSTICS,
+                 Tr::tr("Language Server Diagnostics"),
+                 Tr::tr("Issues provided by the Language Server in the current document.")});
 }
 
 void LanguageClientPlugin::extensionsInitialized()

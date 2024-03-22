@@ -457,10 +457,8 @@ void ClangModelManagerSupport::onCurrentEditorChanged(IEditor *editor)
     const FilePath filePath = editor->document()->filePath();
     if (auto processor = ClangEditorDocumentProcessor::get(filePath)) {
         processor->semanticRehighlight();
-        if (const auto client = clientForFile(filePath)) {
+        if (const auto client = clientForFile(filePath))
             client->updateParserConfig(filePath, processor->parserConfig());
-            client->switchIssuePaneEntries(filePath);
-        }
     }
 }
 

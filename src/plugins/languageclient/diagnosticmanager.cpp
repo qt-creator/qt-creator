@@ -4,11 +4,13 @@
 #include "diagnosticmanager.h"
 
 #include "client.h"
+#include "languageclientmanager.h"
 #include "languageclienttr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -23,8 +25,9 @@
 #include <QAction>
 
 using namespace LanguageServerProtocol;
-using namespace Utils;
+using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace LanguageClient {
 
@@ -67,15 +70,35 @@ public:
         : m_client(client)
     {}
 
-    QMap<Utils::FilePath, VersionedDiagnostics> m_diagnostics;
-    QMap<Utils::FilePath, Marks> m_marks;
+    void showTasks(TextDocument *doc) {
+        if (!doc || m_client != LanguageClientManager::clientForDocument(doc))
+            return;
+        TaskHub::clearTasks(m_taskCategory);
+        const Tasks tasks = m_issuePaneEntries.value(doc->filePath());
+        for (const Task &t : tasks)
+            TaskHub::addTask(t);
+    }
+
+    QMap<FilePath, VersionedDiagnostics> m_diagnostics;
+    QMap<FilePath, Marks> m_marks;
     Client *m_client;
-    Utils::Id m_extraSelectionsId = TextEditorWidget::CodeWarningsSelection;
+    QHash<FilePath, Tasks> m_issuePaneEntries;
+    Id m_extraSelectionsId = TextEditorWidget::CodeWarningsSelection;
+    bool m_forceCreateTasks = true;
+    Id m_taskCategory = Constants::TASK_CATEGORY_DIAGNOSTICS;
 };
 
 DiagnosticManager::DiagnosticManager(Client *client)
     : d(std::make_unique<DiagnosticManagerPrivate>(client))
 {
+    auto updateCurrentEditor = [this](Core::IEditor *editor) {
+        if (editor)
+            d->showTasks(qobject_cast<TextDocument *>(editor->document()));
+    };
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            updateCurrentEditor);
 }
 
 DiagnosticManager::~DiagnosticManager()
@@ -94,10 +117,13 @@ void DiagnosticManager::setDiagnostics(const FilePath &filePath,
 void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
 {
     if (auto doc = TextDocument::textDocumentForFilePath(filePath)) {
+        if (doc == TextDocument::currentTextDocument())
+            TaskHub::clearTasks(d->m_taskCategory);
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
             editor->editorWidget()->setExtraSelections(d->m_extraSelectionsId, {});
     }
     d->m_marks.remove(filePath);
+    d->m_issuePaneEntries.remove(filePath);
 }
 
 QList<Diagnostic> DiagnosticManager::filteredDiagnostics(const QList<Diagnostic> &diagnostics) const
@@ -118,6 +144,7 @@ void DiagnosticManager::disableDiagnostics(TextEditor::TextDocument *document)
 
 void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
 {
+    d->m_issuePaneEntries.remove(filePath);
     if (TextDocument *doc = TextDocument::textDocumentForFilePath(filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
         const VersionedDiagnostics &versionedDiagnostics = d->m_diagnostics.value(filePath);
@@ -132,6 +159,8 @@ void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
                     extraSelections << selection;
                 if (TextEditor::TextMark *mark = createTextMark(doc, diagnostic, isProjectFile))
                     marks.marks.append(mark);
+                if (std::optional<Task> task = createTask(doc, diagnostic, isProjectFile))
+                    d->m_issuePaneEntries[filePath].append(*task);
             }
             if (!marks.marks.isEmpty())
                 emit textMarkCreated(filePath);
@@ -139,6 +168,9 @@ void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
 
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
             editor->editorWidget()->setExtraSelections(d->m_extraSelectionsId, extraSelections);
+
+        if (doc == TextDocument::currentTextDocument())
+            d->showTasks(doc);
     }
 }
 
@@ -164,6 +196,56 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(TextDocument *doc,
         return QList<QAction *>{action};
     });
     return mark;
+}
+
+std::optional<Task> DiagnosticManager::createTask(
+        TextDocument *doc,
+        const LanguageServerProtocol::Diagnostic &diagnostic,
+        bool isProjectFile) const
+{
+    if (!isProjectFile && !d->m_forceCreateTasks)
+        return {};
+
+    Task::TaskType taskType = Task::TaskType::Unknown;
+    QIcon icon;
+
+    if (const std::optional<DiagnosticSeverity> severity = diagnostic.severity()) {
+        switch (*severity) {
+        case DiagnosticSeverity::Error:
+            taskType = Task::TaskType::Error;
+            icon = Icons::CODEMODEL_ERROR.icon();
+            break;
+        case DiagnosticSeverity::Warning:
+            taskType = Task::TaskType::Warning;
+            icon = Icons::CODEMODEL_WARNING.icon();
+            break;
+        default:
+            break;
+        }
+    }
+
+    return Task(taskType,
+                taskText(diagnostic),
+                doc->filePath(),
+                diagnostic.range().start().line(),
+                d->m_taskCategory,
+                icon,
+                Task::NoOptions);
+}
+
+QString DiagnosticManager::taskText(const LanguageServerProtocol::Diagnostic &diagnostic) const
+{
+    return diagnostic.message();
+}
+
+void DiagnosticManager::setTaskCategory(const Utils::Id &taskCategory)
+{
+    d->m_taskCategory = taskCategory;
+}
+
+void DiagnosticManager::setForceCreateTasks(bool forceCreateTasks)
+{
+    d->m_forceCreateTasks = forceCreateTasks;
 }
 
 QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(

@@ -356,7 +356,6 @@ public:
 
     QHash<TextDocument *, HighlightingData> highlightingData;
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
-    QHash<Utils::FilePath, Tasks> issuePaneEntries;
     QHash<Utils::FilePath, int> openedExtraFiles;
 
     VersionedDataCache<const TextDocument *, ClangdAstNode> astCache;
@@ -690,30 +689,14 @@ const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInsp
 
 class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
 {
-    using LanguageClient::DiagnosticManager::DiagnosticManager;
-
-    ClangdClient *getClient() const { return qobject_cast<ClangdClient *>(client()); }
-
-    bool isCurrentDocument(const Utils::FilePath &filePath) const
+public:
+    ClangdDiagnosticManager(LanguageClient::Client *client)
+        : LanguageClient::DiagnosticManager(client)
     {
-        const IDocument * const doc = EditorManager::currentDocument();
-        return doc && doc->filePath() == filePath;
+        setTaskCategory(Constants::TASK_CATEGORY_DIAGNOSTICS);
+        setForceCreateTasks(false);
     }
-
-    void showDiagnostics(const Utils::FilePath &filePath, int version) override
-    {
-        getClient()->clearTasks(filePath);
-        DiagnosticManager::showDiagnostics(filePath, version);
-        if (isCurrentDocument(filePath))
-            getClient()->switchIssuePaneEntries(filePath);
-    }
-
-    void hideDiagnostics(const Utils::FilePath &filePath) override
-    {
-        DiagnosticManager::hideDiagnostics(filePath);
-        if (isCurrentDocument(filePath))
-            TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
-    }
+private:
 
     QList<Diagnostic> filteredDiagnostics(const QList<Diagnostic> &diagnostics) const override
     {
@@ -729,7 +712,18 @@ class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
                              const Diagnostic &diagnostic,
                              bool isProjectFile) const override
     {
-        return new ClangdTextMark(doc, diagnostic, isProjectFile, getClient());
+        return new ClangdTextMark(
+                    doc, diagnostic, isProjectFile, qobject_cast<ClangdClient *>(client()));
+    }
+
+    QString taskText(const Diagnostic &diagnostic) const override
+    {
+        QString text = diagnostic.message();
+        auto splitIndex = text.indexOf("\n\n");
+        if (splitIndex >= 0)
+            text.truncate(splitIndex);
+
+        return diagnosticCategoryPrefixRemoved(text);
     }
 };
 
@@ -936,24 +930,6 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     configChangeParams.setSettings(settings);
     sendMessage(DidChangeConfigurationNotification(configChangeParams));
     emit configChanged();
-}
-
-void ClangdClient::switchIssuePaneEntries(const FilePath &filePath)
-{
-    TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
-    const Tasks tasks = d->issuePaneEntries.value(filePath);
-    for (const Task &t : tasks)
-        TaskHub::addTask(t);
-}
-
-void ClangdClient::addTask(const ProjectExplorer::Task &task)
-{
-    d->issuePaneEntries[task.file] << task;
-}
-
-void ClangdClient::clearTasks(const Utils::FilePath &filePath)
-{
-    d->issuePaneEntries[filePath].clear();
 }
 
 std::optional<bool> ClangdClient::hasVirtualFunctionAt(TextDocument *doc, int revision,

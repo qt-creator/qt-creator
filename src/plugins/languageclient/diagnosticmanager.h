@@ -9,7 +9,6 @@
 
 #include <utils/id.h>
 
-#include <QMap>
 #include <QTextEdit>
 
 #include <functional>
@@ -18,6 +17,8 @@ namespace TextEditor {
 class TextDocument;
 class TextMark;
 }
+
+namespace ProjectExplorer { class Task; }
 
 namespace LanguageClient {
 
@@ -58,6 +59,17 @@ protected:
     virtual TextEditor::TextMark *createTextMark(TextEditor::TextDocument *doc,
                                                  const LanguageServerProtocol::Diagnostic &diagnostic,
                                                  bool isProjectFile) const;
+
+    virtual std::optional<ProjectExplorer::Task> createTask(
+        TextEditor::TextDocument *doc,
+        const LanguageServerProtocol::Diagnostic &diagnostic,
+        bool isProjectFile) const;
+    virtual QString taskText(const LanguageServerProtocol::Diagnostic &diagnostic) const;
+    void setTaskCategory(const Utils::Id &taskCategory);
+
+    // enables task creations for diagnostics outside of the clients project (default: on)
+    void setForceCreateTasks(bool forceCreateTasks);
+
     virtual QTextEdit::ExtraSelection createDiagnosticSelection(
         const LanguageServerProtocol::Diagnostic &diagnostic, QTextDocument *textDocument) const;
 

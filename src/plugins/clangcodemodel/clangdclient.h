@@ -97,9 +97,6 @@ public:
 
     void updateParserConfig(const Utils::FilePath &filePath,
                             const CppEditor::BaseEditorDocumentParser::Configuration &config);
-    void switchIssuePaneEntries(const Utils::FilePath &filePath);
-    void addTask(const ProjectExplorer::Task &task);
-    void clearTasks(const Utils::FilePath &filePath);
     std::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
                                                const LanguageServerProtocol::Range &range);
 

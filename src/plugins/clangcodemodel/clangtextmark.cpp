@@ -16,8 +16,6 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
-#include <projectexplorer/task.h>
-
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -204,34 +202,6 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
     return target;
 }
 
-Task createTask(const ClangDiagnostic &diagnostic)
-{
-    Task::TaskType taskType = Task::TaskType::Unknown;
-    QIcon icon;
-
-    switch (diagnostic.severity) {
-    case ClangDiagnostic::Severity::Fatal:
-    case ClangDiagnostic::Severity::Error:
-        taskType = Task::TaskType::Error;
-        icon = ::Utils::Icons::CODEMODEL_ERROR.icon();
-        break;
-    case ClangDiagnostic::Severity::Warning:
-        taskType = Task::TaskType::Warning;
-        icon = ::Utils::Icons::CODEMODEL_WARNING.icon();
-        break;
-    default:
-        break;
-    }
-
-    return Task(taskType,
-                diagnosticCategoryPrefixRemoved(diagnostic.text),
-                diagnostic.location.targetFilePath,
-                diagnostic.location.targetLine,
-                Constants::TASK_CATEGORY_DIAGNOSTICS,
-                icon,
-                Task::NoOptions);
-}
-
 } // anonymous namespace
 
 ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
@@ -258,7 +228,6 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
         setLineAnnotation(diagnostic.message());
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
-        client->addTask(createTask(m_diagnostic));
     }
 
     setActionsProvider([diag = m_diagnostic] {
