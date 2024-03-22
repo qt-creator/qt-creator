@@ -81,11 +81,4 @@ const char ndkPackageName[] = "ndk";
 const char platformsPackageName[] = "platforms";
 const char buildToolsPackageName[] = "build-tools";
 
-// For AndroidQtVersion
-const char ArmToolsDisplayName[] = "arm";
-const char ArmV7ToolsDisplayName[] = "armv7";
-const char X86ToolsDisplayName[] = "i686";
-const char AArch64ToolsDisplayName[] = "aarch64";
-const char X86_64ToolsDisplayName[] = "x86_64";
-
 } // Android::Constants

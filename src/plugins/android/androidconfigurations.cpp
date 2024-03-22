@@ -109,6 +109,11 @@ const QLatin1String X86ToolsPrefix("i686-linux-android");
 const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
 const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
 
+const QLatin1String ArmToolsDisplayName("arm");
+const QLatin1String X86ToolsDisplayName("i686");
+const QLatin1String AArch64ToolsDisplayName("aarch64");
+const QLatin1String X86_64ToolsDisplayName("x86_64");
+
 const QLatin1String Unknown("unknown");
 const QLatin1String keytoolName("keytool");
 const Key changeTimeStamp("ChangeTimeStamp");
@@ -177,12 +182,12 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
     switch (abi.architecture()) {
     case Abi::ArmArchitecture:
         if (abi.wordWidth() == 64)
-            return QLatin1String(Constants::AArch64ToolsDisplayName);
-        return QLatin1String(Constants::ArmToolsDisplayName);
+            return AArch64ToolsDisplayName;
+        return ArmToolsDisplayName;
     case Abi::X86Architecture:
         if (abi.wordWidth() == 64)
-            return QLatin1String(Constants::X86_64ToolsDisplayName);
-        return QLatin1String(Constants::X86ToolsDisplayName);
+            return X86_64ToolsDisplayName;
+        return X86ToolsDisplayName;
     default:
         return Unknown;
     }

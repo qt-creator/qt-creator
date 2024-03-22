@@ -35,7 +35,6 @@ public:
     struct BuiltWith {
         int apiVersion = -1;
         QVersionNumber ndkVersion;
-        QString androidAbi;
     };
     static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;
