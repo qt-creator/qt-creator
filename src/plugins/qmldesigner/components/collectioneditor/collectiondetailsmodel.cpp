@@ -128,11 +128,10 @@ bool CollectionDetailsModel::insertRows(int row, int count, [[maybe_unused]] con
 
     row = qBound(0, row, rowCount());
 
-    beginResetModel();
+    beginInsertRows({}, row, row + count - 1);
     m_currentCollection.insertEmptyRows(row, count);
-    endResetModel();
+    endInsertRows();
 
-    selectRow(row);
     return true;
 }
 
@@ -150,12 +149,6 @@ bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIn
 
     if (!columnCount(parent))
         removeRows(0, rowCount(parent), parent);
-
-    int nextColumn = column - 1;
-    if (nextColumn < 0 && columnCount(parent) > 0)
-        nextColumn = 0;
-
-    selectColumn(nextColumn);
 
     ensureSingleCell();
     return columnsRemoved;
