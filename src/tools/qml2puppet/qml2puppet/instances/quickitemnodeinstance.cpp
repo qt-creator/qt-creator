@@ -280,10 +280,10 @@ static bool layerEnabledAndEffect(QQuickItem *item)
 QRectF QuickItemNodeInstance::boundingRect() const
 {
     if (quickItem()) {
-        if (quickItem()->clip()) {
-            return quickItem()->boundingRect();
-        } else if (layerEnabledAndEffect(quickItem())) {
+        if (layerEnabledAndEffect(quickItem())) {
             return ServerNodeInstance::effectAdjustedBoundingRect(quickItem());
+        } else if (quickItem()->clip()) {
+            return quickItem()->boundingRect();
         } else {
             QSize maximumSize(4000, 4000);
             auto isValidSize = [maximumSize] (const QRectF& rect) {
