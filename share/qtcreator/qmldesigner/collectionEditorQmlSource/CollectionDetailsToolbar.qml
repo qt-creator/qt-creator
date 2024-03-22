@@ -49,7 +49,7 @@ Rectangle {
                 id: addColumnLeftButton
 
                 buttonIcon: StudioTheme.Constants.addcolumnleft_medium
-                tooltip: qsTr("Add property left")
+                tooltip: qsTr("Add column left")
                 enabled: root.model.selectedColumn > -1
                 onClicked: addColumnDialog.popUp(root.model.selectedColumn)
             }
@@ -58,7 +58,7 @@ Rectangle {
                 id: addColumnRightButton
 
                 buttonIcon: StudioTheme.Constants.addcolumnright_medium
-                tooltip: qsTr("Add property right")
+                tooltip: qsTr("Add column right")
                 enabled: root.model.selectedColumn > -1
                 onClicked: addColumnDialog.popUp(root.model.selectedColumn + 1)
             }
@@ -67,7 +67,7 @@ Rectangle {
                 id: deleteColumnButton
 
                 buttonIcon: StudioTheme.Constants.deletecolumn_medium
-                tooltip: qsTr("Delete selected property")
+                tooltip: qsTr("Delete selected column")
                 enabled: root.model.selectedColumn > -1
                 onClicked: root.model.removeColumn(root.model.selectedColumn)
             }
@@ -81,7 +81,7 @@ Rectangle {
                 id: addRowBelowButton
 
                 buttonIcon: StudioTheme.Constants.addrowbelow_medium
-                tooltip: qsTr("Insert row below")
+                tooltip: qsTr("Add row below")
                 enabled: root.model.selectedRow > -1
                 onClicked: root.model.insertRow(root.model.selectedRow + 1)
             }
@@ -90,7 +90,7 @@ Rectangle {
                 id: addRowAboveButton
 
                 buttonIcon: StudioTheme.Constants.addrowabove_medium
-                tooltip: qsTr("Insert row above")
+                tooltip: qsTr("Add row above")
                 enabled: root.model.selectedRow > -1
                 onClicked: root.model.insertRow(root.model.selectedRow)
             }

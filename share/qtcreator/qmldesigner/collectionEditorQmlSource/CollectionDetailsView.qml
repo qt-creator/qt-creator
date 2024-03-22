@@ -369,7 +369,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: qsTr("Select a model to continue")
+        text: qsTr("There are no models in this project.\nAdd or import a model.")
         visible: !topRow.visible
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.mediumFontSize
