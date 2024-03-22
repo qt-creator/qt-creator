@@ -993,6 +993,10 @@ public:
     {
         QTC_ASSERT(dd, return {});
         QTextBrowser *browser = new QTextBrowser;
+        const QString text = Tr::tr(
+                    "Search for issues inside the Axivion dashboard or request issue details for "
+                    "Axivion inline annotations to see them here.");
+        browser->setText("<p style='text-align:center'>" + text + "</p>");
         browser->setOpenLinks(false);
         NavigationView view;
         view.widget = browser;
