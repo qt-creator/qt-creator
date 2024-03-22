@@ -10,10 +10,8 @@ the public Git repository. For example:
     git clone git://code.qt.io/qt-creator/qt-creator.git
     git log --cherry-pick --pretty=oneline origin/12.0..v13.0.0
 
-What's new?
+New plugins
 -----------
-
-* Added Qt Application Manager support
 
 ### Qt Application Manager
 
@@ -26,6 +24,7 @@ deploying, running, and debugging for devices that use the
 General
 -------
 
+* Updated the visual style of Welcome mode
 * Improved docking (Debug mode, Widget Designer)
     * Fixed the style of titles and changed them to always be visible
       (removed `View > Views > Automatically Hide View Titlebars`)
@@ -41,19 +40,29 @@ General
   ([QTCREATORBUG-29886](https://bugreports.qt.io/browse/QTCREATORBUG-29886))
 * Fixed issues with the window actions
   ([QTCREATORBUG-30381](https://bugreports.qt.io/browse/QTCREATORBUG-30381))
+* Fixed drag & drop for external tools
+  ([QTCREATORBUG-30469](https://bugreports.qt.io/browse/QTCREATORBUG-30469))
 * Known Issues
     * Installers provided by The Qt Company mostly display English text, not
       the system's language
       ([QTIFW-3310](https://bugreports.qt.io/browse/QTIFW-3310))
 
+Help
+----
+
+* Fixed that non-Qt related help files could automatically be registered
+* Fixed that the option `Highest Version Only` for automatically registering Qt
+  documentation did not work for the Qt Online Installer
+
 Editing
 -------
 
-* Made syntax highlighting asynchronous
 * Fixed that `Shift+Tab` did not always unindent
   ([QTCREATORBUG-29742](https://bugreports.qt.io/browse/QTCREATORBUG-29742))
 * Fixed that `Surround text selection with brackets` did nothing for `<`
 * Fixed following links without a file name in documents without a file name
+* Fixed that device tree source files (`.dts`) were opened in the binary editor
+  ([QTCREATORBUG-19029](https://bugreports.qt.io/browse/QTCREATORBUG-19029))
 
 ### C++
 
@@ -82,6 +91,9 @@ Editing
   template class in a namespace
   ([QTCREATORBUG-22076](https://bugreports.qt.io/browse/QTCREATORBUG-22076))
 * Clangd
+    * Improved the function hint tool tip
+      ([QTCREATORBUG-26346](https://bugreports.qt.io/browse/QTCREATORBUG-26346),
+       [QTCREATORBUG-30489](https://bugreports.qt.io/browse/QTCREATORBUG-30489))
     * Fixed that `Follow Symbol Under Cursor` only worked for exact matches
       ([QTCREATORBUG-29814](https://bugreports.qt.io/browse/QTCREATORBUG-29814))
     * Fixed the version check for remote `clangd` executables
@@ -127,6 +139,11 @@ endings) to the tool bar
 
 * Fixed issues with large addresses
 
+### Models
+
+* Fixed a crash when selecting items
+  ([QTCREATORBUG-30413](https://bugreports.qt.io/browse/QTCREATORBUG-30413))
+
 Projects
 --------
 
@@ -157,6 +174,14 @@ Projects
 * Added support for custom output parsers for the configuration of projects
   ([QTCREATORBUG-29992](https://bugreports.qt.io/browse/QTCREATORBUG-29992))
 * Made cache variables available even if project configuration failed
+* Fixed that too many paths were added to the build library search path
+  ([QTCREATORBUG-29662](https://bugreports.qt.io/browse/QTCREATORBUG-29662))
+* Fixed that searching in the project included results from module files
+  not in the project
+  ([QTCREATORBUG-30372](https://bugreports.qt.io/browse/QTCREATORBUG-30372))
+* Fixed that `Follow Symbol` on `add_subdirectory` could jump to a target of
+  the same name
+  ([QTCREATORBUG-30510](https://bugreports.qt.io/browse/QTCREATORBUG-30510))
 * CMake Presets
     * Fixed `Reload CMake Presets` if the project was not configured yet
       ([QTCREATORBUG-30238](https://bugreports.qt.io/browse/QTCREATORBUG-30238))
@@ -166,6 +191,10 @@ Projects
       ([QTCREATORBUG-30236](https://bugreports.qt.io/browse/QTCREATORBUG-30236))
     * Fixed a freeze with nested presets
       ([QTCREATORBUG-30288](https://bugreports.qt.io/browse/QTCREATORBUG-30288))
+    * Fixed a wrong error message
+      ([QTCREATORBUG-30373](https://bugreports.qt.io/browse/QTCREATORBUG-30373))
+    * Fixed a crash when no CMake tool is found
+      ([QTCREATORBUG-30505](https://bugreports.qt.io/browse/QTCREATORBUG-30505))
 * Conan
     * Fixed that backslashes were wrongly used for paths on Windows
       ([QTCREATORBUG-30326](https://bugreports.qt.io/browse/QTCREATORBUG-30326))
@@ -200,6 +229,13 @@ Debugging
 * Fixed that breakpoints were not hit while the message dialog about missing
   debug information was shown
   ([QTCREATORBUG-30168](https://bugreports.qt.io/browse/QTCREATORBUG-30168))
+* LLDB
+    * Fixed setting breakpoints in assembler
+    * Fixed `Run as root`
+      ([QTCREATORBUG-30516](https://bugreports.qt.io/browse/QTCREATORBUG-30516))
+* CDB
+    * Fixed a missing debugger tool tip
+      ([QTCREATORBUG-13413](https://bugreports.qt.io/browse/QTCREATORBUG-13413))
 
 ### Debug Adapter Protocol
 
@@ -215,7 +251,8 @@ Analyzer
 
 ### Axivion
 
-* Added fetching and showing issues
+* Added a view for listing and searching issues
+* Added other issue types than `Style Violations` to the editor annotations
 
 Terminal
 --------
@@ -228,6 +265,7 @@ Terminal
 * Fixed that `Ctrl+W` closed the terminal even when shortcuts were blocked
   ([QTCREATORBUG-30070](https://bugreports.qt.io/browse/QTCREATORBUG-30070))
 * Fixed issues with Windows Powershell
+* Fixed issues with copying Japanese text
 
 Version Control Systems
 -----------------------
@@ -245,6 +283,11 @@ Test Integration
 
 * Added a locator filter for Qt Test data tags (`qdt`)
 
+### Catch2
+
+* Added support for namespaced fixtures
+* Added support for `SCENARIO_METHOD`
+
 Platforms
 ---------
 
@@ -255,8 +298,13 @@ Platforms
 
 ### Android
 
-* Add support for target-based android-build directories (??? is that ready? Qt 6.8+ ???)
+* Add support for target-based android-build directories
   ([QTBUG-117443](https://bugreports.qt.io/browse/QTBUG-117443))
+* Fixed issues with debugging
+  ([QTCREATORBUG-29928](https://bugreports.qt.io/browse/QTCREATORBUG-29928),
+   [QTCREATORBUG-30405](https://bugreports.qt.io/browse/QTCREATORBUG-30405))
+* Fixed a crash when removing Android Qt versions
+  ([QTCREATORBUG-30347](https://bugreports.qt.io/browse/QTCREATORBUG-30347))
 
 ### iOS
 
@@ -270,6 +318,11 @@ Platforms
 
 * Fixed that debugging unnecessarily downloaded files from the remote system
   ([QTCREATORBUG-29614](https://bugreports.qt.io/browse/QTCREATORBUG-29614))
+
+### MCU
+
+* Fixed a crash when fixing errors in MCU kits
+  ([QTCREATORBUG-30360](https://bugreports.qt.io/browse/QTCREATORBUG-30360))
 
 Credits for these changes go to:
 --------------------------------
