@@ -21,7 +21,9 @@ Rectangle {
     color: StudioTheme.Values.themeControlBackground
 
     function closeDialogs() {
-        editPropertyDialog.close()
+        editPropertyDialog.reject()
+        deleteColumnDialog.reject()
+        toolbar.closeDialogs()
     }
 
     Column {
@@ -370,7 +372,7 @@ Rectangle {
                         let cWidth = Math.min(tableView.maxAvailableWidth, tableView.childrenWidth)
                         let cHeight = Math.min(tableView.maxAvailableHeight, tableView.childrenHeight)
 
-                        if (tableView.contentWidth != cWidth || tableView.contentHeight != cHeight)
+                        if (tableView.contentWidth !== cWidth || tableView.contentHeight !== cHeight)
                             tableView.returnToBounds()
                     }
                 }
@@ -390,6 +392,7 @@ Rectangle {
                     target: tableView.model
 
                     function onModelReset() {
+                        root.closeDialogs()
                         tableView.clearColumnWidths()
                         tableView.clearRowHeights()
                     }

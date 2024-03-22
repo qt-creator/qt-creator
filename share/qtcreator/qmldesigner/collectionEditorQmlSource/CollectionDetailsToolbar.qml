@@ -29,6 +29,11 @@ Rectangle {
         root.model.insertRow(root.model.rowCount())
     }
 
+    function closeDialogs() {
+        addColumnDialog.reject()
+        fileDialog.reject()
+    }
+
     RowLayout {
         id: container
 
