@@ -106,7 +106,7 @@
     \endif
 
     \ingroup creator-reference-editors
-    \ingroup studio-how-to-refactor-code
+    \ingroup studio-code-view
 
     \title QML Quick Fixes
 

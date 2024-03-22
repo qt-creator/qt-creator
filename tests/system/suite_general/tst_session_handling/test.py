@@ -85,7 +85,7 @@ def createAndSwitchToSession(toSession):
 def checkWelcomePage(sessionName, isCurrent=False):
     switchViewTo(ViewConstants.WELCOME)
     wsButton = getWelcomeScreenSideBarButton('Projects')
-    if not object.exists(wsButton):
+    if not checkIfObjectExists(wsButton, timeout=1000):
         test.fatal("Something's pretty wrong - leaving check for WelcomePage.")
         return
     mouseClick(wsButton)

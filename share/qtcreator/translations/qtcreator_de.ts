@@ -12218,123 +12218,123 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     <name>QtC::AppManager</name>
     <message>
         <source>Create Application Manager package with CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket mit CMake erstellen</translation>
     </message>
     <message>
         <source>Create Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket erstellen</translation>
     </message>
     <message>
         <source>Source directory:</source>
-        <translation type="unfinished">Quellverzeichnis:</translation>
+        <translation>Quellverzeichnis:</translation>
     </message>
     <message>
         <source>Package file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketdatei:</translation>
     </message>
     <message>
         <source>Automatic Application Manager Deploy Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Deployment-Konfiguration für Application Manager</translation>
     </message>
     <message>
         <source>Deploy Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment des Application Manager-Pakets</translation>
     </message>
     <message>
         <source>Target directory:</source>
-        <translation type="unfinished">Zielverzeichnis:</translation>
+        <translation>Zielverzeichnis:</translation>
     </message>
     <message>
         <source>Uploading finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen beendet.</translation>
     </message>
     <message>
         <source>Uploading failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket installieren</translation>
     </message>
     <message>
         <source>Starting command &quot;%1&quot;.</source>
-        <translation type="unfinished">Starte Kommando &quot;%1&quot;.</translation>
+        <translation>Starte Kommando &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Command finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Process failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess schlug fehl: %1</translation>
     </message>
     <message>
         <source>Process finished with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Run an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen</translation>
     </message>
     <message>
         <source>Run and Debug an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen und debuggen</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Saubere Umgebung</translation>
+        <translation>Saubere Umgebung</translation>
     </message>
     <message>
         <source>%1 exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wurde beendet.</translation>
     </message>
     <message>
         <source>Starting Application Manager debugging...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Application Manager-Debuggen...</translation>
     </message>
     <message>
         <source>Using: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze: %1.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen: Es werden nur QML- und native Anwendungen unterstützt.</translation>
     </message>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
-        <translation type="unfinished">Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
+        <translation>Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
     </message>
     <message>
         <source>Application ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungs-ID:</translation>
     </message>
     <message>
         <source>Application Manager instance ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID der Application Manager-Instanz:</translation>
     </message>
     <message>
         <source>Default instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Instanz</translation>
     </message>
     <message>
         <source>Document URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument-URL:</translation>
     </message>
     <message>
         <source>Customize step</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritt anpassen</translation>
     </message>
     <message>
         <source>Disables the automatic updates based on the current run configuration and allows customizing the values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert die auf der aktuellen Ausführungskonfiguration basierenden automatischen Aktualisierungen und erlaubt, die Werte anzupassen.</translation>
     </message>
     <message>
         <source>Controller:</source>
-        <translation type="unfinished"></translation>
+        <translation>Controller:</translation>
     </message>
     <message>
         <source>Packager:</source>
-        <translation type="unfinished"></translation>
+        <translation>Packager:</translation>
     </message>
 </context>
 <context>
@@ -13693,178 +13693,181 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <name>QtC::Axivion</name>
     <message>
         <source>Project:</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Lines of code:</source>
-        <translation type="unfinished"></translation>
+        <translation>Codezeilen:</translation>
     </message>
     <message>
         <source>Analysis timestamp:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitstempel der Analyse:</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">unbekannt</translation>
+        <translation>unbekannt</translation>
     </message>
     <message>
         <source>Total:</source>
-        <translation type="unfinished"></translation>
+        <translation>Summe:</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigentümer</translation>
     </message>
     <message>
         <source>Path globbing</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad-Globbing</translation>
     </message>
     <message>
         <source>Total rows:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamtzeilen:</translation>
     </message>
     <message>
         <source>Axivion</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion</translation>
     </message>
     <message>
         <source>Show dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Search for issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme durchsuchen</translation>
     </message>
     <message>
         <source>Show rule details</source>
-        <translation type="unfinished"></translation>
+        <translation>Regeldetails anzeigen</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unknown Dto structure deserialization error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler in der Dto-Struktur beim Deserialisieren.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be read in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelesen werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be stored in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gespeichert werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be deleted in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelöscht werden.</translation>
     </message>
     <message>
         <source>Key chain message: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldung der Schlüsselverwaltung: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Enter the password for:
 Dashboard: %1
 User: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie das Passwort ein für:
+Dashboard: %1
+Benutzer: %2</translation>
     </message>
     <message>
         <source>Axivion Server Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion Server-Passwort</translation>
     </message>
     <message>
         <source>The stored ApiToken is not valid anymore, removing it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gespeicherte ApiToken ist nicht mehr gültig und wird entfernt.</translation>
     </message>
     <message>
         <source>Fetching DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der DashboardInfo.</translation>
     </message>
     <message>
         <source>The DashboardInfo doesn&apos;t contain project &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die DashboardInfo enthält das Projekt &quot;%1&quot; nicht.</translation>
     </message>
     <message>
         <source>The activated link appears to be external.
 Do you want to open &quot;%1&quot; with its default application?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der aktivierte Link scheint extern zu sein.
+Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Open External Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Links öffnen</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekte abrufen</translation>
     </message>
     <message>
         <source>Link Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt verknüpfen</translation>
     </message>
     <message>
         <source>Unlink Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverknüpfung aufheben</translation>
     </message>
     <message>
         <source>Dashboard projects:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Projekte:</translation>
     </message>
     <message>
         <source>This project is not linked to a dashboard project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist nicht mit einem Dashboard-Projekt verknüpft.</translation>
     </message>
     <message>
         <source>This project is linked to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist mit &quot;%1&quot; verknüpft.</translation>
     </message>
     <message>
         <source>Incomplete or misconfigured settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige oder fehlerhafte Einstellungen.</translation>
     </message>
     <message>
         <source>Highlight marks</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierungen hervorheben</translation>
     </message>
     <message>
         <source>Marks issues on the scroll bar.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert Probleme in der Bildlaufleiste.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-URL:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation type="unfinished">Benutzername</translation>
+        <translation>Benutzername</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration bearbeiten</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Fetching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufe ab...</translation>
     </message>
 </context>
 <context>
@@ -44332,7 +44335,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>&amp;Generate Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kit erstellen</translation>
     </message>
     <message>
         <source>&amp;Clean Up</source>
@@ -44400,19 +44403,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Installing PySide</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere PySide</translation>
     </message>
     <message>
         <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer benutzen und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu installierende Version aus:</translation>
     </message>
     <message>
         <source>Latest PySide from the PyPI</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte PySide-Version von PyPI</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
@@ -44464,27 +44467,28 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>PySide uic tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide uic-Werkzeug:</translation>
     </message>
     <message>
         <source>Enter location of PySide uic tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort des PySide uic-Werkzeugs ein.</translation>
     </message>
     <message>
         <source>Effective venv:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierende venv:</translation>
     </message>
     <message>
         <source>New Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue virtuelle Umgebung</translation>
     </message>
     <message>
         <source>Global Python</source>
-        <translation type="unfinished"></translation>
+        <translation>Globales Python</translation>
     </message>
     <message>
         <source> Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>python-&gt;name + Tr::tr(&quot; Virtual Environment&quot;);</translatorcomment>
+        <translation> virtuelle Umgebung</translation>
     </message>
     <message>
         <source>REPL</source>
@@ -44564,43 +44568,43 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>The interpreter used for Python based projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der für Python-basierte Projekte benutzte Interpreter.</translation>
     </message>
     <message>
         <source>No Python setup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python eingerichtet.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht ausführbar.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable pip. pip is needed to install Python packages from the Python Package Index, like PySide and the Python language server. To use any of that functionality ensure that pip is installed for that Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares pip. pip wird für das Installieren von Python-Paketen wie PySide und dem Python Language Server vom Python Package Index benötigt. Um diese Funktionen benutzen zu können, stellen Sie sicher, dass pip für dieses Python installiert ist.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable venv. venv is the recommended way to isolate a development environment for a project from the globally installed Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares venv. venv ist der empfohlene Weg, um eine Entwicklungsumgebung für ein Projekt von der globalen Python-Installation zu isolieren.</translation>
     </message>
     <message>
         <source>Name of Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Python-Interpreters</translation>
     </message>
     <message>
         <source>Path to Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Python-Interpreter</translation>
     </message>
     <message>
         <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet</translation>
     </message>
 </context>
 <context>
@@ -49742,7 +49746,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Remote command finished successfully.</source>
-        <translation>Das entfernte Kommando wurde erfolgreich ausgeführt.</translation>
+        <translation>Das entfernte Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>WizardPage</source>

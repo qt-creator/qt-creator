@@ -13,20 +13,15 @@
     {Qt documentation} portal or in the \l {Get help}{Help} mode.
 
     \list
-        \li \l{Getting Started}
+        \li \l{Developing with \QC}
         \list
-            \li \l{Overview}
-        \list
+            \li \l{Getting Started}
+                \list
+                    \li \l{User Interface}
+                    \li \l{Configuring Qt Creator}
+                \endlist
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
-        \endlist
-            \li \l{User Interface}
-            \li \l{Configuring Qt Creator}
-        \endlist
-        \li \l{Tutorials}
-            \generatelist creator-tutorials
-        \li \l{Running on Devices}
-        \list
             \li \l{Validating with Target Hardware}
             \list
                 \li \l{Previewing on Desktop}
@@ -52,9 +47,6 @@
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
             \endlist
-        \endlist
-        \li \l{Debugging and Analyzing}
-        \list
             \li \l{Debugging}
             \list
                 \li \l{Setting Up Debugger}
@@ -97,6 +89,8 @@
             \endlist
             \li \l{Using Squish}
         \endlist
+        \li \l{Tutorials}
+            \generatelist creator-tutorials
         \li \l{How To}
         \list
             \li Analyze
