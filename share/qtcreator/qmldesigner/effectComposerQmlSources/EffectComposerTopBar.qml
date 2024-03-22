@@ -48,7 +48,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
-            enabled: root.backendModel ? root.backendModel.isEnabled && !root.backendModel.isEmpty
+            enabled: root.backendModel ? root.backendModel.isEnabled && root.backendModel.currentComposition !== ""
                                        : false
 
             onClicked: root.saveAsClicked()
