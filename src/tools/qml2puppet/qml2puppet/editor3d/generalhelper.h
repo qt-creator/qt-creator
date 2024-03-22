@@ -70,6 +70,8 @@ public:
                                              const QVariant &nodes, QQuick3DViewport *viewPort,
                                              float oldZoom, bool updateZoom = true,
                                              bool closeUp = false);
+    Q_INVOKABLE QVector4D approachNode(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                       QObject *node, QQuick3DViewport *viewPort);
     Q_INVOKABLE void calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
                                                        QQuick3DViewport *viewPort,
                                                        float defaultLookAtDistance, bool closeUp);

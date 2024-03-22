@@ -398,6 +398,55 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
     return QVector4D(lookAt, cameraZoomFactor);
 }
 
+// Approaches the specified node without changing camera orientation
+QVector4D GeneralHelper::approachNode(
+    QQuick3DCamera *camera, float defaultLookAtDistance, QObject *node,
+    QQuick3DViewport *viewPort)
+{
+    auto node3d = qobject_cast<QQuick3DNode *>(node);
+    if (!camera || !node3d)
+        return QVector4D(0.f, 0.f, 0.f, 1.f);
+
+    QVector3D minBounds = maxVec;
+    QVector3D maxBounds = minVec;
+
+    getBounds(viewPort, node3d, minBounds, maxBounds); // Bounds are in node3d local coordinates
+
+    QVector3D extents = maxBounds - minBounds;
+    QVector3D focusLookAt = minBounds + (extents / 2.f);
+
+    if (node3d->parentNode()) {
+        QMatrix4x4 m = node3d->parentNode()->sceneTransform();
+        focusLookAt = m.map(focusLookAt);
+    }
+
+    float maxExtent = qSqrt(qreal(extents.x()) * qreal(extents.x())
+                            + qreal(extents.y()) * qreal(extents.y())
+                            + qreal(extents.z()) * qreal(extents.z()));
+
+    // Reset camera position to default zoom
+    QMatrix4x4 m = camera->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
+    newLookVector.normalize();
+
+    // We don't want to change camera orientation, so calculate projection point on current
+    // camera look vector
+    QVector3D focusLookAtVector = focusLookAt - camera->position();
+    float dot = QVector3D::dotProduct(newLookVector, focusLookAtVector);
+    QVector3D newLookAt = camera->position() + dot * newLookVector;
+
+    newLookVector *= defaultLookAtDistance;
+    camera->setPosition(newLookAt + newLookVector);
+
+    float divisor = 1050.f;
+    float newZoomFactor = qBound(.01f, maxExtent / divisor, 100.f);
+    float cameraZoomFactor = zoomCamera(viewPort, camera, 0, defaultLookAtDistance, newLookAt,
+                                        newZoomFactor, false);
+
+    return QVector4D(newLookAt, cameraZoomFactor);
+}
+
 // This function can be used to synchronously focus camera on a node, which doesn't have to be
 // a selection box for bound calculations to work. This is used to focus the view for
 // various preview image generations, where doing things asynchronously is not good
