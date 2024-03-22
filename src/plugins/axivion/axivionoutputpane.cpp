@@ -235,7 +235,7 @@ public:
                 }).link;
                 Project *project = ProjectManager::startupProject();
                 FilePath baseDir = project ? project->projectDirectory() : FilePath{};
-                link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
+                link.targetFilePath = findFileForIssuePath(link.targetFilePath);
                 if (link.targetFilePath.exists())
                     EditorManager::openEditorAt(link);
             }
