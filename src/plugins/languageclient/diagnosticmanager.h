@@ -54,7 +54,7 @@ signals:
     void textMarkCreated(const Utils::FilePath &path);
 
 protected:
-    Client *client() const { return m_client; }
+    Client *client() const;
     virtual TextEditor::TextMark *createTextMark(TextEditor::TextDocument *doc,
                                                  const LanguageServerProtocol::Diagnostic &diagnostic,
                                                  bool isProjectFile) const;
@@ -64,24 +64,9 @@ protected:
     void setExtraSelectionsId(const Utils::Id &extraSelectionsId);
 
     void forAllMarks(std::function<void (TextEditor::TextMark *)> func);
-
 private:
-    struct VersionedDiagnostics
-    {
-        std::optional<int> version;
-        QList<LanguageServerProtocol::Diagnostic> diagnostics;
-    };
-    QMap<Utils::FilePath, VersionedDiagnostics> m_diagnostics;
-    class Marks
-    {
-    public:
-        ~Marks();
-        bool enabled = true;
-        QList<TextEditor::TextMark *> marks;
-    };
-    QMap<Utils::FilePath, Marks> m_marks;
-    Client *m_client;
-    Utils::Id m_extraSelectionsId;
+    class DiagnosticManagerPrivate;
+    std::unique_ptr<DiagnosticManagerPrivate> d;
 };
 
 } // namespace LanguageClient
