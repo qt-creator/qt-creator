@@ -329,6 +329,7 @@ Credits for these changes go to:
 Aaron McCarthy  
 Aleksei German  
 Alessandro Portale  
+Alexandre Laurent  
 Alexey Edelev  
 Ali Kianian  
 Amr Essam  
@@ -337,6 +338,7 @@ André Pönitz
 Andreas Loth  
 Artem Sokolovskii  
 Assam Boudjelthia  
+Aurele Faure  
 Brook Cronin  
 Burak Hancerli  
 Christian Kandeler  
@@ -378,6 +380,7 @@ Serg Kryvonos
 Shrief Gabr  
 Sivert Krøvel  
 Tasuku Suzuki  
+Thiago Macieira  
 Thomas Hartmann  
 Tim Jenßen  
 Vikas Pachdha  
