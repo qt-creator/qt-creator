@@ -54,6 +54,10 @@ QtcPlugin {
             "cmakegeneratordialog.cpp", "cmakegeneratordialog.h",
             "cmakeprojectconverter.cpp", "cmakeprojectconverter.h",
             "cmakeprojectconverterdialog.cpp", "cmakeprojectconverterdialog.h",
+            "cmakegenerator.cpp", "cmakegenerator.h",
+            "cmakewriter.cpp", "cmakewriter.h",
+            "cmakewriterv0.cpp", "cmakewriterv0.h",
+            "cmakewriterv1.cpp", "cmakewriterv1.h"
         ]
     }
 

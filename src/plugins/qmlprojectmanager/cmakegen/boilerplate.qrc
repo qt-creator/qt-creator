@@ -1,8 +1,17 @@
 <RCC>
+    <qresource prefix="/templates">
+        <file alias="cmakeroot_v0">templates/cmakeroot_v0.tpl</file>
+        <file alias="cmakeroot_v1">templates/cmakeroot_v1.tpl</file>
+        <file alias="main_cpp_v0">templates/main_cpp_v0.tpl</file>
+        <file alias="main_cpp_v1">templates/main_cpp_v1.tpl</file>
+        <file alias="cmakemodule_v1">templates/cmakemodule_v1.tpl</file>
+        <file alias="insight">templates/insight.tpl</file>
+        <file alias="qmlcomponents">templates/qmlcomponents.tpl</file>
+        <file alias="environment_h">templates/environment_h.tpl</file>
+        <file alias="import_qml_components_h">templates/import_qml_components_h.tpl</file>
+    </qresource>
+
     <qresource prefix="/boilerplatetemplates">
-        <file>gencmakeroot.tpl</file>
-        <file>gencmakemodule.tpl</file>
-        <file>gencmakeheadercomponents.tpl</file>
         <file>qmlprojectmaincpp.tpl</file>
         <file>qmlprojectmaincppheader.tpl</file>
         <file>qmlprojectenvheader.tpl</file>

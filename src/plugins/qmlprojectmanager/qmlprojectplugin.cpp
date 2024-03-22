@@ -386,6 +386,8 @@ void QmlProjectPlugin::initialize()
                         mainUifileAction->setEnabled(buildSystem->mainUiFilePath()
                                                      != fileNode->filePath());
                 });
+
+        GenerateCmake::CMakeGenerator::createMenuAction(this);
     }
 
     GenerateCmake::generateMenuEntry(this);

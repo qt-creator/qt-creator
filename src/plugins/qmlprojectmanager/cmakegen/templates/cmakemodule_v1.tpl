@@ -8,7 +8,6 @@ qt6_add_qml_module(%1
     URI "%2"
     VERSION 1.0
     RESOURCE_PREFIX "/qt/qml"
-%4
-)
+%4)
 
 %5
