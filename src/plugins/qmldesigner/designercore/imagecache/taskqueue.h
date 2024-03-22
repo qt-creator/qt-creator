@@ -54,6 +54,15 @@ public:
         clearTasks(oldTasks);
     }
 
+    void putThreadToSleep()
+    {
+        {
+            std::unique_lock lock{m_mutex};
+            m_sleeping = true;
+        }
+        m_condition.notify_all();
+    }
+
 private:
     void destroy()
     {
@@ -70,10 +79,10 @@ private:
             return {std::move(lock), true};
         if (m_tasks.empty()) {
             auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
-                return m_tasks.size() || m_finishing;
+                return m_tasks.size() || m_finishing || m_sleeping;
             });
 
-            if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            if (timedOutWithoutEntriesOrFinishing || m_finishing || m_sleeping) {
                 m_sleeping = true;
                 return {std::move(lock), true};
             }
@@ -101,6 +110,9 @@ private:
 
         if (m_finishing || !m_sleeping)
             return;
+
+        if (m_sleeping)
+            joinThread();
 
         if (m_backgroundThread.joinable())
             return;

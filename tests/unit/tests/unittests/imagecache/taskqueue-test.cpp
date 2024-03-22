@@ -100,4 +100,22 @@ TEST_F(TaskQueue, clean_task_in_queue)
     queue.clean();
 }
 
+TEST_F(TaskQueue, sleeping_queue_is_recovering)
+{
+    Queue queue{mockDispatchCallback.AsStdFunction(), mockCleanCallback.AsStdFunction()};
+    EXPECT_CALL(mockDispatchCallback, Call(IsTask(5))).WillRepeatedly([&](Task) {
+        notification.notify();
+    });
+    queue.addTask(5);
+    notification.wait();
+    queue.putThreadToSleep();
+
+    EXPECT_CALL(mockDispatchCallback, Call(IsTask(22))).WillRepeatedly([&](Task) {
+        notification.notify();
+    });
+
+    queue.addTask(22);
+    notification.wait();
+}
+
 } // namespace
