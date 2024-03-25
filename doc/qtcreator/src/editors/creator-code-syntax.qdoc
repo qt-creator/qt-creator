@@ -66,9 +66,6 @@
 
     \section1 Set line annotation positions
 
-    To specify the position of the line annotations when looking at them in the
-    code editor, select \uicontrol {Annotation Settings} in the tooltip popup.
-
     To specify the position where the annotations are displayed, go to
     \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
@@ -82,17 +79,7 @@
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.
 
-    \if defined(qtcreator)
-    \section1 Inspect QML and JavaScript
-
-    To inspect QML and JavaScript properties, methods, and enums, move the
-    cursor over them and go to \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Inspect API for Element Under Cursor}.
-
-    \sa {Clangd}
-    \endif
-
-    \sa {JavaScript and QML Checks}
+    \sa {Analyze code with Clang-Tidy and Clazy}, {JavaScript and QML Checks}
 */
 
 /*!
