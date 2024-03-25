@@ -25,6 +25,7 @@ class CollectionWidget : public QFrame
 
 public:
     CollectionWidget(CollectionView *view);
+    ~CollectionWidget();
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     QPointer<CollectionListModel> listModel() const;

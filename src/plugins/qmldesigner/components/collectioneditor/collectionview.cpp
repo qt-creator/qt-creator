@@ -60,13 +60,9 @@ CollectionView::CollectionView(ExternalDependenciesInterface &externalDependenci
     , m_dataStore(std::make_unique<DataStoreModelNode>())
 
 {
-    connect(ProjectExplorer::ProjectManager::instance(),
-            &ProjectExplorer::ProjectManager::startupProjectChanged, this, [this] {
-        resetDataStoreNode();
-        if (m_widget.get())
-            m_widget->collectionDetailsModel()->removeAllCollections();
-    });
 }
+
+CollectionView::~CollectionView() = default;
 
 bool CollectionView::hasWidget() const
 {
@@ -75,11 +71,16 @@ bool CollectionView::hasWidget() const
 
 QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 {
-    if (m_widget.isNull()) {
-        m_widget = new CollectionWidget(this);
+    if (!m_widget) {
+        m_widget = Utils::makeUniqueObjectPtr<CollectionWidget>(this);
         m_widget->setMinimumSize(m_widget->minimumSizeHint());
+        connect(ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::startupProjectChanged, m_widget.get(), [&] {
+            resetDataStoreNode();
+            m_widget->collectionDetailsModel()->removeAllCollections();
+        });
 
-        auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.data());
+        auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.get());
         Core::ICore::addContextObject(collectionEditorContext);
         CollectionListModel *listModel = m_widget->listModel().data();
 
@@ -128,7 +129,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 });
     }
 
-    return createWidgetInfo(m_widget.data(),
+    return createWidgetInfo(m_widget.get(),
                             "CollectionEditor",
                             WidgetInfo::LeftPane,
                             0,
@@ -150,12 +151,16 @@ void CollectionView::modelAboutToBeDetached([[maybe_unused]] Model *model)
     m_dataStoreTypeFound = false;
     disconnect(m_documentUpdateConnection);
     QTC_ASSERT(m_delayedTasks.isEmpty(), m_delayedTasks.clear());
-    m_widget->listModel()->setDataStoreNode();
+    if (m_widget)
+        m_widget->listModel()->setDataStoreNode();
 }
 
 void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
+    if (!m_widget)
+        return;
+
     QList<ModelNode> selectedCollectionNodes = Utils::filtered(selectedNodeList,
                                                                &isStudioCollectionModel);
 
@@ -170,10 +175,6 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     }
 
     m_widget->setTargetNodeSelected(singleSelectedHasModelProperty);
-
-    // More than one model is selected. So ignore them
-    if (selectedCollectionNodes.size() > 1)
-        return;
 }
 
 void CollectionView::customNotification(const AbstractView *,
@@ -181,6 +182,9 @@ void CollectionView::customNotification(const AbstractView *,
                                         const QList<ModelNode> &nodeList,
                                         const QList<QVariant> &data)
 {
+    if (!m_widget)
+        return;
+
     if (identifier == QLatin1String("item_library_created_by_drop") && !nodeList.isEmpty())
         onItemLibraryNodeCreated(nodeList.first());
     else if (identifier == QLatin1String("open_collection_by_id") && !data.isEmpty())
@@ -221,6 +225,9 @@ void CollectionView::addResource(const QUrl &url, const QString &name)
 
 void CollectionView::assignCollectionToNode(const QString &collectionName, const ModelNode &node)
 {
+    if (!m_widget)
+        return;
+
     using DataType = CollectionDetails::DataType;
     executeInTransaction("CollectionView::assignCollectionToNode", [&]() {
         m_dataStore->assignCollectionToNode(
@@ -279,12 +286,18 @@ void CollectionView::assignCollectionToSelectedNode(const QString &collectionNam
 
 void CollectionView::addNewCollection(const QString &collectionName, const QJsonObject &localCollection)
 {
+    if (!m_widget)
+        return;
+
     addTask(QSharedPointer<CollectionTask>(
         new AddCollectionTask(this, m_widget->listModel(), localCollection, collectionName)));
 }
 
 void CollectionView::openCollection(const QString &collectionName)
 {
+    if (!m_widget)
+        return;
+
     m_widget->openCollection(collectionName);
 }
 
@@ -296,6 +309,9 @@ void CollectionView::registerDeclarativeType()
 
 void CollectionView::resetDataStoreNode()
 {
+    if (!m_widget)
+        return;
+
     m_dataStore->reloadModel();
 
     ModelNode dataStore = m_dataStore->modelNode();
@@ -395,6 +411,9 @@ void CollectionView::ensureStudioModelImport()
 
 void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
 {
+    if (!m_widget)
+        return;
+
     if (node.metaInfo().isQtQuickListView()) {
         addTask(QSharedPointer<CollectionTask>(
             new DropListViewTask(this, m_widget->listModel(), node)));

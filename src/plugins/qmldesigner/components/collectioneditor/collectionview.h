@@ -3,9 +3,12 @@
 
 #pragma once
 
-#include "abstractview.h"
 #include "datastoremodelnode.h"
-#include "modelnode.h"
+
+#include <abstractview.h>
+#include <modelnode.h>
+
+#include <utils/uniqueobjectptr.h>
 
 #include <QJsonObject>
 
@@ -27,6 +30,7 @@ class CollectionView : public AbstractView
 
 public:
     explicit CollectionView(ExternalDependenciesInterface &externalDependencies);
+    ~CollectionView();
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
@@ -66,8 +70,8 @@ private:
     void onDocumentUpdated(const QSharedPointer<const QmlJS::Document> &doc);
     void addTask(QSharedPointer<CollectionTask> task);
 
-    QPointer<CollectionWidget> m_widget;
     std::unique_ptr<DataStoreModelNode> m_dataStore;
+    Utils::UniqueObjectPtr<CollectionWidget> m_widget;
     QSet<Utils::FilePath> m_expectedDocumentUpdates;
     QList<QSharedPointer<CollectionTask>> m_delayedTasks;
     QMetaObject::Connection m_documentUpdateConnection;

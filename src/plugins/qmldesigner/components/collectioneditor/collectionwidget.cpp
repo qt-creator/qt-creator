@@ -54,8 +54,7 @@ QString getPreferredCollectionName(const QUrl &url, const QString &collectionNam
 
 namespace QmlDesigner {
 CollectionWidget::CollectionWidget(CollectionView *view)
-    : QFrame()
-    , m_view(view)
+    : m_view(view)
     , m_listModel(new CollectionListModel)
     , m_collectionDetailsModel(new CollectionDetailsModel)
     , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
@@ -103,6 +102,8 @@ CollectionWidget::CollectionWidget(CollectionView *view)
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MODELEDITOR_TIME);
 }
+
+CollectionWidget::~CollectionWidget() = default;
 
 void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
