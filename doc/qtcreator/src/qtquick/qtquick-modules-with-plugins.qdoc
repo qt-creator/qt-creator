@@ -67,6 +67,11 @@
         \li Import the module into the project, as instructed in
             \l {Importing QML Modules}.
         \endlist
+
+        \note If \QC cannot find the new QML module, build the project
+        and then go to \uicontrol {Tools} > \uicontrol {QML/JS} >
+        \uicontrol {Reset Code Model} to reset the code model.
+
         \else
         \li Build your module using the same Qt version and compiler as \QDS.
             For more information, see \l {Running QML Modules in Design Mode}.
@@ -143,4 +148,6 @@
     used only in the \uicontrol Design mode.
     For an example, see \l {Qt Quick Controls - Contact List}.
     \endif
+
+    \sa {Resetting the Code Model}
 */
