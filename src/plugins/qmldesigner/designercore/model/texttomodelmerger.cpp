@@ -69,13 +69,11 @@ bool isSupportedAttachedProperties(const QString &propertyName)
 
 bool isSupportedVersion(QmlDesigner::Version version)
 {
-    if (version.major == 2)
-        return version.minor <= 15;
+    /*In Qt Design Studio we control the proposed versions in the wizard and the kit.
+     * Therefore we can assume that the version is always supported.
+     * /
 
-    if (version.major == 6)
-        return version.minor <= 6;
-
-    return false;
+    return true;
 }
 
 bool isGlobalQtEnums(QStringView value)
