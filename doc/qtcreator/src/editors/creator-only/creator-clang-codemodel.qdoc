@@ -125,7 +125,7 @@
     symbol support, which makes the results more reliable than before.
 
     \sa {Code Model}, {Clangd}, {Specify clangd settings},
-    {Speficy Clang tools settings}, {Use compilation databases}
+    {Specify Clang tools settings}, {Use compilation databases}
 */
 
 /*!
