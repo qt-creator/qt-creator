@@ -12,7 +12,10 @@ Section {
     caption: qsTr("Column Layout")
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Column spacing") }
+        PropertyLabel {
+            text: qsTr("Column spacing")
+            tooltip: qsTr("Sets the space between the items in pixels in the <b>Column Layout</b>.")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -30,6 +33,7 @@ Section {
         PropertyLabel {
             text: qsTr("Layout direction")
             blockedByTemplate: !backendValues.layoutDirection.isAvailable
+            tooltip: qsTr("Sets the direction of the item flow in the <b>Column Layout</b>.")
         }
 
         SecondColumnLayout {

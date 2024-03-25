@@ -12,7 +12,10 @@ Section {
     caption: qsTr("Stack Layout")
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Current index") }
+        PropertyLabel {
+            text: qsTr("Current index")
+            tooltip: qsTr("Sets the index of the child item currently visible in the <b>Stack Layout</b>.")
+        }
 
         SecondColumnLayout {
             SpinBox {
