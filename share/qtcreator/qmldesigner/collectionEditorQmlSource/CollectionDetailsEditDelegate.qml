@@ -96,6 +96,16 @@ Item {
                         if (realField.activeFocus)
                             realField.contentItem.focus = true
                     }
+
+                    textFromValue: function (value, locale) {
+                        locale.numberOptions = Locale.OmitGroupSeparator
+                        var decimals = realField.trailingZeroes ? realField.decimals : decimalCounter(realField.realValue)
+                        if (decimals > 0) {
+                            var text = Number(realField.realValue).toLocaleString(locale, 'f', decimals + 1)
+                            return text.substring(0, text.length - 1)
+                        }
+                        return Number(realField.realValue).toLocaleString(locale, 'f', decimals)
+                    }
                 }
             }
         }
