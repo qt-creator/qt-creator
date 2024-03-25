@@ -8,13 +8,13 @@
 
     \title Cameras
 
-    A camera is always necessary to view the content of a 3D scene. A camera
+    A camera is necessary to view the content of a 3D scene. A camera
     defines how to project the content of a 3D scene into a 2D coordinate space,
     which can then be used on a 2D surface. When a camera is present in the
     scene, it can be used to direct what is displayed in a \l {3D Views}
     {3D view}.
 
-     \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
+    \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
 
     To add a camera component to your UI, do one of the following:
     \list
@@ -31,7 +31,7 @@
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
-    You can use the following components in your scenes to determine camera
+    The following components in your scenes determine the camera
     projection:
 
     \list
@@ -73,6 +73,8 @@
     when \l {Creating Projects}{creating your project}, the camera properties
     will be slightly different.
 
+    \note Orthographic cameras don't have the FOV property.
+
     The camera frustum can be obtained by taking a frustum (that is, a
     truncation with parallel planes) of the cone of vision that a camera or eye
     would have to the rectangular viewports typically used in computer graphics.
@@ -112,10 +114,10 @@
     \note The \uicontrol {Horizontal magnification} and
     \uicontrol {Vertical magnification} properties are not available in Qt 5.
 
-    The \uicontrol {Frustum culling enabled} property determines whether the
+    The \uicontrol {Frustum culling} property determines whether the
     objects outside the camera frustum will be culled, which means they will not
     be passed to the renderer.
-    \note The \uicontrol {Frustum culling enabled} property is not available in
+    \note The \uicontrol {Frustum culling} property is not available in
     Qt 5.
 
     The default values are intended to cause anything within the view
@@ -124,5 +126,22 @@
     better results with ambient occlusion or with effects that use the depth
     buffer of the camera, such as the \e {depth of field} effect.
 
-    \note Orthographic cameras don't have the FOV property.
+    \section1 Setting a Camera to Look at an Object
+
+    Setting the camera to look at a specific object can be useful, for example,
+    if you want to create a cinematic effect or have the camera follow a user-controlled object.
+
+    To set a camera to look at an object:
+
+    \list 1
+      \li In \uicontrol Navigator, select the camera.
+      \li In \uicontrol Properties > \uicontrol {Look-at-Node}, select the object that
+      the camera should look at.
+      \image camera-look-at-node.webp
+    \endlist
+
+    When you set a camera to look at an object, the camera automatically rotates to
+    point toward the assigned object, even if the object or the camera moves. The rotation only
+    happens around the x and y axes.
+
 */
