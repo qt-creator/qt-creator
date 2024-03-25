@@ -325,7 +325,7 @@ Rectangle {
                             Text {
                                 text: display ?? ""
                                 color: itemSelected ? StudioTheme.Values.themeInteraction
-                                                    : StudioTheme.Values.themePlaceholderTextColorInteraction
+                                                    : StudioTheme.Values.themeTextColor
                                 leftPadding: 5
                                 topPadding: 3
                                 bottomPadding: 3
