@@ -79,7 +79,12 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
         menu = ":Qt Creator.Project.Menu.Folder_QMenu"
     else:
         menu = ":Qt Creator.Project.Menu.File_QMenu"
-    activateItem(waitForObjectItem(menu, "Rename..."))
+    try:
+        activateItem(waitForObjectItem(menu, "Rename...", 5000))
+    except:
+        # Try getting an enabled item by reopening the menu
+        openItemContextMenu(treeview, oldItemText, 5, 5, 0)
+        activateItem(waitForObjectItem(menu, "Rename...", 5000))
     replaceEdit = waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit")
     test.compare(replaceEdit.selectedText, oldname.rsplit(".", 1)[0],
                  "Only the filename without the extension is selected?")
