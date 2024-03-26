@@ -3958,6 +3958,7 @@ private:
                                  "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
             table.addIndex({typeIdColumn});
+            table.addIndex({moduleIdColumn, nameColumn});
 
             table.initialize(database);
         }
@@ -4120,6 +4121,8 @@ private:
                                   minorVersionColumn,
                                   parentImportIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
+
+            table.addIndex({sourceIdColumn, kindColumn});
 
             table.initialize(database);
         }
@@ -4685,7 +4688,7 @@ public:
         database};
     mutable ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
         "WITH "
-        "  importTypeNames(moduleId, name, kind, majorVersion, minorVersion) AS MATERIALIZED ( "
+        "  importTypeNames(moduleId, name, kind, majorVersion, minorVersion) AS ( "
         "    SELECT moduleId, name, di.kind, majorVersion, minorVersion "
         "    FROM importedTypeNames AS itn JOIN documentImports AS di ON "
         "      importOrSourceId=sourceId "
