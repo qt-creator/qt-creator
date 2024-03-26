@@ -89,8 +89,8 @@
     Themes enable you to customize the appearance of the \QC UI: widgets,
     colors, and icons.
 
-    To switch themes, select \preferences > \uicontrol Environment, and then
-    select a theme in the \uicontrol Theme field.
+    To switch themes, select \preferences > \uicontrol Environment >
+    \uicontrol Interface, and then select a theme in the \uicontrol Theme field.
 
     You can use the \QC text and code editors with your favorite color scheme
     that defines how to highlight code elements and which background color to
@@ -111,7 +111,7 @@
     To download and use highlight definition files, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
 
-    For more information, see \l{Generic Highlighting}.
+    For more information, see \l{Download highlight definitions}.
 
     \section1 Adding Your Own Code Snippets
 

@@ -83,6 +83,8 @@ void QtSupportPlugin::initialize()
     addTestCreator(createQtProjectImporterTest);
 #endif
 
+    setupQtVersionManager(this);
+
     setupDesktopQtVersion();
     setupEmbeddedLinuxQtVersion();
     setupGettingStartedWelcomePage();

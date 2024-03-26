@@ -135,9 +135,11 @@ public:
 private:
     void showDialogOrSettings()
     {
-        if (!Internal::settings().toolsRegistered() &&
-            !Core::ICore::showOptionsDialog(Constants::TOOLSSETTINGSPAGE_ID)) {
-            return;
+        if (!Internal::settings().toolsRegistered()) {
+            // Show options if ffmpeg/ffprobe are neither autodetected nor manually set
+            Core::ICore::showOptionsDialog(Constants::TOOLSSETTINGSPAGE_ID);
+            if (!Internal::settings().toolsRegistered())
+                return; // User did not set ffmpeg/ffprobe
         }
 
         ScreenRecorderDialog::showDialog();

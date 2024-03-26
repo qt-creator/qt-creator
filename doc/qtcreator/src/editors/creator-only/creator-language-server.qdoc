@@ -231,19 +231,20 @@
     To disable the embedded code model and use the QML language server for everything,
     select \uicontrol {Use QML Language Server advanced features}.
 
-    Also,\QC tries to use the QML language server shipped with
+    Also, \QC tries to use the QML language server shipped with
     the Qt version in your current kit. To override that behavior and always use the
     QML language server of the highest registered Qt version, select
     \uicontrol {Use QML Language Server from latest Qt version}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
-    When using \c qmlls from Qt 6.7 or later, it is recommended
-    to set \l{QT_QML_GENERATE_QMLLS_INI} to \c{ON} in
-    \uicontrol {Initial Configuration}.
+    When using \c qmlls from Qt 6.7 or later, set \l{QT_QML_GENERATE_QMLLS_INI}
+    to \c{ON} in \uicontrol Projects > \uicontrol {Build Settings}
+    > \uicontrol {Initial Configuration}.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {Language Servers}
+    {Enabling and Disabling Messages}, {CMake Build Configuration},
+    {Language Servers}
 */
 
 /*!

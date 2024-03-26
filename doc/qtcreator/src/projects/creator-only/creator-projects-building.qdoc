@@ -8,23 +8,26 @@
 // **********************************************************************
 
 /*!
-    \previouspage qt-design-viewer.html
     \page creator-building-targets.html
-    \nextpage creator-running-targets.html
+    \previouspage creator-how-tos.html
 
-    \title Building for Multiple Platforms
+    \ingroup creator-how-to-build
 
-    You can build applications for multiple target platforms, or using different
+    \title Build for many platforms
+
+    You can build applications for many target platforms, or using different
     compilers, debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits}
-    define the tools, \l{glossary-device}{device} type and other settings to use.
+    define the tools, \l{glossary-device}{device} type, and other settings to use.
 
     By default, when you run the application, you
     automatically build and deploy it first.
     However, you can also perform each operation separately.
 
     To check that the application code can be compiled and linked for a device,
-    you can build the project. The build errors and warnings are displayed in
-    the \l Issues. More detailed information is displayed in \l {Compile Output}.
+    build the project. You can see build errors and warnings in \l Issues and
+    more details in \l {Compile Output}.
+
+    \section1 Build an application
 
     To build an application:
 
@@ -37,7 +40,7 @@
 
             \image qtcreator-kit-selector.webp {Kit selector}
 
-        \li  Choose \uicontrol Build > \uicontrol {Build Project} or press
+        \li  Select \uicontrol Build > \uicontrol {Build Project} or press
              \key {Ctrl+B}.
 
              Or, select \inlineimage icons/run_small.png (\uicontrol Run) to
@@ -45,23 +48,25 @@
 
     \endlist
 
+    \section1 Cancel builds
+
     While the application is being built, the \inlineimage icons/build.png
     (\uicontrol Build) button changes to a \inlineimage icons/cancel-build.png
-    (\uicontrol {Cancel Build}) button. To cancel the build, select
-    the button, press \key {Alt+Backspace}, or select \uicontrol Build >
-    \uicontrol {Cancel Build}.
+    (\uicontrol {Cancel Build}) button. To cancel the build:
 
-    If you selected a build command and
-    decide you would also like to run the application, you can select the
-    \uicontrol Run button to schedule running the project after building is done.
+    \list
+        \li Select \inlineimage icons/cancel-build.png.
+        \li Press \key {Alt+Backspace}.
+        \li Go to \uicontrol Build > \uicontrol {Cancel Build}.
+    \endlist
 
-    For more information on the options you have, see
-    \l{Specifying Build Settings}.
+    If you selected a build command and now would also like to run the
+    application, select the \uicontrol Run button to schedule running
+    the project after building is done.
 
-    \section1 Additional Build Commands
+    \section1 Build projects in several configurations
 
-    The \uicontrol Build menu has additional commands for building,
-    rebuilding, and cleaning projects.
+    Go to \uicontrol Build to build, rebuild, and clean projects.
 
     To build the current project in all its configurations, that
     is, for all build configurations in all enabled kits, select
@@ -74,20 +79,24 @@
     To build all open projects in all their configurations, select
     \uicontrol {Build All Projects for All Configurations}.
 
+    \section1 Build files or subprojects
+
     To quickly check the compile output for changes that you made in one file or
-    subproject, you can use the \uicontrol Build menu commands to build a file or
-    subproject. The available build menu commands depend on the build system
-    you selected for the project: CMake, qmake, or Qbs.
+    subproject, use the \uicontrol Build menu commands to build it. The available
+    build menu commands depend on the build system you selected for the project:
+    CMake, qmake, or Qbs.
 
     Select \uicontrol {Build for Run Configuration} to
     build the executable that corresponds to the selected run configuration.
     You can also use the \c cm filter in the \l {Navigate with locator}
     {locator}.
 
-    To remove all build artifacts, select one of \uicontrol {Clean} menu commands.
+    \section1 Remove build artifacts
+
+    To remove all build artifacts, go to \uicontrol Build > \uicontrol {Clean}.
 
     To clean the build directory and then build the project, select
-    one of \uicontrol {Rebuild} menu commands.
+    \uicontrol {Rebuild}.
 
     To build and clean projects without dependencies, select the
     \uicontrol {Build Without Dependencies},
@@ -95,30 +104,23 @@
     \uicontrol {Clean Without Dependencies} options in the context menu in the
     \uicontrol Projects view.
 
-    To run qmake or CMake to regenerate build system files, select
-    \uicontrol Build > \uicontrol {Run qmake} or \uicontrol {Run CMake}.
+    \sa {Configure projects for building}, {Build and Run}{How To: Build and Run},
+    {Adding Docker Devices}, {Specifying Build Settings}
+*/
 
-    \section1 Building with CMake
+/*!
+    \page creator-how-to-run-qmake-before-building.html
+    \previouspage creator-how-tos.html
 
-    \QC automatically runs CMake when you make changes to \c {CMakeLists.txt}
-    files. To disable this feature, select \preferences > \uicontrol CMake >
-    \uicontrol General. Select the CMake executable to edit, and then deselect
-    the \uicontrol {Autorun CMake} check box.
+    \ingroup creator-how-to-build-with-qmake
 
-    \image qtcreator-preferences-cmake-tools.webp "Tools tab in CMake Preferences"
+    \title Run qmake before building
 
-    For more information, see \l {CMake}.
+    To prevent failures on incremental builds, always run qmake before building,
+    even though it takes more time. Go to \preferences > \uicontrol {Build & Run}
+    > \uicontrol Qmake, and select \uicontrol {Run qmake on every build}.
 
-    \section1 Building with qmake
+    \image qtcreator-preferences-build-run-qmake.png {Build & Run Qmake Preferences}
 
-    To prevent failures on incremental builds, it might make sense
-    to always run qmake before building, even though it means that
-    building will take more time. To enable this option, select \preferences >
-    \uicontrol {Build & Run} > \uicontrol Qmake >
-    \uicontrol {Run qmake on every build}.
-
-    \image qtcreator-preferences-build-run-qmake.png "qmake tab in Build & Run Preferences"
-
-    \sa {Configure projects for building}, {Configure projects for running},
-    {qmake Build Configuration}
+    \sa {Build and Run}{How To: Build and Run}, {qmake Build Configuration}
 */

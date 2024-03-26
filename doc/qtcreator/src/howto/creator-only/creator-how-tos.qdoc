@@ -18,8 +18,8 @@
 
     \section1 Analyze
 
-    \QC integrates code analysis tools for detecting memory leaks, profiling
-    function execution, analyzing CPU use, and eliminating unnecessary
+    Use integrated code analysis tools to detect memory leaks, profile
+    function execution, analyze CPU use, and eliminate unnecessary
     complexity of code. Other integrated tools provide code coverage and
     visualize trace events.
 
@@ -27,75 +27,136 @@
 
     \section1 Build and Run
 
+    Use integrated cross-platform systems for build automation to compile your
+    source code for different target platforms or with different compilers,
+    debuggers, or Qt versions. Deploy applications to the target platforms
+    and run them there.
+
     \generatelist creator-how-to-build
 
     \section2 Build with CMake
+
+    CMake controls the software compilation process by using simple configuration
+    files, called \e CMakeLists.txt files.
 
     \generatelist creator-how-to-build-with-cmake
 
     \section2 Build with qmake
 
+    qmake automates the generation of Makefiles based on the information in a
+    project file that has the extension \e .pro.
+
     \generatelist creator-how-to-build-with-qmake
 
     \section2 Run applications
+
+    Run applications on local and remote desktop systems, as well as on
+    embedded and mobile devices that you connect to the computer.
 
     \generatelist creator-how-to-run
 
     \section1 Create Models and Diagrams
 
+    Create Universal Modeling Language (UML) style models with structured and
+    behavioral diagrams that offer different views to your system. Or, use a
+    file wizard to create State Chart XML (SCXML) files with boilerplate code
+    and edit them with an SCXML editor.
+
     \generatelist creator-how-to-models
 
     \section1 Debug
+
+    Use native debuggers to inspect the state of your application while
+    debugging.
 
     \generatelist creator-how-to-debug
 
     \section1 Design UIs
 
+    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
+    \QC integrates a visual editor, \QD, for designing widget-based UIs
+    in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
+    editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
+
     \generatelist creator-how-to-design
 
     \section1 Edit Code
+
+    The code editor offers useful features for editing C++ and QML code, such
+    as semantic highlighting, checking code syntax, code completion, and quick
+    fixes. Some of these features are also for other programming languages, such
+    as Python, for which a \e {language server} is available that provides
+    information about the code to IDEs.
 
     \generatelist creator-how-to-edit
 
     \section2 Configure Editors
 
+    Configure the code and text editor to suit your specific needs by
+    changing the fonts, colors, highlighting, and indentation.
+
     \generatelist creator-how-to-configure-editors
 
     \section2 Manage Language Servers
+
+    Configure language servers that \QC adds by default or add more of them.
 
     \generatelist creator-how-to-lsp
 
     \section2 Search
 
+    Use the incremental and advanced search to search in currently open projects
+    or files on the file system or use the locator to browse through projects,
+    files, classes, functions, documentation, and file systems.
+
     \generatelist creator-how-to-search
 
     \section1 Manage Kits
+
+    \QC groups build and run specific settings as kits to make cross-platform
+    development easier. Each kit consists of a set of values that define one
+    environment, such as a device, tool chain, Qt version, and debugger command
+    to use.
 
     \generatelist creator-how-to-manage-kits
 
     \section1 Manage Projects
 
+    Create projects for developing applications and libraries. Then configure
+    the projects for building and running the applications on target platforms.
+
     \generatelist creator-how-to-projects
 
     \section2 Create Projects
+
+    Use preset wizards to create projects or add custom wizards. You can also
+    import projects from version control systems.
 
     \generatelist creator-how-to-projects-create
 
     \section2 Add Files
 
+    Add files to projects.
+
     \generatelist creator-how-to-projects-files
 
     \section2 Configure Projects
+
+    Change the default configurations that installation programs and project
+    wizards create.
 
     \generatelist creator-how-to-projects-configure
 
     \section1 Read Documentation
 
+    \QC integrates the reference documentation for the Qt versions that you
+    install. You can add documentation from other sources.
+
     \generatelist creator-how-to-get-help
 
     \section1 Test
 
-    \QC supports both \e {code based tests} and \e {build system based tests}.
+    Create and run \e {code based tests} and \e {build system based tests}.
     Code based testing offers special handling for particular testing
     frameworks that strongly ties to the underlying code models or
     specialized parsers. Build system based testing is independent from any
@@ -107,9 +168,14 @@
 
     \section1 Use \QC
 
+    Use basic \QC features and preinstalled plugins. Install more plugins and
+    configure external tools for use.
+
     \generatelist creator-how-to-use
 
     \section1 Use the UI
+
+    Navigate the UI or change its appearance and behavior.
 
     \generatelist creator-how-to-ui
 */
@@ -449,9 +515,22 @@
 
     \ingroup creator-how-to-edit
 
-    \title Select the enclosing block in C++
+    \title Select the current code block
 
-    Press \key {Ctrl+U}.
+    To select the current block of C++ code in the code editor, press
+    \key Ctrl+U.
+
+    Press \key Ctrl+U a second time to extend the selection to the parent block.
+
+    To undo the last selection, press \key {Ctrl+Alt+Shift+U}.
+
+    \section1 Turn on smart block selection
+
+    To turn on smart block selection, go to \preferences
+    > \uicontrol {Text Editor} > \uicontrol Behavior and select
+    \uicontrol {Enable smart selection changing}.
+
+    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */

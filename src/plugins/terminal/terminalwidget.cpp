@@ -336,7 +336,7 @@ qint64 TerminalWidget::writeToPty(const QByteArray &data)
 
 void TerminalWidget::resizePty(QSize newSize)
 {
-    if (m_process && m_process->ptyData())
+    if (m_process && m_process->ptyData() && m_process->isRunning())
         m_process->ptyData()->resize(newSize);
 }
 

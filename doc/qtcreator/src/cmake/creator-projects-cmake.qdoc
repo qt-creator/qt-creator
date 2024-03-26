@@ -47,8 +47,8 @@
             Typically, you cannot compile such projects without manual changes.
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
-    {Configure projects for building}, {Configure projects for running},
+    \sa {Configure projects for building}, {Configure projects for running},
+    {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
     {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects},
     {Use compilation databases}
 */
@@ -70,9 +70,8 @@
 
     \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
-    To disable this
-    behavior, select \preferences > \uicontrol CMake > \uicontrol General, and
-    then deselect the \uicontrol {Autorun CMake} check box.
+    To disable this behavior, go to \preferences > \uicontrol CMake >
+    \uicontrol General and clear \uicontrol {Autorun CMake}.
 
     \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
 
@@ -100,7 +99,7 @@
     box. The change takes effect after you select \uicontrol Build >
     \uicontrol {Run CMake}.
 
-    \sa {CMake}, {Manage files in CMake projects}, {Open projects},
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Open projects},
     {File System}, {Projects}
 */
 
@@ -125,7 +124,8 @@
         \li Switching to the Help mode
     \endlist
 
-    \sa {CMake}, {Read Documentation}{How To: Read Documentation}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake},
+    {Read Documentation}{How To: Read Documentation}
 */
 
 /*!
@@ -183,7 +183,8 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {CMake}, {Add kits}, {kits-tab}{Kits}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Add kits},
+    {kits-tab}{Kits}
 */
 
 /*!
@@ -234,8 +235,8 @@
 
     Warnings and errors are displayed in \l {Issues}.
 
-    \sa {CMake}, {Add libraries to CMake projects}, {Complete CMake code},
-    {Format CMake files}, {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */
 
 /*!
@@ -246,7 +247,7 @@
 
     \title Complete CMake code
 
-    \QC uses \l{Generic Highlighting}{generic highlighting} to provide
+    \QC uses \l{Download highlight definitions}{generic highlighting} to provide
     code completion specific arguments for the CMake commands. For
     example, only source file properties are suggested for the
     \l {CMake: set_source_files_properties command}, not the test or
@@ -263,7 +264,8 @@
     Press \key Tab or \key Enter to accept the selected suggestion and complete
     the code.
 
-    \sa {CMake}, {Edit CMake configuration files}, {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */
 
 /*!
@@ -297,8 +299,7 @@
             current project.
     \endlist
 
-    \sa {CMake},{Complete CMake code}, {Edit CMake configuration files},
-    {Edit MIME types}
+    \sa {Build with CMake}{How To: Build with CMake}, {Edit MIME types}, {CMake}
 */
 
 /*!
@@ -309,13 +310,13 @@
 
     \title Manage files in CMake projects
 
-    When you use project wizard templates to \l{Create files}{add files} to
+    When you \l{Create files}{add new or existing files} to
     a project, \QC automatically adds them to the \l {qt_add_executable},
     \l{CMake: add_executable command}{add_executable}, or \l {qt_add_library}
     function in the CMakeLists.txt file.
 
-    If you use custom API, \QC uses the \l{CMake: target_sources command}
-    {target_sources} function to add the files.
+    If \QC cannot recognize where the target is created, it will use the
+    \l{CMake: target_sources command} {target_sources} function to add the files.
 
     For Qt Quick projects, the files are added to the \l {qt_add_qml_module}
     function, prefixed with the \c QML_FILES, \c SOURCES, or \c RESOURCES
@@ -324,8 +325,7 @@
     When you rename or remove files in the \l {Projects} or \l {File System}
     view, \QC renames them in the CMakeLists.txt file or removes them from it.
 
-    \sa {CMake}, {Add libraries to CMake projects}, {Create files},
-    {Edit CMake configuration files}, {View CMake project contents},
+    \sa {Create files}, {Build with CMake}{How To: Build with CMake}, {CMake},
     {File System}, {Projects}
 */
 
@@ -377,6 +377,6 @@
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
     \endcode
 
-    \sa {CMake}, {Edit CMake configuration files}, {Complete CMake code},
-    {Completion}, {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    {Snippets}
 */

@@ -79,5 +79,7 @@ void fetchIssueInfo(const QString &id);
 
 const std::optional<DashboardInfo> currentDashboardInfo();
 
+Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
+
 } // Axivion::Internal
 

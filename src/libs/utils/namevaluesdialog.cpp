@@ -21,8 +21,7 @@ namespace Internal {
 
 static EnvironmentItems cleanUp(const EnvironmentItems &items)
 {
-    EnvironmentItems uniqueItems;
-    QSet<QString> uniqueSet;
+    EnvironmentItems cleanedItems;
     for (int i = items.count() - 1; i >= 0; i--) {
         EnvironmentItem item = items.at(i);
         if (HostOsInfo::isWindowsHost())
@@ -30,10 +29,10 @@ static EnvironmentItems cleanUp(const EnvironmentItems &items)
         const QString &itemName = item.name;
         QString emptyName = itemName;
         emptyName.remove(QLatin1Char(' '));
-        if (!emptyName.isEmpty() && Utils::insert(uniqueSet, itemName))
-            uniqueItems.prepend(item);
+        if (!emptyName.isEmpty())
+            cleanedItems.prepend(item);
     }
-    return uniqueItems;
+    return cleanedItems;
 }
 
 class TextEditHelper : public QPlainTextEdit

@@ -6,5 +6,7 @@
     <file alias="flat-light.creatortheme">../../../../share/qtcreator/themes/flat-light.creatortheme</file>
     <file alias="flat.creatortheme">../../../../share/qtcreator/themes/flat.creatortheme</file>
     <file alias="design.creatortheme">../../../../share/qtcreator/themes/design.creatortheme</file>
+    <file alias="dark.figmatokens">../../../../share/qtcreator/themes/dark.figmatokens</file>
+    <file alias="light.figmatokens">../../../../share/qtcreator/themes/light.figmatokens</file>
 </qresource>
 </RCC>

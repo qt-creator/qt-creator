@@ -4,16 +4,25 @@
 /*!
     \page creator-reference.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+    \nextpage creator-acknowledgements.html
 
     \title Reference
 
+    The following topics contain reference information about using \QC and the
+    integrated tools.
+
     \annotatedlist creator-reference
+
+    \section1 Analyzers
+
+    Use integrated code analysis tools to improve your C++ or QML code.
+
+    \annotatedlist creator-reference-analyzer
 
     \section1 Build Systems
 
-    Most \QC project wizards enable you to choose the build system to use for
-    building the project: qmake, CMake, Meson, or Qbs. qmake is installed and
+    When you create projects, you can choose the build system to use for
+    building the project: CMake, qmake, Meson, or Qbs. qmake is installed and
     configured when you install Qt. To use one of the other supported build
     systems, you need to set it up.
 
@@ -29,33 +38,46 @@
 
     \section1 Editors
 
+    When you open files, \QC chooses a suitable editor according to the file
+    type.
+
     \annotatedlist creator-reference-editors
 
     \section1 Platforms
+
+    You can install and run \QC on several operating systems to create
+    applications for multiple desktop, embedded, and mobile device platforms.
 
     \annotatedlist creator-reference-platforms
 
     \section1 Preferences
 
-    Set preferences that apply globally to all projects.
+    You can set preferences that apply globally to all projects and override
+    them for particular projects.
 
     \annotatedlist creator-reference-preferences
 
     \section2 Analyzer
 
+    Preferences for code analysis tools.
+
     \annotatedlist creator-reference-preferences-analyzer
 
     \section2 C++
+
+    Preferences for editing C++ code.
 
     \annotatedlist creator-reference-preferences-cpp
 
     \section2 Kits
 
+    Preferences for build and run kits.
+
     \annotatedlist creator-reference-preferences-kits
 
     \section2 Text Editor
 
-    Configure the text editor to suit your needs.
+    Preferences for the behavior and appearance of text and code editors.
 
     \annotatedlist creator-reference-preferences-text-editor
 
@@ -72,8 +94,7 @@
 
     \section1 UI Design
 
-    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
-    \QC integrates a visual editor, \QD, for designing widget-based UIs
+    You can use a visual editor, \QD, for designing widget-based UIs
     in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
     editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
 
@@ -81,11 +102,22 @@
 
     \section1 Views
 
+    When you switch modes or trigger actions, \QC opens views for viewing
+    output and organizing project contents.
+
     \section2 Output Views
+
+    You can view output from several sources, such as a list of errors and
+    warnings encountered during a build, detailed output from the compiler,
+    status of a program when it is executed, debug output, or search results.
 
     \annotatedlist creator-reference-output-views
 
     \section2 Sidebar Views
+
+    In some modes, you can use a left and right sidebar to organize different
+    views into project contents. Only views that are relevant to the mode you
+    are working in are available in it.
 
     \annotatedlist creator-reference-sidebar-views
 */

@@ -10,7 +10,7 @@ Project {
         mainDocConfFile: "qtcreator/qtcreator-online.qdocconf"
 
         files: [
-            "src/**/*",
+            "qtcreator/src/**/*",
         ]
     }
 
@@ -20,7 +20,7 @@ Project {
         mainDocConfFile: "qtcreator/qtcreator.qdocconf"
 
         files: [
-            "src/**/*",
+            "qtcreator/src/**/*",
         ]
     }
 
@@ -32,10 +32,8 @@ Project {
         Group {
             name: "sources"
             files: [
-                "api/*.qdoc",
-                "api/**/*",
+                "qtcreatordev/src/**/*",
             ]
-            excludeFiles: [mainDocConfFile]
         }
     }
 
@@ -47,10 +45,8 @@ Project {
         Group {
             name: "sources"
             files: [
-                "api/*.qdoc",
-                "api/**/*",
+                "qtcreatordev/src/**/*",
             ]
-            excludeFiles: [mainDocConfFile]
         }
     }
 

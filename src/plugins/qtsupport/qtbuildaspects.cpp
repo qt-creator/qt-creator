@@ -35,7 +35,6 @@ void QmlDebuggingAspect::addToLayout(Layouting::LayoutItem &parent)
     SelectionAspect::addToLayout(parent);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
-    warningLabel->setVisible(false);
     parent.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
@@ -51,7 +50,9 @@ void QmlDebuggingAspect::addToLayout(Layouting::LayoutItem &parent)
         warningLabel->setText(warningText);
         setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        if (warningLabel->parentWidget())
+        // avoid explicitly showing the widget when it doesn't have a parent, but always
+        // explicitly hide it when necessary
+        if (warningLabel->parentWidget() || !warningLabelsVisible)
             warningLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);

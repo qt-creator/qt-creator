@@ -18,15 +18,15 @@
     \brief Default keyboard shortcuts.
 
     \QC has various keyboard shortcuts that speed up your development process.
-    To view all \QC functions in and their keyboard shortcuts, select
+    To view all \QC functions and their keyboard shortcuts, select
     \preferences > \uicontrol Environment > \uicontrol Keyboard.
 
     \image qtcreator-keyboard-shortcuts.png
 
-    The shortcuts that are displayed in red color are associated with several
-    functions. \QC executes the function that is available in the current
-    context. If several functions are available for the same shortcut at a
-    time, there is a conflict and \QC cannot execute any function.
+    Shortcuts that are displayed in red are associated with several functions.
+    \QC executes the function that is available in the current context.
+    If several functions are available for the same shortcut in the current context,
+    \QC will not execute any function due to the conflict.
 
     A keyboard shortcut might also conflict with a shortcut that a window
     manager uses for its own purposes. In that case, \QC shortcuts do not work.
@@ -357,7 +357,7 @@
                Works with namespaces, classes, functions, variables, include
                statements, and macros, as well as CMake functions, macros,
                targets, and packages. Also, opens URLs in the default browser
-               and Qt resource files (.qrc) in the \l{Resource Files}
+               and Qt resource files (.qrc) in the \l{Create resource files}
                {resource editor}
             \li  F2
         \row

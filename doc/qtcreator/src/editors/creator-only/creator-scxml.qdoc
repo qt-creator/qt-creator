@@ -11,11 +11,11 @@
     \page creator-scxml.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference
+    \ingroup creator-reference-editors
 
     \title SCXML Editor
 
-    \brief State chart (.scxml) editor.
+    \brief Edit state chart (.scxml) files.
 
     State charts are a graphical way of modeling how a system reacts to
     stimuli. They define the \e states that the system can

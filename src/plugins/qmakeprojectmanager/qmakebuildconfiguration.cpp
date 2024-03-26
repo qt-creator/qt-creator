@@ -372,7 +372,8 @@ QString QmakeBuildConfiguration::unalignedBuildDirWarning()
 bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const FilePath &sourceDir,
                                                        const FilePath &buildDir)
 {
-    return buildDir.path().count('/') == sourceDir.path().count('/');
+    return buildDir.path().count('/') == sourceDir.path().count('/')
+           || buildDir.isChildOf(sourceDir);
 }
 
 bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const

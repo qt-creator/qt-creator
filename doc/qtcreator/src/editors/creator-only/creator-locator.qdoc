@@ -38,11 +38,11 @@
 
     \section1 Use locator filters
 
-    The filters that are available depend on the file type. For more information
-    about what a particular locator filter does, see the tooltips that appear
-    when you hover over a filter in the locator. For longer descriptions of the
-    filters, select \inlineimage icons/magnifier.png > \uicontrol Configure to
-    open the \l{Locator} preferences.
+    The filters that are available depend on the current document and project.
+    If the locator field is empty, a list of available filters is shown.
+    A list of filters is also shown when selecting \inlineimage icons/magnifier.png.
+    For more information about what a particular locator filter does, see the
+    tooltips that appear when you hover over a filter.
 
     To use a locator filter:
 
@@ -52,7 +52,7 @@
             string (for example, a filename or class name) or the command to
             execute.
 
-        \li Double-click a locator filter in the filter list to use it. Press
+        \li Select a locator filter in the filter list to use it. Press
             the up and down arrow keys or press \key Ctrl+P and \key Ctrl+N
             to move up and down the list, and then press \key Enter to use the
             selected filter.
@@ -140,7 +140,8 @@
     \brief Add and change locator filters.
 
     To set locator preferences, go to \preferences > \uicontrol Environment >
-    \uicontrol Locator.
+    \uicontrol Locator, or select
+    \inlineimage icons/magnifier.png > \uicontrol Configure in the locator field.
 
     \image qtcreator-locator-customize.webp {Locator preferences}
 

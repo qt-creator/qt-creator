@@ -45,7 +45,7 @@
     and \uicontrol {New File} dialogs. For each wizard, it shows an icon (1), a
     display name (2), and a description (3).
 
-    \image qtcreator-custom-wizard.png
+    \image qtcreator-custom-wizard.webp {New File wizard}
 
     \section1 Wizard Types
 

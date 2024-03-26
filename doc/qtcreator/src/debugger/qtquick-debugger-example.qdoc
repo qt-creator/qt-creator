@@ -13,14 +13,17 @@
     \previouspage creator-expressions-view.html
     \nextpage creator-qml-performance-monitor.html
     \else
-    \previouspage creator-debugging-example.html
-    \nextpage creator-troubleshooting-debugging.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-how-tos.html
     \endif
 
-    \title Debugging a Qt Quick Example Application
+    \ingroup creator-tutorials
 
-    This section uses the
-    \l{QML Advanced Tutorial}{Same Game}
+    \title Debugging a Qt Quick Application
+
+    \brief How to debug a Qt Quick application.
+
+    This tutorial uses the \l{QML Advanced Tutorial}{Same Game}
     example application to illustrate how to debug Qt Quick applications in the
     \uicontrol Debug mode.
 
@@ -28,7 +31,7 @@
     \l{Debugging Qt Quick Projects}.
 
     \if defined(qtdesignstudio)
-    \note In this section, you are using advanced menu items. These are not
+    \note In this tutorial, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
     \l{Customizing the Menu Bar}.
 
@@ -107,4 +110,5 @@
 
     \endlist
 
+    \sa {Debugging Qt Quick Projects}
 */
