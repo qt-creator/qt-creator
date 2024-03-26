@@ -1580,6 +1580,11 @@ void SimpleTargetRunner::forceRunOnHost()
     }
 }
 
+void SimpleTargetRunner::addExtraData(const QString &key, const QVariant &value)
+{
+    d->m_extraData[key] = value;
+}
+
 // RunWorkerPrivate
 
 RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl)

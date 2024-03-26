@@ -45,6 +45,7 @@ private:
     void hostKeyCheckingChanged(bool doCheck);
     void sourceProfileCheckingChanged(bool doCheck);
     void linkDeviceChanged(int index);
+    void sshPortForwardingForDebugging(bool on);
 
     void updateDeviceFromUi() override;
     void updatePortsWarningLabel();
@@ -66,6 +67,7 @@ private:
     Utils::PathChooser *m_qmlRuntimeLineEdit;
     QCheckBox *m_sourceProfileCheckBox;
     QComboBox *m_linkDeviceComboBox;
+    QCheckBox *m_useSshPortForwardingForDebugging;
 };
 
 } // RemoteLinux::Internal

@@ -666,6 +666,12 @@ void SshProcessInterfacePrivate::start()
             cmd.addCommandLineAsSingleArg(inner);
         }
 
+        const auto forwardPort = q->m_setup.m_extraData.value(Constants::SshForwardPort).toString();
+        if (!forwardPort.isEmpty()) {
+            cmd.addArg("-L");
+            cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
+        }
+
         m_process.setProcessImpl(q->m_setup.m_processImpl);
         m_process.setProcessMode(q->m_setup.m_processMode);
         m_process.setTerminalMode(q->m_setup.m_terminalMode);
@@ -680,11 +686,12 @@ void SshProcessInterfacePrivate::start()
         return;
     }
 
-    m_useConnectionSharing = SshSettings::connectionSharingEnabled();
+    m_useConnectionSharing = SshSettings::connectionSharingEnabled() && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
     // TODO: Do we really need it for master process?
     m_sshParameters.x11DisplayName
             = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
+
     if (m_useConnectionSharing) {
         m_connecting = true;
         m_connectionHandle.reset(new SshConnectionHandle(m_device));
@@ -768,6 +775,12 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         cmd.addArg("-tt");
 
     cmd.addArg("-q");
+
+    const auto forwardPort = q->m_setup.m_extraData.value(Constants::SshForwardPort).toString();
+    if (!forwardPort.isEmpty()) {
+        cmd.addArg("-L");
+        cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
+    }
 
     cmd.addArgs(m_sshParameters.connectionOptions(sshBinary));
     if (!m_socketFilePath.isEmpty())

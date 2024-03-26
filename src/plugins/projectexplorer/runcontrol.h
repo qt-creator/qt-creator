@@ -273,6 +273,7 @@ protected:
     void setProcessMode(Utils::ProcessMode processMode);
 
     void forceRunOnHost();
+    void addExtraData(const QString &key, const QVariant &value);
 
 private:
     void start() final;
