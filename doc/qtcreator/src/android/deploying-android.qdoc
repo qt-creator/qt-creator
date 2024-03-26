@@ -61,7 +61,7 @@
     To remove the current deployment method, select \uicontrol Remove.
 
     \QC deploys the packages on the Android device that you select in the
-    \l{Building for Multiple Platforms}{kit selector}. To add devices, select
+    \l{Build for many platforms}{kit selector}. To add devices, select
     \uicontrol Manage.
 
     For more information about specifying additional start options for

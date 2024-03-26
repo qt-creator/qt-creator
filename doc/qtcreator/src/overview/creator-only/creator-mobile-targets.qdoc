@@ -52,8 +52,8 @@
 
         \li \l {Adding Docker Devices}
 
-            You can add Docker images as \e devices to run, debug, and analyze
-            applications built for Docker containers from \QC.
+            Create Docker devices from Docker images and use them to build, run,
+            and debug applications from \QC.
 
         \li \l{Connecting iOS Devices}
 

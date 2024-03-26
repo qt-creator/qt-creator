@@ -23,7 +23,7 @@ Button {
         color: Theme.Colors.backgroundPrimary
         implicitWidth: 100
         implicitHeight: 35
-        border.color: Theme.Colors.foregroundSecondary
+        border.color: Theme.Colors.foregroundPrimary
         anchors.fill: parent
     }
 
@@ -80,7 +80,7 @@ Button {
             PropertyChanges {
                 target: buttonBackground
                 color: Theme.Colors.backgroundPrimary
-                border.color: Theme.Colors.disabledLink
+                border.color: Theme.Colors.foregroundSecondary
             }
             PropertyChanges {
                 target: textItem

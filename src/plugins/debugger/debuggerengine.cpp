@@ -1765,6 +1765,10 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
             d->m_logWindow->showInput(LogInput, msg);
             d->m_logWindow->showOutput(LogInput, msg);
             break;
+        case LogOutput:
+        case LogWarning:
+            d->m_logWindow->showOutput(channel, msg);
+            break;
         case LogError:
             d->m_logWindow->showInput(LogError, "ERROR: " + msg);
             d->m_logWindow->showOutput(LogError, "ERROR: " + msg);
@@ -1779,7 +1783,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
             emit appendMessageRequested(msg, StdErrFormat, false);
             break;
         default:
-            d->m_logWindow->showOutput(channel, msg);
+            d->m_logWindow->showOutput(channel, QString("[%1] %2").arg(debuggerName(), msg));
             break;
     }
 }

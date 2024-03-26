@@ -428,19 +428,19 @@ def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
         try:
             ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % Targets.getStringForTarget(current),
                           mustCheck, 3000)
+            detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' "
+                                          "window=':Qt Creator_Core::Internal::MainWindow' "
+                                          "summaryText='%s' visible='1'}"
+                                          % Targets.getStringForTarget(current))
+            detailsButton = getChildByClass(detailsWidget, "QToolButton")
             if mustCheck:
                 checkedTargets.add(current)
 
                 # perform additional function on detailed kits view
                 if additionalFunc:
-                    detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' "
-                                                  "window=':Qt Creator_Core::Internal::MainWindow' "
-                                                  "summaryText='%s' visible='1'}"
-                                                  % Targets.getStringForTarget(current))
-                    detailsButton = getChildByClass(detailsWidget, "QToolButton")
-                    clickButton(detailsButton)
+                    ensureChecked(detailsButton)
                     additionalFunc()
-                    clickButton(detailsButton)
+            ensureChecked(detailsButton, False)
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))

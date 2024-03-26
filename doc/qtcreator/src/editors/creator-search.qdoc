@@ -4,13 +4,13 @@
 /*!
     \page creator-editor-finding.html
     \if defined(qtdesignstudio)
-    \previouspage studio-finding.html
-    \nextpage creator-how-to-advanced-search.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-search
+    \ingroup studio-how-to-search
 
     \title Search in current file
 
@@ -130,13 +130,13 @@
 /*!
     \page creator-how-to-advanced-search.html
     \if defined(qtdesignstudio)
-    \previouspage creator-editor-finding.html
-    \nextpage creator-how-to-rename-symbols.html
+    \previouspage qtquick-text-editor.html
     \else
     \previouspage creator-how-tos.html
     \endif
 
     \ingroup creator-how-to-search
+    \ingroup studio-how-to-search
 
     \title Search in projects or file systems
 
@@ -216,9 +216,7 @@
 
     \if defined(qtcreator)
     \sa {Search}{How To: Search}, {Find symbols}, {Turn on Silver Searcher}
-    \else
-    \sa {Search in current file}
     \endif
 
-    \sa {Search Results View}
+    \sa {Search in current file}, {Search Results View}
 */

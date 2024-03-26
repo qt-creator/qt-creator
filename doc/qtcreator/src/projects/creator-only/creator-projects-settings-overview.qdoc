@@ -35,8 +35,9 @@
     \image qtcreator-build-configurations.png {Build configurations}
 
     Different build configurations allow you to quickly switch between
-    different build settings. By default, \QC creates the following
-    configurations:
+    different build settings. \QC creates some configurations by default,
+    depending on the build system used. They usually include at least
+    the following:
 
     \list
         \li Debug
@@ -44,21 +45,22 @@
         \li Profile
     \endlist
 
-    A debug build has debug symbols that you need for debugging the application
-    but that you can leave out from the release version. Generally, you use the
-    debug configuration for testing and the release configuration for creating
+    A \e Debug build has debug symbols that you need for debugging the application
+    but that you should leave out from the release version. Generally, you use the
+    debug configuration for testing and the \e Release configuration for creating
     the final installation binary package.
 
-    If you selected CMake as the build system for the project, you can
-    use a \e {minimum size release} build configuration to create the
+    A \e Profile build is an optimized release build with debug information.
+    It is best suited for analyzing applications.
+
+    If you selected CMake as the build system for the project, a
+    \e {Release with Debug Information} build configuration is also available.
+    It is similar to a \e profile configuration, but with
+    \l{Debugging Qt Quick Projects}{QML debugging and profiling} explicitly turned off.
+    You can also use a \e {Minimum Size Release} build configuration to create the
     final installation binary package. It is a release build that makes the size
     of the binary package as small as possible, even if this makes the
     application slower.
-
-    A profile build (which is called \e {release with debug information}
-    when using CMake) is an optimized release build that is delivered
-    with separate debug information. It is best suited for analyzing
-    applications.
 
     \section1 Specifying Run Settings
 
@@ -81,15 +83,18 @@
             \list
                 \li \l{Link projects to Axivion dashboards}{Axivion}
                 \li \l{Specify clangd settings}{Clangd}
-                \li \l{Speficy Clang tools settings}{Clang Tools}
+                \li \l{Specify Clang tools settings}{Clang Tools}
+                \li \l{Set Copilot preferences}{Copilot}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specify the environment for projects}{Environment}
+                \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language server workspace}{Language Server}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
+                \li \l{Testing}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 

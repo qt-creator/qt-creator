@@ -25,4 +25,8 @@
  <shortcut id="QtCreator.Options">
   <key value="Ctrl+,"/>
  </shortcut>
+ <shortcut id="QtCreator.Locate">
+  <key value="Ctrl+P"/>
+ </shortcut>
+ <shortcut id="QtCreator.Print"/>
 </mapping>

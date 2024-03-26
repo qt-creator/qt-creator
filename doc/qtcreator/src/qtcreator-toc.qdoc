@@ -13,39 +13,21 @@
     {Qt documentation} portal or in the \l {Get help}{Help} mode.
 
     \list
-        \li \l{Getting Started}
+        \li \l{Developing with \QC}
         \list
-            \li \l{Overview}
-        \list
+            \li \l{Getting Started}
+                \list
+                    \li \l{User Interface}
+                    \li \l{Configuring Qt Creator}
+                \endlist
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
-        \endlist
-            \li \l{User Interface}
-            \li \l{Configuring Qt Creator}
-            \li \l{Building and Running an Example}
-            \li \l{Tutorials}
-        \endlist
-        \li \l{Coding}
-        \list
-        \li \l{Writing Code}
-            \list
-                \li \l{Semantic Highlighting}
-                \li \l{Checking Code Syntax}
-                \li \l{Using Qt Quick Toolbars}
-                \li \l{Pasting and Fetching Code Snippets}
-            \endlist
-            \li \l{Configuring the Editor}
-            \li \l{Using GitHub Copilot}
-        \endlist
-        \li \l{Building and Running}
-        \list
             \li \l{Validating with Target Hardware}
             \list
                 \li \l{Previewing on Desktop}
                 \li \l{Previewing on Devices}
                 \li \l{Previewing in Browsers}
             \endlist
-            \li \l{Building for Multiple Platforms}
             \li \l{Deploying to Devices}
             \list
                 \li \l{Deploying to Android}
@@ -65,9 +47,6 @@
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
             \endlist
-        \endlist
-        \li \l{Debugging and Analyzing}
-        \list
             \li \l{Debugging}
             \list
                 \li \l{Setting Up Debugger}
@@ -91,8 +70,6 @@
                 \li \l{Debugger Preferences}
                 \li \l{Using Debugging Helpers}
                 \li \l{Debugging Qt Quick Projects}
-                \li \l{Debugging a C++ Example Application}
-                \li \l{Debugging a Qt Quick Example Application}
                 \li \l{Troubleshooting Debugger}
             \endlist
             \li \l{Analyzing Code}
@@ -112,6 +89,8 @@
             \endlist
             \li \l{Using Squish}
         \endlist
+        \li \l{Tutorials}
+            \generatelist creator-tutorials
         \li \l{How To}
         \list
             \li Analyze

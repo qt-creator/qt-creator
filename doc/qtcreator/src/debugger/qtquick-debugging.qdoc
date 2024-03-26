@@ -24,7 +24,7 @@
     \endif
 
     For an example of how to debug Qt Quick Projects, see
-    \l{Debugging a Qt Quick Example Application}.
+    \l{Debugging a Qt Quick Application}.
 
     \if defined(qtdesignstudio)
     \note In this section, you are using advanced menu items. These are not

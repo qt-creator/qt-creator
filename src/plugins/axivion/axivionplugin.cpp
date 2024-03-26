@@ -36,6 +36,7 @@
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -236,6 +237,7 @@ public:
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
     TaskTreeRunner m_issueInfoRunner;
+    FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -337,10 +339,17 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
     m_currentProjectInfo = {};
     updateDashboard();
 
-    if (!m_project)
+    if (!m_project) {
+        m_fileFinder.setProjectDirectory({});
+        m_fileFinder.setProjectFiles({});
         return;
+    }
 
-    connect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+    m_fileFinder.setProjectDirectory(m_project->projectDirectory());
+    connect(m_project, &Project::fileListChanged, this, [this]{
+        m_fileFinder.setProjectFiles(m_project->files(Project::AllFiles));
+        handleOpenedDocs();
+    });
     const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
@@ -450,8 +459,10 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             if (error) {
                 if constexpr (std::is_same_v<DtoType, Dto::DashboardInfoDto>) {
                     // Suppress logging error on unauthorized dashboard fetch
-                    if (!dtoStorage->credential && error->type == "UnauthenticatedException")
+                    if (!dtoStorage->credential && error->type == "UnauthenticatedException") {
+                        dtoStorage->url = reply->url();
                         return DoneResult::Success;
+                    }
                 }
 
                 errorString = Error(DashboardError(reply->url(), statusCode,
@@ -530,13 +541,11 @@ static void handleCredentialError(const CredentialQuery &credential)
 
 static Group authorizationRecipe()
 {
+    const Storage<QUrl> serverUrlStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
-    const auto onUnauthorizedGroupSetup = [unauthorizedDashboardStorage] {
-        if (isServerAccessEstablished())
-            return SetupResult::StopWithSuccess;
-
-        unauthorizedDashboardStorage->url = QUrl(settings().server.dashboard);
-        return SetupResult::Continue;
+    const auto onUnauthorizedGroupSetup = [serverUrlStorage, unauthorizedDashboardStorage] {
+        unauthorizedDashboardStorage->url = *serverUrlStorage;
+        return isServerAccessEstablished() ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
     const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage] {
         if (unauthorizedDashboardStorage->dtoData) {
@@ -575,7 +584,7 @@ static Group authorizationRecipe()
 
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const auto onPasswordGroupSetup = [passwordStorage, dashboardStorage] {
+    const auto onPasswordGroupSetup = [serverUrlStorage, passwordStorage, dashboardStorage] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
 
@@ -589,7 +598,7 @@ static Group authorizationRecipe()
 
         const QString credential = settings().server.username + ':' + *passwordStorage;
         dashboardStorage->credential = "Basic " + credential.toUtf8().toBase64();
-        dashboardStorage->url = QUrl(settings().server.dashboard);
+        dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
     };
 
@@ -632,13 +641,13 @@ static Group authorizationRecipe()
         return DoneResult::Success;
     };
 
-    const auto onDashboardGroupSetup = [dashboardStorage] {
+    const auto onDashboardGroupSetup = [serverUrlStorage, dashboardStorage] {
         if (dd->m_dashboardInfo || dd->m_serverAccess != ServerAccess::WithAuthorization
             || !dd->m_apiToken) {
             return SetupResult::StopWithSuccess; // Unauthorized access should have collect dashboard before
         }
         dashboardStorage->credential = "AxToken " + *dd->m_apiToken;
-        dashboardStorage->url = QUrl(settings().server.dashboard);
+        dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
     };
     const auto onDeleteCredentialSetup = [dashboardStorage](CredentialQuery &credential) {
@@ -656,11 +665,16 @@ static Group authorizationRecipe()
     };
 
     return {
+        serverUrlStorage,
+        onGroupSetup([serverUrlStorage] { *serverUrlStorage = QUrl(settings().server.dashboard); }),
         Group {
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
             dtoRecipe(unauthorizedDashboardStorage),
-            Sync(onUnauthorizedDashboard)
+            Sync(onUnauthorizedDashboard),
+            onGroupDone([serverUrlStorage, unauthorizedDashboardStorage] {
+                *serverUrlStorage = unauthorizedDashboardStorage->url;
+            }),
         },
         Group {
             LoopUntil(onCredentialLoopCondition),
@@ -956,7 +970,7 @@ void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
         return;
     Link link;
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
-        link.targetFilePath = m_project->projectDirectory().pathAppended(path);
+        link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
         link.targetLine = line.toInt();
     // column entry is wrong - so, ignore it
@@ -1033,6 +1047,15 @@ const std::optional<DashboardInfo> currentDashboardInfo()
 {
     QTC_ASSERT(dd, return std::nullopt);
     return dd->m_dashboardInfo;
+}
+
+Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
+{
+    QTC_ASSERT(dd, return {});
+    const FilePaths result = dd->m_fileFinder.findFile(QUrl::fromLocalFile(issuePath.toString()));
+    if (result.size() == 1)
+        return dd->m_project->projectDirectory().resolvePath(result.first());
+    return {};
 }
 
 } // Axivion::Internal

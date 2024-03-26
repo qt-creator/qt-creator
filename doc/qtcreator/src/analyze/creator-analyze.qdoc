@@ -14,11 +14,11 @@
 
     \title Analyzing Code
 
-    You can use the code analysis tools in the \uicontrol Debug mode. To
-    switch to \uicontrol Debug mode, select \uicontrol Debug in the mode
-    selector, or select the \uicontrol {Analyze} menu and then select a tool.
+    To use a code analysis tool, select it in the \uicontrol {Analyze Menu} or
+    in the pull-down menu of the \inlineimage icons/qtcreator-debug-button.png
+    (\uicontrol {Start Debugging of Startup Project}) button.
     When you are in the \uicontrol Debug mode, you can switch between tools by
-    selecting them in the menu on the toolbar.
+    selecting them in the menu on the debugger toolbar.
 
     You can drag and drop the views in the \uicontrol Debug mode to new
     positions on the screen. The size and position of views are saved for future

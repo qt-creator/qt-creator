@@ -12218,123 +12218,123 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     <name>QtC::AppManager</name>
     <message>
         <source>Create Application Manager package with CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket mit CMake erstellen</translation>
     </message>
     <message>
         <source>Create Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket erstellen</translation>
     </message>
     <message>
         <source>Source directory:</source>
-        <translation type="unfinished">Quellverzeichnis:</translation>
+        <translation>Quellverzeichnis:</translation>
     </message>
     <message>
         <source>Package file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketdatei:</translation>
     </message>
     <message>
         <source>Automatic Application Manager Deploy Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Deployment-Konfiguration für Application Manager</translation>
     </message>
     <message>
         <source>Deploy Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment des Application Manager-Pakets</translation>
     </message>
     <message>
         <source>Target directory:</source>
-        <translation type="unfinished">Zielverzeichnis:</translation>
+        <translation>Zielverzeichnis:</translation>
     </message>
     <message>
         <source>Uploading finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen beendet.</translation>
     </message>
     <message>
         <source>Uploading failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install Application Manager package</source>
-        <translation type="unfinished"></translation>
+        <translation>Application Manager-Paket installieren</translation>
     </message>
     <message>
         <source>Starting command &quot;%1&quot;.</source>
-        <translation type="unfinished">Starte Kommando &quot;%1&quot;.</translation>
+        <translation>Starte Kommando &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Command finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Process failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess schlug fehl: %1</translation>
     </message>
     <message>
         <source>Process finished with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Run an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen</translation>
     </message>
     <message>
         <source>Run and Debug an Application Manager Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Application Manager-Paket ausführen und debuggen</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Saubere Umgebung</translation>
+        <translation>Saubere Umgebung</translation>
     </message>
     <message>
         <source>%1 exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wurde beendet.</translation>
     </message>
     <message>
         <source>Starting Application Manager debugging...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Application Manager-Debuggen...</translation>
     </message>
     <message>
         <source>Using: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze: %1.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht debuggen: Es werden nur QML- und native Anwendungen unterstützt.</translation>
     </message>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
-        <translation type="unfinished">Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
+        <translation>Kann nicht debuggen: Lokale ausführbare Datei ist nicht angegeben.</translation>
     </message>
     <message>
         <source>Application ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungs-ID:</translation>
     </message>
     <message>
         <source>Application Manager instance ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID der Application Manager-Instanz:</translation>
     </message>
     <message>
         <source>Default instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Instanz</translation>
     </message>
     <message>
         <source>Document URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument-URL:</translation>
     </message>
     <message>
         <source>Customize step</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritt anpassen</translation>
     </message>
     <message>
         <source>Disables the automatic updates based on the current run configuration and allows customizing the values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert die auf der aktuellen Ausführungskonfiguration basierenden automatischen Aktualisierungen und erlaubt, die Werte anzupassen.</translation>
     </message>
     <message>
         <source>Controller:</source>
-        <translation type="unfinished"></translation>
+        <translation>Controller:</translation>
     </message>
     <message>
         <source>Packager:</source>
-        <translation type="unfinished"></translation>
+        <translation>Packager:</translation>
     </message>
 </context>
 <context>
@@ -13693,178 +13693,181 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <name>QtC::Axivion</name>
     <message>
         <source>Project:</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Lines of code:</source>
-        <translation type="unfinished"></translation>
+        <translation>Codezeilen:</translation>
     </message>
     <message>
         <source>Analysis timestamp:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitstempel der Analyse:</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">unbekannt</translation>
+        <translation>unbekannt</translation>
     </message>
     <message>
         <source>Total:</source>
-        <translation type="unfinished"></translation>
+        <translation>Summe:</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigentümer</translation>
     </message>
     <message>
         <source>Path globbing</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad-Globbing</translation>
     </message>
     <message>
         <source>Total rows:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamtzeilen:</translation>
     </message>
     <message>
         <source>Axivion</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion</translation>
     </message>
     <message>
         <source>Show dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Search for issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme durchsuchen</translation>
     </message>
     <message>
         <source>Show rule details</source>
-        <translation type="unfinished"></translation>
+        <translation>Regeldetails anzeigen</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unknown Dto structure deserialization error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler in der Dto-Struktur beim Deserialisieren.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be read in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelesen werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be stored in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gespeichert werden.</translation>
     </message>
     <message>
         <source>The ApiToken cannot be deleted in a secure way.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ApiToken kann nicht auf sichere Weise gelöscht werden.</translation>
     </message>
     <message>
         <source>Key chain message: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldung der Schlüsselverwaltung: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Enter the password for:
 Dashboard: %1
 User: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie das Passwort ein für:
+Dashboard: %1
+Benutzer: %2</translation>
     </message>
     <message>
         <source>Axivion Server Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion Server-Passwort</translation>
     </message>
     <message>
         <source>The stored ApiToken is not valid anymore, removing it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gespeicherte ApiToken ist nicht mehr gültig und wird entfernt.</translation>
     </message>
     <message>
         <source>Fetching DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der DashboardInfo.</translation>
     </message>
     <message>
         <source>The DashboardInfo doesn&apos;t contain project &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die DashboardInfo enthält das Projekt &quot;%1&quot; nicht.</translation>
     </message>
     <message>
         <source>The activated link appears to be external.
 Do you want to open &quot;%1&quot; with its default application?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der aktivierte Link scheint extern zu sein.
+Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Open External Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Links öffnen</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekte abrufen</translation>
     </message>
     <message>
         <source>Link Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt verknüpfen</translation>
     </message>
     <message>
         <source>Unlink Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverknüpfung aufheben</translation>
     </message>
     <message>
         <source>Dashboard projects:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Projekte:</translation>
     </message>
     <message>
         <source>This project is not linked to a dashboard project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist nicht mit einem Dashboard-Projekt verknüpft.</translation>
     </message>
     <message>
         <source>This project is linked to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Projekt ist mit &quot;%1&quot; verknüpft.</translation>
     </message>
     <message>
         <source>Incomplete or misconfigured settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige oder fehlerhafte Einstellungen.</translation>
     </message>
     <message>
         <source>Highlight marks</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierungen hervorheben</translation>
     </message>
     <message>
         <source>Marks issues on the scroll bar.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert Probleme in der Bildlaufleiste.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-URL:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation type="unfinished">Benutzername</translation>
+        <translation>Benutzername</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration bearbeiten</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Fetching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufe ab...</translation>
     </message>
 </context>
 <context>
@@ -16792,7 +16795,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Update Potentially Stale Clangd Index Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Potenziell veraltete Clangd-Indexeinträge aktualisieren</translation>
     </message>
     <message>
         <source>Generate Compilation Database</source>
@@ -16940,11 +16943,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Warning: </source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: </translation>
     </message>
     <message>
         <source>The current ClangFormat (C++ &gt; Code Style &gt; ClangFormat) settings are not valid. Are you sure you want to apply them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die aktuellen Einstellungen für ClangFormat (C++ &gt; Coding-Stil &gt; ClangFormat) sind ungültig. Sind Sie sicher, dass Sie diese anwenden wollen?</translation>
     </message>
     <message>
         <source>Open Used .clang-format Configuration File</source>
@@ -16974,11 +16977,11 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Use custom settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Use built-in indenter</source>
-        <translation type="unfinished"></translation>
+        <translation>Integriertes Codemodell für das Einrücken benutzen</translation>
     </message>
     <message>
         <source>Use global settings</source>
@@ -16986,7 +16989,7 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Please note that the current project includes a .clang-format file, which will be used for code indenting and formatting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beachten Sie, dass das aktuelle Projekt eine .clang-format-Datei enthält, welche für das Einrücken und die Formatierung von Code benutzt werden wird.</translation>
     </message>
     <message>
         <source>ClangFormat settings:</source>
@@ -17331,7 +17334,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnose</translation>
     </message>
     <message>
         <source>Failed to start the analyzer.</source>
@@ -18858,12 +18861,13 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Override cursors for views</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauszeiger für Ansichten überschreiben</translation>
     </message>
     <message>
         <source>Provide cursors for resizing views.
 If the system cursors for resizing views are not displayed properly, you can use the cursors provided by %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt separate Mauszeiger für das Verändern der Größe von Ansichten.
+Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrekt dargestellt werden, können von %1 bereitgestellte Zeiger benutzt werden.</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -18895,11 +18899,11 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>The following environment variables are set and can influence the UI scaling behavior of %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Umgebungsvariablen sind gesetzt und können das Skalierungsverhalten der Benutzeroberfläche von %1 beeinflussen:</translation>
     </message>
     <message>
         <source>Environment influences UI scaling behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Umgebung beeinflusst das Skalierungsverhalten der Benutzeroberfläche.</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
@@ -19145,7 +19149,7 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.&lt;br&gt;&lt;br&gt;Or, trigger the &quot;%2&quot; action from the &quot;%3&quot; locator filter (%4).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies versteckt die Menüleiste vollständig. Sie können sie mit der Tastenkombination %1 wieder anzeigen.&lt;br&gt;&lt;br&gt;Oder führen Sie die Aktion &quot;%2&quot; über den Locator-Filter &quot;%3&quot; aus (%4).</translation>
     </message>
     <message>
         <source>Change Log...</source>
@@ -19468,7 +19472,7 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>Copy and Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren und schließen</translation>
     </message>
     <message>
         <source>&lt;br/&gt;From revision %1&lt;br/&gt;</source>
@@ -20392,11 +20396,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Cannot Create File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht erstellt werden</translation>
     </message>
     <message>
         <source>Cannot create file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Create Directory</source>
@@ -20646,7 +20650,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Show Paths in Relation to Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade in Bezug auf das aktive Projekt anzeigen</translation>
     </message>
     <message>
         <source>Filter Results</source>
@@ -20662,7 +20666,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Show Full Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständigen Pfad anzeigen</translation>
     </message>
     <message>
         <source>Search Results</source>
@@ -20830,11 +20834,11 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Proxy Authentication Required</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Authentifizierung erforderlich</translation>
     </message>
     <message>
         <source>Do not ask again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht noch einmal nachfragen.</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -20918,7 +20922,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Convert string to pure ASCII.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkette in reines ASCII umwandeln.</translation>
     </message>
     <message>
         <source>Create Folder</source>
@@ -22468,7 +22472,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Move Definition Here</source>
-        <translation type="unfinished"></translation>
+        <translation>Definition hierher verschieben</translation>
     </message>
     <message>
         <source>Move Definition to Class</source>
@@ -23125,11 +23129,11 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Headers</source>
-        <translation type="unfinished">Header-Dateien</translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>S&amp;uffix:</source>
@@ -23682,7 +23686,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished">Automatisch</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <source>Ignore files greater than</source>
@@ -26236,7 +26240,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>%1 of length %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 der Länge %2</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
@@ -27446,23 +27450,23 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Enable %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Debugger aktivieren.</translation>
     </message>
     <message>
         <source>Disable %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Debugger deaktivieren.</translation>
     </message>
     <message>
         <source>Try to determine need for %1 debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, die Notwendigkeit für den %1-Debugger zu ermitteln.</translation>
     </message>
     <message>
         <source>No additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine zusätzlichen Kommandos beim Start.</translation>
     </message>
     <message>
         <source>Use additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze zusätzliche Kommandos beim Start.</translation>
     </message>
     <message>
         <source>C++ debugger:</source>
@@ -27474,7 +27478,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Python debugger:</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Debugger:</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>
@@ -29865,7 +29869,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translation type="unfinished">Beschreibung zu %1</translation>
+        <translation>Beschreibung zu %1</translation>
     </message>
     <message>
         <source>Group:</source>
@@ -30134,7 +30138,7 @@ Grund: %3</translation>
     <message>
         <source>%1 (deprecated)</source>
         <extracomment>%1 is a plugin name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (veraltet)</translation>
     </message>
     <message>
         <source>%1 (experimental)</source>
@@ -30209,7 +30213,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
@@ -30225,7 +30229,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Multiple versions of the same plugin have been found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden mehrere Versionen des gleichen Plugins gefunden.</translation>
     </message>
     <message>
         <source>%1 &gt; About Plugins</source>
@@ -31860,7 +31864,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Git command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Git-Kommando:</translation>
     </message>
     <message>
         <source>Set &quot;HOME&quot; environment variable</source>
@@ -34767,15 +34771,15 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Deployment canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment abgebrochen.</translation>
     </message>
     <message>
         <source>Failed to run devicectl: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen von devicectl ist fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... deployment might have failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Ausgabe von devicectl ... Deployment könnte fehlgeschlagen sein.</translation>
     </message>
     <message>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
@@ -34893,7 +34897,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Debugging and profiling is currently not supported for devices with iOS 17 and later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen und Profiling wird für Geräte mit iOS 17 und später im Moment nicht unterstützt.</translation>
     </message>
     <message>
         <source>Device type:</source>
@@ -34917,7 +34921,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Simulator not running. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Start der Anwendung im Simulator ist fehlgeschlagen. Der Simulator läuft nicht. %1</translation>
     </message>
     <message>
         <source>Application install on simulator failed. %1</source>
@@ -34941,23 +34945,23 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Running failed. No iOS device found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführen fehlgeschlagen. Kein iOS-Gerät gefunden.</translation>
     </message>
     <message>
         <source>Running canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführen abgebrochen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>Failed to determine bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ermittlung des Bundle-Identifiers ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; on %2...</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe &quot;%1&quot; auf %2 aus...</translation>
     </message>
     <message>
         <source>Could not find %1.</source>
@@ -35323,79 +35327,79 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung der Ausgabe von devicectl ist fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Operation failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Operation fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: &quot;result&quot; is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung der Ausgabe von devicectl ist fehlgeschlagen: &quot;result&quot; fehlt.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... running failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Ausgabe von devicectl ... Ausführen ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to start process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Process was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Process was forced to exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess wurde gezwungenermaßen abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot find xcrun.</source>
-        <translation type="unfinished"></translation>
+        <translation>xcrun wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>xcrun is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>xcrun ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Invalid Empty UDID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige leere UDID.</translation>
     </message>
     <message>
         <source>Failed to start simulator app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulator-Anwendung konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Simulator device is not available. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulator-Gerät ist nicht verfügbar. (%1)</translation>
     </message>
     <message>
         <source>Simulator start was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Start des Simulators wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Previous instance taking too long to shut down. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Die vorherige Instanz braucht zu lange, um herunterzufahren. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in shutdown state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Der Simulator ist nicht im &quot;shutdown&quot;-Zustand. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in booted state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Simulator-Gerät konnte nicht gestartet werden. Der Simulator ist nicht im &quot;booted&quot;-Zustand. (%1)</translation>
     </message>
     <message>
         <source>Bundle path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad des Bundles existiert nicht.</translation>
     </message>
     <message>
         <source>Invalid (empty) bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger (leerer) Bundle-Identifier.</translation>
     </message>
     <message>
         <source>Failed to convert inferior pid. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die PID des zu debuggenden Prozesses konnte nicht ermittelt werden. (%1)</translation>
     </message>
 </context>
 <context>
@@ -35466,43 +35470,43 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Install npm Package</source>
-        <translation type="unfinished"></translation>
+        <translation>npm-Paket installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished">Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
+        <translation>Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
+        <translation>Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by the user.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
+        <translation>Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
+        <translation>Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install %1 language server via npm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere den Language Server für %1 über npm.</translation>
     </message>
     <message>
         <source>Setup %1 language server (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server für %1 einrichten (%2).</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>%1 Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Language Server</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -35725,7 +35729,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Langu
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Alle einklappen</translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Client Message</source>
@@ -38169,7 +38173,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     <message>
         <source>Error running &quot;where&quot; on %1: The file is not mapped.</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Ausführen von &quot;where&quot; auf %1: Die Datei ist nicht zugeordnet.</translation>
     </message>
     <message>
         <source>p4 revert</source>
@@ -44332,7 +44336,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>&amp;Generate Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kit erstellen</translation>
     </message>
     <message>
         <source>&amp;Clean Up</source>
@@ -44400,19 +44404,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Installing PySide</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere PySide</translation>
     </message>
     <message>
         <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer benutzen und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu installierende Version aus:</translation>
     </message>
     <message>
         <source>Latest PySide from the PyPI</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte PySide-Version von PyPI</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
@@ -44464,27 +44468,28 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>PySide uic tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide uic-Werkzeug:</translation>
     </message>
     <message>
         <source>Enter location of PySide uic tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort des PySide uic-Werkzeugs ein.</translation>
     </message>
     <message>
         <source>Effective venv:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierende venv:</translation>
     </message>
     <message>
         <source>New Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue virtuelle Umgebung</translation>
     </message>
     <message>
         <source>Global Python</source>
-        <translation type="unfinished"></translation>
+        <translation>Globales Python</translation>
     </message>
     <message>
         <source> Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>python-&gt;name + Tr::tr(&quot; Virtual Environment&quot;);</translatorcomment>
+        <translation> virtuelle Umgebung</translation>
     </message>
     <message>
         <source>REPL</source>
@@ -44564,43 +44569,43 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>The interpreter used for Python based projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der für Python-basierte Projekte benutzte Interpreter.</translation>
     </message>
     <message>
         <source>No Python setup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python eingerichtet.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nicht ausführbar.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable pip. pip is needed to install Python packages from the Python Package Index, like PySide and the Python language server. To use any of that functionality ensure that pip is installed for that Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares pip. pip wird für das Installieren von Python-Paketen wie PySide und dem Python Language Server vom Python Package Index benötigt. Um diese Funktionen benutzen zu können, stellen Sie sicher, dass pip für dieses Python installiert ist.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable venv. venv is the recommended way to isolate a development environment for a project from the globally installed Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares venv. venv ist der empfohlene Weg, um eine Entwicklungsumgebung für ein Projekt von der globalen Python-Installation zu isolieren.</translation>
     </message>
     <message>
         <source>Name of Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Python-Interpreters</translation>
     </message>
     <message>
         <source>Path to Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Python-Interpreter</translation>
     </message>
     <message>
         <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet</translation>
     </message>
 </context>
 <context>
@@ -49742,7 +49747,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Remote command finished successfully.</source>
-        <translation>Das entfernte Kommando wurde erfolgreich ausgeführt.</translation>
+        <translation>Das entfernte Kommando wurde erfolgreich beendet.</translation>
     </message>
     <message>
         <source>WizardPage</source>
@@ -52978,7 +52983,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Custom settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Einstellungen:</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -53300,7 +53305,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>%1 [customizable]</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 [anpassbar]</translation>
     </message>
     <message>
         <source>Files in File System</source>
@@ -53701,11 +53706,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&amp;Highlight selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus&amp;wahl hervorheben</translation>
     </message>
     <message>
         <source>Adds a colored background and a marker to the scrollbar to occurrences of the selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hebt Vorkommen des ausgewählten Texts mit einem farbigen Hintergrund hervor und fügt Markierungen zur Bildlaufleiste hinzu.</translation>
     </message>
     <message>
         <source>Next to editor content</source>
@@ -54419,7 +54424,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>&amp;Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen &amp;sortieren</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -55634,7 +55639,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Git Blame</source>
-        <translation type="unfinished">Git Blame</translation>
+        <translation>Git Blame</translation>
     </message>
     <message>
         <source>Copy SHA1 to Clipboard</source>
@@ -55643,11 +55648,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
         <extracomment>%1 and %2 are the &quot;ignore whitespace changes&quot; and &quot;ignore line moves&quot; options</extracomment>
-        <translation type="unfinished">&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished">Sie selbst</translation>
+        <translation>Sie selbst</translation>
     </message>
     <message>
         <source>Show Preview</source>
@@ -56349,7 +56354,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; was canceled after %2 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando &quot;%1&quot; wurde nach %2 ms abgebrochen.</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -56393,7 +56398,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to start terminal process. The stub exited before the inferior was started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminalprozess konnte nicht gestartet werden. Der Kontrollprozess wurde beendet, bevor der Unterprozess gestartet werden konnte.</translation>
     </message>
     <message>
         <source>Cannot set permissions on temporary directory &quot;%1&quot;: %2</source>
@@ -56433,7 +56438,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
@@ -56492,7 +56497,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Device is not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist nicht verbunden</translation>
     </message>
     <message>
         <source>Failed reading file &quot;%1&quot;: %2</source>
@@ -56548,7 +56553,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot create temporary file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Overwrite File?</source>
@@ -58646,7 +58651,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Running in &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe in &quot;%1&quot; aus: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>
@@ -58987,7 +58992,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Willkommen bei %1</translation>
     </message>
     <message>
         <source>Create Project...</source>
@@ -58999,7 +59004,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Explore more</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfahre mehr</translation>
     </message>
     <message>
         <source>Get Started</source>

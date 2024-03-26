@@ -235,7 +235,7 @@ public:
                 }).link;
                 Project *project = ProjectManager::startupProject();
                 FilePath baseDir = project ? project->projectDirectory() : FilePath{};
-                link.targetFilePath = baseDir.resolvePath(link.targetFilePath);
+                link.targetFilePath = findFileForIssuePath(link.targetFilePath);
                 if (link.targetFilePath.exists())
                     EditorManager::openEditorAt(link);
             }
@@ -736,6 +736,10 @@ public:
             if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
                 issues->updateUi();
         });
+        auto *butonGroup = new QButtonGroup(this);
+        butonGroup->addButton(m_showDashboard);
+        butonGroup->addButton(m_showIssues);
+        butonGroup->setExclusive(true);
 
         connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
             m_showDashboard->setChecked(idx == 0);

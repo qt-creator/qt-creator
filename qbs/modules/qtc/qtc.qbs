@@ -4,20 +4,20 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    property string qtcreator_display_version: '13.0.0-rc1'
-    property string ide_version_major: '12'
+    property string qtcreator_display_version: '13.0.0'
+    property string ide_version_major: '13'
     property string ide_version_minor: '0'
-    property string ide_version_release: '84'
+    property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
-    property string ide_compat_version_major: '12'
+    property string ide_compat_version_major: '13'
     property string ide_compat_version_minor: '0'
-    property string ide_compat_version_release: '84'
+    property string ide_compat_version_release: '0'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
-    property string qtcreator_copyright_year: '2023'
+    property string qtcreator_copyright_year: '2024'
     property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
 
     property string ide_display_name: 'Qt Creator'

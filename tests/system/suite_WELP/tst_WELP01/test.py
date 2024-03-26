@@ -14,8 +14,9 @@ def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
         test.log("Found %s" % str(helpCombo.currentText))
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    return test.verify(object.exists(getWelcomeScreenSideBarButton(getStarted)),
+    return test.verify(checkIfObjectExists(getWelcomeScreenSideBarButton(getStarted), timeout=1000),
                        "Verifying: '%s' button is being displayed." % getStarted)
+
 def buttonActive(button):
     return waitForObject(button).checked
 

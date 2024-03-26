@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \page tutorial-python-application-qt-widgets.html
+    \page creator-tutorial-python-application-qt-widgets.html
     \previouspage creator-tutorials.html
     \nextpage creator-how-tos.html
 
@@ -36,7 +36,7 @@
         \li In \uicontrol {Name}, enter the project name. For example,
             \e {hello_world}.
         \li In \uicontrol {Create in}, enter the path for the project files.
-            For example, \c {C:\Qt\examples}.
+            For example, \c {C:\Examples}.
         \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
             (on \macos) to open the \uicontrol {Define Class} dialog.
             \image qtcreator-new-qt-for-python-app-widgets-define-class.webp {Define Class dialog}

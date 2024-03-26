@@ -146,8 +146,8 @@
 
     \brief Create a connection to an Axivion dashboard server.
 
-    Set preferences for the Axivion static code analysis tool in
-     \preferences > \uicontrol Axivion.
+    To set preferences for the Axivion static code analysis tool, go to
+    \preferences > \uicontrol Axivion.
 
     \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
 
@@ -183,7 +183,7 @@
     To link a project to an Axivion dashboard:
 
     \list 1
-        \li \uicontrol Projects > \uicontrol {Project Settings} >
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Axivion.
             \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
         \li Select \uicontrol {Fetch Projects} to list projects from Axivion.

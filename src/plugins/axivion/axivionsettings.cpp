@@ -261,6 +261,7 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 void AxivionSettingsWidget::apply()
 {
     settings().server = m_dashboardDisplay->dashboardServer();
+    emit settings().changed(); // ugly but needed
     settings().toSettings();
 }
 

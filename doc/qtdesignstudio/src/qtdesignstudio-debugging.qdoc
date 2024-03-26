@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-editor-options.html
+    \previouspage studio-designer-developer-workflow.html
     \page studio-debugging.html
     \nextpage creator-debugging-qml.html
 
@@ -15,7 +15,7 @@
             to execute JavaScript expressions to get information about the state
             of the UI, and to inspect QML properties and JavaScript
             variables and change them temporarily at runtime.
-        \li \l{Debugging a Qt Quick Example Application}
+        \li \l{Debugging a Qt Quick Application}
 
             This section uses the \l{QML Advanced Tutorial}{Same Game} example
             application to illustrate how to debug Qt Quick applications in the

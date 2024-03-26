@@ -301,5 +301,5 @@
 
     \sa {Activate kits for a project}, {Add custom output parsers},
     {Configure projects for building}, {Configure projects for running},
-    {Open projects}, {CMake}
+    {Build with CMake}{How To: Build with CMake}, {Open projects}, {CMake}
 */

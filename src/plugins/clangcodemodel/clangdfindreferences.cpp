@@ -291,9 +291,14 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
 
     for (const Location &loc : locations)
         fileData[loc.uri()].rangesAndLineText.push_back({loc.range(), {}});
+    QSet<FilePath> canonicalFilePaths;
     for (auto it = fileData.begin(); it != fileData.end();) {
         const Utils::FilePath filePath = client()->serverUriToHostPath(it.key());
         if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
+            it = fileData.erase(it);
+            continue;
+        }
+        if (!Utils::insert(canonicalFilePaths, filePath.canonicalPath())) { // QTCREATORBUG-30546
             it = fileData.erase(it);
             continue;
         }

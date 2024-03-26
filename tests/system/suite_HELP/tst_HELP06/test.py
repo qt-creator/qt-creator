@@ -34,12 +34,15 @@ def main():
     doubleClick(manualQMIObj, 5, 5, 0, Qt.LeftButton)
     if not waitFor("not manualQMIObj.collapsed", 2000):
         test.warning("It takes more than two seconds to expand the help content tree.")
-    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
-    doubleClick(gettingStartedQModelIndex, 5, 5, 0, Qt.LeftButton)
-    mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
+    devQModelIndex = getQModelIndexStr("text='Developing with Qt Creator'", manualQModelIndex)
+    doubleClick(devQModelIndex)
+    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", devQModelIndex)
+    doubleClick(gettingStartedQModelIndex)
+    pageTitle = "Configuring Qt Creator"
+    mouseClick(waitForObject(getQModelIndexStr("text='%s'" % pageTitle,
                                                gettingStartedQModelIndex)))
     helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
-    pageOpened = "str(helpSelector.currentText).startswith('Building and Running an Example')"
+    pageOpened = "str(helpSelector.currentText).startswith('%s')" % pageTitle
     if not waitFor(pageOpened, 10000):
         test.fatal("Help page is not opened after ten seconds. Giving up.")
         invokeMenuItem("File", "Exit")
@@ -74,7 +77,7 @@ def main():
     sampleQModelIndex = getQModelIndexStr("text='Sample'", ":Qt Creator_Bookmarks_TreeView")
     folder1QModelIndex = getQModelIndexStr("text='Folder 1'", sampleQModelIndex)
     folder2QModelIndex = getQModelIndexStr("text='Folder 2'", folder1QModelIndex)
-    bldRunQModelIndex = getQModelIndexStr("text?='%s'" % textForQtVersion("Building and Running an Example*"),
+    configQModelIndex = getQModelIndexStr("text?='%s'" % textForQtVersion("%s*" % pageTitle),
                                           folder2QModelIndex)
     newFolderQModelIndex = getQModelIndexStr("text='New Folder'", sampleQModelIndex)
     manualQModelIndex = getQModelIndexStr("text='%s'" % textForQtVersion("Qt Creator Manual"),
@@ -82,16 +85,16 @@ def main():
     test.verify(checkIfObjectExists(sampleQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(folder1QModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(folder2QModelIndex, verboseOnFail = True) and
-                checkIfObjectExists(bldRunQModelIndex, verboseOnFail = True) and
+                checkIfObjectExists(configQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(manualQModelIndex, verboseOnFail = True),
                 "Verifying if all folders and bookmarks are present")
     mouseClick(waitForObject(":Qt Creator_Bookmarks_TreeView"), 5, 5, 0, Qt.LeftButton)
     for _ in range(6):
         type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")
-    test.verify(textForQtVersion("Building and Running an Example") in getHelpTitle(),
+    test.verify(textForQtVersion(pageTitle) in getHelpTitle(),
                 "Verifying if first bookmark is opened")
-    mouseClick(waitForObject(bldRunQModelIndex))
+    mouseClick(waitForObject(configQModelIndex))
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Down>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Down>")
@@ -114,7 +117,7 @@ def main():
     test.verify(checkIfObjectExists(sampleQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(folder1QModelIndex, shouldExist = False, verboseOnFail = True) and
                 checkIfObjectExists(folder2QModelIndex, shouldExist = False, verboseOnFail = True) and
-                checkIfObjectExists(bldRunQModelIndex, shouldExist = False, verboseOnFail = True) and
+                checkIfObjectExists(configQModelIndex, shouldExist = False, verboseOnFail = True) and
                 checkIfObjectExists(manualQModelIndex, verboseOnFail = True),
                 "Verifying if folder 1 and folder 2 deleted including their bookmark")
     # exit

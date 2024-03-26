@@ -28,6 +28,10 @@
                                 \li \l{Timeline}
                                 \li \l{Curves}
                                 \li \l{Code}
+                                    \generatelist studio-how-to-code
+                                    \generatelist studio-how-to-refactor-code
+                                    \generatelist studio-how-to-search
+                                    \generatelist studio-preferences-code
                                 \li \l{Projects}
                                 \li \l{File System}
                                 \li \l{Open Documents}
@@ -199,31 +203,6 @@
         \li \l{Implementing Applications}
             \list
                 \li \l{Designer-Developer Workflow}
-                \li \l{Coding}{Cross-Platform Development}
-                    \list
-                        \li \l{Writing Code}
-                            \list
-                                \li \l{Semantic Highlighting}
-                                \li \l{Checking Code Syntax}
-                                \li \l{Indent text or code}
-                                \li \l{Behavior}
-                                \li \l{Qt Quick Code Style}
-                                \li \l{Using Qt Quick Toolbars}
-                            \endlist
-                        \li \l{Finding}
-                            \list
-                                \li \l{Search in current file}
-                                \li \l{Search in projects or file systems}
-                                \li \l{Rename symbols}
-                                \li \l{Jump to the Code}
-                            \endlist
-                        \li \l{Apply quick fixes}
-                        \li \l{QML quick fixes}
-                        \li \l{Configuring the Editor}
-                            \list
-                                \li \l{Font & Colors}
-                            \endlist
-                    \endlist
                 \li \l{Debugging and Profiling}
                     \list
                         \li \l{Debugging Qt Quick Projects}
@@ -233,7 +212,7 @@
                                 \li \l{Local Variables and Function Parameters}
                                 \li \l{Evaluating Expressions}
                             \endlist
-                        \li \l{Debugging a Qt Quick Example Application}
+                        \li \l{Debugging a Qt Quick Application}
                         \li \l{Profiling QML Applications}
                     \endlist
             \endlist

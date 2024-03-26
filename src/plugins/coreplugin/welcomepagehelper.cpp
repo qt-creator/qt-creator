@@ -752,8 +752,8 @@ bool ListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const ListItem *, boo
     return false;
 }
 
-constexpr TextFormat titleTF {Theme::Token_Text_Default, StyleHelper::UiElementIconActive};
-constexpr TextFormat descriptionTF {titleTF.themeColor, StyleHelper::UiElementCaption};
+constexpr TextFormat titleTF {Theme::Token_Text_Default, StyleHelper::UiElementH6};
+constexpr TextFormat descriptionTF {titleTF.themeColor, StyleHelper::UiElementCaptionStrong};
 constexpr TextFormat tagsLabelTF {Theme::Token_Text_Muted, StyleHelper::UiElementCaptionStrong};
 constexpr TextFormat tagsTF {Theme::Token_Text_Accent, tagsLabelTF.uiElement};
 

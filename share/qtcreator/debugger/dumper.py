@@ -453,6 +453,10 @@ class DumperBase():
         return self.listTemplateParametersManually(typename)
 
     def listTemplateParametersManually(self, typename):
+        # Undo id mangling for template typedefs. Relevant for QPair.
+        if typename.endswith('}'):
+            typename = typename[typename.find('{') + 1 : -1]
+
         targs = []
         if not typename.endswith('>'):
             return targs
@@ -3629,7 +3633,7 @@ class DumperBase():
         def templateArgument(self, position):
             #DumperBase.warn('TDATA: %s' % self.tdata)
             #DumperBase.warn('ID: %s' % self.typeId)
-            if self.tdata is None:
+            if self.tdata is None or self.tdata.templateArguments is None:
                 # Native lookups didn't help. Happens for 'wrong' placement of 'const'
                 # etc. with LLDB. But not all is lost:
                 ta = self.dumper.listTemplateParameters(self.typeId)

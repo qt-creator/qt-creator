@@ -13700,6 +13700,10 @@ Remarque&#xa0;: cela peut vous exposer à une attaque de type «&#xa0;homme du m
         <translation>Message du porte-clés «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
+        <source>Unauthenticated access failed (wrong user), using authenticated access...</source>
+        <translation>Échec d&apos;accès non authentifié (mauvais utilisateur), utilisation d&apos;un accès authentifié…</translation>
+    </message>
+    <message>
         <source>Enter the password for:
 Dashboard: %1
 User: %2</source>
@@ -19005,10 +19009,6 @@ Si les curseurs de redimensionnement des vues du système ne s&apos;affichent pa
     <message>
         <source>&lt;System Language&gt;</source>
         <translation>&lt;Langue du système&gt;</translation>
-    </message>
-    <message>
-        <source>The cursors for resizing views will change after restart.</source>
-        <translation>Les curseurs utilisés lors du redimensionnement des vues seront pris en compte après un redémarrage.</translation>
     </message>
     <message>
         <source>The language change will take effect after restart.</source>
@@ -29335,10 +29335,6 @@ La recompilation du projet peut aider.</translation>
     <message>
         <source>Failed to create container shell (Out of memory).</source>
         <translation>Échec lors de la création du shell du container (mémoire insuffisante).</translation>
-    </message>
-    <message>
-        <source>Cannot start docker device from non-main thread</source>
-        <translation>Impossible de démarrer le périphérique docker depuis un thread non principal</translation>
     </message>
     <message>
         <source>Device is shut down</source>

@@ -32,10 +32,10 @@
 
     \section1 Run in Terminal
 
-    For console applications, check the \uicontrol{Run in terminal} check box.
-    To specify the terminal to use on Linux and \macos, select \preferences >
+    For console applications, select \uicontrol{Run in terminal}.
+    To specify the terminal to use on Linux and \macos, go to \preferences >
     \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
-    {internal terminal}, select \preferences > \uicontrol Terminal >
+    {internal terminal}, go to \preferences > \uicontrol Terminal >
     \uicontrol {Use internal terminal}.
 
     \section1 Linker Libraries
@@ -48,22 +48,21 @@
     \c {make install}, and want to make sure that the deployed application will
     find the libraries also when it is run without \QC.
 
-    To disable library linking for the current project, deselect the
-    \uicontrol {Add build library search path to PATH} check box. To disable
-    library linking for all projects, select \preferences >
-    \uicontrol {Build & Run}, and then deselect the
-    \uicontrol {Add linker library search paths to run environment} check box.
+    To disable library linking for the current project, clear
+    \uicontrol {Add build library search path to PATH}. To disable
+    library linking for all projects, go to \preferences >
+    \uicontrol {Build & Run} and then clear
+    \uicontrol {Add linker library search paths to run environment}.
 
-    \section1 \macos Options
+    \section1 Debugging Linked Frameworks
 
-    The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
-    (only available on \macos) enables you to debug (for example, step into)
-    linked frameworks, such as the Qt framework itself. You do not need this
-    option for debugging your application code.
+    On \macos, select \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)}
+    to debug (for example, step into) linked frameworks, such as the Qt framework
+    itself. You do not need this option for debugging your application code.
 
-    \section1 Linux Options
+    \section1 Running as root User
 
-    On Linux, select the \uicontrol {Run as root user} check box to run the
+    On Linux and \macos, select \uicontrol {Run as root user} to run the
     application with root user permissions.
 
     \sa {Configure projects for running}, {Specify a custom executable to run},

@@ -41,6 +41,8 @@ def __checkKits__():
             internalClangExe += ".exe"
         internalClangExe = os.path.realpath(internalClangExe) # clean symlinks
         if os.path.exists(internalClangExe):
+            if platform.system() in ("Microsoft", "Windows"):
+                expectedCompilers.append({'^Default LLVM \d{2} bit based on MSVC\d{4}$' : ''})
             expectedCompilers.append(internalClangExe)
     foundCompilers = []
     foundCompilerNames = []
@@ -269,6 +271,13 @@ def __getExpectedDebuggers__():
     result = []
     if platform.system() in ('Microsoft', 'Windows'):
         result.extend(__getCDB__())
+        try:
+            qcBinPath = currentApplicationContext().commandLine.split('qtcreator.exe', 1)[0]
+            lldb = os.path.join(qcBinPath, 'clang', 'bin', 'lldb.exe')
+            if os.path.exists(lldb):
+                result.append(lldb)
+        except:
+            test.warning('Failed to handled internally provided lldb.')
         exeSuffix = ".exe"
     for debugger in ["gdb", "lldb"]:
         result.extend(findAllFilesInPATH(debugger + exeSuffix))
@@ -328,6 +337,11 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                     if ((isWin and os.path.abspath(next(iter(currentFound.values())).lower())
                          == os.path.abspath(next(iter(currentExp.values())).lower()))
                         or currentFound.values() == currentExp.values()):
+                        foundExp = True
+                        break
+                if isWin and key.startswith('^Default LLVM'):
+                    if re.match(key, next(iter(currentFound.keys())), flags):
+                        # TODO we may want to check that it's configured with latest MSVC?
                         foundExp = True
                         break
             equal = foundExp

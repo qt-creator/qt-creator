@@ -50,7 +50,7 @@
         \li \inlineimage numbers/05.png
         \li Build button
         \li Build the application using the selected kit.
-        \li \l{Building for Multiple Platforms}
+        \li \l{Build for many platforms}
     \row
         \li \inlineimage numbers/06.png
         \li Locator
@@ -132,8 +132,8 @@
     The following topics describe how to use the image viewer:
 
      \list
-        \li \l {Export SVG images}
         \li \l {View images}
+        \li \l {Create pixmaps from SVG images}
     \endlist
 
     \endif

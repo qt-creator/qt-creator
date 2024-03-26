@@ -39,7 +39,7 @@
 
     In the \uicontrol {Tooltip in target selector} field, you can enter text
     that is displayed as a tooltip when you hover the mouse over the build
-    configuration in the \l{Building for Multiple Platforms}{kit selector}.
+    configuration in the \l{Build for many platforms}{kit selector}.
 
     You can create separate versions of project files to keep platform-dependent
     code separate. You can use qmake \l{Adding Platform Specific Source Files}

@@ -1,7 +1,7 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-    /*!
+/*!
     \previouspage creator-adding-docker-devices.html
     \page creator-developing-ios.html
     \nextpage creator-developing-mcu.html
@@ -22,11 +22,12 @@
 
     \section1 iOS 17 Devices
 
-    \QC detects iOS 17 devices, and you can deploy and run applications on them.
+    \QC detects iOS devices, and you can deploy and run applications on them.
 
-    However, \QC cannot access application output. Also, debugging and
-    profiling are not supported because of limitations of the Apple tool for
-    accessing devices with iOS 17, and later.
+    For iOS devices with iOS 16 or earlier, \QC also supports accessing the application
+    output, debugging, and profiling. However, these features are not supported for
+    physical devices with iOS 17 or later because of limitations of the Apple tool for
+    accessing these devices.
 
     \section1 Configuring Devices
 
@@ -57,9 +58,9 @@
 
         \li Start Xcode to configure the device.
 
-            For example, in Xcode version 7.3.0, select \uicontrol Window >
-            \uicontrol Device > \uicontrol + > \uicontrol {Add Device} to add
-            the connected device.
+            For example, in Xcode version 15, select \uicontrol Window >
+            \uicontrol Devices and Simulators > \uicontrol Devices >
+            \uicontrol + to add the connected device.
 
         \li To specify build settings:
 
@@ -191,15 +192,5 @@
     \uicontrol Reset.
 
     To delete the selected simulator, select \uicontrol Delete.
-
-    \section2 Checking Current Xcode Version
-
-    To check the current Xcode version, enter the following command:
-
-    \c {xcode-select --print-path}
-
-    To change the version, enter the following command:
-
-    \c {xcode-select --version}
 
 */

@@ -47,10 +47,11 @@ const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 namespace ProjectExplorer {
 namespace Internal {
 
-constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH5};
-constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementIconActive};
-constexpr TextFormat sessionNameTF {projectNameTF.themeColor, projectNameTF.uiElement};
-constexpr TextFormat sessionProjetNameTF {Theme::Token_Text_Default, projectNameTF.uiElement};
+constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH6};
+constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementCaptionStrong};
+constexpr TextFormat sessionNameTF = {projectNameTF.themeColor, projectNameTF.uiElement,
+                                      Qt::AlignVCenter | Qt::TextDontClip};
+constexpr TextFormat sessionProjectNameTF {Theme::Token_Text_Default, projectNameTF.uiElement};
 constexpr TextFormat shortcutNumberTF {Theme::Token_Text_Default,
                                       StyleHelper::UiElementCaptionStrong,
                                       Qt::AlignCenter | Qt::TextDontClip};
@@ -315,36 +316,36 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &idx) const final
     {
-        //                                      visible on withIcon()         Gap + arrow visible on hover   Extra margin right of project item
-        //                                                |                                 |                               |
-        //                                     +----------+----------+             +--------+-------+            +----------+----------+
-        //                                     |                     |             |                |            |                     |
+        //                                        visible on withIcon()         Gap + arrow visible on hover   Extra margin right of project item
+        //                                                  |                                 |                               |
+        //                                      +-----------+----------+             +--------+-------+            +----------+----------+
+        //                                      |                      |             |                |            |                     |
         //
-        //      +------------+--------+--------+------------+--------+-------------+--------+-------+------------+---------------------+  --+
-        //      |            |        |        |(VPaddingXs)|        |(VPaddingXs) |        |       |            |                     |    |
-        //      |            |        |        +------------+        +-------------+        |       |            |                     |    |
-        //      |(HPaddingXs)|<number>|(HGapXs)|   <icon>   |(HGapXs)|<sessionName>|(HGapXs)|<arrow>|            |                     |    +-- Header
-        //      |            |(16x16) |        +------------+        +-------------+        |       |            |                     |    |
-        //      |            |        |        |(VPaddingXs)|        |(VPaddingXs) |        |       |            |                     |    |
-        //      |------------+--------+--------+------------+--------+-------------+--------+-------+            |                     |  --+
-        //      |                                               +--  |         (VPaddingXs)         |            |                     |    |
-        //      |                                               |    +------------------------------+(HPaddingXs)|                     |    |
-        //      |                                               |    |         <projectName>        |            |                     |    |
-        //      |                                               |    +------------------------------+            |                     |    |
-        //      |                      Per project in session --+    |       (EXSPaddingGapS)       |            |(sessionScrollBarGap)|    |
-        //      |                                               |    +------------------------------+            |                     |    |
-        //      |                                               |    |         <projectPath>        |            |                     |    |
-        //      |                                               |    +------------------------------+            |                     |    +-- Expansion
-        //      |                                               +--  |         (VPaddingXs)         |            |                     |    |
-        //      +----------------------------------------------+------------------------------------+------------+                     |    |
-        //      |                                          (VPaddingXs)                                          |                     |    |
-        //      +----------------------------------------+--------------+----------------------------------------+                     |    |
-        // +--  |                           <cloneButton>|<renameButton>|<deleteButton>                          |                     |    |
-        // |    +----------------------------------------+--------------+----------------------------------------+                     |    |
-        // |    |                                          (VPaddingXs)                                          |                     |    |
-        // |    +------------------------------------------------------------------------------------------------+---------------------+  --+
-        // |    |                                             (VGapL)                                                                  |    +-- Gap between session items
-        // |    +----------------------------------------------------------------------------------------------------------------------+  --+
+        //      +------------+--------+---------+------------+---------+-------------+--------+-------+------------+---------------------+  --+
+        //      |            |        |         |(VPaddingXs)|         |(VPaddingXs) |        |       |            |                     |    |
+        //      |            |        |         +------------+         +-------------+        |       |            |                     |    |
+        //      |(HPaddingXs)|<number>|(HGapXxs)|   <icon>   |(HGapXxs)|<sessionName>|(HGapXs)|<arrow>|            |                     |    +-- Header
+        //      |            |(16x16) |         +------------+         +-------------+        |       |            |                     |    |
+        //      |            |        |         |(VPaddingXs)|         |(VPaddingXs) |        |       |            |                     |    |
+        //      |------------+--------+---------+------------+---------+-------------+--------+-------+            |                     |  --+
+        //      |                                                 +--  |         (VPaddingXxs)        |            |                     |    |
+        //      |                                                 |    +------------------------------+(HPaddingXs)|                     |    |
+        //      |                                                 |    |         <projectName>        |            |                     |    |
+        //      |                                                 |    +------------------------------+            |                     |    |
+        //      |                        Per project in session --+    |        (ExPaddingGapS)       |            |(sessionScrollBarGap)|    |
+        //      |                                                 |    +------------------------------+            |                     |    |
+        //      |                                                 |    |         <projectPath>        |            |                     |    |
+        //      |                                                 |    +------------------------------+            |                     |    +-- Expansion
+        //      |                                                 +--  |         (VPaddingXxs)        |            |                     |    |
+        //      +------------------------------------------------------+------------------------------+------------+                     |    |
+        //      |                                           (VPaddingXs)                                           |                     |    |
+        //      +-----------------------------------------+--------------+-----------------------------------------+                     |    |
+        // +--  |                            <cloneButton>|<renameButton>|<deleteButton>                           |                     |    |
+        // |    +-----------------------------------------+--------------+-----------------------------------------+                     |    |
+        // |    |                                           (VPaddingXs)                                           |                     |    |
+        // |    +--------------------------------------------------------------------------------------------------+---------------------+  --+
+        // |    |                                                         (VGapL)                                                        |    +-- Gap between session items
+        // |    +------------------------------------------------------------------------------------------------------------------------+  --+
         // |
         // \    session action "buttons" and dividers
         // +-----------------------------------------------+--------+---------+--------+
@@ -380,11 +381,11 @@ public:
         const int y = bgR.y();
 
         const int numberX = x + s(HPaddingXs);
-        const int iconX = numberX + shortcutNumberWidth + s(HGapXs);
+        const int iconX = numberX + shortcutNumberWidth + s(HGapXxs);
         const int arrowX = bgR.right() - s(HPaddingXs) - arrowS.width();
         const QRect arrowHoverR(arrowX - s(HGapXs) + 1, y,
                                 s(HGapXs) + arrowS.width() + s(HPaddingXs), hdR.height());
-        const int textX = withIcon() ? iconX + iconS.width() + s(HGapXs) : iconX;
+        const int textX = withIcon() ? iconX + iconS.width() + s(HGapXxs) : iconX;
 
         const int iconY = y + (hdR.height() - iconS.height()) / 2;
         const int arrowY = y + (hdR.height() - arrowS.height()) / 2;
@@ -419,8 +420,7 @@ public:
                 fullSessionName = Tr::tr("%1 (last session)").arg(fullSessionName);
             if (isActiveSession && !isDefaultVirgin)
                 fullSessionName = Tr::tr("%1 (current session)").arg(fullSessionName);
-            const QRect switchR(x, y, hdR.width() - arrowHoverR.width(),
-                                hdR.height() + s(VGapL));
+            const QRect switchR(x, y, hdR.width() - arrowHoverR.width(), arrowHoverR.height());
             const bool switchActive = switchR.contains(mousePos);
             painter->setPen(sessionNameTF.color());
             painter->setFont(sessionNameTF.font(switchActive));
@@ -432,7 +432,7 @@ public:
                 m_activeSwitchToRect = switchR;
         }
         if (arrowVisible) {
-            if (arrowHoverR.adjusted(0, 0, 0, s(VGapL)).contains(mousePos)) {
+            if (arrowHoverR.adjusted(0, 0, 0, expanded ? 0 : s(VGapL)).contains(mousePos)) {
                 m_activeExpandRect = arrowHoverR;
             } else {
                 painter->save();
@@ -447,9 +447,9 @@ public:
 
         int yy = hdR.bottom();
         if (expanded) {
-            const QFont projectNameFont = sessionProjetNameTF.font();
+            const QFont projectNameFont = sessionProjectNameTF.font();
             const QFontMetrics projectNameFm(projectNameFont);
-            const int projectNameLineHeight = sessionProjetNameTF.lineHeight();
+            const int projectNameLineHeight = sessionProjectNameTF.lineHeight();
             const QFont projectPathFont = projectPathTF.font();
             const QFontMetrics projectPathFm(projectPathFont);
             const int projectPathLineHeight = projectPathTF.lineHeight();
@@ -457,15 +457,15 @@ public:
 
             const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             for (const FilePath &projectPath : projects) {
-                yy += s(VPaddingXs);
+                yy += s(VPaddingXxs);
                 {
                     painter->setFont(projectNameFont);
-                    painter->setPen(sessionProjetNameTF.color());
+                    painter->setPen(sessionProjectNameTF.color());
                     const QRect projectNameR(textX, yy, textWidth, projectNameLineHeight);
                     const QString projectNameElided =
                         projectNameFm.elidedText(projectPath.completeBaseName(), Qt::ElideMiddle,
                                                  textWidth);
-                    painter->drawText(projectNameR, sessionProjetNameTF.drawTextFlags,
+                    painter->drawText(projectNameR, sessionProjectNameTF.drawTextFlags,
                                       projectNameElided);
                     yy += projectNameLineHeight;
                     yy += s(ExPaddingGapS);
@@ -483,7 +483,7 @@ public:
                                       projectPathElided);
                     yy += projectPathLineHeight;
                 }
-                yy += s(VPaddingXs);
+                yy += s(VPaddingXxs);
             }
             yy += s(VGapXs);
 
@@ -551,11 +551,11 @@ public:
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
             const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             const int projectEntryHeight =
-                s(VPaddingXs)
+                s(VPaddingXxs)
                 + projectNameTF.lineHeight()
                 + s(ExPaddingGapS)
                 + projectPathTF.lineHeight()
-                + s(VPaddingXs);
+                + s(VPaddingXxs);
             h += projects.size() * projectEntryHeight
                  + s(VGapXs)
                  + actionButtonHeight()
@@ -622,24 +622,24 @@ class ProjectDelegate : public BaseDelegate
 public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
-        //                               visible on withIcon()               Extra margin right of project item
-        //                                        |                                         |
-        //                                +-------+-------+                          +------+-----+
-        //                                |               |                          |            |
+        //                               visible on with Icon()               Extra margin right of project item
+        //                                          |                                         |
+        //                                 +--------+-------+                          +------+-----+
+        //                                 |                |                          |            |
         //
-        // +------------+--------+--------+------+--------+-------------+------------+------------+
-        // |            |        |        |      |        | (VPaddingXs)|            |            |
-        // |            |        |        |      |        +-------------+            |            |
-        // |            |        |        |      |        |<projectName>|            |            |
-        // |            |        |        |      |        +-------------+            |            |
-        // |(HPaddingXs)|<number>|(HGapXs)|<icon>|(HGapXs)|   (VGapXs)  |(HPaddingXs)|(HPaddingXs)|
-        // |            |(16x16) |        |      |        +-------------+            |            |
-        // |            |        |        |      |        |<projectPath>|            |            |
-        // |            |        |        |      |        +-------------+            |            |
-        // |            |        |        |      |        | (VPaddingXs)|            |            |
-        // +------------+--------+--------+------+--------+-------------+------------+------------+  --+
-        // |                                         (VGapL)                                      |    +-- Gap between project items
-        // +--------------------------------------------------------------------------------------+  --+
+        // +------------+--------+---------+------+---------+-------------+------------+------------+
+        // |            |        |         |      |         | (VPaddingXs)|            |            |
+        // |            |        |         |      |         +-------------+            |            |
+        // |            |        |         |      |         |<projectName>|            |            |
+        // |            |        |         |      |         +-------------+            |            |
+        // |(HPaddingXs)|<number>|(HGapXxs)|<icon>|(HGapXxs)|   (VGapXs)  |(HPaddingXs)|(HPaddingXs)|
+        // |            |(16x16) |         |      |         +-------------+            |            |
+        // |            |        |         |      |         |<projectPath>|            |            |
+        // |            |        |         |      |         +-------------+            |            |
+        // |            |        |         |      |         | (VPaddingXs)|            |            |
+        // +------------+--------+---------+------+---------+-------------+------------+------------+  --+
+        // |                                          (VGapL)                                       |    +-- Gap between project items
+        // +----------------------------------------------------------------------------------------+  --+
 
         const bool hovered = option.widget->isActiveWindow()
                              && option.state & QStyle::State_MouseOver;
@@ -651,9 +651,9 @@ public:
 
         const int x = bgR.x();
         const int numberX = x + s(HPaddingXs);
-        const int iconX = numberX + shortcutNumberWidth + s(HGapXs);
+        const int iconX = numberX + shortcutNumberWidth + s(HGapXxs);
         const int iconWidth = iconS.width();
-        const int textX = withIcon() ? iconX + iconWidth + s(HGapXs) : iconX;
+        const int textX = withIcon() ? iconX + iconWidth + s(HGapXxs) : iconX;
         const int textWidth = bgR.width() - s(HPaddingXs) - textX;
 
         const int y = bgR.y();

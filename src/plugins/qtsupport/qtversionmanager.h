@@ -70,4 +70,6 @@ private:
     static int getUniqueId();
 };
 
+namespace Internal { void setupQtVersionManager(QObject *guard); }
+
 } // namespace QtSupport

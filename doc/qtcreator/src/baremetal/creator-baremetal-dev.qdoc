@@ -262,7 +262,7 @@
 
     You can build applications for and run them on bare metal devices
     in the same way as for and on the desktop. For more information, see
-    \l{Building for Multiple Platforms} and \l{Run on many platforms}.
+    \l{Build for many platforms} and \l{Run on many platforms}.
 
     \sa {Enable and disable plugins}
 */

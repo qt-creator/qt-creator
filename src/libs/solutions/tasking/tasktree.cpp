@@ -548,18 +548,6 @@ private:
 */
 
 /*!
-    \fn GroupItem Group::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
-
-    Attaches \c TimeoutTask to a copy of \c this group, elapsing after \a timeout in milliseconds,
-    with an optionally provided timeout \a handler, and returns the coupled item.
-
-    When the group finishes before \a timeout passes,
-    the returned item finishes immediately with the group's result.
-    Otherwise, the \a handler is invoked (if provided), the group's tasks are canceled,
-    and the returned item finishes with an error.
-*/
-
-/*!
     \class Tasking::Sync
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -756,17 +744,6 @@ private:
     only on a successful or failed execution.
 
     \sa TaskSetupHandler, TaskDoneHandler
-*/
-
-/*!
-    \fn template <typename Adapter> GroupItem CustomTask<Adapter>::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
-
-    Attaches \c TimeoutTask to a copy of \c this task, elapsing after \a timeout in milliseconds,
-    with an optionally provided timeout \a handler, and returns the coupled item.
-
-    When the task finishes before \a timeout passes, the returned item finishes immediately
-    with the task's result. Otherwise, \a handler is invoked (if provided),
-    the task is canceled, and the returned item finishes with an error.
 */
 
 /*!
@@ -1415,6 +1392,26 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
     }
 }
 
+/*!
+    \class Tasking::ExecutableItem
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief Base class for executable task items.
+    \reentrant
+
+    \c ExecutableItem provides an additional interface for items containing executable tasks.
+    Use withTimeout() to attach a timeout to a task.
+    Use withLog() to include debugging information about the task startup and the execution result.
+*/
+
+/*!
+    Attaches \c TimeoutTask to a copy of \c this ExecutableItem, elapsing after \a timeout
+    in milliseconds, with an optionally provided timeout \a handler, and returns the coupled item.
+
+    When the ExecutableItem finishes before \a timeout passes, the returned item finishes
+    immediately with the task's result. Otherwise, \a handler is invoked (if provided),
+    the task is canceled, and the returned item finishes with an error.
+*/
 ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
                                            const std::function<void()> &handler) const
 {
@@ -1433,6 +1430,17 @@ ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
 
 static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateWithMs); }
 
+/*!
+    Attaches a custom debug printout to a copy of \c this ExecutableItem,
+    issued on task startup and after the task is finished, and returns the coupled item.
+
+    The debug printout includes a timestamp of the event (start or finish)
+    and \a logName to identify the specific task in the debug log.
+
+    The finish printout contains the additional information whether the execution was
+    synchronous or asynchronous, its result (the value described by the DoneWith enum),
+    and the total execution time in milliseconds.
+*/
 ExecutableItem ExecutableItem::withLog(const QString &logName) const
 {
     const auto header = [logName] {

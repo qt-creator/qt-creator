@@ -309,7 +309,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
                                     {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
     m_manualItem = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
-    m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>();
+    m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>(this);
     m_model->setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
