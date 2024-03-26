@@ -17,7 +17,9 @@ TEST(Index, one_column)
 
     auto sqlStatement = index.sqlStatement();
 
-    ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
+    ASSERT_THAT(
+        sqlStatement,
+        Eq("CREATE INDEX IF NOT EXISTS index_normal_tableName_column1 ON tableName(column1)"));
 }
 
 TEST(Index, two_column)
@@ -26,7 +28,9 @@ TEST(Index, two_column)
 
     auto sqlStatement = index.sqlStatement();
 
-    ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1_column2 ON tableName(column1, column2)"));
+    ASSERT_THAT(sqlStatement,
+                Eq("CREATE INDEX IF NOT EXISTS index_normal_tableName_column1_column2 ON "
+                   "tableName(column1, column2)"));
 }
 
 TEST(Index, empty_table_name)
@@ -49,7 +53,8 @@ TEST(Index, unique_index)
 
     auto sqlStatement = index.sqlStatement();
 
-    ASSERT_THAT(sqlStatement, Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
+    ASSERT_THAT(
+        sqlStatement, Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_unique_tableName_column1 ON tableName(column1)"));
 }
 
 TEST(Index, condition)
@@ -58,8 +63,20 @@ TEST(Index, condition)
 
     auto sqlStatement = index.sqlStatement();
 
+    ASSERT_THAT(
+        sqlStatement,
+        Eq("CREATE INDEX IF NOT EXISTS index_partial_tableName_column1 ON tableName(column1) WHERE "
+           "column1 IS NOT NULL"));
+}
+
+TEST(Index, unique_index_with_condition)
+{
+    Index index{"tableName", {"column1"}, IndexType::Unique, "column1 IS NOT NULL"};
+
+    auto sqlStatement = index.sqlStatement();
+
     ASSERT_THAT(sqlStatement,
-                Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1) WHERE "
-                   "column1 IS NOT NULL"));
+                Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_unique_partial_tableName_column1 ON "
+                   "tableName(column1) WHERE column1 IS NOT NULL"));
 }
 }
