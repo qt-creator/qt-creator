@@ -352,11 +352,16 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
-static QUrl urlForProject(const QString &projectName)
+static QUrl constructUrl(const QString &projectName, const QString &subPath, const QUrlQuery &query)
 {
     if (!dd->m_dashboardInfo)
         return {};
-    return dd->m_dashboardInfo->source.resolved(QString("api/projects/")).resolved(projectName);
+    QUrl url = dd->m_dashboardInfo->source.resolved(QString("api/projects/" + projectName + '/'));
+    if (!subPath.isEmpty() && QTC_GUARD(!subPath.startsWith('/')))
+        url = url.resolved(subPath);
+    if (!query.isEmpty())
+        url.setQuery(query);
+    return url;
 }
 
 static constexpr int httpStatusCodeOk = 200;
@@ -766,9 +771,7 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     if (query.isEmpty())
         return {}; // TODO: Call handler with unexpected?
 
-    QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
-                         .resolved(QString("issues"));
-    url.setQuery(query);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "issues", query);
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
@@ -778,8 +781,8 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
-                         .resolved(QString("files?filename=" + fileName));
+    const QUrlQuery query({{"filename", fileName}});
+    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
 
@@ -787,11 +790,9 @@ Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
 
-    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
-                         .resolved(QString("issues/"))
-                         .resolved(QString(issueId + '/'))
-                         .resolved(QString("properties"));
-
+    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name,
+                                  QString("issues/" + issueId + "/properties/"),
+                                  {});
     return fetchHtmlRecipe(url, handler);
 }
 
@@ -841,8 +842,8 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
 Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 {
-    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
-                         .resolved(QString("issues_meta?kind=" + prefix));
+    const QUrlQuery query({{"kind", prefix}});
+    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "issues_meta", query);
     return fetchDataRecipe<Dto::TableInfoDto>(url, handler);
 }
 
