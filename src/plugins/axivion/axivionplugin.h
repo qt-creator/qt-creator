@@ -25,6 +25,12 @@ namespace Axivion::Internal {
 
 constexpr int DefaultSearchLimit = 2048;
 
+enum class QueryMode {
+    SimpleQuery,            // just kind and version start and end
+    FilterQuery,            // + all filters if available
+    FullQuery               // + offset, limit, computeTotalRowCount
+};
+
 struct IssueListSearch
 {
     QString kind;
@@ -38,7 +44,7 @@ struct IssueListSearch
     int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;
 
-    QString toQuery() const;
+    QUrlQuery toUrlQuery(QueryMode mode) const;
 };
 
 class DashboardInfo

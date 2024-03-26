@@ -167,39 +167,36 @@ static DashboardInfo toDashboardInfo(const GetDtoStorage<Dto::DashboardInfoDto> 
     return {dashboardStorage.url, versionNumber, projects, projectUrls, infoDto.checkCredentialsUrl};
 }
 
-QString IssueListSearch::toQuery() const
+QUrlQuery IssueListSearch::toUrlQuery(QueryMode mode) const
 {
-    if (kind.isEmpty())
-        return {};
-    QString result;
-    result.append(QString("?kind=%1&offset=%2").arg(kind).arg(offset));
-    if (limit)
-        result.append(QString("&limit=%1").arg(limit));
-    // TODO other params
-    if (!versionStart.isEmpty()) {
-        result.append(QString("&start=%1").arg(
-            QString::fromUtf8(QUrl::toPercentEncoding(versionStart))));
-    }
-    if (!versionEnd.isEmpty()) {
-        result.append(QString("&end=%1").arg(
-            QString::fromUtf8(QUrl::toPercentEncoding(versionEnd))));
-    }
-    if (!owner.isEmpty()) {
-        result.append(QString("&user=%1").arg(
-            QString::fromUtf8((QUrl::toPercentEncoding(owner)))));
-    }
-    if (!filter_path.isEmpty()) {
-        result.append(QString("&filter_any path=%1").arg(
-            QString::fromUtf8(QUrl::toPercentEncoding(filter_path))));
-    }
+    QUrlQuery query;
+    QTC_ASSERT(!kind.isEmpty(), return query);
+    query.addQueryItem("kind", kind);
+    if (!versionStart.isEmpty())
+        query.addQueryItem("start", versionStart);
+    if (!versionEnd.isEmpty())
+        query.addQueryItem("end", versionEnd);
+    if (mode == QueryMode::SimpleQuery)
+        return query;
+
+    if (!owner.isEmpty())
+        query.addQueryItem("user", owner);
+    if (!filter_path.isEmpty())
+        query.addQueryItem("filter_any path", filter_path);
     if (!state.isEmpty())
-        result.append(QString("&state=%1").arg(state));
+        query.addQueryItem("state", state);
+    if (mode == QueryMode::FilterQuery)
+        return query;
+
+    QTC_CHECK(mode == QueryMode::FullQuery);
+    query.addQueryItem("offset", QString::number(offset));
+    if (limit)
+        query.addQueryItem("limit", QString::number(limit));
     if (computeTotalRowCount)
-        result.append("&computeTotalRowCount=true");
+        query.addQueryItem("computeTotalRowCount", "true");
     if (!sort.isEmpty())
-        result.append(QString("&sort=%1").arg(
-            QString::fromUtf8(QUrl::toPercentEncoding(sort))));
-    return result;
+        query.addQueryItem("sort", sort);
+    return query;
 }
 
 enum class ServerAccess { Unknown, NoAuthorization, WithAuthorization };
@@ -765,12 +762,13 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
 
-    const QString query = search.toQuery();
+    const QUrlQuery query = search.toUrlQuery(QueryMode::FullQuery);
     if (query.isEmpty())
         return {}; // TODO: Call handler with unexpected?
 
-    const QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
-                         .resolved(QString("issues" + query));
+    QUrl url = urlForProject(dd->m_currentProjectInfo.value().name + '/')
+                         .resolved(QString("issues"));
+    url.setQuery(query);
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 

@@ -840,21 +840,9 @@ public:
 
         QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
         QUrl dashboardUrl = info->source.resolved(baseUri);
-        QUrlQuery baseQuery;
-        IssueListSearch search = issues->searchFromUi();
-        baseQuery.addQueryItem("kind", search.kind);
-        if (!search.versionStart.isEmpty())
-            baseQuery.addQueryItem("start", search.versionStart);
-        if (!search.versionEnd.isEmpty())
-            baseQuery.addQueryItem("end", search.versionEnd);
-        issueBaseUrl.setQuery(baseQuery);
-        if (!search.owner.isEmpty())
-            baseQuery.addQueryItem("user", search.owner);
-        if (!search.filter_path.isEmpty())
-            baseQuery.addQueryItem("filter_any path", search.filter_path);
-        if (!search.state.isEmpty())
-            baseQuery.addQueryItem("state", search.state);
-        dashboardUrl.setQuery(baseQuery);
+        const IssueListSearch search = issues->searchFromUi();
+        issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
+        dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
 
         QMenu *menu = new QMenu;
         auto action = new QAction(Tr::tr("Open issue in Dashboard"), menu);
