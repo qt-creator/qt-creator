@@ -4248,15 +4248,12 @@ public:
         database};
     mutable ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
         "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
-        "        typeSelection USING(typeId)) "
+        "      SELECT prototypeId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId) "
+        "    UNION ALL "
+        "      SELECT extensionId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId)) "
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
@@ -4266,14 +4263,14 @@ public:
         "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
         "    UNION ALL "
         "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeSelection(typeId, level) AS ("
-        "      VALUES(?1, 0) "
+        "  typeSelection(typeId) AS ("
+        "      VALUES(?1) "
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN "
         "        typeSelection USING(typeId))"
         "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
-        "  WHERE name=?2 ORDER BY level LIMIT 1",
+        "  WHERE name=?2 LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectPrototypeIdsInOrderStatement{
         "WITH RECURSIVE "
@@ -4516,17 +4513,16 @@ public:
         "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
     ReadStatement<1, 2> selectPropertyDeclarationIdPrototypeChainDownStatement{
         "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
-        "      SELECT prototypeId, 0 FROM types WHERE typeId=?1 AND prototypeId IS NOT NULL"
+        "      SELECT prototypeId, 0 FROM types WHERE typeId=?1"
+        "    UNION ALL"
+        "      SELECT extensionId, 0 FROM types WHERE typeId=?1"
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
-        "        typeSelection USING(typeId))"
-        "SELECT propertyDeclarationId FROM typeSelection JOIN propertyDeclarations "
-        "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
+        "      SELECT prototypeId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId) "
+        "    UNION ALL "
+        "      SELECT extensionId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId)) "
+        "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
+        "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
     WriteStatement<2> updateAliasIdPropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2  WHERE "
