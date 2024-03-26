@@ -25,14 +25,14 @@
 
     \image qtcreator-filesystem-view.webp {File System view in the sidebar}
     \else
-    \image qtcreator-filesystem-view-design.png {File System view}
+    \image qtcreator-filesystem-view-design.webp {File System view}
     \endif
 
-    To move to the root directory of the file system, select \uicontrol Computer
-    in the menu (1). Select \uicontrol Home to move to the user's home
-    directory. Further, you can select a project to move to an open project
-    or \uicontrol Projects to move to the directory specified in the
-    \uicontrol {Projects directory} field in \preferences >
+    To go to the root directory of the file system, select \uicontrol Computer
+    in the menu (1). Select \uicontrol Home to go to the user's home
+    directory. Further, you can select a project to go to an open project
+    or \uicontrol Projects to go to the directory specified in
+    \uicontrol {Projects directory} in \preferences >
     \uicontrol {Build & Run} > \uicontrol General.
 
     The file that is currently active in the editor determines which folder
@@ -46,8 +46,8 @@
     \endlist
 
     To stop the synchronization between the editor and the
-    \uicontrol {File System} view, deselect the \inlineimage icons/linkicon.png
-    (\uicontrol {Synchronize Root Directory with Editor}) button.
+    \uicontrol {File System} view, clear \inlineimage icons/linkicon.png
+    (\uicontrol {Synchronize Root Directory with Editor}).
 
     The view displays the path to the active file as bread crumbs. You can move
     to any directory along the path by clicking it.
@@ -101,16 +101,15 @@
     (\uicontrol Options):
 
     \list
-        \li To hide the bread crumbs, deselect the
-            \uicontrol {Show Bread Crumbs} check box.
+        \li To hide the bread crumbs, clear \uicontrol {Show Bread Crumbs}.
         \li By default, the view separates folders from files and lists them
-            first. To list all items in alphabetic order, deselect the
-            \uicontrol {Show Folders on Top} check box.
+            first. To list all items in alphabetic order, clear
+            \uicontrol {Show Folders on Top}.
         \li To also show hidden files, select \uicontrol {Show Hidden Files}.
     \endlist
 
     To stop the synchronization with the file currently open in the
-    editor, deselect \inlineimage icons/linkicon.png
+    editor, clear \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 
     \sa {View CMake project contents}, {Projects}
