@@ -236,7 +236,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 3,
+                        "index": 5,
                         "items":
                             [
                             {
@@ -277,6 +277,14 @@
                                 "({
                                     'TargetQuickVersion': '6.6',
                                     'TargetQuick3DVersion': '6.6'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.7",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.7',
+                                    'TargetQuick3DVersion': '6.7'
                                 })"
                             }
                         ]
