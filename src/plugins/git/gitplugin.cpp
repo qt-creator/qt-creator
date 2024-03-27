@@ -48,6 +48,7 @@
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -554,6 +555,13 @@ GitPluginPrivate::GitPluginPrivate()
 {
     dd = this;
 
+    Utils::globalMacroExpander()->registerPrefix(
+        "Git:Config",
+        Tr::tr("Access git config variables."),
+        [this](const QString &value) {
+            return gitClient().readConfigValue(currentState().topLevel(), value);
+        },
+        true);
     setTopicFileTracker([](const FilePath &repository) {
         const FilePath gitDir = gitClient().findGitDirForRepository(repository);
         return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
