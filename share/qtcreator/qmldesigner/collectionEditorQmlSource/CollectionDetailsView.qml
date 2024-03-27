@@ -155,12 +155,18 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Ascending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
+                        onTriggered: {
+                            tableView.closeEditor()
+                            tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
+                        }
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Descending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
+                        onTriggered: {
+                            tableView.closeEditor()
+                            tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
+                        }
                     }
                 }
             }
@@ -192,7 +198,7 @@ Rectangle {
             TableView {
                 id: tableView
 
-                model: root.model
+                model: root.sortedModel
                 clip: true
 
                 readonly property real maxAvailableHeight: gridLayout.maxAvailableHeight
