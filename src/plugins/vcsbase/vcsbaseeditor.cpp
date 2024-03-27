@@ -27,7 +27,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -1661,7 +1660,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
     if (parameters.mimeType != DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)
         addMimeType(parameters.mimeType);
 
-    setEditorActionHandlers(TextEditorActionHandler::None);
+    setOptionalActionMask(OptionalActions::None);
     setDuplicatedSupported(false);
 
     setDocumentCreator([parameters] {

@@ -52,7 +52,6 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
@@ -1169,12 +1168,12 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     addHoverHandler(new ColorPreviewHoverHandler);
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                            | TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::UnCollapseAll
-                            | TextEditorActionHandler::FollowSymbolUnderCursor
-                            | TextEditorActionHandler::RenameSymbol
-                            | TextEditorActionHandler::FindUsage);
+    setOptionalActionMask(OptionalActions::Format
+                            | OptionalActions::UnCommentSelection
+                            | OptionalActions::UnCollapseAll
+                            | OptionalActions::FollowSymbolUnderCursor
+                            | OptionalActions::RenameSymbol
+                            | OptionalActions::FindUsage);
 }
 
 static void decorateEditor(TextEditorWidget *editor)

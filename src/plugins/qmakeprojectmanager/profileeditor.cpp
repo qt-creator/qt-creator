@@ -19,7 +19,6 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
@@ -273,8 +272,8 @@ ProFileEditorFactory::ProFileEditorFactory()
     setCompletionAssistProvider(completionAssistProvider);
 
     setCommentDefinition(CommentDefinition::HashStyle);
-    setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-                | TextEditorActionHandler::JumpToFileUnderCursor);
+    setOptionalActionMask(OptionalActions::UnCommentSelection
+                | OptionalActions::JumpToFileUnderCursor);
 
     addHoverHandler(new ProFileHoverHandler);
     setSyntaxHighlighterCreator([]() { return new ProFileHighlighter; });

@@ -10,7 +10,6 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
@@ -48,7 +47,7 @@ public:
         setDocumentCreator(createJavaDocument);
         setUseGenericHighlighter(true);
         setCommentDefinition(Utils::CommentDefinition::CppStyle);
-        setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
+        setOptionalActionMask(TextEditor::OptionalActions::UnCommentSelection);
         setCompletionAssistProvider(new TextEditor::KeywordsCompletionAssistProvider(keywords));
     }
 };

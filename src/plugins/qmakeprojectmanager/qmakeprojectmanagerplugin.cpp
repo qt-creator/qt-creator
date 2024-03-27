@@ -36,7 +36,6 @@
 #include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/action.h>

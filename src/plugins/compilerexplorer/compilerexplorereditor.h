@@ -11,7 +11,6 @@
 #include <solutions/spinner/spinner.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/fancymainwindow.h>
 
@@ -223,7 +222,6 @@ class EditorWidget : public Utils::FancyMainWindow
 public:
     EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                  QUndoStack *undoStack,
-                 TextEditor::TextEditorActionHandler &actionHandler,
                  QWidget *parent = nullptr);
     ~EditorWidget() override;
 
@@ -253,7 +251,6 @@ protected:
 private:
     std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
-    TextEditor::TextEditorActionHandler &m_actionHandler;
 
     QList<QDockWidget *> m_compilerWidgets;
     QList<QDockWidget *> m_sourceWidgets;
@@ -262,7 +259,7 @@ private:
 class Editor : public Core::IEditor
 {
 public:
-    Editor(TextEditor::TextEditorActionHandler &actionHandler);
+    Editor();
     ~Editor();
 
     Core::IDocument *document() const override { return m_document.get(); }
@@ -279,8 +276,6 @@ public:
     EditorFactory();
 
 private:
-    TextEditor::TextEditorActionHandler m_actionHandler;
-
     QAction m_undoAction;
     QAction m_redoAction;
 };

@@ -137,8 +137,6 @@ QtcPlugin {
         "texteditor.qrc",
         "texteditor_global.h",
         "texteditortr.h",
-        "texteditoractionhandler.cpp",
-        "texteditoractionhandler.h",
         "texteditorconstants.cpp",
         "texteditorconstants.h",
         "texteditoroverlay.cpp",

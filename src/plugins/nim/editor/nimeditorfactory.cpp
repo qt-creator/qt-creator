@@ -11,7 +11,6 @@
 
 #include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
 using namespace TextEditor;
@@ -26,10 +25,10 @@ NimEditorFactory::NimEditorFactory()
     addMimeType(QLatin1String(Nim::Constants::C_NIM_MIMETYPE));
     addMimeType(QLatin1String(Nim::Constants::C_NIM_SCRIPT_MIMETYPE));
 
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                            | TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::UnCollapseAll
-                            | TextEditorActionHandler::FollowSymbolUnderCursor);
+    setOptionalActionMask(OptionalActions::Format
+                            | OptionalActions::UnCommentSelection
+                            | OptionalActions::UnCollapseAll
+                            | OptionalActions::FollowSymbolUnderCursor);
     setEditorWidgetCreator([]{
         return new NimTextEditorWidget();
     });

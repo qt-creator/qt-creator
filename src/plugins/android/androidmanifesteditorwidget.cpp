@@ -25,7 +25,6 @@
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/target.h>
 
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
@@ -114,6 +113,7 @@ private:
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
+    m_textEditorWidget->setOptionalActions(TextEditor::OptionalActions::UnCommentSelection);
 
     initializePage();
 
@@ -1406,7 +1406,7 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     setupGenericHighlighter();
     setMarksVisible(false);
 
-    // this context is used by the TextEditorActionHandler registered for the text editor in
+    // this context is used by the OptionalActions registered for the text editor in
     // the AndroidManifestEditorFactory
     m_context = new Core::IContext(this);
     m_context->setWidget(this);

@@ -27,7 +27,6 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/stylehelper.h>
 
@@ -317,10 +316,10 @@ public:
         setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
         addMimeType(Constants::C_PY_MIMETYPE);
 
-        setEditorActionHandlers(TextEditorActionHandler::Format
-                                | TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::UnCollapseAll
-                                | TextEditorActionHandler::FollowSymbolUnderCursor);
+        setOptionalActionMask(OptionalActions::Format
+                                | OptionalActions::UnCommentSelection
+                                | OptionalActions::UnCollapseAll
+                                | OptionalActions::FollowSymbolUnderCursor);
 
         setDocumentCreator([]() { return new PythonDocument; });
         setEditorWidgetCreator([]() { return new PythonEditorWidget; });

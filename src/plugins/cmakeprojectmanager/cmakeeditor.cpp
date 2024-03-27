@@ -26,7 +26,6 @@
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/textutils.h>
@@ -533,9 +532,9 @@ public:
         setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
         setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
-        setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::FollowSymbolUnderCursor
-                                | TextEditorActionHandler::Format);
+        setOptionalActionMask(OptionalActions::UnCommentSelection
+                                | OptionalActions::FollowSymbolUnderCursor
+                                | OptionalActions::Format);
 
         addHoverHandler(new CMakeHoverHandler);
 

@@ -6,7 +6,6 @@
 #include "autocompleter.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditoractionhandler.h"
 #include "texteditortr.h"
 #include "textindenter.h"
 
@@ -164,7 +163,7 @@ public:
         setDocumentCreator([] { return new TextDocument(JSON_EDITOR_ID); });
         setAutoCompleterCreator([] { return new JsonAutoCompleter; });
         setIndenterCreator([](QTextDocument *doc) { return new JsonIndenter(doc); });
-        setEditorActionHandlers(TextEditorActionHandler::Format);
+        setOptionalActionMask(OptionalActions::Format);
         setUseGenericHighlighter(true);
     }
 };

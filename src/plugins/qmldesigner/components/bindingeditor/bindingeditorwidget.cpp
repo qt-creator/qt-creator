@@ -147,7 +147,6 @@ BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
     setDisplayName(::Core::Tr::tr("Binding Editor"));
-    setEditorActionHandlers(0);
     addMimeType(BINDINGEDITOR_CONTEXT_ID);
     addMimeType(Utils::Constants::QML_MIMETYPE);
     addMimeType(Utils::Constants::QMLTYPES_MIMETYPE);

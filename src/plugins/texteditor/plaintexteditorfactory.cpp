@@ -5,7 +5,6 @@
 #include "basehoverhandler.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
 
 #include <coreplugin/coreconstants.h>
@@ -40,9 +39,9 @@ public:
         setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
         setUseGenericHighlighter(true);
 
-        setEditorActionHandlers(TextEditorActionHandler::Format |
-                                TextEditorActionHandler::UnCommentSelection |
-                                TextEditorActionHandler::UnCollapseAll);
+        setOptionalActionMask(
+                    OptionalActions::Format | OptionalActions::UnCommentSelection
+                    | OptionalActions::UnCollapseAll);
     }
 };
 

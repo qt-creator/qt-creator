@@ -75,7 +75,6 @@
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
@@ -139,14 +138,14 @@ public:
         setCodeFoldingSupported(true);
         setParenthesesMatchingEnabled(true);
 
-        setEditorActionHandlers(TextEditorActionHandler::Format
-                                | TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::UnCollapseAll
-                                | TextEditorActionHandler::FollowSymbolUnderCursor
-                                | TextEditorActionHandler::FollowTypeUnderCursor
-                                | TextEditorActionHandler::RenameSymbol
-                                | TextEditorActionHandler::TypeHierarchy
-                                | TextEditorActionHandler::FindUsage);
+        setOptionalActionMask(OptionalActions::Format
+                                | OptionalActions::UnCommentSelection
+                                | OptionalActions::UnCollapseAll
+                                | OptionalActions::FollowSymbolUnderCursor
+                                | OptionalActions::FollowTypeUnderCursor
+                                | OptionalActions::RenameSymbol
+                                | OptionalActions::TypeHierarchy
+                                | OptionalActions::FindUsage);
     }
 };
 

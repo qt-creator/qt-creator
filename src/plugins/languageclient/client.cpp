@@ -49,7 +49,6 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/appinfo.h>
@@ -1005,17 +1004,17 @@ void Client::activateEditor(Core::IEditor *editor)
         d->requestDocumentHighlights(widget);
         uint optionalActions = widget->optionalActions();
         if (symbolSupport().supportsFindUsages(widget->textDocument()))
-            optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
+            optionalActions |= TextEditor::OptionalActions::FindUsage;
         if (symbolSupport().supportsRename(widget->textDocument()))
-            optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+            optionalActions |= TextEditor::OptionalActions::RenameSymbol;
         if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolDef))
-            optionalActions |= TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor;
+            optionalActions |= TextEditor::OptionalActions::FollowSymbolUnderCursor;
         if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
-            optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
+            optionalActions |= TextEditor::OptionalActions::FollowTypeUnderCursor;
         if (supportsCallHierarchy(this, textEditor->document()))
-            optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
+            optionalActions |= TextEditor::OptionalActions::CallHierarchy;
         if (supportsTypeHierarchy(this, textEditor->document()))
-            optionalActions |= TextEditor::TextEditorActionHandler::TypeHierarchy;
+            optionalActions |= TextEditor::OptionalActions::TypeHierarchy;
         widget->setOptionalActions(optionalActions);
     }
 }

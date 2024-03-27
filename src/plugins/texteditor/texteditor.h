@@ -85,6 +85,22 @@ enum TextMarkRequestKind
     TaskMarkRequest
 };
 
+namespace OptionalActions {
+enum Mask {
+    None = 0,
+    Format = 1,
+    UnCommentSelection = 2,
+    UnCollapseAll = 4,
+    FollowSymbolUnderCursor = 8,
+    FollowTypeUnderCursor = 16,
+    JumpToFileUnderCursor = 32,
+    RenameSymbol = 64,
+    FindUsage = 128,
+    CallHierarchy = 256,
+    TypeHierarchy = 512,
+};
+} // namespace OptionalActions
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -511,7 +527,6 @@ signals:
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
     void requestCallHierarchy(const QTextCursor &cursor);
-    void optionalActionMaskChanged();
     void toolbarOutlineChanged(QWidget *newOutline);
 
 protected:
@@ -689,7 +704,7 @@ public:
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     void setUseGenericHighlighter(bool enabled);
     void setAutoCompleterCreator(const AutoCompleterCreator &creator);
-    void setEditorActionHandlers(uint optionalActions);
+    void setOptionalActionMask(int optionalActions);
 
     void addHoverHandler(BaseHoverHandler *handler);
     void setCompletionAssistProvider(CompletionAssistProvider *provider);

@@ -18,7 +18,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
@@ -564,12 +563,10 @@ void CompilerWidget::doCompile()
 
 EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                            QUndoStack *undoStack,
-                           TextEditorActionHandler &actionHandler,
                            QWidget *parent)
     : Utils::FancyMainWindow(parent)
     , m_document(document)
     , m_undoStack(undoStack)
-    , m_actionHandler(actionHandler)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
     setDockNestingEnabled(true);
@@ -588,10 +585,6 @@ EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document
             &JsonSettingsDocument::settingsChanged,
             this,
             &EditorWidget::recreateEditors);
-
-    connect(this, &EditorWidget::gotFocus, this, [&actionHandler] {
-        actionHandler.updateCurrentEditor();
-    });
 
     setupHelpWidget();
 }
@@ -626,10 +619,6 @@ CompilerWidget *EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> 
             [sourceSettings = sourceSettings.get(), compilerSettings = compilerSettings.get()] {
                 sourceSettings->compilers.removeItem(compilerSettings->shared_from_this());
             });
-
-    connect(compiler, &CompilerWidget::gotFocus, this, [this] {
-        m_actionHandler.updateCurrentEditor();
-    });
 
     return compiler;
 }
@@ -667,10 +656,6 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         m_document->settings()->m_sources.removeItem(sourceSettings->shared_from_this());
         m_undoStack->endMacro();
         setupHelpWidget();
-    });
-
-    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this] {
-        m_actionHandler.updateCurrentEditor();
     });
 
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
@@ -842,18 +827,11 @@ TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
     return nullptr;
 }
 
-Editor::Editor(TextEditorActionHandler &actionHandler)
+Editor::Editor()
     : m_document(new JsonSettingsDocument(&m_undoStack))
 {
     setContext(Core::Context(Constants::CE_EDITOR_ID));
-    setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
-
-    connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
-        actionHandler.updateActions();
-    });
-    connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
-        actionHandler.updateActions();
-    });
+    setWidget(new EditorWidget(m_document, &m_undoStack));
 }
 
 Editor::~Editor()
@@ -909,12 +887,6 @@ QWidget *Editor::toolBar()
 }
 
 EditorFactory::EditorFactory()
-    : m_actionHandler(Constants::CE_EDITOR_ID,
-                      Constants::CE_EDITOR_ID,
-                      TextEditor::TextEditorActionHandler::None,
-                      [](Core::IEditor *editor) -> TextEditorWidget * {
-                          return static_cast<EditorWidget *>(editor->widget())->focusedEditorWidget();
-                      })
 {
     setId(Constants::CE_EDITOR_ID);
     setDisplayName(Tr::tr("Compiler Explorer Editor"));
@@ -926,48 +898,7 @@ EditorFactory::EditorFactory()
         return &static_cast<Editor *>(editor)->m_undoStack;
     };
 
-    m_actionHandler.setCanUndoCallback([undoStackFromEditor](Core::IEditor *editor) {
-        if (auto undoStack = undoStackFromEditor(editor))
-            return undoStack->canUndo();
-        return false;
-    });
-
-    m_actionHandler.setCanRedoCallback([undoStackFromEditor](Core::IEditor *editor) {
-        if (auto undoStack = undoStackFromEditor(editor))
-            return undoStack->canRedo();
-        return false;
-    });
-
-    m_actionHandler.setUnhandledCallback(
-        [undoStackFromEditor](Utils::Id cmdId, Core::IEditor *editor) {
-            if (cmdId == TextEditor::Constants::INCREASE_FONT_SIZE) {
-                TextEditor::TextEditorSettings::instance()->increaseFontZoom();
-                return true;
-            } else if (cmdId == TextEditor::Constants::DECREASE_FONT_SIZE) {
-                TextEditor::TextEditorSettings::instance()->decreaseFontZoom();
-                return true;
-            }
-
-            if (cmdId != Core::Constants::UNDO && cmdId != Core::Constants::REDO)
-                return false;
-
-            if (!childHasFocus(editor->widget()))
-                return false;
-
-            QUndoStack *undoStack = undoStackFromEditor(editor);
-
-            if (!undoStack)
-                return false;
-
-            if (cmdId == Core::Constants::UNDO)
-                undoStack->undo();
-            else
-                undoStack->redo();
-
-            return true;
-        });
-
-    setEditorCreator([this]() { return new Editor(m_actionHandler); });
+    setEditorCreator([this]() { return new Editor; });
 }
 
 QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
