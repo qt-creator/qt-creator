@@ -4586,16 +4586,15 @@ public:
         "UPDATE types SET extensionId=?2 WHERE typeId=?1", database};
     mutable ReadStatement<1, 1> selectTypeIdsForPrototypeChainIdStatement{
         "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "  prototypes(typeId) AS (  "
+        "      SELECT prototypeId FROM types WHERE typeId=?1 "
         "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  prototypes(typeId) AS ("
-        "       SELECT prototypeId FROM all_prototype_and_extension WHERE typeId=?"
+        "      SELECT extensionId FROM types WHERE typeId=?1 "
         "    UNION ALL "
-        "       SELECT prototypeId FROM all_prototype_and_extension JOIN "
-        "         prototypes USING(typeId)) "
-        "SELECT typeId FROM prototypes",
+        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId) "
+        "    UNION ALL "
+        "      SELECT extensionId FROM types JOIN prototypes USING(typeId)) "
+        "SELECT typeId FROM prototypes WHERE typeId IS NOT NULL",
         database};
     WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
