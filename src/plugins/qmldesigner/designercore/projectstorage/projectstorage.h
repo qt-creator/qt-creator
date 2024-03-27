@@ -3901,10 +3901,11 @@ private:
                                                    {Sqlite::PrimaryKey{}});
                 auto &typeIdColumn = propertyDeclarationTable.addColumn("typeId");
                 auto &nameColumn = propertyDeclarationTable.addColumn("name");
-                propertyDeclarationTable.addForeignKeyColumn("propertyTypeId",
-                                                             typesTable,
-                                                             Sqlite::ForeignKeyAction::NoAction,
-                                                             Sqlite::ForeignKeyAction::Restrict);
+                auto &propertyTypeIdColumn = propertyDeclarationTable.addForeignKeyColumn(
+                    "propertyTypeId",
+                    typesTable,
+                    Sqlite::ForeignKeyAction::NoAction,
+                    Sqlite::ForeignKeyAction::Restrict);
                 propertyDeclarationTable.addColumn("propertyTraits",
                                                    Sqlite::StrictColumnType::Integer);
                 propertyDeclarationTable.addColumn("propertyImportedTypeNameId",
@@ -3921,6 +3922,7 @@ private:
                     Sqlite::ForeignKeyAction::Restrict);
 
                 propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
+                propertyDeclarationTable.addIndex({propertyTypeIdColumn});
                 propertyDeclarationTable.addIndex({aliasPropertyDeclarationIdColumn},
                                                   "aliasPropertyDeclarationId IS NOT NULL");
                 propertyDeclarationTable.addIndex({aliasPropertyDeclarationTailIdColumn},
@@ -3976,6 +3978,7 @@ private:
             auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
 
             table.addUniqueIndex({kindColumn, importOrSourceIdColumn, nameColumn});
+            table.addIndex({nameColumn});
 
             table.initialize(database);
         }
@@ -4541,13 +4544,27 @@ public:
         database};
     ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
         "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
-        "alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId FROM "
-        "propertyDeclarations AS alias JOIN propertyDeclarations AS target ON "
-        "alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
-        "alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId WHERE "
-        "alias.propertyTypeId=?1 OR target.typeId=?1 OR alias.propertyImportedTypeNameId IN "
-        "(SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
-        "WHERE typeId=?1)",
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE alias.propertyTypeId=?1 "
+        "UNION ALL "
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE target.typeId=?1 "
+        "UNION ALL "
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE  alias.propertyImportedTypeNameId IN "
+        "  (SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
+        "   WHERE typeId=?1)",
         database};
     ReadStatement<3, 1> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
         "WITH RECURSIVE "
