@@ -2,6 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \externalpage https://doc.qt.io/Boot2Qt/index.html
+    \title Boot2Qt: Documentation
+*/
+/*!
+    \externalpage https://doc.qt.io/Boot2Qt/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices
+    \title Boot2Qt: Setting Up USB Access to Embedded Devices
+*/
+/*!
     \externalpage https://doc.qt.io/qt/qtqml-index.html
     \title Qt Qml
 */

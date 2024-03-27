@@ -28,8 +28,7 @@
     To run an example application on a Boot2Qt device, you must set up
     Boot2Qt on the development host and create connections
     between the host and devices. For more information, see
-    \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
-    {Boot2Qt: Installation Guides}
+    \l{Boot2Qt: Documentation}.
 
     If you have \l{Qt Design Studio Manual}{\QDS} installed, you can open
     \QDS examples from \QC in \QDS.
@@ -70,9 +69,8 @@
 
             If build errors occur, check that you have a Qt version, a
             \l{Add compilers}{compiler}, and the necessary kits installed. If
-            you are building for an \l{Connecting Android Devices}{Android device}
-            or \l{Connecting iOS Devices}{iOS device}, check that you set up the
-            development environment correctly.
+            you are building for an Android or iOS device, check that you set up
+            the development environment correctly.
 
             The \uicontrol Build progress bar on the toolbar turns green when
             you build the project successfully. The application opens on the
@@ -80,4 +78,7 @@
 
     \endlist
 
+    \sa {Add compilers}, {Add kits}, {Add Qt versions},
+    {Connecting Android Devices}, {Connecting iOS Devices},
+    {Compile Output}, {Boot2Qt: Documentation}, {Qt Design Studio Manual}
 */

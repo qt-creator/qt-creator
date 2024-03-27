@@ -27,9 +27,7 @@
     \list
         \li \l{Connecting Android Devices}{Android}
         \li \l{Connecting Bare Metal Devices}{Bare Metal}
-        \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
-            {Boot2Qt} (commercial only)
-        \li \l{Emulator}{Boot2Qt Emulator} (commercial only)
+        \li \l{Boot2Qt: Documentation}{Boot2Q} (commercial only)
         \li \l{Adding Docker Devices}{Docker} (experimental)
         \li \l{Connecting iOS Devices}{iOS}
         \li iOS Simulator

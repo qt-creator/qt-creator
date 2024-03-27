@@ -46,17 +46,11 @@
     tools to customize the contents of the stack and to take it into
     production hardware.
 
-    You need either Windows 10 64-bit or later or Ubuntu Linux 64-bit 20.04 LTS
-    or later to install and use Boot2Qt.
-
     The following topics have more information about developing applications
     for Boot2Qt devices:
 
     \list
-        \li \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
-            {Boot2Qt: Supported Target Devices and Development Hosts}
-        \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
-            {Boot2Qt: Installation Guides}
+        \li \l{Boot2Qt: Documentation}
         \li \l{Connecting Boot2Qt Devices}
         \li \l{Boot2Qt Run Settings}
         \li \l{Deploying to Boot2Qt}
