@@ -120,10 +120,20 @@ QRectF ServerNodeInstance::effectAdjustedBoundingRect(QQuickItem *item)
 {
     if (item) {
         QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
-        if (pItem && pItem->layer() && pItem->layer()->sourceRect().isValid())
+
+        QQmlProperty prop(item, "__effect");
+
+        if (pItem && pItem->layer() && pItem->layer()->sourceRect().isValid()) {
             return pItem->layer()->sourceRect();
-        else
+        } else if (prop.read().toBool()) {
+            prop = QQmlProperty(item, "allEffects");
+            QRectF rect = prop.read().toRectF().adjusted(-20, -20, 20, 20);
+            if (rect.isValid())
+                return rect;
             return item->boundingRect();
+        } else {
+            return item->boundingRect();
+        }
     }
     return {};
 }

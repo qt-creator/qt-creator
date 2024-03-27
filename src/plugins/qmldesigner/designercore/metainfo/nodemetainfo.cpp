@@ -2444,12 +2444,12 @@ bool NodeMetaInfo::usesCustomParser() const
         if (!isValid())
             return false;
 
-        auto type = typeName();
-        return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
-               || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
-               || type == "QtQuick.ListModel" || type == "Qt.ListModel"
-               || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
-               || type == "Qt.XmlListModel" || type == "QtQml.XmlListModel.XmlListModel";
+        auto type = simplifiedTypeName();
+        return type == "VisualItemModel"
+               || type == "VisualDataModel"
+               || type == "ListModel"
+               || type == "XmlListModel"
+               || type == "DesignEffect";
     }
 }
 
