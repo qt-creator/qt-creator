@@ -12,7 +12,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
-            tooltip: qsTr("Organizes items in a row.")
+            toolTip: qsTr("Organizes items in a row.")
         }
     }
 
@@ -29,7 +29,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
-            tooltip: qsTr("Organizes items in a column.")
+            toolTip: qsTr("Organizes items in a column.")
         }
     }
 
@@ -46,7 +46,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
-            tooltip: qsTr("Organizes items in a grid.")
+            toolTip: qsTr("Organizes items in a grid.")
         }
     }
 
@@ -68,7 +68,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
-            tooltip: qsTr("Organizes items in a grid. Only the top item is visible.")
+            toolTip: qsTr("Organizes items in a grid. Only the top item is visible.")
         }
     }
 }
