@@ -333,6 +333,37 @@ public:
         Core::EditorManager::openEditor(qmlFile);
     }
 
+    Q_INVOKABLE bool exampleVersionOk(const QString &exampleVersion)
+    {
+        if (exampleVersion.isEmpty())
+            return true;
+
+        const QStringList exampleVersionParts = exampleVersion.split('.');
+        const QStringList qdsVersionParts = QCoreApplication::applicationVersion().split('.');
+
+        QList<int> exampleVerInts;
+        QList<int> qdsVerInts;
+        for (const QString &part : exampleVersionParts)
+            exampleVerInts.append(part.toInt());
+
+        for (const QString &part : qdsVersionParts)
+            qdsVerInts.append(part.toInt());
+
+        // pad zeros so both lists are same size
+        while (qdsVerInts.size() < exampleVerInts.size())
+            qdsVerInts.append(0);
+
+        while (exampleVerInts.size() < qdsVerInts.size())
+            exampleVerInts.append(0);
+
+        for (int i = 0; i < qdsVerInts.size(); ++i) {
+            if (exampleVerInts[i] < qdsVerInts[i])
+                return false;
+        }
+
+        return true;
+    }
+
 public slots:
     void resetProjects();
     void delayedResetProjects();
