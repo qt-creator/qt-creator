@@ -64,9 +64,9 @@ public:
     virtual std::vector<::Utils::SmallString> functionDeclarationNames(TypeId typeId) const = 0;
     virtual std::optional<::Utils::SmallString>
     propertyName(PropertyDeclarationId propertyDeclarationId) const = 0;
-    virtual TypeIds prototypeAndSelfIds(TypeId type) const = 0;
-    virtual TypeIds prototypeIds(TypeId type) const = 0;
-    virtual TypeIds heirIds(TypeId typeId) const = 0;
+    virtual SmallTypeIds<16> prototypeAndSelfIds(TypeId type) const = 0;
+    virtual SmallTypeIds<16> prototypeIds(TypeId type) const = 0;
+    virtual SmallTypeIds<64> heirIds(TypeId typeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId) const = 0;

@@ -345,9 +345,11 @@ public:
                                    projectStorageCategory(),
                                    keyValue("type id", typeId)};
 
-        auto propertyDeclarationIds = selectPropertyDeclarationIdsForTypeStatement
-                                          .template valuesWithTransaction<
-                                              QVarLengthArray<PropertyDeclarationId, 128>>(typeId);
+        auto propertyDeclarationIds = Sqlite::withDeferredTransaction(database, [&] {
+            return fetchPropertyDeclarationIds(typeId);
+        });
+
+        std::sort(propertyDeclarationIds.begin(), propertyDeclarationIds.end());
 
         tracer.end(keyValue("property declaration ids", propertyDeclarationIds));
 
@@ -379,9 +381,9 @@ public:
                                    keyValue("type id", typeId),
                                    keyValue("property name", propertyName)};
 
-        auto propertyDeclarationId = selectPropertyDeclarationIdForTypeAndPropertyNameStatement
-                                         .template valueWithTransaction<PropertyDeclarationId>(
-                                             typeId, propertyName);
+        auto propertyDeclarationId = Sqlite::withDeferredTransaction(database, [&] {
+            return fetchPropertyDeclarationId(typeId, propertyName);
+        });
 
         tracer.end(keyValue("property declaration id", propertyDeclarationId));
 
@@ -663,40 +665,43 @@ public:
         return typeId;
     }
 
-    TypeIds prototypeIds(TypeId type) const override
+    SmallTypeIds<16> prototypeIds(TypeId type) const override
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get prototypes"_t,
                                    projectStorageCategory(),
                                    keyValue("type id", type)};
 
-        auto prototypeIds = selectPrototypeIdsForTypeIdInOrderStatement
-                                .template valuesWithTransaction<TypeId, 16>(type);
+        auto prototypeIds = selectPrototypeAndExtensionIdsStatement
+                                .template valuesWithTransaction<SmallTypeIds<16>>(type);
 
         tracer.end(keyValue("type ids", prototypeIds));
 
         return prototypeIds;
     }
 
-    TypeIds prototypeAndSelfIds(TypeId type) const override
+    SmallTypeIds<16> prototypeAndSelfIds(TypeId typeId) const override
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get prototypes and self"_t, projectStorageCategory()};
 
-        TypeIds prototypeAndSelfIds = selectPrototypeAndSelfIdsForTypeIdInOrderStatement
-                                          .template valuesWithTransaction<TypeId, 16>(type);
+        SmallTypeIds<16> prototypeAndSelfIds;
+        prototypeAndSelfIds.push_back(typeId);
+
+        selectPrototypeAndExtensionIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
 
         tracer.end(keyValue("type ids", prototypeAndSelfIds));
 
         return prototypeAndSelfIds;
     }
 
-    TypeIds heirIds(TypeId typeId) const override
+    SmallTypeIds<64> heirIds(TypeId typeId) const override
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get heirs"_t, projectStorageCategory()};
 
-        auto heirIds = selectHeirTypeIdsStatement.template valuesWithTransaction<TypeId, 64>(typeId);
+        auto heirIds = selectHeirTypeIdsStatement.template valuesWithTransaction<SmallTypeIds<64>>(
+            typeId);
 
         tracer.end(keyValue("type ids", heirIds));
 
@@ -719,7 +724,8 @@ public:
             return true;
         }
 
-        auto range = selectPrototypeIdsStatement.template rangeWithTransaction<TypeId>(typeId);
+        auto range = selectPrototypeAndExtensionIdsStatement.template rangeWithTransaction<TypeId>(
+            typeId);
 
         auto isBasedOn = std::any_of(range.begin(), range.end(), [&](TypeId currentTypeId) {
             return ((currentTypeId == baseTypeIds) || ...);
@@ -2340,6 +2346,52 @@ private:
         insertAliasPropertyDeclarationStatement.readCallback(callback, typeId, value.name);
     }
 
+    auto fetchPropertyDeclarationIds(TypeId baseTypeId) const
+    {
+        QVarLengthArray<PropertyDeclarationId, 128> propertyDeclarationIds;
+
+        selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, baseTypeId);
+
+        auto range = selectPrototypeAndExtensionIdsStatement.template range<TypeId>(baseTypeId);
+
+        for (TypeId prototype : range) {
+            selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds,
+                                                                     prototype);
+        }
+
+        return propertyDeclarationIds;
+    }
+
+    PropertyDeclarationId fetchNextPropertyDeclarationId(TypeId baseTypeId,
+                                                         Utils::SmallStringView propertyName) const
+    {
+        auto range = selectPrototypeAndExtensionIdsStatement.template range<TypeId>(baseTypeId);
+
+        for (TypeId prototype : range) {
+            auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
+                                             .template value<PropertyDeclarationId>(prototype,
+                                                                                    propertyName);
+
+            if (propertyDeclarationId)
+                return propertyDeclarationId;
+        }
+
+        return PropertyDeclarationId{};
+    }
+
+    PropertyDeclarationId fetchPropertyDeclarationId(TypeId baseTypeId,
+                                                     Utils::SmallStringView propertyName) const
+    {
+        auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
+                                         .template value<PropertyDeclarationId>(baseTypeId,
+                                                                                propertyName);
+
+        if (propertyDeclarationId)
+            return propertyDeclarationId;
+
+        return fetchNextPropertyDeclarationId(baseTypeId, propertyName);
+    }
+
     void synchronizePropertyDeclarationsInsertProperty(
         const Storage::Synchronization::PropertyDeclaration &value, SourceId sourceId, TypeId typeId)
     {
@@ -2357,9 +2409,7 @@ private:
         auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
             typeId, value.name, propertyTypeId, value.traits, propertyImportedTypeNameId);
 
-        auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
-                                             .template value<PropertyDeclarationId>(typeId,
-                                                                                    value.name);
+        auto nextPropertyDeclarationId = fetchNextPropertyDeclarationId(typeId, value.name);
         if (nextPropertyDeclarationId) {
             updateAliasIdPropertyDeclarationStatement.write(nextPropertyDeclarationId,
                                                             propertyDeclarationId);
@@ -2484,9 +2534,8 @@ private:
                                        projectStorageCategory(),
                                        keyValue("property declaratio viewn", view)};
 
-            auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
-                                                 .template value<PropertyDeclarationId>(typeId,
-                                                                                        view.name);
+            auto nextPropertyDeclarationId = fetchNextPropertyDeclarationId(typeId, view.name);
+
             if (nextPropertyDeclarationId) {
                 updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement
                     .write(nextPropertyDeclarationId, view.id);
@@ -3313,7 +3362,7 @@ private:
                 throw PrototypeChainCycle{};
         };
 
-        selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, typeId);
+        selectPrototypeAndExtensionIdsStatement.readCallback(callback, typeId);
     }
 
     void checkForAliasChainCycle(PropertyDeclarationId propertyDeclarationId) const
@@ -3586,9 +3635,10 @@ private:
                                    keyValue("type id", typeId),
                                    keyValue("property name", name)};
 
-        auto propertyDeclaration = selectPropertyDeclarationByTypeIdAndNameStatement
-                                       .template optionalValue<FetchPropertyDeclarationResult>(typeId,
-                                                                                               name);
+        auto propertyDeclarationId = fetchPropertyDeclarationId(typeId, name);
+        auto propertyDeclaration = selectPropertyDeclarationResultByPropertyDeclarationIdStatement
+                                       .template optionalValue<FetchPropertyDeclarationResult>(
+                                           propertyDeclarationId);
 
         tracer.end(keyValue("property declaration", propertyDeclaration));
 
@@ -3623,8 +3673,7 @@ private:
                                    keyValue("type id", typeId),
                                    keyValue("property name", name)};
 
-        auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
-                                         .template value<PropertyDeclarationId>(typeId, name);
+        auto propertyDeclarationId = fetchPropertyDeclarationId(typeId, name);
 
         tracer.end(keyValue("property declaration id", propertyDeclarationId));
 
@@ -4236,57 +4285,11 @@ public:
         "ORDER BY minorVersion DESC "
         "LIMIT 1",
         database};
-    mutable ReadStatement<1, 2> selectPrototypeIdStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeSelection(typeId) AS ("
-        "      VALUES(?1) "
-        "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeSelection "
-        "        USING(typeId))"
-        "SELECT typeId FROM typeSelection WHERE typeId=?2 LIMIT 1",
-        database};
-    mutable ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
-        "WITH RECURSIVE "
-        "  typeSelection(typeId, level) AS ("
-        "      VALUES(?1, 0) "
-        "    UNION ALL "
-        "      SELECT prototypeId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId) "
-        "    UNION ALL "
-        "      SELECT extensionId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId)) "
-        "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
-        "  WHERE name=?2 ORDER BY level LIMIT 1",
-        database};
-    mutable ReadStatement<3, 2> selectPropertyDeclarationByTypeIdAndNameStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeSelection(typeId) AS ("
-        "      VALUES(?1) "
-        "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN "
-        "        typeSelection USING(typeId))"
+    mutable ReadStatement<3, 1> selectPropertyDeclarationResultByPropertyDeclarationIdStatement{
         "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
-        "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
-        "  WHERE name=?2 LIMIT 1",
-        database};
-    mutable ReadStatement<1, 1> selectPrototypeIdsInOrderStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeSelection(typeId, level) AS ("
-        "      VALUES(?1, 0) "
-        "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
-        "        typeSelection USING(typeId) WHERE prototypeId IS NOT NULL) "
-        "SELECT typeId FROM typeSelection ORDER BY level DESC",
+        "FROM propertyDeclarations "
+        "WHERE propertyDeclarationId=?1 "
+        "LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
         "SELECT sourceContextId FROM sourceContexts WHERE sourceContextPath = ?", database};
@@ -4514,18 +4517,11 @@ public:
         "DELETE FROM documentImports WHERE sourceId=?1 AND parentImportId=?2", database};
     WriteStatement<1> deleteDocumentImportsWithSourceIdsStatement{
         "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
-    ReadStatement<1, 2> selectPropertyDeclarationIdPrototypeChainDownStatement{
-        "WITH RECURSIVE "
-        "  typeSelection(typeId, level) AS ("
-        "      SELECT prototypeId, 0 FROM types WHERE typeId=?1"
-        "    UNION ALL"
-        "      SELECT extensionId, 0 FROM types WHERE typeId=?1"
-        "    UNION ALL "
-        "      SELECT prototypeId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId) "
-        "    UNION ALL "
-        "      SELECT extensionId, ts.level+1 FROM types JOIN typeSelection AS ts USING(typeId)) "
-        "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
-        "  WHERE name=?2 ORDER BY level LIMIT 1",
+    mutable ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
+        "SELECT propertyDeclarationId "
+        "FROM propertyDeclarations "
+        "WHERE typeId=?1 AND name=?2 "
+        "LIMIT 1",
         database};
     WriteStatement<2> updateAliasIdPropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2  WHERE "
@@ -4601,7 +4597,7 @@ public:
         "UPDATE types SET prototypeId=?2 WHERE typeId=?1", database};
     WriteStatement<2> updateTypeExtensionStatement{
         "UPDATE types SET extensionId=?2 WHERE typeId=?1", database};
-    mutable ReadStatement<1, 1> selectTypeIdsForPrototypeChainIdStatement{
+    mutable ReadStatement<1, 1> selectPrototypeAndExtensionIdsStatement{
         "WITH RECURSIVE "
         "  prototypes(typeId) AS (  "
         "      SELECT prototypeId FROM types WHERE typeId=?1 "
@@ -4793,39 +4789,11 @@ public:
         "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
         "FROM imports",
         database};
-    mutable ReadStatement<1, 1> selectPropertyDeclarationIdsForTypeStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeChain(typeId) AS ("
-        "      VALUES(?1)"
-        "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
-        "        USING(typeId))"
-        "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
-        "  USING(typeId) ORDER BY propertyDeclarationId",
-        database};
     mutable ReadStatement<1, 1> selectLocalPropertyDeclarationIdsForTypeStatement{
         "SELECT propertyDeclarationId "
         "FROM propertyDeclarations "
         "WHERE typeId=? "
         "ORDER BY propertyDeclarationId",
-        database};
-    mutable ReadStatement<1, 2> selectPropertyDeclarationIdForTypeAndPropertyNameStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeChain(typeId, level) AS ("
-        "      VALUES(?1, 0)"
-        "    UNION ALL "
-        "      SELECT prototypeId, typeChain.level + 1 FROM all_prototype_and_extension JOIN "
-        "        typeChain USING(typeId))"
-        "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
-        "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
         database};
     mutable ReadStatement<1, 2> selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement{
         "SELECT propertyDeclarationId "
@@ -4886,32 +4854,6 @@ public:
         "      SELECT prototypeId, p.level+1 FROM all_prototype_and_extension JOIN "
         "        prototypes AS p USING(typeId)) "
         "SELECT typeId FROM prototypes ORDER BY level",
-        database};
-    mutable ReadStatement<1, 1> selectPrototypeAndSelfIdsForTypeIdInOrderStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeChain(typeId, level) AS ("
-        "       VALUES(?1, 0)"
-        "    UNION ALL "
-        "      SELECT prototypeId, tc.level+1 FROM all_prototype_and_extension JOIN "
-        "        typeChain AS tc USING(typeId)) "
-        "SELECT typeId FROM typeChain ORDER BY level",
-        database};
-    mutable ReadStatement<1, 1> selectPrototypeIdsStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeSelection(typeId) AS ("
-        "      SELECT prototypeId FROM all_prototype_and_extension WHERE typeId=?1 "
-        "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeSelection "
-        "        USING(typeId))"
-        "SELECT typeId FROM typeSelection",
         database};
     WriteStatement<2> upsertPropertyEditorPathIdStatement{
         "INSERT INTO propertyEditorPaths(typeId, pathSourceId) VALUES(?1, ?2) ON CONFLICT DO "
