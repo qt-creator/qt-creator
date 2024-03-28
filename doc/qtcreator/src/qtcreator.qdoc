@@ -44,7 +44,6 @@
                     \li \l{Deploying to Devices}
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
-                    \li \l{Using Squish}
                 \endlist
             \li \b {\l{Tutorials}}
                 \generatelist creator-tutorials

@@ -87,7 +87,6 @@
                 \li \l{Analyzing Code with Cppcheck}
                 \li \l{Visualizing Chrome Trace Events}
             \endlist
-            \li \l{Using Squish}
         \endlist
         \li \l{Tutorials}
             \generatelist creator-tutorials

@@ -2,82 +2,66 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-autotest.html
-    \page creator-squish.html
-    \nextpage creator-advanced.html
+    \page creator-how-to-connect-squish-server.html
+    \previouspage creator-how-tos.html
 
-    \title Using Squish
+    \ingroup creator-how-to-test
 
-    \l{https://www.qt.io/product/quality-assurance/squish}{Squish} is an automated GUI
-    testing framework for testing Android, iOS, Java, \macos, Qt, Tk, Windows, and
-    XView applications, as well as HTML-based web applications running in
-    browsers, such as Apple Safari, Mozilla Firefox, Google Chrome, and
-    Microsoft Internet Explorer and Edge.
+    \title Connect to Squish Server
 
-    The experimental Squish plugin integrates Squish into \QC. You can:
-
-    \list
-        \li Open existing Squish test suites.
-        \li Create new test suites and test cases.
-        \li Record test cases (in a very limited way compared to what you can do
-            inside the Squish IDE).
-        \li Use Squish Runner and Server to run test suites or cases and view
-            the results in the \uicontrol Squish \l{View output}{output}.
-        \li Set breakpoints before running tests to stop at certain locations and
-            inspect the local variables, similarly to when debugging a test.
-    \endlist
-
-    When running test suites or cases, the Squish Runner instructs the Squish
-    Server to start the application under test (AUT). The server can be running
-    on multiple machines, and the AUT can be located on a different path on each
-    of them. Therefore, you must either map AUTs to their corresponding paths or
-    specify AUT paths to search from in the server settings.
-
-    In addition, you can test an already running application by attaching to it.
-    This enables you to test your application using a Squish Server running on
-    another machine. However, you can have only one server attached to your
-    application at a time. Also, the attached application is not closed when the
-    test case is completed.
-
-    To use the plugin, you must download and install Squish, create a connection
-    to the Squish Server, and specify AUTs to run.
-
-    \note Enable the Squish plugin to use it.
-
-    \section1 Specifying a Squish Server
-
-    To specify a Squish Server to run:
+    To create a connection to Squish Server:
 
     \list 1
         \li Select \preferences > \uicontrol Squish.
-            \image qtcreator-squish-preferences.png "Squish general preferences"
-        \li In the \uicontrol {Squish path} field, specify the path to the Squish
+            \image qtcreator-squish-preferences.png {Squish general preferences}
+        \li In \uicontrol {Squish path}, specify the path to the Squish
             installation directory.
-        \li In the \uicontrol {License path} field, specify the path to your
+        \li In \uicontrol {License path}, specify the path to your
             Squish license file if it is not located in your home folder. For
             example, if you have a global installation with several users, where
             the license key is installed in the global folder.
-        \li Select the \uicontrol {Local server} check box to use a locally
-            installed \c {squishserver.exe}. To use a server running in another
-            machine, deselect the check box and specify the server address in the
-            \uicontrol {Server host} field and the port number in the
-            \uicontrol {Server port} field. If no port is specified, \QC starts
+        \li Select \uicontrol {Local server} to use a locally
+            installed \c {squishserver.exe}. To use a server running on another
+            computer, clear the checkbox and specify the server address in the
+            \uicontrol {Server host} and the port number in the
+            \uicontrol {Server port}. If no port is specified, \QC starts
             \c squishserver in a way that enables it to automatically select an
             open port.
-        \li Select the \uicontrol {Verbose log} check box to include additional
+        \li Select \uicontrol {Verbose log} to include additional
             logging levels in the log output.
-        \li Select the \uicontrol {Minimize IDE} check box to automatically
+        \li Select \uicontrol {Minimize IDE} to automatically
             minimize \QC when running or recording test cases.
     \endlist
 
-    \section1 Specifying AUTs
+    \sa {Create Squish test suites}, {Enable and disable plugins},
+    {Manage Squish test suites and cases}, {Select Squish AUTs}, {Squish}
+*/
 
-    To specify applications to test using Squish, select \uicontrol {Tools} >
+/*!
+    \page creator-how-to-select-squish-auts.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-test
+
+    \title Select Squish AUTs
+
+    To select applications to test using Squish, go to \uicontrol {Tools} >
     \uicontrol {Squish} > \uicontrol {Server Settings}.
 
-    \image qtcreator-squish-server-settings.png "Squish Server Settings"
+    \image qtcreator-squish-server-settings.png {Squish Server Settings}
 
-    \section2 Mapping AUTs
+    When running test suites or cases, the Squish Runner instructs the Squish
+    Server to start the application under test (AUT). The server can be running
+    on multiple computers, and the AUT can be located on a different path on each
+    of them. Therefore, you must either map AUTs to their corresponding paths or
+    specify AUT paths to search from in the server settings.
+
+    To test an already running application using a Squish Server running on
+    another computer, attach to the application. You can attach only one server
+    to your application at a time. The attached application is not closed when
+    the test case is completed.
+
+    \section1 Map AUTs
 
     To specify the path to an AUT to run, select \uicontrol {Mapped AUTs} >
     \uicontrol Add and locate the AUT.
@@ -88,13 +72,13 @@
 
     Mapping AUTs prevents the server from accidentally executing the wrong AUT
     if two different executables have the same name, as the server executes the
-    first matching AUT it finds in the \uicontrol {AUT Paths} list.
+    first matching AUT it finds in \uicontrol {AUT Paths}.
 
     To change the path to the selected AUT, select \uicontrol {Edit}.
 
     To remove the mapping to the selected AUT, select \uicontrol {Remove}.
 
-    \section2 Specifying AUT Paths
+    \section1 Specify AUT paths
 
     To specify a path to search AUTs from, select \uicontrol {AUT Paths} >
     \uicontrol Add.
@@ -107,32 +91,60 @@
 
     To remove the selected AUT path, select \uicontrol {Remove}.
 
-    \section2 Adding Attachable AUTs
+    \section1 Add attachable AUTs
 
     To specify the path to a running AUT, select \uicontrol {Attachable AUTs} >
     \uicontrol Add. In the \uicontrol {Add Attachable AUT} dialog, specify a
     connection to a running application to register an attachable AUT.
 
-    \image qtcreator-squish-server-settings-add-attachable-aut.png "Add Attachable AUT dialog"
+    \image qtcreator-squish-server-settings-add-attachable-aut.png {Add Attachable AUT dialog}
 
     To change the connection to the selected AUT, select \uicontrol {Edit}.
 
     To remove the connection to the selected AUT, select \uicontrol {Remove}.
 
-    \section1 Managing Test Suites and Cases
+    \section1 Specify settings for running tests
 
-    You can manage Squish test suites and cases in the \uicontrol Squish
-    \l {Show and hide sidebars}{view}.
+    To specify settings for running tests:
 
-    \image qtcreator-squish-view.png "Squish sidebar view"
+    \list
+        \li In \uicontrol {Maximum startup time}, set the maximum time
+            to wait for the AUT to start before throwing an error.
+        \li In \uicontrol {Maximum response time}, set the maximum time
+            to wait for the AUT to respond before throwing an error.
+        \li In \uicontrol {Maximum post-mortem wait time}, set the
+            maximum time to wait after the main AUT has exited. This is useful
+            for AUTs invoked through launcher applications, such as shell scripts
+            or batch files.
+        \li Select \uicontrol {Animate mouse cursor} to animate
+            the mouse cursor when playing back a test.
+    \endlist
+
+    \sa {Connect to Squish Server}, {Create Squish test suites},
+    {Enable and disable plugins}, {Manage Squish test suites and cases},
+    {Squish}
+*/
+
+/*!
+    \page creator-how-to-manage-squish-test-suites.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-test
+
+    \title Manage Squish test suites and cases
+
+    Manage Squish test suites and cases in the \uicontrol Squish
+    \l {Show and hide sidebars}{sidebar view}.
+
+    \image qtcreator-squish-view.png {Squish sidebar view}
 
     To show existing test suites in \uicontrol {Test Suites}, select
     \uicontrol {Open Squish Suites} in the context menu.
 
-    \image qtcreator-squish-view-open-squish-suites.png "Open Squish Test Suites dialog"
+    \image qtcreator-squish-view-open-squish-suites.png {Open Squish Test Suites dialog}
 
-    You can open the \uicontrol {Squish Test Suite} wizard for creating a new
-    test suite by selecting \uicontrol {Create New Test Suite} in the context
+    To open the \uicontrol {Squish Test Suite} wizard for creating a new
+    test suite, select \uicontrol {Create New Test Suite} in the context
     menu.
 
     To add a test case to a test suite, select it and then select
@@ -148,73 +160,40 @@
     Double-click a test suite in \uicontrol {Test Suites} to open the
     \c {suite.conf} configuration file for editing.
 
-    \section2 Creating Test Suites
-
-    To create a new test suite:
-
-    \list 1
-        \li Select \uicontrol File > \uicontrol {New Project}
-            > \uicontrol {Squish} > \uicontrol {Squish Test Suite} >
-            \uicontrol Choose.
-            \image qtcreator-squish-create-test-suite.png "Create Squish Test Suite wizard"
-        \li On the \uicontrol {Location} page, in \uicontrol {Test Suite Name},
-            enter a name for the test suite.
-            \image qtcreator-squish-create-test-suite-location.png "Location page"
-        \li In \uicontrol {Test Suite folder's parent folder}, enter the path to
-            the folder to create the test suite folder, and then select
-            \uicontrol Next.
-        \li On the \uicontrol Setup page, select the GUI toolkit used by the AUT,
-            and then select \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-setup.png "Setup page"
-            Currently, only desktop GUI toolkits are supported.
-        \li On the \uicontrol {Script Language} page, select the scripting
-            language to use for the test suite's test script, and then select
-            \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-language.png "Languages page"
-        \li On the \uicontrol {AUT} page, select the AUT to test, and then select
-            \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-aut.png "AUT page"
-        \li On the \uicontrol {Summary} page review the test suite settings, and
-            then select \uicontrol Finish to create the test suite.
-    \endlist
-
-    The test suite is listed in \uicontrol {Test Suites} in the \uicontrol Squish
-    sidebar view.
-
-    \section2 Recording Test Cases
+    \section1 Record test cases
 
     Squish records tests using the scripting language that you specified for the
     test suite. Recordings are made into existing test cases.
 
     In \uicontrol {Test Suites}, select the \inlineimage icons/recordfill.png
-    (\uicontrol {Record Test Case}) button next to the test case name. The AUT
-    that you selected for the test suite is displayed and you can start recording
-    the test case.
+    (\uicontrol {Record Test Case}) button next to the test case name. The
+    application under test (AUT) that you selected for the test suite is
+    displayed and you can start recording the test case.
 
-    \image qtcreator-squish-control-bar-record-test-case.png "Squish control bar for recording test cases"
+    \image qtcreator-squish-control-bar-record-test-case.png {Squish control bar for recording test cases}
 
     When you are done, select the \inlineimage icons/stop_small.png
     (\uicontrol {Stop}) button in the \uicontrol {Control Bar}.
 
-    You can edit recorded test scripts or copy parts of them into manually
+    Edit recorded test scripts or copy parts of them into manually
     created test scripts.
 
-    \image qtcreator-squish-test-script-edit.png "A test script open in the editor"
+    \image qtcreator-squish-test-script-edit.png {A test script open in the editor}
 
-    \section2 Running Test Suites
+    \section1 Run test suites
 
-    You can run a recorded test case to have Squish repeat all the actions that
+    Run a recorded test case to have Squish repeat all the actions that
     you applied when recording the test, but without the pauses that humans are
     prone to but which computers don't need.
     To run a test case, select the \inlineimage icons/run_small.png
     (\uicontrol {Run}) button next to the test case in \uicontrol {Test Suites}.
 
-    \image qtcreator-squish-control-bar-run-test-case.png "Squish control bar for running test cases"
+    \image qtcreator-squish-control-bar-run-test-case.png {Squish control bar for running test cases}
 
     While the test is running, you can view test results as well as interrupt and
     stop tests in the \uicontrol {Control Bar}.
 
-    \section2 Mapping Symbolic Names
+    \section1 Map symbolic names
 
     When Squish records a test, it uses \e {symbolic names} to identify the UI
     elements. Symbolic names are stored in an object map that can be either
@@ -237,7 +216,7 @@
     (\uicontrol {Object Map}) button next to the test
     suite in \uicontrol {Test Suites}.
 
-    \image qtcreator-squish-symbolic-names.png "Symbolic Names view"
+    \image qtcreator-squish-symbolic-names.png {Symbolic Names view}
 
     You can filter the symbolic names in the \uicontrol {Symbolic Names} view.
     To edit a symbolic name or the names or values of its properties,
@@ -253,49 +232,87 @@
     property, select  \inlineimage icons/jumpto.png
     .
 
-    \section2 Inspecting Local Variables
+    \section1 Inspect local variables
 
     If you set breakpoints in the test code before running the test, the test
     execution is automatically interrupted when a breakpoint is hit. You can
     inspect the contents of local variables in the \uicontrol {Squish Locals}
     view.
 
-    \image qtcreator-squish-locals.png "Squish Locals view"
+    \image qtcreator-squish-locals.png {Squish Locals view}
 
     Use the \uicontrol {Step Into}, \uicontrol {Step Over}, and
     \uicontrol {Step Out} buttons in the \uicontrol Squish debugging
     view to step through the code.
 
-    \image qtcreator-squish-debugging-view.png "Squish debugging view"
+    \image qtcreator-squish-debugging-view.png {Squish debugging view}
 
-    \section2 Specifying Settings for Running Tests
+    \sa {Connect to Squish Server}, {Create Squish test suites},
+    {Enable and disable plugins}, {Select Squish AUTs}, {Squish}
+*/
 
-    To specify settings for running tests, select \uicontrol Tools >
-    \uicontrol Squish > \uicontrol {Server Settings}:
+/*!
+    \page creator-how-to-create-squish-test-suites.html
+    \previouspage creator-how-tos.html
 
-    \list
-        \li In the \uicontrol {Maximum startup time} field, set the maximum time
-            to wait for the AUT to start before throwing an error.
-        \li In the \uicontrol {Maximum response time} field, set the maximum time
-            to wait for the AUT to respond before throwing an error.
-        \li In the \uicontrol {Maximum post-mortem wait time} field, set the
-            maximum time to wait after the main AUT has exited. This is useful
-            for AUTs invoked through launcher applications, such as shell scripts
-            or batch files.
-        \li Select the \uicontrol {Animate mouse cursor} check box to animate
-            the mouse cursor when playing back a test.
+    \ingroup creator-how-to-test
+
+    \title Create Squish test suites
+
+    To create a new test suite:
+
+    \list 1
+        \li Go to \uicontrol File > \uicontrol {New Project}.
+        \li Select \uicontrol {Squish} > \uicontrol {Squish Test Suite} >
+            \uicontrol Choose.
+            \image qtcreator-squish-create-test-suite.png {Create Squish Test Suite wizard}
+        \li On the \uicontrol {Location} page, in \uicontrol {Test Suite Name},
+            enter a name for the test suite.
+            \image qtcreator-squish-create-test-suite-location.png {Location page}
+        \li In \uicontrol {Test Suite folder's parent folder}, enter the path to
+            the folder to create the test suite folder, and then select
+            \uicontrol Next.
+        \li On the \uicontrol Setup page, select the GUI toolkit used by the
+            application under test (AUT), and then select \uicontrol Next.
+            \image qtcreator-squish-create-test-suite-setup.png {Setup page}
+            Currently, only desktop GUI toolkits are supported.
+        \li On the \uicontrol {Script Language} page, select the scripting
+            language to use for the test suite's test scripts, and then select
+            \uicontrol Next.
+            \image qtcreator-squish-create-test-suite-language.png {Languages page}
+        \li On the \uicontrol {AUT} page, select the AUT to test, and then select
+            \uicontrol Next.
+            \image qtcreator-squish-create-test-suite-aut.png {AUT page}
+        \li On the \uicontrol {Summary} page, review the test suite settings, and
+            then select \uicontrol Finish to create the test suite.
     \endlist
 
-    \section1 Viewing Test Results
+    The test suite is listed in \uicontrol {Test Suites} in the \uicontrol Squish
+    sidebar view.
+
+    \sa {Connect to Squish Server}, {Manage Squish test suites and cases}, {Enable and disable plugins},
+    {Select Squish AUTs}, {Squish}
+*/
+
+/*!
+    \page creator-reference-squish-output.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-output-views
+
+    \title Squish
+
+    \brief View Squish test, runner, and server logs.
 
     Squish uses compare, verify, and exception functions to record the results of
-    tests applied to a running AUT in the test log as \e {passes} or \e {fails}.
-    In addition, any kind of test results can be recorded in the test log.
+    tests applied to a running application under test (AUT) in the test log as
+    \e {passes} or \e {fails}. In addition, any kind of test results can be
+    recorded in the test log.
 
-    You can view the test log in the \uicontrol Squish output,
+    To view the test log, go to the \uicontrol Squish output,
     \uicontrol {Test Results} tab.
 
-    \image qtcreator-squish-output-test-results.png "Test Results output"
+    \image qtcreator-squish-output-test-results.png {Test Results output}
 
     The \uicontrol Result column displays the time when each test run started
     and finished, log information and warnings, and test result status:
@@ -314,12 +331,14 @@
     the type of the operation that was performed: comparison, verification, or
     exception.
 
-    \section1 Viewing Squish Runner and Server Logs
+    \section1 View Squish runner and server logs
 
-    You can view the Squish Runner and Server logs in the \uicontrol Squish
+    To view the Squish Runner and Server logs, go to the \uicontrol Squish
     output, \uicontrol {Runner/Server Log} tab.
 
-    \image qtcreator-squish-output-runner-server-log.png "Runner and Server Log output"
+    \image qtcreator-squish-output-runner-server-log.png {Runner and Server Log output}
 
-    \sa {Enable and disable plugins}
+    \sa {Connect to Squish Server}, {Create Squish test suites},
+    {Enable and disable plugins}, {Manage Squish test suites and cases},
+    {Select Squish AUTs}, {View output}
 */

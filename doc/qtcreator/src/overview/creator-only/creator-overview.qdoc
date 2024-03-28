@@ -287,10 +287,32 @@
 
     \image qtcreator-autotests.png
 
-    Map AUTs (Application Under Test) to \QC and run Squish test suites
-    and cases from it.
+    \section2 Using Squish
 
-    For more information, see \l{Test}{How To: Test} and \l{Using Squish}.
+    \brief The experimental Squish plugin integrates Squish into \QC.
+
+    \l{https://www.qt.io/product/quality-assurance/squish}{Squish} is an
+    automated GUI testing framework for testing Android, iOS, Java, \macos,
+    Qt, Tk, Windows, and XView applications, as well as HTML-based web
+    applications running in browsers.
+
+    In \QC, you can:
+
+    \list
+        \li Open existing Squish test suites.
+        \li Create new test suites and test cases.
+        \li Record test cases (in a very limited way compared to what you can do
+            inside the Squish IDE).
+        \li Use Squish Runner and Server to run test suites or cases and view
+            the results in the \uicontrol Squish \l{View output}{output}.
+        \li Set breakpoints before running tests to stop at certain locations and
+            inspect the local variables, similarly to when debugging a test.
+    \endlist
+
+    To use the plugin, you must download and install Squish, create a connection
+    to the Squish Server, and specify the application under test (AUT) to run.
+
+    For more information, see \l{Test}{How To: Test}.
 
     \section1 Publishing Applications
 
