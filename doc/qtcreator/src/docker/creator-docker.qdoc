@@ -22,7 +22,7 @@
     {debuggers} and \l{Add Qt versions}{Qt versions}, in the Docker container
     and creates kits for the devices.
 
-    You can use CMake or qmake to build applications in the Docker container.
+    You are advised to use CMake to build applications in the Docker container.
 
     To pull images from Docker hub or other registries, use the
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}
