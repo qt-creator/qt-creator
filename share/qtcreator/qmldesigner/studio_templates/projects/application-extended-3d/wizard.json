@@ -236,33 +236,9 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 5,
+                        "index": 2,
                         "items":
                             [
-                            {
-                                "trKey": "Qt 6.2",
-                                "value":
-                                "({
-                                    'TargetQuickVersion': '6.2',
-                                    'TargetQuick3DVersion': '6.2'
-                                })"
-                            },
-                            {
-                                "trKey": "Qt 6.3",
-                                "value":
-                                "({
-                                    'TargetQuickVersion': '6.3',
-                                    'TargetQuick3DVersion': '6.3'
-                                })"
-                            },
-                            {
-                                "trKey": "Qt 6.4",
-                                "value":
-                                "({
-                                    'TargetQuickVersion': '6.4',
-                                    'TargetQuick3DVersion': '6.4'
-                                })"
-                            },
                             {
                                 "trKey": "Qt 6.5",
                                 "value":
