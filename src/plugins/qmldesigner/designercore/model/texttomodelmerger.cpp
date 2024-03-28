@@ -84,6 +84,9 @@ bool isGlobalQtEnums(QStringView value)
          u"TopToBottom",     u"UpArrowCursor",  u"Vertical",           u"WaitCursor",
          u"WhatsThisCursor", u"WheelFocus"});
 
+    if (value.toString().startsWith("Key_"))
+        return true;
+
     return std::binary_search(std::begin(list),
                               std::end(list),
                               QmlDesigner::ModelUtils::toStdStringView(value));
