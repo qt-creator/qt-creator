@@ -992,4 +992,4 @@ void DelayedFileCrumbLabel::setScrollBarOnce() const
     that->m_bar.clear();
 }
 
-} // namespace ProjectExplorer
+} // namespace Core
