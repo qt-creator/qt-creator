@@ -29,13 +29,6 @@
             Android and embedded Linux devices. The changes you make to
             the UI are instantly visible to you in the preview.
 
-        \li \l{Deploying to Devices}
-
-            \e {Deploy configurations} handle the packaging and copying of
-            the necessary files to a location you want to run the executable
-            at. The files can be copied to a location in the file system of
-            the development PC or a device.
-
         \li \l{Connecting Devices}
 
             When you install tool chains for device types as part of a Qt distribution,

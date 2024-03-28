@@ -28,13 +28,40 @@
 
     \annotatedlist creator-reference-build-systems
 
-    \section1 Build Configurations
+    \section2 Build Configurations
 
     Build configurations have everything you need to compile the sources into
     binaries. Build configurations use the tools and settings defined in their
     corresponding kit.
 
     \annotatedlist creator-reference-build-configurations
+
+    \section1 Devices
+
+    Connect devices to the computer to run, debug, and analyze applications
+    built for them from \QC. When you install Qt for a target platform, such
+    as Android or QNX, the build and run configurations for the development
+    targets might be set up automatically in \QC.
+
+    \section2 Deploy Configurations
+
+    Deploy configurations handle the packaging of the application as an
+    executable and copying it to a location you want to run the executable at.
+    The files can be copied to a location in the file system of the computer
+    or a device.
+
+    \annotatedlist creator-reference-deploy-configurations
+
+    \section2 Run Configurations
+
+    Run configurations start the application in the location where the
+    deploy configuration copied it. By default, when you select
+    \uicontrol Run, \QC builds the project, deploys it to the device
+    defined in the kit, and runs it there. If you did not make changes
+    to the project since you last built and deployed it, \QC simply runs
+    it again.
+
+    \annotatedlist creator-reference-run-configurations
 
     \section1 Editors
 
@@ -80,17 +107,6 @@
     Preferences for the behavior and appearance of text and code editors.
 
     \annotatedlist creator-reference-preferences-text-editor
-
-    \section1 Run Configurations
-
-    Run configurations start the application in the location where the
-    \e {deploy configuration} copied it. By default, when you select
-    \uicontrol Run, \QC builds the project, deploys it to the device
-    defined in the kit, and runs it there. If you did not make changes
-    to the project since you last built and deployed it, \QC simply runs
-    it again.
-
-    \annotatedlist creator-reference-run-configurations
 
     \section1 UI Design
 

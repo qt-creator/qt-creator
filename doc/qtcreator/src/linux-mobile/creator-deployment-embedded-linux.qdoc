@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,14 +9,18 @@
 
 /*!
     \page creator-deployment-embedded-linux.html
-    \previouspage creator-deployment-qnx.html
-    \nextpage creator-connecting-mobile.html
+    \previouspage creator-reference.html
 
-    \title Deploying to Remote Linux
+    \ingroup creator-reference-deploy-configurations
 
-    You can specify settings for deploying applications to generic remote
-    Linux devices in the project configuration file and in the
-    \uicontrol Projects mode, in \uicontrol {Run Settings}.
+    \title Remote Linux Deploy Configuration
+
+    \brief Copy application files to generic remote Linux devices or create a
+    tarball.
+
+    Specify settings for deploying applications to generic remote
+    Linux devices in the project configuration file and in \uicontrol Projects >
+    \uicontrol {Run Settings} > \uicontrol Deployment.
 
     \image qtcreator-embedded-linux-deployment-details.png "Deploy to remote Linux devices"
 
@@ -107,4 +111,7 @@
 
     The \uicontrol {Deploy tarball via SFTP upload} step specifies that \QC
     uploads the tarball to the device and extracts it.
+
+    \sa {Build and Run}{How To: Build and Run},
+    {Connecting Remote Linux Devices}, {Remote Linux Run Settings}
 */

@@ -41,7 +41,6 @@
                     \li \l{Configuring Projects}
                     \li \l{Validating with Target Hardware}
                     \li \l{Connecting Devices}
-                    \li \l{Deploying to Devices}
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
                 \endlist
@@ -64,6 +63,7 @@
                 \list
                     \li \l {Acknowledgements}
                     \li \l {Build Systems}
+                    \li \l {Devices}
                     \li \l {Command-Line Options}
                     \li \l {Custom Wizards}
                     \li \l {Keyboard Shortcuts}

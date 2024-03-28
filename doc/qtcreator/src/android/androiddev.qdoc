@@ -206,7 +206,7 @@
     To start an AVD, select \uicontrol {Start AVD}. Usually, you don't need to
     start AVDs separately because \QC starts them when you
     select them in the \l{Build for many platforms}{kit selector} to
-    \l{Deploying to Android}{deploy applications} to them.
+    \l{Android Deploy Configuration}{deploy applications} to them.
 
     To remove an AVD from the list and the kit selector, select
     \uicontrol {Erase AVD}.

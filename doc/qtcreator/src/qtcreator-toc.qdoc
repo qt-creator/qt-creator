@@ -28,13 +28,6 @@
                 \li \l{Previewing on Devices}
                 \li \l{Previewing in Browsers}
             \endlist
-            \li \l{Deploying to Devices}
-            \list
-                \li \l{Deploying to Android}
-                \li \l{Deploying to Boot2Qt}
-                \li \l{Deploying to QNX Neutrino}
-                \li \l{Deploying to Remote Linux}
-            \endlist
             \li \l{Connecting Devices}
             \list
                 \li \l{Connecting Android Devices}
@@ -135,6 +128,11 @@
                         \list
                             \li Build Configurations
                                 \generatelist creator-reference-build-configurations
+                        \endlist
+                    \li Devices
+                        \list
+                            \li Deploy Configurations
+                                \generatelist creator-reference-deploy-configurations
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
                         \endlist

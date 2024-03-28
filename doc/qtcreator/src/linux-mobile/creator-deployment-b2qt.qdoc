@@ -1,25 +1,30 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-deployment-b2qt.html
-    \previouspage creator-deploying-android.html
-    \nextpage creator-deployment-qnx.html
+    \previouspage creator-reference.html
 
-    \title Deploying to Boot2Qt
+    \ingroup creator-reference-deploy-configurations
 
-    You can specify settings for deploying applications to \l{Boot2Qt} devices
+    \title Boot2Qt Deploy Configuration
+
+    \brief Copy application files to Boot2Qt devices.
+
+    Specify settings for deploying applications to \l{Boot2Qt} devices
     in the project configuration file and in \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol Deployment.
 
     \image qtcreator-boot2qt-deployment-steps.png "Boot2Qt deployment steps"
 
     The deployment process is described in more detail in
-    \l{Deploying to Remote Linux}.
+    \l{Remote Linux Deploy Configuration}.
 
     \section1 Launching Applications on Boot
 
-    In addition, to have your application launch on boot, select
+    To have your application launch on boot, select
     \uicontrol {Add Deploy Step} > \uicontrol {Change default application}
     > \uicontrol {Set this application to start by default}.
+
+    \sa {Build and Run}{How To: Build and Run}, {Boot2Qt Run Settings}
 */

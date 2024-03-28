@@ -186,7 +186,7 @@
     build the project.
 
     Build applications for, deploy them to, and run them on the desktop
-    environment or a device. With kits, as well as build, run, and deployment
+    environment or a device. With kits, as well as build, deploy, and run
     configurations, you can quickly switch between different setups and
     target platforms.
 
@@ -201,11 +201,11 @@
     additional software on the devices to be able to connect to them
     from the computer.
 
-    Deployment configurations handle the packaging and copying of the necessary
+    \e {Deploy configurations} handle the packaging and copying of the necessary
     files to a location you want to run the executable at, such as the file
     system of a device.
 
-    For more information, see \l{Connecting Devices} and \l{Deploying to Devices}.
+    For more information, see \l{Connecting Devices} and \l{Deploy Configurations}.
 
     \section2 Previewing QML
 

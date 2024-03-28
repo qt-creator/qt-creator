@@ -59,7 +59,7 @@
             {Boot2Qt: Installation Guides}
         \li \l{Connecting Boot2Qt Devices}
         \li \l{Boot2Qt Run Settings}
-        \li \l{Deploying to Boot2Qt}
+        \li \l{Boot2Qt Deploy Configuration}
         \li \l{Run in Qt Application Manager}
     \endlist
 
@@ -74,7 +74,7 @@
     \list
         \li \l{Adding Docker Devices}
         \li \l{Connecting Remote Linux Devices}
-        \li \l{Deploying to Remote Linux}
+        \li \l{Remote Linux Deploy Configuration}
         \li \l{Remote Linux Run Settings}
         \li \l{Run on remote Linux devices}
         \li \l{Run in Qt Application Manager}
@@ -107,7 +107,7 @@
 
     \list
         \li \l{Connecting QNX Devices}
-        \li \l{Deploying to QNX Neutrino}
+        \li \l{QNX Neutrino Deploy Configuration}
         \li \l{QNX Run Settings}
         \li \l{Run on QNX devices}
         \li \l{Qt for QNX}
