@@ -8,7 +8,7 @@ set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml")
 include(FetchContent)
 FetchContent_Declare(
     ds
-    GIT_TAG qds-4.4
+    GIT_TAG qds-4.5
     GIT_REPOSITORY https://code.qt.io/qt-labs/qtquickdesigner-components.git
 )
 
