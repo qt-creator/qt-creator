@@ -234,7 +234,7 @@ void PyDapEngine::setupEngine()
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
             Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
-            const FilePath target = packageDir(runParameters().interpreter, "dubugpy");
+            const FilePath target = packageDir(runParameters().interpreter, "debugpy");
             QTC_ASSERT(target.isSameDevice(runParameters().interpreter), return);
             m_installProcess.reset(new Process);
             m_installProcess->setCommand(
@@ -244,7 +244,8 @@ void PyDapEngine::setupEngine()
                   "install",
                   "-t",
                   target.needsDevice() ? target.path() : target.toUserOutput(),
-                  "debugpy"}});
+                  "debugpy",
+                  "--upgrade"}});
             m_installProcess->setTerminalMode(TerminalMode::Run);
             m_installProcess->start();
         });
