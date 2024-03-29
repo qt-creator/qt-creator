@@ -251,6 +251,7 @@ QtObject {
     property real collectionTableVerticalMargin: 10
     property real collectionCellMinimumWidth: 60
     property real collectionCellMinimumHeight: 20
+    property real smallStatusIndicatorDiameter: 6
 
     // NEW NEW NEW
     readonly property int flowMargin: 7

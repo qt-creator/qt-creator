@@ -17,6 +17,7 @@ Rectangle {
     required property var model
     required property var backend
     property int selectedRow: -1
+    property bool hasUnsavedChanges: false
 
     implicitHeight: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
@@ -32,6 +33,14 @@ Rectangle {
     function closeDialogs() {
         addColumnDialog.reject()
         fileDialog.reject()
+    }
+
+    Connections {
+        target: root.model
+
+        function onDataChanged() {
+            hasUnsavedChanges = true
+        }
     }
 
     RowLayout {
@@ -122,8 +131,18 @@ Rectangle {
 
                 buttonIcon: StudioTheme.Constants.save_medium
                 tooltip: qsTr("Save changes")
-                enabled: root.model.collectionName !== ""
-                onClicked: root.model.saveDataStoreCollections()
+                enabled: root.model.collectionName !== "" && root.hasUnsavedChanges
+                onClicked: hasUnsavedChanges = !root.model.saveDataStoreCollections()
+
+                Rectangle {
+                    width: StudioTheme.Values.smallStatusIndicatorDiameter
+                    height: StudioTheme.Values.smallStatusIndicatorDiameter
+                    radius: StudioTheme.Values.smallStatusIndicatorDiameter / 2
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    visible: hasUnsavedChanges
+                    color: StudioTheme.Values.themeIconColorSelected
+                 }
             }
 
             IconButton {
