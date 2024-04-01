@@ -4,7 +4,6 @@
 #pragma once
 
 #include "styleengine.h"
-#include "qmt/diagram/dobject.h"
 
 #include <QObject>
 #include <QScopedPointer>
@@ -14,6 +13,7 @@ namespace qmt {
 class Style;
 class ObjectVisuals;
 class StyledObject;
+class RelationVisuals;
 class StyledRelation;
 class DAnnotation;
 class DBoundary;
@@ -33,6 +33,8 @@ public:
     const Style *adaptObjectStyle(StyleEngine::ElementType elementType,
                                   const ObjectVisuals &objectVisuals);
     const Style *adaptObjectStyle(const StyledObject &object);
+    const Style *adaptRelationStyle(StyleEngine::ElementType elementType,
+                                    const RelationVisuals &relationVisuals);
     const Style *adaptRelationStyle(const StyledRelation &relation);
     const Style *adaptAnnotationStyle(const DAnnotation *annotation);
     const Style *adaptBoundaryStyle(const DBoundary *boundary);

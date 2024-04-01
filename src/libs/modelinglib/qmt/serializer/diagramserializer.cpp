@@ -220,6 +220,9 @@ inline void Access<Archive, DRelation>::serialize(Archive &archive, DRelation &r
             || attr("b", relation, &DRelation::endBUid, &DRelation::setEndBUid)
             || attr("name", relation, &DRelation::name, &DRelation::setName)
             || attr("points", relation, &DRelation::intermediatePoints, &DRelation::setIntermediatePoints)
+            || attr("visualPrimaryRole", relation, &DRelation::visualPrimaryRole, &DRelation::setVisualPrimaryRole)
+            || attr("visualSecondaryRole", relation, &DRelation::visualSecondaryRole, &DRelation::setVisualSecondaryRole)
+            || attr("thickness", relation, &DRelation::thickness, &DRelation::setThickness)
             || end;
 }
 

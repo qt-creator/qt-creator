@@ -43,6 +43,7 @@
 #include "qmt/diagram_scene/items/stereotypedisplayvisitor.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/stereotype/customrelation.h"
+#include "qmt/style/relationvisuals.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/style.h"
 #include "qmt/style/objectvisuals.h"
@@ -234,6 +235,61 @@ static DClass::TemplateDisplay translateIndexToTemplateDisplay(int index)
         DClass::TemplateName
     };
     QMT_ASSERT(index >= 0 && index <= 2, return DClass::TemplateSmart);
+    return map[index];
+}
+
+static int translateRelationVisualPrimaryRoleToIndex(DRelation::VisualPrimaryRole visualRole)
+{
+    switch (visualRole) {
+    case DRelation::PrimaryRoleNormal:
+        return 0;
+    case DRelation::PrimaryRoleCustom1:
+        return 1;
+    case DRelation::PrimaryRoleCustom2:
+        return 2;
+    case DRelation::PrimaryRoleCustom3:
+        return 3;
+    case DRelation::PrimaryRoleCustom4:
+        return 4;
+    case DRelation::PrimaryRoleCustom5:
+        return 5;
+    }
+    return 0;
+}
+
+static DRelation::VisualPrimaryRole translateIndexToRelationVisualPrimaryRole(int index)
+{
+    static const DRelation::VisualPrimaryRole map[] = {
+        DRelation::PrimaryRoleNormal,
+        DRelation::PrimaryRoleCustom1, DRelation::PrimaryRoleCustom2, DRelation::PrimaryRoleCustom3,
+        DRelation::PrimaryRoleCustom4, DRelation::PrimaryRoleCustom5
+    };
+    QMT_ASSERT(index >= 0 && index <= 5, return DRelation::PrimaryRoleNormal);
+    return map[index];
+}
+
+static int translateRelationVisualSecondaryRoleToIndex(DRelation::VisualSecondaryRole visualRole)
+{
+    switch (visualRole) {
+    case DRelation::SecondaryRoleNone:
+        return 0;
+    case DRelation::SecondaryRoleWarning:
+        return 1;
+    case DRelation::SecondaryRoleError:
+        return 2;
+    case DRelation::SecondaryRoleSoften:
+        return 3;
+    }
+    return 0;
+}
+
+static DRelation::VisualSecondaryRole translateIndexToRelationVisualSecondaryRole(int index)
+{
+    static const DRelation::VisualSecondaryRole map[] = {
+        DRelation::SecondaryRoleNone,
+        DRelation::SecondaryRoleWarning, DRelation::SecondaryRoleError, DRelation::SecondaryRoleSoften
+    };
+    QMT_ASSERT(index >= 0 && index <= 5, return DRelation::SecondaryRoleNone);
     return map[index];
 }
 
@@ -1057,6 +1113,52 @@ void PropertiesView::MView::visitDItem(const DItem *item)
 void PropertiesView::MView::visitDRelation(const DRelation *relation)
 {
     visitDElement(relation);
+    if (!m_relationVisualPrimaryRoleSelector) {
+        m_relationVisualPrimaryRoleSelector = new PaletteBox(m_topWidget);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleNormal);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleCustom1);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleCustom2);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleCustom3);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleCustom4);
+        setRelationPrimaryRolePalette(m_styleElementType, DRelation::PrimaryRoleCustom5);
+        addRow(Tr::tr("Color:"), m_relationVisualPrimaryRoleSelector, "color");
+        connect(m_relationVisualPrimaryRoleSelector, &PaletteBox::activated,
+                this, &PropertiesView::MView::onRelationVisualPrimaryRoleChanged);
+    }
+    if (!m_relationVisualPrimaryRoleSelector->hasFocus()) {
+        DRelation::VisualPrimaryRole visualPrimaryRole;
+        if (haveSameValue(m_diagramElements, &DRelation::visualPrimaryRole, &visualPrimaryRole))
+            m_relationVisualPrimaryRoleSelector->setCurrentIndex(translateRelationVisualPrimaryRoleToIndex(visualPrimaryRole));
+        else
+            m_relationVisualPrimaryRoleSelector->setCurrentIndex(-1);
+    }
+    if (!m_relationVisualSecondaryRoleSelector) {
+        m_relationVisualSecondaryRoleSelector = new QComboBox(m_topWidget);
+        m_relationVisualSecondaryRoleSelector->addItems({ Tr::tr("Normal"), Tr::tr("Warning"), Tr::tr("Error"), Tr::tr("Soften") });
+        addRow(Tr::tr("Role:"), m_relationVisualSecondaryRoleSelector, "role");
+        connect(m_relationVisualSecondaryRoleSelector, QOverload<int>::of(&QComboBox::activated),
+                this, &PropertiesView::MView::onRelationVisualSecondaryRoleChanged);
+    }
+    if (!m_relationVisualSecondaryRoleSelector->hasFocus()) {
+        DRelation::VisualSecondaryRole visualSecondaryRole;
+        if (haveSameValue(m_diagramElements, &DRelation::visualSecondaryRole, &visualSecondaryRole))
+            m_relationVisualSecondaryRoleSelector->setCurrentIndex(translateRelationVisualSecondaryRoleToIndex(visualSecondaryRole));
+        else
+            m_relationVisualSecondaryRoleSelector->setCurrentIndex(-1);
+    }
+    if (!m_relationVisualEmphasizedCheckbox) {
+        m_relationVisualEmphasizedCheckbox = new QCheckBox(Tr::tr("Emphasized"), m_topWidget);
+        addRow(QString(), m_relationVisualEmphasizedCheckbox, "emphasized");
+        connect(m_relationVisualEmphasizedCheckbox, &QAbstractButton::clicked,
+                this, &PropertiesView::MView::onRelationVisualEmphasizedChanged);
+    }
+    if (!m_relationVisualEmphasizedCheckbox->hasFocus()) {
+        bool emphasized;
+        if (haveSameValue(m_diagramElements, &DRelation::isVisualEmphasized, &emphasized))
+            m_relationVisualEmphasizedCheckbox->setChecked(emphasized);
+        else
+            m_relationVisualEmphasizedCheckbox->setChecked(false);
+    }
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_pointsLabel) {
         m_pointsLabel = new QLabel(m_topWidget);
@@ -1392,7 +1494,42 @@ void PropertiesView::MView::onAnnotationVisualRoleChanged(int visualRoleIndex)
 {
     DAnnotation::VisualRole visualRole = translateIndexToAnnotationVisualRole((visualRoleIndex));
     assignModelElement<DAnnotation, DAnnotation::VisualRole>(
-                m_diagramElements, SelectionMulti, visualRole, &DAnnotation::visualRole, &DAnnotation::setVisualRole);
+        m_diagramElements, SelectionMulti, visualRole, &DAnnotation::visualRole, &DAnnotation::setVisualRole);
+}
+
+
+void PropertiesView::MView::onRelationVisualPrimaryRoleChanged(int visualRoleIndex)
+{
+    DRelation::VisualPrimaryRole visualRole = translateIndexToRelationVisualPrimaryRole(visualRoleIndex);
+    assignModelElement<DRelation, DRelation::VisualPrimaryRole>(
+        m_diagramElements, SelectionMulti, visualRole,
+        &DRelation::visualPrimaryRole, &DRelation::setVisualPrimaryRole);
+}
+
+void PropertiesView::MView::onRelationVisualSecondaryRoleChanged(int visualRoleIndex)
+{
+    DRelation::VisualSecondaryRole visualRole = translateIndexToRelationVisualSecondaryRole(visualRoleIndex);
+    assignModelElement<DRelation, DRelation::VisualSecondaryRole>(
+        m_diagramElements, SelectionMulti, visualRole,
+        &DRelation::visualSecondaryRole, &DRelation::setVisualSecondaryRole);
+}
+
+void PropertiesView::MView::onRelationVisualEmphasizedChanged(bool visualEmphasized)
+{
+    assignModelElement<DRelation, bool>(m_diagramElements, SelectionMulti, visualEmphasized,
+                                      &DRelation::isVisualEmphasized, &DRelation::setVisualEmphasized);
+}
+
+void PropertiesView::MView::onRelationColorChanged(const QColor &color)
+{
+    assignModelElement<DRelation, QColor>(m_diagramElements, SelectionMulti, color,
+                                          &DRelation::color, &DRelation::setColor);
+}
+
+void PropertiesView::MView::onRelationThicknessChanged(qreal thickness)
+{
+    assignModelElement<DRelation, qreal>(m_diagramElements, SelectionMulti, thickness,
+                                         &DRelation::thickness, &DRelation::setThickness);
 }
 
 void PropertiesView::MView::prepare()
@@ -1553,7 +1690,8 @@ void PropertiesView::MView::setPrimaryRolePalette(StyleEngine::ElementType eleme
                                                   DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor)
 {
     int index = translateVisualPrimaryRoleToIndex(visualPrimaryRole);
-    const Style *style = m_propertiesView->styleController()->adaptObjectStyle(elementType, ObjectVisuals(visualPrimaryRole, DObject::SecondaryRoleNone, false, baseColor, 0));
+    const Style *style = m_propertiesView->styleController()->adaptObjectStyle(
+        elementType, ObjectVisuals(visualPrimaryRole, DObject::SecondaryRoleNone, false, baseColor, 0));
     m_visualPrimaryRoleSelector->setBrush(index, style->fillBrush());
     m_visualPrimaryRoleSelector->setLinePen(index, style->linePen());
 }
@@ -1593,6 +1731,17 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
         first = false;
     }
     return templateParamters;
+}
+
+void PropertiesView::MView::setRelationPrimaryRolePalette(StyleEngine::ElementType elementType,
+                                                          DRelation::VisualPrimaryRole visualPrimaryRole)
+{
+    int index = translateRelationVisualPrimaryRoleToIndex(visualPrimaryRole);
+    const Style *style = m_propertiesView->styleController()->adaptRelationStyle(
+        elementType, RelationVisuals(DObject::PrimaryRoleNormal, visualPrimaryRole,
+                                     DRelation::SecondaryRoleNone, false));
+    m_relationVisualPrimaryRoleSelector->setBrush(index, style->fillBrush());
+    m_relationVisualPrimaryRoleSelector->setLinePen(index, style->linePen());
 }
 
 template<class T, class V>

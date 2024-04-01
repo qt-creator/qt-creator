@@ -14,6 +14,7 @@ namespace qmt {
 class Style;
 class ObjectVisuals;
 class StyledObject;
+class RelationVisuals;
 class StyledRelation;
 
 class DAnnotation;
@@ -51,6 +52,9 @@ public:
                                           const Parameters *parameters) = 0;
     virtual const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &,
                                           const Parameters *) = 0;
+    virtual const Style *applyRelationStyle(const Style *baseStyle, ElementType elementType,
+                                            const RelationVisuals &relationVisuals,
+                                            const Parameters *) = 0;
     virtual const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &,
                                             const Parameters *) = 0;
     virtual const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *,

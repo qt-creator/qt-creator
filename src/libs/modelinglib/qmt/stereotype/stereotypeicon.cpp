@@ -62,6 +62,21 @@ void StereotypeIcon::setMinHeight(qreal minHeight)
     m_minHeight = minHeight;
 }
 
+void StereotypeIcon::setIconWith(qreal iconWidth)
+{
+    m_iconWidth = iconWidth;
+}
+
+void StereotypeIcon::setIconHeight(qreal iconHeight)
+{
+    m_iconHeight = iconHeight;
+}
+
+void StereotypeIcon::setDepthLayer(DepthLayer depthLayer)
+{
+    m_depthLayer = depthLayer;
+}
+
 void StereotypeIcon::setSizeLock(StereotypeIcon::SizeLock sizeLock)
 {
     m_sizeLock = sizeLock;

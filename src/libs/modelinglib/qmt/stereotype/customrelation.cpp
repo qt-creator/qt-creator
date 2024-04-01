@@ -114,4 +114,9 @@ void CustomRelation::setColor(const QColor &color)
     m_color = color;
 }
 
+void CustomRelation::setEmphasized(bool emphasized)
+{
+    m_emphasized = emphasized;
+}
+
 } // namespace qmt

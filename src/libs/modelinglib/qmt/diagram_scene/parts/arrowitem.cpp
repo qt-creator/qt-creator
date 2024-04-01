@@ -384,27 +384,29 @@ void ArrowItem::updateShaft(const Style *style)
     QMT_ASSERT(m_shaftItem, return);
 
     QPen pen(style->linePen());
+    pen.setCapStyle(Qt::FlatCap);
+
+    auto scale = [&pen](qreal v) {
+        return v / ((pen.widthF() - 1.0) / 2.0 + 1.0);
+    };
+
     switch (m_shaft) {
     case ShaftSolid:
         break;
     case ShaftDashed:
-        pen.setDashPattern(QVector<qreal>()
-                           << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
+        pen.setDashPattern(QVector<qreal>() << scale(5.0) << scale(3.0));
         break;
     case ShaftDot:
-        pen.setDashPattern(QVector<qreal>()
-                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        pen.setDashPattern(QVector<qreal>() << scale(3.0) << scale(3.0));
         break;
     case ShaftDashDot:
-        pen.setDashPattern(QVector<qreal>()
-                           << (4.0 / pen.widthF()) << (2.0 / pen.widthF())
-                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        pen.setDashPattern(QVector<qreal>() << scale(5.0) << scale(3.0)
+                                            << scale(3.0) << scale(3.0));
         break;
     case ShaftDashDotDot:
-        pen.setDashPattern(QVector<qreal>()
-                           << (4.0 / pen.widthF()) << (2.0 / pen.widthF())
-                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF())
-                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        pen.setDashPattern(QVector<qreal>() << scale(5.0) << scale(3.0)
+                                            << scale(3.0) << scale(3.0)
+                                            << scale(3.0) << scale(3.0));
         break;
     }
     m_shaftItem->setPen(pen);

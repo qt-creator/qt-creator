@@ -55,7 +55,10 @@ public:
     enum class ColorType {
         EndA,
         EndB,
-        Custom
+        Custom,
+        Warning,
+        Error,
+        Soften,
     };
 
     class End {
@@ -113,6 +116,8 @@ public:
     void setColorType(ColorType colorType);
     QColor color() const { return m_color; }
     void setColor(const QColor &color);
+    bool emphasized() const { return m_emphasized; }
+    void setEmphasized(bool emphasized);
 
     friend auto qHash(CustomRelation::Relationship relationship) {
         return ::qHash(static_cast<int>(relationship));
@@ -139,6 +144,7 @@ private:
     ShaftPattern m_shaftPattern = ShaftPattern::Solid;
     ColorType m_colorType = ColorType::EndA;
     QColor m_color;
+    bool m_emphasized = false;
 };
 
 } // namespace qmt

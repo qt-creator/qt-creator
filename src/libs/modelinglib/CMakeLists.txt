@@ -158,6 +158,7 @@ add_qtc_library(Modeling
     qmt/style/defaultstyle.h
     qmt/style/objectvisuals.cpp qmt/style/objectvisuals.h
     qmt/style/relationstarterstyle.cpp qmt/style/relationstarterstyle.h
+    qmt/style/relationvisuals.cpp qmt/style/relationvisuals.h
     qmt/style/stylecontroller.cpp qmt/style/stylecontroller.h
     qmt/style/style.cpp
     qmt/style/styledobject.cpp qmt/style/styledobject.h

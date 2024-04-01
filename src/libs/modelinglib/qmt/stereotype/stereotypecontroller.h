@@ -33,6 +33,7 @@ public:
                                              const QList<QString> &stereotypes) const;
     StereotypeIcon findStereotypeIcon(const QString &stereotypeIconId) const;
     CustomRelation findCustomRelation(const QString &customRelationId) const;
+    CustomRelation findCustomRelationByStereotype(const QString &steoreotype) const;
     QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
                      const QString &defaultIconPath, const Style *style,
                      const QSize &size, const QMarginsF &margins, qreal lineWidth);

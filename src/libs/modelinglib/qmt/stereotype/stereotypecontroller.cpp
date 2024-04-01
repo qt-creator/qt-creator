@@ -68,6 +68,7 @@ public:
     QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
     QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
     QHash<QString, CustomRelation> m_relationIdToCustomRelationMap;
+    QHash<QString, CustomRelation> m_stereotypeToCustomRelationMap;
     QList<Toolbar> m_toolbars;
     QList<Toolbar> m_elementToolbars;
     QHash<IconKey, QIcon> m_iconMap;
@@ -148,6 +149,11 @@ StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotyp
 CustomRelation StereotypeController::findCustomRelation(const QString &customRelationId) const
 {
     return d->m_relationIdToCustomRelationMap.value(customRelationId);
+}
+
+CustomRelation StereotypeController::findCustomRelationByStereotype(const QString &steoreotype) const
+{
+    return d->m_stereotypeToCustomRelationMap.value(steoreotype);
 }
 
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
@@ -251,6 +257,9 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
 void StereotypeController::addCustomRelation(const CustomRelation &customRelation)
 {
     d->m_relationIdToCustomRelationMap.insert(customRelation.id(), customRelation);
+    QString stereotype = Utils::toList(customRelation.stereotypes()).value(0);
+    if (!stereotype.isEmpty())
+        d->m_stereotypeToCustomRelationMap.insert(stereotype, customRelation);
 }
 
 void StereotypeController::addToolbar(const Toolbar &toolbar)

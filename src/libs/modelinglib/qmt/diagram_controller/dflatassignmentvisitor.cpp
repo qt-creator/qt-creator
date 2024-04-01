@@ -100,6 +100,8 @@ void DFlatAssignmentVisitor::visitDRelation(const DRelation *relation)
     QMT_ASSERT(target, return);
     target->setStereotypes(relation->stereotypes());
     target->setIntermediatePoints(relation->intermediatePoints());
+    target->setVisualPrimaryRole(relation->visualPrimaryRole());
+    target->setThickness(relation->thickness());
 }
 
 void DFlatAssignmentVisitor::visitDInheritance(const DInheritance *inheritance)

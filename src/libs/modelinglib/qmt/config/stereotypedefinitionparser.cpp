@@ -28,12 +28,15 @@ static const int KEYWORD_WIDTH         =  6;
 static const int KEYWORD_HEIGHT        =  7;
 static const int KEYWORD_MINWIDTH      =  8;
 static const int KEYWORD_MINHEIGHT     =  9;
-static const int KEYWORD_LOCK_SIZE     = 10;
-static const int KEYWORD_DISPLAY       = 11;
-static const int KEYWORD_TEXTALIGN     = 12;
-static const int KEYWORD_BASECOLOR     = 13;
-static const int KEYWORD_SHAPE         = 14;
-static const int KEYWORD_OUTLINE       = 15;
+static const int KEYWORD_ICONWIDTH     = 10;
+static const int KEYWORD_ICONHEIGHT    = 11;
+static const int KEYWORD_LOCK_SIZE     = 12;
+static const int KEYWORD_DISPLAY       = 13;
+static const int KEYWORD_TEXTALIGN     = 14;
+static const int KEYWORD_BASECOLOR     = 15;
+static const int KEYWORD_SHAPE         = 16;
+static const int KEYWORD_OUTLINE       = 17;
+static const int KEYWORD_Z             = 18;
 
 // Shape items
 static const int KEYWORD_CIRCLE        = 30;
@@ -102,8 +105,18 @@ static const int KEYWORD_DASH          = 136;
 static const int KEYWORD_DASHDOT       = 137;
 static const int KEYWORD_DASHDOTDOT    = 138;
 static const int KEYWORD_COLOR         = 139;
+static const int KEYWORD_EMPHASIZED    = 140;
 
-// Operatoren
+// Shape Value Units and Origin
+static const int KEYWORD_ABS           = 150;
+static const int KEYWORD_FIX           = 151;
+static const int KEYWORD_SCALE         = 152;
+static const int KEYWORD_FRACT         = 153;
+static const int KEYWORD_ORIGIN        = 154;
+static const int KEYWORD_CENTER        = 155;
+static const int KEYWORD_SIZE          = 156;
+
+// Operators
 static const int OPERATOR_SEMICOLON    =  1;
 static const int OPERATOR_BRACE_OPEN   =  2;
 static const int OPERATOR_BRACE_CLOSE  =  3;
@@ -111,6 +124,7 @@ static const int OPERATOR_COLON        =  4;
 static const int OPERATOR_COMMA        =  5;
 static const int OPERATOR_PERIOD       =  6;
 static const int OPERATOR_MINUS        =  7;
+static const int OPERATOR_PERCENTAGE   =  8;
 
 template <typename T, typename U>
 QHash<T, U> operator<<(QHash<T, U> hash, QPair<T, U> pair) {
@@ -213,12 +227,15 @@ void StereotypeDefinitionParser::parse(ITextSource *source)
                              {"height", KEYWORD_HEIGHT},
                              {"minwidth", KEYWORD_MINWIDTH},
                              {"minheight", KEYWORD_MINHEIGHT},
+                             {"iconwidth", KEYWORD_ICONWIDTH},
+                             {"iconheight", KEYWORD_ICONHEIGHT},
                              {"locksize", KEYWORD_LOCK_SIZE},
                              {"display", KEYWORD_DISPLAY},
                              {"textalignment", KEYWORD_TEXTALIGN},
                              {"basecolor", KEYWORD_BASECOLOR},
                              {"shape", KEYWORD_SHAPE},
                              {"outline", KEYWORD_OUTLINE},
+                             {"z", KEYWORD_Z},
                              {"circle", KEYWORD_CIRCLE},
                              {"ellipse", KEYWORD_ELLIPSE},
                              {"line", KEYWORD_LINE},
@@ -276,7 +293,15 @@ void StereotypeDefinitionParser::parse(ITextSource *source)
                              {"dash", KEYWORD_DASH},
                              {"dashdot", KEYWORD_DASHDOT},
                              {"dashdotdot", KEYWORD_DASHDOTDOT},
-                             {"color", KEYWORD_COLOR}});
+                             {"color", KEYWORD_COLOR},
+                             {"emphasized", KEYWORD_EMPHASIZED},
+                             {"abs", KEYWORD_ABS},
+                             {"fix", KEYWORD_FIX},
+                             {"scale", KEYWORD_SCALE},
+                             {"fract", KEYWORD_FRACT},
+                             {"origin", KEYWORD_ORIGIN},
+                             {"center", KEYWORD_CENTER},
+                             {"size", KEYWORD_SIZE}});
 
     textScanner.setOperators({{";", OPERATOR_SEMICOLON},
                               {"{", OPERATOR_BRACE_OPEN},
@@ -284,7 +309,8 @@ void StereotypeDefinitionParser::parse(ITextSource *source)
                               {":", OPERATOR_COLON},
                               {",", OPERATOR_COMMA},
                               {".", OPERATOR_PERIOD},
-                              {"-", OPERATOR_MINUS}});
+                              {"-", OPERATOR_MINUS},
+                              {"%", OPERATOR_PERCENTAGE}});
 
     textScanner.setSource(source);
 
@@ -364,6 +390,23 @@ void StereotypeDefinitionParser::parseIcon()
         case KEYWORD_MINHEIGHT:
             stereotypeIcon.setMinHeight(parseFloatProperty());
             break;
+        case KEYWORD_ICONWIDTH:
+            stereotypeIcon.setIconWith(parseFloatProperty());
+            break;
+        case KEYWORD_ICONHEIGHT:
+            stereotypeIcon.setIconHeight(parseFloatProperty());
+            break;
+        case KEYWORD_Z:
+        {
+            const static QHash<QString, StereotypeIcon::DepthLayer> zNames = QHash<QString, StereotypeIcon::DepthLayer>()
+                    << qMakePair(QString("behinditems"), StereotypeIcon::DepthBehindItems)
+                    << qMakePair(QString("amongitems"), StereotypeIcon::DepthAmongItems)
+                    << qMakePair(QString("beforeitems"), StereotypeIcon::DepthBeforeItems);
+            parseEnum<StereotypeIcon::DepthLayer>(
+                        parseIdentifierProperty(), zNames, token.sourcePos(),
+                        [&](StereotypeIcon::DepthLayer layer) { stereotypeIcon.setDepthLayer(layer); });
+            break;
+        }
         case KEYWORD_LOCK_SIZE:
         {
             const static QHash<QString, StereotypeIcon::SizeLock> lockNames
@@ -577,7 +620,7 @@ QHash<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitio
                 throw StereotypeDefinitionParserError("Property given twice.", token.sourcePos());
             IconCommandParameter parameter = parameters.value(token.subtype());
             if (parameter.type() == IconCommandParameter::ShapeValue)
-                parameter.setShapeValue(ShapeValueF(parseFloatProperty(), parameter.unit(), parameter.origin()));
+                parameter.setShapeValue(parseShapeValueProperty(parameter.unit(), parameter.origin()));
             else if (parameter.type() == IconCommandParameter::Boolean)
                 parameter.setBoolean(parseBoolProperty());
             else
@@ -650,8 +693,6 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
         }
         case KEYWORD_COLOR:
         {
-            if (element != CustomRelation::Element::Relation)
-                throwUnknownPropertyError(token);
             Value expression = parseProperty();
             if (expression.type() == Color) {
                 relation.setColorType(CustomRelation::ColorType::Custom);
@@ -663,6 +704,10 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
                     relation.setColorType(CustomRelation::ColorType::EndA);
                 } else if (colorName == "b") {
                     relation.setColorType(CustomRelation::ColorType::EndB);
+                } else if (colorName == "warning") {
+                    relation.setColorType(CustomRelation::ColorType::Warning);
+                } else if (colorName == "error") {
+                    relation.setColorType(CustomRelation::ColorType::Error);
                 } else if (QColor::isValidColor(colorName)) {
                     relation.setColorType(CustomRelation::ColorType::Custom);
                     relation.setColor(QColor(colorName));
@@ -674,6 +719,9 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
             }
             break;
         }
+        case KEYWORD_EMPHASIZED:
+            relation.setEmphasized(parseBoolProperty());
+            break;
         case KEYWORD_END:
             parseRelationEnd(&relation);
             break;
@@ -974,6 +1022,65 @@ StereotypeDefinitionParser::Value StereotypeDefinitionParser::parseProperty()
 {
     expectColon();
     return parseExpression();
+}
+
+ShapeValueF StereotypeDefinitionParser::parseShapeValueProperty(ShapeValueF::Unit unit, ShapeValueF::Origin origin)
+{
+    expectColon();
+    qreal value = parseFloatExpression();
+    // unit
+    Token token = d->m_scanner->read();
+    if (token.type() == Token::TokenOperator) {
+        switch (token.subtype()) {
+        case OPERATOR_PERCENTAGE:
+            unit = ShapeValueF::UnitPercentage;
+            break;
+        default:
+            d->m_scanner->unread(token);
+            break;
+        }
+    } else if (token.type() == Token::TokenKeyword) {
+        switch (token.subtype()) {
+        case KEYWORD_ABS:
+            unit = ShapeValueF::UnitAbsolute;
+            break;
+        case KEYWORD_FIX:
+            unit = ShapeValueF::UnitRelative;
+            break;
+        case KEYWORD_SCALE:
+            unit = ShapeValueF::UnitScaled;
+            break;
+        case KEYWORD_FRACT:
+            unit = ShapeValueF::UnitPercentage;
+            break;
+        default:
+            d->m_scanner->unread(token);
+            break;
+        }
+    } else {
+        d->m_scanner->unread(token);
+    }
+    // origin
+    token = d->m_scanner->read();
+    if (token.type() == Token::TokenKeyword) {
+        switch (token.subtype()) {
+        case KEYWORD_ORIGIN:
+            origin = ShapeValueF::OriginTopOrLeft;
+            break;
+        case KEYWORD_CENTER:
+            origin = ShapeValueF::OriginCenter;
+            break;
+        case KEYWORD_SIZE:
+            origin = ShapeValueF::OriginBottomOrRight;
+            break;
+        default:
+            d->m_scanner->unread(token);
+            break;
+        }
+    } else {
+        d->m_scanner->unread(token);
+    }
+    return ShapeValueF(value, unit, origin);
 }
 
 QString StereotypeDefinitionParser::parseStringExpression()

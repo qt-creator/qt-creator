@@ -295,6 +295,8 @@ QtcLibrary {
             "style/objectvisuals.h",
             "style/relationstarterstyle.cpp",
             "style/relationstarterstyle.h",
+            "style/relationvisuals.cpp",
+            "style/relationvisuals.h",
             "style/style.cpp",
             "style/style.h",
             "style/stylecontroller.cpp",

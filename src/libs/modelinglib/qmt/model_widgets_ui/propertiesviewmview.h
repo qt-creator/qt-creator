@@ -8,6 +8,8 @@
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/diagram/dconstvisitor.h"
 #include "qmt/diagram/dobject.h"
+#include "qmt/diagram/drelation.h"
+#include "qmt/infrastructure/qmtassert.h"
 #include "qmt/stereotype/stereotypeicon.h"
 #include "qmt/style/styleengine.h"
 
@@ -110,6 +112,11 @@ protected:
     void onPlainShapeChanged(bool plainShape);
     void onItemShapeChanged(const QString &shape);
     void onAutoWidthChanged(bool autoWidthed);
+    void onRelationVisualPrimaryRoleChanged(int visualRoleIndex);
+    void onRelationVisualSecondaryRoleChanged(int visualRoleIndex);
+    void onRelationVisualEmphasizedChanged(bool visualEmphasized);
+    void onRelationColorChanged(const QColor &color);
+    void onRelationThicknessChanged(qreal thickness);
     void onAnnotationVisualRoleChanged(int visualRoleIndex);
 
     void prepare();
@@ -139,6 +146,9 @@ protected:
     QList<QString> splitTemplateParameters(const QString &templateParameters);
     QString formatTemplateParameters(const QList<QString> &templateParametersList);
 
+    void setRelationPrimaryRolePalette(StyleEngine::ElementType elementType,
+                                       DRelation::VisualPrimaryRole visualPrimaryRole);
+
     enum SelectionType {
         SelectionSingle,
         SelectionMulti
@@ -148,6 +158,9 @@ protected:
     QList<T *> filter(const QList<V *> &elements);
     template<class T, class V, class BASE>
     bool haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value);
+    template<class T, class V, class BASE>
+    bool isValueChanged(const QList<BASE *> &baseElements, SelectionType selectionType,
+                        const V &value, V (T::*getter)() const);
     template<class T, class V, class BASE>
     void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
                             const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
@@ -232,6 +245,9 @@ protected:
     QCheckBox *m_annotationAutoWidthCheckbox = nullptr;
     QComboBox *m_annotationVisualRoleSelector = nullptr;
     // DRelation
+    PaletteBox *m_relationVisualPrimaryRoleSelector = nullptr;
+    QComboBox *m_relationVisualSecondaryRoleSelector = nullptr;
+    QCheckBox *m_relationVisualEmphasizedCheckbox = nullptr;
     QLabel *m_pointsLabel = nullptr;
 };
 

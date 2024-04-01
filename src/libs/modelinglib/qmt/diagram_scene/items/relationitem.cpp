@@ -507,9 +507,11 @@ void RelationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 const Style *RelationItem::adaptedStyle()
 {
-    DObject *endAObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endAUid(), m_diagramSceneModel->diagram());
-    DObject *endBObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endBUid(), m_diagramSceneModel->diagram());
-    StyledRelation styledRelation(m_relation, endAObject, endBObject);
+    const DObject *endAObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endAUid(), m_diagramSceneModel->diagram());
+    const DObject *endBObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endBUid(), m_diagramSceneModel->diagram());
+    const CustomRelation customRelation = m_diagramSceneModel->stereotypeController()
+                                              ->findCustomRelationByStereotype(m_relation->stereotypes().value(0));
+    StyledRelation styledRelation(m_relation, endAObject, endBObject, &customRelation);
     return m_diagramSceneModel->styleController()->adaptRelationStyle(styledRelation);
 }
 

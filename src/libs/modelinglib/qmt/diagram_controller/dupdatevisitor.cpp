@@ -71,7 +71,7 @@ void DUpdateVisitor::visitMObject(const MObject *object)
     const MObject *owner = object->owner();
     while (owner) {
         owner = owner->owner();
-        depth += 1;
+        depth += 3;
     }
     if (isUpdating(depth != dobject->depth()))
         dobject->setDepth(depth);
