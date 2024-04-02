@@ -15,6 +15,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/filetransferinterface.h>
@@ -23,7 +25,10 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
@@ -31,11 +36,12 @@
 #include <utils/infobar.h>
 #include <utils/port.h>
 #include <utils/portlist.h>
-#include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
+#include <utils/threadutils.h>
 
 #include <QApplication>
 #include <QDateTime>
@@ -1574,8 +1580,28 @@ private:
     QHash<FilePath, FilesToTransfer> m_batches;
 };
 
+static void createDir(QPromise<expected_str<void>> &promise, const FilePath &pathToCreate)
+{
+    const expected_str<void> result = pathToCreate.ensureWritableDir();
+    promise.addResult(result);
+
+    if (!result)
+        promise.future().cancel();
+};
+
+static void copyFile(QPromise<expected_str<void>> &promise, const FileToTransfer &file)
+{
+    const expected_str<void> result = file.m_source.copyFile(file.m_target);
+    promise.addResult(result);
+
+    if (!result)
+        promise.future().cancel();
+};
+
 class GenericTransferImpl : public FileTransferInterface
 {
+    Tasking::TaskTreeRunner m_taskTree;
+
 public:
     GenericTransferImpl(const FileTransferSetupData &setup)
         : FileTransferInterface(setup)
@@ -1584,56 +1610,80 @@ public:
 private:
     void start() final
     {
-        m_fileCount = m_setup.m_files.size();
-        m_currentIndex = 0;
-        m_checkedDirectories.clear();
-        nextFile();
-    }
+        using namespace Tasking;
 
-    void nextFile()
-    {
-        ProcessResultData result;
-        if (m_currentIndex >= m_fileCount) {
-            emit done(result);
-            return;
-        }
+        const QSet<FilePath> allParentDirs
+            = Utils::transform<QSet>(m_setup.m_files, [](const FileToTransfer &f) {
+                  return f.m_target.parentDir();
+              });
 
-        const FileToTransfer &file = m_setup.m_files.at(m_currentIndex);
-        const FilePath &source = file.m_source;
-        const FilePath &target = file.m_target;
-        ++m_currentIndex;
+        const LoopList iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
 
-        const FilePath targetDir = target.parentDir();
-        if (!m_checkedDirectories.contains(targetDir)) {
-            emit progress(Tr::tr("Creating directory: %1\n").arg(targetDir.toUserOutput()));
-            if (!targetDir.ensureWritableDir()) {
-                result.m_errorString = Tr::tr("Failed.");
-                result.m_exitCode = -1; // Random pick
-                emit done(result);
-                return;
+        const auto onCreateDirSetup = [iteratorParentDirs](Async<expected_str<void>> &async) {
+            async.setConcurrentCallData(createDir, *iteratorParentDirs);
+            if (Utils::isMainThread())
+                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        };
+
+        const auto onCreateDirDone = [this,
+                                      iteratorParentDirs](const Async<expected_str<void>> &async) {
+            const expected_str<void> result = async.result();
+            if (result)
+                emit progress(
+                    Tr::tr("Created directory: %1\n").arg(iteratorParentDirs->toUserOutput()));
+            else
+                emit progress(result.error());
+        };
+
+        const LoopList iterator(m_setup.m_files);
+        const Storage<int> counterStorage;
+
+        const auto onCopySetup = [iterator](Async<expected_str<void>> &async) {
+            async.setConcurrentCallData(copyFile, *iterator);
+            if (Utils::isMainThread())
+                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        };
+
+        const auto onCopyDone = [this, iterator, counterStorage](
+                                    const Async<expected_str<void>> &async) {
+            const expected_str<void> result = async.result();
+            int &counter = *counterStorage;
+            ++counter;
+
+            if (result) {
+                emit progress(Tr::tr("Copied %1/%2: %3 -> %4\n")
+                                  .arg(counter)
+                                  .arg(m_setup.m_files.size())
+                                  .arg(iterator->m_source.toUserOutput())
+                                  .arg(iterator->m_target.toUserOutput()));
+            } else {
+                emit progress(result.error() + "\n");
             }
-            m_checkedDirectories.insert(targetDir);
-        }
+        };
 
-        emit progress(Tr::tr("Copying %1/%2: %3 -> %4\n")
-                          .arg(m_currentIndex)
-                          .arg(m_fileCount)
-                          .arg(source.toUserOutput(), target.toUserOutput()));
-        expected_str<void> copyResult = source.copyFile(target);
-        if (!copyResult) {
-            result.m_errorString = Tr::tr("Failed: %1").arg(copyResult.error());
-            result.m_exitCode = -1; // Random pick
-            emit done(result);
-            return;
-        }
+        const Group group{
+            Group{
+                parallelLimit(QThread::idealThreadCount() - 1),
+                iteratorParentDirs,
+                AsyncTask<expected_str<void>>(onCreateDirSetup, onCreateDirDone),
+            },
+            Group{
+                parallelLimit(2),
+                iterator,
+                counterStorage,
+                AsyncTask<expected_str<void>>(onCopySetup, onCopyDone),
+            },
+        };
 
-        // FIXME: Use asyncCopyFile instead
-        nextFile();
+        m_taskTree.start(group, {}, [this](DoneWith result) {
+            ProcessResultData resultData;
+            if (result != DoneWith::Success) {
+                resultData.m_exitCode = -1;
+                resultData.m_errorString = Tr::tr("Failed to deploy files.");
+            }
+            emit done(resultData);
+        });
     }
-
-    int m_currentIndex = 0;
-    int m_fileCount = 0;
-    QSet<FilePath> m_checkedDirectories;
 };
 
 FileTransferInterface *LinuxDevice::createFileTransferInterface(
