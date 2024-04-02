@@ -38,12 +38,12 @@ https://doc.qt.io/qtcreator-extending/coding-style.html
 
 Prerequisites:
 
-* Qt 6.2 or later. The Qt version that you use to build Qt Creator defines the
+* Qt 6.4.3 or later. The Qt version that you use to build Qt Creator defines the
   minimum platform versions that the result supports
-  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.15 for Qt 6.2).
+  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.15 for Qt 6.4.3).
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
-    * MinGW with GCC 9 or Visual Studio 2019 or later
+    * MinGW with GCC 11.2 or Visual Studio 2019 or later
     * Python 3.8 or later (optional, needed for the python enabled debug helper)
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
 * On Mac OS X: latest Xcode
