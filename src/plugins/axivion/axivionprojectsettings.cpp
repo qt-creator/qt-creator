@@ -7,6 +7,8 @@
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
+#include <coreplugin/find/itemviewfind.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
@@ -141,7 +143,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
         noMargin,
         m_linkedProject,
         Tr::tr("Dashboard projects:"),
-        m_dashboardProjects,
+        Core::ItemViewFind::createSearchableWrapper(m_dashboardProjects),
         m_infoLabel,
         Row { m_fetchProjects, m_link, m_unlink, st }
     }.attachTo(this);

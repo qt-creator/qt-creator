@@ -106,8 +106,8 @@
     to load diagnostics from \l{https://yaml.org/}{YAML} files that you exported
     using the \c {-export fixes} option.
 
-    \sa {Configure Clang Diagnostics}, {Speficy Clang tools settings},
-    {Clang Tools}
+    \sa {Check code syntax}, {Configure Clang Diagnostics},
+    {Specify Clang tools settings}, {Clang Tools}
 */
 
 /*!
@@ -116,7 +116,7 @@
 
     \ingroup creator-how-to-projects-configure
 
-    \title Speficy Clang tools settings
+    \title Specify Clang tools settings
 
     To set Clang-Tidy and Clazy checks to run for the current project:
 
@@ -189,7 +189,7 @@
     \endlist
 
     \sa {Configure Clang diagnostics}, {Analyze code with Clang-Tidy and Clazy},
-    {Speficy Clang tools settings}
+    {Specify Clang tools settings}
 */
 
 /*!
@@ -311,5 +311,5 @@
     file into the \uicontrol {Edit Checks as String} field, select additional
     checks, and copy-paste the contents of the field to the .clang-tidy file.
 
-    \sa {Analyze code with Clang-Tidy and Clazy}, {Speficy Clang tools settings}, {Clang Tools}
+    \sa {Analyze code with Clang-Tidy and Clazy}, {Specify Clang tools settings}, {Clang Tools}
 */

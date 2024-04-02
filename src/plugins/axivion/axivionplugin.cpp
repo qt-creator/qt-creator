@@ -36,6 +36,7 @@
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -236,6 +237,8 @@ public:
     TaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
     TaskTreeRunner m_issueInfoRunner;
+    FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
+    QMetaObject::Connection m_fileFinderConnection;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -330,17 +333,24 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
         return;
 
     if (m_project)
-        disconnect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+        disconnect(m_fileFinderConnection);
 
     m_project = project;
     clearAllMarks();
     m_currentProjectInfo = {};
     updateDashboard();
 
-    if (!m_project)
+    if (!m_project) {
+        m_fileFinder.setProjectDirectory({});
+        m_fileFinder.setProjectFiles({});
         return;
+    }
 
-    connect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+    m_fileFinder.setProjectDirectory(m_project->projectDirectory());
+    m_fileFinderConnection = connect(m_project, &Project::fileListChanged, this, [this] {
+        m_fileFinder.setProjectFiles(m_project->files(Project::AllFiles));
+        handleOpenedDocs();
+    });
     const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
@@ -961,7 +971,7 @@ void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
         return;
     Link link;
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
-        link.targetFilePath = m_project->projectDirectory().pathAppended(path);
+        link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
         link.targetLine = line.toInt();
     // column entry is wrong - so, ignore it
@@ -1038,6 +1048,15 @@ const std::optional<DashboardInfo> currentDashboardInfo()
 {
     QTC_ASSERT(dd, return std::nullopt);
     return dd->m_dashboardInfo;
+}
+
+Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
+{
+    QTC_ASSERT(dd, return {});
+    const FilePaths result = dd->m_fileFinder.findFile(QUrl::fromLocalFile(issuePath.toString()));
+    if (result.size() == 1)
+        return dd->m_project->projectDirectory().resolvePath(result.first());
+    return {};
 }
 
 } // Axivion::Internal

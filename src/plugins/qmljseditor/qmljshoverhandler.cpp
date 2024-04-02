@@ -294,7 +294,9 @@ bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
     if (auto binding = AST::cast<const AST::UiScriptBinding *>(member)) {
         if (binding->qualifiedId && posIsInSource(pos, binding->statement)) {
             value = scopeChain.evaluate(binding->qualifiedId);
-            if (value && value->asColorValue()) {
+            if (value && (value->asColorValue()
+                          || (value->asCppComponentValue()
+                              && value->asCppComponentValue()->className() == "color"))) {
                 color = textAt(qmlDocument,
                                binding->statement->firstSourceLocation(),
                                binding->statement->lastSourceLocation());

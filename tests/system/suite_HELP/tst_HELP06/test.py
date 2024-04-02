@@ -34,8 +34,10 @@ def main():
     doubleClick(manualQMIObj, 5, 5, 0, Qt.LeftButton)
     if not waitFor("not manualQMIObj.collapsed", 2000):
         test.warning("It takes more than two seconds to expand the help content tree.")
-    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
-    doubleClick(gettingStartedQModelIndex, 5, 5, 0, Qt.LeftButton)
+    devQModelIndex = getQModelIndexStr("text='Developing with Qt Creator'", manualQModelIndex)
+    doubleClick(devQModelIndex)
+    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", devQModelIndex)
+    doubleClick(gettingStartedQModelIndex)
     pageTitle = "Configuring Qt Creator"
     mouseClick(waitForObject(getQModelIndexStr("text='%s'" % pageTitle,
                                                gettingStartedQModelIndex)))
