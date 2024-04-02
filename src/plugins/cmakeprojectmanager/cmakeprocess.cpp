@@ -58,11 +58,15 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     const FilePath cmakeExecutable = cmake->cmakeExecutable();
 
+    const QString mountHint = ::CMakeProjectManager::Tr::tr(
+        "You may need to add the project directory to the list of directories that are mounted by "
+        "the build device.");
+
     if (!cmakeExecutable.ensureReachable(parameters.sourceDirectory)) {
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The source directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.sourceDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg, mountHint}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -71,7 +75,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The build directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.buildDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg, mountHint}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
