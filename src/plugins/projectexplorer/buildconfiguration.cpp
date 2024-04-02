@@ -625,16 +625,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
 
     auto buildDevice = BuildDeviceKitAspect::device(kit);
 
-    if (buildDir.isAbsolutePath()) {
-        bool isReachable = buildDevice->ensureReachable(buildDir);
-        if (!isReachable)
-            return {};
+    if (buildDir.isAbsolutePath())
         return buildDevice->rootPath().withNewMappedPath(buildDir);
-    }
-
-    bool isReachable = buildDevice->ensureReachable(projectDir);
-    if (!isReachable)
-        return {};
 
     const FilePath baseDir = buildDevice->rootPath().withNewMappedPath(projectDir);
     return baseDir.resolvePath(buildDir);
