@@ -999,6 +999,7 @@ bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
     return true;
 }
 
+#ifdef WITH_TESTS
 static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
 {
     *title = QString::fromLatin1("test.cpp");
@@ -1040,7 +1041,6 @@ static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
     (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
 
-#ifdef WITH_TESTS
 QObject *createFakeVimTester( void (*setupTest)(QString *, FakeVimHandler **, QWidget **) ); // in fakevim_test.cpp
 #endif
 
