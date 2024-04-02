@@ -33,6 +33,7 @@ public:
     bool abortBuildAllOnError = true;
     bool lowBuildPriority = false;
     bool warnAgainstNonAsciiBuildDir = true;
+    bool showAllKits = true;
     StopBeforeBuild stopBeforeBuild = Utils::HostOsInfo::isWindowsHost()
                                           ? StopBeforeBuild::SameProject
                                           : StopBeforeBuild::None;
@@ -46,6 +47,7 @@ public:
 };
 
 PROJECTEXPLORER_EXPORT const ProjectExplorerSettings &projectExplorerSettings();
+ProjectExplorerSettings &mutableProjectExplorerSettings();
 
 namespace Internal {
 

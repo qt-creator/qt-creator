@@ -88,6 +88,7 @@ const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
 
 // Build and Run page
 const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
+const char SHOW_ALL_KITS_SETTINGS_KEY[] = "ProjectExplorer/Settings/ShowAllKits";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "AM.Devices";

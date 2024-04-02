@@ -10,7 +10,10 @@
 #include "kitmanager.h"
 #include "panelswidget.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectimporter.h"
 #include "projectmanager.h"
@@ -168,6 +171,18 @@ public:
     void ensureWidget();
     void rebuildContents();
 
+    void setShowAllKits(bool showAllKits)
+    {
+        QtcSettings *settings = Core::ICore::settings();
+        settings->setValue(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, showAllKits);
+        mutableProjectExplorerSettings().showAllKits = showAllKits;
+        rebuildContents();
+    }
+    bool showAllKits() const
+    {
+        return projectExplorerSettings().showAllKits;
+    }
+
     TargetGroupItem *q;
     QString m_displayName;
     Project *m_project;
@@ -176,6 +191,42 @@ public:
     QPointer<QWidget> m_configurePage;
     QPointer<QWidget> m_configuredPage;
     TargetSetupPageWrapper *m_targetSetupPageWrapper = nullptr;
+};
+
+class ShowMoreItem : public TreeItem
+{
+public:
+    ShowMoreItem(TargetGroupItemPrivate *p)
+        : m_p(p)
+    {}
+
+    QVariant data(int column, int role) const override
+    {
+        Q_UNUSED(column)
+        if (role == Qt::DisplayRole) {
+            return !m_p->showAllKits() ? Tr::tr("Show All Kits") : Tr::tr("Hide Inactive Kits");
+        }
+        return {};
+    }
+
+    bool setData(int column, const QVariant &data, int role) override
+    {
+        Q_UNUSED(column)
+        Q_UNUSED(data)
+        if (role == ItemActivatedDirectlyRole) {
+            m_p->setShowAllKits(!m_p->showAllKits());
+            return true;
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(int) const override
+    {
+        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+    }
+
+private:
+    TargetGroupItemPrivate *m_p;
 };
 
 void TargetGroupItemPrivate::ensureWidget()
@@ -665,6 +716,10 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
             this, &TargetGroupItemPrivate::handleRemovedKit);
     connect(KitManager::instance(), &KitManager::kitUpdated,
             this, &TargetGroupItemPrivate::handleUpdatedKit);
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            this, &TargetGroupItemPrivate::rebuildContents);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &TargetGroupItemPrivate::rebuildContents);
 
     rebuildContents();
 }
@@ -761,14 +816,27 @@ void TargetItem::updateSubItems()
 
 void TargetGroupItemPrivate::rebuildContents()
 {
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    const auto sortedKits = KitManager::sortedKits();
+    bool isAnyKitNotEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
+        return kit && m_project->target(kit->id()) != nullptr;
+    });
     q->removeChildren();
 
-    for (Kit *kit : KitManager::sortedKits())
-        q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+    for (Kit *kit : sortedKits) {
+        if (!isAnyKitNotEnabled || showAllKits() || m_project->target(kit->id()) != nullptr)
+            q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+    }
 
-    if (q->parent())
-        q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
-                             ItemUpdatedFromBelowRole);
+    if (isAnyKitNotEnabled)
+        q->appendChild(new ShowMoreItem(this));
+
+    if (q->parent()) {
+        q->parent()
+            ->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)), ItemUpdatedFromBelowRole);
+    }
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void TargetGroupItemPrivate::handleTargetAdded(Target *target)

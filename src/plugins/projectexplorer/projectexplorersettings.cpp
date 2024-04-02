@@ -78,7 +78,9 @@ static bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
             && p1.abortBuildAllOnError == p2.abortBuildAllOnError
             && p1.appEnvChanges == p2.appEnvChanges
-            && p1.lowBuildPriority == p2.lowBuildPriority;
+            && p1.lowBuildPriority == p2.lowBuildPriority
+            && p1.warnAgainstNonAsciiBuildDir == p2.warnAgainstNonAsciiBuildDir
+            && p1.showAllKits == p2.showAllKits;
 }
 
 ProjectExplorerSettings &mutableProjectExplorerSettings()
@@ -171,6 +173,9 @@ static void loadProjectExplorerSettings()
               .toBool();
     settings.appEnvChanges = EnvironmentItem::fromStringList(
         s->value(Constants::APP_ENV_CHANGES_SETTINGS_KEY).toStringList());
+    settings.showAllKits
+        = s->value(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, defaultSettings.showAllKits)
+              .toBool();
 }
 
 void saveProjectExplorerSettings()
@@ -225,6 +230,10 @@ void saveProjectExplorerSettings()
                            int(defaultSettings.stopBeforeBuild));
     s->setValueWithDefault(Constants::APP_ENV_CHANGES_SETTINGS_KEY,
                            EnvironmentItem::toStringList(settings.appEnvChanges));
+    s->setValueWithDefault(
+        ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY,
+        settings.showAllKits,
+        defaultSettings.showAllKits);
 }
 
 class ProjectExplorerSettingsWidget : public IOptionsPageWidget
@@ -278,6 +287,7 @@ private:
     QComboBox *m_stopBeforeBuildComboBox;
     QComboBox *m_terminalModeComboBox;
     QCheckBox *m_jomCheckbox;
+    QCheckBox *m_showAllKitsCheckBox;
     Utils::ElidingLabel *m_appEnvLabel;
 
     QButtonGroup *m_directoryButtonGroup;
@@ -337,6 +347,11 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                                "Disable it if you experience problems with your builds.");
     jomLabel->setWordWrap(true);
 
+    m_showAllKitsCheckBox = new QCheckBox(
+        Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode"));
+    m_showAllKitsCheckBox->setToolTip(
+        Tr::tr("Show also inactive kits in \"Build & Run\" in \"Projects\" mode."));
+
     const QString appEnvToolTip = Tr::tr("Environment changes to apply to run configurations, "
                                          "but not build configurations.");
     const auto appEnvDescriptionLabel = new QLabel(Tr::tr("Application environment:"));
@@ -383,6 +398,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                 m_abortBuildAllOnErrorCheckBox,
                 m_lowBuildPriorityCheckBox,
                 m_warnAgainstNonAsciiBuildDirCheckBox,
+                m_showAllKitsCheckBox,
                 Form {
                     appEnvDescriptionLabel, Row{m_appEnvLabel, appEnvButton, st}, br,
                     Tr::tr("Build before deploying:"), m_buildBeforeDeployComboBox, br,
@@ -433,6 +449,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     s.lowBuildPriority = m_lowBuildPriorityCheckBox->isChecked();
     s.warnAgainstNonAsciiBuildDir = m_warnAgainstNonAsciiBuildDirCheckBox->isChecked();
     s.appEnvChanges = m_appEnvChanges;
+    s.showAllKits = m_showAllKitsCheckBox->isChecked();
     s.environmentId = projectExplorerSettings().environmentId;
     return s;
 }
@@ -456,6 +473,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_abortBuildAllOnErrorCheckBox->setChecked(s.abortBuildAllOnError);
     m_lowBuildPriorityCheckBox->setChecked(s.lowBuildPriority);
     m_warnAgainstNonAsciiBuildDirCheckBox->setChecked(s.warnAgainstNonAsciiBuildDir);
+    m_showAllKitsCheckBox->setChecked(s.showAllKits);
 }
 
 FilePath ProjectExplorerSettingsWidget::projectsDirectory() const
@@ -521,6 +539,11 @@ void setupProjectExplorerSettings()
 } // Internal
 
 const ProjectExplorerSettings &projectExplorerSettings()
+{
+    return Internal::mutableProjectExplorerSettings();
+}
+
+ProjectExplorerSettings &mutableProjectExplorerSettings()
 {
     return Internal::mutableProjectExplorerSettings();
 }
