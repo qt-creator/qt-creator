@@ -1059,6 +1059,10 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
     if (disconnected())
         return make_unexpected_disconnected();
 
+    expected_str<FilePath> localSource = filePath.localSource();
+    if (localSource && *localSource != filePath)
+        return localSource->fileContents(limit, offset);
+
     QStringList args = {"if=" + filePath.path()};
     if (limit > 0 || offset > 0) {
         const qint64 gcd = std::gcd(limit, offset);
@@ -1087,6 +1091,10 @@ expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &fil
 {
     if (disconnected())
         return make_unexpected_disconnected();
+
+    expected_str<FilePath> localSource = filePath.localSource();
+    if (localSource && *localSource != filePath)
+        return localSource->writeFileContents(data);
 
     QStringList args = {"of=" + filePath.path()};
     RunResult result = runInShell({"dd", args, OsType::OsTypeLinux}, data);
