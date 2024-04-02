@@ -442,6 +442,11 @@ DeviceTester *IDevice::createDeviceTester() const
     return nullptr;
 }
 
+bool IDevice::canMount(const Utils::FilePath &) const
+{
+    return false;
+}
+
 OsType IDevice::osType() const
 {
     return d->osType;

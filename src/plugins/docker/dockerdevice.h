@@ -68,6 +68,11 @@ public:
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
+    bool canMount(const Utils::FilePath &filePath) const override
+    {
+        return !filePath.needsDevice() || filePath.isSameDevice(rootPath());
+    }
+
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool ensureReachable(const Utils::FilePath &other) const override;
     Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
