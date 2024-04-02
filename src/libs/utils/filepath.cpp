@@ -19,9 +19,11 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QStringView>
-#include <QUrl>
-#include <QtGlobal>
 #include <QTemporaryFile>
+#include <QUrl>
+
+#include <QtConcurrent>
+#include <QtGlobal>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -1497,21 +1499,28 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 
     FilePath absPath;
     QString filename;
-    if (isFile()) {
+
+    const QList<FilePathInfo> infos
+        = QtConcurrent::blockingMapped(QList<FilePath>{*this, anchor}, [](const FilePath &path) {
+              return path.filePathInfo();
+          });
+
+    if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::FileType)) {
         absPath = absolutePath();
         filename = fileName();
-    } else if (isDir()) {
+    } else if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType)) {
         absPath = absoluteFilePath();
     } else {
         return {};
     }
     FilePath absoluteAnchorPath;
-    if (anchor.isFile())
+    if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::FileType))
         absoluteAnchorPath = anchor.absolutePath();
-    else if (anchor.isDir())
+    else if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType))
         absoluteAnchorPath = anchor.absoluteFilePath();
     else
         return {};
+
     QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
     if (!filename.isEmpty()) {
         if (relativeFilePath == ".")
