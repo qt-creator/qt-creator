@@ -877,6 +877,7 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
         errorMessage = Tr::tr("CMake project configuration failed. No CMake configuration for "
                               "build type \"%1\" found.")
                            .arg(cmakeBuildType);
+        errorMessage += Tr::tr(" Check General messages for more information.");
         return result;
     }
 
