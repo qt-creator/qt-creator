@@ -71,6 +71,7 @@ public:
     Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
+    Q_INVOKABLE bool nameExists(const QString &name) const;
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);

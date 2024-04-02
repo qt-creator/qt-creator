@@ -224,6 +224,14 @@ QString EffectComposerModel::getUniqueEffectName() const
     return QString("Effect%1").arg(num, 2, 10, QChar('0'));
 }
 
+bool EffectComposerModel::nameExists(const QString &name) const
+{
+    const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsDir + QDir::separator() + "%1" + ".qep";
+
+    return QFile::exists(path.arg(name));
+}
+
 QString EffectComposerModel::fragmentShader() const
 {
     return m_fragmentShader;
