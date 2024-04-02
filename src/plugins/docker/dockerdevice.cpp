@@ -341,8 +341,6 @@ public:
         return deviceSettings->clangdExecutable();
     }
 
-    bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
-
     QStringList createMountArgs() const;
 
     bool isImageAvailable() const;
@@ -350,13 +348,11 @@ public:
     DockerDevice *const q;
     DockerDeviceSettings *deviceSettings;
 
-    struct TemporaryMountInfo
+    struct MountPair
     {
         FilePath path;
         FilePath containerPath;
     };
-
-    QList<TemporaryMountInfo> m_temporaryMounts;
 
     QMutex m_shellMutex;
     std::unique_ptr<ContainerShell> m_shell;
@@ -750,7 +746,7 @@ QString escapeMountPath(const FilePath &fp)
     return escapeMountPathUnix(fp);
 }
 
-QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
+QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
 {
     QString escapedPath;
     QString escapedContainerPath;
@@ -765,7 +761,7 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
     return QStringList{"--mount", mountArg};
 }
 
-expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
+expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
 {
     if (mi.path.needsDevice())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
@@ -801,11 +797,11 @@ expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInf
 QStringList DockerDevicePrivate::createMountArgs() const
 {
     QStringList cmds;
-    QList<TemporaryMountInfo> mounts = m_temporaryMounts;
+    QList<MountPair> mounts;
     for (const FilePath &m : deviceSettings->mounts())
         mounts.append({m, m});
 
-    for (const TemporaryMountInfo &mi : mounts) {
+    for (const MountPair &mi : mounts) {
         if (isValidMountInfo(mi))
             cmds += toMountArg(mi);
     }
@@ -1307,33 +1303,6 @@ void DockerDeviceFactory::shutdownExistingDevices()
     }
 }
 
-bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath &containerPath)
-{
-    const bool alreadyAdded = anyOf(m_temporaryMounts,
-                                    [containerPath](const TemporaryMountInfo &info) {
-                                        return info.containerPath == containerPath;
-                                    });
-
-    if (alreadyAdded)
-        return false;
-
-    const bool alreadyManuallyAdded = anyOf(deviceSettings->mounts(),
-                                            [path](const FilePath &mount) { return mount == path; });
-
-    if (alreadyManuallyAdded)
-        return false;
-
-    const TemporaryMountInfo newMount{path, containerPath};
-
-    const expected_str<void> result = isValidMountInfo(newMount);
-    QTC_ASSERT_EXPECTED(result, return false);
-
-    qCDebug(dockerDeviceLog) << "Adding temporary mount:" << path;
-    m_temporaryMounts.append(newMount);
-    stopCurrentContainer(); // Force re-start with new mounts.
-    return true;
-}
-
 expected_str<Environment> DockerDevicePrivate::environment()
 {
     if (!m_cachedEnviroment) {
@@ -1364,13 +1333,6 @@ void DockerDevicePrivate::changeMounts(QStringList newMounts)
 expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
 {
     const auto devicePath = FilePath::fromString(other.path());
-    for (const TemporaryMountInfo &info : m_temporaryMounts) {
-        if (devicePath.isChildOf(info.containerPath)) {
-            const FilePath relativePath = devicePath.relativeChildPath(info.containerPath);
-            return info.path.pathAppended(relativePath.path());
-        }
-    }
-
     for (const FilePath &mount : deviceSettings->mounts()) {
         const FilePath mountPoint = mount;
         if (devicePath.isChildOf(mountPoint)) {
@@ -1395,22 +1357,10 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
             return true;
     }
 
-    for (const auto &[path, containerPath] : m_temporaryMounts) {
-        if (path.path() != containerPath.path())
-            continue;
-
-        if (path == other)
-            return true;
-
-        if (other.isChildOf(path))
-            return true;
-    }
-
     if (q->filePath(other.path()).exists())
         return false;
 
-    addTemporaryMount(other, other);
-    return true;
+    return false;
 }
 
 bool DockerDevice::prepareForBuild(const Target *target)
