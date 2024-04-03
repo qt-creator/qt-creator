@@ -2092,7 +2092,7 @@ const Storage::Info::Type &NodeMetaInfo::typeData() const
 PropertyDeclarationId NodeMetaInfo::defaultPropertyDeclarationId() const
 {
     if (!m_defaultPropertyId)
-        m_defaultPropertyId = m_projectStorage->defaultPropertyDeclarationId(m_typeId);
+        m_defaultPropertyId.emplace(m_projectStorage->defaultPropertyDeclarationId(m_typeId));
 
     return *m_defaultPropertyId;
 }

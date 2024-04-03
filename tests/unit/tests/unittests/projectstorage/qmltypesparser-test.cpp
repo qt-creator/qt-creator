@@ -838,4 +838,17 @@ TEST_F(QmlTypesParser, uses_no_custom_parser)
     ASSERT_THAT(types, ElementsAre(IsTypeTrait(UsesCustomParser(false))));
 }
 
+TEST_F(QmlTypesParser, default_property)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    defaultProperty: "children" }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                ElementsAre(Field(&Synchronization::Type::defaultPropertyName, Eq("children"))));
+}
+
 } // namespace

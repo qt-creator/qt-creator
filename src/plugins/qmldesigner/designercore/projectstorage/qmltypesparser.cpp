@@ -458,7 +458,9 @@ void addType(Storage::Synchronization::Types &types,
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
-        createEnumeration(enumerations));
+        createEnumeration(enumerations),
+        Storage::Synchronization::ChangeLevel::Full,
+        Utils::SmallString{component.ownDefaultPropertyName()});
     tracer.end(keyValue("type", type));
 }
 
