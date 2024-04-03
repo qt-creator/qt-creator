@@ -21,10 +21,11 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QApplication>
@@ -33,6 +34,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
+#include <QPushButton>
 #include <QVariant>
 #include <QWidget>
 
@@ -342,12 +344,25 @@ void IosDeviceTypeAspect::addToLayout(Layouting::LayoutItem &parent)
 
     m_deviceTypeLabel = new QLabel(Tr::tr("Device type:"));
 
-    parent.addItems({m_deviceTypeLabel, m_deviceTypeComboBox});
+    m_updateButton = new QPushButton(Tr::tr("Update"));
+
+    parent.addItems({m_deviceTypeLabel, m_deviceTypeComboBox, m_updateButton, Layouting::st});
 
     updateValues();
 
     connect(m_deviceTypeComboBox, &QComboBox::currentIndexChanged,
             this, &IosDeviceTypeAspect::setDeviceTypeIndex);
+    connect(m_updateButton, &QPushButton::clicked, this, [this] {
+        m_updateButton->setEnabled(false);
+        Utils::onFinished(
+            QFuture<void>(SimulatorControl::updateAvailableSimulators(this)),
+            this,
+            [this](QFuture<void>) {
+                m_updateButton->setEnabled(true);
+                m_deviceTypeModel.clear();
+                updateValues();
+            });
+    });
 }
 
 void IosDeviceTypeAspect::setDeviceTypeIndex(int devIndex)
@@ -363,6 +378,7 @@ void IosDeviceTypeAspect::updateValues()
     bool showDeviceSelector = deviceType().type != IosDeviceType::IosDevice;
     m_deviceTypeLabel->setVisible(showDeviceSelector);
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
+    m_updateButton->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
         const QList<SimulatorInfo> devices = SimulatorControl::availableSimulators();
         for (const SimulatorInfo &device : devices) {

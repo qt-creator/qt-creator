@@ -69,7 +69,6 @@ const bool IgnoreAllDevicesDefault = false;
 
 const char SettingsGroup[] = "IosConfigurations";
 const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
-const char screenshotDirPathKey[] = "ScreeshotDirPath";
 
 const char provisioningTeamsTag[] = "IDEProvisioningTeams";
 const char freeTeamTag[] = "isFreeProvisioningTeam";
@@ -343,19 +342,6 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
     }
 }
 
-void IosConfigurations::setScreenshotDir(const FilePath &path)
-{
-    if (m_instance->m_screenshotDir != path) {
-        m_instance->m_screenshotDir = path;
-        m_instance->save();
-    }
-}
-
-FilePath IosConfigurations::screenshotDir()
-{
-    return m_instance->m_screenshotDir;
-}
-
 FilePath IosConfigurations::developerPath()
 {
     return m_instance->m_developerPath;
@@ -366,20 +352,11 @@ QVersionNumber IosConfigurations::xcodeVersion()
     return m_instance->m_xcodeVersion;
 }
 
-static FilePath defaultScreenshotDirPath()
-{
-    return FilePath::fromUserInput(
-        QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst());
-}
-
 void IosConfigurations::save()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->setValueWithDefault(ignoreAllDevicesKey, m_ignoreAllDevices, IgnoreAllDevicesDefault);
-    settings->setValueWithDefault(screenshotDirPathKey,
-                                  m_screenshotDir.toSettings(),
-                                  defaultScreenshotDirPath().toSettings());
     settings->endGroup();
 }
 
@@ -396,11 +373,6 @@ void IosConfigurations::load()
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, IgnoreAllDevicesDefault).toBool();
-    m_screenshotDir = FilePath::fromSettings(settings->value(screenshotDirPathKey));
-
-    if (!m_screenshotDir.isWritableDir())
-        m_screenshotDir = defaultScreenshotDirPath();
-
     settings->endGroup();
 }
 
