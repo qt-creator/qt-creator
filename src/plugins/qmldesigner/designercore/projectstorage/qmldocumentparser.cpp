@@ -353,7 +353,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                          m_storage);
 
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
-
+    type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
 
     addPropertyDeclarations(type, qmlObject, qualifiedImports, file);
