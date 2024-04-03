@@ -95,6 +95,64 @@ private:
     const QString m_suffix;
 };
 
+template<typename StringType>
+class StartsWithMatcher
+{
+public:
+    explicit StartsWithMatcher(const StringType &prefix)
+        : m_prefix(prefix)
+    {}
+
+    template<typename CharType>
+    bool MatchAndExplain(CharType *s, testing::MatchResultListener *listener) const
+    {
+        return s != NULL && MatchAndExplain(StringType(s), listener);
+    }
+
+    template<typename MatcheeStringType>
+    bool MatchAndExplain(const MatcheeStringType &s, testing::MatchResultListener * /* listener */) const
+    {
+        return s.startsWith(m_prefix);
+    }
+
+    void DescribeTo(::std::ostream *os) const { *os << "ends with " << m_prefix; }
+
+    void DescribeNegationTo(::std::ostream *os) const { *os << "doesn't end with " << m_prefix; }
+
+    StartsWithMatcher(const StartsWithMatcher &) = default;
+    StartsWithMatcher &operator=(const StartsWithMatcher &) = delete;
+
+private:
+    const StringType m_prefix;
+};
+
+class QStringStartsWithMatcher
+{
+public:
+    explicit QStringStartsWithMatcher(const QString &prefix)
+        : m_prefix(prefix)
+    {}
+
+    template<typename MatcheeStringType>
+    bool MatchAndExplain(const MatcheeStringType &s, testing::MatchResultListener * /* listener */) const
+    {
+        return s.startsWith(m_prefix);
+    }
+
+    void DescribeTo(::std::ostream *os) const
+    {
+        *os << "ends with " << testing::PrintToString(m_prefix);
+    }
+
+    void DescribeNegationTo(::std::ostream *os) const
+    {
+        *os << "doesn't end with " << testing::PrintToString(m_prefix);
+    }
+
+private:
+    const QString m_prefix;
+};
+
 class IsEmptyMatcher
 {
 public:
@@ -155,6 +213,16 @@ inline auto EndsWith(const Utils::SmallStringView &suffix)
 inline auto EndsWith(const QStringView &suffix)
 {
     return ::testing::PolymorphicMatcher(Internal::QStringEndsWithMatcher(suffix.toString()));
+}
+
+inline auto StartsWith(const Utils::SmallStringView &prefix)
+{
+    return ::testing::PolymorphicMatcher(Internal::StartsWithMatcher(prefix));
+}
+
+inline auto StartsWith(const QStringView &prefix)
+{
+    return ::testing::PolymorphicMatcher(Internal::QStringStartsWithMatcher(prefix.toString()));
 }
 
 inline auto IsEmpty()

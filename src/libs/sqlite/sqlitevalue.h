@@ -34,7 +34,7 @@ public:
     explicit ValueBase(NullValue) {}
 
     explicit ValueBase(VariantType &&value)
-        : value(value)
+        : value(std::move(value))
     {}
 
     explicit ValueBase(const char *value)
@@ -44,6 +44,7 @@ public:
     explicit ValueBase(long long value)
         : value(value)
     {}
+
     explicit ValueBase(int value)
         : value(static_cast<long long>(value))
     {}
@@ -58,11 +59,6 @@ public:
 
     explicit ValueBase(Utils::SmallStringView value)
         : value(value)
-
-    {}
-
-    explicit ValueBase(StringType &&value)
-        : value(std::move(value))
 
     {}
 
@@ -230,14 +226,42 @@ public:
 class ValueView : public ValueBase<Utils::SmallStringView, BlobView>
 {
 public:
+    ValueView() = default;
+
+    explicit ValueView(NullValue) {}
+
     explicit ValueView(ValueBase &&base)
         : ValueBase(std::move(base))
+    {}
+
+    explicit ValueView(Utils::SmallStringView value)
+        : ValueBase(value)
+    {}
+
+    explicit ValueView(BlobView value)
+        : ValueBase(value)
+    {}
+
+    explicit ValueView(long long value)
+        : ValueBase(value)
+    {}
+
+    explicit ValueView(int value)
+        : ValueBase(static_cast<long long>(value))
+    {}
+
+    explicit ValueView(uint value)
+        : ValueBase(static_cast<long long>(value))
+    {}
+
+    explicit ValueView(double value)
+        : ValueBase(value)
     {}
 
     template<typename Type>
     static ValueView create(Type &&value_)
     {
-        return ValueView{ValueBase{value_}};
+        return ValueView(std::forward<Type>(value_));
     }
 };
 

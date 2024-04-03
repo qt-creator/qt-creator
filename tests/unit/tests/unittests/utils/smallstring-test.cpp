@@ -1326,6 +1326,19 @@ TEST(SmallString, starts_with_string_view)
     ASSERT_FALSE(text.startsWith('@'));
 }
 
+TEST(SmallString, starts_with_qstringview)
+{
+    using namespace Qt::StringLiterals;
+    SmallString text("$column");
+
+    ASSERT_FALSE(text.startsWith(u"$columnxxx"_s));
+    ASSERT_TRUE(text.startsWith(u"$column"_s));
+    ASSERT_TRUE(text.startsWith(u"$col"_s));
+    ASSERT_FALSE(text.startsWith(u"col"_s));
+    ASSERT_TRUE(text.startsWith(u"$"_s));
+    ASSERT_FALSE(text.startsWith(u"@"_s));
+}
+
 TEST(SmallString, ends_with)
 {
     SmallString text("/my/path");

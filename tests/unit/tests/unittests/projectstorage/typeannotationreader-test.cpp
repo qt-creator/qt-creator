@@ -3,6 +3,7 @@
 
 #include "../utils/googletest.h"
 
+#include <projectstorage-matcher.h>
 #include <strippedstring-matcher.h>
 
 #include <projectstorage/projectstorage.h>
@@ -11,24 +12,6 @@
 
 namespace {
 
-template<typename HintsJsonMatcher, typename ItemLibraryJsonMatcher>
-auto IsTypeAnnotation(QmlDesigner::SourceId sourceId,
-                      Utils::SmallStringView typeName,
-                      QmlDesigner::ModuleId moduleId,
-                      Utils::SmallStringView iconPath,
-                      QmlDesigner::Storage::TypeTraits traits,
-                      HintsJsonMatcher hintsJsonMatcher,
-                      ItemLibraryJsonMatcher itemLibraryJsonMatcher)
-{
-    using QmlDesigner::Storage::Synchronization::TypeAnnotation;
-    return AllOf(Field("sourceId", &TypeAnnotation::sourceId, sourceId),
-                 Field("typeName", &TypeAnnotation::typeName, typeName),
-                 Field("moduleId", &TypeAnnotation::moduleId, moduleId),
-                 Field("iconPath", &TypeAnnotation::iconPath, iconPath),
-                 Field("traits", &TypeAnnotation::traits, traits),
-                 Field("hintsJson", &TypeAnnotation::hintsJson, hintsJsonMatcher),
-                 Field("itemLibraryJson", &TypeAnnotation::itemLibraryJson, itemLibraryJsonMatcher));
-}
 
 class TypeAnnotationReader : public testing::Test
 {
@@ -56,6 +39,7 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
     QmlDesigner::Storage::TypeAnnotationReader reader{storage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(33);
+    QmlDesigner::SourceId directorySourceId = QmlDesigner::SourceId::create(77);
 };
 
 TEST_F(TypeAnnotationReader, parse_type)
@@ -73,10 +57,11 @@ TEST_F(TypeAnnotationReader, parse_type)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 UnorderedElementsAre(IsTypeAnnotation(sourceId,
+                                                      directorySourceId,
                                                       "Frame",
                                                       moduleId("QtQuick.Controls"),
                                                       "/path/images/frame-icon16.png",
@@ -84,6 +69,7 @@ TEST_F(TypeAnnotationReader, parse_type)
                                                       IsEmpty(),
                                                       IsEmpty()),
                                      IsTypeAnnotation(sourceId,
+                                                      directorySourceId,
                                                       "Item",
                                                       moduleId("QtQuick"),
                                                       "/path/images/item-icon16.png",
@@ -109,10 +95,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeContainer)
     QmlDesigner::Storage::TypeTraits traits;
     traits.canBeContainer = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -138,10 +125,11 @@ TEST_F(TypeAnnotationReader, parse_true_forceClip)
     QmlDesigner::Storage::TypeTraits traits;
     traits.forceClip = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -167,10 +155,11 @@ TEST_F(TypeAnnotationReader, parse_true_doesLayoutChildren)
     QmlDesigner::Storage::TypeTraits traits;
     traits.doesLayoutChildren = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -196,10 +185,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInFormEditor)
     QmlDesigner::Storage::TypeTraits traits;
     traits.canBeDroppedInFormEditor = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -225,10 +215,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInNavigator)
     QmlDesigner::Storage::TypeTraits traits;
     traits.canBeDroppedInNavigator = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -254,10 +245,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInView3D)
     QmlDesigner::Storage::TypeTraits traits;
     traits.canBeDroppedInView3D = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -283,10 +275,11 @@ TEST_F(TypeAnnotationReader, parse_true_isMovable)
     QmlDesigner::Storage::TypeTraits traits;
     traits.isMovable = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -312,10 +305,11 @@ TEST_F(TypeAnnotationReader, parse_true_isResizable)
     QmlDesigner::Storage::TypeTraits traits;
     traits.isResizable = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -341,10 +335,11 @@ TEST_F(TypeAnnotationReader, parse_true_hasFormEditorItem)
     QmlDesigner::Storage::TypeTraits traits;
     traits.hasFormEditorItem = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -370,10 +365,11 @@ TEST_F(TypeAnnotationReader, parse_true_isStackedContainer)
     QmlDesigner::Storage::TypeTraits traits;
     traits.isStackedContainer = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -399,10 +395,11 @@ TEST_F(TypeAnnotationReader, parse_true_takesOverRenderingOfChildren)
     QmlDesigner::Storage::TypeTraits traits;
     traits.takesOverRenderingOfChildren = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -428,10 +425,11 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInNavigator)
     QmlDesigner::Storage::TypeTraits traits;
     traits.visibleInNavigator = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -457,10 +455,11 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInLibrary)
     QmlDesigner::Storage::TypeTraits traits;
     traits.visibleInLibrary = FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -485,10 +484,11 @@ TEST_F(TypeAnnotationReader, parse_false)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -526,10 +526,11 @@ TEST_F(TypeAnnotationReader, parse_complex_expression)
     QmlDesigner::Storage::TypeTraits itemTraits;
     itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 UnorderedElementsAre(IsTypeAnnotation(sourceId,
+                                                      directorySourceId,
                                                       "Frame",
                                                       moduleId("QtQuick.Controls"),
                                                       "/path/images/frame-icon16.png",
@@ -538,6 +539,7 @@ TEST_F(TypeAnnotationReader, parse_complex_expression)
                                                                              "visibleNonDefaultProperties":"layer.effect"})xy"),
                                                       IsEmpty()),
                                      IsTypeAnnotation(sourceId,
+                                                      directorySourceId,
                                                       "Item",
                                                       moduleId("QtQuick"),
                                                       "/path/images/item-icon16.png",
@@ -573,10 +575,11 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -584,12 +587,12 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry)
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([
                                                   {"category":"Qt Quick - Controls 2",
-                                                   "iconPath":"images/frame-icon.png",
+                                                   "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Frame",
                                                    "toolTip":"qsTr(\"An untitled container for a group of controls.\")"},
                                                   {"category":"Qt Quick - Controls 2",
-                                                   "iconPath":"images/frame-icon.png",
+                                                   "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Large Frame",
                                                    "toolTip":"qsTr(\"An large container for a group of controls.\")"}]
@@ -629,10 +632,11 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_with_properties)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
                                              "/path/images/frame-icon16.png",
@@ -640,13 +644,13 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_with_properties)
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([
                                                   {"category":"Qt Quick - Controls 2",
-                                                   "iconPath":"images/frame-icon.png",
+                                                   "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Frame",
                                                    "properties":[["width","int",200.0],["height","int",100.0]],
                                                    "toolTip":"qsTr(\"An untitled container for a group of controls.\")"},
                                                   {"category":"Qt Quick - Controls 2",
-                                                   "iconPath":"images/frame-icon.png",
+                                                   "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Large Frame",
                                                    "properties":[["width","int",2000.0],["height","int",1000.0]],
@@ -679,13 +683,14 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_template_path)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
-                                             {},
+                                             Utils::SmallStringView{},
                                              traits,
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([
@@ -693,9 +698,10 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_template_path)
                                                    "templatePath":"/path/templates/frame.qml"}]
                                              )xy")),
                             IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Item",
                                              moduleId("QtQuick"),
-                                             {},
+                                             Utils::SmallStringView{},
                                              traits,
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([
@@ -730,13 +736,14 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_extra_file_paths)
     })xy"};
     QmlDesigner::Storage::TypeTraits traits;
 
-    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId);
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
     ASSERT_THAT(annotations,
                 ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Frame",
                                              moduleId("QtQuick.Controls"),
-                                             {},
+                                             Utils::SmallStringView{},
                                              traits,
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([
@@ -744,9 +751,10 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_extra_file_paths)
                                                    "name":"Frame"}]
                                              )xy")),
                             IsTypeAnnotation(sourceId,
+                                             directorySourceId,
                                              "Item",
                                              moduleId("QtQuick"),
-                                             {},
+                                             Utils::SmallStringView{},
                                              traits,
                                              IsEmpty(),
                                              StrippedStringEq(R"xy([

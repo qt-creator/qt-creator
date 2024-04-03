@@ -195,6 +195,11 @@ public:
                 type,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::SmallSourceIds<4>,
+                typeAnnotationSourceIds,
+                (QmlDesigner::SourceId directoryId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::SmallSourceIds<64>, typeAnnotationDirectorySourceIds, (), (const, override));
     MOCK_METHOD(Utils::PathString, typeIconPath, (QmlDesigner::TypeId typeId), (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Info::TypeHints,
                 typeHints,

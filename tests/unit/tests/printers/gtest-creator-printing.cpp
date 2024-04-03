@@ -795,7 +795,10 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", projectDatas: " << package.projectDatas
                << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ", updatedPropertyEditorQmlPathSourceIds: "
-               << package.updatedPropertyEditorQmlPathSourceIds << ")";
+               << package.updatedPropertyEditorQmlPathSourceIds
+               << ", typeAnnotations: " << package.typeAnnotations
+               << ", updatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
+               << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ProjectData &data)

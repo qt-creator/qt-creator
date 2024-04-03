@@ -296,15 +296,16 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
 
 Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
-
+#endif
     return Import::createLibraryImport(entry.requiredImport(), QString::number(entry.majorVersion()) + QLatin1Char('.') +
                                                                QString::number(entry.minorVersion()));
 
 }
 
-void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo, Model *model)
+void ItemLibraryModel::update(Model *model)
 {
     if (!model)
         return;

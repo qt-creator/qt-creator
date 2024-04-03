@@ -11,6 +11,7 @@
 #include "qmltypesparserinterface.h"
 #include "sourcepath.h"
 #include "sourcepathcache.h"
+#include "typeannotationreader.h"
 
 #include <tracing/qmldesignertracing.h>
 
@@ -246,7 +247,8 @@ std::vector<IdPaths> createIdPaths(ProjectStorageUpdater::WatchedSourceIdsIds wa
 
 void ProjectStorageUpdater::update(QStringList directories,
                                    QStringList qmlTypesPaths,
-                                   const QString &propertyEditorResourcesPath)
+                                   const QString &propertyEditorResourcesPath,
+                                   const QStringList &typeAnnotationPaths)
 {
     NanotraceHR::Tracer tracer{"update"_t,
                                category(),
@@ -260,6 +262,7 @@ void ProjectStorageUpdater::update(QStringList directories,
     updateDirectories(directories, package, notUpdatedSourceIds, watchedSourceIds);
     updateQmlTypes(qmlTypesPaths, package, notUpdatedSourceIds, watchedSourceIds);
     updatePropertyEditorPaths(propertyEditorResourcesPath, package, notUpdatedSourceIds);
+    updateTypeAnnotations(typeAnnotationPaths, package, notUpdatedSourceIds);
 
     package.updatedSourceIds = filterNotUpdatedSourceIds(std::move(package.updatedSourceIds),
                                                          std::move(notUpdatedSourceIds.sourceIds));
@@ -511,12 +514,134 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
     }
 }
 
-void ProjectStorageUpdater::updateTypeAnnotations(
-    const QString & /*propertyEditorResourcesPath*/,
-    Storage::Synchronization::SynchronizationPackage & /*package*/,
-    NotUpdatedSourceIds & /*notUpdatedSourceIds*/)
+namespace {
+
+template<typename SourceIds1, typename SourceIds2>
+SmallSourceIds<16> mergedSourceIds(const SourceIds1 &sourceIds1, const SourceIds2 &sourceIds2)
 {
-    //    const auto typeAnnotations = dir.entryInfoList({"*.metainfo"}, QDir::Files);
+    SmallSourceIds<16> mergedSourceIds;
+
+    std::set_union(sourceIds1.begin(),
+                   sourceIds1.end(),
+                   sourceIds2.begin(),
+                   sourceIds2.end(),
+                   std::back_inserter(mergedSourceIds));
+
+    return mergedSourceIds;
+}
+} // namespace
+
+void ProjectStorageUpdater::updateTypeAnnotations(const QStringList &directoryPaths,
+                                                  Storage::Synchronization::SynchronizationPackage &package,
+                                                  NotUpdatedSourceIds &notUpdatedSourceIds)
+{
+    NanotraceHR::Tracer tracer("update type annotations"_t, category());
+
+    std::map<SourceId, SmallSourceIds<16>> updatedSourceIdsDictonary;
+
+    for (SourceId directoryId : m_projectStorage.typeAnnotationDirectorySourceIds())
+        updatedSourceIdsDictonary[directoryId] = {};
+
+    for (const auto &directoryPath : directoryPaths)
+        updateTypeAnnotations(directoryPath, package, notUpdatedSourceIds, updatedSourceIdsDictonary);
+
+    updateTypeAnnotationDirectories(package, notUpdatedSourceIds, updatedSourceIdsDictonary);
+}
+
+void ProjectStorageUpdater::updateTypeAnnotations(
+    const QString &rootDirectoryPath,
+    Storage::Synchronization::SynchronizationPackage &package,
+    NotUpdatedSourceIds &notUpdatedSourceIds,
+    std::map<SourceId, SmallSourceIds<16>> &updatedSourceIdsDictonary)
+{
+    NanotraceHR::Tracer tracer("update type annotation directory"_t,
+                               category(),
+                               keyValue("path", rootDirectoryPath));
+
+    if (rootDirectoryPath.isEmpty())
+        return;
+
+    QDirIterator directoryIterator{rootDirectoryPath,
+                                   {"*.metainfo"},
+                                   QDir::NoDotAndDotDot | QDir::Files,
+                                   QDirIterator::Subdirectories};
+
+    while (directoryIterator.hasNext()) {
+        auto fileInfo = directoryIterator.nextFileInfo();
+        auto filePath = fileInfo.filePath();
+        SourceId sourceId = m_pathCache.sourceId(SourcePath{filePath});
+
+        auto directoryPath = fileInfo.canonicalPath();
+
+        SourceId directorySourceId = m_pathCache.sourceId(SourcePath{directoryPath + "/."});
+
+        auto state = fileState(sourceId, package, notUpdatedSourceIds);
+        if (state == FileState::Changed)
+            updateTypeAnnotation(directoryPath, fileInfo.filePath(), sourceId, directorySourceId, package);
+
+        if (state != FileState::NotChanged)
+            updatedSourceIdsDictonary[directorySourceId].push_back(sourceId);
+    }
+}
+
+void ProjectStorageUpdater::updateTypeAnnotationDirectories(
+    Storage::Synchronization::SynchronizationPackage &package,
+    NotUpdatedSourceIds &notUpdatedSourceIds,
+    std::map<SourceId, SmallSourceIds<16>> &updatedSourceIdsDictonary)
+{
+    for (auto &[directorySourceId, updatedSourceIds] : updatedSourceIdsDictonary) {
+        auto directoryState = fileState(directorySourceId, package, notUpdatedSourceIds);
+
+        if (directoryState != FileState::NotChanged) {
+            auto existingTypeAnnotationSourceIds = m_projectStorage.typeAnnotationSourceIds(
+                directorySourceId);
+
+            std::sort(updatedSourceIds.begin(), updatedSourceIds.end());
+
+            auto changedSourceIds = mergedSourceIds(existingTypeAnnotationSourceIds, updatedSourceIds);
+            package.updatedTypeAnnotationSourceIds.insert(package.updatedTypeAnnotationSourceIds.end(),
+                                                          changedSourceIds.begin(),
+                                                          changedSourceIds.end());
+        } else {
+            package.updatedTypeAnnotationSourceIds.insert(package.updatedTypeAnnotationSourceIds.end(),
+                                                          updatedSourceIds.begin(),
+                                                          updatedSourceIds.end());
+        }
+    }
+}
+
+namespace {
+QString contentFromFile(const QString &path)
+{
+    QFile file{path};
+    if (file.open(QIODevice::ReadOnly))
+        return QString::fromUtf8(file.readAll());
+
+    return {};
+}
+} // namespace
+
+void ProjectStorageUpdater::updateTypeAnnotation(const QString &directoryPath,
+                                                 const QString &filePath,
+                                                 SourceId sourceId,
+                                                 SourceId directorySourceId,
+                                                 Storage::Synchronization::SynchronizationPackage &package)
+{
+    NanotraceHR::Tracer tracer{"update type annotation path"_t,
+                               category(),
+                               keyValue("path", filePath),
+                               keyValue("directory path", directoryPath)};
+
+    Storage::TypeAnnotationReader reader{m_projectStorage};
+
+    auto annotations = reader.parseTypeAnnotation(contentFromFile(filePath),
+                                                  directoryPath,
+                                                  sourceId,
+                                                  directorySourceId);
+    auto &typeAnnotations = package.typeAnnotations;
+    package.typeAnnotations.insert(typeAnnotations.end(),
+                                   std::make_move_iterator(annotations.begin()),
+                                   std::make_move_iterator(annotations.end()));
 }
 
 void ProjectStorageUpdater::updatePropertyEditorPath(
@@ -752,6 +877,7 @@ void ProjectStorageUpdater::parseProjectDatas(const Storage::Synchronization::Pr
             watchedSourceIds.qmlSourceIds.push_back(projectData.sourceId);
 
             parseQmlComponent(projectData.sourceId, package, notUpdatedSourceIds);
+            break;
         }
         }
     }

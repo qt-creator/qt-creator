@@ -51,6 +51,8 @@ using SourceContextIds = std::vector<SourceContextId>;
 
 using SourceId = Sqlite::BasicId<BasicIdType::Source, int>;
 using SourceIds = std::vector<SourceId>;
+template<std::size_t size>
+using SmallSourceIds = QVarLengthArray<SourceId, size>;
 
 using ModuleId = Sqlite::BasicId<BasicIdType::Module, int>;
 using ModuleIds = std::vector<ModuleId>;

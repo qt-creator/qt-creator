@@ -9,6 +9,8 @@
 #include "../mocks/qmldocumentparsermock.h"
 #include "../mocks/qmltypesparsermock.h"
 
+#include <projectstorage-matcher.h>
+
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/projectstorageupdater.h>
@@ -120,7 +122,8 @@ MATCHER(PackageIsEmpty, std::string(negation ? "isn't empty" : "is empty"))
            && package.moduleDependencies.empty() && package.updatedModuleDependencySourceIds.empty()
            && package.moduleExportedImports.empty() && package.updatedModuleIds.empty()
            && package.propertyEditorQmlPaths.empty()
-           && package.updatedPropertyEditorQmlPathSourceIds.empty();
+           && package.updatedPropertyEditorQmlPathSourceIds.empty()
+           && package.typeAnnotations.empty() && package.updatedTypeAnnotationSourceIds.empty();
 }
 
 template<typename ModuleIdMatcher, typename TypeNameMatcher, typename SourceIdMatcher>
@@ -168,7 +171,8 @@ public:
                              secondSourceId,
                              thirdSourceId,
                              qmltypes1SourceId,
-                             qmltypes2SourceId});
+                             qmltypes2SourceId,
+                             itemLibraryPathSourceId});
 
         setFilesAdded({qmldir1SourceId, qmldir2SourceId, qmldir3SourceId});
 
@@ -298,6 +302,8 @@ public:
         EXPECT_CALL(fileSystemMock, contentAsQString(Eq(path))).WillRepeatedly(Return(content));
     }
 
+    auto moduleId(Utils::SmallStringView name) const { return storage.moduleId(name); }
+
 protected:
     NiceMock<FileSystemMock> fileSystemMock;
     NiceMock<ProjectStorageMock> projectStorageMock;
@@ -328,6 +334,13 @@ protected:
     SourceId qmlDocumentSourceId1 = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First2.qml");
     SourceId qmlDocumentSourceId3 = sourcePathCache.sourceId("/path/Second.qml");
+    const QString itemLibraryPath = QDir::cleanPath(
+        UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/itemLibrary/");
+    const QString qmlImportsPath = QDir::cleanPath(UNITTEST_DIR "/projectstorage/data/qml");
+    SourceId itemLibraryPathSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/."});
+    SourceId qmlImportsPathSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{qmlImportsPath + "/."});
     ModuleId qmlModuleId{storage.moduleId("Qml")};
     ModuleId qmlCppNativeModuleId{storage.moduleId("Qml-cppnative")};
     ModuleId exampleModuleId{storage.moduleId("Example")};
@@ -410,7 +423,7 @@ TEST_F(ProjectStorageUpdater, get_content_for_qml_dir_paths_if_file_status_is_di
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/qmldir"))));
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/qmldir"))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, request_file_status_from_file_system)
@@ -419,7 +432,7 @@ TEST_F(ProjectStorageUpdater, request_file_status_from_file_system)
 
     EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, get_content_for_qml_types)
@@ -431,7 +444,7 @@ TEST_F(ProjectStorageUpdater, get_content_for_qml_types)
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, get_content_for_qml_types_if_project_storage_file_status_is_invalid)
@@ -444,7 +457,7 @@ TEST_F(ProjectStorageUpdater, get_content_for_qml_types_if_project_storage_file_
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, parse_qml_types)
@@ -463,7 +476,7 @@ TEST_F(ProjectStorageUpdater, parse_qml_types)
     EXPECT_CALL(qmlTypesParserMock,
                 parse(qmltypes2, _, _, Field(&ProjectData::moduleId, exampleCppNativeModuleId)));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
@@ -472,7 +485,7 @@ TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_types)
@@ -507,7 +520,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types)
                           Field(&SynchronizationPackage::updatedProjectSourceIds,
                                 UnorderedElementsAre(directoryPathSourceId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_types_throws_if_qmltpes_does_not_exists)
@@ -515,7 +528,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types_throws_if_qmltpes_does_not_e
     Storage::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
     setFilesDontExists({qmltypesPathSourceId});
 
-    ASSERT_THROW(updater.update(directories, {}, {}), QmlDesigner::CannotParseQmlTypesFile);
+    ASSERT_THROW(updater.update(directories, {}, {}, {}), QmlDesigner::CannotParseQmlTypesFile);
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_types_are_empty_if_file_does_not_changed)
@@ -528,7 +541,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types_are_empty_if_file_does_not_c
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, get_content_for_qml_documents)
@@ -549,7 +562,7 @@ TEST_F(ProjectStorageUpdater, get_content_for_qml_documents)
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/OldSecond.qml"))));
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/Second.qml"))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, parse_qml_documents)
@@ -570,7 +583,7 @@ TEST_F(ProjectStorageUpdater, parse_qml_documents)
     EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _));
     EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, parse_qml_documents_with_non_existing_qml_document_throws)
@@ -579,7 +592,7 @@ TEST_F(ProjectStorageUpdater, parse_qml_documents_with_non_existing_qml_document
                       NonexitingType 1.0 NonexitingType.qml)"};
     setContent(u"/path/qmldir", qmldir);
 
-    ASSERT_THROW(updater.update(directories, {}, {}), QmlDesigner::CannotParseQmlDocumentFile);
+    ASSERT_THROW(updater.update(directories, {}, {}, {}), QmlDesigner::CannotParseQmlDocumentFile);
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
@@ -652,7 +665,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_add_only_qml_document_in_directory)
@@ -708,7 +721,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_only_qml_document_in_directory)
                                                              ModuleId{},
                                                              FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document)
@@ -771,7 +784,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document)
                                                              ModuleId{},
                                                              FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document_in_qmldir_only)
@@ -826,7 +839,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document_in_qmldir_only)
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_add_qml_document_to_qmldir)
@@ -884,7 +897,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_qml_document_to_qmldir)
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_remove_qml_document_from_qmldir)
@@ -939,7 +952,7 @@ TEST_F(ProjectStorageUpdater, synchronize_remove_qml_document_from_qmldir)
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_dont_update_if_up_to_date)
@@ -1009,7 +1022,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_dont_update_if_up_to_dat
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_not_changed)
@@ -1060,7 +1073,7 @@ TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_not_changed)
                                        qmlDocumentSourceId2)),
             Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_not_changed_and_some_updated_files)
@@ -1095,7 +1108,7 @@ TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_not_changed_and_some
                         UnorderedElementsAre(qmltypesPathSourceId, qmlDocumentSourceId1)),
                   Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_not_changed_and_some_removed_files)
@@ -1110,7 +1123,7 @@ TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_not_changed_and_some_rem
     setFilesDontChanged({qmlDirPathSourceId, qmltypes2PathSourceId, qmlDocumentSourceId2});
     setFilesRemoved({qmltypesPathSourceId, qmlDocumentSourceId1});
 
-    ASSERT_THROW(updater.update(directories, {}, {}), QmlDesigner::CannotParseQmlTypesFile);
+    ASSERT_THROW(updater.update(directories, {}, {}, {}), QmlDesigner::CannotParseQmlTypesFile);
 }
 
 TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_changed_and_some_removed_files)
@@ -1162,7 +1175,7 @@ TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_changed_and_some_rem
                                                      exampleCppNativeModuleId,
                                                      FileType::QmlTypes))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_qml_types_files_is_empty)
@@ -1177,7 +1190,7 @@ TEST_F(ProjectStorageUpdater, update_qml_types_files_is_empty)
                           Field(&SynchronizationPackage::projectDatas, IsEmpty()),
                           Field(&SynchronizationPackage::updatedProjectSourceIds, IsEmpty()))));
 
-    updater.update({}, {}, {});
+    updater.update({}, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_qml_types_files)
@@ -1205,7 +1218,7 @@ TEST_F(ProjectStorageUpdater, update_qml_types_files)
                     Field(&SynchronizationPackage::updatedProjectSourceIds,
                           UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
-    updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {});
+    updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, dont_update_qml_types_files_if_unchanged)
@@ -1230,7 +1243,7 @@ TEST_F(ProjectStorageUpdater, dont_update_qml_types_files_if_unchanged)
                           Field(&SynchronizationPackage::updatedProjectSourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId)))));
 
-    updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {});
+    updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_version_but_same_type_name_and_file_name)
@@ -1273,7 +1286,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_version_b
                                                                    ModuleId{},
                                                                    FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_type_name_but_same_version_and_file_name)
@@ -1314,7 +1327,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_type_name
                                                                    ModuleId{},
                                                                    FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, dont_synchronize_selectors)
@@ -1332,7 +1345,7 @@ TEST_F(ProjectStorageUpdater, dont_synchronize_selectors)
                     Contains(Field(&Storage::Synchronization::Type::exportedTypes,
                                    Contains(IsExportedType(exampleModuleId, "FirstType", 1, 0))))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies)
@@ -1357,7 +1370,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies)
             Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                   UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_double_entries)
@@ -1383,7 +1396,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_double_entrie
             Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                   UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_colliding_imports)
@@ -1409,7 +1422,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_colliding_imp
             Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                   UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_dependencies)
@@ -1426,7 +1439,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_dependencies)
                           Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports)
@@ -1468,7 +1481,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports)
                           Field(&SynchronizationPackage::updatedModuleIds,
                                 ElementsAre(exampleModuleId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_imports)
@@ -1482,7 +1495,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_imports)
                                   Field(&SynchronizationPackage::updatedModuleIds,
                                         ElementsAre(exampleModuleId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports_with_double_entries)
@@ -1525,7 +1538,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports_with_double_entries)
                           Field(&SynchronizationPackage::updatedModuleIds,
                                 ElementsAre(exampleModuleId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qmldir_optional_imports)
@@ -1567,7 +1580,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qmldir_optional_imports)
                           Field(&SynchronizationPackage::updatedModuleIds,
                                 ElementsAre(exampleModuleId)))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_directories)
@@ -1577,7 +1590,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_directories)
                                                QmlDesigner::SourceType::Directory,
                                                {path1SourceId, path2SourceId, path3SourceId}})));
 
-    updater.update(directories3, {}, {});
+    updater.update(directories3, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_directory_does_not_exists)
@@ -1589,7 +1602,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_directory_does_not_exists)
                                                QmlDesigner::SourceType::Directory,
                                                {path1SourceId, path3SourceId}})));
 
-    updater.update(directories3, {}, {});
+    updater.update(directories3, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_directory_does_not_changed)
@@ -1601,7 +1614,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_directory_does_not_changed)
                                                QmlDesigner::SourceType::Directory,
                                                {path1SourceId, path2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_directory_removed)
@@ -1612,7 +1625,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_directory_removed)
                 updateIdPaths(Contains(
                     IdPaths{projectPartId, QmlDesigner::SourceType::Directory, {path2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmldirs)
@@ -1622,7 +1635,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmldirs)
                                                QmlDesigner::SourceType::QmlDir,
                                                {qmldir1SourceId, qmldir2SourceId, qmldir3SourceId}})));
 
-    updater.update(directories3, {}, {});
+    updater.update(directories3, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_does_not_exists)
@@ -1634,7 +1647,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_does_not_exists)
                                                QmlDesigner::SourceType::QmlDir,
                                                {qmldir1SourceId, qmldir3SourceId}})));
 
-    updater.update(directories3, {}, {});
+    updater.update(directories3, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_does_not_changed)
@@ -1646,7 +1659,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_does_not_changed)
                                                QmlDesigner::SourceType::QmlDir,
                                                {qmldir1SourceId, qmldir2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_removed)
@@ -1657,7 +1670,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmldir_removed)
                 updateIdPaths(Contains(
                     IdPaths{projectPartId, QmlDesigner::SourceType::QmlDir, {qmldir2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qml_files)
@@ -1674,7 +1687,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qml_files)
                                                QmlDesigner::SourceType::Qml,
                                                {firstSourceId, secondSourceId, thirdSourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_only_qml_files_dont_changed)
@@ -1692,7 +1705,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_only_qml_files_dont_changed)
                                                QmlDesigner::SourceType::Qml,
                                                {firstSourceId, secondSourceId, thirdSourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_only_qml_files_changed)
@@ -1710,7 +1723,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_only_qml_files_changed)
                                                QmlDesigner::SourceType::Qml,
                                                {firstSourceId, secondSourceId, thirdSourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qml_files_and_directories_dont_changed)
@@ -1733,7 +1746,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qml_files_and_directories_dont
                                                QmlDesigner::SourceType::Qml,
                                                {firstSourceId, secondSourceId, thirdSourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmltypes_files_in_qmldir)
@@ -1752,7 +1765,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmltypes_files_in_qmldir)
                                                QmlDesigner::SourceType::QmlTypes,
                                                {qmltypes1SourceId, qmltypes2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_only_qmltypes_files_in_qmldir_dont_changed)
@@ -1770,7 +1783,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_only_qmltypes_files_in_qmldir_
                                                QmlDesigner::SourceType::QmlTypes,
                                                {qmltypes1SourceId, qmltypes2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_only_qmltypes_files_changed)
@@ -1787,7 +1800,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_only_qmltypes_files_changed)
                                                QmlDesigner::SourceType::QmlTypes,
                                                {qmltypes1SourceId, qmltypes2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_qmltypes_files_and_directories_dont_changed)
@@ -1808,7 +1821,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_qmltypes_files_and_directories
                                                QmlDesigner::SourceType::QmlTypes,
                                                {qmltypes1SourceId, qmltypes2SourceId}})));
 
-    updater.update(directories2, {}, {});
+    updater.update(directories2, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_builtin_qmltypes_files)
@@ -1823,7 +1836,7 @@ TEST_F(ProjectStorageUpdater, update_path_watcher_builtin_qmltypes_files)
                                                QmlDesigner::SourceType::QmlTypes,
                                                {qmltypes1SourceId, qmltypes2SourceId}})));
 
-    updater.update({}, {builtinQmltyplesPath1, builtinQmltyplesPath2}, {});
+    updater.update({}, {builtinQmltyplesPath1, builtinQmltyplesPath2}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir)
@@ -1890,7 +1903,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir)
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if_qml_document_does_not_exists)
@@ -1898,7 +1911,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if
     setFilesDontExists({qmlDirPathSourceId, qmlDocumentSourceId1});
     setFilesAdded({directoryPathSourceId});
 
-    ASSERT_THROW(updater.update(directories, {}, {}), QmlDesigner::CannotParseQmlDocumentFile);
+    ASSERT_THROW(updater.update(directories, {}, {}, {}), QmlDesigner::CannotParseQmlDocumentFile);
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if_directory_does_not_exists)
@@ -1928,7 +1941,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if
                                         UnorderedElementsAre(directoryPathSourceId)),
                                   Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_add_qml_document)
@@ -1977,7 +1990,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_add_qml_d
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_removes_qml_document)
@@ -2016,7 +2029,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_removes_q
                                                                    ModuleId{},
                                                                    FileType::QmlDocument))))));
 
-    updater.update(directories, {}, {});
+    updater.update(directories, {}, {}, {});
 }
 
 TEST_F(ProjectStorageUpdater, watcher_updates_directories)
@@ -3475,7 +3488,7 @@ TEST_F(ProjectStorageUpdater, update_property_editor_panes)
                           Field(&SynchronizationPackage::updatedPropertyEditorQmlPathSourceIds,
                                 ElementsAre(directoryId)))));
 
-    updater.update({}, {}, propertyEditorQmlPath);
+    updater.update({}, {}, propertyEditorQmlPath, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
@@ -3500,12 +3513,12 @@ TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
                           Field(&SynchronizationPackage::updatedPropertyEditorQmlPathSourceIds,
                                 ElementsAre(directoryId)))));
 
-    updater.update({}, {}, propertyEditorQmlPath);
+    updater.update({}, {}, propertyEditorQmlPath, {});
 }
 
 TEST_F(ProjectStorageUpdater, update_property_editor_panes_is_empty_if_directory_has_not_changed)
 {
-    updater.update({}, {}, propertyEditorQmlPath);
+    updater.update({}, {}, propertyEditorQmlPath, {});
     ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
         return FileStatus{sourceId, 1, 21};
     });
@@ -3515,7 +3528,135 @@ TEST_F(ProjectStorageUpdater, update_property_editor_panes_is_empty_if_directory
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update({}, {}, propertyEditorQmlPath);
+    updater.update({}, {}, propertyEditorQmlPath, {});
+}
+
+TEST_F(ProjectStorageUpdater, update_type_annotations)
+{
+    auto itemSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
+    auto buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
+    setFilesChanged({itemLibraryPathSourceId, itemSourceId, buttonSourceId});
+    auto qtQuickModuleId = moduleId("QtQuick");
+    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic");
+    QmlDesigner::Storage::TypeTraits itemTraits;
+    itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(&SynchronizationPackage::typeAnnotations,
+                                        IsSupersetOf({IsTypeAnnotation(itemSourceId,
+                                                                       itemLibraryPathSourceId,
+                                                                       "Item",
+                                                                       qtQuickModuleId,
+                                                                       StartsWith(itemLibraryPath),
+                                                                       _,
+                                                                       _,
+                                                                       _),
+                                                      IsTypeAnnotation(buttonSourceId,
+                                                                       itemLibraryPathSourceId,
+                                                                       "Button",
+                                                                       qtQuickControlsModuleId,
+                                                                       StartsWith(itemLibraryPath),
+                                                                       _,
+                                                                       _,
+                                                                       _)})),
+                                  Field(&SynchronizationPackage::updatedTypeAnnotationSourceIds,
+                                        IsSupersetOf({itemSourceId, buttonSourceId})))));
+
+    updater.update({}, {}, {}, {itemLibraryPath});
+}
+
+TEST_F(ProjectStorageUpdater, update_changed_type_annotation)
+{
+    auto itemSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
+    auto buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
+    setFilesDontChanged({itemLibraryPathSourceId});
+    setFilesChanged({itemSourceId, buttonSourceId});
+    auto qtQuickModuleId = moduleId("QtQuick");
+    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic");
+    QmlDesigner::Storage::TypeTraits itemTraits;
+    itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(&SynchronizationPackage::typeAnnotations,
+                                        IsSupersetOf({IsTypeAnnotation(itemSourceId,
+                                                                       itemLibraryPathSourceId,
+                                                                       "Item",
+                                                                       qtQuickModuleId,
+                                                                       StartsWith(itemLibraryPath),
+                                                                       _,
+                                                                       _,
+                                                                       _),
+                                                      IsTypeAnnotation(buttonSourceId,
+                                                                       itemLibraryPathSourceId,
+                                                                       "Button",
+                                                                       qtQuickControlsModuleId,
+                                                                       StartsWith(itemLibraryPath),
+                                                                       _,
+                                                                       _,
+                                                                       _)})),
+                                  Field(&SynchronizationPackage::updatedTypeAnnotationSourceIds,
+                                        IsSupersetOf({itemSourceId, buttonSourceId})))));
+
+    updater.update({}, {}, {}, {itemLibraryPath});
+}
+
+TEST_F(ProjectStorageUpdater, update_type_annotations_removed_meta_info_file)
+{
+    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
+        return FileStatus{sourceId, 1, 21};
+    });
+    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
+        return FileStatus{sourceId, 1, 21};
+    });
+    auto itemSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
+    auto buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
+    ON_CALL(projectStorageMock, typeAnnotationDirectorySourceIds())
+        .WillByDefault(Return(QmlDesigner::SmallSourceIds<64>{itemLibraryPathSourceId}));
+    ON_CALL(projectStorageMock, typeAnnotationSourceIds(itemLibraryPathSourceId))
+        .WillByDefault(Return(QmlDesigner::SmallSourceIds<4>{itemSourceId, buttonSourceId}));
+    setFilesChanged({itemLibraryPathSourceId});
+    setFilesDontChanged({itemSourceId, buttonSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(&SynchronizationPackage::typeAnnotations, IsEmpty()),
+                                  Field(&SynchronizationPackage::updatedTypeAnnotationSourceIds,
+                                        IsSupersetOf({itemSourceId, buttonSourceId})))));
+
+    updater.update({}, {}, {}, {itemLibraryPath});
+}
+
+TEST_F(ProjectStorageUpdater, update_type_annotations_removed_directory)
+{
+    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
+        return FileStatus{sourceId, 1, 21};
+    });
+    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
+        return FileStatus{sourceId, 1, 21};
+    });
+    auto itemSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
+    auto buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
+    ON_CALL(projectStorageMock, typeAnnotationDirectorySourceIds())
+        .WillByDefault(Return(QmlDesigner::SmallSourceIds<64>{
+            itemLibraryPathSourceId,
+        }));
+    ON_CALL(projectStorageMock, typeAnnotationSourceIds(itemLibraryPathSourceId))
+        .WillByDefault(Return(QmlDesigner::SmallSourceIds<4>{itemSourceId, buttonSourceId}));
+    setFilesDontExists({itemLibraryPathSourceId, buttonSourceId, itemSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(&SynchronizationPackage::typeAnnotations, IsEmpty()),
+                                  Field(&SynchronizationPackage::updatedTypeAnnotationSourceIds,
+                                        IsSupersetOf({buttonSourceId, itemSourceId})))));
+
+    updater.update({}, {}, {}, {itemLibraryPath});
 }
 
 } // namespace

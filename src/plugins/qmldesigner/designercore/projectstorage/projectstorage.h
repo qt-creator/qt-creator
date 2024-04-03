@@ -484,6 +484,34 @@ public:
         return typeHints;
     }
 
+    SmallSourceIds<4> typeAnnotationSourceIds(SourceId directoryId) const override
+    {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get type annotaion source ids"_t,
+                                   projectStorageCategory(),
+                                   keyValue("source id", directoryId)};
+
+        auto sourceIds = selectTypeAnnotationSourceIdsStatement
+                             .template valuesWithTransaction<SmallSourceIds<4>>(directoryId);
+
+        tracer.end(keyValue("source ids", sourceIds));
+
+        return sourceIds;
+    }
+
+    SmallSourceIds<64> typeAnnotationDirectorySourceIds() const override
+    {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get type annotaion source ids"_t, projectStorageCategory()};
+
+        auto sourceIds = selectTypeAnnotationDirectorySourceIdsStatement
+                             .template valuesWithTransaction<SmallSourceIds<64>>();
+
+        tracer.end(keyValue("source ids", sourceIds));
+
+        return sourceIds;
+    }
+
     Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const override
     {
         using NanotraceHR::keyValue;
@@ -512,6 +540,40 @@ public:
         };
 
         selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, typeId);
+
+        tracer.end(keyValue("item library entries", entries));
+
+        return entries;
+    }
+
+    Storage::Info::ItemLibraryEntries itemLibraryEntries(ImportId importId) const
+    {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get item library entries  by import id"_t,
+                                   projectStorageCategory(),
+                                   keyValue("import id", importId)};
+
+        using Storage::Info::ItemLibraryProperties;
+        Storage::Info::ItemLibraryEntries entries;
+
+        auto callback = [&](TypeId typeId_,
+                            Utils::SmallStringView name,
+                            Utils::SmallStringView iconPath,
+                            Utils::SmallStringView category,
+                            Utils::SmallStringView import,
+                            Utils::SmallStringView toolTip,
+                            Utils::SmallStringView properties,
+                            Utils::SmallStringView extraFilePaths,
+                            Utils::SmallStringView templatePath) {
+            auto &last = entries.emplace_back(
+                typeId_, name, iconPath, category, import, toolTip, templatePath);
+            if (properties.size())
+                selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            if (extraFilePaths.size())
+                selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+        };
+
+        selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, importId);
 
         tracer.end(keyValue("item library entries", entries));
 
@@ -1479,6 +1541,28 @@ private:
             annotation.typeId = fetchTypeIdByModuleIdAndExportedName(annotation.moduleId,
                                                                      annotation.typeName);
         }
+
+        for (auto &annotation : typeAnnotations) {
+            if (!annotation.typeId)
+                qWarning() << moduleName(annotation.moduleId).toQString()
+                           << annotation.typeName.toQString();
+        }
+
+        typeAnnotations.erase(std::remove_if(typeAnnotations.begin(),
+                                             typeAnnotations.end(),
+                                             [](const auto &annotation) {
+                                                 return !annotation.typeId;
+                                             }),
+                              typeAnnotations.end());
+    }
+
+    template<typename Value>
+    static Sqlite::ValueView createEmptyAsNull(const Value &value)
+    {
+        if (value.size())
+            return Sqlite::ValueView::create(value);
+
+        return Sqlite::ValueView{};
     }
 
     void synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
@@ -1512,9 +1596,10 @@ private:
 
             insertTypeAnnotationStatement.write(annotation.typeId,
                                                 annotation.sourceId,
+                                                annotation.directorySourceId,
                                                 annotation.iconPath,
-                                                annotation.itemLibraryJson,
-                                                annotation.hintsJson);
+                                                createEmptyAsNull(annotation.itemLibraryJson),
+                                                createEmptyAsNull(annotation.hintsJson));
         };
 
         auto update = [&](const TypeAnnotationView &annotationFromDatabase,
@@ -1533,8 +1618,8 @@ private:
 
                 updateTypeAnnotationStatement.write(annotation.typeId,
                                                     annotation.iconPath,
-                                                    annotation.itemLibraryJson,
-                                                    annotation.hintsJson);
+                                                    createEmptyAsNull(annotation.itemLibraryJson),
+                                                    createEmptyAsNull(annotation.hintsJson));
                 return Sqlite::UpdateChange::Update;
             }
 
@@ -4285,11 +4370,15 @@ private:
                                                  Sqlite::StrictColumnType::Integer,
                                                  {Sqlite::PrimaryKey{}});
             auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
+            auto &directorySourceIdColumn = table.addColumn("directorySourceId",
+                                                            Sqlite::StrictColumnType::Integer);
+
             table.addColumn("iconPath", Sqlite::StrictColumnType::Text);
             table.addColumn("itemLibrary", Sqlite::StrictColumnType::Text);
             table.addColumn("hints", Sqlite::StrictColumnType::Text);
 
             table.addUniqueIndex({sourceIdColumn, typeIdColumn});
+            table.addIndex({directorySourceIdColumn});
 
             table.initialize(database);
         }
@@ -4926,9 +5015,10 @@ public:
         "SELECT typeId, iconPath, itemLibrary, hints FROM typeAnnotations WHERE "
         "sourceId IN carray(?1) ORDER BY typeId",
         database};
-    WriteStatement<5> insertTypeAnnotationStatement{
-        "INSERT INTO typeAnnotations(typeId, sourceId, iconPath, itemLibrary, hints) VALUES(?1, "
-        "?2, ?3, ?4, ?5)",
+    WriteStatement<6> insertTypeAnnotationStatement{
+        "INSERT INTO "
+        "  typeAnnotations(typeId, sourceId, directorySourceId, iconPath, itemLibrary, hints) "
+        "VALUES(?1, ?2, ?3, ?4, ?5, ?6)",
         database};
     WriteStatement<4> updateTypeAnnotationStatement{
         "UPDATE typeAnnotations SET iconPath=?2, itemLibrary=?3, hints=?4 WHERE typeId=?1", database};
@@ -4939,28 +5029,35 @@ public:
     mutable ReadStatement<2, 1> selectTypeHintsStatement{
         "SELECT hints.key, hints.value "
         "FROM typeAnnotations, json_each(typeAnnotations.hints) AS hints "
-        "WHERE typeId=?1",
+        "WHERE typeId=?1 AND hints IS NOT NULL",
         database};
+    mutable ReadStatement<1, 1> selectTypeAnnotationSourceIdsStatement{
+        "SELECT sourceId FROM typeAnnotations WHERE directorySourceId=?1 ORDER BY sourceId", database};
+    mutable ReadStatement<1, 0> selectTypeAnnotationDirectorySourceIdsStatement{
+        "SELECT DISTINCT directorySourceId FROM typeAnnotations ORDER BY directorySourceId", database};
     mutable ReadStatement<9> selectItemLibraryEntriesStatement{
         "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
         "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
         "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
-        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i",
+        "FROM typeAnnotations AS ta , json_each(ta.itemLibrary) AS i "
+        "WHERE ta.itemLibrary IS NOT NULL",
         database};
     mutable ReadStatement<9, 1> selectItemLibraryEntriesByTypeIdStatement{
         "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
         "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
         "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
-        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i "
-        "WHERE typeId=?1",
+        "FROM typeAnnotations AS ta, json_each(ta.itemLibrary) AS i "
+        "WHERE typeId=?1 AND ta.itemLibrary IS NOT NULL",
         database};
     mutable ReadStatement<9, 1> selectItemLibraryEntriesBySourceIdStatement{
-        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', "
+        "i.value->>'$.category', "
         "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
         "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
         "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i "
         "WHERE typeId IN (SELECT DISTINCT typeId "
-        "                 FROM documentImports AS di JOIN exportedTypeNames USING(moduleId) "
+        "                 FROM documentImports AS di JOIN exportedTypeNames "
+        "                   USING(moduleId) "
         "                 WHERE di.sourceId=?)",
         database};
     mutable ReadStatement<3, 1> selectItemLibraryPropertiesStatement{

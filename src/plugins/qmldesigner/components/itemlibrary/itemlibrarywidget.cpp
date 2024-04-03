@@ -333,9 +333,7 @@ void ItemLibraryWidget::updateModel()
         m_compressionTimer.stop();
     }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    m_itemLibraryModel->update(m_itemLibraryInfo.data(), m_model.data());
-#endif
+    m_itemLibraryModel->update(m_model.data());
 
     if (m_itemLibraryModel->rowCount() == 0 && !m_updateRetry) {
         m_updateRetry = true; // Only retry once to avoid endless loops

@@ -356,6 +356,14 @@ public:
         return false;
     }
 
+    bool startsWith(QStringView subStringToSearch) const noexcept
+    {
+        if (size() >= Utils::usize(subStringToSearch))
+            return subStringToSearch == QLatin1StringView{data(), subStringToSearch.size()};
+
+        return false;
+    }
+
     bool startsWith(char characterToSearch) const noexcept
     {
         return data()[0] == characterToSearch;

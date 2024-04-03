@@ -1202,10 +1202,13 @@ using ProjectDatas = std::vector<ProjectData>;
 class TypeAnnotation
 {
 public:
-    TypeAnnotation(SourceId sourceId)
+    TypeAnnotation(SourceId sourceId, SourceId directorySourceId)
         : sourceId{sourceId}
+        , directorySourceId{directorySourceId}
     {}
+
     TypeAnnotation(SourceId sourceId,
+                   SourceId directorySourceId,
                    Utils::SmallStringView typeName,
                    ModuleId moduleId,
                    Utils::SmallStringView iconPath,
@@ -1219,6 +1222,7 @@ public:
         , sourceId{sourceId}
         , moduleId{moduleId}
         , traits{traits}
+        , directorySourceId{directorySourceId}
     {}
 
     template<typename String>
@@ -1247,6 +1251,7 @@ public:
     SourceId sourceId;
     ModuleId moduleId;
     TypeTraits traits;
+    SourceId directorySourceId;
 };
 
 using TypeAnnotations = std::vector<TypeAnnotation>;

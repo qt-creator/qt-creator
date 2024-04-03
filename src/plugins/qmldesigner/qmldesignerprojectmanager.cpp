@@ -490,6 +490,11 @@ QString propertyEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
+QString qtCreatorItemLibraryPath()
+{
+    return Core::ICore::resourcePath("qmldesigner/itemLibrary").toString();
+}
+
 } // namespace
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
@@ -626,11 +631,13 @@ void QmlDesignerProjectManager::update()
     if constexpr (isUsingQmlDesignerLite()) {
         m_projectData->projectStorageData->updater.update(directoriesForLiteDesigner(),
                                                           qmlTypesForLiteDesigner(),
-                                                          propertyEditorResourcesPath());
+                                                          propertyEditorResourcesPath(),
+                                                          {qtCreatorItemLibraryPath()});
     } else {
         m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
                                                           qmlTypes(m_projectData->activeTarget),
-                                                          propertyEditorResourcesPath());
+                                                          propertyEditorResourcesPath(),
+                                                          {qtCreatorItemLibraryPath()});
     }
 }
 
