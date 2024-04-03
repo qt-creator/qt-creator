@@ -118,9 +118,9 @@ void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
 
 ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     : m_itemIconSize(24, 24)
-    , m_itemLibraryModel(new ItemLibraryModel(this))
-    , m_addModuleModel(new ItemLibraryAddImportModel(this))
-    , m_itemsWidget(new StudioQuickWidget(this))
+    , m_itemLibraryModel(std::make_unique<ItemLibraryModel>())
+    , m_addModuleModel(std::make_unique<ItemLibraryAddImportModel>())
+    , m_itemsWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_imageCache{imageCache}
 {
     m_compressionTimer.setInterval(1000);
@@ -146,7 +146,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_itemsWidget.data());
+    layout->addWidget(m_itemsWidget.get());
 
     updateSearch();
 
@@ -167,8 +167,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
 
     auto map = m_itemsWidget->registerPropertyMap("ItemLibraryBackend");
 
-    map->setProperties({{"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.data())},
-                        {"addModuleModel", QVariant::fromValue(m_addModuleModel.data())},
+    map->setProperties({{"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.get())},
+                        {"addModuleModel", QVariant::fromValue(m_addModuleModel.get())},
                         {"itemLibraryIconWidth", m_itemIconSize.width()},
                         {"itemLibraryIconHeight", m_itemIconSize.height()},
                         {"rootView", QVariant::fromValue(this)},
