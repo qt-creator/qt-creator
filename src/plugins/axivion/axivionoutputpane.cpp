@@ -23,6 +23,7 @@
 #include <utils/qtcassert.h>
 #include <utils/basetreeview.h>
 #include <utils/utilsicons.h>
+#include <utils/overlaywidget.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -34,6 +35,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
+#include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStackedWidget>
@@ -242,7 +244,7 @@ public:
             if (!m_id.isEmpty())
                 fetchIssueInfo(m_id);
             return true;
-        } else if (role == BaseTreeView::ItemViewEventRole) {
+        } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
             ItemViewEvent ev = value.value<ItemViewEvent>();
             if (ev.as<QContextMenuEvent>())
                 return issueListContextMenuEvent(ev);
@@ -252,8 +254,8 @@ public:
 
 private:
     const QString m_id;
-    QStringList m_data;
-    QStringList m_toolTips;
+    const QStringList m_data;
+    const QStringList m_toolTips;
     QList<LinkWithColumns> m_links;
 };
 
@@ -274,6 +276,8 @@ private:
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
+    void showNoDataOverlay();
+    void hideNoDataOverlay();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -294,6 +298,7 @@ private:
     QStringList m_userNames;
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
+    OverlayWidget *m_noDataOverlay = nullptr;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -520,6 +525,8 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
         items.append(it);
     }
     m_issuesModel->setItems(items);
+    if (items.isEmpty() && m_totalRowCount == 0)
+        showNoDataOverlay();
 }
 
 void IssuesWidget::onSearchParameterChanged()
@@ -677,6 +684,7 @@ void IssuesWidget::fetchTable()
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
+    hideNoDataOverlay();
     const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
         addIssues(dto, startRow);
     };
@@ -694,6 +702,35 @@ void IssuesWidget::onFetchRequested(int startRow, int limit)
     search.offset = startRow;
     search.limit = limit;
     fetchIssues(search);
+}
+
+void IssuesWidget::showNoDataOverlay()
+{
+    if (!m_noDataOverlay) {
+        QTC_ASSERT(m_issuesView, return);
+        m_noDataOverlay = new OverlayWidget(this);
+        m_noDataOverlay->setPaintFunction([](QWidget *that, QPainter &p, QPaintEvent *) {
+                static const QIcon icon = Icon({{":/axivion/images/nodata.png",
+                                                 Theme::IconsDisabledColor}},
+                                               Utils::Icon::Tint).icon();
+                QRect iconRect(0, 0, 32, 32);
+                iconRect.moveCenter(that->rect().center());
+                icon.paint(&p, iconRect);
+                p.save();
+                p.setPen(Utils::creatorTheme()->color(Theme::TextColorDisabled));
+                p.drawText(iconRect.bottomRight() + QPoint{10, p.fontMetrics().height() / 2 - 16},
+                           Tr::tr("No Data"));
+                p.restore();
+            });
+        m_noDataOverlay->attachToWidget(m_issuesView);
+    }
+    m_noDataOverlay->show();
+}
+
+void IssuesWidget::hideNoDataOverlay()
+{
+    if (m_noDataOverlay)
+        m_noDataOverlay->hide();
 }
 
 class AxivionOutputPane final : public IOutputPane
