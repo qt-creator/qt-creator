@@ -187,6 +187,10 @@ public:
                 propertyDeclarationId,
                 (QmlDesigner::TypeId typeId, ::Utils::SmallStringView propertyName),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
+                defaultPropertyDeclarationId,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::Type>,
                 type,
                 (QmlDesigner::TypeId typeId),

@@ -253,17 +253,15 @@ MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     });
 }
 
-MATCHER_P3(IsInfoType,
-           defaultPropertyId,
+MATCHER_P2(IsInfoType,
            sourceId,
            traits,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Info::Type{defaultPropertyId, sourceId, traits}))
+               + PrintToString(Storage::Info::Type{sourceId, traits}))
 {
     const Storage::Info::Type &type = arg;
 
-    return type.defaultPropertyId == defaultPropertyId && type.sourceId == sourceId
-           && type.traits == traits;
+    return type.sourceId == sourceId && type.traits == traits;
 }
 
 class ProjectStorage : public testing::Test
@@ -6683,12 +6681,10 @@ TEST_F(ProjectStorage, get_type)
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QQuickItem");
-    auto defaultPropertyName = storage.fetchTypeByTypeId(typeId).defaultPropertyName;
-    auto defaultPropertyId = storage.propertyDeclarationId(typeId, defaultPropertyName);
 
     auto type = storage.type(typeId);
 
-    ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId, sourceId1, TypeTraitsKind::Reference)));
+    ASSERT_THAT(type, Optional(IsInfoType(sourceId1, TypeTraitsKind::Reference)));
 }
 
 TEST_F(ProjectStorage, dont_get_type_for_invalid_id)
@@ -6699,6 +6695,58 @@ TEST_F(ProjectStorage, dont_get_type_for_invalid_id)
     auto type = storage.type(TypeId());
 
     ASSERT_THAT(type, Eq(std::nullopt));
+}
+
+TEST_F(ProjectStorage, get_default_property_declarartion_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(typeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(typeId, defaultPropertyName);
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, get_default_property_declarartion_id_in_base_type)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(baseTypeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(baseTypeId, defaultPropertyName);
+    auto typeId = fetchTypeId(sourceId3, "QAliasItem");
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, do_not_get_default_property_declarartion_id_wrong_type_in_property_chain)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].defaultPropertyName = "objects";
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(baseTypeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(baseTypeId, defaultPropertyName);
+    auto typeId = fetchTypeId(sourceId3, "QAliasItem");
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, get_invalid_default_property_declarartion_id_for_invalid_type)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto propertyId = storage.defaultPropertyDeclarationId(TypeId());
+
+    ASSERT_FALSE(propertyId);
 }
 
 TEST_F(ProjectStorage, get_common_type)

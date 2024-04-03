@@ -675,7 +675,7 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
-    return out << "(" << type.defaultPropertyId << ")";
+    return out << "(" << type.sourceId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name)

@@ -265,12 +265,14 @@ public:
 
 private:
     const Storage::Info::Type &typeData() const;
+    PropertyDeclarationId defaultPropertyDeclarationId() const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
 private:
     TypeId m_typeId;
     NotNullPointer<const ProjectStorageType> m_projectStorage = {};
     mutable std::optional<Storage::Info::Type> m_typeData;
+    mutable std::optional<PropertyDeclarationId> m_defaultPropertyId;
     std::shared_ptr<NodeMetaInfoPrivate> m_privateData;
 };
 

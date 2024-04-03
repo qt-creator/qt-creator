@@ -408,6 +408,22 @@ public:
         return propertyDeclarationId;
     }
 
+    PropertyDeclarationId defaultPropertyDeclarationId(TypeId typeId) const override
+    {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get default property declaration id"_t,
+                                   projectStorageCategory(),
+                                   keyValue("type id", typeId)};
+
+        auto propertyDeclarationId = Sqlite::withDeferredTransaction(database, [&] {
+            return fetchDefaultPropertyDeclarationId(typeId);
+        });
+
+        tracer.end(keyValue("property declaration id", propertyDeclarationId));
+
+        return propertyDeclarationId;
+    }
+
     std::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
         PropertyDeclarationId propertyDeclarationId) const override
     {
@@ -2379,17 +2395,42 @@ private:
         return PropertyDeclarationId{};
     }
 
-    PropertyDeclarationId fetchPropertyDeclarationId(TypeId baseTypeId,
+    PropertyDeclarationId fetchPropertyDeclarationId(TypeId typeId,
                                                      Utils::SmallStringView propertyName) const
     {
         auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
-                                         .template value<PropertyDeclarationId>(baseTypeId,
-                                                                                propertyName);
+                                         .template value<PropertyDeclarationId>(typeId, propertyName);
 
         if (propertyDeclarationId)
             return propertyDeclarationId;
 
-        return fetchNextPropertyDeclarationId(baseTypeId, propertyName);
+        return fetchNextPropertyDeclarationId(typeId, propertyName);
+    }
+
+    PropertyDeclarationId fetchNextDefaultPropertyDeclarationId(TypeId baseTypeId) const
+    {
+        auto range = selectPrototypeAndExtensionIdsStatement.template range<TypeId>(baseTypeId);
+
+        for (TypeId prototype : range) {
+            auto propertyDeclarationId = selectDefaultPropertyDeclarationIdStatement
+                                             .template value<PropertyDeclarationId>(prototype);
+
+            if (propertyDeclarationId)
+                return propertyDeclarationId;
+        }
+
+        return PropertyDeclarationId{};
+    }
+
+    PropertyDeclarationId fetchDefaultPropertyDeclarationId(TypeId typeId) const
+    {
+        auto propertyDeclarationId = selectDefaultPropertyDeclarationIdStatement
+                                         .template value<PropertyDeclarationId>(typeId);
+
+        if (propertyDeclarationId)
+            return propertyDeclarationId;
+
+        return fetchNextDefaultPropertyDeclarationId(typeId);
     }
 
     void synchronizePropertyDeclarationsInsertProperty(
@@ -4842,9 +4883,10 @@ public:
         "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
-    mutable ReadStatement<4, 1> selectInfoTypeByTypeIdStatement{
-        "SELECT defaultPropertyId, sourceId, traits, annotationTraits FROM types WHERE typeId=?",
-        database};
+    mutable ReadStatement<3, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT sourceId, traits, annotationTraits FROM types WHERE typeId=?", database};
+    mutable ReadStatement<1, 1> selectDefaultPropertyDeclarationIdStatement{
+        "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
     mutable ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("

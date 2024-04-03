@@ -293,8 +293,10 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
                                                       defaultPropertyTypeId);
     }
 
-    ON_CALL(*this, type(Eq(typeId)))
-        .WillByDefault(Return(Storage::Info::Type{defaultPropertyDeclarationId, sourceId, typeTraits}));
+    ON_CALL(*this, type(Eq(typeId))).WillByDefault(Return(Storage::Info::Type{sourceId, typeTraits}));
+
+    ON_CALL(*this, defaultPropertyDeclarationId(Eq(typeId)))
+        .WillByDefault(Return(defaultPropertyDeclarationId));
 
     ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
 

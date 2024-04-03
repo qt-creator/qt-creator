@@ -503,18 +503,13 @@ public:
 class Type
 {
 public:
-    Type(PropertyDeclarationId defaultPropertyId,
-         SourceId sourceId,
-         long long typeTraits,
-         long long typeAnnotationTraits)
-        : defaultPropertyId{defaultPropertyId}
-        , sourceId{sourceId}
+    Type(SourceId sourceId, long long typeTraits, long long typeAnnotationTraits)
+        : sourceId{sourceId}
         , traits{typeTraits, typeAnnotationTraits}
     {}
 
-    Type(PropertyDeclarationId defaultPropertyId, SourceId sourceId, TypeTraits traits)
-        : defaultPropertyId{defaultPropertyId}
-        , sourceId{sourceId}
+    Type(SourceId sourceId, TypeTraits traits)
+        : sourceId{sourceId}
         , traits{traits}
     {}
 
@@ -523,14 +518,11 @@ public:
     {
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("default property id", type.defaultPropertyId),
-                              keyValue("source id", type.sourceId),
-                              keyValue("traits", type.traits));
+        auto dict = dictonary(keyValue("source id", type.sourceId), keyValue("traits", type.traits));
 
         convertToString(string, dict);
     }
 
-    PropertyDeclarationId defaultPropertyId;
     SourceId sourceId;
     TypeTraits traits;
 };

@@ -1835,7 +1835,7 @@ PropertyName NodeMetaInfo::defaultPropertyName() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            if (auto name = m_projectStorage->propertyName(typeData().defaultPropertyId)) {
+            if (auto name = m_projectStorage->propertyName(defaultPropertyDeclarationId())) {
                 return name->toQByteArray();
             }
         }
@@ -1851,7 +1851,7 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            return PropertyMetaInfo(typeData().defaultPropertyId, m_projectStorage);
+            return PropertyMetaInfo(defaultPropertyDeclarationId(), m_projectStorage);
         }
     } else {
         return property(defaultPropertyName());
@@ -1862,7 +1862,7 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 bool NodeMetaInfo::hasDefaultProperty() const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(typeData().defaultPropertyId);
+        return isValid() && bool(defaultPropertyDeclarationId());
     else
         return !defaultPropertyName().isEmpty();
 }
@@ -2087,6 +2087,14 @@ const Storage::Info::Type &NodeMetaInfo::typeData() const
         m_typeData = m_projectStorage->type(m_typeId);
 
     return *m_typeData;
+}
+
+PropertyDeclarationId NodeMetaInfo::defaultPropertyDeclarationId() const
+{
+    if (!m_defaultPropertyId)
+        m_defaultPropertyId = m_projectStorage->defaultPropertyDeclarationId(m_typeId);
+
+    return *m_defaultPropertyId;
 }
 
 bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int minorVersion) const

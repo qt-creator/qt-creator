@@ -55,6 +55,7 @@ public:
     virtual PropertyDeclarationId propertyDeclarationId(TypeId typeId,
                                                         ::Utils::SmallStringView propertyName) const
         = 0;
+    virtual PropertyDeclarationId defaultPropertyDeclarationId(TypeId typeId) const = 0;
     virtual std::optional<Storage::Info::Type> type(TypeId typeId) const = 0;
     virtual Utils::PathString typeIconPath(TypeId typeId) const = 0;
     virtual Storage::Info::TypeHints typeHints(TypeId typeId) const = 0;
